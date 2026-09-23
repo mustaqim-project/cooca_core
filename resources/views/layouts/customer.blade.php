@@ -84,6 +84,9 @@
             box-shadow: 0 12px 35px -4px rgba(0, 0, 0, 0.6);
         }
     </style>
+
+    {{-- Universal Typography Hierarchy (H1 - H6 & Typographic Roles) --}}
+    @include('layouts.partials.typography')
 </head>
 
 <body

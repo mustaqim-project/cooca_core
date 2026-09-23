@@ -793,6 +793,9 @@
             }
         }
     </style>
+
+    {{-- Universal Typography Hierarchy (H1 - H6 & Typographic Roles) --}}
+    @include('layouts.partials.typography')
 </head>
 
 <body

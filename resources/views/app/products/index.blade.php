@@ -1241,7 +1241,7 @@
             <div x-show="showAddModal" x-cloak
                 class="fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-4 md:p-6 bg-black/30 backdrop-blur-md"
                 @keydown.escape.window="showAddModal = false">
-                <div class="w-full max-w-full sm:max-w-[95vw] lg:max-w-5xl xl:max-w-6xl 2xl:max-w-7xl inset-x-0 bottom-0 sm:inset-auto sm:my-auto rounded-t-[28px] sm:rounded-[24px] bg-white/95 dark:bg-[#1C1C1E]/95 backdrop-blur-2xl border border-black/[0.06] dark:border-white/[0.08] shadow-[0_25px_60px_rgba(0,0,0,0.3)] max-h-[94vh] sm:max-h-[90vh] flex flex-col overflow-hidden"
+                <div class="w-full max-w-full sm:max-w-[95vw] lg:max-w-5xl xl:max-w-6xl 2xl:max-w-[1250px] inset-x-0 bottom-0 sm:inset-auto sm:my-auto rounded-t-[28px] sm:rounded-[24px] bg-white/95 dark:bg-[#1C1C1E]/95 backdrop-blur-2xl border border-black/[0.06] dark:border-white/[0.08] shadow-[0_25px_60px_rgba(0,0,0,0.3)] max-h-[94vh] sm:max-h-[90vh] flex flex-col overflow-hidden"
                     @click.outside="showAddModal = false">
 
                     <!-- Mobile Grab Bar -->
@@ -1581,7 +1581,7 @@
             <div x-show="showEditModal" x-cloak
                 class="fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-4 md:p-6 bg-black/30 backdrop-blur-md"
                 @keydown.escape.window="showEditModal = false">
-                <div class="w-full max-w-full sm:max-w-[95vw] lg:max-w-5xl xl:max-w-6xl 2xl:max-w-7xl inset-x-0 bottom-0 sm:inset-auto sm:my-auto rounded-t-[28px] sm:rounded-[24px] bg-white/95 dark:bg-[#1C1C1E]/95 backdrop-blur-2xl border border-black/[0.06] dark:border-white/[0.08] shadow-[0_25px_60px_rgba(0,0,0,0.3)] max-h-[94vh] sm:max-h-[90vh] flex flex-col overflow-hidden"
+                <div class="w-full max-w-full sm:max-w-[95vw] lg:max-w-5xl xl:max-w-6xl 2xl:max-w-[1250px] inset-x-0 bottom-0 sm:inset-auto sm:my-auto rounded-t-[28px] sm:rounded-[24px] bg-white/95 dark:bg-[#1C1C1E]/95 backdrop-blur-2xl border border-black/[0.06] dark:border-white/[0.08] shadow-[0_25px_60px_rgba(0,0,0,0.3)] max-h-[94vh] sm:max-h-[90vh] flex flex-col overflow-hidden"
                     @click.outside="showEditModal = false">
 
                     <!-- Mobile Grab Bar -->

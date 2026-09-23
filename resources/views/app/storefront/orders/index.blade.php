@@ -5,7 +5,7 @@
 ])
 
 @section('content')
-    <div class="space-y-6 pb-28 sm:pb-32 lg:pb-10 max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+    <div class="space-y-6 pb-28 sm:pb-32 lg:pb-10 max-w-[1250px] mx-auto px-3 sm:px-6 lg:px-8">
 
         {{-- FLASH MESSAGES --}}
         @if (session('success'))

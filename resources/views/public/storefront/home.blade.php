@@ -7,7 +7,7 @@
         {{-- HERO SECTION (Theme Hero Preset Architecture)                             --}}
         {{-- ========================================================================= --}}
         <section class="relative overflow-hidden pt-8 pb-16 sm:pt-16 sm:pb-24">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-[1250px] mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
 
                     {{-- Hero Copy --}}
@@ -84,7 +84,7 @@
         {{-- CATEGORY SHORTCUT CHIPS                                                    --}}
         {{-- ========================================================================= --}}
         @if ($productCategories->isNotEmpty() && $landingPage->isPageActive('catalog'))
-            <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <section class="max-w-[1250px] mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex items-center justify-between gap-4 mb-6">
                     <div>
                         <h2 class="font-heading font-bold text-xl sm:text-2xl text-neutral-900 dark:text-white">Kategori
@@ -120,7 +120,7 @@
         {{-- FEATURED PRODUCTS GRID (Zero Modal! Dedicated Links to PDP / Instant Cart) --}}
         {{-- ========================================================================= --}}
         @if ($featuredProducts->isNotEmpty())
-            <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <section class="max-w-[1250px] mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
                     <div>
                         <div class="inline-block px-3 py-1 rounded-[8px] text-xs font-semibold theme-badge mb-2">Unggulan
@@ -216,7 +216,7 @@
         {{-- SERVICES HIGHLIGHT (If Merchant provides services)                        --}}
         {{-- ========================================================================= --}}
         @if ($services->isNotEmpty())
-            <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <section class="max-w-[1250px] mx-auto px-4 sm:px-6 lg:px-8">
                 <div
                     class="p-6 sm:p-10 rounded-theme bg-white dark:bg-neutral-800/60 border border-black/5 dark:border-white/10 shadow-sm">
                     <div class="max-w-2xl mb-8">
@@ -273,7 +273,7 @@
         @if (
             ($storeSetting?->allow_reservation || $landingPage->isPageActive('reservation')) &&
                 (!empty($posTables) && $posTables->isNotEmpty()))
-            <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <section class="max-w-[1250px] mx-auto px-4 sm:px-6 lg:px-8">
                 <div
                     class="p-6 sm:p-10 rounded-theme bg-white dark:bg-neutral-800/60 border border-black/5 dark:border-white/10 shadow-sm space-y-6">
                     <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
@@ -325,7 +325,7 @@
                 : [];
         @endphp
         @if ($landingPage->isPageActive('about') || !empty($normalizedHours))
-            <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <section class="max-w-[1250px] mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
                     <div class="{{ !empty($normalizedHours) ? 'lg:col-span-7' : 'lg:col-span-6' }} space-y-4">
                         <div class="inline-block px-3 py-1 rounded-[8px] text-xs font-semibold theme-badge">Cerita Brand
@@ -395,7 +395,7 @@
         {{-- RECENT ARTICLES TEASER (SEO Organic Content (§PRD-07 §2.A.8))             --}}
         {{-- ========================================================================= --}}
         @if ($landingPage->isPageActive('blog') && !empty($recentArticles) && count($recentArticles) > 0)
-            <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <section class="max-w-[1250px] mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex items-end justify-between gap-4 mb-6">
                     <div>
                         <div class="inline-block px-3 py-1 rounded-[8px] text-xs font-semibold theme-badge mb-2">Edukasi &

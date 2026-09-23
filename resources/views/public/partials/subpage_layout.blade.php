@@ -1,7 +1,9 @@
 @extends('layouts.public_marketing')
 
 @section('title', ($title ?? 'Solusi Bisnis') . ' - Cooca Business Operating System')
-@section('description', $description ?? 'Kelola bisnis UMKM lebih cerdas dan terintegrasi dengan COOCA Business
+@section('description',
+    $description ??
+    'Kelola bisnis UMKM lebih cerdas dan terintegrasi dengan COOCA Business
     Operating System & Omnichannel ERP.')
 
 @section('content')
@@ -20,7 +22,7 @@
                 class="absolute bottom-0 left-1/4 w-[400px] h-[400px] bg-[#00C4D8]/10 rounded-full blur-[120px] pointer-events-none -z-0">
             </div>
 
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full space-y-6">
+            <div class="max-w-[1250px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full space-y-6">
 
                 <!-- Breadcrumbs (Clean Apple HIG Hairline Nav) -->
                 <nav aria-label="Breadcrumb" class="flex items-center gap-2 text-xs text-slate-400 overflow-x-auto py-1">
@@ -171,7 +173,7 @@
 
         <!-- ═══ SUBPAGE BODY CONTENT CONTAINER ═══ -->
         <div class="py-16 sm:py-20">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16 sm:space-y-20">
+            <div class="max-w-[1250px] mx-auto px-4 sm:px-6 lg:px-8 space-y-16 sm:space-y-20">
 
                 <!-- ═══ BENTO GRID: KEMAMPUAN & FITUR UTAMA ═══ -->
                 @if (isset($features) && is_array($features) && count($features) > 0)

@@ -24,7 +24,7 @@
                 class="absolute bottom-0 left-1/4 w-[400px] h-[400px] bg-[#00C4D8]/10 rounded-full blur-[120px] pointer-events-none -z-0">
             </div>
 
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full space-y-6">
+            <div class="max-w-[1250px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full space-y-6">
 
                 <!-- Breadcrumbs -->
                 <nav aria-label="Breadcrumb" class="flex items-center gap-2 text-xs text-slate-400 overflow-x-auto py-1">
@@ -132,7 +132,7 @@
         </section>
 
         <!-- Main Directory Grid Content -->
-        <main class="relative z-10 py-12 lg:py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-12">
+        <main class="relative z-10 py-12 lg:py-16 px-4 sm:px-6 lg:px-8 max-w-[1250px] mx-auto space-y-12">
 
             <!-- Sitemap Grid by Categories (Bento Modular Cards) -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

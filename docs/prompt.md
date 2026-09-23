@@ -806,7 +806,7 @@ Tabel desktop 6–10 kolom tidak boleh dipaksakan mengecil di mobile smartphone.
 ---
 
 ### 13.6 Standar Modal Pop-Up Responsif Multi-Device (Desktop, Tablet, Mobile)
-* **Desktop (>= 1024px)**: Full Layout XXL Centered Bento Dialog (`max-w-5xl` s/d `max-w-7xl` / `max-w-[95vw] rounded-[24px]`). Memanfaatkan bentang layar secara optimal untuk layout bento multi-kolom dan tabel rincian transaksi tanpa berdesakan.
+* **Desktop (>= 1024px)**: Full Layout XXL Centered Bento Dialog (`max-w-5xl` s/d `max-w-[1250px]` / `max-w-[95vw] rounded-[24px]`). Memanfaatkan bentang layar secara optimal untuk layout bento multi-kolom dan tabel rincian transaksi tanpa berdesakan.
 * **Tablet (640px – 1023px)**: Centered Responsive Bento Modal (`max-w-3xl` s/d `max-w-4xl rounded-[22px]`). Layout 2 kolom modular seimbang, ketinggian proporsional (`max-h-[90vh]`), touch-friendly (tombol 44px–48px).
 * **Mobile (< 640px)**: **Apple Full-Responsive Bottom Sheet** meluncur dari bawah layar:
   - Lebar penuh menempel dasar: `w-full inset-x-0 bottom-0`.
@@ -967,14 +967,14 @@ Pada seluruh halaman index (Katalog Produk, Stok/Gudang, Pelanggan/CRM, Pembelia
 * **Preservasi State 100%:** Filter pencarian, filter kategori, posisi pagination, dan sorting tidak boleh hilang saat modal ditutup.
 * **Mandat Full Layout XXL (Anti-Modal Sempit):**
   - DILARANG menggunakan modal sempit (`max-w-md` atau `max-w-lg`) untuk form operasional ERP karena menyebabkan kolom berjejal dan tabel terpotong.
-  - Wajib mengadopsi **Full Layout XXL (`max-w-5xl` s/d `max-w-7xl` / `max-w-[95vw]`)** agar mampu menampung layout bento multi-kolom dan data rincian transaksi dengan leluasa.
+  - Wajib mengadopsi **Full Layout XXL (`max-w-5xl` s/d `max-w-[1250px]` / `max-w-[95vw]`)** agar mampu menampung layout bento multi-kolom dan data rincian transaksi dengan leluasa.
 
 ### 17.1 Matriks Responsivitas Modal Lintas Perangkat
 
 | Parameter Desain | Desktop (>= 1024px) | Tablet Kasir POS (640px – 1023px) | Smartphone Mobile (< 640px) |
 |---|---|---|---|
 | **Tipe Kontainer** | **Full Layout XXL Centered Bento Dialog** | **Centered Responsive Bento Modal** | **Apple Full-Responsive Bottom Sheet** meluncur dari bawah |
-| **Lebar Kontainer** | `w-full max-w-[95vw] lg:max-w-5xl xl:max-w-6xl 2xl:max-w-7xl mx-auto` | `w-full max-w-[92vw] md:max-w-3xl lg:max-w-4xl mx-auto` | `w-full max-w-full inset-x-0 bottom-0` |
+| **Lebar Kontainer** | `w-full max-w-[95vw] lg:max-w-5xl xl:max-w-6xl 2xl:max-w-[1250px] mx-auto` | `w-full max-w-[92vw] md:max-w-3xl lg:max-w-4xl mx-auto` | `w-full max-w-full inset-x-0 bottom-0` |
 | **Batas Tinggi** | `max-h-[90vh] sm:max-h-[92vh] flex flex-col my-auto` | `max-h-[90vh] flex flex-col my-auto` | `max-h-[94vh] flex flex-col` |
 | **Radius Sudut** | `rounded-[24px]` squircle kontinu Apple | `rounded-[22px]` squircle kontinu Apple | `rounded-t-[28px]` membulat di sudut atas |
 | **Indikator Grab Bar** | Tidak ada | Tidak ada | Wajib (`w-10 h-1.5 rounded-full bg-black/20 dark:bg-white/20 mx-auto my-2.5`) |
@@ -1025,7 +1025,7 @@ Pada seluruh halaman index (Katalog Produk, Stok/Gudang, Pelanggan/CRM, Pembelia
             x-transition:leave-start="translate-y-0 sm:scale-100 opacity-100"
             x-transition:leave-end="translate-y-full sm:translate-y-0 sm:scale-95 opacity-0"
             @click.outside="showModal = false"
-            class="w-full max-w-full sm:max-w-[92vw] md:max-w-3xl lg:max-w-5xl xl:max-w-6xl 2xl:max-w-7xl max-h-[94vh] sm:max-h-[90vh] flex flex-col rounded-t-[28px] sm:rounded-[24px] bg-white dark:bg-[#1C1C1E] border-t sm:border border-black/[0.08] dark:border-white/[0.12] shadow-2xl overflow-hidden">
+            class="w-full max-w-full sm:max-w-[92vw] md:max-w-3xl lg:max-w-5xl xl:max-w-6xl 2xl:max-w-[1250px] max-h-[94vh] sm:max-h-[90vh] flex flex-col rounded-t-[28px] sm:rounded-[24px] bg-white dark:bg-[#1C1C1E] border-t sm:border border-black/[0.08] dark:border-white/[0.12] shadow-2xl overflow-hidden">
             
             <!-- Mobile Grabber Bar -->
             <div class="w-10 h-1.5 rounded-full bg-black/20 dark:bg-white/20 mx-auto my-2.5 sm:hidden shrink-0"></div>

@@ -58,7 +58,7 @@ AI Agent bertindak sebagai:
 6. **Otomasi Sistem Penuh (*Total System Automation Directive*):** Mengeliminasi pekerjaan manual pengguna. Transaksi, jurnal akuntansi, pemotongan stok bahan baku (BOM), penerbitan invoice, dan notifikasi WhatsApp wajib berjalan otomatis di latar belakang.
 7. **Bento UI Lintas Perangkat:** Smartphone (360px–430px), Tablet Kasir POS (768px–1024px), dan Desktop (1280px–1920px+) wajib menggunakan konsep Bento Apple HIG yang terpadu (squircle kontinu, frosted glass vibrancy, palet semantik resmi, tipografi tabular, white space 8pt grid).
 8. **Dual-Footer Architecture:** Antarmuka smartphone/tablet dilengkapi **Full-Style Floating Bottom Navigation Bar (iOS 18)** mengambang di bawah layar (`fixed bottom-3`) dengan *Elevated Center Action Button*, sedangkan desktop memakai **Clean Minimalist Hairline Footer**.
-9. **Modal-First pada Halaman Index (Full Layout XXL & Responsif):** Seluruh aksi Show (Detail), Create (Tambah Baru), dan Edit (Ubah) disajikan dalam bentuk pop-up modal sheet berukuran **Full Layout XXL (`max-w-5xl` s/d `max-w-7xl`)** langsung di halaman index tanpa redirect (*zero navigation jumps*), menjaga filter, pencarian, dan pagination tetap utuh, dengan adaptabilitas responsif sempurna di Desktop, Tablet, dan Mobile.
+9. **Modal-First pada Halaman Index (Full Layout XXL & Responsif):** Seluruh aksi Show (Detail), Create (Tambah Baru), dan Edit (Ubah) disajikan dalam bentuk pop-up modal sheet berukuran **Full Layout XXL (`max-w-5xl` s/d `max-w-[1250px]`)** langsung di halaman index tanpa redirect (*zero navigation jumps*), menjaga filter, pencarian, dan pagination tetap utuh, dengan adaptabilitas responsif sempurna di Desktop, Tablet, dan Mobile.
 10. **Inline Quick-Add `[ + ]` pada Dropdown:** Menyediakan tombol `[ + ]` di samping dropdown master relasi yang membuka pop-up instan, menyimpan via AJAX, dan memilih opsi baru secara otomatis (*auto-select*) tanpa me-reset form utama.
 11. **Pengujian Otomatis 100% Bebas Eror:** Seluruh kode wajib dibuktikan dengan eksekusi testing otomatis nyata yang lolos 100% (0 failure, 0 error) sebelum dinyatakan selesai.
 12. **Source Code Siap Produksi & Pembersihan Data Testing:** Kode program bersih dari mock/stub/bypass, bebas fungsi debug mentah (`dd()`, `dump()`, `ray()`, `console.log()`), database dibersihkan dari record testing, dan aset terkompilasi rilis produksi.
@@ -588,14 +588,14 @@ Dirancang khusus agar dapat dioperasikan secara percaya diri oleh generasi **Boo
 * Filter pencarian, filter kategori, sorting, dan posisi pagination tetap utuh saat modal ditutup.
 * **Standar Ukuran: Wajib Full Layout XXL untuk Seluruh Operasi Utama**:
   - DILARANG menggunakan modal sempit (`max-w-md` atau `max-w-lg`) untuk form ERP, transaksi, dan master-detail karena membuat form berjejal, memicu scroll vertikal berlebihan, dan memotong tabel rincian transaksi.
-  - Seluruh modal operasional (Tambah/Ubah Produk, Pembelian, Penjualan POS, Customer CRM, Kas & Bank, Approval Langganan, Jurnal, dan Laporan) **WAJIB menggunakan Full Layout XXL (`max-w-5xl` hingga `max-w-7xl` / `max-w-[95vw]`)** yang lapang, elegan, dan memanfaatkan ruang layar monitor desktop secara optimal.
+  - Seluruh modal operasional (Tambah/Ubah Produk, Pembelian, Penjualan POS, Customer CRM, Kas & Bank, Approval Langganan, Jurnal, dan Laporan) **WAJIB menggunakan Full Layout XXL (`max-w-5xl` hingga `max-w-[1250px]` / `max-w-[95vw]`)** yang lapang, elegan, dan memanfaatkan ruang layar monitor desktop secara optimal.
 
 ### 17.1.1 Matriks Responsivitas Modal Pop-Up Lintas Perangkat (Desktop, Tablet, Mobile)
 
 | Parameter Desain | Layar Desktop (>= 1024px) | Layar Tablet Kasir & iPad (640px – 1023px) | Layar Smartphone Mobile (< 640px) |
 |---|---|---|---|
 | **Tipe Kontainer** | **Full Layout XXL Centered Bento Dialog** | **Centered Responsive Bento Modal** | **Apple Full-Responsive Bottom Sheet** meluncur dari bawah layar |
-| **Dimensi Lebar** | `w-full max-w-[95vw] lg:max-w-5xl xl:max-w-6xl 2xl:max-w-7xl mx-auto` | `w-full max-w-[92vw] md:max-w-3xl lg:max-w-4xl mx-auto` | `w-full max-w-full inset-x-0 bottom-0` |
+| **Dimensi Lebar** | `w-full max-w-[95vw] lg:max-w-5xl xl:max-w-6xl 2xl:max-w-[1250px] mx-auto` | `w-full max-w-[92vw] md:max-w-3xl lg:max-w-4xl mx-auto` | `w-full max-w-full inset-x-0 bottom-0` |
 | **Ketinggian (Height)** | `max-h-[90vh] sm:max-h-[92vh] flex flex-col my-auto` | `max-h-[90vh] flex flex-col my-auto` | `max-h-[94vh] flex flex-col` |
 | **Radius Sudut** | `rounded-[24px]` squircle kontinu Apple | `rounded-[22px]` squircle kontinu Apple | `rounded-t-[28px]` membulat di sudut atas |
 | **Pegangan (Grab Bar)** | Tidak ada | Tidak ada | Wajib (`w-10 h-1.5 rounded-full bg-black/20 dark:bg-white/20 mx-auto my-2.5`) |
@@ -646,7 +646,7 @@ Dirancang khusus agar dapat dioperasikan secara percaya diri oleh generasi **Boo
             x-transition:leave-start="translate-y-0 sm:scale-100 opacity-100"
             x-transition:leave-end="translate-y-full sm:translate-y-0 sm:scale-95 opacity-0"
             @click.outside="showModal = false"
-            class="w-full max-w-full sm:max-w-[92vw] md:max-w-3xl lg:max-w-5xl xl:max-w-6xl 2xl:max-w-7xl max-h-[94vh] sm:max-h-[90vh] flex flex-col rounded-t-[28px] sm:rounded-[24px] bg-white dark:bg-[#1C1C1E] border-t sm:border border-black/[0.08] dark:border-white/[0.12] shadow-2xl overflow-hidden">
+            class="w-full max-w-full sm:max-w-[92vw] md:max-w-3xl lg:max-w-5xl xl:max-w-6xl 2xl:max-w-[1250px] max-h-[94vh] sm:max-h-[90vh] flex flex-col rounded-t-[28px] sm:rounded-[24px] bg-white dark:bg-[#1C1C1E] border-t sm:border border-black/[0.08] dark:border-white/[0.12] shadow-2xl overflow-hidden">
             
             <!-- Mobile Grabber Bar -->
             <div class="w-10 h-1.5 rounded-full bg-black/20 dark:bg-white/20 mx-auto my-2.5 sm:hidden shrink-0"></div>
@@ -873,7 +873,7 @@ Pekerjaan hanya dapat dinyatakan selesai jika seluruh butir checklist ini tercen
 - [ ] **Bento UI Multi-Device Luwes**: Tata letak modular bento grid adaptif di smartphone, tablet kasir, dan desktop.
 - [ ] **Keseragaman Konsep UI Lintas Perangkat**: 100% mewarisi bahasa desain Bento Apple HIG yang sama persis (squircle, frosted glass, tipografi tabular, warna semantik).
 - [ ] **Full-Style Floating Bottom Navbar**: Tersedia bottom navigation bar mengambang bergaya iOS 18 pada smartphone/tablet (`fixed bottom-3`) dengan elevated center quick-action.
-- [ ] **Modal-First pada Index (Full Layout XXL & Responsif)**: Seluruh aksi Show, Create, dan Edit disajikan via pop-up modal sheet Full Layout XXL (`max-w-5xl` s/d `max-w-7xl`) langsung di halaman index tanpa redirect (*zero navigation jumps*), responsif sempurna di Desktop, Tablet, dan Mobile.
+- [ ] **Modal-First pada Index (Full Layout XXL & Responsif)**: Seluruh aksi Show, Create, dan Edit disajikan via pop-up modal sheet Full Layout XXL (`max-w-5xl` s/d `max-w-[1250px]`) langsung di halaman index tanpa redirect (*zero navigation jumps*), responsif sempurna di Desktop, Tablet, dan Mobile.
 - [ ] **Inline Quick-Add `[ + ]` pada Dropdown**: Dropdown relasi master memiliki tombol `[ + ]` inline dengan pop-up AJAX auto-select.
 - [ ] **Mandat Anti-AI-Template & Anti-Pill Terpenuhi**: Bebas eyebrow pills (gunakan Pure Typographic Overline), bebas metric cluttering, bebas fake pulse dots, pill status maksimal 1 per baris, dan seluruh teks fluff telah dihapus total.
 - [ ] **Mandat No-Emoji Terpenuhi**: 100% bebas dari emoji Unicode dan murni menggunakan Lucide Icons.

@@ -1,7 +1,9 @@
 @extends('layouts.public_marketing')
 
 @section('title', ($page->meta_title ?? 'Kebijakan Privasi & Perlindungan Data Pribadi') . ' | Cooca')
-@section('description', $page->meta_description ?? 'Kebijakan privasi resmi Cooca mengenai pengumpulan data pemilik UMKM
+@section('description',
+    $page->meta_description ??
+    'Kebijakan privasi resmi Cooca mengenai pengumpulan data pemilik UMKM
     dan pelanggan toko, enkripsi AES-256, integrasi payment gateway, logistik, dan hak data UU PDP.')
 
 @section('content')
@@ -20,7 +22,7 @@
                 class="absolute bottom-0 left-1/4 w-[400px] h-[400px] bg-[#00C4D8]/10 rounded-full blur-[120px] pointer-events-none -z-0">
             </div>
 
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full space-y-6">
+            <div class="max-w-[1250px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full space-y-6">
 
                 <!-- Breadcrumbs -->
                 <nav aria-label="Breadcrumb" class="flex items-center gap-2 text-xs text-slate-400 overflow-x-auto py-1">
@@ -183,7 +185,7 @@
 
         <!-- Content Body Section -->
         <main class="min-h-screen py-12 lg:py-16 bg-[#F5F5F7] dark:bg-[#0A0A0C] text-black dark:text-white antialiased">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+            <div class="max-w-[1250px] mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
 
                 {{-- 2-Column Bento Layout: Sticky TOC & Content --}}
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">

@@ -5,7 +5,7 @@
 ])
 
 @section('content')
-    <div class="space-y-6 max-w-7xl w-full min-w-0 mx-auto pb-28 lg:pb-10" x-data="{
+    <div class="space-y-6 max-w-[1250px] w-full min-w-0 mx-auto pb-28 lg:pb-10" x-data="{
         copiedTicket: null,
         inspectionModalOpen: false,
         selectedRecovery: null,

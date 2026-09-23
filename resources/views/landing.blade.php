@@ -128,7 +128,7 @@
 
             <!-- Container -->
             <div
-                class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center lg:min-h-[560px]">
+                class="max-w-[1250px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center lg:min-h-[560px]">
 
                 <!-- ===== LEFT: Copy ===== -->
                 <div class="lg:col-span-7 flex flex-col justify-center space-y-5 text-left">
@@ -413,7 +413,7 @@
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
         <section
             class="bg-white dark:bg-[#070A14] py-20 lg:py-24 border-b border-slate-100 dark:border-white/5 transition-colors">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-[1250px] mx-auto px-4 sm:px-6 lg:px-8">
 
                 <!-- Section Header -->
                 <div class="text-center max-w-4xl mx-auto space-y-3">
@@ -607,7 +607,7 @@
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
         <section
             class="bg-[#F8FAFC] dark:bg-[#070B18] py-20 lg:py-24 border-b border-slate-100 dark:border-white/5 transition-colors">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-[1250px] mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
 
                     <!-- Left Column -->
@@ -795,7 +795,7 @@
                 class="absolute top-1/2 left-1/3 w-96 h-96 bg-[#00C2FF]/10 rounded-full blur-[130px] pointer-events-none -z-0">
             </div>
 
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="max-w-[1250px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
 
                 <!-- Section Heading -->
                 <div class="space-y-3 mb-14 text-center lg:text-left">
@@ -1414,7 +1414,7 @@
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
         <section
             class="bg-white dark:bg-[#070A14] py-20 lg:py-24 border-b border-slate-100 dark:border-white/5 transition-colors">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-[1250px] mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
 
                     <!-- Left Column -->
@@ -1589,7 +1589,7 @@
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
         <section
             class="bg-[#F8FAFC] dark:bg-[#070B18] py-20 lg:py-24 border-b border-slate-100 dark:border-white/5 transition-colors">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-[1250px] mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
 
                     <!-- ════ LEFT CARD: CONTENT AUTOMATION ════ -->
@@ -1949,7 +1949,7 @@
         <!-- ═══ 7. "COCOK UNTUK BERBAGAI JENIS BISNIS" (Solutions) ═══ -->
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
         <section class="bg-white dark:bg-[#070A14] py-20 lg:py-24 transition-colors">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-[1250px] mx-auto px-4 sm:px-6 lg:px-8">
 
                 <!-- Section Header with Right-Aligned Button -->
                 <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
@@ -2117,7 +2117,7 @@
                 class="absolute -top-24 right-1/4 w-[450px] h-[450px] bg-[#00C2FF]/15 rounded-full blur-[140px] pointer-events-none">
             </div>
 
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="max-w-[1250px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
 
                     <!-- Left Column: Typography Hierarchy (Kicker, H2, H3, Body, 4-Step Ribbon, Dual CTAs) -->

@@ -5,7 +5,7 @@
 ])
 
 @section('content')
-    <div class="space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-2 pb-28 sm:pb-32 lg:pb-10" x-data="{
+    <div class="space-y-6 max-w-[1250px] mx-auto px-4 sm:px-6 lg:px-8 pt-2 pb-28 sm:pb-32 lg:pb-10" x-data="{
         activeTab: '{{ request('tab', 'general') }}',
         addMethodModalOpen: false,
         methodType: 'bank_transfer',

@@ -29,7 +29,7 @@
             </div>
 
             <div
-                class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+                class="max-w-[1250px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
 
                 <!-- Left Column: Copy, Headline & 5 Core Pillars -->
                 <div class="lg:col-span-6 space-y-6 text-left">
@@ -225,7 +225,7 @@
         <!-- ═══ 2. OFFICIAL 4-TIER PRICING CARDS SECTION (Light Clean Surface) ══════ -->
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
         <section class="py-16 sm:py-24 bg-[#FAFAFC] dark:bg-[#070A14] text-slate-900 dark:text-white transition-colors">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+            <div class="max-w-[1250px] mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
 
                 <!-- Section Header & Billing Cycle Segmented Control -->
                 <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
@@ -551,7 +551,7 @@
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
         <section
             class="py-12 sm:py-16 bg-white dark:bg-[#0B0F19] text-slate-900 dark:text-white border-t border-slate-200/60 dark:border-white/5 transition-colors">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-[1250px] mx-auto px-4 sm:px-6 lg:px-8">
 
                 <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch">
 
@@ -641,7 +641,7 @@
         <!-- ═══ 4. PROMO SPESIAL BANNER (3D Gift Box) ═══════════════════════════════ -->
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
         <section class="py-6 sm:py-8 bg-white dark:bg-[#070A14] transition-colors">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-[1250px] mx-auto px-4 sm:px-6 lg:px-8">
 
                 <div
                     class="rounded-[24px] bg-gradient-to-r from-[#0C1E4A] via-[#0E3572] to-[#0A2558] p-6 sm:p-8 text-white flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl relative overflow-hidden">
@@ -691,7 +691,7 @@
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
         <section class="py-16 sm:py-20 bg-white dark:bg-[#070A14] text-slate-900 dark:text-white transition-colors"
             id="faq">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+            <div class="max-w-[1250px] mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
 
                 <!-- Section Header -->
                 <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
@@ -837,7 +837,7 @@
         <!-- ═══ 6. BOTTOM CTA SECTION (Gradient Card) ════════════════════════════════ -->
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
         <section class="py-12 sm:py-16 bg-white dark:bg-[#070A14] transition-colors pb-24">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-[1250px] mx-auto px-4 sm:px-6 lg:px-8">
 
                 <div
                     class="rounded-[28px] bg-gradient-to-r from-[#0B1536] via-[#0E2866] to-[#14449E] p-8 sm:p-12 text-white flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8 shadow-2xl relative overflow-hidden">

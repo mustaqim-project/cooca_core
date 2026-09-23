@@ -149,7 +149,7 @@ Discouraged by default in code, markup, and visible text. Replace symbols with i
 
 ### 3.E Responsiveness & Layout Mechanics
 * Standardize breakpoints (`sm 640`, `md 768`, `lg 1024`, `xl 1280`, `2xl 1536`).
-* Contain page layouts using `max-w-[1400px] mx-auto` or `max-w-7xl`.
+* Contain page layouts using `max-w-[1400px] mx-auto` or `max-w-[1250px]`.
 * **Viewport Stability:** NEVER use `h-screen` for full-height Hero sections. ALWAYS use `min-h-[100dvh]` to prevent layout jumping on mobile (iOS Safari address bar).
 * **Grid over Flex-Math:** NEVER use complex flexbox percentage math (`w-[calc(33%-1rem)]`). ALWAYS use CSS Grid (`grid grid-cols-1 md:grid-cols-3 gap-6`).
 
@@ -965,7 +965,7 @@ Run this matrix before outputting code. This is the last filter.
 - [ ] **No `window.addEventListener('scroll')`** - using Motion `useScroll()` / ScrollTrigger / IntersectionObserver / CSS scroll-driven animations only?
 - [ ] **Reduced motion** wrapped for everything `MOTION_INTENSITY > 3`?
 - [ ] **Dark mode** tokens defined and tested in both modes?
-- [ ] **Mobile collapse** explicit (`w-full`, `px-4`, `max-w-7xl mx-auto`) for high-variance layouts?
+- [ ] **Mobile collapse** explicit (`w-full`, `px-4`, `max-w-[1250px] mx-auto`) for high-variance layouts?
 - [ ] **Viewport stability**: `min-h-[100dvh]`, never `h-screen`?
 - [ ] **`useEffect` animations** have strict cleanup functions?
 - [ ] **Empty / loading / error** states provided?

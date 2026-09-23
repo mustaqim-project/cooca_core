@@ -2,7 +2,8 @@
 @section('title', 'Media Sosial Platform Admin Center - COOCA')
 
 @section('content')
-    <div class="space-y-6 max-w-7xl w-full min-w-0 mx-auto pb-28 lg:pb-10" x-data="adminSocialCenter()" x-init="init()">
+    <div class="space-y-6 max-w-[1250px] w-full min-w-0 mx-auto pb-28 lg:pb-10" x-data="adminSocialCenter()"
+        x-init="init()">
 
         {{-- 1. BENTO HEADER --}}
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 min-w-0">

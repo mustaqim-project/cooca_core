@@ -10,7 +10,7 @@
 
 @section('content')
     <div class="pt-6 sm:pt-10 pb-24">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16 sm:space-y-20">
+        <div class="max-w-[1250px] mx-auto px-4 sm:px-6 lg:px-8 space-y-16 sm:space-y-20">
 
             <!-- ═══ HERO SECTION (Mandatory 2-Grid Layout) ═══ -->
             <section class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">

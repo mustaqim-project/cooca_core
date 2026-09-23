@@ -358,7 +358,7 @@
             padding-block: clamp(3.25rem, 6vw, 5.5rem);
         }
 
-        body>section> :is(.max-w-6xl, .max-w-7xl),
+        body>section> :is(.max-w-6xl, .max-w-[1250px]),
         body>header>.max-w-6xl,
         body>footer>.max-w-6xl {
             max-width: 1200px;
@@ -1087,7 +1087,7 @@
                                         border: 2px solid var(--sf-surface);
                                     }
 
-                                    body > section > :is(.max-w-6xl, .max-w-7xl) {
+                                    body > section > :is(.max-w-6xl, .max-w-[1250px]) {
                                         padding-inline: 20px;
                                     }
 
@@ -1268,7 +1268,7 @@
                                         font-size: 9px; gap: 3px;
                                     }
 
-                                    body > section > :is(.max-w-6xl, .max-w-7xl) {
+                                    body > section > :is(.max-w-6xl, .max-w-[1250px]) {
                                         padding-inline: 16px;
                                     }
 
@@ -1666,10 +1666,10 @@
         default => 'grid-cols-5',
     };
     $hasBottomWa = collect($bottomNavButtons)->contains('type', 'whatsapp');
-
+    
     // Dynamic Storefront Content Tabs (Bento Apple HIG Segmented Navigation)
     $storefrontTabs = [];
-
+    
     // 1. Catalog / Menu / Layanan
     $storefrontTabs[] = [
         'id' => 'catalog',
@@ -1677,9 +1677,9 @@
         'label' => $industryLabels['catalog_title'] ?? 'Katalog & Menu',
         'short_label' => $industryGroup === 'fnb' ? 'Menu' : ($industryGroup === 'service' ? 'Layanan' : 'Katalog'),
         'icon' => $catIcon,
-        'badge' => ($posProducts->count() + $services->count()) > 0 ? ($posProducts->count() + $services->count()) : null,
+        'badge' => $posProducts->count() + $services->count() > 0 ? $posProducts->count() + $services->count() : null,
     ];
-
+    
     // 2. Pre-Order Batch Hub (Dynamic: only if scheduling / batch PO active and dates available)
     $hasBatchFeature = !empty($availableBatchDates) && ($storeSetting?->allow_scheduled_order || $storeSetting?->allow_customer_po);
     if ($hasBatchFeature) {
@@ -1692,7 +1692,7 @@
             'badge' => count($availableBatchDates) . ' Batch',
         ];
     }
-
+    
     // 3. Tentang Kami (Dynamic: only if section enabled and story/description exists)
     $hasAboutContent = ($sectionVisibility['about'] ?? true) && filled($landingPage->about_story ?: $business->description);
     if ($hasAboutContent) {
@@ -1705,7 +1705,7 @@
             'badge' => null,
         ];
     }
-
+    
     // 4. Galeri Suasana (Dynamic: only if section enabled and images exist)
     $hasGalleryContent = ($sectionVisibility['gallery'] ?? true) && $allGalleryImages->isNotEmpty();
     if ($hasGalleryContent) {
@@ -1718,7 +1718,7 @@
             'badge' => $allGalleryImages->count() > 0 ? $allGalleryImages->count() : null,
         ];
     }
-
+    
     // 5. Info, Jam Buka & Lokasi (Dynamic: only if contact section enabled)
     if ($sectionVisibility['contact'] ?? true) {
         $storefrontTabs[] = [
@@ -1730,7 +1730,7 @@
             'badge' => null,
         ];
     }
-
+    
     // 6. View All Tab (Option to view continuous page)
     $storefrontTabs[] = [
         'id' => 'all',
@@ -1821,7 +1821,7 @@
                         const tabParam = urlParams.get('tab');
                         if (tabParam) return tabParam;
                         if (urlParams.has('batch')) return 'batch';
-                    } catch(e) {}
+                    } catch (e) {}
                     return 'catalog';
                 })(),
                 setMainTab(tabKey) {
@@ -1830,14 +1830,17 @@
                         const url = new URL(window.location);
                         url.searchParams.set('tab', tabKey);
                         window.history.replaceState({}, '', url);
-                    } catch(e) {}
+                    } catch (e) {}
                     this.$nextTick(() => {
                         if (typeof lucide !== 'undefined') lucide.createIcons();
                         const tabContainer = document.getElementById('storefront-tabs-bar');
                         if (tabContainer) {
                             const rect = tabContainer.getBoundingClientRect();
                             if (rect.top < 0) {
-                                tabContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                tabContainer.scrollIntoView({
+                                    behavior: 'smooth',
+                                    block: 'start'
+                                });
                             }
                         }
                     });
@@ -2032,7 +2035,8 @@
                                 this.showToast('Silakan lengkapi alamat pengiriman');
                                 return;
                             }
-                            if (!this.checkoutForm.destination_postal_code || !this.checkoutForm.destination_postal_code.trim()) {
+                            if (!this.checkoutForm.destination_postal_code || !this.checkoutForm.destination_postal_code
+                                .trim()) {
                                 this.showToast('Silakan isi 5 digit kode pos tujuan untuk kalkulasi kurir Biteship');
                                 return;
                             }
@@ -2040,7 +2044,9 @@
                         const hasScheduling = this.checkoutForm.is_scheduled || this.hasPreorderItems;
                         if (!hasScheduling) {
                             this.checkoutStep = 3;
-                            this.$nextTick(() => { if (typeof lucide !== 'undefined') lucide.createIcons(); });
+                            this.$nextTick(() => {
+                                if (typeof lucide !== 'undefined') lucide.createIcons();
+                            });
                             return;
                         }
                     }
@@ -2059,21 +2065,23 @@
                     'cooca_cart_{{ $business->id }}') || '[]'),
                 @php
                     $authCust = auth('customer')->user();
-                    $initialGroupOrderData = $activeGroupOrder ? [
-                        'id' => $activeGroupOrder->id,
-                        'title' => $activeGroupOrder->title,
-                        'share_token' => $activeGroupOrder->share_token,
-                        'status' => $activeGroupOrder->status,
-                        'is_open' => $activeGroupOrder->isOpen(),
-                        'is_locked' => $activeGroupOrder->isLocked(),
-                        'is_checked_out' => $activeGroupOrder->isCheckedOut(),
-                        'is_host' => $activeGroupOrder->isHost($authCust),
-                        'host_name' => $activeGroupOrder->host?->name ?? 'Host',
-                        'scheduled_date' => $activeGroupOrder->scheduled_date?->toDateString(),
-                        'subtotal' => (float) $activeGroupOrder->subtotal,
-                        'total_quantity' => (float) $activeGroupOrder->total_quantity,
-                        'members_count' => (int) $activeGroupOrder->members_count,
-                    ] : null;
+                    $initialGroupOrderData = $activeGroupOrder
+                        ? [
+                            'id' => $activeGroupOrder->id,
+                            'title' => $activeGroupOrder->title,
+                            'share_token' => $activeGroupOrder->share_token,
+                            'status' => $activeGroupOrder->status,
+                            'is_open' => $activeGroupOrder->isOpen(),
+                            'is_locked' => $activeGroupOrder->isLocked(),
+                            'is_checked_out' => $activeGroupOrder->isCheckedOut(),
+                            'is_host' => $activeGroupOrder->isHost($authCust),
+                            'host_name' => $activeGroupOrder->host?->name ?? 'Host',
+                            'scheduled_date' => $activeGroupOrder->scheduled_date?->toDateString(),
+                            'subtotal' => (float) $activeGroupOrder->subtotal,
+                            'total_quantity' => (float) $activeGroupOrder->total_quantity,
+                            'members_count' => (int) $activeGroupOrder->members_count,
+                        ]
+                        : null;
                     $initialGroupOrderSplitBill = $activeGroupOrder ? $activeGroupOrder->getSplitBillSummary() : [];
                     $initialGroupOrderToken = $groupOrderToken ?? ($activeGroupOrder?->share_token ?? '');
                 @endphp
@@ -2117,13 +2125,14 @@
                         shareUrl += '&group=' + encodeURIComponent(groupParam);
                     }
                     const msg = '*Pre-Order {{ addslashes($business->name) }}*\n' +
-                              (day ? 'Pengiriman: ' + day + (formatted ? ', ' + formatted : '') + '\n' : '') +
-                              (groupParam ? 'Pesanan Kantor/Tim: ' + groupParam + '\n' : '') +
-                              'Yuk ikutan pesan bareng! Pilih menu favoritmu di sini:\n' + shareUrl;
+                        (day ? 'Pengiriman: ' + day + (formatted ? ', ' + formatted : '') + '\n' : '') +
+                        (groupParam ? 'Pesanan Kantor/Tim: ' + groupParam + '\n' : '') +
+                        'Yuk ikutan pesan bareng! Pilih menu favoritmu di sini:\n' + shareUrl;
 
                     if (navigator.clipboard && window.isSecureContext) {
                         navigator.clipboard.writeText(msg).then(() => {
-                            this.showToast('Tautan Pre-Order berhasil disalin! Siap dikirim ke WhatsApp kantor.');
+                            this.showToast(
+                                'Tautan Pre-Order berhasil disalin! Siap dikirim ke WhatsApp kantor.');
                         }).catch(() => {
                             prompt('Salin tautan Pre-Order:', shareUrl);
                         });
@@ -2140,9 +2149,9 @@
                         shareUrl += '&group=' + encodeURIComponent(groupParam);
                     }
                     const msg = '*Pre-Order {{ addslashes($business->name) }}*\n' +
-                              (day ? 'Pengiriman: ' + day + (formatted ? ', ' + formatted : '') + '\n' : '') +
-                              (groupParam ? 'Pesanan Kantor/Tim: ' + groupParam + '\n' : '') +
-                              'Yuk ikutan pesan bareng! Pilih menu favoritmu di sini:\n' + shareUrl;
+                        (day ? 'Pengiriman: ' + day + (formatted ? ', ' + formatted : '') + '\n' : '') +
+                        (groupParam ? 'Pesanan Kantor/Tim: ' + groupParam + '\n' : '') +
+                        'Yuk ikutan pesan bareng! Pilih menu favoritmu di sini:\n' + shareUrl;
                     window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent(msg), '_blank');
                 },
                 checkoutForm: {
@@ -2167,7 +2176,7 @@
                     notes: '',
 
                     group_name: @json($groupRef ?? ''),
-                    is_scheduled: {{ (($isUmkmRumahan || $industryGroup === 'fnb') && ($storeSetting?->allow_scheduled_order || $storeSetting?->allow_customer_po || !empty($availableBatchDates))) ? 'true' : 'false' }},
+                    is_scheduled: {{ ($isUmkmRumahan || $industryGroup === 'fnb') && ($storeSetting?->allow_scheduled_order || $storeSetting?->allow_customer_po || !empty($availableBatchDates)) ? 'true' : 'false' }},
                     scheduled_date: '{{ !empty($selectedBatchDate) ? $selectedBatchDate : (!empty($availableBatchDates) ? $availableBatchDates[0]['date'] : '') }}',
                     scheduled_time_slot: '',
                 },
@@ -2236,7 +2245,8 @@
                     }
                     if (product.is_preorder) {
                         this.checkoutForm.is_scheduled = true;
-                        if (!this.checkoutForm.scheduled_date || this.checkoutForm.scheduled_date < this.minPreorderDate) {
+                        if (!this.checkoutForm.scheduled_date || this.checkoutForm.scheduled_date < this
+                            .minPreorderDate) {
                             this.checkoutForm.scheduled_date = this.minPreorderDate;
                         }
                     }
@@ -2252,7 +2262,8 @@
                     }
                     if (product.is_preorder) {
                         this.checkoutForm.is_scheduled = true;
-                        if (!this.checkoutForm.scheduled_date || this.checkoutForm.scheduled_date < this.minPreorderDate) {
+                        if (!this.checkoutForm.scheduled_date || this.checkoutForm.scheduled_date < this
+                            .minPreorderDate) {
                             this.checkoutForm.scheduled_date = this.minPreorderDate;
                         }
                     }
@@ -2380,8 +2391,10 @@
                                 },
                                 body: JSON.stringify({
                                     subtotal: this.cartTotal,
-                                    shipping_rule_id: preferredRuleId || this.checkoutForm.shipping_rule_id || null,
-                                    destination_postal_code: this.checkoutForm.destination_postal_code || null,
+                                    shipping_rule_id: preferredRuleId || this.checkoutForm
+                                        .shipping_rule_id || null,
+                                    destination_postal_code: this.checkoutForm
+                                        .destination_postal_code || null,
                                     destination_address: this.checkoutForm.shipping_address || null,
                                     items: cartItems
                                 })
@@ -2394,7 +2407,8 @@
                             this.checkoutForm.is_free_shipping = Boolean(resData.data.is_free);
                             if (resData.data.applied_rule_id) {
                                 this.checkoutForm.shipping_rule_id = resData.data.applied_rule_id;
-                                const selected = this.checkoutForm.shipping_options.find(o => o.id === resData.data.applied_rule_id);
+                                const selected = this.checkoutForm.shipping_options.find(o => o.id === resData.data
+                                    .applied_rule_id);
                                 if (selected) {
                                     this.checkoutForm.courier_company = selected.courier_code || '';
                                     this.checkoutForm.courier_type = selected.courier_service_code || '';
@@ -2414,7 +2428,8 @@
                 selectCourier(opt) {
                     this.checkoutForm.shipping_rule_id = opt.id;
                     this.checkoutForm.shipping_fee = Number(opt.fee || 0);
-                    this.checkoutForm.service_fee = Number(opt.service_fee || (opt.rule_type === 'biteship' ? 1000 : 0));
+                    this.checkoutForm.service_fee = Number(opt.service_fee || (opt.rule_type === 'biteship' ? 1000 :
+                    0));
                     this.checkoutForm.is_free_shipping = Boolean(opt.is_free);
                     this.checkoutForm.courier_company = opt.courier_code || '';
                     this.checkoutForm.courier_type = opt.courier_service_code || '';
@@ -2441,7 +2456,8 @@
                             return;
                         }
                         if (!this.checkoutForm.destination_postal_code) {
-                            this.checkoutError = 'Kode pos tujuan wajib diisi untuk menghitung ongkos kirim Biteship.';
+                            this.checkoutError =
+                                'Kode pos tujuan wajib diisi untuk menghitung ongkos kirim Biteship.';
                             this.checkoutStep = 1;
                             return;
                         }
@@ -2465,11 +2481,14 @@
                     if (this.hasPreorderItems) {
                         this.checkoutForm.is_scheduled = true;
                         if (!this.checkoutForm.scheduled_date) {
-                            this.checkoutError = 'Pesanan memuat produk Pre-Order. Silakan tentukan tanggal jadwal pengiriman/pengambilan.';
+                            this.checkoutError =
+                                'Pesanan memuat produk Pre-Order. Silakan tentukan tanggal jadwal pengiriman/pengambilan.';
                             return;
                         }
                         if (this.checkoutForm.scheduled_date < this.minPreorderDate) {
-                            this.checkoutError = 'Produk Pre-Order dalam keranjang membutuhkan waktu persiapan minimal ' + this.maxPreorderLeadDays + ' hari (paling cepat tanggal ' + this.minPreorderDate + ').';
+                            this.checkoutError =
+                                'Produk Pre-Order dalam keranjang membutuhkan waktu persiapan minimal ' + this
+                                .maxPreorderLeadDays + ' hari (paling cepat tanggal ' + this.minPreorderDate + ').';
                             return;
                         }
                     }
@@ -2487,7 +2506,8 @@
                         fulfillment_type: this.checkoutForm.fulfillment_type,
                         shipping_address: this.checkoutForm.fulfillment_type === 'merchant_delivery' ? this
                             .checkoutForm.shipping_address : null,
-                        destination_postal_code: this.checkoutForm.fulfillment_type === 'merchant_delivery' ? (this
+                        destination_postal_code: this.checkoutForm.fulfillment_type === 'merchant_delivery' ? (
+                            this
                             .checkoutForm.destination_postal_code || null) : null,
                         shipping_rule_id: this.checkoutForm.fulfillment_type === 'merchant_delivery' ? (this
                             .checkoutForm.shipping_rule_id || null) : null,
@@ -2505,8 +2525,10 @@
                             .checkoutForm.courier_name || null) : null,
                         payment_gateway: this.checkoutForm.payment_gateway || 'tripay',
                         payment_channel: this.checkoutForm.payment_channel || 'QRIS',
-                        payment_method_id: this.checkoutForm.payment_gateway === 'manual' ? (this.checkoutForm.payment_method_id || null) : null,
-                        notes: ((this.checkoutForm.group_name ? ('[Kantor/Tim: ' + this.checkoutForm.group_name + '] ') : '') + (this.checkoutForm.notes || '')).trim() || null,
+                        payment_method_id: this.checkoutForm.payment_gateway === 'manual' ? (this.checkoutForm
+                            .payment_method_id || null) : null,
+                        notes: ((this.checkoutForm.group_name ? ('[Kantor/Tim: ' + this.checkoutForm
+                            .group_name + '] ') : '') + (this.checkoutForm.notes || '')).trim() || null,
 
                         scheduled_date: this.checkoutForm.is_scheduled ? (this.checkoutForm.scheduled_date ||
                             null) : null,
@@ -2582,7 +2604,8 @@
                     if (!this.groupOrder.token) return;
                     if (showLoading) this.groupOrder.actionLoading = true;
                     try {
-                        const res = await fetch('/{{ $business->slug }}/group-order/' + encodeURIComponent(this.groupOrder.token) + '/data');
+                        const res = await fetch('/{{ $business->slug }}/group-order/' + encodeURIComponent(this
+                            .groupOrder.token) + '/data');
                         const data = await res.json();
                         if (res.ok && data.success && data.group) {
                             this.groupOrder.data = data.group;
@@ -2615,7 +2638,8 @@
                     this.groupOrder.createForm.is_submitting = true;
                     this.groupOrder.createForm.error = null;
                     try {
-                        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+                        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute(
+                            'content') || '';
                         const res = await fetch('/{{ $business->slug }}/group-order', {
                             method: 'POST',
                             headers: {
@@ -2626,8 +2650,10 @@
                             body: JSON.stringify({
                                 title: this.groupOrder.createForm.title || null,
                                 scheduled_date: this.groupOrder.createForm.scheduled_date || null,
-                                scheduled_time_slot: this.groupOrder.createForm.scheduled_time_slot || null,
-                                delivery_address: this.groupOrder.createForm.delivery_address || null,
+                                scheduled_time_slot: this.groupOrder.createForm
+                                    .scheduled_time_slot || null,
+                                delivery_address: this.groupOrder.createForm.delivery_address ||
+                                    null,
                                 delivery_notes: this.groupOrder.createForm.delivery_notes || null,
                             })
                         });
@@ -2660,8 +2686,10 @@
                     this.groupOrder.actionLoading = true;
                     this.groupOrder.actionError = null;
                     try {
-                        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
-                        const res = await fetch('/{{ $business->slug }}/group-order/' + encodeURIComponent(this.groupOrder.token) + '/items', {
+                        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute(
+                            'content') || '';
+                        const res = await fetch('/{{ $business->slug }}/group-order/' + encodeURIComponent(this
+                            .groupOrder.token) + '/items', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -2700,7 +2728,8 @@
                     if (!this.groupOrder.token) return;
                     this.groupOrder.actionLoading = true;
                     try {
-                        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+                        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute(
+                            'content') || '';
                         let targetQty = 1;
                         for (const member of this.groupOrder.splitBill) {
                             const found = (member.items || []).find(it => String(it.id) === String(itemId));
@@ -2716,7 +2745,8 @@
                             return;
                         }
 
-                        const res = await fetch('/{{ $business->slug }}/group-order/' + encodeURIComponent(this.groupOrder.token) + '/items/' + encodeURIComponent(itemId), {
+                        const res = await fetch('/{{ $business->slug }}/group-order/' + encodeURIComponent(this
+                            .groupOrder.token) + '/items/' + encodeURIComponent(itemId), {
                             method: 'PUT',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -2748,8 +2778,10 @@
                     if (!this.groupOrder.token) return;
                     this.groupOrder.actionLoading = true;
                     try {
-                        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
-                        const res = await fetch('/{{ $business->slug }}/group-order/' + encodeURIComponent(this.groupOrder.token) + '/items/' + encodeURIComponent(itemId), {
+                        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute(
+                            'content') || '';
+                        const res = await fetch('/{{ $business->slug }}/group-order/' + encodeURIComponent(this
+                            .groupOrder.token) + '/items/' + encodeURIComponent(itemId), {
                             method: 'DELETE',
                             headers: {
                                 'Accept': 'application/json',
@@ -2778,8 +2810,10 @@
                     this.groupOrder.actionLoading = true;
                     const action = this.groupOrder.data.is_locked ? 'unlock' : 'lock';
                     try {
-                        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
-                        const res = await fetch('/{{ $business->slug }}/group-order/' + encodeURIComponent(this.groupOrder.token) + '/' + action, {
+                        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute(
+                            'content') || '';
+                        const res = await fetch('/{{ $business->slug }}/group-order/' + encodeURIComponent(this
+                            .groupOrder.token) + '/' + action, {
                             method: 'POST',
                             headers: {
                                 'Accept': 'application/json',
@@ -2790,7 +2824,8 @@
                         if (res.ok && data.success) {
                             this.groupOrder.data = data.group;
                             this.groupOrder.splitBill = data.split_bill || [];
-                            this.showToast(action === 'lock' ? 'Pesanan bersama berhasil dikunci!' : 'Pesanan bersama dibuka kembali!');
+                            this.showToast(action === 'lock' ? 'Pesanan bersama berhasil dikunci!' :
+                                'Pesanan bersama dibuka kembali!');
                         } else {
                             this.showToast(data.message || 'Gagal mengubah status pesanan.');
                         }
@@ -2802,7 +2837,8 @@
                 },
                 openGroupOrderCheckout() {
                     if (!this.groupOrder.data?.is_host) {
-                        this.showToast('Hanya Host (' + (this.groupOrder.data?.host_name || 'Pembuat Grup') + ') yang dapat melakukan checkout.');
+                        this.showToast('Hanya Host (' + (this.groupOrder.data?.host_name || 'Pembuat Grup') +
+                            ') yang dapat melakukan checkout.');
                         return;
                     }
                     if ((this.groupOrder.data?.total_quantity || 0) <= 0) {
@@ -2823,14 +2859,18 @@
                     this.checkoutError = null;
                     const payload = {
                         payment_method_id: this.checkoutForm.payment_method_id,
-                        delivery_address: this.checkoutForm.fulfillment_type === 'merchant_delivery' ? this.checkoutForm.shipping_address : null,
+                        delivery_address: this.checkoutForm.fulfillment_type === 'merchant_delivery' ? this
+                            .checkoutForm.shipping_address : null,
                         delivery_notes: this.checkoutForm.notes || null,
                         fulfillment_type: this.checkoutForm.fulfillment_type || 'pickup',
-                        shipping_fee: this.checkoutForm.fulfillment_type === 'merchant_delivery' ? Number(this.checkoutForm.shipping_fee || 0) : 0,
+                        shipping_fee: this.checkoutForm.fulfillment_type === 'merchant_delivery' ? Number(this
+                            .checkoutForm.shipping_fee || 0) : 0,
                     };
                     try {
-                        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
-                        const res = await fetch('/{{ $business->slug }}/group-order/' + encodeURIComponent(this.groupOrder.token) + '/checkout', {
+                        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute(
+                            'content') || '';
+                        const res = await fetch('/{{ $business->slug }}/group-order/' + encodeURIComponent(this
+                            .groupOrder.token) + '/checkout', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -2859,12 +2899,14 @@
                     }
                 },
                 copyGroupOrderLink() {
-                    const url = window.location.origin + window.location.pathname + '?group_order=' + encodeURIComponent(this.groupOrder.token);
+                    const url = window.location.origin + window.location.pathname + '?group_order=' +
+                        encodeURIComponent(this.groupOrder.token);
                     const msg = '*Pesan Bareng (Group Order) di {{ addslashes($business->name) }}*\n' +
-                                'Grup: ' + (this.groupOrder.data?.title || 'Pesanan Bersama') + '\n' +
-                                'Host: ' + (this.groupOrder.data?.host_name || 'Rekan') + '\n' +
-                                (this.groupOrder.data?.scheduled_date ? ('Jadwal Pengiriman: ' + this.groupOrder.data.scheduled_date + '\n') : '') +
-                                '\nYuk pilih menu favoritmu! Semua pesanan akan otomatis masuk ke 1 keranjang:\n' + url;
+                        'Grup: ' + (this.groupOrder.data?.title || 'Pesanan Bersama') + '\n' +
+                        'Host: ' + (this.groupOrder.data?.host_name || 'Rekan') + '\n' +
+                        (this.groupOrder.data?.scheduled_date ? ('Jadwal Pengiriman: ' + this.groupOrder.data
+                            .scheduled_date + '\n') : '') +
+                        '\nYuk pilih menu favoritmu! Semua pesanan akan otomatis masuk ke 1 keranjang:\n' + url;
 
                     if (navigator.clipboard && window.isSecureContext) {
                         navigator.clipboard.writeText(msg).then(() => {
@@ -2877,33 +2919,39 @@
                     }
                 },
                 shareGroupOrderWa() {
-                    const url = window.location.origin + window.location.pathname + '?group_order=' + encodeURIComponent(this.groupOrder.token);
+                    const url = window.location.origin + window.location.pathname + '?group_order=' +
+                        encodeURIComponent(this.groupOrder.token);
                     const msg = '*Pesan Bareng (Group Order) di {{ addslashes($business->name) }}*\n' +
-                                'Grup: ' + (this.groupOrder.data?.title || 'Pesanan Bersama') + '\n' +
-                                'Host: ' + (this.groupOrder.data?.host_name || 'Rekan') + '\n' +
-                                (this.groupOrder.data?.scheduled_date ? ('Jadwal Pengiriman: ' + this.groupOrder.data.scheduled_date + '\n') : '') +
-                                '\nYuk pilih menu favoritmu! Semua pesanan akan otomatis masuk ke 1 keranjang:\n' + url;
+                        'Grup: ' + (this.groupOrder.data?.title || 'Pesanan Bersama') + '\n' +
+                        'Host: ' + (this.groupOrder.data?.host_name || 'Rekan') + '\n' +
+                        (this.groupOrder.data?.scheduled_date ? ('Jadwal Pengiriman: ' + this.groupOrder.data
+                            .scheduled_date + '\n') : '') +
+                        '\nYuk pilih menu favoritmu! Semua pesanan akan otomatis masuk ke 1 keranjang:\n' + url;
                     window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent(msg), '_blank');
                 },
                 copySplitBillText() {
                     if (!this.groupOrder.splitBill || !this.groupOrder.splitBill.length) return;
                     let text = '*RINCIAN PATUNGAN (SPLIT BILL)*\n' +
-                               '{{ addslashes($business->name) }}\n' +
-                               'Grup: ' + (this.groupOrder.data?.title || 'Pesanan Bersama') + '\n' +
-                               (this.groupOrder.data?.scheduled_date ? ('Tanggal: ' + this.groupOrder.data.scheduled_date + '\n') : '') +
-                               '--------------------------------\n';
+                        '{{ addslashes($business->name) }}\n' +
+                        'Grup: ' + (this.groupOrder.data?.title || 'Pesanan Bersama') + '\n' +
+                        (this.groupOrder.data?.scheduled_date ? ('Tanggal: ' + this.groupOrder.data.scheduled_date +
+                            '\n') : '') +
+                        '--------------------------------\n';
 
                     this.groupOrder.splitBill.forEach(member => {
-                        text += '\n*' + member.member_name + '* (Total: ' + this.formatPrice(member.member_subtotal) + ')\n';
+                        text += '\n*' + member.member_name + '* (Total: ' + this.formatPrice(member
+                            .member_subtotal) + ')\n';
                         (member.items || []).forEach(it => {
-                            text += '  • ' + it.quantity + 'x ' + it.product_name + ' (' + this.formatPrice(it.line_total) + ')' + (it.notes ? (' [' + it.notes + ']') : '') + '\n';
+                            text += '  • ' + it.quantity + 'x ' + it.product_name + ' (' + this
+                                .formatPrice(it.line_total) + ')' + (it.notes ? (' [' + it.notes +
+                                    ']') : '') + '\n';
                         });
                     });
 
                     text += '\n--------------------------------\n' +
-                            '*TOTAL AKHIR:* ' + this.formatPrice(this.groupOrder.data?.subtotal || 0) + '\n\n' +
-                            '*Pembayaran/Transfer ke Host (' + (this.groupOrder.data?.host_name || 'Host') + '):*\n' +
-                            'Mohon transfer sesuai nominal di atas ya. Terima kasih!';
+                        '*TOTAL AKHIR:* ' + this.formatPrice(this.groupOrder.data?.subtotal || 0) + '\n\n' +
+                        '*Pembayaran/Transfer ke Host (' + (this.groupOrder.data?.host_name || 'Host') + '):*\n' +
+                        'Mohon transfer sesuai nominal di atas ya. Terima kasih!';
 
                     if (navigator.clipboard && window.isSecureContext) {
                         navigator.clipboard.writeText(text).then(() => {
@@ -3123,7 +3171,7 @@
 
                     if (this.customerPoForm.items.length === 0 || this.customerPoForm.items.some(it => !it
                             .product_name || !it.quantity || isNaN(Number(it.quantity)) || Number(it.quantity) <= 0
-                            )) {
+                        )) {
                         this.customerPoForm.error =
                             'Lengkapi nama produk dan pastikan jumlah unit lebih dari 0 pada daftar item PO.';
                         this.customerPoForm.is_submitting = false;
@@ -3132,7 +3180,7 @@
 
                     if (this.customerPoForm.batches.length === 0 || this.customerPoForm.batches.some(b => !b
                             .scheduled_date || !b.quantity || isNaN(Number(b.quantity)) || Number(b.quantity) <= 0
-                            )) {
+                        )) {
                         this.customerPoForm.error =
                             'Lengkapi tanggal target kirim dan pastikan jumlah unit lebih dari 0 pada setiap batch.';
                         this.customerPoForm.is_submitting = false;
@@ -3289,24 +3337,35 @@
             class="sticky top-0 z-[60] w-full bg-white/95 dark:bg-[#1C1C1E]/95 backdrop-blur-2xl border-b border-black/10 dark:border-white/10 shadow-md py-2.5 px-3.5 sm:px-6 transition-all duration-200">
             <div class="max-w-6xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
                 <div class="flex items-center gap-2.5 flex-wrap">
-                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-extrabold uppercase tracking-wide"
-                        :class="groupOrder.data.is_locked ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400' : (groupOrder.data.is_checked_out ? 'bg-[#34C759]/15 text-[#34C759]' : 'bg-brand-primary text-white shadow-2xs')">
-                        <i :data-lucide="groupOrder.data.is_locked ? 'lock' : (groupOrder.data.is_checked_out ? 'check-circle' : 'users')" class="w-3 h-3"></i>
-                        <span x-text="groupOrder.data.is_locked ? 'Pesanan Dikunci' : (groupOrder.data.is_checked_out ? 'Selesai Dicheckout' : 'Pesan Bareng Aktif')"></span>
+                    <span
+                        class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-extrabold uppercase tracking-wide"
+                        :class="groupOrder.data.is_locked ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400' : (groupOrder
+                            .data.is_checked_out ? 'bg-[#34C759]/15 text-[#34C759]' :
+                            'bg-brand-primary text-white shadow-2xs')">
+                        <i :data-lucide="groupOrder.data.is_locked ? 'lock' : (groupOrder.data.is_checked_out ? 'check-circle' : 'users')"
+                            class="w-3 h-3"></i>
+                        <span
+                            x-text="groupOrder.data.is_locked ? 'Pesanan Dikunci' : (groupOrder.data.is_checked_out ? 'Selesai Dicheckout' : 'Pesan Bareng Aktif')"></span>
                     </span>
                     <h2 class="text-[13px] sm:text-[14px] font-bold text-black dark:text-white tracking-tight"
                         x-text="groupOrder.data.title || 'Pesanan Bersama'"></h2>
                     <span class="text-[11.5px] text-black/55 dark:text-white/55">
-                        &bull; Host: <strong class="text-black dark:text-white" x-text="groupOrder.data.host_name"></strong>
+                        &bull; Host: <strong class="text-black dark:text-white"
+                            x-text="groupOrder.data.host_name"></strong>
                         <span x-show="groupOrder.data.is_host" class="text-brand-primary font-bold">(Anda)</span>
                     </span>
-                    <span class="inline-flex items-center gap-1 text-[11.5px] text-black/60 dark:text-white/60 bg-black/5 dark:bg-white/5 px-2 py-0.5 rounded-md tabular-nums">
+                    <span
+                        class="inline-flex items-center gap-1 text-[11.5px] text-black/60 dark:text-white/60 bg-black/5 dark:bg-white/5 px-2 py-0.5 rounded-md tabular-nums">
                         <i data-lucide="shopping-bag" class="w-3 h-3 text-brand-primary"></i>
-                        <strong class="text-black dark:text-white" x-text="groupOrder.data.total_quantity || 0"></strong> item (<span x-text="formatPrice(groupOrder.data.subtotal || 0)"></span>)
+                        <strong class="text-black dark:text-white"
+                            x-text="groupOrder.data.total_quantity || 0"></strong> item (<span
+                            x-text="formatPrice(groupOrder.data.subtotal || 0)"></span>)
                     </span>
-                    <span class="inline-flex items-center gap-1 text-[11.5px] text-black/60 dark:text-white/60 bg-black/5 dark:bg-white/5 px-2 py-0.5 rounded-md tabular-nums">
+                    <span
+                        class="inline-flex items-center gap-1 text-[11.5px] text-black/60 dark:text-white/60 bg-black/5 dark:bg-white/5 px-2 py-0.5 rounded-md tabular-nums">
                         <i data-lucide="user-check" class="w-3 h-3 text-[#34C759]"></i>
-                        <strong class="text-black dark:text-white" x-text="groupOrder.data.members_count || 1"></strong> orang
+                        <strong class="text-black dark:text-white"
+                            x-text="groupOrder.data.members_count || 1"></strong> orang
                     </span>
                 </div>
                 <div class="flex items-center gap-2 shrink-0 self-end sm:self-auto">
@@ -3502,7 +3561,8 @@
                             style="display: none;">
                             <div class="px-3 py-2 border-b border-black/5 dark:border-white/10 mb-1">
                                 <p class="font-bold text-black dark:text-white truncate">{{ $navCust->name }}</p>
-                                <p class="text-[11px] text-black/50 dark:text-white/50 truncate">{{ $navCust->phone }}
+                                <p class="text-[11px] text-black/50 dark:text-white/50 truncate">
+                                    {{ $navCust->phone }}
                                 </p>
                                 <div class="mt-1.5 flex items-center justify-between text-[11px]">
                                     <span
@@ -3597,9 +3657,9 @@
 
 
                 {{-- Theme control on every device; no persistent override of CMS settings. --}}
-                <button id="storefront-theme-toggle" type="button" class="storefront-theme-toggle hidden md:inline-flex"
-                    @click="toggleTheme()" role="switch" aria-label="Mode gelap"
-                    :aria-checked="isDark ? 'true' : 'false'"
+                <button id="storefront-theme-toggle" type="button"
+                    class="storefront-theme-toggle hidden md:inline-flex" @click="toggleTheme()" role="switch"
+                    aria-label="Mode gelap" :aria-checked="isDark ? 'true' : 'false'"
                     :title="isDark ? 'Beralih ke mode terang' : 'Beralih ke mode gelap'" x-cloak>
                     <svg x-show="!isDark" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                         stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -3711,8 +3771,16 @@
                     class="h-8 px-3 rounded-full bg-black/5 dark:bg-white/10 text-[12px] font-semibold text-black/80 dark:text-white/80 flex items-center gap-1.5 active:scale-95 transition cursor-pointer"
                     role="switch" :aria-checked="isDark ? 'true' : 'false'">
                     <span x-text="isDark ? 'Mode Gelap' : 'Mode Terang'"></span>
-                    <svg x-show="!isDark" class="w-3.5 h-3.5 text-black/70" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.8 13.1A9 9 0 0 1 10.9 3.2a9 9 0 1 0 9.9 9.9Z" /></svg>
-                    <svg x-show="isDark" class="w-3.5 h-3.5 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4" /><path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" /></svg>
+                    <svg x-show="!isDark" class="w-3.5 h-3.5 text-black/70" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2">
+                        <path d="M20.8 13.1A9 9 0 0 1 10.9 3.2a9 9 0 1 0 9.9 9.9Z" />
+                    </svg>
+                    <svg x-show="isDark" class="w-3.5 h-3.5 text-amber-400" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="4" />
+                        <path
+                            d="M12 2v2m0 16v2M2 12h2m16 0h2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
+                    </svg>
                 </button>
             </div>
 
@@ -3737,7 +3805,7 @@
             $heroDisplayImage = $landingPage->hero_image_url ?: ($business->logo_url ?: $landingPage->logo_url);
         @endphp
         <section id="hero" class="relative pt-6 sm:pt-8 pb-12 sm:pb-16 overflow-hidden">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-[1250px] mx-auto px-4 sm:px-6 lg:px-8">
                 <div
                     class="{{ $heroDisplayImage ? 'grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center' : 'max-w-3xl mx-auto text-center space-y-6' }}">
 
@@ -3745,7 +3813,8 @@
                     <div
                         class="{{ $heroDisplayImage ? 'lg:col-span-7 text-center lg:text-left space-y-5' : 'space-y-6' }}">
                         @if ($landingPage->announcement_badge)
-                            <p class="text-[11px] sm:text-[12px] font-bold uppercase tracking-wider text-brand-primary">
+                            <p
+                                class="text-[11px] sm:text-[12px] font-bold uppercase tracking-wider text-brand-primary">
                                 {{ $landingPage->announcement_badge }}
                             </p>
                         @endif
@@ -3933,16 +4002,18 @@
                                 @click="setMainTab('{{ $tab['id'] }}')"
                                 class="relative flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-[13px] text-[12.5px] sm:text-[13px] font-semibold whitespace-nowrap transition-all duration-200 cursor-pointer select-none"
                                 :class="activeMainTab === '{{ $tab['id'] }}'
-                                    ? 'bg-white dark:bg-[#1C1C1E] text-black dark:text-white shadow-xs font-bold'
-                                    : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white hover:bg-black/[0.02] dark:hover:bg-white/[0.03]'">
+                                    ?
+                                    'bg-white dark:bg-[#1C1C1E] text-black dark:text-white shadow-xs font-bold' :
+                                    'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white hover:bg-black/[0.02] dark:hover:bg-white/[0.03]'">
                                 <i data-lucide="{{ $tab['icon'] }}" class="w-3.5 h-3.5 transition-colors"
                                     :class="activeMainTab === '{{ $tab['id'] }}' ? 'text-brand-primary' : 'opacity-60'"></i>
                                 <span>{{ $tab['label'] }}</span>
                                 @if (!empty($tab['badge']))
                                     <span class="px-1.5 py-0.5 rounded-full text-[10px] font-bold tabular-nums"
                                         :class="activeMainTab === '{{ $tab['id'] }}'
-                                            ? 'bg-brand-primary/10 text-brand-primary'
-                                            : 'bg-black/5 dark:bg-white/10 text-black/50 dark:text-white/50'">
+                                            ?
+                                            'bg-brand-primary/10 text-brand-primary' :
+                                            'bg-black/5 dark:bg-white/10 text-black/50 dark:text-white/50'">
                                         {{ $tab['badge'] }}
                                     </span>
                                 @endif
@@ -3951,10 +4022,12 @@
                     </div>
 
                     {{-- Quick Tab Indicator info --}}
-                    <div class="hidden lg:flex items-center text-[12px] text-black/40 dark:text-white/40 font-medium shrink-0">
+                    <div
+                        class="hidden lg:flex items-center text-[12px] text-black/40 dark:text-white/40 font-medium shrink-0">
                         <span x-show="activeMainTab !== 'all'" class="inline-flex items-center gap-1.5">
                             <span class="w-1.5 h-1.5 rounded-full bg-brand-primary"></span>
-                            <span x-text="activeMainTab === 'catalog' ? 'Katalog & Layanan' : (activeMainTab === 'batch' ? 'Jadwal Pre-Order' : (activeMainTab === 'about' ? 'Profil & Dedikasi' : (activeMainTab === 'gallery' ? 'Galeri Foto' : 'Informasi & Lokasi')))"></span>
+                            <span
+                                x-text="activeMainTab === 'catalog' ? 'Katalog & Layanan' : (activeMainTab === 'batch' ? 'Jadwal Pre-Order' : (activeMainTab === 'about' ? 'Profil & Dedikasi' : (activeMainTab === 'gallery' ? 'Galeri Foto' : 'Informasi & Lokasi')))"></span>
                         </span>
                     </div>
                 </div>
@@ -3970,8 +4043,7 @@
             $hasServices)
         <section id="layanan" data-section="services" class="py-12 sm:py-16"
             x-show="activeMainTab === 'catalog' || activeMainTab === 'batch' || activeMainTab === 'all'"
-            x-transition:enter="transition ease-out duration-200"
-            x-transition:enter-start="opacity-0 translate-y-2"
+            x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-2"
             x-transition:enter-end="opacity-100 translate-y-0">
             <div class="max-w-6xl mx-auto px-4 sm:px-6 space-y-12">
 
@@ -4243,57 +4315,75 @@
                     @php
                         $activeBatchDate = $selectedBatchDate ?: $availableBatchDates[0]['date'];
                         $activeBatch = $selectedBatch ?: $availableBatchDates[0];
-                        $shareUrl = url()->current() . '?batch=' . $activeBatchDate . (!empty($groupRef) ? '&group=' . urlencode($groupRef) : '');
-                        $activeDayNameUpper = $activeBatch['day_name_upper'] ?? strtoupper($activeBatch['day_name'] ?? '');
-                        $activeDayShort = $activeBatch['day_short'] ?? $activeBatch['short_date'] ?? $activeBatchDate;
-                        $activeFullDate = $activeBatch['full_date'] ?? ($activeDayNameUpper . ', ' . $activeDayShort);
+                        $shareUrl =
+                            url()->current() .
+                            '?batch=' .
+                            $activeBatchDate .
+                            (!empty($groupRef) ? '&group=' . urlencode($groupRef) : '');
+                        $activeDayNameUpper =
+                            $activeBatch['day_name_upper'] ?? strtoupper($activeBatch['day_name'] ?? '');
+                        $activeDayShort = $activeBatch['day_short'] ?? ($activeBatch['short_date'] ?? $activeBatchDate);
+                        $activeFullDate = $activeBatch['full_date'] ?? $activeDayNameUpper . ', ' . $activeDayShort;
                         $activeQuota = $activeBatch['remaining_quota'] ?? null;
                         $activeUnit = $activeBatch['quota_unit'] ?? ($storeSetting?->preorder_quota_unit ?? 'PCS');
-                        $shareWaText = "*Pre-Order {$business->name}*\nPengiriman: {$activeFullDate}\n"
-                            . (!empty($groupRef) ? "Pesanan Kantor / Tim: {$groupRef}\n" : "")
-                            . "Yuk pesan bareng! Pilih menu favoritmu di link berikut:\n" . $shareUrl;
+                        $shareWaText =
+                            "*Pre-Order {$business->name}*\nPengiriman: {$activeFullDate}\n" .
+                            (!empty($groupRef) ? "Pesanan Kantor / Tim: {$groupRef}\n" : '') .
+                            "Yuk pesan bareng! Pilih menu favoritmu di link berikut:\n" .
+                            $shareUrl;
                     @endphp
-                    <div class="pt-4" x-show="activeMainTab === 'batch' || activeMainTab === 'catalog' || activeMainTab === 'all'">
-                        <div class="p-4 sm:p-6 rounded-[24px] bg-gradient-to-br from-brand-primary/[0.06] via-brand-primary/[0.02] to-black/[0.02] dark:to-white/[0.03] border border-brand-primary/20 shadow-xs space-y-4">
+                    <div class="pt-4"
+                        x-show="activeMainTab === 'batch' || activeMainTab === 'catalog' || activeMainTab === 'all'">
+                        <div
+                            class="p-4 sm:p-6 rounded-[24px] bg-gradient-to-br from-brand-primary/[0.06] via-brand-primary/[0.02] to-black/[0.02] dark:to-white/[0.03] border border-brand-primary/20 shadow-xs space-y-4">
                             {{-- Header Banner --}}
-                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-black/5 dark:border-white/10">
+                            <div
+                                class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-black/5 dark:border-white/10">
                                 <div class="space-y-1">
                                     <div class="flex items-center gap-2 flex-wrap">
-                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider bg-brand-primary text-white shadow-2xs">
+                                        <span
+                                            class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider bg-brand-primary text-white shadow-2xs">
                                             <i data-lucide="calendar" class="w-3 h-3"></i>
                                             <span>Pre-Order Terbuka</span>
                                         </span>
                                         <template x-if="checkoutForm.group_name">
-                                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#5856D6]/15 text-[#5856D6] dark:text-[#AF52DE]">
+                                            <span
+                                                class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#5856D6]/15 text-[#5856D6] dark:text-[#AF52DE]">
                                                 <i data-lucide="users" class="w-3 h-3"></i>
-                                                <span>Pesanan Kantor: <strong x-text="checkoutForm.group_name"></strong></span>
+                                                <span>Pesanan Kantor: <strong
+                                                        x-text="checkoutForm.group_name"></strong></span>
                                             </span>
                                         </template>
                                         @if (!empty($groupRef))
-                                            <span x-show="!checkoutForm.group_name" class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#5856D6]/15 text-[#5856D6] dark:text-[#AF52DE]">
+                                            <span x-show="!checkoutForm.group_name"
+                                                class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#5856D6]/15 text-[#5856D6] dark:text-[#AF52DE]">
                                                 <i data-lucide="users" class="w-3 h-3"></i>
                                                 <span>Pesanan Kantor: {{ $groupRef }}</span>
                                             </span>
                                         @endif
                                         @if ($storeSetting?->cut_off_time)
-                                            <span class="text-[11px] text-black/50 dark:text-white/50 flex items-center gap-1">
+                                            <span
+                                                class="text-[11px] text-black/50 dark:text-white/50 flex items-center gap-1">
                                                 <i data-lucide="clock" class="w-3 h-3 text-amber-500"></i>
-                                                <span>Batas pesan: {{ substr((string)$storeSetting->cut_off_time, 0, 5) }} WIB</span>
+                                                <span>Batas pesan:
+                                                    {{ substr((string) $storeSetting->cut_off_time, 0, 5) }} WIB</span>
                                             </span>
                                         @endif
                                     </div>
-                                    <h3 class="text-[17px] sm:text-[19px] font-extrabold text-black dark:text-white tracking-tight">
+                                    <h3
+                                        class="text-[17px] sm:text-[19px] font-extrabold text-black dark:text-white tracking-tight">
                                         Pesan Bareng / Join Pre-Order
                                     </h3>
-                                    <p class="text-[12.5px] text-black/60 dark:text-white/60 leading-relaxed max-w-2xl">
-                                        Pilih jadwal batch pengiriman di bawah, tentukan menu pilihan Anda, atau bagikan link ini ke WhatsApp rekan kantor agar pesanan diantar bersamaan.
+                                    <p
+                                        class="text-[12.5px] text-black/60 dark:text-white/60 leading-relaxed max-w-2xl">
+                                        Pilih jadwal batch pengiriman di bawah, tentukan menu pilihan Anda, atau bagikan
+                                        link ini ke WhatsApp rekan kantor agar pesanan diantar bersamaan.
                                     </p>
                                 </div>
 
                                 {{-- Action Buttons: Copy Link & WA Share & Group Order --}}
                                 <div class="flex items-center gap-2 shrink-0 flex-wrap">
-                                    <button type="button"
-                                        @click="openCreateGroupOrderModal()"
+                                    <button type="button" @click="openCreateGroupOrderModal()"
                                         class="px-3.5 py-2 rounded-[12px] bg-gradient-to-r from-[#5856D6] to-brand-primary hover:opacity-95 text-white text-[12px] font-bold transition active:scale-95 flex items-center gap-1.5 shadow-2xs cursor-pointer">
                                         <i data-lucide="users" class="w-3.5 h-3.5"></i>
                                         <span>Pesan Bareng (Group Order)</span>
@@ -4316,39 +4406,49 @@
 
                             {{-- Batch Date Chips Grid --}}
                             <div>
-                                <div class="text-[11.5px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45 mb-2 flex items-center justify-between">
+                                <div
+                                    class="text-[11.5px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45 mb-2 flex items-center justify-between">
                                     <span>Pilihan Jadwal Batch Pengiriman</span>
-                                    <span class="text-[11px] font-normal text-brand-primary">Pilihan Anda otomatis tersimpan saat memesan</span>
+                                    <span class="text-[11px] font-normal text-brand-primary">Pilihan Anda otomatis
+                                        tersimpan saat memesan</span>
                                 </div>
                                 <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5">
                                     @foreach ($availableBatchDates as $batch)
                                         @php
-                                            $bSoldOut = (bool) ($batch['is_sold_out'] ?? $batch['is_full'] ?? false);
+                                            $bSoldOut = (bool) ($batch['is_sold_out'] ?? ($batch['is_full'] ?? false));
                                             $bQuota = $batch['remaining_quota'] ?? null;
-                                            $bDayName = $batch['day_name_upper'] ?? strtoupper($batch['day_name'] ?? '');
-                                            $bDayShort = $batch['day_short'] ?? $batch['short_date'] ?? ($batch['date'] ?? '');
+                                            $bDayName =
+                                                $batch['day_name_upper'] ?? strtoupper($batch['day_name'] ?? '');
+                                            $bDayShort =
+                                                $batch['day_short'] ?? ($batch['short_date'] ?? ($batch['date'] ?? ''));
                                             $bDate = $batch['date'] ?? '';
-                                            $bUnit = $batch['quota_unit'] ?? ($storeSetting?->preorder_quota_unit ?? 'PCS');
+                                            $bUnit =
+                                                $batch['quota_unit'] ?? ($storeSetting?->preorder_quota_unit ?? 'PCS');
                                         @endphp
                                         <button type="button"
-                                            @if (!$bSoldOut)
-                                                @click="selectBatch('{{ $bDate }}')"
-                                            @endif
+                                            @if (!$bSoldOut) @click="selectBatch('{{ $bDate }}')" @endif
                                             class="p-3 rounded-[16px] border text-left transition relative flex flex-col justify-between cursor-pointer active:scale-[0.98] {{ $bSoldOut ? 'opacity-50 cursor-not-allowed bg-black/5 dark:bg-white/5 border-dashed border-black/10 dark:border-white/10' : '' }}"
-                                            :class="checkoutForm.scheduled_date === '{{ $bDate }}' ? 'border-brand-primary bg-white dark:bg-black/40 text-brand-primary ring-2 ring-brand-primary/30 shadow-xs' : 'border-black/10 dark:border-white/10 bg-white/70 dark:bg-black/20 text-black/80 dark:text-white/80 hover:border-black/20 dark:hover:border-white/20'">
+                                            :class="checkoutForm.scheduled_date === '{{ $bDate }}' ?
+                                                'border-brand-primary bg-white dark:bg-black/40 text-brand-primary ring-2 ring-brand-primary/30 shadow-xs' :
+                                                'border-black/10 dark:border-white/10 bg-white/70 dark:bg-black/20 text-black/80 dark:text-white/80 hover:border-black/20 dark:hover:border-white/20'">
                                             <div class="flex items-center justify-between">
-                                                <span class="text-[11px] font-extrabold uppercase tracking-wider opacity-80">{{ $bDayName }}</span>
+                                                <span
+                                                    class="text-[11px] font-extrabold uppercase tracking-wider opacity-80">{{ $bDayName }}</span>
                                                 @if ($bSoldOut)
-                                                    <span class="px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-red-100 text-red-600 dark:bg-red-900/40 dark:text-red-400">Penuh</span>
+                                                    <span
+                                                        class="px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-red-100 text-red-600 dark:bg-red-900/40 dark:text-red-400">Penuh</span>
                                                 @elseif ($bQuota !== null)
-                                                    <span class="text-[10px] font-bold opacity-75 tabular-nums">Sisa {{ $bQuota }} {{ $bUnit }}</span>
+                                                    <span class="text-[10px] font-bold opacity-75 tabular-nums">Sisa
+                                                        {{ $bQuota }} {{ $bUnit }}</span>
                                                 @endif
                                             </div>
                                             <div class="mt-1 font-extrabold text-[14px] tabular-nums tracking-tight">
                                                 {{ $bDayShort }}
                                             </div>
                                             @if (!empty($batch['note']))
-                                                <div class="text-[10.5px] text-black/50 dark:text-white/50 truncate mt-0.5">{{ $batch['note'] }}</div>
+                                                <div
+                                                    class="text-[10.5px] text-black/50 dark:text-white/50 truncate mt-0.5">
+                                                    {{ $batch['note'] }}</div>
                                             @endif
                                         </button>
                                     @endforeach
@@ -4475,7 +4575,8 @@
                                                 <i data-lucide="package" :class="prod.image_url ? 'hidden' : ''"
                                                     class="w-8 h-8 text-black/30 dark:text-white/30"></i>
                                                 <template x-if="prod.is_preorder">
-                                                    <span class="absolute top-2 right-2 px-2 py-0.5 rounded-[6px] bg-amber-500/90 dark:bg-amber-600/90 text-white backdrop-blur text-[10px] font-semibold tracking-wide shadow-xs tabular-nums"
+                                                    <span
+                                                        class="absolute top-2 right-2 px-2 py-0.5 rounded-[6px] bg-amber-500/90 dark:bg-amber-600/90 text-white backdrop-blur text-[10px] font-semibold tracking-wide shadow-xs tabular-nums"
                                                         x-text="prod.preorder_lead_days > 1 ? 'PO H-' + prod.preorder_lead_days : 'Pre-Order'"></span>
                                                 </template>
                                             </div>
@@ -4494,7 +4595,8 @@
                                             </template>
                                             <template x-if="Number(prod.price || 0) <= 0">
                                                 <span
-                                                    class="font-medium text-[12px] sm:text-[12.5px] text-black/60 dark:text-white/60 italic">Hubungi Kami</span>
+                                                    class="font-medium text-[12px] sm:text-[12.5px] text-black/60 dark:text-white/60 italic">Hubungi
+                                                    Kami</span>
                                             </template>
                                             <div class="flex items-center gap-1.5">
                                                 <template x-if="Number(prod.price || 0) > 0">
@@ -4506,10 +4608,14 @@
                                                     </button>
                                                 </template>
                                                 <template x-if="Number(prod.price || 0) <= 0">
-                                                    <a :href="waLink(prod.name, false)" target="_blank" rel="noopener" @click.stop
+                                                    <a :href="waLink(prod.name, false)" target="_blank"
+                                                        rel="noopener" @click.stop
                                                         class="h-7 px-2.5 rounded-full bg-[#25D366] text-white text-[11px] font-semibold hover:opacity-90 flex items-center gap-1 transition active:scale-95 shadow-xs cursor-pointer"
                                                         title="Hubungi via WhatsApp">
-                                                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413A11.824 11.824 0 0 0 12.05 0z"/></svg>
+                                                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+                                                            <path
+                                                                d="M12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413A11.824 11.824 0 0 0 12.05 0z" />
+                                                        </svg>
                                                         <span>Tanya WA</span>
                                                     </a>
                                                 </template>
@@ -4557,7 +4663,8 @@
                                                                 class="w-8 h-8 text-black/30 dark:text-white/30"></i>
                                                         @endif
                                                         @if ($prod->is_preorder)
-                                                            <span class="absolute top-2 right-2 px-2 py-0.5 rounded-[6px] bg-amber-500/90 dark:bg-amber-600/90 text-white backdrop-blur text-[10px] font-semibold tracking-wide shadow-xs tabular-nums">
+                                                            <span
+                                                                class="absolute top-2 right-2 px-2 py-0.5 rounded-[6px] bg-amber-500/90 dark:bg-amber-600/90 text-white backdrop-blur text-[10px] font-semibold tracking-wide shadow-xs tabular-nums">
                                                                 {{ $prod->preorder_lead_days > 1 ? 'PO H-' . $prod->preorder_lead_days : 'Pre-Order' }}
                                                             </span>
                                                         @endif
@@ -4587,12 +4694,18 @@
                                                         </div>
                                                     @else
                                                         <span
-                                                            class="font-medium text-[12px] sm:text-[12.5px] text-black/60 dark:text-white/60 italic">Hubungi Kami</span>
+                                                            class="font-medium text-[12px] sm:text-[12.5px] text-black/60 dark:text-white/60 italic">Hubungi
+                                                            Kami</span>
                                                         <div class="flex items-center gap-1.5">
-                                                            <a :href="waLink('{{ addslashes($prod->name) }}', false)" target="_blank" rel="noopener" @click.stop
+                                                            <a :href="waLink('{{ addslashes($prod->name) }}', false)"
+                                                                target="_blank" rel="noopener" @click.stop
                                                                 class="h-7 px-2.5 rounded-full bg-[#25D366] text-white text-[11px] font-semibold hover:opacity-90 flex items-center gap-1 transition active:scale-95 shadow-xs cursor-pointer"
                                                                 title="Hubungi via WhatsApp">
-                                                                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413A11.824 11.824 0 0 0 12.05 0z"/></svg>
+                                                                <svg class="w-3 h-3" fill="currentColor"
+                                                                    viewBox="0 0 24 24">
+                                                                    <path
+                                                                        d="M12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413A11.824 11.824 0 0 0 12.05 0z" />
+                                                                </svg>
                                                                 <span>Tanya WA</span>
                                                             </a>
                                                         </div>
@@ -4628,8 +4741,7 @@
     @if ($sectionVisibility['gallery'] && $allGalleryImages->isNotEmpty())
         <section id="galeri" data-section="gallery" class="py-12 sm:py-16"
             x-show="activeMainTab === 'gallery' || activeMainTab === 'all'"
-            x-transition:enter="transition ease-out duration-200"
-            x-transition:enter-start="opacity-0 translate-y-2"
+            x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-2"
             x-transition:enter-end="opacity-100 translate-y-0">
             <div class="max-w-6xl mx-auto px-4 sm:px-6 space-y-8">
                 <div class="text-center space-y-2">
@@ -4932,8 +5044,7 @@
     @if ($sectionVisibility['about'] && $hasAbout)
         <section id="tentang" data-section="about" class="py-12 sm:py-16"
             x-show="activeMainTab === 'about' || activeMainTab === 'all'"
-            x-transition:enter="transition ease-out duration-200"
-            x-transition:enter-start="opacity-0 translate-y-2"
+            x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-2"
             x-transition:enter-end="opacity-100 translate-y-0">
             <div class="max-w-6xl mx-auto px-4 sm:px-6 space-y-8">
                 <div class="text-center space-y-2">
@@ -5101,10 +5212,8 @@
     {{-- TESTIMONI PELANGGAN (Apple Bento Review Cards)                            --}}
     {{-- ========================================================================= --}}
     @if ($sectionVisibility['testimonials'] && $testimonials->isNotEmpty())
-        <section class="py-12 sm:py-16"
-            x-show="activeMainTab === 'about' || activeMainTab === 'all'"
-            x-transition:enter="transition ease-out duration-200"
-            x-transition:enter-start="opacity-0 translate-y-2"
+        <section class="py-12 sm:py-16" x-show="activeMainTab === 'about' || activeMainTab === 'all'"
+            x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-2"
             x-transition:enter-end="opacity-100 translate-y-0">
             <div class="max-w-6xl mx-auto px-4 sm:px-6 space-y-8">
                 <div class="text-center max-w-xl mx-auto space-y-2">
@@ -5168,8 +5277,7 @@
     @if ($sectionVisibility['faq'] && $faqs->isNotEmpty())
         <section id="faq" class="py-12 sm:py-16"
             x-show="activeMainTab === 'info' || activeMainTab === 'all'"
-            x-transition:enter="transition ease-out duration-200"
-            x-transition:enter-start="opacity-0 translate-y-2"
+            x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-2"
             x-transition:enter-end="opacity-100 translate-y-0">
             <div class="max-w-4xl mx-auto px-4 sm:px-6 space-y-7" x-data="{ openFaq: null }">
                 <div class="text-center space-y-2">
@@ -5213,8 +5321,7 @@
     @if ($sectionVisibility['contact'] && $hasContact)
         <section id="lokasi" data-section="contact" class="py-12 sm:py-16"
             x-show="activeMainTab === 'info' || activeMainTab === 'all'"
-            x-transition:enter="transition ease-out duration-200"
-            x-transition:enter-start="opacity-0 translate-y-2"
+            x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-2"
             x-transition:enter-end="opacity-100 translate-y-0">
             <div class="max-w-6xl mx-auto px-4 sm:px-6 space-y-8">
                 <div class="text-center max-w-xl mx-auto space-y-2">
@@ -5354,7 +5461,8 @@
         class="storefront-sheet-overlay fixed inset-0 z-[70] bg-black/40 backdrop-blur-sm p-4 flex items-center justify-center"
         role="dialog" aria-modal="true">
         <div class="storefront-sheet w-full max-h-[90vh] overflow-y-auto rounded-[24px] bg-white/95 dark:bg-[#1C1C1E]/95 backdrop-blur-2xl border border-black/10 dark:border-white/10 shadow-[0_25px_60px_rgba(0,0,0,0.3)] p-5 sm:p-7 transition-all duration-300"
-            :class="activeModal === 'all-gallery' ? 'w-full max-w-full sm:max-w-4xl lg:max-w-5xl' : 'w-full max-w-full sm:max-w-2xl md:max-w-3xl lg:max-w-4xl'">
+            :class="activeModal === 'all-gallery' ? 'w-full max-w-full sm:max-w-4xl lg:max-w-5xl' :
+                'w-full max-w-full sm:max-w-2xl md:max-w-3xl lg:max-w-4xl'">
 
             <div
                 class="flex items-center justify-between gap-3 mb-5 border-b border-black/5 dark:border-white/5 pb-3">
@@ -5383,7 +5491,8 @@
                         class="absolute top-3 left-3 px-2.5 py-0.5 rounded-full bg-white/90 dark:bg-black/80 backdrop-blur text-[10.5px] font-semibold uppercase tracking-wider text-brand-primary shadow-sm shrink-0 whitespace-nowrap"
                         x-text="activeItem?.category || 'Layanan'"></span>
                     <template x-if="activeItem?.is_preorder">
-                        <span class="absolute top-3 right-3 px-2.5 py-0.5 rounded-[6px] bg-amber-500/90 dark:bg-amber-600/90 text-white backdrop-blur text-[10.5px] font-semibold tracking-wide shadow-xs tabular-nums shrink-0 whitespace-nowrap"
+                        <span
+                            class="absolute top-3 right-3 px-2.5 py-0.5 rounded-[6px] bg-amber-500/90 dark:bg-amber-600/90 text-white backdrop-blur text-[10.5px] font-semibold tracking-wide shadow-xs tabular-nums shrink-0 whitespace-nowrap"
                             x-text="activeItem.preorder_lead_days > 1 ? 'PO H-' + activeItem.preorder_lead_days : 'Pre-Order'"></span>
                     </template>
                 </div>
@@ -5422,7 +5531,8 @@
                         </div>
 
                         {{-- Group Order Item Notes (if active) --}}
-                        <div x-show="activeModal === 'product' && groupOrder.active && !groupOrder.data?.is_locked && !groupOrder.data?.is_checked_out && Number(activeItem?.price || 0) > 0" class="pt-1">
+                        <div x-show="activeModal === 'product' && groupOrder.active && !groupOrder.data?.is_locked && !groupOrder.data?.is_checked_out && Number(activeItem?.price || 0) > 0"
+                            class="pt-1">
                             <input type="text" x-model="groupOrder.itemNotes"
                                 placeholder="Catatan untuk Anda (cth: Budi - Pedas sedang, sambal pisah)"
                                 class="w-full h-9 px-3 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 text-[12px] text-black dark:text-white placeholder:text-black/40 dark:placeholder:text-white/40 focus:outline-none focus:ring-1 focus:ring-brand-primary">
@@ -5436,8 +5546,10 @@
                         </div>
 
                         {{-- Product Modal Actions --}}
-                        <div class="flex items-center gap-2 flex-wrap sm:flex-nowrap" x-show="activeModal === 'product'">
-                            <template x-if="groupOrder.active && !groupOrder.data?.is_locked && !groupOrder.data?.is_checked_out && isStorefrontEnabled && activeItem?.show_price_on_web !== false && Number(activeItem?.price || 0) > 0">
+                        <div class="flex items-center gap-2 flex-wrap sm:flex-nowrap"
+                            x-show="activeModal === 'product'">
+                            <template
+                                x-if="groupOrder.active && !groupOrder.data?.is_locked && !groupOrder.data?.is_checked_out && isStorefrontEnabled && activeItem?.show_price_on_web !== false && Number(activeItem?.price || 0) > 0">
                                 <button type="button"
                                     @click="addGroupOrderItem(activeItem, modalQty, groupOrder.itemNotes); groupOrder.itemNotes = '';"
                                     :disabled="groupOrder.actionLoading"
@@ -5446,7 +5558,8 @@
                                     <span>+ Pesan Bareng</span>
                                 </button>
                             </template>
-                            <template x-if="isStorefrontEnabled && activeItem?.show_price_on_web !== false && Number(activeItem?.price || 0) > 0">
+                            <template
+                                x-if="isStorefrontEnabled && activeItem?.show_price_on_web !== false && Number(activeItem?.price || 0) > 0">
                                 <button type="button"
                                     @click="directCheckout(activeItem, modalQty); activeModal = null;"
                                     class="flex-1 h-10 px-4 rounded-full bg-brand-primary text-white text-[13px] font-semibold tracking-tight shadow-sm hover:opacity-90 active:scale-[0.97] transition flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap shrink-0">
@@ -5457,13 +5570,17 @@
                             <a :href="activeItem ? waLink(activeItem.title || activeItem.name, false) : '#'"
                                 target="_blank" rel="noopener"
                                 class="h-10 px-4 rounded-full text-[13px] font-semibold tracking-tight transition flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap shrink-0"
-                                :class="!isStorefrontEnabled || activeItem?.show_price_on_web === false || Number(activeItem?.price || 0) <= 0 ? 'flex-1 bg-[#25D366] text-white hover:opacity-90 shadow-xs' : 'bg-[#34C759]/10 text-[#248A3D] dark:text-[#30D158] hover:bg-[#34C759]/20'"
+                                :class="!isStorefrontEnabled || activeItem?.show_price_on_web === false || Number(activeItem
+                                        ?.price || 0) <= 0 ?
+                                    'flex-1 bg-[#25D366] text-white hover:opacity-90 shadow-xs' :
+                                    'bg-[#34C759]/10 text-[#248A3D] dark:text-[#30D158] hover:bg-[#34C759]/20'"
                                 title="WhatsApp">
                                 <svg class="w-4 h-4 shrink-0" fill="currentColor" viewBox="0 0 24 24">
                                     <path
                                         d="M12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413A11.824 11.824 0 0 0 12.05 0z" />
                                 </svg>
-                                <span x-text="(!isStorefrontEnabled || activeItem?.show_price_on_web === false || Number(activeItem?.price || 0) <= 0) ? 'Hubungi via WhatsApp' : 'WA'"></span>
+                                <span
+                                    x-text="(!isStorefrontEnabled || activeItem?.show_price_on_web === false || Number(activeItem?.price || 0) <= 0) ? 'Hubungi via WhatsApp' : 'WA'"></span>
                             </a>
                         </div>
 
@@ -5551,7 +5668,7 @@
         class="storefront-sheet-overlay fixed inset-0 z-[80] bg-black/60 backdrop-blur-md p-2 sm:p-4 md:p-6 lg:p-8 flex items-center justify-center transition-all duration-300"
         role="dialog" aria-modal="true">
 
-        <div class="storefront-sheet storefront-catalog-sheet w-full h-full max-h-[96vh] md:max-h-[90vh] md:w-[94vw] lg:w-[92vw] xl:max-w-7xl rounded-[20px] sm:rounded-[28px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 shadow-[0_25px_70px_rgba(0,0,0,0.5)] flex flex-col overflow-hidden transition-all duration-300"
+        <div class="storefront-sheet storefront-catalog-sheet w-full h-full max-h-[96vh] md:max-h-[90vh] md:w-[94vw] lg:w-[92vw] xl:max-w-[1250px] rounded-[20px] sm:rounded-[28px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 shadow-[0_25px_70px_rgba(0,0,0,0.5)] flex flex-col overflow-hidden transition-all duration-300"
             @click.outside="activeModal = null">
 
             {{-- 1. Pinned Header --}}
@@ -5714,7 +5831,8 @@
                                         <i data-lucide="package" class="w-7 h-7 text-black/30 dark:text-white/30"
                                             :class="prod.image_url ? 'hidden' : ''"></i>
                                         <template x-if="prod.is_preorder">
-                                            <span class="absolute top-1.5 right-1.5 px-1.5 py-0.5 rounded-[5px] bg-amber-500/90 dark:bg-amber-600/90 text-white backdrop-blur text-[9.5px] font-semibold tracking-wide shadow-xs tabular-nums"
+                                            <span
+                                                class="absolute top-1.5 right-1.5 px-1.5 py-0.5 rounded-[5px] bg-amber-500/90 dark:bg-amber-600/90 text-white backdrop-blur text-[9.5px] font-semibold tracking-wide shadow-xs tabular-nums"
                                                 x-text="prod.preorder_lead_days > 1 ? 'PO H-' + prod.preorder_lead_days : 'Pre-Order'"></span>
                                         </template>
                                     </div>
@@ -5732,7 +5850,8 @@
                                     </template>
                                     <template x-if="Number(prod.price || 0) <= 0">
                                         <span
-                                            class="text-[11.5px] sm:text-[12px] font-medium text-black/60 dark:text-white/60 italic">Hubungi Kami</span>
+                                            class="text-[11.5px] sm:text-[12px] font-medium text-black/60 dark:text-white/60 italic">Hubungi
+                                            Kami</span>
                                     </template>
                                     <div class="flex items-center gap-1">
                                         <template x-if="isStorefrontEnabled && Number(prod.price || 0) > 0">
@@ -5745,10 +5864,14 @@
                                             </button>
                                         </template>
                                         <template x-if="Number(prod.price || 0) <= 0">
-                                            <a :href="waLink(prod.name, false)" target="_blank" rel="noopener" @click.stop
+                                            <a :href="waLink(prod.name, false)" target="_blank" rel="noopener"
+                                                @click.stop
                                                 class="h-6 sm:h-7 px-2 sm:px-2.5 rounded-full bg-[#25D366] text-white text-[10.5px] sm:text-[11px] font-semibold hover:opacity-90 flex items-center gap-1 transition active:scale-95 shadow-xs cursor-pointer"
                                                 title="Hubungi via WhatsApp">
-                                                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413A11.824 11.824 0 0 0 12.05 0z"/></svg>
+                                                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+                                                    <path
+                                                        d="M12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413A11.824 11.824 0 0 0 12.05 0z" />
+                                                </svg>
                                                 <span>Tanya WA</span>
                                             </a>
                                         </template>
@@ -6234,7 +6357,8 @@
                     <span class="text-[10.5px] opacity-85 font-medium">Keranjang Bersama</span>
                     <span class="w-1.5 h-1.5 rounded-full bg-[#34C759] animate-pulse"></span>
                 </div>
-                <span class="text-[13px] font-extrabold tabular-nums" x-text="formatPrice(groupOrder.data.subtotal || 0)"></span>
+                <span class="text-[13px] font-extrabold tabular-nums"
+                    x-text="formatPrice(groupOrder.data.subtotal || 0)"></span>
             </div>
             <div class="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center ml-0.5">
                 <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
@@ -6387,7 +6511,8 @@
             @click.outside="if(!isCheckingOut) checkoutModalOpen = false">
 
             {{-- Mobile Touch Grab Bar --}}
-            <div class="sm:hidden w-10 h-1.5 bg-black/20 dark:bg-white/20 rounded-full mx-auto -mt-1 mb-2 shrink-0"></div>
+            <div class="sm:hidden w-10 h-1.5 bg-black/20 dark:bg-white/20 rounded-full mx-auto -mt-1 mb-2 shrink-0">
+            </div>
 
             <div class="flex items-center justify-between pb-3 border-b border-black/5 dark:border-white/10">
                 <div class="flex items-center gap-2.5">
@@ -6421,7 +6546,8 @@
                     <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
                         <div class="space-y-0.5">
                             <p class="text-[13px] font-bold text-black dark:text-white">Masuk Akun Pelanggan</p>
-                            <p class="text-[11.5px] text-black/60 dark:text-white/60">Wajib login untuk join Pre-Order &amp; unggah bukti pembayaran.</p>
+                            <p class="text-[11.5px] text-black/60 dark:text-white/60">Wajib login untuk join Pre-Order
+                                &amp; unggah bukti pembayaran.</p>
                         </div>
                         <div class="flex items-center gap-2 flex-wrap shrink-0">
                             <a :href="customerLoginUrl"
@@ -6432,10 +6558,14 @@
                             <a href="{{ route('customer.auth.google') }}?redirect={{ urlencode(url()->current()) }}"
                                 class="px-3 py-2 bg-white dark:bg-black/40 border border-black/10 dark:border-white/10 text-black dark:text-white rounded-xl text-[12px] font-bold hover:border-brand-primary transition active:scale-95 flex items-center gap-1.5 shadow-2xs">
                                 <svg class="w-3.5 h-3.5" viewBox="0 0 24 24">
-                                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
-                                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+                                    <path fill="#4285F4"
+                                        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                                    <path fill="#34A853"
+                                        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                                    <path fill="#FBBC05"
+                                        d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+                                    <path fill="#EA4335"
+                                        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
                                 </svg>
                                 <span>Google</span>
                             </a>
@@ -6454,7 +6584,8 @@
                         <a href="{{ route('customer.otp') }}"
                             class="text-[#FF9500] font-semibold hover:underline">Verifikasi OTP &rarr;</a>
                     @else
-                        <span class="text-[#34C759] font-semibold text-[11.5px] inline-flex items-center gap-1"><i data-lucide="check" class="w-3.5 h-3.5"></i> Terverifikasi</span>
+                        <span class="text-[#34C759] font-semibold text-[11.5px] inline-flex items-center gap-1"><i
+                                data-lucide="check" class="w-3.5 h-3.5"></i> Terverifikasi</span>
                     @endif
                 </div>
             @endguest
@@ -6464,13 +6595,15 @@
                 role="tablist" aria-label="Tahapan Checkout">
                 <button type="button" role="tab" @click="goToCheckoutStep(1)"
                     class="flex-1 flex items-center justify-center gap-2 py-2 px-2.5 sm:px-3 rounded-[12px] text-[12px] sm:text-[13px] font-semibold transition-all cursor-pointer"
-                    :class="checkoutStep === 1
-                        ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-xs font-bold'
-                        : (checkoutStep > 1 ? 'text-brand-primary hover:bg-brand-primary/5' : 'text-black/50 dark:text-white/50')">
+                    :class="checkoutStep === 1 ?
+                        'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-xs font-bold' :
+                        (checkoutStep > 1 ? 'text-brand-primary hover:bg-brand-primary/5' :
+                            'text-black/50 dark:text-white/50')">
                     <span class="w-5 h-5 rounded-full flex items-center justify-center text-[10.5px] font-bold"
-                        :class="checkoutStep === 1
-                            ? 'bg-brand-primary text-white'
-                            : (checkoutStep > 1 ? 'bg-brand-100 text-brand-primary' : 'bg-black/10 dark:bg-white/10 text-black/60 dark:text-white/60')">
+                        :class="checkoutStep === 1 ?
+                            'bg-brand-primary text-white' :
+                            (checkoutStep > 1 ? 'bg-brand-100 text-brand-primary' :
+                                'bg-black/10 dark:bg-white/10 text-black/60 dark:text-white/60')">
                         <template x-if="checkoutStep > 1">
                             <i data-lucide="check" class="w-3 h-3"></i>
                         </template>
@@ -6484,13 +6617,15 @@
                 @if ($hasBatchFeature)
                     <button type="button" role="tab" @click="goToCheckoutStep(2)"
                         class="flex-1 flex items-center justify-center gap-2 py-2 px-2.5 sm:px-3 rounded-[12px] text-[12px] sm:text-[13px] font-semibold transition-all cursor-pointer"
-                        :class="checkoutStep === 2
-                            ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-xs font-bold'
-                            : (checkoutStep > 2 ? 'text-brand-primary hover:bg-brand-primary/5' : 'text-black/50 dark:text-white/50')">
+                        :class="checkoutStep === 2 ?
+                            'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-xs font-bold' :
+                            (checkoutStep > 2 ? 'text-brand-primary hover:bg-brand-primary/5' :
+                                'text-black/50 dark:text-white/50')">
                         <span class="w-5 h-5 rounded-full flex items-center justify-center text-[10.5px] font-bold"
-                            :class="checkoutStep === 2
-                                ? 'bg-brand-primary text-white'
-                                : (checkoutStep > 2 ? 'bg-brand-100 text-brand-primary' : 'bg-black/10 dark:bg-white/10 text-black/60 dark:text-white/60')">
+                            :class="checkoutStep === 2 ?
+                                'bg-brand-primary text-white' :
+                                (checkoutStep > 2 ? 'bg-brand-100 text-brand-primary' :
+                                    'bg-black/10 dark:bg-white/10 text-black/60 dark:text-white/60')">
                             <template x-if="checkoutStep > 2">
                                 <i data-lucide="check" class="w-3 h-3"></i>
                             </template>
@@ -6504,13 +6639,13 @@
 
                 <button type="button" role="tab" @click="goToCheckoutStep(3)"
                     class="flex-1 flex items-center justify-center gap-2 py-2 px-2.5 sm:px-3 rounded-[12px] text-[12px] sm:text-[13px] font-semibold transition-all cursor-pointer"
-                    :class="checkoutStep === 3
-                        ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-xs font-bold'
-                        : 'text-black/50 dark:text-white/50'">
+                    :class="checkoutStep === 3 ?
+                        'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-xs font-bold' :
+                        'text-black/50 dark:text-white/50'">
                     <span class="w-5 h-5 rounded-full flex items-center justify-center text-[10.5px] font-bold"
-                        :class="checkoutStep === 3
-                            ? 'bg-brand-primary text-white'
-                            : 'bg-black/10 dark:bg-white/10 text-black/60 dark:text-white/60'">
+                        :class="checkoutStep === 3 ?
+                            'bg-brand-primary text-white' :
+                            'bg-black/10 dark:bg-white/10 text-black/60 dark:text-white/60'">
                         <span>{{ $hasBatchFeature ? '3' : '2' }}</span>
                     </span>
                     <span class="truncate">{{ $hasBatchFeature ? '3. Pembayaran' : '2. Pembayaran' }}</span>
@@ -6538,14 +6673,16 @@
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div>
-                                <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Nomor
+                                <label
+                                    class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Nomor
                                     WhatsApp <span class="text-red-500">*</span></label>
                                 <input type="tel" x-model="checkoutForm.customer_phone"
                                     placeholder="08123456789"
                                     class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-primary">
                             </div>
                             <div>
-                                <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Email
+                                <label
+                                    class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Email
                                     (Opsional)</label>
                                 <input type="email" x-model="checkoutForm.customer_email"
                                     placeholder="budi@example.com"
@@ -6555,7 +6692,9 @@
 
                         <div>
                             <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">
-                                Nama Kantor / Perusahaan / Drop Point <span class="text-[11px] font-normal text-black/40 dark:text-white/40">(Opsional pesanan bersama)</span>
+                                Nama Kantor / Perusahaan / Drop Point <span
+                                    class="text-[11px] font-normal text-black/40 dark:text-white/40">(Opsional pesanan
+                                    bersama)</span>
                             </label>
                             <input type="text" x-model="checkoutForm.group_name"
                                 placeholder="Contoh: PT Telkom Lantai 8 / Gedung Menara Mandiri"
@@ -6620,17 +6759,20 @@
                             {{-- Kode Pos Tujuan & Hitung Biteship --}}
                             <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 items-end">
                                 <div class="sm:col-span-2">
-                                    <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">
+                                    <label
+                                        class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">
                                         Kode Pos Tujuan <span class="text-red-500">*</span>
                                     </label>
-                                    <input type="text" maxlength="5" x-model="checkoutForm.destination_postal_code"
+                                    <input type="text" maxlength="5"
+                                        x-model="checkoutForm.destination_postal_code"
                                         @input="if (checkoutForm.destination_postal_code && checkoutForm.destination_postal_code.trim().length === 5) fetchShippingQuote()"
                                         @blur="if (checkoutForm.destination_postal_code && checkoutForm.destination_postal_code.trim().length >= 4) fetchShippingQuote()"
                                         placeholder="Contoh: 12310"
                                         class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13px] font-mono text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-primary">
                                 </div>
                                 <div class="sm:col-span-1">
-                                    <button type="button" @click="fetchShippingQuote()" :disabled="checkoutForm.is_loading_shipping"
+                                    <button type="button" @click="fetchShippingQuote()"
+                                        :disabled="checkoutForm.is_loading_shipping"
                                         class="w-full h-11 px-3 rounded-[14px] bg-black/5 hover:bg-black/10 dark:bg-white/10 dark:hover:bg-white/15 text-black dark:text-white text-[12.5px] font-bold transition flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50">
                                         <i data-lucide="truck" class="w-4 h-4 text-brand-primary shrink-0"></i>
                                         <span x-show="!checkoutForm.is_loading_shipping">Cek Kurir</span>
@@ -6646,7 +6788,8 @@
                                     <label class="block text-[12px] font-bold text-black/70 dark:text-white/70">
                                         Pilihan Ekspedisi &amp; Tarif Biteship
                                     </label>
-                                    <span class="text-[11px] text-brand-primary font-semibold flex items-center gap-1">
+                                    <span
+                                        class="text-[11px] text-brand-primary font-semibold flex items-center gap-1">
                                         <i data-lucide="zap" class="w-3 h-3"></i> Real-time API
                                     </span>
                                 </div>
@@ -6654,20 +6797,28 @@
                                     <template x-for="opt in checkoutForm.shipping_options" :key="opt.id">
                                         <div @click="selectCourier(opt)"
                                             class="p-2.5 rounded-[14px] border transition cursor-pointer flex items-center justify-between gap-3"
-                                            :class="checkoutForm.shipping_rule_id === opt.id ? 'border-brand-primary bg-brand-50/70 dark:bg-brand-500/10 shadow-xs' : 'border-black/10 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/5'">
+                                            :class="checkoutForm.shipping_rule_id === opt.id ?
+                                                'border-brand-primary bg-brand-50/70 dark:bg-brand-500/10 shadow-xs' :
+                                                'border-black/10 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/5'">
                                             <div class="flex items-center gap-2.5 min-w-0">
                                                 <div class="w-4 h-4 rounded-full border flex items-center justify-center shrink-0"
-                                                    :class="checkoutForm.shipping_rule_id === opt.id ? 'border-brand-primary bg-brand-primary' : 'border-black/30 dark:border-white/30'">
-                                                    <div x-show="checkoutForm.shipping_rule_id === opt.id" class="w-1.5 h-1.5 rounded-full bg-white"></div>
+                                                    :class="checkoutForm.shipping_rule_id === opt.id ?
+                                                        'border-brand-primary bg-brand-primary' :
+                                                        'border-black/30 dark:border-white/30'">
+                                                    <div x-show="checkoutForm.shipping_rule_id === opt.id"
+                                                        class="w-1.5 h-1.5 rounded-full bg-white"></div>
                                                 </div>
                                                 <div class="min-w-0">
                                                     <div class="flex items-center gap-1.5 flex-wrap">
-                                                        <span class="text-[10px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-black/5 dark:bg-white/10 text-black/80 dark:text-white/80"
+                                                        <span
+                                                            class="text-[10px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-black/5 dark:bg-white/10 text-black/80 dark:text-white/80"
                                                             x-text="(opt.courier_code || 'EXP').toUpperCase()"></span>
-                                                        <span class="text-[13px] font-bold text-black dark:text-white truncate"
+                                                        <span
+                                                            class="text-[13px] font-bold text-black dark:text-white truncate"
                                                             x-text="opt.name"></span>
                                                     </div>
-                                                    <span class="text-[11px] text-black/50 dark:text-white/50 block truncate"
+                                                    <span
+                                                        class="text-[11px] text-black/50 dark:text-white/50 block truncate"
                                                         x-text="opt.description"></span>
                                                 </div>
                                             </div>
@@ -6695,13 +6846,15 @@
                                     <i data-lucide="alert-circle" class="w-4 h-4 shrink-0"></i>
                                     <span>Belum ada kurir aktif untuk rute ini atau hubungi toko.</span>
                                 </div>
-                                <button type="button" @click="fetchShippingQuote()" class="text-[11px] font-bold underline cursor-pointer">Coba Lagi</button>
+                                <button type="button" @click="fetchShippingQuote()"
+                                    class="text-[11px] font-bold underline cursor-pointer">Coba Lagi</button>
                             </div>
                         </div>
                     </div>
 
                     {{-- Step 1 Navigation Buttons --}}
-                    <div class="pt-4 border-t border-black/5 dark:border-white/10 flex items-center justify-between gap-3">
+                    <div
+                        class="pt-4 border-t border-black/5 dark:border-white/10 flex items-center justify-between gap-3">
                         <button type="button" @click="checkoutModalOpen = false"
                             class="h-11 px-5 rounded-[14px] bg-black/5 hover:bg-black/10 dark:bg-white/10 dark:hover:bg-white/15 text-black/70 dark:text-white/70 font-semibold text-[13px] transition cursor-pointer">
                             Batal
@@ -6726,61 +6879,78 @@
                                 <div>
                                     <span
                                         class="text-[12px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45 block">
-                                        {{ ($isUmkmRumahan || $industryGroup === 'fnb') ? 'Jadwal Pre-Order / Batch Pengiriman' : 'Jadwal Pesanan' }}
+                                        {{ $isUmkmRumahan || $industryGroup === 'fnb' ? 'Jadwal Pre-Order / Batch Pengiriman' : 'Jadwal Pesanan' }}
                                     </span>
                                     <template x-if="hasPreorderItems">
-                                        <span class="text-[11px] text-amber-600 dark:text-amber-400 font-medium block">Wajib dijadwalkan (memuat produk Pre-Order)</span>
+                                        <span
+                                            class="text-[11px] text-amber-600 dark:text-amber-400 font-medium block">Wajib
+                                            dijadwalkan (memuat produk Pre-Order)</span>
                                     </template>
                                 </div>
                                 <label class="relative inline-flex items-center cursor-pointer">
-                                    <input type="checkbox" x-model="checkoutForm.is_scheduled" :disabled="hasPreorderItems" class="sr-only peer">
-                                    <div
-                                        class="w-9 h-5 bg-black/10 peer-focus:outline-none rounded-full peer dark:bg-white/10 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-primary"
+                                    <input type="checkbox" x-model="checkoutForm.is_scheduled"
+                                        :disabled="hasPreorderItems" class="sr-only peer">
+                                    <div class="w-9 h-5 bg-black/10 peer-focus:outline-none rounded-full peer dark:bg-white/10 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-primary"
                                         :class="hasPreorderItems ? 'opacity-70 cursor-not-allowed' : ''">
                                     </div>
                                     <span class="ml-2 text-[12px] font-medium text-black/70 dark:text-white/70">
-                                        {{ ($isUmkmRumahan || $industryGroup === 'fnb') ? 'Pilih Batch' : 'Pesan Terjadwal' }}
+                                        {{ $isUmkmRumahan || $industryGroup === 'fnb' ? 'Pilih Batch' : 'Pesan Terjadwal' }}
                                     </span>
                                 </label>
                             </div>
                             <div x-show="checkoutForm.is_scheduled" x-transition
                                 class="space-y-3.5 p-4 sm:p-5 rounded-[20px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/10 dark:border-white/10">
-                                
+
                                 {{-- Interactive Batch Date Chips (for Pre-Order B2C) --}}
                                 @if (!empty($availableBatchDates))
                                     <div>
-                                        <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-2">
+                                        <label
+                                            class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-2">
                                             Pilih Batch Pengiriman <span class="text-red-500">*</span>
                                         </label>
                                         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5">
                                             @foreach ($availableBatchDates as $batch)
                                                 @php
-                                                    $bSoldOut = (bool) ($batch['is_sold_out'] ?? $batch['is_full'] ?? false);
+                                                    $bSoldOut =
+                                                        (bool) ($batch['is_sold_out'] ?? ($batch['is_full'] ?? false));
                                                     $bQuota = $batch['remaining_quota'] ?? null;
-                                                    $bDayName = $batch['day_name_upper'] ?? strtoupper($batch['day_name'] ?? '');
-                                                    $bDayShort = $batch['day_short'] ?? $batch['short_date'] ?? ($batch['date'] ?? '');
+                                                    $bDayName =
+                                                        $batch['day_name_upper'] ??
+                                                        strtoupper($batch['day_name'] ?? '');
+                                                    $bDayShort =
+                                                        $batch['day_short'] ??
+                                                        ($batch['short_date'] ?? ($batch['date'] ?? ''));
                                                     $bDate = $batch['date'] ?? '';
-                                                    $bUnit = $batch['quota_unit'] ?? ($storeSetting?->preorder_quota_unit ?? 'PCS');
+                                                    $bUnit =
+                                                        $batch['quota_unit'] ??
+                                                        ($storeSetting?->preorder_quota_unit ?? 'PCS');
                                                 @endphp
                                                 <button type="button"
-                                                    @if (!$bSoldOut)
-                                                        @click="checkoutForm.scheduled_date = '{{ $bDate }}'"
-                                                    @endif
+                                                    @if (!$bSoldOut) @click="checkoutForm.scheduled_date = '{{ $bDate }}'" @endif
                                                     class="p-2.5 rounded-[12px] border text-left transition relative flex flex-col justify-between cursor-pointer active:scale-[0.98] {{ $bSoldOut ? 'opacity-50 cursor-not-allowed bg-black/5 dark:bg-white/5 border-dashed border-black/10 dark:border-white/10' : '' }}"
-                                                    :class="checkoutForm.scheduled_date === '{{ $bDate }}' ? 'border-brand-primary bg-brand-primary/10 text-brand-primary ring-1 ring-brand-primary/30' : 'border-black/10 dark:border-white/10 bg-white dark:bg-black/20 text-black/80 dark:text-white/80 hover:border-black/20 dark:hover:border-white/20'">
+                                                    :class="checkoutForm.scheduled_date === '{{ $bDate }}' ?
+                                                        'border-brand-primary bg-brand-primary/10 text-brand-primary ring-1 ring-brand-primary/30' :
+                                                        'border-black/10 dark:border-white/10 bg-white dark:bg-black/20 text-black/80 dark:text-white/80 hover:border-black/20 dark:hover:border-white/20'">
                                                     <div class="flex items-center justify-between">
-                                                        <span class="text-[11px] font-bold uppercase tracking-wider opacity-80">{{ $bDayName }}</span>
+                                                        <span
+                                                            class="text-[11px] font-bold uppercase tracking-wider opacity-80">{{ $bDayName }}</span>
                                                         @if ($bSoldOut)
-                                                            <span class="px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-red-100 text-red-600 dark:bg-red-900/40 dark:text-red-400">Penuh</span>
+                                                            <span
+                                                                class="px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-red-100 text-red-600 dark:bg-red-900/40 dark:text-red-400">Penuh</span>
                                                         @elseif ($bQuota !== null)
-                                                            <span class="text-[10px] font-semibold opacity-70 tabular-nums">Sisa {{ $bQuota }} {{ $bUnit }}</span>
+                                                            <span
+                                                                class="text-[10px] font-semibold opacity-70 tabular-nums">Sisa
+                                                                {{ $bQuota }} {{ $bUnit }}</span>
                                                         @endif
                                                     </div>
-                                                    <div class="mt-1 font-bold text-[13px] tabular-nums tracking-tight">
+                                                    <div
+                                                        class="mt-1 font-bold text-[13px] tabular-nums tracking-tight">
                                                         {{ $bDayShort }}
                                                     </div>
                                                     @if (!empty($batch['note']))
-                                                        <div class="text-[10px] text-black/50 dark:text-white/50 truncate mt-0.5">{{ $batch['note'] }}</div>
+                                                        <div
+                                                            class="text-[10px] text-black/50 dark:text-white/50 truncate mt-0.5">
+                                                            {{ $batch['note'] }}</div>
                                                     @endif
                                                 </button>
                                             @endforeach
@@ -6796,31 +6966,39 @@
                                     {{-- Custom Date Picker Fallback / Alternative --}}
                                     <div>
                                         <div class="flex items-center justify-between mb-1">
-                                            <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70">
-                                                {{ !empty($availableBatchDates) ? 'Atau Pilih Tanggal Sendiri' : 'Pilih Tanggal' }} <span class="text-red-500">*</span>
+                                            <label
+                                                class="block text-[12px] font-semibold text-black/70 dark:text-white/70">
+                                                {{ !empty($availableBatchDates) ? 'Atau Pilih Tanggal Sendiri' : 'Pilih Tanggal' }}
+                                                <span class="text-red-500">*</span>
                                             </label>
                                         </div>
                                         <input type="date" :min="minPreorderDate"
                                             x-model="checkoutForm.scheduled_date"
                                             class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-primary">
                                         @if ($storeSetting?->cut_off_time)
-                                            <p class="text-[11px] text-black/50 dark:text-white/50 mt-1 flex items-center gap-1">
+                                            <p
+                                                class="text-[11px] text-black/50 dark:text-white/50 mt-1 flex items-center gap-1">
                                                 <i data-lucide="clock" class="w-3 h-3 text-amber-500"></i>
-                                                <span>Batas pesanan masuk hari ini: {{ substr((string) $storeSetting->cut_off_time, 0, 5) }} WIB.</span>
+                                                <span>Batas pesanan masuk hari ini:
+                                                    {{ substr((string) $storeSetting->cut_off_time, 0, 5) }}
+                                                    WIB.</span>
                                             </p>
                                         @endif
                                     </div>
                                 @else
                                     {{-- Batch Only Guide Notice --}}
-                                    <div class="flex items-center gap-2 p-2.5 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.04] text-[11.5px] text-black/60 dark:text-white/60">
+                                    <div
+                                        class="flex items-center gap-2 p-2.5 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.04] text-[11.5px] text-black/60 dark:text-white/60">
                                         <i data-lucide="info" class="w-4 h-4 text-brand-primary shrink-0"></i>
-                                        <span>Pengiriman hanya dibuka pada tanggal batch di atas. Silakan pilih salah satu batch pengiriman yang tersedia.</span>
+                                        <span>Pengiriman hanya dibuka pada tanggal batch di atas. Silakan pilih salah
+                                            satu batch pengiriman yang tersedia.</span>
                                     </div>
                                 @endif
 
                                 {{-- Time Slot Selector --}}
                                 <div>
-                                    <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">
+                                    <label
+                                        class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">
                                         Slot Waktu Pengantaran / Pengambilan (Opsional)
                                     </label>
                                     @php
@@ -6846,7 +7024,8 @@
                         </div>
 
                         {{-- Step 2 Navigation Buttons --}}
-                        <div class="pt-4 border-t border-black/5 dark:border-white/10 flex items-center justify-between gap-3">
+                        <div
+                            class="pt-4 border-t border-black/5 dark:border-white/10 flex items-center justify-between gap-3">
                             <button type="button" @click="goToCheckoutStep(1)"
                                 class="h-11 px-5 rounded-[14px] bg-black/5 hover:bg-black/10 dark:bg-white/10 dark:hover:bg-white/15 text-black/70 dark:text-white/70 font-semibold text-[13px] transition flex items-center gap-2 cursor-pointer">
                                 <i data-lucide="arrow-left" class="w-4 h-4"></i>
@@ -6873,10 +7052,12 @@
                             <div class="space-y-3.5">
                                 <div class="flex items-center justify-between gap-2 flex-wrap pb-0.5">
                                     <div>
-                                        <span class="text-[12px] font-bold uppercase tracking-wider text-black/50 dark:text-white/50 block">
+                                        <span
+                                            class="text-[12px] font-bold uppercase tracking-wider text-black/50 dark:text-white/50 block">
                                             Metode Pembayaran
                                         </span>
-                                        <p class="text-[11.5px] text-black/45 dark:text-white/45">Pilih pembayaran instan QRIS / VA atau transfer manual.</p>
+                                        <p class="text-[11.5px] text-black/45 dark:text-white/45">Pilih pembayaran
+                                            instan QRIS / VA atau transfer manual.</p>
                                     </div>
                                     @if ($storeSetting?->order_auto_cancel_minutes)
                                         <span
@@ -6889,17 +7070,25 @@
 
                                 {{-- Segmented Switcher (Otomatis vs Rekening Toko) --}}
                                 @if ($paymentMethods->isNotEmpty())
-                                    <div class="flex p-1 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 gap-1">
-                                        <button type="button" @click="checkoutForm.payment_gateway = 'tripay'; if(!checkoutForm.payment_channel) checkoutForm.payment_channel = 'QRIS';"
+                                    <div
+                                        class="flex p-1 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 gap-1">
+                                        <button type="button"
+                                            @click="checkoutForm.payment_gateway = 'tripay'; if(!checkoutForm.payment_channel) checkoutForm.payment_channel = 'QRIS';"
                                             class="flex-1 h-9 rounded-[10px] text-[12.5px] font-bold transition flex items-center justify-center gap-1.5 cursor-pointer"
-                                            :class="checkoutForm.payment_gateway === 'tripay' ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-xs' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white'">
+                                            :class="checkoutForm.payment_gateway === 'tripay' ?
+                                                'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-xs' :
+                                                'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white'">
                                             <i data-lucide="qr-code" class="w-3.5 h-3.5 text-brand-primary"></i>
                                             <span>QRIS &amp; Virtual Account</span>
-                                            <span class="px-1.5 py-0.2 rounded-full text-[9.5px] font-extrabold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">Instan</span>
+                                            <span
+                                                class="px-1.5 py-0.2 rounded-full text-[9.5px] font-extrabold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">Instan</span>
                                         </button>
-                                        <button type="button" @click="checkoutForm.payment_gateway = 'manual'; if(!checkoutForm.payment_method_id) checkoutForm.payment_method_id = '{{ $paymentMethods->first()?->id ?? '' }}';"
+                                        <button type="button"
+                                            @click="checkoutForm.payment_gateway = 'manual'; if(!checkoutForm.payment_method_id) checkoutForm.payment_method_id = '{{ $paymentMethods->first()?->id ?? '' }}';"
                                             class="flex-1 h-9 rounded-[10px] text-[12.5px] font-semibold transition flex items-center justify-center gap-1.5 cursor-pointer"
-                                            :class="checkoutForm.payment_gateway === 'manual' ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-xs' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white'">
+                                            :class="checkoutForm.payment_gateway === 'manual' ?
+                                                'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-xs' :
+                                                'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white'">
                                             <i data-lucide="landmark" class="w-3.5 h-3.5"></i>
                                             <span>Transfer Toko</span>
                                         </button>
@@ -6911,34 +7100,53 @@
                                     {{-- QRIS Dinamis Card --}}
                                     <div class="rounded-[18px] border p-4 transition cursor-pointer relative"
                                         @click="checkoutForm.payment_channel = 'QRIS'"
-                                        :class="checkoutForm.payment_channel === 'QRIS' ? 'border-brand-primary bg-brand-primary/[0.04] ring-1 ring-brand-primary/30 shadow-xs' : 'border-black/10 dark:border-white/10 hover:border-black/20 dark:hover:border-white/20 bg-black/[0.01] dark:bg-white/[0.02]'">
+                                        :class="checkoutForm.payment_channel === 'QRIS' ?
+                                            'border-brand-primary bg-brand-primary/[0.04] ring-1 ring-brand-primary/30 shadow-xs' :
+                                            'border-black/10 dark:border-white/10 hover:border-black/20 dark:hover:border-white/20 bg-black/[0.01] dark:bg-white/[0.02]'">
                                         <div class="flex items-start gap-3">
                                             <div class="w-5 h-5 rounded-full border flex items-center justify-center shrink-0 mt-0.5"
-                                                :class="checkoutForm.payment_channel === 'QRIS' ? 'border-brand-primary bg-brand-primary text-white' : 'border-black/30 dark:border-white/30'">
-                                                <div class="w-2 h-2 rounded-full bg-white" x-show="checkoutForm.payment_channel === 'QRIS'"></div>
+                                                :class="checkoutForm.payment_channel === 'QRIS' ?
+                                                    'border-brand-primary bg-brand-primary text-white' :
+                                                    'border-black/30 dark:border-white/30'">
+                                                <div class="w-2 h-2 rounded-full bg-white"
+                                                    x-show="checkoutForm.payment_channel === 'QRIS'"></div>
                                             </div>
                                             <div class="flex-1 min-w-0">
                                                 <div class="flex items-center justify-between gap-2 flex-wrap">
                                                     <div class="flex items-center gap-2">
-                                                        <span class="text-[14.5px] font-bold text-black dark:text-white">QRIS Dinamis</span>
-                                                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-brand-primary/10 text-brand-primary">Paling Populer</span>
+                                                        <span
+                                                            class="text-[14.5px] font-bold text-black dark:text-white">QRIS
+                                                            Dinamis</span>
+                                                        <span
+                                                            class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-brand-primary/10 text-brand-primary">Paling
+                                                            Populer</span>
                                                     </div>
-                                                    <span class="text-[11.5px] font-bold text-emerald-600 dark:text-emerald-400">Bebas Biaya Admin</span>
+                                                    <span
+                                                        class="text-[11.5px] font-bold text-emerald-600 dark:text-emerald-400">Bebas
+                                                        Biaya Admin</span>
                                                 </div>
-                                                <p class="text-[12px] text-black/60 dark:text-white/60 mt-1 leading-relaxed">
-                                                    Dapat dipindai dengan semua e-Wallet &amp; m-Banking (GoPay, OVO, Dana, ShopeePay, BCA, Livin Mandiri, BRImo, dll). Verifikasi otomatis detik itu juga tanpa perlu upload struk.
+                                                <p
+                                                    class="text-[12px] text-black/60 dark:text-white/60 mt-1 leading-relaxed">
+                                                    Dapat dipindai dengan semua e-Wallet &amp; m-Banking (GoPay, OVO,
+                                                    Dana, ShopeePay, BCA, Livin Mandiri, BRImo, dll). Verifikasi
+                                                    otomatis detik itu juga tanpa perlu upload struk.
                                                 </p>
-                                                <div class="mt-2.5 pt-2 border-t border-black/5 dark:border-white/5 flex items-center gap-1.5 text-[11px] text-black/45 dark:text-white/45">
-                                                    <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-500"></i>
-                                                    <span>Biaya transaksi QRIS (Rp 750 + 0,7%) disubsidi oleh toko.</span>
+                                                <div
+                                                    class="mt-2.5 pt-2 border-t border-black/5 dark:border-white/5 flex items-center gap-1.5 text-[11px] text-black/45 dark:text-white/45">
+                                                    <i data-lucide="shield-check"
+                                                        class="w-3.5 h-3.5 text-emerald-500"></i>
+                                                    <span>Biaya transaksi QRIS (Rp 750 + 0,7%) disubsidi oleh
+                                                        toko.</span>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
 
                                     {{-- Virtual Account Selector Card --}}
-                                    <div class="rounded-[18px] border border-black/10 dark:border-white/10 p-4 space-y-3 bg-black/[0.01] dark:bg-white/[0.02]">
-                                        <span class="text-[12px] font-bold uppercase tracking-wider text-black/60 dark:text-white/60 block">
+                                    <div
+                                        class="rounded-[18px] border border-black/10 dark:border-white/10 p-4 space-y-3 bg-black/[0.01] dark:bg-white/[0.02]">
+                                        <span
+                                            class="text-[12px] font-bold uppercase tracking-wider text-black/60 dark:text-white/60 block">
                                             Pilihan Virtual Account (Multi-Bank)
                                         </span>
                                         <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -6953,11 +7161,17 @@
                                                 ];
                                             @endphp
                                             @foreach ($vaChannels as $va)
-                                                <button type="button" @click="checkoutForm.payment_channel = '{{ $va['code'] }}'"
+                                                <button type="button"
+                                                    @click="checkoutForm.payment_channel = '{{ $va['code'] }}'"
                                                     class="p-2.5 rounded-[12px] border text-left transition relative flex flex-col justify-between cursor-pointer active:scale-[0.98]"
-                                                    :class="checkoutForm.payment_channel === '{{ $va['code'] }}' ? 'border-brand-primary bg-brand-primary/10 text-brand-primary ring-1 ring-brand-primary/30 font-bold' : 'border-black/10 dark:border-white/10 bg-white dark:bg-[#1C1C1E] text-black/80 dark:text-white/80 hover:border-black/20 dark:hover:border-white/20 font-semibold'">
-                                                    <span class="text-[12.5px] leading-tight">{{ $va['name'] }}</span>
-                                                    <span class="text-[10px] text-black/45 dark:text-white/45 mt-1">Otomatis Lunas</span>
+                                                    :class="checkoutForm.payment_channel === '{{ $va['code'] }}' ?
+                                                        'border-brand-primary bg-brand-primary/10 text-brand-primary ring-1 ring-brand-primary/30 font-bold' :
+                                                        'border-black/10 dark:border-white/10 bg-white dark:bg-[#1C1C1E] text-black/80 dark:text-white/80 hover:border-black/20 dark:hover:border-white/20 font-semibold'">
+                                                    <span
+                                                        class="text-[12.5px] leading-tight">{{ $va['name'] }}</span>
+                                                    <span
+                                                        class="text-[10px] text-black/45 dark:text-white/45 mt-1">Otomatis
+                                                        Lunas</span>
                                                 </button>
                                             @endforeach
                                         </div>
@@ -6971,14 +7185,16 @@
                                             <div class="rounded-[16px] border border-black/10 dark:border-white/10 p-3.5 transition cursor-pointer"
                                                 @click="checkoutForm.payment_method_id = '{{ $pm->id }}'"
                                                 :class="checkoutForm.payment_method_id === '{{ $pm->id }}' ?
-                                                    'border-brand-primary bg-brand-50/70 dark:bg-brand-primary/10 shadow-xs' : 'hover:bg-black/5 dark:hover:bg-white/5'">
+                                                    'border-brand-primary bg-brand-50/70 dark:bg-brand-primary/10 shadow-xs' :
+                                                    'hover:bg-black/5 dark:hover:bg-white/5'">
                                                 <label class="flex items-start gap-3 cursor-pointer w-full">
                                                     <input type="radio" name="payment_method_id"
                                                         value="{{ $pm->id }}"
                                                         x-model="checkoutForm.payment_method_id"
                                                         class="mt-1 text-brand-primary focus:ring-brand-primary shrink-0">
                                                     <div class="min-w-0 flex-1">
-                                                        <div class="flex items-center justify-between gap-2 flex-wrap sm:flex-nowrap">
+                                                        <div
+                                                            class="flex items-center justify-between gap-2 flex-wrap sm:flex-nowrap">
                                                             <span
                                                                 class="text-[14px] font-bold text-black dark:text-white leading-tight">{{ $pm->bank_name }}</span>
                                                             <span
@@ -6987,19 +7203,22 @@
                                                             </span>
                                                         </div>
                                                         @if ($pm->account_number)
-                                                            <div class="flex items-center justify-between gap-2 mt-2 pt-2 border-t border-black/5 dark:border-white/5 flex-wrap sm:flex-nowrap">
+                                                            <div
+                                                                class="flex items-center justify-between gap-2 mt-2 pt-2 border-t border-black/5 dark:border-white/5 flex-wrap sm:flex-nowrap">
                                                                 <div class="min-w-0 flex-1">
                                                                     <span
                                                                         class="text-[12.5px] font-mono font-semibold text-black/80 dark:text-white/80 tabular-nums block break-all">{{ $pm->account_number }}</span>
                                                                     @if ($pm->account_holder)
                                                                         <span
-                                                                            class="text-[11px] text-black/55 dark:text-white/55 block truncate mt-0.5">a/n {{ $pm->account_holder }}</span>
+                                                                            class="text-[11px] text-black/55 dark:text-white/55 block truncate mt-0.5">a/n
+                                                                            {{ $pm->account_holder }}</span>
                                                                     @endif
                                                                 </div>
                                                                 <button type="button"
                                                                     @click.stop="navigator.clipboard.writeText('{{ $pm->account_number }}'); showToast('Nomor rekening disalin!')"
                                                                     class="shrink-0 inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-brand-primary/10 hover:bg-brand-primary/20 text-brand-primary text-[11px] font-semibold transition active:scale-95 whitespace-nowrap cursor-pointer">
-                                                                    <i data-lucide="copy" class="w-3 h-3 shrink-0"></i>
+                                                                    <i data-lucide="copy"
+                                                                        class="w-3 h-3 shrink-0"></i>
                                                                     <span>Salin</span>
                                                                 </button>
                                                             </div>
@@ -7015,7 +7234,8 @@
 
                             {{-- Catatan --}}
                             <div>
-                                <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Catatan
+                                <label
+                                    class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Catatan
                                     Pesanan (Opsional)</label>
                                 <input type="text" x-model="checkoutForm.notes"
                                     placeholder="{{ $storeSetting?->order_notes_placeholder ?: 'Contoh: Jangan terlalu pedas, titip di satpam, dll.' }}"
@@ -7027,31 +7247,44 @@
                         <div class="lg:col-span-5 space-y-5">
                             {{-- Rincian Item Belanja & Nama Pemesan --}}
                             <div class="space-y-2">
-                                <div class="flex items-center justify-between text-[12px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45">
-                                    <span x-show="!isGroupOrderCheckout">Rincian Menu (<span x-text="cartCount"></span>)</span>
-                                    <span x-show="isGroupOrderCheckout" class="text-brand-primary">Pesanan Bersama (<span x-text="groupOrder.data?.total_quantity || 0"></span> item)</span>
-                                    <button x-show="!isGroupOrderCheckout" type="button" @click="checkoutModalOpen = false; cartDrawerOpen = true"
-                                        class="text-brand-primary lowercase font-normal hover:underline cursor-pointer text-[11.5px]">Ubah di keranjang</button>
-                                    <button x-show="isGroupOrderCheckout" type="button" @click="checkoutModalOpen = false; groupOrder.isDrawerOpen = true"
-                                        class="text-brand-primary lowercase font-normal hover:underline cursor-pointer text-[11.5px]">Ubah di keranjang bersama</button>
+                                <div
+                                    class="flex items-center justify-between text-[12px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45">
+                                    <span x-show="!isGroupOrderCheckout">Rincian Menu (<span
+                                            x-text="cartCount"></span>)</span>
+                                    <span x-show="isGroupOrderCheckout" class="text-brand-primary">Pesanan Bersama
+                                        (<span x-text="groupOrder.data?.total_quantity || 0"></span> item)</span>
+                                    <button x-show="!isGroupOrderCheckout" type="button"
+                                        @click="checkoutModalOpen = false; cartDrawerOpen = true"
+                                        class="text-brand-primary lowercase font-normal hover:underline cursor-pointer text-[11.5px]">Ubah
+                                        di keranjang</button>
+                                    <button x-show="isGroupOrderCheckout" type="button"
+                                        @click="checkoutModalOpen = false; groupOrder.isDrawerOpen = true"
+                                        class="text-brand-primary lowercase font-normal hover:underline cursor-pointer text-[11.5px]">Ubah
+                                        di keranjang bersama</button>
                                 </div>
-                                <div class="max-h-48 overflow-y-auto space-y-1.5 p-3 rounded-[14px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/10 dark:border-white/10 divide-y divide-black/5 dark:divide-white/5">
+                                <div
+                                    class="max-h-48 overflow-y-auto space-y-1.5 p-3 rounded-[14px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/10 dark:border-white/10 divide-y divide-black/5 dark:divide-white/5">
                                     <template x-if="!isGroupOrderCheckout">
                                         <div>
                                             <template x-for="item in cart" :key="item.id">
-                                                <div class="pt-1.5 first:pt-0 flex items-start justify-between text-[12px] gap-2">
+                                                <div
+                                                    class="pt-1.5 first:pt-0 flex items-start justify-between text-[12px] gap-2">
                                                     <div class="flex-1 min-w-0">
-                                                        <div class="font-semibold text-black dark:text-white truncate">
-                                                            <span x-text="item.quantity"></span>x <span x-text="item.name"></span>
+                                                        <div
+                                                            class="font-semibold text-black dark:text-white truncate">
+                                                            <span x-text="item.quantity"></span>x <span
+                                                                x-text="item.name"></span>
                                                         </div>
                                                         <template x-if="item.notes">
-                                                            <div class="text-[11px] text-brand-primary font-medium truncate flex items-center gap-1 mt-0.5">
+                                                            <div
+                                                                class="text-[11px] text-brand-primary font-medium truncate flex items-center gap-1 mt-0.5">
                                                                 <i data-lucide="user" class="w-3 h-3 shrink-0"></i>
                                                                 <span x-text="item.notes"></span>
                                                             </div>
                                                         </template>
                                                     </div>
-                                                    <span class="font-semibold tabular-nums text-black/70 dark:text-white/70 shrink-0"
+                                                    <span
+                                                        class="font-semibold tabular-nums text-black/70 dark:text-white/70 shrink-0"
                                                         x-text="formatPrice(item.price * item.quantity)"></span>
                                                 </div>
                                             </template>
@@ -7061,17 +7294,24 @@
                                         <div class="space-y-3">
                                             <template x-for="member in groupOrder.splitBill" :key="member.member_id">
                                                 <div class="space-y-1">
-                                                    <div class="text-[11.5px] font-bold text-brand-primary flex items-center justify-between pb-0.5 border-b border-black/5 dark:border-white/5">
+                                                    <div
+                                                        class="text-[11.5px] font-bold text-brand-primary flex items-center justify-between pb-0.5 border-b border-black/5 dark:border-white/5">
                                                         <span x-text="member.member_name"></span>
-                                                        <span x-text="formatPrice(member.member_subtotal)" class="tabular-nums"></span>
+                                                        <span x-text="formatPrice(member.member_subtotal)"
+                                                            class="tabular-nums"></span>
                                                     </div>
                                                     <template x-for="it in member.items" :key="it.id">
-                                                        <div class="pl-2 flex items-start justify-between text-[11.5px] text-black/70 dark:text-white/70 gap-2">
+                                                        <div
+                                                            class="pl-2 flex items-start justify-between text-[11.5px] text-black/70 dark:text-white/70 gap-2">
                                                             <div class="truncate">
-                                                                <span x-text="it.quantity + 'x ' + it.product_name"></span>
-                                                                <span x-show="it.notes" class="text-[10.5px] text-black/50 dark:text-white/50 block truncate" x-text="'Catatan: ' + it.notes"></span>
+                                                                <span
+                                                                    x-text="it.quantity + 'x ' + it.product_name"></span>
+                                                                <span x-show="it.notes"
+                                                                    class="text-[10.5px] text-black/50 dark:text-white/50 block truncate"
+                                                                    x-text="'Catatan: ' + it.notes"></span>
                                                             </div>
-                                                            <span class="tabular-nums shrink-0 font-medium" x-text="formatPrice(it.line_total)"></span>
+                                                            <span class="tabular-nums shrink-0 font-medium"
+                                                                x-text="formatPrice(it.line_total)"></span>
                                                         </div>
                                                     </template>
                                                 </div>
@@ -7082,10 +7322,14 @@
                             </div>
 
                             {{-- Total & Submit Card --}}
-                            <div class="p-4 sm:p-5 rounded-[20px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/10 dark:border-white/10 space-y-3">
-                                <div class="flex items-center justify-between text-[13px] text-black/60 dark:text-white/60">
-                                    <span x-text="isGroupOrderCheckout ? 'Total Pesanan Bersama' : 'Subtotal Belanja'"></span>
-                                    <span class="tabular-nums font-semibold" x-text="formatPrice(isGroupOrderCheckout ? (groupOrder.data?.subtotal || 0) : cartTotal)"></span>
+                            <div
+                                class="p-4 sm:p-5 rounded-[20px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/10 dark:border-white/10 space-y-3">
+                                <div
+                                    class="flex items-center justify-between text-[13px] text-black/60 dark:text-white/60">
+                                    <span
+                                        x-text="isGroupOrderCheckout ? 'Total Pesanan Bersama' : 'Subtotal Belanja'"></span>
+                                    <span class="tabular-nums font-semibold"
+                                        x-text="formatPrice(isGroupOrderCheckout ? (groupOrder.data?.subtotal || 0) : cartTotal)"></span>
                                 </div>
 
                                 <div x-show="checkoutForm.fulfillment_type === 'merchant_delivery'"
@@ -7106,14 +7350,17 @@
                                     class="flex items-center justify-between text-[13px]">
                                     <span class="text-black/60 dark:text-white/60 flex items-center gap-1.5">
                                         <span>Biaya Layanan Pengiriman</span>
-                                        <span class="text-[10.5px] font-semibold px-1.5 py-0.5 rounded bg-[#007AFF]/10 text-[#007AFF]">Biteship</span>
+                                        <span
+                                            class="text-[10.5px] font-semibold px-1.5 py-0.5 rounded bg-[#007AFF]/10 text-[#007AFF]">Biteship</span>
                                     </span>
                                     <span class="tabular-nums font-semibold text-black dark:text-white"
                                         x-text="formatPrice(checkoutForm.service_fee)"></span>
                                 </div>
 
-                                <div class="flex items-center justify-between text-[15px] pt-1 border-t border-black/5 dark:border-white/10">
-                                    <span class="text-black/70 dark:text-white/70 font-semibold">Total Pembayaran</span>
+                                <div
+                                    class="flex items-center justify-between text-[15px] pt-1 border-t border-black/5 dark:border-white/10">
+                                    <span class="text-black/70 dark:text-white/70 font-semibold">Total
+                                        Pembayaran</span>
                                     <span class="text-[20px] font-extrabold text-brand-primary tabular-nums"
                                         x-text="formatPrice(grandTotal)"></span>
                                 </div>
@@ -7122,20 +7369,26 @@
                                     <a :href="customerLoginUrl"
                                         class="w-full h-12 rounded-[16px] bg-[#007AFF] hover:bg-[#007AFF]/90 active:scale-[0.98] text-white font-bold text-[14px] transition flex items-center justify-center gap-2 shadow-sm cursor-pointer">
                                         <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24">
-                                            <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                                            <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                                            <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                                            <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                                            <path fill="currentColor"
+                                                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                                            <path fill="currentColor"
+                                                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                                            <path fill="currentColor"
+                                                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+                                            <path fill="currentColor"
+                                                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
                                         </svg>
                                         <span>Masuk dengan Google untuk Melanjutkan</span>
                                     </a>
                                     <p class="text-[11.5px] text-center text-black/50 dark:text-white/50">
-                                        Wajib login dengan akun Google agar pesanan batch kantor Anda tercatat dan siap unggah bukti transfer.
+                                        Wajib login dengan akun Google agar pesanan batch kantor Anda tercatat dan siap
+                                        unggah bukti transfer.
                                     </p>
                                 @else
                                     <button type="submit" :disabled="isCheckingOut"
                                         class="w-full h-12 rounded-[16px] bg-brand-primary hover:opacity-90 active:scale-[0.98] disabled:opacity-50 text-white font-bold text-[14px] transition flex items-center justify-center gap-2 shadow-sm cursor-pointer">
-                                        <span x-show="!isCheckingOut" x-text="isGroupOrderCheckout ? 'Konfirmasi Checkout Pesanan Bersama' : 'Konfirmasi Pesanan Pre-Order'"></span>
+                                        <span x-show="!isCheckingOut"
+                                            x-text="isGroupOrderCheckout ? 'Konfirmasi Checkout Pesanan Bersama' : 'Konfirmasi Pesanan Pre-Order'"></span>
                                         <span x-show="isCheckingOut">Memproses...</span>
                                         <i x-show="!isCheckingOut" data-lucide="arrow-right" class="w-4 h-4"></i>
                                     </button>
@@ -7170,7 +7423,8 @@
             class="storefront-sheet w-full max-w-full sm:max-w-[94vw] md:max-w-3xl lg:max-w-4xl xl:max-w-5xl max-h-[94vh] sm:max-h-[90vh] overflow-y-auto bg-white dark:bg-[#1C1C1E] rounded-t-[28px] sm:rounded-[28px] p-5 sm:p-7 shadow-2xl border-t sm:border border-black/10 dark:border-white/10 space-y-5">
 
             {{-- Mobile Touch Grab Bar --}}
-            <div class="sm:hidden w-10 h-1.5 bg-black/20 dark:bg-white/20 rounded-full mx-auto -mt-1 mb-2 shrink-0"></div>
+            <div class="sm:hidden w-10 h-1.5 bg-black/20 dark:bg-white/20 rounded-full mx-auto -mt-1 mb-2 shrink-0">
+            </div>
 
             <div class="flex items-center justify-between pb-3 border-b border-black/5 dark:border-white/10">
                 <div class="space-y-0.5">
@@ -7202,7 +7456,8 @@
                 </div>
             </template>
 
-            <form @submit.prevent="submitRequestOrder()" class="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6 items-start">
+            <form @submit.prevent="submitRequestOrder()"
+                class="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6 items-start">
                 {{-- Left Column: Data Pemesan & Opsi Pengiriman --}}
                 <div class="space-y-4">
                     {{-- Data Pemesan --}}
@@ -7219,14 +7474,16 @@
                         </div>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div>
-                                <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Nomor
+                                <label
+                                    class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Nomor
                                     WhatsApp <span class="text-red-500">*</span></label>
                                 <input type="tel" x-model="requestOrderForm.customer_phone" required
                                     placeholder="08123456789"
                                     class="w-full h-11 px-3.5 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-[13.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-primary">
                             </div>
                             <div>
-                                <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Email
+                                <label
+                                    class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Email
                                     (Opsional)</label>
                                 <input type="email" x-model="requestOrderForm.customer_email"
                                     placeholder="budi@example.com"
@@ -7250,7 +7507,8 @@
                                     <i data-lucide="store" class="w-4 h-4 shrink-0"></i>
                                     <span>Ambil Sendiri</span>
                                 </button>
-                                <button type="button" @click="requestOrderForm.fulfillment_type = 'merchant_delivery'"
+                                <button type="button"
+                                    @click="requestOrderForm.fulfillment_type = 'merchant_delivery'"
                                     :class="requestOrderForm.fulfillment_type === 'merchant_delivery' ?
                                         'border-brand-primary bg-brand-100 text-brand-primary font-bold' :
                                         'border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 text-black/70 dark:text-white/70'"
@@ -7273,7 +7531,8 @@
                             </div>
                         @endif
                         <div x-show="requestOrderForm.fulfillment_type === 'merchant_delivery'" class="pt-1">
-                            <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Alamat
+                            <label
+                                class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Alamat
                                 Tujuan Pengiriman</label>
                             <textarea x-model="requestOrderForm.shipping_address" rows="2"
                                 placeholder="Nama jalan, nomor gedung/rumah, kelurahan..."
@@ -7317,7 +7576,8 @@
                             </div>
                         </div>
                         <div>
-                            <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Detail
+                            <label
+                                class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Detail
                                 &amp; Spesifikasi Kebutuhan</label>
                             <textarea x-model="requestOrderForm.notes" rows="3"
                                 placeholder="{{ $storeSetting?->order_notes_placeholder ?: ($isUmkmRumahan ? 'Tuliskan selengkap mungkin: varian rasa, tulisan ucapan pada kue, pilihan warna kemasan box, pantangan alergi, dll.' : 'Tuliskan selengkap mungkin: jenis pesanan, kemasan, target budget, spesifikasi bahan/ukuran, dll.') }}"
@@ -7331,7 +7591,8 @@
                             class="w-full h-12 rounded-[16px] bg-brand-primary hover:opacity-90 active:scale-[0.98] disabled:opacity-50 text-white font-bold text-[14px] transition flex items-center justify-center gap-2 shadow-sm cursor-pointer">
                             <span x-show="!requestOrderForm.is_submitting">Pesan</span>
                             <span x-show="requestOrderForm.is_submitting">Memproses...</span>
-                            <i x-show="!requestOrderForm.is_submitting" data-lucide="arrow-right" class="w-4 h-4"></i>
+                            <i x-show="!requestOrderForm.is_submitting" data-lucide="arrow-right"
+                                class="w-4 h-4"></i>
                         </button>
                     </div>
                 </div>
@@ -7352,7 +7613,8 @@
             @click.outside="if(!customerPoForm.is_submitting) customerPoModalOpen = false">
 
             {{-- Mobile Touch Grab Bar --}}
-            <div class="sm:hidden w-10 h-1.5 bg-black/20 dark:bg-white/20 rounded-full mx-auto -mt-1 mb-2 shrink-0"></div>
+            <div class="sm:hidden w-10 h-1.5 bg-black/20 dark:bg-white/20 rounded-full mx-auto -mt-1 mb-2 shrink-0">
+            </div>
 
             {{-- Modal Header --}}
             <div class="flex items-center justify-between pb-3 border-b border-black/5 dark:border-white/10">
@@ -7402,7 +7664,8 @@
                         <a href="{{ route('customer.otp') }}"
                             class="text-[#FF9500] font-semibold hover:underline">Verifikasi OTP &rarr;</a>
                     @else
-                        <span class="text-[#34C759] font-semibold text-[11.5px] inline-flex items-center gap-1"><i data-lucide="check" class="w-3.5 h-3.5"></i> Akun Terverifikasi</span>
+                        <span class="text-[#34C759] font-semibold text-[11.5px] inline-flex items-center gap-1"><i
+                                data-lucide="check" class="w-3.5 h-3.5"></i> Akun Terverifikasi</span>
                     @endif
                 </div>
             @endguest
@@ -7691,7 +7954,8 @@
                                 <option value="">Transfer Bank / Invoice Termin PO</option>
                                 @foreach ($paymentMethods as $pm)
                                     <option value="{{ $pm->id }}">{{ $pm->name }}
-                                        ({{ strtoupper($pm->type) }})</option>
+                                        ({{ strtoupper($pm->type) }})
+                                    </option>
                                 @endforeach
                             </select>
                         </div>
@@ -7734,7 +7998,8 @@
             @click.outside="if(!isSubmittingReservation) reservationModalOpen = false">
 
             {{-- Mobile Touch Grab Bar --}}
-            <div class="sm:hidden w-10 h-1.5 bg-black/20 dark:bg-white/20 rounded-full mx-auto -mt-1 mb-2 shrink-0"></div>
+            <div class="sm:hidden w-10 h-1.5 bg-black/20 dark:bg-white/20 rounded-full mx-auto -mt-1 mb-2 shrink-0">
+            </div>
 
             <div class="flex items-center justify-between pb-3 border-b border-black/5 dark:border-white/10">
                 <div class="flex items-center gap-2.5">
@@ -7805,12 +8070,14 @@
                                 <a href="{{ route('customer.otp') }}"
                                     class="text-[#FF9500] font-semibold hover:underline">Verifikasi OTP &rarr;</a>
                             @else
-                                <span class="text-[#34C759] font-semibold text-[11.5px] inline-flex items-center gap-1"><i data-lucide="check" class="w-3.5 h-3.5"></i> Terverifikasi</span>
+                                <span class="text-[#34C759] font-semibold text-[11.5px] inline-flex items-center gap-1"><i
+                                        data-lucide="check" class="w-3.5 h-3.5"></i> Terverifikasi</span>
                             @endif
                         </div>
                     @endguest
 
-                    <form @submit.prevent="submitReservation()" class="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6 items-start">
+                    <form @submit.prevent="submitReservation()"
+                        class="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6 items-start">
                         {{-- Left Column: Data Tamu --}}
                         <div class="space-y-3">
                             <span
@@ -7904,7 +8171,8 @@
                                                 <button type="button" @click="reservationForm.guest_count++"
                                                     class="w-7 h-7 flex items-center justify-center rounded-full bg-black/10 dark:bg-white/10 text-black dark:text-white font-bold cursor-pointer">&plus;</button>
                                             </div>
-                                            <span class="text-[11.5px] text-black/50 dark:text-white/50">Dapat disesuaikan
+                                            <span class="text-[11.5px] text-black/50 dark:text-white/50">Dapat
+                                                disesuaikan
                                                 jika rombongan</span>
                                         </div>
                                     </div>
@@ -7919,7 +8187,8 @@
                                                 <option value="">-- Bebas / Ditentukan Otomatis --</option>
                                                 @foreach ($posTables as $pt)
                                                     <option value="{{ $pt->id }}">
-                                                        {{ $pt->name ?: 'Meja ' . $pt->table_number }} (Kapasitas {{ $pt->capacity }} Orang)
+                                                        {{ $pt->name ?: 'Meja ' . $pt->table_number }} (Kapasitas
+                                                        {{ $pt->capacity }} Orang)
                                                     </option>
                                                 @endforeach
                                             </select>
@@ -7930,7 +8199,8 @@
 
                             {{-- Catatan / Permintaan Khusus --}}
                             <div class="space-y-2 pt-1">
-                                <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70">Catatan
+                                <label
+                                    class="block text-[12px] font-semibold text-black/70 dark:text-white/70">Catatan
                                     Tambahan (Layanan / Meja Khusus)</label>
                                 <textarea x-model="reservationForm.notes" rows="2"
                                     placeholder="{{ $storeSetting?->order_notes_placeholder ?: 'Contoh: Meja non-smoking, baby chair, dekorasi ulang tahun, dll.' }}"
@@ -7967,15 +8237,18 @@
             @click.outside="if(!groupOrder.createForm.is_submitting) groupOrder.isCreateModalOpen = false">
 
             {{-- Mobile Touch Grab Bar --}}
-            <div class="sm:hidden w-10 h-1.5 bg-black/20 dark:bg-white/20 rounded-full mx-auto -mt-1 mb-2 shrink-0"></div>
+            <div class="sm:hidden w-10 h-1.5 bg-black/20 dark:bg-white/20 rounded-full mx-auto -mt-1 mb-2 shrink-0">
+            </div>
 
             <div class="flex items-center justify-between pb-3 border-b border-black/5 dark:border-white/10">
                 <div class="flex items-center gap-2.5">
-                    <div class="w-9 h-9 rounded-[12px] bg-gradient-to-br from-[#5856D6] to-brand-primary text-white flex items-center justify-center shadow-xs">
+                    <div
+                        class="w-9 h-9 rounded-[12px] bg-gradient-to-br from-[#5856D6] to-brand-primary text-white flex items-center justify-center shadow-xs">
                         <i data-lucide="users" class="w-4 h-4"></i>
                     </div>
                     <div>
-                        <h3 class="text-[17px] font-bold text-black dark:text-white tracking-tight">Mulai Pesan Bareng (Group Order)</h3>
+                        <h3 class="text-[17px] font-bold text-black dark:text-white tracking-tight">Mulai Pesan Bareng
+                            (Group Order)</h3>
                         <span class="text-[11.5px] text-black/50 dark:text-white/50">{{ $business->name }}</span>
                     </div>
                 </div>
@@ -7986,7 +8259,8 @@
             </div>
 
             {{-- Value Prop Bento Mini Banner --}}
-            <div class="p-3.5 rounded-[16px] bg-gradient-to-br from-[#5856D6]/10 via-brand-primary/10 to-transparent border border-[#5856D6]/20 space-y-2">
+            <div
+                class="p-3.5 rounded-[16px] bg-gradient-to-br from-[#5856D6]/10 via-brand-primary/10 to-transparent border border-[#5856D6]/20 space-y-2">
                 <div class="text-[12.5px] font-bold text-black dark:text-white flex items-center gap-1.5">
                     <i data-lucide="sparkles" class="w-3.5 h-3.5 text-[#5856D6]"></i>
                     <span>Solusi Pesan Makanan Rame-Rame Tanpa Oper HP</span>
@@ -8008,7 +8282,8 @@
             </div>
 
             <template x-if="groupOrder.createForm.error">
-                <div class="p-3.5 rounded-[14px] bg-[#FF3B30]/10 border border-[#FF3B30]/20 text-[#FF3B30] text-[12.5px] font-medium flex items-center gap-2">
+                <div
+                    class="p-3.5 rounded-[14px] bg-[#FF3B30]/10 border border-[#FF3B30]/20 text-[#FF3B30] text-[12.5px] font-medium flex items-center gap-2">
                     <i data-lucide="alert-triangle" class="w-4 h-4 shrink-0"></i>
                     <span x-text="groupOrder.createForm.error"></span>
                 </div>
@@ -8032,8 +8307,10 @@
                         <select x-model="groupOrder.createForm.scheduled_date"
                             class="w-full h-11 px-3 rounded-[14px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[13.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-primary">
                             @foreach ($availableBatchDates as $b)
-                                <option value="{{ $b['date'] }}" {{ ($selectedBatchDate == $b['date']) ? 'selected' : '' }}>
-                                    {{ $b['day_name'] ?? '' }}, {{ $b['date'] }} {{ !empty($b['remaining_quota']) ? ('(Sisa ' . $b['remaining_quota'] . ' pcs)') : '' }}
+                                <option value="{{ $b['date'] }}"
+                                    {{ $selectedBatchDate == $b['date'] ? 'selected' : '' }}>
+                                    {{ $b['day_name'] ?? '' }}, {{ $b['date'] }}
+                                    {{ !empty($b['remaining_quota']) ? '(Sisa ' . $b['remaining_quota'] . ' pcs)' : '' }}
                                 </option>
                             @endforeach
                         </select>
@@ -8063,7 +8340,8 @@
                         class="w-full h-12 rounded-[16px] bg-gradient-to-r from-[#5856D6] to-brand-primary hover:opacity-95 active:scale-[0.98] disabled:opacity-50 text-white font-bold text-[14px] transition flex items-center justify-center gap-2 shadow-sm cursor-pointer">
                         <span x-show="!groupOrder.createForm.is_submitting">Buat Sesi &amp; Dapatkan Link</span>
                         <span x-show="groupOrder.createForm.is_submitting">Membuat Sesi...</span>
-                        <i x-show="!groupOrder.createForm.is_submitting" data-lucide="arrow-right" class="w-4 h-4"></i>
+                        <i x-show="!groupOrder.createForm.is_submitting" data-lucide="arrow-right"
+                            class="w-4 h-4"></i>
                     </button>
                 </div>
             </form>
@@ -8073,11 +8351,13 @@
     {{-- ========================================================================= --}}
     {{-- DRAWER: KERANJANG BERSAMA / SHARED CART (Apple Slide-Over Architecture)   --}}
     {{-- ========================================================================= --}}
-    <div x-show="groupOrder.isDrawerOpen" x-cloak class="fixed inset-0 z-[75] overflow-hidden" role="dialog" aria-modal="true">
+    <div x-show="groupOrder.isDrawerOpen" x-cloak class="fixed inset-0 z-[75] overflow-hidden" role="dialog"
+        aria-modal="true">
         <div class="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity"
             @click="groupOrder.isDrawerOpen = false" x-show="groupOrder.isDrawerOpen"
-            x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
-            x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"></div>
+            x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0"
+            x-transition:enter-end="opacity-100" x-transition:leave="ease-in duration-200"
+            x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"></div>
 
         <div class="storefront-drawer-frame fixed inset-y-0 right-0 max-w-full flex pl-6 sm:pl-10">
             <div class="storefront-sheet storefront-drawer w-screen max-w-lg sm:max-w-xl bg-white dark:bg-[#1C1C1E] shadow-2xl border-l border-black/5 dark:border-white/10 flex flex-col justify-between"
@@ -8090,14 +8370,16 @@
                 <div class="p-5 border-b border-black/5 dark:border-white/10 space-y-3">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-2.5">
-                            <div class="w-9 h-9 rounded-[12px] bg-gradient-to-br from-[#5856D6] to-brand-primary text-white flex items-center justify-center shadow-xs">
+                            <div
+                                class="w-9 h-9 rounded-[12px] bg-gradient-to-br from-[#5856D6] to-brand-primary text-white flex items-center justify-center shadow-xs">
                                 <i data-lucide="users" class="w-4 h-4"></i>
                             </div>
                             <div>
                                 <h3 class="text-[16px] font-bold text-black dark:text-white tracking-tight"
                                     x-text="groupOrder.data?.title || 'Keranjang Bersama'"></h3>
                                 <div class="flex items-center gap-2 text-[11.5px] text-black/55 dark:text-white/55">
-                                    <span>Host: <strong class="text-black dark:text-white" x-text="groupOrder.data?.host_name"></strong></span>
+                                    <span>Host: <strong class="text-black dark:text-white"
+                                            x-text="groupOrder.data?.host_name"></strong></span>
                                     <span class="inline-flex items-center gap-1 text-[#34C759] font-semibold">
                                         <span class="w-1.5 h-1.5 rounded-full bg-[#34C759] animate-pulse"></span>
                                         Realtime
@@ -8112,7 +8394,8 @@
                     </div>
 
                     {{-- Link Sharing Quick Bar --}}
-                    <div class="p-2.5 rounded-[14px] bg-black/[0.03] dark:bg-white/[0.04] border border-black/5 dark:border-white/5 flex items-center justify-between gap-2">
+                    <div
+                        class="p-2.5 rounded-[14px] bg-black/[0.03] dark:bg-white/[0.04] border border-black/5 dark:border-white/5 flex items-center justify-between gap-2">
                         <div class="text-[11.5px] text-black/65 dark:text-white/65 truncate">
                             <span>Ajak rekan kerja dengan link ini</span>
                         </div>
@@ -8154,23 +8437,32 @@
                     <template x-if="groupOrder.splitBill && groupOrder.splitBill.length > 0">
                         <div class="space-y-4">
                             <template x-for="member in groupOrder.splitBill" :key="member.member_id">
-                                <div class="p-4 rounded-[18px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/10 space-y-3">
+                                <div
+                                    class="p-4 rounded-[18px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/10 space-y-3">
                                     {{-- Member Header --}}
-                                    <div class="flex items-center justify-between pb-2 border-b border-black/5 dark:border-white/5">
+                                    <div
+                                        class="flex items-center justify-between pb-2 border-b border-black/5 dark:border-white/5">
                                         <div class="flex items-center gap-2">
-                                            <div class="w-7 h-7 rounded-full bg-brand-primary/15 text-brand-primary text-[11px] font-bold flex items-center justify-center">
-                                                <span x-text="member.member_name ? member.member_name.substring(0, 2).toUpperCase() : 'ME'"></span>
+                                            <div
+                                                class="w-7 h-7 rounded-full bg-brand-primary/15 text-brand-primary text-[11px] font-bold flex items-center justify-center">
+                                                <span
+                                                    x-text="member.member_name ? member.member_name.substring(0, 2).toUpperCase() : 'ME'"></span>
                                             </div>
                                             <div class="leading-tight">
                                                 <div class="flex items-center gap-1.5">
-                                                    <span class="text-[13px] font-bold text-black dark:text-white" x-text="member.member_name"></span>
-                                                    <span x-show="member.is_host" class="px-1.5 py-0.2 rounded-full text-[9.5px] font-bold bg-[#5856D6]/15 text-[#5856D6]">Host</span>
+                                                    <span class="text-[13px] font-bold text-black dark:text-white"
+                                                        x-text="member.member_name"></span>
+                                                    <span x-show="member.is_host"
+                                                        class="px-1.5 py-0.2 rounded-full text-[9.5px] font-bold bg-[#5856D6]/15 text-[#5856D6]">Host</span>
                                                 </div>
-                                                <span class="text-[10.5px] text-black/45 dark:text-white/45" x-text="(member.items ? member.items.length : 0) + ' jenis menu'"></span>
+                                                <span class="text-[10.5px] text-black/45 dark:text-white/45"
+                                                    x-text="(member.items ? member.items.length : 0) + ' jenis menu'"></span>
                                             </div>
                                         </div>
                                         <div class="text-right">
-                                            <span class="text-[13px] font-extrabold text-black dark:text-white tabular-nums" x-text="formatPrice(member.member_subtotal)"></span>
+                                            <span
+                                                class="text-[13px] font-extrabold text-black dark:text-white tabular-nums"
+                                                x-text="formatPrice(member.member_subtotal)"></span>
                                         </div>
                                     </div>
 
@@ -8180,22 +8472,33 @@
                                             <div class="pt-2 first:pt-0 flex items-start justify-between gap-3">
                                                 <div class="flex-1 min-w-0 space-y-0.5">
                                                     <div class="flex items-center gap-1.5">
-                                                        <span class="text-[12.5px] font-bold text-black dark:text-white" x-text="it.product_name"></span>
+                                                        <span
+                                                            class="text-[12.5px] font-bold text-black dark:text-white"
+                                                            x-text="it.product_name"></span>
                                                     </div>
-                                                    <div class="text-[11.5px] text-brand-primary font-semibold tabular-nums" x-text="formatPrice(it.unit_price) + ' x ' + it.quantity + ' = ' + formatPrice(it.line_total)"></div>
+                                                    <div class="text-[11.5px] text-brand-primary font-semibold tabular-nums"
+                                                        x-text="formatPrice(it.unit_price) + ' x ' + it.quantity + ' = ' + formatPrice(it.line_total)">
+                                                    </div>
                                                     <template x-if="it.notes">
-                                                        <div class="text-[11px] text-black/50 dark:text-white/50 italic" x-text="'Catatan: ' + it.notes"></div>
+                                                        <div class="text-[11px] text-black/50 dark:text-white/50 italic"
+                                                            x-text="'Catatan: ' + it.notes"></div>
                                                     </template>
                                                 </div>
 
                                                 {{-- Edit / Stepper (only if owned or host, and open) --}}
-                                                <template x-if="(it.is_mine || groupOrder.data.is_host) && !groupOrder.data.is_locked && !groupOrder.data.is_checked_out">
+                                                <template
+                                                    x-if="(it.is_mine || groupOrder.data.is_host) && !groupOrder.data.is_locked && !groupOrder.data.is_checked_out">
                                                     <div class="flex items-center gap-1 shrink-0">
-                                                        <div class="flex items-center gap-1 bg-black/5 dark:bg-white/5 px-2 py-0.5 rounded-full border border-black/5 dark:border-white/5">
-                                                            <button type="button" @click="updateGroupOrderItem(it.id, -1)"
+                                                        <div
+                                                            class="flex items-center gap-1 bg-black/5 dark:bg-white/5 px-2 py-0.5 rounded-full border border-black/5 dark:border-white/5">
+                                                            <button type="button"
+                                                                @click="updateGroupOrderItem(it.id, -1)"
                                                                 class="w-5 h-5 flex items-center justify-center rounded-full bg-black/10 dark:bg-white/10 text-black/70 dark:text-white/70 hover:text-black font-bold text-[12px] active:scale-90 transition cursor-pointer">&minus;</button>
-                                                            <span class="text-[11.5px] font-bold text-black dark:text-white min-w-4 text-center tabular-nums" x-text="it.quantity"></span>
-                                                            <button type="button" @click="updateGroupOrderItem(it.id, 1)"
+                                                            <span
+                                                                class="text-[11.5px] font-bold text-black dark:text-white min-w-4 text-center tabular-nums"
+                                                                x-text="it.quantity"></span>
+                                                            <button type="button"
+                                                                @click="updateGroupOrderItem(it.id, 1)"
                                                                 class="w-5 h-5 flex items-center justify-center rounded-full bg-black/10 dark:bg-white/10 text-black/70 dark:text-white/70 hover:text-black font-bold text-[12px] active:scale-90 transition cursor-pointer">&plus;</button>
                                                         </div>
                                                         <button type="button" @click="removeGroupOrderItem(it.id)"
@@ -8215,13 +8518,16 @@
 
                     <template x-if="!groupOrder.splitBill || groupOrder.splitBill.length === 0">
                         <div class="py-16 text-center text-black/40 dark:text-white/40 space-y-3">
-                            <div class="w-14 h-14 rounded-full bg-black/5 dark:bg-white/5 flex items-center justify-center mx-auto text-black/30 dark:text-white/30">
+                            <div
+                                class="w-14 h-14 rounded-full bg-black/5 dark:bg-white/5 flex items-center justify-center mx-auto text-black/30 dark:text-white/30">
                                 <i data-lucide="users" class="w-7 h-7"></i>
                             </div>
                             <div class="space-y-1">
-                                <h4 class="font-bold text-[15px] text-black dark:text-white">Keranjang Bersama Masih Kosong</h4>
+                                <h4 class="font-bold text-[15px] text-black dark:text-white">Keranjang Bersama Masih
+                                    Kosong</h4>
                                 <p class="text-[12.5px] max-w-xs mx-auto text-black/60 dark:text-white/60">
-                                    Pilih menu favorit Anda dari katalog dan klik <strong>+ Pesan Bareng</strong>, lalu bagikan tautan ini ke WhatsApp rekan kerja.
+                                    Pilih menu favorit Anda dari katalog dan klik <strong>+ Pesan Bareng</strong>, lalu
+                                    bagikan tautan ini ke WhatsApp rekan kerja.
                                 </p>
                             </div>
                             <button type="button" @click="shareGroupOrderWa()"
@@ -8234,7 +8540,8 @@
                 </div>
 
                 {{-- Drawer Footer & Checkout Controls --}}
-                <div class="p-5 border-t border-black/5 dark:border-white/10 space-y-3.5 bg-black/[0.02] dark:bg-white/[0.02]">
+                <div
+                    class="p-5 border-t border-black/5 dark:border-white/10 space-y-3.5 bg-black/[0.02] dark:bg-white/[0.02]">
                     {{-- Summary Total Row --}}
                     <div class="space-y-1">
                         <div class="flex items-center justify-between text-[12px] text-black/60 dark:text-white/60">
@@ -8268,8 +8575,10 @@
                                     <button type="button" @click="toggleLockGroupOrder()"
                                         :disabled="groupOrder.actionLoading"
                                         class="h-11 rounded-[14px] border border-black/10 dark:border-white/10 bg-white dark:bg-black/40 text-black dark:text-white text-[12px] font-bold hover:bg-black/5 transition flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50">
-                                        <i :data-lucide="groupOrder.data.is_locked ? 'unlock' : 'lock'" class="w-3.5 h-3.5"></i>
-                                        <span x-text="groupOrder.data.is_locked ? 'Buka Kunci' : 'Kunci Pesanan'"></span>
+                                        <i :data-lucide="groupOrder.data.is_locked ? 'unlock' : 'lock'"
+                                            class="w-3.5 h-3.5"></i>
+                                        <span
+                                            x-text="groupOrder.data.is_locked ? 'Buka Kunci' : 'Kunci Pesanan'"></span>
                                     </button>
                                     <button type="button" @click="openGroupOrderCheckout()"
                                         :disabled="(groupOrder.data.total_quantity || 0) <= 0 || groupOrder.actionLoading"
@@ -8300,8 +8609,11 @@
                     <template x-if="groupOrder.data && !groupOrder.data.is_host">
                         <div class="space-y-2">
                             <template x-if="!groupOrder.data.is_checked_out">
-                                <div class="p-2.5 rounded-[12px] bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/5 text-[11.5px] text-black/60 dark:text-white/60 text-center">
-                                    <span>Pesanan ini akan dicheckout dan divalidasi oleh Host: <strong class="text-black dark:text-white" x-text="groupOrder.data.host_name"></strong></span>
+                                <div
+                                    class="p-2.5 rounded-[12px] bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/5 text-[11.5px] text-black/60 dark:text-white/60 text-center">
+                                    <span>Pesanan ini akan dicheckout dan divalidasi oleh Host: <strong
+                                            class="text-black dark:text-white"
+                                            x-text="groupOrder.data.host_name"></strong></span>
                                 </div>
                             </template>
                             <template x-if="groupOrder.data.is_checked_out">
@@ -8331,16 +8643,20 @@
             @click.outside="groupOrder.isSplitBillOpen = false">
 
             {{-- Mobile Touch Grab Bar --}}
-            <div class="sm:hidden w-10 h-1.5 bg-black/20 dark:bg-white/20 rounded-full mx-auto -mt-1 mb-2 shrink-0"></div>
+            <div class="sm:hidden w-10 h-1.5 bg-black/20 dark:bg-white/20 rounded-full mx-auto -mt-1 mb-2 shrink-0">
+            </div>
 
             <div class="flex items-center justify-between pb-3 border-b border-black/5 dark:border-white/10">
                 <div class="flex items-center gap-2.5">
-                    <div class="w-9 h-9 rounded-[12px] bg-[#5856D6]/10 text-[#5856D6] dark:text-[#AF52DE] flex items-center justify-center">
+                    <div
+                        class="w-9 h-9 rounded-[12px] bg-[#5856D6]/10 text-[#5856D6] dark:text-[#AF52DE] flex items-center justify-center">
                         <i data-lucide="receipt" class="w-4 h-4"></i>
                     </div>
                     <div>
-                        <h3 class="text-[17px] font-bold text-black dark:text-white tracking-tight">Rincian Patungan (Split Bill)</h3>
-                        <span class="text-[11.5px] text-black/50 dark:text-white/50" x-text="groupOrder.data?.title || 'Pesanan Bersama'"></span>
+                        <h3 class="text-[17px] font-bold text-black dark:text-white tracking-tight">Rincian Patungan
+                            (Split Bill)</h3>
+                        <span class="text-[11.5px] text-black/50 dark:text-white/50"
+                            x-text="groupOrder.data?.title || 'Pesanan Bersama'"></span>
                     </div>
                 </div>
                 <button type="button" @click="groupOrder.isSplitBillOpen = false"
@@ -8350,39 +8666,55 @@
             </div>
 
             {{-- Summary Card --}}
-            <div class="p-4 rounded-[18px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/10 flex items-center justify-between">
+            <div
+                class="p-4 rounded-[18px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/10 flex items-center justify-between">
                 <div>
-                    <span class="text-[11px] font-semibold text-black/50 dark:text-white/50 uppercase tracking-wider block">Total Tagihan Pesanan</span>
-                    <span class="text-[20px] font-extrabold text-brand-primary tabular-nums" x-text="formatPrice(groupOrder.data?.subtotal || 0)"></span>
+                    <span
+                        class="text-[11px] font-semibold text-black/50 dark:text-white/50 uppercase tracking-wider block">Total
+                        Tagihan Pesanan</span>
+                    <span class="text-[20px] font-extrabold text-brand-primary tabular-nums"
+                        x-text="formatPrice(groupOrder.data?.subtotal || 0)"></span>
                 </div>
                 <div class="text-right">
-                    <span class="text-[11px] font-semibold text-black/50 dark:text-white/50 uppercase tracking-wider block">Jumlah Pemesan</span>
-                    <span class="text-[15px] font-bold text-black dark:text-white tabular-nums" x-text="(groupOrder.data?.members_count || 1) + ' orang'"></span>
+                    <span
+                        class="text-[11px] font-semibold text-black/50 dark:text-white/50 uppercase tracking-wider block">Jumlah
+                        Pemesan</span>
+                    <span class="text-[15px] font-bold text-black dark:text-white tabular-nums"
+                        x-text="(groupOrder.data?.members_count || 1) + ' orang'"></span>
                 </div>
             </div>
 
             {{-- Breakdown per Member --}}
             <div class="space-y-3">
-                <span class="text-[12px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45 block">Rincian Pembayaran Masing-Masing:</span>
+                <span
+                    class="text-[12px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45 block">Rincian
+                    Pembayaran Masing-Masing:</span>
                 <div class="space-y-2.5 max-h-64 overflow-y-auto pr-1">
                     <template x-for="member in groupOrder.splitBill" :key="member.member_id">
-                        <div class="p-3.5 rounded-[16px] bg-white dark:bg-[#252528] border border-black/10 dark:border-white/10 shadow-xs space-y-2">
+                        <div
+                            class="p-3.5 rounded-[16px] bg-white dark:bg-[#252528] border border-black/10 dark:border-white/10 shadow-xs space-y-2">
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center gap-2">
-                                    <span class="w-6 h-6 rounded-full bg-brand-primary/10 text-brand-primary text-[11px] font-bold flex items-center justify-center">
-                                        <span x-text="member.member_name ? member.member_name.substring(0, 2).toUpperCase() : 'M'"></span>
+                                    <span
+                                        class="w-6 h-6 rounded-full bg-brand-primary/10 text-brand-primary text-[11px] font-bold flex items-center justify-center">
+                                        <span
+                                            x-text="member.member_name ? member.member_name.substring(0, 2).toUpperCase() : 'M'"></span>
                                     </span>
-                                    <span class="text-[13px] font-bold text-black dark:text-white" x-text="member.member_name"></span>
-                                    <span x-show="member.is_host" class="px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-[#5856D6]/10 text-[#5856D6]">Host</span>
+                                    <span class="text-[13px] font-bold text-black dark:text-white"
+                                        x-text="member.member_name"></span>
+                                    <span x-show="member.is_host"
+                                        class="px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-[#5856D6]/10 text-[#5856D6]">Host</span>
                                 </div>
                                 <div class="text-right">
-                                    <span class="text-[13.5px] font-extrabold text-brand-primary tabular-nums" x-text="formatPrice(member.member_subtotal)"></span>
+                                    <span class="text-[13.5px] font-extrabold text-brand-primary tabular-nums"
+                                        x-text="formatPrice(member.member_subtotal)"></span>
                                 </div>
                             </div>
                             <div class="space-y-1 pl-8 text-[11.5px] text-black/60 dark:text-white/60">
                                 <template x-for="it in member.items" :key="it.id">
                                     <div class="flex items-center justify-between">
-                                        <span x-text="it.quantity + 'x ' + it.product_name + (it.notes ? ' (' + it.notes + ')' : '')"></span>
+                                        <span
+                                            x-text="it.quantity + 'x ' + it.product_name + (it.notes ? ' (' + it.notes + ')' : '')"></span>
                                         <span class="tabular-nums" x-text="formatPrice(it.line_total)"></span>
                                     </div>
                                 </template>
@@ -8393,13 +8725,16 @@
             </div>
 
             {{-- Reimbursement Notice --}}
-            <div class="p-3.5 rounded-[16px] bg-[#5856D6]/10 border border-[#5856D6]/20 text-[12px] text-black/70 dark:text-white/70 space-y-1.5">
+            <div
+                class="p-3.5 rounded-[16px] bg-[#5856D6]/10 border border-[#5856D6]/20 text-[12px] text-black/70 dark:text-white/70 space-y-1.5">
                 <div class="font-bold text-[#5856D6] dark:text-[#AF52DE] flex items-center gap-1.5">
                     <i data-lucide="info" class="w-3.5 h-3.5 shrink-0"></i>
                     <span>Informasi Pembayaran Patungan:</span>
                 </div>
                 <p class="leading-relaxed">
-                    Pesanan telah dibayar terpusat oleh Host (<strong class="text-black dark:text-white" x-text="groupOrder.data?.host_name"></strong>). Setiap rekan dapat mentransfer nominal di atas ke Host dan mengonfirmasi bukti transfer melalui chat.
+                    Pesanan telah dibayar terpusat oleh Host (<strong class="text-black dark:text-white"
+                        x-text="groupOrder.data?.host_name"></strong>). Setiap rekan dapat mentransfer nominal di atas
+                    ke Host dan mengonfirmasi bukti transfer melalui chat.
                 </p>
             </div>
 
