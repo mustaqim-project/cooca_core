@@ -760,7 +760,7 @@
                                     <h4 class="text-xs font-bold text-white tracking-tight">Social Media</h4>
                                 </div>
                                 <p class="text-[11px] text-slate-400 leading-relaxed">
-                                    Sinkron katalog ke IG, TikTok, FB, Threads.
+                                    Jadwalkan Postingan ke IG, TikTok, FB, Threads.
                                 </p>
                             </div>
 
