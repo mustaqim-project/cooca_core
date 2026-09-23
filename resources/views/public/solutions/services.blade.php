@@ -1,23 +1,14 @@
 @extends('layouts.public_marketing')
 
 @section('title', 'Software Bisnis Jasa & Servis: Booking Jadwal, Teknisi & Invoice | COOCA')
-@section('description', 'Solusi aplikasi bisnis jasa, barbershop, klinik, salon, dan servis AC panggilan. Kalender
-    booking janji temu, penugasan teknisi/staf, invoice DP & pelunasan bertahap, dan pengingat WhatsApp anti no-show.')
-@section('keywords', 'software bisnis jasa, aplikasi manajemen booking servis, sistem invoicing jasa, software
-    barbershop salon, aplikasi servis ac panggilan, jadwal teknisi lapangan, komisi terapis staf')
+@section('description', 'Solusi aplikasi bisnis jasa, barbershop, klinik, salon, dan servis AC panggilan. Kalender booking janji temu, penugasan teknisi/staf, invoice DP & pelunasan bertahap, dan pengingat WhatsApp anti no-show.')
+@section('og_title', 'Software Bisnis Jasa & Servis: Booking Jadwal, Teknisi & Invoice | COOCA')
+@section('og_description', 'Atur jadwal booking klien tanpa bentrok, distribusikan pekerjaan teknisi, terbitkan invoice DP dan pelunasan bertahap, serta hitung komisi tim transparan.')
+@section('canonical', route('public.solutions.services'))
+@section('og_type', 'product')
+@section('keywords', 'software bisnis jasa, aplikasi manajemen booking servis, sistem invoicing jasa, software barbershop salon, aplikasi servis ac panggilan, jadwal teknisi lapangan, komisi terapis staf')
 
     @push('seo')
-        <link rel="canonical" href="{{ route('public.solutions.services') }}">
-        <meta property="og:title" content="Software Bisnis Jasa & Servis: Booking Jadwal, Teknisi & Invoice | COOCA">
-        <meta property="og:description"
-            content="Atur jadwal booking klien tanpa bentrok, distribusikan pekerjaan teknisi, terbitkan invoice DP dan pelunasan bertahap, serta hitung komisi tim transparan.">
-        <meta property="og:url" content="{{ route('public.solutions.services') }}">
-        <meta property="og:type" content="product">
-        <meta name="twitter:card" content="summary_large_image">
-        <meta name="twitter:title" content="Software Bisnis Jasa & Servis: Booking Jadwal, Teknisi & Invoice | COOCA">
-        <meta name="twitter:description"
-            content="Sistem operasi bisnis jasa modern: kalender reservasi, penugasan staf, reminder WhatsApp, dan penagihan proyek profesional.">
-
         <script type="application/ld+json">
     {
       "@@context": "https://schema.org",
@@ -38,16 +29,16 @@
 @section('content')
     <div class="bg-white dark:bg-[#070A14] text-slate-900 dark:text-white transition-colors duration-300">
 
-        {{-- Hero Section (Midnight #060B1E Full-Bleed) --}}
+        {{-- Hero Section (Midnight #060B1E Full-Bleed - Type A Full Viewport) --}}
         <section
-            class="relative bg-[#060B1E] text-white pt-10 sm:pt-14 pb-16 lg:pb-24 overflow-hidden border-b border-white/10 w-full min-w-full">
+            class="relative bg-[#060B1E] text-white min-h-[calc(100svh-84px)] lg:flex lg:items-center py-12 lg:py-16 overflow-hidden border-b border-white/10 w-full min-w-full">
             {{-- Dual Ambient Glows --}}
             <div class="absolute top-0 right-1/4 w-96 h-96 bg-[#007AFF]/15 rounded-full blur-[140px] pointer-events-none">
             </div>
             <div class="absolute bottom-0 left-1/4 w-96 h-96 bg-[#00C4D8]/10 rounded-full blur-[120px] pointer-events-none">
             </div>
 
-            <div class="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-8">
+            <div class="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-8 w-full">
                 {{-- Breadcrumb --}}
                 <nav class="flex items-center gap-2 text-xs text-slate-400" aria-label="Breadcrumb">
                     <a href="{{ route('landing') }}" class="hover:text-white transition-colors">Beranda</a>
@@ -57,9 +48,9 @@
                     <span class="text-[#00C4D8] font-semibold" aria-current="page">Bisnis Jasa & Servis</span>
                 </nav>
 
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-                    {{-- Left: Narrative & CTA --}}
-                    <div class="lg:col-span-7 space-y-6">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
+                    {{-- Left: Narrative & CTA (5 Cols ~ 42%) --}}
+                    <div class="lg:col-span-5 space-y-6">
                         <div
                             class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#007AFF]/15 text-[#00C4D8] border border-[#00C4D8]/30 text-xs font-semibold backdrop-blur-sm">
                             <i data-lucide="briefcase" class="w-3.5 h-3.5" aria-hidden="true"></i>
@@ -122,8 +113,8 @@
                         </div>
                     </div>
 
-                    {{-- Right: Simulated Apple Bento Service Dispatch Deck --}}
-                    <div class="lg:col-span-5">
+                    {{-- Right: Simulated Apple Bento Service Dispatch Deck (7 Cols ~ 58%) --}}
+                    <div class="lg:col-span-7">
                         <div
                             class="rounded-2xl bg-[#0E1E45]/80 p-5 sm:p-6 shadow-2xl border border-white/10 ring-1 ring-white/10 backdrop-blur-md text-white space-y-5">
                             <div class="flex items-center justify-between gap-2 border-b border-white/10 pb-4">

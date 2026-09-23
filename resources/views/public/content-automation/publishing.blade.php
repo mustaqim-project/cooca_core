@@ -1,10 +1,13 @@
 @extends('layouts.public_marketing')
 
 @section('title', 'Software Publikasi Otomatis Media Sosial & Antrean Tayang | COOCA')
-@section('description', 'Otomasi publikasi konten media sosial bisnis tanpa perlu unggah manual. Antrean penayangan
-    otomatis ke Instagram dan Facebook, sinkronisasi waktu terjadwal, dan laporan status penerbitan real-time.')
-@section('keywords', 'software publikasi otomatis media sosial, auto publish instagram facebook, aplikasi antrean
-    posting medsos, penjadwalan konten otomatis, social media dispatch engine')
+@section('description',
+    'Otomasi publikasi konten media sosial bisnis tanpa perlu unggah manual. Antrean penayangan otomatis ke Instagram dan Facebook, sinkronisasi waktu terjadwal, dan laporan status penerbitan real-time.')
+@section('og_title', 'Software Publikasi Otomatis Media Sosial & Antrean Tayang | COOCA')
+@section('og_description',
+    'Otomasi publikasi konten media sosial bisnis tanpa perlu unggah manual. Antrean penayangan otomatis ke Instagram dan Facebook, sinkronisasi waktu terjadwal, dan laporan status penerbitan real-time.')
+@section('keywords',
+    'software publikasi otomatis media sosial, auto publish instagram facebook, aplikasi antrean posting medsos, penjadwalan konten otomatis, social media dispatch engine')
 
     @push('seo')
         <script type="application/ld+json">
@@ -74,16 +77,16 @@
 @section('content')
     <div class="bg-white dark:bg-[#070A14] text-slate-900 dark:text-white transition-colors duration-300">
 
-        {{-- 1. HERO SECTION --}}
+        {{-- 1. HERO SECTION (Type A Full Viewport) --}}
         <section
-            class="relative bg-[#060B1E] text-white pt-10 sm:pt-14 pb-16 lg:pb-24 overflow-hidden border-b border-white/10 w-full min-w-full">
+            class="relative bg-[#060B1E] text-white min-h-[calc(100svh-84px)] lg:flex lg:items-center py-12 lg:py-16 overflow-hidden border-b border-white/10 w-full min-w-full">
             {{-- Ambient Glows --}}
             <div class="absolute top-0 right-1/4 w-96 h-96 bg-[#007AFF]/15 rounded-full blur-[140px] pointer-events-none">
             </div>
             <div class="absolute bottom-0 left-10 w-80 h-80 bg-[#00C4D8]/10 rounded-full blur-[120px] pointer-events-none">
             </div>
 
-            <div class="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
                 {{-- Breadcrumb --}}
                 <nav class="pb-6" aria-label="Breadcrumb">
                     <ol class="flex items-center gap-2 text-xs text-slate-400">
@@ -95,9 +98,9 @@
                     </ol>
                 </nav>
 
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
-                    {{-- Left Column: Copy & Value Proposition --}}
-                    <div class="lg:col-span-6 space-y-6">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
+                    {{-- Left Column: Copy & Value Proposition (5 Cols ~ 42%) --}}
+                    <div class="lg:col-span-5 space-y-6">
                         <div
                             class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#007AFF]/15 text-[#00C4D8] border border-[#00C4D8]/30 text-xs font-semibold tracking-wide">
                             <i data-lucide="send" class="w-3.5 h-3.5"></i>
@@ -118,12 +121,12 @@
                         {{-- Action CTAs --}}
                         <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 pt-2">
                             <a href="{{ route('public.demo') }}"
-                                class="inline-flex justify-center items-center gap-2 px-6 py-3.5 rounded-xl bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-sm shadow-lg shadow-[#007AFF]/25 transition-all duration-200">
+                                class="inline-flex justify-center items-center gap-2 px-6 py-3.5 rounded-xl bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-sm shadow-lg shadow-[#007AFF]/25 transition-all duration-200 min-h-[48px]">
                                 <span>Coba Modul Publikasi</span>
                                 <i data-lucide="arrow-right" class="w-4 h-4"></i>
                             </a>
                             <a href="{{ route('public.content.analytics') }}"
-                                class="inline-flex justify-center items-center gap-2 px-6 py-3.5 rounded-xl bg-white/10 hover:bg-white/15 text-white font-semibold text-sm border border-white/15 backdrop-blur-sm transition-all">
+                                class="inline-flex justify-center items-center gap-2 px-6 py-3.5 rounded-xl bg-white/10 hover:bg-white/15 text-white font-semibold text-sm border border-white/15 backdrop-blur-sm transition-all min-h-[48px]">
                                 <span>Lihat Analitik Jangkauan</span>
                             </a>
                         </div>
@@ -145,8 +148,8 @@
                         </div>
                     </div>
 
-                    {{-- Right Column: Simulated Live Publishing Engine Feed UI --}}
-                    <div class="lg:col-span-6">
+                    {{-- Right Column: Simulated Live Publishing Engine Feed UI (7 Cols ~ 58%) --}}
+                    <div class="lg:col-span-7">
                         <div
                             class="relative rounded-2xl bg-[#0E1E45]/80 p-4 sm:p-5 shadow-2xl border border-white/10 ring-1 ring-white/10 backdrop-blur-md text-white">
 
