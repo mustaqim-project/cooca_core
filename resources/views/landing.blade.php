@@ -42,16 +42,16 @@
         <!-- ═══ 1. HERO SECTION (Executive Dashboard & UMKM OS) ═══ -->
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
         <section
-            class="relative bg-[#060B1E] text-white overflow-hidden border-b border-white/10 md:aspect-[16/9] md:min-h-[520px] lg:min-h-[600px] xl:min-h-[680px] md:max-h-[85vh] flex items-center">
+            class="relative w-full min-w-full bg-[#060B1E] text-white overflow-hidden border-b border-white/10 min-h-[560px] md:min-h-[580px] lg:min-h-[640px] xl:min-h-[700px] flex items-center">
 
-            <!-- Desktop & Tablet: Gambar Mockup Full 16:9 -->
+            <!-- Desktop & Tablet: Gambar Mockup Full Background -->
             <div class="hidden md:block absolute inset-0 w-full h-full pointer-events-none select-none z-0">
                 <img src="{{ asset('assets/image/cooca_hero_banner.png') }}"
                     alt="COOCA Business Operating System & Devices"
-                    class="w-full h-full object-cover object-right xl:object-center">
+                    class="w-full h-full object-cover object-right xl:object-[80%_center]">
                 <!-- Subtle Gradient Vignette di Sebelah Kiri agar Teks Tetap Jelas Terbaca -->
                 <div
-                    class="absolute inset-0 bg-gradient-to-r from-[#060B1E] via-[#060B1E]/85 md:via-[#060B1E]/75 to-transparent w-full md:w-3/5 lg:w-1/2 pointer-events-none">
+                    class="absolute inset-0 bg-gradient-to-r from-[#060B1E] via-[#060B1E]/90 md:via-[#060B1E]/75 to-transparent w-full md:w-3/5 lg:w-[48%] pointer-events-none">
                 </div>
             </div>
 
@@ -64,22 +64,22 @@
             </div>
 
             <!-- Container Konten Hero -->
-            <div class="max-w-[1250px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full py-12 sm:py-16 md:py-8 lg:py-12">
+            <div class="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full py-12 sm:py-16 md:py-10 lg:py-14">
 
-                <!-- Grid Sebelah Kiri: Desktop & Tablet tetap di kiri, Mobile rata tengah -->
+                <!-- Grid Sebelah Kiri: Terkunci Rapi di Sisi Kiri agar Tidak Menabrak Laptop -->
                 <div
-                    class="w-full md:max-w-xl lg:max-w-2xl flex flex-col justify-center space-y-5 text-center md:text-left items-center md:items-start mx-auto md:mx-0">
+                    class="w-full md:max-w-md lg:max-w-[460px] xl:max-w-[500px] flex flex-col justify-center space-y-5 text-center md:text-left items-center md:items-start mx-auto md:mx-0">
 
                     <!-- Headline -->
                     <h1
-                        class="text-3xl sm:text-5xl md:text-3xl lg:text-[3.25rem] xl:text-[3.5rem] font-extrabold text-white tracking-tight leading-[1.12]">
+                        class="text-3xl sm:text-4xl md:text-3xl lg:text-[2.75rem] xl:text-[3.25rem] font-extrabold text-white tracking-tight leading-[1.12]">
                         Run Your Business.<br>
                         <span class="text-[#00C4D8]">From One Operating System.</span>
                     </h1>
 
                     <!-- Subtitle -->
-                    <div class="space-y-2 max-w-xl md:max-w-lg lg:max-w-xl">
-                        <p class="text-base sm:text-lg md:text-sm lg:text-lg text-slate-300 leading-relaxed">
+                    <div class="space-y-2 max-w-md">
+                        <p class="text-sm sm:text-base md:text-xs lg:text-sm xl:text-base text-slate-300 leading-relaxed">
                             COOCA membantu bisnis mengelola operasional, penjualan, keuangan, inventory, customer, social
                             media, marketplace, dan automation dalam satu ekosistem.
                             <span class="font-semibold text-white">Kelola Bisnis UMKM Lebih Cerdas &amp; Presisi.</span>
@@ -119,21 +119,21 @@
 
                     <!-- 3-Metric Bento -->
                     <div
-                        class="bg-white/[0.06] backdrop-blur-xl rounded-[18px] p-4 sm:p-5 md:p-3.5 lg:p-5 border border-white/10 shadow-[0_4px_20px_rgba(0,0,0,0.25)] grid grid-cols-3 divide-x divide-white/10 text-center max-w-lg w-full mx-auto md:mx-0">
+                        class="bg-white/[0.06] backdrop-blur-xl rounded-[18px] p-3.5 sm:p-4 lg:p-4.5 border border-white/10 shadow-[0_4px_20px_rgba(0,0,0,0.25)] grid grid-cols-3 divide-x divide-white/10 text-center max-w-sm sm:max-w-md w-full mx-auto md:mx-0">
                         <div class="px-2">
-                            <div class="text-xl sm:text-2xl md:text-lg lg:text-2xl font-extrabold text-white tabular-nums tracking-tight">10.000+
+                            <div class="text-lg sm:text-xl xl:text-2xl font-extrabold text-white tabular-nums tracking-tight">10.000+
                             </div>
-                            <div class="text-[11px] sm:text-xs text-slate-400 font-medium mt-0.5">UMKM Terdaftar</div>
+                            <div class="text-[10px] sm:text-xs text-slate-400 font-medium mt-0.5">UMKM Terdaftar</div>
                         </div>
                         <div class="px-2">
-                            <div class="text-xl sm:text-2xl md:text-lg lg:text-2xl font-extrabold text-emerald-400 tabular-nums tracking-tight">
+                            <div class="text-lg sm:text-xl xl:text-2xl font-extrabold text-emerald-400 tabular-nums tracking-tight">
                                 99.8%</div>
-                            <div class="text-[11px] sm:text-xs text-slate-400 font-medium mt-0.5">Akurasi Finansial</div>
+                            <div class="text-[10px] sm:text-xs text-slate-400 font-medium mt-0.5">Akurasi Finansial</div>
                         </div>
                         <div class="px-2">
-                            <div class="text-xl sm:text-2xl md:text-lg lg:text-2xl font-extrabold text-[#00C4D8] tabular-nums tracking-tight">100%
+                            <div class="text-lg sm:text-xl xl:text-2xl font-extrabold text-[#00C4D8] tabular-nums tracking-tight">100%
                             </div>
-                            <div class="text-[11px] sm:text-xs text-slate-400 font-medium mt-0.5">Gratis Selamanya</div>
+                            <div class="text-[10px] sm:text-xs text-slate-400 font-medium mt-0.5">Gratis Selamanya</div>
                         </div>
                     </div>
 
