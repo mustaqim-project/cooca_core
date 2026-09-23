@@ -853,8 +853,8 @@
     <!-- ═══ APPLE GROUPED INSET FOOTER ═══ -->
     @if (!($hideFooter ?? false))
         <footer
-            class="border-t border-white/10 bg-[#060913] text-slate-400 mt-0 pt-14 pb-20 text-xs transition-colors">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            class="border-t border-white/10 bg-[#060913] text-slate-400 mt-0 pt-16 pb-24 text-xs sm:text-sm transition-colors">
+            <div class="max-w-7xl 2xl:max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12">
                 <div class="grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-10 pb-10">
 
                     <!-- Col 1: Brand & Contact (Full width on mobile/tablet, 2 cols on desktop) -->
@@ -1088,7 +1088,7 @@
         <!-- ═══ APPLE FLOATING DOCK BOTTOM NAVBAR (MOBILE ONLY) ═══ -->
         <nav class="fixed bottom-0 inset-x-0 z-40 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] px-4 sm:px-6 lg:px-8 pointer-events-none lg:hidden"
             aria-label="Navigasi Bawah">
-            <div class="max-w-7xl mx-auto pointer-events-auto">
+            <div class="max-w-7xl 2xl:max-w-screen-2xl mx-auto pointer-events-auto">
                 <div
                     class="w-full bg-[#060913]/90 backdrop-blur-2xl border border-white/10 rounded-[24px] sm:rounded-[28px] px-2 sm:px-6 lg:px-8 py-2 sm:py-2.5 shadow-[0_12px_40px_-6px_rgba(0,0,0,0.5)] transition-all duration-300">
                     <div class="grid grid-cols-5 items-center w-full">
