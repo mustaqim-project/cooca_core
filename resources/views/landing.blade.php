@@ -41,99 +41,197 @@
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
         <!-- ═══ 1. HERO SECTION (Executive Dashboard & UMKM OS) ═══ -->
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
+        <!-- ══════════════════════════════════════════════════════════════════════════ -->
+        <!-- ═══ 1. HERO SECTION (Executive Dashboard & UMKM OS - Pure Bento HIG) ═══ -->
+        <!-- ══════════════════════════════════════════════════════════════════════════ -->
         <section
-            class="relative w-full min-w-full bg-[#060B1E] text-white overflow-hidden border-b border-white/10 min-h-[560px] md:min-h-[580px] lg:min-h-[640px] xl:min-h-[700px] flex items-center">
+            class="relative w-full min-w-full bg-[#060B1E] text-white overflow-hidden border-b border-white/10 flex items-center">
 
-            <!-- Desktop & Tablet: Gambar Mockup Full Background -->
-            <div class="hidden md:block absolute inset-0 w-full h-full pointer-events-none select-none z-0">
-                <img src="{{ asset('assets/image/cooca_hero_banner.png') }}"
-                    alt="COOCA Business Operating System & Devices"
-                    class="w-full h-full object-cover object-right xl:object-[80%_center]">
-                <!-- Subtle Gradient Vignette di Sebelah Kiri agar Teks Tetap Jelas Terbaca -->
-                <div
-                    class="absolute inset-0 bg-gradient-to-r from-[#060B1E] via-[#060B1E]/90 md:via-[#060B1E]/75 to-transparent w-full md:w-3/5 lg:w-[48%] pointer-events-none">
-                </div>
-            </div>
-
-            <!-- Ambient Glows (Mobile & Depth Layer) -->
+            <!-- Subtle Ambient Background Glows (Pure CSS, No Heavy Images) -->
             <div
-                class="absolute -top-24 right-1/4 w-[500px] h-[500px] bg-[#007AFF]/15 rounded-full blur-[140px] pointer-events-none">
+                class="absolute -top-32 right-1/4 w-[500px] h-[500px] bg-[#007AFF]/15 rounded-full blur-[140px] pointer-events-none -z-0">
             </div>
             <div
-                class="absolute bottom-0 left-1/4 w-[400px] h-[400px] bg-[#00C4D8]/10 rounded-full blur-[120px] pointer-events-none">
+                class="absolute bottom-0 left-1/4 w-[450px] h-[450px] bg-[#00C4D8]/10 rounded-full blur-[130px] pointer-events-none -z-0">
             </div>
 
             <!-- Container Konten Hero -->
-            <div class="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full py-12 sm:py-16 md:py-10 lg:py-14">
+            <div class="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full py-12 sm:py-16 md:py-16 lg:py-20">
 
-                <!-- Grid Sebelah Kiri: Terkunci Rapi di Sisi Kiri agar Tidak Menabrak Laptop -->
-                <div
-                    class="w-full md:max-w-md lg:max-w-[460px] xl:max-w-[500px] flex flex-col justify-center space-y-5 text-center md:text-left items-center md:items-start mx-auto md:mx-0">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
 
-                    <!-- Headline -->
-                    <h1
-                        class="text-3xl sm:text-4xl md:text-3xl lg:text-[2.75rem] xl:text-[3.25rem] font-extrabold text-white tracking-tight leading-[1.12]">
-                        Run Your Business.<br>
-                        <span class="text-[#00C4D8]">From One Operating System.</span>
-                    </h1>
+                    <!-- KIRI: Headline, Subtitle, CTAs & Value Proof (7 Cols) -->
+                    <div class="lg:col-span-7 space-y-6 text-left">
+                        <div class="space-y-3">
+                            <div
+                                class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#007AFF]/15 text-[#00C4D8] border border-[#00C4D8]/30 text-xs font-semibold backdrop-blur-sm">
+                                <i data-lucide="cpu" class="w-3.5 h-3.5 text-[#00C4D8]"></i>
+                                <span>Business Operating System &amp; Omnichannel ERP</span>
+                            </div>
 
-                    <!-- Subtitle -->
-                    <div class="space-y-2 max-w-md">
-                        <p class="text-sm sm:text-base md:text-xs lg:text-sm xl:text-base text-slate-300 leading-relaxed">
-                            COOCA membantu bisnis mengelola operasional, penjualan, keuangan, inventory, customer, social
-                            media, marketplace, dan automation dalam satu ekosistem.
-                            <span class="font-semibold text-white">Kelola Bisnis UMKM Lebih Cerdas &amp; Presisi.</span>
+                            <h1
+                                class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.85rem] xl:text-[3.25rem] font-extrabold text-white tracking-tight leading-[1.12] text-balance break-words">
+                                Satu Sistem Operasi untuk Seluruh <span class="text-[#00C4D8]">Denyut Bisnis Anda.</span>
+                            </h1>
+                        </div>
+
+                        <p class="text-base sm:text-lg text-slate-300 leading-relaxed max-w-2xl font-normal text-pretty break-words">
+                            Satukan kasir POS kilat, inventaris resep bahan baku otomatis, pembukuan finansial real-time,
+                            katalog toko online, hingga notifikasi WhatsApp tanpa mengetik ulang data secara manual.
                         </p>
-                        <p class="text-xs sm:text-sm font-bold tracking-wide text-[#00C4D8] uppercase">
-                            One Business. One System. One Control Center.
-                        </p>
+
+                        <!-- Action Buttons -->
+                        <div class="pt-1 flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5">
+                            @if (auth('admin')->check())
+                                <a href="{{ route('admin.dashboard') }}"
+                                    class="h-12 px-7 rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-[0_4px_16px_rgba(0,122,255,0.35)] active:scale-[0.98] transition-all">
+                                    <span>Dashboard Admin</span>
+                                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                                </a>
+                            @elseif (auth('web')->check())
+                                <a href="{{ route('dashboard') }}"
+                                    class="h-12 px-7 rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-[0_4px_16px_rgba(0,122,255,0.35)] active:scale-[0.98] transition-all">
+                                    <span>Ke Dashboard Bisnis</span>
+                                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                                </a>
+                            @else
+                                <a href="{{ route('register') }}"
+                                    class="h-12 px-8 rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-base flex items-center justify-center gap-2 shadow-[0_4px_16px_rgba(0,122,255,0.35)] active:scale-[0.98] transition-all min-h-[48px]">
+                                    <span>Mulai Coba Gratis</span>
+                                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                                </a>
+                                <a href="{{ route('public.demo') }}"
+                                    class="h-12 px-6 rounded-[14px] bg-white/10 hover:bg-white/15 border border-white/15 text-white font-semibold text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition-all backdrop-blur-sm min-h-[48px]">
+                                    <i data-lucide="play" class="w-4 h-4 text-[#00C4D8]"></i>
+                                    <span>Coba Live Demo</span>
+                                </a>
+                            @endif
+                        </div>
+
+                        <!-- Reassurance Checkpoints -->
+                        <div class="pt-1 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-slate-300">
+                            <div class="flex items-center gap-1.5">
+                                <i data-lucide="check" class="w-4 h-4 text-emerald-400"></i>
+                                <span>100% Gratis Selamanya</span>
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <i data-lucide="check" class="w-4 h-4 text-emerald-400"></i>
+                                <span>Tanpa Kartu Kredit</span>
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <i data-lucide="check" class="w-4 h-4 text-emerald-400"></i>
+                                <span>Siap Pakai 2 Menit</span>
+                            </div>
+                        </div>
+
+                        <!-- 3-Metric Bento Tiles -->
+                        <div class="pt-2">
+                            <div
+                                class="bg-white/[0.05] backdrop-blur-xl rounded-[18px] p-3.5 sm:p-4 border border-white/10 shadow-lg grid grid-cols-3 divide-x divide-white/10 text-center max-w-md">
+                                <div class="px-2">
+                                    <div class="text-xl sm:text-2xl font-extrabold text-white tabular-nums tracking-tight">10.000+</div>
+                                    <div class="text-[11px] text-slate-400 font-medium mt-0.5">UMKM Terdaftar</div>
+                                </div>
+                                <div class="px-2">
+                                    <div class="text-xl sm:text-2xl font-extrabold text-emerald-400 tabular-nums tracking-tight">99.8%</div>
+                                    <div class="text-[11px] text-slate-400 font-medium mt-0.5">Akurasi Finansial</div>
+                                </div>
+                                <div class="px-2">
+                                    <div class="text-xl sm:text-2xl font-extrabold text-[#00C4D8] tabular-nums tracking-tight">100%</div>
+                                    <div class="text-[11px] text-slate-400 font-medium mt-0.5">Cloud Sync Aktif</div>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
 
-                    <!-- CTAs -->
-                    <div class="flex flex-wrap items-center justify-center md:justify-start gap-3 pt-1">
-                        @if (auth('admin')->check())
-                            <a href="{{ route('admin.dashboard') }}"
-                                class="px-7 py-3.5 rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-sm flex items-center gap-2 shadow-[0_4px_16px_rgba(0,122,255,0.3)] hover:scale-[1.02] active:scale-[0.98] transition-all">
-                                <span>Dashboard Admin</span>
-                                <i data-lucide="arrow-right" class="w-4 h-4"></i>
-                            </a>
-                        @elseif (auth('web')->check())
-                            <a href="{{ route('dashboard') }}"
-                                class="px-7 py-3.5 rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-sm flex items-center gap-2 shadow-[0_4px_16px_rgba(0,122,255,0.3)] hover:scale-[1.02] active:scale-[0.98] transition-all">
-                                <span>Ke Dashboard</span>
-                                <i data-lucide="arrow-right" class="w-4 h-4"></i>
-                            </a>
-                        @else
-                            <a href="{{ route('register') }}"
-                                class="px-7 py-3.5 rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-sm sm:text-base flex items-center gap-2 shadow-[0_4px_16px_rgba(0,122,255,0.35)] hover:scale-[1.02] active:scale-[0.98] transition-all">
-                                <span>Coba COOCA Gratis</span>
-                                <i data-lucide="arrow-right" class="w-4 h-4"></i>
-                            </a>
-                            <a href="{{ route('public.bos.how-it-works') }}"
-                                class="px-6 py-3.5 rounded-[14px] bg-white/10 hover:bg-white/15 border border-white/15 text-white font-semibold text-sm sm:text-base flex items-center gap-2 hover:scale-[1.02] active:scale-[0.98] transition-all">
-                                <span>Lihat Cara Kerja</span>
-                                <i data-lucide="arrow-right" class="w-4 h-4"></i>
-                            </a>
-                        @endif
-                    </div>
+                    <!-- KANAN: Simulated Apple Bento Business OS Cockpit (5 Cols) -->
+                    <div class="lg:col-span-5">
+                        <div
+                            class="rounded-[24px] bg-[#0E1E45]/85 border border-white/15 p-5 sm:p-6 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.7)] backdrop-blur-xl space-y-4 text-white">
 
-                    <!-- 3-Metric Bento -->
-                    <div
-                        class="bg-white/[0.06] backdrop-blur-xl rounded-[18px] p-3.5 sm:p-4 lg:p-4.5 border border-white/10 shadow-[0_4px_20px_rgba(0,0,0,0.25)] grid grid-cols-3 divide-x divide-white/10 text-center max-w-sm sm:max-w-md w-full mx-auto md:mx-0">
-                        <div class="px-2">
-                            <div class="text-lg sm:text-xl xl:text-2xl font-extrabold text-white tabular-nums tracking-tight">10.000+
+                            <!-- macOS Window Top Bar -->
+                            <div class="flex items-center justify-between border-b border-white/10 pb-3">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-3 h-3 rounded-full bg-[#FF5F56] shadow-inner"></span>
+                                    <span class="w-3 h-3 rounded-full bg-[#FFBD2E] shadow-inner"></span>
+                                    <span class="w-3 h-3 rounded-full bg-[#27C93F] shadow-inner"></span>
+                                    <span class="text-xs font-mono font-semibold text-slate-300 ml-2">cooca://core.os</span>
+                                </div>
+                                <span
+                                    class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-[11px] font-semibold">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                                    Sync Aktif
+                                </span>
                             </div>
-                            <div class="text-[10px] sm:text-xs text-slate-400 font-medium mt-0.5">UMKM Terdaftar</div>
-                        </div>
-                        <div class="px-2">
-                            <div class="text-lg sm:text-xl xl:text-2xl font-extrabold text-emerald-400 tabular-nums tracking-tight">
-                                99.8%</div>
-                            <div class="text-[10px] sm:text-xs text-slate-400 font-medium mt-0.5">Akurasi Finansial</div>
-                        </div>
-                        <div class="px-2">
-                            <div class="text-lg sm:text-xl xl:text-2xl font-extrabold text-[#00C4D8] tabular-nums tracking-tight">100%
+
+                            <!-- Bento Module 1: Live Cashier POS & Instant Stock Deduction -->
+                            <div class="p-3.5 rounded-[16px] bg-white/[0.04] border border-white/[0.08] space-y-2">
+                                <div class="flex items-center justify-between text-xs">
+                                    <span class="font-bold text-white flex items-center gap-1.5">
+                                        <i data-lucide="shopping-cart" class="w-3.5 h-3.5 text-[#00C4D8]"></i>
+                                        <span>Kasir POS &bull; Transaksi #TRX-2049</span>
+                                    </span>
+                                    <span class="font-mono text-emerald-400 font-bold">Lunas QRIS</span>
+                                </div>
+                                <div class="flex items-center justify-between text-xs text-slate-300 pt-0.5">
+                                    <span>2x Kopi Susu Gula Aren</span>
+                                    <span class="font-mono font-bold text-white">Rp 36.000</span>
+                                </div>
+                                <!-- Auto-deduct chips -->
+                                <div class="pt-1 flex flex-wrap gap-1.5 text-[10.5px]">
+                                    <span class="px-2 py-0.5 rounded-[6px] bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 font-mono">
+                                        Stok Kopi -36g
+                                    </span>
+                                    <span class="px-2 py-0.5 rounded-[6px] bg-sky-500/10 border border-sky-500/20 text-sky-300 font-mono">
+                                        Susu Segar -180ml
+                                    </span>
+                                    <span class="px-2 py-0.5 rounded-[6px] bg-amber-500/10 border border-amber-500/20 text-amber-300 font-mono">
+                                        Gula Aren -40ml
+                                    </span>
+                                </div>
                             </div>
-                            <div class="text-[10px] sm:text-xs text-slate-400 font-medium mt-0.5">Gratis Selamanya</div>
+
+                            <!-- Bento Module 2: Realtime Gross Revenue & Profit Calculation -->
+                            <div class="grid grid-cols-2 gap-3">
+                                <div class="p-3 rounded-[16px] bg-white/[0.04] border border-white/[0.08] space-y-1">
+                                    <span class="text-[11px] text-slate-400 block font-medium">Omzet Hari Ini</span>
+                                    <div class="text-base sm:text-lg font-bold text-white tabular-nums">Rp 4.850.000</div>
+                                    <span class="text-[10.5px] font-semibold text-emerald-400 flex items-center gap-1">
+                                        <i data-lucide="trending-up" class="w-3 h-3"></i>
+                                        +18.4% vs kemarin
+                                    </span>
+                                </div>
+                                <div class="p-3 rounded-[16px] bg-white/[0.04] border border-white/[0.08] space-y-1">
+                                    <span class="text-[11px] text-slate-400 block font-medium">Laba Bersih Riil</span>
+                                    <div class="text-base sm:text-lg font-bold text-emerald-400 tabular-nums">Rp 1.940.000</div>
+                                    <span class="text-[10.5px] text-slate-400 block">
+                                        Margin 40% bersih
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Bento Module 3: Instant WhatsApp Automated Notification -->
+                            <div class="p-3 rounded-[14px] bg-[#34C759]/10 border border-[#34C759]/25 flex items-center gap-2.5">
+                                <div class="w-7 h-7 rounded-[8px] bg-[#34C759]/20 text-[#34C759] flex items-center justify-center shrink-0">
+                                    <i data-lucide="message-circle" class="w-4 h-4"></i>
+                                </div>
+                                <div class="min-w-0 flex-1 text-xs">
+                                    <p class="font-bold text-white truncate">Nota WhatsApp Terkirim</p>
+                                    <p class="text-[11px] text-slate-300 truncate">Otomatis ke pelanggan tanpa nomor disimpan</p>
+                                </div>
+                                <i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0"></i>
+                            </div>
+
+                            <!-- Bento Module 4: Connected Multi-Outlet & Terminal Footer -->
+                            <div class="pt-2 flex items-center justify-between text-[11px] text-slate-400 border-t border-white/10 font-mono">
+                                <span class="flex items-center gap-1.5">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                                    Gerai Utama &bull; 2 Cabang Terhubung
+                                </span>
+                                <span>Bebas Biaya Perangkat</span>
+                            </div>
+
                         </div>
                     </div>
 
