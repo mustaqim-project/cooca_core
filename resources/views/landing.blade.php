@@ -28,81 +28,6 @@
     </script>
 @endpush
 
-@push('styles')
-    <style>
-        @keyframes heroCableFlow {
-            from {
-                stroke-dashoffset: 48;
-            }
-
-            to {
-                stroke-dashoffset: 0;
-            }
-        }
-
-        @keyframes heroScanline {
-            0% {
-                transform: translateY(-120%);
-                opacity: 0;
-            }
-
-            50% {
-                opacity: 0.8;
-            }
-
-            100% {
-                transform: translateY(180%);
-                opacity: 0;
-            }
-        }
-
-        @keyframes heroHoloBeam {
-
-            0%,
-            100% {
-                opacity: 0.35;
-                transform: scaleY(0.96);
-            }
-
-            50% {
-                opacity: 0.75;
-                transform: scaleY(1.04);
-            }
-        }
-
-        @keyframes heroGearSpin {
-            from {
-                transform: rotate(0deg);
-            }
-
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        .hero-cable-flow {
-            animation: heroCableFlow 2.8s linear infinite;
-        }
-
-        .hero-cable-flow-fast {
-            animation: heroCableFlow 1.8s linear infinite;
-        }
-
-        .hero-scanline-beam {
-            animation: heroScanline 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-        }
-
-        .hero-holo-beam {
-            animation: heroHoloBeam 3s ease-in-out infinite alternate;
-            transform-origin: bottom center;
-        }
-
-        .hero-node-gear:hover .gear-icon {
-            animation: heroGearSpin 8s linear infinite;
-            transform-origin: center;
-        }
-    </style>
-@endpush
 
 @php
     $siteLogoLightSetting = \App\Models\SystemSetting::get('site_logo_light');
@@ -116,9 +41,21 @@
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
         <!-- ═══ 1. HERO SECTION (Executive Dashboard & UMKM OS) ═══ -->
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
-        <section class="relative bg-[#060B1E] text-white py-12 lg:py-16 overflow-hidden border-b border-white/10">
+        <section
+            class="relative bg-[#060B1E] text-white overflow-hidden border-b border-white/10 md:aspect-[16/9] md:min-h-[520px] lg:min-h-[600px] xl:min-h-[680px] md:max-h-[85vh] flex items-center">
 
-            <!-- Ambient Glows -->
+            <!-- Desktop & Tablet: Gambar Mockup Full 16:9 -->
+            <div class="hidden md:block absolute inset-0 w-full h-full pointer-events-none select-none z-0">
+                <img src="{{ asset('assets/image/cooca_hero_banner.png') }}"
+                    alt="COOCA Business Operating System & Devices"
+                    class="w-full h-full object-cover object-right xl:object-center">
+                <!-- Subtle Gradient Vignette di Sebelah Kiri agar Teks Tetap Jelas Terbaca -->
+                <div
+                    class="absolute inset-0 bg-gradient-to-r from-[#060B1E] via-[#060B1E]/85 md:via-[#060B1E]/75 to-transparent w-full md:w-3/5 lg:w-1/2 pointer-events-none">
+                </div>
+            </div>
+
+            <!-- Ambient Glows (Mobile & Depth Layer) -->
             <div
                 class="absolute -top-24 right-1/4 w-[500px] h-[500px] bg-[#007AFF]/15 rounded-full blur-[140px] pointer-events-none">
             </div>
@@ -126,23 +63,23 @@
                 class="absolute bottom-0 left-1/4 w-[400px] h-[400px] bg-[#00C4D8]/10 rounded-full blur-[120px] pointer-events-none">
             </div>
 
-            <!-- Container -->
-            <div
-                class="max-w-[1250px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center lg:min-h-[560px]">
+            <!-- Container Konten Hero -->
+            <div class="max-w-[1250px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full py-12 sm:py-16 md:py-8 lg:py-12">
 
-                <!-- ===== LEFT: Copy ===== -->
-                <div class="lg:col-span-7 flex flex-col justify-center space-y-5 text-left">
+                <!-- Grid Sebelah Kiri: Desktop & Tablet tetap di kiri, Mobile rata tengah -->
+                <div
+                    class="w-full md:max-w-xl lg:max-w-2xl flex flex-col justify-center space-y-5 text-center md:text-left items-center md:items-start mx-auto md:mx-0">
 
                     <!-- Headline -->
                     <h1
-                        class="text-4xl sm:text-5xl lg:text-[3.25rem] xl:text-[3.5rem] font-extrabold text-white tracking-tight leading-[1.1]">
+                        class="text-3xl sm:text-5xl md:text-3xl lg:text-[3.25rem] xl:text-[3.5rem] font-extrabold text-white tracking-tight leading-[1.12]">
                         Run Your Business.<br>
                         <span class="text-[#00C4D8]">From One Operating System.</span>
                     </h1>
 
                     <!-- Subtitle -->
-                    <div class="space-y-2">
-                        <p class="text-base sm:text-lg text-slate-300 max-w-xl leading-relaxed">
+                    <div class="space-y-2 max-w-xl md:max-w-lg lg:max-w-xl">
+                        <p class="text-base sm:text-lg md:text-sm lg:text-lg text-slate-300 leading-relaxed">
                             COOCA membantu bisnis mengelola operasional, penjualan, keuangan, inventory, customer, social
                             media, marketplace, dan automation dalam satu ekosistem.
                             <span class="font-semibold text-white">Kelola Bisnis UMKM Lebih Cerdas &amp; Presisi.</span>
@@ -153,7 +90,7 @@
                     </div>
 
                     <!-- CTAs -->
-                    <div class="flex flex-wrap items-center gap-3 pt-1">
+                    <div class="flex flex-wrap items-center justify-center md:justify-start gap-3 pt-1">
                         @if (auth('admin')->check())
                             <a href="{{ route('admin.dashboard') }}"
                                 class="px-7 py-3.5 rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-sm flex items-center gap-2 shadow-[0_4px_16px_rgba(0,122,255,0.3)] hover:scale-[1.02] active:scale-[0.98] transition-all">
@@ -180,230 +117,26 @@
                         @endif
                     </div>
 
-
                     <!-- 3-Metric Bento -->
                     <div
-                        class="bg-white/[0.06] backdrop-blur-xl rounded-[18px] p-4 sm:p-5 border border-white/10 shadow-[0_4px_20px_rgba(0,0,0,0.25)] grid grid-cols-3 divide-x divide-white/10 text-center max-w-lg">
+                        class="bg-white/[0.06] backdrop-blur-xl rounded-[18px] p-4 sm:p-5 md:p-3.5 lg:p-5 border border-white/10 shadow-[0_4px_20px_rgba(0,0,0,0.25)] grid grid-cols-3 divide-x divide-white/10 text-center max-w-lg w-full mx-auto md:mx-0">
                         <div class="px-2">
-                            <div class="text-xl sm:text-2xl font-extrabold text-white tabular-nums tracking-tight">10.000+
+                            <div class="text-xl sm:text-2xl md:text-lg lg:text-2xl font-extrabold text-white tabular-nums tracking-tight">10.000+
                             </div>
-                            <div class="text-xs text-slate-400 font-medium mt-0.5">UMKM Terdaftar</div>
+                            <div class="text-[11px] sm:text-xs text-slate-400 font-medium mt-0.5">UMKM Terdaftar</div>
                         </div>
                         <div class="px-2">
-                            <div class="text-xl sm:text-2xl font-extrabold text-emerald-400 tabular-nums tracking-tight">
+                            <div class="text-xl sm:text-2xl md:text-lg lg:text-2xl font-extrabold text-emerald-400 tabular-nums tracking-tight">
                                 99.8%</div>
-                            <div class="text-xs text-slate-400 font-medium mt-0.5">Akurasi Finansial</div>
+                            <div class="text-[11px] sm:text-xs text-slate-400 font-medium mt-0.5">Akurasi Finansial</div>
                         </div>
                         <div class="px-2">
-                            <div class="text-xl sm:text-2xl font-extrabold text-[#00C4D8] tabular-nums tracking-tight">100%
+                            <div class="text-xl sm:text-2xl md:text-lg lg:text-2xl font-extrabold text-[#00C4D8] tabular-nums tracking-tight">100%
                             </div>
-                            <div class="text-xs text-slate-400 font-medium mt-0.5">Gratis Selamanya</div>
+                            <div class="text-[11px] sm:text-xs text-slate-400 font-medium mt-0.5">Gratis Selamanya</div>
                         </div>
                     </div>
 
-                </div>
-
-                <!-- ===== RIGHT: Dashboard Window ===== -->
-                <div class="lg:col-span-5 flex items-center justify-center lg:justify-end">
-                    <div class="w-full max-w-lg lg:max-w-xl group">
-
-                        <div
-                            class="bg-[#0B132B]/90 backdrop-blur-2xl rounded-[24px] p-4 sm:p-5 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.7)] border border-white/10 space-y-3.5 transition-all duration-300 group-hover:border-sky-400/40 group-hover:shadow-[0_30px_70px_-15px_rgba(0,196,216,0.2)]">
-
-                            <!-- Titlebar -->
-                            <div class="flex items-center justify-between pb-1 border-b border-white/[0.08]">
-                                <div class="flex items-center gap-2">
-                                    <div class="flex items-center gap-1.5">
-                                        <span
-                                            class="w-3 h-3 rounded-full bg-[#FF5F56] shadow-[inset_0_1px_1px_rgba(0,0,0,0.2)]"></span>
-                                        <span
-                                            class="w-3 h-3 rounded-full bg-[#FFBD2E] shadow-[inset_0_1px_1px_rgba(0,0,0,0.2)]"></span>
-                                        <span
-                                            class="w-3 h-3 rounded-full bg-[#27C93F] shadow-[inset_0_1px_1px_rgba(0,0,0,0.2)]"></span>
-                                    </div>
-                                    <span class="text-xs font-semibold text-slate-300 ml-1.5 tracking-tight">Cooca OS &bull;
-                                        Executive Dashboard</span>
-                                </div>
-                                <span
-                                    class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 inline-flex items-center gap-1">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-                                    <span>Kasir Buka</span>
-                                </span>
-                            </div>
-
-                            <!-- Period Filter -->
-                            <div
-                                class="flex items-center justify-between gap-2 p-1 rounded-[10px] bg-white/[0.05] border border-white/[0.08] text-[11px] font-medium">
-                                <div class="inline-flex items-center gap-1">
-                                    <span class="px-2.5 py-1 rounded-[7px] bg-[#007AFF] text-white font-semibold">Hari
-                                        Ini</span>
-                                    <span class="px-2.5 py-1 text-slate-400">Minggu Ini</span>
-                                    <span class="px-2.5 py-1 text-slate-400">Bulan Ini</span>
-                                </div>
-                                <span class="text-[10.5px] text-slate-400 tabular-nums px-2 hidden sm:inline">Outlet
-                                    Utama</span>
-                            </div>
-
-                            <!-- 2x2 KPI Grid -->
-                            <div class="grid grid-cols-2 gap-2.5 sm:gap-3">
-                                <div
-                                    class="bg-white/[0.04] rounded-[16px] p-3 sm:p-3.5 border border-white/[0.08] space-y-1 hover:bg-white/[0.07] transition-colors">
-                                    <div class="flex items-center justify-between">
-                                        <span
-                                            class="text-[10px] sm:text-[10.5px] font-bold text-slate-400 tracking-wider uppercase">OMZET
-                                            HARI INI</span>
-                                        <div
-                                            class="w-6 h-6 rounded-lg bg-emerald-500/15 text-emerald-400 flex items-center justify-center">
-                                            <i data-lucide="coins" class="w-3.5 h-3.5"></i>
-                                        </div>
-                                    </div>
-                                    <div
-                                        class="text-base sm:text-lg font-bold text-white font-mono tabular-nums tracking-tight">
-                                        Rp 4.250.000</div>
-                                    <div
-                                        class="text-[10.5px] sm:text-[11px] font-semibold text-emerald-400 flex items-center gap-1">
-                                        <i data-lucide="trending-up" class="w-3 h-3"></i>
-                                        <span class="tabular-nums">+14.8% vs kemarin</span>
-                                    </div>
-                                </div>
-
-                                <div
-                                    class="bg-white/[0.04] rounded-[16px] p-3 sm:p-3.5 border border-white/[0.08] space-y-1 hover:bg-white/[0.07] transition-colors">
-                                    <div class="flex items-center justify-between">
-                                        <span
-                                            class="text-[10px] sm:text-[10.5px] font-bold text-slate-400 tracking-wider uppercase">MARGIN
-                                            LABA BERSIH</span>
-                                        <div
-                                            class="w-6 h-6 rounded-lg bg-sky-500/15 text-[#00C4D8] flex items-center justify-center">
-                                            <i data-lucide="trending-up" class="w-3.5 h-3.5"></i>
-                                        </div>
-                                    </div>
-                                    <div
-                                        class="text-base sm:text-lg font-bold text-[#00C4D8] font-mono tabular-nums tracking-tight">
-                                        32.4%</div>
-                                    <div class="text-[10.5px] sm:text-[11px] text-slate-400 tabular-nums">Net Profit Rp
-                                        1.377.000</div>
-                                </div>
-
-                                <div
-                                    class="bg-white/[0.04] rounded-[16px] p-3 sm:p-3.5 border border-white/[0.08] space-y-1 hover:bg-white/[0.07] transition-colors">
-                                    <div class="flex items-center justify-between">
-                                        <span
-                                            class="text-[10px] sm:text-[10.5px] font-bold text-slate-400 tracking-wider uppercase">STOK
-                                            KRITIS GUDANG</span>
-                                        <div
-                                            class="w-6 h-6 rounded-lg bg-amber-500/15 text-amber-400 flex items-center justify-center">
-                                            <i data-lucide="alert-circle" class="w-3.5 h-3.5"></i>
-                                        </div>
-                                    </div>
-                                    <div class="text-base sm:text-lg font-bold text-amber-400 tabular-nums tracking-tight">
-                                        3
-                                        Bahan</div>
-                                    <div
-                                        class="text-[10.5px] sm:text-[11px] text-amber-400 font-medium flex items-center gap-1">
-                                        <i data-lucide="alert-triangle" class="w-3 h-3"></i>
-                                        <span>Segera restock</span>
-                                    </div>
-                                </div>
-
-                                <div
-                                    class="bg-white/[0.04] rounded-[16px] p-3 sm:p-3.5 border border-white/[0.08] space-y-1 hover:bg-white/[0.07] transition-colors">
-                                    <div class="flex items-center justify-between">
-                                        <span
-                                            class="text-[10px] sm:text-[10.5px] font-bold text-slate-400 tracking-wider uppercase">TRANSAKSI
-                                            POS</span>
-                                        <div
-                                            class="w-6 h-6 rounded-lg bg-indigo-500/15 text-indigo-400 flex items-center justify-center">
-                                            <i data-lucide="shopping-bag" class="w-3.5 h-3.5"></i>
-                                        </div>
-                                    </div>
-                                    <div class="text-base sm:text-lg font-bold text-white tabular-nums tracking-tight">142
-                                        Struk</div>
-                                    <div class="text-[10.5px] sm:text-[11px] text-emerald-400 font-medium tabular-nums">AOV
-                                        Rp 29.900</div>
-                                </div>
-                            </div>
-
-                            <!-- Trend Chart -->
-                            <div
-                                class="bg-white/[0.04] rounded-[16px] p-3 sm:p-3.5 border border-white/[0.08] space-y-2.5">
-                                <div class="flex items-center justify-between text-xs">
-                                    <span class="font-semibold text-slate-200">Tren Penjualan 7 Hari Terakhir</span>
-                                    <span
-                                        class="font-bold text-emerald-400 tabular-nums text-[11px] bg-emerald-500/10 px-2 py-0.5 rounded-full">+23.5%
-                                        minggu ini</span>
-                                </div>
-                                <div class="flex items-end justify-between gap-2 h-16 pt-1">
-                                    <div class="flex-1 flex flex-col items-center gap-1.5 h-full justify-end">
-                                        <div
-                                            class="w-full bg-sky-950/60 rounded-md h-[40%] transition-all hover:bg-sky-800">
-                                        </div>
-                                        <span class="text-[9px] font-medium text-slate-400">Sen</span>
-                                    </div>
-                                    <div class="flex-1 flex flex-col items-center gap-1.5 h-full justify-end">
-                                        <div
-                                            class="w-full bg-sky-950/60 rounded-md h-[55%] transition-all hover:bg-sky-800">
-                                        </div>
-                                        <span class="text-[9px] font-medium text-slate-400">Sel</span>
-                                    </div>
-                                    <div class="flex-1 flex flex-col items-center gap-1.5 h-full justify-end">
-                                        <div
-                                            class="w-full bg-sky-950/60 rounded-md h-[35%] transition-all hover:bg-sky-800">
-                                        </div>
-                                        <span class="text-[9px] font-medium text-slate-400">Rab</span>
-                                    </div>
-                                    <div class="flex-1 flex flex-col items-center gap-1.5 h-full justify-end">
-                                        <div
-                                            class="w-full bg-sky-950/60 rounded-md h-[80%] transition-all hover:bg-sky-800">
-                                        </div>
-                                        <span class="text-[9px] font-medium text-slate-400">Kam</span>
-                                    </div>
-                                    <div class="flex-1 flex flex-col items-center gap-1.5 h-full justify-end">
-                                        <div
-                                            class="w-full bg-sky-950/60 rounded-md h-[65%] transition-all hover:bg-sky-800">
-                                        </div>
-                                        <span class="text-[9px] font-medium text-slate-400">Jum</span>
-                                    </div>
-                                    <div class="flex-1 flex flex-col items-center gap-1.5 h-full justify-end">
-                                        <div
-                                            class="w-full bg-[#007AFF] rounded-md h-[100%] shadow-[0_0_10px_rgba(0,122,255,0.4)]">
-                                        </div>
-                                        <span class="text-[9px] font-bold text-[#007AFF]">Sab</span>
-                                    </div>
-                                    <div class="flex-1 flex flex-col items-center gap-1.5 h-full justify-end">
-                                        <div
-                                            class="w-full bg-[#007AFF] rounded-md h-[88%] shadow-[0_0_10px_rgba(0,122,255,0.4)]">
-                                        </div>
-                                        <span class="text-[9px] font-bold text-[#007AFF]">Min</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- AI Insight -->
-                            <div
-                                class="bg-[#007AFF]/15 rounded-[14px] p-2.5 sm:p-3 border border-[#007AFF]/25 flex items-center gap-2.5">
-                                <div
-                                    class="w-7 h-7 rounded-[8px] bg-[#007AFF] text-white flex items-center justify-center shrink-0">
-                                    <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
-                                </div>
-                                <p class="text-[11.5px] sm:text-xs text-slate-200 leading-snug">
-                                    <span class="font-bold text-[#00C4D8]">AI:</span> "Margin produk Kopi Susu naik 4%
-                                    setelah revisi bahan baku."
-                                </p>
-                            </div>
-
-                            <!-- Footer Status -->
-                            <div
-                                class="flex items-center justify-between text-[10px] text-slate-400 px-1 pt-0.5 border-t border-white/[0.08]">
-                                <span class="flex items-center gap-1.5">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-                                    <span>Cloud Sync Aktif &bull; Terhubung</span>
-                                </span>
-                                <span class="tabular-nums">Enkripsi Data 256-bit</span>
-                            </div>
-
-                        </div>
-                    </div>
                 </div>
 
             </div>
