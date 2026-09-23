@@ -85,11 +85,11 @@
                         </div>
 
                         <h1
-                            class="text-4xl sm:text-5xl lg:text-[3.25rem] xl:text-[3.75rem] font-black text-white tracking-tight leading-[1.12]">
+                            class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.75rem] xl:text-[3.25rem] font-extrabold text-white tracking-tight leading-[1.2] text-balance break-words">
                             Berhenti Membayar Banyak Software Terpisah yang Tidak Saling Terhubung
                         </h1>
 
-                        <p class="text-base sm:text-lg text-slate-300 leading-relaxed max-w-2xl font-normal">
+                        <p class="text-base sm:text-lg text-slate-300 leading-relaxed max-w-2xl font-normal text-pretty">
                             Saat bisnis Anda mulai tumbuh, memakai POS dari vendor A, pencatatan stok di vendor B, pembukuan
                             di spreadsheet, dan broadcast WhatsApp di vendor C justru memicu biaya mahal, data selisih, dan
                             waktu terbuang.
@@ -111,15 +111,15 @@
                         <!-- Bullet Reassurances -->
                         <div class="pt-2 flex flex-wrap items-center gap-y-2 gap-x-5 text-xs text-slate-400">
                             <div class="flex items-center gap-1.5">
-                                <i data-lucide="check" class="w-4 h-4 text-emerald-400"></i>
+                                <i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0"></i>
                                 <span>Hemat biaya hingga 75% per bulan</span>
                             </div>
                             <div class="flex items-center gap-1.5">
-                                <i data-lucide="check" class="w-4 h-4 text-emerald-400"></i>
+                                <i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0"></i>
                                 <span>Satu akun untuk seluruh operasional</span>
                             </div>
                             <div class="flex items-center gap-1.5">
-                                <i data-lucide="check" class="w-4 h-4 text-emerald-400"></i>
+                                <i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0"></i>
                                 <span>Migrasi data mudah & didampingi</span>
                             </div>
                         </div>
@@ -130,54 +130,48 @@
                         <div class="space-y-4">
                             <!-- Old Way Card -->
                             <div class="p-5 rounded-[22px] bg-red-950/40 border border-red-500/30 text-white space-y-3">
-                                <div class="flex items-center justify-between text-xs">
-                                    <span class="font-bold text-red-400 uppercase tracking-wider flex items-center gap-1.5">
-                                        <i data-lucide="x-circle" class="w-4 h-4"></i> Cara Lama (Terpisah)
+                                <div class="flex items-center justify-between gap-2 text-xs">
+                                    <span class="font-bold text-red-400 uppercase tracking-wider flex items-center gap-1.5 min-w-0">
+                                        <i data-lucide="x-circle" class="w-4 h-4 shrink-0"></i> <span class="truncate">Cara Lama (Terpisah)</span>
                                     </span>
-                                    <span class="text-red-300 font-mono font-bold">Rp 1.200.000+ /bln</span>
+                                    <span class="text-red-300 font-mono font-bold shrink-0">Rp 1.200.000+ /bln</span>
                                 </div>
                                 <ul class="space-y-2 text-xs text-slate-300">
-                                    <li class="flex items-center gap-2"><i data-lucide="x"
-                                            class="w-3.5 h-3.5 text-red-400 shrink-0"></i> Langganan POS: Rp 250rb/bln</li>
-                                    <li class="flex items-center gap-2"><i data-lucide="x"
-                                            class="w-3.5 h-3.5 text-red-400 shrink-0"></i> Software Gudang: Rp 350rb/bln
+                                    <li class="flex items-start gap-2"><i data-lucide="x"
+                                            class="w-3.5 h-3.5 text-red-400 shrink-0 mt-0.5"></i> <span class="text-pretty">Langganan POS: Rp 250rb/bln</span></li>
+                                    <li class="flex items-start gap-2"><i data-lucide="x"
+                                            class="w-3.5 h-3.5 text-red-400 shrink-0 mt-0.5"></i> <span class="text-pretty">Software Gudang: Rp 350rb/bln</span>
                                     </li>
-                                    <li class="flex items-center gap-2"><i data-lucide="x"
-                                            class="w-3.5 h-3.5 text-red-400 shrink-0"></i> Software Akuntansi: Rp 300rb/bln
+                                    <li class="flex items-start gap-2"><i data-lucide="x"
+                                            class="w-3.5 h-3.5 text-red-400 shrink-0 mt-0.5"></i> <span class="text-pretty">Software Akuntansi: Rp 300rb/bln</span>
                                     </li>
-                                    <li class="flex items-center gap-2"><i data-lucide="x"
-                                            class="w-3.5 h-3.5 text-red-400 shrink-0"></i> Rekonsiliasi manual 3 jam tiap
-                                        malam</li>
+                                    <li class="flex items-start gap-2"><i data-lucide="x"
+                                            class="w-3.5 h-3.5 text-red-400 shrink-0 mt-0.5"></i> <span class="text-pretty">Rekonsiliasi manual 3 jam tiap malam</span></li>
                                 </ul>
                             </div>
 
                             <!-- COOCA Way Card -->
                             <div
                                 class="p-5 sm:p-6 rounded-[24px] bg-gradient-to-br from-blue-950/80 to-cyan-950/70 border-2 border-[#00C2FF]/60 text-white space-y-3 shadow-xl">
-                                <div class="flex items-center justify-between text-xs">
+                                <div class="flex items-center justify-between gap-2 text-xs">
                                     <span
-                                        class="font-bold text-[#00C2FF] uppercase tracking-wider flex items-center gap-1.5">
-                                        <i data-lucide="check-circle" class="w-4 h-4 text-emerald-400"></i> Cara Terpadu
-                                        COOCA
+                                        class="font-bold text-[#00C2FF] uppercase tracking-wider flex items-center gap-1.5 min-w-0">
+                                        <i data-lucide="check-circle" class="w-4 h-4 text-emerald-400 shrink-0"></i> <span class="truncate">Cara Terpadu COOCA</span>
                                     </span>
                                     <span
-                                        class="px-2.5 py-0.5 rounded-full text-xs font-mono font-extrabold bg-[#00C2FF]/20 text-[#00C2FF]">
+                                        class="px-2.5 py-0.5 rounded-full text-xs font-mono font-extrabold bg-[#00C2FF]/20 text-[#00C2FF] shrink-0">
                                         Mulai Rp 0 - Rp 99rb /bln
                                     </span>
                                 </div>
                                 <ul class="space-y-2 text-xs text-slate-200">
-                                    <li class="flex items-center gap-2"><i data-lucide="check"
-                                            class="w-4 h-4 text-emerald-400 shrink-0"></i> Kasir POS + Resep BOM + Gudang +
-                                        Jurnal sudah include</li>
-                                    <li class="flex items-center gap-2"><i data-lucide="check"
-                                            class="w-4 h-4 text-emerald-400 shrink-0"></i> Toko online mandiri & WA nota
-                                        otomatis sudah include</li>
-                                    <li class="flex items-center gap-2"><i data-lucide="check"
-                                            class="w-4 h-4 text-emerald-400 shrink-0"></i> Nol detik rekonsiliasi karena
-                                        database real-time</li>
-                                    <li class="flex items-center gap-2"><i data-lucide="check"
-                                            class="w-4 h-4 text-emerald-400 shrink-0"></i> Data bisnis milik Anda sepenuhnya
-                                        dalam kontrol aman</li>
+                                    <li class="flex items-start gap-2"><i data-lucide="check"
+                                            class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i> <span class="text-pretty">Kasir POS + Resep BOM + Gudang + Jurnal sudah include</span></li>
+                                    <li class="flex items-start gap-2"><i data-lucide="check"
+                                            class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i> <span class="text-pretty">Toko online mandiri & WA nota otomatis sudah include</span></li>
+                                    <li class="flex items-start gap-2"><i data-lucide="check"
+                                            class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i> <span class="text-pretty">Nol detik rekonsiliasi karena database real-time</span></li>
+                                    <li class="flex items-start gap-2"><i data-lucide="check"
+                                            class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i> <span class="text-pretty">Data bisnis milik Anda sepenuhnya dalam kontrol aman</span></li>
                                 </ul>
                             </div>
                         </div>

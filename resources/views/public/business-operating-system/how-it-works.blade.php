@@ -85,11 +85,11 @@
                         </div>
 
                         <h1
-                            class="text-4xl sm:text-5xl lg:text-[3.25rem] xl:text-[3.75rem] font-black text-white tracking-tight leading-[1.12]">
+                            class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.75rem] xl:text-[3.25rem] font-extrabold text-white tracking-tight leading-[1.2] text-balance break-words">
                             Bagaimana COOCA Mengotomasi Operasional Toko Anda dari Depan ke Belakang
                         </h1>
 
-                        <p class="text-base sm:text-lg text-slate-300 leading-relaxed max-w-2xl font-normal">
+                        <p class="text-base sm:text-lg text-slate-300 leading-relaxed max-w-2xl font-normal text-pretty">
                             Lihat bagaimana satu transaksi yang terjadi di kasir atau website toko mengalir secara presisi
                             ke gudang, pembukuan kas, buku besar akuntansi, dan layar pantau owner tanpa rekonsiliasi
                             manual.
@@ -111,15 +111,15 @@
                         <!-- Bullet Points -->
                         <div class="pt-2 flex flex-wrap items-center gap-y-2 gap-x-5 text-xs text-slate-400">
                             <div class="flex items-center gap-1.5">
-                                <i data-lucide="check" class="w-4 h-4 text-emerald-400"></i>
+                                <i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0"></i>
                                 <span>Zero jeda waktu (Real-Time)</span>
                             </div>
                             <div class="flex items-center gap-1.5">
-                                <i data-lucide="check" class="w-4 h-4 text-emerald-400"></i>
+                                <i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0"></i>
                                 <span>Otomatis potong resep & bahan baku</span>
                             </div>
                             <div class="flex items-center gap-1.5">
-                                <i data-lucide="check" class="w-4 h-4 text-emerald-400"></i>
+                                <i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0"></i>
                                 <span>Jurnal akuntansi otomatis terbit</span>
                             </div>
                         </div>
@@ -129,73 +129,72 @@
                     <div class="lg:col-span-5">
                         <div
                             class="bg-[#0B132B]/90 border border-white/10 rounded-[24px] p-5 sm:p-6 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.7)] backdrop-blur-xl space-y-4">
-                            <div class="flex items-center justify-between border-b border-white/10 pb-3">
-                                <div class="flex items-center gap-2">
-                                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                                    <span class="text-xs font-mono font-bold text-white uppercase">Pipeline Transaksi
-                                        Live</span>
+                            <div class="flex items-center justify-between border-b border-white/10 pb-3 gap-2">
+                                <div class="flex items-center gap-2 min-w-0">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shrink-0"></span>
+                                    <span class="text-xs font-mono font-bold text-white uppercase truncate">Pipeline Transaksi Live</span>
                                 </div>
-                                <span class="text-[11px] font-mono text-slate-400">ID: TRX-2026-9041</span>
+                                <span class="text-[11px] font-mono text-slate-400 shrink-0">ID: TRX-2026-9041</span>
                             </div>
 
                             <!-- 4 Sequential Flow Step Cards -->
                             <div class="space-y-3">
                                 <div
-                                    class="p-3 rounded-[14px] bg-white/[0.04] border border-white/10 flex items-center justify-between">
-                                    <div class="flex items-center gap-3">
+                                    class="p-3 rounded-[14px] bg-white/[0.04] border border-white/10 flex items-center justify-between gap-3">
+                                    <div class="flex items-center gap-3 min-w-0 flex-1">
                                         <div
-                                            class="w-8 h-8 rounded-[8px] bg-blue-500/20 text-[#00C2FF] flex items-center justify-center font-mono font-bold text-xs">
+                                            class="w-8 h-8 rounded-[8px] bg-blue-500/20 text-[#00C2FF] flex items-center justify-center font-mono font-bold text-xs shrink-0">
                                             1</div>
-                                        <div>
-                                            <div class="text-xs font-bold text-white">Kasir POS / Web Order</div>
-                                            <div class="text-[11px] text-slate-400">Pembayaran QRIS Rp 48.000 Sukses</div>
+                                        <div class="min-w-0 flex-1">
+                                            <div class="text-xs font-bold text-white truncate">Kasir POS / Web Order</div>
+                                            <div class="text-[11px] text-slate-400 truncate">Pembayaran QRIS Rp 48.000 Sukses</div>
                                         </div>
                                     </div>
-                                    <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400"></i>
+                                    <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"></i>
                                 </div>
 
                                 <div
-                                    class="p-3 rounded-[14px] bg-white/[0.04] border border-white/10 flex items-center justify-between">
-                                    <div class="flex items-center gap-3">
+                                    class="p-3 rounded-[14px] bg-white/[0.04] border border-white/10 flex items-center justify-between gap-3">
+                                    <div class="flex items-center gap-3 min-w-0 flex-1">
                                         <div
-                                            class="w-8 h-8 rounded-[8px] bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-mono font-bold text-xs">
+                                            class="w-8 h-8 rounded-[8px] bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-mono font-bold text-xs shrink-0">
                                             2</div>
-                                        <div>
-                                            <div class="text-xs font-bold text-white">Inventory Engine</div>
-                                            <div class="text-[11px] text-slate-400">Bahan Baku Terpotong via BOM Resep</div>
+                                        <div class="min-w-0 flex-1">
+                                            <div class="text-xs font-bold text-white truncate">Inventory Engine</div>
+                                            <div class="text-[11px] text-slate-400 truncate">Bahan Baku Terpotong via BOM Resep</div>
                                         </div>
                                     </div>
-                                    <span class="text-[11px] font-mono text-emerald-400">-1 Pack</span>
+                                    <span class="text-[11px] font-mono text-emerald-400 shrink-0">-1 Pack</span>
                                 </div>
 
                                 <div
-                                    class="p-3 rounded-[14px] bg-white/[0.04] border border-white/10 flex items-center justify-between">
-                                    <div class="flex items-center gap-3">
+                                    class="p-3 rounded-[14px] bg-white/[0.04] border border-white/10 flex items-center justify-between gap-3">
+                                    <div class="flex items-center gap-3 min-w-0 flex-1">
                                         <div
-                                            class="w-8 h-8 rounded-[8px] bg-amber-500/20 text-amber-400 flex items-center justify-center font-mono font-bold text-xs">
+                                            class="w-8 h-8 rounded-[8px] bg-amber-500/20 text-amber-400 flex items-center justify-center font-mono font-bold text-xs shrink-0">
                                             3</div>
-                                        <div>
-                                            <div class="text-xs font-bold text-white">General Ledger Akuntansi</div>
-                                            <div class="text-[11px] text-slate-400">Debit Kas Bank, Kredit Penjualan & HPP
+                                        <div class="min-w-0 flex-1">
+                                            <div class="text-xs font-bold text-white truncate">General Ledger Akuntansi</div>
+                                            <div class="text-[11px] text-slate-400 truncate">Debit Kas Bank, Kredit Penjualan & HPP
                                             </div>
                                         </div>
                                     </div>
-                                    <span class="text-[11px] font-mono text-amber-300">Auto Journal</span>
+                                    <span class="text-[11px] font-mono text-amber-300 shrink-0">Auto Journal</span>
                                 </div>
 
                                 <div
-                                    class="p-3 rounded-[14px] bg-white/[0.04] border border-white/10 flex items-center justify-between">
-                                    <div class="flex items-center gap-3">
+                                    class="p-3 rounded-[14px] bg-white/[0.04] border border-white/10 flex items-center justify-between gap-3">
+                                    <div class="flex items-center gap-3 min-w-0 flex-1">
                                         <div
-                                            class="w-8 h-8 rounded-[8px] bg-purple-500/20 text-purple-400 flex items-center justify-center font-mono font-bold text-xs">
+                                            class="w-8 h-8 rounded-[8px] bg-purple-500/20 text-purple-400 flex items-center justify-center font-mono font-bold text-xs shrink-0">
                                             4</div>
-                                        <div>
-                                            <div class="text-xs font-bold text-white">Owner Smartphone Feed</div>
-                                            <div class="text-[11px] text-slate-400">Laba Bersih & Margin Terupdate Seketika
+                                        <div class="min-w-0 flex-1">
+                                            <div class="text-xs font-bold text-white truncate">Owner Smartphone Feed</div>
+                                            <div class="text-[11px] text-slate-400 truncate">Laba Bersih & Margin Terupdate Seketika
                                             </div>
                                         </div>
                                     </div>
-                                    <span class="text-[11px] font-mono text-white font-bold">+Rp 24.500</span>
+                                    <span class="text-[11px] font-mono text-white font-bold shrink-0">+Rp 24.500</span>
                                 </div>
                             </div>
 
@@ -217,10 +216,10 @@
                 <div class="max-w-3xl space-y-3">
                     <span class="text-xs font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF]">Rincian
                         Tahapan</span>
-                    <h2 class="text-2xl sm:text-4xl font-extrabold tracking-tight">
+                    <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight leading-[1.2] text-balance break-words">
                         4 Fase Eksekusi Data Tanpa Sentuhan Manual
                     </h2>
-                    <p class="text-sm sm:text-base text-neutral-600 dark:text-neutral-400 leading-relaxed">
+                    <p class="text-sm sm:text-base text-neutral-600 dark:text-neutral-400 leading-relaxed text-pretty">
                         Setiap modul bekerja secara otonom dan saling memvalidasi data untuk memastikan uang kas fisik toko
                         dan stok barang selalu cocok dengan catatan buku.
                     </p>
@@ -230,104 +229,104 @@
                     <!-- Fase 1 -->
                     <div
                         class="p-8 rounded-[24px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-sm space-y-4">
-                        <div class="flex items-center justify-between">
+                        <div class="flex items-center justify-between gap-3">
                             <span
-                                class="w-9 h-9 rounded-[10px] bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center font-bold text-sm">Fase
+                                class="w-9 h-9 rounded-[10px] bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center font-bold text-sm shrink-0">Fase
                                 1</span>
-                            <span class="text-xs font-semibold text-neutral-500">Frontline Sales</span>
+                            <span class="text-xs font-semibold text-neutral-500 shrink-0">Frontline Sales</span>
                         </div>
-                        <h3 class="text-xl font-bold">Penangkapan Transaksi di Titik Penjualan</h3>
-                        <p class="text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed">
+                        <h3 class="text-xl font-bold leading-snug text-balance break-words">Penangkapan Transaksi di Titik Penjualan</h3>
+                        <p class="text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed text-pretty">
                             Saat pelanggan memesan di kasir toko fisik, memilih menu lewat QR order di meja, atau melakukan
                             checkout di katalog online toko Anda, COOCA langsung mengunci pesanan tersebut ke dalam antrean
                             terenkripsi.
                         </p>
                         <ul
                             class="space-y-2 text-xs text-neutral-600 dark:text-neutral-400 pt-2 border-t border-black/[0.04] dark:border-white/[0.06]">
-                            <li class="flex items-center gap-2"><i data-lucide="check"
-                                    class="w-3.5 h-3.5 text-emerald-500"></i> Dukungan pembayaran tunai, transfer, QRIS
-                                otomatis, dan kasbon pelanggan.</li>
-                            <li class="flex items-center gap-2"><i data-lucide="check"
-                                    class="w-3.5 h-3.5 text-emerald-500"></i> Cetak nota kasir via Bluetooth printer atau
-                                kirim nota digital via WhatsApp.</li>
+                            <li class="flex items-start gap-2"><i data-lucide="check"
+                                    class="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5"></i> <span class="text-pretty">Dukungan pembayaran tunai, transfer, QRIS
+                                otomatis, dan kasbon pelanggan.</span></li>
+                            <li class="flex items-start gap-2"><i data-lucide="check"
+                                    class="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5"></i> <span class="text-pretty">Cetak nota kasir via Bluetooth printer atau
+                                kirim nota digital via WhatsApp.</span></li>
                         </ul>
                     </div>
 
                     <!-- Fase 2 -->
                     <div
                         class="p-8 rounded-[24px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-sm space-y-4">
-                        <div class="flex items-center justify-between">
+                        <div class="flex items-center justify-between gap-3">
                             <span
-                                class="w-9 h-9 rounded-[10px] bg-[#34C759]/10 text-[#34C759] flex items-center justify-center font-bold text-sm">Fase
+                                class="w-9 h-9 rounded-[10px] bg-[#34C759]/10 text-[#34C759] flex items-center justify-center font-bold text-sm shrink-0">Fase
                                 2</span>
-                            <span class="text-xs font-semibold text-neutral-500">Inventory & BOM</span>
+                            <span class="text-xs font-semibold text-neutral-500 shrink-0">Inventory & BOM</span>
                         </div>
-                        <h3 class="text-xl font-bold">Pemotongan Bahan & Alokasi Stok Gudang</h3>
-                        <p class="text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed">
+                        <h3 class="text-xl font-bold leading-snug text-balance break-words">Pemotongan Bahan & Alokasi Stok Gudang</h3>
+                        <p class="text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed text-pretty">
                             Sistem mengecek resep atau Bill of Materials (BOM) produk. Bila yang terjual adalah
                             makanan/minuman, takaran bahan mentah (kopi, susu, cup, kemasan) dipotong otomatis dari
                             persediaan gudang outlet terkait.
                         </p>
                         <ul
                             class="space-y-2 text-xs text-neutral-600 dark:text-neutral-400 pt-2 border-t border-black/[0.04] dark:border-white/[0.06]">
-                            <li class="flex items-center gap-2"><i data-lucide="check"
-                                    class="w-3.5 h-3.5 text-emerald-500"></i> Mutasi stok tercatat perpetual dengan
-                                penomoran dokumen batch.</li>
-                            <li class="flex items-center gap-2"><i data-lucide="check"
-                                    class="w-3.5 h-3.5 text-emerald-500"></i> Notifikasi otomatis menyala jika persediaan
-                                mendekati titik reorder (ROP).</li>
+                            <li class="flex items-start gap-2"><i data-lucide="check"
+                                    class="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5"></i> <span class="text-pretty">Mutasi stok tercatat perpetual dengan
+                                penomoran dokumen batch.</span></li>
+                            <li class="flex items-start gap-2"><i data-lucide="check"
+                                    class="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5"></i> <span class="text-pretty">Notifikasi otomatis menyala jika persediaan
+                                mendekati titik reorder (ROP).</span></li>
                         </ul>
                     </div>
 
                     <!-- Fase 3 -->
                     <div
                         class="p-8 rounded-[24px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-sm space-y-4">
-                        <div class="flex items-center justify-between">
+                        <div class="flex items-center justify-between gap-3">
                             <span
-                                class="w-9 h-9 rounded-[10px] bg-[#FF9500]/10 text-[#FF9500] flex items-center justify-center font-bold text-sm">Fase
+                                class="w-9 h-9 rounded-[10px] bg-[#FF9500]/10 text-[#FF9500] flex items-center justify-center font-bold text-sm shrink-0">Fase
                                 3</span>
-                            <span class="text-xs font-semibold text-neutral-500">Ledger Posting</span>
+                            <span class="text-xs font-semibold text-neutral-500 shrink-0">Ledger Posting</span>
                         </div>
-                        <h3 class="text-xl font-bold">Penerbitan Jurnal Akuntansi Otomatis</h3>
-                        <p class="text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed">
+                        <h3 class="text-xl font-bold leading-snug text-balance break-words">Penerbitan Jurnal Akuntansi Otomatis</h3>
+                        <p class="text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed text-pretty">
                             Tidak perlu mengumpulkan bon kertas dan mengetik jurnal di akhir bulan. COOCA membuat ayat
                             jurnal ganda (double-entry bookkeeping) otomatis untuk pendapatan, kas/bank, potongan harga, dan
                             beban pokok penjualan (HPP).
                         </p>
                         <ul
                             class="space-y-2 text-xs text-neutral-600 dark:text-neutral-400 pt-2 border-t border-black/[0.04] dark:border-white/[0.06]">
-                            <li class="flex items-center gap-2"><i data-lucide="check"
-                                    class="w-3.5 h-3.5 text-emerald-500"></i> Standar Akuntansi Keuangan Entitas Mikro
-                                Kecil Menengah (SAK EMKM).</li>
-                            <li class="flex items-center gap-2"><i data-lucide="check"
-                                    class="w-3.5 h-3.5 text-emerald-500"></i> Perhitungan margin laba kotor dan laba
-                                operasional bersih seketika.</li>
+                            <li class="flex items-start gap-2"><i data-lucide="check"
+                                    class="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5"></i> <span class="text-pretty">Standar Akuntansi Keuangan Entitas Mikro
+                                Kecil Menengah (SAK EMKM).</span></li>
+                            <li class="flex items-start gap-2"><i data-lucide="check"
+                                    class="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5"></i> <span class="text-pretty">Perhitungan margin laba kotor dan laba
+                                operasional bersih seketika.</span></li>
                         </ul>
                     </div>
 
                     <!-- Fase 4 -->
                     <div
                         class="p-8 rounded-[24px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-sm space-y-4">
-                        <div class="flex items-center justify-between">
+                        <div class="flex items-center justify-between gap-3">
                             <span
-                                class="w-9 h-9 rounded-[10px] bg-[#AF52DE]/10 text-[#AF52DE] flex items-center justify-center font-bold text-sm">Fase
+                                class="w-9 h-9 rounded-[10px] bg-[#AF52DE]/10 text-[#AF52DE] flex items-center justify-center font-bold text-sm shrink-0">Fase
                                 4</span>
-                            <span class="text-xs font-semibold text-neutral-500">Executive Insight</span>
+                            <span class="text-xs font-semibold text-neutral-500 shrink-0">Executive Insight</span>
                         </div>
-                        <h3 class="text-xl font-bold">Penyajian Laporan & Notifikasi Pemilik</h3>
-                        <p class="text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed">
+                        <h3 class="text-xl font-bold leading-snug text-balance break-words">Penyajian Laporan & Notifikasi Pemilik</h3>
+                        <p class="text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed text-pretty">
                             Pemilik bisnis membuka dashboard di ponsel dan langsung melihat metrik bisnis terbaru: grafik
                             omzet harian, sisa kas fisik di kasir tiap outlet, produk paling menguntungkan, dan peringatan
                             potensi kebocoran biaya.
                         </p>
                         <ul
                             class="space-y-2 text-xs text-neutral-600 dark:text-neutral-400 pt-2 border-t border-black/[0.04] dark:border-white/[0.06]">
-                            <li class="flex items-center gap-2"><i data-lucide="check"
-                                    class="w-3.5 h-3.5 text-emerald-500"></i> Rekap harian otomatis terkirim tanpa harus
-                                menelepon staf kasir.</li>
-                            <li class="flex items-center gap-2"><i data-lucide="check"
-                                    class="w-3.5 h-3.5 text-emerald-500"></i> Rekomendasi stok cerdas untuk persiapan jam
-                                ramai akhir pekan.</li>
+                            <li class="flex items-start gap-2"><i data-lucide="check"
+                                    class="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5"></i> <span class="text-pretty">Rekap harian otomatis terkirim tanpa harus
+                                menelepon staf kasir.</span></li>
+                            <li class="flex items-start gap-2"><i data-lucide="check"
+                                    class="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5"></i> <span class="text-pretty">Rekomendasi stok cerdas untuk persiapan jam
+                                ramai akhir pekan.</span></li>
                         </ul>
                     </div>
                 </div>
@@ -341,10 +340,10 @@
             <div class="max-w-[1320px] mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
                 <div class="max-w-2xl space-y-3">
                     <span class="text-xs font-bold uppercase tracking-wider text-[#FF9500]">Simulasi Konkret</span>
-                    <h2 class="text-2xl sm:text-4xl font-extrabold tracking-tight">
+                    <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight leading-[1.2] text-balance break-words">
                         Lihat Contoh Nyata di Dua Jenis Bisnis
                     </h2>
-                    <p class="text-sm sm:text-base text-neutral-600 dark:text-neutral-400 leading-relaxed">
+                    <p class="text-sm sm:text-base text-neutral-600 dark:text-neutral-400 leading-relaxed text-pretty">
                         Bagaimana satu sistem yang sama menyelesaikan kebutuhan operasional bisnis kuliner (F&B) maupun toko
                         retail fisik.
                     </p>
@@ -356,12 +355,12 @@
                         class="p-8 rounded-[24px] bg-[#F5F5F7] dark:bg-[#161B26] border border-black/[0.06] dark:border-white/[0.08] space-y-5">
                         <div class="flex items-center gap-3">
                             <div
-                                class="w-10 h-10 rounded-[12px] bg-amber-500/10 text-amber-500 flex items-center justify-center font-bold">
+                                class="w-10 h-10 rounded-[12px] bg-amber-500/10 text-amber-500 flex items-center justify-center font-bold shrink-0">
                                 <i data-lucide="utensils" class="w-5 h-5"></i>
                             </div>
-                            <div>
-                                <h3 class="text-lg font-bold">Skenario: Kedai Kopi & F&B</h3>
-                                <p class="text-xs text-neutral-500">1 Transaksi: Kopi Susu Gula Aren (Rp 22.000)</p>
+                            <div class="min-w-0">
+                                <h3 class="text-lg font-bold leading-snug text-balance">Skenario: Kedai Kopi & F&B</h3>
+                                <p class="text-xs text-neutral-500 truncate">1 Transaksi: Kopi Susu Gula Aren (Rp 22.000)</p>
                             </div>
                         </div>
 
@@ -369,33 +368,33 @@
                             <div
                                 class="p-3.5 rounded-[14px] bg-white dark:bg-white/5 border border-black/5 dark:border-white/10 space-y-1.5">
                                 <div
-                                    class="font-bold text-[#1D1D1F] dark:text-[#F5F5F7] flex items-center justify-between">
-                                    <span>1. Kasir POS</span>
-                                    <span class="text-emerald-500 font-mono">Lunas (QRIS)</span>
+                                    class="font-bold text-[#1D1D1F] dark:text-[#F5F5F7] flex items-center justify-between gap-2">
+                                    <span class="min-w-0 truncate">1. Kasir POS</span>
+                                    <span class="text-emerald-500 font-mono shrink-0">Lunas (QRIS)</span>
                                 </div>
-                                <p>Kasir menekan menu Kopi Susu Aren. Tiket order langsung tercetak di printer meja barista
+                                <p class="text-pretty">Kasir menekan menu Kopi Susu Aren. Tiket order langsung tercetak di printer meja barista
                                     tanpa pelayan perlu teriak ke bar.</p>
                             </div>
 
                             <div
                                 class="p-3.5 rounded-[14px] bg-white dark:bg-white/5 border border-black/5 dark:border-white/10 space-y-1.5">
                                 <div
-                                    class="font-bold text-[#1D1D1F] dark:text-[#F5F5F7] flex items-center justify-between">
-                                    <span>2. Stok Bahan Terpotong (BOM)</span>
-                                    <span class="text-blue-500 font-mono">BOM Triggered</span>
+                                    class="font-bold text-[#1D1D1F] dark:text-[#F5F5F7] flex items-center justify-between gap-2">
+                                    <span class="min-w-0 truncate">2. Stok Bahan Terpotong (BOM)</span>
+                                    <span class="text-blue-500 font-mono shrink-0">BOM Triggered</span>
                                 </div>
-                                <p>Stok berkurang: 18g espresso beans, 120ml susu fresh, 20ml sirup aren, 1 paper cup, 1
+                                <p class="text-pretty">Stok berkurang: 18g espresso beans, 120ml susu fresh, 20ml sirup aren, 1 paper cup, 1
                                     sedotan. Total HPP terhitung: Rp 7.500.</p>
                             </div>
 
                             <div
                                 class="p-3.5 rounded-[14px] bg-white dark:bg-white/5 border border-black/5 dark:border-white/10 space-y-1.5">
                                 <div
-                                    class="font-bold text-[#1D1D1F] dark:text-[#F5F5F7] flex items-center justify-between">
-                                    <span>3. Jurnal Keuangan Masuk</span>
-                                    <span class="text-purple-500 font-mono">Auto Balance</span>
+                                    class="font-bold text-[#1D1D1F] dark:text-[#F5F5F7] flex items-center justify-between gap-2">
+                                    <span class="min-w-0 truncate">3. Jurnal Keuangan Masuk</span>
+                                    <span class="text-purple-500 font-mono shrink-0">Auto Balance</span>
                                 </div>
-                                <p>Kas bertambah Rp 22.000, Pendapatan bertambah Rp 22.000, Beban HPP Rp 7.500 tercatat,
+                                <p class="text-pretty">Kas bertambah Rp 22.000, Pendapatan bertambah Rp 22.000, Beban HPP Rp 7.500 tercatat,
                                     Laba Kotor langsung tercatat Rp 14.500.</p>
                             </div>
                         </div>
@@ -406,12 +405,12 @@
                         class="p-8 rounded-[24px] bg-[#F5F5F7] dark:bg-[#161B26] border border-black/[0.06] dark:border-white/[0.08] space-y-5">
                         <div class="flex items-center gap-3">
                             <div
-                                class="w-10 h-10 rounded-[12px] bg-blue-500/10 text-[#007AFF] flex items-center justify-center font-bold">
+                                class="w-10 h-10 rounded-[12px] bg-blue-500/10 text-[#007AFF] flex items-center justify-center font-bold shrink-0">
                                 <i data-lucide="store" class="w-5 h-5"></i>
                             </div>
-                            <div>
-                                <h3 class="text-lg font-bold">Skenario: Toko Pakaian / Retail</h3>
-                                <p class="text-xs text-neutral-500">1 Transaksi: Kemeja Linen Navy Size L (Rp 185.000)</p>
+                            <div class="min-w-0">
+                                <h3 class="text-lg font-bold leading-snug text-balance">Skenario: Toko Pakaian / Retail</h3>
+                                <p class="text-xs text-neutral-500 truncate">1 Transaksi: Kemeja Linen Navy Size L (Rp 185.000)</p>
                             </div>
                         </div>
 
@@ -419,33 +418,33 @@
                             <div
                                 class="p-3.5 rounded-[14px] bg-white dark:bg-white/5 border border-black/5 dark:border-white/10 space-y-1.5">
                                 <div
-                                    class="font-bold text-[#1D1D1F] dark:text-[#F5F5F7] flex items-center justify-between">
-                                    <span>1. Scan Barcode Cepat</span>
-                                    <span class="text-emerald-500 font-mono">Lunas (Tunai)</span>
+                                    class="font-bold text-[#1D1D1F] dark:text-[#F5F5F7] flex items-center justify-between gap-2">
+                                    <span class="min-w-0 truncate">1. Scan Barcode Cepat</span>
+                                    <span class="text-emerald-500 font-mono shrink-0">Lunas (Tunai)</span>
                                 </div>
-                                <p>Kasir menembak barcode tag baju menggunakan barcode scanner kamera HP. Harga, diskon
+                                <p class="text-pretty">Kasir menembak barcode tag baju menggunakan barcode scanner kamera HP. Harga, diskon
                                     member, dan total terinput dalam 1 detik.</p>
                             </div>
 
                             <div
                                 class="p-3.5 rounded-[14px] bg-white dark:bg-white/5 border border-black/5 dark:border-white/10 space-y-1.5">
                                 <div
-                                    class="font-bold text-[#1D1D1F] dark:text-[#F5F5F7] flex items-center justify-between">
-                                    <span>2. Sinkronisasi Multi-Cabang</span>
-                                    <span class="text-blue-500 font-mono">Sync All Channels</span>
+                                    class="font-bold text-[#1D1D1F] dark:text-[#F5F5F7] flex items-center justify-between gap-2">
+                                    <span class="min-w-0 truncate">2. Sinkronisasi Multi-Cabang</span>
+                                    <span class="text-blue-500 font-mono shrink-0">Sync All Channels</span>
                                 </div>
-                                <p>Stok Kemeja Navy Size L di outlet fisik berkurang 1. Etalase website toko online juga
+                                <p class="text-pretty">Stok Kemeja Navy Size L di outlet fisik berkurang 1. Etalase website toko online juga
                                     otomatis mengupdate sisa stok agar tidak dioverbooking.</p>
                             </div>
 
                             <div
                                 class="p-3.5 rounded-[14px] bg-white dark:bg-white/5 border border-black/5 dark:border-white/10 space-y-1.5">
                                 <div
-                                    class="font-bold text-[#1D1D1F] dark:text-[#F5F5F7] flex items-center justify-between">
-                                    <span>3. CRM Pelanggan & Nota WA</span>
-                                    <span class="text-purple-500 font-mono">WhatsApp Sent</span>
+                                    class="font-bold text-[#1D1D1F] dark:text-[#F5F5F7] flex items-center justify-between gap-2">
+                                    <span class="min-w-0 truncate">3. CRM Pelanggan & Nota WA</span>
+                                    <span class="text-purple-500 font-mono shrink-0">WhatsApp Sent</span>
                                 </div>
-                                <p>Nomor HP pembeli tercatat ke profil member CRM, poin loyalti bertambah, dan nota belanja
+                                <p class="text-pretty">Nomor HP pembeli tercatat ke profil member CRM, poin loyalti bertambah, dan nota belanja
                                     elektronik otomatis dikirimkan ke chat WA-nya.</p>
                             </div>
                         </div>
@@ -462,10 +461,10 @@
                 <div class="text-center space-y-3">
                     <span class="text-xs font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF]">Tanya
                         Jawab</span>
-                    <h2 class="text-2xl sm:text-4xl font-extrabold tracking-tight">
+                    <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight leading-[1.2] text-balance break-words">
                         Pertanyaan Seputar Alur Kerja COOCA
                     </h2>
-                    <p class="text-sm text-neutral-600 dark:text-neutral-400">
+                    <p class="text-sm text-neutral-600 dark:text-neutral-400 text-pretty">
                         Memahami detail teknis bagaimana data diproses di dalam ekosistem bisnis Anda.
                     </p>
                 </div>
@@ -475,12 +474,12 @@
                         class="rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] overflow-hidden">
                         <button type="button" @click="openFaq = openFaq === 1 ? null : 1"
                             class="w-full p-5 text-left font-bold text-sm sm:text-base flex items-center justify-between gap-4 focus:outline-none">
-                            <span>Apakah kasir tetap bisa digunakan jika koneksi internet toko sedang terputus?</span>
-                            <i data-lucide="chevron-down" class="w-4 h-4 transition-transform text-[#007AFF]"
+                            <span class="min-w-0 flex-1 leading-snug">Apakah kasir tetap bisa digunakan jika koneksi internet toko sedang terputus?</span>
+                            <i data-lucide="chevron-down" class="w-4 h-4 transition-transform text-[#007AFF] shrink-0"
                                 :class="openFaq === 1 ? 'rotate-180' : ''"></i>
                         </button>
                         <div x-show="openFaq === 1" x-cloak
-                            class="px-5 pb-5 text-xs sm:text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed border-t border-black/[0.04] dark:border-white/[0.06] pt-3">
+                            class="px-5 pb-5 text-xs sm:text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed border-t border-black/[0.04] dark:border-white/[0.06] pt-3 text-pretty">
                             Ya. Antarmuka kasir POS COOCA dirancang dengan arsitektur offline-first. Transaksi tetap dapat
                             diinput dan struk thermal tetap dapat dicetak secara lokal. Ketika koneksi internet kembali
                             tersambung, seluruh data antrean transaksi akan otomatis tersinkronisasi ke cloud tanpa ada data
@@ -492,12 +491,12 @@
                         class="rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] overflow-hidden">
                         <button type="button" @click="openFaq = openFaq === 2 ? null : 2"
                             class="w-full p-5 text-left font-bold text-sm sm:text-base flex items-center justify-between gap-4 focus:outline-none">
-                            <span>Bagaimana jika staf kasir salah memilih produk atau melakukan void transaksi?</span>
-                            <i data-lucide="chevron-down" class="w-4 h-4 transition-transform text-[#007AFF]"
+                            <span class="min-w-0 flex-1 leading-snug">Bagaimana jika staf kasir salah memilih produk atau melakukan void transaksi?</span>
+                            <i data-lucide="chevron-down" class="w-4 h-4 transition-transform text-[#007AFF] shrink-0"
                                 :class="openFaq === 2 ? 'rotate-180' : ''"></i>
                         </button>
                         <div x-show="openFaq === 2" x-cloak
-                            class="px-5 pb-5 text-xs sm:text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed border-t border-black/[0.04] dark:border-white/[0.06] pt-3">
+                            class="px-5 pb-5 text-xs sm:text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed border-t border-black/[0.04] dark:border-white/[0.06] pt-3 text-pretty">
                             Setiap pembatalan transaksi (void) atau pengembalian (refund) dilindungi oleh PIN otorisasi
                             supervisor/owner. Ketika void disetujui, COOCA otomatis menerbitkan jurnal pembalik dan
                             mengembalikan stok barang ke kartu gudang secara akurat dengan catatan audit trail lengkap
@@ -509,12 +508,12 @@
                         class="rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] overflow-hidden">
                         <button type="button" @click="openFaq = openFaq === 3 ? null : 3"
                             class="w-full p-5 text-left font-bold text-sm sm:text-base flex items-center justify-between gap-4 focus:outline-none">
-                            <span>Berapa lama waktu setup awal untuk menyusun resep dan produk di COOCA?</span>
-                            <i data-lucide="chevron-down" class="w-4 h-4 transition-transform text-[#007AFF]"
+                            <span class="min-w-0 flex-1 leading-snug">Berapa lama waktu setup awal untuk menyusun resep dan produk di COOCA?</span>
+                            <i data-lucide="chevron-down" class="w-4 h-4 transition-transform text-[#007AFF] shrink-0"
                                 :class="openFaq === 3 ? 'rotate-180' : ''"></i>
                         </button>
                         <div x-show="openFaq === 3" x-cloak
-                            class="px-5 pb-5 text-xs sm:text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed border-t border-black/[0.04] dark:border-white/[0.06] pt-3">
+                            class="px-5 pb-5 text-xs sm:text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed border-t border-black/[0.04] dark:border-white/[0.06] pt-3 text-pretty">
                             Hanya butuh 5 hingga 15 menit. Anda dapat mengimpor daftar menu atau produk langsung dari file
                             Excel/CSV, atau memasukkannya satu per satu dengan formulir ringkas. Resep BOM bahan baku dapat
                             ditambahkan kapan saja tanpa mengganggu transaksi kasir yang sedang berjalan.
@@ -534,10 +533,10 @@
                         <span
                             class="text-xs font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF]">Pelajari
                             Lebih Lanjut</span>
-                        <h3 class="text-xl sm:text-2xl font-bold tracking-tight">Eksplorasi Komponen Sistem Terhubung</h3>
+                        <h3 class="text-xl sm:text-2xl font-bold tracking-tight leading-snug text-balance break-words">Eksplorasi Komponen Sistem Terhubung</h3>
                     </div>
                     <a href="{{ route('public.bos.overview') }}"
-                        class="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-[#007AFF] hover:underline">
+                        class="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-[#007AFF] hover:underline shrink-0">
                         <span>Kembali ke Overview BOS</span>
                         <i data-lucide="arrow-right" class="w-4 h-4"></i>
                     </a>
@@ -550,9 +549,9 @@
                             class="w-10 h-10 rounded-[12px] bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center font-bold mb-3">
                             <i data-lucide="help-circle" class="w-5 h-5"></i>
                         </div>
-                        <div class="text-base font-bold group-hover:text-[#007AFF] transition-colors">Kenapa Pilih COOCA?
+                        <div class="text-base font-bold group-hover:text-[#007AFF] transition-colors leading-snug text-balance">Kenapa Pilih COOCA?
                         </div>
-                        <p class="text-xs text-neutral-600 dark:text-neutral-400 mt-1 leading-snug">Perbandingan biaya dan
+                        <p class="text-xs text-neutral-600 dark:text-neutral-400 mt-1 leading-snug text-pretty">Perbandingan biaya dan
                             efisiensi COOCA vs banyak aplikasi terpisah.</p>
                     </a>
 
@@ -562,9 +561,9 @@
                             class="w-10 h-10 rounded-[12px] bg-[#34C759]/10 text-[#34C759] flex items-center justify-center font-bold mb-3">
                             <i data-lucide="layers" class="w-5 h-5"></i>
                         </div>
-                        <div class="text-base font-bold group-hover:text-[#34C759] transition-colors">Omnichannel ERP Core
+                        <div class="text-base font-bold group-hover:text-[#34C759] transition-colors leading-snug text-balance">Omnichannel ERP Core
                         </div>
-                        <p class="text-xs text-neutral-600 dark:text-neutral-400 mt-1 leading-snug">Hubungkan operasional,
+                        <p class="text-xs text-neutral-600 dark:text-neutral-400 mt-1 leading-snug text-pretty">Hubungkan operasional,
                             stok, purchasing, dan akuntansi.</p>
                     </a>
 
@@ -574,8 +573,8 @@
                             class="w-10 h-10 rounded-[12px] bg-[#FF9500]/10 text-[#FF9500] flex items-center justify-center font-bold mb-3">
                             <i data-lucide="inbox" class="w-5 h-5"></i>
                         </div>
-                        <div class="text-base font-bold group-hover:text-[#FF9500] transition-colors">Manajemen Order</div>
-                        <p class="text-xs text-neutral-600 dark:text-neutral-400 mt-1 leading-snug">Kelola pesanan dari
+                        <div class="text-base font-bold group-hover:text-[#FF9500] transition-colors leading-snug text-balance">Manajemen Order</div>
+                        <p class="text-xs text-neutral-600 dark:text-neutral-400 mt-1 leading-snug text-pretty">Kelola pesanan dari
                             berbagai channel dalam satu layar antrean.</p>
                     </a>
 
@@ -585,9 +584,9 @@
                             class="w-10 h-10 rounded-[12px] bg-[#00C2FF]/10 text-[#00C2FF] flex items-center justify-center font-bold mb-3">
                             <i data-lucide="bar-chart-2" class="w-5 h-5"></i>
                         </div>
-                        <div class="text-base font-bold group-hover:text-[#00C2FF] transition-colors">Dasbor Analitik
+                        <div class="text-base font-bold group-hover:text-[#00C2FF] transition-colors leading-snug text-balance">Dasbor Analitik
                             Bisnis</div>
-                        <p class="text-xs text-neutral-600 dark:text-neutral-400 mt-1 leading-snug">Pantau performa omzet
+                        <p class="text-xs text-neutral-600 dark:text-neutral-400 mt-1 leading-snug text-pretty">Pantau performa omzet
                             dan margin cabang dari ponsel Anda.</p>
                     </a>
                 </div>
@@ -608,10 +607,10 @@
                     <div class="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
                         <div class="lg:col-span-8 space-y-3">
                             <span class="text-xs font-bold uppercase tracking-wider text-[#00C2FF]">Siap Mencoba?</span>
-                            <h2 class="text-2xl sm:text-4xl font-black tracking-tight leading-tight">
+                            <h2 class="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight leading-[1.2] text-balance break-words">
                                 Buktikan Kemudahan Alur Kerja COOCA pada Toko Anda
                             </h2>
-                            <p class="text-sm sm:text-base text-slate-300 max-w-xl font-normal leading-relaxed">
+                            <p class="text-sm sm:text-base text-slate-300 max-w-xl font-normal leading-relaxed text-pretty">
                                 Daftarkan toko Anda dalam 2 menit. Mulai gunakan kasir, pantau bahan baku, dan rasakan
                                 nikmatnya pembukuan otomatis tanpa input ganda.
                             </p>
