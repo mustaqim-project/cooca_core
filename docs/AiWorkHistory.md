@@ -46,6 +46,60 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 #### 7. Documentation Promotion
 * Pengetahuan yang dipromosikan ke `docs/system/` dan dampaknya pada `docs/SYSTEM_GUIDE.md`.
 
+### [WORK-2026-09-23-114] Implementasi Mockup Hardware MacBook & iPhone Realistis serta Skala Layout 1640px pada Zoom Normal 100%
+* **Date:** 2026-09-23
+* **Status:** COMPLETED
+* **Module:** Public Marketing Layout, Landing Page Hero Section, Device Showcase, Bento Apple HIG
+* **Feature:**
+  1. **Integrasi Asset Mockup Hardware 3D Asli (`public/assets/image/cooca_devices_mockup.jpg`):**
+     - Mengganti diagram/box CSS flat pada kolom kanan Hero Section dengan aset render 3D fotorealistik perangkat fisik: laptop silver MacBook Pro terbuka (dengan keyboard aluminium & trackpad fisik) yang menampilkan Dashboard ERP Analytics gelap COOCA, serta smartphone iPhone floating yang menampilkan aplikasi Mobile Point of Sale (POS) dengan tombol QRIS Kasir.
+     - Menyematkan kartu overlay mengambang *AI Assistant* (`#0b1633/95`, backdrop-blur-2xl, border cyan) di sisi kiri bawah mockup perangkat dengan ringkasan performa penjualan bisnis.
+  2. **Optimalisasi Skala Layout pada Zoom Normal 100% (`max-w-[1640px]`):**
+     - Memperlebar batas maksimal container pada `landing.blade.php`, `public_marketing.blade.php` (header & footer), dan `marketplace/search.blade.php` dari 1480px menjadi `max-w-7xl xl:max-w-[1480px] 2xl:max-w-[1640px] mx-auto px-4 sm:px-6 lg:px-10 xl:px-14`.
+     - Layout pada zoom normal (100%) kini tampak padat, penuh, dan proporsional di monitor desktop widescreen (1920x1080 / 1440p) tanpa memerlukan zoom browser manual ke 125%.
+  3. **Peningkatan Skala Tipografi & CTA Hero Section:**
+     - Headline dinaikkan menjadi `text-4xl sm:text-5xl lg:text-5xl xl:text-6xl 2xl:text-[4.25rem] font-extrabold leading-[1.1]`.
+     - Subtitle dan punchline disesuaikan menjadi `text-base sm:text-lg xl:text-xl` dan `text-sm sm:text-base xl:text-lg`.
+     - Tombol CTA utama dan sekunder diperbesar menjadi `px-8 sm:px-9 py-4 sm:py-4.5 rounded-full text-base font-bold`.
+     - Ketinggian viewport Hero diset ke `min-h-[calc(100vh-4.5rem)] sm:min-h-[calc(100vh-5.5rem)] flex items-center py-10 lg:py-16 xl:py-20` agar mengisi layar monitor secara penuh pada tampilan awal.
+* **Work Type:** UI/UX | Visual Asset | Hero Section Redesign | Responsive Design
+
+#### 1. Business Context & Objective
+* **Konteks:** Pengguna mencatat bahwa pada zoom browser standar (100%), tampilan halaman masih terasa kurang padat/terlalu menyisakan ruang kosong jika tidak di-zoom ke 125%. Selain itu, pada Hero section diinginkan penggunaan mockup fisik laptop dan smartphone asli (bukan sekadar kotak wireframe simulasi) dengan dashboard COOCA aktif di layarnya untuk memberikan impresi premium, terpercaya, dan profesional.
+* **Target:** Menghadirkan mockup hardware 3D Apple (MacBook + iPhone) beresolusi tinggi dengan UI dashboard COOCA di dalamnya, serta memperluas lebar container hingga 1640px dengan tipografi yang mantap agar tampilan pada zoom normal 100% langsung terlihat megah, proporsional, dan padat.
+
+#### 2. What Was Done
+* Merender dan menyimpan aset visual hardware 3D fotorealistik (`public/assets/image/cooca_devices_mockup.jpg`) berukuran 573 KB dengan latar belakang gelap seamless `#060913`.
+* Memperbarui kolom kanan Hero section di `resources/views/landing.blade.php` untuk menampilkan gambar mockup laptop dan smartphone dengan efek hover interaktif, ambient cyan glow, dan badge floating *AI Assistant*.
+* Memperlebar container layout di `landing.blade.php`, `resources/views/layouts/public_marketing.blade.php`, dan `resources/views/public/marketplace/search.blade.php` ke `max-w-[1640px]` dan padding `xl:px-14`.
+* Menguji kompilasi view blade dan menjalankan seluruh test suite public & auth (17 tests, 93 assertions, 100% pass).
+
+#### 3. Technical Changes
+* **Files Affected:**
+  - `resources/views/landing.blade.php`
+  - `resources/views/layouts/public_marketing.blade.php`
+  - `resources/views/public/marketplace/search.blade.php`
+  - `public/assets/image/cooca_devices_mockup.jpg` (Aset gambar mockup baru)
+* **Database Changes:** Tidak ada.
+* **API / Route Changes:** Tidak ada.
+
+#### 4. System Impacts
+* **Workflow Impact:** Presentasi visual publik COOCA di resolusi 100% menjadi jauh lebih meyakinkan dan menarik konversi pengguna, memperlihatkan integrasi multi-device (Desktop ERP + Mobile POS) secara nyata.
+* **Business Rule Impact:** Tidak ada.
+* **Permission Impact:** Publik.
+
+#### 5. Verification & Testing
+* `php artisan test --filter="LandingPageAuthTest|PublicPagesStructureTest|PublicMarketplaceSearchTest"` -> 17 tests passed (93 assertions).
+* `php artisan view:clear` -> Compiled views cleared successfully.
+* Zero-emoji validation: PASS (0 unicode emojis).
+
+#### 6. Important Decisions & Guardrails
+* Menggunakan aset gambar fisik 3D berkualitas tinggi yang dioptimalkan untuk performa web (573 KB) agar tidak memberatkan first paint, disandingkan dengan badge interaktif native HTML/CSS/Lucide untuk AI Assistant.
+* Penyesuaian container hingga 1640px memberikan densitas optimal pada monitor 1080p tanpa mengorbankan keterbacaan atau layout responsif di tablet dan smartphone.
+
+#### 7. Documentation Promotion
+* Dicatat dalam `docs/AiWorkHistory.md` [WORK-2026-09-23-114] dan `walkthrough.md`.
+
 ### [WORK-2026-09-23-110] Ekspansi Skala Container Layout & Pembesaran Proporsi Wide-Desktop Ekosistem COOCA
 * **Date:** 2026-09-23
 * **Status:** COMPLETED

@@ -62,7 +62,7 @@
 @endphp
 
 <div x-data="{ mobileFilterOpen: false }" class="min-h-screen bg-[#F5F5F7] dark:bg-[#0A0E17] text-[#1D1D1F] dark:text-[#F5F5F7] transition-colors duration-200">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 pb-24 space-y-6 sm:space-y-8">
+    <div class="max-w-7xl xl:max-w-[1480px] 2xl:max-w-[1640px] mx-auto px-4 sm:px-6 lg:px-10 xl:px-14 pt-6 sm:pt-8 pb-24 space-y-6 sm:space-y-8">
 
         {{-- ══════════════════════════════════════════════════════════════════════ --}}
         {{-- TOP BREADCRUMB & HEADER SEARCH BAR --}}
