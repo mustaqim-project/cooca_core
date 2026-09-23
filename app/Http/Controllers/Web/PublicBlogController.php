@@ -94,10 +94,26 @@ final class PublicBlogController extends Controller
 
         $relatedPosts = Post::published()
             ->where('id', '!=', $post->id)
-            ->where('cluster', $post->cluster)
+            ->where(function ($q) use ($post) {
+                if (!empty($post->category)) {
+                    $q->where('category', $post->category);
+                } elseif (!empty($post->cluster)) {
+                    $q->where('cluster', $post->cluster);
+                }
+            })
             ->latest('published_at')
             ->take(3)
             ->get();
+
+        if ($relatedPosts->count() < 3) {
+            $existingIds = $relatedPosts->pluck('id')->push($post->id);
+            $morePosts = Post::published()
+                ->whereNotIn('id', $existingIds)
+                ->latest('published_at')
+                ->take(3 - $relatedPosts->count())
+                ->get();
+            $relatedPosts = $relatedPosts->concat($morePosts);
+        }
 
         return view('public.blog.show', [
             'post' => $post,

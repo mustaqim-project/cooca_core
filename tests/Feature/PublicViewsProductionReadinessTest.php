@@ -93,11 +93,24 @@ final class PublicViewsProductionReadinessTest extends TestCase
             'cluster' => 'tutorial',
             'category' => 'Finansial UMKM',
             'excerpt' => 'Panduan lengkap cara menghitung HPP warung makan...',
-            'content' => '<p>Langkah pertama dalam menghitung HPP adalah mencatat bahan baku...</p>',
+            'content' => '<h2>1. Menghitung Bahan Baku</h2><p>Langkah pertama dalam menghitung HPP adalah mencatat bahan baku...</p><h2>2. Biaya Operasional</h2><p>Langkah kedua...</p>',
             'author_name' => 'Tim Finansial Cooca',
             'read_time' => 5,
             'is_published' => true,
             'published_at' => now(),
+        ]);
+
+        $relatedPost = Post::create([
+            'title' => 'Strategi Menentukan Margin Keuntungan',
+            'slug' => 'strategi-menentukan-margin-keuntungan',
+            'cluster' => 'tutorial',
+            'category' => 'Finansial UMKM',
+            'excerpt' => 'Menentukan margin keuntungan yang sehat...',
+            'content' => '<p>Tips margin untuk warung dan UMKM...</p>',
+            'author_name' => 'Tim Finansial Cooca',
+            'read_time' => 4,
+            'is_published' => true,
+            'published_at' => now()->subDay(),
         ]);
 
         $indexResponse = $this->get('/blog');
@@ -107,6 +120,15 @@ final class PublicViewsProductionReadinessTest extends TestCase
         $showResponse = $this->get('/blog/' . $post->slug);
         $showResponse->assertOk();
         $showResponse->assertSee($post->title);
+        $showResponse->assertSee('Daftar Isi Artikel');
+        $showResponse->assertSee('Tanya Gratis via WhatsApp');
+        $showResponse->assertSee('Artikel Lain yang Sebaiknya Anda Baca');
+        $showResponse->assertSee($relatedPost->title);
+
+        // Zero-emoji verification on blog show
+        $content = $showResponse->getContent();
+        $hasEmoji = preg_match('/[\x{1F600}-\x{1F64F}\x{1F300}-\x{1F5FF}\x{1F680}-\x{1F6FF}\x{1F700}-\x{1F77F}\x{1F780}-\x{1F7FF}\x{1F800}-\x{1F8FF}\x{1F900}-\x{1F9FF}\x{1FA00}-\x{1FA6F}\x{1FA70}-\x{1FAFF}\x{2600}-\x{26FF}\x{2700}-\x{27BF}]/u', $content);
+        $this->assertEquals(0, $hasEmoji, 'Blog article show page must have zero emoji as per Apple HIG guidelines');
     }
 
     public function test_all_four_public_resource_pages_render_without_syntax_errors(): void

@@ -1,9 +1,11 @@
 @extends('layouts.public_marketing')
 
 @section('title', 'Daftar Harga & Paket Transparan Tanpa Biaya Tersembunyi | COOCA')
-@section('description', 'Pilihan paket jujur dan transparan untuk UMKM Indonesia. Mulai dari gratis selamanya hingga
+@section('description',
+    'Pilihan paket jujur dan transparan untuk UMKM Indonesia. Mulai dari gratis selamanya hingga
     paket lengkap multi-cabang. Tanpa biaya instalasi dan bebas upgrade kapan saja.')
-@section('keywords', 'harga cooca, paket aplikasi kasir, biaya software pos umkm, software akuntansi toko murah, erp
+@section('keywords',
+    'harga cooca, paket aplikasi kasir, biaya software pos umkm, software akuntansi toko murah, erp
     toko murah indonesia')
 
 @section('content')
@@ -82,8 +84,10 @@
 
                     <!-- 3 Core Guarantees for UMKM (40-65 y.o. peace of mind) -->
                     <div class="pt-6 grid grid-cols-1 sm:grid-cols-3 gap-3 text-left">
-                        <div class="p-3.5 rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] flex items-center gap-3">
-                            <div class="w-9 h-9 rounded-[10px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+                        <div
+                            class="p-3.5 rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] flex items-center gap-3">
+                            <div
+                                class="w-9 h-9 rounded-[10px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
                                 <i data-lucide="shield-check" class="w-5 h-5"></i>
                             </div>
                             <div class="min-w-0">
@@ -92,8 +96,10 @@
                             </div>
                         </div>
 
-                        <div class="p-3.5 rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] flex items-center gap-3">
-                            <div class="w-9 h-9 rounded-[10px] bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF] flex items-center justify-center shrink-0">
+                        <div
+                            class="p-3.5 rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] flex items-center gap-3">
+                            <div
+                                class="w-9 h-9 rounded-[10px] bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF] flex items-center justify-center shrink-0">
                                 <i data-lucide="unlock" class="w-5 h-5"></i>
                             </div>
                             <div class="min-w-0">
@@ -102,8 +108,10 @@
                             </div>
                         </div>
 
-                        <div class="p-3.5 rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] flex items-center gap-3">
-                            <div class="w-9 h-9 rounded-[10px] bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+                        <div
+                            class="p-3.5 rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] flex items-center gap-3">
+                            <div
+                                class="w-9 h-9 rounded-[10px] bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
                                 <i data-lucide="database" class="w-5 h-5"></i>
                             </div>
                             <div class="min-w-0">
@@ -1192,7 +1200,7 @@
                                     <tr>
                                         <td class="p-3 sm:p-4 font-semibold text-slate-800 dark:text-slate-200">Kirim Nota
                                             Otomatis ke WhatsApp Pembeli</td>
-                                        <td class="p-3 sm:p-4 text-center text-slate-300 dark:text-slate-600">—</td>
+                                        <td class="p-3 sm:p-4 text-center text-slate-300 dark:text-slate-600">-</td>
                                         <td class="p-3 sm:p-4 text-center text-emerald-600 font-bold"><i
                                                 data-lucide="check" class="w-4 h-4 mx-auto"></i></td>
                                         <td class="p-3 sm:p-4 text-center text-emerald-600 font-bold"><i
@@ -1203,7 +1211,7 @@
                                     <tr class="bg-black/[0.01] dark:bg-white/[0.01]">
                                         <td class="p-3 sm:p-4 font-semibold text-slate-800 dark:text-slate-200">Dukungan
                                             Penjualan Grosir (Tingkat Harga)</td>
-                                        <td class="p-3 sm:p-4 text-center text-slate-300 dark:text-slate-600">—</td>
+                                        <td class="p-3 sm:p-4 text-center text-slate-300 dark:text-slate-600">-</td>
                                         <td class="p-3 sm:p-4 text-center text-emerald-600 font-bold"><i
                                                 data-lucide="check" class="w-4 h-4 mx-auto"></i></td>
                                         <td class="p-3 sm:p-4 text-center text-emerald-600 font-bold"><i
@@ -1214,7 +1222,7 @@
                                     <tr>
                                         <td class="p-3 sm:p-4 font-semibold text-slate-800 dark:text-slate-200">
                                             Perlindungan Kasir (Supervisor PIN &amp; Anti Void)</td>
-                                        <td class="p-3 sm:p-4 text-center text-slate-300 dark:text-slate-600">—</td>
+                                        <td class="p-3 sm:p-4 text-center text-slate-300 dark:text-slate-600">-</td>
                                         <td class="p-3 sm:p-4 text-center text-emerald-600 font-bold"><i
                                                 data-lucide="check" class="w-4 h-4 mx-auto"></i></td>
                                         <td class="p-3 sm:p-4 text-center text-emerald-600 font-bold"><i
@@ -1251,7 +1259,7 @@
                                     <tr>
                                         <td class="p-3 sm:p-4 font-semibold text-slate-800 dark:text-slate-200">Transfer
                                             Stok Antar Cabang / Gudang</td>
-                                        <td class="p-3 sm:p-4 text-center text-slate-300 dark:text-slate-600">—</td>
+                                        <td class="p-3 sm:p-4 text-center text-slate-300 dark:text-slate-600">-</td>
                                         <td class="p-3 sm:p-4 text-center text-emerald-600 font-bold"><i
                                                 data-lucide="check" class="w-4 h-4 mx-auto"></i></td>
                                         <td class="p-3 sm:p-4 text-center text-emerald-600 font-bold"><i
@@ -1262,9 +1270,9 @@
                                     <tr class="bg-black/[0.01] dark:bg-white/[0.01]">
                                         <td class="p-3 sm:p-4 font-semibold text-slate-800 dark:text-slate-200">Resep Bahan
                                             Baku Kuliner / Pabrik (BOM)</td>
-                                        <td class="p-3 sm:p-4 text-center text-slate-300 dark:text-slate-600">—</td>
-                                        <td class="p-3 sm:p-4 text-center text-slate-300 dark:text-slate-600">—</td>
-                                        <td class="p-3 sm:p-4 text-center text-slate-300 dark:text-slate-600">—</td>
+                                        <td class="p-3 sm:p-4 text-center text-slate-300 dark:text-slate-600">-</td>
+                                        <td class="p-3 sm:p-4 text-center text-slate-300 dark:text-slate-600">-</td>
+                                        <td class="p-3 sm:p-4 text-center text-slate-300 dark:text-slate-600">-</td>
                                         <td class="p-3 sm:p-4 text-center text-emerald-600 font-bold"><i
                                                 data-lucide="check" class="w-4 h-4 mx-auto"></i></td>
                                     </tr>
@@ -1285,8 +1293,8 @@
                                     <tr class="bg-black/[0.01] dark:bg-white/[0.01]">
                                         <td class="p-3 sm:p-4 font-semibold text-slate-800 dark:text-slate-200">
                                             Sinkronisasi Stok Shopee &amp; TikTok Shop</td>
-                                        <td class="p-3 sm:p-4 text-center text-slate-300 dark:text-slate-600">—</td>
-                                        <td class="p-3 sm:p-4 text-center text-slate-300 dark:text-slate-600">—</td>
+                                        <td class="p-3 sm:p-4 text-center text-slate-300 dark:text-slate-600">-</td>
+                                        <td class="p-3 sm:p-4 text-center text-slate-300 dark:text-slate-600">-</td>
                                         <td class="p-3 sm:p-4 text-center text-emerald-600 font-bold"><i
                                                 data-lucide="check" class="w-4 h-4 mx-auto"></i></td>
                                         <td class="p-3 sm:p-4 text-center text-emerald-600 font-bold"><i
@@ -1295,9 +1303,9 @@
                                     <tr>
                                         <td class="p-3 sm:p-4 font-semibold text-slate-800 dark:text-slate-200">Asisten
                                             Bisnis Cerdas AI</td>
-                                        <td class="p-3 sm:p-4 text-center text-slate-300 dark:text-slate-600">—</td>
-                                        <td class="p-3 sm:p-4 text-center text-slate-300 dark:text-slate-600">—</td>
-                                        <td class="p-3 sm:p-4 text-center text-slate-300 dark:text-slate-600">—</td>
+                                        <td class="p-3 sm:p-4 text-center text-slate-300 dark:text-slate-600">-</td>
+                                        <td class="p-3 sm:p-4 text-center text-slate-300 dark:text-slate-600">-</td>
+                                        <td class="p-3 sm:p-4 text-center text-slate-300 dark:text-slate-600">-</td>
                                         <td class="p-3 sm:p-4 text-center text-emerald-600 font-bold"><i
                                                 data-lucide="check" class="w-4 h-4 mx-auto"></i></td>
                                     </tr>
