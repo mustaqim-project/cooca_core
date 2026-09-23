@@ -124,7 +124,7 @@
 
             <!-- Container Grid -->
             <div
-                class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+                class="max-w-7xl 2xl:max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 xl:gap-16 items-center">
                 <!-- Left Column: Copy & Value Proposition (Span 5 for balanced alignment) -->
                 <div class="lg:col-span-6 space-y-6 text-center lg:text-left flex flex-col justify-center">
                     <!-- Pill Badge -->
@@ -136,21 +136,20 @@
 
                     <!-- Main Headline -->
                     <h1
-                        class="text-4xl sm:text-5xl lg:text-[3.25rem] font-extrabold text-white tracking-tight leading-[1.12]">
+                        class="text-4xl sm:text-5xl lg:text-[3.5rem] 2xl:text-[4.25rem] font-extrabold text-white tracking-tight leading-[1.12]">
                         Run Your Business. <br>
                         From <span
-                            class="text-transparent bg-clip-text bg-gradient-to-r from-[#00C2FF] via-[#38BDF8] to-[#60A5FA]">One
-                            Operating<br class="hidden sm:inline"> System.</span>
+                            class="text-transparent bg-clip-text bg-gradient-to-r from-[#00C2FF] via-[#38BDF8] to-[#60A5FA]">One Operating<br class="hidden sm:inline"> System.</span>
                     </h1>
 
                     <!-- Subtitle -->
-                    <p class="text-sm sm:text-base text-slate-300 max-w-xl leading-relaxed font-normal mx-auto lg:mx-0">
+                    <p class="text-sm sm:text-base lg:text-lg text-slate-300 max-w-2xl leading-relaxed font-normal mx-auto lg:mx-0">
                         COOCA membantu bisnis mengelola operasional, penjualan, keuangan, inventory, customer, social
                         media, marketplace, dan automation dalam satu ekosistem.
                     </p>
 
                     <!-- Punchline -->
-                    <p class="text-xs sm:text-sm text-slate-400 font-semibold tracking-wide">
+                    <p class="text-xs sm:text-sm lg:text-base text-slate-400 font-semibold tracking-wide">
                         One Business. One System. One Central Center.
                     </p>
 
@@ -216,7 +215,7 @@
                 <div class="lg:col-span-6 relative flex items-center justify-center w-full overflow-visible"
                     x-data="{ activeNode: null }">
                     <div
-                        class="relative w-full max-w-[620px] aspect-[620/460] select-none mx-auto flex items-center justify-center">
+                        class="relative w-full max-w-[680px] xl:max-w-[740px] 2xl:max-w-[800px] aspect-[620/460] select-none mx-auto flex items-center justify-center">
 
                         <!-- ═══ 1. SVG FIBER-OPTIC CABLE CONNECTIONS & GLOWS ═══ -->
                         <svg class="absolute inset-0 w-full h-full pointer-events-none z-0" viewBox="0 0 620 460"
@@ -620,21 +619,21 @@
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
         <section
             class="bg-white dark:bg-[#070A14] py-20 lg:py-24 border-b border-slate-100 dark:border-white/5 transition-colors">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-7xl 2xl:max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12">
 
                 <!-- Section Header -->
-                <div class="text-center max-w-3xl mx-auto space-y-3">
-                    <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+                <div class="text-center max-w-4xl mx-auto space-y-3">
+                    <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight">
                         Semua yang Anda Butuhkan. Terhubung dalam Satu Sistem.
                     </h2>
-                    <p class="text-slate-600 dark:text-slate-400 text-sm sm:text-base leading-relaxed">
+                    <p class="text-slate-600 dark:text-slate-400 text-sm sm:text-base lg:text-lg leading-relaxed">
                         Bisnis tidak berjalan dalam satu aplikasi. COOCA menghubungkan semua proses bisnis Anda, dari
                         operasional hingga pemasaran, dalam satu ekosistem yang terintegrasi.
                     </p>
                 </div>
 
                 <!-- 8 Bento Squircle Cards -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-14">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 xl:gap-8 mt-14">
 
                     <!-- 1. Sales -->
                     <a href="{{ route('public.erp.pos') }}"
@@ -804,7 +803,7 @@
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
         <section
             class="bg-[#F8FAFC] dark:bg-[#070B18] py-20 lg:py-24 border-b border-slate-100 dark:border-white/5 transition-colors">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-7xl 2xl:max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12">
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
 
                     <!-- Left Column -->
@@ -990,7 +989,7 @@
                 class="absolute top-1/2 left-1/3 w-96 h-96 bg-[#00C2FF]/10 rounded-full blur-[130px] pointer-events-none -z-0">
             </div>
 
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="max-w-7xl 2xl:max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 relative z-10">
 
                 <!-- Section Heading -->
                 <div class="space-y-3 mb-14 text-center lg:text-left">
@@ -1198,7 +1197,7 @@
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
         <section
             class="bg-white dark:bg-[#070A14] py-20 lg:py-24 border-b border-slate-100 dark:border-white/5 transition-colors">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-7xl 2xl:max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12">
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
 
                     <!-- Left Column -->
@@ -1350,7 +1349,7 @@
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
         <section
             class="bg-[#F8FAFC] dark:bg-[#070B18] py-20 lg:py-24 border-b border-slate-100 dark:border-white/5 transition-colors">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-7xl 2xl:max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12">
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
 
                     <!-- ════ LEFT CARD: CONTENT AUTOMATION ════ -->
@@ -1707,7 +1706,7 @@
         <!-- ═══ 7. "COCOK UNTUK BERBAGAI JENIS BISNIS" (Solutions) ═══ -->
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
         <section class="bg-white dark:bg-[#070A14] py-20 lg:py-24 transition-colors">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-7xl 2xl:max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12">
 
                 <!-- Section Header with Right-Aligned Button -->
                 <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
@@ -1835,7 +1834,7 @@
                 class="absolute -top-24 right-1/4 w-[450px] h-[450px] bg-[#00C2FF]/15 rounded-full blur-[140px] pointer-events-none">
             </div>
 
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="max-w-7xl 2xl:max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 relative z-10">
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
 
                     <!-- Left Column -->
