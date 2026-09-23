@@ -243,19 +243,29 @@
                 <!-- Custom Slot / Injected Content -->
                 @yield('subpage_content')
 
-                <!-- ═══ BOTTOM CONVERSION CARD (Calm & Trustworthy Apple HIG Surface) ═══ -->
+                <!-- ═══ BOTTOM CONVERSION CARD (Hero Midnight Blue Glow Surface) ═══ -->
                 <section
-                    class="p-8 sm:p-12 rounded-[24px] bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] shadow-sm">
-                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                    class="relative p-8 sm:p-12 rounded-[24px] bg-[#060B1E] text-white border border-white/10 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.5)] overflow-hidden">
+                    
+                    <!-- Ambient Glows (Identik Hero Section) -->
+                    <div
+                        class="absolute -top-24 right-1/4 w-[450px] h-[450px] bg-[#007AFF]/20 rounded-full blur-[130px] pointer-events-none">
+                    </div>
+                    <div
+                        class="absolute -bottom-24 left-1/4 w-[350px] h-[350px] bg-[#00C4D8]/15 rounded-full blur-[110px] pointer-events-none">
+                    </div>
+
+                    <div class="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
 
                         <div class="lg:col-span-8 space-y-3">
-                            <p class="text-xs font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF]">
-                                Langkah Mudah Berikutnya</p>
+                            <p class="text-xs font-bold uppercase tracking-wider text-[#00C4D8]">
+                                Langkah Mudah Berikutnya
+                            </p>
                             <h2
-                                class="text-2xl sm:text-3xl font-extrabold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight">
+                                class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
                                 Mulai Otomatisasi Bisnis Anda Hari Ini
                             </h2>
-                            <p class="text-sm sm:text-base text-[#48484A] dark:text-[#AEAEB2] leading-relaxed max-w-2xl">
+                            <p class="text-sm sm:text-base text-slate-300 leading-relaxed max-w-2xl font-normal">
                                 Bergabunglah bersama ribuan pengusaha UMKM di Indonesia yang telah menghemat waktu dan
                                 meningkatkan kepastian laba bersama Cooca. Tanpa biaya pendaftaran, tanpa kartu kredit.
                             </p>
@@ -263,13 +273,9 @@
 
                         <div class="lg:col-span-4 flex flex-col sm:flex-row lg:flex-col gap-3">
                             <a href="{{ route('register') }}"
-                                class="w-full py-4 rounded-[14px] bg-[#007AFF] hover:bg-[#0071E3] text-white font-semibold text-base flex items-center justify-center gap-2 shadow-sm active:scale-[0.98] transition min-h-[48px]">
+                                class="w-full py-4 rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-base flex items-center justify-center gap-2 shadow-[0_4px_16px_rgba(0,122,255,0.35)] active:scale-[0.98] transition min-h-[48px]">
                                 <span>Daftar Gratis Sekarang</span>
                                 <i data-lucide="arrow-right" class="w-4 h-4"></i>
-                            </a>
-                            <a href="{{ route('landing') }}"
-                                class="w-full py-3.5 rounded-[14px] bg-black/[0.03] dark:bg-white/[0.05] hover:bg-black/[0.06] dark:hover:bg-white/[0.08] text-[#1D1D1F] dark:text-[#F5F5F7] font-semibold text-sm flex items-center justify-center gap-2 transition min-h-[48px]">
-                                <span>Kembali ke Beranda</span>
                             </a>
                         </div>
 
