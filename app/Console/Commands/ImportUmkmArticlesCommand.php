@@ -104,11 +104,17 @@ final class ImportUmkmArticlesCommand extends Command
     {
         $dir = database_path('data/articles');
         if (!is_dir($dir)) {
-            $this->error("Directory not found: {$dir}");
+            $dir = resource_path('views/public/blog/articles');
+        }
+        if (!is_dir($dir)) {
+            $this->error("Directory not found in database/data/articles or resources/views/public/blog/articles");
             return 1;
         }
 
         $files = glob($dir . '/*.md');
+        if (empty($files) && is_dir(resource_path('views/public/blog/articles'))) {
+            $files = glob(resource_path('views/public/blog/articles') . '/*.md');
+        }
         sort($files);
         $totalFiles = count($files);
 

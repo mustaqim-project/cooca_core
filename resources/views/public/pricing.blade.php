@@ -82,45 +82,33 @@
 
                     <!-- 3 Core Guarantees for UMKM (40-65 y.o. peace of mind) -->
                     <div class="pt-6 grid grid-cols-1 sm:grid-cols-3 gap-3 text-left">
-                        <div
-                            class="p-3.5 rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] flex items-center gap-3">
-                            <div
-                                class="w-9 h-9 rounded-[10px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+                        <div class="p-3.5 rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-[10px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
                                 <i data-lucide="shield-check" class="w-5 h-5"></i>
                             </div>
                             <div class="min-w-0">
-                                <div class="text-[13px] font-bold text-slate-900 dark:text-white leading-tight">Tanpa Biaya
-                                    Pasang</div>
-                                <div class="text-[11px] text-slate-500 dark:text-slate-400 leading-tight mt-0.5">Pakai
-                                    langsung dari HP atau laptop</div>
+                                <div class="text-[13px] font-bold text-slate-900 dark:text-white leading-tight">Tanpa Biaya Pasang</div>
+                                <div class="text-[11px] text-slate-500 dark:text-slate-400 leading-tight mt-0.5">Pakai langsung dari HP atau laptop</div>
                             </div>
                         </div>
 
-                        <div
-                            class="p-3.5 rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] flex items-center gap-3">
-                            <div
-                                class="w-9 h-9 rounded-[10px] bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF] flex items-center justify-center shrink-0">
+                        <div class="p-3.5 rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-[10px] bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF] flex items-center justify-center shrink-0">
                                 <i data-lucide="unlock" class="w-5 h-5"></i>
                             </div>
                             <div class="min-w-0">
-                                <div class="text-[13px] font-bold text-slate-900 dark:text-white leading-tight">Bebas Ikatan
-                                    Kontrak</div>
-                                <div class="text-[11px] text-slate-500 dark:text-slate-400 leading-tight mt-0.5">Ganti paket
-                                    atau berhenti kapan saja</div>
+                                <div class="text-[13px] font-bold text-slate-900 dark:text-white leading-tight">Bebas Ikatan Kontrak</div>
+                                <div class="text-[11px] text-slate-500 dark:text-slate-400 leading-tight mt-0.5">Ganti paket atau berhenti kapan saja</div>
                             </div>
                         </div>
 
-                        <div
-                            class="p-3.5 rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] flex items-center gap-3">
-                            <div
-                                class="w-9 h-9 rounded-[10px] bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+                        <div class="p-3.5 rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-[10px] bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
                                 <i data-lucide="database" class="w-5 h-5"></i>
                             </div>
                             <div class="min-w-0">
-                                <div class="text-[13px] font-bold text-slate-900 dark:text-white leading-tight">Data Milik
-                                    Anda 100%</div>
-                                <div class="text-[11px] text-slate-500 dark:text-slate-400 leading-tight mt-0.5">Bisa
-                                    diekspor ke Excel kapan pun</div>
+                                <div class="text-[13px] font-bold text-slate-900 dark:text-white leading-tight">Data Milik Anda 100%</div>
+                                <div class="text-[11px] text-slate-500 dark:text-slate-400 leading-tight mt-0.5">Bisa diekspor ke Excel kapan pun</div>
                             </div>
                         </div>
                     </div>

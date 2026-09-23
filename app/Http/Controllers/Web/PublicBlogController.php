@@ -16,6 +16,15 @@ final class PublicBlogController extends Controller
      */
     public function index(Request $request): View
     {
+        // Auto-populate posts if table is empty on fresh or production deployment
+        if (Post::count() === 0) {
+            try {
+                \Illuminate\Support\Facades\Artisan::call('blog:import-articles');
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('Auto-import articles failed: ' . $e->getMessage());
+            }
+        }
+
         $cluster = $request->get('cluster'); // 'tutorial' or 'edukasi'
         $category = $request->get('category');
         $search = $request->get('q');
@@ -66,6 +75,14 @@ final class PublicBlogController extends Controller
      */
     public function show(string $slug): View
     {
+        if (Post::count() === 0) {
+            try {
+                \Illuminate\Support\Facades\Artisan::call('blog:import-articles');
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('Auto-import articles failed in show: ' . $e->getMessage());
+            }
+        }
+
         $post = Post::published()->where('slug', $slug)->firstOrFail();
 
         // Increment views only once per visitor per post (guards against bot inflation)
