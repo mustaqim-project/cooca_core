@@ -25,6 +25,7 @@ class DatabaseSeeder extends Seeder
             TwentyIndustriesShowcaseSeeder::class,
             CustomerSeeder::class,
             DapurSedapRasaSeeder::class,
+            PostSeeder::class,
         ]);
     }
 }

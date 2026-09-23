@@ -193,6 +193,9 @@
                         @if ($currentCluster)
                             <input type="hidden" name="cluster" value="{{ $currentCluster }}">
                         @endif
+                        @if ($currentCategory)
+                            <input type="hidden" name="category" value="{{ $currentCategory }}">
+                        @endif
                         <div class="relative flex items-center">
                             <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5"></i>
                             <input type="text" name="q" value="{{ $search }}"
@@ -201,6 +204,32 @@
                         </div>
                     </form>
                 </div>
+
+                <!-- Category Pills Bar -->
+                @if (isset($categories) && $categories->isNotEmpty())
+                    <div class="flex items-center gap-2 overflow-x-auto pb-1 text-xs no-scrollbar">
+                        <span class="text-slate-400 dark:text-slate-500 font-semibold uppercase tracking-wider text-[11px] shrink-0 mr-1">
+                            Kategori:
+                        </span>
+                        <a href="{{ route('blog.index', request()->except(['category', 'page'])) }}"
+                            class="px-3 py-1.5 rounded-xl font-semibold whitespace-nowrap transition-all {{ empty($currentCategory) ? 'bg-[#007AFF] text-white shadow-sm' : 'bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-white/10' }}">
+                            Semua
+                        </a>
+                        @foreach ($categories as $cat)
+                            <a href="{{ route('blog.index', array_merge(request()->except(['category', 'page']), ['category' => $cat])) }}"
+                                class="px-3 py-1.5 rounded-xl font-semibold whitespace-nowrap transition-all {{ ($currentCategory ?? '') === $cat ? 'bg-[#007AFF] text-white shadow-sm' : 'bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-white/10' }}">
+                                {{ $cat }}
+                            </a>
+                        @endforeach
+                        @if (!empty($currentCategory))
+                            <a href="{{ route('blog.index', request()->except(['category', 'page'])) }}"
+                                class="text-xs text-rose-500 hover:underline ml-2 shrink-0 font-medium flex items-center gap-1">
+                                <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                                <span>Reset Filter</span>
+                            </a>
+                        @endif
+                    </div>
+                @endif
 
                 <!-- Featured Post (If on Page 1 without filters) -->
                 @if ($featuredPost)

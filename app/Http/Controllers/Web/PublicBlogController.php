@@ -17,12 +17,17 @@ final class PublicBlogController extends Controller
     public function index(Request $request): View
     {
         $cluster = $request->get('cluster'); // 'tutorial' or 'edukasi'
+        $category = $request->get('category');
         $search = $request->get('q');
 
         $query = Post::published()->latest('published_at');
 
         if ($cluster && in_array($cluster, ['tutorial', 'edukasi'], true)) {
             $query->where('cluster', $cluster);
+        }
+
+        if ($category) {
+            $query->where('category', $category);
         }
 
         if ($search) {
@@ -36,17 +41,20 @@ final class PublicBlogController extends Controller
         $posts = $query->paginate(9)->withQueryString();
 
         $featuredPost = null;
-        if (!$cluster && !$search && $posts->currentPage() === 1) {
+        if (!$cluster && !$category && !$search && $posts->currentPage() === 1) {
             $featuredPost = $posts->first();
         }
 
         $recentTutorials = Post::published()->tutorial()->latest('published_at')->take(4)->get();
         $recentEdukasi = Post::published()->edukasi()->latest('published_at')->take(4)->get();
+        $categories = Post::published()->distinct()->pluck('category')->filter()->values();
 
         return view('public.blog.index', [
             'posts' => $posts,
             'featuredPost' => $featuredPost,
             'currentCluster' => $cluster,
+            'currentCategory' => $category,
+            'categories' => $categories,
             'search' => $search,
             'recentTutorials' => $recentTutorials,
             'recentEdukasi' => $recentEdukasi,

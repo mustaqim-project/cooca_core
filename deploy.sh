@@ -11,6 +11,7 @@ echo "Deploying update: $(date)"
 $PHP_BIN artisan migrate --force
 $PHP_BIN artisan db:seed --class=RbacSeeder --force
 $PHP_BIN artisan db:seed --class=BusinessTemplateSeeder --force
+$PHP_BIN artisan db:seed --class=PostSeeder --force
 $PHP_BIN artisan optimize:clear
 $PHP_BIN artisan view:cache
 echo "Deploy complete: $(date)"
