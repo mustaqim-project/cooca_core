@@ -318,7 +318,7 @@
     <!-- ═══ APPLE FROSTED GLASS HEADER ═══ -->
     @if (!($hideHeader ?? false))
         <header
-            class="sticky top-0 z-50 backdrop-blur-2xl {{ $isLandingPage ? 'bg-[#060913]/95 text-white border-b border-white/10' : 'bg-white/80 dark:bg-[#1C1C1E]/80 border-b border-black/5 dark:border-white/10 text-black/70 dark:text-white/70' }} transition-colors">
+            class="sticky top-0 z-50 backdrop-blur-2xl bg-[#060913]/95 text-white border-b border-white/10 transition-colors">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-18 flex items-center justify-between">
 
                 <!-- Logo Cooca -->
@@ -326,34 +326,21 @@
                     @if(!empty($siteLogoDarkUrl))
                         <img src="{{ $siteLogoDarkUrl }}" alt="{{ $siteAppName }}"
                             class="h-7 sm:h-8 w-auto object-contain transition-transform group-hover:scale-105">
-                    @elseif(!empty($siteLogoLightUrl) && !$isLandingPage)
-                        <img src="{{ $siteLogoLightUrl }}" alt="{{ $siteAppName }}"
-                            class="h-7 sm:h-8 w-auto object-contain transition-transform group-hover:scale-105 dark:hidden">
-                        <img src="{{ $siteLogoLightUrl }}" alt="{{ $siteAppName }}"
-                            class="h-7 sm:h-8 w-auto object-contain transition-transform group-hover:scale-105 hidden dark:block">
                     @else
                         <span class="font-black text-xl sm:text-2xl tracking-tighter text-white font-sans">COOCA</span>
-                    @endif
-                    @if(!$isLandingPage)
-                        <div class="border-l border-white/15 pl-3 hidden xs:block">
-                            <span
-                                class="font-extrabold text-sm sm:text-base tracking-tight text-black dark:text-white block leading-tight">{{ $siteAppName }}</span>
-                            <span
-                                class="text-[10px] sm:text-[11px] uppercase font-bold text-[#00C2FF] tracking-[0.15em]">{{ $siteTagline }}</span>
-                        </div>
                     @endif
                 </a>
 
                 <!-- Desktop Nav Menu (Apple HIG Navigation Bar Style) -->
                 <nav
-                    class="hidden lg:flex items-center gap-1 xl:gap-1.5 text-[13px] font-medium {{ $isLandingPage ? 'text-slate-300' : 'text-black/70 dark:text-white/70' }}">
+                    class="hidden lg:flex items-center gap-1 xl:gap-1.5 text-[13px] font-medium text-slate-300">
 
                     <!-- 1. Platform (Mega Dropdown) -->
                     <div class="relative"
                         @mouseenter="solutionDropdown = false; omniDropdown = false; resourceDropdown = false; marketplaceDropdown = false; platformDropdown = true"
                         @mouseleave="platformDropdown = false">
                         <button
-                            class="flex items-center gap-1 px-3 py-2 rounded-[10px] hover:text-black dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-all focus:outline-none {{ request()->routeIs('public.bos.*') || request()->routeIs('public.erp.*') || request()->routeIs('public.content.*') ? 'text-[#007AFF] dark:text-[#0A84FF] font-semibold' : '' }}">
+                            class="flex items-center gap-1 px-3 py-2 rounded-[10px] hover:text-white hover:bg-white/5 transition-all focus:outline-none {{ request()->routeIs('public.bos.*') || request()->routeIs('public.erp.*') || request()->routeIs('public.content.*') ? 'text-[#00C2FF] font-semibold' : '' }}">
                             <span>Platform</span>
                             <i data-lucide="chevron-down" class="w-3 h-3 transition-transform"
                                 :class="platformDropdown ? 'rotate-180' : ''"></i>
@@ -363,52 +350,52 @@
                             x-transition:enter-end="opacity-100 translate-y-0"
                             x-transition:leave="transition ease-in duration-100" x-transition:leave-start="opacity-100"
                             x-transition:leave-end="opacity-0"
-                            class="absolute top-full left-0 mt-1 w-[480px] p-4 bg-white/95 dark:bg-[#1C1C1E]/95 border border-black/[0.06] dark:border-white/[0.08] rounded-[20px] shadow-2xl backdrop-blur-2xl z-50 grid grid-cols-2 gap-3">
+                            class="absolute top-full left-0 mt-1 w-[480px] p-4 bg-[#0c1427]/98 border border-white/10 rounded-[20px] shadow-2xl backdrop-blur-2xl z-50 grid grid-cols-2 gap-3 text-white">
                             
                             <!-- Col 1: Business Operating System -->
                             <div class="space-y-1">
-                                <span class="px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF] block">Operating System</span>
-                                <a href="{{ route('public.bos.overview') }}" class="block px-2.5 py-1.5 rounded-[10px] hover:bg-black/5 dark:hover:bg-white/10 transition">
-                                    <span class="font-semibold text-xs text-black dark:text-white block">Overview</span>
-                                    <span class="text-[11px] text-black/50 dark:text-white/50 block">Pusat kendali bisnis</span>
+                                <span class="px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-[#00C2FF] block">Operating System</span>
+                                <a href="{{ route('public.bos.overview') }}" class="block px-2.5 py-1.5 rounded-[10px] hover:bg-white/10 transition">
+                                    <span class="font-semibold text-xs text-white block">Overview</span>
+                                    <span class="text-[11px] text-slate-400 block">Pusat kendali bisnis</span>
                                 </a>
-                                <a href="{{ route('public.bos.how-it-works') }}" class="block px-2.5 py-1.5 rounded-[10px] hover:bg-black/5 dark:hover:bg-white/10 transition">
-                                    <span class="font-semibold text-xs text-black dark:text-white block">How It Works</span>
-                                    <span class="text-[11px] text-black/50 dark:text-white/50 block">Alur otomatisasi</span>
+                                <a href="{{ route('public.bos.how-it-works') }}" class="block px-2.5 py-1.5 rounded-[10px] hover:bg-white/10 transition">
+                                    <span class="font-semibold text-xs text-white block">How It Works</span>
+                                    <span class="text-[11px] text-slate-400 block">Alur otomatisasi</span>
                                 </a>
-                                <a href="{{ route('public.bos.why-cooca') }}" class="block px-2.5 py-1.5 rounded-[10px] hover:bg-black/5 dark:hover:bg-white/10 transition">
-                                    <span class="font-semibold text-xs text-black dark:text-white block">Why COOCA</span>
-                                    <span class="text-[11px] text-black/50 dark:text-white/50 block">Keunggulan sistem</span>
+                                <a href="{{ route('public.bos.why-cooca') }}" class="block px-2.5 py-1.5 rounded-[10px] hover:bg-white/10 transition">
+                                    <span class="font-semibold text-xs text-white block">Why COOCA</span>
+                                    <span class="text-[11px] text-slate-400 block">Keunggulan sistem</span>
                                 </a>
                             </div>
 
                             <!-- Col 2: Omnichannel ERP Core -->
                             <div class="space-y-1">
-                                <span class="px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-[#34C759] dark:text-[#30D158] block">Omnichannel ERP</span>
-                                <a href="{{ route('public.erp.erp') }}" class="block px-2.5 py-1.5 rounded-[10px] hover:bg-black/5 dark:hover:bg-white/10 transition">
-                                    <span class="font-semibold text-xs text-black dark:text-white block">ERP Core</span>
-                                    <span class="text-[11px] text-black/50 dark:text-white/50 block">Multi-cabang &amp; PO</span>
+                                <span class="px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-[#34C759] block">Omnichannel ERP</span>
+                                <a href="{{ route('public.erp.erp') }}" class="block px-2.5 py-1.5 rounded-[10px] hover:bg-white/10 transition">
+                                    <span class="font-semibold text-xs text-white block">ERP Core</span>
+                                    <span class="text-[11px] text-slate-400 block">Multi-cabang &amp; PO</span>
                                 </a>
-                                <a href="{{ route('public.erp.pos') }}" class="block px-2.5 py-1.5 rounded-[10px] hover:bg-black/5 dark:hover:bg-white/10 transition">
-                                    <span class="font-semibold text-xs text-black dark:text-white block">POS Kasir</span>
-                                    <span class="text-[11px] text-black/50 dark:text-white/50 block">Transaksi kilat &amp; QRIS</span>
+                                <a href="{{ route('public.erp.pos') }}" class="block px-2.5 py-1.5 rounded-[10px] hover:bg-white/10 transition">
+                                    <span class="font-semibold text-xs text-white block">POS Kasir</span>
+                                    <span class="text-[11px] text-slate-400 block">Transaksi kilat &amp; QRIS</span>
                                 </a>
-                                <a href="{{ route('public.erp.inventory') }}" class="block px-2.5 py-1.5 rounded-[10px] hover:bg-black/5 dark:hover:bg-white/10 transition">
-                                    <span class="font-semibold text-xs text-black dark:text-white block">Inventory</span>
-                                    <span class="text-[11px] text-black/50 dark:text-white/50 block">Stok real-time &amp; HPP</span>
+                                <a href="{{ route('public.erp.inventory') }}" class="block px-2.5 py-1.5 rounded-[10px] hover:bg-white/10 transition">
+                                    <span class="font-semibold text-xs text-white block">Inventory</span>
+                                    <span class="text-[11px] text-slate-400 block">Stok real-time &amp; HPP</span>
                                 </a>
-                                <a href="{{ route('public.erp.accounting') }}" class="block px-2.5 py-1.5 rounded-[10px] hover:bg-black/5 dark:hover:bg-white/10 transition">
-                                    <span class="font-semibold text-xs text-black dark:text-white block">Accounting</span>
-                                    <span class="text-[11px] text-black/50 dark:text-white/50 block">Jurnal otomatis</span>
+                                <a href="{{ route('public.erp.accounting') }}" class="block px-2.5 py-1.5 rounded-[10px] hover:bg-white/10 transition">
+                                    <span class="font-semibold text-xs text-white block">Accounting</span>
+                                    <span class="text-[11px] text-slate-400 block">Jurnal otomatis</span>
                                 </a>
                             </div>
 
-                            <div class="col-span-2 border-t border-black/5 dark:border-white/10 pt-2 flex items-center justify-between text-xs px-2.5">
-                                <a href="{{ route('public.content.creation') }}" class="text-[#007AFF] dark:text-[#0A84FF] hover:underline font-semibold flex items-center gap-1">
+                            <div class="col-span-2 border-t border-white/10 pt-2 flex items-center justify-between text-xs px-2.5">
+                                <a href="{{ route('public.content.creation') }}" class="text-[#00C2FF] hover:underline font-semibold flex items-center gap-1">
                                     <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
                                     <span>Content Automation AI →</span>
                                 </a>
-                                <a href="{{ route('public.erp.analytics') }}" class="text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white">
+                                <a href="{{ route('public.erp.analytics') }}" class="text-slate-400 hover:text-white">
                                     Analytics &amp; AI
                                 </a>
                             </div>
@@ -420,7 +407,7 @@
                         @mouseenter="platformDropdown = false; omniDropdown = false; resourceDropdown = false; marketplaceDropdown = false; solutionDropdown = true"
                         @mouseleave="solutionDropdown = false">
                         <button
-                            class="flex items-center gap-1 px-3 py-2 rounded-[10px] hover:text-black dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-all focus:outline-none {{ request()->routeIs('public.solutions.*') || request()->routeIs('solusi.*') ? 'text-[#007AFF] dark:text-[#0A84FF] font-semibold' : '' }}">
+                            class="flex items-center gap-1 px-3 py-2 rounded-[10px] hover:text-white hover:bg-white/5 transition-all focus:outline-none {{ request()->routeIs('public.solutions.*') || request()->routeIs('solusi.*') ? 'text-[#00C2FF] font-semibold' : '' }}">
                             <span>Solutions</span>
                             <i data-lucide="chevron-down" class="w-3 h-3 transition-transform"
                                 :class="solutionDropdown ? 'rotate-180' : ''"></i>
@@ -430,30 +417,30 @@
                             x-transition:enter-end="opacity-100 translate-y-0"
                             x-transition:leave="transition ease-in duration-100" x-transition:leave-start="opacity-100"
                             x-transition:leave-end="opacity-0"
-                            class="absolute top-full left-0 mt-1 w-64 p-2 bg-white/95 dark:bg-[#1C1C1E]/95 border border-black/[0.06] dark:border-white/[0.08] rounded-[16px] shadow-2xl backdrop-blur-2xl space-y-0.5 z-50">
-                            <a href="{{ route('public.solutions.fnb') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-[10px] hover:bg-black/5 dark:hover:bg-white/10 transition">
+                            class="absolute top-full left-0 mt-1 w-64 p-2 bg-[#0c1427]/98 border border-white/10 rounded-[16px] shadow-2xl backdrop-blur-2xl space-y-0.5 z-50 text-white">
+                            <a href="{{ route('public.solutions.fnb') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-[10px] hover:bg-white/10 transition">
                                 <i data-lucide="utensils" class="w-4 h-4 text-[#FF9500]"></i>
-                                <span class="text-xs font-semibold text-black dark:text-white">F&amp;B &amp; Resto</span>
+                                <span class="text-xs font-semibold text-white">F&amp;B &amp; Resto</span>
                             </a>
-                            <a href="{{ route('public.solutions.retail') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-[10px] hover:bg-black/5 dark:hover:bg-white/10 transition">
-                                <i data-lucide="store" class="w-4 h-4 text-[#007AFF]"></i>
-                                <span class="text-xs font-semibold text-black dark:text-white">Retail &amp; Toko</span>
+                            <a href="{{ route('public.solutions.retail') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-[10px] hover:bg-white/10 transition">
+                                <i data-lucide="store" class="w-4 h-4 text-[#00C2FF]"></i>
+                                <span class="text-xs font-semibold text-white">Retail &amp; Toko</span>
                             </a>
-                            <a href="{{ route('public.solutions.workshop') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-[10px] hover:bg-black/5 dark:hover:bg-white/10 transition">
+                            <a href="{{ route('public.solutions.workshop') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-[10px] hover:bg-white/10 transition">
                                 <i data-lucide="wrench" class="w-4 h-4 text-[#FF3B30]"></i>
-                                <span class="text-xs font-semibold text-black dark:text-white">Bengkel &amp; Otomotif</span>
+                                <span class="text-xs font-semibold text-white">Bengkel &amp; Otomotif</span>
                             </a>
-                            <a href="{{ route('public.solutions.laundry') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-[10px] hover:bg-black/5 dark:hover:bg-white/10 transition">
+                            <a href="{{ route('public.solutions.laundry') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-[10px] hover:bg-white/10 transition">
                                 <i data-lucide="sparkles" class="w-4 h-4 text-[#34C759]"></i>
-                                <span class="text-xs font-semibold text-black dark:text-white">Laundry</span>
+                                <span class="text-xs font-semibold text-white">Laundry</span>
                             </a>
-                            <a href="{{ route('public.solutions.manufacturing') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-[10px] hover:bg-black/5 dark:hover:bg-white/10 transition">
+                            <a href="{{ route('public.solutions.manufacturing') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-[10px] hover:bg-white/10 transition">
                                 <i data-lucide="factory" class="w-4 h-4 text-[#AF52DE]"></i>
-                                <span class="text-xs font-semibold text-black dark:text-white">Manufacturing</span>
+                                <span class="text-xs font-semibold text-white">Manufacturing</span>
                             </a>
-                            <a href="{{ route('public.solutions.services') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-[10px] hover:bg-black/5 dark:hover:bg-white/10 transition">
+                            <a href="{{ route('public.solutions.services') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-[10px] hover:bg-white/10 transition">
                                 <i data-lucide="briefcase" class="w-4 h-4 text-[#00C2FF]"></i>
-                                <span class="text-xs font-semibold text-black dark:text-white">Services &amp; Jasa</span>
+                                <span class="text-xs font-semibold text-white">Services &amp; Jasa</span>
                             </a>
                         </div>
                     </div>
@@ -463,7 +450,7 @@
                         @mouseenter="platformDropdown = false; solutionDropdown = false; resourceDropdown = false; marketplaceDropdown = false; omniDropdown = true"
                         @mouseleave="omniDropdown = false">
                         <button
-                            class="flex items-center gap-1 px-3 py-2 rounded-[10px] hover:text-black dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-all focus:outline-none {{ request()->routeIs('public.omnichannel.*') ? 'text-[#007AFF] dark:text-[#0A84FF] font-semibold' : '' }}">
+                            class="flex items-center gap-1 px-3 py-2 rounded-[10px] hover:text-white hover:bg-white/5 transition-all focus:outline-none {{ request()->routeIs('public.omnichannel.*') ? 'text-[#00C2FF] font-semibold' : '' }}">
                             <span>Omnichannel</span>
                             <i data-lucide="chevron-down" class="w-3 h-3 transition-transform"
                                 :class="omniDropdown ? 'rotate-180' : ''"></i>
@@ -473,26 +460,26 @@
                             x-transition:enter-end="opacity-100 translate-y-0"
                             x-transition:leave="transition ease-in duration-100" x-transition:leave-start="opacity-100"
                             x-transition:leave-end="opacity-0"
-                            class="absolute top-full left-0 mt-1 w-64 p-2 bg-white/95 dark:bg-[#1C1C1E]/95 border border-black/[0.06] dark:border-white/[0.08] rounded-[16px] shadow-2xl backdrop-blur-2xl space-y-0.5 z-50">
-                            <a href="{{ route('public.omnichannel.social-media') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-[10px] hover:bg-black/5 dark:hover:bg-white/10 transition">
+                            class="absolute top-full left-0 mt-1 w-64 p-2 bg-[#0c1427]/98 border border-white/10 rounded-[16px] shadow-2xl backdrop-blur-2xl space-y-0.5 z-50 text-white">
+                            <a href="{{ route('public.omnichannel.social-media') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-[10px] hover:bg-white/10 transition">
                                 <i data-lucide="share-2" class="w-4 h-4 text-[#FF2D55]"></i>
-                                <span class="text-xs font-semibold text-black dark:text-white">Social Media</span>
+                                <span class="text-xs font-semibold text-white">Social Media</span>
                             </a>
-                            <a href="{{ route('public.omnichannel.whatsapp') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-[10px] hover:bg-black/5 dark:hover:bg-white/10 transition">
+                            <a href="{{ route('public.omnichannel.whatsapp') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-[10px] hover:bg-white/10 transition">
                                 <i data-lucide="message-square" class="w-4 h-4 text-[#34C759]"></i>
-                                <span class="text-xs font-semibold text-black dark:text-white">WhatsApp</span>
+                                <span class="text-xs font-semibold text-white">WhatsApp</span>
                             </a>
-                            <a href="{{ route('public.omnichannel.marketplace') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-[10px] hover:bg-black/5 dark:hover:bg-white/10 transition">
+                            <a href="{{ route('public.omnichannel.marketplace') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-[10px] hover:bg-white/10 transition">
                                 <i data-lucide="shopping-bag" class="w-4 h-4 text-[#FF9500]"></i>
-                                <span class="text-xs font-semibold text-black dark:text-white">Marketplace Hub</span>
+                                <span class="text-xs font-semibold text-white">Marketplace Hub</span>
                             </a>
-                            <a href="{{ route('public.omnichannel.orders') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-[10px] hover:bg-black/5 dark:hover:bg-white/10 transition">
-                                <i data-lucide="clipboard-list" class="w-4 h-4 text-[#007AFF]"></i>
-                                <span class="text-xs font-semibold text-black dark:text-white">Central Orders</span>
+                            <a href="{{ route('public.omnichannel.orders') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-[10px] hover:bg-white/10 transition">
+                                <i data-lucide="clipboard-list" class="w-4 h-4 text-[#00C2FF]"></i>
+                                <span class="text-xs font-semibold text-white">Central Orders</span>
                             </a>
-                            <a href="{{ route('public.omnichannel.customer') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-[10px] hover:bg-black/5 dark:hover:bg-white/10 transition">
+                            <a href="{{ route('public.omnichannel.customer') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-[10px] hover:bg-white/10 transition">
                                 <i data-lucide="user-check" class="w-4 h-4 text-[#5856D6]"></i>
-                                <span class="text-xs font-semibold text-black dark:text-white">Customer Portal</span>
+                                <span class="text-xs font-semibold text-white">Customer Portal</span>
                             </a>
                         </div>
                     </div>
@@ -502,7 +489,7 @@
                         @mouseenter="platformDropdown = false; solutionDropdown = false; omniDropdown = false; marketplaceDropdown = false; resourceDropdown = true"
                         @mouseleave="resourceDropdown = false">
                         <button
-                            class="flex items-center gap-1 px-3 py-2 rounded-[10px] hover:text-black dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-all focus:outline-none {{ request()->routeIs('public.resources.*') || request()->routeIs('blog.*') ? 'text-[#007AFF] dark:text-[#0A84FF] font-semibold' : '' }}">
+                            class="flex items-center gap-1 px-3 py-2 rounded-[10px] hover:text-white hover:bg-white/5 transition-all focus:outline-none {{ request()->routeIs('public.resources.*') || request()->routeIs('blog.*') ? 'text-[#00C2FF] font-semibold' : '' }}">
                             <span>Resources</span>
                             <i data-lucide="chevron-down" class="w-3 h-3 transition-transform"
                                 :class="resourceDropdown ? 'rotate-180' : ''"></i>
@@ -512,36 +499,36 @@
                             x-transition:enter-end="opacity-100 translate-y-0"
                             x-transition:leave="transition ease-in duration-100" x-transition:leave-start="opacity-100"
                             x-transition:leave-end="opacity-0"
-                            class="absolute top-full left-0 mt-1 w-60 p-2 bg-white/95 dark:bg-[#1C1C1E]/95 border border-black/[0.06] dark:border-white/[0.08] rounded-[16px] shadow-2xl backdrop-blur-2xl space-y-0.5 z-50">
-                            <a href="{{ route('blog.index') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-[10px] hover:bg-black/5 dark:hover:bg-white/10 transition">
-                                <i data-lucide="book-open" class="w-4 h-4 text-[#007AFF]"></i>
-                                <span class="text-xs font-semibold text-black dark:text-white">Blog</span>
+                            class="absolute top-full left-0 mt-1 w-60 p-2 bg-[#0c1427]/98 border border-white/10 rounded-[16px] shadow-2xl backdrop-blur-2xl space-y-0.5 z-50 text-white">
+                            <a href="{{ route('blog.index') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-[10px] hover:bg-white/10 transition">
+                                <i data-lucide="book-open" class="w-4 h-4 text-[#00C2FF]"></i>
+                                <span class="text-xs font-semibold text-white">Blog</span>
                             </a>
-                            <a href="{{ route('public.resources.guides') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-[10px] hover:bg-black/5 dark:hover:bg-white/10 transition">
+                            <a href="{{ route('public.resources.guides') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-[10px] hover:bg-white/10 transition">
                                 <i data-lucide="file-text" class="w-4 h-4 text-[#34C759]"></i>
-                                <span class="text-xs font-semibold text-black dark:text-white">Guides</span>
+                                <span class="text-xs font-semibold text-white">Guides</span>
                             </a>
-                            <a href="{{ route('public.resources.case-studies') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-[10px] hover:bg-black/5 dark:hover:bg-white/10 transition">
+                            <a href="{{ route('public.resources.case-studies') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-[10px] hover:bg-white/10 transition">
                                 <i data-lucide="award" class="w-4 h-4 text-[#FF9500]"></i>
-                                <span class="text-xs font-semibold text-black dark:text-white">Case Studies</span>
+                                <span class="text-xs font-semibold text-white">Case Studies</span>
                             </a>
-                            <a href="{{ route('public.resources.faq') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-[10px] hover:bg-black/5 dark:hover:bg-white/10 transition">
+                            <a href="{{ route('public.resources.faq') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-[10px] hover:bg-white/10 transition">
                                 <i data-lucide="help-circle" class="w-4 h-4 text-[#AF52DE]"></i>
-                                <span class="text-xs font-semibold text-black dark:text-white">FAQ</span>
+                                <span class="text-xs font-semibold text-white">FAQ</span>
                             </a>
                         </div>
                     </div>
 
                     <!-- 5. Pricing (Direct Link) -->
                     <a href="{{ route('public.pricing') }}"
-                        class="px-3 py-2 rounded-[10px] hover:text-black dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-all {{ request()->routeIs('public.pricing') ? 'text-[#007AFF] dark:text-[#0A84FF] font-semibold' : '' }}">Pricing</a>
-                </nav>          </nav>
+                        class="px-3 py-2 rounded-[10px] hover:text-white hover:bg-white/5 transition-all {{ request()->routeIs('public.pricing') ? 'text-[#00C2FF] font-semibold' : '' }}">Pricing</a>
+                </nav>
 
                 <!-- Action Controls & Theme Toggle -->
                 <div class="flex items-center gap-2">
                     <!-- Apple Theme Switcher Button -->
                     <button type="button" @click="toggleTheme()"
-                        class="w-9 h-9 rounded-full flex items-center justify-center text-black/70 dark:text-white/70 hover:bg-black/5 dark:hover:bg-white/10 active:scale-[0.95] transition-all"
+                        class="w-9 h-9 rounded-full flex items-center justify-center text-slate-300 hover:text-white hover:bg-white/10 active:scale-[0.95] transition-all"
                         title="Ganti Mode Terang/Gelap" aria-label="Toggle Theme">
                         <!-- Sun Icon for Dark Mode (Switch to Light) -->
                         <svg x-show="isDark" x-cloak class="w-4 h-4 text-[#FFD60A]" fill="none"
@@ -550,7 +537,7 @@
                                 d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
                         </svg>
                         <!-- Moon Icon for Light Mode (Switch to Dark) -->
-                        <svg x-show="!isDark" class="w-4 h-4 text-black/70" fill="none" stroke="currentColor"
+                        <svg x-show="!isDark" class="w-4 h-4 text-slate-300" fill="none" stroke="currentColor"
                             stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
@@ -572,7 +559,7 @@
                             </a>
                         @else
                             <a href="{{ route('login') }}"
-                                class="px-3 py-2 text-xs font-semibold {{ $isLandingPage ? 'text-slate-300 hover:text-white' : 'text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white' }} transition-all min-h-[36px] flex items-center gap-1.5">
+                                class="px-3 py-2 text-xs font-semibold text-slate-300 hover:text-white transition-all min-h-[36px] flex items-center gap-1.5">
                                 <i data-lucide="user" class="w-3.5 h-3.5"></i>
                                 <span>Login</span>
                             </a>
@@ -585,7 +572,7 @@
 
                     <!-- Mobile Hamburger Button -->
                     <button @click="mobileMenu = !mobileMenu"
-                        class="lg:hidden p-2 rounded-[12px] bg-black/5 dark:bg-white/10 text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white transition-colors min-w-[40px] min-h-[40px] flex items-center justify-center"
+                        class="lg:hidden p-2 rounded-[12px] bg-white/10 text-white hover:bg-white/15 transition-colors min-w-[40px] min-h-[40px] flex items-center justify-center"
                         aria-label="Open Mobile Navigation">
                         <i :data-lucide="mobileMenu ? 'x' : 'menu'" class="w-5 h-5"></i>
                     </button>
@@ -595,66 +582,66 @@
             <!-- Mobile Drawer Menu (Apple Control Center Bento Sheet) -->
             <div x-show="mobileMenu" x-cloak x-transition:enter="transition ease-out duration-200"
                 x-transition:enter-start="opacity-0 -translate-y-2" x-transition:enter-end="opacity-100 translate-y-0"
-                class="lg:hidden p-4 sm:p-5 bg-white/95 dark:bg-[#1C1C1E]/95 backdrop-blur-2xl border-b border-black/5 dark:border-white/10 space-y-3.5 text-sm font-medium max-h-[85vh] overflow-y-auto">
+                class="lg:hidden p-4 sm:p-5 bg-[#060913]/98 backdrop-blur-2xl border-b border-white/10 space-y-3.5 text-sm font-medium max-h-[85vh] overflow-y-auto text-slate-200">
                 <div class="grid grid-cols-3 gap-2">
                     <a href="{{ route('landing') }}" @click="mobileMenu = false"
-                        class="block py-2.5 px-3 rounded-[14px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06] text-[#1D1D1F] dark:text-[#F5F5F7] font-semibold hover:bg-black/5 dark:hover:bg-white/10 transition-colors">
+                        class="block py-2.5 px-3 rounded-[14px] bg-white/[0.04] border border-white/10 text-white font-semibold hover:bg-white/[0.08] transition-colors">
                         <span class="flex items-center gap-2 text-xs">
-                            <i data-lucide="home" class="w-4 h-4 text-[#007AFF] dark:text-[#0A84FF]"></i>
+                            <i data-lucide="home" class="w-4 h-4 text-[#00C2FF]"></i>
                             <span>Beranda</span>
                         </span>
                     </a>
                     <a href="{{ route('marketplace.index') }}" @click="mobileMenu = false"
-                        class="block py-2.5 px-3 rounded-[14px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06] text-[#1D1D1F] dark:text-[#F5F5F7] font-semibold hover:bg-black/5 dark:hover:bg-white/10 transition-colors">
+                        class="block py-2.5 px-3 rounded-[14px] bg-white/[0.04] border border-white/10 text-white font-semibold hover:bg-white/[0.08] transition-colors">
                         <span class="flex items-center gap-2 text-xs">
-                            <i data-lucide="shopping-bag" class="w-4 h-4 text-[#FF9500] dark:text-[#FF9F0A]"></i>
+                            <i data-lucide="shopping-bag" class="w-4 h-4 text-[#FF9500]"></i>
                             <span>Marketplace</span>
                         </span>
                     </a>
                     <a href="{{ route('public.discovery.index') }}" @click="mobileMenu = false"
-                        class="block py-2.5 px-3 rounded-[14px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06] text-[#1D1D1F] dark:text-[#F5F5F7] font-semibold hover:bg-black/5 dark:hover:bg-white/10 transition-colors">
+                        class="block py-2.5 px-3 rounded-[14px] bg-white/[0.04] border border-white/10 text-white font-semibold hover:bg-white/[0.08] transition-colors">
                         <span class="flex items-center gap-2 text-xs">
-                            <i data-lucide="compass" class="w-4 h-4 text-[#34C759] dark:text-[#30D158]"></i>
+                            <i data-lucide="compass" class="w-4 h-4 text-[#34C759]"></i>
                             <span>Jelajah Toko</span>
                         </span>
                     </a>
                 </div>
 
                 <!-- Bento Tile Section: Platform & ERP -->
-                <div class="py-2 border-t border-black/5 dark:border-white/10">
+                <div class="py-2 border-t border-white/10">
                     <div
-                        class="text-[11px] font-bold text-[#007AFF] dark:text-[#0A84FF] uppercase tracking-wider px-1 mb-2 flex items-center gap-1.5">
+                        class="text-[11px] font-bold text-[#00C2FF] uppercase tracking-wider px-1 mb-2 flex items-center gap-1.5">
                         <i data-lucide="layers" class="w-3.5 h-3.5"></i>
                         <span>Platform &amp; Omnichannel ERP</span>
                     </div>
                     <div class="grid grid-cols-2 gap-2 text-xs">
                         <a href="{{ route('public.bos.overview') }}" @click="mobileMenu = false"
-                            class="p-2.5 rounded-[14px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06] flex items-center gap-2 text-[#1D1D1F] dark:text-[#F5F5F7] hover:bg-[#007AFF]/10 active:scale-95 transition-all">
-                            <i data-lucide="cpu" class="w-4 h-4 text-[#007AFF] dark:text-[#0A84FF] shrink-0"></i>
+                            class="p-2.5 rounded-[14px] bg-white/[0.04] border border-white/10 flex items-center gap-2 text-slate-200 hover:text-white hover:bg-white/[0.08] active:scale-95 transition-all">
+                            <i data-lucide="cpu" class="w-4 h-4 text-[#00C2FF] shrink-0"></i>
                             <span class="truncate font-medium">Overview BOS</span>
                         </a>
                         <a href="{{ route('public.erp.erp') }}" @click="mobileMenu = false"
-                            class="p-2.5 rounded-[14px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06] flex items-center gap-2 text-[#1D1D1F] dark:text-[#F5F5F7] hover:bg-[#34C759]/10 active:scale-95 transition-all">
-                            <i data-lucide="box" class="w-4 h-4 text-[#34C759] dark:text-[#30D158] shrink-0"></i>
+                            class="p-2.5 rounded-[14px] bg-white/[0.04] border border-white/10 flex items-center gap-2 text-slate-200 hover:text-white hover:bg-white/[0.08] active:scale-95 transition-all">
+                            <i data-lucide="box" class="w-4 h-4 text-[#34C759] shrink-0"></i>
                             <span class="truncate font-medium">ERP Core</span>
                         </a>
                         <a href="{{ route('public.erp.pos') }}" @click="mobileMenu = false"
-                            class="p-2.5 rounded-[14px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06] flex items-center gap-2 text-[#1D1D1F] dark:text-[#F5F5F7] hover:bg-[#FF9500]/10 active:scale-95 transition-all">
-                            <i data-lucide="shopping-cart" class="w-4 h-4 text-[#FF9500] dark:text-[#FF9F0A] shrink-0"></i>
+                            class="p-2.5 rounded-[14px] bg-white/[0.04] border border-white/10 flex items-center gap-2 text-slate-200 hover:text-white hover:bg-white/[0.08] active:scale-95 transition-all">
+                            <i data-lucide="shopping-cart" class="w-4 h-4 text-[#FF9500] shrink-0"></i>
                             <span class="truncate font-medium">POS Kasir</span>
                         </a>
                         <a href="{{ route('public.erp.inventory') }}" @click="mobileMenu = false"
-                            class="p-2.5 rounded-[14px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06] flex items-center gap-2 text-[#1D1D1F] dark:text-[#F5F5F7] hover:bg-[#007AFF]/10 active:scale-95 transition-all">
-                            <i data-lucide="archive" class="w-4 h-4 text-[#007AFF] dark:text-[#0A84FF] shrink-0"></i>
+                            class="p-2.5 rounded-[14px] bg-white/[0.04] border border-white/10 flex items-center gap-2 text-slate-200 hover:text-white hover:bg-white/[0.08] active:scale-95 transition-all">
+                            <i data-lucide="archive" class="w-4 h-4 text-[#00C2FF] shrink-0"></i>
                             <span class="truncate font-medium">Inventory</span>
                         </a>
                         <a href="{{ route('public.omnichannel.whatsapp') }}" @click="mobileMenu = false"
-                            class="p-2.5 rounded-[14px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06] flex items-center gap-2 text-[#1D1D1F] dark:text-[#F5F5F7] hover:bg-[#34C759]/10 active:scale-95 transition-all">
+                            class="p-2.5 rounded-[14px] bg-white/[0.04] border border-white/10 flex items-center gap-2 text-slate-200 hover:text-white hover:bg-white/[0.08] active:scale-95 transition-all">
                             <i data-lucide="message-square" class="w-4 h-4 text-[#34C759] shrink-0"></i>
                             <span class="truncate font-medium">WhatsApp Hub</span>
                         </a>
                         <a href="{{ route('public.content.creation') }}" @click="mobileMenu = false"
-                            class="p-2.5 rounded-[14px] bg-[#007AFF]/10 border border-[#007AFF]/20 flex items-center gap-2 text-[#007AFF] dark:text-[#0A84FF] font-semibold active:scale-95 transition-all">
+                            class="p-2.5 rounded-[14px] bg-cyan-950/60 border border-cyan-400/30 flex items-center gap-2 text-cyan-300 font-semibold active:scale-95 transition-all">
                             <i data-lucide="sparkles" class="w-4 h-4 shrink-0"></i>
                             <span class="truncate font-semibold">Content AI</span>
                         </a>
@@ -662,40 +649,40 @@
                 </div>
 
                 <!-- Bento Tile Section: Solusi Industri -->
-                <div class="py-2 border-t border-black/5 dark:border-white/10">
+                <div class="py-2 border-t border-white/10">
                     <div
-                        class="text-[11px] font-bold text-[#34C759] dark:text-[#30D158] uppercase tracking-wider px-1 mb-2 flex items-center gap-1.5">
+                        class="text-[11px] font-bold text-[#34C759] uppercase tracking-wider px-1 mb-2 flex items-center gap-1.5">
                         <i data-lucide="store" class="w-3.5 h-3.5"></i>
                         <span>Solusi Industri</span>
                     </div>
                     <div class="grid grid-cols-2 gap-2 text-xs">
                         <a href="{{ route('public.solutions.fnb') }}" @click="mobileMenu = false"
-                            class="p-2.5 rounded-[14px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06] flex items-center gap-2 text-[#1D1D1F] dark:text-[#F5F5F7] hover:bg-[#34C759]/10 active:scale-95 transition-all">
+                            class="p-2.5 rounded-[14px] bg-white/[0.04] border border-white/10 flex items-center gap-2 text-slate-200 hover:text-white hover:bg-white/[0.08] active:scale-95 transition-all">
                             <i data-lucide="utensils" class="w-4 h-4 text-[#FF9500] shrink-0"></i>
                             <span class="truncate font-medium">F&amp;B Resto</span>
                         </a>
                         <a href="{{ route('public.solutions.retail') }}" @click="mobileMenu = false"
-                            class="p-2.5 rounded-[14px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06] flex items-center gap-2 text-[#1D1D1F] dark:text-[#F5F5F7] hover:bg-[#34C759]/10 active:scale-95 transition-all">
-                            <i data-lucide="store" class="w-4 h-4 text-[#007AFF] shrink-0"></i>
+                            class="p-2.5 rounded-[14px] bg-white/[0.04] border border-white/10 flex items-center gap-2 text-slate-200 hover:text-white hover:bg-white/[0.08] active:scale-95 transition-all">
+                            <i data-lucide="store" class="w-4 h-4 text-[#00C2FF] shrink-0"></i>
                             <span class="truncate font-medium">Retail Toko</span>
                         </a>
                         <a href="{{ route('public.solutions.workshop') }}" @click="mobileMenu = false"
-                            class="p-2.5 rounded-[14px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06] flex items-center gap-2 text-[#1D1D1F] dark:text-[#F5F5F7] hover:bg-[#34C759]/10 active:scale-95 transition-all">
+                            class="p-2.5 rounded-[14px] bg-white/[0.04] border border-white/10 flex items-center gap-2 text-slate-200 hover:text-white hover:bg-white/[0.08] active:scale-95 transition-all">
                             <i data-lucide="wrench" class="w-4 h-4 text-[#FF3B30] shrink-0"></i>
                             <span class="truncate font-medium">Bengkel</span>
                         </a>
                         <a href="{{ route('public.solutions.laundry') }}" @click="mobileMenu = false"
-                            class="p-2.5 rounded-[14px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06] flex items-center gap-2 text-[#1D1D1F] dark:text-[#F5F5F7] hover:bg-[#34C759]/10 active:scale-95 transition-all">
+                            class="p-2.5 rounded-[14px] bg-white/[0.04] border border-white/10 flex items-center gap-2 text-slate-200 hover:text-white hover:bg-white/[0.08] active:scale-95 transition-all">
                             <i data-lucide="sparkles" class="w-4 h-4 text-[#34C759] shrink-0"></i>
                             <span class="truncate font-medium">Laundry</span>
                         </a>
                         <a href="{{ route('public.solutions.manufacturing') }}" @click="mobileMenu = false"
-                            class="p-2.5 rounded-[14px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06] flex items-center gap-2 text-[#1D1D1F] dark:text-[#F5F5F7] hover:bg-[#34C759]/10 active:scale-95 transition-all">
+                            class="p-2.5 rounded-[14px] bg-white/[0.04] border border-white/10 flex items-center gap-2 text-slate-200 hover:text-white hover:bg-white/[0.08] active:scale-95 transition-all">
                             <i data-lucide="factory" class="w-4 h-4 text-[#AF52DE] shrink-0"></i>
                             <span class="truncate font-medium">Pabrik</span>
                         </a>
                         <a href="{{ route('public.solutions.services') }}" @click="mobileMenu = false"
-                            class="p-2.5 rounded-[14px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06] flex items-center gap-2 text-[#1D1D1F] dark:text-[#F5F5F7] hover:bg-[#34C759]/10 active:scale-95 transition-all">
+                            class="p-2.5 rounded-[14px] bg-white/[0.04] border border-white/10 flex items-center gap-2 text-slate-200 hover:text-white hover:bg-white/[0.08] active:scale-95 transition-all">
                             <i data-lucide="briefcase" class="w-4 h-4 text-[#00C2FF] shrink-0"></i>
                             <span class="truncate font-medium">Services Jasa</span>
                         </a>
@@ -703,49 +690,49 @@
                 </div>
 
                 <!-- Inset Links -->
-                <div class="py-2 border-t border-black/5 dark:border-white/10 space-y-1 text-xs">
+                <div class="py-2 border-t border-white/10 space-y-1 text-xs">
                     <a href="{{ route('public.pricing') }}" @click="mobileMenu = false"
-                        class="flex items-center gap-2 py-2 px-3 rounded-[12px] text-[#1D1D1F]/80 dark:text-[#F5F5F7]/80 hover:bg-black/5 dark:hover:bg-white/10 transition-colors">
-                        <i data-lucide="tag" class="w-4 h-4 text-[#007AFF]"></i>
+                        class="flex items-center gap-2 py-2 px-3 rounded-[12px] text-slate-300 hover:text-white hover:bg-white/5 transition-colors">
+                        <i data-lucide="tag" class="w-4 h-4 text-[#00C2FF]"></i>
                         <span>Harga &amp; Paket (Pricing)</span>
                     </a>
                     <a href="{{ route('public.demo') }}" @click="mobileMenu = false"
-                        class="flex items-center gap-2 py-2 px-3 rounded-[12px] text-[#1D1D1F]/80 dark:text-[#F5F5F7]/80 hover:bg-black/5 dark:hover:bg-white/10 transition-colors">
+                        class="flex items-center gap-2 py-2 px-3 rounded-[12px] text-slate-300 hover:text-white hover:bg-white/5 transition-colors">
                         <i data-lucide="play" class="w-4 h-4 text-[#34C759]"></i>
                         <span>Live Demo Sistem</span>
                     </a>
                     <a href="{{ route('blog.index') }}" @click="mobileMenu = false"
-                        class="flex items-center gap-2 py-2 px-3 rounded-[12px] text-[#1D1D1F]/80 dark:text-[#F5F5F7]/80 hover:bg-black/5 dark:hover:bg-white/10 transition-colors">
+                        class="flex items-center gap-2 py-2 px-3 rounded-[12px] text-slate-300 hover:text-white hover:bg-white/5 transition-colors">
                         <i data-lucide="book-open" class="w-4 h-4 text-[#FF9500]"></i>
                         <span>Blog &amp; Edukasi UMKM</span>
                     </a>
                     <a href="{{ route('public.support') }}" @click="mobileMenu = false"
-                        class="flex items-center gap-2 py-2 px-3 rounded-[12px] text-[#1D1D1F]/80 dark:text-[#F5F5F7]/80 hover:bg-black/5 dark:hover:bg-white/10 transition-colors">
+                        class="flex items-center gap-2 py-2 px-3 rounded-[12px] text-slate-300 hover:text-white hover:bg-white/5 transition-colors">
                         <i data-lucide="headphones" class="w-4 h-4 text-[#AF52DE]"></i>
                         <span>Bantuan &amp; Support</span>
                     </a>
                 </div>
 
                 @if (auth('admin')->check())
-                    <div class="pt-3 border-t border-black/5 dark:border-white/10">
+                    <div class="pt-3 border-t border-white/10">
                         <a href="{{ route('admin.dashboard') }}" @click="mobileMenu = false"
-                            class="w-full py-3 rounded-[14px] glow-btn text-center text-white font-semibold flex items-center justify-center gap-2 active:scale-95 transition-all">
+                            class="w-full py-3 rounded-[14px] bg-[#00C2FF] hover:bg-[#00A3D7] text-slate-950 font-bold text-center flex items-center justify-center gap-2 active:scale-95 transition-all shadow-[0_0_15px_rgba(0,194,255,0.35)]">
                             <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
                             <span>Dashboard Admin</span>
                         </a>
                     </div>
                 @elseif (auth('web')->check())
-                    <div class="pt-3 border-t border-black/5 dark:border-white/10">
+                    <div class="pt-3 border-t border-white/10">
                         <a href="{{ route('dashboard') }}" @click="mobileMenu = false"
-                            class="w-full py-3 rounded-[14px] glow-btn text-center text-white font-semibold flex items-center justify-center gap-2 active:scale-95 transition-all">
+                            class="w-full py-3 rounded-[14px] bg-[#00C2FF] hover:bg-[#00A3D7] text-slate-950 font-bold text-center flex items-center justify-center gap-2 active:scale-95 transition-all shadow-[0_0_15px_rgba(0,194,255,0.35)]">
                             <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
                             <span>Ke Dashboard</span>
                         </a>
                     </div>
                 @else
-                    <div class="pt-3 border-t border-black/5 dark:border-white/10 grid grid-cols-2 gap-2">
+                    <div class="pt-3 border-t border-white/10 grid grid-cols-2 gap-2">
                         <a href="{{ route('login') }}"
-                            class="py-2.5 rounded-full bg-black/5 dark:bg-white/10 text-center text-[#1D1D1F] dark:text-[#F5F5F7] font-semibold text-xs active:scale-95 transition-all flex items-center justify-center gap-1.5">
+                            class="py-2.5 rounded-full bg-white/10 text-center text-white font-semibold text-xs active:scale-95 hover:bg-white/15 transition-all flex items-center justify-center gap-1.5">
                             <i data-lucide="user" class="w-3.5 h-3.5"></i>
                             <span>Login</span>
                         </a>
@@ -767,7 +754,7 @@
     <!-- ═══ APPLE GROUPED INSET FOOTER ═══ -->
     @if (!($hideFooter ?? false))
         <footer
-            class="border-t {{ $isLandingPage ? 'border-white/10 bg-[#060913] text-slate-400 mt-0 pt-14 pb-20' : 'border-black/5 dark:border-white/10 bg-white dark:bg-[#1C1C1E] pt-12 sm:pt-14 pb-32 sm:pb-36 lg:pb-14 mt-16 text-black/60 dark:text-white/60' }} text-xs transition-colors">
+            class="border-t border-white/10 bg-[#060913] text-slate-400 mt-0 pt-14 pb-20 text-xs transition-colors">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-10 pb-10">
 
@@ -796,7 +783,7 @@
                                     ),
                                     'svg' =>
                                         '<path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>',
-                                    'hover' => 'hover:bg-[#1877F2]/15 hover:text-[#1877F2] dark:hover:text-[#1877F2]',
+                                    'hover' => 'hover:bg-[#1877F2]/15 hover:text-[#1877F2]',
                                 ],
                                 'instagram' => [
                                     'active' => filter_var(
@@ -814,7 +801,7 @@
                                     ),
                                     'svg' =>
                                         '<path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>',
-                                    'hover' => 'hover:bg-[#DD2A7B]/15 hover:text-[#DD2A7B] dark:hover:text-[#DD2A7B]',
+                                    'hover' => 'hover:bg-[#DD2A7B]/15 hover:text-[#DD2A7B]',
                                 ],
                                 'tiktok' => [
                                     'active' => filter_var(
@@ -830,7 +817,7 @@
                                     'svg' =>
                                         '<path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.24 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/>',
                                     'hover' =>
-                                        'hover:bg-black/10 dark:hover:bg-white/15 hover:text-black dark:hover:text-white',
+                                        'hover:bg-white/15 hover:text-white',
                                 ],
                                 'linkedin' => [
                                     'active' => filter_var(
@@ -848,7 +835,7 @@
                                     ),
                                     'svg' =>
                                         '<path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>',
-                                    'hover' => 'hover:bg-[#0A66C2]/15 hover:text-[#0A66C2] dark:hover:text-[#0A66C2]',
+                                    'hover' => 'hover:bg-[#0A66C2]/15 hover:text-[#0A66C2]',
                                 ],
                                 'twitter' => [
                                     'active' => filter_var(
@@ -864,183 +851,115 @@
                                     'svg' =>
                                         '<path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>',
                                     'hover' =>
-                                        'hover:bg-black/10 dark:hover:bg-white/15 hover:text-black dark:hover:text-white',
+                                        'hover:bg-white/15 hover:text-white',
                                 ],
                             ];
                         @endphp
 
-                        @if ($isLandingPage)
-                            <div class="space-y-3">
-                                <a href="{{ route('landing') }}" class="inline-block">
-                                    @if(!empty($siteLogoDarkUrl))
-                                        <img src="{{ $siteLogoDarkUrl }}" alt="{{ $siteAppName }}" class="h-8 w-auto object-contain">
-                                    @else
-                                        <span class="font-black text-2xl tracking-tight text-white font-sans">COOCA</span>
-                                    @endif
-                                </a>
-                                <p class="text-xs font-semibold text-slate-300">
-                                    Business Operating System &amp; Omnichannel ERP
-                                </p>
-                                <p class="text-xs text-slate-400 leading-relaxed max-w-sm">
-                                    Satu ekosistem untuk mengelola, menghubungkan, menghasilkan, dan mengembangkan bisnis Anda.
-                                </p>
-                                <div class="flex flex-wrap items-center gap-2 pt-1">
-                                    @foreach ($footerSocialChannels as $key => $soc)
-                                        @if ($soc['active'] && !empty($soc['url']))
-                                            <a href="{{ $soc['url'] }}" target="_blank" rel="noopener noreferrer"
-                                                title="{{ $soc['name'] }}: {{ $soc['handle'] }}"
-                                                class="w-8 h-8 rounded-full bg-white/5 border border-white/10 text-slate-400 hover:text-white hover:bg-white/15 flex items-center justify-center active:scale-95 transition-all">
-                                                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
-                                                    {!! $soc['svg'] !!}
-                                                </svg>
-                                            </a>
-                                        @endif
-                                    @endforeach
-                                </div>
-                            </div>
-                        @else
-                            <div class="flex items-center gap-3">
-                                <img src="{{ $siteLogoLightUrl }}" alt="{{ $siteAppName }}"
-                                    class="h-7 w-auto object-contain dark:hidden">
-                                <img src="{{ $siteLogoDarkUrl }}" alt="{{ $siteAppName }}"
-                                    class="h-7 w-auto object-contain hidden dark:block">
-                                <div class="border-l border-black/10 dark:border-white/10 pl-3">
-                                    <span
-                                        class="font-bold text-sm sm:text-base tracking-tight text-black dark:text-white block leading-tight">{{ $siteAppName }}</span>
-                                    <span
-                                        class="text-xs uppercase font-bold text-[#34C759] dark:text-[#30D158] tracking-wider">{{ $siteTagline }}</span>
-                                </div>
-                            </div>
-                            <p class="text-xs text-black/50 dark:text-white/50 leading-relaxed max-w-sm">
-                                Platform operasional bisnis terlengkap untuk UMKM Indonesia. Dilengkapi sistem kasir POS,
-                                pembukuan kas, manajemen inventaris, dan asisten AI pintar.
+                        <div class="space-y-3">
+                            <a href="{{ route('landing') }}" class="inline-block">
+                                @if(!empty($siteLogoDarkUrl))
+                                    <img src="{{ $siteLogoDarkUrl }}" alt="{{ $siteAppName }}" class="h-8 w-auto object-contain">
+                                @else
+                                    <span class="font-black text-2xl tracking-tight text-white font-sans">COOCA</span>
+                                @endif
+                            </a>
+                            <p class="text-xs font-semibold text-slate-300">
+                                Business Operating System &amp; Omnichannel ERP
                             </p>
-
-                            <!-- Contact Widgets -->
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-w-sm pt-1">
-                                <a href="{{ $footerWaUrl }}" target="_blank"
-                                    class="p-2.5 rounded-[14px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.04] dark:border-white/[0.06] flex items-center gap-2.5 hover:bg-[#34C759]/10 active:scale-[0.98] transition-all">
-                                    <div
-                                        class="w-7 h-7 rounded-[10px] bg-[#34C759]/15 text-[#34C759] dark:text-[#30D158] flex items-center justify-center shrink-0">
-                                        <i data-lucide="phone" class="w-3.5 h-3.5"></i>
-                                    </div>
-                                    <div class="min-w-0">
-                                        <span
-                                            class="text-xs uppercase font-bold text-[#6E6E73] dark:text-[#86868B] block leading-tight">WhatsApp CS</span>
-                                        <span
-                                            class="font-bold text-[#1D1D1F] dark:text-[#F5F5F7] text-xs truncate block font-mono">{{ $footerWaNum }}</span>
-                                    </div>
-                                </a>
-                                <a href="mailto:support@cooca.id"
-                                    class="p-2.5 rounded-[14px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.04] dark:border-white/[0.06] flex items-center gap-2.5 hover:bg-[#007AFF]/10 active:scale-[0.98] transition-all">
-                                    <div
-                                        class="w-7 h-7 rounded-[10px] bg-[#007AFF]/15 text-[#007AFF] dark:text-[#0A84FF] flex items-center justify-center shrink-0">
-                                        <i data-lucide="mail" class="w-3.5 h-3.5"></i>
-                                    </div>
-                                    <div class="min-w-0">
-                                        <span
-                                            class="text-xs uppercase font-bold text-[#6E6E73] dark:text-[#86868B] block leading-tight">Email Bantuan</span>
-                                        <span
-                                            class="font-medium text-[#1D1D1F] dark:text-[#F5F5F7] text-xs truncate block">support@cooca.id</span>
-                                    </div>
-                                </a>
+                            <p class="text-xs text-slate-400 leading-relaxed max-w-sm">
+                                Satu ekosistem untuk mengelola, menghubungkan, menghasilkan, dan mengembangkan bisnis Anda.
+                            </p>
+                            <div class="flex flex-wrap items-center gap-2 pt-1">
+                                @foreach ($footerSocialChannels as $key => $soc)
+                                    @if ($soc['active'] && !empty($soc['url']))
+                                        <a href="{{ $soc['url'] }}" target="_blank" rel="noopener noreferrer"
+                                            title="{{ $soc['name'] }}: {{ $soc['handle'] }}"
+                                            class="w-8 h-8 rounded-full bg-white/5 border border-white/10 text-slate-400 hover:text-white hover:bg-white/15 flex items-center justify-center active:scale-95 transition-all">
+                                            <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                                                {!! $soc['svg'] !!}
+                                            </svg>
+                                        </a>
+                                    @endif
+                                @endforeach
                             </div>
-
-                            <div class="pt-2">
-                                <span
-                                    class="text-[11px] font-bold text-black/40 dark:text-white/40 uppercase tracking-wider block mb-2">Ikuti Kanal Resmi Cooca:</span>
-                                <div class="flex flex-wrap items-center gap-2">
-                                    @foreach ($footerSocialChannels as $key => $soc)
-                                        @if ($soc['active'] && !empty($soc['url']))
-                                            <a href="{{ $soc['url'] }}" target="_blank" rel="noopener noreferrer"
-                                                title="{{ $soc['name'] }}: {{ $soc['handle'] }}"
-                                                class="w-8 h-8 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.05] dark:border-white/[0.06] text-black/70 dark:text-white/70 flex items-center justify-center {{ $soc['hover'] }} active:scale-95 transition-all">
-                                                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
-                                                    {!! $soc['svg'] !!}
-                                                </svg>
-                                            </a>
-                                        @endif
-                                    @endforeach
-                                </div>
-                            </div>
-                        @endif
+                        </div>
                     </div>
 
                     <!-- Navigation Columns: 4 Columns (Platform, Solutions, Resources, Company) -->
-                    <div
-                        class="lg:col-span-3 grid grid-cols-2 sm:grid-cols-4 gap-6 sm:gap-6 pt-4 lg:pt-0 {{ $isLandingPage ? 'border-t-0' : 'border-t lg:border-t-0 border-black/5 dark:border-white/10' }}">
+                    <div class="lg:col-span-3 grid grid-cols-2 sm:grid-cols-4 gap-6 sm:gap-6 pt-4 lg:pt-0 border-t-0">
 
                         <!-- Col 1: Platform -->
                         <div class="space-y-3">
-                            <p class="font-bold {{ $isLandingPage ? 'text-white' : 'text-black dark:text-white' }} uppercase text-[11px] tracking-wider">
+                            <p class="font-bold text-white uppercase text-[11px] tracking-wider">
                                 Platform</p>
-                            <nav class="flex flex-col space-y-2 text-xs {{ $isLandingPage ? 'text-slate-400' : 'text-black/70 dark:text-white/70' }}">
+                            <nav class="flex flex-col space-y-2 text-xs text-slate-400">
                                 <a href="{{ route('public.erp.erp') }}"
-                                    class="{{ $isLandingPage ? 'hover:text-white' : 'hover:text-[#007AFF] dark:hover:text-[#0A84FF]' }} transition-colors">ERP</a>
+                                    class="hover:text-white transition-colors">ERP</a>
                                 <a href="{{ route('public.omnichannel.whatsapp') }}"
-                                    class="{{ $isLandingPage ? 'hover:text-white' : 'hover:text-[#007AFF] dark:hover:text-[#0A84FF]' }} transition-colors">Omnichannel</a>
+                                    class="hover:text-white transition-colors">Omnichannel</a>
                                 <a href="{{ route('public.content.creation') }}"
-                                    class="{{ $isLandingPage ? 'hover:text-white' : 'hover:text-[#007AFF] dark:hover:text-[#0A84FF]' }} transition-colors">Content Automation</a>
+                                    class="hover:text-white transition-colors">Content Automation</a>
                                 <a href="{{ route('marketplace.index') }}"
-                                    class="{{ $isLandingPage ? 'hover:text-white' : 'hover:text-[#007AFF] dark:hover:text-[#0A84FF]' }} transition-colors">Marketplace</a>
+                                    class="hover:text-white transition-colors">Marketplace</a>
                                 <a href="{{ route('public.erp.analytics') }}"
-                                    class="{{ $isLandingPage ? 'hover:text-white' : 'hover:text-[#007AFF] dark:hover:text-[#0A84FF]' }} transition-colors">AI Assistant</a>
+                                    class="hover:text-white transition-colors">AI Assistant</a>
                             </nav>
                         </div>
 
                         <!-- Col 2: Solutions -->
                         <div class="space-y-3">
-                            <p class="font-bold {{ $isLandingPage ? 'text-white' : 'text-black dark:text-white' }} uppercase text-[11px] tracking-wider">
+                            <p class="font-bold text-white uppercase text-[11px] tracking-wider">
                                 Solutions</p>
-                            <nav class="flex flex-col space-y-2 text-xs {{ $isLandingPage ? 'text-slate-400' : 'text-black/70 dark:text-white/70' }}">
+                            <nav class="flex flex-col space-y-2 text-xs text-slate-400">
                                 <a href="{{ route('public.solutions.fnb') }}"
-                                    class="{{ $isLandingPage ? 'hover:text-white' : 'hover:text-[#007AFF] dark:hover:text-[#0A84FF]' }} transition-colors">POS</a>
+                                    class="hover:text-white transition-colors">POS</a>
                                 <a href="{{ route('public.solutions.retail') }}"
-                                    class="{{ $isLandingPage ? 'hover:text-white' : 'hover:text-[#007AFF] dark:hover:text-[#0A84FF]' }} transition-colors">Retail</a>
+                                    class="hover:text-white transition-colors">Retail</a>
                                 <a href="{{ route('public.solutions.workshop') }}"
-                                    class="{{ $isLandingPage ? 'hover:text-white' : 'hover:text-[#007AFF] dark:hover:text-[#0A84FF]' }} transition-colors">Workshop</a>
+                                    class="hover:text-white transition-colors">Workshop</a>
                                 <a href="{{ route('public.solutions.laundry') }}"
-                                    class="{{ $isLandingPage ? 'hover:text-white' : 'hover:text-[#007AFF] dark:hover:text-[#0A84FF]' }} transition-colors">Laundry</a>
+                                    class="hover:text-white transition-colors">Laundry</a>
                                 <a href="{{ route('public.solutions.manufacturing') }}"
-                                    class="{{ $isLandingPage ? 'hover:text-white' : 'hover:text-[#007AFF] dark:hover:text-[#0A84FF]' }} transition-colors">Manufacturing</a>
+                                    class="hover:text-white transition-colors">Manufacturing</a>
                                 <a href="{{ route('public.solutions.services') }}"
-                                    class="{{ $isLandingPage ? 'hover:text-white' : 'hover:text-[#007AFF] dark:hover:text-[#0A84FF]' }} transition-colors">Services</a>
+                                    class="hover:text-white transition-colors">Services</a>
                             </nav>
                         </div>
 
                         <!-- Col 3: Resources -->
                         <div class="space-y-3">
-                            <p class="font-bold {{ $isLandingPage ? 'text-white' : 'text-black dark:text-white' }} uppercase text-[11px] tracking-wider">
+                            <p class="font-bold text-white uppercase text-[11px] tracking-wider">
                                 Resources</p>
-                            <nav class="flex flex-col space-y-2 text-xs {{ $isLandingPage ? 'text-slate-400' : 'text-black/70 dark:text-white/70' }}">
+                            <nav class="flex flex-col space-y-2 text-xs text-slate-400">
                                 <a href="{{ route('blog.index') }}"
-                                    class="{{ $isLandingPage ? 'hover:text-white' : 'hover:text-[#007AFF] dark:hover:text-[#0A84FF]' }} transition-colors">Blog</a>
+                                    class="hover:text-white transition-colors">Blog</a>
                                 <a href="{{ route('public.resources.guides') }}"
-                                    class="{{ $isLandingPage ? 'hover:text-white' : 'hover:text-[#007AFF] dark:hover:text-[#0A84FF]' }} transition-colors">Guides</a>
+                                    class="hover:text-white transition-colors">Guides</a>
                                 <a href="{{ route('public.resources.case-studies') }}"
-                                    class="{{ $isLandingPage ? 'hover:text-white' : 'hover:text-[#007AFF] dark:hover:text-[#0A84FF]' }} transition-colors">Case Studies</a>
+                                    class="hover:text-white transition-colors">Case Studies</a>
                                 <a href="{{ route('public.demo') }}"
-                                    class="{{ $isLandingPage ? 'hover:text-white' : 'hover:text-[#007AFF] dark:hover:text-[#0A84FF]' }} transition-colors">Webinar</a>
+                                    class="hover:text-white transition-colors">Webinar</a>
                                 <a href="{{ route('public.resources.faq') }}"
-                                    class="{{ $isLandingPage ? 'hover:text-white' : 'hover:text-[#007AFF] dark:hover:text-[#0A84FF]' }} transition-colors">FAQ</a>
+                                    class="hover:text-white transition-colors">FAQ</a>
                             </nav>
                         </div>
 
                         <!-- Col 4: Company -->
                         <div class="space-y-3">
-                            <p class="font-bold {{ $isLandingPage ? 'text-white' : 'text-black dark:text-white' }} uppercase text-[11px] tracking-wider">
+                            <p class="font-bold text-white uppercase text-[11px] tracking-wider">
                                 Company</p>
-                            <nav class="flex flex-col space-y-2 text-xs {{ $isLandingPage ? 'text-slate-400' : 'text-black/70 dark:text-white/70' }}">
+                            <nav class="flex flex-col space-y-2 text-xs text-slate-400">
                                 <a href="{{ route('public.about') }}"
-                                    class="{{ $isLandingPage ? 'hover:text-white' : 'hover:text-[#007AFF] dark:hover:text-[#0A84FF]' }} transition-colors">About Us</a>
+                                    class="hover:text-white transition-colors">About Us</a>
                                 <a href="{{ route('public.privacy') }}"
-                                    class="{{ $isLandingPage ? 'hover:text-white' : 'hover:text-[#007AFF] dark:hover:text-[#0A84FF]' }} transition-colors">Security</a>
+                                    class="hover:text-white transition-colors">Security</a>
                                 <a href="{{ route('public.privacy') }}"
-                                    class="{{ $isLandingPage ? 'hover:text-white' : 'hover:text-[#007AFF] dark:hover:text-[#0A84FF]' }} transition-colors">Privacy</a>
+                                    class="hover:text-white transition-colors">Privacy</a>
                                 <a href="{{ route('public.terms') }}"
-                                    class="{{ $isLandingPage ? 'hover:text-white' : 'hover:text-[#007AFF] dark:hover:text-[#0A84FF]' }} transition-colors">Terms &amp; Conditions</a>
+                                    class="hover:text-white transition-colors">Terms &amp; Conditions</a>
                                 <a href="{{ route('public.support') }}"
-                                    class="{{ $isLandingPage ? 'hover:text-white' : 'hover:text-[#007AFF] dark:hover:text-[#0A84FF]' }} transition-colors">Support</a>
+                                    class="hover:text-white transition-colors">Support</a>
                             </nav>
                         </div>
 
@@ -1049,17 +968,17 @@
 
                 <!-- Bottom Copyright & Links -->
                 <div
-                    class="border-t {{ $isLandingPage ? 'border-white/10 text-slate-500' : 'border-black/5 dark:border-white/10 text-black/40 dark:text-white/40' }} pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px]">
+                    class="border-t border-white/10 text-slate-500 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px]">
                     <p class="text-center sm:text-left">© 2026 COOCA. All rights reserved.</p>
                     <div class="flex flex-wrap items-center justify-center sm:justify-end gap-x-4 gap-y-2">
                         <a href="{{ route('public.privacy') }}"
-                            class="{{ $isLandingPage ? 'text-slate-400 hover:text-white' : 'hover:text-black dark:hover:text-white' }} transition-colors">Privacy</a>
+                            class="text-slate-400 hover:text-white transition-colors">Privacy</a>
                         <a href="{{ route('public.terms') }}"
-                            class="{{ $isLandingPage ? 'text-slate-400 hover:text-white' : 'hover:text-black dark:hover:text-white' }} transition-colors">Terms</a>
+                            class="text-slate-400 hover:text-white transition-colors">Terms</a>
                         <a href="{{ route('public.privacy') }}"
-                            class="{{ $isLandingPage ? 'text-slate-400 hover:text-white' : 'hover:text-black dark:hover:text-white' }} transition-colors">Security</a>
+                            class="text-slate-400 hover:text-white transition-colors">Security</a>
                         <a href="{{ route('public.support') }}"
-                            class="{{ $isLandingPage ? 'text-slate-400 hover:text-white' : 'hover:text-black dark:hover:text-white' }} transition-colors">Support</a>
+                            class="text-slate-400 hover:text-white transition-colors">Support</a>
                     </div>
                 </div>
             </div>
@@ -1072,7 +991,7 @@
             aria-label="Navigasi Bawah">
             <div class="max-w-7xl mx-auto pointer-events-auto">
                 <div
-                    class="w-full bg-white/90 dark:bg-[#1C1C1E]/90 backdrop-blur-2xl border border-black/[0.08] dark:border-white/[0.12] rounded-[24px] sm:rounded-[28px] px-2 sm:px-6 lg:px-8 py-2 sm:py-2.5 shadow-[0_12px_40px_-6px_rgba(0,0,0,0.18),0_2px_8px_rgba(0,0,0,0.06)] dark:shadow-[0_16px_48px_-6px_rgba(0,0,0,0.7)] transition-all duration-300">
+                    class="w-full bg-[#060913]/90 backdrop-blur-2xl border border-white/10 rounded-[24px] sm:rounded-[28px] px-2 sm:px-6 lg:px-8 py-2 sm:py-2.5 shadow-[0_12px_40px_-6px_rgba(0,0,0,0.5)] transition-all duration-300">
                     <div class="grid grid-cols-5 items-center w-full">
 
                         <!-- 1. Beranda -->
@@ -1081,17 +1000,17 @@
                         @endphp
                         <div class="col-span-1 flex flex-col items-center justify-center">
                             <a href="{{ route('landing') }}"
-                                class="w-full flex flex-col items-center justify-center py-1 px-1 rounded-[20px] transition-all duration-200 active:scale-95 group relative {{ $isHomeActive ? 'text-[#007AFF] dark:text-[#0A84FF]' : 'text-[#8E8E93] dark:text-[#98989D] hover:text-[#1D1D1F] dark:hover:text-[#F5F5F7]' }}">
+                                class="w-full flex flex-col items-center justify-center py-1 px-1 rounded-[20px] transition-all duration-200 active:scale-95 group relative {{ $isHomeActive ? 'text-[#00C2FF]' : 'text-slate-400 hover:text-white' }}">
                                 <div
-                                    class="w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center transition-all duration-200 {{ $isHomeActive ? 'bg-[#007AFF]/10 dark:bg-[#0A84FF]/20 shadow-sm' : 'group-hover:bg-black/5 dark:group-hover:bg-white/5' }}">
+                                    class="w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center transition-all duration-200 {{ $isHomeActive ? 'bg-[#00C2FF]/15 shadow-sm' : 'group-hover:bg-white/5' }}">
                                     <i data-lucide="home"
                                         class="w-[19px] h-[19px] sm:w-5 sm:h-5 transition-transform group-active:scale-90 {{ $isHomeActive ? 'stroke-[2.2]' : 'stroke-[1.75]' }}"></i>
                                 </div>
                                 <span
-                                    class="text-xs font-semibold tracking-tight mt-0.5 {{ $isHomeActive ? 'text-[#007AFF] dark:text-[#0A84FF]' : '' }}">Beranda</span>
+                                    class="text-xs font-semibold tracking-tight mt-0.5 {{ $isHomeActive ? 'text-[#00C2FF]' : '' }}">Beranda</span>
                                 @if ($isHomeActive)
                                     <span
-                                        class="w-1 h-1 rounded-full bg-[#007AFF] dark:bg-[#0A84FF] mt-0.5 opacity-60"></span>
+                                        class="w-1 h-1 rounded-full bg-[#00C2FF] mt-0.5 opacity-60"></span>
                                 @else
                                     <span class="w-1 h-1 mt-0.5 opacity-0"></span>
                                 @endif
@@ -1104,17 +1023,17 @@
                         @endphp
                         <div class="col-span-1 flex flex-col items-center justify-center">
                             <a href="{{ route('public.bos.overview') }}"
-                                class="w-full flex flex-col items-center justify-center py-1 px-1 rounded-[20px] transition-all duration-200 active:scale-95 group relative {{ $isPlatformActive ? 'text-[#007AFF] dark:text-[#0A84FF]' : 'text-[#8E8E93] dark:text-[#98989D] hover:text-[#1D1D1F] dark:hover:text-[#F5F5F7]' }}">
+                                class="w-full flex flex-col items-center justify-center py-1 px-1 rounded-[20px] transition-all duration-200 active:scale-95 group relative {{ $isPlatformActive ? 'text-[#00C2FF]' : 'text-slate-400 hover:text-white' }}">
                                 <div
-                                    class="relative w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center transition-all duration-200 {{ $isPlatformActive ? 'bg-[#007AFF]/10 dark:bg-[#0A84FF]/20 shadow-sm' : 'group-hover:bg-black/5 dark:group-hover:bg-white/5' }}">
+                                    class="relative w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center transition-all duration-200 {{ $isPlatformActive ? 'bg-[#00C2FF]/15 shadow-sm' : 'group-hover:bg-white/5' }}">
                                     <i data-lucide="layers"
                                         class="w-[19px] h-[19px] sm:w-5 sm:h-5 transition-transform group-active:scale-90 {{ $isPlatformActive ? 'stroke-[2.2]' : 'stroke-[1.75]' }}"></i>
                                 </div>
                                 <span
-                                    class="text-xs font-semibold tracking-tight mt-0.5 {{ $isPlatformActive ? 'text-[#007AFF] dark:text-[#0A84FF]' : '' }}">Platform</span>
+                                    class="text-xs font-semibold tracking-tight mt-0.5 {{ $isPlatformActive ? 'text-[#00C2FF]' : '' }}">Platform</span>
                                 @if ($isPlatformActive)
                                     <span
-                                        class="w-1 h-1 rounded-full bg-[#007AFF] dark:bg-[#0A84FF] mt-0.5 opacity-60"></span>
+                                        class="w-1 h-1 rounded-full bg-[#00C2FF] mt-0.5 opacity-60"></span>
                                 @else
                                     <span class="w-1 h-1 mt-0.5 opacity-0"></span>
                                 @endif
@@ -1127,17 +1046,17 @@
                         @endphp
                         <div class="col-span-1 flex flex-col items-center justify-center relative -mt-5 sm:-mt-6">
                             <a href="{{ route('solusi.show', 'kasir-warung') }}"
-                                class="w-12 h-12 sm:w-13 sm:h-13 rounded-[20px] sm:rounded-[22px] bg-gradient-to-tr from-[#007AFF] via-[#0A84FF] to-[#5856D6] text-white flex items-center justify-center shadow-[0_8px_20px_rgba(0,122,255,0.45)] dark:shadow-[0_8px_24px_rgba(10,132,255,0.55)] ring-4 ring-[#F5F5F7] dark:ring-[#121214] active:scale-90 active:shadow-inner transition-all duration-200 group"
+                                class="w-12 h-12 sm:w-13 sm:h-13 rounded-[20px] sm:rounded-[22px] bg-gradient-to-tr from-[#007AFF] via-[#0A84FF] to-[#5856D6] text-white flex items-center justify-center shadow-[0_8px_20px_rgba(0,122,255,0.45)] ring-4 ring-[#060913] active:scale-90 active:shadow-inner transition-all duration-200 group"
                                 title="Solusi Bisnis & POS Kasir">
                                 <i data-lucide="store"
                                     class="w-5 h-5 sm:w-5.5 sm:h-5.5 text-white transition-transform group-hover:scale-110 group-active:scale-90 stroke-[2.2]"></i>
                             </a>
                             <span
-                                class="text-xs font-bold tracking-tight mt-1.5 {{ $isSolusiActive ? 'text-[#007AFF] dark:text-[#0A84FF]' : 'text-[#1D1D1F] dark:text-[#F5F5F7]' }}">Solusi
+                                class="text-xs font-bold tracking-tight mt-1.5 {{ $isSolusiActive ? 'text-[#00C2FF]' : 'text-slate-300' }}">Solusi
                                 POS</span>
                             @if ($isSolusiActive)
                                 <span
-                                    class="w-1 h-1 rounded-full bg-[#007AFF] dark:bg-[#0A84FF] mt-0.5 opacity-60"></span>
+                                    class="w-1 h-1 rounded-full bg-[#00C2FF] mt-0.5 opacity-60"></span>
                             @else
                                 <span class="w-1 h-1 mt-0.5 opacity-0"></span>
                             @endif
@@ -1149,20 +1068,20 @@
                         @endphp
                         <div class="col-span-1 flex flex-col items-center justify-center">
                             <a href="{{ route('template.index') }}"
-                                class="w-full flex flex-col items-center justify-center py-1 px-1 rounded-[20px] transition-all duration-200 active:scale-95 group relative {{ $isTemplateActive ? 'text-[#34C759] dark:text-[#30D158]' : 'text-[#8E8E93] dark:text-[#98989D] hover:text-[#1D1D1F] dark:hover:text-[#F5F5F7]' }}">
+                                class="w-full flex flex-col items-center justify-center py-1 px-1 rounded-[20px] transition-all duration-200 active:scale-95 group relative {{ $isTemplateActive ? 'text-[#34C759]' : 'text-slate-400 hover:text-white' }}">
                                 <div
-                                    class="relative w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center transition-all duration-200 {{ $isTemplateActive ? 'bg-[#34C759]/10 dark:bg-[#30D158]/20 shadow-sm' : 'group-hover:bg-black/5 dark:group-hover:bg-white/5' }}">
+                                    class="relative w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center transition-all duration-200 {{ $isTemplateActive ? 'bg-[#34C759]/15 shadow-sm' : 'group-hover:bg-white/5' }}">
                                     <i data-lucide="file-spreadsheet"
                                         class="w-[19px] h-[19px] sm:w-5 sm:h-5 transition-transform group-active:scale-90 {{ $isTemplateActive ? 'stroke-[2.2]' : 'stroke-[1.75]' }}"></i>
                                     <!-- Micro emerald indicator -->
                                     <span
-                                        class="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-[#34C759] dark:bg-[#30D158] border border-white dark:border-[#1C1C1E]"></span>
+                                        class="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-[#34C759] border border-[#060913]"></span>
                                 </div>
                                 <span
-                                    class="text-xs font-semibold tracking-tight mt-0.5 {{ $isTemplateActive ? 'text-[#34C759] dark:text-[#30D158]' : '' }}">Template</span>
+                                    class="text-xs font-semibold tracking-tight mt-0.5 {{ $isTemplateActive ? 'text-[#34C759]' : '' }}">Template</span>
                                 @if ($isTemplateActive)
                                     <span
-                                        class="w-1 h-1 rounded-full bg-[#34C759] dark:bg-[#30D158] mt-0.5 opacity-60"></span>
+                                        class="w-1 h-1 rounded-full bg-[#34C759] mt-0.5 opacity-60"></span>
                                 @else
                                     <span class="w-1 h-1 mt-0.5 opacity-0"></span>
                                 @endif
@@ -1189,17 +1108,17 @@
                         @endphp
                         <div class="col-span-1 flex flex-col items-center justify-center">
                             <a href="{{ $targetRoute }}"
-                                class="w-full flex flex-col items-center justify-center py-1 px-1 rounded-[20px] transition-all duration-200 active:scale-95 group relative {{ $isAccountActive ? 'text-[#007AFF] dark:text-[#0A84FF]' : 'text-[#8E8E93] dark:text-[#98989D] hover:text-[#1D1D1F] dark:hover:text-[#F5F5F7]' }}">
+                                class="w-full flex flex-col items-center justify-center py-1 px-1 rounded-[20px] transition-all duration-200 active:scale-95 group relative {{ $isAccountActive ? 'text-[#00C2FF]' : 'text-slate-400 hover:text-white' }}">
                                 <div
-                                    class="w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center transition-all duration-200 {{ $isAccountActive ? 'bg-[#007AFF]/10 dark:bg-[#0A84FF]/20 shadow-sm' : 'group-hover:bg-black/5 dark:group-hover:bg-white/5' }}">
+                                    class="w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center transition-all duration-200 {{ $isAccountActive ? 'bg-[#00C2FF]/15 shadow-sm' : 'group-hover:bg-white/5' }}">
                                     <i data-lucide="{{ $tabIcon }}"
                                         class="w-[19px] h-[19px] sm:w-5 sm:h-5 transition-transform group-active:scale-90 {{ $isAccountActive ? 'stroke-[2.2]' : 'stroke-[1.75]' }}"></i>
                                 </div>
                                 <span
-                                    class="text-xs font-semibold tracking-tight mt-0.5 {{ $isAccountActive ? 'text-[#007AFF] dark:text-[#0A84FF]' : '' }}">{{ $tabLabel }}</span>
+                                    class="text-xs font-semibold tracking-tight mt-0.5 {{ $isAccountActive ? 'text-[#00C2FF]' : '' }}">{{ $tabLabel }}</span>
                                 @if ($isAccountActive)
                                     <span
-                                        class="w-1 h-1 rounded-full bg-[#007AFF] dark:bg-[#0A84FF] mt-0.5 opacity-60"></span>
+                                        class="w-1 h-1 rounded-full bg-[#00C2FF] mt-0.5 opacity-60"></span>
                                 @else
                                     <span class="w-1 h-1 mt-0.5 opacity-0"></span>
                                 @endif

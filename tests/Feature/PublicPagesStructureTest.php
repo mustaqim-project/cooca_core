@@ -32,6 +32,16 @@ final class PublicPagesStructureTest extends TestCase
         $response->assertDontSee('Kalkulator HPP');
         $response->assertDontSee('Kalkulator BEP');
         $response->assertDontSee('Daftar Kalkulator');
+
+        // Verify Anti-Slop & Zero-Emoji: No music note emoji, no dots acting as logos
+        $response->assertDontSee('♪');
+        $response->assertDontSee('w-5 h-5 rounded-full bg-pink-500 inline-block');
+
+        // Verify authentic vector SVG signatures exist
+        $response->assertSee('ig-grad-conv', false); // Instagram vector gradient
+        $response->assertSee('badge-dollar-sign', false); // Finance badge icon
+        $response->assertSee('M19.59 6.69a4.83', false); // Official TikTok vector
+        $response->assertSee('M24 12.073c0-6.627', false); // Official Facebook vector
     }
 
     public function test_business_operating_system_subpages(): void
