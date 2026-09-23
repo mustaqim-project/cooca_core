@@ -31,8 +31,8 @@
     if ($search !== '') $activeFilterCount++;
 
     $sortOptions = [
-        'terbaru'      => ['label' => 'Terbaru', 'icon' => 'sparkles'],
-        'terpopuler'   => ['label' => 'Terpopuler', 'icon' => 'flame'],
+        'terbaru'      => ['label' => 'Terbaru', 'icon' => 'clock'],
+        'terpopuler'   => ['label' => 'Terpopuler', 'icon' => 'trending-up'],
         'harga_rendah' => ['label' => 'Termurah', 'icon' => 'arrow-down-narrow-wide'],
         'harga_tinggi' => ['label' => 'Termahal', 'icon' => 'arrow-up-wide-narrow'],
         'nama'         => ['label' => 'Nama A-Z', 'icon' => 'arrow-down-a-z'],

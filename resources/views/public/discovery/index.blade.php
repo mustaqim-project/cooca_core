@@ -1,73 +1,139 @@
 @extends('layouts.public_marketing')
 
 @section('title', 'Jelajah Toko & Direktori Bisnis UMKM Indonesia | Cooca')
-@section('description', 'Temukan ribuan toko online, kafe, restoran, butik, katering, dan layanan UMKM terpercaya di
-    Indonesia. Belanja langsung tanpa perantara, pesan antar, atau reservasi meja online.')
-@section('keywords', 'direktori umkm, jelajah toko online, toko lokal terdekat, belanja langsung umkm, pesan antar
-    makanan lokal, reservasi resto kafe')
+@section('description', 'Temukan ribuan toko online, kafe, restoran, butik, katering, dan layanan UMKM terpercaya di Indonesia. Belanja langsung tanpa perantara, pesan antar, atau reservasi meja online.')
+@section('keywords', 'direktori umkm, jelajah toko online, toko lokal terdekat, belanja langsung umkm, pesan antar makanan lokal, reservasi resto kafe')
 
 @section('content')
-    <div class="pt-8 sm:pt-12 pb-24">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+    <div class="pt-6 sm:pt-10 pb-24 bg-[#F5F5F7] dark:bg-[#000000] min-h-screen">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12 sm:space-y-16">
 
-            <!-- ═══ HERO & SEARCH SECTION ═══ -->
-            <div class="text-center max-w-3xl mx-auto space-y-4">
-                <div
-                    class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#6E6E73] dark:text-[#86868B] inline-flex items-center gap-1.5">
-                    <i data-lucide="compass" class="w-4 h-4"></i>
-                    <span>Direktori Terverifikasi Cooca</span>
-                </div>
-                <h1
-                    class="text-3xl sm:text-5xl font-extrabold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight leading-tight">
-                    Jelajah <span class="text-[#007AFF] dark:text-[#0A84FF]">Toko &amp; Etalase</span> Lokal
-                </h1>
-                <p class="text-sm sm:text-base text-[#6E6E73] dark:text-[#86868B] max-w-2xl mx-auto leading-relaxed">
-                    Temukan produk lokal berkualitas, kuliner lezat, busana kreatif, dan layanan profesional langsung dari
-                    pemilik usaha tanpa perantara.
-                </p>
-
-                <!-- Search Form -->
-                <form method="GET" action="{{ route('public.discovery.index') }}" class="pt-2 max-w-2xl mx-auto">
-                    @if ($category)
-                        <input type="hidden" name="kategori" value="{{ $category }}">
-                    @endif
-                    @if ($capability)
-                        <input type="hidden" name="fitur" value="{{ $capability }}">
-                    @endif
-                    <div
-                        class="relative flex items-center bg-white dark:bg-[#1C1C1E] rounded-[16px] shadow-lg border border-black/10 dark:border-white/15 p-1.5 focus-within:ring-2 focus-within:ring-[#007AFF] transition">
-                        <i data-lucide="search" class="w-5 h-5 ml-3.5 text-black/40 dark:text-white/40 shrink-0"></i>
-                        <input type="text" name="q" value="{{ $search }}"
-                            placeholder="Cari nama toko, menu makanan, busana, atau kota..."
-                            class="w-full bg-transparent border-0 px-3 py-2 text-[16px] sm:text-sm text-black dark:text-white placeholder:text-black/40 dark:placeholder:text-white/40 focus:outline-none">
-                        <button type="submit"
-                            class="shrink-0 px-5 py-2.5 rounded-[12px] bg-[#007AFF] hover:bg-[#0066CC] text-white text-xs font-semibold shadow-md active:scale-95 transition">
-                            Cari Toko
-                        </button>
+            <!-- 2-Grid Hero Section -->
+            <section class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center pt-4">
+                <!-- Left: Headline, Search & Filters (7 cols) -->
+                <div class="lg:col-span-7 space-y-6">
+                    <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.08] dark:border-white/[0.1] text-xs font-semibold text-[#007AFF] dark:text-[#0A84FF]">
+                        <i data-lucide="compass" class="w-4 h-4"></i>
+                        <span>Direktori UMKM Terverifikasi COOCA</span>
                     </div>
-                </form>
-            </div>
 
-            <!-- ═══ CATEGORY & CAPABILITY FILTERS ═══ -->
-            <div class="space-y-4">
-                <!-- Category Pills -->
-                <div class="flex items-center justify-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+                    <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight leading-[1.15]">
+                        Jelajah Profil &amp; Toko Resmi UMKM Lokal.
+                    </h1>
+
+                    <p class="text-base sm:text-lg text-[#6E6E73] dark:text-[#86868B] leading-relaxed max-w-xl">
+                        Temukan toko fisik, kafe, penyedia jasa servis, dan produsen kreatif di sekitar Anda. Transaksi langsung ke pemilik usaha tanpa biaya perantara tambahan.
+                    </p>
+
+                    <!-- Search Form -->
+                    <form method="GET" action="{{ route('public.discovery.index') }}" class="pt-1">
+                        @if ($category)
+                            <input type="hidden" name="kategori" value="{{ $category }}">
+                        @endif
+                        @if ($capability)
+                            <input type="hidden" name="fitur" value="{{ $capability }}">
+                        @endif
+                        <div class="relative flex items-center bg-white dark:bg-[#1C1C1E] rounded-[16px] border border-black/[0.1] dark:border-white/[0.12] p-1.5 shadow-sm focus-within:ring-2 focus-within:ring-[#007AFF] transition">
+                            <i data-lucide="search" class="w-5 h-5 ml-3.5 text-[#6E6E73] dark:text-[#86868B] shrink-0"></i>
+                            <input type="text" name="q" value="{{ $search }}"
+                                placeholder="Cari nama toko, jenis usaha, atau kota..."
+                                class="w-full bg-transparent border-0 px-3.5 py-3 text-[16px] text-[#1D1D1F] dark:text-[#F5F5F7] placeholder-[#6E6E73]/50 focus:outline-none">
+                            <button type="submit"
+                                class="shrink-0 h-11 px-6 rounded-[12px] bg-[#007AFF] hover:bg-[#0071E3] text-white text-sm font-semibold shadow-sm active:scale-[0.98] transition">
+                                Cari
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Quick Reassurance badges -->
+                    <div class="flex flex-wrap items-center gap-3 text-xs text-[#6E6E73] dark:text-[#86868B] pt-1">
+                        <span class="flex items-center gap-1.5">
+                            <i data-lucide="check-circle-2" class="w-4 h-4 text-[#34C759]"></i>
+                            <span>{{ $totalStores }} Toko Terdaftar</span>
+                        </span>
+                        <span>•</span>
+                        <span class="flex items-center gap-1.5">
+                            <i data-lucide="shield-check" class="w-4 h-4 text-[#007AFF]"></i>
+                            <span>Identitas Pemilik Diverifikasi</span>
+                        </span>
+                        <span>•</span>
+                        <span class="flex items-center gap-1.5">
+                            <i data-lucide="phone" class="w-4 h-4 text-[#FF9500]"></i>
+                            <span>Chat Langsung via WhatsApp</span>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Right: Directory Ecosystem Preview (5 cols) -->
+                <div class="lg:col-span-5">
+                    <div class="rounded-[22px] bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] p-6 shadow-sm space-y-4">
+                        <div class="flex items-center justify-between border-b border-black/[0.06] dark:border-white/[0.08] pb-3">
+                            <div class="flex items-center gap-2">
+                                <span class="w-3 h-3 rounded-full bg-[#FF5F56]"></span>
+                                <span class="w-3 h-3 rounded-full bg-[#FFBD2E]"></span>
+                                <span class="w-3 h-3 rounded-full bg-[#27C93F]"></span>
+                                <span class="text-xs font-mono font-semibold text-[#6E6E73] dark:text-[#86868B] ml-2">Direktori Bisnis Aktif</span>
+                            </div>
+                            <span class="text-[11px] font-semibold text-[#34C759] bg-[#34C759]/10 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                                <span class="w-1.5 h-1.5 rounded-full bg-[#34C759]"></span> Realtime
+                            </span>
+                        </div>
+
+                        <!-- Mini Store Directory Spotlight -->
+                        <div class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.06] dark:border-white/[0.08] space-y-3">
+                            <div class="flex items-center justify-between">
+                                <div class="text-xs font-bold text-[#007AFF] uppercase tracking-wider">Layanan Tersedia</div>
+                                <span class="text-[11px] text-[#6E6E73] dark:text-[#86868B]">Seluruh Indonesia</span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2 text-xs">
+                                <div class="p-2.5 rounded-[10px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] flex items-center gap-2 font-medium">
+                                    <i data-lucide="store" class="w-3.5 h-3.5 text-[#007AFF]"></i>
+                                    <span>Ambil di Toko</span>
+                                </div>
+                                <div class="p-2.5 rounded-[10px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] flex items-center gap-2 font-medium">
+                                    <i data-lucide="bike" class="w-3.5 h-3.5 text-[#34C759]"></i>
+                                    <span>Kurir Lokal</span>
+                                </div>
+                                <div class="p-2.5 rounded-[10px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] flex items-center gap-2 font-medium">
+                                    <i data-lucide="calendar-check" class="w-3.5 h-3.5 text-[#5856D6]"></i>
+                                    <span>Reservasi Meja</span>
+                                </div>
+                                <div class="p-2.5 rounded-[10px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] flex items-center gap-2 font-medium">
+                                    <i data-lucide="truck" class="w-3.5 h-3.5 text-[#FF9500]"></i>
+                                    <span>Pesanan PO</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Verification Footer -->
+                        <div class="p-3 rounded-[12px] bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF] text-xs font-semibold flex items-center justify-between">
+                            <span>Status Toko: Terdaftar Resmi</span>
+                            <span class="font-mono">Bebas Biaya Perantara</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Filters Section -->
+            <section class="space-y-4 pt-2">
+                <!-- Category Filters -->
+                <div class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
                     <a href="{{ route('public.discovery.index', array_filter(['q' => $search, 'fitur' => $capability])) }}"
-                        class="px-4 py-2 rounded-[10px] text-xs font-semibold whitespace-nowrap transition {{ empty($category) || $category === 'all' ? 'bg-[#1D1D1F] dark:bg-white text-white dark:text-black shadow-sm' : 'bg-black/5 dark:bg-white/5 text-black/60 dark:text-white/60 hover:bg-black/10 dark:hover:bg-white/10' }}">
-                        Semua Toko ({{ $totalStores }})
+                        class="h-10 px-4 rounded-[12px] text-xs sm:text-sm font-semibold whitespace-nowrap transition flex items-center gap-1.5 {{ empty($category) || $category === 'all' ? 'bg-[#1D1D1F] dark:bg-[#F5F5F7] text-white dark:text-black shadow-sm' : 'bg-white dark:bg-[#1C1C1E] text-[#1D1D1F] dark:text-[#F5F5F7] border border-black/[0.08] dark:border-white/[0.1] hover:border-[#007AFF]/30' }}">
+                        Semua Kategori ({{ $totalStores }})
                     </a>
                     @foreach ($categories as $key => $cat)
                         <a href="{{ route('public.discovery.index', array_filter(['kategori' => $key, 'q' => $search, 'fitur' => $capability])) }}"
-                            class="px-4 py-2 rounded-[10px] text-xs font-semibold whitespace-nowrap transition flex items-center gap-1.5 {{ $category === $key ? 'bg-[#007AFF] text-white shadow-sm' : 'bg-black/5 dark:bg-white/5 text-black/60 dark:text-white/60 hover:bg-black/10 dark:hover:bg-white/10' }}">
-                            <i data-lucide="{{ $cat['icon'] }}" class="w-3.5 h-3.5"></i>
+                            class="h-10 px-4 rounded-[12px] text-xs sm:text-sm font-semibold whitespace-nowrap transition flex items-center gap-1.5 {{ $category === $key ? 'bg-[#007AFF] text-white shadow-sm' : 'bg-white dark:bg-[#1C1C1E] text-[#1D1D1F] dark:text-[#F5F5F7] border border-black/[0.08] dark:border-white/[0.1] hover:border-[#007AFF]/30' }}">
+                            <i data-lucide="{{ $cat['icon'] }}" class="w-4 h-4"></i>
                             <span>{{ $cat['label'] }} ({{ $cat['count'] }})</span>
                         </a>
                     @endforeach
                 </div>
 
-                <!-- Capability Quick Toggles -->
-                <div class="flex items-center justify-center gap-1.5 overflow-x-auto text-[11px] pb-1 scrollbar-none">
-                    <span class="text-black/40 dark:text-white/40 font-medium mr-1 shrink-0">Layanan:</span>
+                <!-- Service Capabilities Filter -->
+                <div class="flex items-center gap-2 overflow-x-auto text-xs pb-1 scrollbar-none">
+                    <span class="text-[#6E6E73] dark:text-[#86868B] font-semibold mr-1 shrink-0">Opsi Layanan:</span>
                     @php
                         $capabilities = [
                             'pickup' => ['label' => 'Ambil Sendiri', 'icon' => 'store'],
@@ -80,31 +146,28 @@
                     @endphp
                     @foreach ($capabilities as $capKey => $cap)
                         <a href="{{ route('public.discovery.index', array_filter(['fitur' => $capability === $capKey ? null : $capKey, 'kategori' => $category, 'q' => $search])) }}"
-                            class="px-2.5 py-1 rounded-[10px] border transition flex items-center gap-1 whitespace-nowrap {{ $capability === $capKey ? 'bg-[#34C759]/15 border-[#34C759] text-[#248A3D] dark:text-[#30D158] font-bold' : 'border-black/10 dark:border-white/10 text-black/60 dark:text-white/60 hover:border-black/20' }}">
-                            <i data-lucide="{{ $cap['icon'] }}" class="w-3 h-3"></i>
+                            class="h-8 px-3 rounded-[10px] border transition flex items-center gap-1.5 whitespace-nowrap {{ $capability === $capKey ? 'bg-[#34C759]/15 border-[#34C759] text-[#248A3D] dark:text-[#30D158] font-bold' : 'border-black/[0.08] dark:border-white/[0.1] bg-white dark:bg-[#1C1C1E] text-[#6E6E73] dark:text-[#86868B] hover:text-[#1D1D1F]' }}">
+                            <i data-lucide="{{ $cap['icon'] }}" class="w-3.5 h-3.5"></i>
                             <span>{{ $cap['label'] }}</span>
                         </a>
                     @endforeach
                 </div>
-            </div>
+            </section>
 
-            <!-- ═══ BENTO DIRECTORY GRID ═══ -->
+            <!-- Store Cards Grid -->
             @if ($businesses->isEmpty())
-                <div
-                    class="bg-white dark:bg-[#1C1C1E] rounded-[28px] border border-black/5 dark:border-white/10 p-12 text-center max-w-lg mx-auto space-y-4 shadow-sm">
-                    <div
-                        class="w-14 h-14 rounded-full bg-black/5 dark:bg-white/5 flex items-center justify-center mx-auto text-black/30 dark:text-white/30">
-                        <i data-lucide="store-off" class="w-7 h-7"></i>
+                <div class="bg-white dark:bg-[#1C1C1E] rounded-[24px] border border-black/[0.08] dark:border-white/[0.1] p-12 text-center max-w-lg mx-auto space-y-4 shadow-sm">
+                    <div class="w-14 h-14 rounded-full bg-black/[0.04] dark:bg-white/[0.06] flex items-center justify-center mx-auto text-[#6E6E73] dark:text-[#86868B]">
+                        <i data-lucide="store" class="w-7 h-7"></i>
                     </div>
-                    <h3 class="text-base font-bold text-black dark:text-white">Toko Tidak Ditemukan</h3>
-                    <p class="text-xs text-black/50 dark:text-white/50 leading-relaxed">
-                        Tidak ada toko yang sesuai dengan pencarian "{{ $search }}". Silakan coba kata kunci lain
-                        atau hapus filter kategori.
+                    <h3 class="text-lg font-bold text-[#1D1D1F] dark:text-[#F5F5F7]">Toko Belum Ditemukan</h3>
+                    <p class="text-sm text-[#6E6E73] dark:text-[#86868B] leading-relaxed">
+                        Tidak ada toko yang sesuai dengan pencarian "{{ $search }}". Silakan gunakan kata kunci lain atau hapus filter kategori.
                     </p>
                     <div class="pt-2">
                         <a href="{{ route('public.discovery.index') }}"
-                            class="inline-flex items-center gap-1.5 px-4 py-2 rounded-[12px] bg-[#007AFF] text-white text-xs font-semibold hover:bg-[#0066CC] transition">
-                            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+                            class="h-11 px-5 rounded-[12px] bg-[#007AFF] hover:bg-[#0071E3] text-white text-xs font-semibold inline-flex items-center gap-2 shadow-sm transition">
+                            <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
                             <span>Reset Semua Filter</span>
                         </a>
                     </div>
@@ -118,35 +181,30 @@
                             $primaryLoc = $store->locations->first();
                             $storeUrl = url('/' . $store->slug);
                         @endphp
-                        <div
-                            class="bg-white dark:bg-[#1C1C1E] rounded-[24px] border border-black/5 dark:border-white/10 p-6 flex flex-col justify-between hover:shadow-xl hover:border-[#007AFF]/30 transition-all duration-300 group">
+                        <div class="bg-white dark:bg-[#1C1C1E] rounded-[22px] border border-black/[0.08] dark:border-white/[0.1] p-6 flex flex-col justify-between hover:border-[#007AFF]/30 transition shadow-sm group">
                             <div class="space-y-4">
                                 <!-- Store Header & Avatar -->
                                 <div class="flex items-start gap-3.5">
                                     @if ($store->logo_path)
                                         <img src="{{ Storage::url($store->logo_path) }}" alt="{{ $store->name }}"
-                                            class="w-13 h-13 rounded-[16px] object-cover border border-black/10 dark:border-white/10 shadow-sm shrink-0">
+                                            class="w-13 h-13 rounded-[14px] object-cover border border-black/[0.06] dark:border-white/[0.08] shrink-0">
                                     @else
-                                        <div
-                                            class="w-13 h-13 rounded-[16px] bg-gradient-to-br from-[#007AFF]/15 to-[#5856D6]/15 dark:from-[#007AFF]/25 dark:to-[#5856D6]/25 text-[#007AFF] dark:text-[#0A84FF] font-black text-lg flex items-center justify-center shrink-0 border border-black/5 dark:border-white/10">
+                                        <div class="w-13 h-13 rounded-[14px] bg-[#007AFF] text-white font-extrabold text-base flex items-center justify-center shrink-0">
                                             {{ Str::upper(substr($store->name, 0, 2)) }}
                                         </div>
                                     @endif
 
                                     <div class="min-w-0 flex-1">
                                         <div class="flex items-center gap-1.5">
-                                            <h2
-                                                class="font-bold text-base text-[#1D1D1F] dark:text-[#F5F5F7] truncate group-hover:text-[#007AFF] transition">
+                                            <h2 class="font-bold text-base text-[#1D1D1F] dark:text-[#F5F5F7] truncate group-hover:text-[#007AFF] transition">
                                                 {{ $store->name }}
                                             </h2>
-                                            <i data-lucide="badge-check" class="w-4 h-4 text-[#007AFF] shrink-0"
-                                                title="Toko Terverifikasi"></i>
+                                            <i data-lucide="badge-check" class="w-4 h-4 text-[#007AFF] shrink-0" title="Toko Terverifikasi"></i>
                                         </div>
 
-                                        <div
-                                            class="flex items-center gap-2 text-xs text-black/50 dark:text-white/50 mt-0.5">
+                                        <div class="flex items-center gap-2 text-xs text-[#6E6E73] dark:text-[#86868B] mt-0.5">
                                             @if ($store->industry_category || $store->template_code)
-                                                <span class="font-medium text-[#007AFF] dark:text-[#0A84FF] capitalize">
+                                                <span class="font-semibold text-[#007AFF] dark:text-[#0A84FF] capitalize">
                                                     {{ str_replace('_', ' ', $store->template_code ?: $store->industry_category) }}
                                                 </span>
                                                 <span>•</span>
@@ -159,67 +217,59 @@
                                 </div>
 
                                 <!-- Description / Headline -->
-                                <p class="text-xs text-black/60 dark:text-white/60 line-clamp-2 leading-relaxed">
+                                <p class="text-sm text-[#6E6E73] dark:text-[#86868B] line-clamp-2 leading-relaxed">
                                     {{ $landing?->headline ?: ($store->description ?: 'Melayani pemesanan langsung online, siap kirim atau ambil di toko dengan pelayanan ramah.') }}
                                 </p>
 
                                 <!-- Capabilities Badges -->
-                                <div class="flex flex-wrap items-center gap-1.5 pt-1">
+                                <div class="flex flex-wrap items-center gap-2 pt-1 text-xs">
                                     @if ($setting?->allow_delivery)
-                                        <span
-                                            class="inline-flex items-center gap-1 text-xs font-semibold text-[#248A3D] dark:text-[#30D158]">
-                                            <i data-lucide="bike" class="w-2.5 h-2.5"></i>
+                                        <span class="inline-flex items-center gap-1 font-semibold text-[#248A3D] dark:text-[#30D158]">
+                                            <i data-lucide="bike" class="w-3 h-3"></i>
                                             <span>Kurir Toko</span>
                                         </span>
                                     @endif
                                     @if ($setting?->allow_pickup)
-                                        <span
-                                            class="inline-flex items-center gap-1 text-xs font-semibold text-black/60 dark:text-white/60">
-                                            <i data-lucide="store" class="w-2.5 h-2.5"></i>
-                                            <span>Ambil di Toko</span>
+                                        <span class="inline-flex items-center gap-1 font-semibold text-[#6E6E73] dark:text-[#86868B]">
+                                            <i data-lucide="store" class="w-3 h-3"></i>
+                                            <span>Ambil Sendiri</span>
                                         </span>
                                     @endif
                                     @if ($setting?->allow_scheduled_order)
-                                        <span
-                                            class="inline-flex items-center gap-1 text-xs font-semibold text-[#007AFF] dark:text-[#0A84FF]">
-                                            <i data-lucide="calendar-clock" class="w-2.5 h-2.5"></i>
+                                        <span class="inline-flex items-center gap-1 font-semibold text-[#007AFF] dark:text-[#0A84FF]">
+                                            <i data-lucide="calendar-clock" class="w-3 h-3"></i>
                                             <span>Pre-Order</span>
                                         </span>
                                     @endif
                                     @if ($setting?->allow_request_order)
-                                        <span
-                                            class="inline-flex items-center gap-1 text-xs font-semibold text-amber-600 dark:text-amber-400">
-                                            <i data-lucide="file-question" class="w-2.5 h-2.5"></i>
+                                        <span class="inline-flex items-center gap-1 font-semibold text-[#FF9500]">
+                                            <i data-lucide="file-question" class="w-3 h-3"></i>
                                             <span>Custom Order</span>
                                         </span>
                                     @endif
                                     @if ($setting?->allow_reservation)
-                                        <span
-                                            class="inline-flex items-center gap-1 text-xs font-semibold text-[#5856D6]">
-                                            <i data-lucide="calendar-check" class="w-2.5 h-2.5"></i>
-                                            <span>Reservasi Meja</span>
+                                        <span class="inline-flex items-center gap-1 font-semibold text-[#5856D6]">
+                                            <i data-lucide="calendar-check" class="w-3 h-3"></i>
+                                            <span>Reservasi</span>
                                         </span>
                                     @endif
                                     @if ($setting?->allow_customer_po)
-                                        <span
-                                            class="inline-flex items-center gap-1 text-xs font-semibold text-purple-600">
-                                            <i data-lucide="truck" class="w-2.5 h-2.5"></i>
-                                            <span>PO Batch B2B</span>
+                                        <span class="inline-flex items-center gap-1 font-semibold text-[#AF52DE]">
+                                            <i data-lucide="truck" class="w-3 h-3"></i>
+                                            <span>PO B2B</span>
                                         </span>
                                     @endif
                                 </div>
                             </div>
 
                             <!-- Card Footer: Stats & CTA -->
-                            <div
-                                class="pt-5 mt-5 border-t border-black/5 dark:border-white/10 flex items-center justify-between gap-3">
-                                <div class="text-xs text-black/50 dark:text-white/50">
-                                    <span class="font-bold text-black dark:text-white">{{ $store->products_count }}</span>
-                                    Produk Aktif
+                            <div class="pt-5 mt-5 border-t border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between gap-3">
+                                <div class="text-xs text-[#6E6E73] dark:text-[#86868B]">
+                                    <span class="font-bold text-[#1D1D1F] dark:text-[#F5F5F7]">{{ $store->products_count }}</span> Produk Aktif
                                 </div>
 
                                 <a href="{{ $storeUrl }}"
-                                    class="inline-flex items-center gap-1.5 px-4 py-2 rounded-[12px] bg-[#007AFF] group-hover:bg-[#0066CC] text-white text-xs font-semibold shadow-sm transition active:scale-95">
+                                    class="h-10 px-4 rounded-[12px] bg-[#007AFF] hover:bg-[#0071E3] text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm transition active:scale-95">
                                     <span>Kunjungi Toko</span>
                                     <i data-lucide="arrow-up-right" class="w-3.5 h-3.5"></i>
                                 </a>
@@ -234,24 +284,28 @@
                 </div>
             @endif
 
-            <!-- ═══ CALL TO ACTION FOR MERCHANTS ═══ -->
-            <div
-                class="mt-16 bg-gradient-to-r from-[#007AFF]/10 via-[#5856D6]/10 to-[#34C759]/10 rounded-[28px] border border-black/5 dark:border-white/10 p-8 sm:p-10 flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
-                <div class="space-y-2 max-w-xl">
-                    <h3 class="text-xl sm:text-2xl font-extrabold text-black dark:text-white">
-                        Punya Usaha dan Ingin Muncul di Sini?
+            <!-- Call to action for merchants (Apple Inset Enterprise Banner) -->
+            <section class="p-8 sm:p-12 rounded-[24px] bg-[#161618] border border-white/[0.08] text-white flex flex-col md:flex-row items-center justify-between gap-8 shadow-sm">
+                <div class="space-y-2.5 max-w-xl text-center md:text-left">
+                    <div class="text-xs font-semibold uppercase tracking-wider text-[#86868B] inline-flex items-center gap-1.5">
+                        <i data-lucide="store" class="w-4 h-4 text-[#34C759]"></i>
+                        <span>Pendaftaran Toko Baru</span>
+                    </div>
+                    <h3 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+                        Punya Usaha dan Ingin Tampil di Direktori Ini?
                     </h3>
-                    <p class="text-xs sm:text-sm text-black/60 dark:text-white/60 leading-relaxed">
-                        Buka etalase toko online gratis selamanya di Cooca. Kelola katalog produk, terima pesanan antar, dan
-                        terima pembayaran manual transfer & QRIS tanpa potongan biaya.
+                    <p class="text-sm text-[#86868B] leading-relaxed">
+                        Buka etalase toko online gratis selamanya di COOCA. Kelola katalog produk, terima pesanan antar, dan terima pembayaran langsung tanpa potongan biaya per transaksi.
                     </p>
                 </div>
                 <a href="{{ route('register') }}"
-                    class="px-6 py-3 rounded-[14px] bg-[#007AFF] hover:bg-[#0066CC] text-white text-xs sm:text-sm font-semibold shadow-lg shrink-0 transition active:scale-95">
-                    Buka Toko Gratis Sekarang
+                    class="h-12 px-8 rounded-[14px] bg-[#007AFF] hover:bg-[#0071E3] text-white text-sm font-semibold shadow-sm shrink-0 transition active:scale-95 flex items-center gap-2">
+                    <span>Buka Toko Gratis Sekarang</span>
+                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
                 </a>
-            </div>
+            </section>
 
         </div>
     </div>
 @endsection
+

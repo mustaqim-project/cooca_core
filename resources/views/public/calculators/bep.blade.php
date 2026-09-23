@@ -23,23 +23,72 @@
                 <span class="text-[#34C759] dark:text-[#30D158] font-semibold">Kalkulator BEP</span>
             </nav>
 
-            <!-- Header -->
-            <div class="text-center max-w-2xl mx-auto space-y-3">
-                <div
-                    class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#6E6E73] dark:text-[#86868B] inline-flex items-center gap-1.5">
-                    <i data-lucide="scale" class="w-3.5 h-3.5"></i>
-                    <span>Titik Impas Bebas Rugi</span>
+        <!-- ═══ HERO SECTION (Mandatory 2-Grid Layout) ═══ -->
+        <section class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+            
+            <!-- KIRI: Headline & Penjelasan (7 Cols) -->
+            <div class="lg:col-span-7 space-y-5 text-left">
+                <div class="space-y-2">
+                    <p class="text-xs sm:text-[13px] font-bold uppercase tracking-wider text-[#34C759] dark:text-[#30D158]">
+                        Titik Impas Bebas Rugi
+                    </p>
+                    <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight leading-[1.15]">
+                        Kalkulator BEP <span class="text-[#34C759] dark:text-[#30D158]">(Break Even Point)</span>
+                    </h1>
                 </div>
-                <h1 class="text-3xl sm:text-4xl font-extrabold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight">Kalkulator
-                    BEP (Break Even Point)</h1>
-                <p class="text-xs sm:text-sm text-[#6E6E73] dark:text-[#86868B] max-w-xl mx-auto leading-relaxed">
-                    Ketahui batas minimal penjualan bulanan Anda. Penjualan di atas titik BEP adalah keuntungan bersih bagi
-                    bisnis Anda.
+
+                <p class="text-base sm:text-lg text-[#48484A] dark:text-[#AEAEB2] leading-relaxed max-w-xl font-normal">
+                    Ketahui batas minimal penjualan bulanan Anda. Penjualan di atas titik BEP adalah keuntungan murni bagi usaha, sedangkan di bawahnya adalah kerugian operasional.
                 </p>
+
+                <!-- Reassurance Points for UMKM 40-65 -->
+                <div class="pt-1 flex flex-wrap items-center gap-y-2 gap-x-5 text-xs text-[#6E6E73] dark:text-[#86868B]">
+                    <div class="flex items-center gap-1.5">
+                        <i data-lucide="check" class="w-4 h-4 text-[#34C759] dark:text-[#30D158]"></i>
+                        <span>Hitung Target Unit &amp; Rupiah</span>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <i data-lucide="check" class="w-4 h-4 text-[#34C759] dark:text-[#30D158]"></i>
+                        <span>Pisahkan Biaya Tetap &amp; Variabel</span>
+                    </div>
+                </div>
             </div>
 
-            <!-- Calculator Interactive App (2-Column Bento System) -->
-            <div class="glass-card p-6 sm:p-8 rounded-[28px]" x-data="{
+            <!-- KANAN: Visual Formula Preview Card (5 Cols) -->
+            <div class="lg:col-span-5">
+                <div class="bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] rounded-[24px] shadow-sm p-5 sm:p-6 space-y-4">
+                    <div class="flex items-center justify-between border-b border-black/[0.06] dark:border-white/[0.08] pb-3">
+                        <div class="flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-[#FF5F56] border border-black/10"></span>
+                            <span class="w-3 h-3 rounded-full bg-[#FFBD2E] border border-black/10"></span>
+                            <span class="w-3 h-3 rounded-full bg-[#27C93F] border border-black/10"></span>
+                        </div>
+                        <span class="text-xs font-semibold text-[#8E8E93] dark:text-[#98989D]">Logika Titik Impas</span>
+                        <div class="w-6"></div>
+                    </div>
+
+                    <div class="space-y-2.5 text-xs text-[#48484A] dark:text-[#AEAEB2]">
+                        <div class="flex items-center justify-between p-2.5 rounded-[12px] bg-[#F2F2F7] dark:bg-[#2C2C2E]">
+                            <span class="font-medium">Biaya Tetap (Sewa, Gaji)</span>
+                            <span class="font-mono font-bold text-[#FF3B30] dark:text-[#FF453A]">Fixed Cost</span>
+                        </div>
+                        <div class="flex items-center justify-between p-2.5 rounded-[12px] bg-[#F2F2F7] dark:bg-[#2C2C2E]">
+                            <span class="font-medium">Margin Kontribusi per Porsi</span>
+                            <span class="font-mono font-bold text-[#34C759] dark:text-[#30D158]">Harga - Biaya Variabel</span>
+                        </div>
+                    </div>
+
+                    <div class="pt-3 border-t border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between text-xs">
+                        <span class="text-[#6E6E73] dark:text-[#86868B]">Formula:</span>
+                        <span class="font-bold text-[#34C759] dark:text-[#30D158]">Biaya Tetap / Margin Kontribusi</span>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- ═══ CALCULATOR INTERACTIVE APP ═══ -->
+        <div class="bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] shadow-sm p-6 sm:p-8 rounded-[24px]" x-data="{
                 fixedCost: 4500000,
                 pricePerUnit: 25000,
                 varCostPerUnit: 13000,
