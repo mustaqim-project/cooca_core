@@ -38,7 +38,7 @@ class SubscriptionLifecycleAndNotificationTest extends TestCase
         $package = BillingPackage::create([
             'type' => BillingPackage::TYPE_SUBSCRIPTION,
             'code' => 'core_monthly',
-            'name' => 'Paket Cooca UMKM Pro',
+            'name' => 'Paket Cooca Pro',
             'price' => 149000,
             'duration_days' => 30,
             'is_active' => true,
@@ -89,7 +89,7 @@ class SubscriptionLifecycleAndNotificationTest extends TestCase
         $package = BillingPackage::create([
             'type' => BillingPackage::TYPE_SUBSCRIPTION,
             'code' => 'core_monthly',
-            'name' => 'Paket Cooca UMKM Pro',
+            'name' => 'Paket Cooca Pro',
             'price' => 149000,
             'duration_days' => 30,
             'is_active' => true,

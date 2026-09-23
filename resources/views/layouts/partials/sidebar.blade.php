@@ -2552,7 +2552,7 @@
                         <div class="flex items-center justify-between gap-1.5">
                             <div class="flex items-center gap-1.5 min-w-0">
                                 <span class="w-2 h-2 rounded-full bg-[#34C759] animate-pulse shrink-0"></span>
-                                <span class="text-[12px] font-semibold text-black dark:text-white truncate">Cooca UMKM</span>
+                                <span class="text-[12px] font-semibold text-black dark:text-white truncate">Cooca</span>
                             </div>
                             <span
                                 class="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-[#34C759]/15 text-[#34C759] dark:text-[#30D158] border border-[#34C759]/25 shrink-0">
@@ -2654,7 +2654,7 @@
                             </a>
                             <a href="{{ route('billing.limits') }}"
                                 class="block text-center text-[11px] text-black/55 dark:text-white/55 hover:text-[#007AFF] dark:hover:text-[#0A84FF] transition">
-                                Tingkatkan ke Cooca UMKM ›
+                                Tingkatkan ke Cooca ›
                             </a>
                         </div>
                     </div>

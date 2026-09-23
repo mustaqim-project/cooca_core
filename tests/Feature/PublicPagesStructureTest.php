@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 final class PublicPagesStructureTest extends TestCase
 {
+    use RefreshDatabase;
     public function test_landing_page_renders_successfully(): void
     {
         $response = $this->get(route('landing'));

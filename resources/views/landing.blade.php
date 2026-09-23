@@ -488,7 +488,7 @@
                                 <span class="text-[10px] font-semibold text-slate-700 dark:text-slate-300 mt-2">Analytics</span>
                             </div>
 
-                            <i data-lucide="chevron-left" class="w-4 h-4 text-slate-400"></i>
+                            <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
 
                             <!-- Node 8: Accounting -->
                             <div class="flex flex-col items-center text-center">
@@ -498,7 +498,7 @@
                                 <span class="text-[10px] font-semibold text-slate-700 dark:text-slate-300 mt-2">Accounting</span>
                             </div>
 
-                            <i data-lucide="chevron-left" class="w-4 h-4 text-slate-400"></i>
+                            <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
 
                             <!-- Node 9: Finance -->
                             <div class="flex flex-col items-center text-center">
@@ -508,7 +508,7 @@
                                 <span class="text-[10px] font-semibold text-slate-700 dark:text-slate-300 mt-2">Finance</span>
                             </div>
 
-                            <i data-lucide="chevron-left" class="w-4 h-4 text-slate-400"></i>
+                            <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
 
                             <!-- Node 10: Purchasing -->
                             <div class="flex flex-col items-center text-center">
@@ -518,7 +518,7 @@
                                 <span class="text-[10px] font-semibold text-slate-700 dark:text-slate-300 mt-2">Purchasing</span>
                             </div>
 
-                            <i data-lucide="chevron-left" class="w-4 h-4 text-slate-400"></i>
+                            <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
 
                             <!-- Node 11: Production -->
                             <div class="flex flex-col items-center text-center">

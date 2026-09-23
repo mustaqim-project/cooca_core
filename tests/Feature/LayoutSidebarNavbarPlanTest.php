@@ -295,7 +295,7 @@ class LayoutSidebarNavbarPlanTest extends TestCase
         $response->assertSee('/ 20');
         $response->assertSee('Invoice Bulan Ini:');
         $response->assertSee('/ 10');
-        $response->assertSee('Tingkatkan ke Cooca UMKM');
+        $response->assertSee('Tingkatkan ke Cooca');
     }
 
     public function test_navbar_renders_core_plan_when_subscribed(): void
@@ -308,7 +308,7 @@ class LayoutSidebarNavbarPlanTest extends TestCase
             ->get(route('dashboard'));
 
         $response->assertStatus(200);
-        $response->assertSee('Cooca UMKM');
+        $response->assertSee('Cooca');
         $response->assertSee('∞ Unlimited', false);
         $response->assertSee('Token AI (Top-up):');
     }
@@ -371,4 +371,3 @@ class LayoutSidebarNavbarPlanTest extends TestCase
         $response->assertSee('Pengaturan Ongkos Kirim', false);
     }
 }
-

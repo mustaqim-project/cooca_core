@@ -36,19 +36,19 @@
         $seoOgImageUrl =
             \App\Domain\Storage\AdminStorage::publicUrl($seoOgImageSetting) ?? asset('assets/image/cooca.png');
 
-        $siteAppName = \App\Models\SystemSetting::get('app_name', 'Cooca UMKM');
+        $siteAppName = \App\Models\SystemSetting::get('app_name', 'Cooca');
         $siteTagline = \App\Models\SystemSetting::get('site_tagline', 'Business Operating System & Omnichannel ERP');
         $seoMetaTitle = \App\Models\SystemSetting::get(
             'seo_meta_title',
-            'Cooca UMKM - Business Operating System & Omnichannel ERP',
+            'Cooca - Business Operating System & Omnichannel ERP',
         );
         $seoMetaDesc = \App\Models\SystemSetting::get(
             'seo_meta_description',
-            'Cooca UMKM: Software kasir POS, pembukuan otomatis, omnichannel media sosial & AI Assistant gratis selamanya untuk UMKM Indonesia.',
+            'Cooca: Software kasir POS, pembukuan otomatis, omnichannel media sosial & AI Assistant gratis selamanya untuk UMKM Indonesia.',
         );
         $seoKeywords = \App\Models\SystemSetting::get(
             'seo_meta_keywords',
-            'Cooca UMKM, software kasir gratis, erp umkm, pos kasir toko, aplikasi pembukuan gratis, sistem operasional bisnis, cooca.id',
+            'Cooca, software kasir gratis, erp umkm, pos kasir toko, aplikasi pembukuan gratis, sistem operasional bisnis, cooca.id',
         );
         $seoAuthor = \App\Models\SystemSetting::get('seo_author', 'Cooca Indonesia');
         $seoRobots = \App\Models\SystemSetting::get('seo_robots', 'index, follow');
@@ -311,33 +311,42 @@
         }
     }" x-init="lucide.createIcons()">
 
+    @php
+        $isLandingPage = request()->routeIs('landing') || request()->is('/');
+    @endphp
+
     <!-- ═══ APPLE FROSTED GLASS HEADER ═══ -->
     @if (!($hideHeader ?? false))
         <header
-            class="sticky top-0 z-50 backdrop-blur-2xl bg-white/80 dark:bg-[#1C1C1E]/80 border-b border-black/5 dark:border-white/10 transition-colors">
+            class="sticky top-0 z-50 backdrop-blur-2xl {{ $isLandingPage ? 'bg-[#060913]/95 text-white border-b border-white/10' : 'bg-white/80 dark:bg-[#1C1C1E]/80 border-b border-black/5 dark:border-white/10 text-black/70 dark:text-white/70' }} transition-colors">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-18 flex items-center justify-between">
 
                 <!-- Logo Cooca -->
                 <a href="{{ route('landing') }}" class="flex items-center gap-3 group shrink-0">
-                    @if(!empty($siteLogoLightSetting))
+                    @if(!empty($siteLogoDarkUrl))
+                        <img src="{{ $siteLogoDarkUrl }}" alt="{{ $siteAppName }}"
+                            class="h-7 sm:h-8 w-auto object-contain transition-transform group-hover:scale-105">
+                    @elseif(!empty($siteLogoLightUrl) && !$isLandingPage)
                         <img src="{{ $siteLogoLightUrl }}" alt="{{ $siteAppName }}"
                             class="h-7 sm:h-8 w-auto object-contain transition-transform group-hover:scale-105 dark:hidden">
-                        <img src="{{ $siteLogoDarkUrl }}" alt="{{ $siteAppName }}"
+                        <img src="{{ $siteLogoLightUrl }}" alt="{{ $siteAppName }}"
                             class="h-7 sm:h-8 w-auto object-contain transition-transform group-hover:scale-105 hidden dark:block">
                     @else
-                        <span class="font-black text-xl sm:text-2xl tracking-tighter text-[#1D1D1F] dark:text-white font-sans">COOCA</span>
+                        <span class="font-black text-xl sm:text-2xl tracking-tighter text-white font-sans">COOCA</span>
                     @endif
-                    <div class="border-l border-black/10 dark:border-white/10 pl-3 hidden xs:block">
-                        <span
-                            class="font-extrabold text-sm sm:text-base tracking-tight text-black dark:text-white block leading-tight">{{ $siteAppName }}</span>
-                        <span
-                            class="text-[10px] sm:text-[11px] uppercase font-bold text-[#007AFF] dark:text-[#0A84FF] tracking-[0.15em]">{{ $siteTagline }}</span>
-                    </div>
+                    @if(!$isLandingPage)
+                        <div class="border-l border-white/15 pl-3 hidden xs:block">
+                            <span
+                                class="font-extrabold text-sm sm:text-base tracking-tight text-black dark:text-white block leading-tight">{{ $siteAppName }}</span>
+                            <span
+                                class="text-[10px] sm:text-[11px] uppercase font-bold text-[#00C2FF] tracking-[0.15em]">{{ $siteTagline }}</span>
+                        </div>
+                    @endif
                 </a>
 
                 <!-- Desktop Nav Menu (Apple HIG Navigation Bar Style) -->
                 <nav
-                    class="hidden lg:flex items-center gap-1 xl:gap-1.5 text-[13px] font-medium text-black/70 dark:text-white/70">
+                    class="hidden lg:flex items-center gap-1 xl:gap-1.5 text-[13px] font-medium {{ $isLandingPage ? 'text-slate-300' : 'text-black/70 dark:text-white/70' }}">
 
                     <!-- 1. Platform (Mega Dropdown) -->
                     <div class="relative"
@@ -548,26 +557,28 @@
                         </svg>
                     </button>
 
-                    <div class="hidden sm:flex items-center gap-2">
+                    <div class="hidden sm:flex items-center gap-3">
                         @if (auth('admin')->check())
                             <a href="{{ route('admin.dashboard') }}"
-                                class="glow-btn px-4 py-2 rounded-[12px] text-white font-semibold text-xs flex items-center gap-2 min-h-[36px]">
+                                class="px-5 py-2 rounded-full bg-[#00C2FF] hover:bg-[#00A3D7] text-slate-950 font-bold text-xs flex items-center gap-2 shadow-[0_0_20px_rgba(0,194,255,0.4)] min-h-[36px] transition-all">
                                 <i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i>
                                 <span>Dashboard Admin</span>
                             </a>
                         @elseif (auth('web')->check())
                             <a href="{{ route('dashboard') }}"
-                                class="glow-btn px-4 py-2 rounded-[12px] text-white font-semibold text-xs flex items-center gap-2 min-h-[36px]">
+                                class="px-5 py-2 rounded-full bg-[#00C2FF] hover:bg-[#00A3D7] text-slate-950 font-bold text-xs flex items-center gap-2 shadow-[0_0_20px_rgba(0,194,255,0.4)] min-h-[36px] transition-all">
                                 <i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i>
                                 <span>Ke Dashboard</span>
                             </a>
                         @else
                             <a href="{{ route('login') }}"
-                                class="px-3.5 py-2 text-xs font-semibold text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 rounded-[12px] transition-all min-h-[36px] flex items-center">Masuk</a>
+                                class="px-3 py-2 text-xs font-semibold {{ $isLandingPage ? 'text-slate-300 hover:text-white' : 'text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white' }} transition-all min-h-[36px] flex items-center gap-1.5">
+                                <i data-lucide="user" class="w-3.5 h-3.5"></i>
+                                <span>Login</span>
+                            </a>
                             <a href="{{ route('register') }}"
-                                class="glow-btn px-4 py-2 rounded-[12px] text-white font-semibold text-xs flex items-center gap-1.5 min-h-[36px]">
-                                <span>Mulai Gratis</span>
-                                <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                                class="bg-[#00C2FF] hover:bg-[#00A3D7] text-slate-950 font-bold px-5 py-2 rounded-full text-xs transition-all shadow-[0_0_20px_rgba(0,194,255,0.4)] hover:shadow-[0_0_25px_rgba(0,194,255,0.6)] min-h-[36px] flex items-center">
+                                <span>Coba COOCA Gratis</span>
                             </a>
                         @endif
                     </div>
@@ -734,10 +745,14 @@
                 @else
                     <div class="pt-3 border-t border-black/5 dark:border-white/10 grid grid-cols-2 gap-2">
                         <a href="{{ route('login') }}"
-                            class="py-2.5 rounded-[14px] bg-black/5 dark:bg-white/10 text-center text-[#1D1D1F] dark:text-[#F5F5F7] font-semibold text-xs active:scale-95 transition-all">Masuk</a>
+                            class="py-2.5 rounded-full bg-black/5 dark:bg-white/10 text-center text-[#1D1D1F] dark:text-[#F5F5F7] font-semibold text-xs active:scale-95 transition-all flex items-center justify-center gap-1.5">
+                            <i data-lucide="user" class="w-3.5 h-3.5"></i>
+                            <span>Login</span>
+                        </a>
                         <a href="{{ route('register') }}"
-                            class="py-2.5 rounded-[14px] glow-btn text-center text-white font-semibold text-xs active:scale-95 transition-all">Mulai
-                            Gratis</a>
+                            class="py-2.5 rounded-full bg-[#00C2FF] hover:bg-[#00A3D7] text-center text-slate-950 font-bold text-xs shadow-[0_0_15px_rgba(0,194,255,0.35)] active:scale-95 transition-all flex items-center justify-center">
+                            <span>Coba COOCA Gratis</span>
+                        </a>
                     </div>
                 @endif
             </div>
@@ -752,89 +767,19 @@
     <!-- ═══ APPLE GROUPED INSET FOOTER ═══ -->
     @if (!($hideFooter ?? false))
         <footer
-            class="border-t border-black/5 dark:border-white/10 bg-white dark:bg-[#1C1C1E] pt-12 sm:pt-14 pb-32 sm:pb-36 lg:pb-14 mt-16 text-xs text-black/60 dark:text-white/60 transition-colors">
+            class="border-t {{ $isLandingPage ? 'border-white/10 bg-[#060913] text-slate-400 mt-0 pt-14 pb-20' : 'border-black/5 dark:border-white/10 bg-white dark:bg-[#1C1C1E] pt-12 sm:pt-14 pb-32 sm:pb-36 lg:pb-14 mt-16 text-black/60 dark:text-white/60' }} text-xs transition-colors">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-10 pb-10">
 
                     <!-- Col 1: Brand & Contact (Full width on mobile/tablet, 2 cols on desktop) -->
                     <div class="space-y-4 lg:col-span-2">
-                        <div class="flex items-center gap-3">
-                            <img src="{{ $siteLogoLightUrl }}" alt="{{ $siteAppName }}"
-                                class="h-7 w-auto object-contain dark:hidden">
-                            <img src="{{ $siteLogoDarkUrl }}" alt="{{ $siteAppName }}"
-                                class="h-7 w-auto object-contain hidden dark:block">
-                            <div class="border-l border-black/10 dark:border-white/10 pl-3">
-                                <span
-                                    class="font-bold text-sm sm:text-base tracking-tight text-black dark:text-white block leading-tight">{{ $siteAppName }}</span>
-                                <span
-                                    class="text-xs uppercase font-bold text-[#34C759] dark:text-[#30D158] tracking-wider">{{ $siteTagline }}</span>
-                            </div>
-                        </div>
-                        <p class="text-xs text-black/50 dark:text-white/50 leading-relaxed max-w-sm">
-                            Platform operasional bisnis terlengkap untuk UMKM Indonesia. Dilengkapi sistem kasir POS,
-                            pembukuan kas, manajemen inventaris, dan asisten AI pintar.
-                        </p>
-
-                        <!-- Contact Widgets -->
                         @php
                             $footerWaUrl = \App\Models\SystemSetting::get(
                                 'social_whatsapp_url',
                                 'https://wa.me/6285287864176',
                             );
                             $footerWaNum = \App\Models\SystemSetting::get('social_whatsapp_number', '0852 8786 4176');
-                        @endphp
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-w-sm pt-1">
-                            <a href="{{ $footerWaUrl }}" target="_blank"
-                                class="p-2.5 rounded-[14px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.04] dark:border-white/[0.06] flex items-center gap-2.5 hover:bg-[#34C759]/10 active:scale-[0.98] transition-all">
-                                <div
-                                    class="w-7 h-7 rounded-[10px] bg-[#34C759]/15 text-[#34C759] dark:text-[#30D158] flex items-center justify-center shrink-0">
-                                    <i data-lucide="phone" class="w-3.5 h-3.5"></i>
-                                </div>
-                                <div class="min-w-0">
-                                    <span
-                                        class="text-xs uppercase font-bold text-[#6E6E73] dark:text-[#86868B] block leading-tight">WhatsApp
-                                        CS</span>
-                                    <span
-                                        class="font-bold text-[#1D1D1F] dark:text-[#F5F5F7] text-xs truncate block font-mono">{{ $footerWaNum }}</span>
-                                </div>
-                            </a>
-                            <a href="mailto:support@cooca.id"
-                                class="p-2.5 rounded-[14px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.04] dark:border-white/[0.06] flex items-center gap-2.5 hover:bg-[#007AFF]/10 active:scale-[0.98] transition-all">
-                                <div
-                                    class="w-7 h-7 rounded-[10px] bg-[#007AFF]/15 text-[#007AFF] dark:text-[#0A84FF] flex items-center justify-center shrink-0">
-                                    <i data-lucide="mail" class="w-3.5 h-3.5"></i>
-                                </div>
-                                <div class="min-w-0">
-                                    <span
-                                        class="text-xs uppercase font-bold text-[#6E6E73] dark:text-[#86868B] block leading-tight">Email
-                                        Bantuan</span>
-                                    <span
-                                        class="font-medium text-[#1D1D1F] dark:text-[#F5F5F7] text-xs truncate block">support@cooca.id</span>
-                                </div>
-                            </a>
-                        </div>
-
-                        <!-- Official Social Media Channels (CMS Dynamic) -->
-                        @php
                             $footerSocialChannels = [
-                                'instagram' => [
-                                    'active' => filter_var(
-                                        \App\Models\SystemSetting::get('social_instagram_active', '1'),
-                                        FILTER_VALIDATE_BOOLEAN,
-                                    ),
-                                    'url' => \App\Models\SystemSetting::get(
-                                        'social_instagram_url',
-                                        'https://instagram.com/cooca.indonesia',
-                                    ),
-                                    'name' => 'Instagram',
-                                    'handle' => \App\Models\SystemSetting::get(
-                                        'social_instagram_handle',
-                                        '@cooca.indonesia',
-                                    ),
-                                    'svg' =>
-                                        '<path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>',
-                                    'hover' => 'hover:bg-[#DD2A7B]/15 hover:text-[#DD2A7B] dark:hover:text-[#DD2A7B]',
-                                ],
                                 'facebook' => [
                                     'active' => filter_var(
                                         \App\Models\SystemSetting::get('social_facebook_active', '1'),
@@ -853,6 +798,24 @@
                                         '<path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>',
                                     'hover' => 'hover:bg-[#1877F2]/15 hover:text-[#1877F2] dark:hover:text-[#1877F2]',
                                 ],
+                                'instagram' => [
+                                    'active' => filter_var(
+                                        \App\Models\SystemSetting::get('social_instagram_active', '1'),
+                                        FILTER_VALIDATE_BOOLEAN,
+                                    ),
+                                    'url' => \App\Models\SystemSetting::get(
+                                        'social_instagram_url',
+                                        'https://instagram.com/cooca.indonesia',
+                                    ),
+                                    'name' => 'Instagram',
+                                    'handle' => \App\Models\SystemSetting::get(
+                                        'social_instagram_handle',
+                                        '@cooca.indonesia',
+                                    ),
+                                    'svg' =>
+                                        '<path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>',
+                                    'hover' => 'hover:bg-[#DD2A7B]/15 hover:text-[#DD2A7B] dark:hover:text-[#DD2A7B]',
+                                ],
                                 'tiktok' => [
                                     'active' => filter_var(
                                         \App\Models\SystemSetting::get('social_tiktok_active', '1'),
@@ -866,40 +829,6 @@
                                     'handle' => \App\Models\SystemSetting::get('social_tiktok_handle', '@cooca.id'),
                                     'svg' =>
                                         '<path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.24 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/>',
-                                    'hover' =>
-                                        'hover:bg-black/10 dark:hover:bg-white/15 hover:text-black dark:hover:text-white',
-                                ],
-                                'youtube' => [
-                                    'active' => filter_var(
-                                        \App\Models\SystemSetting::get('social_youtube_active', '1'),
-                                        FILTER_VALIDATE_BOOLEAN,
-                                    ),
-                                    'url' => \App\Models\SystemSetting::get(
-                                        'social_youtube_url',
-                                        'https://youtube.com/@cooca_id',
-                                    ),
-                                    'name' => 'YouTube',
-                                    'handle' => \App\Models\SystemSetting::get(
-                                        'social_youtube_name',
-                                        'Cooca UMKM Official',
-                                    ),
-                                    'svg' =>
-                                        '<path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>',
-                                    'hover' => 'hover:bg-[#FF0000]/15 hover:text-[#FF0000] dark:hover:text-[#FF0000]',
-                                ],
-                                'twitter' => [
-                                    'active' => filter_var(
-                                        \App\Models\SystemSetting::get('social_twitter_active', '1'),
-                                        FILTER_VALIDATE_BOOLEAN,
-                                    ),
-                                    'url' => \App\Models\SystemSetting::get(
-                                        'social_twitter_url',
-                                        'https://x.com/cooca_id',
-                                    ),
-                                    'name' => 'X (Twitter)',
-                                    'handle' => \App\Models\SystemSetting::get('social_twitter_handle', '@cooca_id'),
-                                    'svg' =>
-                                        '<path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>',
                                     'hover' =>
                                         'hover:bg-black/10 dark:hover:bg-white/15 hover:text-black dark:hover:text-white',
                                 ],
@@ -921,121 +850,197 @@
                                         '<path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>',
                                     'hover' => 'hover:bg-[#0A66C2]/15 hover:text-[#0A66C2] dark:hover:text-[#0A66C2]',
                                 ],
-                                'telegram' => [
+                                'twitter' => [
                                     'active' => filter_var(
-                                        \App\Models\SystemSetting::get('social_telegram_active', '0'),
+                                        \App\Models\SystemSetting::get('social_twitter_active', '1'),
                                         FILTER_VALIDATE_BOOLEAN,
                                     ),
                                     'url' => \App\Models\SystemSetting::get(
-                                        'social_telegram_url',
-                                        'https://t.me/cooca_id',
+                                        'social_twitter_url',
+                                        'https://x.com/cooca_id',
                                     ),
-                                    'name' => 'Telegram',
-                                    'handle' => \App\Models\SystemSetting::get(
-                                        'social_telegram_name',
-                                        'Komunitas Cooca UMKM',
-                                    ),
+                                    'name' => 'X (Twitter)',
+                                    'handle' => \App\Models\SystemSetting::get('social_twitter_handle', '@cooca_id'),
                                     'svg' =>
-                                        '<path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295-.002 0-.003 0-.005 0l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.536-.196 1.006.128.832.942z"/>',
-                                    'hover' => 'hover:bg-[#229ED9]/15 hover:text-[#229ED9] dark:hover:text-[#229ED9]',
+                                        '<path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>',
+                                    'hover' =>
+                                        'hover:bg-black/10 dark:hover:bg-white/15 hover:text-black dark:hover:text-white',
                                 ],
                             ];
                         @endphp
-                        <div class="pt-2">
-                            <span
-                                class="text-[11px] font-bold text-black/40 dark:text-white/40 uppercase tracking-wider block mb-2">Ikuti
-                                Kanal Resmi Cooca:</span>
-                            <div class="flex flex-wrap items-center gap-2">
-                                @foreach ($footerSocialChannels as $key => $soc)
-                                    @if ($soc['active'] && !empty($soc['url']))
-                                        <a href="{{ $soc['url'] }}" target="_blank" rel="noopener noreferrer"
-                                            title="{{ $soc['name'] }}: {{ $soc['handle'] }}"
-                                            class="w-8 h-8 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.05] dark:border-white/[0.06] text-black/70 dark:text-white/70 flex items-center justify-center {{ $soc['hover'] }} active:scale-95 transition-all">
-                                            <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
-                                                {!! $soc['svg'] !!}
-                                            </svg>
-                                        </a>
+
+                        @if ($isLandingPage)
+                            <div class="space-y-3">
+                                <a href="{{ route('landing') }}" class="inline-block">
+                                    @if(!empty($siteLogoDarkUrl))
+                                        <img src="{{ $siteLogoDarkUrl }}" alt="{{ $siteAppName }}" class="h-8 w-auto object-contain">
+                                    @else
+                                        <span class="font-black text-2xl tracking-tight text-white font-sans">COOCA</span>
                                     @endif
-                                @endforeach
+                                </a>
+                                <p class="text-xs font-semibold text-slate-300">
+                                    Business Operating System &amp; Omnichannel ERP
+                                </p>
+                                <p class="text-xs text-slate-400 leading-relaxed max-w-sm">
+                                    Satu ekosistem untuk mengelola, menghubungkan, menghasilkan, dan mengembangkan bisnis Anda.
+                                </p>
+                                <div class="flex flex-wrap items-center gap-2 pt-1">
+                                    @foreach ($footerSocialChannels as $key => $soc)
+                                        @if ($soc['active'] && !empty($soc['url']))
+                                            <a href="{{ $soc['url'] }}" target="_blank" rel="noopener noreferrer"
+                                                title="{{ $soc['name'] }}: {{ $soc['handle'] }}"
+                                                class="w-8 h-8 rounded-full bg-white/5 border border-white/10 text-slate-400 hover:text-white hover:bg-white/15 flex items-center justify-center active:scale-95 transition-all">
+                                                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                                                    {!! $soc['svg'] !!}
+                                                </svg>
+                                            </a>
+                                        @endif
+                                    @endforeach
+                                </div>
                             </div>
-                        </div>
+                        @else
+                            <div class="flex items-center gap-3">
+                                <img src="{{ $siteLogoLightUrl }}" alt="{{ $siteAppName }}"
+                                    class="h-7 w-auto object-contain dark:hidden">
+                                <img src="{{ $siteLogoDarkUrl }}" alt="{{ $siteAppName }}"
+                                    class="h-7 w-auto object-contain hidden dark:block">
+                                <div class="border-l border-black/10 dark:border-white/10 pl-3">
+                                    <span
+                                        class="font-bold text-sm sm:text-base tracking-tight text-black dark:text-white block leading-tight">{{ $siteAppName }}</span>
+                                    <span
+                                        class="text-xs uppercase font-bold text-[#34C759] dark:text-[#30D158] tracking-wider">{{ $siteTagline }}</span>
+                                </div>
+                            </div>
+                            <p class="text-xs text-black/50 dark:text-white/50 leading-relaxed max-w-sm">
+                                Platform operasional bisnis terlengkap untuk UMKM Indonesia. Dilengkapi sistem kasir POS,
+                                pembukuan kas, manajemen inventaris, dan asisten AI pintar.
+                            </p>
+
+                            <!-- Contact Widgets -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-w-sm pt-1">
+                                <a href="{{ $footerWaUrl }}" target="_blank"
+                                    class="p-2.5 rounded-[14px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.04] dark:border-white/[0.06] flex items-center gap-2.5 hover:bg-[#34C759]/10 active:scale-[0.98] transition-all">
+                                    <div
+                                        class="w-7 h-7 rounded-[10px] bg-[#34C759]/15 text-[#34C759] dark:text-[#30D158] flex items-center justify-center shrink-0">
+                                        <i data-lucide="phone" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <div class="min-w-0">
+                                        <span
+                                            class="text-xs uppercase font-bold text-[#6E6E73] dark:text-[#86868B] block leading-tight">WhatsApp CS</span>
+                                        <span
+                                            class="font-bold text-[#1D1D1F] dark:text-[#F5F5F7] text-xs truncate block font-mono">{{ $footerWaNum }}</span>
+                                    </div>
+                                </a>
+                                <a href="mailto:support@cooca.id"
+                                    class="p-2.5 rounded-[14px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.04] dark:border-white/[0.06] flex items-center gap-2.5 hover:bg-[#007AFF]/10 active:scale-[0.98] transition-all">
+                                    <div
+                                        class="w-7 h-7 rounded-[10px] bg-[#007AFF]/15 text-[#007AFF] dark:text-[#0A84FF] flex items-center justify-center shrink-0">
+                                        <i data-lucide="mail" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <div class="min-w-0">
+                                        <span
+                                            class="text-xs uppercase font-bold text-[#6E6E73] dark:text-[#86868B] block leading-tight">Email Bantuan</span>
+                                        <span
+                                            class="font-medium text-[#1D1D1F] dark:text-[#F5F5F7] text-xs truncate block">support@cooca.id</span>
+                                    </div>
+                                </a>
+                            </div>
+
+                            <div class="pt-2">
+                                <span
+                                    class="text-[11px] font-bold text-black/40 dark:text-white/40 uppercase tracking-wider block mb-2">Ikuti Kanal Resmi Cooca:</span>
+                                <div class="flex flex-wrap items-center gap-2">
+                                    @foreach ($footerSocialChannels as $key => $soc)
+                                        @if ($soc['active'] && !empty($soc['url']))
+                                            <a href="{{ $soc['url'] }}" target="_blank" rel="noopener noreferrer"
+                                                title="{{ $soc['name'] }}: {{ $soc['handle'] }}"
+                                                class="w-8 h-8 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.05] dark:border-white/[0.06] text-black/70 dark:text-white/70 flex items-center justify-center {{ $soc['hover'] }} active:scale-95 transition-all">
+                                                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                                                    {!! $soc['svg'] !!}
+                                                </svg>
+                                            </a>
+                                        @endif
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
                     </div>
 
                     <!-- Navigation Columns: 4 Columns (Platform, Solutions, Resources, Company) -->
                     <div
-                        class="lg:col-span-3 grid grid-cols-2 sm:grid-cols-4 gap-6 sm:gap-6 pt-4 lg:pt-0 border-t lg:border-t-0 border-black/5 dark:border-white/10">
+                        class="lg:col-span-3 grid grid-cols-2 sm:grid-cols-4 gap-6 sm:gap-6 pt-4 lg:pt-0 {{ $isLandingPage ? 'border-t-0' : 'border-t lg:border-t-0 border-black/5 dark:border-white/10' }}">
 
                         <!-- Col 1: Platform -->
                         <div class="space-y-3">
-                            <p class="font-bold text-black dark:text-white uppercase text-[11px] tracking-wider">
+                            <p class="font-bold {{ $isLandingPage ? 'text-white' : 'text-black dark:text-white' }} uppercase text-[11px] tracking-wider">
                                 Platform</p>
-                            <nav class="flex flex-col space-y-2 text-xs text-black/70 dark:text-white/70">
+                            <nav class="flex flex-col space-y-2 text-xs {{ $isLandingPage ? 'text-slate-400' : 'text-black/70 dark:text-white/70' }}">
                                 <a href="{{ route('public.erp.erp') }}"
-                                    class="hover:text-[#007AFF] dark:hover:text-[#0A84FF] transition-colors">ERP</a>
+                                    class="{{ $isLandingPage ? 'hover:text-white' : 'hover:text-[#007AFF] dark:hover:text-[#0A84FF]' }} transition-colors">ERP</a>
                                 <a href="{{ route('public.omnichannel.whatsapp') }}"
-                                    class="hover:text-[#007AFF] dark:hover:text-[#0A84FF] transition-colors">Omnichannel</a>
+                                    class="{{ $isLandingPage ? 'hover:text-white' : 'hover:text-[#007AFF] dark:hover:text-[#0A84FF]' }} transition-colors">Omnichannel</a>
                                 <a href="{{ route('public.content.creation') }}"
-                                    class="hover:text-[#007AFF] dark:hover:text-[#0A84FF] transition-colors">Content Automation</a>
+                                    class="{{ $isLandingPage ? 'hover:text-white' : 'hover:text-[#007AFF] dark:hover:text-[#0A84FF]' }} transition-colors">Content Automation</a>
                                 <a href="{{ route('marketplace.index') }}"
-                                    class="hover:text-[#007AFF] dark:hover:text-[#0A84FF] transition-colors">Marketplace</a>
+                                    class="{{ $isLandingPage ? 'hover:text-white' : 'hover:text-[#007AFF] dark:hover:text-[#0A84FF]' }} transition-colors">Marketplace</a>
                                 <a href="{{ route('public.erp.analytics') }}"
-                                    class="hover:text-[#007AFF] dark:hover:text-[#0A84FF] transition-colors">AI Assistant</a>
+                                    class="{{ $isLandingPage ? 'hover:text-white' : 'hover:text-[#007AFF] dark:hover:text-[#0A84FF]' }} transition-colors">AI Assistant</a>
                             </nav>
                         </div>
 
                         <!-- Col 2: Solutions -->
                         <div class="space-y-3">
-                            <p class="font-bold text-black dark:text-white uppercase text-[11px] tracking-wider">
+                            <p class="font-bold {{ $isLandingPage ? 'text-white' : 'text-black dark:text-white' }} uppercase text-[11px] tracking-wider">
                                 Solutions</p>
-                            <nav class="flex flex-col space-y-2 text-xs text-black/70 dark:text-white/70">
+                            <nav class="flex flex-col space-y-2 text-xs {{ $isLandingPage ? 'text-slate-400' : 'text-black/70 dark:text-white/70' }}">
                                 <a href="{{ route('public.solutions.fnb') }}"
-                                    class="hover:text-[#007AFF] dark:hover:text-[#0A84FF] transition-colors">F&amp;B</a>
+                                    class="{{ $isLandingPage ? 'hover:text-white' : 'hover:text-[#007AFF] dark:hover:text-[#0A84FF]' }} transition-colors">POS</a>
                                 <a href="{{ route('public.solutions.retail') }}"
-                                    class="hover:text-[#007AFF] dark:hover:text-[#0A84FF] transition-colors">Retail</a>
+                                    class="{{ $isLandingPage ? 'hover:text-white' : 'hover:text-[#007AFF] dark:hover:text-[#0A84FF]' }} transition-colors">Retail</a>
                                 <a href="{{ route('public.solutions.workshop') }}"
-                                    class="hover:text-[#007AFF] dark:hover:text-[#0A84FF] transition-colors">Workshop</a>
+                                    class="{{ $isLandingPage ? 'hover:text-white' : 'hover:text-[#007AFF] dark:hover:text-[#0A84FF]' }} transition-colors">Workshop</a>
                                 <a href="{{ route('public.solutions.laundry') }}"
-                                    class="hover:text-[#007AFF] dark:hover:text-[#0A84FF] transition-colors">Laundry</a>
+                                    class="{{ $isLandingPage ? 'hover:text-white' : 'hover:text-[#007AFF] dark:hover:text-[#0A84FF]' }} transition-colors">Laundry</a>
                                 <a href="{{ route('public.solutions.manufacturing') }}"
-                                    class="hover:text-[#007AFF] dark:hover:text-[#0A84FF] transition-colors">Manufacturing</a>
+                                    class="{{ $isLandingPage ? 'hover:text-white' : 'hover:text-[#007AFF] dark:hover:text-[#0A84FF]' }} transition-colors">Manufacturing</a>
                                 <a href="{{ route('public.solutions.services') }}"
-                                    class="hover:text-[#007AFF] dark:hover:text-[#0A84FF] transition-colors">Services</a>
+                                    class="{{ $isLandingPage ? 'hover:text-white' : 'hover:text-[#007AFF] dark:hover:text-[#0A84FF]' }} transition-colors">Services</a>
                             </nav>
                         </div>
 
                         <!-- Col 3: Resources -->
                         <div class="space-y-3">
-                            <p class="font-bold text-black dark:text-white uppercase text-[11px] tracking-wider">
+                            <p class="font-bold {{ $isLandingPage ? 'text-white' : 'text-black dark:text-white' }} uppercase text-[11px] tracking-wider">
                                 Resources</p>
-                            <nav class="flex flex-col space-y-2 text-xs text-black/70 dark:text-white/70">
+                            <nav class="flex flex-col space-y-2 text-xs {{ $isLandingPage ? 'text-slate-400' : 'text-black/70 dark:text-white/70' }}">
                                 <a href="{{ route('blog.index') }}"
-                                    class="hover:text-[#007AFF] dark:hover:text-[#0A84FF] transition-colors">Blog</a>
+                                    class="{{ $isLandingPage ? 'hover:text-white' : 'hover:text-[#007AFF] dark:hover:text-[#0A84FF]' }} transition-colors">Blog</a>
                                 <a href="{{ route('public.resources.guides') }}"
-                                    class="hover:text-[#007AFF] dark:hover:text-[#0A84FF] transition-colors">Guides</a>
+                                    class="{{ $isLandingPage ? 'hover:text-white' : 'hover:text-[#007AFF] dark:hover:text-[#0A84FF]' }} transition-colors">Guides</a>
                                 <a href="{{ route('public.resources.case-studies') }}"
-                                    class="hover:text-[#007AFF] dark:hover:text-[#0A84FF] transition-colors">Case Studies</a>
+                                    class="{{ $isLandingPage ? 'hover:text-white' : 'hover:text-[#007AFF] dark:hover:text-[#0A84FF]' }} transition-colors">Case Studies</a>
                                 <a href="{{ route('public.demo') }}"
-                                    class="hover:text-[#007AFF] dark:hover:text-[#0A84FF] transition-colors">Webinar / Demo</a>
+                                    class="{{ $isLandingPage ? 'hover:text-white' : 'hover:text-[#007AFF] dark:hover:text-[#0A84FF]' }} transition-colors">Webinar</a>
                                 <a href="{{ route('public.resources.faq') }}"
-                                    class="hover:text-[#007AFF] dark:hover:text-[#0A84FF] transition-colors">FAQ</a>
+                                    class="{{ $isLandingPage ? 'hover:text-white' : 'hover:text-[#007AFF] dark:hover:text-[#0A84FF]' }} transition-colors">FAQ</a>
                             </nav>
                         </div>
 
                         <!-- Col 4: Company -->
                         <div class="space-y-3">
-                            <p class="font-bold text-black dark:text-white uppercase text-[11px] tracking-wider">
+                            <p class="font-bold {{ $isLandingPage ? 'text-white' : 'text-black dark:text-white' }} uppercase text-[11px] tracking-wider">
                                 Company</p>
-                            <nav class="flex flex-col space-y-2 text-xs text-black/70 dark:text-white/70">
+                            <nav class="flex flex-col space-y-2 text-xs {{ $isLandingPage ? 'text-slate-400' : 'text-black/70 dark:text-white/70' }}">
                                 <a href="{{ route('public.about') }}"
-                                    class="hover:text-[#007AFF] dark:hover:text-[#0A84FF] transition-colors">About Us</a>
+                                    class="{{ $isLandingPage ? 'hover:text-white' : 'hover:text-[#007AFF] dark:hover:text-[#0A84FF]' }} transition-colors">About Us</a>
                                 <a href="{{ route('public.privacy') }}"
-                                    class="hover:text-[#007AFF] dark:hover:text-[#0A84FF] transition-colors">Security</a>
+                                    class="{{ $isLandingPage ? 'hover:text-white' : 'hover:text-[#007AFF] dark:hover:text-[#0A84FF]' }} transition-colors">Security</a>
                                 <a href="{{ route('public.privacy') }}"
-                                    class="hover:text-[#007AFF] dark:hover:text-[#0A84FF] transition-colors">Privacy</a>
+                                    class="{{ $isLandingPage ? 'hover:text-white' : 'hover:text-[#007AFF] dark:hover:text-[#0A84FF]' }} transition-colors">Privacy</a>
                                 <a href="{{ route('public.terms') }}"
-                                    class="hover:text-[#007AFF] dark:hover:text-[#0A84FF] transition-colors">Terms &amp; Conditions</a>
+                                    class="{{ $isLandingPage ? 'hover:text-white' : 'hover:text-[#007AFF] dark:hover:text-[#0A84FF]' }} transition-colors">Terms &amp; Conditions</a>
                                 <a href="{{ route('public.support') }}"
-                                    class="hover:text-[#007AFF] dark:hover:text-[#0A84FF] transition-colors">Support</a>
+                                    class="{{ $isLandingPage ? 'hover:text-white' : 'hover:text-[#007AFF] dark:hover:text-[#0A84FF]' }} transition-colors">Support</a>
                             </nav>
                         </div>
 
@@ -1044,17 +1049,17 @@
 
                 <!-- Bottom Copyright & Links -->
                 <div
-                    class="border-t border-black/5 dark:border-white/10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-black/40 dark:text-white/40">
+                    class="border-t {{ $isLandingPage ? 'border-white/10 text-slate-500' : 'border-black/5 dark:border-white/10 text-black/40 dark:text-white/40' }} pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px]">
                     <p class="text-center sm:text-left">© 2026 COOCA. All rights reserved.</p>
                     <div class="flex flex-wrap items-center justify-center sm:justify-end gap-x-4 gap-y-2">
                         <a href="{{ route('public.privacy') }}"
-                            class="hover:text-black dark:hover:text-white transition-colors">Privacy</a>
+                            class="{{ $isLandingPage ? 'text-slate-400 hover:text-white' : 'hover:text-black dark:hover:text-white' }} transition-colors">Privacy</a>
                         <a href="{{ route('public.terms') }}"
-                            class="hover:text-black dark:hover:text-white transition-colors">Terms</a>
+                            class="{{ $isLandingPage ? 'text-slate-400 hover:text-white' : 'hover:text-black dark:hover:text-white' }} transition-colors">Terms</a>
                         <a href="{{ route('public.privacy') }}"
-                            class="hover:text-black dark:hover:text-white transition-colors">Security</a>
+                            class="{{ $isLandingPage ? 'text-slate-400 hover:text-white' : 'hover:text-black dark:hover:text-white' }} transition-colors">Security</a>
                         <a href="{{ route('public.support') }}"
-                            class="hover:text-black dark:hover:text-white transition-colors">Support</a>
+                            class="{{ $isLandingPage ? 'text-slate-400 hover:text-white' : 'hover:text-black dark:hover:text-white' }} transition-colors">Support</a>
                     </div>
                 </div>
             </div>

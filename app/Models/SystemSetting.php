@@ -37,11 +37,15 @@ class SystemSetting extends Model
      */
     public static function get(string $key, ?string $default = null): ?string
     {
-        return Cache::remember("system_setting_{$key}", 3600, function () use ($key, $default) {
-            $setting = static::where('key', $key)->first();
+        try {
+            return Cache::remember("system_setting_{$key}", 3600, function () use ($key, $default) {
+                $setting = static::where('key', $key)->first();
 
-            return $setting?->value ?? $default;
-        });
+                return $setting?->value ?? $default;
+            });
+        } catch (\Throwable) {
+            return $default;
+        }
     }
 
     /**

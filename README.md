@@ -1,11 +1,11 @@
-# Cooca UMKM - Platform Ekosistem SaaS Manajemen Bisnis & Omnichannel ERP
+# Cooca - Platform Ekosistem SaaS Manajemen Bisnis & Omnichannel ERP
 
 [![Production](https://img.shields.io/badge/Production-cooca.id-emerald?style=flat-square&logo=googlechrome)](https://cooca.id)
 [![Laravel](https://img.shields.io/badge/Laravel-12.x-red?style=flat-square&logo=laravel)](https://laravel.com)
 [![PHP](https://img.shields.io/badge/PHP-8.2%2B-blue?style=flat-square&logo=php)](https://php.net)
 [![License](https://img.shields.io/badge/License-Proprietary-slate?style=flat-square)](#)
 
-**Cooca UMKM** adalah produk flagship dari Cooca (`cooca.id`) yang dirancang sebagai Business Operating System all-in-one untuk UMKM Indonesia, mencakup kalkulasi Harga Pokok Penjualan (HPP) berbasis aktivitas (ABC), Point of Sale (POS), manajemen inventori multi-gudang, purchase & sales order, invoicing, CRM/loyalty, landing page builder publik, hingga integrasi WhatsApp Gateway dan Omnichannel Media Sosial otomatis.
+**Cooca** adalah Business Operating System all-in-one untuk UMKM Indonesia, mencakup kalkulasi Harga Pokok Penjualan (HPP) berbasis aktivitas (ABC), Point of Sale (POS), manajemen inventori multi-gudang, purchase & sales order, invoicing, CRM/loyalty, landing page builder publik, hingga integrasi WhatsApp Gateway dan Omnichannel Media Sosial otomatis.
 
 ---
 

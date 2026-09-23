@@ -49,7 +49,7 @@ class InvoiceStockAndJournalIntegrationTest extends TestCase
         parent::setUp();
 
         $this->business = Business::create([
-            'name'                 => 'Cooca UMKM Test',
+            'name'                 => 'Cooca Test',
             'slug'                 => 'cooca-test',
             'currency'             => 'IDR',
             'currency_code'        => 'IDR',

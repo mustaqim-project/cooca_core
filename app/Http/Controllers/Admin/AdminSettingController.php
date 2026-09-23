@@ -30,7 +30,7 @@ final class AdminSettingController extends Controller
             $appUrl = 'https://cooca.id';
         }
 
-        $canonicalUrl = static fn (string $path): string => $appUrl . '/' . ltrim($path, '/');
+        $canonicalUrl = static fn(string $path): string => $appUrl . '/' . ltrim($path, '/');
 
         $googleRedirectUri = (string) (SystemSetting::get('google_redirect_uri') ?: '');
         if (empty($googleRedirectUri) || str_contains($googleRedirectUri, 'umkm.cooca.id') || str_contains($googleRedirectUri, '127.0.0.1') || str_contains($googleRedirectUri, 'localhost')) {
@@ -62,7 +62,7 @@ final class AdminSettingController extends Controller
             'googleCustomerRedirectUri' => $googleCustomerRedirectUri,
             'allowGoogleLogin' => SystemSetting::get('allow_google_login', '1'),
             'allowCustomerGoogleLogin' => SystemSetting::get('allow_customer_google_login', '1'),
-            'appName' => SystemSetting::get('app_name', config('app.name', 'Cooca UMKM')),
+            'appName' => SystemSetting::get('app_name', config('app.name', 'Cooca')),
 
             // Platform Branding & Logos (Light & Dark Mode)
             'siteLogoLight'           => $resolveAssetUrl($rawLogoLight, asset('assets/image/1785229034_logo_dark.png')),
@@ -84,7 +84,7 @@ final class AdminSettingController extends Controller
             'socialTiktokHandle'      => SystemSetting::get('social_tiktok_handle', '@cooca.id'),
             'socialTiktokActive'      => filter_var(SystemSetting::get('social_tiktok_active', '1'), FILTER_VALIDATE_BOOLEAN),
             'socialYoutubeUrl'        => SystemSetting::get('social_youtube_url', 'https://youtube.com/@cooca_id'),
-            'socialYoutubeName'       => SystemSetting::get('social_youtube_name', 'Cooca UMKM Official'),
+            'socialYoutubeName'       => SystemSetting::get('social_youtube_name', 'Cooca Official'),
             'socialYoutubeActive'     => filter_var(SystemSetting::get('social_youtube_active', '1'), FILTER_VALIDATE_BOOLEAN),
             'socialTwitterUrl'        => SystemSetting::get('social_twitter_url', 'https://x.com/cooca_id'),
             'socialTwitterHandle'     => SystemSetting::get('social_twitter_handle', '@cooca_id'),
@@ -96,17 +96,17 @@ final class AdminSettingController extends Controller
             'socialWhatsappNumber'    => SystemSetting::get('social_whatsapp_number', '0852 8786 4176'),
             'socialWhatsappActive'    => filter_var(SystemSetting::get('social_whatsapp_active', '1'), FILTER_VALIDATE_BOOLEAN),
             'socialTelegramUrl'       => SystemSetting::get('social_telegram_url', 'https://t.me/cooca_id'),
-            'socialTelegramName'      => SystemSetting::get('social_telegram_name', 'Komunitas Cooca UMKM'),
+            'socialTelegramName'      => SystemSetting::get('social_telegram_name', 'Komunitas Cooca'),
             'socialTelegramActive'    => filter_var(SystemSetting::get('social_telegram_active', '0'), FILTER_VALIDATE_BOOLEAN),
 
             // SEO & Metadata Complete CMS
-            'seoMetaTitle'            => SystemSetting::get('seo_meta_title', 'Cooca UMKM - Business Operating System & Omnichannel ERP'),
-            'seoMetaDescription'      => SystemSetting::get('seo_meta_description', 'Cooca UMKM: Software kasir POS, pembukuan otomatis, kalkulator bisnis, omnichannel media sosial & AI Assistant gratis selamanya untuk UMKM Indonesia.'),
-            'seoMetaKeywords'         => SystemSetting::get('seo_meta_keywords', 'Cooca UMKM, software kasir gratis, erp umkm, pos kasir toko, aplikasi pembukuan gratis, kalkulator hpp, kalkulator bep, template pembukuan excel, cooca.id'),
+            'seoMetaTitle'            => SystemSetting::get('seo_meta_title', 'Cooca - Business Operating System & Omnichannel ERP'),
+            'seoMetaDescription'      => SystemSetting::get('seo_meta_description', 'Cooca: Software kasir POS, pembukuan otomatis, kalkulator bisnis, omnichannel media sosial & AI Assistant gratis selamanya untuk UMKM Indonesia.'),
+            'seoMetaKeywords'         => SystemSetting::get('seo_meta_keywords', 'Cooca, software kasir gratis, erp umkm, pos kasir toko, aplikasi pembukuan gratis, kalkulator hpp, kalkulator bep, template pembukuan excel, cooca.id'),
             'seoAuthor'               => SystemSetting::get('seo_author', 'Cooca Indonesia'),
             'seoRobots'               => SystemSetting::get('seo_robots', 'index, follow'),
             'seoCanonicalUrl'         => SystemSetting::get('seo_canonical_url', $appUrl),
-            'seoOgTitle'              => SystemSetting::get('seo_og_title', 'Cooca UMKM - Business Operating System & Omnichannel ERP'),
+            'seoOgTitle'              => SystemSetting::get('seo_og_title', 'Cooca - Business Operating System & Omnichannel ERP'),
             'seoOgDescription'        => SystemSetting::get('seo_og_description', 'Software kasir, pembukuan, kalkulator bisnis & AI Assistant gratis selamanya untuk UMKM Indonesia.'),
             'seoOgImage'              => $resolveAssetUrl($rawOgImage, asset('assets/image/cooca.png')),
             'seoOgImageRaw'           => $rawOgImage,
