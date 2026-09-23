@@ -5,7 +5,7 @@
 ])
 
 @section('content')
-    <div class="max-w-[1250px] w-full min-w-0 mx-auto pb-28 lg:pb-10 space-y-6">
+    <div class="max-w-7xl w-full min-w-0 mx-auto pb-28 lg:pb-10 space-y-6">
 
         <!-- KPI Metric Cards (Bento HIG) -->
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">

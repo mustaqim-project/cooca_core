@@ -301,7 +301,7 @@ Test at exact breakpoint widths (640px, 768px, 1024px, etc.) to catch edge cases
 
 ```html
 <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-  <div class="max-w-[1250px]">
+  <div class="max-w-7xl">
     Content with consistent max width
   </div>
 </div>

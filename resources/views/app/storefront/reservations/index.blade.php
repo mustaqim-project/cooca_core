@@ -1,7 +1,7 @@
 @extends('layouts.app', ['title' => 'Reservasi & Booking Jadwal - Cooca'])
 
 @section('content')
-    <div class="space-y-6 max-w-[1250px] mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 pb-28 sm:pb-32 lg:pb-10"
+    <div class="space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 pb-28 sm:pb-32 lg:pb-10"
         x-data="{
             showAssignModal: false,
             selectedReservation: null,
@@ -372,7 +372,8 @@
                                                 class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#5856D6]/10 text-[#5856D6]">
                                                 <i data-lucide="layout-grid" class="w-3 h-3"></i>
                                                 <span>#{{ $rsv->posTable->table_number }}
-                                                    ({{ $rsv->posTable->name }})</span>
+                                                    ({{ $rsv->posTable->name }})
+                                                </span>
                                             </span>
                                         @elseif($rsv->product)
                                             <span

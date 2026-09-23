@@ -22,7 +22,7 @@
         $totalMerchantsCount = $merchantSummary['total'] ?? 0;
     @endphp
 
-    <div class="space-y-5 sm:space-y-6 max-w-[1250px] w-full min-w-0 mx-auto pb-28 lg:pb-10" x-data="adminWaCenter()"
+    <div class="space-y-5 sm:space-y-6 max-w-7xl w-full min-w-0 mx-auto pb-28 lg:pb-10" x-data="adminWaCenter()"
         x-init="init()">
 
         {{-- 1. BENTO HEADER --}}
@@ -1433,11 +1433,11 @@
                                     <span
                                         :class="{
                                             'bg-[#007AFF]/15 text-[#007AFF]': (tpl.category || '')
-                                            .toUpperCase() === 'UTILITY',
+                                                .toUpperCase() === 'UTILITY',
                                             'bg-[#34C759]/15 text-[#34C759]': (tpl.category || '')
-                                            .toUpperCase() === 'MARKETING',
+                                                .toUpperCase() === 'MARKETING',
                                             'bg-[#AF52DE]/15 text-[#AF52DE]': (tpl.category || '')
-                                            .toUpperCase() === 'AUTHENTICATION',
+                                                .toUpperCase() === 'AUTHENTICATION',
                                             'bg-black/10 dark:bg-white/10 text-black/70 dark:text-white/70': ![
                                                 'UTILITY', 'MARKETING', 'AUTHENTICATION'
                                             ].includes((tpl.category || '').toUpperCase())
@@ -1468,7 +1468,8 @@
                                                 'bg-[#FF3B30]': ['REJECTED', 'PAUSED', 'DISABLED'].includes((tpl
                                                     .status || '').toUpperCase()),
                                                 'bg-black/40': !['APPROVED', 'PENDING', 'REJECTED', 'PAUSED',
-                                                    'DISABLED'].includes((tpl.status || '').toUpperCase())
+                                                    'DISABLED'
+                                                ].includes((tpl.status || '').toUpperCase())
                                             }"></span>
                                         <span x-text="tpl.status"></span>
                                     </span>
@@ -1962,7 +1963,8 @@
                                             {{ $acc->business->name ?? 'Bisnis #' . $acc->business_id }}</div>
                                         <div class="text-[11.5px] text-black/50 dark:text-white/50">
                                             {{ $acc->business->owner->name ?? '-' }}
-                                            ({{ $acc->business->owner->email ?? '-' }})</div>
+                                            ({{ $acc->business->owner->email ?? '-' }})
+                                        </div>
                                     </td>
                                     <td class="py-3.5 px-4">
                                         <div class="font-mono font-medium text-black dark:text-white">
@@ -2372,14 +2374,14 @@
 
                     formatBodyPreview(text) {
                         if (!text)
-                        return '<span class="text-black/35 dark:text-white/35 italic">Ketik isi teks pesan untuk melihat preview...</span>';
+                            return '<span class="text-black/35 dark:text-white/35 italic">Ketik isi teks pesan untuk melihat preview...</span>';
                         const escaped = String(text)
                             .replace(/&/g, '&amp;')
                             .replace(/</g, '&lt;')
                             .replace(/>/g, '&gt;');
                         return escaped.replace(/(\{\{\d+\}\})/g,
                             '<span class="px-1.5 py-0.5 rounded-[4px] bg-[#007AFF]/15 text-[#007AFF] font-mono text-[11px] font-semibold">$1</span>'
-                            );
+                        );
                     },
 
                     insertVariableToNewTemplate(v) {
@@ -2480,7 +2482,7 @@
                     async deleteMetaTemplate(tpl) {
                         if (!confirm(
                                 `Hapus template '${tpl.name}' dari Meta Cloud API dan database lokal? Tindakan ini tidak dapat dibatalkan.`
-                                )) {
+                            )) {
                             return;
                         }
                         try {

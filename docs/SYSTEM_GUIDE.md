@@ -56,7 +56,7 @@ Aplikasi ini dirancang untuk dapat dioperasikan secara percaya diri oleh **gener
 * **Format Ribuan Otomatis:** Mengetik nominal uang otomatis menghasilkan tanda pemisah ribuan (`Rp 150.000`), mencegah kekeliruan mengetik nol berlebih.
 * **Standar Modal Pop-Up Full Layout XXL & Responsif Multi-Device:**
   - Operasi Create, Show (Detail), dan Edit pada seluruh halaman index mengadopsi arsitektur **Modal-First** tanpa berpindah halaman (*Zero Navigation Jumps*), menjaga filter dan posisi pagination tetap utuh.
-  - **Desktop (>= 1024px):** Menggunakan **Full Layout XXL Centered Bento Dialog** (`max-w-5xl` s/d `max-w-[1250px]` / `max-w-[95vw] rounded-[24px] max-h-[90vh]`) yang lapang, mampu menampung grid bento multi-kolom (8 kolom form/tabel utama + 4 kolom metrik ringkasan) tanpa berdesakan.
+  - **Desktop (>= 1024px):** Menggunakan **Full Layout XXL Centered Bento Dialog** (`max-w-5xl` s/d `max-w-7xl` / `max-w-[95vw] rounded-[24px] max-h-[90vh]`) yang lapang, mampu menampung grid bento multi-kolom (8 kolom form/tabel utama + 4 kolom metrik ringkasan) tanpa berdesakan.
   - **Tablet (640px – 1023px):** Centered Responsive Bento Modal (`max-w-3xl` s/d `max-w-4xl rounded-[22px] max-h-[90vh]`) dengan tata letak 2 kolom seimbang dan touch target 44px–48px.
   - **Mobile (< 640px):** Apple Full-Responsive Bottom Sheet (`w-full inset-x-0 bottom-0 rounded-t-[28px] max-h-[94vh]`) meluncur dari bawah lengkap dengan indikator grab bar Apple, input font minimal 16px anti-auto-zoom iOS, dan sticky bottom action bar menempel jempol.
 * **Pemberitahuan Penenang Jiwa (*No-Panic Microcopy*):** Di setiap aksi penting atau dialog konfirmasi, sistem selalu menyertakan pesan penenang menggunakan font icon Lucide `info` (bebas emoji):  
@@ -260,7 +260,7 @@ Sebelum pekerjaan rekayasa dianggap selesai:
 Pusat Verifikasi Pemulihan Akun (`/admin/account-recoveries`) berfungsi sebagai instrumen audit dan proteksi identitas level platform untuk mencegah pengambilalihan akun sepihak (*account takeover*) dan melindungi data historis UMKM:
 * **Arsitektur Modal-First XXL Inspection Desk:** Halaman antrean index (`index.blade.php`) dilengkapi dengan modal pop-up berukuran Full Layout XXL (`max-w-6xl`) bergaya Apple HIG untuk memeriksa komparasi kontak lama vs baru dan meninjau berkas bukti otentik (KTP, legalitas usaha, selfie).
 * **Dukungan Berkas PDF & Multi-Format Dokumen:** Meja inspeksi dokumen secara dinamis mendeteksi berkas PDF legalitas usaha (`.pdf`) dan merender kartu dokumen PDF berstandar Apple lengkap dengan tombol pratinjau tab baru dan unduh langsung.
-* **Kepatuhan Bento Apple HIG v2.0 & Anti-Pill-Abuse:** Membersihkan fake pulse dots (`animate-ping`/`animate-pulse`), menerapkan fluid container (`max-w-[1250px] w-full min-w-0 pb-28 lg:pb-10`), font input anti auto-zoom iOS (`text-[16px] sm:text-xs`), dan touch target nyaman 44px–52px.
+* **Kepatuhan Bento Apple HIG v2.0 & Anti-Pill-Abuse:** Membersihkan fake pulse dots (`animate-ping`/`animate-pulse`), menerapkan fluid container (`max-w-7xl w-full min-w-0 pb-28 lg:pb-10`), font input anti auto-zoom iOS (`text-[16px] sm:text-xs`), dan touch target nyaman 44px–52px.
 
 ### 4.10 Pusat Pengelolaan Katalog Paket Billing Platform (Billing Packages CMS)
 Pusat Pengelolaan Paket Billing (`/admin/billing-packages/{type?}`) adalah kontrol panel terpadu bagi Superadmin untuk mengelola monetisasi platform Cooca:
@@ -279,7 +279,7 @@ Pusat kontrol terpadu Superadmin (`/admin/settings`) mengadopsi **Model B (Platf
 * **Zero .env Mandate & Dynamic Database Resolution:** Seluruh kredensial dan parameter 5 layanan eksternal (TriPay, WhatsApp Cloud API, Meta Social, TikTok Open API, Biteship Logistics) dikonfigurasi melalui Web UI dan dipersistensikan langsung ke basis data `system_settings`.
 * **Integrasi Logistik & Ekspedisi Agregator (Biteship Multi-Courier API):** Mengelola API Secret Key (`biteship_api_key`), Base URL (`biteship_base_url`), Mode Lingkungan (`biteship_environment`: Sandbox vs Production), dan Platform Handling Fee (`biteship_service_fee`) dengan webhook tracking resi otomatis dan live diagnostic tester.
 * **Pengujian Konektivitas Real-Time (Live Diagnostic Testers):** Seluruh kanal dilengkapi tombol uji koneksi instan AJAX dengan diagnostic alert box terpadu.
-* **Kepatuhan Apple HIG v2.0 & Ergonomi Jempol:** Desain bento squircle `rounded-[20px]`/`rounded-[24px]`, fluid layout `max-w-[1250px] w-full min-w-0 pb-28 lg:pb-10`, Zero Unicode Emoji (100% Lucide SVG Icons), toggle intip kredensial sensitif, dan input anti auto-zoom iOS Safari (`text-[16px] sm:text-[13px]`).
+* **Kepatuhan Apple HIG v2.0 & Ergonomi Jempol:** Desain bento squircle `rounded-[20px]`/`rounded-[24px]`, fluid layout `max-w-7xl w-full min-w-0 pb-28 lg:pb-10`, Zero Unicode Emoji (100% Lucide SVG Icons), toggle intip kredensial sensitif, dan input anti auto-zoom iOS Safari (`text-[16px] sm:text-[13px]`).
 
 ### 4.13 Arsitektur Blueprint Tier Pricing v2.3, Multi-Branch & Tax Compliance Engine
 Berdasarkan dokumen arsitektur `docs/BLUEPRINT_TIER_PRICING_DAN_LIMITASI_COOCA.md` (Versi 2.3):

@@ -47,7 +47,7 @@ Pada perangkat mobile dan tablet ringkas (`md:hidden`), navigasi bawah disajikan
 1. **Zero Navigation Jumps**: Pengguna Boomer tidak tersesat atau panik kehilangan konteks tabel.
 2. **Preservasi State 100%**: Kata kunci pencarian, filter status, filter kategori, dan nomor pagination tetap aktif di latar belakang tanpa reload.
 3. **Adaptasi Bentuk Modal (Wajib Full Layout XXL & Responsif Multi-Device)**:
-   - **Desktop (>= 1024px)**: Mengambang di tengah layar (**Full Layout XXL Centered Bento Dialog** `max-w-5xl` s/d `max-w-[1250px]` / `max-w-[95vw] rounded-[24px] max-h-[90vh]`) dengan backdrop blur lembut `bg-black/40 backdrop-blur-sm`. Memberikan ruang lapang bagi arsitektur Bento multi-kolom (8 kolom input/detail + 4 kolom metrik ringkasan).
+   - **Desktop (>= 1024px)**: Mengambang di tengah layar (**Full Layout XXL Centered Bento Dialog** `max-w-5xl` s/d `max-w-7xl` / `max-w-[95vw] rounded-[24px] max-h-[90vh]`) dengan backdrop blur lembut `bg-black/40 backdrop-blur-sm`. Memberikan ruang lapang bagi arsitektur Bento multi-kolom (8 kolom input/detail + 4 kolom metrik ringkasan).
    - **Tablet (640px – 1023px)**: Mengambang di tengah layar (**Centered Responsive Bento Modal** `max-w-3xl` s/d `max-w-4xl rounded-[22px] max-h-[90vh]`) dengan layout 2-kolom modular seimbang, pas untuk navigasi sentuh kasir/owner.
    - **Mobile (< 640px)**: Berubah dinamis menjadi **Apple Full-Responsive Bottom Sheet** (`w-full inset-x-0 bottom-0 rounded-t-[28px] max-h-[94vh] flex flex-col overflow-hidden`) lengkap dengan indikator handle bar geser (`w-10 h-1.5 rounded-full bg-black/20 dark:bg-white/20 mx-auto my-2.5`), input minimal 16px (anti-auto-zoom), dan sticky bottom action bar dengan safe-area padding.
 
@@ -201,7 +201,7 @@ Penerapan ritme spasi 8pt grid konsisten menjamin tampilan tetap santai dan beba
 | **Sidebar Menu** | Sheet Drawer samping (off-canvas) + `overflow-x-hidden` | Split-view collapsible atau icon-rail | Fixed Left Sidebar `w-72` frosted glass, `overflow-x-hidden` mutlak |
 | **Topbar Header** | Sticky bar ringkas, burger toggle, profil mini | Sticky bar, breadcrumb, quick search, segmented theme | Sticky bar lengkap, eyebrow context, primary CTA |
 | **Footer** | Floating Bottom Navbar (iOS 18) `fixed bottom-3` | Floating Bottom Navbar (mode potret/POS ringkas) | Minimalist Hairline Footer di dasar kanvas |
-| **Bentuk Dialog / Form** | Apple Full-Responsive Bottom Sheet (`rounded-t-[28px] max-h-[94vh]`) | Centered Responsive Bento Modal (`max-w-3xl` s/d `max-w-4xl rounded-[22px]`) | Full Layout XXL Centered Bento Dialog (`max-w-5xl` s/d `max-w-[1250px] rounded-[24px]`) |
+| **Bentuk Dialog / Form** | Apple Full-Responsive Bottom Sheet (`rounded-t-[28px] max-h-[94vh]`) | Centered Responsive Bento Modal (`max-w-3xl` s/d `max-w-4xl rounded-[22px]`) | Full Layout XXL Centered Bento Dialog (`max-w-5xl` s/d `max-w-7xl rounded-[24px]`) |
 | **Input Form Font Size** | Wajib `16px` (mencegah auto-zoom) | `14px` – `15px` | `14px` – `15px` |
 | **Touch Target Utama** | 48px – 52px (ramah jempol) | 44px – 48px (ramah stylus/jemari) | 38px – 42px (mouse click precision) |
 
@@ -288,7 +288,7 @@ Standarisasi antarmuka pengelola platform Cooca (Backoffice Superadmin) mengadop
   - Menggantikan banner raksasa bergradasi dengan tab bar tersegmentasi bergaya Apple macOS Sonoma / iOS 18 (`[ Barang Fisik (Katalog) ] [ Jasa & Layanan ] [ Varian & Modifiers ]`).
   - Efek transisi halus dan kontras tajam antar tab aktif (`bg-white dark:bg-[#2C2C2E] shadow-sm font-semibold text-[#1C1C1E] dark:text-[#F2F2F7]`) dan inaktif.
 - **Modal Pop-Up Full Layout XXL & Multi-Device Responsiveness**:
-  - Modal Form Tambah/Ubah Produk (`max-w-[95vw] lg:max-w-5xl xl:max-w-6xl 2xl:max-w-[1250px] max-h-[90vh]`) mengadopsi tata letak Bento Grid 12 kolom (7 kolom informasi identitas produk & inventori + 5 kolom penetapan harga, kanal penjualan, foto, & pre-order).
+  - Modal Form Tambah/Ubah Produk (`max-w-[95vw] lg:max-w-5xl xl:max-w-6xl 2xl:max-w-7xl max-h-[90vh]`) mengadopsi tata letak Bento Grid 12 kolom (7 kolom informasi identitas produk & inventori + 5 kolom penetapan harga, kanal penjualan, foto, & pre-order).
   - Menggantikan form sempit 1 kolom yang memaksa pengguna scrolling berlebih, menjadi 2 kolom komprehensif pada desktop & tablet landscape.
   - Pada mobile (< 640px), modal bertransformasi dinamis menjadi Apple Bottom Sheet (`rounded-t-[28px] max-h-[94vh]`) dengan grab bar dan sticky action bar di dasar layar.
 - **Inline Quick-Add Trigger `[ + ]` via AJAX (Zero Page Reload)**:
@@ -307,7 +307,7 @@ Standarisasi antarmuka pengelola platform Cooca (Backoffice Superadmin) mengadop
 
 ### 12.10 Standar Manajemen Bahan Baku (Materials) & Jasa Layanan (Services) Apple HIG
 - **Bahan Baku (Materials Management)**:
-  - **Full Layout XXL Centered Bento Dialog**: Modal Tambah Bahan Baku (`max-w-[95vw] lg:max-w-5xl xl:max-w-6xl 2xl:max-w-[1250px] max-h-[90vh]`) mengadopsi 12 kolom Bento Grid (7 kolom identitas bahan + 5 kolom rendemen yield/waste, harga awal, dan kartu live cost estimation).
+  - **Full Layout XXL Centered Bento Dialog**: Modal Tambah Bahan Baku (`max-w-[95vw] lg:max-w-5xl xl:max-w-6xl 2xl:max-w-7xl max-h-[90vh]`) mengadopsi 12 kolom Bento Grid (7 kolom identitas bahan + 5 kolom rendemen yield/waste, harga awal, dan kartu live cost estimation).
   - **Triple Inline Quick-Add AJAX `[ + ]`**: Kategori Bahan (`material-categories.store`), Satuan Beli (`units.store`), dan Supplier Pemasok (`suppliers.store`) dapat ditambahkan seketika melalui sub-modal asynchronous tanpa memuat ulang halaman utama.
   - **Apple Grouped Inset Cards**: Tabel bahan baku otomatis bertransformasi menjadi kartu inset Apple di smartphone (`< sm`).
   - **Penenang Jiwa Dialog**: Konfirmasi hapus bahan baku menyertakan jaminan bahwa resep BOM dan riwayat penerimaan barang (GR) masa lalu tetap aman tersimpan.

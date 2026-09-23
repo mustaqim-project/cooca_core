@@ -7,7 +7,7 @@
         $rate = $blast->total_recipients > 0 ? round(($blast->total_sent / $blast->total_recipients) * 100, 1) : 0;
     @endphp
 
-    <div class="space-y-5 sm:space-y-6 max-w-[1250px] w-full min-w-0 mx-auto pb-28 lg:pb-10" x-data="{ searchQuery: '', statusFilter: 'all' }">
+    <div class="space-y-5 sm:space-y-6 max-w-7xl w-full min-w-0 mx-auto pb-28 lg:pb-10" x-data="{ searchQuery: '', statusFilter: 'all' }">
 
         {{-- 1. HEADER --}}
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 sm:gap-4 min-w-0">

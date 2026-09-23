@@ -9,7 +9,7 @@
         window.__coocaCheckoutData = @json(['shippingRules' => $shippingRules]);
     </script>
 
-    <div class="max-w-[1250px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12" x-data="{
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12" x-data="{
         fulfillmentType: '{{ $storeSetting->allow_delivery ? 'delivery' : ($storeSetting->allow_pickup ? 'pickup' : 'dine_in') }}',
         customerName: '{{ auth('customer')->user()?->name ?? '' }}',
         customerPhone: '{{ auth('customer')->user()?->phone ?? '' }}',

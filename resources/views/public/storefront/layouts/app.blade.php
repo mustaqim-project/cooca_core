@@ -68,7 +68,8 @@
                         heading: ['"{{ $activeTheme['font_heading'] }}"', 'sans-serif'],
                         body: ['"{{ $activeTheme['font_body'] }}"', 'sans-serif'],
                         sans: ['"{{ $activeTheme['font_body'] }}"', '-apple-system', 'BlinkMacSystemFont',
-                            'sans-serif'],
+                            'sans-serif'
+                        ],
                     },
                     colors: {
                         theme: {
@@ -214,7 +215,7 @@
     {{-- ========================================================================= --}}
     <header
         class="sticky top-0 z-40 bg-white/90 dark:bg-neutral-900/90 backdrop-blur-xl border-b border-black/5 dark:border-white/10 transition-colors">
-        <div class="max-w-[1250px] mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between gap-4">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between gap-4">
 
             {{-- Brand Logo & Name --}}
             <a href="{{ url('/' . $business->slug) }}" class="flex items-center gap-3 shrink-0 group">
@@ -538,7 +539,7 @@
     {{-- ========================================================================= --}}
     <footer
         class="mt-auto border-t border-black/5 dark:border-white/10 bg-white/60 dark:bg-neutral-900/60 backdrop-blur-lg pt-12 pb-8">
-        <div class="max-w-[1250px] mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-10">
 
                 {{-- Col 1: Business Profile --}}

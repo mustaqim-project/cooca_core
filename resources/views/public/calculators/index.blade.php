@@ -1,14 +1,16 @@
 @extends('layouts.public_marketing')
 
 @section('title', 'Koleksi 8 Kalkulator Bisnis UMKM Online Gratis | Cooca')
-@section('description', 'Koleksi kalkulator bisnis gratis untuk UMKM: Kalkulator HPP, BEP Titik Impas, Margin Harga
+@section('description',
+    'Koleksi kalkulator bisnis gratis untuk UMKM: Kalkulator HPP, BEP Titik Impas, Margin Harga
     Jual, Laba Bersih, Gaji Karyawan, PPh Final 0.5%, dan Simulasi What-If.')
-@section('keywords', 'kalkulator bisnis umkm, kalkulator hpp online, kalkulator bep gratis, hitung harga jual margin,
+@section('keywords',
+    'kalkulator bisnis umkm, kalkulator hpp online, kalkulator bep gratis, hitung harga jual margin,
     simulasi laba rugi, kalkulator pph 0.5')
 
 @section('content')
     <div class="pt-6 sm:pt-10 pb-24">
-        <div class="max-w-[1250px] mx-auto px-4 sm:px-6 lg:px-8 space-y-16 sm:space-y-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16 sm:space-y-20">
 
             <!-- ═══ HERO SECTION (Mandatory 2-Grid Layout) ═══ -->
             <section class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">

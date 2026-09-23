@@ -1,7 +1,8 @@
 @extends('layouts.public_marketing')
 
 @section('title', ($search ? "Hasil Pencarian: {$search}" : 'Katalog Produk & Direktori UMKM') . ' | Cooca Marketplace')
-@section('description', 'Jelajahi dan temukan aneka produk lokal berkualitas dari ribuan bisnis UMKM Indonesia. Belanja
+@section('description',
+    'Jelajahi dan temukan aneka produk lokal berkualitas dari ribuan bisnis UMKM Indonesia. Belanja
     langsung, dukung produk lokal terpercaya.')
 
     @push('styles')
@@ -74,7 +75,7 @@
 
     <div x-data="{ mobileFilterOpen: false }"
         class="min-h-screen bg-[#F5F5F7] dark:bg-[#0A0E17] text-[#1D1D1F] dark:text-[#F5F5F7] transition-colors duration-200">
-        <div class="max-w-[1250px] mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 pb-24 space-y-6 sm:space-y-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 pb-24 space-y-6 sm:space-y-8">
 
             {{-- ══════════════════════════════════════════════════════════════════════ --}}
             {{-- TOP BREADCRUMB & HEADER SEARCH BAR --}}
