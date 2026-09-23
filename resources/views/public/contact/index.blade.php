@@ -9,19 +9,19 @@
     aplikasi kasir')
 
     @push('seo')
-        <link rel="canonical" href="{{ route('public.contact') }}">
+        <link rel="canonical" href="{{ route('contact') }}">
         <meta property="og:title" content="Hubungi Tim Dukungan Cooca | WhatsApp Resmi {{ $officialWhatsapp }}">
         <meta property="og:description"
             content="Hubungi tim konsultan dan customer service Cooca. Dapatkan bantuan teknis seputar aplikasi kasir atau kemitraan.">
-        <meta property="og:url" content="{{ route('public.contact') }}">
+        <meta property="og:url" content="{{ route('contact') }}">
         <meta property="og:type" content="website">
 
         <script type="application/ld+json">
     {
       "@@context": "https://schema.org",
-      "@type": "ContactPage",
+      "@@type": "ContactPage",
       "name": "Kontak Dukungan Cooca",
-      "url": "{{ route('public.contact') }}",
+      "url": "{{ route('contact') }}",
       "telephone": "{{ $officialWhatsapp }}"
     }
     </script>

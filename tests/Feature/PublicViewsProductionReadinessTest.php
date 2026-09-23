@@ -108,4 +108,19 @@ final class PublicViewsProductionReadinessTest extends TestCase
         $showResponse->assertOk();
         $showResponse->assertSee($post->title);
     }
+
+    public function test_all_four_public_resource_pages_render_without_syntax_errors(): void
+    {
+        $pages = [
+            '/resources/blog',
+            '/resources/case-studies',
+            '/resources/faq',
+            '/resources/guides',
+        ];
+
+        foreach ($pages as $url) {
+            $response = $this->get($url);
+            $response->assertOk();
+        }
+    }
 }
