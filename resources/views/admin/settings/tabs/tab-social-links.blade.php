@@ -16,8 +16,7 @@
                     </div>
                     <div>
                         <div class="flex items-center gap-2 flex-wrap">
-                            <h2 class="text-[15px] sm:text-[16px] font-bold text-black dark:text-white">Kanal Media
-                                Sosial &amp; Komunitas Resmi</h2>
+                            <h2 class="text-[15px] sm:text-[16px] font-bold text-black dark:text-white">Kanal Media Sosial &amp; Komunitas Resmi</h2>
                             <span
                                 class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158] border border-[#34C759]/25">
                                 <i data-lucide="check-circle-2" class="w-3 h-3" stroke-width="2"></i>
