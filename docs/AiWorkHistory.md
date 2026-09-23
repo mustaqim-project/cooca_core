@@ -7216,3 +7216,67 @@ Business Owner / Merchant UMKM COOCA memerlukan satu pusat pengelolaan (*Single 
 * `php artisan view:clear`: Sukses
 * `php artisan test --filter="LandingPageAuthTest|PublicPagesStructureTest|PublicMarketplaceSearchTest"`: **17 passed (93 assertions)**
 
+### [WORK-2026-09-23-112] Desktop 100% Zoom Optimal Scaling & Section Proportions (Apple HIG / Reference Match)
+* **Date:** 2026-09-23
+* **Status:** COMPLETED
+* **Module:** Public Marketing Landing Page & Layout
+* **Feature:** Desktop 100% Zoom Proportional Scaling, Hero Mockup Enlargement & Precision Alignment
+* **Work Type:** UI/UX | Frontend Tuning | Responsive Design | Automated Testing
+
+#### 1. Business Context & Objective
+* **Konteks:** Pada resolusi monitor desktop normal 100% zoom, ukuran elemen (headline, tombol CTA, kartu metrik, bar chart, dan mockup MacBook) sebelumnya terlihat menyusut, kurang presisi, dan meninggalkan ruang kosong vertikal/horizontal yang berlebihan, sehingga pengguna harus melakukan zoom browser manual ke 125% untuk mendapatkan visual yang padat dan terisi penuh satu layar (seperti pada gambar referensi Image 1).
+* **Tujuan:**
+  1. Menyesuaikan skala visual antarmuka agar pada **zoom normal 100%** tampil optimal, padat, dan proporsional persis seperti pada Image 1 (yang sebelumnya hanya tercapai di zoom 125%).
+  2. Memperbesar skala elemen laptop mockup (header bar, font ukuran metrik, tinggi chart multi-channel, dan AI assistant floating badge) agar tampak tegas, berwibawa, dan mudah dibaca di layar desktop.
+  3. Memastikan Hero Section mengisi penuh layar pertama (`min-h-[calc(100vh-4rem)] sm:min-h-[calc(100vh-5rem)] flex items-center`) tanpa membiarkan Section 2 mengintip di bawah secara canggung.
+  4. Menyelaraskan kontainer lebar grid ke `max-w-7xl xl:max-w-[1360px] 2xl:max-w-[1480px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-10` sehingga memiliki margin samping yang elegan (~11%) tanpa mepet ke tepi layar.
+
+#### 2. What Was Done
+1. **Hero Right Column (Laptop Mockup) Scaled to Image 1 Perfection:**
+   - Memperbesar wrapper laptop mockup: `max-w-[620px] xl:max-w-[700px] 2xl:max-w-[760px]`.
+   - Header bar laptop ditinggikan menjadi `h-8 sm:h-9` dengan dot window berdiameter `w-2.5 sm:w-3` dan URL font monospaced yang jelas.
+   - Angka metrik live diperbesar: `text-sm sm:text-lg xl:text-xl 2xl:text-2xl font-black text-slate-900`.
+   - Tinggi bar chart tren penjualan multi-channel diperbesar dari `h-24` (96px) menjadi `h-32 sm:h-40 xl:h-48` dengan rounded bar tebal dan shadow cyan neon.
+   - Floating AI Assistant badge disesuaikan: icon `w-10 h-10 sm:w-12 sm:h-12`, padding `p-4 sm:p-5`, font `text-xs sm:text-sm`.
+   - Menghapus elemen iPhone mockup yang tidak digunakan agar bersih dan sesuai dengan Image 1.
+2. **Hero Left Column Typography & Button Upscaling:**
+   - Headline: `text-4xl sm:text-5xl lg:text-[3.25rem] xl:text-[3.85rem] 2xl:text-[4.25rem] font-extrabold leading-[1.12]`.
+   - Subtitle: `text-sm sm:text-base lg:text-base xl:text-lg text-slate-300 max-w-xl xl:max-w-2xl leading-relaxed`.
+   - Dual CTAs: Tombol `Coba COOCA Gratis` dan `Lihat Cara Kerja` diperlebar menjadi `px-7 sm:px-8 py-3.5 sm:py-4` dengan teks tebal `text-sm sm:text-base`.
+   - Tag pills: `px-3 sm:px-3.5 py-1.5 sm:py-2 text-xs sm:text-sm`.
+3. **Container Consistency Across Layout & Landing:**
+   - Mengubah seluruh kontainer section di `landing.blade.php`, header navbar, dan footer di `layouts/public_marketing.blade.php` ke `max-w-7xl xl:max-w-[1360px] 2xl:max-w-[1480px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-10`.
+4. **Verification:**
+   - Tag `<div>` seimbang (219 open vs 219 close).
+   - Zero Unicode emoji verified.
+   - `php artisan view:clear` sukses.
+   - Test suite: **17 passed, 93 assertions (100% green)**.
+
+### [WORK-2026-09-23-113] Hero Section Dual Device Mockup Integration (MacBook Desktop + iPhone Mobile)
+* **Date:** 2026-09-23
+* **Status:** COMPLETED
+* **Module:** Public Marketing Landing Page
+* **Feature:** Dual Device Mockup (MacBook Desktop + Floating iPhone Mobile) in Hero Section
+* **Work Type:** UI/UX | Frontend Component Enhancement | Bento Apple HIG | Automated Testing
+
+#### 1. Business Context & Objective
+* **Konteks:** Menindaklanjuti permintaan pengguna agar grid sebelah kanan pada Hero Section menampilkan dua perangkat (Desktop + Mobile) secara simultan dalam 1 komposisi grid terpadu, seperti pada gambar referensi (MacBook di kiri-tengah dan iPhone melayang di sisi kanan), dengan layar kedua perangkat menampilkan dashboard ekosistem COOCA (Web ERP Dashboard pada MacBook dan POS Kasir Mobile pada iPhone).
+* **Tujuan:**
+  1. Menggabungkan mockup desktop (MacBook) dan mobile (iPhone) dalam satu grid kolom kanan (`lg:col-span-7`) dengan proporsi seimbang dan estetika Apple HIG modern.
+  2. Menampilkan antarmuka COOCA Web Dashboard pada layar MacBook (metrik KPI penjualan, transaksi, stok kritis, dan bar chart sinkronisasi multi-channel) serta MacBook chassis lip dengan opening notch.
+  3. Menampilkan antarmuka COOCA Mobile POS pada layar iPhone (Dynamic Island notch, status online kasir, omset harian, feed transaksi live dengan status QRIS/Tunai, tombol Scan QRIS, dan iOS home bar).
+  4. Menjaga floating AI Assistant badge di pojok kiri bawah.
+  5. Memastikan layout responsif, tag HTML seimbang, dan seluruh test suite lulus 100%.
+
+#### 2. What Was Done
+1. **Dual Device Architecture:**
+   - Mengalokasikan `lg:col-span-5` untuk kolom kiri (headline, subtitle, CTA, feature pills) dan `lg:col-span-7` untuk kolom kanan (dual device mockup).
+   - **MacBook Desktop Mockup**: Sasis dark slate, window header dengan lampu lalu-lintas (traffic lights) merah/kuning/hijau dan URL `cooca.id/app/dashboard`, 3 kartu metrik ringkasan, bar chart pertumbuhan multi-channel real-time, dan sasis aluminium bawah dengan takik bukaan layar (*opening notch*).
+   - **Floating iPhone 16 Pro Mockup**: Berada di sisi kanan laptop (`absolute -right-3 sm:-right-8 lg:-right-10 xl:-right-14 top-1/2 -translate-y-1/2 w-40 sm:w-48 xl:w-54 z-20`) dengan bayangan kedalaman realistis (`shadow-[-20px_25px_50px_rgba(0,0,0,0.85)]`), Dynamic Island notch, layar COOCA POS Mobile, ringkasan kasir harian (`Rp 1.850.000`), daftar transaksi pesanan live, tombol `Scan QRIS Kasir`, dan indikator garis beranda iOS.
+   - **Floating AI Assistant Badge**: Tetap hadir di pojok kiri bawah (`absolute -bottom-5 sm:-bottom-6 left-2 sm:left-4 z-30`) dengan ikon sparkles bersinar cyan.
+2. **Verification & Testing:**
+   - Tag `<div>` seimbang (235 open vs 235 close).
+   - `php artisan view:clear` sukses.
+   - Test suite: **17 passed, 93 assertions (100% green)**.
+
+

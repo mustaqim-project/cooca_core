@@ -116,7 +116,7 @@
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
         <!-- ═══ 1. HERO SECTION (Realistic MacBook & iPhone Showcase) ═══ -->
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
-        <section class="relative bg-[#060913] text-white min-h-[calc(100vh-4rem)] sm:min-h-[calc(100vh-5rem)] flex items-center py-10 lg:py-16 overflow-hidden">
+        <section class="relative bg-[#060913] text-white min-h-[calc(100vh-4rem)] sm:min-h-[calc(100vh-5rem)] flex items-center py-8 lg:py-12 xl:py-16 overflow-hidden">
             <!-- Ambient Radial Glows -->
             <div
                 class="absolute top-1/3 right-1/4 w-[500px] h-[500px] bg-[#00C2FF]/15 rounded-full blur-[140px] pointer-events-none -z-0">
@@ -124,9 +124,9 @@
 
             <!-- Container Grid -->
             <div
-                class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 xl:gap-12 items-center">
+                class="max-w-7xl xl:max-w-[1360px] 2xl:max-w-[1480px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-10 relative z-10 w-full grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 xl:gap-12 items-center">
                 <!-- Left Column: Copy & Value Proposition (Span 5 for balanced alignment) -->
-                <div class="lg:col-span-6 space-y-6 text-center lg:text-left flex flex-col justify-center">
+                <div class="lg:col-span-5 space-y-6 text-center lg:text-left flex flex-col justify-center">
                     <!-- Pill Badge -->
                     <div
                         class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-cyan-950/60 border border-cyan-400/30 text-cyan-300 text-xs font-semibold shadow-[0_0_15px_rgba(0,194,255,0.2)] w-fit mx-auto lg:mx-0">
@@ -136,14 +136,14 @@
 
                     <!-- Main Headline -->
                     <h1
-                        class="text-4xl sm:text-5xl lg:text-[3.5rem] 2xl:text-[4.25rem] font-extrabold text-white tracking-tight leading-[1.12]">
+                        class="text-4xl sm:text-5xl lg:text-[3.25rem] xl:text-[3.85rem] 2xl:text-[4.25rem] font-extrabold text-white tracking-tight leading-[1.12]">
                         Run Your Business. <br>
                         From <span
                             class="text-transparent bg-clip-text bg-gradient-to-r from-[#00C2FF] via-[#38BDF8] to-[#60A5FA]">One Operating<br class="hidden sm:inline"> System.</span>
                     </h1>
 
                     <!-- Subtitle -->
-                    <p class="text-sm sm:text-base lg:text-lg text-slate-300 max-w-2xl leading-relaxed font-normal mx-auto lg:mx-0">
+                    <p class="text-sm sm:text-base lg:text-base xl:text-lg text-slate-300 max-w-xl xl:max-w-2xl leading-relaxed font-normal mx-auto lg:mx-0">
                         COOCA membantu bisnis mengelola operasional, penjualan, keuangan, inventory, customer, social
                         media, marketplace, dan automation dalam satu ekosistem.
                     </p>
@@ -169,12 +169,12 @@
                             </a>
                         @else
                             <a href="{{ route('register') }}"
-                                class="w-full sm:w-auto px-7 py-3.5 rounded-full bg-[#00C2FF] hover:bg-[#00B4D8] text-slate-950 font-bold text-sm flex items-center justify-center gap-2 shadow-[0_0_25px_rgba(0,194,255,0.45)] hover:shadow-[0_0_35px_rgba(0,194,255,0.65)] hover:scale-105 active:scale-95 transition-all">
+                                class="w-full sm:w-auto px-7 sm:px-8 py-3.5 sm:py-4 rounded-full bg-[#00C2FF] hover:bg-[#00B4D8] text-slate-950 font-bold text-sm sm:text-base flex items-center justify-center gap-2 shadow-[0_0_25px_rgba(0,194,255,0.45)] hover:shadow-[0_0_35px_rgba(0,194,255,0.65)] hover:scale-105 active:scale-95 transition-all">
                                 <span>Coba COOCA Gratis</span>
                                 <i data-lucide="arrow-right" class="w-4 h-4"></i>
                             </a>
                             <a href="{{ route('public.bos.how-it-works') }}"
-                                class="w-full sm:w-auto px-6 py-3.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/20 text-white font-semibold text-sm flex items-center justify-center gap-2 hover:border-white/30 hover:scale-105 active:scale-95 transition-all">
+                                class="w-full sm:w-auto px-6 sm:px-7 py-3.5 sm:py-4 rounded-full bg-white/5 hover:bg-white/10 border border-white/20 text-white font-semibold text-sm sm:text-base flex items-center justify-center gap-2 hover:border-white/30 hover:scale-105 active:scale-95 transition-all">
                                 <span>Lihat Cara Kerja</span>
                                 <i data-lucide="play" class="w-3.5 h-3.5 fill-current"></i>
                             </a>
@@ -211,106 +211,134 @@
                     </div>
                 </div>
 
-                <!-- Right Column: Realistic MacBook & iPhone Showcase -->
-                    <div class="lg:col-span-6 relative pb-8 lg:pb-0">
-                        <div class="relative w-full max-w-lg mx-auto lg:max-w-none">
+                <!-- Right Column: Dual Device Mockup (MacBook Desktop + iPhone Mobile) -->
+                <div class="lg:col-span-7 relative pb-12 lg:pb-0 flex items-center justify-center lg:justify-end pr-2 sm:pr-6 lg:pr-8 xl:pr-12">
+                    <div class="relative w-full max-w-[540px] sm:max-w-[580px] xl:max-w-[640px]">
 
-                            <!-- Laptop Body Mockup -->
+                        <!-- ═══ 1. MACBOOK DESKTOP MOCKUP ═══ -->
+                        <div
+                            class="relative rounded-2xl sm:rounded-3xl bg-slate-900 border border-slate-700/80 shadow-[0_25px_60px_rgba(0,0,0,0.7)] overflow-hidden p-2 sm:p-3">
+                            <!-- Laptop Header Bar -->
                             <div
-                                class="relative rounded-2xl bg-slate-900 border border-slate-700 shadow-[0_20px_50px_rgba(0,0,0,0.6)] overflow-hidden p-2 sm:p-3">
-                                <!-- Laptop Header Bar -->
-                                <div
-                                    class="h-6 bg-slate-800 rounded-t-lg flex items-center px-3 gap-1.5 border-b border-slate-700">
-                                    <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
-                                    <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
-                                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-                                    <span class="text-[10px] text-slate-400 ml-2 font-mono">cooca.id/app/dashboard</span>
+                                class="h-7 sm:h-8 bg-slate-800 rounded-t-xl flex items-center px-3.5 sm:px-4 gap-2 border-b border-slate-700">
+                                <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
+                                <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+                                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                                <span class="text-[11px] sm:text-xs text-slate-400 ml-2 font-mono tracking-tight">cooca.id/app/dashboard</span>
+                            </div>
+
+                            <!-- Laptop Screen Content (COOCA Web Dashboard) -->
+                            <div class="bg-white text-slate-900 p-3.5 sm:p-5 rounded-b-lg font-sans">
+                                <!-- Top Stats -->
+                                <div class="grid grid-cols-3 gap-2.5 sm:gap-3.5 mb-3.5 sm:mb-4">
+                                    <div class="p-2.5 sm:p-3 rounded-xl bg-slate-50 border border-slate-100">
+                                        <div class="text-[10px] sm:text-[11px] text-slate-500 font-medium truncate">Penjualan Bulan Ini</div>
+                                        <div class="text-xs sm:text-base xl:text-lg font-black text-slate-900 mt-0.5">Rp 48.250.000</div>
+                                        <div class="text-[9px] sm:text-[10px] text-emerald-600 font-bold mt-0.5">+18.4% vs lalu</div>
+                                    </div>
+                                    <div class="p-2.5 sm:p-3 rounded-xl bg-slate-50 border border-slate-100">
+                                        <div class="text-[10px] sm:text-[11px] text-slate-500 font-medium truncate">Total Transaksi</div>
+                                        <div class="text-xs sm:text-base xl:text-lg font-black text-slate-900 mt-0.5">1.420 Order</div>
+                                        <div class="text-[9px] sm:text-[10px] text-emerald-600 font-bold mt-0.5">+12.1% kasir</div>
+                                    </div>
+                                    <div class="p-2.5 sm:p-3 rounded-xl bg-slate-50 border border-slate-100">
+                                        <div class="text-[10px] sm:text-[11px] text-slate-500 font-medium truncate">Stok Kritis</div>
+                                        <div class="text-xs sm:text-base xl:text-lg font-black text-amber-600 mt-0.5">3 Barang</div>
+                                        <div class="text-[9px] sm:text-[10px] text-slate-400 mt-0.5">Auto Restock on</div>
+                                    </div>
                                 </div>
 
-                                <!-- Laptop Screen Content (COOCA UI) -->
-                                <div class="bg-white text-slate-900 p-4 rounded-b-lg font-sans">
-                                    <!-- Top Stats -->
-                                    <div class="grid grid-cols-3 gap-3 mb-4">
-                                        <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
-                                            <div class="text-[10px] text-slate-500">Penjualan Bulan Ini</div>
-                                            <div class="text-sm font-extrabold text-slate-900 mt-0.5">Rp 48.250.000</div>
-                                            <div class="text-[9px] text-emerald-600 font-semibold mt-0.5">+18.4% vs lalu
-                                            </div>
-                                        </div>
-                                        <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
-                                            <div class="text-[10px] text-slate-500">Total Transaksi</div>
-                                            <div class="text-sm font-extrabold text-slate-900 mt-0.5">1.420 Order</div>
-                                            <div class="text-[9px] text-emerald-600 font-semibold mt-0.5">+12.1% kasir
-                                            </div>
-                                        </div>
-                                        <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
-                                            <div class="text-[10px] text-slate-500">Stok Kritis</div>
-                                            <div class="text-sm font-extrabold text-amber-600 mt-0.5">3 Barang</div>
-                                            <div class="text-[9px] text-slate-400 mt-0.5">Auto Restock on</div>
-                                        </div>
+                                <!-- Revenue Growth Bar Chart / Wave Simulation -->
+                                <div class="p-3 sm:p-4 rounded-xl bg-slate-50 border border-slate-100">
+                                    <div class="flex items-center justify-between text-xs mb-2 sm:mb-3">
+                                        <span class="font-bold text-slate-800 text-[11px] sm:text-xs">Tren Penjualan Multi-Channel</span>
+                                        <span class="text-[10px] sm:text-[11px] font-semibold text-[#00C2FF]">Real-Time Sync</span>
                                     </div>
-
-                                    <!-- Revenue Growth Bar Chart / Wave Simulation -->
-                                    <div class="p-3 rounded-xl bg-slate-50 border border-slate-100">
-                                        <div class="flex items-center justify-between text-xs mb-2">
-                                            <span class="font-bold text-slate-800">Tren Penjualan Multi-Channel</span>
-                                            <span class="text-[10px] text-[#00C2FF] font-semibold">Real-Time Sync</span>
-                                        </div>
-                                        <div class="h-24 flex items-end gap-2 pt-2">
-                                            <div class="w-full bg-sky-200 rounded-t h-[45%]"></div>
-                                            <div class="w-full bg-sky-300 rounded-t h-[60%]"></div>
-                                            <div class="w-full bg-sky-400 rounded-t h-[50%]"></div>
-                                            <div class="w-full bg-[#00C2FF] rounded-t h-[80%]"></div>
-                                            <div class="w-full bg-sky-300 rounded-t h-[65%]"></div>
-                                            <div class="w-full bg-[#00C2FF] rounded-t h-[95%]"></div>
-                                            <div
-                                                class="w-full bg-blue-600 rounded-t h-[100%] shadow-[0_0_10px_rgba(0,194,255,0.4)]">
-                                            </div>
-                                        </div>
+                                    <div class="h-28 sm:h-36 xl:h-40 flex items-end gap-2 sm:gap-3 pt-2">
+                                        <div class="w-full bg-sky-200 rounded-t h-[45%]"></div>
+                                        <div class="w-full bg-sky-300 rounded-t h-[60%]"></div>
+                                        <div class="w-full bg-sky-400 rounded-t h-[50%]"></div>
+                                        <div class="w-full bg-[#00C2FF] rounded-t h-[80%]"></div>
+                                        <div class="w-full bg-sky-300 rounded-t h-[65%]"></div>
+                                        <div class="w-full bg-[#00C2FF] rounded-t h-[95%]"></div>
+                                        <div class="w-full bg-blue-600 rounded-t h-[100%] shadow-[0_0_12px_rgba(0,194,255,0.4)]"></div>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- iPhone Mockup Floating Right -->
-                            <div
-                                class="absolute -right-4 -bottom-6 w-36 sm:w-44 rounded-[28px] bg-slate-950 p-2 border-2 border-slate-700 shadow-2xl hidden xs:block">
-                                <div class="rounded-[22px] bg-white text-slate-900 p-2.5 text-center">
-                                    <div class="w-8 h-1 bg-slate-800 rounded-full mx-auto mb-2"></div>
-                                    <div class="text-[9px] font-bold text-slate-500 uppercase">POS Mobile</div>
-                                    <div class="text-xs font-black text-slate-900 mt-1">Rp 1.850.000</div>
-                                    <div class="mt-2 space-y-1 text-[9px] text-left text-slate-600">
-                                        <div class="flex justify-between py-0.5 border-b border-slate-100">
-                                            <span>Order #1029</span>
-                                            <span class="text-emerald-600 font-bold">Lunas</span>
-                                        </div>
-                                        <div class="flex justify-between py-0.5 border-b border-slate-100">
-                                            <span>Order #1028</span>
-                                            <span class="text-emerald-600 font-bold">Lunas</span>
-                                        </div>
-                                    </div>
-                                    <div class="mt-2.5 py-1 px-2 rounded-lg bg-[#00C2FF] text-white text-[9px] font-bold">
-                                        Scan QRIS Kasir
-                                    </div>
-                                </div>
+                            <!-- MacBook Aluminum Chassis Lower Lip -->
+                            <div class="h-2.5 sm:h-3 bg-gradient-to-b from-slate-700 via-slate-800 to-slate-900 rounded-b-xl border-t border-slate-600/50 flex items-center justify-center">
+                                <div class="w-12 sm:w-16 h-1 bg-slate-950/60 rounded-full"></div>
                             </div>
-
-                            <!-- Floating AI Assistant Badge (Bottom Left) -->
-                            <div
-                                class="absolute -bottom-5 left-4 z-20 p-3.5 rounded-2xl bg-[#0b1633]/95 backdrop-blur-xl border border-cyan-400/40 shadow-[0_10px_30px_rgba(0,194,255,0.35)] flex items-center gap-3 max-w-xs">
-                                <div
-                                    class="w-8 h-8 rounded-xl bg-[#00C2FF] text-slate-950 flex items-center justify-center shrink-0 shadow-[0_0_15px_rgba(0,194,255,0.6)]">
-                                    <i data-lucide="sparkles" class="w-4 h-4"></i>
-                                </div>
-                                <div>
-                                    <span class="text-xs font-bold text-cyan-300 block">AI Assistant</span>
-                                    <p class="text-[11px] text-slate-200 leading-snug">
-                                        Ringkasan penjualan hari ini meningkat 24% dibanding kemarin.
-                                    </p>
-                                </div>
-                            </div>
-
                         </div>
+
+                        <!-- ═══ 2. FLOATING IPHONE MOBILE MOCKUP (RIGHT SIDE) ═══ -->
+                        <div
+                            class="absolute -right-3 sm:-right-8 lg:-right-10 xl:-right-14 top-1/2 -translate-y-1/2 w-40 sm:w-48 xl:w-54 z-20 shadow-[-20px_25px_50px_rgba(0,0,0,0.85),0_0_30px_rgba(0,194,255,0.25)] rounded-[32px] sm:rounded-[38px] bg-slate-950 p-2 sm:p-2.5 border-2 border-slate-700/90 ring-1 ring-white/10 transition-transform duration-300 hover:scale-105">
+                            
+                            <!-- Dynamic Island Notch -->
+                            <div class="w-12 sm:w-15 h-3 sm:h-3.5 bg-black rounded-full mx-auto mb-1.5 flex items-center justify-center">
+                                <div class="w-1.5 h-1.5 rounded-full bg-slate-900 ml-auto mr-1.5"></div>
+                            </div>
+
+                            <!-- iPhone Screen (COOCA Mobile POS Dashboard) -->
+                            <div class="rounded-[24px] sm:rounded-[28px] bg-white text-slate-900 p-2.5 sm:p-3 overflow-hidden font-sans">
+                                <!-- Top App Header -->
+                                <div class="flex items-center justify-between border-b border-slate-100 pb-1.5 mb-1.5">
+                                    <span class="text-[9px] font-black uppercase text-[#00C2FF] tracking-wider">COOCA POS</span>
+                                    <span class="text-[8px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-50 text-emerald-600">Online</span>
+                                </div>
+
+                                <!-- Mini Sales Summary -->
+                                <div class="bg-slate-50 border border-slate-100 rounded-xl p-2 text-center">
+                                    <div class="text-[8px] text-slate-500 font-medium">Kasir Hari Ini</div>
+                                    <div class="text-xs sm:text-sm font-black text-slate-900 mt-0.5">Rp 1.850.000</div>
+                                </div>
+
+                                <!-- Recent Live Orders -->
+                                <div class="mt-2 space-y-1 text-[9px] text-left text-slate-600">
+                                    <div class="flex justify-between items-center py-0.5 border-b border-slate-100">
+                                        <span class="font-medium truncate max-w-[65px] sm:max-w-[75px]">#1042 Kopi</span>
+                                        <span class="text-emerald-600 font-bold">Lunas</span>
+                                    </div>
+                                    <div class="flex justify-between items-center py-0.5 border-b border-slate-100">
+                                        <span class="font-medium truncate max-w-[65px] sm:max-w-[75px]">#1041 Roti</span>
+                                        <span class="text-emerald-600 font-bold">Lunas</span>
+                                    </div>
+                                    <div class="flex justify-between items-center py-0.5">
+                                        <span class="font-medium truncate max-w-[65px] sm:max-w-[75px]">#1040 Susu</span>
+                                        <span class="text-emerald-600 font-bold">Lunas</span>
+                                    </div>
+                                </div>
+
+                                <!-- Action Button: Scan QRIS -->
+                                <div class="mt-2 py-1.5 px-2 rounded-xl bg-[#00C2FF] hover:bg-[#00B4D8] text-slate-950 text-[9px] font-extrabold flex items-center justify-center gap-1 shadow-sm">
+                                    <i data-lucide="qr-code" class="w-3 h-3"></i>
+                                    <span>Scan QRIS Kasir</span>
+                                </div>
+
+                                <!-- iOS Home Indicator -->
+                                <div class="w-14 sm:w-16 h-1 bg-slate-300 rounded-full mx-auto mt-2"></div>
+                            </div>
+                        </div>
+
+                        <!-- ═══ 3. FLOATING AI ASSISTANT BADGE (BOTTOM LEFT) ═══ -->
+                        <div
+                            class="absolute -bottom-5 sm:-bottom-6 left-2 sm:left-4 z-30 p-3 sm:p-4 rounded-2xl bg-[#0b1633]/95 backdrop-blur-xl border border-cyan-400/40 shadow-[0_12px_35px_rgba(0,194,255,0.35)] flex items-center gap-3 max-w-xs">
+                            <div
+                                class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-[#00C2FF] text-slate-950 flex items-center justify-center shrink-0 shadow-[0_0_15px_rgba(0,194,255,0.6)]">
+                                <i data-lucide="sparkles" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+                            </div>
+                            <div>
+                                <span class="text-xs font-bold text-cyan-300 block">AI Assistant</span>
+                                <p class="text-[10px] sm:text-xs text-slate-200 leading-snug">
+                                    Ringkasan penjualan hari ini meningkat 24% dibanding kemarin.
+                                </p>
+                            </div>
+                        </div>
+
                     </div>
+                </div>
 
             </div>
         </section>
@@ -321,7 +349,7 @@
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
         <section
             class="bg-white dark:bg-[#070A14] py-20 lg:py-24 border-b border-slate-100 dark:border-white/5 transition-colors">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-7xl xl:max-w-[1360px] 2xl:max-w-[1480px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-10">
 
                 <!-- Section Header -->
                 <div class="text-center max-w-4xl mx-auto space-y-3">
@@ -505,7 +533,7 @@
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
         <section
             class="bg-[#F8FAFC] dark:bg-[#070B18] py-20 lg:py-24 border-b border-slate-100 dark:border-white/5 transition-colors">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-7xl xl:max-w-[1360px] 2xl:max-w-[1480px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-10">
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
 
                     <!-- Left Column -->
@@ -691,7 +719,7 @@
                 class="absolute top-1/2 left-1/3 w-96 h-96 bg-[#00C2FF]/10 rounded-full blur-[130px] pointer-events-none -z-0">
             </div>
 
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="max-w-7xl xl:max-w-[1360px] 2xl:max-w-[1480px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-10 relative z-10">
 
                 <!-- Section Heading -->
                 <div class="space-y-3 mb-14 text-center lg:text-left">
@@ -1197,7 +1225,7 @@
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
         <section
             class="bg-white dark:bg-[#070A14] py-20 lg:py-24 border-b border-slate-100 dark:border-white/5 transition-colors">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-7xl xl:max-w-[1360px] 2xl:max-w-[1480px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-10">
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
 
                     <!-- Left Column -->
@@ -1349,7 +1377,7 @@
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
         <section
             class="bg-[#F8FAFC] dark:bg-[#070B18] py-20 lg:py-24 border-b border-slate-100 dark:border-white/5 transition-colors">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-7xl xl:max-w-[1360px] 2xl:max-w-[1480px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-10">
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
 
                     <!-- ════ LEFT CARD: CONTENT AUTOMATION ════ -->
@@ -1706,7 +1734,7 @@
         <!-- ═══ 7. "COCOK UNTUK BERBAGAI JENIS BISNIS" (Solutions) ═══ -->
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
         <section class="bg-white dark:bg-[#070A14] py-20 lg:py-24 transition-colors">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-7xl xl:max-w-[1360px] 2xl:max-w-[1480px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-10">
 
                 <!-- Section Header with Right-Aligned Button -->
                 <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
@@ -1834,7 +1862,7 @@
                 class="absolute -top-24 right-1/4 w-[450px] h-[450px] bg-[#00C2FF]/15 rounded-full blur-[140px] pointer-events-none">
             </div>
 
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="max-w-7xl xl:max-w-[1360px] 2xl:max-w-[1480px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-10 relative z-10">
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
 
                     <!-- Left Column -->
@@ -1875,7 +1903,7 @@
                                     <i data-lucide="arrow-right" class="w-4 h-4"></i>
                                 </a>
                                 <a href="{{ route('public.demo') }}"
-                                    class="w-full sm:w-auto px-6 py-3.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/20 text-white font-semibold text-sm flex items-center justify-center gap-2 hover:border-white/30 hover:scale-105 active:scale-95 transition-all">
+                                    class="w-full sm:w-auto px-6 sm:px-7 py-3.5 sm:py-4 rounded-full bg-white/5 hover:bg-white/10 border border-white/20 text-white font-semibold text-sm sm:text-base flex items-center justify-center gap-2 hover:border-white/30 hover:scale-105 active:scale-95 transition-all">
                                     <span>Lihat Demo</span>
                                     <i data-lucide="play" class="w-3.5 h-3.5 fill-current"></i>
                                 </a>
