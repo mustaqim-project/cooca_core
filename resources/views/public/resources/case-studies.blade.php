@@ -1,23 +1,14 @@
 @extends('layouts.public_marketing')
 
 @section('title', 'Studi Kasus & Kisah Sukses UMKM Indonesia: Transformasi Bisnis Nyata | COOCA')
-@section('description', 'Pelajari bagaimana pelaku UMKM F&B, retail, bengkel, laundry, fashion, dan konveksi berhasil
-    mengeliminasi selisih stok, memangkas biaya operasional, dan melipatgandakan profit bersama COOCA.')
-@section('keywords', 'studi kasus umkm, kisah sukses bisnis, efisiensi bisnis umkm, sistem kasir multi cabang, kontrol
-    hpp makanan, aplikasi bengkel motor, software erp indonesia')
+@section('description', 'Pelajari bagaimana pelaku UMKM F&B, retail, bengkel, laundry, fashion, dan konveksi berhasil mengeliminasi selisih stok, memangkas biaya operasional, dan melipatgandakan profit bersama COOCA.')
+@section('og_title', 'Studi Kasus & Kisah Sukses UMKM Indonesia: Transformasi Bisnis Nyata | COOCA')
+@section('og_description', 'Pelajari kisah nyata pemilik bisnis Indonesia mengeliminasi kebocoran stok, memangkas waktu rekap kasir, dan menumbuhkan cabang bersama COOCA.')
+@section('canonical', route('public.resources.case-studies'))
+@section('og_type', 'article')
+@section('keywords', 'studi kasus umkm, kisah sukses bisnis, efisiensi bisnis umkm, sistem kasir multi cabang, kontrol hpp makanan, aplikasi bengkel motor, software erp indonesia')
 
     @push('seo')
-        <link rel="canonical" href="{{ route('public.resources.case-studies') }}" />
-        <meta property="og:title" content="Studi Kasus & Kisah Sukses UMKM Indonesia: Transformasi Bisnis Nyata | COOCA" />
-        <meta property="og:description"
-            content="Pelajari kisah nyata pemilik bisnis Indonesia mengeliminasi kebocoran stok, memangkas waktu rekap kasir, dan menumbuhkan cabang bersama COOCA." />
-        <meta property="og:url" content="{{ route('public.resources.case-studies') }}" />
-        <meta property="og:type" content="article" />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Studi Kasus Transformasi UMKM Indonesia | COOCA" />
-        <meta name="twitter:description"
-            content="Kisah sukses nyata dari F&B, retail grosir, bengkel motor, hingga laundry mengotomasi operasional harian." />
-
         <script type="application/ld+json">
 {
   "@@context": "https://schema.org",
@@ -115,8 +106,8 @@
 
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
 
-                    <!-- KIRI: Headline, Value Proposition & Actions -->
-                    <div class="lg:col-span-7 space-y-6">
+                    <!-- KIRI: Headline, Value Proposition & Actions (5 Cols ~ 42%) -->
+                    <div class="lg:col-span-5 space-y-6">
                         <!-- Pure Typographic Kicker -->
                         <div
                             class="text-[12px] sm:text-[13px] font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF]">
@@ -183,8 +174,8 @@
                         </div>
                     </div>
 
-                    <!-- KANAN: Real Verification UI Bento (F&B Multi-Outlet Audit Card) -->
-                    <div class="lg:col-span-5">
+                    <!-- KANAN: Real Verification UI Bento (F&B Multi-Outlet Audit Card - 7 Cols ~ 58%) -->
+                    <div class="lg:col-span-7">
                         <div
                             class="rounded-[24px] bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] p-6 shadow-sm space-y-4">
 

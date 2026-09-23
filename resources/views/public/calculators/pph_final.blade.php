@@ -1,15 +1,43 @@
 @extends('layouts.public_marketing')
 
-@section('title', 'Kalkulator PPh Final UMKM 0.5% (PP 55/2022) Online Gratis | Cooca')
-@section('description',
-    'Kalkulator simulasi pajak PPh Final 0.5% UMKM online gratis sesuai UU HPP dan PP 55/2022.
-    Lengkap dengan perhitungan batas omzet Rp 500 juta bebas pajak per tahun.')
-@section('keywords',
-    'kalkulator pph final 0.5, hitung pajak umkm online, pp 55 2022 pajak umkm, batas omzet 500 juta
-    bebas pajak, cara setor pph final bulanan')
+@section('title', 'Kalkulator PPh Final UMKM 0.5% (PP 55/2022) Online Gratis | COOCA')
+@section('description', 'Kalkulator simulasi pajak PPh Final 0.5% UMKM online gratis sesuai UU HPP dan PP 55/2022. Lengkap dengan perhitungan batas omzet Rp 500 juta bebas pajak per tahun.')
+@section('og_title', 'Kalkulator PPh Final UMKM 0.5% (PP 55/2022) Online Gratis | COOCA')
+@section('og_description', 'Hitung kewajiban pajak UMKM 0.5% secara akurat dengan batasan omzet tidak kena pajak Rp 500 juta.')
+@section('canonical', route('kalkulator.pph-final'))
+@section('og_type', 'website')
+@section('keywords', 'kalkulator pph final 0.5, hitung pajak umkm online, pp 55 2022 pajak umkm, batas omzet 500 juta bebas pajak, cara setor pph final bulanan')
+
+@push('seo')
+<script type="application/ld+json">
+{
+  "@@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Kalkulator PPh Final UMKM 0.5% COOCA",
+  "url": "{{ route('kalkulator.pph-final') }}",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "All",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "IDR"
+  },
+  "description": "Kalkulator simulasi pajak PPh Final 0.5% UMKM sesuai PP 55/2022 dan batasan PTKP Rp 500 juta."
+}
+</script>
+@endpush
 
 @section('content')
-    <div class="pt-8 pb-24">
+    <div x-data="{
+        refreshIcons() {
+            this.$nextTick(() => {
+                if (window.lucide) {
+                    window.lucide.createIcons();
+                }
+            });
+        }
+    }" x-init="refreshIcons()"
+    class="w-full font-sans antialiased bg-[#F2F2F7] dark:bg-[#000000] text-[#1D1D1F] dark:text-[#F5F5F7] transition-colors pt-8 pb-24">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
 
             <!-- Breadcrumbs -->

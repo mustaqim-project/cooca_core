@@ -1,15 +1,43 @@
 @extends('layouts.public_marketing')
 
-@section('title', 'Kalkulator Target Omzet Harian & Jumlah Transaksi Online | Cooca')
-@section('description',
-    'Kalkulator target omzet harian online untuk toko dan kafe. Pecah target omzet bulanan menjadi
-    target omzet harian, jumlah transaksi pembeli, dan nilai keranjang belanja rata-rata.')
-@section('keywords',
-    'kalkulator omzet harian, hitung target penjualan bulanan, average order value kasir, target
-    transaksi toko, sales target breakdown')
+@section('title', 'Kalkulator Target Omzet Harian & Jumlah Transaksi Online | COOCA')
+@section('description', 'Kalkulator target omzet harian online untuk toko dan kafe. Pecah target omzet bulanan menjadi target omzet harian, jumlah transaksi pembeli, dan nilai keranjang belanja rata-rata.')
+@section('og_title', 'Kalkulator Target Omzet Harian & Jumlah Transaksi Online | COOCA')
+@section('og_description', 'Pecah target omzet bulanan Anda menjadi target transaksi harian dan rata-rata struk kasir yang terukur.')
+@section('canonical', route('kalkulator.omzet-harian'))
+@section('og_type', 'website')
+@section('keywords', 'kalkulator omzet harian, hitung target penjualan bulanan, average order value kasir, target transaksi toko, sales target breakdown')
+
+@push('seo')
+<script type="application/ld+json">
+{
+  "@@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Kalkulator Target Omzet Harian COOCA",
+  "url": "{{ route('kalkulator.omzet-harian') }}",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "All",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "IDR"
+  },
+  "description": "Kalkulator pemecah target omzet bulanan menjadi target penjualan harian dan struk kasir."
+}
+</script>
+@endpush
 
 @section('content')
-    <div class="pt-8 pb-24">
+    <div x-data="{
+        refreshIcons() {
+            this.$nextTick(() => {
+                if (window.lucide) {
+                    window.lucide.createIcons();
+                }
+            });
+        }
+    }" x-init="refreshIcons()"
+    class="w-full font-sans antialiased bg-[#F2F2F7] dark:bg-[#000000] text-[#1D1D1F] dark:text-[#F5F5F7] transition-colors pt-8 pb-24">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
 
             <!-- Breadcrumbs -->

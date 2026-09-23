@@ -2,18 +2,13 @@
 
 @section('title', 'Panduan Operasional & Dokumentasi SOP Bisnis UMKM | COOCA')
 @section('description', 'Panduan langkah demi langkah implementasi sistem COOCA: setup awal gerai, pairing printer Bluetooth thermal 58mm/80mm, impor Excel massal, dan SOP buka-tutup kasir.')
+@section('og_title', 'Panduan Operasional & Dokumentasi SOP Bisnis UMKM | COOCA')
+@section('og_description', 'Tutorial langkah demi langkah menyiapkan gerai, menghubungkan printer thermal, dan menjalankan SOP kasir profesional.')
+@section('canonical', route('public.resources.guides'))
+@section('og_type', 'article')
 @section('keywords', 'panduan cooca, cara setting printer kasir bluetooth, sop kasir toko, cara impor produk excel, cara stok opname akurat, tutorial pos android')
 
 @push('seo')
-<link rel="canonical" href="{{ route('public.resources.guides') }}" />
-<meta property="og:title" content="Panduan Operasional & Dokumentasi SOP Bisnis UMKM | COOCA" />
-<meta property="og:description" content="Tutorial langkah demi langkah menyiapkan gerai, menghubungkan printer thermal, dan menjalankan SOP kasir profesional." />
-<meta property="og:url" content="{{ route('public.resources.guides') }}" />
-<meta property="og:type" content="article" />
-<meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:title" content="Panduan Operasional & Dokumentasi SOP Bisnis UMKM | COOCA" />
-<meta name="twitter:description" content="Setup kasir kilat, pairing printer Bluetooth, dan SOP buka-tutup shift kasir." />
-
 <script type="application/ld+json">
 {
   "@@context": "https://schema.org",
@@ -90,8 +85,8 @@ class="w-full font-sans antialiased bg-[#F2F2F7] dark:bg-[#000000] text-[#1D1D1F
 
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
                 
-                <!-- KIRI: Headline, Value Proposition & Actions -->
-                <div class="lg:col-span-7 space-y-6">
+                <!-- KIRI: Headline, Value Proposition & Actions (5 Cols ~ 42%) -->
+                <div class="lg:col-span-5 space-y-6">
                     <!-- Pure Typographic Kicker -->
                     <div class="text-[12px] sm:text-[13px] font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF]">
                         PANDUAN OPERASIONAL &amp; SOP GERAI
@@ -143,8 +138,8 @@ class="w-full font-sans antialiased bg-[#F2F2F7] dark:bg-[#000000] text-[#1D1D1F
                     </div>
                 </div>
 
-                <!-- KANAN: Real Thermal Receipt & Step Checklist Bento Preview -->
-                <div class="lg:col-span-5">
+                <!-- KANAN: Real Thermal Receipt & Step Checklist Bento Preview (7 Cols ~ 58%) -->
+                <div class="lg:col-span-7">
                     <div class="rounded-[24px] bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] p-6 shadow-sm space-y-4">
                         
                         <div class="flex items-center justify-between border-b border-black/[0.06] dark:border-white/[0.08] pb-3">

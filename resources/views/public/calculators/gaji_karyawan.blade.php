@@ -1,15 +1,43 @@
 @extends('layouts.public_marketing')
 
-@section('title', 'Kalkulator Gaji Karyawan UMKM & Upah Harian Online | Cooca')
-@section('description',
-    'Kalkulator penghitungan gaji staf dan karyawan UMKM online. Hitung gaji pokok harian/bulanan,
-    tunjangan makan, uang lembur, dan potongan kasbon secara transparan.')
-@section('keywords',
-    'kalkulator gaji karyawan, hitung upah harian umkm, rumus lembur karyawan toko, payroll sederhana
-    excel, slip gaji online')
+@section('title', 'Kalkulator Gaji Karyawan UMKM & Upah Harian Online | COOCA')
+@section('description', 'Kalkulator penghitungan gaji staf dan karyawan UMKM online. Hitung gaji pokok harian/bulanan, tunjangan makan, uang lembur, dan potongan kasbon secara transparan.')
+@section('og_title', 'Kalkulator Gaji Karyawan UMKM & Upah Harian Online | COOCA')
+@section('og_description', 'Kelola perhitungan payroll karyawan gerai Anda secara rapi: gaji pokok, tunjangan, dan lembur.')
+@section('canonical', route('kalkulator.gaji-karyawan'))
+@section('og_type', 'website')
+@section('keywords', 'kalkulator gaji karyawan, hitung upah harian umkm, rumus lembur karyawan toko, payroll sederhana excel, slip gaji online')
+
+@push('seo')
+<script type="application/ld+json">
+{
+  "@@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Kalkulator Gaji Karyawan & Payroll UMKM COOCA",
+  "url": "{{ route('kalkulator.gaji-karyawan') }}",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "All",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "IDR"
+  },
+  "description": "Kalkulator penghitungan upah harian, bulanan, tunjangan makan, dan lembur staf toko/kafe."
+}
+</script>
+@endpush
 
 @section('content')
-    <div class="pt-8 pb-24">
+    <div x-data="{
+        refreshIcons() {
+            this.$nextTick(() => {
+                if (window.lucide) {
+                    window.lucide.createIcons();
+                }
+            });
+        }
+    }" x-init="refreshIcons()"
+    class="w-full font-sans antialiased bg-[#F2F2F7] dark:bg-[#000000] text-[#1D1D1F] dark:text-[#F5F5F7] transition-colors pt-8 pb-24">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
 
             <!-- Breadcrumbs -->

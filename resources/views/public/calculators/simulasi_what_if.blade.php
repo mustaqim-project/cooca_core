@@ -1,15 +1,43 @@
 @extends('layouts.public_marketing')
 
-@section('title', 'Simulasi Bisnis What-If (Sensitivitas Biaya & Diskon) Online Gratis | Cooca')
-@section('description',
-    'Alat simulasi What-If bisnis UMKM online. Uji skenario kenaikan harga bahan baku, kenaikan upah
-    tenaga kerja, atau dampak pemberian diskon promo terhadap sisa keuntungan bersih.')
-@section('keywords',
-    'simulasi bisnis what-if, kalkulator sensitivitas biaya, dampak diskon terhadap laba, skenario
-    kenaikan bahan baku, simulator bisnis umkm online')
+@section('title', 'Simulasi Bisnis What-If (Sensitivitas Biaya & Diskon) Online Gratis | COOCA')
+@section('description', 'Alat simulasi What-If bisnis UMKM online. Uji skenario kenaikan harga bahan baku, kenaikan upah tenaga kerja, atau dampak pemberian diskon promo terhadap sisa keuntungan bersih.')
+@section('og_title', 'Simulasi Bisnis What-If (Sensitivitas Biaya & Diskon) Online Gratis | COOCA')
+@section('og_description', 'Uji skenario kenaikan harga bahan baku, upah kerja, atau dampak pemberian diskon terhadap sisa keuntungan bersih usaha Anda.')
+@section('canonical', route('kalkulator.simulasi-what-if'))
+@section('og_type', 'website')
+@section('keywords', 'simulasi bisnis what-if, kalkulator sensitivitas biaya, dampak diskon terhadap laba, skenario kenaikan bahan baku, simulator bisnis umkm online')
+
+@push('seo')
+<script type="application/ld+json">
+{
+  "@@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Simulasi Bisnis What-If COOCA",
+  "url": "{{ route('kalkulator.simulasi-what-if') }}",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "All",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "IDR"
+  },
+  "description": "Alat simulasi sensitivitas bisnis untuk menguji dampak kenaikan biaya bahan baku dan diskon terhadap profitabilitas."
+}
+</script>
+@endpush
 
 @section('content')
-    <div class="pt-8 pb-24">
+    <div x-data="{
+        refreshIcons() {
+            this.$nextTick(() => {
+                if (window.lucide) {
+                    window.lucide.createIcons();
+                }
+            });
+        }
+    }" x-init="refreshIcons()"
+    class="w-full font-sans antialiased bg-[#F2F2F7] dark:bg-[#000000] text-[#1D1D1F] dark:text-[#F5F5F7] transition-colors pt-8 pb-24">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
 
             <!-- Breadcrumbs (Apple Inset Style) -->

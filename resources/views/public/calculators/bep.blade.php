@@ -1,15 +1,43 @@
 @extends('layouts.public_marketing')
 
-@section('title', 'Kalkulator BEP (Break Even Point) Online Gratis | Cooca')
-@section('description',
-    'Kalkulator BEP (Titik Impas) online gratis untuk UMKM. Hitung berapa unit produk atau nominal
-    rupiah omzet yang harus dicapai agar bisnis tidak merugi.')
-@section('keywords',
-    'kalkulator bep, hitung titik impas online, rumus break even point rupiah, bep unit warung,
-    kalkulator bep umkm')
+@section('title', 'Kalkulator BEP (Break Even Point) Online Gratis | COOCA')
+@section('description', 'Kalkulator BEP (Titik Impas) online gratis untuk UMKM. Hitung berapa unit produk atau nominal rupiah omzet yang harus dicapai agar bisnis tidak merugi.')
+@section('og_title', 'Kalkulator BEP (Break Even Point) Online Gratis | COOCA')
+@section('og_description', 'Ketahui batas minimal penjualan bulanan Anda. Penjualan di atas titik BEP adalah keuntungan murni bagi usaha.')
+@section('canonical', route('kalkulator.bep'))
+@section('og_type', 'website')
+@section('keywords', 'kalkulator bep, hitung titik impas online, rumus break even point rupiah, bep unit warung, kalkulator bep umkm')
+
+@push('seo')
+<script type="application/ld+json">
+{
+  "@@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Kalkulator BEP (Break Even Point) COOCA",
+  "url": "{{ route('kalkulator.bep') }}",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "All",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "IDR"
+  },
+  "description": "Kalkulator titik impas BEP untuk mengetahui target unit dan omzet agar tidak merugi."
+}
+</script>
+@endpush
 
 @section('content')
-    <div class="pt-8 pb-24">
+    <div x-data="{
+        refreshIcons() {
+            this.$nextTick(() => {
+                if (window.lucide) {
+                    window.lucide.createIcons();
+                }
+            });
+        }
+    }" x-init="refreshIcons()"
+    class="w-full font-sans antialiased bg-[#F2F2F7] dark:bg-[#000000] text-[#1D1D1F] dark:text-[#F5F5F7] transition-colors pt-8 pb-24">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
 
             <!-- Breadcrumbs -->

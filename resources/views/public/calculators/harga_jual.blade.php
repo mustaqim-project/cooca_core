@@ -1,15 +1,43 @@
 @extends('layouts.public_marketing')
 
-@section('title', 'Kalkulator Harga Jual (Markup vs Margin) Online Gratis | Cooca')
-@section('description',
-    'Kalkulator penetapan harga jual produk online. Hitung perbandingan formula markup vs profit
-    margin dan temukan harga jual psikologis (charm pricing) untuk meningkatkan penjualan.')
-@section('keywords',
-    'kalkulator harga jual, hitung markup dan margin, rumus harga jual barang, kalkulator harga
-    psikologis, pricing calculator umkm')
+@section('title', 'Kalkulator Harga Jual (Markup vs Margin) Online Gratis | COOCA')
+@section('description', 'Kalkulator penetapan harga jual produk online. Hitung perbandingan formula markup vs profit margin dan temukan harga jual psikologis (charm pricing) untuk meningkatkan penjualan.')
+@section('og_title', 'Kalkulator Harga Jual (Markup vs Margin) Online Gratis | COOCA')
+@section('og_description', 'Hitung harga jual optimal dengan perbandingan markup dan profit margin secara akurat.')
+@section('canonical', route('kalkulator.harga-jual'))
+@section('og_type', 'website')
+@section('keywords', 'kalkulator harga jual, hitung markup dan margin, rumus harga jual barang, kalkulator harga psikologis, pricing calculator umkm')
+
+@push('seo')
+<script type="application/ld+json">
+{
+  "@@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Kalkulator Harga Jual (Markup vs Margin) COOCA",
+  "url": "{{ route('kalkulator.harga-jual') }}",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "All",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "IDR"
+  },
+  "description": "Kalkulator penetapan harga jual untuk menghitung perbandingan markup vs margin dan harga psikologis."
+}
+</script>
+@endpush
 
 @section('content')
-    <div class="pt-8 pb-24">
+    <div x-data="{
+        refreshIcons() {
+            this.$nextTick(() => {
+                if (window.lucide) {
+                    window.lucide.createIcons();
+                }
+            });
+        }
+    }" x-init="refreshIcons()"
+    class="w-full font-sans antialiased bg-[#F2F2F7] dark:bg-[#000000] text-[#1D1D1F] dark:text-[#F5F5F7] transition-colors pt-8 pb-24">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
 
             <!-- Breadcrumbs -->

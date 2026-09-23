@@ -4,13 +4,12 @@
 @section('description',
     'Jelajahi dan temukan aneka produk lokal berkualitas dari ribuan bisnis UMKM Indonesia. Belanja langsung, dukung produk lokal terpercaya.')
 
-@push('seo')
-    <link rel="canonical" href="{{ route('marketplace.search') }}">
-    <meta property="og:title" content="{{ ($search ? "Hasil Pencarian: {$search}" : 'Katalog Produk & Direktori UMKM') }} | Cooca Marketplace">
-    <meta property="og:description" content="Jelajahi dan temukan aneka produk lokal berkualitas dari ribuan bisnis UMKM Indonesia.">
-    <meta property="og:url" content="{{ route('marketplace.search') }}">
-    <meta property="og:type" content="website">
+@section('canonical', route('marketplace.search'))
+@section('og_title', ($search ? "Hasil Pencarian: {$search}" : 'Katalog Produk & Direktori UMKM') . ' | Cooca Marketplace')
+@section('og_description', 'Jelajahi dan temukan aneka produk lokal berkualitas dari ribuan bisnis UMKM Indonesia.')
+@section('og_type', 'website')
 
+@push('seo')
     <script type="application/ld+json">
     {
       "@@context": "https://schema.org",
@@ -90,7 +89,7 @@
     @endphp
 
     <div x-data="{ mobileFilterOpen: false }"
-        class="bg-white dark:bg-[#070A14] text-slate-900 dark:text-white transition-colors duration-300">
+        class="bg-[#F2F2F7] dark:bg-[#000000] text-[#1D1D1F] dark:text-[#F5F5F7] transition-colors duration-300 min-h-screen">
 
         {{-- ══════════════════════════════════════════════════════════════════════ --}}
         {{-- HERO SECTION (Midnight #060B1E Full Bleed) --}}

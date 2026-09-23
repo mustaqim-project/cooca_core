@@ -2,18 +2,13 @@
 
 @section('title', 'Pusat Bantuan & Tanya Jawab (FAQ) Lengkap: Solusi Kasir & Stok | COOCA')
 @section('description', 'Temukan jawaban lengkap seputar skema lisensi gratis, kompatibilitas printer thermal, keamanan data cloud, mode kasir offline, dan panduan migrasi data bisnis ke COOCA.')
+@section('og_title', 'Pusat Bantuan & Tanya Jawab (FAQ) Lengkap | COOCA')
+@section('og_description', 'Pertanyaan yang sering diajukan seputar operasional, printer thermal, keamanan tenant, dan fitur kasir offline COOCA.')
+@section('canonical', route('public.resources.faq'))
+@section('og_type', 'website')
 @section('keywords', 'faq cooca, tanya jawab aplikasi kasir, cara setting printer thermal bluetooth, aplikasi kasir offline, keamanan data erp umkm, cara impor data excel ke kasir')
 
 @push('seo')
-<link rel="canonical" href="{{ route('public.resources.faq') }}" />
-<meta property="og:title" content="Pusat Bantuan & Tanya Jawab (FAQ) Lengkap | COOCA" />
-<meta property="og:description" content="Pertanyaan yang sering diajukan seputar operasional, printer thermal, keamanan tenant, dan fitur kasir offline COOCA." />
-<meta property="og:url" content="{{ route('public.resources.faq') }}" />
-<meta property="og:type" content="website" />
-<meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:title" content="FAQ & Pusat Informasi Operasional COOCA" />
-<meta name="twitter:description" content="Semua jawaban teknis dan komersial untuk membantu operasional bisnis Anda berjalan lancar." />
-
 <script type="application/ld+json">
 {
   "@@context": "https://schema.org",
@@ -120,8 +115,8 @@ class="w-full font-sans antialiased bg-[#F2F2F7] dark:bg-[#000000] text-[#1D1D1F
 
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
                 
-                <!-- KIRI: Headline, Value Proposition & Actions -->
-                <div class="lg:col-span-7 space-y-6">
+                <!-- KIRI: Headline, Value Proposition & Actions (5 Cols ~ 42%) -->
+                <div class="lg:col-span-5 space-y-6">
                     <!-- Pure Typographic Kicker -->
                     <div class="text-[12px] sm:text-[13px] font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF]">
                         PUSAT BANTUAN &amp; TANYA JAWAB
@@ -165,7 +160,7 @@ class="w-full font-sans antialiased bg-[#F2F2F7] dark:bg-[#000000] text-[#1D1D1F
                             <span>Telusuri Pertanyaan Populer</span>
                             <i data-lucide="arrow-down" class="w-4 h-4"></i>
                         </a>
-                        <a href="https://wa.me/6281222222222?text=Halo%20Tim%20COOCA,%20saya%20ingin%20bertanya%20seputar%20sistem%20kasir"
+                        <a href="{{ \App\Models\SystemSetting::get('social_whatsapp_url', 'https://wa.me/6285287864176') }}?text=Halo%20Tim%20COOCA,%20saya%20ingin%20bertanya%20seputar%20sistem%20kasir"
                             target="_blank" rel="noopener"
                             class="h-12 px-6 rounded-[14px] bg-white dark:bg-[#1C1C1E] hover:bg-slate-50 dark:hover:bg-[#2C2C2E] border border-black/[0.08] dark:border-white/[0.12] text-slate-800 dark:text-slate-200 text-sm font-semibold flex items-center justify-center gap-2 transition active:scale-[0.98]">
                             <i data-lucide="message-circle" class="w-4 h-4 text-emerald-600 dark:text-emerald-400"></i>
@@ -174,8 +169,8 @@ class="w-full font-sans antialiased bg-[#F2F2F7] dark:bg-[#000000] text-[#1D1D1F
                     </div>
                 </div>
 
-                <!-- KANAN: Real System & Compatibility Status Bento -->
-                <div class="lg:col-span-5">
+                <!-- KANAN: Real System & Compatibility Status Bento (7 Cols ~ 58%) -->
+                <div class="lg:col-span-7">
                     <div class="rounded-[24px] bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] p-6 shadow-sm space-y-4">
                         
                         <div class="flex items-center justify-between border-b border-black/[0.06] dark:border-white/[0.08] pb-3">
@@ -524,7 +519,7 @@ class="w-full font-sans antialiased bg-[#F2F2F7] dark:bg-[#000000] text-[#1D1D1F
                             Hubungi langsung staf teknis kami untuk tanya jawab seputar printer kasir atau panduan awal setup toko.
                         </p>
                     </div>
-                    <a href="https://wa.me/6281222222222?text=Halo%20Tim%20COOCA,%20saya%20ingin%20tanya%20seputar%20sistem" target="_blank" rel="noopener" class="h-11 px-4 rounded-[12px] bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs flex items-center justify-center gap-1.5 transition">
+                    <a href="{{ \App\Models\SystemSetting::get('social_whatsapp_url', 'https://wa.me/6285287864176') }}?text={{ urlencode('Halo Tim COOCA, saya ingin tanya seputar sistem kasir dan aplikasi') }}" target="_blank" rel="noopener" class="h-11 px-4 rounded-[12px] bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs flex items-center justify-center gap-1.5 transition">
                         <span>Hubungi via WhatsApp</span>
                         <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
                     </a>

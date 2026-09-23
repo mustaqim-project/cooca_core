@@ -1,15 +1,43 @@
 @extends('layouts.public_marketing')
 
-@section('title', 'Kalkulator HPP & Harga Jual Online Gratis | Cooca')
-@section('description',
-    'Kalkulator HPP (Harga Pokok Penjualan) 3-Pilar online gratis. Hitung biaya bahan baku, upah
-    tenaga kerja, biaya overhead, dan tentukan target markup atau margin keuntungan secara instan.')
-@section('keywords',
-    'kalkulator hpp, hitung harga pokok penjualan online, rumus hpp makanan, kalkulator margin
-    keuntungan, hitung harga jual f&b')
+@section('title', 'Kalkulator HPP & Harga Jual Online Gratis | COOCA')
+@section('description', 'Kalkulator HPP (Harga Pokok Penjualan) 3-Pilar online gratis. Hitung biaya bahan baku, upah tenaga kerja, biaya overhead, dan tentukan target markup atau margin keuntungan secara instan.')
+@section('og_title', 'Kalkulator HPP & Harga Jual Online Gratis | COOCA')
+@section('og_description', 'Kalkulator HPP 3-Pilar online gratis. Hitung biaya bahan baku, upah tenaga kerja, biaya overhead, dan tentukan target margin keuntungan.')
+@section('canonical', route('kalkulator.hpp'))
+@section('og_type', 'website')
+@section('keywords', 'kalkulator hpp, hitung harga pokok penjualan online, rumus hpp makanan, kalkulator margin keuntungan, hitung harga jual f&b')
+
+@push('seo')
+<script type="application/ld+json">
+{
+  "@@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Kalkulator HPP & Harga Jual COOCA",
+  "url": "{{ route('kalkulator.hpp') }}",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "All",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "IDR"
+  },
+  "description": "Kalkulator HPP 3-pilar untuk menghitung bahan mentah, upah tenaga kerja, dan biaya overhead operasional."
+}
+</script>
+@endpush
 
 @section('content')
-    <div class="pt-8 pb-24">
+    <div x-data="{
+        refreshIcons() {
+            this.$nextTick(() => {
+                if (window.lucide) {
+                    window.lucide.createIcons();
+                }
+            });
+        }
+    }" x-init="refreshIcons()"
+    class="w-full font-sans antialiased bg-[#F2F2F7] dark:bg-[#000000] text-[#1D1D1F] dark:text-[#F5F5F7] transition-colors pt-8 pb-24">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
 
             <!-- Breadcrumbs (Apple Inset Style) -->

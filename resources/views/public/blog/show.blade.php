@@ -2,18 +2,13 @@
 
 @section('title', ($post->meta_title ?? $post->title) . ' | COOCA Edukasi UMKM')
 @section('description', $post->meta_description ?? $post->excerpt)
+@section('og_title', ($post->meta_title ?? $post->title) . ' | COOCA')
+@section('og_description', $post->meta_description ?? $post->excerpt)
+@section('canonical', route('blog.show', $post->slug))
+@section('og_type', 'article')
 @section('og_image', $post->cover_image ?? 'https://cooca.id/assets/image/cooca.png')
 
 @push('seo')
-    <link rel="canonical" href="{{ route('blog.show', $post->slug) }}" />
-    <meta property="og:title" content="{{ $post->meta_title ?? $post->title }} | COOCA" />
-    <meta property="og:description" content="{{ $post->meta_description ?? $post->excerpt }}" />
-    <meta property="og:url" content="{{ route('blog.show', $post->slug) }}" />
-    <meta property="og:type" content="article" />
-    <meta property="og:image" content="{{ $post->cover_image ?? 'https://cooca.id/assets/image/cooca.png' }}" />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="{{ $post->meta_title ?? $post->title }}" />
-    <meta name="twitter:description" content="{{ $post->meta_description ?? $post->excerpt }}" />
 
     <script type="application/ld+json">
     {
@@ -365,7 +360,7 @@ class="w-full font-sans antialiased bg-[#F2F2F7] dark:bg-[#000000] text-[#1D1D1F
                             Konsultasikan kendala hitung HPP atau pengaturan kasir gerai Anda langsung dengan tim pendamping COOCA.
                         </p>
                     </div>
-                    <a href="https://wa.me/6281222222222?text={{ urlencode('Halo Tim COOCA, saya membaca artikel ' . $post->title . ' dan ingin konsultasi mengenai implementasinya.') }}"
+                    <a href="{{ \App\Models\SystemSetting::get('social_whatsapp_url', 'https://wa.me/6285287864176') }}?text={{ urlencode('Halo Tim COOCA, saya membaca artikel ' . $post->title . ' dan ingin konsultasi mengenai implementasinya.') }}"
                         target="_blank" rel="noopener noreferrer"
                         class="w-full h-11 px-4 rounded-[12px] bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs flex items-center justify-center gap-2 transition shadow-sm">
                         <i data-lucide="message-circle" class="w-4 h-4"></i>

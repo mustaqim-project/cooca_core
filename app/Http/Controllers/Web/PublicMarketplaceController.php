@@ -30,9 +30,9 @@ final class PublicMarketplaceController extends Controller
                 $q->where('is_storefront_enabled', true)
                     ->where('is_discoverable', true);
             })
+            ->whereHas('products', fn($q) => $q->where('is_active', true))
             ->with(['landingPage', 'storeSetting'])
             ->withCount(['products' => fn($q) => $q->where('is_active', true)])
-            ->having('products_count', '>', 0)
             ->orderByDesc('created_at')
             ->take(8)
             ->get();

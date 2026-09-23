@@ -2,18 +2,13 @@
 
 @section('title', 'Pusat Edukasi & Kurikulum Bisnis UMKM | Panduan Finansial, POS, & Otomasi - COOCA')
 @section('description', 'Pusat kurikulum, panduan operasional, dan wawasan bisnis UMKM Indonesia. Pelajari strategi arus kas, perhitungan HPP presisi, teknik kasir POS cepat, dan otomasi pelanggan.')
+@section('og_title', 'Pusat Edukasi & Kurikulum Bisnis UMKM | COOCA')
+@section('og_description', 'Kurikulum bisnis praktis dan panduan operasional toko, kafe, bengkel, serta wirausaha mandiri di Indonesia.')
+@section('canonical', route('public.resources.blog'))
+@section('og_type', 'website')
 @section('keywords', 'edukasi bisnis umkm, wawasan bisnis indonesia, tips pembukuan toko, belajar hitung hpp, strategi kasir pos, panduan wirausaha mandiri, otomasi whatsapp bisnis')
 
 @push('seo')
-    <link rel="canonical" href="{{ route('public.resources.blog') }}">
-    <meta property="og:title" content="Pusat Edukasi & Kurikulum Bisnis UMKM | COOCA">
-    <meta property="og:description" content="Kurikulum bisnis praktis dan panduan operasional toko, kafe, bengkel, serta wirausaha mandiri di Indonesia.">
-    <meta property="og:url" content="{{ route('public.resources.blog') }}">
-    <meta property="og:type" content="website">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Pusat Edukasi & Kurikulum Bisnis UMKM | COOCA">
-    <meta name="twitter:description" content="Panduan mendalam pengelolaan arus kas, stok, kasir, dan otomasi operasional untuk pelaku UMKM.">
-
     <script type="application/ld+json">
     {
         "@@context": "https://schema.org",
@@ -74,8 +69,8 @@
 
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
                     
-                    <!-- KIRI: Headline, Value Proposition & Actions -->
-                    <div class="lg:col-span-7 space-y-6">
+                    <!-- KIRI: Headline, Value Proposition & Actions (5 Cols ~ 42%) -->
+                    <div class="lg:col-span-5 space-y-6">
                         <!-- Pure Typographic Kicker -->
                         <div class="text-[12px] sm:text-[13px] font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF]">
                             KURIKULUM &amp; BASIS PENGETAHUAN UMKM
@@ -127,8 +122,8 @@
                         </div>
                     </div>
 
-                    <!-- KANAN: Product UI Visualization (Real Business Ledger & Recipe Preview) -->
-                    <div class="lg:col-span-5">
+                    <!-- KANAN: Product UI Visualization (Real Business Ledger & Recipe Preview - 7 Cols ~ 58%) -->
+                    <div class="lg:col-span-7">
                         <div class="rounded-[24px] bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] p-6 shadow-sm space-y-4">
                             
                             <!-- Header Window Card -->

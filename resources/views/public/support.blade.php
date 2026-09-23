@@ -1,23 +1,14 @@
 @extends('layouts.public_marketing')
 
 @section('title', 'Pusat Bantuan & Panduan Resmi COOCA: Solusi Cepat untuk Bisnis Anda')
-@section('description', 'Pusat bantuan, panduan operasional kasir, printer Bluetooth, manajemen stok, dan kontak
-    technical support resmi COOCA Indonesia.')
-@section('keywords', 'cooca support, bantuan cooca, panduan cooca, call center cooca, technical support kasir, cara
-    pakai cooca pos')
+@section('description', 'Pusat bantuan, panduan operasional kasir, printer Bluetooth, manajemen stok, dan kontak technical support resmi COOCA Indonesia.')
+@section('og_title', 'Pusat Bantuan & Panduan Resmi COOCA: Solusi Cepat untuk Bisnis Anda')
+@section('og_description', 'Temukan solusi cepat untuk operasional kasir, inventaris, koneksi printer thermal, dan pembukuan toko Anda.')
+@section('canonical', route('public.support'))
+@section('og_type', 'website')
+@section('keywords', 'cooca support, bantuan cooca, panduan cooca, call center cooca, technical support kasir, cara pakai cooca pos')
 
     @push('seo')
-        <link rel="canonical" href="{{ route('public.support') }}">
-        <meta property="og:title" content="Pusat Bantuan & Panduan Resmi COOCA: Solusi Cepat untuk Bisnis Anda">
-        <meta property="og:description"
-            content="Temukan solusi cepat untuk operasional kasir, inventaris, koneksi printer thermal, dan pembukuan toko Anda.">
-        <meta property="og:url" content="{{ route('public.support') }}">
-        <meta property="og:type" content="website">
-        <meta name="twitter:card" content="summary_large_image">
-        <meta name="twitter:title" content="Pusat Bantuan & Panduan Resmi COOCA">
-        <meta name="twitter:description"
-            content="Pusat dokumentasi dan layanan pelanggan 24/7 COOCA untuk kelancaran bisnis Anda.">
-
         <script type="application/ld+json">
     {
       "@@context": "https://schema.org",
@@ -33,17 +24,17 @@
     <div class="bg-white dark:bg-[#070A14] text-slate-900 dark:text-white transition-colors duration-300">
 
         {{-- ══════════════════════════════════════════════════════════════════════ --}}
-        {{-- HERO SECTION (Midnight #060B1E Full-Bleed) --}}
+        {{-- HERO SECTION (Midnight #060B1E Full-Bleed - Type A Full Viewport) --}}
         {{-- ══════════════════════════════════════════════════════════════════════ --}}
         <section
-            class="relative bg-[#060B1E] text-white pt-10 sm:pt-14 pb-16 lg:pb-24 overflow-hidden border-b border-white/10 w-full min-w-full">
+            class="relative bg-[#060B1E] text-white min-h-[calc(100svh-84px)] lg:flex lg:items-center py-12 lg:py-16 overflow-hidden border-b border-white/10 w-full min-w-full">
             {{-- Dual Ambient Glows --}}
             <div class="absolute top-0 right-1/4 w-96 h-96 bg-[#007AFF]/15 rounded-full blur-[140px] pointer-events-none">
             </div>
             <div class="absolute bottom-0 left-1/4 w-96 h-96 bg-[#00C4D8]/10 rounded-full blur-[120px] pointer-events-none">
             </div>
 
-            <div class="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-8">
+            <div class="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-8 w-full">
                 {{-- Breadcrumb --}}
                 <nav class="flex items-center gap-2 text-xs text-slate-400" aria-label="Breadcrumb">
                     <a href="{{ route('landing') }}" class="hover:text-white transition-colors">Beranda</a>
@@ -53,9 +44,9 @@
                     <span class="text-[#00C4D8] font-semibold" aria-current="page">Pusat Bantuan</span>
                 </nav>
 
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-                    {{-- Left: Headline & Support Contact --}}
-                    <div class="lg:col-span-7 space-y-6">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
+                    {{-- Left: Headline & Support Contact (5 Cols ~ 42%) --}}
+                    <div class="lg:col-span-5 space-y-6">
                         <div
                             class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#007AFF]/15 text-[#00C4D8] border border-[#00C4D8]/30 text-xs font-semibold backdrop-blur-sm">
                             <i data-lucide="headphones" class="w-3.5 h-3.5" aria-hidden="true"></i>
@@ -116,8 +107,8 @@
                         </div>
                     </div>
 
-                    {{-- Right: Support Desk Card --}}
-                    <div class="lg:col-span-5">
+                    {{-- Right: Support Desk Card (7 Cols ~ 58%) --}}
+                    <div class="lg:col-span-7">
                         <div
                             class="rounded-2xl bg-[#0E1E45]/80 p-6 shadow-2xl border border-white/10 ring-1 ring-white/10 backdrop-blur-md text-white space-y-5">
                             <div class="flex items-center justify-between border-b border-white/10 pb-4">
