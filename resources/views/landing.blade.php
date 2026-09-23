@@ -141,7 +141,7 @@
                         Run Your Business.
                         <br>
                         From <span
-                            class="text-3xl sm:text-3xl text-transparent bg-clip-text bg-gradient-to-r from-[#00C2FF] via-[#38BDF8] to-[#60A5FA]">One
+                            class="text-transparent bg-clip-text bg-gradient-to-r from-[#00C2FF] via-[#38BDF8] to-[#60A5FA]">One
                             Operating<br class="hidden sm:inline"> System.</span>
                     </h1>
 
@@ -408,41 +408,6 @@
                                         <span
                                             class="font-black text-xl sm:text-2xl tracking-wider text-white font-sans drop-shadow-[0_0_14px_rgba(0,194,255,0.85)]">COOCA</span>
                                     @endif
-                                    <span
-                                        class="text-[9px] sm:text-[10px] text-cyan-300 font-semibold tracking-wide uppercase mt-0.5">Business
-                                        Operating System</span>
-                                </div>
-                            </div>
-
-                            <!-- 3D Stepped Podium under COOCA card -->
-                            <div class="mt-2.5 flex flex-col items-center w-full select-none pointer-events-none">
-                                <!-- Hologram Ray Light Cone from Card to Upper Tier -->
-                                <div class="w-24 sm:w-32 h-2.5 bg-gradient-to-b from-[#00C2FF]/30 to-[#00C2FF]/5"
-                                    style="clip-path: polygon(15% 0%, 85% 0%, 100% 100%, 0% 100%);"></div>
-
-                                <!-- Tier 1: ERP Pill Platform -->
-                                <div
-                                    class="relative px-6 sm:px-8 py-1 rounded-xl bg-gradient-to-r from-[#0055D4] via-[#007AFF] to-[#0055D4] border border-[#00C2FF]/70 shadow-[0_0_18px_rgba(0,194,255,0.5)] text-center">
-                                    <span
-                                        class="text-[11px] sm:text-xs font-black tracking-wider text-white uppercase drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)]">ERP</span>
-                                </div>
-
-                                <!-- Tier 2: Lower 3D Platform (Data • Automation • AI) -->
-                                <div class="relative mt-1 flex items-center justify-center">
-                                    <!-- Angled Left Ai Badge Facet -->
-                                    <div
-                                        class="flex items-center justify-center px-2 py-1 bg-[#0047B3] border border-[#00C2FF]/40 rounded-l-lg -mr-0.5 shadow-inner">
-                                        <span class="text-[10px] font-black italic text-cyan-200">Ai</span>
-                                    </div>
-
-                                    <!-- Central Platform Block -->
-                                    <div
-                                        class="px-4 sm:px-6 py-1 rounded-r-lg bg-gradient-to-r from-[#091C3E] via-[#0D2855] to-[#091C3E] border border-[#00C2FF]/50 shadow-[0_4px_20px_rgba(0,194,255,0.35)]">
-                                        <span
-                                            class="text-[9px] sm:text-[10px] font-extrabold tracking-wide text-cyan-200 whitespace-nowrap">
-                                            Data &bull; Automation &bull; AI
-                                        </span>
-                                    </div>
                                 </div>
                             </div>
                         </div>
