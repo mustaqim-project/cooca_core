@@ -1,187 +1,99 @@
 @extends('layouts.public_marketing')
 
-@section('title', ($page->meta_title ?? 'Kebijakan Privasi & Perlindungan Data Pribadi') . ' | Cooca')
+@section('title', ($page->meta_title ?? 'Kebijakan Privasi & Perlindungan Data Pribadi') . ' | COOCA')
 @section('description',
     $page->meta_description ??
-    'Kebijakan privasi resmi Cooca mengenai pengumpulan data pemilik UMKM
-    dan pelanggan toko, enkripsi AES-256, integrasi payment gateway, logistik, dan hak data UU PDP.')
+    'Kebijakan privasi resmi COOCA mengenai pengumpulan data pemilik UMKM dan pelanggan toko, enkripsi AES-256 GCM, isolasi multi-tenant, dan hak data UU PDP No. 27/2022.')
+@section('og_title', ($page->meta_title ?? 'Kebijakan Privasi & Perlindungan Data Pribadi') . ' | COOCA')
+@section('og_description', $page->meta_description ?? 'Kebijakan privasi resmi COOCA mengenai kepatuhan UU PDP, isolasi multi-tenant, dan hak perlindungan data UMKM.')
 
 @section('content')
-    <div x-data="{ audienceFilter: 'all' }" class="w-full font-sans antialiased overflow-hidden">
+    <div x-data="{ audienceFilter: 'all' }" class="w-full font-sans antialiased bg-[#F2F2F7] dark:bg-[#000000] text-[#1D1D1F] dark:text-[#F5F5F7] transition-colors pb-24">
+        
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
-        <!-- ═══ HERO SECTION (Mandatory 2-Grid Layout with Midnight Blue Glow) ═══════ -->
+        <!-- ═══ TYPE D LEGAL HEADER (Calm, Pure Typography & Document Navigation) ════ -->
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
-        <section
-            class="relative bg-[#060B1E] text-white pt-8 sm:pt-12 pb-16 lg:pb-20 overflow-hidden border-b border-white/10">
+        <header class="bg-white dark:bg-[#1C1C1E] border-b border-black/[0.06] dark:border-white/[0.08] pt-8 sm:pt-12 pb-8 sm:pb-10 transition-colors">
+            <div class="max-w-[1250px] mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
 
-            <!-- Subtle Ambient Background Glows -->
-            <div
-                class="absolute -top-24 right-1/4 w-[500px] h-[500px] bg-[#007AFF]/15 rounded-full blur-[140px] pointer-events-none -z-0">
-            </div>
-            <div
-                class="absolute bottom-0 left-1/4 w-[400px] h-[400px] bg-[#00C4D8]/10 rounded-full blur-[120px] pointer-events-none -z-0">
-            </div>
-
-            <div class="max-w-[1250px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full space-y-6">
-
-                <!-- Breadcrumbs -->
-                <nav aria-label="Breadcrumb" class="flex items-center gap-2 text-xs text-slate-400 overflow-x-auto py-1">
-                    <a href="{{ route('landing') }}" class="hover:text-[#00C4D8] transition-colors shrink-0">Beranda</a>
-                    <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-white/20 shrink-0"></i>
-                    <span class="text-white font-semibold shrink-0">Kebijakan Privasi</span>
+                <!-- Breadcrumbs (Clean Apple HIG Hairline Nav) -->
+                <nav aria-label="Breadcrumb" class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 overflow-x-auto py-1">
+                    <a href="{{ route('landing') }}" class="hover:text-[#007AFF] dark:hover:text-[#0A84FF] transition-colors shrink-0">Beranda</a>
+                    <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-slate-300 dark:text-slate-600 shrink-0"></i>
+                    <span class="text-slate-500 dark:text-slate-400 shrink-0">Legal</span>
+                    <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-slate-300 dark:text-slate-600 shrink-0"></i>
+                    <span class="text-slate-900 dark:text-white font-semibold shrink-0">Kebijakan Privasi</span>
                 </nav>
 
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
-
-                    <!-- KIRI: Headline, Subtitle, Metadata & Audience Segment (7 Cols) -->
-                    <div class="lg:col-span-7 space-y-6 text-left">
-                        <div class="space-y-3">
-                            <div
-                                class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#007AFF]/15 text-[#00C4D8] border border-[#00C4D8]/30 text-xs font-semibold tracking-wide">
-                                <i data-lucide="shield-check" class="w-3.5 h-3.5 text-[#00C4D8]"></i>
-                                <span>Kepatuhan Resmi UU PDP No. 27/2022</span>
-                            </div>
-                            <h1
-                                class="text-3xl sm:text-4xl md:text-5xl lg:text-[3.25rem] font-extrabold text-white tracking-tight leading-[1.15] text-balance break-words">
-                                {{ $page->title ?? 'Kebijakan Privasi & Pelindungan Data Pribadi' }}
-                            </h1>
-                        </div>
-
-                        <p class="text-base sm:text-lg text-slate-300 leading-relaxed max-w-2xl font-normal text-pretty break-words">
-                            {{ $page->subtitle ?? 'Dokumen ini menguraikan komitmen Cooca dalam mengumpulkan, mengamankan, dan memproses data pemilik bisnis UMKM serta pelanggan toko secara terisolasi tanpa pernah menjual data pribadi kepada pihak ketiga.' }}
-                        </p>
-
-                        <!-- Meta Tags Row & Print Button -->
-                        <div class="pt-2 flex flex-wrap items-center gap-3">
-                            <div
-                                class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-xs text-slate-300 font-mono">
-                                <i data-lucide="file-code" class="w-3.5 h-3.5 text-[#00C4D8]"></i>
-                                <span>Versi {{ $page?->version ?? '2.1' }}</span>
-                            </div>
-                            <div
-                                class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-xs text-slate-300 font-mono">
-                                <i data-lucide="calendar" class="w-3.5 h-3.5 text-emerald-400"></i>
-                                <span>Efektif:
-                                    {{ $page && $page->effective_date ? $page->effective_date->format('d F Y') : '18 September 2026' }}</span>
-                            </div>
-                            <button type="button" onclick="window.print()"
-                                class="h-9 px-4 rounded-xl text-xs font-bold text-white bg-white/10 hover:bg-white/15 border border-white/15 active:scale-[0.98] transition-all inline-flex items-center gap-2 cursor-pointer ml-auto">
-                                <i data-lucide="printer" class="w-3.5 h-3.5"></i>
-                                <span>Cetak / PDF</span>
-                            </button>
-                        </div>
-
-                        <!-- Segmented Audience Filter (Apple HIG Style in Dark Glass) -->
-                        <div class="pt-2">
-                            <div
-                                class="p-1 rounded-[16px] bg-white/5 border border-white/10 inline-flex items-center gap-1 max-w-full overflow-x-auto">
-                                <button type="button" @click="audienceFilter = 'all'"
-                                    :class="audienceFilter === 'all' ? 'bg-[#007AFF] text-white shadow-sm font-bold' :
-                                        'text-slate-400 hover:text-white font-medium'"
-                                    class="h-9 px-3.5 sm:px-4 rounded-[12px] text-xs transition-all flex items-center gap-1.5 shrink-0 cursor-pointer">
-                                    <i data-lucide="layers" class="w-3.5 h-3.5"></i>
-                                    <span>Semua Ketentuan</span>
-                                </button>
-                                <button type="button" @click="audienceFilter = 'owner'"
-                                    :class="audienceFilter === 'owner' ? 'bg-[#007AFF] text-white shadow-sm font-bold' :
-                                        'text-slate-400 hover:text-white font-medium'"
-                                    class="h-9 px-3.5 sm:px-4 rounded-[12px] text-xs transition-all flex items-center gap-1.5 shrink-0 cursor-pointer">
-                                    <i data-lucide="briefcase" class="w-3.5 h-3.5"></i>
-                                    <span>Khusus Pemilik Usaha</span>
-                                </button>
-                                <button type="button" @click="audienceFilter = 'customer'"
-                                    :class="audienceFilter === 'customer' ? 'bg-[#007AFF] text-white shadow-sm font-bold' :
-                                        'text-slate-400 hover:text-white font-medium'"
-                                    class="h-9 px-3.5 sm:px-4 rounded-[12px] text-xs transition-all flex items-center gap-1.5 shrink-0 cursor-pointer">
-                                    <i data-lucide="shopping-bag" class="w-3.5 h-3.5"></i>
-                                    <span>Khusus Pelanggan Toko</span>
-                                </button>
-                            </div>
-                        </div>
+                <div class="space-y-3">
+                    <div class="text-[12px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center gap-2">
+                        <i data-lucide="shield-check" class="w-4 h-4"></i>
+                        <span>Kepatuhan Resmi UU Pelindungan Data Pribadi (UU PDP No. 27/2022)</span>
                     </div>
 
-                    <!-- KANAN: Security & Privacy Bento Architecture Card (5 Cols) -->
-                    <div class="lg:col-span-5">
-                        <div
-                            class="relative rounded-2xl bg-white/[0.04] border border-white/10 backdrop-blur-xl p-6 shadow-2xl space-y-4">
-                            <div class="flex items-center justify-between pb-3 border-b border-white/10">
-                                <div class="flex items-center gap-2.5">
-                                    <div class="w-3 h-3 rounded-full bg-red-500/80"></div>
-                                    <div class="w-3 h-3 rounded-full bg-amber-500/80"></div>
-                                    <div class="w-3 h-3 rounded-full bg-emerald-500/80"></div>
-                                    <span class="text-xs font-mono text-slate-400 ml-2">cooca://security-vault</span>
-                                </div>
-                                <span
-                                    class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[11px] font-semibold">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                                    Enforced Active
-                                </span>
-                            </div>
+                    <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-[1.2]">
+                        {{ $page->title ?? 'Kebijakan Privasi & Pelindungan Data Pribadi' }}
+                    </h1>
 
-                            <div class="space-y-3">
-                                <!-- Item 1: AES-256 GCM -->
-                                <div
-                                    class="p-3.5 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between gap-3">
-                                    <div class="flex items-center gap-3 min-w-0 flex-1">
-                                        <div
-                                            class="w-9 h-9 rounded-lg bg-sky-500/10 border border-sky-400/30 flex items-center justify-center text-[#00C4D8] shrink-0">
-                                            <i data-lucide="key" class="w-4 h-4"></i>
-                                        </div>
-                                        <div class="min-w-0 flex-1">
-                                            <div class="text-xs font-bold text-white leading-tight break-words">Enkripsi Simetris AES-256 GCM</div>
-                                            <div class="text-[11px] text-slate-400 leading-normal mt-0.5">At-Rest DB &amp; TLS 1.3 In-Transit
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"></i>
-                                </div>
-
-                                <!-- Item 2: Tenant Isolation -->
-                                <div
-                                    class="p-3.5 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between gap-3">
-                                    <div class="flex items-center gap-3 min-w-0 flex-1">
-                                        <div
-                                            class="w-9 h-9 rounded-lg bg-[#007AFF]/10 border border-[#007AFF]/30 flex items-center justify-center text-[#007AFF] shrink-0">
-                                            <i data-lucide="database" class="w-4 h-4"></i>
-                                        </div>
-                                        <div class="min-w-0 flex-1">
-                                            <div class="text-xs font-bold text-white leading-tight break-words">Multi-Tenant Database Isolation</div>
-                                            <div class="text-[11px] text-slate-400 leading-normal mt-0.5">Zero Cross-Tenant Query Leakage</div>
-                                        </div>
-                                    </div>
-                                    <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"></i>
-                                </div>
-
-                                <!-- Item 3: Zero Data Sale -->
-                                <div
-                                    class="p-3.5 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between gap-3">
-                                    <div class="flex items-center gap-3 min-w-0 flex-1">
-                                        <div
-                                            class="w-9 h-9 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0">
-                                            <i data-lucide="user-check" class="w-4 h-4"></i>
-                                        </div>
-                                        <div class="min-w-0 flex-1">
-                                            <div class="text-xs font-bold text-white leading-tight break-words">100% Kedaulatan Data UMKM</div>
-                                            <div class="text-[11px] text-slate-400 leading-normal mt-0.5">Tidak pernah dijual ke pihak ketiga
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <i data-lucide="shield" class="w-4 h-4 text-emerald-400 shrink-0"></i>
-                                </div>
-                            </div>
-
-                            <!-- Footer Micro Info -->
-                            <div
-                                class="pt-2 flex items-center justify-between text-[11px] text-slate-400 font-mono border-t border-white/10">
-                                <span>DPO: dpo@cooca.id</span>
-                                <span>SLA Resp: &lt; 24 Jam</span>
-                            </div>
-                        </div>
-                    </div>
-
+                    <p class="text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed max-w-3xl font-normal pt-1">
+                        {{ $page->subtitle ?? 'Dokumen ini menguraikan komitmen COOCA dalam mengumpulkan, mengamankan, dan memproses data pemilik bisnis UMKM serta pelanggan toko secara terisolasi tanpa pernah menjual data pribadi kepada pihak ketiga.' }}
+                    </p>
                 </div>
+
+                <!-- Meta Pills & Action Row -->
+                <div class="pt-2 flex flex-wrap items-center justify-between gap-4 border-t border-black/[0.06] dark:border-white/[0.08] pt-4">
+                    <div class="flex flex-wrap items-center gap-2.5 text-xs text-slate-600 dark:text-slate-400">
+                        <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] bg-slate-100 dark:bg-white/[0.06] font-mono">
+                            <i data-lucide="file-code" class="w-3.5 h-3.5 text-[#007AFF] dark:text-[#0A84FF]"></i>
+                            <span>Versi {{ $page?->version ?? '2.1' }}</span>
+                        </div>
+                        <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] bg-slate-100 dark:bg-white/[0.06] font-mono">
+                            <i data-lucide="calendar" class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400"></i>
+                            <span>Efektif: {{ $page && $page->effective_date ? $page->effective_date->format('d F Y') : '18 September 2026' }}</span>
+                        </div>
+                        <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 font-medium">
+                            <i data-lucide="lock" class="w-3.5 h-3.5"></i>
+                            <span>Enkripsi AES-256 GCM</span>
+                        </div>
+                        <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400 font-medium">
+                            <i data-lucide="database" class="w-3.5 h-3.5"></i>
+                            <span>Isolasi Multi-Tenant</span>
+                        </div>
+                    </div>
+
+                    <button type="button" onclick="window.print()"
+                        class="h-9 px-4 rounded-[12px] text-xs font-semibold text-slate-700 dark:text-slate-200 bg-slate-100 hover:bg-slate-200 dark:bg-white/[0.08] dark:hover:bg-white/[0.12] transition-all inline-flex items-center gap-2 cursor-pointer shadow-xs active:scale-[0.98]">
+                        <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+                        <span>Cetak / PDF</span>
+                    </button>
+                </div>
+
+                <!-- Segmented Audience Control (Apple HIG) -->
+                <div class="pt-1">
+                    <div class="p-1 rounded-[14px] bg-slate-100 dark:bg-white/[0.06] inline-flex items-center gap-1 max-w-full overflow-x-auto">
+                        <button type="button" @click="audienceFilter = 'all'"
+                            :class="audienceFilter === 'all' ? 'bg-white dark:bg-[#2C2C2E] text-slate-900 dark:text-white shadow-xs font-bold' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-medium'"
+                            class="h-8 px-3.5 rounded-[10px] text-xs transition-all flex items-center gap-1.5 shrink-0 cursor-pointer">
+                            <i data-lucide="layers" class="w-3.5 h-3.5"></i>
+                            <span>Semua Ketentuan</span>
+                        </button>
+                        <button type="button" @click="audienceFilter = 'owner'"
+                            :class="audienceFilter === 'owner' ? 'bg-white dark:bg-[#2C2C2E] text-[#007AFF] dark:text-[#0A84FF] shadow-xs font-bold' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-medium'"
+                            class="h-8 px-3.5 rounded-[10px] text-xs transition-all flex items-center gap-1.5 shrink-0 cursor-pointer">
+                            <i data-lucide="store" class="w-3.5 h-3.5"></i>
+                            <span>Khusus Pemilik Usaha</span>
+                        </button>
+                        <button type="button" @click="audienceFilter = 'customer'"
+                            :class="audienceFilter === 'customer' ? 'bg-white dark:bg-[#2C2C2E] text-emerald-600 dark:text-emerald-400 shadow-xs font-bold' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-medium'"
+                            class="h-8 px-3.5 rounded-[10px] text-xs transition-all flex items-center gap-1.5 shrink-0 cursor-pointer">
+                            <i data-lucide="user-check" class="w-3.5 h-3.5"></i>
+                            <span>Khusus Pelanggan Toko</span>
+                        </button>
+                    </div>
+                </div>
+
             </div>
-        </section>
+        </header>
 
         <!-- Content Body Section -->
         <main class="min-h-screen py-12 lg:py-16 bg-[#F5F5F7] dark:bg-[#0A0A0C] text-black dark:text-white antialiased">
@@ -226,8 +138,8 @@
 
                         {{-- Legal Compliance Box --}}
                         <div
-                            class="p-5 rounded-[22px] bg-gradient-to-br from-[#34C759]/10 via-transparent to-transparent border border-[#34C759]/20 backdrop-blur-sm space-y-2">
-                            <div class="flex items-center gap-2 text-[#248A3D] dark:text-[#30D158] text-[13px] font-bold">
+                            class="p-5 rounded-[22px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-xs space-y-2">
+                            <div class="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 text-[13px] font-bold">
                                 <i data-lucide="lock" class="w-4 h-4"></i>
                                 <span>Enkripsi Simetris AES-256</span>
                             </div>
@@ -246,7 +158,7 @@
                     <div class="lg:col-span-8 space-y-6">
 
                         {{-- Section General --}}
-                        <div x-show="audienceFilter === 'all'" x-transition
+                        <div id="general-policy" x-show="audienceFilter === 'all'" x-transition
                             class="p-8 sm:p-10 rounded-[28px] bg-white/85 dark:bg-[#1C1C1E]/85 border border-black/[0.06] dark:border-white/[0.08] backdrop-blur-xl shadow-xs space-y-8 text-[14px] sm:text-[14.5px] leading-relaxed text-black/80 dark:text-white/80">
                             {!! $page?->content_general ?? '<p>Kebijakan privasi resmi sedang diselaraskan dengan pembaruan sistem.</p>' !!}
                         </div>
@@ -263,8 +175,7 @@
                                     <span>Ketentuan Khusus Pemilik Usaha (Owner UMKM)</span>
                                 </h2>
                                 <span
-                                    class="px-2.5 py-1 rounded-[8px] bg-[#007AFF]/10 text-[#007AFF] font-mono text-[11px] font-bold shrink-0">Mitra
-                                    Merchant</span>
+                                    class="px-2.5 py-1 rounded-[8px] bg-[#007AFF]/10 text-[#007AFF] font-mono text-[11px] font-bold shrink-0">Mitra Merchant</span>
                             </div>
 
                             {!! $page?->content_owner ?? '<p>Ketentuan pemilik usaha sedang diselaraskan dengan pembaruan sistem.</p>' !!}
@@ -282,8 +193,7 @@
                                     <span>Ketentuan Khusus Pelanggan Toko (Customer)</span>
                                 </h2>
                                 <span
-                                    class="px-2.5 py-1 rounded-[8px] bg-[#34C759]/10 text-[#248A3D] dark:text-[#30D158] font-mono text-[11px] font-bold shrink-0">Pelanggan
-                                    Toko</span>
+                                    class="px-2.5 py-1 rounded-[8px] bg-[#34C759]/10 text-[#248A3D] dark:text-[#30D158] font-mono text-[11px] font-bold shrink-0">Pelanggan Toko</span>
                             </div>
 
                             {!! $page?->content_customer ?? '<p>Ketentuan pelanggan toko sedang diselaraskan dengan pembaruan sistem.</p>' !!}

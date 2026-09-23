@@ -8,6 +8,9 @@
     'harga cooca, paket aplikasi kasir, biaya software pos umkm, software akuntansi toko murah, erp
     toko murah indonesia')
 
+@section('og_title', 'Daftar Harga & Paket Transparan | COOCA')
+@section('og_description', 'Pilihan paket jujur dan terjangkau untuk UMKM Indonesia. Mulai gratis selamanya tanpa kartu kredit hingga paket multi-cabang lengkap.')
+
 @section('content')
     <div x-data="{
         pricingCycle: 'monthly',

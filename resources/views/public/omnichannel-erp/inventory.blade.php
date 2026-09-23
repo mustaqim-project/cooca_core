@@ -8,6 +8,9 @@
     'software inventori barang, aplikasi stok gudang, manajemen stok multi gudang, kartu stok otomatis,
     sistem inventory indonesia')
 
+@section('og_title', 'Software Manajemen Inventori & Stok Multi-Gudang Terintegrasi | COOCA')
+@section('og_description', 'Pantau kartu stok perpetual, mutasi antar cabang, resep bahan baku (BOM), dan stock opname tanpa tutup toko.')
+
     @push('seo')
         <script type="application/ld+json">
 {
@@ -78,10 +81,10 @@
         class="relative overflow-hidden bg-white dark:bg-[#070A14] text-slate-900 dark:text-white transition-colors duration-300">
 
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
-        <!-- ═══ 1. HERO SECTION (Dark Midnight Blue with Ambient Glow) ══════════════ -->
+        <!-- ═══ 1. HERO SECTION (Full Viewport 45/55 Ratio) ══════════════════════════ -->
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
         <section
-            class="relative bg-[#060B1E] text-white pt-10 sm:pt-14 pb-16 lg:pb-24 overflow-hidden border-b border-white/10 w-full min-w-full">
+            class="relative bg-[#060B1E] text-white overflow-hidden border-b border-white/10 min-h-[calc(100svh-84px)] lg:flex lg:items-center py-10 sm:py-14 w-full min-w-full">
             <!-- Subtle Ambient Background Glows -->
             <div
                 class="absolute -top-24 right-1/4 w-[500px] h-[500px] bg-[#007AFF]/15 rounded-full blur-[140px] pointer-events-none -z-0">
@@ -90,7 +93,7 @@
                 class="absolute bottom-0 left-1/4 w-[400px] h-[400px] bg-[#00C4D8]/10 rounded-full blur-[120px] pointer-events-none -z-0">
             </div>
 
-            <div class="max-w-[1250px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-6">
+            <div class="max-w-[1250px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-6 w-full">
                 {{-- Breadcrumb --}}
                 <nav aria-label="Breadcrumb" class="flex items-center gap-2 text-xs text-slate-400">
                     <a href="{{ route('landing') }}" class="hover:text-[#00C4D8] transition-colors">Home</a>
@@ -101,9 +104,9 @@
                     <span class="text-white font-semibold" aria-current="page">Manajemen Stok &amp; Inventori</span>
                 </nav>
 
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
-                    {{-- Left Column: Copy & Value Proposition --}}
-                    <div class="lg:col-span-6 space-y-6 text-left">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+                    {{-- Left Column: Copy & Value Proposition (5 Cols ~ 42%) --}}
+                    <div class="lg:col-span-5 space-y-6 text-left">
                         <div
                             class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#007AFF]/15 text-[#00C4D8] border border-[#00C4D8]/30 text-xs font-semibold tracking-wide">
                             <i data-lucide="boxes" class="w-3.5 h-3.5"></i>
@@ -111,26 +114,23 @@
                         </div>
 
                         <h1
-                            class="text-4xl sm:text-5xl lg:text-[3.25rem] xl:text-[3.75rem] font-extrabold text-white tracking-tight leading-[1.2] text-balance break-words">
-                            Kendalikan Stok di Setiap Gudang &amp; Cabang <span class="text-[#00C4D8]">Tanpa Selisih
-                                Misterius</span>
+                            class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.65rem] xl:text-[3rem] font-extrabold text-white tracking-tight leading-[1.15] text-balance break-words">
+                            Kendalikan Stok di Setiap Gudang <span class="text-[#00C4D8]">Tanpa Selisih Misterius</span>
                         </h1>
 
-                        <p class="text-base sm:text-lg text-slate-300 leading-relaxed font-normal">
-                            Hentikan barang hilang dan kehabisan stok saat pelanggan siap membeli. COOCA menyajikan kartu
-                            stok perpetual real-time, mutasi antar cabang dengan surat jalan, resep bahan baku (BOM), dan
-                            peringatan restock sebelum terlambat.
+                        <p class="text-base sm:text-lg text-slate-300 leading-relaxed font-normal max-w-xl">
+                            Hentikan barang hilang dan kehabisan stok saat pelanggan siap membeli. COOCA menyajikan kartu stok perpetual real-time, mutasi antar cabang dengan surat jalan, resep bahan baku (BOM), dan peringatan restock sebelum terlambat.
                         </p>
 
                         {{-- Action CTAs --}}
                         <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 pt-2">
                             <a href="{{ route('public.demo') }}"
-                                class="inline-flex justify-center items-center gap-2 px-6 py-3.5 rounded-xl bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-sm shadow-lg shadow-[#007AFF]/25 transition-all duration-200">
+                                class="inline-flex justify-center items-center gap-2 px-6 py-3.5 rounded-xl bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-sm shadow-lg shadow-[#007AFF]/25 transition-all duration-200 min-h-[48px]">
                                 <span>Coba Modul Stok Sekarang</span>
                                 <i data-lucide="arrow-right" class="w-4 h-4"></i>
                             </a>
                             <a href="{{ route('public.erp.pos') }}"
-                                class="inline-flex justify-center items-center gap-2 px-6 py-3.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-white font-semibold text-sm backdrop-blur-sm transition-all">
+                                class="inline-flex justify-center items-center gap-2 px-6 py-3.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-white font-semibold text-sm backdrop-blur-sm transition-all min-h-[48px]">
                                 <span>Lihat Koneksi ke POS Kasir</span>
                             </a>
                         </div>
@@ -152,8 +152,8 @@
                         </div>
                     </div>
 
-                    {{-- Right Column: Simulated Warehouse Inventory Dashboard UI --}}
-                    <div class="lg:col-span-6">
+                    {{-- Right Column: Simulated Warehouse Inventory Dashboard UI (7 Cols ~ 58%) --}}
+                    <div class="lg:col-span-7">
                         <div
                             class="relative rounded-2xl bg-[#0E1E45]/80 backdrop-blur-md p-3 sm:p-4 shadow-2xl border border-white/10 ring-1 ring-white/10">
 

@@ -1,13 +1,14 @@
 @extends('layouts.public_marketing')
 
 @section('title', 'Business Operating System untuk Kendali Operasional Bisnis | COOCA')
-@section('description', 'COOCA adalah Business Operating System terpadu untuk UMKM Indonesia. Hubungkan kasir, gudang,
-    keuangan, channel penjualan, dan otomasi dalam satu platform.')
-@section('keywords', 'business operating system, sistem operasional bisnis, software manajemen bisnis terpadu, erp umkm
-    indonesia, platform bisnis terintegrasi')
+@section('description', 'COOCA adalah Business Operating System terpadu untuk UMKM Indonesia. Hubungkan kasir, gudang, keuangan, channel penjualan, dan otomasi dalam satu platform.')
+@section('keywords', 'business operating system, sistem operasional bisnis, software manajemen bisnis terpadu, erp umkm indonesia, platform bisnis terintegrasi')
 
-    @push('seo')
-        <script type="application/ld+json">
+@section('og_title', 'Business Operating System untuk Kendali Operasional Bisnis | COOCA')
+@section('og_description', 'BOS terpadu untuk UMKM Indonesia. Hubungkan kasir POS, stok gudang, pembukuan riil, pesanan online, dan otomasi dalam satu sistem.')
+
+@push('seo')
+    <script type="application/ld+json">
     {
         "@@context": "https://schema.org",
         "@type": "SoftwareApplication",
@@ -28,7 +29,7 @@
         }
     }
     </script>
-        <script type="application/ld+json">
+    <script type="application/ld+json">
     {
         "@@context": "https://schema.org",
         "@type": "BreadcrumbList",
@@ -54,16 +55,16 @@
         ]
     }
     </script>
-    @endpush
+@endpush
 
 @section('content')
     <div class="w-full bg-[#F5F5F7] dark:bg-[#000000] text-[#1D1D1F] dark:text-[#F5F5F7] antialiased">
 
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
-        <!-- ═══ 1. HERO SECTION (2-Column Apple HIG Bento Layout) ═══════════════════ -->
+        <!-- ═══ 1. HERO SECTION (Full Viewport 45/55 Ratio) ══════════════════════════ -->
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
         <section
-            class="relative bg-[#060B1E] text-white pt-10 sm:pt-14 pb-16 lg:pb-24 overflow-hidden border-b border-white/10">
+            class="relative bg-[#060B1E] text-white overflow-hidden border-b border-white/10 min-h-[calc(100svh-84px)] lg:flex lg:items-center py-10 sm:py-14">
             <!-- Ambient lighting -->
             <div
                 class="absolute -top-32 right-1/4 w-[500px] h-[500px] bg-[#007AFF]/15 rounded-full blur-[140px] pointer-events-none">
@@ -72,7 +73,7 @@
                 class="absolute bottom-0 left-1/4 w-[420px] h-[420px] bg-[#00C2FF]/10 rounded-full blur-[130px] pointer-events-none">
             </div>
 
-            <div class="max-w-[1320px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="max-w-[1320px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
                 <!-- Breadcrumbs -->
                 <nav aria-label="Breadcrumb" class="flex items-center gap-2 text-xs text-slate-400 pb-6">
                     <a href="{{ route('landing') }}" class="hover:text-[#00C2FF] transition-colors">Beranda</a>
@@ -82,9 +83,9 @@
                     <span class="text-white font-semibold">Overview</span>
                 </nav>
 
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
-                    <!-- Left: Copy & Actions (7 Cols) -->
-                    <div class="lg:col-span-7 space-y-6 text-left">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+                    <!-- Left: Copy & Actions (5 Cols ~ 42%) -->
+                    <div class="lg:col-span-5 space-y-6 text-left">
                         <div
                             class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 border border-white/15 text-xs font-semibold text-[#00C2FF] tracking-wide">
                             <i data-lucide="cpu" class="w-3.5 h-3.5"></i>
@@ -92,14 +93,12 @@
                         </div>
 
                         <h1
-                            class="text-4xl sm:text-5xl lg:text-[3.25rem] xl:text-[3.75rem] font-black text-white tracking-tight leading-[1.2] text-balance break-words">
-                            Satu Sistem Operasi untuk Mengendalikan Seluruh Bisnis Anda
+                            class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.75rem] xl:text-[3.25rem] font-black text-white tracking-tight leading-[1.15] text-balance break-words">
+                            Satu Sistem Operasi untuk Seluruh Bisnis Anda
                         </h1>
 
-                        <p class="text-base sm:text-lg text-slate-300 leading-relaxed max-w-2xl font-normal text-pretty">
-                            Bukan sekadar aplikasi kasir atau software pembukuan terpisah. COOCA adalah sistem operasional
-                            bisnis terpadu yang menghubungkan kasir, persediaan gudang, arus kas, pesanan pelanggan, hingga
-                            laporan pemilik dalam satu database yang saling memperbarui seketika.
+                        <p class="text-base sm:text-lg text-slate-300 leading-relaxed max-w-xl font-normal text-pretty">
+                            Bukan sekadar kasir atau software pembukuan terpisah. COOCA adalah sistem operasional terpadu yang menghubungkan kasir, persediaan gudang, arus kas, pesanan pelanggan, hingga laporan pemilik dalam satu database otomatis seketika.
                         </p>
 
                         <!-- CTAs -->
@@ -133,8 +132,8 @@
                         </div>
                     </div>
 
-                    <!-- Right: Visual BOS Simulation (5 Cols) -->
-                    <div class="lg:col-span-5">
+                    <!-- Right: Visual BOS Simulation (7 Cols ~ 58%) -->
+                    <div class="lg:col-span-7">
                         <div
                             class="bg-[#0B132B]/90 border border-white/10 rounded-[24px] p-5 sm:p-6 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.7)] backdrop-blur-xl space-y-4">
                             <!-- macOS Window Header -->
@@ -144,82 +143,82 @@
                                     <span class="w-3 h-3 rounded-full bg-[#FFBD2E]"></span>
                                     <span class="w-3 h-3 rounded-full bg-[#27C93F]"></span>
                                 </div>
-                                <span class="text-xs font-mono font-medium text-slate-300 truncate">COOCA Engine • Live Connected State</span>
+                                <span class="text-xs font-mono font-medium text-slate-300 truncate">COOCA Engine &bull; Live Architecture State</span>
                                 <span class="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-400 shrink-0">
                                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                                    Synced
+                                    Synced Realtime
                                 </span>
                             </div>
 
                             <!-- 3 Layer Stack Visualizer -->
-                            <div class="space-y-2.5">
+                            <div class="space-y-3">
                                 <!-- Layer 1: Channels -->
                                 <div
-                                    class="p-3.5 rounded-[16px] bg-white/[0.04] border border-white/10 flex items-center justify-between gap-3">
+                                    class="p-4 rounded-[18px] bg-white/[0.04] border border-white/10 flex items-center justify-between gap-3">
                                     <div class="flex items-center gap-3 min-w-0">
                                         <div
-                                            class="w-9 h-9 rounded-[10px] bg-[#007AFF]/20 text-[#00C2FF] flex items-center justify-center font-bold shrink-0">
-                                            <i data-lucide="shopping-bag" class="w-4 h-4"></i>
+                                            class="w-10 h-10 rounded-[12px] bg-[#007AFF]/20 text-[#00C2FF] flex items-center justify-center font-bold shrink-0">
+                                            <i data-lucide="shopping-bag" class="w-5 h-5"></i>
                                         </div>
                                         <div class="min-w-0">
-                                            <div class="text-xs font-bold text-white truncate">Channel Penjualan Terhubung</div>
-                                            <div class="text-[11px] text-slate-400 truncate">Kasir POS • Web Store • WhatsApp</div>
+                                            <div class="text-xs sm:text-sm font-bold text-white truncate">Channel Penjualan Terhubung</div>
+                                            <div class="text-[11px] text-slate-400 truncate">Kasir POS &bull; Web Store &bull; Notifikasi WhatsApp</div>
                                         </div>
                                     </div>
-                                    <span class="text-[11px] font-mono text-emerald-400 font-semibold shrink-0">1 Realtime Feed</span>
+                                    <span class="text-[11px] font-mono text-emerald-400 font-semibold px-2 py-0.5 rounded bg-emerald-500/10 shrink-0">1 Realtime Feed</span>
                                 </div>
 
                                 <!-- Arrow down indicator -->
-                                <div class="flex justify-center text-slate-500">
+                                <div class="flex justify-center text-slate-500 py-0.5">
                                     <i data-lucide="arrow-down" class="w-4 h-4 text-[#00C2FF]"></i>
                                 </div>
 
                                 <!-- Layer 2: Operating Core -->
                                 <div
-                                    class="p-3.5 rounded-[16px] bg-gradient-to-r from-blue-950/60 to-cyan-950/60 border border-[#00C2FF]/30">
+                                    class="p-4 rounded-[18px] bg-gradient-to-r from-blue-950/70 to-cyan-950/70 border border-[#00C2FF]/30">
                                     <div class="flex items-center justify-between gap-3">
                                         <div class="flex items-center gap-3 min-w-0">
                                             <div
-                                                class="w-9 h-9 rounded-[10px] bg-[#00C2FF]/20 text-[#00C2FF] flex items-center justify-center font-bold shrink-0">
-                                                <i data-lucide="cpu" class="w-4 h-4"></i>
+                                                class="w-10 h-10 rounded-[12px] bg-[#00C2FF]/20 text-[#00C2FF] flex items-center justify-center font-bold shrink-0">
+                                                <i data-lucide="cpu" class="w-5 h-5"></i>
                                             </div>
                                             <div class="min-w-0">
-                                                <div class="text-xs font-bold text-white truncate">COOCA Operating Engine</div>
-                                                <div class="text-[11px] text-slate-300 truncate">Auto-BOM • Potong Stok • Jurnal Kas</div>
+                                                <div class="text-xs sm:text-sm font-bold text-white truncate">COOCA Operating Engine</div>
+                                                <div class="text-[11px] text-slate-300 truncate">Auto-BOM Resep &bull; Potong Stok Bahan Baku &bull; Jurnal Kas Riil</div>
                                             </div>
                                         </div>
                                         <span
-                                            class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#00C2FF]/20 text-[#00C2FF] shrink-0">Otomatis</span>
+                                            class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-[#00C2FF]/20 text-[#00C2FF] border border-[#00C2FF]/30 shrink-0">Otomatisasi Penuh</span>
                                     </div>
                                 </div>
 
                                 <!-- Arrow down indicator -->
-                                <div class="flex justify-center text-slate-500">
+                                <div class="flex justify-center text-slate-500 py-0.5">
                                     <i data-lucide="arrow-down" class="w-4 h-4 text-[#00C2FF]"></i>
                                 </div>
 
                                 <!-- Layer 3: Owner Control & Financial Ledger -->
                                 <div
-                                    class="p-3.5 rounded-[16px] bg-white/[0.04] border border-white/10 flex items-center justify-between gap-3">
+                                    class="p-4 rounded-[18px] bg-white/[0.04] border border-white/10 flex items-center justify-between gap-3">
                                     <div class="flex items-center gap-3 min-w-0">
                                         <div
-                                            class="w-9 h-9 rounded-[10px] bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold shrink-0">
-                                            <i data-lucide="line-chart" class="w-4 h-4"></i>
+                                            class="w-10 h-10 rounded-[12px] bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold shrink-0">
+                                            <i data-lucide="line-chart" class="w-5 h-5"></i>
                                         </div>
                                         <div class="min-w-0">
-                                            <div class="text-xs font-bold text-white truncate">Pusat Kendali Owner</div>
-                                            <div class="text-[11px] text-slate-400 truncate">Laba Rugi Harian • Mutasi Kas • Margin</div>
+                                            <div class="text-xs sm:text-sm font-bold text-white truncate">Pusat Kendali Eksekutif Owner</div>
+                                            <div class="text-[11px] text-slate-400 truncate">Laba Rugi Harian &bull; Mutasi Kas &bull; Margin Bersih Riil</div>
                                         </div>
                                     </div>
-                                    <span class="text-xs font-mono font-bold text-white tabular-nums shrink-0">0 Detik Delay</span>
+                                    <span class="text-xs font-mono font-bold text-white tabular-nums px-2 py-0.5 rounded bg-white/5 shrink-0">0 Detik Delay</span>
                                 </div>
                             </div>
 
                             <!-- Live Status Banner -->
                             <div
-                                class="pt-2 border-t border-white/10 flex items-center justify-between text-xs text-slate-400">
-                                <span>Satu sumber kebenaran (Single Source of Truth)</span>
-                                <span class="text-emerald-400 font-semibold font-mono">100% Akurat</span>
+                                class="pt-2 border-t border-white/10 flex items-center justify-between text-xs text-slate-400 font-mono">
+                                <span>Single Source of Truth</span>
+                                <span class="text-emerald-400 font-semibold">100% Akurasi Finansial</span>
                             </div>
                         </div>
                     </div>

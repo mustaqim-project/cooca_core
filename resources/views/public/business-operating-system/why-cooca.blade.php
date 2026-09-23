@@ -1,13 +1,14 @@
 @extends('layouts.public_marketing')
 
 @section('title', 'Mengapa Memilih COOCA: Solusi Bisnis Terintegrasi vs Terpisah | COOCA')
-@section('description', 'Berhenti membayar 5 aplikasi berbeda dan spreadsheet tercecer. COOCA menyatukan kasir POS, stok
-    gudang, pembukuan keuangan, dan WhatsApp dalam satu ekosistem.')
-@section('keywords', 'kenapa pilih cooca, software terintegrasi vs aplikasi terpisah, kelebihan erp umkm, aplikasi
-    bisnis tanpa langganan mahal, efisiensi operasional toko')
+@section('description', 'Berhenti membayar 5 aplikasi berbeda dan spreadsheet tercecer. COOCA menyatukan kasir POS, stok gudang, pembukuan keuangan, dan WhatsApp dalam satu ekosistem.')
+@section('keywords', 'kenapa pilih cooca, software terintegrasi vs aplikasi terpisah, kelebihan erp umkm, aplikasi bisnis tanpa langganan mahal, efisiensi operasional toko')
 
-    @push('seo')
-        <script type="application/ld+json">
+@section('og_title', 'Mengapa Memilih COOCA: Solusi Bisnis Terpadu vs Terpisah | COOCA')
+@section('og_description', 'Berhenti bayar software terpisah. COOCA satukan kasir POS, stok resep, pembukuan riil, dan WhatsApp dalam satu sistem terpadu.')
+
+@push('seo')
+    <script type="application/ld+json">
     {
         "@@context": "https://schema.org",
         "@type": "WebPage",
@@ -21,7 +22,7 @@
         }
     }
     </script>
-        <script type="application/ld+json">
+    <script type="application/ld+json">
     {
         "@@context": "https://schema.org",
         "@type": "BreadcrumbList",
@@ -47,16 +48,16 @@
         ]
     }
     </script>
-    @endpush
+@endpush
 
 @section('content')
     <div class="w-full bg-[#F5F5F7] dark:bg-[#000000] text-[#1D1D1F] dark:text-[#F5F5F7] antialiased">
 
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
-        <!-- ═══ 1. HERO SECTION ═════════════════════════════════════════════════════ -->
+        <!-- ═══ 1. HERO SECTION (Full Viewport 45/55 Ratio) ══════════════════════════ -->
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
         <section
-            class="relative bg-[#060B1E] text-white pt-10 sm:pt-14 pb-16 lg:pb-24 overflow-hidden border-b border-white/10">
+            class="relative bg-[#060B1E] text-white overflow-hidden border-b border-white/10 min-h-[calc(100svh-84px)] lg:flex lg:items-center py-10 sm:py-14">
             <div
                 class="absolute -top-32 right-1/4 w-[500px] h-[500px] bg-[#007AFF]/15 rounded-full blur-[140px] pointer-events-none">
             </div>
@@ -64,20 +65,19 @@
                 class="absolute bottom-0 left-1/4 w-[420px] h-[420px] bg-[#00C2FF]/10 rounded-full blur-[130px] pointer-events-none">
             </div>
 
-            <div class="max-w-[1320px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="max-w-[1320px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
                 <!-- Breadcrumbs -->
                 <nav aria-label="Breadcrumb" class="flex items-center gap-2 text-xs text-slate-400 pb-6">
                     <a href="{{ route('landing') }}" class="hover:text-[#00C2FF] transition-colors">Beranda</a>
                     <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-white/30"></i>
-                    <a href="{{ route('public.bos.overview') }}" class="hover:text-[#00C2FF] transition-colors">Business
-                        Operating System</a>
+                    <a href="{{ route('public.bos.overview') }}" class="hover:text-[#00C2FF] transition-colors">Business Operating System</a>
                     <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-white/30"></i>
                     <span class="text-white font-semibold">Kenapa COOCA</span>
                 </nav>
 
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
-                    <!-- Left: Headline & Rationale (7 Cols) -->
-                    <div class="lg:col-span-7 space-y-6 text-left">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+                    <!-- Left: Headline & Rationale (5 Cols ~ 42%) -->
+                    <div class="lg:col-span-5 space-y-6 text-left">
                         <div
                             class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 border border-white/15 text-xs font-semibold text-[#00C2FF] tracking-wide">
                             <i data-lucide="check-check" class="w-3.5 h-3.5"></i>
@@ -85,14 +85,12 @@
                         </div>
 
                         <h1
-                            class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.75rem] xl:text-[3.25rem] font-extrabold text-white tracking-tight leading-[1.2] text-balance break-words">
-                            Berhenti Membayar Banyak Software Terpisah yang Tidak Saling Terhubung
+                            class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.65rem] xl:text-[3rem] font-extrabold text-white tracking-tight leading-[1.15] text-balance break-words">
+                            Berhenti Membayar Banyak Software Terpisah yang Tidak Terhubung
                         </h1>
 
-                        <p class="text-base sm:text-lg text-slate-300 leading-relaxed max-w-2xl font-normal text-pretty">
-                            Saat bisnis Anda mulai tumbuh, memakai POS dari vendor A, pencatatan stok di vendor B, pembukuan
-                            di spreadsheet, dan broadcast WhatsApp di vendor C justru memicu biaya mahal, data selisih, dan
-                            waktu terbuang.
+                        <p class="text-base sm:text-lg text-slate-300 leading-relaxed max-w-xl font-normal text-pretty">
+                            Saat bisnis Anda tumbuh, memakai POS dari vendor A, stok di vendor B, pembukuan spreadsheet, dan WhatsApp broadcast di vendor C justru memicu biaya mahal, data selisih, dan waktu terbuang.
                         </p>
 
                         <!-- CTAs -->
@@ -104,7 +102,7 @@
                             </a>
                             <a href="{{ route('public.pricing') }}"
                                 class="px-6 py-3.5 rounded-[14px] bg-white/10 hover:bg-white/15 border border-white/15 text-white text-sm font-semibold flex items-center justify-center gap-2 active:scale-[0.98] transition-all min-h-[48px]">
-                                <span>Bandingkan Paket & Harga</span>
+                                <span>Bandingkan Paket &amp; Biaya</span>
                             </a>
                         </div>
 
@@ -120,71 +118,73 @@
                             </div>
                             <div class="flex items-center gap-1.5">
                                 <i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0"></i>
-                                <span>Migrasi data mudah & didampingi</span>
+                                <span>Migrasi data mudah &amp; didampingi</span>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Right: Head-to-Head Comparison Card (5 Cols) -->
-                    <div class="lg:col-span-5">
+                    <!-- Right: Head-to-Head Comparison Card (7 Cols ~ 58%) -->
+                    <div class="lg:col-span-7">
                         <div class="space-y-4">
-                            <!-- Old Way Card -->
-                            <div class="p-5 rounded-[22px] bg-red-950/40 border border-red-500/30 text-white space-y-3">
+                            <!-- Old Way Card (Fragmented Software) -->
+                            <div class="p-5 rounded-[22px] bg-rose-950/30 border border-rose-500/25 text-white space-y-3">
                                 <div class="flex items-center justify-between gap-2 text-xs">
-                                    <span class="font-bold text-red-400 uppercase tracking-wider flex items-center gap-1.5 min-w-0">
-                                        <i data-lucide="x-circle" class="w-4 h-4 shrink-0"></i> <span class="truncate">Cara Lama (Terpisah)</span>
+                                    <span class="font-bold text-rose-400 uppercase tracking-wider flex items-center gap-1.5 min-w-0">
+                                        <i data-lucide="x-circle" class="w-4 h-4 shrink-0"></i>
+                                        <span class="truncate">Cara Lama (Terpisah-pisah &amp; Manual)</span>
                                     </span>
-                                    <span class="text-red-300 font-mono font-bold shrink-0">Rp 1.200.000+ /bln</span>
+                                    <span class="text-rose-300 font-mono font-bold shrink-0">Beban Rp 1.200.000+ /bln</span>
                                 </div>
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-                                    <div class="p-2.5 rounded-[12px] bg-red-900/30 border border-red-500/20 flex items-start gap-2">
-                                        <i data-lucide="x" class="w-3.5 h-3.5 text-red-400 shrink-0 mt-0.5"></i>
-                                        <span class="text-slate-300 font-medium leading-snug text-pretty">Langganan POS: Rp 250rb/bln</span>
+                                    <div class="p-2.5 rounded-[12px] bg-rose-900/20 border border-rose-500/20 flex items-start gap-2">
+                                        <i data-lucide="x" class="w-3.5 h-3.5 text-rose-400 shrink-0 mt-0.5"></i>
+                                        <span class="text-slate-300 font-medium leading-snug">Langganan POS: Rp 250rb/bln</span>
                                     </div>
-                                    <div class="p-2.5 rounded-[12px] bg-red-900/30 border border-red-500/20 flex items-start gap-2">
-                                        <i data-lucide="x" class="w-3.5 h-3.5 text-red-400 shrink-0 mt-0.5"></i>
-                                        <span class="text-slate-300 font-medium leading-snug text-pretty">Software Gudang: Rp 350rb/bln</span>
+                                    <div class="p-2.5 rounded-[12px] bg-rose-900/20 border border-rose-500/20 flex items-start gap-2">
+                                        <i data-lucide="x" class="w-3.5 h-3.5 text-rose-400 shrink-0 mt-0.5"></i>
+                                        <span class="text-slate-300 font-medium leading-snug">Software Gudang: Rp 350rb/bln</span>
                                     </div>
-                                    <div class="p-2.5 rounded-[12px] bg-red-900/30 border border-red-500/20 flex items-start gap-2">
-                                        <i data-lucide="x" class="w-3.5 h-3.5 text-red-400 shrink-0 mt-0.5"></i>
-                                        <span class="text-slate-300 font-medium leading-snug text-pretty">Software Akuntansi: Rp 300rb/bln</span>
+                                    <div class="p-2.5 rounded-[12px] bg-rose-900/20 border border-rose-500/20 flex items-start gap-2">
+                                        <i data-lucide="x" class="w-3.5 h-3.5 text-rose-400 shrink-0 mt-0.5"></i>
+                                        <span class="text-slate-300 font-medium leading-snug">Software Akuntansi: Rp 300rb/bln</span>
                                     </div>
-                                    <div class="p-2.5 rounded-[12px] bg-red-900/30 border border-red-500/20 flex items-start gap-2">
-                                        <i data-lucide="x" class="w-3.5 h-3.5 text-red-400 shrink-0 mt-0.5"></i>
-                                        <span class="text-slate-300 font-medium leading-snug text-pretty">Rekonsiliasi manual 3 jam tiap malam</span>
+                                    <div class="p-2.5 rounded-[12px] bg-rose-900/20 border border-rose-500/20 flex items-start gap-2">
+                                        <i data-lucide="x" class="w-3.5 h-3.5 text-rose-400 shrink-0 mt-0.5"></i>
+                                        <span class="text-slate-300 font-medium leading-snug">Rekonsiliasi manual 3 jam tiap malam</span>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- COOCA Way Card -->
+                            <!-- COOCA Way Card (All-in-One Synchronized OS) -->
                             <div
-                                class="p-5 sm:p-6 rounded-[24px] bg-gradient-to-br from-blue-950/80 to-cyan-950/70 border-2 border-[#00C2FF]/60 text-white space-y-3 shadow-xl">
+                                class="p-5 sm:p-6 rounded-[24px] bg-[#0E1E45]/90 border-2 border-[#00C2FF]/60 text-white space-y-3.5 shadow-2xl backdrop-blur-xl">
                                 <div class="flex items-center justify-between gap-2 text-xs">
                                     <span
                                         class="font-bold text-[#00C2FF] uppercase tracking-wider flex items-center gap-1.5 min-w-0">
-                                        <i data-lucide="check-circle" class="w-4 h-4 text-emerald-400 shrink-0"></i> <span class="truncate">Cara Terpadu COOCA</span>
+                                        <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"></i>
+                                        <span class="truncate">Sistem Operasi Terpadu COOCA</span>
                                     </span>
                                     <span
-                                        class="px-2.5 py-0.5 rounded-full text-xs font-mono font-extrabold bg-[#00C2FF]/20 text-[#00C2FF] shrink-0">
+                                        class="px-2.5 py-0.5 rounded-full text-xs font-mono font-extrabold bg-[#00C2FF]/20 text-[#00C2FF] shrink-0 border border-[#00C2FF]/30">
                                         Mulai Rp 0 - Rp 99rb /bln
                                     </span>
                                 </div>
-                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-                                    <div class="p-2.5 rounded-[12px] bg-white/[0.06] border border-white/10 flex items-start gap-2">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+                                    <div class="p-3 rounded-[14px] bg-white/[0.05] border border-white/10 flex items-start gap-2.5">
                                         <i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>
-                                        <span class="text-slate-100 font-medium leading-snug text-pretty">Kasir POS + Resep BOM + Gudang + Jurnal include</span>
+                                        <span class="text-slate-100 font-medium leading-snug">Kasir POS + Resep BOM + Gudang + Jurnal include</span>
                                     </div>
-                                    <div class="p-2.5 rounded-[12px] bg-white/[0.06] border border-white/10 flex items-start gap-2">
+                                    <div class="p-3 rounded-[14px] bg-white/[0.05] border border-white/10 flex items-start gap-2.5">
                                         <i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>
-                                        <span class="text-slate-100 font-medium leading-snug text-pretty">Toko online mandiri & WA nota otomatis include</span>
+                                        <span class="text-slate-100 font-medium leading-snug">Toko online mandiri &amp; WA nota otomatis include</span>
                                     </div>
-                                    <div class="p-2.5 rounded-[12px] bg-white/[0.06] border border-white/10 flex items-start gap-2">
+                                    <div class="p-3 rounded-[14px] bg-white/[0.05] border border-white/10 flex items-start gap-2.5">
                                         <i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>
-                                        <span class="text-slate-100 font-medium leading-snug text-pretty">Nol detik rekonsiliasi karena database real-time</span>
+                                        <span class="text-slate-100 font-medium leading-snug">Nol detik rekonsiliasi karena database otomatis sinkron</span>
                                     </div>
-                                    <div class="p-2.5 rounded-[12px] bg-white/[0.06] border border-white/10 flex items-start gap-2">
+                                    <div class="p-3 rounded-[14px] bg-white/[0.05] border border-white/10 flex items-start gap-2.5">
                                         <i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>
-                                        <span class="text-slate-100 font-medium leading-snug text-pretty">Data bisnis milik Anda sepenuhnya dalam kontrol aman</span>
+                                        <span class="text-slate-100 font-medium leading-snug">Data bisnis milik Anda dengan enkripsi database AES-256</span>
                                     </div>
                                 </div>
                             </div>

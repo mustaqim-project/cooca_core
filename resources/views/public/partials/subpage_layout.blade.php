@@ -1,7 +1,12 @@
 @extends('layouts.public_marketing')
 
-@section('title', ($title ?? 'Solusi Bisnis') . ' - Cooca Business Operating System')
+@section('title', ($title ?? 'Solusi Bisnis') . ' | COOCA')
 @section('description',
+    $description ??
+    'Kelola bisnis UMKM lebih cerdas dan terintegrasi dengan COOCA Business
+    Operating System & Omnichannel ERP.')
+@section('og_title', ($title ?? 'Solusi Bisnis') . ' | COOCA')
+@section('og_description',
     $description ??
     'Kelola bisnis UMKM lebih cerdas dan terintegrasi dengan COOCA Business
     Operating System & Omnichannel ERP.')
@@ -9,10 +14,10 @@
 @section('content')
     <div class="w-full">
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
-        <!-- ═══ HERO SECTION (Mandatory 2-Grid Layout with Midnight Blue Glow) ═══════ -->
+        <!-- ═══ HERO SECTION (Full Above-The-Fold 2-Grid Layout) ════════════════════ -->
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
         <section
-            class="relative bg-[#060B1E] text-white pt-8 sm:pt-12 pb-16 lg:pb-20 overflow-hidden border-b border-white/10">
+            class="relative bg-[#060B1E] text-white pt-8 sm:pt-12 pb-16 lg:pb-20 min-h-[calc(100svh-84px)] lg:flex lg:items-center overflow-hidden border-b border-white/10 w-full min-w-full">
 
             <!-- Subtle Ambient Background Glows -->
             <div
@@ -87,6 +92,9 @@
 
                     <!-- KANAN: Product UI Visualization (5 Cols) -->
                     <div class="lg:col-span-5">
+                        @hasSection('subpage_hero_visual')
+                            @yield('subpage_hero_visual')
+                        @else
                         <div
                             class="bg-[#0B132B]/90 border border-white/10 rounded-[24px] shadow-[0_25px_60px_-15px_rgba(0,0,0,0.7)] backdrop-blur-2xl p-5 sm:p-6 space-y-4 text-white group hover:border-sky-400/40 transition-all duration-300">
 
@@ -164,6 +172,7 @@
                             </div>
 
                         </div>
+                        @endif
                     </div>
 
                 </div>

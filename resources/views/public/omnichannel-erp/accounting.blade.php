@@ -1,10 +1,11 @@
 @extends('layouts.public_marketing')
 
 @section('title', 'Software Akuntansi Online & Laporan Keuangan SAK EMKM | COOCA')
-@section('description', 'Aplikasi akuntansi bisnis terintegrasi. Jurnal otomatis dari transaksi kasir dan stok, bagan
-    akun (COA) standar SAK EMKM, buku besar, neraca saldo, serta laporan Laba Rugi dan Neraca real-time.')
-@section('keywords', 'software akuntansi online, laporan keuangan umkm, aplikasi pembukuan laba rugi neraca, auto
-    journal kasir pos, software akuntansi sak emkm')
+@section('description', 'Aplikasi akuntansi bisnis terintegrasi. Jurnal otomatis dari transaksi kasir dan stok, bagan akun (COA) standar SAK EMKM, buku besar, neraca saldo, serta laporan Laba Rugi dan Neraca real-time.')
+@section('keywords', 'software akuntansi online, laporan keuangan umkm, aplikasi pembukuan laba rugi neraca, auto journal kasir pos, software akuntansi sak emkm')
+
+@section('og_title', 'Software Akuntansi Online & Laporan Keuangan SAK EMKM | COOCA')
+@section('og_description', 'Jurnal otomatis dari transaksi kasir dan stok, bagan akun (COA) standar SAK EMKM, buku besar, neraca saldo, serta laporan Laba Rugi real-time.')
 
     @push('seo')
         <script type="application/ld+json">
@@ -75,9 +76,11 @@
     <div
         class="relative overflow-hidden bg-white dark:bg-[#070A14] text-slate-900 dark:text-white transition-colors duration-300">
 
-        {{-- 1. HERO SECTION (Midnight Blue Standard) --}}
+        <!-- ══════════════════════════════════════════════════════════════════════════ -->
+        <!-- ═══ 1. HERO SECTION (Full Viewport 45/55 Ratio) ══════════════════════════ -->
+        <!-- ══════════════════════════════════════════════════════════════════════════ -->
         <section
-            class="relative bg-[#060B1E] text-white pt-10 sm:pt-14 pb-16 lg:pb-24 overflow-hidden border-b border-white/10 w-full min-w-full">
+            class="relative bg-[#060B1E] text-white overflow-hidden border-b border-white/10 min-h-[calc(100svh-84px)] lg:flex lg:items-center py-10 sm:py-14 w-full min-w-full">
             {{-- Ambient Glows --}}
             <div
                 class="absolute -top-32 -right-32 w-96 h-96 bg-[#007AFF]/15 rounded-full blur-[140px] pointer-events-none -z-0">
@@ -86,50 +89,46 @@
                 class="absolute -bottom-32 -left-32 w-96 h-96 bg-[#00C4D8]/10 rounded-full blur-[120px] pointer-events-none -z-0">
             </div>
 
-            <div class="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full space-y-6">
                 {{-- Breadcrumb --}}
-                <nav class="pb-6" aria-label="Breadcrumb">
+                <nav class="pb-2" aria-label="Breadcrumb">
                     <ol class="flex items-center gap-2 text-xs text-slate-400">
                         <li><a href="{{ route('landing') }}" class="hover:text-[#00C4D8] transition-colors">Home</a></li>
                         <li><i data-lucide="chevron-right" class="w-3 h-3 text-slate-500"></i></li>
                         <li><a href="{{ route('public.erp.erp') }}"
                                 class="hover:text-[#00C4D8] transition-colors">Omnichannel ERP</a></li>
                         <li><i data-lucide="chevron-right" class="w-3 h-3 text-slate-500"></i></li>
-                        <li class="text-white font-semibold" aria-current="page">Akuntansi & Pembukuan</li>
+                        <li class="text-white font-semibold" aria-current="page">Akuntansi &amp; Pembukuan</li>
                     </ol>
                 </nav>
 
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
-                    {{-- Left Column: Copy & Value Proposition --}}
-                    <div class="lg:col-span-6 space-y-6">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+                    {{-- Left Column: Copy & Value Proposition (5 Cols ~ 42%) --}}
+                    <div class="lg:col-span-5 space-y-6 text-left">
                         <div
                             class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#007AFF]/15 text-[#00C4D8] border border-[#00C4D8]/30 text-xs font-semibold tracking-wide">
                             <i data-lucide="book-open" class="w-3.5 h-3.5"></i>
-                            <span>Double-Entry & Automated SAK EMKM Reporting</span>
+                            <span>Double-Entry &amp; Automated SAK EMKM Reporting</span>
                         </div>
 
                         <h1
-                            class="text-4xl sm:text-5xl lg:text-[3.25rem] xl:text-[3.75rem] font-extrabold text-white tracking-tight leading-[1.2] text-balance break-words">
-                            Laporan Laba Rugi & Neraca Terbit Otomatis <span class="text-[#00C4D8]">Tanpa Rekap
-                                Manual</span>
+                            class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.65rem] xl:text-[3rem] font-extrabold text-white tracking-tight leading-[1.15] text-balance break-words">
+                            Laporan Laba Rugi &amp; Neraca Terbit Otomatis <span class="text-[#00C4D8]">Tanpa Rekap Manual</span>
                         </h1>
 
-                        <p class="text-base sm:text-lg text-slate-300 font-normal leading-relaxed">
-                            Tinggalkan lembur berhari-hari menjurnal nota kasir dan pembelian barang. Setiap transaksi
-                            penjualan, mutasi gudang, dan pengeluaran operasional otomatis membentuk jurnal debit-kredit
-                            yang
-                            rapi sesuai standar akuntansi Indonesia.
+                        <p class="text-base sm:text-lg text-slate-300 font-normal leading-relaxed max-w-xl">
+                            Tinggalkan lembur berhari-hari menjurnal nota kasir dan pembelian barang. Setiap transaksi penjualan, mutasi gudang, dan pengeluaran operasional otomatis membentuk jurnal debit-kredit rapi standar SAK EMKM.
                         </p>
 
                         {{-- Action CTAs --}}
                         <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 pt-2">
                             <a href="{{ route('public.demo') }}"
-                                class="inline-flex justify-center items-center gap-2 px-6 py-3.5 rounded-xl bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-sm shadow-lg shadow-[#007AFF]/25 transition-all duration-200">
+                                class="inline-flex justify-center items-center gap-2 px-6 py-3.5 rounded-xl bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-sm shadow-lg shadow-[#007AFF]/25 transition-all duration-200 min-h-[48px]">
                                 <span>Lihat Demo Akuntansi</span>
                                 <i data-lucide="arrow-right" class="w-4 h-4"></i>
                             </a>
                             <a href="{{ route('public.erp.finance') }}"
-                                class="inline-flex justify-center items-center gap-2 px-6 py-3.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-white backdrop-blur-sm font-semibold text-sm transition-all">
+                                class="inline-flex justify-center items-center gap-2 px-6 py-3.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-white backdrop-blur-sm font-semibold text-sm transition-all min-h-[48px]">
                                 <span>Koneksi ke Manajemen Kas</span>
                             </a>
                         </div>
@@ -138,7 +137,7 @@
                         <div class="pt-6 border-t border-white/10 grid grid-cols-2 sm:grid-cols-3 gap-3.5 text-left">
                             <div class="min-w-0">
                                 <div class="text-xs text-slate-400 font-medium truncate">Standar Akuntansi</div>
-                                <div class="text-sm font-bold text-white mt-0.5 truncate">SAK EMKM & SAK EP</div>
+                                <div class="text-sm font-bold text-white mt-0.5 truncate">SAK EMKM &amp; SAK EP</div>
                             </div>
                             <div class="min-w-0">
                                 <div class="text-xs text-slate-400 font-medium truncate">Metode Pembukuan</div>
@@ -151,8 +150,8 @@
                         </div>
                     </div>
 
-                    {{-- Right Column: Simulated Live General Ledger & Auto Journal UI --}}
-                    <div class="lg:col-span-6">
+                    {{-- Right Column: Simulated Live General Ledger & Auto Journal UI (7 Cols ~ 58%) --}}
+                    <div class="lg:col-span-7">
                         <div
                             class="relative rounded-2xl bg-[#0E1E45]/80 border border-white/10 p-4 sm:p-5 shadow-2xl backdrop-blur-md text-white">
 

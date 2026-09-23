@@ -1,13 +1,14 @@
 @extends('layouts.public_marketing')
 
 @section('title', 'Software ERP Terintegrasi untuk UMKM & Bisnis Berkembang | COOCA')
-@section('description', 'COOCA Omnichannel ERP menyatukan kasir POS, stok multi-gudang, purchasing, keuangan, akuntansi,
-    CRM, dan karyawan dalam satu sistem terpadu tanpa biaya mahal.')
-@section('keywords', 'software erp umkm, omnichannel erp indonesia, sistem erp toko, software manajemen operasional
-    terintegrasi, erp kasir gudang akuntansi')
+@section('description', 'COOCA Omnichannel ERP menyatukan kasir POS, stok multi-gudang, purchasing, keuangan, akuntansi, CRM, dan karyawan dalam satu sistem terpadu tanpa biaya mahal.')
+@section('keywords', 'software erp umkm, omnichannel erp indonesia, sistem erp toko, software manajemen operasional terintegrasi, erp kasir gudang akuntansi')
 
-    @push('seo')
-        <script type="application/ld+json">
+@section('og_title', 'Software ERP Terintegrasi untuk UMKM & Bisnis Berkembang | COOCA')
+@section('og_description', 'COOCA Omnichannel ERP menyatukan kasir POS, persediaan gudang, purchasing, akuntansi riil, dan CRM dalam satu sistem terpadu.')
+
+@push('seo')
+    <script type="application/ld+json">
     {
         "@@context": "https://schema.org",
         "@type": "SoftwareApplication",
@@ -28,7 +29,7 @@
         }
     }
     </script>
-        <script type="application/ld+json">
+    <script type="application/ld+json">
     {
         "@@context": "https://schema.org",
         "@type": "BreadcrumbList",
@@ -54,16 +55,16 @@
         ]
     }
     </script>
-    @endpush
+@endpush
 
 @section('content')
     <div class="w-full bg-[#F5F5F7] dark:bg-[#000000] text-[#1D1D1F] dark:text-[#F5F5F7] antialiased">
 
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
-        <!-- ═══ 1. HERO SECTION ═════════════════════════════════════════════════════ -->
+        <!-- ═══ 1. HERO SECTION (Full Viewport 45/55 Ratio) ══════════════════════════ -->
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
         <section
-            class="relative bg-[#060B1E] text-white pt-10 sm:pt-14 pb-16 lg:pb-24 overflow-hidden border-b border-white/10">
+            class="relative bg-[#060B1E] text-white overflow-hidden border-b border-white/10 min-h-[calc(100svh-84px)] lg:flex lg:items-center py-10 sm:py-14">
             <div
                 class="absolute -top-32 right-1/4 w-[500px] h-[500px] bg-[#007AFF]/15 rounded-full blur-[140px] pointer-events-none">
             </div>
@@ -71,7 +72,7 @@
                 class="absolute bottom-0 left-1/4 w-[420px] h-[420px] bg-[#34C759]/10 rounded-full blur-[130px] pointer-events-none">
             </div>
 
-            <div class="max-w-[1320px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="max-w-[1320px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
                 <!-- Breadcrumbs -->
                 <nav aria-label="Breadcrumb" class="flex items-center gap-2 text-xs text-slate-400 pb-6">
                     <a href="{{ route('landing') }}" class="hover:text-[#00C2FF] transition-colors">Beranda</a>
@@ -81,9 +82,9 @@
                     <span class="text-white font-semibold">Core ERP</span>
                 </nav>
 
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
-                    <!-- Left: Headline & Core Message (7 Cols) -->
-                    <div class="lg:col-span-7 space-y-6 text-left">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+                    <!-- Left: Headline & Core Message (5 Cols ~ 42%) -->
+                    <div class="lg:col-span-5 space-y-6 text-left">
                         <div
                             class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 border border-white/15 text-xs font-semibold text-[#34C759] tracking-wide">
                             <i data-lucide="box" class="w-3.5 h-3.5"></i>
@@ -91,14 +92,12 @@
                         </div>
 
                         <h1
-                            class="text-4xl sm:text-5xl lg:text-[3.25rem] xl:text-[3.75rem] font-black text-white tracking-tight leading-[1.2] text-balance break-words">
-                            Software ERP Lengkap Tanpa Kerumitan Sistem Korporasi
+                            class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.65rem] xl:text-[3rem] font-black text-white tracking-tight leading-[1.15] text-balance break-words">
+                            Software ERP Lengkap Tanpa Kerumitan Korporasi
                         </h1>
 
-                        <p class="text-base sm:text-lg text-slate-300 leading-relaxed max-w-2xl font-normal">
-                            Kendalikan rantai pasok, stok barang, kasir toko, pembelian supplier, hingga pembukuan akuntansi
-                            dalam satu sistem terintegrasi. Dirancang khusus untuk pemilik usaha berkembang yang ingin
-                            sistem rapi tanpa biaya lisensi ratusan juta rupiah.
+                        <p class="text-base sm:text-lg text-slate-300 leading-relaxed max-w-xl font-normal">
+                            Kendalikan rantai pasok, stok barang, kasir toko, pembelian supplier, hingga pembukuan akuntansi dalam satu sistem terintegrasi. Rapi tanpa biaya lisensi ratusan juta rupiah.
                         </p>
 
                         <!-- CTAs -->
@@ -118,116 +117,120 @@
                         <div class="pt-2 flex flex-wrap items-center gap-y-2 gap-x-5 text-xs text-slate-400">
                             <div class="flex items-center gap-1.5">
                                 <i data-lucide="check" class="w-4 h-4 text-emerald-400"></i>
-                                <span>Modular: aktifkan modul sesuai kebutuhan</span>
+                                <span>Modular: aktifkan sesuai kebutuhan</span>
                             </div>
                             <div class="flex items-center gap-1.5">
                                 <i data-lucide="check" class="w-4 h-4 text-emerald-400"></i>
-                                <span>Standar akuntansi Indonesia (SAK EMKM)</span>
+                                <span>Standar SAK EMKM Indonesia</span>
                             </div>
                             <div class="flex items-center gap-1.5">
                                 <i data-lucide="check" class="w-4 h-4 text-emerald-400"></i>
-                                <span>Siap multi-cabang & multi-gudang</span>
+                                <span>Siap multi-cabang &amp; multi-gudang</span>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Right: ERP Matrix Visualization (5 Cols) -->
-                    <div class="lg:col-span-5">
+                    <!-- Right: ERP Matrix Visualization (7 Cols ~ 58%) -->
+                    <div class="lg:col-span-7">
                         <div
                             class="bg-[#0B132B]/90 border border-white/10 rounded-[24px] p-5 sm:p-6 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.7)] backdrop-blur-xl space-y-4">
                             <div class="flex items-center justify-between border-b border-white/10 pb-3">
-                                <span class="text-xs font-mono font-bold text-white uppercase">COOCA ERP Central
-                                    Matrix</span>
+                                <div class="flex items-center gap-2">
+                                    <span class="w-3 h-3 rounded-full bg-[#FF5F56]"></span>
+                                    <span class="w-3 h-3 rounded-full bg-[#FFBD2E]"></span>
+                                    <span class="w-3 h-3 rounded-full bg-[#27C93F]"></span>
+                                    <span class="text-xs font-mono font-bold text-white uppercase ml-1.5">COOCA ERP Ecosystem Matrix</span>
+                                </div>
                                 <span
-                                    class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 shrink-0">8
-                                    Modules Active</span>
+                                    class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 shrink-0">8 Modul Aktif Terpadu</span>
                             </div>
 
-                            <!-- 8 Mini Module Grid -->
-                            <div class="grid grid-cols-2 gap-2.5 text-xs">
+                            <!-- 8 Mini Module Grid (High Fidelity Bento) -->
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
                                 <div
-                                    class="p-3 rounded-[12px] bg-white/[0.04] border border-white/10 flex items-center gap-2.5 min-w-0">
-                                    <i data-lucide="monitor" class="w-4 h-4 text-[#00C2FF] shrink-0"></i>
-                                    <div class="min-w-0 flex-1">
-                                        <div class="font-bold text-white truncate">Kasir POS</div>
-                                        <div class="text-[10px] text-slate-400 truncate">Kasir Cepat & Struk</div>
+                                    class="p-3 rounded-[14px] bg-white/[0.04] border border-white/10 space-y-1 hover:border-[#00C2FF]/40 transition-colors">
+                                    <div class="w-7 h-7 rounded-[8px] bg-blue-500/20 text-[#00C2FF] flex items-center justify-center">
+                                        <i data-lucide="monitor" class="w-4 h-4"></i>
                                     </div>
+                                    <div class="font-bold text-white text-xs truncate">Kasir POS</div>
+                                    <div class="text-[10.5px] text-slate-400 truncate">Cepat &amp; QRIS</div>
                                 </div>
 
                                 <div
-                                    class="p-3 rounded-[12px] bg-white/[0.04] border border-white/10 flex items-center gap-2.5 min-w-0">
-                                    <i data-lucide="boxes" class="w-4 h-4 text-[#34C759] shrink-0"></i>
-                                    <div class="min-w-0 flex-1">
-                                        <div class="font-bold text-white truncate">Inventory</div>
-                                        <div class="text-[10px] text-slate-400 truncate">Multi-Gudang & BOM</div>
+                                    class="p-3 rounded-[14px] bg-white/[0.04] border border-white/10 space-y-1 hover:border-[#34C759]/40 transition-colors">
+                                    <div class="w-7 h-7 rounded-[8px] bg-emerald-500/20 text-[#34C759] flex items-center justify-center">
+                                        <i data-lucide="boxes" class="w-4 h-4"></i>
                                     </div>
+                                    <div class="font-bold text-white text-xs truncate">Inventory</div>
+                                    <div class="text-[10.5px] text-slate-400 truncate">Multi-Gudang</div>
                                 </div>
 
                                 <div
-                                    class="p-3 rounded-[12px] bg-white/[0.04] border border-white/10 flex items-center gap-2.5 min-w-0">
-                                    <i data-lucide="shopping-cart" class="w-4 h-4 text-[#FF9500] shrink-0"></i>
-                                    <div class="min-w-0 flex-1">
-                                        <div class="font-bold text-white truncate">Purchasing</div>
-                                        <div class="text-[10px] text-slate-400 truncate">PO & Hutang Supplier</div>
+                                    class="p-3 rounded-[14px] bg-white/[0.04] border border-white/10 space-y-1 hover:border-[#FF9500]/40 transition-colors">
+                                    <div class="w-7 h-7 rounded-[8px] bg-amber-500/20 text-[#FF9500] flex items-center justify-center">
+                                        <i data-lucide="shopping-cart" class="w-4 h-4"></i>
                                     </div>
+                                    <div class="font-bold text-white text-xs truncate">Purchasing</div>
+                                    <div class="text-[10.5px] text-slate-400 truncate">PO &amp; Hutang</div>
                                 </div>
 
                                 <div
-                                    class="p-3 rounded-[12px] bg-white/[0.04] border border-white/10 flex items-center gap-2.5 min-w-0">
-                                    <i data-lucide="wallet" class="w-4 h-4 text-[#007AFF] shrink-0"></i>
-                                    <div class="min-w-0 flex-1">
-                                        <div class="font-bold text-white truncate">Finance</div>
-                                        <div class="text-[10px] text-slate-400 truncate">Arus Kas & Piutang</div>
+                                    class="p-3 rounded-[14px] bg-white/[0.04] border border-white/10 space-y-1 hover:border-[#007AFF]/40 transition-colors">
+                                    <div class="w-7 h-7 rounded-[8px] bg-sky-500/20 text-[#007AFF] flex items-center justify-center">
+                                        <i data-lucide="wallet" class="w-4 h-4"></i>
                                     </div>
+                                    <div class="font-bold text-white text-xs truncate">Finance</div>
+                                    <div class="text-[10.5px] text-slate-400 truncate">Arus Kas &amp; Piutang</div>
                                 </div>
 
                                 <div
-                                    class="p-3 rounded-[12px] bg-white/[0.04] border border-white/10 flex items-center gap-2.5 min-w-0">
-                                    <i data-lucide="file-spreadsheet" class="w-4 h-4 text-emerald-400 shrink-0"></i>
-                                    <div class="min-w-0 flex-1">
-                                        <div class="font-bold text-white truncate">Accounting</div>
-                                        <div class="text-[10px] text-slate-400 truncate">Jurnal & Laba Rugi</div>
+                                    class="p-3 rounded-[14px] bg-white/[0.04] border border-white/10 space-y-1 hover:border-emerald-400/40 transition-colors">
+                                    <div class="w-7 h-7 rounded-[8px] bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
+                                        <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
                                     </div>
+                                    <div class="font-bold text-white text-xs truncate">Accounting</div>
+                                    <div class="text-[10.5px] text-slate-400 truncate">Jurnal &amp; Neraca</div>
                                 </div>
 
                                 <div
-                                    class="p-3 rounded-[12px] bg-white/[0.04] border border-white/10 flex items-center gap-2.5 min-w-0">
-                                    <i data-lucide="users" class="w-4 h-4 text-purple-400 shrink-0"></i>
-                                    <div class="min-w-0 flex-1">
-                                        <div class="font-bold text-white truncate">CRM</div>
-                                        <div class="text-[10px] text-slate-400 truncate">Database & Retensi</div>
+                                    class="p-3 rounded-[14px] bg-white/[0.04] border border-white/10 space-y-1 hover:border-purple-400/40 transition-colors">
+                                    <div class="w-7 h-7 rounded-[8px] bg-purple-500/20 text-purple-400 flex items-center justify-center">
+                                        <i data-lucide="users" class="w-4 h-4"></i>
                                     </div>
+                                    <div class="font-bold text-white text-xs truncate">CRM Pelanggan</div>
+                                    <div class="text-[10.5px] text-slate-400 truncate">Data &amp; Loyalitas</div>
                                 </div>
 
                                 <div
-                                    class="p-3 rounded-[12px] bg-white/[0.04] border border-white/10 flex items-center gap-2.5 min-w-0">
-                                    <i data-lucide="user-check" class="w-4 h-4 text-amber-400 shrink-0"></i>
-                                    <div class="min-w-0 flex-1">
-                                        <div class="font-bold text-white truncate">HRM Toko</div>
-                                        <div class="text-[10px] text-slate-400 truncate">Shift & Absensi Kasir</div>
+                                    class="p-3 rounded-[14px] bg-white/[0.04] border border-white/10 space-y-1 hover:border-rose-400/40 transition-colors">
+                                    <div class="w-7 h-7 rounded-[8px] bg-rose-500/20 text-rose-400 flex items-center justify-center">
+                                        <i data-lucide="user-check" class="w-4 h-4"></i>
                                     </div>
+                                    <div class="font-bold text-white text-xs truncate">HRM Karyawan</div>
+                                    <div class="text-[10.5px] text-slate-400 truncate">Presensi &amp; Gaji</div>
                                 </div>
 
                                 <div
-                                    class="p-3 rounded-[12px] bg-white/[0.04] border border-white/10 flex items-center gap-2.5 min-w-0">
-                                    <i data-lucide="bar-chart-2" class="w-4 h-4 text-rose-400 shrink-0"></i>
-                                    <div class="min-w-0 flex-1">
-                                        <div class="font-bold text-white truncate">Analytics</div>
-                                        <div class="text-[10px] text-slate-400 truncate">Dasbor Eksekutif</div>
+                                    class="p-3 rounded-[14px] bg-white/[0.04] border border-white/10 space-y-1 hover:border-cyan-400/40 transition-colors">
+                                    <div class="w-7 h-7 rounded-[8px] bg-cyan-500/20 text-cyan-400 flex items-center justify-center">
+                                        <i data-lucide="bar-chart-3" class="w-4 h-4"></i>
                                     </div>
+                                    <div class="font-bold text-white text-xs truncate">Analytics</div>
+                                    <div class="text-[10.5px] text-slate-400 truncate">Laba Rugi Riil</div>
                                 </div>
                             </div>
 
                             <div
-                                class="pt-2 border-t border-white/10 flex items-center justify-between text-xs text-slate-400">
-                                <span class="truncate">Saling terhubung dalam 1 database</span>
-                                <span class="text-[#00C2FF] font-semibold shrink-0">Zero Integration Setup</span>
+                                class="pt-2 border-t border-white/10 flex items-center justify-between text-xs text-slate-400 font-mono">
+                                <span>Zero Integrasi Manual</span>
+                                <span class="text-emerald-400 font-semibold">Semua Modul Berkomunikasi 24/7</span>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
+
 
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
         <!-- ═══ 2. KENAPA ERP TRADISIONAL TIDAK COCOK UNTUK UMKM ════════════════════ -->

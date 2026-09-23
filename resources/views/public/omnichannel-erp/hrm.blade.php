@@ -2,11 +2,12 @@
 
 @section('title', 'Software Manajemen Karyawan, Shift & Absensi Outlet | COOCA')
 @section('description',
-    'Aplikasi manajemen staf dan SDM untuk toko ritel, F&B, dan jasa. Atur jadwal shift kerja,
-    presensi digital GPS, pantau produktivitas penjualan kasir, dan rekap penggajian berbasis kehadiran.')
+    'Aplikasi manajemen staf dan SDM untuk toko ritel, F&B, dan jasa. Atur jadwal shift kerja, presensi digital GPS, pantau produktivitas penjualan kasir, dan rekap penggajian berbasis kehadiran.')
+@section('og_title', 'Software Manajemen Karyawan, Shift & Absensi Outlet | COOCA')
+@section('og_description',
+    'Aplikasi manajemen staf dan SDM untuk toko ritel, F&B, dan jasa. Atur jadwal shift kerja, presensi digital GPS, pantau produktivitas penjualan kasir, dan rekap penggajian berbasis kehadiran.')
 @section('keywords',
-    'software hrm karyawan outlet, aplikasi jadwal shift kasir, absensi gps toko, manajemen sdm retail,
-    rekap gaji karyawan umkm')
+    'software hrm karyawan outlet, aplikasi jadwal shift kasir, absensi gps toko, manajemen sdm retail, rekap gaji karyawan umkm')
 
     @push('seo')
         <script type="application/ld+json">
@@ -77,9 +78,9 @@
     <div
         class="relative overflow-hidden bg-white dark:bg-[#070A14] text-slate-900 dark:text-white transition-colors duration-300">
 
-        {{-- 1. HERO SECTION (Midnight Blue Standard) --}}
+        {{-- 1. HERO SECTION (Midnight Blue Standard - Type A Full Viewport) --}}
         <section
-            class="relative bg-[#060B1E] text-white pt-10 sm:pt-14 pb-16 lg:pb-24 overflow-hidden border-b border-white/10 w-full min-w-full">
+            class="relative bg-[#060B1E] text-white min-h-[calc(100svh-84px)] lg:flex lg:items-center py-12 lg:py-16 overflow-hidden border-b border-white/10 w-full min-w-full">
             {{-- Ambient Glows --}}
             <div
                 class="absolute -top-32 -right-32 w-96 h-96 bg-[#007AFF]/15 rounded-full blur-[140px] pointer-events-none -z-0">
@@ -88,7 +89,7 @@
                 class="absolute -bottom-32 -left-32 w-96 h-96 bg-[#00C4D8]/10 rounded-full blur-[120px] pointer-events-none -z-0">
             </div>
 
-            <div class="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
                 {{-- Breadcrumb --}}
                 <nav class="pb-6" aria-label="Breadcrumb">
                     <ol class="flex items-center gap-2 text-xs text-slate-400">
@@ -101,9 +102,9 @@
                     </ol>
                 </nav>
 
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
-                    {{-- Left Column: Copy & Value Proposition --}}
-                    <div class="lg:col-span-6 space-y-6">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
+                    {{-- Left Column: Copy & Value Proposition (5 Cols ~ 42%) --}}
+                    <div class="lg:col-span-5 space-y-6">
                         <div
                             class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#007AFF]/15 text-[#00C4D8] border border-[#00C4D8]/30 text-xs font-semibold tracking-wide">
                             <i data-lucide="user-check" class="w-3.5 h-3.5"></i>
@@ -126,12 +127,12 @@
                         {{-- Action CTAs --}}
                         <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 pt-2">
                             <a href="{{ route('public.demo') }}"
-                                class="inline-flex justify-center items-center gap-2 px-6 py-3.5 rounded-xl bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-sm shadow-lg shadow-[#007AFF]/25 transition-all duration-200">
+                                class="inline-flex justify-center items-center gap-2 px-6 py-3.5 rounded-xl bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-sm shadow-lg shadow-[#007AFF]/25 transition-all duration-200 min-h-[48px]">
                                 <span>Coba Modul HRM Staf</span>
                                 <i data-lucide="arrow-right" class="w-4 h-4"></i>
                             </a>
                             <a href="{{ route('public.erp.pos') }}"
-                                class="inline-flex justify-center items-center gap-2 px-6 py-3.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-white backdrop-blur-sm font-semibold text-sm transition-all">
+                                class="inline-flex justify-center items-center gap-2 px-6 py-3.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-white backdrop-blur-sm font-semibold text-sm transition-all min-h-[48px]">
                                 <span>Koneksi ke Shift Kasir</span>
                             </a>
                         </div>
@@ -153,8 +154,8 @@
                         </div>
                     </div>
 
-                    {{-- Right Column: Simulated Live Store Crew & Shift Roster UI --}}
-                    <div class="lg:col-span-6">
+                    {{-- Right Column: Simulated Live Store Crew & Shift Roster UI (7 Cols ~ 58%) --}}
+                    <div class="lg:col-span-7">
                         <div
                             class="relative rounded-2xl bg-[#0E1E45]/80 border border-white/10 p-4 sm:p-5 shadow-2xl backdrop-blur-md text-white">
 

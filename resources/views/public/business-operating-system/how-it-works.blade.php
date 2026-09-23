@@ -1,13 +1,14 @@
 @extends('layouts.public_marketing')
 
 @section('title', 'Cara Kerja Business Operating System Terintegrasi | COOCA')
-@section('description', 'Pelajari alur data otomatis COOCA: dari transaksi kasir dan pesanan online, pemotongan stok
-    bahan baku, pembukuan jurnal otomatis, hingga analitik owner.')
-@section('keywords', 'cara kerja sistem bisnis terintegrasi, alur operasional bisnis umkm, otomasi pembukuan toko,
-    workflow kasir ke akuntansi, cara kerja cooca')
+@section('description', 'Pelajari alur data otomatis COOCA: dari transaksi kasir dan pesanan online, pemotongan stok bahan baku, pembukuan jurnal otomatis, hingga analitik owner.')
+@section('keywords', 'cara kerja sistem bisnis terintegrasi, alur operasional bisnis umkm, otomasi pembukuan toko, workflow kasir ke akuntansi, cara kerja cooca')
 
-    @push('seo')
-        <script type="application/ld+json">
+@section('og_title', 'Cara Kerja Business Operating System Terintegrasi | COOCA')
+@section('og_description', 'Pelajari alur data otomatis COOCA: dari transaksi kasir dan pesanan online, pemotongan stok bahan baku, pembukuan jurnal otomatis, hingga analitik owner.')
+
+@push('seo')
+    <script type="application/ld+json">
     {
         "@@context": "https://schema.org",
         "@type": "WebPage",
@@ -21,7 +22,7 @@
         }
     }
     </script>
-        <script type="application/ld+json">
+    <script type="application/ld+json">
     {
         "@@context": "https://schema.org",
         "@type": "BreadcrumbList",
@@ -47,16 +48,16 @@
         ]
     }
     </script>
-    @endpush
+@endpush
 
 @section('content')
     <div class="w-full bg-[#F5F5F7] dark:bg-[#000000] text-[#1D1D1F] dark:text-[#F5F5F7] antialiased">
 
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
-        <!-- ═══ 1. HERO SECTION ═════════════════════════════════════════════════════ -->
+        <!-- ═══ 1. HERO SECTION (Full Viewport 45/55 Ratio) ══════════════════════════ -->
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
         <section
-            class="relative bg-[#060B1E] text-white pt-10 sm:pt-14 pb-16 lg:pb-24 overflow-hidden border-b border-white/10">
+            class="relative bg-[#060B1E] text-white overflow-hidden border-b border-white/10 min-h-[calc(100svh-84px)] lg:flex lg:items-center py-10 sm:py-14">
             <div
                 class="absolute -top-32 right-1/4 w-[500px] h-[500px] bg-[#007AFF]/15 rounded-full blur-[140px] pointer-events-none">
             </div>
@@ -64,20 +65,19 @@
                 class="absolute bottom-0 left-1/4 w-[420px] h-[420px] bg-[#00C2FF]/10 rounded-full blur-[130px] pointer-events-none">
             </div>
 
-            <div class="max-w-[1320px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="max-w-[1320px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
                 <!-- Breadcrumbs -->
                 <nav aria-label="Breadcrumb" class="flex items-center gap-2 text-xs text-slate-400 pb-6">
                     <a href="{{ route('landing') }}" class="hover:text-[#00C2FF] transition-colors">Beranda</a>
                     <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-white/30"></i>
-                    <a href="{{ route('public.bos.overview') }}" class="hover:text-[#00C2FF] transition-colors">Business
-                        Operating System</a>
+                    <a href="{{ route('public.bos.overview') }}" class="hover:text-[#00C2FF] transition-colors">Business Operating System</a>
                     <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-white/30"></i>
                     <span class="text-white font-semibold">Cara Kerja</span>
                 </nav>
 
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
-                    <!-- Left: Headline & Copy -->
-                    <div class="lg:col-span-7 space-y-6 text-left">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+                    <!-- Left: Headline & Copy (5 Cols ~ 42%) -->
+                    <div class="lg:col-span-5 space-y-6 text-left">
                         <div
                             class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 border border-white/15 text-xs font-semibold text-[#00C2FF] tracking-wide">
                             <i data-lucide="workflow" class="w-3.5 h-3.5"></i>
@@ -85,14 +85,12 @@
                         </div>
 
                         <h1
-                            class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.75rem] xl:text-[3.25rem] font-extrabold text-white tracking-tight leading-[1.2] text-balance break-words">
-                            Bagaimana COOCA Mengotomasi Operasional Toko Anda dari Depan ke Belakang
+                            class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.65rem] xl:text-[3rem] font-extrabold text-white tracking-tight leading-[1.15] text-balance break-words">
+                            Bagaimana COOCA Mengotomasi Operasional Toko Anda
                         </h1>
 
-                        <p class="text-base sm:text-lg text-slate-300 leading-relaxed max-w-2xl font-normal text-pretty">
-                            Lihat bagaimana satu transaksi yang terjadi di kasir atau website toko mengalir secara presisi
-                            ke gudang, pembukuan kas, buku besar akuntansi, dan layar pantau owner tanpa rekonsiliasi
-                            manual.
+                        <p class="text-base sm:text-lg text-slate-300 leading-relaxed max-w-xl font-normal text-pretty">
+                            Lihat bagaimana satu transaksi di kasir atau toko online mengalir secara presisi ke gudang bahan baku, pembukuan kas, buku besar akuntansi, dan layar pantau owner tanpa rekonsiliasi manual.
                         </p>
 
                         <!-- CTAs -->
@@ -116,7 +114,7 @@
                             </div>
                             <div class="flex items-center gap-1.5">
                                 <i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0"></i>
-                                <span>Otomatis potong resep & bahan baku</span>
+                                <span>Otomatis potong resep &amp; bahan baku</span>
                             </div>
                             <div class="flex items-center gap-1.5">
                                 <i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0"></i>
@@ -125,8 +123,8 @@
                         </div>
                     </div>
 
-                    <!-- Right: Visual Flow Diagram Mockup -->
-                    <div class="lg:col-span-5">
+                    <!-- Right: Visual Flow Diagram Mockup (7 Cols ~ 58%) -->
+                    <div class="lg:col-span-7">
                         <div
                             class="bg-[#0B132B]/90 border border-white/10 rounded-[24px] p-5 sm:p-6 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.7)] backdrop-blur-xl space-y-4">
                             <div class="flex items-center justify-between border-b border-white/10 pb-3 gap-2">
@@ -134,73 +132,72 @@
                                     <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shrink-0"></span>
                                     <span class="text-xs font-mono font-bold text-white uppercase truncate">Pipeline Transaksi Live</span>
                                 </div>
-                                <span class="text-[11px] font-mono text-slate-400 shrink-0">ID: TRX-2026-9041</span>
+                                <span class="text-[11px] font-mono text-slate-400 shrink-0">cooca://pipeline/trx-2026</span>
                             </div>
 
                             <!-- 4 Sequential Flow Step Cards -->
-                            <div class="space-y-3">
+                            <div class="space-y-2.5">
                                 <div
-                                    class="p-3 rounded-[14px] bg-white/[0.04] border border-white/10 flex items-center justify-between gap-3">
+                                    class="p-3.5 rounded-[16px] bg-white/[0.04] border border-white/10 flex items-center justify-between gap-3">
                                     <div class="flex items-center gap-3 min-w-0 flex-1">
                                         <div
-                                            class="w-8 h-8 rounded-[8px] bg-blue-500/20 text-[#00C2FF] flex items-center justify-center font-mono font-bold text-xs shrink-0">
+                                            class="w-9 h-9 rounded-[10px] bg-blue-500/20 text-[#00C2FF] flex items-center justify-center font-mono font-bold text-xs shrink-0">
                                             1</div>
                                         <div class="min-w-0 flex-1">
-                                            <div class="text-xs font-bold text-white truncate">Kasir POS / Web Order</div>
-                                            <div class="text-[11px] text-slate-400 truncate">Pembayaran QRIS Rp 48.000 Sukses</div>
+                                            <div class="text-xs font-bold text-white truncate">Kasir POS / Web Order Pelanggan</div>
+                                            <div class="text-[11px] text-slate-400 truncate">Pembayaran QRIS Rp 48.000 Berhasil</div>
                                         </div>
                                     </div>
                                     <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"></i>
                                 </div>
 
                                 <div
-                                    class="p-3 rounded-[14px] bg-white/[0.04] border border-white/10 flex items-center justify-between gap-3">
+                                    class="p-3.5 rounded-[16px] bg-white/[0.04] border border-white/10 flex items-center justify-between gap-3">
                                     <div class="flex items-center gap-3 min-w-0 flex-1">
                                         <div
-                                            class="w-8 h-8 rounded-[8px] bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-mono font-bold text-xs shrink-0">
+                                            class="w-9 h-9 rounded-[10px] bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-mono font-bold text-xs shrink-0">
                                             2</div>
                                         <div class="min-w-0 flex-1">
-                                            <div class="text-xs font-bold text-white truncate">Inventory Engine</div>
-                                            <div class="text-[11px] text-slate-400 truncate">Bahan Baku Terpotong via BOM Resep</div>
+                                            <div class="text-xs font-bold text-white truncate">Inventory Engine &amp; BOM Resep</div>
+                                            <div class="text-[11px] text-slate-400 truncate">Bahan Baku Terpotong Otomatis Seketika</div>
                                         </div>
                                     </div>
-                                    <span class="text-[11px] font-mono text-emerald-400 shrink-0">-1 Pack</span>
+                                    <span class="text-[11px] font-mono text-emerald-400 px-2 py-0.5 rounded bg-emerald-500/10 shrink-0">-1 Resep</span>
                                 </div>
 
                                 <div
-                                    class="p-3 rounded-[14px] bg-white/[0.04] border border-white/10 flex items-center justify-between gap-3">
+                                    class="p-3.5 rounded-[16px] bg-white/[0.04] border border-white/10 flex items-center justify-between gap-3">
                                     <div class="flex items-center gap-3 min-w-0 flex-1">
                                         <div
-                                            class="w-8 h-8 rounded-[8px] bg-amber-500/20 text-amber-400 flex items-center justify-center font-mono font-bold text-xs shrink-0">
+                                            class="w-9 h-9 rounded-[10px] bg-amber-500/20 text-amber-400 flex items-center justify-center font-mono font-bold text-xs shrink-0">
                                             3</div>
                                         <div class="min-w-0 flex-1">
-                                            <div class="text-xs font-bold text-white truncate">General Ledger Akuntansi</div>
-                                            <div class="text-[11px] text-slate-400 truncate">Debit Kas Bank, Kredit Penjualan & HPP
-                                            </div>
+                                            <div class="text-xs font-bold text-white truncate">General Ledger Akuntansi Riil</div>
+                                            <div class="text-[11px] text-slate-400 truncate">Debit Kas Bank, Kredit Penjualan &amp; HPP</div>
                                         </div>
                                     </div>
-                                    <span class="text-[11px] font-mono text-amber-300 shrink-0">Auto Journal</span>
+                                    <span class="text-[11px] font-mono text-amber-300 px-2 py-0.5 rounded bg-amber-500/10 shrink-0">Auto Jurnal</span>
                                 </div>
 
                                 <div
-                                    class="p-3 rounded-[14px] bg-white/[0.04] border border-white/10 flex items-center justify-between gap-3">
+                                    class="p-3.5 rounded-[16px] bg-white/[0.04] border border-white/10 flex items-center justify-between gap-3">
                                     <div class="flex items-center gap-3 min-w-0 flex-1">
                                         <div
-                                            class="w-8 h-8 rounded-[8px] bg-purple-500/20 text-purple-400 flex items-center justify-center font-mono font-bold text-xs shrink-0">
+                                            class="w-9 h-9 rounded-[10px] bg-purple-500/20 text-purple-400 flex items-center justify-center font-mono font-bold text-xs shrink-0">
                                             4</div>
                                         <div class="min-w-0 flex-1">
-                                            <div class="text-xs font-bold text-white truncate">Owner Smartphone Feed</div>
-                                            <div class="text-[11px] text-slate-400 truncate">Laba Bersih & Margin Terupdate Seketika
-                                            </div>
+                                            <div class="text-xs font-bold text-white truncate">Pusat Kendali Owner Smartphone</div>
+                                            <div class="text-[11px] text-slate-400 truncate">Laba Bersih &amp; Margin Terupdate Seketika</div>
                                         </div>
                                     </div>
-                                    <span class="text-[11px] font-mono text-white font-bold shrink-0">+Rp 24.500</span>
+                                    <span class="text-[11px] font-mono text-emerald-400 font-bold px-2 py-0.5 rounded bg-emerald-500/10 shrink-0">+Rp 24.500</span>
                                 </div>
                             </div>
 
-                            <div class="pt-2 border-t border-white/10 text-center">
-                                <span class="text-[11px] text-slate-400">Seluruh proses di atas selesai dalam waktu <strong
-                                        class="text-white">&lt; 0.5 detik</strong></span>
+                            <div
+                                class="pt-2 border-t border-white/10 flex items-center justify-between text-xs text-slate-400 font-mono">
+                                <span>Otomasi Tanpa Ketik Ulang</span>
+                                <span class="text-emerald-400 font-semibold">&lt; 0.2 Detik Total Alur</span>
                             </div>
                         </div>
                     </div>

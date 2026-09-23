@@ -1,5 +1,10 @@
 @extends('layouts.public_marketing')
 
+@section('title', 'COOCA — Business Operating System & Omnichannel ERP')
+@section('description', 'Platform terintegrasi kasir POS, akuntansi riil, stok resep bahan baku, WhatsApp otomatis, dan toko online untuk UMKM Indonesia.')
+@section('og_title', 'COOCA — Business Operating System & Omnichannel ERP')
+@section('og_description', 'Satu sistem operasi untuk seluruh denyut bisnis UMKM: POS, persediaan resep, akuntansi riil, WhatsApp otomatis, dan toko online.')
+
 @push('seo')
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -39,13 +44,10 @@
 @section('content')
     <div class="relative overflow-hidden w-full font-sans">
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
-        <!-- ═══ 1. HERO SECTION (Executive Dashboard & UMKM OS) ═══ -->
-        <!-- ══════════════════════════════════════════════════════════════════════════ -->
-        <!-- ══════════════════════════════════════════════════════════════════════════ -->
-        <!-- ═══ 1. HERO SECTION (Executive Dashboard & UMKM OS - Pure Bento HIG) ═══ -->
+        <!-- ═══ 1. HERO SECTION (Executive Dashboard & UMKM OS - Full Viewport) ══════ -->
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
         <section
-            class="relative w-full min-w-full bg-[#060B1E] text-white overflow-hidden border-b border-white/10 flex items-center">
+            class="relative w-full min-w-full bg-[#060B1E] text-white overflow-hidden border-b border-white/10 min-h-[calc(100svh-84px)] lg:flex lg:items-center">
 
             <!-- Subtle Ambient Background Glows (Pure CSS, No Heavy Images) -->
             <div
@@ -56,12 +58,12 @@
             </div>
 
             <!-- Container Konten Hero -->
-            <div class="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full py-12 sm:py-16 md:py-16 lg:py-20">
+            <div class="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full py-10 sm:py-12 lg:py-14">
 
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
 
-                    <!-- KIRI: Headline, Subtitle, CTAs & Value Proof (7 Cols) -->
-                    <div class="lg:col-span-7 space-y-6 text-left">
+                    <!-- KIRI: Headline, Subtitle, CTAs & Value Proof (5 Cols ~ 42%) -->
+                    <div class="lg:col-span-5 space-y-6 text-left">
                         <div class="space-y-3">
                             <div
                                 class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#007AFF]/15 text-[#00C4D8] border border-[#00C4D8]/30 text-xs font-semibold backdrop-blur-sm">
@@ -70,13 +72,13 @@
                             </div>
 
                             <h1
-                                class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.85rem] xl:text-[3.25rem] font-extrabold text-white tracking-tight leading-[1.12] text-balance break-words">
+                                class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.75rem] xl:text-[3.1rem] font-extrabold text-white tracking-tight leading-[1.12] text-balance break-words">
                                 Satu Sistem Operasi untuk Seluruh <span class="text-[#00C4D8]">Denyut Bisnis Anda.</span>
                             </h1>
                         </div>
 
                         <p
-                            class="text-base sm:text-lg text-slate-300 leading-relaxed max-w-2xl font-normal text-pretty break-words">
+                            class="text-base sm:text-lg text-slate-300 leading-relaxed max-w-xl font-normal text-pretty break-words">
                             Satukan kasir POS, inventaris resep bahan baku otomatis, pembukuan finansial real-time,
                             katalog toko online, hingga notifikasi WhatsApp tanpa mengetik ulang data secara manual.
                         </p>
@@ -151,8 +153,8 @@
 
                     </div>
 
-                    <!-- KANAN: Simulated Apple Bento Business OS Cockpit (5 Cols) -->
-                    <div class="lg:col-span-5">
+                    <!-- KANAN: Simulated Apple Bento Business OS Cockpit (7 Cols ~ 58%) -->
+                    <div class="lg:col-span-7">
                         <div
                             class="rounded-[24px] bg-[#0E1E45]/85 border border-white/15 p-5 sm:p-6 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.7)] backdrop-blur-xl space-y-4 text-white">
 
@@ -163,78 +165,82 @@
                                     <span class="w-3 h-3 rounded-full bg-[#FFBD2E] shadow-inner"></span>
                                     <span class="w-3 h-3 rounded-full bg-[#27C93F] shadow-inner"></span>
                                     <span
-                                        class="text-xs font-mono font-semibold text-slate-300 ml-2">cooca.id/dashboard</span>
+                                        class="text-xs font-mono font-semibold text-slate-300 ml-2">cooca.id/app/dashboard</span>
                                 </div>
                                 <span
                                     class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-[11px] font-semibold">
                                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                                    Sync Aktif
+                                    Realtime Cloud Sync
                                 </span>
                             </div>
 
-                            <!-- Bento Module 1: Live Cashier POS & Instant Stock Deduction -->
-                            <div class="p-3.5 rounded-[16px] bg-white/[0.04] border border-white/[0.08] space-y-2">
-                                <div class="flex items-center justify-between text-xs">
-                                    <span class="font-bold text-white flex items-center gap-1.5">
-                                        <i data-lucide="shopping-cart" class="w-3.5 h-3.5 text-[#00C4D8]"></i>
-                                        <span>Kasir POS &bull; Transaksi #TRX-2049</span>
-                                    </span>
-                                    <span class="font-mono text-emerald-400 font-bold">Lunas QRIS</span>
-                                </div>
-                                <div class="flex items-center justify-between text-xs text-slate-300 pt-0.5">
-                                    <span>2x Kopi Susu Gula Aren</span>
-                                    <span class="font-mono font-bold text-white">Rp 36.000</span>
-                                </div>
-                                <!-- Auto-deduct chips -->
-                                <div class="pt-1 flex flex-wrap gap-1.5 text-[10.5px]">
-                                    <span
-                                        class="px-2 py-0.5 rounded-[6px] bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 font-mono">
-                                        Stok Kopi -36g
-                                    </span>
-                                    <span
-                                        class="px-2 py-0.5 rounded-[6px] bg-sky-500/10 border border-sky-500/20 text-sky-300 font-mono">
-                                        Susu Segar -180ml
-                                    </span>
-                                    <span
-                                        class="px-2 py-0.5 rounded-[6px] bg-amber-500/10 border border-amber-500/20 text-amber-300 font-mono">
-                                        Gula Aren -40ml
-                                    </span>
-                                </div>
-                            </div>
-
-                            <!-- Bento Module 2: Realtime Gross Revenue & Profit Calculation -->
-                            <div class="grid grid-cols-2 gap-3">
-                                <div class="p-3 rounded-[16px] bg-white/[0.04] border border-white/[0.08] space-y-1">
-                                    <span class="text-[11px] text-slate-400 block font-medium">Omzet Hari Ini</span>
-                                    <div class="text-base sm:text-lg font-bold text-white tabular-nums">Rp 4.850.000</div>
-                                    <span class="text-[10.5px] font-semibold text-emerald-400 flex items-center gap-1">
-                                        <i data-lucide="trending-up" class="w-3 h-3"></i>
-                                        +18.4% vs kemarin
-                                    </span>
-                                </div>
-                                <div class="p-3 rounded-[16px] bg-white/[0.04] border border-white/[0.08] space-y-1">
-                                    <span class="text-[11px] text-slate-400 block font-medium">Laba Bersih Riil</span>
-                                    <div class="text-base sm:text-lg font-bold text-emerald-400 tabular-nums">Rp 1.940.000
+                            <!-- Bento Grid Internal (POS + Financials) -->
+                            <div class="grid grid-cols-1 md:grid-cols-12 gap-3.5">
+                                <!-- Bento Module 1: Live Cashier POS & Instant Stock Deduction (7 Cols) -->
+                                <div class="md:col-span-7 p-4 rounded-[18px] bg-white/[0.04] border border-white/[0.08] space-y-2.5">
+                                    <div class="flex items-center justify-between text-xs">
+                                        <span class="font-bold text-white flex items-center gap-1.5">
+                                            <i data-lucide="shopping-cart" class="w-3.5 h-3.5 text-[#00C4D8]"></i>
+                                            <span>Kasir POS &bull; Transaksi #TRX-2049</span>
+                                        </span>
+                                        <span class="font-mono text-emerald-400 font-bold px-2 py-0.5 rounded bg-emerald-500/10 text-[10px]">Lunas QRIS</span>
                                     </div>
-                                    <span class="text-[10.5px] text-slate-400 block">
-                                        Margin 40% bersih
-                                    </span>
+                                    <div class="flex items-center justify-between text-xs text-slate-300 pt-0.5">
+                                        <span class="font-medium">2x Kopi Susu Aren Spesial</span>
+                                        <span class="font-mono font-bold text-white text-sm">Rp 36.000</span>
+                                    </div>
+                                    <!-- Auto-deduct chips -->
+                                    <div class="pt-1.5 border-t border-white/5 space-y-1">
+                                        <span class="text-[10px] text-slate-400 font-medium block">Pengurangan Otomatis Bahan Baku:</span>
+                                        <div class="flex flex-wrap gap-1.5 text-[10.5px]">
+                                            <span
+                                                class="px-2 py-0.5 rounded-[6px] bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 font-mono">
+                                                Biji Kopi -36g
+                                            </span>
+                                            <span
+                                                class="px-2 py-0.5 rounded-[6px] bg-sky-500/10 border border-sky-500/20 text-sky-300 font-mono">
+                                                Susu Segar -180ml
+                                            </span>
+                                            <span
+                                                class="px-2 py-0.5 rounded-[6px] bg-amber-500/10 border border-amber-500/20 text-amber-300 font-mono">
+                                                Gula Aren -40ml
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Bento Module 2: Realtime Gross Revenue & Profit Calculation (5 Cols) -->
+                                <div class="md:col-span-5 flex flex-col gap-3">
+                                    <div class="p-3.5 rounded-[18px] bg-white/[0.04] border border-white/[0.08] space-y-1 flex-1">
+                                        <span class="text-[11px] text-slate-400 block font-medium">Omzet Hari Ini</span>
+                                        <div class="text-lg font-bold text-white tabular-nums">Rp 4.850.000</div>
+                                        <span class="text-[10.5px] font-semibold text-emerald-400 flex items-center gap-1">
+                                            <i data-lucide="trending-up" class="w-3 h-3"></i>
+                                            +18.4% vs kemarin
+                                        </span>
+                                    </div>
+                                    <div class="p-3.5 rounded-[18px] bg-white/[0.04] border border-white/[0.08] space-y-1 flex-1">
+                                        <span class="text-[11px] text-slate-400 block font-medium">Laba Bersih Riil</span>
+                                        <div class="text-lg font-bold text-emerald-400 tabular-nums">Rp 1.940.000</div>
+                                        <span class="text-[10.5px] text-slate-400 block font-mono">
+                                            Margin 40% bersih
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
 
                             <!-- Bento Module 3: Instant WhatsApp Automated Notification -->
                             <div
-                                class="p-3 rounded-[14px] bg-[#34C759]/10 border border-[#34C759]/25 flex items-center gap-2.5">
+                                class="p-3.5 rounded-[16px] bg-[#34C759]/10 border border-[#34C759]/25 flex items-center gap-3">
                                 <div
-                                    class="w-7 h-7 rounded-[8px] bg-[#34C759]/20 text-[#34C759] flex items-center justify-center shrink-0">
+                                    class="w-8 h-8 rounded-[10px] bg-[#34C759]/20 text-[#34C759] flex items-center justify-center shrink-0">
                                     <i data-lucide="message-circle" class="w-4 h-4"></i>
                                 </div>
                                 <div class="min-w-0 flex-1 text-xs">
-                                    <p class="font-bold text-white truncate">Nota WhatsApp Terkirim</p>
-                                    <p class="text-[11px] text-slate-300 truncate">Otomatis ke pelanggan tanpa nomor
-                                        disimpan</p>
+                                    <p class="font-bold text-white truncate">Nota WhatsApp &amp; Struk Digital Terkirim</p>
+                                    <p class="text-[11px] text-slate-300 truncate">Terkirim instan ke nomor pembeli tanpa perlu menyimpan kontak</p>
                                 </div>
-                                <i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0"></i>
+                                <span class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-mono shrink-0">Delivered</span>
                             </div>
 
                             <!-- Bento Module 4: Connected Multi-Outlet & Terminal Footer -->
@@ -244,7 +250,7 @@
                                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
                                     Gerai Utama &bull; 2 Cabang Terhubung
                                 </span>
-                                <span>Bebas Biaya Perangkat</span>
+                                <span>Cloud Database AES-256</span>
                             </div>
 
                         </div>
