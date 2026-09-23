@@ -46,6 +46,62 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 #### 7. Documentation Promotion
 * Pengetahuan yang dipromosikan ke `docs/system/` dan dampaknya pada `docs/SYSTEM_GUIDE.md`.
 
+### [WORK-2026-09-23-109] Redesain UI Marketplace Search & Navigasi Filter Sidebar Ala Shopee & Tokopedia
+* **Date:** 2026-09-23
+* **Status:** COMPLETED
+* **Module:** Public Marketplace, Catalog Search, Bento Apple HIG
+* **Feature:**
+  1. **Two-Column Desktop Architecture (Shopee & Tokopedia Filter Pattern):**
+     - Membangun sidebar filter di kolom kiri (`lg:col-span-3 lg:sticky lg:top-24`) dengan navigasi kategori hierarkis (`Kuliner & F&B`, `Ritel & Toko`, `Jasa & Layanan`, `Bengkel & Otomotif`, `Laundry & Cuci`, `Produsen & Pabrik`) disertai icon Lucide, badge counter jumlah produk aktif, dan indikator kategori terpilih.
+     - Menyediakan filter batas harga fleksibel dengan input numeric Rp Minimum & Rp Maksimum plus tombol "Terapkan Harga", serta quick preset chips (<50rb, 50rb-200rb, >200rb).
+     - Menambahkan filter tipe produk: Semua Tipe, Barang Fisik (`goods`), Jasa & Layanan (`service`), dan Pre-Order (`preorder`).
+     - Menyertakan kartu jaminan UMKM Terdaftar (Official Store / Verified Seller trust badge) dengan info pemesanan langsung via WhatsApp dan opsi ambil/kirim.
+  2. **Katalog Produk & Sort Control (Segmented Tabs ala Shopee/Tokopedia):**
+     - Menghadirkan segmented control bar untuk pengurutan produk: *Terbaru*, *Terpopuler*, *Termurah*, *Termahal*, *Nama A-Z*.
+     - Carousel horizontal kategori di atas grid produk untuk peralihan cepat antar industri.
+     - Chip tag filter aktif yang dapat dihapus per elemen (removable badges dengan tombol `x`) serta tombol aksi "Hapus Semua".
+     - Desain kartu produk Bento Apple HIG ramah UMKM: gambar rasio 1:1 dengan hover scale halus, badge Pre-Order / Jasa, tag kategori, tipografi kontras tinggi, harga tabular format Rupiah tebal (`tabular-nums`), nama toko dengan badge centang terverifikasi, dan pin lokasi kota toko.
+  3. **Mobile Bottom Sheet Filter Drawer (Alpine.js Modal-First):**
+     - Drawer filter interaktif yang meluncur dari bawah layar pada perangkat mobile/tablet dengan penahan backdrop gelap dan tombol aksi sticky "Reset Semua" dan "Tutup & Tampilkan".
+  4. **Keamanan & Konsistensi Data:**
+     - Menjaga kepatuhan multi-tenant: hanya produk dengan `show_in_website = true`, toko aktif terdaftar, dan storefront discoverable yang muncul.
+     - Zero-emoji policy: seluruh icon menggunakan Lucide SVG murni tanpa karakter emoji Unicode.
+* **Work Type:** UI/UX | Feature | Bento Apple HIG
+
+#### 1. Business Context & Objective
+* **Konteks:** URL `https://cooca.id/marketplace/cari?kategori=` adalah gerbang utama pencarian produk UMKM pada ekosistem Cooca. Sebelumnya halaman ini hanya menampilkan baris horizontal sederhana tanpa sidebar filter, menyulitkan calon pembeli menemukan produk berdasarkan rentang harga, jenis layanan, maupun kategori industri seperti pada platform e-commerce terkemuka di Indonesia (Shopee & Tokopedia).
+* **Target:** Meningkatkan konversi dan kemudahan penemuan produk UMKM dengan mengadopsi navigasi filter sidebar Shopee & Tokopedia dipadukan dengan desain Bento Apple HIG yang bersih, responsif, dan ramah pengguna usia 40–65 tahun.
+
+#### 2. What Was Done
+* Mengembangkan controller `app/Http/Controllers/Web/PublicMarketplaceController.php` untuk menangani filter `min_harga`, `max_harga`, `tipe`, `urut`, dan pencarian multi-kategori.
+* Merombak total `resources/views/public/marketplace/search.blade.php` menjadi arsitektur 2 kolom (Sidebar Filter + Main Catalog) dengan bottom sheet drawer pada layar mobile.
+* Menjalankan validasi zero-emoji dan pengujian otomatis feature test `PublicMarketplaceSearchTest`.
+
+#### 3. Technical Changes
+* **Files Affected:**
+  - `app/Http/Controllers/Web/PublicMarketplaceController.php`
+  - `resources/views/public/marketplace/search.blade.php`
+* **Database Changes:** Tidak ada (menggunakan skema tabel `products`, `businesses`, dan `commerce_store_settings` yang sudah ada).
+* **API / Route Changes:** Query string tambahan pada route `marketplace.search` (`min_harga`, `max_harga`, `tipe`, `urut`).
+
+#### 4. System Impacts
+* **Workflow Impact:** Pengunjung dapat memfilter katalog produk secara granular berdasarkan rentang harga kustom, kategori bisnis, tipe barang/jasa/pre-order, dan mengurutkan secara instan.
+* **Business Rule Impact:** Menjaga isolasi tenant di mana hanya produk yang diset `show_in_website = true` dari toko yang discoverable yang diizinkan tampil.
+* **Permission Impact:** Publik (Guest & User terotentikasi).
+
+#### 5. Verification & Testing
+* `php artisan test tests/Feature/PublicMarketplaceSearchTest.php` -> 7 passed (23 assertions).
+* `php artisan view:clear` -> Compiled views cleared.
+* Pengujian skrip rendering 11 skenario query string (`kategori=`, `min_harga`, `tipe`, `urut`, kombinasi filter) -> seluruhnya menghasilkan HTTP 200 OK.
+* Pengujian regex zero-emoji -> PASS (0 emoji terdeteksi).
+
+#### 6. Important Decisions & Guardrails
+* Menggunakan Alpine.js untuk bottom sheet drawer mobile (`x-data`, `x-show`, `x-cloak`, `x-transition`) guna menjamin kenyamanan mobile-first tanpa dependensi eksternal berat.
+* Input harga pada mobile menggunakan font minimal 16px (`text-[16px] sm:text-xs`) untuk mencegah auto-zoom Safari di iOS.
+
+#### 7. Documentation Promotion
+* Dicatat dalam `docs/AiWorkHistory.md` [WORK-2026-09-23-109] dan `walkthrough.md`.
+
 ### [WORK-2026-09-23-108] Penegakan Background Solid & Redesain Styling Dropdown Header Ekosistem COOCA
 * **Date:** 2026-09-23
 * **Status:** COMPLETED
