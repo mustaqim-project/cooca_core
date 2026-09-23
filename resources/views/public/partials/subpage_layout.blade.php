@@ -44,7 +44,7 @@
                                 {{ $badge ?? ($category ?? 'COOCA Business Operating System') }}
                             </p>
                             <h1
-                                class="text-3xl sm:text-5xl lg:text-[3.25rem] font-extrabold text-white tracking-tight leading-[1.12]">
+                                class="text-4xl sm:text-5xl lg:text-[3.25rem] xl:text-[3.75rem] font-extrabold text-white tracking-tight leading-[1.12]">
                                 {{ $headline ?? $title }}
                             </h1>
                         </div>
@@ -246,7 +246,7 @@
                 <!-- ═══ BOTTOM CONVERSION CARD (Hero Midnight Blue Glow Surface) ═══ -->
                 <section
                     class="relative p-8 sm:p-12 rounded-[24px] bg-[#060B1E] text-white border border-white/10 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.5)] overflow-hidden">
-                    
+
                     <!-- Ambient Glows (Identik Hero Section) -->
                     <div
                         class="absolute -top-24 right-1/4 w-[450px] h-[450px] bg-[#007AFF]/20 rounded-full blur-[130px] pointer-events-none">
@@ -261,8 +261,7 @@
                             <p class="text-xs font-bold uppercase tracking-wider text-[#00C4D8]">
                                 Langkah Mudah Berikutnya
                             </p>
-                            <h2
-                                class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+                            <h2 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
                                 Mulai Otomatisasi Bisnis Anda Hari Ini
                             </h2>
                             <p class="text-sm sm:text-base text-slate-300 leading-relaxed max-w-2xl font-normal">

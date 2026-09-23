@@ -42,7 +42,7 @@
 
                     <!-- Main Heading -->
                     <h1
-                        class="text-3xl sm:text-5xl lg:text-[3.25rem] font-extrabold text-white tracking-tight leading-[1.15]">
+                        class="text-4xl sm:text-5xl lg:text-[3.25rem] xl:text-[3.75rem] font-extrabold text-white tracking-tight leading-[1.15]">
                         Pilih Paket yang Sesuai dengan <span class="text-[#00C4D8]">Kebutuhan Bisnis Anda</span>
                     </h1>
 

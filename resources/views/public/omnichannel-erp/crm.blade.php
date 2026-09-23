@@ -1,8 +1,10 @@
 @extends('layouts.public_marketing')
 
 @section('title', 'Software CRM & Sistem Loyalitas Pelanggan Terintegrasi POS | COOCA')
-@section('description', 'Aplikasi CRM dan database pelanggan multi-cabang untuk bisnis retail & jasa. Bangun program membership poin, lacak riwayat belanja omnichannel, dan segmentasi otomatis untuk meningkatkan repeat order.')
-@section('keywords', 'software crm pelanggan, sistem membership loyalitas poin, database pelanggan retail, aplikasi retensi pelanggan, crm terintegrasi pos')
+@section('description', 'Aplikasi CRM dan database pelanggan multi-cabang untuk bisnis retail & jasa. Bangun program
+    membership poin, lacak riwayat belanja omnichannel, dan segmentasi otomatis untuk meningkatkan repeat order.')
+@section('keywords', 'software crm pelanggan, sistem membership loyalitas poin, database pelanggan retail, aplikasi
+    retensi pelanggan, crm terintegrasi pos')
 
     @push('seo')
         <script type="application/ld+json">
@@ -70,13 +72,19 @@
     @endpush
 
 @section('content')
-    <div class="relative overflow-hidden bg-white dark:bg-[#070A14] text-slate-900 dark:text-white transition-colors duration-300">
+    <div
+        class="relative overflow-hidden bg-white dark:bg-[#070A14] text-slate-900 dark:text-white transition-colors duration-300">
 
         {{-- 1. HERO SECTION (Midnight Blue Standard) --}}
-        <section class="relative bg-[#060B1E] text-white pt-10 sm:pt-14 pb-16 lg:pb-24 overflow-hidden border-b border-white/10 w-full min-w-full">
+        <section
+            class="relative bg-[#060B1E] text-white pt-10 sm:pt-14 pb-16 lg:pb-24 overflow-hidden border-b border-white/10 w-full min-w-full">
             {{-- Ambient Glows --}}
-            <div class="absolute -top-32 -right-32 w-96 h-96 bg-[#007AFF]/15 rounded-full blur-[140px] pointer-events-none -z-0"></div>
-            <div class="absolute -bottom-32 -left-32 w-96 h-96 bg-[#00C4D8]/10 rounded-full blur-[120px] pointer-events-none -z-0"></div>
+            <div
+                class="absolute -top-32 -right-32 w-96 h-96 bg-[#007AFF]/15 rounded-full blur-[140px] pointer-events-none -z-0">
+            </div>
+            <div
+                class="absolute -bottom-32 -left-32 w-96 h-96 bg-[#00C4D8]/10 rounded-full blur-[120px] pointer-events-none -z-0">
+            </div>
 
             <div class="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                 {{-- Breadcrumb --}}
@@ -84,7 +92,8 @@
                     <ol class="flex items-center gap-2 text-xs text-slate-400">
                         <li><a href="{{ route('landing') }}" class="hover:text-[#00C4D8] transition-colors">Home</a></li>
                         <li><i data-lucide="chevron-right" class="w-3 h-3 text-slate-500"></i></li>
-                        <li><a href="{{ route('public.erp.erp') }}" class="hover:text-[#00C4D8] transition-colors">Omnichannel ERP</a></li>
+                        <li><a href="{{ route('public.erp.erp') }}"
+                                class="hover:text-[#00C4D8] transition-colors">Omnichannel ERP</a></li>
                         <li><i data-lucide="chevron-right" class="w-3 h-3 text-slate-500"></i></li>
                         <li class="text-white font-semibold" aria-current="page">CRM & Loyalitas Pelanggan</li>
                     </ol>
@@ -93,13 +102,16 @@
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
                     {{-- Left Column: Copy & Value Proposition --}}
                     <div class="lg:col-span-6 space-y-6">
-                        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#007AFF]/15 text-[#00C4D8] border border-[#00C4D8]/30 text-xs font-semibold tracking-wide">
+                        <div
+                            class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#007AFF]/15 text-[#00C4D8] border border-[#00C4D8]/30 text-xs font-semibold tracking-wide">
                             <i data-lucide="users" class="w-3.5 h-3.5"></i>
                             <span>Customer 360° & Loyalty Points Engine</span>
                         </div>
 
-                        <h1 class="text-3xl sm:text-5xl lg:text-[3.25rem] font-extrabold text-white tracking-tight leading-[1.15]">
-                            Ubah Pembeli Sekali Datang Menjadi <span class="text-[#00C4D8]">Pelanggan Setia yang Terus Kembali</span>
+                        <h1
+                            class="text-4xl sm:text-5xl lg:text-[3.25rem] xl:text-[3.75rem] font-extrabold text-white tracking-tight leading-[1.2] text-balance break-words">
+                            Ubah Pembeli Sekali Datang Menjadi <span class="text-[#00C4D8]">Pelanggan Setia yang Terus
+                                Kembali</span>
                         </h1>
 
                         <p class="text-base sm:text-lg text-slate-300 font-normal leading-relaxed">
@@ -122,109 +134,124 @@
                         </div>
 
                         {{-- Key Retention Specs --}}
-                        <div class="pt-6 border-t border-white/10 grid grid-cols-3 gap-4 text-left">
-                            <div>
-                                <div class="text-xs text-slate-400 font-medium">Pengenal Utama</div>
-                                <div class="text-sm font-bold text-white mt-0.5">Nomor WhatsApp</div>
+                        <div class="pt-6 border-t border-white/10 grid grid-cols-2 sm:grid-cols-3 gap-3.5 text-left">
+                            <div class="min-w-0">
+                                <div class="text-xs text-slate-400 font-medium truncate">Pengenal Utama</div>
+                                <div class="text-sm font-bold text-white mt-0.5 truncate">Nomor WhatsApp</div>
                             </div>
-                            <div>
-                                <div class="text-xs text-slate-400 font-medium">Sistem Reward</div>
-                                <div class="text-sm font-bold text-white mt-0.5">Poin & Tier Member</div>
+                            <div class="min-w-0">
+                                <div class="text-xs text-slate-400 font-medium truncate">Sistem Reward</div>
+                                <div class="text-sm font-bold text-white mt-0.5 truncate">Poin & Tier Member</div>
                             </div>
-                            <div>
-                                <div class="text-xs text-slate-400 font-medium">Segmentasi</div>
-                                <div class="text-sm font-bold text-white mt-0.5">RFM Otomatis</div>
+                            <div class="min-w-0 col-span-2 sm:col-span-1">
+                                <div class="text-xs text-slate-400 font-medium truncate">Segmentasi</div>
+                                <div class="text-sm font-bold text-white mt-0.5 truncate">RFM Otomatis</div>
                             </div>
                         </div>
                     </div>
 
                     {{-- Right Column: Simulated Live Customer 360° Profile UI --}}
                     <div class="lg:col-span-6">
-                        <div class="relative rounded-2xl bg-[#0E1E45]/80 border border-white/10 p-4 sm:p-5 shadow-2xl backdrop-blur-md text-white">
+                        <div
+                            class="relative rounded-2xl bg-[#0E1E45]/80 border border-white/10 p-4 sm:p-5 shadow-2xl backdrop-blur-md text-white">
 
                             {{-- Profile Header Card --}}
-                            <div class="p-3.5 rounded-xl bg-[#060B1E]/80 border border-white/10 flex items-center justify-between">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-11 h-11 rounded-full bg-gradient-to-tr from-[#007AFF] to-[#00C4D8] flex items-center justify-center text-white font-bold text-sm shadow-md">
+                            <div
+                                class="p-3.5 rounded-xl bg-[#060B1E]/80 border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                <div class="flex items-center gap-3 min-w-0 flex-1">
+                                    <div
+                                        class="w-11 h-11 rounded-full bg-gradient-to-tr from-[#007AFF] to-[#00C4D8] flex items-center justify-center text-white font-bold text-sm shadow-md shrink-0">
                                         NS
                                     </div>
-                                    <div>
+                                    <div class="min-w-0 flex-1">
                                         <div class="flex items-center gap-2">
-                                            <h3 class="font-bold text-white text-sm">Nadia Saraswati</h3>
-                                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/40">VIP Gold</span>
+                                            <h3 class="font-bold text-white text-sm truncate">Nadia Saraswati</h3>
+                                            <span
+                                                class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/40 shrink-0">VIP
+                                                Gold</span>
                                         </div>
-                                        <div class="text-[11px] text-slate-400 font-mono mt-0.5">+62 812-9844-xxxx • ID: CUST-8821</div>
+                                        <div class="text-[11px] text-slate-400 font-mono mt-0.5 truncate">+62 812-9844-xxxx
+                                            • ID: CUST-8821</div>
                                     </div>
                                 </div>
-                                <div class="text-right">
+                                <div class="sm:text-right shrink-0">
                                     <div class="text-[10px] text-slate-400">Saldo Poin</div>
                                     <div class="text-base font-bold text-[#00C4D8] font-mono">845 Pts</div>
                                 </div>
                             </div>
 
                             {{-- Customer Lifetime Stats Grid --}}
-                            <div class="grid grid-cols-3 gap-2 my-3 text-center">
-                                <div class="p-2.5 rounded-xl bg-[#060B1E]/60 border border-white/10">
-                                    <div class="text-[10px] text-slate-400">Total Belanja (LTV)</div>
-                                    <div class="text-xs font-bold text-white font-mono mt-0.5">Rp 8.450.000</div>
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 my-3 text-center">
+                                <div class="p-2.5 rounded-xl bg-[#060B1E]/60 border border-white/10 min-w-0">
+                                    <div class="text-[10px] text-slate-400 truncate">Total Belanja (LTV)</div>
+                                    <div class="text-xs font-bold text-white font-mono mt-0.5 truncate">Rp 8.450.000</div>
                                 </div>
-                                <div class="p-2.5 rounded-xl bg-[#060B1E]/60 border border-white/10">
-                                    <div class="text-[10px] text-slate-400">Frekuensi Belanja</div>
-                                    <div class="text-xs font-bold text-white font-mono mt-0.5">18 Transaksi</div>
+                                <div class="p-2.5 rounded-xl bg-[#060B1E]/60 border border-white/10 min-w-0">
+                                    <div class="text-[10px] text-slate-400 truncate">Frekuensi Belanja</div>
+                                    <div class="text-xs font-bold text-white font-mono mt-0.5 truncate">18 Transaksi</div>
                                 </div>
-                                <div class="p-2.5 rounded-xl bg-[#060B1E]/60 border border-white/10">
-                                    <div class="text-[10px] text-slate-400">Rata-rata Basket Size</div>
-                                    <div class="text-xs font-bold text-white font-mono mt-0.5">Rp 469.000</div>
+                                <div class="p-2.5 rounded-xl bg-[#060B1E]/60 border border-white/10 min-w-0">
+                                    <div class="text-[10px] text-slate-400 truncate">Rata-rata Basket</div>
+                                    <div class="text-xs font-bold text-white font-mono mt-0.5 truncate">Rp 469.000</div>
                                 </div>
                             </div>
 
                             {{-- Recent Omnichannel Purchase Timeline --}}
                             <div class="space-y-2 text-xs">
-                                <div class="text-[10px] uppercase font-mono text-slate-400 px-1">Riwayat Transaksi Lintas Channel:</div>
+                                <div class="text-[10px] uppercase font-mono text-slate-400 px-1">Riwayat Transaksi Lintas
+                                    Channel:</div>
 
-                                <div class="p-2.5 rounded-xl bg-[#060B1E]/60 border border-white/10 flex items-center justify-between">
-                                    <div class="flex items-center gap-2">
-                                        <span class="p-1 rounded bg-[#007AFF]/20 text-[#00C4D8]">
+                                <div
+                                    class="p-2.5 rounded-xl bg-[#060B1E]/60 border border-white/10 flex items-center justify-between gap-2.5">
+                                    <div class="flex items-center gap-2 min-w-0 flex-1">
+                                        <span class="p-1 rounded bg-[#007AFF]/20 text-[#00C4D8] shrink-0">
                                             <i data-lucide="store" class="w-3.5 h-3.5"></i>
                                         </span>
-                                        <div>
-                                            <div class="font-medium text-white text-[11px]">POS Outlet Sudirman</div>
-                                            <div class="text-[10px] text-slate-400">2x Croissant Butter, 2x Kopi Susu Aren</div>
+                                        <div class="min-w-0 flex-1">
+                                            <div class="font-medium text-white text-[11px] truncate">POS Outlet Sudirman
+                                            </div>
+                                            <div class="text-[10px] text-slate-400 truncate">2x Croissant Butter, 2x Kopi
+                                                Susu Aren</div>
                                         </div>
                                     </div>
-                                    <div class="text-right">
-                                        <div class="font-bold text-white font-mono">Rp 100.000</div>
-                                        <div class="text-[10px] text-[#00C4D8]">+10 Poin</div>
+                                    <div class="text-right shrink-0">
+                                        <div class="font-bold text-white font-mono whitespace-nowrap">Rp 100.000</div>
+                                        <div class="text-[10px] text-[#00C4D8] whitespace-nowrap">+10 Poin</div>
                                     </div>
                                 </div>
 
-                                <div class="p-2.5 rounded-xl bg-[#060B1E]/60 border border-white/10 flex items-center justify-between">
-                                    <div class="flex items-center gap-2">
-                                        <span class="p-1 rounded bg-emerald-500/20 text-emerald-400">
+                                <div
+                                    class="p-2.5 rounded-xl bg-[#060B1E]/60 border border-white/10 flex items-center justify-between gap-2.5">
+                                    <div class="flex items-center gap-2 min-w-0 flex-1">
+                                        <span class="p-1 rounded bg-emerald-500/20 text-emerald-400 shrink-0">
                                             <i data-lucide="globe" class="w-3.5 h-3.5"></i>
                                         </span>
-                                        <div>
-                                            <div class="font-medium text-white text-[11px]">Website Online Store</div>
-                                            <div class="text-[10px] text-slate-400">1x Kopi Biji Arabika 1kg (Kirim ke Rumah)</div>
+                                        <div class="min-w-0 flex-1">
+                                            <div class="font-medium text-white text-[11px] truncate">Website Online Store
+                                            </div>
+                                            <div class="text-[10px] text-slate-400 truncate">1x Kopi Biji Arabika 1kg (Kirim
+                                                ke Rumah)</div>
                                         </div>
                                     </div>
-                                    <div class="text-right">
-                                        <div class="font-bold text-white font-mono">Rp 280.000</div>
-                                        <div class="text-[10px] text-[#00C4D8]">+28 Poin</div>
+                                    <div class="text-right shrink-0">
+                                        <div class="font-bold text-white font-mono whitespace-nowrap">Rp 280.000</div>
+                                        <div class="text-[10px] text-[#00C4D8] whitespace-nowrap">+28 Poin</div>
                                     </div>
                                 </div>
                             </div>
 
                             {{-- Retention Action Trigger --}}
-                            <div class="mt-3 p-2.5 rounded-xl bg-[#007AFF]/15 border border-[#007AFF]/30 flex items-center justify-between text-xs">
-                                <div class="flex items-center gap-2">
-                                    <i data-lucide="sparkles" class="w-4 h-4 text-[#00C4D8]"></i>
-                                    <div>
+                            <div
+                                class="mt-3 p-2.5 rounded-xl bg-[#007AFF]/15 border border-[#007AFF]/30 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+                                <div class="flex items-center gap-2 min-w-0 flex-1">
+                                    <i data-lucide="sparkles" class="w-4 h-4 text-[#00C4D8] shrink-0"></i>
+                                    <div class="min-w-0 flex-1 truncate">
                                         <span class="text-white font-medium">Ulang Tahun Minggu Depan:</span>
                                         <span class="text-slate-300 text-[11px]"> Kirim reward voucher personal</span>
                                     </div>
                                 </div>
-                                <button class="px-3 py-1 rounded-lg bg-[#007AFF] hover:bg-[#0066DF] text-white font-bold text-[10px] flex items-center gap-1 transition-colors">
+                                <button
+                                    class="px-3 py-1 rounded-lg bg-[#007AFF] hover:bg-[#0066DF] text-white font-bold text-[10px] flex items-center gap-1 transition-colors shrink-0 self-end sm:self-auto">
                                     <i data-lucide="message-square" class="w-3 h-3"></i>
                                     <span>Kirim WA</span>
                                 </button>
@@ -254,11 +281,14 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {{-- Pain 1 --}}
-                    <div class="p-6 rounded-2xl bg-white dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 shadow-sm space-y-3">
-                        <div class="w-10 h-10 rounded-xl bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-900/50 flex items-center justify-center text-rose-600 dark:text-rose-400">
+                    <div
+                        class="p-6 rounded-2xl bg-white dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 shadow-sm space-y-3">
+                        <div
+                            class="w-10 h-10 rounded-xl bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-900/50 flex items-center justify-center text-rose-600 dark:text-rose-400">
                             <i data-lucide="user-x" class="w-5 h-5"></i>
                         </div>
-                        <h3 class="text-base font-bold text-slate-900 dark:text-white">Pelanggan Setia Hilang Tanpa Disadari</h3>
+                        <h3 class="text-base font-bold text-slate-900 dark:text-white">Pelanggan Setia Hilang Tanpa
+                            Disadari</h3>
                         <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
                             Seorang pelanggan yang biasanya datang seminggu dua kali tiba-tiba tidak pernah muncul lagi
                             selama 2 bulan. Tanpa sistem CRM, Anda baru menyadarinya saat mereka sudah beralih ke
@@ -267,8 +297,10 @@
                     </div>
 
                     {{-- Pain 2 --}}
-                    <div class="p-6 rounded-2xl bg-white dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 shadow-sm space-y-3">
-                        <div class="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-900/50 flex items-center justify-center text-amber-600 dark:text-amber-400">
+                    <div
+                        class="p-6 rounded-2xl bg-white dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 shadow-sm space-y-3">
+                        <div
+                            class="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-900/50 flex items-center justify-center text-amber-600 dark:text-amber-400">
                             <i data-lucide="database-zap" class="w-5 h-5"></i>
                         </div>
                         <h3 class="text-base font-bold text-slate-900 dark:text-white">Data Kontak Dibawa Kabur Staf</h3>
@@ -279,11 +311,14 @@
                     </div>
 
                     {{-- Pain 3 --}}
-                    <div class="p-6 rounded-2xl bg-white dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 shadow-sm space-y-3">
-                        <div class="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/50 border border-blue-200 dark:border-blue-900/50 flex items-center justify-center text-[#007AFF] dark:text-[#00C4D8]">
+                    <div
+                        class="p-6 rounded-2xl bg-white dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 shadow-sm space-y-3">
+                        <div
+                            class="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/50 border border-blue-200 dark:border-blue-900/50 flex items-center justify-center text-[#007AFF] dark:text-[#00C4D8]">
                             <i data-lucide="megaphone-off" class="w-5 h-5"></i>
                         </div>
-                        <h3 class="text-base font-bold text-slate-900 dark:text-white">Broadcast Promo Sembarangan (Spam)</h3>
+                        <h3 class="text-base font-bold text-slate-900 dark:text-white">Broadcast Promo Sembarangan (Spam)
+                        </h3>
                         <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
                             Mengirim pesan promo yang sama ke semua orang tanpa segmentasi. Pelanggan merasa terganggu
                             karena penawaran tidak relevan, hingga akhirnya memblokir nomor WhatsApp bisnis Anda.
@@ -311,9 +346,11 @@
             <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
 
                 {{-- Bento Card 1: 360 Unified Profile (Span 7) --}}
-                <div class="md:col-span-7 p-6 sm:p-8 rounded-3xl bg-[#FAFAFC] dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 flex flex-col justify-between shadow-sm">
+                <div
+                    class="md:col-span-7 p-6 sm:p-8 rounded-3xl bg-[#FAFAFC] dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 flex flex-col justify-between shadow-sm">
                     <div class="space-y-4">
-                        <div class="w-11 h-11 rounded-2xl bg-purple-100 dark:bg-purple-950 flex items-center justify-center text-[#007AFF] dark:text-[#00C4D8]">
+                        <div
+                            class="w-11 h-11 rounded-2xl bg-purple-100 dark:bg-purple-950 flex items-center justify-center text-[#007AFF] dark:text-[#00C4D8]">
                             <i data-lucide="contact-2" class="w-5 h-5"></i>
                         </div>
                         <h3 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
@@ -326,7 +363,8 @@
                         </p>
                     </div>
 
-                    <div class="mt-6 p-4 rounded-2xl bg-white dark:bg-[#060B1E]/60 border border-slate-200/80 dark:border-white/10 flex items-center justify-between text-xs">
+                    <div
+                        class="mt-6 p-4 rounded-2xl bg-white dark:bg-[#060B1E]/60 border border-slate-200/80 dark:border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
                         <span class="text-slate-700 dark:text-slate-300 font-medium">Pengenal Universal:</span>
                         <span class="text-[#007AFF] dark:text-[#00C4D8] font-semibold flex items-center gap-1">
                             <i data-lucide="check" class="w-4 h-4"></i> Satu Nomor HP untuk Seluruh Cabang & Online
@@ -335,9 +373,11 @@
                 </div>
 
                 {{-- Bento Card 2: Loyalty Points & Tier Member (Span 5) --}}
-                <div class="md:col-span-5 p-6 sm:p-8 rounded-3xl bg-[#FAFAFC] dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 flex flex-col justify-between shadow-sm">
+                <div
+                    class="md:col-span-5 p-6 sm:p-8 rounded-3xl bg-[#FAFAFC] dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 flex flex-col justify-between shadow-sm">
                     <div class="space-y-4">
-                        <div class="w-11 h-11 rounded-2xl bg-pink-100 dark:bg-pink-950 flex items-center justify-center text-pink-600 dark:text-pink-400">
+                        <div
+                            class="w-11 h-11 rounded-2xl bg-pink-100 dark:bg-pink-950 flex items-center justify-center text-pink-600 dark:text-pink-400">
                             <i data-lucide="gift" class="w-5 h-5"></i>
                         </div>
                         <h3 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
@@ -350,15 +390,18 @@
                         </p>
                     </div>
 
-                    <div class="mt-6 p-3 rounded-2xl bg-white dark:bg-[#060B1E]/60 border border-slate-200/80 dark:border-white/10 text-xs flex items-center justify-between font-mono">
+                    <div
+                        class="mt-6 p-3 rounded-2xl bg-white dark:bg-[#060B1E]/60 border border-slate-200/80 dark:border-white/10 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 font-mono">
                         <span class="text-slate-500 dark:text-slate-400">Tier Naik Otomatis</span>
                         <span class="text-pink-600 dark:text-pink-400 font-bold">Belanja &gt; Rp 5 Juta → Gold</span>
                     </div>
                 </div>
 
                 {{-- Bento Card 3: Segmentasi Cerdas RFM (Span 4) --}}
-                <div class="md:col-span-4 p-6 sm:p-8 rounded-3xl bg-[#FAFAFC] dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 space-y-4 shadow-sm">
-                    <div class="w-11 h-11 rounded-2xl bg-indigo-100 dark:bg-indigo-950 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+                <div
+                    class="md:col-span-4 p-6 sm:p-8 rounded-3xl bg-[#FAFAFC] dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 space-y-4 shadow-sm">
+                    <div
+                        class="w-11 h-11 rounded-2xl bg-indigo-100 dark:bg-indigo-950 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
                         <i data-lucide="pie-chart" class="w-5 h-5"></i>
                     </div>
                     <h3 class="text-lg font-bold text-slate-900 dark:text-white">Segmentasi Otomatis (RFM)</h3>
@@ -369,8 +412,10 @@
                 </div>
 
                 {{-- Bento Card 4: Pemicu Pesan Otomatis (Span 4) --}}
-                <div class="md:col-span-4 p-6 sm:p-8 rounded-3xl bg-[#FAFAFC] dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 space-y-4 shadow-sm">
-                    <div class="w-11 h-11 rounded-2xl bg-emerald-100 dark:bg-emerald-950 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+                <div
+                    class="md:col-span-4 p-6 sm:p-8 rounded-3xl bg-[#FAFAFC] dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 space-y-4 shadow-sm">
+                    <div
+                        class="w-11 h-11 rounded-2xl bg-emerald-100 dark:bg-emerald-950 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
                         <i data-lucide="bell" class="w-5 h-5"></i>
                     </div>
                     <h3 class="text-lg font-bold text-slate-900 dark:text-white">Pemicu Promo Otomatis</h3>
@@ -381,8 +426,10 @@
                 </div>
 
                 {{-- Bento Card 5: Keamanan & Hak Akses Data (Span 4) --}}
-                <div class="md:col-span-4 p-6 sm:p-8 rounded-3xl bg-[#FAFAFC] dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 space-y-4 shadow-sm">
-                    <div class="w-11 h-11 rounded-2xl bg-amber-100 dark:bg-amber-950 flex items-center justify-center text-amber-600 dark:text-amber-400">
+                <div
+                    class="md:col-span-4 p-6 sm:p-8 rounded-3xl bg-[#FAFAFC] dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 space-y-4 shadow-sm">
+                    <div
+                        class="w-11 h-11 rounded-2xl bg-amber-100 dark:bg-amber-950 flex items-center justify-center text-amber-600 dark:text-amber-400">
                         <i data-lucide="shield-check" class="w-5 h-5"></i>
                     </div>
                     <h3 class="text-lg font-bold text-slate-900 dark:text-white">Keamanan Database Aset</h3>
@@ -399,7 +446,8 @@
         <section class="py-16 sm:py-20 bg-[#060B1E] text-white relative overflow-hidden border-y border-white/10">
             <div class="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                 <div class="text-center max-w-3xl mx-auto mb-14">
-                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#007AFF]/15 text-[#00C4D8] text-xs font-semibold mb-3 border border-[#00C4D8]/30">
+                    <div
+                        class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#007AFF]/15 text-[#00C4D8] text-xs font-semibold mb-3 border border-[#00C4D8]/30">
                         <span>Siklus Hubungan Pelanggan Berkelanjutan</span>
                     </div>
                     <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight">
@@ -414,7 +462,8 @@
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
                     {{-- Step 1 --}}
                     <div class="p-6 rounded-2xl bg-white/5 border border-white/10 space-y-3">
-                        <div class="w-8 h-8 rounded-lg bg-[#007AFF]/20 text-[#00C4D8] flex items-center justify-center font-bold text-xs border border-[#007AFF]/30">
+                        <div
+                            class="w-8 h-8 rounded-lg bg-[#007AFF]/20 text-[#00C4D8] flex items-center justify-center font-bold text-xs border border-[#007AFF]/30">
                             1
                         </div>
                         <h3 class="text-base font-bold text-white">Input Mudah di Kasir</h3>
@@ -426,7 +475,8 @@
 
                     {{-- Step 2 --}}
                     <div class="p-6 rounded-2xl bg-white/5 border border-white/10 space-y-3">
-                        <div class="w-8 h-8 rounded-lg bg-pink-500/20 text-pink-400 flex items-center justify-center font-bold text-xs border border-pink-500/30">
+                        <div
+                            class="w-8 h-8 rounded-lg bg-pink-500/20 text-pink-400 flex items-center justify-center font-bold text-xs border border-pink-500/30">
                             2
                         </div>
                         <h3 class="text-base font-bold text-white">Riwayat Terkonsolidasi</h3>
@@ -438,7 +488,8 @@
 
                     {{-- Step 3 --}}
                     <div class="p-6 rounded-2xl bg-white/5 border border-white/10 space-y-3">
-                        <div class="w-8 h-8 rounded-lg bg-[#007AFF]/20 text-[#00C4D8] flex items-center justify-center font-bold text-xs border border-[#007AFF]/30">
+                        <div
+                            class="w-8 h-8 rounded-lg bg-[#007AFF]/20 text-[#00C4D8] flex items-center justify-center font-bold text-xs border border-[#007AFF]/30">
                             3
                         </div>
                         <h3 class="text-base font-bold text-white">Segmentasi Cerdas</h3>
@@ -450,7 +501,8 @@
 
                     {{-- Step 4 --}}
                     <div class="p-6 rounded-2xl bg-white/5 border border-white/10 space-y-3">
-                        <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs border border-emerald-500/30">
+                        <div
+                            class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs border border-emerald-500/30">
                             4
                         </div>
                         <h3 class="text-base font-bold text-white">Repeat Order Teratur</h3>
@@ -469,14 +521,18 @@
                 <h2 class="text-xs uppercase tracking-widest text-[#007AFF] dark:text-[#00C4D8] font-bold mb-2">
                     Pertanyaan Umum
                 </h2>
-                <p class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white">Tanya Jawab Seputar CRM & Database Pelanggan</p>
+                <p class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white">Tanya Jawab Seputar CRM &
+                    Database Pelanggan</p>
             </div>
 
             <div class="space-y-4">
-                <details class="group p-5 rounded-2xl bg-[#FAFAFC] dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 transition-all [&_summary::-webkit-details-marker]:hidden">
-                    <summary class="flex items-center justify-between cursor-pointer text-sm sm:text-base font-bold text-slate-900 dark:text-white">
+                <details
+                    class="group p-5 rounded-2xl bg-[#FAFAFC] dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 transition-all [&_summary::-webkit-details-marker]:hidden">
+                    <summary
+                        class="flex items-center justify-between cursor-pointer text-sm sm:text-base font-bold text-slate-900 dark:text-white">
                         <span>Bagaimana kasir toko mendaftarkan pelanggan baru saat transaksi sedang ramai?</span>
-                        <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 group-open:rotate-180 transition-transform"></i>
+                        <i data-lucide="chevron-down"
+                            class="w-4 h-4 text-slate-400 group-open:rotate-180 transition-transform"></i>
                     </summary>
                     <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-3 leading-relaxed">
                         Sangat cepat. Kasir cukup meminta nomor WhatsApp dan nama panggilan pelanggan di layar POS dalam
@@ -485,10 +541,13 @@
                     </p>
                 </details>
 
-                <details class="group p-5 rounded-2xl bg-[#FAFAFC] dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 transition-all [&_summary::-webkit-details-marker]:hidden">
-                    <summary class="flex items-center justify-between cursor-pointer text-sm sm:text-base font-bold text-slate-900 dark:text-white">
+                <details
+                    class="group p-5 rounded-2xl bg-[#FAFAFC] dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 transition-all [&_summary::-webkit-details-marker]:hidden">
+                    <summary
+                        class="flex items-center justify-between cursor-pointer text-sm sm:text-base font-bold text-slate-900 dark:text-white">
                         <span>Apakah poin belanja bisa digunakan di cabang outlet yang berbeda?</span>
-                        <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 group-open:rotate-180 transition-transform"></i>
+                        <i data-lucide="chevron-down"
+                            class="w-4 h-4 text-slate-400 group-open:rotate-180 transition-transform"></i>
                     </summary>
                     <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-3 leading-relaxed">
                         Ya, poin berlaku universal di seluruh cabang yang terhubung dengan akun COOCA Anda. Pelanggan yang
@@ -496,10 +555,13 @@
                     </p>
                 </details>
 
-                <details class="group p-5 rounded-2xl bg-[#FAFAFC] dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 transition-all [&_summary::-webkit-details-marker]:hidden">
-                    <summary class="flex items-center justify-between cursor-pointer text-sm sm:text-base font-bold text-slate-900 dark:text-white">
+                <details
+                    class="group p-5 rounded-2xl bg-[#FAFAFC] dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 transition-all [&_summary::-webkit-details-marker]:hidden">
+                    <summary
+                        class="flex items-center justify-between cursor-pointer text-sm sm:text-base font-bold text-slate-900 dark:text-white">
                         <span>Apakah data kontak pelanggan saya aman jika ada staf atau kasir yang mengundurkan diri?</span>
-                        <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 group-open:rotate-180 transition-transform"></i>
+                        <i data-lucide="chevron-down"
+                            class="w-4 h-4 text-slate-400 group-open:rotate-180 transition-transform"></i>
                     </summary>
                     <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-3 leading-relaxed">
                         Sangat aman. Database pelanggan tersimpan di cloud terpusat milik perusahaan. Staf kasir hanya bisa
@@ -508,10 +570,13 @@
                     </p>
                 </details>
 
-                <details class="group p-5 rounded-2xl bg-[#FAFAFC] dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 transition-all [&_summary::-webkit-details-marker]:hidden">
-                    <summary class="flex items-center justify-between cursor-pointer text-sm sm:text-base font-bold text-slate-900 dark:text-white">
+                <details
+                    class="group p-5 rounded-2xl bg-[#FAFAFC] dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 transition-all [&_summary::-webkit-details-marker]:hidden">
+                    <summary
+                        class="flex items-center justify-between cursor-pointer text-sm sm:text-base font-bold text-slate-900 dark:text-white">
                         <span>Bisakah kami mengimpor database kontak pelanggan lama dari file Excel?</span>
-                        <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 group-open:rotate-180 transition-transform"></i>
+                        <i data-lucide="chevron-down"
+                            class="w-4 h-4 text-slate-400 group-open:rotate-180 transition-transform"></i>
                     </summary>
                     <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-3 leading-relaxed">
                         Tentu bisa. COOCA menyediakan template impor Excel untuk memasukkan daftar nama, nomor telepon,
@@ -522,13 +587,15 @@
         </section>
 
         {{-- 6. TOPICAL CLUSTER --}}
-        <section class="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8 py-16 border-t border-slate-200/80 dark:border-white/10">
+        <section
+            class="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8 py-16 border-t border-slate-200/80 dark:border-white/10">
             <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-8">
                 <div>
                     <h2 class="text-xs uppercase tracking-widest text-[#007AFF] dark:text-[#00C4D8] font-bold mb-1">
                         Modul Terkait
                     </h2>
-                    <p class="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white">Ekosistem Pengalaman Pelanggan</p>
+                    <p class="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white">Ekosistem Pengalaman
+                        Pelanggan</p>
                 </div>
                 <a href="{{ route('public.erp.erp') }}"
                     class="text-xs sm:text-sm font-semibold text-[#007AFF] dark:text-[#00C4D8] hover:underline mt-2 sm:mt-0 flex items-center gap-1">
@@ -540,56 +607,73 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
                 <a href="{{ route('public.erp.pos') }}"
                     class="p-5 rounded-2xl bg-[#FAFAFC] dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 hover:border-[#007AFF]/50 transition-all group shadow-sm">
-                    <div class="w-9 h-9 rounded-xl bg-blue-100 dark:bg-blue-950 text-[#007AFF] dark:text-[#00C4D8] flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
+                    <div
+                        class="w-9 h-9 rounded-xl bg-blue-100 dark:bg-blue-950 text-[#007AFF] dark:text-[#00C4D8] flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
                         <i data-lucide="monitor" class="w-5 h-5"></i>
                     </div>
-                    <h3 class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#007AFF] transition-colors">
+                    <h3
+                        class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#007AFF] transition-colors">
                         Point of Sale (POS)
                     </h3>
-                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Identifikasi member dan potong poin diskon langsung di meja kasir.</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Identifikasi member dan potong poin diskon
+                        langsung di meja kasir.</p>
                 </a>
 
                 <a href="{{ route('public.omnichannel.customer') }}"
                     class="p-5 rounded-2xl bg-[#FAFAFC] dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 hover:border-[#007AFF]/50 transition-all group shadow-sm">
-                    <div class="w-9 h-9 rounded-xl bg-purple-100 dark:bg-purple-950 text-[#007AFF] dark:text-[#00C4D8] flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
+                    <div
+                        class="w-9 h-9 rounded-xl bg-purple-100 dark:bg-purple-950 text-[#007AFF] dark:text-[#00C4D8] flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
                         <i data-lucide="users-round" class="w-5 h-5"></i>
                     </div>
-                    <h3 class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#007AFF] transition-colors">
+                    <h3
+                        class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#007AFF] transition-colors">
                         Omnichannel Customer
                     </h3>
-                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Konsolidasi identitas pembeli dari marketplace dan WhatsApp.</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Konsolidasi identitas pembeli dari
+                        marketplace dan WhatsApp.</p>
                 </a>
 
                 <a href="{{ route('public.content.creation') }}"
                     class="p-5 rounded-2xl bg-[#FAFAFC] dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 hover:border-[#007AFF]/50 transition-all group shadow-sm">
-                    <div class="w-9 h-9 rounded-xl bg-pink-100 dark:bg-pink-950 text-pink-600 dark:text-pink-400 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
+                    <div
+                        class="w-9 h-9 rounded-xl bg-pink-100 dark:bg-pink-950 text-pink-600 dark:text-pink-400 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
                         <i data-lucide="sparkles" class="w-5 h-5"></i>
                     </div>
-                    <h3 class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#007AFF] transition-colors">
+                    <h3
+                        class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#007AFF] transition-colors">
                         Content & Promo Broadcast
                     </h3>
-                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Buat materi promosi menarik untuk disebarkan ke segmen member.</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Buat materi promosi menarik untuk disebarkan
+                        ke segmen member.</p>
                 </a>
 
                 <a href="{{ route('public.erp.analytics') }}"
                     class="p-5 rounded-2xl bg-[#FAFAFC] dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 hover:border-[#007AFF]/50 transition-all group shadow-sm">
-                    <div class="w-9 h-9 rounded-xl bg-amber-100 dark:bg-amber-950 text-amber-600 dark:text-amber-400 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
+                    <div
+                        class="w-9 h-9 rounded-xl bg-amber-100 dark:bg-amber-950 text-amber-600 dark:text-amber-400 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
                         <i data-lucide="trending-up" class="w-5 h-5"></i>
                     </div>
-                    <h3 class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#007AFF] transition-colors">
+                    <h3
+                        class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#007AFF] transition-colors">
                         Analitik Retensi Pelanggan
                     </h3>
-                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Pantau rasio repeat order dan nilai Customer Lifetime Value (CLV).</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Pantau rasio repeat order dan nilai Customer
+                        Lifetime Value (CLV).</p>
                 </a>
             </div>
         </section>
 
         {{-- 7. BOTTOM CONVERSION CTA --}}
         <section class="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8 py-16 pb-24">
-            <div class="relative p-8 sm:p-14 rounded-[28px] bg-[#060B1E] text-white border border-white/10 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.5)] overflow-hidden text-center">
+            <div
+                class="relative p-8 sm:p-14 rounded-[28px] bg-[#060B1E] text-white border border-white/10 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.5)] overflow-hidden text-center">
                 {{-- Ambient lights inside CTA --}}
-                <div class="absolute -top-24 -right-24 w-80 h-80 bg-[#007AFF]/20 rounded-full blur-[100px] pointer-events-none"></div>
-                <div class="absolute -bottom-24 -left-24 w-80 h-80 bg-[#00C4D8]/15 rounded-full blur-[100px] pointer-events-none"></div>
+                <div
+                    class="absolute -top-24 -right-24 w-80 h-80 bg-[#007AFF]/20 rounded-full blur-[100px] pointer-events-none">
+                </div>
+                <div
+                    class="absolute -bottom-24 -left-24 w-80 h-80 bg-[#00C4D8]/15 rounded-full blur-[100px] pointer-events-none">
+                </div>
 
                 <div class="max-w-2xl mx-auto space-y-5 relative z-10">
                     <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight">

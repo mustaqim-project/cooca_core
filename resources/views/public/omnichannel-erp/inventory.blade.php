@@ -1,9 +1,11 @@
 @extends('layouts.public_marketing')
 
 @section('title', 'Software Manajemen Inventori & Stok Multi-Gudang Terintegrasi | COOCA')
-@section('description', 'Aplikasi inventori stok gudang multi-cabang terintegrasi. Pantau kartu stok perpetual, mutasi
+@section('description',
+    'Aplikasi inventori stok gudang multi-cabang terintegrasi. Pantau kartu stok perpetual, mutasi
     antar cabang, reorder point otomatis, resep bahan baku (BOM), dan stock opname tanpa tutup toko.')
-@section('keywords', 'software inventori barang, aplikasi stok gudang, manajemen stok multi gudang, kartu stok otomatis,
+@section('keywords',
+    'software inventori barang, aplikasi stok gudang, manajemen stok multi gudang, kartu stok otomatis,
     sistem inventory indonesia')
 
     @push('seo')
@@ -109,7 +111,7 @@
                         </div>
 
                         <h1
-                            class="text-3xl sm:text-5xl lg:text-[3.25rem] font-extrabold text-white tracking-tight leading-[1.15]">
+                            class="text-4xl sm:text-5xl lg:text-[3.25rem] xl:text-[3.75rem] font-extrabold text-white tracking-tight leading-[1.2] text-balance break-words">
                             Kendalikan Stok di Setiap Gudang &amp; Cabang <span class="text-[#00C4D8]">Tanpa Selisih
                                 Misterius</span>
                         </h1>
@@ -134,18 +136,18 @@
                         </div>
 
                         {{-- Key Operational Metrics --}}
-                        <div class="pt-4 border-t border-white/10 grid grid-cols-3 gap-4 text-left">
-                            <div>
-                                <div class="text-xs text-slate-400 font-medium">Metode Penilaian HPP</div>
-                                <div class="text-sm font-bold text-white mt-0.5">Moving Average</div>
+                        <div class="pt-4 border-t border-white/10 grid grid-cols-2 sm:grid-cols-3 gap-3.5 text-left">
+                            <div class="min-w-0">
+                                <div class="text-xs text-slate-400 font-medium truncate">Metode Penilaian HPP</div>
+                                <div class="text-sm font-bold text-white mt-0.5 truncate">Moving Average</div>
                             </div>
-                            <div>
-                                <div class="text-xs text-slate-400 font-medium">Akurasi Kartu Stok</div>
-                                <div class="text-sm font-bold text-white mt-0.5">Perpetual 100%</div>
+                            <div class="min-w-0">
+                                <div class="text-xs text-slate-400 font-medium truncate">Akurasi Kartu Stok</div>
+                                <div class="text-sm font-bold text-white mt-0.5 truncate">Perpetual 100%</div>
                             </div>
-                            <div>
-                                <div class="text-xs text-slate-400 font-medium">Kapasitas Gudang</div>
-                                <div class="text-sm font-bold text-white mt-0.5">Multi-Lokasi / Rak</div>
+                            <div class="min-w-0 col-span-2 sm:col-span-1">
+                                <div class="text-xs text-slate-400 font-medium truncate">Kapasitas Gudang</div>
+                                <div class="text-sm font-bold text-white mt-0.5 truncate">Multi-Lokasi / Rak</div>
                             </div>
                         </div>
                     </div>
@@ -158,16 +160,17 @@
                             {{-- Warehouse Control Filter Header --}}
                             <div
                                 class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-3 border-b border-white/10 text-xs">
-                                <div class="flex items-center gap-2">
-                                    <span class="p-1.5 rounded-lg bg-[#007AFF]/20 text-[#00C4D8]">
+                                <div class="flex items-center gap-2 min-w-0 flex-1">
+                                    <span class="p-1.5 rounded-lg bg-[#007AFF]/20 text-[#00C4D8] shrink-0">
                                         <i data-lucide="warehouse" class="w-4 h-4"></i>
                                     </span>
-                                    <div>
-                                        <div class="font-bold text-white">Gudang Utama Cakung</div>
-                                        <div class="text-[10px] text-slate-400">Kapasitas Terpakai: 74% • 1.420 SKU</div>
+                                    <div class="min-w-0 flex-1">
+                                        <div class="font-bold text-white truncate">Gudang Utama Cakung</div>
+                                        <div class="text-[10px] text-slate-400 truncate">Kapasitas Terpakai: 74% • 1.420 SKU
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="flex items-center gap-1.5">
+                                <div class="flex items-center gap-1.5 shrink-0 self-end sm:self-auto">
                                     <span
                                         class="px-2 py-1 rounded bg-white/10 text-[11px] text-slate-300 font-mono">Transfer
                                         Order #TR-108</span>
@@ -179,71 +182,75 @@
 
                             {{-- Low Stock Reorder Notification Banner --}}
                             <div
-                                class="my-3 p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-between text-xs">
-                                <div class="flex items-center gap-2 text-rose-300">
+                                class="my-3 p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+                                <div class="flex items-center gap-2 text-rose-300 min-w-0 flex-1">
                                     <i data-lucide="alert-triangle" class="w-4 h-4 text-rose-400 shrink-0"></i>
-                                    <span class="text-[11px]"><strong>3 Barang di Bawah Batas Minimum:</strong> Segera
-                                        terbitkan PO ke Supplier</span>
+                                    <span class="text-[11px] truncate"><strong>3 Barang di Bawah Batas Minimum:</strong>
+                                        Segera
+                                        terbitkan PO</span>
                                 </div>
                                 <span
-                                    class="text-[10px] px-2 py-0.5 rounded bg-rose-500/30 text-rose-200 font-bold shrink-0">Buat
+                                    class="text-[10px] px-2 py-0.5 rounded bg-rose-500/30 text-rose-200 font-bold shrink-0 self-end sm:self-auto">Buat
                                     PO</span>
                             </div>
 
                             {{-- Inventory Data Table Mockup --}}
                             <div class="space-y-1.5 overflow-hidden text-left">
                                 <div
-                                    class="grid grid-cols-12 text-[10px] uppercase font-mono text-slate-400 px-2 py-1 bg-[#060B1E]/80 rounded-lg border border-white/5">
-                                    <div class="col-span-5">Barang &amp; SKU</div>
-                                    <div class="col-span-2 text-center">Fisik</div>
-                                    <div class="col-span-2 text-center">Tersedia</div>
-                                    <div class="col-span-3 text-right">Status</div>
+                                    class="grid grid-cols-12 gap-1 text-[10px] uppercase font-mono text-slate-400 px-2 py-1 bg-[#060B1E]/80 rounded-lg border border-white/5">
+                                    <div class="col-span-5 truncate">Barang &amp; SKU</div>
+                                    <div class="col-span-2 text-center truncate">Fisik</div>
+                                    <div class="col-span-2 text-center truncate">Tersedia</div>
+                                    <div class="col-span-3 text-right truncate">Status</div>
                                 </div>
 
                                 {{-- Item 1 --}}
                                 <div
-                                    class="grid grid-cols-12 items-center p-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs transition-colors">
-                                    <div class="col-span-5">
+                                    class="grid grid-cols-12 gap-1 items-center p-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs transition-colors">
+                                    <div class="col-span-5 min-w-0">
                                         <div class="font-medium text-white truncate">Biji Kopi Arabika 1kg</div>
-                                        <div class="text-[10px] text-slate-400 font-mono">SKU-KOP-01 • Rak B-02</div>
+                                        <div class="text-[10px] text-slate-400 font-mono truncate">SKU-KOP-01 • Rak B-02
+                                        </div>
                                     </div>
-                                    <div class="col-span-2 text-center font-mono text-slate-300">142 kg</div>
-                                    <div class="col-span-2 text-center font-mono text-emerald-400">128 kg</div>
-                                    <div class="col-span-3 text-right">
+                                    <div class="col-span-2 text-center font-mono text-slate-300 truncate">142 kg</div>
+                                    <div class="col-span-2 text-center font-mono text-emerald-400 truncate">128 kg</div>
+                                    <div class="col-span-3 text-right shrink-0">
                                         <span
-                                            class="px-2 py-0.5 rounded-full text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">Stok
+                                            class="px-2 py-0.5 rounded-full text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 whitespace-nowrap">Stok
                                             Aman</span>
                                     </div>
                                 </div>
 
                                 {{-- Item 2 (Low stock) --}}
                                 <div
-                                    class="grid grid-cols-12 items-center p-2 rounded-xl bg-white/5 hover:bg-white/10 border border-rose-500/30 text-xs transition-colors">
-                                    <div class="col-span-5">
+                                    class="grid grid-cols-12 gap-1 items-center p-2 rounded-xl bg-white/5 hover:bg-white/10 border border-rose-500/30 text-xs transition-colors">
+                                    <div class="col-span-5 min-w-0">
                                         <div class="font-medium text-white truncate">Paper Cup 12oz Cold</div>
-                                        <div class="text-[10px] text-slate-400 font-mono">SKU-PKG-44 • Rak A-01</div>
+                                        <div class="text-[10px] text-slate-400 font-mono truncate">SKU-PKG-44 • Rak A-01
+                                        </div>
                                     </div>
-                                    <div class="col-span-2 text-center font-mono text-slate-300">80 pcs</div>
-                                    <div class="col-span-2 text-center font-mono text-rose-400">40 pcs</div>
-                                    <div class="col-span-3 text-right">
+                                    <div class="col-span-2 text-center font-mono text-slate-300 truncate">80 pcs</div>
+                                    <div class="col-span-2 text-center font-mono text-rose-400 truncate">40 pcs</div>
+                                    <div class="col-span-3 text-right shrink-0">
                                         <span
-                                            class="px-2 py-0.5 rounded-full text-[10px] bg-rose-500/20 text-rose-300 border border-rose-500/40 font-bold">Reorder
+                                            class="px-2 py-0.5 rounded-full text-[10px] bg-rose-500/20 text-rose-300 border border-rose-500/40 font-bold whitespace-nowrap">Reorder
                                             Segera</span>
                                     </div>
                                 </div>
 
                                 {{-- Item 3 --}}
                                 <div
-                                    class="grid grid-cols-12 items-center p-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs transition-colors">
-                                    <div class="col-span-5">
+                                    class="grid grid-cols-12 gap-1 items-center p-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs transition-colors">
+                                    <div class="col-span-5 min-w-0">
                                         <div class="font-medium text-white truncate">Fresh Milk Pasteurisasi 1L</div>
-                                        <div class="text-[10px] text-slate-400 font-mono">SKU-DRY-12 • Chiller 01</div>
+                                        <div class="text-[10px] text-slate-400 font-mono truncate">SKU-DRY-12 • Chiller 01
+                                        </div>
                                     </div>
-                                    <div class="col-span-2 text-center font-mono text-slate-300">48 btl</div>
-                                    <div class="col-span-2 text-center font-mono text-slate-200">48 btl</div>
-                                    <div class="col-span-3 text-right">
+                                    <div class="col-span-2 text-center font-mono text-slate-300 truncate">48 btl</div>
+                                    <div class="col-span-2 text-center font-mono text-slate-200 truncate">48 btl</div>
+                                    <div class="col-span-3 text-right shrink-0">
                                         <span
-                                            class="px-2 py-0.5 rounded-full text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">Stok
+                                            class="px-2 py-0.5 rounded-full text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 whitespace-nowrap">Stok
                                             Aman</span>
                                     </div>
                                 </div>
@@ -251,12 +258,13 @@
 
                             {{-- Stock Card Audit Trail Footer --}}
                             <div
-                                class="mt-3 pt-2.5 border-t border-white/10 flex items-center justify-between text-[11px] text-slate-400">
-                                <span class="flex items-center gap-1.5">
-                                    <i data-lucide="check-check" class="w-3.5 h-3.5 text-emerald-400"></i>
-                                    Sinkronisasi HPP Moving Average: Aktif
+                                class="mt-3 pt-2.5 border-t border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[11px] text-slate-400">
+                                <span class="flex items-center gap-1.5 truncate">
+                                    <i data-lucide="check-check" class="w-3.5 h-3.5 text-emerald-400 shrink-0"></i>
+                                    <span class="truncate">Sinkronisasi HPP Moving Average: Aktif</span>
                                 </span>
-                                <a href="{{ route('public.demo') }}" class="text-[#00C4D8] hover:underline font-medium">Buka
+                                <a href="{{ route('public.demo') }}"
+                                    class="text-[#00C4D8] hover:underline font-medium shrink-0">Buka
                                     Kartu Stok Detail →</a>
                             </div>
                         </div>
@@ -369,9 +377,9 @@
                     </div>
 
                     <div
-                        class="mt-6 p-4 rounded-2xl bg-white dark:bg-[#060B1E]/60 border border-slate-200/80 dark:border-white/10 flex items-center justify-between text-xs">
+                        class="mt-6 p-4 rounded-2xl bg-white dark:bg-[#060B1E]/60 border border-slate-200/80 dark:border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
                         <span class="text-slate-600 dark:text-slate-300 font-medium">Status Pengiriman Digital:</span>
-                        <div class="flex items-center gap-2">
+                        <div class="flex flex-wrap items-center gap-2">
                             <span
                                 class="px-2 py-0.5 rounded bg-blue-100 dark:bg-blue-950 text-[#007AFF] dark:text-[#38BDF8] font-semibold">Draft</span>
                             <i data-lucide="arrow-right" class="w-3.5 h-3.5 text-slate-400"></i>
@@ -405,7 +413,7 @@
                     </div>
 
                     <div
-                        class="mt-6 p-3.5 rounded-2xl bg-white dark:bg-[#060B1E]/60 border border-slate-200/80 dark:border-white/10 text-xs font-mono text-slate-500 dark:text-slate-400 flex justify-between">
+                        class="mt-6 p-3.5 rounded-2xl bg-white dark:bg-[#060B1E]/60 border border-slate-200/80 dark:border-white/10 text-xs font-mono text-slate-500 dark:text-slate-400 flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
                         <span>1 Menu Kopi Susu:</span>
                         <span class="text-teal-600 dark:text-teal-400 font-semibold">18g Kopi + 120ml Susu</span>
                     </div>

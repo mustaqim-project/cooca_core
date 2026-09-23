@@ -42,7 +42,7 @@
                                 <span>Perjanjian Kontrak Layanan (Pasal 1338 KUHPerdata &amp; UU ITE)</span>
                             </div>
                             <h1
-                                class="text-3xl sm:text-5xl lg:text-[3.25rem] font-extrabold text-white tracking-tight leading-[1.12]">
+                                class="text-4xl sm:text-5xl lg:text-[3.25rem] xl:text-[3.75rem] font-extrabold text-white tracking-tight leading-[1.12]">
                                 {{ $page->title ?? 'Syarat & Ketentuan Layanan (Terms of Service)' }}
                             </h1>
                         </div>

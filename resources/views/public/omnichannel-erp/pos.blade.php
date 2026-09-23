@@ -1,10 +1,12 @@
 @extends('layouts.public_marketing')
 
 @section('title', 'Aplikasi Kasir POS Multi-Outlet Terintegrasi ERP & Stok | COOCA')
-@section('description', 'Software Point of Sale (POS) modern untuk retail, F&B, dan jasa. Transaksi kasir secepat kilat,
+@section('description',
+    'Software Point of Sale (POS) modern untuk retail, F&B, dan jasa. Transaksi kasir secepat kilat,
     cetak struk Bluetooth, barcode scanner, QRIS dinamis, dan langsung memotong stok serta membukukan jurnal keuangan
     otomatis.')
-@section('keywords', 'software kasir online, aplikasi pos multi outlet, point of sale indonesia, pos terintegrasi stok,
+@section('keywords',
+    'software kasir online, aplikasi pos multi outlet, point of sale indonesia, pos terintegrasi stok,
     kasir barcode qris')
 
     @push('seo')
@@ -110,7 +112,7 @@
                         </div>
 
                         <h1
-                            class="text-3xl sm:text-5xl lg:text-[3.25rem] font-extrabold text-white tracking-tight leading-[1.15]">
+                            class="text-4xl sm:text-5xl lg:text-[3.25rem] xl:text-[3.75rem] font-extrabold text-white tracking-tight leading-[1.2] text-balance break-words">
                             Aplikasi Kasir Cepat yang Langsung Terhubung ke <span class="text-[#00C4D8]">Stok &amp;
                                 Akuntansi</span>
                         </h1>
@@ -135,18 +137,18 @@
                         </div>
 
                         {{-- Micro Trust Indicators --}}
-                        <div class="pt-4 border-t border-white/10 grid grid-cols-3 gap-4 text-left">
-                            <div>
-                                <div class="text-xs text-slate-400 font-medium">Kecepatan Checkout</div>
-                                <div class="text-sm font-bold text-white mt-0.5">&lt; 3 Detik / Order</div>
+                        <div class="pt-4 border-t border-white/10 grid grid-cols-2 sm:grid-cols-3 gap-3.5 text-left">
+                            <div class="min-w-0">
+                                <div class="text-xs text-slate-400 font-medium truncate">Kecepatan Checkout</div>
+                                <div class="text-sm font-bold text-white mt-0.5 truncate">&lt; 3 Detik / Order</div>
                             </div>
-                            <div>
-                                <div class="text-xs text-slate-400 font-medium">Sinkronisasi Data</div>
-                                <div class="text-sm font-bold text-white mt-0.5">Real-time ke Gudang</div>
+                            <div class="min-w-0">
+                                <div class="text-xs text-slate-400 font-medium truncate">Sinkronisasi Data</div>
+                                <div class="text-sm font-bold text-white mt-0.5 truncate">Real-time ke Gudang</div>
                             </div>
-                            <div>
-                                <div class="text-xs text-slate-400 font-medium">Kompatibilitas</div>
-                                <div class="text-sm font-bold text-white mt-0.5">Thermal BT &amp; USB</div>
+                            <div class="min-w-0 col-span-2 sm:col-span-1">
+                                <div class="text-xs text-slate-400 font-medium truncate">Kompatibilitas</div>
+                                <div class="text-sm font-bold text-white mt-0.5 truncate">Thermal BT &amp; USB</div>
                             </div>
                         </div>
                     </div>
@@ -157,23 +159,24 @@
                             class="relative rounded-2xl bg-[#0E1E45]/80 backdrop-blur-md p-2 sm:p-3 shadow-2xl border border-white/10 ring-1 ring-white/10">
                             {{-- Device Top Bar --}}
                             <div
-                                class="flex items-center justify-between px-3 py-2 bg-[#060B1E]/80 rounded-xl mb-2 text-xs border border-white/10">
-                                <div class="flex items-center gap-2">
-                                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                                    <span class="text-slate-200 font-semibold">Kasir 01 — Outlet Sudirman</span>
-                                    <span class="text-slate-400">| Shift: Pagi (Budi)</span>
+                                class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 px-3 py-2 bg-[#060B1E]/80 rounded-xl mb-2 text-xs border border-white/10">
+                                <div class="flex items-center gap-2 min-w-0 flex-1">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shrink-0"></span>
+                                    <span class="text-slate-200 font-semibold truncate">Kasir 01 — Outlet Sudirman</span>
+                                    <span class="text-slate-400 truncate hidden sm:inline">| Shift: Pagi (Budi)</span>
                                 </div>
-                                <div class="flex items-center gap-2 text-slate-300">
+                                <div class="flex items-center gap-2 text-slate-300 shrink-0 self-end sm:self-auto">
                                     <i data-lucide="printer" class="w-3.5 h-3.5 text-[#00C4D8]"></i>
                                     <span class="text-[11px] text-slate-300">BT-58mm Terhubung</span>
                                 </div>
                             </div>
 
                             {{-- Main POS Dual Workspace (Items Grid + Cart Summary) --}}
-                            <div class="grid grid-cols-12 gap-2 bg-[#060B1E]/90 p-2.5 rounded-xl border border-white/10">
+                            <div
+                                class="grid grid-cols-1 sm:grid-cols-12 gap-3 bg-[#060B1E]/90 p-2.5 rounded-xl border border-white/10">
 
                                 {{-- Items Catalog (7 Cols) --}}
-                                <div class="col-span-7 space-y-2">
+                                <div class="col-span-1 sm:col-span-7 space-y-2 min-w-0">
                                     {{-- Category Tabs --}}
                                     <div class="flex items-center gap-1.5 overflow-x-auto pb-1 text-[11px]">
                                         <span
@@ -188,54 +191,54 @@
                                     {{-- Product Tiles --}}
                                     <div class="grid grid-cols-2 gap-2 text-left">
                                         <div
-                                            class="p-2.5 rounded-xl bg-white/5 border border-white/10 hover:border-[#00C4D8]/50 transition-all cursor-pointer group">
-                                            <div class="text-[10px] text-[#00C4D8] font-mono">SKU-084</div>
+                                            class="p-2.5 rounded-xl bg-white/5 border border-white/10 hover:border-[#00C4D8]/50 transition-all cursor-pointer group min-w-0">
+                                            <div class="text-[10px] text-[#00C4D8] font-mono truncate">SKU-084</div>
                                             <div
-                                                class="text-xs font-semibold text-white group-hover:text-[#00C4D8] transition-colors mt-0.5 line-clamp-1">
+                                                class="text-xs font-semibold text-white group-hover:text-[#00C4D8] transition-colors mt-0.5 truncate">
                                                 Kopi Susu Aren</div>
-                                            <div class="flex items-center justify-between mt-2">
-                                                <span class="text-xs font-bold text-slate-200">Rp 22.000</span>
+                                            <div class="flex items-center justify-between gap-1 mt-2">
+                                                <span class="text-xs font-bold text-slate-200 truncate">Rp 22.000</span>
                                                 <span
-                                                    class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">Stok:
+                                                    class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shrink-0">Stok:
                                                     48</span>
                                             </div>
                                         </div>
                                         <div
-                                            class="p-2.5 rounded-xl bg-white/5 border border-white/10 hover:border-[#00C4D8]/50 transition-all cursor-pointer group">
-                                            <div class="text-[10px] text-[#00C4D8] font-mono">SKU-112</div>
+                                            class="p-2.5 rounded-xl bg-white/5 border border-white/10 hover:border-[#00C4D8]/50 transition-all cursor-pointer group min-w-0">
+                                            <div class="text-[10px] text-[#00C4D8] font-mono truncate">SKU-112</div>
                                             <div
-                                                class="text-xs font-semibold text-white group-hover:text-[#00C4D8] transition-colors mt-0.5 line-clamp-1">
+                                                class="text-xs font-semibold text-white group-hover:text-[#00C4D8] transition-colors mt-0.5 truncate">
                                                 Croissant Butter</div>
-                                            <div class="flex items-center justify-between mt-2">
-                                                <span class="text-xs font-bold text-slate-200">Rp 28.000</span>
+                                            <div class="flex items-center justify-between gap-1 mt-2">
+                                                <span class="text-xs font-bold text-slate-200 truncate">Rp 28.000</span>
                                                 <span
-                                                    class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">Stok:
+                                                    class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shrink-0">Stok:
                                                     15</span>
                                             </div>
                                         </div>
                                         <div
-                                            class="p-2.5 rounded-xl bg-white/5 border border-white/10 hover:border-[#00C4D8]/50 transition-all cursor-pointer group">
-                                            <div class="text-[10px] text-[#00C4D8] font-mono">SKU-209</div>
+                                            class="p-2.5 rounded-xl bg-white/5 border border-white/10 hover:border-[#00C4D8]/50 transition-all cursor-pointer group min-w-0">
+                                            <div class="text-[10px] text-[#00C4D8] font-mono truncate">SKU-209</div>
                                             <div
-                                                class="text-xs font-semibold text-white group-hover:text-[#00C4D8] transition-colors mt-0.5 line-clamp-1">
+                                                class="text-xs font-semibold text-white group-hover:text-[#00C4D8] transition-colors mt-0.5 truncate">
                                                 Matcha Latte Ice</div>
-                                            <div class="flex items-center justify-between mt-2">
-                                                <span class="text-xs font-bold text-slate-200">Rp 26.000</span>
+                                            <div class="flex items-center justify-between gap-1 mt-2">
+                                                <span class="text-xs font-bold text-slate-200 truncate">Rp 26.000</span>
                                                 <span
-                                                    class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">Stok:
+                                                    class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shrink-0">Stok:
                                                     32</span>
                                             </div>
                                         </div>
                                         <div
-                                            class="p-2.5 rounded-xl bg-white/5 border border-white/10 hover:border-[#00C4D8]/50 transition-all cursor-pointer group">
-                                            <div class="text-[10px] text-[#00C4D8] font-mono">SKU-019</div>
+                                            class="p-2.5 rounded-xl bg-white/5 border border-white/10 hover:border-[#00C4D8]/50 transition-all cursor-pointer group min-w-0">
+                                            <div class="text-[10px] text-[#00C4D8] font-mono truncate">SKU-019</div>
                                             <div
-                                                class="text-xs font-semibold text-white group-hover:text-[#00C4D8] transition-colors mt-0.5 line-clamp-1">
+                                                class="text-xs font-semibold text-white group-hover:text-[#00C4D8] transition-colors mt-0.5 truncate">
                                                 Earl Grey Tea</div>
-                                            <div class="flex items-center justify-between mt-2">
-                                                <span class="text-xs font-bold text-slate-200">Rp 18.000</span>
+                                            <div class="flex items-center justify-between gap-1 mt-2">
+                                                <span class="text-xs font-bold text-slate-200 truncate">Rp 18.000</span>
                                                 <span
-                                                    class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">Stok:
+                                                    class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shrink-0">Stok:
                                                     60</span>
                                             </div>
                                         </div>
@@ -244,29 +247,33 @@
 
                                 {{-- Active Cart & Payment Panel (5 Cols) --}}
                                 <div
-                                    class="col-span-5 bg-[#0E1E45]/90 p-3 rounded-xl border border-white/10 flex flex-col justify-between">
+                                    class="col-span-1 sm:col-span-5 bg-[#0E1E45]/90 p-3 rounded-xl border border-white/10 flex flex-col justify-between min-w-0">
                                     <div>
                                         <div
                                             class="flex items-center justify-between pb-2 border-b border-white/10 text-xs">
-                                            <span class="font-semibold text-slate-200">Order #TRX-9402</span>
-                                            <span class="text-[11px] text-slate-400">Meja 04</span>
+                                            <span class="font-semibold text-slate-200 truncate">Order #TRX-9402</span>
+                                            <span class="text-[11px] text-slate-400 shrink-0">Meja 04</span>
                                         </div>
 
                                         {{-- Line Items --}}
                                         <div class="space-y-2 py-2.5 text-left text-xs border-b border-white/10">
-                                            <div class="flex items-center justify-between">
-                                                <div>
-                                                    <div class="text-slate-200 font-medium">2x Kopi Susu Aren</div>
-                                                    <div class="text-[10px] text-slate-400">Less Sugar, Ice Normal</div>
+                                            <div class="flex items-center justify-between gap-2">
+                                                <div class="min-w-0 flex-1">
+                                                    <div class="text-slate-200 font-medium truncate">2x Kopi Susu Aren</div>
+                                                    <div class="text-[10px] text-slate-400 truncate">Less Sugar, Ice Normal
+                                                    </div>
                                                 </div>
-                                                <div class="text-slate-300 font-mono">Rp 44.000</div>
+                                                <div class="text-slate-300 font-mono shrink-0 whitespace-nowrap">Rp 44.000
+                                                </div>
                                             </div>
-                                            <div class="flex items-center justify-between">
-                                                <div>
-                                                    <div class="text-slate-200 font-medium">1x Croissant Butter</div>
-                                                    <div class="text-[10px] text-slate-400">Hangatkan</div>
+                                            <div class="flex items-center justify-between gap-2">
+                                                <div class="min-w-0 flex-1">
+                                                    <div class="text-slate-200 font-medium truncate">1x Croissant Butter
+                                                    </div>
+                                                    <div class="text-[10px] text-slate-400 truncate">Hangatkan</div>
                                                 </div>
-                                                <div class="text-slate-300 font-mono">Rp 28.000</div>
+                                                <div class="text-slate-300 font-mono shrink-0 whitespace-nowrap">Rp 28.000
+                                                </div>
                                             </div>
                                         </div>
 
@@ -309,8 +316,8 @@
                             </div>
                             {{-- Automated Sync Note --}}
                             <div
-                                class="mt-2 text-center text-[11px] text-slate-400 flex items-center justify-center gap-1.5 py-1">
-                                <i data-lucide="refresh-cw" class="w-3 h-3 text-[#00C4D8] animate-spin"></i>
+                                class="mt-2 text-center text-[11px] text-slate-400 flex items-center justify-center gap-1.5 py-1 px-2 text-balance break-words">
+                                <i data-lucide="refresh-cw" class="w-3 h-3 text-[#00C4D8] animate-spin shrink-0"></i>
                                 <span>Otomatis memotong 2 botol susu, 1 pack butter, dan input kas ke Akuntansi</span>
                             </div>
                         </div>
@@ -427,12 +434,12 @@
 
                     <div
                         class="mt-6 p-4 rounded-2xl bg-white dark:bg-[#060B1E]/60 border border-slate-200/80 dark:border-white/10">
-                        <div class="flex items-center gap-3 text-xs text-slate-600 dark:text-slate-300">
+                        <div class="flex flex-wrap items-center gap-2 sm:gap-3 text-xs text-slate-600 dark:text-slate-300">
                             <span
                                 class="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-semibold">
                                 <i data-lucide="check" class="w-4 h-4"></i> Support Barcode Scanner 1D &amp; 2D
                             </span>
-                            <span>•</span>
+                            <span class="hidden sm:inline">•</span>
                             <span
                                 class="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-semibold">
                                 <i data-lucide="check" class="w-4 h-4"></i> Varian &amp; Modifier Dinamis
@@ -460,7 +467,7 @@
                     </div>
 
                     <div
-                        class="mt-6 p-3.5 rounded-2xl bg-white dark:bg-[#060B1E]/60 border border-slate-200/80 dark:border-white/10 text-xs flex items-center justify-between font-mono">
+                        class="mt-6 p-3.5 rounded-2xl bg-white dark:bg-[#060B1E]/60 border border-slate-200/80 dark:border-white/10 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 font-mono">
                         <span class="text-slate-500 dark:text-slate-400">Laporan Kasir Z</span>
                         <span class="text-emerald-500 font-bold">Selisih: Rp 0 (Tepat)</span>
                     </div>

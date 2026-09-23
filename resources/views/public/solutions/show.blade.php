@@ -5,17 +5,17 @@
 @section('keywords', strtolower($solution['title']) . ', aplikasi kasir indonesia, software pos ' .
     strtolower($solution['badge']) . ', aplikasi pembukuan ' . strtolower($solution['slug']))
 
-@push('seo')
-    <link rel="canonical" href="{{ route('solusi.show', $solution['slug']) }}">
-    <meta property="og:title" content="{{ $solution['title'] }} | COOCA">
-    <meta property="og:description" content="{{ $solution['subheadline'] }}">
-    <meta property="og:url" content="{{ route('solusi.show', $solution['slug']) }}">
-    <meta property="og:type" content="product">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="{{ $solution['title'] }} | COOCA">
-    <meta name="twitter:description" content="{{ $solution['subheadline'] }}">
+    @push('seo')
+        <link rel="canonical" href="{{ route('solusi.show', $solution['slug']) }}">
+        <meta property="og:title" content="{{ $solution['title'] }} | COOCA">
+        <meta property="og:description" content="{{ $solution['subheadline'] }}">
+        <meta property="og:url" content="{{ route('solusi.show', $solution['slug']) }}">
+        <meta property="og:type" content="product">
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="{{ $solution['title'] }} | COOCA">
+        <meta name="twitter:description" content="{{ $solution['subheadline'] }}">
 
-    <script type="application/ld+json">
+        <script type="application/ld+json">
     {
       "@@context": "https://schema.org",
       "@type": "SoftwareApplication",
@@ -30,262 +30,293 @@
       }
     }
     </script>
-@endpush
+    @endpush
 
 @section('content')
-<div class="bg-white dark:bg-[#070A14] text-slate-900 dark:text-white transition-colors duration-300">
+    <div class="bg-white dark:bg-[#070A14] text-slate-900 dark:text-white transition-colors duration-300">
 
-    {{-- Hero Section (Midnight #060B1E Full-Bleed) --}}
-    <section class="relative bg-[#060B1E] text-white pt-10 sm:pt-14 pb-16 lg:pb-24 overflow-hidden border-b border-white/10 w-full min-w-full">
-        {{-- Dual Ambient Glows --}}
-        <div class="absolute top-0 right-1/4 w-96 h-96 bg-[#007AFF]/15 rounded-full blur-[140px] pointer-events-none"></div>
-        <div class="absolute bottom-0 left-1/4 w-96 h-96 bg-[#00C4D8]/10 rounded-full blur-[120px] pointer-events-none"></div>
+        {{-- Hero Section (Midnight #060B1E Full-Bleed) --}}
+        <section
+            class="relative bg-[#060B1E] text-white pt-10 sm:pt-14 pb-16 lg:pb-24 overflow-hidden border-b border-white/10 w-full min-w-full">
+            {{-- Dual Ambient Glows --}}
+            <div class="absolute top-0 right-1/4 w-96 h-96 bg-[#007AFF]/15 rounded-full blur-[140px] pointer-events-none">
+            </div>
+            <div class="absolute bottom-0 left-1/4 w-96 h-96 bg-[#00C4D8]/10 rounded-full blur-[120px] pointer-events-none">
+            </div>
 
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-8">
-            {{-- Breadcrumb --}}
-            <nav class="flex items-center gap-2 text-xs text-slate-400" aria-label="Breadcrumb">
-                <a href="{{ route('landing') }}" class="hover:text-white transition-colors">Beranda</a>
-                <span aria-hidden="true">/</span>
-                <a href="{{ route('public.bos.overview') }}" class="hover:text-white transition-colors">Solusi Industri</a>
-                <span aria-hidden="true">/</span>
-                <span class="text-[#00C4D8] font-semibold" aria-current="page">{{ $solution['badge'] }}</span>
-            </nav>
+            <div class="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-8">
+                {{-- Breadcrumb --}}
+                <nav class="flex items-center gap-2 text-xs text-slate-400" aria-label="Breadcrumb">
+                    <a href="{{ route('landing') }}" class="hover:text-white transition-colors">Beranda</a>
+                    <span aria-hidden="true">/</span>
+                    <a href="{{ route('public.bos.overview') }}" class="hover:text-white transition-colors">Solusi
+                        Industri</a>
+                    <span aria-hidden="true">/</span>
+                    <span class="text-[#00C4D8] font-semibold" aria-current="page">{{ $solution['badge'] }}</span>
+                </nav>
 
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-                {{-- Left: Headline, Value Proposition, Actions --}}
-                <div class="lg:col-span-7 space-y-6">
-                    <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#007AFF]/15 text-[#00C4D8] border border-[#00C4D8]/30 text-xs font-semibold backdrop-blur-sm">
-                        <i data-lucide="store" class="w-3.5 h-3.5" aria-hidden="true"></i>
-                        <span>Solusi Khusus {{ $solution['badge'] }}</span>
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+                    {{-- Left: Headline, Value Proposition, Actions --}}
+                    <div class="lg:col-span-7 space-y-6">
+                        <div
+                            class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#007AFF]/15 text-[#00C4D8] border border-[#00C4D8]/30 text-xs font-semibold backdrop-blur-sm">
+                            <i data-lucide="store" class="w-3.5 h-3.5" aria-hidden="true"></i>
+                            <span>Solusi Khusus {{ $solution['badge'] }}</span>
+                        </div>
+
+                        <h1
+                            class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.75rem] xl:text-[3.25rem] font-extrabold text-white tracking-tight leading-[1.15]">
+                            {{ $solution['headline'] }}
+                        </h1>
+
+                        <p class="text-base sm:text-lg text-slate-300 leading-relaxed max-w-xl">
+                            {{ $solution['subheadline'] }}
+                        </p>
+
+                        {{-- Tangible Operational Highlights --}}
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200">
+                                <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"
+                                    aria-hidden="true"></i>
+                                <span>Bisa dari HP Android, Tablet, atau Laptop</span>
+                            </div>
+                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200">
+                                <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"
+                                    aria-hidden="true"></i>
+                                <span>Cetak struk kasir via printer Bluetooth thermal</span>
+                            </div>
+                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200">
+                                <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"
+                                    aria-hidden="true"></i>
+                                <span>Laporan laba bersih & stok otomatis terhubung</span>
+                            </div>
+                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200">
+                                <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"
+                                    aria-hidden="true"></i>
+                                <span>Terhubung ke pembukuan finansial tanpa ribet</span>
+                            </div>
+                        </div>
+
+                        {{-- CTAs --}}
+                        <div class="pt-3 flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5">
+                            <a href="{{ route('register') }}"
+                                class="h-12 px-7 rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-lg shadow-[#007AFF]/25 active:scale-[0.98] transition-all">
+                                <span>Mulai Coba Sekarang</span>
+                                <i data-lucide="arrow-right" class="w-4 h-4" aria-hidden="true"></i>
+                            </a>
+                            <a href="{{ \App\Models\SystemSetting::get('social_whatsapp_url', 'https://wa.me/6285287864176') }}?text=Halo%20saya%20tertarik%20dengan%20solusi%20{{ urlencode($solution['title']) }}"
+                                target="_blank" rel="noopener"
+                                class="h-12 px-6 rounded-[14px] bg-white/10 hover:bg-white/15 border border-white/15 text-white backdrop-blur-sm text-sm font-semibold flex items-center justify-center gap-2 transition active:scale-[0.98]">
+                                <i data-lucide="message-circle" class="w-4 h-4 text-emerald-400" aria-hidden="true"></i>
+                                <span>Konsultasi via WhatsApp</span>
+                            </a>
+                        </div>
                     </div>
 
-                    <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.75rem] xl:text-[3.25rem] font-extrabold text-white tracking-tight leading-[1.15]">
-                        {{ $solution['headline'] }}
-                    </h1>
+                    {{-- Right: Simulated POS & Operating Card --}}
+                    <div class="lg:col-span-5">
+                        <div
+                            class="rounded-2xl bg-[#0E1E45]/80 p-5 sm:p-6 shadow-2xl border border-white/10 ring-1 ring-white/10 backdrop-blur-md text-white space-y-5">
+                            <div class="flex items-center justify-between border-b border-white/10 pb-4">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                                    <span class="text-xs font-mono font-bold text-white">Terminal Kasir:
+                                        {{ $solution['badge'] }}</span>
+                                </div>
+                                <span
+                                    class="text-[11px] font-semibold text-emerald-400 bg-emerald-400/15 border border-emerald-400/30 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Kasir Siap
+                                </span>
+                            </div>
 
-                    <p class="text-base sm:text-lg text-slate-300 leading-relaxed max-w-xl">
-                        {{ $solution['subheadline'] }}
+                            {{-- Simulated Active Ticket --}}
+                            <div class="p-4 rounded-[16px] bg-[#060B1E]/60 border border-white/10 space-y-3">
+                                <div class="flex justify-between items-center text-xs">
+                                    <span class="font-bold text-white">Nota Transaksi #TRX-1049</span>
+                                    <span class="text-slate-400 font-mono">Hari Ini, 14:22</span>
+                                </div>
+                                <div class="space-y-2 text-xs">
+                                    <div class="flex justify-between text-slate-200">
+                                        <span>Paket Operasional {{ $solution['badge'] }} (1x)</span>
+                                        <span class="font-mono font-semibold text-white">Rp 45.000</span>
+                                    </div>
+                                    <div class="flex justify-between text-slate-300">
+                                        <span>HPP Terhitung Otomatis</span>
+                                        <span class="font-mono text-slate-400">Rp 22.500</span>
+                                    </div>
+                                    <div
+                                        class="flex justify-between text-emerald-400 font-bold border-t border-dashed border-white/10 pt-2">
+                                        <span>Margin Keuntungan Bersih</span>
+                                        <span class="font-mono">+50.0% (Rp 22.500)</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- Hardware Integration Row --}}
+                            <div class="grid grid-cols-2 gap-3 text-xs">
+                                <div class="p-3 rounded-[12px] bg-white/5 border border-white/10 flex items-center gap-2">
+                                    <i data-lucide="printer" class="w-4 h-4 text-[#00C4D8]" aria-hidden="true"></i>
+                                    <span class="font-medium text-slate-200">Printer Siap</span>
+                                </div>
+                                <div class="p-3 rounded-[12px] bg-white/5 border border-white/10 flex items-center gap-2">
+                                    <i data-lucide="qr-code" class="w-4 h-4 text-emerald-400" aria-hidden="true"></i>
+                                    <span class="font-medium text-slate-200">QRIS Dinamis</span>
+                                </div>
+                            </div>
+
+                            {{-- Action preview badge --}}
+                            <div
+                                class="p-3 rounded-[12px] bg-[#007AFF]/15 text-[#00C4D8] border border-[#00C4D8]/30 text-xs font-semibold text-center flex items-center justify-center gap-2">
+                                <i data-lucide="check" class="w-4 h-4 text-emerald-400" aria-hidden="true"></i>
+                                <span>Stok & Pembukuan Langsung Sinkron Otomatis</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        {{-- Content Body with Light/Dark Mode --}}
+        <div class="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24 space-y-20 sm:space-y-28">
+
+            {{-- Section: Pain Points (Apple Bento Inset Card) --}}
+            <section
+                class="p-6 sm:p-10 rounded-[24px] bg-rose-500/[0.04] dark:bg-rose-500/[0.08] border border-rose-500/20 space-y-6">
+                <div class="max-w-2xl">
+                    <span class="text-xs uppercase tracking-wider font-bold text-rose-600 dark:text-rose-400 block">
+                        Tantangan Sehari-hari
+                    </span>
+                    <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mt-1">
+                        Sering Mengalami Kendala Ini di Usaha Anda?
+                    </h2>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5">
+                    @foreach ($solution['pain_points'] as $index => $pain)
+                        <div
+                            class="p-5 rounded-[18px] bg-white dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 space-y-3 shadow-sm">
+                            <div
+                                class="w-8 h-8 rounded-[10px] bg-rose-500/10 text-rose-600 dark:text-rose-400 font-bold text-xs flex items-center justify-center font-mono">
+                                0{{ $index + 1 }}
+                            </div>
+                            <p class="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+                                {{ $pain }}
+                            </p>
+                        </div>
+                    @endforeach
+                </div>
+            </section>
+
+            {{-- Section: Fitur Solusi Khusus (Apple Bento Grid) --}}
+            <section class="space-y-8">
+                <div class="text-center max-w-2xl mx-auto space-y-2">
+                    <span class="text-xs uppercase tracking-wider font-bold text-[#007AFF] dark:text-[#00C4D8] block">
+                        Fitur Unggulan Spesifik
+                    </span>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+                        Bagaimana COOCA Mempermudah Operasional Harian
+                    </h2>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6">
+                    @foreach ($solution['features'] as $feat)
+                        <div
+                            class="bg-white dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 p-6 sm:p-7 rounded-[22px] space-y-3 shadow-sm hover:border-[#007AFF]/40 transition-all">
+                            <div
+                                class="w-10 h-10 rounded-[12px] bg-[#007AFF]/10 text-[#007AFF] dark:text-[#00C4D8] flex items-center justify-center">
+                                <i data-lucide="check-circle" class="w-5 h-5" aria-hidden="true"></i>
+                            </div>
+                            <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
+                                {{ $feat['title'] }}
+                            </h3>
+                            <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                                {{ $feat['desc'] }}
+                            </p>
+                        </div>
+                    @endforeach
+                </div>
+            </section>
+
+            {{-- Testimonial Box (Apple Inset Card) --}}
+            @if (isset($solution['testimonial']))
+                <section
+                    class="p-8 sm:p-10 rounded-[24px] bg-white dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 flex flex-col md:flex-row items-start md:items-center gap-6 sm:gap-8 shadow-sm">
+                    <div
+                        class="w-12 h-12 rounded-[14px] bg-[#007AFF]/10 text-[#007AFF] dark:text-[#00C4D8] flex items-center justify-center shrink-0">
+                        <i data-lucide="quote" class="w-6 h-6" aria-hidden="true"></i>
+                    </div>
+                    <div class="space-y-3">
+                        <p class="text-base sm:text-lg text-slate-800 dark:text-slate-200 italic leading-relaxed">
+                            "{{ $solution['testimonial']['quote'] }}"
+                        </p>
+                        <div>
+                            <div class="font-bold text-sm text-slate-900 dark:text-white">
+                                {{ $solution['testimonial']['author'] }}
+                            </div>
+                            <div class="text-xs text-[#007AFF] dark:text-[#00C4D8] font-semibold mt-0.5">
+                                {{ $solution['testimonial']['business'] }}
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            @endif
+
+            {{-- Cross-Link to Other Verticals --}}
+            <section class="border-t border-slate-200/80 dark:border-white/10 pt-12 space-y-6">
+                <h3 class="text-lg font-bold text-slate-900 dark:text-white">Solusi Industri Lainnya</h3>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                    @foreach ($otherSolutions as $os)
+                        <a href="{{ route('solusi.show', $os['slug']) }}"
+                            class="bg-white dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 p-5 rounded-[18px] group hover:border-[#007AFF]/40 hover:shadow-md transition-all">
+                            <span
+                                class="text-xs uppercase font-bold text-[#007AFF] dark:text-[#00C4D8]">{{ $os['badge'] }}</span>
+                            <h4
+                                class="text-sm font-bold text-slate-900 dark:text-white mt-1.5 group-hover:text-[#007AFF] dark:group-hover:text-[#00C4D8] transition-colors leading-snug">
+                                {{ $os['title'] }}
+                            </h4>
+                        </a>
+                    @endforeach
+                </div>
+            </section>
+
+            {{-- Final CTA (Midnight #060B1E Card) --}}
+            <section
+                class="relative p-8 sm:p-14 rounded-[28px] bg-[#060B1E] text-white border border-white/10 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.5)] overflow-hidden text-center space-y-6">
+                <div
+                    class="absolute -right-20 -top-20 w-80 h-80 bg-[#007AFF]/15 rounded-full blur-[100px] pointer-events-none">
+                </div>
+                <div
+                    class="absolute -left-20 -bottom-20 w-80 h-80 bg-[#00C4D8]/10 rounded-full blur-[100px] pointer-events-none">
+                </div>
+
+                <div class="relative z-10 space-y-4 max-w-2xl mx-auto">
+                    <div
+                        class="text-xs font-semibold uppercase tracking-wider text-[#00C4D8] inline-flex items-center gap-1.5">
+                        <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400" aria-hidden="true"></i>
+                        <span>Tersedia untuk Android, Tablet, Laptop, & Printer Bluetooth</span>
+                    </div>
+                    <h3 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
+                        Mulai Digitalisasi Usaha Anda Hari Ini
+                    </h3>
+                    <p class="text-sm sm:text-base text-slate-300 max-w-xl mx-auto leading-relaxed">
+                        Tidak perlu beli mesin kasir mahal. Cukup gunakan HP Android, tablet, atau laptop yang sudah Anda
+                        miliki
+                        sekarang untuk mengelola bisnis lebih rapi.
                     </p>
-
-                    {{-- Tangible Operational Highlights --}}
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                        <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200">
-                            <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0" aria-hidden="true"></i>
-                            <span>Bisa dari HP Android, Tablet, atau Laptop</span>
-                        </div>
-                        <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200">
-                            <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0" aria-hidden="true"></i>
-                            <span>Cetak struk kasir via printer Bluetooth thermal</span>
-                        </div>
-                        <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200">
-                            <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0" aria-hidden="true"></i>
-                            <span>Laporan laba bersih & stok otomatis terhubung</span>
-                        </div>
-                        <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200">
-                            <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0" aria-hidden="true"></i>
-                            <span>Terhubung ke pembukuan finansial tanpa ribet</span>
-                        </div>
-                    </div>
-
-                    {{-- CTAs --}}
-                    <div class="pt-3 flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5">
+                    <div class="pt-3 flex flex-col sm:flex-row items-center justify-center gap-3.5">
                         <a href="{{ route('register') }}"
-                            class="h-12 px-7 rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-lg shadow-[#007AFF]/25 active:scale-[0.98] transition-all">
-                            <span>Mulai Coba Sekarang</span>
+                            class="h-12 px-8 rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-sm inline-flex items-center gap-2 shadow-lg shadow-[#007AFF]/25 active:scale-95 transition-all">
+                            <span>Daftar Akun COOCA</span>
                             <i data-lucide="arrow-right" class="w-4 h-4" aria-hidden="true"></i>
                         </a>
-                        <a href="{{ \App\Models\SystemSetting::get('social_whatsapp_url', 'https://wa.me/6285287864176') }}?text=Halo%20saya%20tertarik%20dengan%20solusi%20{{ urlencode($solution['title']) }}"
-                            target="_blank" rel="noopener"
-                            class="h-12 px-6 rounded-[14px] bg-white/10 hover:bg-white/15 border border-white/15 text-white backdrop-blur-sm text-sm font-semibold flex items-center justify-center gap-2 transition active:scale-[0.98]">
-                            <i data-lucide="message-circle" class="w-4 h-4 text-emerald-400" aria-hidden="true"></i>
-                            <span>Konsultasi via WhatsApp</span>
+                        <a href="{{ route('public.pricing') }}"
+                            class="h-12 px-7 rounded-[14px] bg-white/10 hover:bg-white/15 border border-white/15 text-white font-semibold text-sm inline-flex items-center gap-2 transition-all">
+                            <span>Lihat Paket Harga</span>
                         </a>
-                    </div>
-                </div>
-
-                {{-- Right: Simulated POS & Operating Card --}}
-                <div class="lg:col-span-5">
-                    <div class="rounded-2xl bg-[#0E1E45]/80 p-5 sm:p-6 shadow-2xl border border-white/10 ring-1 ring-white/10 backdrop-blur-md text-white space-y-5">
-                        <div class="flex items-center justify-between border-b border-white/10 pb-4">
-                            <div class="flex items-center gap-2">
-                                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                                <span class="text-xs font-mono font-bold text-white">Terminal Kasir: {{ $solution['badge'] }}</span>
-                            </div>
-                            <span class="text-[11px] font-semibold text-emerald-400 bg-emerald-400/15 border border-emerald-400/30 px-2.5 py-0.5 rounded-full flex items-center gap-1">
-                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Kasir Siap
-                            </span>
-                        </div>
-
-                        {{-- Simulated Active Ticket --}}
-                        <div class="p-4 rounded-[16px] bg-[#060B1E]/60 border border-white/10 space-y-3">
-                            <div class="flex justify-between items-center text-xs">
-                                <span class="font-bold text-white">Nota Transaksi #TRX-1049</span>
-                                <span class="text-slate-400 font-mono">Hari Ini, 14:22</span>
-                            </div>
-                            <div class="space-y-2 text-xs">
-                                <div class="flex justify-between text-slate-200">
-                                    <span>Paket Operasional {{ $solution['badge'] }} (1x)</span>
-                                    <span class="font-mono font-semibold text-white">Rp 45.000</span>
-                                </div>
-                                <div class="flex justify-between text-slate-300">
-                                    <span>HPP Terhitung Otomatis</span>
-                                    <span class="font-mono text-slate-400">Rp 22.500</span>
-                                </div>
-                                <div class="flex justify-between text-emerald-400 font-bold border-t border-dashed border-white/10 pt-2">
-                                    <span>Margin Keuntungan Bersih</span>
-                                    <span class="font-mono">+50.0% (Rp 22.500)</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        {{-- Hardware Integration Row --}}
-                        <div class="grid grid-cols-2 gap-3 text-xs">
-                            <div class="p-3 rounded-[12px] bg-white/5 border border-white/10 flex items-center gap-2">
-                                <i data-lucide="printer" class="w-4 h-4 text-[#00C4D8]" aria-hidden="true"></i>
-                                <span class="font-medium text-slate-200">Printer Siap</span>
-                            </div>
-                            <div class="p-3 rounded-[12px] bg-white/5 border border-white/10 flex items-center gap-2">
-                                <i data-lucide="qr-code" class="w-4 h-4 text-emerald-400" aria-hidden="true"></i>
-                                <span class="font-medium text-slate-200">QRIS Dinamis</span>
-                            </div>
-                        </div>
-
-                        {{-- Action preview badge --}}
-                        <div class="p-3 rounded-[12px] bg-[#007AFF]/15 text-[#00C4D8] border border-[#00C4D8]/30 text-xs font-semibold text-center flex items-center justify-center gap-2">
-                            <i data-lucide="check" class="w-4 h-4 text-emerald-400" aria-hidden="true"></i>
-                            <span>Stok & Pembukuan Langsung Sinkron Otomatis</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    {{-- Content Body with Light/Dark Mode --}}
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24 space-y-20 sm:space-y-28">
-
-        {{-- Section: Pain Points (Apple Bento Inset Card) --}}
-        <section class="p-6 sm:p-10 rounded-[24px] bg-rose-500/[0.04] dark:bg-rose-500/[0.08] border border-rose-500/20 space-y-6">
-            <div class="max-w-2xl">
-                <span class="text-xs uppercase tracking-wider font-bold text-rose-600 dark:text-rose-400 block">
-                    Tantangan Sehari-hari
-                </span>
-                <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mt-1">
-                    Sering Mengalami Kendala Ini di Usaha Anda?
-                </h2>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5">
-                @foreach ($solution['pain_points'] as $index => $pain)
-                    <div class="p-5 rounded-[18px] bg-white dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 space-y-3 shadow-sm">
-                        <div class="w-8 h-8 rounded-[10px] bg-rose-500/10 text-rose-600 dark:text-rose-400 font-bold text-xs flex items-center justify-center font-mono">
-                            0{{ $index + 1 }}
-                        </div>
-                        <p class="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
-                            {{ $pain }}
-                        </p>
-                    </div>
-                @endforeach
-            </div>
-        </section>
-
-        {{-- Section: Fitur Solusi Khusus (Apple Bento Grid) --}}
-        <section class="space-y-8">
-            <div class="text-center max-w-2xl mx-auto space-y-2">
-                <span class="text-xs uppercase tracking-wider font-bold text-[#007AFF] dark:text-[#00C4D8] block">
-                    Fitur Unggulan Spesifik
-                </span>
-                <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-                    Bagaimana COOCA Mempermudah Operasional Harian
-                </h2>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6">
-                @foreach ($solution['features'] as $feat)
-                    <div class="bg-white dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 p-6 sm:p-7 rounded-[22px] space-y-3 shadow-sm hover:border-[#007AFF]/40 transition-all">
-                        <div class="w-10 h-10 rounded-[12px] bg-[#007AFF]/10 text-[#007AFF] dark:text-[#00C4D8] flex items-center justify-center">
-                            <i data-lucide="check-circle" class="w-5 h-5" aria-hidden="true"></i>
-                        </div>
-                        <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
-                            {{ $feat['title'] }}
-                        </h3>
-                        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-                            {{ $feat['desc'] }}
-                        </p>
-                    </div>
-                @endforeach
-            </div>
-        </section>
-
-        {{-- Testimonial Box (Apple Inset Card) --}}
-        @if (isset($solution['testimonial']))
-            <section class="p-8 sm:p-10 rounded-[24px] bg-white dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 flex flex-col md:flex-row items-start md:items-center gap-6 sm:gap-8 shadow-sm">
-                <div class="w-12 h-12 rounded-[14px] bg-[#007AFF]/10 text-[#007AFF] dark:text-[#00C4D8] flex items-center justify-center shrink-0">
-                    <i data-lucide="quote" class="w-6 h-6" aria-hidden="true"></i>
-                </div>
-                <div class="space-y-3">
-                    <p class="text-base sm:text-lg text-slate-800 dark:text-slate-200 italic leading-relaxed">
-                        "{{ $solution['testimonial']['quote'] }}"
-                    </p>
-                    <div>
-                        <div class="font-bold text-sm text-slate-900 dark:text-white">
-                            {{ $solution['testimonial']['author'] }}
-                        </div>
-                        <div class="text-xs text-[#007AFF] dark:text-[#00C4D8] font-semibold mt-0.5">
-                            {{ $solution['testimonial']['business'] }}
-                        </div>
                     </div>
                 </div>
             </section>
-        @endif
 
-        {{-- Cross-Link to Other Verticals --}}
-        <section class="border-t border-slate-200/80 dark:border-white/10 pt-12 space-y-6">
-            <h3 class="text-lg font-bold text-slate-900 dark:text-white">Solusi Industri Lainnya</h3>
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                @foreach ($otherSolutions as $os)
-                    <a href="{{ route('solusi.show', $os['slug']) }}"
-                        class="bg-white dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 p-5 rounded-[18px] group hover:border-[#007AFF]/40 hover:shadow-md transition-all">
-                        <span class="text-xs uppercase font-bold text-[#007AFF] dark:text-[#00C4D8]">{{ $os['badge'] }}</span>
-                        <h4 class="text-sm font-bold text-slate-900 dark:text-white mt-1.5 group-hover:text-[#007AFF] dark:group-hover:text-[#00C4D8] transition-colors leading-snug">
-                            {{ $os['title'] }}
-                        </h4>
-                    </a>
-                @endforeach
-            </div>
-        </section>
-
-        {{-- Final CTA (Midnight #060B1E Card) --}}
-        <section class="relative p-8 sm:p-14 rounded-[28px] bg-[#060B1E] text-white border border-white/10 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.5)] overflow-hidden text-center space-y-6">
-            <div class="absolute -right-20 -top-20 w-80 h-80 bg-[#007AFF]/15 rounded-full blur-[100px] pointer-events-none"></div>
-            <div class="absolute -left-20 -bottom-20 w-80 h-80 bg-[#00C4D8]/10 rounded-full blur-[100px] pointer-events-none"></div>
-
-            <div class="relative z-10 space-y-4 max-w-2xl mx-auto">
-                <div class="text-xs font-semibold uppercase tracking-wider text-[#00C4D8] inline-flex items-center gap-1.5">
-                    <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400" aria-hidden="true"></i>
-                    <span>Tersedia untuk Android, Tablet, Laptop, & Printer Bluetooth</span>
-                </div>
-                <h3 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
-                    Mulai Digitalisasi Usaha Anda Hari Ini
-                </h3>
-                <p class="text-sm sm:text-base text-slate-300 max-w-xl mx-auto leading-relaxed">
-                    Tidak perlu beli mesin kasir mahal. Cukup gunakan HP Android, tablet, atau laptop yang sudah Anda miliki
-                    sekarang untuk mengelola bisnis lebih rapi.
-                </p>
-                <div class="pt-3 flex flex-col sm:flex-row items-center justify-center gap-3.5">
-                    <a href="{{ route('register') }}"
-                        class="h-12 px-8 rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-sm inline-flex items-center gap-2 shadow-lg shadow-[#007AFF]/25 active:scale-95 transition-all">
-                        <span>Daftar Akun COOCA</span>
-                        <i data-lucide="arrow-right" class="w-4 h-4" aria-hidden="true"></i>
-                    </a>
-                    <a href="{{ route('public.pricing') }}"
-                        class="h-12 px-7 rounded-[14px] bg-white/10 hover:bg-white/15 border border-white/15 text-white font-semibold text-sm inline-flex items-center gap-2 transition-all">
-                        <span>Lihat Paket Harga</span>
-                    </a>
-                </div>
-            </div>
-        </section>
-
+        </div>
     </div>
-</div>
 @endsection

@@ -44,7 +44,7 @@
                                 <span>Arsitektur &amp; Navigasi Terbuka</span>
                             </div>
                             <h1
-                                class="text-3xl sm:text-5xl lg:text-[3.25rem] font-extrabold text-white tracking-tight leading-[1.12]">
+                                class="text-4xl sm:text-5xl lg:text-[3.25rem] xl:text-[3.75rem] font-extrabold text-white tracking-tight leading-[1.12]">
                                 Peta Situs Resmi <span class="text-[#00C4D8]">Cooca</span>
                             </h1>
                         </div>

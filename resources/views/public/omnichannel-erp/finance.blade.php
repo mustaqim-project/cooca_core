@@ -1,8 +1,10 @@
 @extends('layouts.public_marketing')
 
 @section('title', 'Software Manajemen Keuangan & Arus Kas Bisnis Terintegrasi | COOCA')
-@section('description', 'Aplikasi manajemen keuangan bisnis dan cash flow operasional. Pantau saldo kas & bank multi-rekening, kontrol hutang piutang (AP/AR), kelola petty cash cabang, dan approval pengeluaran harian.')
-@section('keywords', 'software manajemen keuangan, aplikasi cash flow bisnis, manajemen kas kecil petty cash, buku kas masuk keluar, kontrol hutang piutang')
+@section('description', 'Aplikasi manajemen keuangan bisnis dan cash flow operasional. Pantau saldo kas & bank
+    multi-rekening, kontrol hutang piutang (AP/AR), kelola petty cash cabang, dan approval pengeluaran harian.')
+@section('keywords', 'software manajemen keuangan, aplikasi cash flow bisnis, manajemen kas kecil petty cash, buku kas
+    masuk keluar, kontrol hutang piutang')
 
     @push('seo')
         <script type="application/ld+json">
@@ -70,13 +72,19 @@
     @endpush
 
 @section('content')
-    <div class="relative overflow-hidden bg-white dark:bg-[#070A14] text-slate-900 dark:text-white transition-colors duration-300">
+    <div
+        class="relative overflow-hidden bg-white dark:bg-[#070A14] text-slate-900 dark:text-white transition-colors duration-300">
 
         {{-- 1. HERO SECTION (Midnight Blue Standard) --}}
-        <section class="relative bg-[#060B1E] text-white pt-10 sm:pt-14 pb-16 lg:pb-24 overflow-hidden border-b border-white/10 w-full min-w-full">
+        <section
+            class="relative bg-[#060B1E] text-white pt-10 sm:pt-14 pb-16 lg:pb-24 overflow-hidden border-b border-white/10 w-full min-w-full">
             {{-- Ambient Glows --}}
-            <div class="absolute -top-32 -right-32 w-96 h-96 bg-[#007AFF]/15 rounded-full blur-[140px] pointer-events-none -z-0"></div>
-            <div class="absolute -bottom-32 -left-32 w-96 h-96 bg-[#00C4D8]/10 rounded-full blur-[120px] pointer-events-none -z-0"></div>
+            <div
+                class="absolute -top-32 -right-32 w-96 h-96 bg-[#007AFF]/15 rounded-full blur-[140px] pointer-events-none -z-0">
+            </div>
+            <div
+                class="absolute -bottom-32 -left-32 w-96 h-96 bg-[#00C4D8]/10 rounded-full blur-[120px] pointer-events-none -z-0">
+            </div>
 
             <div class="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                 {{-- Breadcrumb --}}
@@ -84,7 +92,8 @@
                     <ol class="flex items-center gap-2 text-xs text-slate-400">
                         <li><a href="{{ route('landing') }}" class="hover:text-[#00C4D8] transition-colors">Home</a></li>
                         <li><i data-lucide="chevron-right" class="w-3 h-3 text-slate-500"></i></li>
-                        <li><a href="{{ route('public.erp.erp') }}" class="hover:text-[#00C4D8] transition-colors">Omnichannel ERP</a></li>
+                        <li><a href="{{ route('public.erp.erp') }}"
+                                class="hover:text-[#00C4D8] transition-colors">Omnichannel ERP</a></li>
                         <li><i data-lucide="chevron-right" class="w-3 h-3 text-slate-500"></i></li>
                         <li class="text-white font-semibold" aria-current="page">Keuangan & Kas Operasional</li>
                     </ol>
@@ -93,18 +102,23 @@
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
                     {{-- Left Column: Copy & Value Proposition --}}
                     <div class="lg:col-span-6 space-y-6">
-                        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#007AFF]/15 text-[#00C4D8] border border-[#00C4D8]/30 text-xs font-semibold tracking-wide">
+                        <div
+                            class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#007AFF]/15 text-[#00C4D8] border border-[#00C4D8]/30 text-xs font-semibold tracking-wide">
                             <i data-lucide="banknote" class="w-3.5 h-3.5"></i>
                             <span>Operational Cash Flow & Treasury Control</span>
                         </div>
 
-                        <h1 class="text-3xl sm:text-5xl lg:text-[3.25rem] font-extrabold text-white tracking-tight leading-[1.15]">
-                            Kendalikan Arus Kas, Hutang, & Piutang Bisnis <span class="text-[#00C4D8]">Secara Real-Time</span>
+                        <h1
+                            class="text-4xl sm:text-5xl lg:text-[3.25rem] xl:text-[3.75rem] font-extrabold text-white tracking-tight leading-[1.2] text-balance break-words">
+                            Kendalikan Arus Kas, Hutang, & Piutang Bisnis <span class="text-[#00C4D8]">Secara
+                                Real-Time</span>
                         </h1>
 
                         <p class="text-base sm:text-lg text-slate-300 font-normal leading-relaxed">
-                            Ketahui persis berapa uang kas nyata perusahaan Anda hari ini. Pantau saldo seluruh rekening bank,
-                            tagih piutang yang tertunda, jadwalkan pelunasan supplier, dan kunci pengeluaran kas kecil dengan
+                            Ketahui persis berapa uang kas nyata perusahaan Anda hari ini. Pantau saldo seluruh rekening
+                            bank,
+                            tagih piutang yang tertunda, jadwalkan pelunasan supplier, dan kunci pengeluaran kas kecil
+                            dengan
                             sistem persetujuan digital.
                         </p>
 
@@ -122,104 +136,125 @@
                         </div>
 
                         {{-- Financial Control Indicators --}}
-                        <div class="pt-6 border-t border-white/10 grid grid-cols-3 gap-4 text-left">
-                            <div>
-                                <div class="text-xs text-slate-400 font-medium">Monitoring Rekening</div>
-                                <div class="text-sm font-bold text-white mt-0.5">Multi Bank & Kas Tunai</div>
+                        <div class="pt-6 border-t border-white/10 grid grid-cols-2 sm:grid-cols-3 gap-3.5 text-left">
+                            <div class="min-w-0">
+                                <div class="text-xs text-slate-400 font-medium truncate">Monitoring Rekening</div>
+                                <div class="text-sm font-bold text-white mt-0.5 truncate">Multi Bank & Kas Tunai</div>
                             </div>
-                            <div>
-                                <div class="text-xs text-slate-400 font-medium">Kontrol Kas Kecil</div>
-                                <div class="text-sm font-bold text-white mt-0.5">Approval Berjenjang</div>
+                            <div class="min-w-0">
+                                <div class="text-xs text-slate-400 font-medium truncate">Kontrol Kas Kecil</div>
+                                <div class="text-sm font-bold text-white mt-0.5 truncate">Approval Berjenjang</div>
                             </div>
-                            <div>
-                                <div class="text-xs text-slate-400 font-medium">Jadwal AP / AR</div>
-                                <div class="text-sm font-bold text-white mt-0.5">Notifikasi Jatuh Tempo</div>
+                            <div class="min-w-0 col-span-2 sm:col-span-1">
+                                <div class="text-xs text-slate-400 font-medium truncate">Jadwal AP / AR</div>
+                                <div class="text-sm font-bold text-white mt-0.5 truncate">Notifikasi Jatuh Tempo</div>
                             </div>
                         </div>
                     </div>
 
                     {{-- Right Column: Simulated Live Finance Treasury Dashboard --}}
                     <div class="lg:col-span-6">
-                        <div class="relative rounded-2xl bg-[#0E1E45]/80 border border-white/10 p-4 sm:p-5 shadow-2xl backdrop-blur-md text-white">
+                        <div
+                            class="relative rounded-2xl bg-[#0E1E45]/80 border border-white/10 p-4 sm:p-5 shadow-2xl backdrop-blur-md text-white">
 
                             {{-- Dashboard Header --}}
-                            <div class="flex items-center justify-between pb-3 border-b border-white/10 text-xs">
-                                <div class="flex items-center gap-2">
-                                    <span class="p-1.5 rounded-lg bg-[#007AFF]/20 text-[#00C4D8]">
+                            <div
+                                class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-white/10 text-xs">
+                                <div class="flex items-center gap-2 min-w-0 flex-1">
+                                    <span class="p-1.5 rounded-lg bg-[#007AFF]/20 text-[#00C4D8] shrink-0">
                                         <i data-lucide="wallet-cards" class="w-4 h-4"></i>
                                     </span>
-                                    <div>
-                                        <div class="font-bold text-white">Ringkasan Likuiditas Bisnis</div>
-                                        <div class="text-[10px] text-slate-400">Seluruh Entitas • Real-time Sync</div>
+                                    <div class="min-w-0 flex-1">
+                                        <div class="font-bold text-white truncate">Ringkasan Likuiditas Bisnis</div>
+                                        <div class="text-[10px] text-slate-400 truncate">Seluruh Entitas • Real-time Sync
+                                        </div>
                                     </div>
                                 </div>
-                                <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-[10px] font-mono font-bold">
+                                <span
+                                    class="self-start sm:self-auto px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-[10px] font-mono font-bold shrink-0">
                                     Cash Runway: 4.8 Bulan
                                 </span>
                             </div>
 
                             {{-- Total Cash & Bank Accounts Cards --}}
-                            <div class="grid grid-cols-2 gap-2.5 my-3">
-                                <div class="p-3 rounded-xl bg-[#060B1E]/80 border border-white/10">
-                                    <div class="text-[10px] text-slate-400 font-medium">BCA Operasional (Pusat)</div>
-                                    <div class="text-sm sm:text-base font-bold text-white font-mono mt-0.5">Rp 148.420.000</div>
-                                    <div class="text-[10px] text-emerald-400 flex items-center gap-1 mt-1">
-                                        <i data-lucide="arrow-down-left" class="w-3 h-3"></i> Masuk: Rp 12.8M hari ini
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 my-3">
+                                <div class="p-3 rounded-xl bg-[#060B1E]/80 border border-white/10 min-w-0">
+                                    <div class="text-[10px] text-slate-400 font-medium truncate">BCA Operasional (Pusat)
+                                    </div>
+                                    <div class="text-sm sm:text-base font-bold text-white font-mono mt-0.5 truncate">Rp
+                                        148.420.000</div>
+                                    <div class="text-[10px] text-emerald-400 flex items-center gap-1 mt-1 truncate">
+                                        <i data-lucide="arrow-down-left" class="w-3 h-3 shrink-0"></i> <span
+                                            class="truncate">Masuk: Rp 12.8M hari ini</span>
                                     </div>
                                 </div>
 
-                                <div class="p-3 rounded-xl bg-[#060B1E]/80 border border-white/10">
-                                    <div class="text-[10px] text-slate-400 font-medium">Kas Tunai Cabang (3 Toko)</div>
-                                    <div class="text-sm sm:text-base font-bold text-white font-mono mt-0.5">Rp 14.250.000</div>
-                                    <div class="text-[10px] text-slate-300 flex items-center gap-1 mt-1">
-                                        <i data-lucide="lock" class="w-3 h-3 text-[#00C4D8]"></i> Rekonsiliasi Kasir Selesai
+                                <div class="p-3 rounded-xl bg-[#060B1E]/80 border border-white/10 min-w-0">
+                                    <div class="text-[10px] text-slate-400 font-medium truncate">Kas Tunai Cabang (3 Toko)
+                                    </div>
+                                    <div class="text-sm sm:text-base font-bold text-white font-mono mt-0.5 truncate">Rp
+                                        14.250.000</div>
+                                    <div class="text-[10px] text-slate-300 flex items-center gap-1 mt-1 truncate">
+                                        <i data-lucide="lock" class="w-3 h-3 text-[#00C4D8] shrink-0"></i> <span
+                                            class="truncate">Rekonsiliasi Kasir Selesai</span>
                                     </div>
                                 </div>
                             </div>
 
                             {{-- AP / AR Status Widget --}}
                             <div class="space-y-2 text-xs">
-                                <div class="p-2.5 rounded-xl bg-[#060B1E]/60 border border-white/10 flex items-center justify-between">
-                                    <div class="flex items-center gap-2.5">
-                                        <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-                                        <div>
-                                            <div class="font-medium text-white">Piutang Pelanggan (AR) Jatuh Tempo Minggu Ini</div>
-                                            <div class="text-[10px] text-slate-400">3 Invoice Korporat • Status: Reminder Terkirim</div>
+                                <div
+                                    class="p-2.5 rounded-xl bg-[#060B1E]/60 border border-white/10 flex items-center justify-between gap-2.5">
+                                    <div class="flex items-center gap-2.5 min-w-0 flex-1">
+                                        <span class="w-2 h-2 rounded-full bg-emerald-400 shrink-0"></span>
+                                        <div class="min-w-0 flex-1">
+                                            <div class="font-medium text-white truncate">Piutang Pelanggan (AR) Jatuh Tempo
+                                            </div>
+                                            <div class="text-[10px] text-slate-400 truncate">3 Invoice Korporat • Status:
+                                                Reminder Terkirim</div>
                                         </div>
                                     </div>
-                                    <div class="text-right">
-                                        <div class="font-bold text-emerald-400 font-mono">Rp 32.500.000</div>
+                                    <div class="text-right shrink-0">
+                                        <div class="font-bold text-emerald-400 font-mono whitespace-nowrap">Rp 32.500.000
+                                        </div>
                                         <span class="text-[10px] text-slate-400">Tagih Sekarang</span>
                                     </div>
                                 </div>
 
-                                <div class="p-2.5 rounded-xl bg-[#060B1E]/60 border border-white/10 flex items-center justify-between">
-                                    <div class="flex items-center gap-2.5">
-                                        <span class="w-2 h-2 rounded-full bg-rose-400"></span>
-                                        <div>
-                                            <div class="font-medium text-white">Hutang Supplier Bahan Baku (AP)</div>
-                                            <div class="text-[10px] text-slate-400">Jatuh Tempo: 28 September (PT Sumber Kopi)</div>
+                                <div
+                                    class="p-2.5 rounded-xl bg-[#060B1E]/60 border border-white/10 flex items-center justify-between gap-2.5">
+                                    <div class="flex items-center gap-2.5 min-w-0 flex-1">
+                                        <span class="w-2 h-2 rounded-full bg-rose-400 shrink-0"></span>
+                                        <div class="min-w-0 flex-1">
+                                            <div class="font-medium text-white truncate">Hutang Supplier Bahan Baku (AP)
+                                            </div>
+                                            <div class="text-[10px] text-slate-400 truncate">Jatuh Tempo: 28 September (PT
+                                                Sumber Kopi)</div>
                                         </div>
                                     </div>
-                                    <div class="text-right">
-                                        <div class="font-bold text-rose-400 font-mono">Rp 18.200.000</div>
+                                    <div class="text-right shrink-0">
+                                        <div class="font-bold text-rose-400 font-mono whitespace-nowrap">Rp 18.200.000</div>
                                         <span class="text-[10px] text-slate-400">Jadwalkan Bayar</span>
                                     </div>
                                 </div>
                             </div>
 
                             {{-- Active Petty Cash Request Approval --}}
-                            <div class="mt-3 p-2.5 rounded-xl bg-[#007AFF]/15 border border-[#007AFF]/30 flex items-center justify-between text-xs">
-                                <div class="flex items-center gap-2">
-                                    <i data-lucide="receipt" class="w-4 h-4 text-[#00C4D8]"></i>
-                                    <div>
+                            <div
+                                class="mt-3 p-2.5 rounded-xl bg-[#007AFF]/15 border border-[#007AFF]/30 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+                                <div class="flex items-center gap-2 min-w-0 flex-1">
+                                    <i data-lucide="receipt" class="w-4 h-4 text-[#00C4D8] shrink-0"></i>
+                                    <div class="min-w-0 flex-1 truncate">
                                         <span class="text-white font-medium">Kas Kecil Toko Sudirman:</span>
-                                        <span class="text-slate-300 text-[11px]"> Bensin Operasional & Galon (Rp 185.000)</span>
+                                        <span class="text-slate-300 text-[11px]"> Bensin & Galon (Rp 185.000)</span>
                                     </div>
                                 </div>
-                                <div class="flex items-center gap-1.5">
-                                    <button class="px-2 py-1 rounded bg-white/10 text-slate-300 text-[10px] hover:bg-white/20 transition-colors">Tinjau Struk</button>
-                                    <button class="px-2.5 py-1 rounded bg-[#007AFF] hover:bg-[#0066DF] text-white font-bold text-[10px] transition-colors">Setujui</button>
+                                <div class="flex items-center gap-1.5 shrink-0 self-end sm:self-auto">
+                                    <button
+                                        class="px-2 py-1 rounded bg-white/10 text-slate-300 text-[10px] hover:bg-white/20 transition-colors">Tinjau
+                                        Struk</button>
+                                    <button
+                                        class="px-2.5 py-1 rounded bg-[#007AFF] hover:bg-[#0066DF] text-white font-bold text-[10px] transition-colors">Setujui</button>
                                 </div>
                             </div>
 
@@ -247,8 +282,10 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {{-- Pain 1 --}}
-                    <div class="p-6 rounded-2xl bg-white dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 shadow-sm space-y-3">
-                        <div class="w-10 h-10 rounded-xl bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-900/50 flex items-center justify-center text-rose-600 dark:text-rose-400">
+                    <div
+                        class="p-6 rounded-2xl bg-white dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 shadow-sm space-y-3">
+                        <div
+                            class="w-10 h-10 rounded-xl bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-900/50 flex items-center justify-center text-rose-600 dark:text-rose-400">
                             <i data-lucide="clock-alert" class="w-5 h-5"></i>
                         </div>
                         <h3 class="text-base font-bold text-slate-900 dark:text-white">Piutang Macet Tak Tertagih</h3>
@@ -259,8 +296,10 @@
                     </div>
 
                     {{-- Pain 2 --}}
-                    <div class="p-6 rounded-2xl bg-white dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 shadow-sm space-y-3">
-                        <div class="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-900/50 flex items-center justify-center text-amber-600 dark:text-amber-400">
+                    <div
+                        class="p-6 rounded-2xl bg-white dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 shadow-sm space-y-3">
+                        <div
+                            class="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-900/50 flex items-center justify-center text-amber-600 dark:text-amber-400">
                             <i data-lucide="receipt-text" class="w-5 h-5"></i>
                         </div>
                         <h3 class="text-base font-bold text-slate-900 dark:text-white">Bocor Halus di Kas Kecil Cabang</h3>
@@ -271,8 +310,10 @@
                     </div>
 
                     {{-- Pain 3 --}}
-                    <div class="p-6 rounded-2xl bg-white dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 shadow-sm space-y-3">
-                        <div class="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/50 border border-blue-200 dark:border-blue-900/50 flex items-center justify-center text-[#007AFF] dark:text-[#00C4D8]">
+                    <div
+                        class="p-6 rounded-2xl bg-white dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 shadow-sm space-y-3">
+                        <div
+                            class="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/50 border border-blue-200 dark:border-blue-900/50 flex items-center justify-center text-[#007AFF] dark:text-[#00C4D8]">
                             <i data-lucide="calendar-x" class="w-5 h-5"></i>
                         </div>
                         <h3 class="text-base font-bold text-slate-900 dark:text-white">Jadwal Bayar Supplier Bentrok</h3>
@@ -288,7 +329,8 @@
         {{-- 3. CORE FINANCE CAPABILITIES: Bento Apple HIG --}}
         <section class="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8 py-20">
             <div class="text-center max-w-3xl mx-auto mb-16">
-                <h2 class="text-xs uppercase tracking-widest text-[#007AFF] dark:text-[#00C4D8] font-bold mb-3">Fitur Manajemen Kas & Treasury</h2>
+                <h2 class="text-xs uppercase tracking-widest text-[#007AFF] dark:text-[#00C4D8] font-bold mb-3">Fitur
+                    Manajemen Kas & Treasury</h2>
                 <p class="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
                     Alat Pengendalian Finansial yang Presisi untuk Owner
                 </p>
@@ -300,9 +342,11 @@
             <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
 
                 {{-- Bento Card 1: Multi-Akun Kas & Bank (Span 7) --}}
-                <div class="md:col-span-7 p-6 sm:p-8 rounded-3xl bg-[#FAFAFC] dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 flex flex-col justify-between shadow-sm">
+                <div
+                    class="md:col-span-7 p-6 sm:p-8 rounded-3xl bg-[#FAFAFC] dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 flex flex-col justify-between shadow-sm">
                     <div class="space-y-4">
-                        <div class="w-11 h-11 rounded-2xl bg-blue-100 dark:bg-blue-950 flex items-center justify-center text-[#007AFF] dark:text-[#00C4D8]">
+                        <div
+                            class="w-11 h-11 rounded-2xl bg-blue-100 dark:bg-blue-950 flex items-center justify-center text-[#007AFF] dark:text-[#00C4D8]">
                             <i data-lucide="landmark" class="w-5 h-5"></i>
                         </div>
                         <h3 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
@@ -315,7 +359,8 @@
                         </p>
                     </div>
 
-                    <div class="mt-6 p-4 rounded-2xl bg-white dark:bg-[#060B1E]/60 border border-slate-200/80 dark:border-white/10 flex items-center justify-between text-xs">
+                    <div
+                        class="mt-6 p-4 rounded-2xl bg-white dark:bg-[#060B1E]/60 border border-slate-200/80 dark:border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
                         <span class="text-slate-700 dark:text-slate-300 font-medium">Buku Kas Harian:</span>
                         <span class="text-[#007AFF] dark:text-[#00C4D8] font-semibold flex items-center gap-1">
                             <i data-lucide="check-circle" class="w-3.5 h-3.5"></i> Seluruh Mutasi Kas Terkunci Aman
@@ -324,9 +369,11 @@
                 </div>
 
                 {{-- Bento Card 2: Petty Cash & Digital Approval (Span 5) --}}
-                <div class="md:col-span-5 p-6 sm:p-8 rounded-3xl bg-[#FAFAFC] dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 flex flex-col justify-between shadow-sm">
+                <div
+                    class="md:col-span-5 p-6 sm:p-8 rounded-3xl bg-[#FAFAFC] dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 flex flex-col justify-between shadow-sm">
                     <div class="space-y-4">
-                        <div class="w-11 h-11 rounded-2xl bg-emerald-100 dark:bg-emerald-950 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+                        <div
+                            class="w-11 h-11 rounded-2xl bg-emerald-100 dark:bg-emerald-950 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
                             <i data-lucide="stamp" class="w-5 h-5"></i>
                         </div>
                         <h3 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
@@ -339,15 +386,18 @@
                         </p>
                     </div>
 
-                    <div class="mt-6 p-3 rounded-2xl bg-white dark:bg-[#060B1E]/60 border border-slate-200/80 dark:border-white/10 text-xs flex items-center justify-between font-mono">
+                    <div
+                        class="mt-6 p-3 rounded-2xl bg-white dark:bg-[#060B1E]/60 border border-slate-200/80 dark:border-white/10 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 font-mono">
                         <span class="text-slate-500 dark:text-slate-400">Sistem Plafon Kasir</span>
                         <span class="text-emerald-600 dark:text-emerald-400 font-bold">Maks Rp 500rb / Transaksi</span>
                     </div>
                 </div>
 
                 {{-- Bento Card 3: Kontrol Hutang Supplier / AP (Span 4) --}}
-                <div class="md:col-span-4 p-6 sm:p-8 rounded-3xl bg-[#FAFAFC] dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 space-y-4 shadow-sm">
-                    <div class="w-11 h-11 rounded-2xl bg-indigo-100 dark:bg-indigo-950 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+                <div
+                    class="md:col-span-4 p-6 sm:p-8 rounded-3xl bg-[#FAFAFC] dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 space-y-4 shadow-sm">
+                    <div
+                        class="w-11 h-11 rounded-2xl bg-indigo-100 dark:bg-indigo-950 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
                         <i data-lucide="calendar-check" class="w-5 h-5"></i>
                     </div>
                     <h3 class="text-lg font-bold text-slate-900 dark:text-white">Jadwal Pembayaran Supplier (AP)</h3>
@@ -358,8 +408,10 @@
                 </div>
 
                 {{-- Bento Card 4: Penagihan Piutang Pelanggan / AR (Span 4) --}}
-                <div class="md:col-span-4 p-6 sm:p-8 rounded-3xl bg-[#FAFAFC] dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 space-y-4 shadow-sm">
-                    <div class="w-11 h-11 rounded-2xl bg-purple-100 dark:bg-purple-950 flex items-center justify-center text-purple-600 dark:text-purple-400">
+                <div
+                    class="md:col-span-4 p-6 sm:p-8 rounded-3xl bg-[#FAFAFC] dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 space-y-4 shadow-sm">
+                    <div
+                        class="w-11 h-11 rounded-2xl bg-purple-100 dark:bg-purple-950 flex items-center justify-center text-purple-600 dark:text-purple-400">
                         <i data-lucide="send" class="w-5 h-5"></i>
                     </div>
                     <h3 class="text-lg font-bold text-slate-900 dark:text-white">Penagihan Piutang Cepat (AR)</h3>
@@ -370,8 +422,10 @@
                 </div>
 
                 {{-- Bento Card 5: Proyeksi Arus Kas Operasional (Span 4) --}}
-                <div class="md:col-span-4 p-6 sm:p-8 rounded-3xl bg-[#FAFAFC] dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 space-y-4 shadow-sm">
-                    <div class="w-11 h-11 rounded-2xl bg-amber-100 dark:bg-amber-950 flex items-center justify-center text-amber-600 dark:text-amber-400">
+                <div
+                    class="md:col-span-4 p-6 sm:p-8 rounded-3xl bg-[#FAFAFC] dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 space-y-4 shadow-sm">
+                    <div
+                        class="w-11 h-11 rounded-2xl bg-amber-100 dark:bg-amber-950 flex items-center justify-center text-amber-600 dark:text-amber-400">
                         <i data-lucide="line-chart" class="w-5 h-5"></i>
                     </div>
                     <h3 class="text-lg font-bold text-slate-900 dark:text-white">Proyeksi Likuiditas & Runway</h3>
@@ -388,7 +442,8 @@
         <section class="py-16 sm:py-20 bg-[#060B1E] text-white relative overflow-hidden border-y border-white/10">
             <div class="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                 <div class="text-center max-w-3xl mx-auto mb-14">
-                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#007AFF]/15 text-[#00C4D8] text-xs font-semibold mb-3 border border-[#00C4D8]/30">
+                    <div
+                        class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#007AFF]/15 text-[#00C4D8] text-xs font-semibold mb-3 border border-[#00C4D8]/30">
                         <span>Arus Keuangan Terhubung</span>
                     </div>
                     <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight">
@@ -403,7 +458,8 @@
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
                     {{-- Step 1 --}}
                     <div class="p-6 rounded-2xl bg-white/5 border border-white/10 space-y-3">
-                        <div class="w-8 h-8 rounded-lg bg-[#007AFF]/20 text-[#00C4D8] flex items-center justify-center font-bold text-xs border border-[#007AFF]/30">
+                        <div
+                            class="w-8 h-8 rounded-lg bg-[#007AFF]/20 text-[#00C4D8] flex items-center justify-center font-bold text-xs border border-[#007AFF]/30">
                             1
                         </div>
                         <h3 class="text-base font-bold text-white">Kasir Terima Bayar</h3>
@@ -415,7 +471,8 @@
 
                     {{-- Step 2 --}}
                     <div class="p-6 rounded-2xl bg-white/5 border border-white/10 space-y-3">
-                        <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs border border-emerald-500/30">
+                        <div
+                            class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs border border-emerald-500/30">
                             2
                         </div>
                         <h3 class="text-base font-bold text-white">Rekonsiliasi Shift</h3>
@@ -427,7 +484,8 @@
 
                     {{-- Step 3 --}}
                     <div class="p-6 rounded-2xl bg-white/5 border border-white/10 space-y-3">
-                        <div class="w-8 h-8 rounded-lg bg-indigo-500/20 text-indigo-300 flex items-center justify-center font-bold text-xs border border-indigo-500/30">
+                        <div
+                            class="w-8 h-8 rounded-lg bg-indigo-500/20 text-indigo-300 flex items-center justify-center font-bold text-xs border border-indigo-500/30">
                             3
                         </div>
                         <h3 class="text-base font-bold text-white">Pelunasan Kewajiban</h3>
@@ -439,7 +497,8 @@
 
                     {{-- Step 4 --}}
                     <div class="p-6 rounded-2xl bg-white/5 border border-white/10 space-y-3">
-                        <div class="w-8 h-8 rounded-lg bg-purple-500/20 text-purple-300 flex items-center justify-center font-bold text-xs border border-purple-500/30">
+                        <div
+                            class="w-8 h-8 rounded-lg bg-purple-500/20 text-purple-300 flex items-center justify-center font-bold text-xs border border-purple-500/30">
                             4
                         </div>
                         <h3 class="text-base font-bold text-white">Otomasi ke Akuntansi</h3>
@@ -458,14 +517,18 @@
                 <h2 class="text-xs uppercase tracking-widest text-[#007AFF] dark:text-[#00C4D8] font-bold mb-2">
                     Pertanyaan Umum
                 </h2>
-                <p class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white">Tanya Jawab Seputar Keuangan COOCA</p>
+                <p class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white">Tanya Jawab Seputar Keuangan
+                    COOCA</p>
             </div>
 
             <div class="space-y-4">
-                <details class="group p-5 rounded-2xl bg-[#FAFAFC] dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 transition-all [&_summary::-webkit-details-marker]:hidden">
-                    <summary class="flex items-center justify-between cursor-pointer text-sm sm:text-base font-bold text-slate-900 dark:text-white">
+                <details
+                    class="group p-5 rounded-2xl bg-[#FAFAFC] dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 transition-all [&_summary::-webkit-details-marker]:hidden">
+                    <summary
+                        class="flex items-center justify-between cursor-pointer text-sm sm:text-base font-bold text-slate-900 dark:text-white">
                         <span>Apa perbedaan modul Keuangan (Finance) dengan modul Akuntansi (Accounting) di COOCA?</span>
-                        <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 group-open:rotate-180 transition-transform"></i>
+                        <i data-lucide="chevron-down"
+                            class="w-4 h-4 text-slate-400 group-open:rotate-180 transition-transform"></i>
                     </summary>
                     <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-3 leading-relaxed">
                         Modul Finance berfokus pada likuiditas kas nyata sehari-hari: uang masuk dari kasir, pembayaran
@@ -475,10 +538,13 @@
                     </p>
                 </details>
 
-                <details class="group p-5 rounded-2xl bg-[#FAFAFC] dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 transition-all [&_summary::-webkit-details-marker]:hidden">
-                    <summary class="flex items-center justify-between cursor-pointer text-sm sm:text-base font-bold text-slate-900 dark:text-white">
+                <details
+                    class="group p-5 rounded-2xl bg-[#FAFAFC] dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 transition-all [&_summary::-webkit-details-marker]:hidden">
+                    <summary
+                        class="flex items-center justify-between cursor-pointer text-sm sm:text-base font-bold text-slate-900 dark:text-white">
                         <span>Apakah COOCA bisa mencatat rekening bank yang berbeda untuk operasional dan penerimaan?</span>
-                        <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 group-open:rotate-180 transition-transform"></i>
+                        <i data-lucide="chevron-down"
+                            class="w-4 h-4 text-slate-400 group-open:rotate-180 transition-transform"></i>
                     </summary>
                     <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-3 leading-relaxed">
                         Bisa. Anda dapat mendaftarkan rekening bank tanpa batas (misal BCA Operasional, Mandiri Penerimaan
@@ -487,10 +553,13 @@
                     </p>
                 </details>
 
-                <details class="group p-5 rounded-2xl bg-[#FAFAFC] dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 transition-all [&_summary::-webkit-details-marker]:hidden">
-                    <summary class="flex items-center justify-between cursor-pointer text-sm sm:text-base font-bold text-slate-900 dark:text-white">
+                <details
+                    class="group p-5 rounded-2xl bg-[#FAFAFC] dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 transition-all [&_summary::-webkit-details-marker]:hidden">
+                    <summary
+                        class="flex items-center justify-between cursor-pointer text-sm sm:text-base font-bold text-slate-900 dark:text-white">
                         <span>Bagaimana cara mengontrol staf cabang agar tidak asal mengeluarkan uang kas kecil?</span>
-                        <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 group-open:rotate-180 transition-transform"></i>
+                        <i data-lucide="chevron-down"
+                            class="w-4 h-4 text-slate-400 group-open:rotate-180 transition-transform"></i>
                     </summary>
                     <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-3 leading-relaxed">
                         COOCA memiliki fitur Petty Cash dengan sistem Approval. Staf cabang mengajukan pencairan dana
@@ -499,10 +568,14 @@
                     </p>
                 </details>
 
-                <details class="group p-5 rounded-2xl bg-[#FAFAFC] dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 transition-all [&_summary::-webkit-details-marker]:hidden">
-                    <summary class="flex items-center justify-between cursor-pointer text-sm sm:text-base font-bold text-slate-900 dark:text-white">
-                        <span>Apakah ada peringatan saat piutang pelanggan atau invoice supplier mendekati jatuh tempo?</span>
-                        <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 group-open:rotate-180 transition-transform"></i>
+                <details
+                    class="group p-5 rounded-2xl bg-[#FAFAFC] dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 transition-all [&_summary::-webkit-details-marker]:hidden">
+                    <summary
+                        class="flex items-center justify-between cursor-pointer text-sm sm:text-base font-bold text-slate-900 dark:text-white">
+                        <span>Apakah ada peringatan saat piutang pelanggan atau invoice supplier mendekati jatuh
+                            tempo?</span>
+                        <i data-lucide="chevron-down"
+                            class="w-4 h-4 text-slate-400 group-open:rotate-180 transition-transform"></i>
                     </summary>
                     <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-3 leading-relaxed">
                         Ya. Dashboard Finance menampilkan daftar tagihan piutang (Aging AR) dan hutang supplier (Aging AP)
@@ -514,11 +587,14 @@
         </section>
 
         {{-- 6. TOPICAL CLUSTER --}}
-        <section class="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8 py-16 border-t border-slate-200/80 dark:border-white/10">
+        <section
+            class="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8 py-16 border-t border-slate-200/80 dark:border-white/10">
             <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-8">
                 <div>
-                    <h2 class="text-xs uppercase tracking-widest text-[#007AFF] dark:text-[#00C4D8] font-bold mb-1">Modul Terkait</h2>
-                    <p class="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white">Integrasi Pengelolaan Finansial</p>
+                    <h2 class="text-xs uppercase tracking-widest text-[#007AFF] dark:text-[#00C4D8] font-bold mb-1">Modul
+                        Terkait</h2>
+                    <p class="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white">Integrasi Pengelolaan
+                        Finansial</p>
                 </div>
                 <a href="{{ route('public.erp.erp') }}"
                     class="text-xs sm:text-sm font-semibold text-[#007AFF] dark:text-[#00C4D8] hover:underline mt-2 sm:mt-0 flex items-center gap-1">
@@ -530,56 +606,73 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
                 <a href="{{ route('public.erp.accounting') }}"
                     class="p-5 rounded-2xl bg-[#FAFAFC] dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 hover:border-[#007AFF]/50 transition-all group shadow-sm">
-                    <div class="w-9 h-9 rounded-xl bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
+                    <div
+                        class="w-9 h-9 rounded-xl bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
                         <i data-lucide="book-open" class="w-5 h-5"></i>
                     </div>
-                    <h3 class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#007AFF] transition-colors">
+                    <h3
+                        class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#007AFF] transition-colors">
                         Akuntansi & Jurnal
                     </h3>
-                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Laporan Laba Rugi, Neraca, dan Buku Besar otomatis sesuai SAK EMKM.</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Laporan Laba Rugi, Neraca, dan Buku Besar
+                        otomatis sesuai SAK EMKM.</p>
                 </a>
 
                 <a href="{{ route('public.erp.pos') }}"
                     class="p-5 rounded-2xl bg-[#FAFAFC] dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 hover:border-[#007AFF]/50 transition-all group shadow-sm">
-                    <div class="w-9 h-9 rounded-xl bg-blue-100 dark:bg-blue-950 text-[#007AFF] dark:text-[#00C4D8] flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
+                    <div
+                        class="w-9 h-9 rounded-xl bg-blue-100 dark:bg-blue-950 text-[#007AFF] dark:text-[#00C4D8] flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
                         <i data-lucide="monitor" class="w-5 h-5"></i>
                     </div>
-                    <h3 class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#007AFF] transition-colors">
+                    <h3
+                        class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#007AFF] transition-colors">
                         Point of Sale (POS)
                     </h3>
-                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Penerimaan kas kasir yang langsung tercatat ke buku kas harian.</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Penerimaan kas kasir yang langsung tercatat
+                        ke buku kas harian.</p>
                 </a>
 
                 <a href="{{ route('public.erp.inventory') }}"
                     class="p-5 rounded-2xl bg-[#FAFAFC] dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 hover:border-[#007AFF]/50 transition-all group shadow-sm">
-                    <div class="w-9 h-9 rounded-xl bg-teal-100 dark:bg-teal-950 text-teal-600 dark:text-teal-400 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
+                    <div
+                        class="w-9 h-9 rounded-xl bg-teal-100 dark:bg-teal-950 text-teal-600 dark:text-teal-400 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
                         <i data-lucide="boxes" class="w-5 h-5"></i>
                     </div>
-                    <h3 class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#007AFF] transition-colors">
+                    <h3
+                        class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#007AFF] transition-colors">
                         Manajemen Stok & PO
                     </h3>
-                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Sinkronisasi faktur pembelian barang gudang dengan hutang dagang (AP).</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Sinkronisasi faktur pembelian barang gudang
+                        dengan hutang dagang (AP).</p>
                 </a>
 
                 <a href="{{ route('public.erp.analytics') }}"
                     class="p-5 rounded-2xl bg-[#FAFAFC] dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 hover:border-[#007AFF]/50 transition-all group shadow-sm">
-                    <div class="w-9 h-9 rounded-xl bg-amber-100 dark:bg-amber-950 text-amber-600 dark:text-amber-400 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
+                    <div
+                        class="w-9 h-9 rounded-xl bg-amber-100 dark:bg-amber-950 text-amber-600 dark:text-amber-400 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
                         <i data-lucide="trending-up" class="w-5 h-5"></i>
                     </div>
-                    <h3 class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#007AFF] transition-colors">
+                    <h3
+                        class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#007AFF] transition-colors">
                         Analitik Arus Kas
                     </h3>
-                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Grafik tren kas masuk vs keluar dan proyeksi modal kerja.</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Grafik tren kas masuk vs keluar dan proyeksi
+                        modal kerja.</p>
                 </a>
             </div>
         </section>
 
         {{-- 7. BOTTOM CONVERSION CTA --}}
         <section class="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8 py-16 pb-24">
-            <div class="relative p-8 sm:p-14 rounded-[28px] bg-[#060B1E] text-white border border-white/10 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.5)] overflow-hidden text-center">
+            <div
+                class="relative p-8 sm:p-14 rounded-[28px] bg-[#060B1E] text-white border border-white/10 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.5)] overflow-hidden text-center">
                 {{-- Ambient lights inside CTA --}}
-                <div class="absolute -top-24 -right-24 w-80 h-80 bg-[#007AFF]/20 rounded-full blur-[100px] pointer-events-none"></div>
-                <div class="absolute -bottom-24 -left-24 w-80 h-80 bg-[#00C4D8]/15 rounded-full blur-[100px] pointer-events-none"></div>
+                <div
+                    class="absolute -top-24 -right-24 w-80 h-80 bg-[#007AFF]/20 rounded-full blur-[100px] pointer-events-none">
+                </div>
+                <div
+                    class="absolute -bottom-24 -left-24 w-80 h-80 bg-[#00C4D8]/15 rounded-full blur-[100px] pointer-events-none">
+                </div>
 
                 <div class="max-w-2xl mx-auto space-y-5 relative z-10">
                     <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight">
