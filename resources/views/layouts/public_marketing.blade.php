@@ -279,11 +279,19 @@
             color: #0A84FF;
         }
 
-        /* COOCA Apple HIG Solid Header Dropdown */
+        /* Modern Clean Mega Dropdown (Matches Reference Image) */
         .cooca-header-dropdown {
-            background-color: #0B132B !important;
-            border: 1px solid rgba(255, 255, 255, 0.14) !important;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.95), 0 0 0 1px rgba(0, 194, 255, 0.15) !important;
+            background-color: #FFFFFF !important;
+            border: 1px solid rgba(226, 232, 240, 0.9) !important;
+            box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.18), 0 0 0 1px rgba(0, 0, 0, 0.05) !important;
+            color: #0F172A !important;
+        }
+
+        .dark .cooca-header-dropdown {
+            background-color: #0C1222 !important;
+            border: 1px solid rgba(255, 255, 255, 0.12) !important;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(0, 194, 255, 0.15) !important;
+            color: #FFFFFF !important;
         }
 
         [x-cloak] {
@@ -355,89 +363,193 @@
                             <i data-lucide="chevron-down" class="w-3.5 h-3.5 xl:w-4 xl:h-4 transition-transform"
                                 :class="platformDropdown ? 'rotate-180' : ''"></i>
                         </button>
-                        <div x-show="platformDropdown" x-cloak x-transition:enter="transition ease-out duration-150"
-                            x-transition:enter-start="opacity-0 translate-y-1"
-                            x-transition:enter-end="opacity-100 translate-y-0"
-                            x-transition:leave="transition ease-in duration-100" x-transition:leave-start="opacity-100"
-                            x-transition:leave-end="opacity-0" style="background-color: #0B132B;"
-                            class="cooca-header-dropdown absolute top-full left-0 mt-2 w-[580px] xl:w-[620px] p-4.5 rounded-[22px] shadow-2xl z-50 grid grid-cols-2 gap-3.5 text-white">
+                        <div x-show="platformDropdown" x-cloak 
+                            x-transition:enter="transition ease-out duration-150"
+                            x-transition:enter-start="opacity-0 translate-y-2 scale-[0.99]"
+                            x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+                            x-transition:leave="transition ease-in duration-100" 
+                            x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+                            x-transition:leave-end="opacity-0 translate-y-2 scale-[0.99]"
+                            class="cooca-header-dropdown absolute top-full left-0 mt-3 w-[940px] xl:w-[980px] p-6 lg:p-7 rounded-[22px] z-50">
+                            
+                            <div class="grid grid-cols-12 gap-7 items-start">
+                                
+                                <!-- LEFT 8 COLS: FITUR & PLATFORM -->
+                                <div class="col-span-8 grid grid-cols-3 gap-6">
+                                    
+                                    <!-- SUB-SECTION 1: FITUR (Span 2 Columns) -->
+                                    <div class="col-span-2 space-y-3.5">
+                                        <p class="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-400">
+                                            Fitur
+                                        </p>
+                                        
+                                        <div class="grid grid-cols-2 gap-x-5 gap-y-3.5">
+                                            <!-- Col 1A: Point of Sale -->
+                                            <a href="{{ route('public.erp.pos') }}" class="group flex items-start gap-3 p-1 rounded-xl hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all">
+                                                <div class="w-8 h-8 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.06] flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:border-[#007AFF] dark:group-hover:border-[#00C2FF] group-hover:text-[#007AFF] dark:group-hover:text-[#00C2FF] group-hover:bg-blue-50/50 dark:group-hover:bg-cyan-500/10 transition-all shrink-0 mt-0.5">
+                                                    <i data-lucide="monitor" class="w-4 h-4"></i>
+                                                </div>
+                                                <div>
+                                                    <span class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#007AFF] dark:group-hover:text-[#00C2FF] transition-colors block">
+                                                        Point of Sale
+                                                    </span>
+                                                    <span class="text-xs text-slate-500 dark:text-slate-400 leading-snug block mt-0.5">
+                                                        Hubungkan pesanan, pembayaran, dan pembukuan
+                                                    </span>
+                                                </div>
+                                            </a>
 
-                            <!-- Col 1: Business Operating System -->
-                            <div class="space-y-1.5">
-                                <span
-                                    class="px-3 py-1 text-xs xl:text-[13px] font-bold uppercase tracking-wider text-[#00C2FF] flex items-center gap-1.5">
-                                    <i data-lucide="cpu" class="w-4 h-4"></i>
-                                    <span>Operating System</span>
-                                </span>
-                                <a href="{{ route('public.bos.overview') }}"
-                                    class="group block px-3.5 py-2.5 rounded-[14px] hover:bg-white/[0.08] border border-transparent hover:border-white/10 transition-all">
-                                    <span
-                                        class="font-semibold text-sm xl:text-[15px] text-white group-hover:text-[#00C2FF] transition-colors block">Overview</span>
-                                    <span class="text-xs xl:text-[12.5px] text-slate-400 block mt-0.5">Pusat kendali bisnis</span>
-                                </a>
-                                <a href="{{ route('public.bos.how-it-works') }}"
-                                    class="group block px-3.5 py-2.5 rounded-[14px] hover:bg-white/[0.08] border border-transparent hover:border-white/10 transition-all">
-                                    <span
-                                        class="font-semibold text-sm xl:text-[15px] text-white group-hover:text-[#00C2FF] transition-colors block">How
-                                        It Works</span>
-                                    <span class="text-xs xl:text-[12.5px] text-slate-400 block mt-0.5">Alur otomatisasi</span>
-                                </a>
-                                <a href="{{ route('public.bos.why-cooca') }}"
-                                    class="group block px-3.5 py-2.5 rounded-[14px] hover:bg-white/[0.08] border border-transparent hover:border-white/10 transition-all">
-                                    <span
-                                        class="font-semibold text-sm xl:text-[15px] text-white group-hover:text-[#00C2FF] transition-colors block">Why
-                                        COOCA</span>
-                                    <span class="text-xs xl:text-[12.5px] text-slate-400 block mt-0.5">Keunggulan sistem</span>
-                                </a>
-                            </div>
+                                            <!-- Col 1B: Dynamic Budgeting -->
+                                            <a href="{{ route('public.erp.accounting') }}" class="group flex items-start gap-3 p-1 rounded-xl hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all">
+                                                <div class="w-8 h-8 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.06] flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:border-[#007AFF] dark:group-hover:border-[#00C2FF] group-hover:text-[#007AFF] dark:group-hover:text-[#00C2FF] group-hover:bg-blue-50/50 dark:group-hover:bg-cyan-500/10 transition-all shrink-0 mt-0.5">
+                                                    <i data-lucide="bar-chart-3" class="w-4 h-4"></i>
+                                                </div>
+                                                <div>
+                                                    <span class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#007AFF] dark:group-hover:text-[#00C2FF] transition-colors block">
+                                                        Dynamic Budgeting
+                                                    </span>
+                                                    <span class="text-xs text-slate-500 dark:text-slate-400 leading-snug block mt-0.5">
+                                                        Atur dan pantau dana secara real-time
+                                                    </span>
+                                                </div>
+                                            </a>
 
-                            <!-- Col 2: Omnichannel ERP Core -->
-                            <div class="space-y-1.5">
-                                <span
-                                    class="px-3 py-1 text-xs xl:text-[13px] font-bold uppercase tracking-wider text-[#34C759] flex items-center gap-1.5">
-                                    <i data-lucide="layers" class="w-4 h-4"></i>
-                                    <span>Omnichannel ERP</span>
-                                </span>
-                                <a href="{{ route('public.erp.erp') }}"
-                                    class="group block px-3.5 py-2.5 rounded-[14px] hover:bg-white/[0.08] border border-transparent hover:border-white/10 transition-all">
-                                    <span
-                                        class="font-semibold text-sm xl:text-[15px] text-white group-hover:text-[#34C759] transition-colors block">ERP
-                                        Core</span>
-                                    <span class="text-xs xl:text-[12.5px] text-slate-400 block mt-0.5">Multi-cabang &amp; PO</span>
-                                </a>
-                                <a href="{{ route('public.erp.pos') }}"
-                                    class="group block px-3.5 py-2.5 rounded-[14px] hover:bg-white/[0.08] border border-transparent hover:border-white/10 transition-all">
-                                    <span
-                                        class="font-semibold text-sm xl:text-[15px] text-white group-hover:text-[#34C759] transition-colors block">POS
-                                        Kasir</span>
-                                    <span class="text-xs xl:text-[12.5px] text-slate-400 block mt-0.5">Transaksi kilat &amp; QRIS</span>
-                                </a>
-                                <a href="{{ route('public.erp.inventory') }}"
-                                    class="group block px-3.5 py-2.5 rounded-[14px] hover:bg-white/[0.08] border border-transparent hover:border-white/10 transition-all">
-                                    <span
-                                        class="font-semibold text-sm xl:text-[15px] text-white group-hover:text-[#34C759] transition-colors block">Inventory</span>
-                                    <span class="text-xs xl:text-[12.5px] text-slate-400 block mt-0.5">Stok real-time &amp; HPP</span>
-                                </a>
-                                <a href="{{ route('public.erp.accounting') }}"
-                                    class="group block px-3.5 py-2.5 rounded-[14px] hover:bg-white/[0.08] border border-transparent hover:border-white/10 transition-all">
-                                    <span
-                                        class="font-semibold text-sm xl:text-[15px] text-white group-hover:text-[#34C759] transition-colors block">Accounting</span>
-                                    <span class="text-xs xl:text-[12.5px] text-slate-400 block mt-0.5">Jurnal otomatis</span>
-                                </a>
-                            </div>
+                                            <!-- Col 1A: Vendor Spend -->
+                                            <a href="{{ route('public.erp.erp') }}" class="group flex items-start gap-3 p-1 rounded-xl hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all">
+                                                <div class="w-8 h-8 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.06] flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:border-[#007AFF] dark:group-hover:border-[#00C2FF] group-hover:text-[#007AFF] dark:group-hover:text-[#00C2FF] group-hover:bg-blue-50/50 dark:group-hover:bg-cyan-500/10 transition-all shrink-0 mt-0.5">
+                                                    <i data-lucide="shopping-bag" class="w-4 h-4"></i>
+                                                </div>
+                                                <div>
+                                                    <span class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#007AFF] dark:group-hover:text-[#00C2FF] transition-colors block">
+                                                        Vendor Spend
+                                                    </span>
+                                                    <span class="text-xs text-slate-500 dark:text-slate-400 leading-snug block mt-0.5">
+                                                        Kelola pembayaran SaaS &amp; vendor
+                                                    </span>
+                                                </div>
+                                            </a>
 
-                            <div
-                                class="col-span-2 border-t border-white/10 pt-3 mt-1.5 flex items-center justify-between text-xs xl:text-sm px-3">
-                                <a href="{{ route('public.content.creation') }}"
-                                    class="text-[#00C2FF] hover:text-[#38BDF8] font-semibold flex items-center gap-1.5 transition-colors">
-                                    <i data-lucide="sparkles" class="w-4 h-4"></i>
-                                    <span>Content Automation AI →</span>
-                                </a>
-                                <a href="{{ route('public.erp.analytics') }}"
-                                    class="text-slate-300 hover:text-white flex items-center gap-1.5 transition-colors font-medium">
-                                    <i data-lucide="bar-chart-2" class="w-4 h-4"></i>
-                                    <span>Analytics &amp; AI</span>
-                                </a>
+                                            <!-- Col 1B: Revenue Sync -->
+                                            <a href="{{ route('public.erp.inventory') }}" class="group flex items-start gap-3 p-1 rounded-xl hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all">
+                                                <div class="w-8 h-8 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.06] flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:border-[#007AFF] dark:group-hover:border-[#00C2FF] group-hover:text-[#007AFF] dark:group-hover:text-[#00C2FF] group-hover:bg-blue-50/50 dark:group-hover:bg-cyan-500/10 transition-all shrink-0 mt-0.5">
+                                                    <i data-lucide="arrow-left-right" class="w-4 h-4"></i>
+                                                </div>
+                                                <div>
+                                                    <span class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#007AFF] dark:group-hover:text-[#00C2FF] transition-colors block">
+                                                        Revenue Sync
+                                                    </span>
+                                                    <span class="text-xs text-slate-500 dark:text-slate-400 leading-snug block mt-0.5">
+                                                        Tarik data retainer &amp; POS otomatis
+                                                    </span>
+                                                </div>
+                                            </a>
+
+                                            <!-- Col 1A: Receipt Capture -->
+                                            <a href="{{ route('public.omnichannel.orders') }}" class="group flex items-start gap-3 p-1 rounded-xl hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all">
+                                                <div class="w-8 h-8 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.06] flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:border-[#007AFF] dark:group-hover:border-[#00C2FF] group-hover:text-[#007AFF] dark:group-hover:text-[#00C2FF] group-hover:bg-blue-50/50 dark:group-hover:bg-cyan-500/10 transition-all shrink-0 mt-0.5">
+                                                    <i data-lucide="receipt" class="w-4 h-4"></i>
+                                                </div>
+                                                <div>
+                                                    <span class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#007AFF] dark:group-hover:text-[#00C2FF] transition-colors block">
+                                                        Receipt Capture
+                                                    </span>
+                                                    <span class="text-xs text-slate-500 dark:text-slate-400 leading-snug block mt-0.5">
+                                                        Otomatiskan urusan struk
+                                                    </span>
+                                                </div>
+                                            </a>
+                                        </div>
+                                    </div>
+
+                                    <!-- SUB-SECTION 2: PLATFORM (Span 1 Column) -->
+                                    <div class="col-span-1 space-y-3.5">
+                                        <p class="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-400">
+                                            Platform
+                                        </p>
+                                        
+                                        <div class="space-y-3.5">
+                                            <!-- COOCA AI Agents -->
+                                            <a href="{{ route('public.content.creation') }}" class="group flex items-start gap-3 p-1 rounded-xl hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all">
+                                                <div class="w-8 h-8 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.06] flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:border-[#007AFF] dark:group-hover:border-[#00C2FF] group-hover:text-[#007AFF] dark:group-hover:text-[#00C2FF] group-hover:bg-blue-50/50 dark:group-hover:bg-cyan-500/10 transition-all shrink-0 mt-0.5">
+                                                    <i data-lucide="zap" class="w-4 h-4"></i>
+                                                </div>
+                                                <div>
+                                                    <span class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#007AFF] dark:group-hover:text-[#00C2FF] transition-colors block">
+                                                        COOCA AI Agents
+                                                    </span>
+                                                    <span class="text-xs text-slate-500 dark:text-slate-400 leading-snug block mt-0.5">
+                                                        Lipat-gandakan efisiensi keuangan
+                                                    </span>
+                                                </div>
+                                            </a>
+
+                                            <!-- Siap Global -->
+                                            <a href="{{ route('public.bos.overview') }}" class="group flex items-start gap-3 p-1 rounded-xl hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all">
+                                                <div class="w-8 h-8 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.06] flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:border-[#007AFF] dark:group-hover:border-[#00C2FF] group-hover:text-[#007AFF] dark:group-hover:text-[#00C2FF] group-hover:bg-blue-50/50 dark:group-hover:bg-cyan-500/10 transition-all shrink-0 mt-0.5">
+                                                    <i data-lucide="globe" class="w-4 h-4"></i>
+                                                </div>
+                                                <div>
+                                                    <span class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#007AFF] dark:group-hover:text-[#00C2FF] transition-colors block">
+                                                        Siap Global
+                                                    </span>
+                                                    <span class="text-xs text-slate-500 dark:text-slate-400 leading-snug block mt-0.5">
+                                                        Invoice dalam IDR, USD, dan SGD
+                                                    </span>
+                                                </div>
+                                            </a>
+
+                                            <!-- Integrasi Bawaan -->
+                                            <a href="{{ route('public.bos.how-it-works') }}" class="group flex items-start gap-3 p-1 rounded-xl hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all">
+                                                <div class="w-8 h-8 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.06] flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:border-[#007AFF] dark:group-hover:border-[#00C2FF] group-hover:text-[#007AFF] dark:group-hover:text-[#00C2FF] group-hover:bg-blue-50/50 dark:group-hover:bg-cyan-500/10 transition-all shrink-0 mt-0.5">
+                                                    <i data-lucide="code-2" class="w-4 h-4"></i>
+                                                </div>
+                                                <div>
+                                                    <span class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#007AFF] dark:group-hover:text-[#00C2FF] transition-colors block">
+                                                        Integrasi Bawaan
+                                                    </span>
+                                                    <span class="text-xs text-slate-500 dark:text-slate-400 leading-snug block mt-0.5">
+                                                        Hubungkan ERP, HRIS &amp; tools
+                                                    </span>
+                                                </div>
+                                            </a>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <!-- RIGHT 4 COLS: RILIS TERBARU (With Vertical Divider) -->
+                                <div class="col-span-4 pl-7 border-l border-slate-200 dark:border-white/10 flex flex-col justify-between">
+                                    <div>
+                                        <p class="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-400 mb-3">
+                                            Rilis Terbaru
+                                        </p>
+                                        
+                                        <!-- Showcase Banner Card (Dark Spring Release Card) -->
+                                        <a href="{{ route('public.omnichannel.whatsapp') }}" class="group block relative rounded-2xl overflow-hidden bg-[#0A0E1A] border border-slate-800/80 p-5 shadow-sm transition-all hover:scale-[1.01] hover:border-slate-700">
+                                            <!-- Ambient Glow -->
+                                            <div class="absolute -right-6 -top-6 w-32 h-32 bg-[#00C2FF]/20 rounded-full blur-2xl pointer-events-none"></div>
+                                            <div class="absolute -left-6 -bottom-6 w-32 h-32 bg-[#007AFF]/20 rounded-full blur-2xl pointer-events-none"></div>
+                                            
+                                            <div class="relative z-10">
+                                                <div class="text-2xl sm:text-[28px] font-black text-white tracking-tighter leading-[1.05] uppercase font-sans">
+                                                    SPRING<br>RELEASE<br><span class="text-slate-300">2026</span>
+                                                </div>
+                                            </div>
+                                        </a>
+
+                                        <!-- Sub-link below banner -->
+                                        <div class="mt-3.5">
+                                            <a href="{{ route('public.omnichannel.whatsapp') }}" class="group inline-flex items-center gap-1.5 text-sm font-bold text-slate-900 dark:text-white hover:text-[#007AFF] dark:hover:text-[#00C2FF] transition-colors">
+                                                <span>WhatsApp AI Agents</span>
+                                                <i data-lucide="arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-1"></i>
+                                            </a>
+                                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                                                Chat langsung dengan ledger Anda untuk menyelesaikan struk hilang, sync vendor, dan cek budget di mana saja.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+
                             </div>
                         </div>
                     </div>
@@ -452,87 +564,91 @@
                             <i data-lucide="chevron-down" class="w-3.5 h-3.5 xl:w-4 xl:h-4 transition-transform"
                                 :class="solutionDropdown ? 'rotate-180' : ''"></i>
                         </button>
-                        <div x-show="solutionDropdown" x-cloak x-transition:enter="transition ease-out duration-150"
-                            x-transition:enter-start="opacity-0 translate-y-1"
-                            x-transition:enter-end="opacity-100 translate-y-0"
+                        <div x-show="solutionDropdown" x-cloak 
+                            x-transition:enter="transition ease-out duration-150"
+                            x-transition:enter-start="opacity-0 translate-y-2 scale-[0.99]"
+                            x-transition:enter-end="opacity-100 translate-y-0 scale-100"
                             x-transition:leave="transition ease-in duration-100"
-                            x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
-                            style="background-color: #0B132B;"
-                            class="cooca-header-dropdown absolute top-full left-0 mt-2 w-72 xl:w-80 p-2.5 rounded-[20px] shadow-2xl space-y-1 z-50 text-white">
+                            x-transition:leave-start="opacity-100 translate-y-0 scale-100" 
+                            x-transition:leave-end="opacity-0 translate-y-2 scale-[0.99]"
+                            class="cooca-header-dropdown absolute top-full left-0 mt-3 w-80 xl:w-96 p-4 rounded-[22px] shadow-2xl space-y-2 z-50">
+                            <p class="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-400 px-2 pt-1 pb-1">
+                                Solusi Sektor Industri
+                            </p>
                             <a href="{{ route('public.solutions.fnb') }}"
-                                class="group flex items-center gap-3 px-3 py-2.5 rounded-[14px] hover:bg-white/[0.08] border border-transparent hover:border-white/10 transition-all">
+                                class="group flex items-center gap-3.5 px-3 py-2.5 rounded-[14px] hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all">
                                 <div
-                                    class="w-8 h-8 rounded-[10px] bg-[#FF9500]/15 flex items-center justify-center shrink-0">
-                                    <i data-lucide="utensils" class="w-4 h-4 text-[#FF9500]"></i>
+                                    class="w-8 h-8 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.06] flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:border-[#FF9500] group-hover:text-[#FF9500] group-hover:bg-amber-50/50 transition-all shrink-0">
+                                    <i data-lucide="utensils" class="w-4 h-4"></i>
                                 </div>
                                 <div>
                                     <span
-                                        class="text-sm xl:text-[14.5px] font-semibold text-white group-hover:text-[#FF9500] transition-colors block">F&amp;B
+                                        class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#FF9500] transition-colors block">F&amp;B
                                         &amp; Resto</span>
-                                    <span class="text-xs xl:text-[12px] text-slate-400 block">Meja, menu, dapur</span>
+                                    <span class="text-xs text-slate-500 dark:text-slate-400 block mt-0.5">Meja, menu, dapur</span>
                                 </div>
                             </a>
                             <a href="{{ route('public.solutions.retail') }}"
-                                class="group flex items-center gap-3 px-3 py-2.5 rounded-[14px] hover:bg-white/[0.08] border border-transparent hover:border-white/10 transition-all">
+                                class="group flex items-center gap-3.5 px-3 py-2.5 rounded-[14px] hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all">
                                 <div
-                                    class="w-8 h-8 rounded-[10px] bg-[#00C2FF]/15 flex items-center justify-center shrink-0">
-                                    <i data-lucide="store" class="w-4 h-4 text-[#00C2FF]"></i>
+                                    class="w-8 h-8 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.06] flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:border-[#00C2FF] group-hover:text-[#00C2FF] group-hover:bg-blue-50/50 transition-all shrink-0">
+                                    <i data-lucide="store" class="w-4 h-4"></i>
                                 </div>
                                 <div>
                                     <span
-                                        class="text-sm xl:text-[14.5px] font-semibold text-white group-hover:text-[#00C2FF] transition-colors block">Retail
+                                        class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#00C2FF] transition-colors block">Retail
                                         &amp; Toko</span>
-                                    <span class="text-xs xl:text-[12px] text-slate-400 block">Barcode &amp; multi-cabang</span>
+                                    <span class="text-xs text-slate-500 dark:text-slate-400 block mt-0.5">Barcode &amp; multi-cabang</span>
                                 </div>
                             </a>
                             <a href="{{ route('public.solutions.workshop') }}"
-                                class="group flex items-center gap-3 px-3 py-2.5 rounded-[14px] hover:bg-white/[0.08] border border-transparent hover:border-white/10 transition-all">
+                                class="group flex items-center gap-3.5 px-3 py-2.5 rounded-[14px] hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all">
                                 <div
-                                    class="w-8 h-8 rounded-[10px] bg-[#FF3B30]/15 flex items-center justify-center shrink-0">
-                                    <i data-lucide="wrench" class="w-4 h-4 text-[#FF3B30]"></i>
+                                    class="w-8 h-8 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.06] flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:border-[#FF3B30] group-hover:text-[#FF3B30] group-hover:bg-red-50/50 transition-all shrink-0">
+                                    <i data-lucide="wrench" class="w-4 h-4"></i>
                                 </div>
                                 <div>
                                     <span
-                                        class="text-sm xl:text-[14.5px] font-semibold text-white group-hover:text-[#FF3B30] transition-colors block">Bengkel
+                                        class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#FF3B30] transition-colors block">Bengkel
                                         &amp; Otomotif</span>
-                                    <span class="text-xs xl:text-[12px] text-slate-400 block">SPK &amp; riwayat servis</span>
+                                    <span class="text-xs text-slate-500 dark:text-slate-400 block mt-0.5">SPK &amp; riwayat servis</span>
                                 </div>
                             </a>
                             <a href="{{ route('public.solutions.laundry') }}"
-                                class="group flex items-center gap-3 px-3 py-2.5 rounded-[14px] hover:bg-white/[0.08] border border-transparent hover:border-white/10 transition-all">
+                                class="group flex items-center gap-3.5 px-3 py-2.5 rounded-[14px] hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all">
                                 <div
-                                    class="w-8 h-8 rounded-[10px] bg-[#34C759]/15 flex items-center justify-center shrink-0">
-                                    <i data-lucide="sparkles" class="w-4 h-4 text-[#34C759]"></i>
+                                    class="w-8 h-8 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.06] flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:border-[#34C759] group-hover:text-[#34C759] group-hover:bg-emerald-50/50 transition-all shrink-0">
+                                    <i data-lucide="sparkles" class="w-4 h-4"></i>
                                 </div>
                                 <div>
                                     <span
-                                        class="text-sm xl:text-[14.5px] font-semibold text-white group-hover:text-[#34C759] transition-colors block">Laundry</span>
-                                    <span class="text-xs xl:text-[12px] text-slate-400 block">Kiloan, satuan, rak</span>
+                                        class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#34C759] transition-colors block">Laundry</span>
+                                    <span class="text-xs text-slate-500 dark:text-slate-400 block mt-0.5">Kiloan, satuan, rak</span>
                                 </div>
                             </a>
                             <a href="{{ route('public.solutions.manufacturing') }}"
-                                class="group flex items-center gap-3 px-3 py-2.5 rounded-[14px] hover:bg-white/[0.08] border border-transparent hover:border-white/10 transition-all">
+                                class="group flex items-center gap-3.5 px-3 py-2.5 rounded-[14px] hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all">
                                 <div
-                                    class="w-8 h-8 rounded-[10px] bg-[#AF52DE]/15 flex items-center justify-center shrink-0">
-                                    <i data-lucide="factory" class="w-4 h-4 text-[#AF52DE]"></i>
+                                    class="w-8 h-8 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.06] flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:border-[#AF52DE] group-hover:text-[#AF52DE] group-hover:bg-purple-50/50 transition-all shrink-0">
+                                    <i data-lucide="factory" class="w-4 h-4"></i>
                                 </div>
                                 <div>
                                     <span
-                                        class="text-sm xl:text-[14.5px] font-semibold text-white group-hover:text-[#AF52DE] transition-colors block">Manufacturing</span>
-                                    <span class="text-xs xl:text-[12px] text-slate-400 block">BOM &amp; produksi</span>
+                                        class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#AF52DE] transition-colors block">Manufacturing</span>
+                                    <span class="text-xs text-slate-500 dark:text-slate-400 block mt-0.5">BOM &amp; produksi</span>
                                 </div>
                             </a>
                             <a href="{{ route('public.solutions.services') }}"
-                                class="group flex items-center gap-3 px-3 py-2.5 rounded-[14px] hover:bg-white/[0.08] border border-transparent hover:border-white/10 transition-all">
+                                class="group flex items-center gap-3.5 px-3 py-2.5 rounded-[14px] hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all">
                                 <div
-                                    class="w-8 h-8 rounded-[10px] bg-[#00C2FF]/15 flex items-center justify-center shrink-0">
-                                    <i data-lucide="briefcase" class="w-4 h-4 text-[#00C2FF]"></i>
+                                    class="w-8 h-8 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.06] flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:border-[#007AFF] group-hover:text-[#007AFF] group-hover:bg-blue-50/50 transition-all shrink-0">
+                                    <i data-lucide="briefcase" class="w-4 h-4"></i>
                                 </div>
                                 <div>
                                     <span
-                                        class="text-sm xl:text-[14.5px] font-semibold text-white group-hover:text-[#00C2FF] transition-colors block">Services
+                                        class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#007AFF] transition-colors block">Services
                                         &amp; Jasa</span>
-                                    <span class="text-xs xl:text-[12px] text-slate-400 block">Booking &amp; invoicing</span>
+                                    <span class="text-xs text-slate-500 dark:text-slate-400 block mt-0.5">Booking &amp; invoicing</span>
                                 </div>
                             </a>
                         </div>
@@ -548,75 +664,79 @@
                             <i data-lucide="chevron-down" class="w-3.5 h-3.5 xl:w-4 xl:h-4 transition-transform"
                                 :class="omniDropdown ? 'rotate-180' : ''"></i>
                         </button>
-                        <div x-show="omniDropdown" x-cloak x-transition:enter="transition ease-out duration-150"
-                            x-transition:enter-start="opacity-0 translate-y-1"
-                            x-transition:enter-end="opacity-100 translate-y-0"
+                        <div x-show="omniDropdown" x-cloak 
+                            x-transition:enter="transition ease-out duration-150"
+                            x-transition:enter-start="opacity-0 translate-y-2 scale-[0.99]"
+                            x-transition:enter-end="opacity-100 translate-y-0 scale-100"
                             x-transition:leave="transition ease-in duration-100"
-                            x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
-                            style="background-color: #0B132B;"
-                            class="cooca-header-dropdown absolute top-full left-0 mt-2 w-72 xl:w-80 p-2.5 rounded-[20px] shadow-2xl space-y-1 z-50 text-white">
+                            x-transition:leave-start="opacity-100 translate-y-0 scale-100" 
+                            x-transition:leave-end="opacity-0 translate-y-2 scale-[0.99]"
+                            class="cooca-header-dropdown absolute top-full left-0 mt-3 w-80 xl:w-96 p-4 rounded-[22px] shadow-2xl space-y-2 z-50">
+                            <p class="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-400 px-2 pt-1 pb-1">
+                                Kanal Penjualan &amp; CRM
+                            </p>
                             <a href="{{ route('public.omnichannel.social-media') }}"
-                                class="group flex items-center gap-3 px-3 py-2.5 rounded-[14px] hover:bg-white/[0.08] border border-transparent hover:border-white/10 transition-all">
+                                class="group flex items-center gap-3.5 px-3 py-2.5 rounded-[14px] hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all">
                                 <div
-                                    class="w-8 h-8 rounded-[10px] bg-[#FF2D55]/15 flex items-center justify-center shrink-0">
-                                    <i data-lucide="share-2" class="w-4 h-4 text-[#FF2D55]"></i>
+                                    class="w-8 h-8 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.06] flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:border-[#FF2D55] group-hover:text-[#FF2D55] group-hover:bg-pink-50/50 transition-all shrink-0">
+                                    <i data-lucide="share-2" class="w-4 h-4"></i>
                                 </div>
                                 <div>
                                     <span
-                                        class="text-sm xl:text-[14.5px] font-semibold text-white group-hover:text-[#FF2D55] transition-colors block">Social
+                                        class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#FF2D55] transition-colors block">Social
                                         Media</span>
-                                    <span class="text-xs xl:text-[12px] text-slate-400 block">Jadwal &amp; multi-channel</span>
+                                    <span class="text-xs text-slate-500 dark:text-slate-400 block mt-0.5">Jadwal &amp; multi-channel</span>
                                 </div>
                             </a>
                             <a href="{{ route('public.omnichannel.whatsapp') }}"
-                                class="group flex items-center gap-3 px-3 py-2.5 rounded-[14px] hover:bg-white/[0.08] border border-transparent hover:border-white/10 transition-all">
+                                class="group flex items-center gap-3.5 px-3 py-2.5 rounded-[14px] hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all">
                                 <div
-                                    class="w-8 h-8 rounded-[10px] bg-[#34C759]/15 flex items-center justify-center shrink-0">
-                                    <i data-lucide="message-square" class="w-4 h-4 text-[#34C759]"></i>
+                                    class="w-8 h-8 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.06] flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:border-[#34C759] group-hover:text-[#34C759] group-hover:bg-emerald-50/50 transition-all shrink-0">
+                                    <i data-lucide="message-square" class="w-4 h-4"></i>
                                 </div>
                                 <div>
                                     <span
-                                        class="text-sm xl:text-[14.5px] font-semibold text-white group-hover:text-[#34C759] transition-colors block">WhatsApp</span>
-                                    <span class="text-xs xl:text-[12px] text-slate-400 block">Broadcast &amp; multi-agent</span>
+                                        class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#34C759] transition-colors block">WhatsApp</span>
+                                    <span class="text-xs text-slate-500 dark:text-slate-400 block mt-0.5">Broadcast &amp; multi-agent</span>
                                 </div>
                             </a>
                             <a href="{{ route('public.omnichannel.marketplace') }}"
-                                class="group flex items-center gap-3 px-3 py-2.5 rounded-[14px] hover:bg-white/[0.08] border border-transparent hover:border-white/10 transition-all">
+                                class="group flex items-center gap-3.5 px-3 py-2.5 rounded-[14px] hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all">
                                 <div
-                                    class="w-8 h-8 rounded-[10px] bg-[#FF9500]/15 flex items-center justify-center shrink-0">
-                                    <i data-lucide="shopping-bag" class="w-4 h-4 text-[#FF9500]"></i>
+                                    class="w-8 h-8 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.06] flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:border-[#FF9500] group-hover:text-[#FF9500] group-hover:bg-amber-50/50 transition-all shrink-0">
+                                    <i data-lucide="shopping-bag" class="w-4 h-4"></i>
                                 </div>
                                 <div>
                                     <span
-                                        class="text-sm xl:text-[14.5px] font-semibold text-white group-hover:text-[#FF9500] transition-colors block">Marketplace
+                                        class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#FF9500] transition-colors block">Marketplace
                                         Hub</span>
-                                    <span class="text-xs xl:text-[12px] text-slate-400 block">Sinkronisasi stok</span>
+                                    <span class="text-xs text-slate-500 dark:text-slate-400 block mt-0.5">Sinkronisasi stok</span>
                                 </div>
                             </a>
                             <a href="{{ route('public.omnichannel.orders') }}"
-                                class="group flex items-center gap-3 px-3 py-2.5 rounded-[14px] hover:bg-white/[0.08] border border-transparent hover:border-white/10 transition-all">
+                                class="group flex items-center gap-3.5 px-3 py-2.5 rounded-[14px] hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all">
                                 <div
-                                    class="w-8 h-8 rounded-[10px] bg-[#00C2FF]/15 flex items-center justify-center shrink-0">
-                                    <i data-lucide="clipboard-list" class="w-4 h-4 text-[#00C2FF]"></i>
+                                    class="w-8 h-8 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.06] flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:border-[#007AFF] group-hover:text-[#007AFF] group-hover:bg-blue-50/50 transition-all shrink-0">
+                                    <i data-lucide="clipboard-list" class="w-4 h-4"></i>
                                 </div>
                                 <div>
                                     <span
-                                        class="text-sm xl:text-[14.5px] font-semibold text-white group-hover:text-[#00C2FF] transition-colors block">Central
+                                        class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#007AFF] transition-colors block">Central
                                         Orders</span>
-                                    <span class="text-xs xl:text-[12px] text-slate-400 block">Satu inbox pesanan</span>
+                                    <span class="text-xs text-slate-500 dark:text-slate-400 block mt-0.5">Satu inbox pesanan</span>
                                 </div>
                             </a>
                             <a href="{{ route('public.omnichannel.customer') }}"
-                                class="group flex items-center gap-3 px-3 py-2.5 rounded-[14px] hover:bg-white/[0.08] border border-transparent hover:border-white/10 transition-all">
+                                class="group flex items-center gap-3.5 px-3 py-2.5 rounded-[14px] hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all">
                                 <div
-                                    class="w-8 h-8 rounded-[10px] bg-[#5856D6]/15 flex items-center justify-center shrink-0">
-                                    <i data-lucide="user-check" class="w-4 h-4 text-[#5856D6]"></i>
+                                    class="w-8 h-8 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.06] flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:border-[#5856D6] group-hover:text-[#5856D6] group-hover:bg-indigo-50/50 transition-all shrink-0">
+                                    <i data-lucide="user-check" class="w-4 h-4"></i>
                                 </div>
                                 <div>
                                     <span
-                                        class="text-sm xl:text-[14.5px] font-semibold text-white group-hover:text-[#5856D6] transition-colors block">Customer
+                                        class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#5856D6] transition-colors block">Customer
                                         Portal</span>
-                                    <span class="text-xs xl:text-[12px] text-slate-400 block">Loyalty &amp; poin</span>
+                                    <span class="text-xs text-slate-500 dark:text-slate-400 block mt-0.5">Loyalty &amp; poin</span>
                                 </div>
                             </a>
                         </div>
@@ -632,60 +752,64 @@
                             <i data-lucide="chevron-down" class="w-3.5 h-3.5 xl:w-4 xl:h-4 transition-transform"
                                 :class="resourceDropdown ? 'rotate-180' : ''"></i>
                         </button>
-                        <div x-show="resourceDropdown" x-cloak x-transition:enter="transition ease-out duration-150"
-                            x-transition:enter-start="opacity-0 translate-y-1"
-                            x-transition:enter-end="opacity-100 translate-y-0"
+                        <div x-show="resourceDropdown" x-cloak 
+                            x-transition:enter="transition ease-out duration-150"
+                            x-transition:enter-start="opacity-0 translate-y-2 scale-[0.99]"
+                            x-transition:enter-end="opacity-100 translate-y-0 scale-100"
                             x-transition:leave="transition ease-in duration-100"
-                            x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
-                            style="background-color: #0B132B;"
-                            class="cooca-header-dropdown absolute top-full left-0 mt-2 w-68 xl:w-76 p-2.5 rounded-[20px] shadow-2xl space-y-1 z-50 text-white">
+                            x-transition:leave-start="opacity-100 translate-y-0 scale-100" 
+                            x-transition:leave-end="opacity-0 translate-y-2 scale-[0.99]"
+                            class="cooca-header-dropdown absolute top-full left-0 mt-3 w-76 xl:w-84 p-4 rounded-[22px] shadow-2xl space-y-2 z-50">
+                            <p class="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-400 px-2 pt-1 pb-1">
+                                Pusat Edukasi &amp; Panduan
+                            </p>
                             <a href="{{ route('blog.index') }}"
-                                class="group flex items-center gap-3 px-3 py-2.5 rounded-[14px] hover:bg-white/[0.08] border border-transparent hover:border-white/10 transition-all">
+                                class="group flex items-center gap-3.5 px-3 py-2.5 rounded-[14px] hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all">
                                 <div
-                                    class="w-8 h-8 rounded-[10px] bg-[#00C2FF]/15 flex items-center justify-center shrink-0">
-                                    <i data-lucide="book-open" class="w-4 h-4 text-[#00C2FF]"></i>
+                                    class="w-8 h-8 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.06] flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:border-[#007AFF] group-hover:text-[#007AFF] group-hover:bg-blue-50/50 transition-all shrink-0">
+                                    <i data-lucide="book-open" class="w-4 h-4"></i>
                                 </div>
                                 <div>
                                     <span
-                                        class="text-sm xl:text-[14.5px] font-semibold text-white group-hover:text-[#00C2FF] transition-colors block">Blog</span>
-                                    <span class="text-xs xl:text-[12px] text-slate-400 block">Artikel &amp; tips bisnis</span>
+                                        class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#007AFF] transition-colors block">Blog</span>
+                                    <span class="text-xs text-slate-500 dark:text-slate-400 block mt-0.5">Artikel &amp; tips bisnis</span>
                                 </div>
                             </a>
                             <a href="{{ route('public.resources.guides') }}"
-                                class="group flex items-center gap-3 px-3 py-2.5 rounded-[14px] hover:bg-white/[0.08] border border-transparent hover:border-white/10 transition-all">
+                                class="group flex items-center gap-3.5 px-3 py-2.5 rounded-[14px] hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all">
                                 <div
-                                    class="w-8 h-8 rounded-[10px] bg-[#34C759]/15 flex items-center justify-center shrink-0">
-                                    <i data-lucide="file-text" class="w-4 h-4 text-[#34C759]"></i>
+                                    class="w-8 h-8 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.06] flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:border-[#34C759] group-hover:text-[#34C759] group-hover:bg-emerald-50/50 transition-all shrink-0">
+                                    <i data-lucide="file-text" class="w-4 h-4"></i>
                                 </div>
                                 <div>
                                     <span
-                                        class="text-sm xl:text-[14.5px] font-semibold text-white group-hover:text-[#34C759] transition-colors block">Guides</span>
-                                    <span class="text-xs xl:text-[12px] text-slate-400 block">Panduan operasional</span>
+                                        class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#34C759] transition-colors block">Guides</span>
+                                    <span class="text-xs text-slate-500 dark:text-slate-400 block mt-0.5">Panduan operasional</span>
                                 </div>
                             </a>
                             <a href="{{ route('public.resources.case-studies') }}"
-                                class="group flex items-center gap-3 px-3 py-2.5 rounded-[14px] hover:bg-white/[0.08] border border-transparent hover:border-white/10 transition-all">
+                                class="group flex items-center gap-3.5 px-3 py-2.5 rounded-[14px] hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all">
                                 <div
-                                    class="w-8 h-8 rounded-[10px] bg-[#FF9500]/15 flex items-center justify-center shrink-0">
-                                    <i data-lucide="award" class="w-4 h-4 text-[#FF9500]"></i>
+                                    class="w-8 h-8 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.06] flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:border-[#FF9500] group-hover:text-[#FF9500] group-hover:bg-amber-50/50 transition-all shrink-0">
+                                    <i data-lucide="award" class="w-4 h-4"></i>
                                 </div>
                                 <div>
                                     <span
-                                        class="text-sm xl:text-[14.5px] font-semibold text-white group-hover:text-[#FF9500] transition-colors block">Case
+                                        class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#FF9500] transition-colors block">Case
                                         Studies</span>
-                                    <span class="text-xs xl:text-[12px] text-slate-400 block">Cerita sukses UMKM</span>
+                                    <span class="text-xs text-slate-500 dark:text-slate-400 block mt-0.5">Cerita sukses UMKM</span>
                                 </div>
                             </a>
                             <a href="{{ route('public.resources.faq') }}"
-                                class="group flex items-center gap-3 px-3 py-2.5 rounded-[14px] hover:bg-white/[0.08] border border-transparent hover:border-white/10 transition-all">
+                                class="group flex items-center gap-3.5 px-3 py-2.5 rounded-[14px] hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all">
                                 <div
-                                    class="w-8 h-8 rounded-[10px] bg-[#AF52DE]/15 flex items-center justify-center shrink-0">
-                                    <i data-lucide="help-circle" class="w-4 h-4 text-[#AF52DE]"></i>
+                                    class="w-8 h-8 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.06] flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:border-[#AF52DE] group-hover:text-[#AF52DE] group-hover:bg-purple-50/50 transition-all shrink-0">
+                                    <i data-lucide="help-circle" class="w-4 h-4"></i>
                                 </div>
                                 <div>
                                     <span
-                                        class="text-sm xl:text-[14.5px] font-semibold text-white group-hover:text-[#AF52DE] transition-colors block">FAQ</span>
-                                    <span class="text-xs xl:text-[12px] text-slate-400 block">Pertanyaan umum</span>
+                                        class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#AF52DE] transition-colors block">FAQ</span>
+                                    <span class="text-xs text-slate-500 dark:text-slate-400 block mt-0.5">Pertanyaan umum</span>
                                 </div>
                             </a>
                         </div>
@@ -719,37 +843,29 @@
                     <div class="hidden sm:flex items-center gap-3">
                         @if (auth('admin')->check())
                             <a href="{{ route('admin.dashboard') }}"
-                                class="px-5.5 py-2.5 rounded-full bg-[#00C2FF] hover:bg-[#00A3D7] text-slate-950 font-bold text-sm flex items-center gap-2 shadow-[0_0_20px_rgba(0,194,255,0.4)] min-h-[40px] xl:min-h-[42px] transition-all">
+                                class="group inline-flex items-center gap-2 px-5.5 py-2.5 rounded-[12px] xl:rounded-[14px] bg-gradient-to-r from-[#00C2FF] via-[#00A3FF] to-[#007AFF] text-white font-bold text-sm shadow-[0_4px_16px_rgba(0,194,255,0.35),inset_0_1px_0_rgba(255,255,255,0.35)] hover:shadow-[0_6px_24px_rgba(0,194,255,0.55),inset_0_1px_0_rgba(255,255,255,0.5)] hover:scale-[1.02] active:scale-[0.98] min-h-[42px] xl:min-h-[44px] transition-all">
                                 <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
                                 <span>Dashboard Admin</span>
                             </a>
                         @elseif (auth('web')->check())
                             <a href="{{ route('dashboard') }}"
-                                class="px-5.5 py-2.5 rounded-full bg-[#00C2FF] hover:bg-[#00A3D7] text-slate-950 font-bold text-sm flex items-center gap-2 shadow-[0_0_20px_rgba(0,194,255,0.4)] min-h-[40px] xl:min-h-[42px] transition-all">
+                                class="group inline-flex items-center gap-2 px-5.5 py-2.5 rounded-[12px] xl:rounded-[14px] bg-gradient-to-r from-[#00C2FF] via-[#00A3FF] to-[#007AFF] text-white font-bold text-sm shadow-[0_4px_16px_rgba(0,194,255,0.35),inset_0_1px_0_rgba(255,255,255,0.35)] hover:shadow-[0_6px_24px_rgba(0,194,255,0.55),inset_0_1px_0_rgba(255,255,255,0.5)] hover:scale-[1.02] active:scale-[0.98] min-h-[42px] xl:min-h-[44px] transition-all">
                                 <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
                                 <span>Ke Dashboard</span>
                             </a>
                         @else
                             <a href="{{ route('login') }}"
-                                class="px-3.5 py-2.5 text-sm font-semibold text-slate-200 hover:text-white transition-all min-h-[40px] flex items-center gap-1.5">
-                                <i data-lucide="user" class="w-4 h-4"></i>
+                                class="group px-3.5 py-2.5 text-sm font-semibold text-slate-200 hover:text-white hover:bg-white/10 rounded-[12px] transition-all min-h-[42px] flex items-center gap-1.5">
+                                <i data-lucide="user" class="w-4 h-4 text-slate-400 group-hover:text-white transition-colors"></i>
                                 <span>Login</span>
                             </a>
                             <a href="{{ route('register') }}"
-                                class="bg-[#00C2FF] hover:bg-[#00A3D7] text-slate-950 font-bold px-6 py-2.5 rounded-full text-sm transition-all shadow-[0_0_20px_rgba(0,194,255,0.4)] hover:shadow-[0_0_28px_rgba(0,194,255,0.6)] min-h-[40px] xl:min-h-[42px] flex items-center">
+                                class="group relative inline-flex items-center justify-center gap-2 px-6 xl:px-7 py-2.5 rounded-[12px] xl:rounded-[14px] bg-gradient-to-r from-[#00C2FF] via-[#00A3FF] to-[#007AFF] hover:from-[#1cd0ff] hover:to-[#006fe6] text-white font-bold text-sm xl:text-[14.5px] tracking-tight shadow-[0_4px_18px_rgba(0,194,255,0.4),inset_0_1px_0_rgba(255,255,255,0.4)] hover:shadow-[0_6px_28px_rgba(0,194,255,0.65),inset_0_1px_0_rgba(255,255,255,0.6)] hover:scale-[1.02] active:scale-[0.98] min-h-[42px] xl:min-h-[44px] transition-all">
                                 <span>Coba COOCA Gratis</span>
+                                <i data-lucide="arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-1"></i>
                             </a>
                         @endif
                     </div>
-
-                    <!-- Mobile Hamburger Button -->
-                    <button @click="mobileMenu = !mobileMenu"
-                        class="lg:hidden p-2 rounded-[12px] bg-white/10 text-white hover:bg-white/15 transition-colors min-w-[40px] min-h-[40px] flex items-center justify-center"
-                        aria-label="Open Mobile Navigation">
-                        <i :data-lucide="mobileMenu ? 'x' : 'menu'" class="w-5 h-5"></i>
-                    </button>
-                </div>
-            </div>
 
                     <!-- Mobile Hamburger Button -->
                     <button @click="mobileMenu = !mobileMenu"
@@ -914,13 +1030,14 @@
                 @else
                     <div class="pt-3 border-t border-white/10 grid grid-cols-2 gap-2">
                         <a href="{{ route('login') }}"
-                            class="py-2.5 rounded-full bg-white/10 text-center text-white font-semibold text-xs active:scale-95 hover:bg-white/15 transition-all flex items-center justify-center gap-1.5">
-                            <i data-lucide="user" class="w-3.5 h-3.5"></i>
+                            class="py-2.5 rounded-[12px] bg-white/10 text-center text-white font-semibold text-xs active:scale-95 hover:bg-white/15 transition-all flex items-center justify-center gap-1.5">
+                            <i data-lucide="user" class="w-3.5 h-3.5 text-slate-300"></i>
                             <span>Login</span>
                         </a>
                         <a href="{{ route('register') }}"
-                            class="py-2.5 rounded-full bg-[#00C2FF] hover:bg-[#00A3D7] text-center text-slate-950 font-bold text-xs shadow-[0_0_15px_rgba(0,194,255,0.35)] active:scale-95 transition-all flex items-center justify-center">
+                            class="group py-2.5 px-3 rounded-[12px] bg-gradient-to-r from-[#00C2FF] via-[#00A3FF] to-[#007AFF] text-center text-white font-bold text-xs shadow-[0_2px_12px_rgba(0,194,255,0.35)] active:scale-95 transition-all flex items-center justify-center gap-1.5">
                             <span>Coba COOCA Gratis</span>
+                            <i data-lucide="arrow-right" class="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5"></i>
                         </a>
                     </div>
                 @endif
