@@ -150,6 +150,11 @@
             darkMode: 'class',
             theme: {
                 extend: {
+                    maxWidth: {
+                        '7xl': '1440px',
+                        '8xl': '1536px',
+                        'screen-2xl': '1536px',
+                    },
                     fontFamily: {
                         sans: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro Text"', '"SF Pro Display"', '"Inter"',
                             'system-ui', 'sans-serif'
@@ -326,21 +331,21 @@
     @if (!($hideHeader ?? false))
         <header
             class="sticky top-0 z-50 backdrop-blur-2xl bg-[#060913]/95 text-white border-b border-white/10 transition-colors">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-18 flex items-center justify-between">
+            <div class="max-w-7xl 2xl:max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 h-16 sm:h-20 flex items-center justify-between">
 
                 <!-- Logo Cooca -->
                 <a href="{{ route('landing') }}" class="flex items-center gap-3 group shrink-0">
                     @if(!empty($siteLogoDarkUrl))
                         <img src="{{ $siteLogoDarkUrl }}" alt="{{ $siteAppName }}"
-                            class="h-7 sm:h-8 w-auto object-contain transition-transform group-hover:scale-105">
+                            class="h-7 sm:h-8 xl:h-9 w-auto object-contain transition-transform group-hover:scale-105">
                     @else
-                        <span class="font-black text-xl sm:text-2xl tracking-tighter text-white font-sans">COOCA</span>
+                        <span class="font-black text-xl sm:text-2xl xl:text-3xl tracking-tighter text-white font-sans">COOCA</span>
                     @endif
                 </a>
 
                 <!-- Desktop Nav Menu (Apple HIG Navigation Bar Style) -->
                 <nav
-                    class="hidden lg:flex items-center gap-1 xl:gap-1.5 text-[13px] font-medium text-slate-300">
+                    class="hidden lg:flex items-center gap-1.5 xl:gap-2.5 text-sm font-medium text-slate-300">
 
                     <!-- 1. Platform (Mega Dropdown) -->
                     <div class="relative"
