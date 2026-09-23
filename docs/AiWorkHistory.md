@@ -46,6 +46,61 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 #### 7. Documentation Promotion
 * Pengetahuan yang dipromosikan ke `docs/system/` dan dampaknya pada `docs/SYSTEM_GUIDE.md`.
 
+### [WORK-2026-09-23-110] Ekspansi Skala Container Layout & Pembesaran Proporsi Wide-Desktop Ekosistem COOCA
+* **Date:** 2026-09-23
+* **Status:** COMPLETED
+* **Module:** Public Marketing Layout, Landing Page, Container Sizing, Bento Apple HIG
+* **Feature:**
+  1. **Konfigurasi Ulang Max-Width Tailwind (`public_marketing.blade.php`):**
+     - Memperluas definisi `maxWidth.7xl` dari default Tailwind 1280px menjadi 1440px (standar MacBook Pro 15/16" & monitor desktop 1080p).
+     - Menambahkan breakpoint utilitas `8xl: 1536px` dan `screen-2xl: 1536px` untuk monitor desktop layar lebar (1920x1080, 2K/1440p, dan 4K).
+  2. **Ekspansi Container Header & Footer (`public_marketing.blade.php`):**
+     - Mengubah container navbar header menjadi `max-w-7xl 2xl:max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12` dengan ketinggian `h-16 sm:h-20` dan font navigasi `text-sm font-medium`.
+     - Mengubah container footer dan mobile dock menjadi `max-w-7xl 2xl:max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12`.
+  3. **Pembesaran Proporsi Hero Section & 3D Ecosystem Hub (`landing.blade.php`):**
+     - Container Hero diperluas menjadi `max-w-7xl 2xl:max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 gap-8 lg:gap-12 xl:gap-16`.
+     - Skala Interactive 3D Ecosystem Grid diperbesar dari `max-w-[620px]` menjadi `max-w-[680px] xl:max-w-[740px] 2xl:max-w-[800px]`, membuat seluruh SVG vector (Central COOCA box, 7 satellite nodes, efek cahaya kabel fiber optik) membesar secara proporsional dan tidak lagi tampak sempit/miniatur di layar besar.
+     - Headline dinaikkan skalanya menjadi `text-4xl sm:text-5xl lg:text-[3.5rem] 2xl:text-[4.25rem]`, dan body copy menjadi `text-sm sm:text-base lg:text-lg max-w-2xl`.
+  4. **Ekspansi Seluruh Section Landing Page (Section 2 - 8):**
+     - Memperbarui seluruh container Section 2 s/d 8 di `landing.blade.php` menggunakan `max-w-7xl 2xl:max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12`.
+     - Memperbesar grid 8 Bento Cards (Section 2) dengan `gap-6 xl:gap-8` dan tipografi yang lebih berwibawa.
+     - Memperbarui halaman pencarian Marketplace (`resources/views/public/marketplace/search.blade.php`) menggunakan `max-w-7xl 2xl:max-w-screen-2xl`.
+* **Work Type:** UI/UX | Bento Apple HIG | Responsive Design
+
+#### 1. Business Context & Objective
+* **Konteks:** Pada tampilan desktop widescreen (1920x1080 atau 1440p), pembatasan container pada `max-w-7xl` (1280px) menyebabkan lebih dari 33% area layar berupa ruang kosong hitam di sisi kiri dan kanan. Akibatnya, seluruh layout (header, diagram ekosistem 3D hero, dan kartu-kartu Bento) tampak terlalu kecil, terkumpul sempit di tengah, dan tidak memanfaatkan ruang layar secara optimal.
+* **Target:** Meningkatkan skala container dan komponen visual agar proporsional, lapang, dan megah di monitor widescreen tanpa merusak keterbacaan di layar laptop maupun mobile.
+
+#### 2. What Was Done
+* Mengonfigurasi `maxWidth` pada `tailwind.config` di `resources/views/layouts/public_marketing.blade.php`.
+* Memperbarui container header, footer, dan floating dock menjadi `max-w-7xl 2xl:max-w-screen-2xl` dengan padding `xl:px-12`.
+* Memperbesar skala wadah interactive ecosystem hub grid di `landing.blade.php` menjadi hingga `800px` dan menyeimbangkan proporsi tipografi hero.
+* Menyelaraskan seluruh section di `landing.blade.php` dan `marketplace/search.blade.php`.
+
+#### 3. Technical Changes
+* **Files Affected:**
+  - `resources/views/layouts/public_marketing.blade.php`
+  - `resources/views/landing.blade.php`
+  - `resources/views/public/marketplace/search.blade.php`
+* **Database Changes:** Tidak ada.
+* **API / Route Changes:** Tidak ada.
+
+#### 4. System Impacts
+* **Workflow Impact:** Tampilan visual website pada resolusi desktop widescreen menjadi jauh lebih impresif, luas, dan mudah dibaca tanpa mengubah logika bisnis apapun.
+* **Business Rule Impact:** Tidak ada.
+* **Permission Impact:** Publik.
+
+#### 5. Verification & Testing
+* `php artisan test --filter="LandingPageAuthTest|PublicPagesStructureTest|PublicMarketplaceSearchTest"` -> 17 tests passed (93 assertions).
+* `php artisan view:clear` -> Compiled views cleared.
+* Pengujian regex zero-emoji -> PASS (0 emoji terdeteksi).
+
+#### 6. Important Decisions & Guardrails
+* Menggunakan pendekatan fluida `max-w-7xl 2xl:max-w-screen-2xl` dengan perluasan `7xl: 1440px` sehingga perangkat laptop tetap mendapatkan padding yang nyaman dan perangkat desktop widescreen (1920px+) mendapatkan bentangan visual hingga 1536px.
+
+#### 7. Documentation Promotion
+* Dicatat dalam `docs/AiWorkHistory.md` [WORK-2026-09-23-110] dan `walkthrough.md`.
+
 ### [WORK-2026-09-23-109] Redesain UI Marketplace Search & Navigasi Filter Sidebar Ala Shopee & Tokopedia
 * **Date:** 2026-09-23
 * **Status:** COMPLETED
@@ -7129,4 +7184,35 @@ Business Owner / Merchant UMKM COOCA memerlukan satu pusat pengelolaan (*Single 
 * `SocialMediaFeatureTest`: **11 passed (43 assertions)**
 * `AdminSettingTest`: **15 passed (89 assertions)**
 * **Syntax checks (`php -l`): 100% Clean, No errors.**
+
+### [WORK-2026-09-23-111] Landing Page Hero & Section 4 Right Grid Component Swap
+* **Date:** 2026-09-23
+* **Status:** COMPLETED
+* **Module:** Public Marketing Landing Page
+* **Feature:** Hero Section & "Lebih dari Sekadar ERP" Right-Column Grid Component Interchange
+* **Work Type:** UI/UX | Refactoring | Layout Restructuring | Automated Testing
+
+#### 1. Business Context & Objective
+* **Konteks:** Menindaklanjuti penyempurnaan estetika dan komposisi halaman depan COOCA (`landing.blade.php`). Pengguna menginginkan visual **Realistic MacBook & iPhone Showcase with Floating AI Assistant Badge** dipindahkan ke **Hero Section** (sebelah kanan headline utama) untuk memberikan impresi dashboard SaaS ERP yang nyata, elegan, dan langsung terlihat di viewport pertama. Sementara itu, komponen **Interactive 3D Neon Ecosystem Hub Grid** (dengan kabel fiber-optik neon, hologram hub COOCA di tengah, dan 7 node interaktif) dipindahkan ke Section 4 ("Lebih dari Sekadar ERP") bersebelahan dengan 6 pilar fondasi bisnis (*Operate, Sell, Engage, Automate, Analyze, Decide*).
+* **Tujuan:**
+  1. Menukar komponen visual kanan pada Hero Section dengan visual kanan pada Section 4 secara presisi.
+  2. Memastikan seluruh interaksi Alpine.js (`activeNode`, hover state, SVG cable glow, AI Assistant sparkles badge, POS Mobile iPhone) tetap berfungsi 100% mulus.
+  3. Mempertahankan Zero-Emoji policy dan Bento Apple HIG design standards.
+  4. Menjamin 100% test suite tetap hijau dan lulus tanpa regresi.
+
+#### 2. What Was Done
+1. **Hero Section (Right Column) Transformation:**
+   - Memindahkan *Realistic MacBook & iPhone Showcase with Floating AI Assistant Badge* ke kolom kanan Hero Section (`lg:col-span-6 relative pb-8 lg:pb-0`).
+   - MacBook mockup menampilkan dashboard live metric (Penjualan Bulan Ini, Total Transaksi, Stok Kritis, Bar Chart Tren Penjualan Real-Time Multi-Channel), iPhone mockup POS Mobile floating di pojok kanan bawah, dan kartu floating AI Assistant di pojok kiri bawah.
+2. **Section 4 "Lebih dari Sekadar ERP" (Right Column) Transformation:**
+   - Memindahkan *Interactive 3D Neon Ecosystem Hub Grid* ke kolom kanan Section 4 (`lg:col-span-7 relative flex items-center justify-center w-full overflow-visible`, `x-data="{ activeNode: null }"`).
+   - Menghubungkan secara visual 6 pilar bisnis di kolom kiri (`lg:col-span-5`) dengan ekosistem digital 7 node terpadu di kolom kanan (Operasional, POS, Website, Content Automation, Social Media, WhatsApp, Customer).
+3. **Markup & Tag Balancing Verification:**
+   - Seluruh tag pembuka dan penutup `<div>` terverifikasi seimbang (228 opening vs 228 closing).
+   - Blade template parsing dan kompilasi berhasil tanpa error.
+   - Pindai bebas Unicode emoji (Zero-Emoji Policy terpenuhi).
+
+#### 3. Verification & Testing
+* `php artisan view:clear`: Sukses
+* `php artisan test --filter="LandingPageAuthTest|PublicPagesStructureTest|PublicMarketplaceSearchTest"`: **17 passed (93 assertions)**
 

@@ -114,7 +114,7 @@
 @section('content')
     <div class="relative overflow-hidden w-full font-sans">
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
-        <!-- ═══ 1. HERO SECTION (Dark Isometric Neon Ecosystem Hub) ═══ -->
+        <!-- ═══ 1. HERO SECTION (Realistic MacBook & iPhone Showcase) ═══ -->
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
         <section class="relative bg-[#060913] text-white pt-10 pb-16 lg:pt-16 lg:pb-24 overflow-hidden">
             <!-- Ambient Radial Glows -->
@@ -211,8 +211,585 @@
                     </div>
                 </div>
 
-                <!-- Right Column: Interactive 3D Neon Ecosystem Hub Grid (Span 7) -->
-                <div class="lg:col-span-6 relative flex items-center justify-center w-full overflow-visible"
+                <!-- Right Column: Realistic MacBook & iPhone Showcase -->
+                    <div class="lg:col-span-6 relative pb-8 lg:pb-0">
+                        <div class="relative w-full max-w-lg mx-auto lg:max-w-none">
+
+                            <!-- Laptop Body Mockup -->
+                            <div
+                                class="relative rounded-2xl bg-slate-900 border border-slate-700 shadow-[0_20px_50px_rgba(0,0,0,0.6)] overflow-hidden p-2 sm:p-3">
+                                <!-- Laptop Header Bar -->
+                                <div
+                                    class="h-6 bg-slate-800 rounded-t-lg flex items-center px-3 gap-1.5 border-b border-slate-700">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
+                                    <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+                                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                                    <span class="text-[10px] text-slate-400 ml-2 font-mono">cooca.id/app/dashboard</span>
+                                </div>
+
+                                <!-- Laptop Screen Content (COOCA UI) -->
+                                <div class="bg-white text-slate-900 p-4 rounded-b-lg font-sans">
+                                    <!-- Top Stats -->
+                                    <div class="grid grid-cols-3 gap-3 mb-4">
+                                        <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
+                                            <div class="text-[10px] text-slate-500">Penjualan Bulan Ini</div>
+                                            <div class="text-sm font-extrabold text-slate-900 mt-0.5">Rp 48.250.000</div>
+                                            <div class="text-[9px] text-emerald-600 font-semibold mt-0.5">+18.4% vs lalu
+                                            </div>
+                                        </div>
+                                        <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
+                                            <div class="text-[10px] text-slate-500">Total Transaksi</div>
+                                            <div class="text-sm font-extrabold text-slate-900 mt-0.5">1.420 Order</div>
+                                            <div class="text-[9px] text-emerald-600 font-semibold mt-0.5">+12.1% kasir
+                                            </div>
+                                        </div>
+                                        <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
+                                            <div class="text-[10px] text-slate-500">Stok Kritis</div>
+                                            <div class="text-sm font-extrabold text-amber-600 mt-0.5">3 Barang</div>
+                                            <div class="text-[9px] text-slate-400 mt-0.5">Auto Restock on</div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Revenue Growth Bar Chart / Wave Simulation -->
+                                    <div class="p-3 rounded-xl bg-slate-50 border border-slate-100">
+                                        <div class="flex items-center justify-between text-xs mb-2">
+                                            <span class="font-bold text-slate-800">Tren Penjualan Multi-Channel</span>
+                                            <span class="text-[10px] text-[#00C2FF] font-semibold">Real-Time Sync</span>
+                                        </div>
+                                        <div class="h-24 flex items-end gap-2 pt-2">
+                                            <div class="w-full bg-sky-200 rounded-t h-[45%]"></div>
+                                            <div class="w-full bg-sky-300 rounded-t h-[60%]"></div>
+                                            <div class="w-full bg-sky-400 rounded-t h-[50%]"></div>
+                                            <div class="w-full bg-[#00C2FF] rounded-t h-[80%]"></div>
+                                            <div class="w-full bg-sky-300 rounded-t h-[65%]"></div>
+                                            <div class="w-full bg-[#00C2FF] rounded-t h-[95%]"></div>
+                                            <div
+                                                class="w-full bg-blue-600 rounded-t h-[100%] shadow-[0_0_10px_rgba(0,194,255,0.4)]">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- iPhone Mockup Floating Right -->
+                            <div
+                                class="absolute -right-4 -bottom-6 w-36 sm:w-44 rounded-[28px] bg-slate-950 p-2 border-2 border-slate-700 shadow-2xl hidden xs:block">
+                                <div class="rounded-[22px] bg-white text-slate-900 p-2.5 text-center">
+                                    <div class="w-8 h-1 bg-slate-800 rounded-full mx-auto mb-2"></div>
+                                    <div class="text-[9px] font-bold text-slate-500 uppercase">POS Mobile</div>
+                                    <div class="text-xs font-black text-slate-900 mt-1">Rp 1.850.000</div>
+                                    <div class="mt-2 space-y-1 text-[9px] text-left text-slate-600">
+                                        <div class="flex justify-between py-0.5 border-b border-slate-100">
+                                            <span>Order #1029</span>
+                                            <span class="text-emerald-600 font-bold">Lunas</span>
+                                        </div>
+                                        <div class="flex justify-between py-0.5 border-b border-slate-100">
+                                            <span>Order #1028</span>
+                                            <span class="text-emerald-600 font-bold">Lunas</span>
+                                        </div>
+                                    </div>
+                                    <div class="mt-2.5 py-1 px-2 rounded-lg bg-[#00C2FF] text-white text-[9px] font-bold">
+                                        Scan QRIS Kasir
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Floating AI Assistant Badge (Bottom Left) -->
+                            <div
+                                class="absolute -bottom-5 left-4 z-20 p-3.5 rounded-2xl bg-[#0b1633]/95 backdrop-blur-xl border border-cyan-400/40 shadow-[0_10px_30px_rgba(0,194,255,0.35)] flex items-center gap-3 max-w-xs">
+                                <div
+                                    class="w-8 h-8 rounded-xl bg-[#00C2FF] text-slate-950 flex items-center justify-center shrink-0 shadow-[0_0_15px_rgba(0,194,255,0.6)]">
+                                    <i data-lucide="sparkles" class="w-4 h-4"></i>
+                                </div>
+                                <div>
+                                    <span class="text-xs font-bold text-cyan-300 block">AI Assistant</span>
+                                    <p class="text-[11px] text-slate-200 leading-snug">
+                                        Ringkasan penjualan hari ini meningkat 24% dibanding kemarin.
+                                    </p>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+            </div>
+        </section>
+
+
+        <!-- ══════════════════════════════════════════════════════════════════════════ -->
+        <!-- ═══ 2. FEATURE GRID ("Semua yang Anda Butuhkan...") ═══ -->
+        <!-- ══════════════════════════════════════════════════════════════════════════ -->
+        <section
+            class="bg-white dark:bg-[#070A14] py-20 lg:py-24 border-b border-slate-100 dark:border-white/5 transition-colors">
+            <div class="max-w-7xl 2xl:max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12">
+
+                <!-- Section Header -->
+                <div class="text-center max-w-4xl mx-auto space-y-3">
+                    <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+                        Semua yang Anda Butuhkan. Terhubung dalam Satu Sistem.
+                    </h2>
+                    <p class="text-slate-600 dark:text-slate-400 text-sm sm:text-base lg:text-lg leading-relaxed">
+                        Bisnis tidak berjalan dalam satu aplikasi. COOCA menghubungkan semua proses bisnis Anda, dari
+                        operasional hingga pemasaran, dalam satu ekosistem yang terintegrasi.
+                    </p>
+                </div>
+
+                <!-- 8 Bento Squircle Cards -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 xl:gap-8 mt-14">
+
+                    <!-- 1. Sales -->
+                    <a href="{{ route('public.erp.pos') }}"
+                        class="group block p-6 rounded-3xl bg-white dark:bg-[#101726] border border-slate-100 dark:border-white/5 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_30px_rgba(0,194,255,0.12)] hover:-translate-y-1 transition-all duration-300">
+                        <div
+                            class="w-12 h-12 rounded-2xl bg-sky-50 dark:bg-sky-950/60 border border-sky-100 dark:border-sky-800/40 text-sky-500 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                            <i data-lucide="shopping-cart" class="w-6 h-6"></i>
+                        </div>
+                        <h3
+                            class="text-base font-bold text-slate-900 dark:text-white mb-1.5 flex items-center justify-between">
+                            <span>Sales</span>
+                            <i data-lucide="arrow-right"
+                                class="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-[#00C2FF]"></i>
+                        </h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                            Kelola POS, order, quotation, invoice, dan penjualan.
+                        </p>
+                    </a>
+
+                    <!-- 2. Inventory -->
+                    <a href="{{ route('public.erp.inventory') }}"
+                        class="group block p-6 rounded-3xl bg-white dark:bg-[#101726] border border-slate-100 dark:border-white/5 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_30px_rgba(0,194,255,0.12)] hover:-translate-y-1 transition-all duration-300">
+                        <div
+                            class="w-12 h-12 rounded-2xl bg-purple-50 dark:bg-purple-950/60 border border-purple-100 dark:border-purple-800/40 text-purple-500 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                            <i data-lucide="layers" class="w-6 h-6"></i>
+                        </div>
+                        <h3
+                            class="text-base font-bold text-slate-900 dark:text-white mb-1.5 flex items-center justify-between">
+                            <span>Inventory</span>
+                            <i data-lucide="arrow-right"
+                                class="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-[#00C2FF]"></i>
+                        </h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                            Pantau stok, warehouse, mutasi, hingga purchasing.
+                        </p>
+                    </a>
+
+                    <!-- 3. Finance -->
+                    <a href="{{ route('public.erp.finance') }}"
+                        class="group block p-6 rounded-3xl bg-white dark:bg-[#101726] border border-slate-100 dark:border-white/5 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_30px_rgba(0,194,255,0.12)] hover:-translate-y-1 transition-all duration-300">
+                        <div
+                            class="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-950/60 border border-blue-100 dark:border-blue-800/40 text-blue-500 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                            <i data-lucide="wallet" class="w-6 h-6"></i>
+                        </div>
+                        <h3
+                            class="text-base font-bold text-slate-900 dark:text-white mb-1.5 flex items-center justify-between">
+                            <span>Finance</span>
+                            <i data-lucide="arrow-right"
+                                class="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-[#00C2FF]"></i>
+                        </h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                            Kelola transaksi dan keuangan bisnis Anda.
+                        </p>
+                    </a>
+
+                    <!-- 4. Customer -->
+                    <a href="{{ route('public.omnichannel.customer') }}"
+                        class="group block p-6 rounded-3xl bg-white dark:bg-[#101726] border border-slate-100 dark:border-white/5 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_30px_rgba(0,194,255,0.12)] hover:-translate-y-1 transition-all duration-300">
+                        <div
+                            class="w-12 h-12 rounded-2xl bg-cyan-50 dark:bg-cyan-950/60 border border-cyan-100 dark:border-cyan-800/40 text-cyan-500 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                            <i data-lucide="users" class="w-6 h-6"></i>
+                        </div>
+                        <h3
+                            class="text-base font-bold text-slate-900 dark:text-white mb-1.5 flex items-center justify-between">
+                            <span>Customer</span>
+                            <i data-lucide="arrow-right"
+                                class="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-[#00C2FF]"></i>
+                        </h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                            Kelola customer, relationship, dan riwayat transaksi.
+                        </p>
+                    </a>
+
+                    <!-- 5. Social Media -->
+                    <a href="{{ route('public.omnichannel.social-media') }}"
+                        class="group block p-6 rounded-3xl bg-white dark:bg-[#101726] border border-slate-100 dark:border-white/5 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_30px_rgba(0,194,255,0.12)] hover:-translate-y-1 transition-all duration-300">
+                        <div
+                            class="w-12 h-12 rounded-2xl bg-pink-50 dark:bg-pink-950/60 border border-pink-100 dark:border-pink-800/40 flex items-center justify-center gap-1.5 mb-4 group-hover:scale-110 transition-transform">
+                            <span
+                                class="w-4 h-4 rounded-[4px] bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] flex items-center justify-center text-white shrink-0 shadow-xs">
+                                <svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2.5">
+                                    <rect x="2" y="2" width="20" height="20" rx="5"></rect>
+                                    <circle cx="12" cy="12" r="3.5"></circle>
+                                </svg>
+                            </span>
+                            <span
+                                class="w-4 h-4 rounded-[4px] bg-[#1877F2] flex items-center justify-center text-white shrink-0 shadow-xs">
+                                <svg class="w-2.5 h-2.5 fill-current" viewBox="0 0 24 24">
+                                    <path
+                                        d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                                </svg>
+                            </span>
+                        </div>
+                        <h3
+                            class="text-base font-bold text-slate-900 dark:text-white mb-1.5 flex items-center justify-between">
+                            <span>Social Media</span>
+                            <i data-lucide="arrow-right"
+                                class="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-[#00C2FF]"></i>
+                        </h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                            Hubungkan akun social media dan kelola konten.
+                        </p>
+                    </a>
+
+                    <!-- 6. Content Automation -->
+                    <a href="{{ route('public.content.creation') }}"
+                        class="group block p-6 rounded-3xl bg-white dark:bg-[#101726] border border-slate-100 dark:border-white/5 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_30px_rgba(0,194,255,0.12)] hover:-translate-y-1 transition-all duration-300">
+                        <div
+                            class="w-12 h-12 rounded-2xl bg-fuchsia-50 dark:bg-fuchsia-950/60 border border-fuchsia-100 dark:border-fuchsia-800/40 text-fuchsia-500 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                            <i data-lucide="megaphone" class="w-6 h-6"></i>
+                        </div>
+                        <h3
+                            class="text-base font-bold text-slate-900 dark:text-white mb-1.5 flex items-center justify-between">
+                            <span>Content Automation</span>
+                            <i data-lucide="arrow-right"
+                                class="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-[#00C2FF]"></i>
+                        </h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                            Plan, schedule, publish, dan monitor konten.
+                        </p>
+                    </a>
+
+                    <!-- 7. Marketplace -->
+                    <a href="{{ route('marketplace.index') }}"
+                        class="group block p-6 rounded-3xl bg-white dark:bg-[#101726] border border-slate-100 dark:border-white/5 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_30px_rgba(0,194,255,0.12)] hover:-translate-y-1 transition-all duration-300">
+                        <div
+                            class="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-100 dark:border-indigo-800/40 text-indigo-500 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                            <i data-lucide="store" class="w-6 h-6"></i>
+                        </div>
+                        <h3
+                            class="text-base font-bold text-slate-900 dark:text-white mb-1.5 flex items-center justify-between">
+                            <span>Marketplace</span>
+                            <i data-lucide="arrow-right"
+                                class="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-[#00C2FF]"></i>
+                        </h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                            Tingkatkan penjualan melalui berbagai marketplace.
+                        </p>
+                    </a>
+
+                    <!-- 8. Analytics & AI -->
+                    <a href="{{ route('public.erp.analytics') }}"
+                        class="group block p-6 rounded-3xl bg-white dark:bg-[#101726] border border-slate-100 dark:border-white/5 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_30px_rgba(0,194,255,0.12)] hover:-translate-y-1 transition-all duration-300">
+                        <div
+                            class="w-12 h-12 rounded-2xl bg-violet-50 dark:bg-violet-950/60 border border-violet-100 dark:border-violet-800/40 text-violet-500 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                            <i data-lucide="trending-up" class="w-6 h-6"></i>
+                        </div>
+                        <h3
+                            class="text-base font-bold text-slate-900 dark:text-white mb-1.5 flex items-center justify-between">
+                            <span>Analytics &amp; AI</span>
+                            <i data-lucide="arrow-right"
+                                class="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-[#00C2FF]"></i>
+                        </h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                            Ubah data menjadi insight untuk keputusan lebih baik.
+                        </p>
+                    </a>
+
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ══════════════════════════════════════════════════════════════════════════ -->
+        <!-- ═══ 3. INTEGRATED WORKFLOW ("Your Business, Connected End-to-End") ═══ -->
+        <!-- ══════════════════════════════════════════════════════════════════════════ -->
+        <section
+            class="bg-[#F8FAFC] dark:bg-[#070B18] py-20 lg:py-24 border-b border-slate-100 dark:border-white/5 transition-colors">
+            <div class="max-w-7xl 2xl:max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+
+                    <!-- Left Column -->
+                    <div class="lg:col-span-4 space-y-5 text-center lg:text-left">
+                        <div
+                            class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-sky-100 dark:bg-sky-950/60 border border-sky-200 dark:border-sky-800/40 text-sky-700 dark:text-sky-300 text-xs font-semibold">
+                            <span>Integrated Workflow</span>
+                        </div>
+
+                        <h2
+                            class="text-3xl sm:text-3.5xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-tight">
+                            Your Business,<br class="hidden sm:inline"> Connected End-to-End
+                        </h2>
+
+                        <p
+                            class="text-slate-600 dark:text-slate-400 text-sm sm:text-base leading-relaxed max-w-md mx-auto lg:mx-0">
+                            Dari perolehan pelanggan hingga transaksi bisnis, semuanya saling terhubung dalam satu sistem.
+                        </p>
+
+                        <div>
+                            <a href="{{ route('public.bos.how-it-works') }}"
+                                class="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#00C2FF] hover:bg-[#00B4D8] text-white font-bold text-xs sm:text-sm shadow-[0_0_20px_rgba(0,194,255,0.4)] hover:scale-105 active:scale-95 transition-all">
+                                <span>Lihat Alur Lengkap</span>
+                                <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Connected Node Workflow -->
+                    <div class="lg:col-span-8 overflow-x-auto pb-4 lg:pb-0">
+                        <div class="min-w-[540px] space-y-6">
+
+                            <!-- Row 1: Acquisition to POS & Inventory -->
+                            <div
+                                class="flex items-center justify-between gap-2 p-4 rounded-3xl bg-white dark:bg-[#101726] border border-slate-200/80 dark:border-white/5 shadow-sm">
+                                <!-- Node 1: Social Media -->
+                                <div class="flex flex-col items-center text-center">
+                                    <div
+                                        class="w-10 h-10 rounded-xl bg-purple-500 text-white flex items-center justify-center shadow-md">
+                                        <i data-lucide="share-2" class="w-5 h-5"></i>
+                                    </div>
+                                    <span class="text-[10px] font-semibold text-slate-700 dark:text-slate-300 mt-2">Social
+                                        Media</span>
+                                </div>
+
+                                <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
+
+                                <!-- Node 2: Content -->
+                                <div class="flex flex-col items-center text-center">
+                                    <div
+                                        class="w-10 h-10 rounded-xl bg-blue-500 text-white flex items-center justify-center shadow-md">
+                                        <i data-lucide="send" class="w-5 h-5"></i>
+                                    </div>
+                                    <span
+                                        class="text-[10px] font-semibold text-slate-700 dark:text-slate-300 mt-2">Content</span>
+                                </div>
+
+                                <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
+
+                                <!-- Node 3: Customer -->
+                                <div class="flex flex-col items-center text-center">
+                                    <div
+                                        class="w-10 h-10 rounded-xl bg-cyan-500 text-white flex items-center justify-center shadow-md">
+                                        <i data-lucide="users" class="w-5 h-5"></i>
+                                    </div>
+                                    <span
+                                        class="text-[10px] font-semibold text-slate-700 dark:text-slate-300 mt-2">Customer</span>
+                                </div>
+
+                                <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
+
+                                <!-- Node 4: Chat / Order -->
+                                <div class="flex flex-col items-center text-center">
+                                    <div
+                                        class="w-10 h-10 rounded-xl bg-emerald-500 text-white flex items-center justify-center shadow-md">
+                                        <i data-lucide="message-square" class="w-5 h-5"></i>
+                                    </div>
+                                    <span class="text-[10px] font-semibold text-slate-700 dark:text-slate-300 mt-2">Chat /
+                                        Order</span>
+                                </div>
+
+                                <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
+
+                                <!-- Node 5: Kasir / POS -->
+                                <div class="flex flex-col items-center text-center">
+                                    <div
+                                        class="w-10 h-10 rounded-xl bg-rose-500 text-white flex items-center justify-center shadow-md">
+                                        <i data-lucide="shopping-bag" class="w-5 h-5"></i>
+                                    </div>
+                                    <span class="text-[10px] font-semibold text-slate-700 dark:text-slate-300 mt-2">Kasir /
+                                        POS</span>
+                                </div>
+
+                                <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
+
+                                <!-- Node 6: Inventory -->
+                                <div class="flex flex-col items-center text-center">
+                                    <div
+                                        class="w-10 h-10 rounded-xl bg-teal-500 text-white flex items-center justify-center shadow-md">
+                                        <i data-lucide="boxes" class="w-5 h-5"></i>
+                                    </div>
+                                    <span
+                                        class="text-[10px] font-semibold text-slate-700 dark:text-slate-300 mt-2">Inventory</span>
+                                </div>
+                            </div>
+
+                            <!-- Row 2: Production to Analytics (Connecting back) -->
+                            <div
+                                class="flex items-center justify-between gap-2 p-4 rounded-3xl bg-white dark:bg-[#101726] border border-slate-200/80 dark:border-white/5 shadow-sm">
+                                <!-- Node 7: Analytics -->
+                                <div class="flex flex-col items-center text-center">
+                                    <div
+                                        class="w-10 h-10 rounded-xl bg-purple-600 text-white flex items-center justify-center shadow-md">
+                                        <i data-lucide="bar-chart-2" class="w-5 h-5"></i>
+                                    </div>
+                                    <span
+                                        class="text-[10px] font-semibold text-slate-700 dark:text-slate-300 mt-2">Analytics</span>
+                                </div>
+
+                                <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
+
+                                <!-- Node 8: Accounting -->
+                                <div class="flex flex-col items-center text-center">
+                                    <div
+                                        class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center shadow-md">
+                                        <i data-lucide="book-marked" class="w-5 h-5"></i>
+                                    </div>
+                                    <span
+                                        class="text-[10px] font-semibold text-slate-700 dark:text-slate-300 mt-2">Accounting</span>
+                                </div>
+
+                                <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
+
+                                <!-- Node 9: Finance -->
+                                <div class="flex flex-col items-center text-center">
+                                    <div
+                                        class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-md">
+                                        <i data-lucide="coins" class="w-5 h-5"></i>
+                                    </div>
+                                    <span
+                                        class="text-[10px] font-semibold text-slate-700 dark:text-slate-300 mt-2">Finance</span>
+                                </div>
+
+                                <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
+
+                                <!-- Node 10: Purchasing -->
+                                <div class="flex flex-col items-center text-center">
+                                    <div
+                                        class="w-10 h-10 rounded-xl bg-indigo-500 text-white flex items-center justify-center shadow-md">
+                                        <i data-lucide="shopping-cart" class="w-5 h-5"></i>
+                                    </div>
+                                    <span
+                                        class="text-[10px] font-semibold text-slate-700 dark:text-slate-300 mt-2">Purchasing</span>
+                                </div>
+
+                                <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
+
+                                <!-- Node 11: Production -->
+                                <div class="flex flex-col items-center text-center">
+                                    <div
+                                        class="w-10 h-10 rounded-xl bg-blue-500 text-white flex items-center justify-center shadow-md">
+                                        <i data-lucide="factory" class="w-5 h-5"></i>
+                                    </div>
+                                    <span
+                                        class="text-[10px] font-semibold text-slate-700 dark:text-slate-300 mt-2">Production</span>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ══════════════════════════════════════════════════════════════════════════ -->
+        <!-- ═══ 4. "LEBIH DARI SEKADAR ERP" (Dark Section with Interactive Ecosystem Hub) ═══ -->
+        <!-- ══════════════════════════════════════════════════════════════════════════ -->
+        <section class="relative bg-[#080D1E] text-white py-20 lg:py-28 overflow-hidden">
+            <!-- Ambient lighting -->
+            <div
+                class="absolute top-1/2 left-1/3 w-96 h-96 bg-[#00C2FF]/10 rounded-full blur-[130px] pointer-events-none -z-0">
+            </div>
+
+            <div class="max-w-7xl 2xl:max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 relative z-10">
+
+                <!-- Section Heading -->
+                <div class="space-y-3 mb-14 text-center lg:text-left">
+                    <div
+                        class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-cyan-950/60 border border-cyan-400/30 text-cyan-300 text-xs font-semibold">
+                        <span>Business Operating System</span>
+                    </div>
+                    <h2 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+                        Lebih dari Sekadar ERP
+                    </h2>
+                    <p class="text-slate-400 text-sm sm:text-base max-w-2xl leading-relaxed mx-auto lg:mx-0">
+                        COOCA adalah Business Operating System yang membantu Anda mengelola, menghubungkan, dan
+                        mengembangkan bisnis.
+                    </p>
+                </div>
+
+                <!-- Content Grid: 6 Pillars (Left) & Interactive Ecosystem Hub (Right) -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+
+                    <!-- Left: 6 Pillars (2x3 Grid) -->
+                    <div class="lg:col-span-5 grid grid-cols-2 gap-6">
+
+                        <!-- 1. Operate -->
+                        <div class="space-y-2">
+                            <div
+                                class="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-[#00C2FF]">
+                                <i data-lucide="gauge" class="w-5 h-5"></i>
+                            </div>
+                            <h4 class="text-sm font-bold text-white">Operate</h4>
+                            <p class="text-xs text-slate-400 leading-relaxed">
+                                Kelola operasional bisnis sehari-hari.
+                            </p>
+                        </div>
+
+                        <!-- 2. Sell -->
+                        <div class="space-y-2">
+                            <div
+                                class="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-[#00C2FF]">
+                                <i data-lucide="tag" class="w-5 h-5"></i>
+                            </div>
+                            <h4 class="text-sm font-bold text-white">Sell</h4>
+                            <p class="text-xs text-slate-400 leading-relaxed">
+                                Kelola penjualan dari berbagai channel.
+                            </p>
+                        </div>
+
+                        <!-- 3. Engage -->
+                        <div class="space-y-2">
+                            <div
+                                class="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-[#00C2FF]">
+                                <i data-lucide="message-square" class="w-5 h-5"></i>
+                            </div>
+                            <h4 class="text-sm font-bold text-white">Engage</h4>
+                            <p class="text-xs text-slate-400 leading-relaxed">
+                                Bangun hubungan dengan customer.
+                            </p>
+                        </div>
+
+                        <!-- 4. Automate -->
+                        <div class="space-y-2">
+                            <div
+                                class="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-[#00C2FF]">
+                                <i data-lucide="zap" class="w-5 h-5"></i>
+                            </div>
+                            <h4 class="text-sm font-bold text-white">Automate</h4>
+                            <p class="text-xs text-slate-400 leading-relaxed">
+                                Kurangi pekerjaan manual dengan automation.
+                            </p>
+                        </div>
+
+                        <!-- 5. Analyze -->
+                        <div class="space-y-2">
+                            <div
+                                class="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-[#00C2FF]">
+                                <i data-lucide="line-chart" class="w-5 h-5"></i>
+                            </div>
+                            <h4 class="text-sm font-bold text-white">Analyze</h4>
+                            <p class="text-xs text-slate-400 leading-relaxed">
+                                Pahami bisnis melalui data dan analytics.
+                            </p>
+                        </div>
+
+                        <!-- 6. Decide -->
+                        <div class="space-y-2">
+                            <div
+                                class="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-[#00C2FF]">
+                                <i data-lucide="compass" class="w-5 h-5"></i>
+                            </div>
+                            <h4 class="text-sm font-bold text-white">Decide</h4>
+                            <p class="text-xs text-slate-400 leading-relaxed">
+                                Ambil keputusan lebih tepat dan cepat.
+                            </p>
+                        </div>
+
+                    </div>
+
+                    <!-- Right Column: Interactive 3D Neon Ecosystem Hub Grid -->
+                <div class="lg:col-span-7 relative flex items-center justify-center w-full overflow-visible"
                     x-data="{ activeNode: null }">
                     <div
                         class="relative w-full max-w-[680px] xl:max-w-[740px] 2xl:max-w-[800px] aspect-[620/460] select-none mx-auto flex items-center justify-center">
@@ -609,583 +1186,6 @@
 
                     </div>
                 </div>
-
-            </div>
-        </section>
-
-
-        <!-- ══════════════════════════════════════════════════════════════════════════ -->
-        <!-- ═══ 2. FEATURE GRID ("Semua yang Anda Butuhkan...") ═══ -->
-        <!-- ══════════════════════════════════════════════════════════════════════════ -->
-        <section
-            class="bg-white dark:bg-[#070A14] py-20 lg:py-24 border-b border-slate-100 dark:border-white/5 transition-colors">
-            <div class="max-w-7xl 2xl:max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12">
-
-                <!-- Section Header -->
-                <div class="text-center max-w-4xl mx-auto space-y-3">
-                    <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-                        Semua yang Anda Butuhkan. Terhubung dalam Satu Sistem.
-                    </h2>
-                    <p class="text-slate-600 dark:text-slate-400 text-sm sm:text-base lg:text-lg leading-relaxed">
-                        Bisnis tidak berjalan dalam satu aplikasi. COOCA menghubungkan semua proses bisnis Anda, dari
-                        operasional hingga pemasaran, dalam satu ekosistem yang terintegrasi.
-                    </p>
-                </div>
-
-                <!-- 8 Bento Squircle Cards -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 xl:gap-8 mt-14">
-
-                    <!-- 1. Sales -->
-                    <a href="{{ route('public.erp.pos') }}"
-                        class="group block p-6 rounded-3xl bg-white dark:bg-[#101726] border border-slate-100 dark:border-white/5 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_30px_rgba(0,194,255,0.12)] hover:-translate-y-1 transition-all duration-300">
-                        <div
-                            class="w-12 h-12 rounded-2xl bg-sky-50 dark:bg-sky-950/60 border border-sky-100 dark:border-sky-800/40 text-sky-500 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                            <i data-lucide="shopping-cart" class="w-6 h-6"></i>
-                        </div>
-                        <h3
-                            class="text-base font-bold text-slate-900 dark:text-white mb-1.5 flex items-center justify-between">
-                            <span>Sales</span>
-                            <i data-lucide="arrow-right"
-                                class="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-[#00C2FF]"></i>
-                        </h3>
-                        <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                            Kelola POS, order, quotation, invoice, dan penjualan.
-                        </p>
-                    </a>
-
-                    <!-- 2. Inventory -->
-                    <a href="{{ route('public.erp.inventory') }}"
-                        class="group block p-6 rounded-3xl bg-white dark:bg-[#101726] border border-slate-100 dark:border-white/5 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_30px_rgba(0,194,255,0.12)] hover:-translate-y-1 transition-all duration-300">
-                        <div
-                            class="w-12 h-12 rounded-2xl bg-purple-50 dark:bg-purple-950/60 border border-purple-100 dark:border-purple-800/40 text-purple-500 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                            <i data-lucide="layers" class="w-6 h-6"></i>
-                        </div>
-                        <h3
-                            class="text-base font-bold text-slate-900 dark:text-white mb-1.5 flex items-center justify-between">
-                            <span>Inventory</span>
-                            <i data-lucide="arrow-right"
-                                class="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-[#00C2FF]"></i>
-                        </h3>
-                        <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                            Pantau stok, warehouse, mutasi, hingga purchasing.
-                        </p>
-                    </a>
-
-                    <!-- 3. Finance -->
-                    <a href="{{ route('public.erp.finance') }}"
-                        class="group block p-6 rounded-3xl bg-white dark:bg-[#101726] border border-slate-100 dark:border-white/5 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_30px_rgba(0,194,255,0.12)] hover:-translate-y-1 transition-all duration-300">
-                        <div
-                            class="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-950/60 border border-blue-100 dark:border-blue-800/40 text-blue-500 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                            <i data-lucide="wallet" class="w-6 h-6"></i>
-                        </div>
-                        <h3
-                            class="text-base font-bold text-slate-900 dark:text-white mb-1.5 flex items-center justify-between">
-                            <span>Finance</span>
-                            <i data-lucide="arrow-right"
-                                class="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-[#00C2FF]"></i>
-                        </h3>
-                        <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                            Kelola transaksi dan keuangan bisnis Anda.
-                        </p>
-                    </a>
-
-                    <!-- 4. Customer -->
-                    <a href="{{ route('public.omnichannel.customer') }}"
-                        class="group block p-6 rounded-3xl bg-white dark:bg-[#101726] border border-slate-100 dark:border-white/5 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_30px_rgba(0,194,255,0.12)] hover:-translate-y-1 transition-all duration-300">
-                        <div
-                            class="w-12 h-12 rounded-2xl bg-cyan-50 dark:bg-cyan-950/60 border border-cyan-100 dark:border-cyan-800/40 text-cyan-500 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                            <i data-lucide="users" class="w-6 h-6"></i>
-                        </div>
-                        <h3
-                            class="text-base font-bold text-slate-900 dark:text-white mb-1.5 flex items-center justify-between">
-                            <span>Customer</span>
-                            <i data-lucide="arrow-right"
-                                class="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-[#00C2FF]"></i>
-                        </h3>
-                        <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                            Kelola customer, relationship, dan riwayat transaksi.
-                        </p>
-                    </a>
-
-                    <!-- 5. Social Media -->
-                    <a href="{{ route('public.omnichannel.social-media') }}"
-                        class="group block p-6 rounded-3xl bg-white dark:bg-[#101726] border border-slate-100 dark:border-white/5 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_30px_rgba(0,194,255,0.12)] hover:-translate-y-1 transition-all duration-300">
-                        <div
-                            class="w-12 h-12 rounded-2xl bg-pink-50 dark:bg-pink-950/60 border border-pink-100 dark:border-pink-800/40 flex items-center justify-center gap-1.5 mb-4 group-hover:scale-110 transition-transform">
-                            <span
-                                class="w-4 h-4 rounded-[4px] bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] flex items-center justify-center text-white shrink-0 shadow-xs">
-                                <svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2.5">
-                                    <rect x="2" y="2" width="20" height="20" rx="5"></rect>
-                                    <circle cx="12" cy="12" r="3.5"></circle>
-                                </svg>
-                            </span>
-                            <span
-                                class="w-4 h-4 rounded-[4px] bg-[#1877F2] flex items-center justify-center text-white shrink-0 shadow-xs">
-                                <svg class="w-2.5 h-2.5 fill-current" viewBox="0 0 24 24">
-                                    <path
-                                        d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-                                </svg>
-                            </span>
-                        </div>
-                        <h3
-                            class="text-base font-bold text-slate-900 dark:text-white mb-1.5 flex items-center justify-between">
-                            <span>Social Media</span>
-                            <i data-lucide="arrow-right"
-                                class="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-[#00C2FF]"></i>
-                        </h3>
-                        <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                            Hubungkan akun social media dan kelola konten.
-                        </p>
-                    </a>
-
-                    <!-- 6. Content Automation -->
-                    <a href="{{ route('public.content.creation') }}"
-                        class="group block p-6 rounded-3xl bg-white dark:bg-[#101726] border border-slate-100 dark:border-white/5 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_30px_rgba(0,194,255,0.12)] hover:-translate-y-1 transition-all duration-300">
-                        <div
-                            class="w-12 h-12 rounded-2xl bg-fuchsia-50 dark:bg-fuchsia-950/60 border border-fuchsia-100 dark:border-fuchsia-800/40 text-fuchsia-500 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                            <i data-lucide="megaphone" class="w-6 h-6"></i>
-                        </div>
-                        <h3
-                            class="text-base font-bold text-slate-900 dark:text-white mb-1.5 flex items-center justify-between">
-                            <span>Content Automation</span>
-                            <i data-lucide="arrow-right"
-                                class="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-[#00C2FF]"></i>
-                        </h3>
-                        <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                            Plan, schedule, publish, dan monitor konten.
-                        </p>
-                    </a>
-
-                    <!-- 7. Marketplace -->
-                    <a href="{{ route('marketplace.index') }}"
-                        class="group block p-6 rounded-3xl bg-white dark:bg-[#101726] border border-slate-100 dark:border-white/5 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_30px_rgba(0,194,255,0.12)] hover:-translate-y-1 transition-all duration-300">
-                        <div
-                            class="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-100 dark:border-indigo-800/40 text-indigo-500 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                            <i data-lucide="store" class="w-6 h-6"></i>
-                        </div>
-                        <h3
-                            class="text-base font-bold text-slate-900 dark:text-white mb-1.5 flex items-center justify-between">
-                            <span>Marketplace</span>
-                            <i data-lucide="arrow-right"
-                                class="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-[#00C2FF]"></i>
-                        </h3>
-                        <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                            Tingkatkan penjualan melalui berbagai marketplace.
-                        </p>
-                    </a>
-
-                    <!-- 8. Analytics & AI -->
-                    <a href="{{ route('public.erp.analytics') }}"
-                        class="group block p-6 rounded-3xl bg-white dark:bg-[#101726] border border-slate-100 dark:border-white/5 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_30px_rgba(0,194,255,0.12)] hover:-translate-y-1 transition-all duration-300">
-                        <div
-                            class="w-12 h-12 rounded-2xl bg-violet-50 dark:bg-violet-950/60 border border-violet-100 dark:border-violet-800/40 text-violet-500 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                            <i data-lucide="trending-up" class="w-6 h-6"></i>
-                        </div>
-                        <h3
-                            class="text-base font-bold text-slate-900 dark:text-white mb-1.5 flex items-center justify-between">
-                            <span>Analytics &amp; AI</span>
-                            <i data-lucide="arrow-right"
-                                class="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-[#00C2FF]"></i>
-                        </h3>
-                        <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                            Ubah data menjadi insight untuk keputusan lebih baik.
-                        </p>
-                    </a>
-
-                </div>
-            </div>
-        </section>
-
-
-        <!-- ══════════════════════════════════════════════════════════════════════════ -->
-        <!-- ═══ 3. INTEGRATED WORKFLOW ("Your Business, Connected End-to-End") ═══ -->
-        <!-- ══════════════════════════════════════════════════════════════════════════ -->
-        <section
-            class="bg-[#F8FAFC] dark:bg-[#070B18] py-20 lg:py-24 border-b border-slate-100 dark:border-white/5 transition-colors">
-            <div class="max-w-7xl 2xl:max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12">
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
-
-                    <!-- Left Column -->
-                    <div class="lg:col-span-4 space-y-5 text-center lg:text-left">
-                        <div
-                            class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-sky-100 dark:bg-sky-950/60 border border-sky-200 dark:border-sky-800/40 text-sky-700 dark:text-sky-300 text-xs font-semibold">
-                            <span>Integrated Workflow</span>
-                        </div>
-
-                        <h2
-                            class="text-3xl sm:text-3.5xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-tight">
-                            Your Business,<br class="hidden sm:inline"> Connected End-to-End
-                        </h2>
-
-                        <p
-                            class="text-slate-600 dark:text-slate-400 text-sm sm:text-base leading-relaxed max-w-md mx-auto lg:mx-0">
-                            Dari perolehan pelanggan hingga transaksi bisnis, semuanya saling terhubung dalam satu sistem.
-                        </p>
-
-                        <div>
-                            <a href="{{ route('public.bos.how-it-works') }}"
-                                class="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#00C2FF] hover:bg-[#00B4D8] text-white font-bold text-xs sm:text-sm shadow-[0_0_20px_rgba(0,194,255,0.4)] hover:scale-105 active:scale-95 transition-all">
-                                <span>Lihat Alur Lengkap</span>
-                                <i data-lucide="arrow-right" class="w-4 h-4"></i>
-                            </a>
-                        </div>
-                    </div>
-
-                    <!-- Right Column: Connected Node Workflow -->
-                    <div class="lg:col-span-8 overflow-x-auto pb-4 lg:pb-0">
-                        <div class="min-w-[540px] space-y-6">
-
-                            <!-- Row 1: Acquisition to POS & Inventory -->
-                            <div
-                                class="flex items-center justify-between gap-2 p-4 rounded-3xl bg-white dark:bg-[#101726] border border-slate-200/80 dark:border-white/5 shadow-sm">
-                                <!-- Node 1: Social Media -->
-                                <div class="flex flex-col items-center text-center">
-                                    <div
-                                        class="w-10 h-10 rounded-xl bg-purple-500 text-white flex items-center justify-center shadow-md">
-                                        <i data-lucide="share-2" class="w-5 h-5"></i>
-                                    </div>
-                                    <span class="text-[10px] font-semibold text-slate-700 dark:text-slate-300 mt-2">Social
-                                        Media</span>
-                                </div>
-
-                                <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
-
-                                <!-- Node 2: Content -->
-                                <div class="flex flex-col items-center text-center">
-                                    <div
-                                        class="w-10 h-10 rounded-xl bg-blue-500 text-white flex items-center justify-center shadow-md">
-                                        <i data-lucide="send" class="w-5 h-5"></i>
-                                    </div>
-                                    <span
-                                        class="text-[10px] font-semibold text-slate-700 dark:text-slate-300 mt-2">Content</span>
-                                </div>
-
-                                <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
-
-                                <!-- Node 3: Customer -->
-                                <div class="flex flex-col items-center text-center">
-                                    <div
-                                        class="w-10 h-10 rounded-xl bg-cyan-500 text-white flex items-center justify-center shadow-md">
-                                        <i data-lucide="users" class="w-5 h-5"></i>
-                                    </div>
-                                    <span
-                                        class="text-[10px] font-semibold text-slate-700 dark:text-slate-300 mt-2">Customer</span>
-                                </div>
-
-                                <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
-
-                                <!-- Node 4: Chat / Order -->
-                                <div class="flex flex-col items-center text-center">
-                                    <div
-                                        class="w-10 h-10 rounded-xl bg-emerald-500 text-white flex items-center justify-center shadow-md">
-                                        <i data-lucide="message-square" class="w-5 h-5"></i>
-                                    </div>
-                                    <span class="text-[10px] font-semibold text-slate-700 dark:text-slate-300 mt-2">Chat /
-                                        Order</span>
-                                </div>
-
-                                <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
-
-                                <!-- Node 5: Kasir / POS -->
-                                <div class="flex flex-col items-center text-center">
-                                    <div
-                                        class="w-10 h-10 rounded-xl bg-rose-500 text-white flex items-center justify-center shadow-md">
-                                        <i data-lucide="shopping-bag" class="w-5 h-5"></i>
-                                    </div>
-                                    <span class="text-[10px] font-semibold text-slate-700 dark:text-slate-300 mt-2">Kasir /
-                                        POS</span>
-                                </div>
-
-                                <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
-
-                                <!-- Node 6: Inventory -->
-                                <div class="flex flex-col items-center text-center">
-                                    <div
-                                        class="w-10 h-10 rounded-xl bg-teal-500 text-white flex items-center justify-center shadow-md">
-                                        <i data-lucide="boxes" class="w-5 h-5"></i>
-                                    </div>
-                                    <span
-                                        class="text-[10px] font-semibold text-slate-700 dark:text-slate-300 mt-2">Inventory</span>
-                                </div>
-                            </div>
-
-                            <!-- Row 2: Production to Analytics (Connecting back) -->
-                            <div
-                                class="flex items-center justify-between gap-2 p-4 rounded-3xl bg-white dark:bg-[#101726] border border-slate-200/80 dark:border-white/5 shadow-sm">
-                                <!-- Node 7: Analytics -->
-                                <div class="flex flex-col items-center text-center">
-                                    <div
-                                        class="w-10 h-10 rounded-xl bg-purple-600 text-white flex items-center justify-center shadow-md">
-                                        <i data-lucide="bar-chart-2" class="w-5 h-5"></i>
-                                    </div>
-                                    <span
-                                        class="text-[10px] font-semibold text-slate-700 dark:text-slate-300 mt-2">Analytics</span>
-                                </div>
-
-                                <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
-
-                                <!-- Node 8: Accounting -->
-                                <div class="flex flex-col items-center text-center">
-                                    <div
-                                        class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center shadow-md">
-                                        <i data-lucide="book-marked" class="w-5 h-5"></i>
-                                    </div>
-                                    <span
-                                        class="text-[10px] font-semibold text-slate-700 dark:text-slate-300 mt-2">Accounting</span>
-                                </div>
-
-                                <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
-
-                                <!-- Node 9: Finance -->
-                                <div class="flex flex-col items-center text-center">
-                                    <div
-                                        class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-md">
-                                        <i data-lucide="coins" class="w-5 h-5"></i>
-                                    </div>
-                                    <span
-                                        class="text-[10px] font-semibold text-slate-700 dark:text-slate-300 mt-2">Finance</span>
-                                </div>
-
-                                <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
-
-                                <!-- Node 10: Purchasing -->
-                                <div class="flex flex-col items-center text-center">
-                                    <div
-                                        class="w-10 h-10 rounded-xl bg-indigo-500 text-white flex items-center justify-center shadow-md">
-                                        <i data-lucide="shopping-cart" class="w-5 h-5"></i>
-                                    </div>
-                                    <span
-                                        class="text-[10px] font-semibold text-slate-700 dark:text-slate-300 mt-2">Purchasing</span>
-                                </div>
-
-                                <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
-
-                                <!-- Node 11: Production -->
-                                <div class="flex flex-col items-center text-center">
-                                    <div
-                                        class="w-10 h-10 rounded-xl bg-blue-500 text-white flex items-center justify-center shadow-md">
-                                        <i data-lucide="factory" class="w-5 h-5"></i>
-                                    </div>
-                                    <span
-                                        class="text-[10px] font-semibold text-slate-700 dark:text-slate-300 mt-2">Production</span>
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-        </section>
-
-
-        <!-- ══════════════════════════════════════════════════════════════════════════ -->
-        <!-- ═══ 4. "LEBIH DARI SEKADAR ERP" (Dark Section with Laptop/Mobile Mockup) ═══ -->
-        <!-- ══════════════════════════════════════════════════════════════════════════ -->
-        <section class="relative bg-[#080D1E] text-white py-20 lg:py-28 overflow-hidden">
-            <!-- Ambient lighting -->
-            <div
-                class="absolute top-1/2 left-1/3 w-96 h-96 bg-[#00C2FF]/10 rounded-full blur-[130px] pointer-events-none -z-0">
-            </div>
-
-            <div class="max-w-7xl 2xl:max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 relative z-10">
-
-                <!-- Section Heading -->
-                <div class="space-y-3 mb-14 text-center lg:text-left">
-                    <div
-                        class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-cyan-950/60 border border-cyan-400/30 text-cyan-300 text-xs font-semibold">
-                        <span>Business Operating System</span>
-                    </div>
-                    <h2 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
-                        Lebih dari Sekadar ERP
-                    </h2>
-                    <p class="text-slate-400 text-sm sm:text-base max-w-2xl leading-relaxed mx-auto lg:mx-0">
-                        COOCA adalah Business Operating System yang membantu Anda mengelola, menghubungkan, dan
-                        mengembangkan bisnis.
-                    </p>
-                </div>
-
-                <!-- Content Grid: 6 Pillars (Left) & Realistic Laptop Dashboard (Right) -->
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-
-                    <!-- Left: 6 Pillars (2x3 Grid) -->
-                    <div class="lg:col-span-5 grid grid-cols-2 gap-6">
-
-                        <!-- 1. Operate -->
-                        <div class="space-y-2">
-                            <div
-                                class="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-[#00C2FF]">
-                                <i data-lucide="gauge" class="w-5 h-5"></i>
-                            </div>
-                            <h4 class="text-sm font-bold text-white">Operate</h4>
-                            <p class="text-xs text-slate-400 leading-relaxed">
-                                Kelola operasional bisnis sehari-hari.
-                            </p>
-                        </div>
-
-                        <!-- 2. Sell -->
-                        <div class="space-y-2">
-                            <div
-                                class="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-[#00C2FF]">
-                                <i data-lucide="tag" class="w-5 h-5"></i>
-                            </div>
-                            <h4 class="text-sm font-bold text-white">Sell</h4>
-                            <p class="text-xs text-slate-400 leading-relaxed">
-                                Kelola penjualan dari berbagai channel.
-                            </p>
-                        </div>
-
-                        <!-- 3. Engage -->
-                        <div class="space-y-2">
-                            <div
-                                class="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-[#00C2FF]">
-                                <i data-lucide="message-square" class="w-5 h-5"></i>
-                            </div>
-                            <h4 class="text-sm font-bold text-white">Engage</h4>
-                            <p class="text-xs text-slate-400 leading-relaxed">
-                                Bangun hubungan dengan customer.
-                            </p>
-                        </div>
-
-                        <!-- 4. Automate -->
-                        <div class="space-y-2">
-                            <div
-                                class="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-[#00C2FF]">
-                                <i data-lucide="zap" class="w-5 h-5"></i>
-                            </div>
-                            <h4 class="text-sm font-bold text-white">Automate</h4>
-                            <p class="text-xs text-slate-400 leading-relaxed">
-                                Kurangi pekerjaan manual dengan automation.
-                            </p>
-                        </div>
-
-                        <!-- 5. Analyze -->
-                        <div class="space-y-2">
-                            <div
-                                class="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-[#00C2FF]">
-                                <i data-lucide="line-chart" class="w-5 h-5"></i>
-                            </div>
-                            <h4 class="text-sm font-bold text-white">Analyze</h4>
-                            <p class="text-xs text-slate-400 leading-relaxed">
-                                Pahami bisnis melalui data dan analytics.
-                            </p>
-                        </div>
-
-                        <!-- 6. Decide -->
-                        <div class="space-y-2">
-                            <div
-                                class="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-[#00C2FF]">
-                                <i data-lucide="compass" class="w-5 h-5"></i>
-                            </div>
-                            <h4 class="text-sm font-bold text-white">Decide</h4>
-                            <p class="text-xs text-slate-400 leading-relaxed">
-                                Ambil keputusan lebih tepat dan cepat.
-                            </p>
-                        </div>
-
-                    </div>
-
-                    <!-- Right: Realistic MacBook & iPhone Showcase -->
-                    <div class="lg:col-span-7 relative">
-                        <div class="relative w-full max-w-lg mx-auto lg:max-w-none">
-
-                            <!-- Laptop Body Mockup -->
-                            <div
-                                class="relative rounded-2xl bg-slate-900 border border-slate-700 shadow-[0_20px_50px_rgba(0,0,0,0.6)] overflow-hidden p-2 sm:p-3">
-                                <!-- Laptop Header Bar -->
-                                <div
-                                    class="h-6 bg-slate-800 rounded-t-lg flex items-center px-3 gap-1.5 border-b border-slate-700">
-                                    <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
-                                    <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
-                                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-                                    <span class="text-[10px] text-slate-400 ml-2 font-mono">cooca.id/app/dashboard</span>
-                                </div>
-
-                                <!-- Laptop Screen Content (COOCA UI) -->
-                                <div class="bg-white text-slate-900 p-4 rounded-b-lg font-sans">
-                                    <!-- Top Stats -->
-                                    <div class="grid grid-cols-3 gap-3 mb-4">
-                                        <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
-                                            <div class="text-[10px] text-slate-500">Penjualan Bulan Ini</div>
-                                            <div class="text-sm font-extrabold text-slate-900 mt-0.5">Rp 48.250.000</div>
-                                            <div class="text-[9px] text-emerald-600 font-semibold mt-0.5">+18.4% vs lalu
-                                            </div>
-                                        </div>
-                                        <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
-                                            <div class="text-[10px] text-slate-500">Total Transaksi</div>
-                                            <div class="text-sm font-extrabold text-slate-900 mt-0.5">1.420 Order</div>
-                                            <div class="text-[9px] text-emerald-600 font-semibold mt-0.5">+12.1% kasir
-                                            </div>
-                                        </div>
-                                        <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
-                                            <div class="text-[10px] text-slate-500">Stok Kritis</div>
-                                            <div class="text-sm font-extrabold text-amber-600 mt-0.5">3 Barang</div>
-                                            <div class="text-[9px] text-slate-400 mt-0.5">Auto Restock on</div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Revenue Growth Bar Chart / Wave Simulation -->
-                                    <div class="p-3 rounded-xl bg-slate-50 border border-slate-100">
-                                        <div class="flex items-center justify-between text-xs mb-2">
-                                            <span class="font-bold text-slate-800">Tren Penjualan Multi-Channel</span>
-                                            <span class="text-[10px] text-[#00C2FF] font-semibold">Real-Time Sync</span>
-                                        </div>
-                                        <div class="h-24 flex items-end gap-2 pt-2">
-                                            <div class="w-full bg-sky-200 rounded-t h-[45%]"></div>
-                                            <div class="w-full bg-sky-300 rounded-t h-[60%]"></div>
-                                            <div class="w-full bg-sky-400 rounded-t h-[50%]"></div>
-                                            <div class="w-full bg-[#00C2FF] rounded-t h-[80%]"></div>
-                                            <div class="w-full bg-sky-300 rounded-t h-[65%]"></div>
-                                            <div class="w-full bg-[#00C2FF] rounded-t h-[95%]"></div>
-                                            <div
-                                                class="w-full bg-blue-600 rounded-t h-[100%] shadow-[0_0_10px_rgba(0,194,255,0.4)]">
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- iPhone Mockup Floating Right -->
-                            <div
-                                class="absolute -right-4 -bottom-6 w-36 sm:w-44 rounded-[28px] bg-slate-950 p-2 border-2 border-slate-700 shadow-2xl hidden xs:block">
-                                <div class="rounded-[22px] bg-white text-slate-900 p-2.5 text-center">
-                                    <div class="w-8 h-1 bg-slate-800 rounded-full mx-auto mb-2"></div>
-                                    <div class="text-[9px] font-bold text-slate-500 uppercase">POS Mobile</div>
-                                    <div class="text-xs font-black text-slate-900 mt-1">Rp 1.850.000</div>
-                                    <div class="mt-2 space-y-1 text-[9px] text-left text-slate-600">
-                                        <div class="flex justify-between py-0.5 border-b border-slate-100">
-                                            <span>Order #1029</span>
-                                            <span class="text-emerald-600 font-bold">Lunas</span>
-                                        </div>
-                                        <div class="flex justify-between py-0.5 border-b border-slate-100">
-                                            <span>Order #1028</span>
-                                            <span class="text-emerald-600 font-bold">Lunas</span>
-                                        </div>
-                                    </div>
-                                    <div class="mt-2.5 py-1 px-2 rounded-lg bg-[#00C2FF] text-white text-[9px] font-bold">
-                                        Scan QRIS Kasir
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Floating AI Assistant Badge (Bottom Left) -->
-                            <div
-                                class="absolute -bottom-5 left-4 z-20 p-3.5 rounded-2xl bg-[#0b1633]/95 backdrop-blur-xl border border-cyan-400/40 shadow-[0_10px_30px_rgba(0,194,255,0.35)] flex items-center gap-3 max-w-xs">
-                                <div
-                                    class="w-8 h-8 rounded-xl bg-[#00C2FF] text-slate-950 flex items-center justify-center shrink-0 shadow-[0_0_15px_rgba(0,194,255,0.6)]">
-                                    <i data-lucide="sparkles" class="w-4 h-4"></i>
-                                </div>
-                                <div>
-                                    <span class="text-xs font-bold text-cyan-300 block">AI Assistant</span>
-                                    <p class="text-[11px] text-slate-200 leading-snug">
-                                        Ringkasan penjualan hari ini meningkat 24% dibanding kemarin.
-                                    </p>
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
 
                 </div>
             </div>
