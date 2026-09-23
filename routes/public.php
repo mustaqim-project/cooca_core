@@ -82,6 +82,69 @@ Route::post('/kontak', [PublicContactController::class, 'submit'])->middleware('
 Route::get('/jelajah', [PublicDiscoveryController::class, 'index'])->name('public.discovery.index');
 Route::get('/direktori', [PublicDiscoveryController::class, 'index'])->name('public.directory.index');
 
+// 6b. Core Public Ecosystem Pages (BOS, ERP, Omnichannel, Content Automation, Solutions, Resources)
+Route::get('/pricing', fn() => view('public.pricing'))->name('public.pricing');
+Route::get('/demo', fn() => view('public.demo'))->name('public.demo');
+Route::get('/about', fn() => view('public.about'))->name('public.about');
+Route::get('/tentang', fn() => view('public.about'));
+Route::get('/support', fn() => view('public.support'))->name('public.support');
+Route::get('/bantuan', fn() => view('public.support'));
+
+Route::prefix('business-operating-system')->name('public.bos.')->group(function (): void {
+    Route::get('/overview', fn() => view('public.business-operating-system.overview'))->name('overview');
+    Route::get('/how-it-works', fn() => view('public.business-operating-system.how-it-works'))->name('how-it-works');
+    Route::get('/why-cooca', fn() => view('public.business-operating-system.why-cooca'))->name('why-cooca');
+});
+
+Route::prefix('omnichannel-erp')->name('public.erp.')->group(function (): void {
+    Route::get('/erp', fn() => view('public.omnichannel-erp.erp'))->name('erp');
+    Route::get('/pos', fn() => view('public.omnichannel-erp.pos'))->name('pos');
+    Route::get('/finance', fn() => view('public.omnichannel-erp.finance'))->name('finance');
+    Route::get('/inventory', fn() => view('public.omnichannel-erp.inventory'))->name('inventory');
+    Route::get('/crm', fn() => view('public.omnichannel-erp.crm'))->name('crm');
+    Route::get('/hrm', fn() => view('public.omnichannel-erp.hrm'))->name('hrm');
+    Route::get('/accounting', fn() => view('public.omnichannel-erp.accounting'))->name('accounting');
+    Route::get('/analytics', fn() => view('public.omnichannel-erp.analytics'))->name('analytics');
+});
+
+Route::prefix('omnichannel')->name('public.omnichannel.')->group(function (): void {
+    Route::get('/social-media', fn() => view('public.omnichannel.social-media'))->name('social-media');
+    Route::get('/whatsapp', fn() => view('public.omnichannel.whatsapp'))->name('whatsapp');
+    Route::get('/marketplace', fn() => view('public.omnichannel.marketplace'))->name('marketplace');
+    Route::get('/orders', fn() => view('public.omnichannel.orders'))->name('orders');
+    Route::get('/customer', fn() => view('public.omnichannel.customer'))->name('customer');
+});
+
+Route::prefix('content-automation')->name('public.content.')->group(function (): void {
+    Route::get('/content-creation', fn() => view('public.content-automation.content-creation'))->name('creation');
+    Route::get('/content-calendar', fn() => view('public.content-automation.content-calendar'))->name('calendar');
+    Route::get('/publishing', fn() => view('public.content-automation.publishing'))->name('publishing');
+    Route::get('/analytics', fn() => view('public.content-automation.analytics'))->name('analytics');
+});
+
+Route::prefix('solutions')->name('public.solutions.')->group(function (): void {
+    Route::get('/fnb', fn() => view('public.solutions.fnb'))->name('fnb');
+    Route::get('/retail', fn() => view('public.solutions.retail'))->name('retail');
+    Route::get('/workshop', fn() => view('public.solutions.workshop'))->name('workshop');
+    Route::get('/laundry', fn() => view('public.solutions.laundry'))->name('laundry');
+    Route::get('/manufacturing', fn() => view('public.solutions.manufacturing'))->name('manufacturing');
+    Route::get('/services', fn() => view('public.solutions.services'))->name('services');
+});
+
+Route::prefix('marketplace')->name('marketplace.sub.')->group(function (): void {
+    Route::get('/businesses', fn() => view('public.marketplace.businesses'))->name('businesses');
+    Route::get('/products', fn() => view('public.marketplace.products'))->name('products');
+    Route::get('/categories', fn() => view('public.marketplace.categories'))->name('categories');
+    Route::get('/locations', fn() => view('public.marketplace.locations'))->name('locations');
+});
+
+Route::prefix('resources')->name('public.resources.')->group(function (): void {
+    Route::get('/blog', fn() => view('public.resources.blog'))->name('blog');
+    Route::get('/guides', fn() => view('public.resources.guides'))->name('guides');
+    Route::get('/case-studies', fn() => view('public.resources.case-studies'))->name('case-studies');
+    Route::get('/faq', fn() => view('public.resources.faq'))->name('faq');
+});
+
 // 7. Canonical Public Storefront Tracking, Multipage Pages, Table QR & Calculation (cooca.id/{slug-bisnis})
 Route::prefix('{slug}')->where(['slug' => '[a-z0-9]+(?:-[a-z0-9]+)*'])->group(function (): void {
     // Dedicated Multipage Storefront Pages (§PRD-07)

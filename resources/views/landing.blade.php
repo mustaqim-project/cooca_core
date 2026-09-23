@@ -1,15 +1,21 @@
 @extends('layouts.public_marketing')
 
+@section('title', 'COOCA - Business Operating System & Omnichannel ERP')
+@section('description', 'COOCA membantu bisnis mengelola operasional, penjualan, keuangan, inventory, customer, social media, marketplace, dan automation dalam satu ekosistem.')
+
 @push('seo')
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&display=swap" rel="stylesheet">
     <script type="application/ld+json">
     {
         "@@context": "https://schema.org",
         "@@type": "SoftwareApplication",
-        "name": "Cooca UMKM",
+        "name": "COOCA",
         "applicationCategory": "BusinessApplication",
         "operatingSystem": "Web, Cloud-based",
-        "description": "Business Operating System & Omnichannel ERP gratis selamanya untuk UMKM Indonesia: HPP presisi, AI Assistant, POS kasir, dan pembukuan otomatis.",
-        "url": "https://cooca.id",
+        "description": "Business Operating System & Omnichannel ERP untuk UMKM: Operasional, Penjualan, Keuangan, Inventory, Social Media, Marketplace, dan Automation.",
+        "url": "{{ url('/') }}",
         "offers": {
             "@@type": "Offer",
             "price": "0",
@@ -18,1058 +24,1184 @@
         },
         "publisher": {
             "@@type": "Organization",
-            "name": "COOCA.ID",
-            "url": "https://cooca.id"
+            "name": "COOCA",
+            "url": "{{ url('/') }}"
         }
     }
     </script>
 @endpush
 
+@php
+    $siteLogoLightSetting = \App\Models\SystemSetting::get('site_logo_light');
+    $siteLogoDarkSetting = \App\Models\SystemSetting::get('site_logo_dark');
+    $siteLogoLightUrl = \App\Domain\Storage\AdminStorage::publicUrl($siteLogoLightSetting);
+    $siteLogoDarkUrl = \App\Domain\Storage\AdminStorage::publicUrl($siteLogoDarkSetting);
+@endphp
+
 @section('content')
-    <div class="relative overflow-hidden">
+<div class="relative overflow-hidden w-full font-sans">
 
-        <!-- ═══ 1. HERO SECTION (Apple HIG Minimalist 2-Column Showcase) ═══ -->
-        <section class="relative pt-10 pb-16 md:pt-20 md:pb-24 overflow-hidden">
-            <!-- Apple Subtle Ambient Soft Glows (Strictly Monochromatic & Apple Blue / Green - Zero Purple) -->
-            <div
-                class="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[520px] pointer-events-none opacity-40 dark:opacity-25 -z-10">
-                <div
-                    class="absolute top-12 left-12 w-96 h-96 bg-[#007AFF]/12 dark:bg-[#0A84FF]/15 rounded-full blur-[140px]">
+    <!-- ══════════════════════════════════════════════════════════════════════════ -->
+    <!-- ═══ 1. HERO SECTION (Dark Isometric Neon Ecosystem Hub) ═══ -->
+    <!-- ══════════════════════════════════════════════════════════════════════════ -->
+    <section class="relative bg-[#060913] text-white pt-10 pb-16 lg:pt-16 lg:pb-24 overflow-hidden">
+        <!-- Ambient Radial Glows -->
+        <div class="absolute top-1/3 right-1/4 w-[500px] h-[500px] bg-[#00C2FF]/15 rounded-full blur-[140px] pointer-events-none -z-0"></div>
+        <div class="absolute -top-24 left-1/4 w-96 h-96 bg-[#007AFF]/10 rounded-full blur-[130px] pointer-events-none -z-0"></div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+
+                <!-- Left Column: Copy & Value Proposition -->
+                <div class="lg:col-span-6 space-y-6 text-center lg:text-left">
+                    <!-- Pill Badge -->
+                    <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-cyan-950/60 border border-cyan-400/30 text-cyan-300 text-xs font-semibold shadow-[0_0_15px_rgba(0,194,255,0.2)]">
+                        <span class="w-2 h-2 rounded-full bg-[#00C2FF] animate-pulse"></span>
+                        <span>Business Operating System & Omnichannel ERP</span>
+                    </div>
+
+                    <!-- Main Headline -->
+                    <h1 class="text-4xl sm:text-5xl lg:text-[54px] font-extrabold text-white tracking-tight leading-[1.12]">
+                        Run Your Business.<br>
+                        From <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#00C2FF] via-[#38BDF8] to-[#60A5FA]">One Operating<br class="hidden sm:inline"> System.</span>
+                    </h1>
+
+                    <!-- Subtitle -->
+                    <p class="text-base sm:text-lg text-slate-300 max-w-xl leading-relaxed font-normal mx-auto lg:mx-0">
+                        COOCA membantu bisnis mengelola operasional, penjualan, keuangan, inventory, customer, social media, marketplace, dan automation dalam satu ekosistem.
+                    </p>
+
+                    <!-- Punchline -->
+                    <p class="text-sm text-slate-400 font-semibold tracking-wide">
+                        One Business. One System. One Central Center.
+                    </p>
+
+                    <!-- Dual CTAs -->
+                    <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 pt-2">
+                        @if (auth('admin')->check())
+                            <a href="{{ route('admin.dashboard') }}"
+                                class="w-full sm:w-auto px-7 py-3.5 rounded-full bg-[#00C2FF] hover:bg-[#00B4D8] text-slate-950 font-bold text-sm flex items-center justify-center gap-2 shadow-[0_0_25px_rgba(0,194,255,0.45)] hover:scale-105 active:scale-95 transition-all">
+                                <span>Dashboard Admin</span>
+                                <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                            </a>
+                        @elseif (auth('web')->check())
+                            <a href="{{ route('dashboard') }}"
+                                class="w-full sm:w-auto px-7 py-3.5 rounded-full bg-[#00C2FF] hover:bg-[#00B4D8] text-slate-950 font-bold text-sm flex items-center justify-center gap-2 shadow-[0_0_25px_rgba(0,194,255,0.45)] hover:scale-105 active:scale-95 transition-all">
+                                <span>Buka Dashboard Bisnis</span>
+                                <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                            </a>
+                        @else
+                            <a href="{{ route('register') }}"
+                                class="w-full sm:w-auto px-7 py-3.5 rounded-full bg-[#00C2FF] hover:bg-[#00B4D8] text-slate-950 font-bold text-sm flex items-center justify-center gap-2 shadow-[0_0_25px_rgba(0,194,255,0.45)] hover:shadow-[0_0_35px_rgba(0,194,255,0.65)] hover:scale-105 active:scale-95 transition-all">
+                                <span>Coba COOCA Gratis</span>
+                                <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                            </a>
+                            <a href="{{ route('public.bos.how-it-works') }}"
+                                class="w-full sm:w-auto px-6 py-3.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/20 text-white font-semibold text-sm flex items-center justify-center gap-2 hover:border-white/30 hover:scale-105 active:scale-95 transition-all">
+                                <span>Lihat Cara Kerja</span>
+                                <i data-lucide="play" class="w-3.5 h-3.5 fill-current"></i>
+                            </a>
+                        @endif
+                    </div>
+
+                    <!-- Horizontal Feature Tags -->
+                    <div class="flex flex-wrap items-center justify-center lg:justify-start gap-2 pt-3">
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-slate-300 text-xs font-medium">
+                            <i data-lucide="check" class="w-3.5 h-3.5 text-[#00C2FF]"></i>
+                            <span>ERP</span>
+                        </span>
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-slate-300 text-xs font-medium">
+                            <i data-lucide="check" class="w-3.5 h-3.5 text-[#00C2FF]"></i>
+                            <span>Omnichannel</span>
+                        </span>
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-slate-300 text-xs font-medium">
+                            <i data-lucide="check" class="w-3.5 h-3.5 text-[#00C2FF]"></i>
+                            <span>Automation</span>
+                        </span>
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-slate-300 text-xs font-medium">
+                            <i data-lucide="check" class="w-3.5 h-3.5 text-[#00C2FF]"></i>
+                            <span>Marketplace</span>
+                        </span>
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-slate-300 text-xs font-medium">
+                            <i data-lucide="check" class="w-3.5 h-3.5 text-[#00C2FF]"></i>
+                            <span>AI</span>
+                        </span>
+                    </div>
                 </div>
-                <div
-                    class="absolute top-24 right-16 w-80 h-80 bg-[#34C759]/10 dark:bg-[#30D158]/12 rounded-full blur-[130px]">
+
+                <!-- Right Column: 3D Neon Ecosystem Hub Graphic -->
+                <div class="lg:col-span-6 relative flex items-center justify-center min-h-[460px] lg:min-h-[520px]">
+                    <div class="relative w-full max-w-[460px] h-[460px] flex items-center justify-center">
+
+                        <!-- Neon Connection Lines (SVG) -->
+                        <svg class="absolute inset-0 w-full h-full pointer-events-none z-0" viewBox="0 0 460 460" fill="none">
+                            <!-- Glow Filter -->
+                            <defs>
+                                <filter id="cyanGlow" x="-20%" y="-20%" width="140%" height="140%">
+                                    <feGaussianBlur stdDeviation="3" result="blur" />
+                                    <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                                </filter>
+                            </defs>
+                            <!-- Line to Social Media (top left) -->
+                            <path d="M 230 180 L 105 85" stroke="#00C2FF" stroke-width="1.8" stroke-dasharray="3 3" opacity="0.75" filter="url(#cyanGlow)" />
+                            <!-- Line to Marketplace (top) -->
+                            <path d="M 230 160 L 230 75" stroke="#00C2FF" stroke-width="1.8" stroke-dasharray="3 3" opacity="0.75" filter="url(#cyanGlow)" />
+                            <!-- Line to WhatsApp (top right) -->
+                            <path d="M 230 180 L 355 85" stroke="#00C2FF" stroke-width="1.8" stroke-dasharray="3 3" opacity="0.75" filter="url(#cyanGlow)" />
+                            <!-- Line to POS (mid left) -->
+                            <path d="M 170 210 L 80 180" stroke="#00C2FF" stroke-width="1.8" stroke-dasharray="3 3" opacity="0.75" filter="url(#cyanGlow)" />
+                            <!-- Line to Content Automation (mid right) -->
+                            <path d="M 290 210 L 380 180" stroke="#00C2FF" stroke-width="1.8" stroke-dasharray="3 3" opacity="0.75" filter="url(#cyanGlow)" />
+                            <!-- Line to Website (bottom left) -->
+                            <path d="M 180 250 L 90 270" stroke="#00C2FF" stroke-width="1.8" stroke-dasharray="3 3" opacity="0.75" filter="url(#cyanGlow)" />
+                            <!-- Line to Customers (bottom right) -->
+                            <path d="M 280 250 L 370 270" stroke="#00C2FF" stroke-width="1.8" stroke-dasharray="3 3" opacity="0.75" filter="url(#cyanGlow)" />
+                        </svg>
+
+                        <!-- Central Stepped Pedestal Base -->
+                        <div class="absolute bottom-4 inset-x-8 flex flex-col items-center z-10">
+                            <!-- Stepped 3D Platform Rings -->
+                            <div class="w-72 h-14 rounded-[100%] bg-gradient-to-b from-[#0e2a5c] to-[#061226] border border-[#00C2FF]/40 shadow-[0_0_35px_rgba(0,194,255,0.4)] flex items-center justify-center relative">
+                                <span class="text-[10px] uppercase font-bold tracking-[0.2em] text-cyan-300">Data • Automation • AI</span>
+                            </div>
+                        </div>
+
+                        <!-- Central Glass Box (COOCA Core) -->
+                        <div class="relative z-20 w-44 sm:w-48 py-5 px-4 rounded-2xl bg-[#09152e]/90 backdrop-blur-xl border-2 border-[#00C2FF] shadow-[0_0_35px_rgba(0,194,255,0.55),inset_0_0_20px_rgba(0,194,255,0.2)] text-center transform hover:scale-105 transition-transform duration-300">
+                            <!-- Logo / Wordmark from Admin Settings -->
+                            <div class="mb-1 flex items-center justify-center">
+                                @if (!empty($siteLogoDarkUrl))
+                                    <img src="{{ $siteLogoDarkUrl }}" alt="COOCA" class="h-8 w-auto object-contain mx-auto">
+                                @else
+                                    <span class="font-black text-2xl tracking-wider text-white font-sans">COOCA</span>
+                                @endif
+                            </div>
+                            <p class="text-[11px] font-semibold text-cyan-300 tracking-tight">Business Operating System</p>
+                            
+                            <!-- Mini Inner Step Tag -->
+                            <div class="mt-3 inline-block px-4 py-1 rounded-full bg-[#00C2FF] text-slate-950 text-[10px] font-extrabold tracking-wider shadow-[0_0_12px_rgba(0,194,255,0.6)]">
+                                ERP
+                            </div>
+                        </div>
+
+                        <!-- Floating Node 1: Social Media (Top Left) -->
+                        <div class="absolute top-8 left-4 z-20 flex flex-col items-center">
+                            <div class="w-14 h-14 rounded-2xl bg-[#0c1b38]/90 border border-cyan-500/40 shadow-[0_4px_20px_rgba(0,194,255,0.25)] flex items-center justify-center gap-1 hover:scale-110 transition-transform">
+                                <span class="w-3 h-3 rounded-full bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600 inline-block"></span>
+                                <span class="w-3 h-3 rounded-full bg-black border border-white/20 inline-block"></span>
+                                <span class="w-3 h-3 rounded-full bg-[#1877F2] inline-block"></span>
+                            </div>
+                            <span class="mt-1 text-[11px] font-medium text-slate-300 text-center">Social Media</span>
+                        </div>
+
+                        <!-- Floating Node 2: Marketplace (Top Center) -->
+                        <div class="absolute top-2 z-20 flex flex-col items-center">
+                            <div class="w-13 h-13 rounded-2xl bg-[#0c1b38]/90 border border-cyan-500/40 shadow-[0_4px_20px_rgba(0,194,255,0.25)] flex items-center justify-center hover:scale-110 transition-transform p-3 text-[#00C2FF]">
+                                <i data-lucide="shopping-bag" class="w-6 h-6"></i>
+                            </div>
+                            <span class="mt-1 text-[11px] font-medium text-slate-300 text-center">Marketplace</span>
+                        </div>
+
+                        <!-- Floating Node 3: WhatsApp (Top Right) -->
+                        <div class="absolute top-8 right-4 z-20 flex flex-col items-center">
+                            <div class="w-14 h-14 rounded-2xl bg-[#0c1b38]/90 border border-cyan-500/40 shadow-[0_4px_20px_rgba(0,194,255,0.25)] flex items-center justify-center hover:scale-110 transition-transform text-[#25D366]">
+                                <i data-lucide="message-circle" class="w-6 h-6"></i>
+                            </div>
+                            <span class="mt-1 text-[11px] font-medium text-slate-300 text-center">WhatsApp</span>
+                        </div>
+
+                        <!-- Floating Node 4: POS (Mid Left) -->
+                        <div class="absolute top-36 left-0 z-20 flex flex-col items-center">
+                            <div class="w-13 h-13 rounded-2xl bg-[#0c1b38]/90 border border-cyan-500/40 shadow-[0_4px_20px_rgba(0,194,255,0.25)] flex items-center justify-center hover:scale-110 transition-transform p-3 text-cyan-400">
+                                <i data-lucide="store" class="w-6 h-6"></i>
+                            </div>
+                            <span class="mt-1 text-[11px] font-medium text-slate-300 text-center">POS</span>
+                        </div>
+
+                        <!-- Floating Node 5: Content Automation (Mid Right) -->
+                        <div class="absolute top-36 right-0 z-20 flex flex-col items-center">
+                            <div class="w-13 h-13 rounded-2xl bg-[#0c1b38]/90 border border-cyan-500/40 shadow-[0_4px_20px_rgba(0,194,255,0.25)] flex items-center justify-center hover:scale-110 transition-transform p-3 text-purple-400">
+                                <i data-lucide="sparkles" class="w-6 h-6"></i>
+                            </div>
+                            <span class="mt-1 text-[11px] font-medium text-slate-300 text-center">Content<br>Automation</span>
+                        </div>
+
+                        <!-- Floating Node 6: Website (Bottom Left) -->
+                        <div class="absolute bottom-20 left-2 z-20 flex flex-col items-center">
+                            <div class="w-13 h-13 rounded-2xl bg-[#0c1b38]/90 border border-cyan-500/40 shadow-[0_4px_20px_rgba(0,194,255,0.25)] flex items-center justify-center hover:scale-110 transition-transform p-3 text-blue-400">
+                                <i data-lucide="globe" class="w-6 h-6"></i>
+                            </div>
+                            <span class="mt-1 text-[11px] font-medium text-slate-300 text-center">Website</span>
+                        </div>
+
+                        <!-- Floating Node 7: Customers (Bottom Right) -->
+                        <div class="absolute bottom-20 right-2 z-20 flex flex-col items-center">
+                            <div class="w-13 h-13 rounded-2xl bg-[#0c1b38]/90 border border-cyan-500/40 shadow-[0_4px_20px_rgba(0,194,255,0.25)] flex items-center justify-center hover:scale-110 transition-transform p-3 text-cyan-300">
+                                <i data-lucide="users" class="w-6 h-6"></i>
+                            </div>
+                            <span class="mt-1 text-[11px] font-medium text-slate-300 text-center">Customers</span>
+                        </div>
+
+                    </div>
                 </div>
+
+            </div>
+        </div>
+    </section>
+
+
+    <!-- ══════════════════════════════════════════════════════════════════════════ -->
+    <!-- ═══ 2. FEATURE GRID ("Semua yang Anda Butuhkan...") ═══ -->
+    <!-- ══════════════════════════════════════════════════════════════════════════ -->
+    <section class="bg-white dark:bg-[#070A14] py-20 lg:py-24 border-b border-slate-100 dark:border-white/5 transition-colors">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+            <!-- Section Header -->
+            <div class="text-center max-w-3xl mx-auto space-y-3">
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+                    Semua yang Anda Butuhkan. Terhubung dalam Satu Sistem.
+                </h2>
+                <p class="text-slate-600 dark:text-slate-400 text-sm sm:text-base leading-relaxed">
+                    Bisnis tidak berjalan dalam satu aplikasi. COOCA menghubungkan semua proses bisnis Anda, dari operasional hingga pemasaran, dalam satu ekosistem yang terintegrasi.
+                </p>
             </div>
 
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
+            <!-- 8 Bento Squircle Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-14">
 
-                    <!-- Kiri: Value Proposition & Conversion Funnel -->
-                    <div class="lg:col-span-6 space-y-6 text-center lg:text-left">
+                <!-- 1. Sales -->
+                <a href="{{ route('public.erp.pos') }}" class="group block p-6 rounded-3xl bg-white dark:bg-[#101726] border border-slate-100 dark:border-white/5 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_30px_rgba(0,194,255,0.12)] hover:-translate-y-1 transition-all duration-300">
+                    <div class="w-12 h-12 rounded-2xl bg-sky-50 dark:bg-sky-950/60 border border-sky-100 dark:border-sky-800/40 text-sky-500 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                        <i data-lucide="shopping-cart" class="w-6 h-6"></i>
+                    </div>
+                    <h3 class="text-base font-bold text-slate-900 dark:text-white mb-1.5 flex items-center justify-between">
+                        <span>Sales</span>
+                        <i data-lucide="arrow-right" class="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-[#00C2FF]"></i>
+                    </h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                        Kelola POS, order, quotation, invoice, dan penjualan.
+                    </p>
+                </a>
+
+                <!-- 2. Inventory -->
+                <a href="{{ route('public.erp.inventory') }}" class="group block p-6 rounded-3xl bg-white dark:bg-[#101726] border border-slate-100 dark:border-white/5 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_30px_rgba(0,194,255,0.12)] hover:-translate-y-1 transition-all duration-300">
+                    <div class="w-12 h-12 rounded-2xl bg-purple-50 dark:bg-purple-950/60 border border-purple-100 dark:border-purple-800/40 text-purple-500 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                        <i data-lucide="layers" class="w-6 h-6"></i>
+                    </div>
+                    <h3 class="text-base font-bold text-slate-900 dark:text-white mb-1.5 flex items-center justify-between">
+                        <span>Inventory</span>
+                        <i data-lucide="arrow-right" class="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-[#00C2FF]"></i>
+                    </h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                        Pantau stok, warehouse, mutasi, hingga purchasing.
+                    </p>
+                </a>
+
+                <!-- 3. Finance -->
+                <a href="{{ route('public.erp.finance') }}" class="group block p-6 rounded-3xl bg-white dark:bg-[#101726] border border-slate-100 dark:border-white/5 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_30px_rgba(0,194,255,0.12)] hover:-translate-y-1 transition-all duration-300">
+                    <div class="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-950/60 border border-blue-100 dark:border-blue-800/40 text-blue-500 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                        <i data-lucide="wallet" class="w-6 h-6"></i>
+                    </div>
+                    <h3 class="text-base font-bold text-slate-900 dark:text-white mb-1.5 flex items-center justify-between">
+                        <span>Finance</span>
+                        <i data-lucide="arrow-right" class="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-[#00C2FF]"></i>
+                    </h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                        Kelola transaksi dan keuangan bisnis Anda.
+                    </p>
+                </a>
+
+                <!-- 4. Customer -->
+                <a href="{{ route('public.omnichannel.customer') }}" class="group block p-6 rounded-3xl bg-white dark:bg-[#101726] border border-slate-100 dark:border-white/5 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_30px_rgba(0,194,255,0.12)] hover:-translate-y-1 transition-all duration-300">
+                    <div class="w-12 h-12 rounded-2xl bg-cyan-50 dark:bg-cyan-950/60 border border-cyan-100 dark:border-cyan-800/40 text-cyan-500 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                        <i data-lucide="users" class="w-6 h-6"></i>
+                    </div>
+                    <h3 class="text-base font-bold text-slate-900 dark:text-white mb-1.5 flex items-center justify-between">
+                        <span>Customer</span>
+                        <i data-lucide="arrow-right" class="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-[#00C2FF]"></i>
+                    </h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                        Kelola customer, relationship, dan riwayat transaksi.
+                    </p>
+                </a>
+
+                <!-- 5. Social Media -->
+                <a href="{{ route('public.omnichannel.social-media') }}" class="group block p-6 rounded-3xl bg-white dark:bg-[#101726] border border-slate-100 dark:border-white/5 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_30px_rgba(0,194,255,0.12)] hover:-translate-y-1 transition-all duration-300">
+                    <div class="w-12 h-12 rounded-2xl bg-pink-50 dark:bg-pink-950/60 border border-pink-100 dark:border-pink-800/40 text-pink-500 flex items-center justify-center gap-1 mb-4 group-hover:scale-110 transition-transform">
+                        <span class="w-2.5 h-2.5 rounded-full bg-pink-500 inline-block"></span>
+                        <span class="w-2.5 h-2.5 rounded-full bg-blue-600 inline-block"></span>
+                    </div>
+                    <h3 class="text-base font-bold text-slate-900 dark:text-white mb-1.5 flex items-center justify-between">
+                        <span>Social Media</span>
+                        <i data-lucide="arrow-right" class="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-[#00C2FF]"></i>
+                    </h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                        Hubungkan akun social media dan kelola konten.
+                    </p>
+                </a>
+
+                <!-- 6. Content Automation -->
+                <a href="{{ route('public.content.creation') }}" class="group block p-6 rounded-3xl bg-white dark:bg-[#101726] border border-slate-100 dark:border-white/5 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_30px_rgba(0,194,255,0.12)] hover:-translate-y-1 transition-all duration-300">
+                    <div class="w-12 h-12 rounded-2xl bg-fuchsia-50 dark:bg-fuchsia-950/60 border border-fuchsia-100 dark:border-fuchsia-800/40 text-fuchsia-500 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                        <i data-lucide="megaphone" class="w-6 h-6"></i>
+                    </div>
+                    <h3 class="text-base font-bold text-slate-900 dark:text-white mb-1.5 flex items-center justify-between">
+                        <span>Content Automation</span>
+                        <i data-lucide="arrow-right" class="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-[#00C2FF]"></i>
+                    </h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                        Plan, schedule, publish, dan monitor konten.
+                    </p>
+                </a>
+
+                <!-- 7. Marketplace -->
+                <a href="{{ route('marketplace.index') }}" class="group block p-6 rounded-3xl bg-white dark:bg-[#101726] border border-slate-100 dark:border-white/5 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_30px_rgba(0,194,255,0.12)] hover:-translate-y-1 transition-all duration-300">
+                    <div class="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-100 dark:border-indigo-800/40 text-indigo-500 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                        <i data-lucide="store" class="w-6 h-6"></i>
+                    </div>
+                    <h3 class="text-base font-bold text-slate-900 dark:text-white mb-1.5 flex items-center justify-between">
+                        <span>Marketplace</span>
+                        <i data-lucide="arrow-right" class="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-[#00C2FF]"></i>
+                    </h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                        Tingkatkan penjualan melalui berbagai marketplace.
+                    </p>
+                </a>
+
+                <!-- 8. Analytics & AI -->
+                <a href="{{ route('public.erp.analytics') }}" class="group block p-6 rounded-3xl bg-white dark:bg-[#101726] border border-slate-100 dark:border-white/5 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_30px_rgba(0,194,255,0.12)] hover:-translate-y-1 transition-all duration-300">
+                    <div class="w-12 h-12 rounded-2xl bg-violet-50 dark:bg-violet-950/60 border border-violet-100 dark:border-violet-800/40 text-violet-500 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                        <i data-lucide="trending-up" class="w-6 h-6"></i>
+                    </div>
+                    <h3 class="text-base font-bold text-slate-900 dark:text-white mb-1.5 flex items-center justify-between">
+                        <span>Analytics & AI</span>
+                        <i data-lucide="arrow-right" class="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-[#00C2FF]"></i>
+                    </h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                        Ubah data menjadi insight untuk keputusan lebih baik.
+                    </p>
+                </a>
+
+            </div>
+        </div>
+    </section>
 
 
-                        <!-- Apple SF Pro Headline (High Contrast - No Tacky Gradients) -->
-                        <h1
-                            class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-[#1D1D1F] dark:text-[#F5F5F7] leading-[1.08]">
-                            <span class="block">Kelola Bisnis UMKM</span>
-                            <span class="text-[#007AFF] dark:text-[#0A84FF] block">Lebih Cerdas &amp; Presisi</span>
-                        </h1>
+    <!-- ══════════════════════════════════════════════════════════════════════════ -->
+    <!-- ═══ 3. INTEGRATED WORKFLOW ("Your Business, Connected End-to-End") ═══ -->
+    <!-- ══════════════════════════════════════════════════════════════════════════ -->
+    <section class="bg-[#F8FAFC] dark:bg-[#070B18] py-20 lg:py-24 border-b border-slate-100 dark:border-white/5 transition-colors">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
 
-                        <p
-                            class="text-base sm:text-lg text-[#6E6E73] dark:text-[#86868B] max-w-xl leading-relaxed font-normal mx-auto lg:mx-0">
-                            <strong class="font-semibold text-[#1D1D1F] dark:text-[#F5F5F7]">Cooca</strong> adalah sistem
-                            operasi bisnis terlengkap: <span class="text-[#007AFF] dark:text-[#0A84FF] font-medium">HPP
-                                presisi</span>, <span class="text-[#34C759] dark:text-[#30D158] font-medium">POS
-                                Kasir</span>, stok real-time, pembukuan otomatis, dan asisten AI tanpa biaya lisensi
-                            bulanan.
+                <!-- Left Column -->
+                <div class="lg:col-span-5 space-y-5 text-center lg:text-left">
+                    <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-sky-100 dark:bg-sky-950/60 border border-sky-200 dark:border-sky-800/40 text-sky-700 dark:text-sky-300 text-xs font-semibold">
+                        <span>Integrated Workflow</span>
+                    </div>
+
+                    <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-tight">
+                        Your Business,<br class="hidden sm:inline"> Connected End-to-End
+                    </h2>
+
+                    <p class="text-slate-600 dark:text-slate-400 text-sm sm:text-base leading-relaxed max-w-md mx-auto lg:mx-0">
+                        Dari perolehan pelanggan hingga transaksi bisnis, semuanya saling terhubung dalam satu sistem.
+                    </p>
+
+                    <div>
+                        <a href="{{ route('public.bos.how-it-works') }}"
+                            class="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#00C2FF] hover:bg-[#00B4D8] text-white font-bold text-xs sm:text-sm shadow-[0_0_20px_rgba(0,194,255,0.4)] hover:scale-105 active:scale-95 transition-all">
+                            <span>Lihat Alur Lengkap</span>
+                            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Right Column: Connected Node Workflow -->
+                <div class="lg:col-span-7 overflow-x-auto pb-4 lg:pb-0">
+                    <div class="min-w-[540px] space-y-6">
+
+                        <!-- Row 1: Acquisition to POS & Inventory -->
+                        <div class="flex items-center justify-between gap-2 p-4 rounded-3xl bg-white dark:bg-[#101726] border border-slate-200/80 dark:border-white/5 shadow-sm">
+                            <!-- Node 1: Social Media -->
+                            <div class="flex flex-col items-center text-center">
+                                <div class="w-10 h-10 rounded-xl bg-purple-500 text-white flex items-center justify-center shadow-md">
+                                    <i data-lucide="share-2" class="w-5 h-5"></i>
+                                </div>
+                                <span class="text-[10px] font-semibold text-slate-700 dark:text-slate-300 mt-2">Social Media</span>
+                            </div>
+
+                            <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
+
+                            <!-- Node 2: Content -->
+                            <div class="flex flex-col items-center text-center">
+                                <div class="w-10 h-10 rounded-xl bg-blue-500 text-white flex items-center justify-center shadow-md">
+                                    <i data-lucide="send" class="w-5 h-5"></i>
+                                </div>
+                                <span class="text-[10px] font-semibold text-slate-700 dark:text-slate-300 mt-2">Content</span>
+                            </div>
+
+                            <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
+
+                            <!-- Node 3: Customer -->
+                            <div class="flex flex-col items-center text-center">
+                                <div class="w-10 h-10 rounded-xl bg-cyan-500 text-white flex items-center justify-center shadow-md">
+                                    <i data-lucide="users" class="w-5 h-5"></i>
+                                </div>
+                                <span class="text-[10px] font-semibold text-slate-700 dark:text-slate-300 mt-2">Customer</span>
+                            </div>
+
+                            <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
+
+                            <!-- Node 4: Chat / Order -->
+                            <div class="flex flex-col items-center text-center">
+                                <div class="w-10 h-10 rounded-xl bg-emerald-500 text-white flex items-center justify-center shadow-md">
+                                    <i data-lucide="message-square" class="w-5 h-5"></i>
+                                </div>
+                                <span class="text-[10px] font-semibold text-slate-700 dark:text-slate-300 mt-2">Chat / Order</span>
+                            </div>
+
+                            <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
+
+                            <!-- Node 5: Kasir / POS -->
+                            <div class="flex flex-col items-center text-center">
+                                <div class="w-10 h-10 rounded-xl bg-rose-500 text-white flex items-center justify-center shadow-md">
+                                    <i data-lucide="shopping-bag" class="w-5 h-5"></i>
+                                </div>
+                                <span class="text-[10px] font-semibold text-slate-700 dark:text-slate-300 mt-2">Kasir / POS</span>
+                            </div>
+
+                            <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
+
+                            <!-- Node 6: Inventory -->
+                            <div class="flex flex-col items-center text-center">
+                                <div class="w-10 h-10 rounded-xl bg-teal-500 text-white flex items-center justify-center shadow-md">
+                                    <i data-lucide="boxes" class="w-5 h-5"></i>
+                                </div>
+                                <span class="text-[10px] font-semibold text-slate-700 dark:text-slate-300 mt-2">Inventory</span>
+                            </div>
+                        </div>
+
+                        <!-- Row 2: Production to Analytics (Connecting back) -->
+                        <div class="flex items-center justify-between gap-2 p-4 rounded-3xl bg-white dark:bg-[#101726] border border-slate-200/80 dark:border-white/5 shadow-sm">
+                            <!-- Node 7: Analytics -->
+                            <div class="flex flex-col items-center text-center">
+                                <div class="w-10 h-10 rounded-xl bg-purple-600 text-white flex items-center justify-center shadow-md">
+                                    <i data-lucide="bar-chart-2" class="w-5 h-5"></i>
+                                </div>
+                                <span class="text-[10px] font-semibold text-slate-700 dark:text-slate-300 mt-2">Analytics</span>
+                            </div>
+
+                            <i data-lucide="chevron-left" class="w-4 h-4 text-slate-400"></i>
+
+                            <!-- Node 8: Accounting -->
+                            <div class="flex flex-col items-center text-center">
+                                <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center shadow-md">
+                                    <i data-lucide="book-marked" class="w-5 h-5"></i>
+                                </div>
+                                <span class="text-[10px] font-semibold text-slate-700 dark:text-slate-300 mt-2">Accounting</span>
+                            </div>
+
+                            <i data-lucide="chevron-left" class="w-4 h-4 text-slate-400"></i>
+
+                            <!-- Node 9: Finance -->
+                            <div class="flex flex-col items-center text-center">
+                                <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-md">
+                                    <i data-lucide="coins" class="w-5 h-5"></i>
+                                </div>
+                                <span class="text-[10px] font-semibold text-slate-700 dark:text-slate-300 mt-2">Finance</span>
+                            </div>
+
+                            <i data-lucide="chevron-left" class="w-4 h-4 text-slate-400"></i>
+
+                            <!-- Node 10: Purchasing -->
+                            <div class="flex flex-col items-center text-center">
+                                <div class="w-10 h-10 rounded-xl bg-indigo-500 text-white flex items-center justify-center shadow-md">
+                                    <i data-lucide="shopping-cart" class="w-5 h-5"></i>
+                                </div>
+                                <span class="text-[10px] font-semibold text-slate-700 dark:text-slate-300 mt-2">Purchasing</span>
+                            </div>
+
+                            <i data-lucide="chevron-left" class="w-4 h-4 text-slate-400"></i>
+
+                            <!-- Node 11: Production -->
+                            <div class="flex flex-col items-center text-center">
+                                <div class="w-10 h-10 rounded-xl bg-blue-500 text-white flex items-center justify-center shadow-md">
+                                    <i data-lucide="factory" class="w-5 h-5"></i>
+                                </div>
+                                <span class="text-[10px] font-semibold text-slate-700 dark:text-slate-300 mt-2">Production</span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+
+    <!-- ══════════════════════════════════════════════════════════════════════════ -->
+    <!-- ═══ 4. "LEBIH DARI SEKADAR ERP" (Dark Section with Laptop/Mobile Mockup) ═══ -->
+    <!-- ══════════════════════════════════════════════════════════════════════════ -->
+    <section class="relative bg-[#080D1E] text-white py-20 lg:py-28 overflow-hidden">
+        <!-- Ambient lighting -->
+        <div class="absolute top-1/2 left-1/3 w-96 h-96 bg-[#00C2FF]/10 rounded-full blur-[130px] pointer-events-none -z-0"></div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+
+            <!-- Section Heading -->
+            <div class="space-y-3 mb-14 text-center lg:text-left">
+                <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-cyan-950/60 border border-cyan-400/30 text-cyan-300 text-xs font-semibold">
+                    <span>Business Operating System</span>
+                </div>
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+                    Lebih dari Sekadar ERP
+                </h2>
+                <p class="text-slate-400 text-sm sm:text-base max-w-2xl leading-relaxed mx-auto lg:mx-0">
+                    COOCA adalah Business Operating System yang membantu Anda mengelola, menghubungkan, dan mengembangkan bisnis.
+                </p>
+            </div>
+
+            <!-- Content Grid: 6 Pillars (Left) & Realistic Laptop Dashboard (Right) -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+
+                <!-- Left: 6 Pillars (2x3 Grid) -->
+                <div class="lg:col-span-5 grid grid-cols-2 gap-6">
+
+                    <!-- 1. Operate -->
+                    <div class="space-y-2">
+                        <div class="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-[#00C2FF]">
+                            <i data-lucide="gauge" class="w-5 h-5"></i>
+                        </div>
+                        <h4 class="text-sm font-bold text-white">Operate</h4>
+                        <p class="text-xs text-slate-400 leading-relaxed">
+                            Kelola operasional bisnis sehari-hari.
                         </p>
-
-                        <!-- CTAs dengan State Terautentikasi / Tamu -->
-                        <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 pt-1">
-                            @if (auth('admin')->check())
-                                <a href="{{ route('admin.dashboard') }}"
-                                    class="w-full sm:w-auto glow-btn px-7 py-3.5 rounded-[16px] text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-[0_2px_8px_rgba(0,122,255,0.3)] hover:shadow-[0_4px_16px_rgba(0,122,255,0.4)] active:scale-[0.98] transition-all">
-                                    <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
-                                    <span>Buka Dashboard Admin</span>
-                                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
-                                </a>
-                            @elseif (auth('web')->check())
-                                <a href="{{ route('dashboard') }}"
-                                    class="w-full sm:w-auto glow-btn px-7 py-3.5 rounded-[16px] text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-[0_2px_8px_rgba(0,122,255,0.3)] hover:shadow-[0_4px_16px_rgba(0,122,255,0.4)] active:scale-[0.98] transition-all">
-                                    <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
-                                    <span>Buka Dashboard Bisnis</span>
-                                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
-                                </a>
-                            @else
-                                <a href="{{ route('register') }}"
-                                    class="w-full sm:w-auto glow-btn px-7 py-3.5 rounded-[16px] text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-[0_2px_8px_rgba(0,122,255,0.3)] hover:shadow-[0_4px_16px_rgba(0,122,255,0.4)] active:scale-[0.98] transition-all">
-                                    <span>Mulai Sekarang - Gratis</span>
-                                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
-                                </a>
-                                <a href="{{ route('auth.google') }}"
-                                    class="w-full sm:w-auto px-6 py-3.5 rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] text-[#1D1D1F] dark:text-[#F5F5F7] font-semibold text-sm flex items-center justify-center gap-2.5 hover:bg-black/[0.02] dark:hover:bg-white/[0.04] shadow-sm active:scale-[0.98] transition-all">
-                                    <svg class="w-4 h-4" viewBox="0 0 24 24">
-                                        <path fill="#EA4335"
-                                            d="M12 5c1.6 0 3 .6 4.1 1.7l3.1-3.1C17.3 1.8 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.4 9 5 12 5z" />
-                                        <path fill="#4285F4"
-                                            d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.6h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.9z" />
-                                        <path fill="#FBBC05"
-                                            d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.3s.2-1.6.4-2.3L1.9 7.3C.7 9.7 0 12.3 0 15s.7 5.3 1.9 7.7l3.7-2.9z" />
-                                        <path fill="#34A853"
-                                            d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.4-6.4-5.2L1.9 16c1.8 3.7 5.6 7 10.1 7z" />
-                                    </svg>
-                                    <span>Daftar via Google</span>
-                                </a>
-                            @endif
-                        </div>
-
-                        <!-- Trust Signals (Apple System Badges) -->
-                        <div
-                            class="flex flex-wrap items-center justify-center lg:justify-start gap-4 sm:gap-6 text-xs font-medium text-[#6E6E73] dark:text-[#86868B] pt-2">
-                            <span class="flex items-center gap-1.5"><i data-lucide="shield-check"
-                                    class="w-4 h-4 text-[#34C759] dark:text-[#30D158]"></i> Tanpa Kartu Kredit</span>
-                            <span class="flex items-center gap-1.5"><i data-lucide="zap"
-                                    class="w-4 h-4 text-[#FF9500] dark:text-[#FF9F0A]"></i> Setup Cepat 2 Menit</span>
-                            <span class="flex items-center gap-1.5"><i data-lucide="lock"
-                                    class="w-4 h-4 text-[#007AFF] dark:text-[#0A84FF]"></i> Data Aman &amp;
-                                Terenkripsi</span>
-                        </div>
-
-                        <!-- Social Proof Stats Bento -->
-                        <div class="grid grid-cols-3 gap-3 pt-3 max-w-lg mx-auto lg:mx-0">
-                            <div
-                                class="p-3.5 rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] text-center shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
-                                <div
-                                    class="text-xl sm:text-2xl font-extrabold text-[#1D1D1F] dark:text-[#F5F5F7] font-mono">
-                                    10.000+</div>
-                                <div class="text-[11px] font-medium text-[#6E6E73] dark:text-[#86868B] mt-0.5">UMKM
-                                    Terdaftar</div>
-                            </div>
-                            <div
-                                class="p-3.5 rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] text-center shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
-                                <div
-                                    class="text-xl sm:text-2xl font-extrabold text-[#34C759] dark:text-[#30D158] font-mono">
-                                    99.8%</div>
-                                <div class="text-[11px] font-medium text-[#6E6E73] dark:text-[#86868B] mt-0.5">Akurasi
-                                    Finansial</div>
-                            </div>
-                            <div
-                                class="p-3.5 rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] text-center shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
-                                <div
-                                    class="text-xl sm:text-2xl font-extrabold text-[#007AFF] dark:text-[#0A84FF] font-mono">
-                                    100%</div>
-                                <div class="text-[11px] font-medium text-[#6E6E73] dark:text-[#86868B] mt-0.5">Gratis
-                                    Selamanya</div>
-                            </div>
-                        </div>
                     </div>
 
-                    <!-- Kanan: Apple macOS Realistic Window Mockup Showcase -->
-                    <div class="lg:col-span-6 flex justify-center lg:justify-end">
-                        <div class="relative w-full max-w-lg xl:max-w-xl">
-                            <!-- macOS Inset Squircle Window -->
-                            <div
-                                class="relative rounded-[28px] bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.08)] dark:shadow-[0_20px_60px_-15px_rgba(0,0,0,0.7)] p-5 sm:p-6 backdrop-blur-2xl transition-all">
-                                <!-- macOS Window Header Bar -->
-                                <div
-                                    class="flex items-center justify-between border-b border-black/[0.06] dark:border-white/[0.08] pb-3.5 mb-4">
-                                    <div class="flex items-center gap-2">
-                                        <div class="w-3 h-3 rounded-full bg-[#FF5F56] border border-black/10"></div>
-                                        <div class="w-3 h-3 rounded-full bg-[#FFBD2E] border border-black/10"></div>
-                                        <div class="w-3 h-3 rounded-full bg-[#27C93F] border border-black/10"></div>
-                                        <span class="text-xs font-semibold text-[#6E6E73] dark:text-[#86868B] ml-2">Cooca OS
-                                            • Executive Dashboard</span>
-                                    </div>
-                                </div>
-
-                                <!-- 4 Key Performance Metrics (Bento 2x2) -->
-                                <div class="grid grid-cols-2 gap-3 mb-4">
-                                    <div
-                                        class="p-3.5 rounded-[18px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06]">
-                                        <div class="text-xs text-[#6E6E73] dark:text-[#86868B] uppercase font-semibold">
-                                            Omzet Hari Ini</div>
-                                        <div
-                                            class="text-base sm:text-lg font-bold text-[#34C759] dark:text-[#30D158] font-mono mt-0.5">
-                                            Rp 4.250.000</div>
-                                        <div
-                                            class="text-xs text-[#34C759] dark:text-[#30D158] font-medium flex items-center gap-0.5 mt-0.5">
-                                            <i data-lucide="trending-up" class="w-3 h-3"></i> +14.8% vs kemarin
-                                        </div>
-                                    </div>
-                                    <div
-                                        class="p-3.5 rounded-[18px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06]">
-                                        <div class="text-xs text-[#6E6E73] dark:text-[#86868B] uppercase font-semibold">
-                                            Margin Laba Bersih</div>
-                                        <div
-                                            class="text-base sm:text-lg font-bold text-[#007AFF] dark:text-[#0A84FF] font-mono mt-0.5">
-                                            32.4%</div>
-                                        <div class="text-xs text-[#6E6E73] dark:text-[#86868B] mt-0.5">Net Profit Rp
-                                            1.377.000</div>
-                                    </div>
-                                    <div
-                                        class="p-3.5 rounded-[18px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06]">
-                                        <div class="text-xs text-[#6E6E73] dark:text-[#86868B] uppercase font-semibold">
-                                            Stok Kritis Gudang</div>
-                                        <div
-                                            class="text-base sm:text-lg font-bold text-[#FF9500] dark:text-[#FF9F0A] font-mono mt-0.5">
-                                            3 Bahan</div>
-                                        <div
-                                            class="text-xs text-[#FF9500] dark:text-[#FF9F0A] flex items-center gap-0.5 mt-0.5">
-                                            <i data-lucide="alert-circle" class="w-3 h-3"></i> Segera restock
-                                        </div>
-                                    </div>
-                                    <div
-                                        class="p-3.5 rounded-[18px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06]">
-                                        <div class="text-xs text-[#6E6E73] dark:text-[#86868B] uppercase font-semibold">
-                                            Transaksi POS</div>
-                                        <div
-                                            class="text-base sm:text-lg font-bold text-[#1D1D1F] dark:text-[#F5F5F7] font-mono mt-0.5">
-                                            142 Struk</div>
-                                        <div class="text-xs text-[#34C759] dark:text-[#30D158] mt-0.5">AOV Rp 29.900
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Mini 7-Day Sales Dynamic Sparkline Chart -->
-                                <div
-                                    class="p-4 rounded-[18px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06] mb-3">
-                                    <div
-                                        class="flex items-center justify-between text-[11px] font-medium text-[#6E6E73] dark:text-[#86868B] mb-2">
-                                        <span>Tren Penjualan 7 Hari Terakhir</span>
-                                        <span class="text-[#34C759] dark:text-[#30D158] font-semibold">+23.5% minggu
-                                            ini</span>
-                                    </div>
-                                    <div class="flex items-end gap-1.5 h-16 pt-2">
-                                        <div class="flex-1 bg-[#007AFF]/25 dark:bg-[#0A84FF]/30 hover:bg-[#007AFF] h-[45%] rounded-[6px] transition-all"
-                                            title="Senin: Rp 2.8Jt"></div>
-                                        <div class="flex-1 bg-[#007AFF]/35 dark:bg-[#0A84FF]/40 hover:bg-[#007AFF] h-[60%] rounded-[6px] transition-all"
-                                            title="Selasa: Rp 3.4Jt"></div>
-                                        <div class="flex-1 bg-[#007AFF]/30 dark:bg-[#0A84FF]/35 hover:bg-[#007AFF] h-[40%] rounded-[6px] transition-all"
-                                            title="Rabu: Rp 2.5Jt"></div>
-                                        <div class="flex-1 bg-[#007AFF]/50 dark:bg-[#0A84FF]/55 hover:bg-[#007AFF] h-[75%] rounded-[6px] transition-all"
-                                            title="Kamis: Rp 4.1Jt"></div>
-                                        <div class="flex-1 bg-[#007AFF]/45 dark:bg-[#0A84FF]/50 hover:bg-[#007AFF] h-[65%] rounded-[6px] transition-all"
-                                            title="Jumat: Rp 3.7Jt"></div>
-                                        <div class="flex-1 bg-[#007AFF] dark:bg-[#0A84FF] h-[100%] rounded-[6px] shadow-sm transition-all"
-                                            title="Sabtu: Rp 5.2Jt"></div>
-                                        <div class="flex-1 bg-[#007AFF]/75 dark:bg-[#0A84FF]/80 hover:bg-[#007AFF] h-[85%] rounded-[6px] transition-all"
-                                            title="Minggu: Rp 4.6Jt"></div>
-                                    </div>
-                                </div>
-
-                                <!-- AI Assistant Bubble (Clean Apple Inset) -->
-                                <div
-                                    class="flex items-center gap-2.5 p-3 rounded-[16px] bg-[#007AFF]/10 dark:bg-[#0A84FF]/15 border border-[#007AFF]/20 text-xs">
-                                    <div
-                                        class="w-6 h-6 rounded-full bg-[#007AFF] text-white flex items-center justify-center shrink-0">
-                                        <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
-                                    </div>
-                                    <span class="text-[#1D1D1F] dark:text-[#F5F5F7] font-medium truncate flex-1">
-                                        AI: "Margin produk Kopi Susu naik 4% setelah revisi bahan baku."
-                                    </span>
-                                </div>
-                            </div>
-
-
+                    <!-- 2. Sell -->
+                    <div class="space-y-2">
+                        <div class="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-[#00C2FF]">
+                            <i data-lucide="tag" class="w-5 h-5"></i>
                         </div>
+                        <h4 class="text-sm font-bold text-white">Sell</h4>
+                        <p class="text-xs text-slate-400 leading-relaxed">
+                            Kelola penjualan dari berbagai channel.
+                        </p>
+                    </div>
+
+                    <!-- 3. Engage -->
+                    <div class="space-y-2">
+                        <div class="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-[#00C2FF]">
+                            <i data-lucide="message-square" class="w-5 h-5"></i>
+                        </div>
+                        <h4 class="text-sm font-bold text-white">Engage</h4>
+                        <p class="text-xs text-slate-400 leading-relaxed">
+                            Bangun hubungan dengan customer.
+                        </p>
+                    </div>
+
+                    <!-- 4. Automate -->
+                    <div class="space-y-2">
+                        <div class="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-[#00C2FF]">
+                            <i data-lucide="zap" class="w-5 h-5"></i>
+                        </div>
+                        <h4 class="text-sm font-bold text-white">Automate</h4>
+                        <p class="text-xs text-slate-400 leading-relaxed">
+                            Kurangi pekerjaan manual dengan automation.
+                        </p>
+                    </div>
+
+                    <!-- 5. Analyze -->
+                    <div class="space-y-2">
+                        <div class="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-[#00C2FF]">
+                            <i data-lucide="line-chart" class="w-5 h-5"></i>
+                        </div>
+                        <h4 class="text-sm font-bold text-white">Analyze</h4>
+                        <p class="text-xs text-slate-400 leading-relaxed">
+                            Pahami bisnis melalui data dan analytics.
+                        </p>
+                    </div>
+
+                    <!-- 6. Decide -->
+                    <div class="space-y-2">
+                        <div class="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-[#00C2FF]">
+                            <i data-lucide="compass" class="w-5 h-5"></i>
+                        </div>
+                        <h4 class="text-sm font-bold text-white">Decide</h4>
+                        <p class="text-xs text-slate-400 leading-relaxed">
+                            Ambil keputusan lebih tepat dan cepat.
+                        </p>
                     </div>
 
                 </div>
-            </div>
-        </section>
 
-        <!-- ═══ 2. BENTO SECTION: MODUL EKOSISTEM (Apple Bento Grid 4 & 6 Col) ═══ -->
-        <section id="modul"
-            class="py-16 md:py-24 border-t border-black/[0.06] dark:border-white/[0.08] bg-white/40 dark:bg-[#121214]/40">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
-                <div class="text-center space-y-3 max-w-2xl mx-auto">
-                    <h2 class="text-3xl sm:text-4xl font-extrabold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight">Semua
-                        Fitur Dalam Satu Ekosistem</h2>
-                    <p class="text-sm sm:text-base text-[#6E6E73] dark:text-[#86868B]">Dari penetapan harga modal hingga
-                        pencatatan kas harian, seluruh modul saling terhubung otomatis.</p>
-                </div>
+                <!-- Right: Realistic MacBook & iPhone Showcase -->
+                <div class="lg:col-span-7 relative">
+                    <div class="relative w-full max-w-lg mx-auto lg:max-w-none">
 
-                <!-- Bento Architecture: Desktop 6-col / Mobile Adaptif 2-col Bento Grid -->
-                <div class="grid grid-cols-2 md:grid-cols-6 gap-3 sm:gap-4 md:gap-6">
-
-                    <!-- Hero Bento Card: Kasir POS & Food Costing (Spans 2-col on Mobile, 4-col on Desktop) -->
-                    <div
-                        class="col-span-2 md:col-span-4 glass-card p-5 sm:p-8 rounded-[24px] sm:rounded-[28px] flex flex-col justify-between group hover:border-[#34C759]/30 transition-all">
-                        <div class="space-y-3.5 sm:space-y-4">
-                            <div class="flex items-center justify-between">
-                                <div
-                                    class="w-10 h-10 sm:w-12 sm:h-12 rounded-[16px] sm:rounded-[18px] bg-[#34C759]/10 text-[#34C759] dark:text-[#30D158] flex items-center justify-center">
-                                    <i data-lucide="shopping-cart" class="w-5 h-5 sm:w-6 sm:h-6"></i>
-                                </div>
-                                <span
-                                    class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#34C759] dark:text-[#30D158]">
-                                    Kasir Kilat &amp; POS
-                                </span>
+                        <!-- Laptop Body Mockup -->
+                        <div class="relative rounded-2xl bg-slate-900 border border-slate-700 shadow-[0_20px_50px_rgba(0,0,0,0.6)] overflow-hidden p-2 sm:p-3">
+                            <!-- Laptop Header Bar -->
+                            <div class="h-6 bg-slate-800 rounded-t-lg flex items-center px-3 gap-1.5 border-b border-slate-700">
+                                <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
+                                <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+                                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                                <span class="text-[10px] text-slate-400 ml-2 font-mono">cooca.id/app/dashboard</span>
                             </div>
-                            <h3 class="text-lg sm:text-2xl font-bold text-[#1D1D1F] dark:text-[#F5F5F7]">Terminal POS Kasir
-                                &amp; HPP Terintegrasi</h3>
-                            <p class="text-xs sm:text-sm text-[#6E6E73] dark:text-[#86868B] max-w-xl leading-relaxed">
-                                Cetak struk bluetooth thermal, terima pembayaran QRIS instan, scan barcode kamera, dan
-                                otomatis potong stok bahan resep saat transaksi berlangsung.
-                            </p>
 
-                            <!-- Inset Preview Strip (Apple 3-Item Bento Shelf on Mobile & Desktop) -->
-                            <div class="grid grid-cols-3 gap-2 sm:gap-3 pt-2">
-                                <div
-                                    class="p-2.5 sm:p-3.5 rounded-[14px] sm:rounded-[16px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06]">
-                                    <div
-                                        class="text-[11px] sm:text-xs font-semibold text-[#1D1D1F] dark:text-[#F5F5F7] flex items-center gap-1 sm:gap-1.5 truncate">
-                                        <i data-lucide="printer" class="w-3.5 h-3.5 text-[#007AFF] shrink-0"></i> <span
-                                            class="truncate">Struk Thermal</span>
+                            <!-- Laptop Screen Content (COOCA UI) -->
+                            <div class="bg-white text-slate-900 p-4 rounded-b-lg font-sans">
+                                <!-- Top Stats -->
+                                <div class="grid grid-cols-3 gap-3 mb-4">
+                                    <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
+                                        <div class="text-[10px] text-slate-500">Penjualan Bulan Ini</div>
+                                        <div class="text-sm font-extrabold text-slate-900 mt-0.5">Rp 48.250.000</div>
+                                        <div class="text-[9px] text-emerald-600 font-semibold mt-0.5">+18.4% vs lalu</div>
                                     </div>
-                                    <div class="text-[11px] sm:text-xs text-[#6E6E73] dark:text-[#86868B] mt-0.5 truncate">
-                                        Bluetooth 58/80mm</div>
+                                    <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
+                                        <div class="text-[10px] text-slate-500">Total Transaksi</div>
+                                        <div class="text-sm font-extrabold text-slate-900 mt-0.5">1.420 Order</div>
+                                        <div class="text-[9px] text-emerald-600 font-semibold mt-0.5">+12.1% kasir</div>
+                                    </div>
+                                    <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
+                                        <div class="text-[10px] text-slate-500">Stok Kritis</div>
+                                        <div class="text-sm font-extrabold text-amber-600 mt-0.5">3 Barang</div>
+                                        <div class="text-[9px] text-slate-400 mt-0.5">Auto Restock on</div>
+                                    </div>
                                 </div>
-                                <div
-                                    class="p-2.5 sm:p-3.5 rounded-[14px] sm:rounded-[16px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06]">
-                                    <div
-                                        class="text-[11px] sm:text-xs font-semibold text-[#1D1D1F] dark:text-[#F5F5F7] flex items-center gap-1 sm:gap-1.5 truncate">
-                                        <i data-lucide="qr-code" class="w-3.5 h-3.5 text-[#34C759] shrink-0"></i> <span
-                                            class="truncate">QRIS Dinamis</span>
+
+                                <!-- Revenue Growth Bar Chart / Wave Simulation -->
+                                <div class="p-3 rounded-xl bg-slate-50 border border-slate-100">
+                                    <div class="flex items-center justify-between text-xs mb-2">
+                                        <span class="font-bold text-slate-800">Tren Penjualan Multi-Channel</span>
+                                        <span class="text-[10px] text-[#00C2FF] font-semibold">Real-Time Sync</span>
                                     </div>
-                                    <div class="text-[11px] sm:text-xs text-[#6E6E73] dark:text-[#86868B] mt-0.5 truncate">
-                                        Scan cepat no fee</div>
-                                </div>
-                                <div
-                                    class="p-2.5 sm:p-3.5 rounded-[14px] sm:rounded-[16px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06]">
-                                    <div
-                                        class="text-[11px] sm:text-xs font-semibold text-[#1D1D1F] dark:text-[#F5F5F7] flex items-center gap-1 sm:gap-1.5 truncate">
-                                        <i data-lucide="file-text" class="w-3.5 h-3.5 text-[#FF9500] shrink-0"></i> <span
-                                            class="truncate">Bon WhatsApp</span>
+                                    <div class="h-24 flex items-end gap-2 pt-2">
+                                        <div class="w-full bg-sky-200 rounded-t h-[45%]"></div>
+                                        <div class="w-full bg-sky-300 rounded-t h-[60%]"></div>
+                                        <div class="w-full bg-sky-400 rounded-t h-[50%]"></div>
+                                        <div class="w-full bg-[#00C2FF] rounded-t h-[80%]"></div>
+                                        <div class="w-full bg-sky-300 rounded-t h-[65%]"></div>
+                                        <div class="w-full bg-[#00C2FF] rounded-t h-[95%]"></div>
+                                        <div class="w-full bg-blue-600 rounded-t h-[100%] shadow-[0_0_10px_rgba(0,194,255,0.4)]"></div>
                                     </div>
-                                    <div class="text-[11px] sm:text-xs text-[#6E6E73] dark:text-[#86868B] mt-0.5 truncate">
-                                        Kirim nota 1-klik</div>
                                 </div>
                             </div>
                         </div>
 
-                        <div
-                            class="pt-4 sm:pt-6 mt-4 sm:mt-6 border-t border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between">
-                            <span class="text-[11px] sm:text-xs text-[#6E6E73] dark:text-[#86868B]">Bekerja offline &amp;
-                                sync otomatis</span>
-                            @if (auth('web')->check())
-                                <a href="{{ route('pos.terminal') }}"
-                                    class="text-xs font-semibold text-[#007AFF] dark:text-[#0A84FF] hover:underline flex items-center gap-1">
-                                    <span>Buka Kasir</span>
-                                    <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
-                                </a>
-                            @elseif (auth('admin')->check())
-                                <a href="{{ route('admin.dashboard') }}"
-                                    class="text-xs font-semibold text-[#007AFF] dark:text-[#0A84FF] hover:underline flex items-center gap-1">
-                                    <span>Dashboard Admin</span>
-                                    <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
-                                </a>
-                            @else
-                                <a href="{{ route('register') }}"
-                                    class="text-xs font-semibold text-[#007AFF] dark:text-[#0A84FF] hover:underline flex items-center gap-1">
-                                    <span>Coba Gratis</span>
-                                    <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
-                                </a>
-                            @endif
+                        <!-- iPhone Mockup Floating Right -->
+                        <div class="absolute -right-4 -bottom-6 w-36 sm:w-44 rounded-[28px] bg-slate-950 p-2 border-2 border-slate-700 shadow-2xl hidden xs:block">
+                            <div class="rounded-[22px] bg-white text-slate-900 p-2.5 text-center">
+                                <div class="w-8 h-1 bg-slate-800 rounded-full mx-auto mb-2"></div>
+                                <div class="text-[9px] font-bold text-slate-500 uppercase">POS Mobile</div>
+                                <div class="text-xs font-black text-slate-900 mt-1">Rp 1.850.000</div>
+                                <div class="mt-2 space-y-1 text-[9px] text-left text-slate-600">
+                                    <div class="flex justify-between py-0.5 border-b border-slate-100">
+                                        <span>Order #1029</span>
+                                        <span class="text-emerald-600 font-bold">Lunas</span>
+                                    </div>
+                                    <div class="flex justify-between py-0.5 border-b border-slate-100">
+                                        <span>Order #1028</span>
+                                        <span class="text-emerald-600 font-bold">Lunas</span>
+                                    </div>
+                                </div>
+                                <div class="mt-2.5 py-1 px-2 rounded-lg bg-[#00C2FF] text-white text-[9px] font-bold">
+                                    Scan QRIS Kasir
+                                </div>
+                            </div>
                         </div>
-                    </div>
 
-                    <!-- Compact Bento Widget: Pembukuan & Laba Rugi (Spans 1-col on Mobile, 2-col on Desktop) -->
-                    <div
-                        class="col-span-1 md:col-span-2 glass-card p-4 sm:p-7 rounded-[22px] sm:rounded-[28px] flex flex-col justify-between group hover:border-[#007AFF]/30 transition-all">
-                        <div class="space-y-2.5 sm:space-y-4">
-                            <div
-                                class="w-9 h-9 sm:w-12 sm:h-12 rounded-[14px] sm:rounded-[18px] bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF] flex items-center justify-center">
-                                <i data-lucide="book-open-check" class="w-4 h-4 sm:w-6 sm:h-6"></i>
+                        <!-- Floating AI Assistant Badge (Bottom Left) -->
+                        <div class="absolute -bottom-5 left-4 z-20 p-3.5 rounded-2xl bg-[#0b1633]/95 backdrop-blur-xl border border-cyan-400/40 shadow-[0_10px_30px_rgba(0,194,255,0.35)] flex items-center gap-3 max-w-xs">
+                            <div class="w-8 h-8 rounded-xl bg-[#00C2FF] text-slate-950 flex items-center justify-center shrink-0 shadow-[0_0_15px_rgba(0,194,255,0.6)]">
+                                <i data-lucide="sparkles" class="w-4 h-4"></i>
                             </div>
                             <div>
-                                <span
-                                    class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF] block">Otomasi
-                                    Akuntansi</span>
-                                <h3
-                                    class="text-sm sm:text-xl font-bold text-[#1D1D1F] dark:text-[#F5F5F7] mt-0.5 leading-snug">
-                                    Laba Rugi Riil</h3>
-                            </div>
-                            <p
-                                class="text-[11px] sm:text-xs text-[#6E6E73] dark:text-[#86868B] leading-relaxed hidden sm:block">
-                                Buku kas dan laporan laba bersih otomatis tersusun saat transaksi kasir input.
-                            </p>
-
-                            <div
-                                class="p-3 sm:p-4 rounded-[16px] sm:rounded-[18px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06]">
-                                <div
-                                    class="text-[11px] sm:text-xs text-[#6E6E73] dark:text-[#86868B] uppercase font-semibold">
-                                    Net Profit Akurat</div>
-                                <div
-                                    class="text-base sm:text-2xl font-bold text-[#1D1D1F] dark:text-[#F5F5F7] font-mono mt-0.5">
-                                    Rp 18.4Jt</div>
-                                <div class="text-[11px] sm:text-xs text-[#34C759] dark:text-[#30D158] font-medium mt-0.5">
-                                    +18.2% bulan ini</div>
-                            </div>
-                        </div>
-
-                        <div class="pt-3 sm:pt-4 border-t border-black/[0.06] dark:border-white/[0.08] mt-3 sm:mt-4">
-                            <a href="{{ route('template.index') }}"
-                                class="text-[11px] sm:text-xs font-semibold text-[#007AFF] dark:text-[#0A84FF] hover:underline flex items-center justify-between sm:justify-start gap-1">
-                                <span>Template Excel</span>
-                                <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
-                            </a>
-                        </div>
-                    </div>
-
-                    <!-- Compact Bento Widget: Inventori & Stok (Spans 1-col on Mobile, 3-col on Desktop) -->
-                    <div
-                        class="col-span-1 md:col-span-3 glass-card p-4 sm:p-7 rounded-[22px] sm:rounded-[28px] flex flex-col justify-between group hover:border-[#FF9500]/30 transition-all">
-                        <div class="space-y-2.5 sm:space-y-4">
-                            <div
-                                class="w-9 h-9 sm:w-12 sm:h-12 rounded-[14px] sm:rounded-[18px] bg-[#FF9500]/10 text-[#FF9500] dark:text-[#FF9F0A] flex items-center justify-center">
-                                <i data-lucide="package" class="w-4 h-4 sm:w-6 sm:h-6"></i>
-                            </div>
-                            <div>
-                                <span
-                                    class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#FF9500] dark:text-[#FF9F0A] block">Gudang
-                                    &amp; Stok</span>
-                                <h3
-                                    class="text-sm sm:text-xl font-bold text-[#1D1D1F] dark:text-[#F5F5F7] mt-0.5 leading-snug">
-                                    Mutasi Stok</h3>
-                            </div>
-                            <p
-                                class="text-[11px] sm:text-xs text-[#6E6E73] dark:text-[#86868B] leading-relaxed hidden sm:block">
-                                Beli dus, jual sachet. Kartu stok otomatis memantau peringatan restock bahan.
-                            </p>
-
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
-                                <div
-                                    class="p-2.5 sm:p-3.5 rounded-[14px] sm:rounded-[16px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06]">
-                                    <span
-                                        class="text-[11px] sm:text-xs text-[#6E6E73] dark:text-[#86868B] uppercase font-semibold">Stok
-                                        SKU</span>
-                                    <div
-                                        class="text-sm sm:text-lg font-bold text-[#1D1D1F] dark:text-[#F5F5F7] font-mono mt-0.5">
-                                        1.240 Item</div>
-                                </div>
-                                <div
-                                    class="p-2.5 sm:p-3.5 rounded-[14px] sm:rounded-[16px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06]">
-                                    <span
-                                        class="text-[11px] sm:text-xs text-[#6E6E73] dark:text-[#86868B] uppercase font-semibold">Menipis</span>
-                                    <div
-                                        class="text-sm sm:text-lg font-bold text-[#FF9500] dark:text-[#FF9F0A] font-mono mt-0.5">
-                                        3 SKU</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="pt-3 sm:pt-4 border-t border-black/[0.06] dark:border-white/[0.08] mt-3 sm:mt-4">
-                            <a href="{{ route('kalkulator.hpp') }}"
-                                class="text-[11px] sm:text-xs font-semibold text-[#007AFF] dark:text-[#0A84FF] hover:underline flex items-center justify-between sm:justify-start gap-1">
-                                <span>Hitung Resep HPP</span>
-                                <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
-                            </a>
-                        </div>
-                    </div>
-
-                    <!-- Wide Bento Card: AI Business Assistant (Spans 2-col on Mobile, 3-col on Desktop) -->
-                    <div
-                        class="col-span-2 md:col-span-3 glass-card p-5 sm:p-7 rounded-[24px] sm:rounded-[28px] flex flex-col justify-between group hover:border-[#007AFF]/30 transition-all">
-                        <div class="space-y-3.5 sm:space-y-4">
-                            <div class="flex items-center justify-between">
-                                <div
-                                    class="w-10 h-10 sm:w-12 sm:h-12 rounded-[16px] sm:rounded-[18px] bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF] flex items-center justify-center">
-                                    <i data-lucide="bot" class="w-5 h-5 sm:w-6 sm:h-6"></i>
-                                </div>
-                                <span
-                                    class="text-xs font-bold uppercase text-[#007AFF] dark:text-[#0A84FF] inline-flex items-center gap-1">
-                                    <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
-                                    <span>AI Assistant</span>
-                                </span>
-                            </div>
-                            <div>
-                                <h3 class="text-base sm:text-xl font-bold text-[#1D1D1F] dark:text-[#F5F5F7]">Konsultan
-                                    Bisnis Pintar</h3>
-                                <p class="text-xs text-[#6E6E73] dark:text-[#86868B] leading-relaxed mt-1">
-                                    Tanyakan strategi harga jual, simulasi harga bahan baku naik, atau deteksi produk
-                                    penyedot modal tanpa return.
+                                <span class="text-xs font-bold text-cyan-300 block">AI Assistant</span>
+                                <p class="text-[11px] text-slate-200 leading-snug">
+                                    Ringkasan penjualan hari ini meningkat 24% dibanding kemarin.
                                 </p>
                             </div>
-
-                            <!-- Prompt Pills (Apple Intelligence Bubble Style) -->
-                            <div class="space-y-2">
-                                <div
-                                    class="p-2.5 sm:p-3 rounded-[14px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06] text-xs text-[#1D1D1F] dark:text-[#F5F5F7] flex items-center gap-2">
-                                    <i data-lucide="sparkles" class="w-3.5 h-3.5 text-[#007AFF] shrink-0"></i>
-                                    <span class="truncate">"Berapa harga jual ideal ayam geprek jika cabai naik
-                                        25%?"</span>
-                                </div>
-                                <div
-                                    class="p-2.5 sm:p-3 rounded-[14px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06] text-xs text-[#1D1D1F] dark:text-[#F5F5F7] flex items-center gap-2">
-                                    <i data-lucide="sparkles" class="w-3.5 h-3.5 text-[#34C759] shrink-0"></i>
-                                    <span class="truncate">"Audit margin laba bersih produk terlaris minggu ini."</span>
-                                </div>
-                            </div>
                         </div>
 
-                        <div class="pt-3 sm:pt-4 border-t border-black/[0.06] dark:border-white/[0.08] mt-3 sm:mt-4">
-                            <a href="{{ route('kalkulator.simulasi-what-if') }}"
-                                class="text-xs font-semibold text-[#007AFF] dark:text-[#0A84FF] hover:underline flex items-center gap-1">
-                                <span>Coba Simulasi AI What-If</span>
-                                <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
-                            </a>
-                        </div>
                     </div>
-
                 </div>
+
             </div>
-        </section>
+        </div>
+    </section>
 
-        <!-- ═══ 3. BENTO SECTION: SOLUSI 20+ INDUSTRI (Responsive 2-Col Mobile Bento Grid) ═══ -->
-        <section id="industri" class="py-16 md:py-24 border-t border-black/[0.06] dark:border-white/[0.08]"
-            x-data="{
-                activeTab: 'all',
-                industries: [
-                    { slug: 'kasir-warung', name: 'Warung & Kelontong', category: 'retail', icon: 'shopping-basket', badge: 'Grosir & Bon WA', desc: 'Jual eceran & dus, catat bon hutang langganan, dan scan barcode.' },
-                    { slug: 'kasir-cafe-kecil', name: 'Kafe & Kedai Kopi', category: 'fnb', icon: 'coffee', badge: 'HPP Resep Cup', desc: 'Resep cup kopi, nomor meja, split bill, dan cetak tiket dapur.' },
-                    { slug: 'kasir-kios', name: 'Konter HP & Pulsa', category: 'retail', icon: 'smartphone', badge: 'Barcode Kilat', desc: 'Pencarian casing, kabel data, voucher & nota servis HP.' },
-                    { slug: 'kasir-laundry', name: 'Laundry Kiloan', category: 'service', icon: 'shirt', badge: 'Nota WA Otomatis', desc: 'Tracking status cuci, setrika, siap ambil, dan nomor rak.' },
-                    { slug: 'kasir-salon', name: 'Salon & Spa', category: 'service', icon: 'sparkles', badge: 'Komisi Terapis', desc: 'Bagi hasil terapis, riwayat treatment, & paket bundling.' },
-                    { slug: 'kasir-barbershop', name: 'Barbershop', category: 'service', icon: 'scissors', badge: 'Antrean Kursi', desc: 'Barberman favorit, komisi per kepala potong, & pomade.' },
-                    { slug: 'kasir-bengkel-kecil', name: 'Bengkel Motor', category: 'service', icon: 'wrench', badge: 'Jasa + Part', desc: 'Gabungkan jasa montir dan sparepart, simpan riwayat nopol.' },
-                    { slug: 'kasir-irt', name: 'Produsen Snack IRT', category: 'fnb', icon: 'cookie', badge: 'HPP 3-Pilar', desc: 'Modal bahan, gas & titip jual konsinyasi mitra.' }
-                ],
-                filtered() {
-                    if (this.activeTab === 'all') return this.industries;
-                    return this.industries.filter(i => i.category === this.activeTab);
-                }
-            }">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
-                <div class="text-center space-y-3 max-w-2xl mx-auto">
-                    <span
-                        class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#6E6E73] dark:text-[#86868B] inline-flex items-center gap-1.5">
-                        <i data-lucide="store" class="w-3.5 h-3.5"></i>
-                        <span>Solusi 20+ Industri</span>
-                    </span>
-                    <h2 class="text-3xl sm:text-4xl font-extrabold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight">
-                        Disesuaikan untuk Setiap Usaha</h2>
-                    <p class="text-sm sm:text-base text-[#6E6E73] dark:text-[#86868B]">Setiap industri memiliki alur
-                        operasional unik. Cooca siap mengakomodasi kebutuhan Anda.</p>
-                </div>
 
-                <!-- Apple Segmented Filter Chips -->
-                <div class="flex items-center justify-center">
-                    <div
-                        class="inline-flex p-1 rounded-[16px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.04] dark:border-white/[0.06] text-xs font-semibold overflow-x-auto max-w-full">
-                        <button type="button" @click="activeTab = 'all'"
-                            :class="activeTab === 'all' ?
-                                'bg-white dark:bg-[#1C1C1E] text-[#1D1D1F] dark:text-[#F5F5F7] shadow-sm' :
-                                'text-[#6E6E73] dark:text-[#86868B] hover:text-[#1D1D1F] dark:hover:text-[#F5F5F7]'"
-                            class="px-3 sm:px-4 py-1.5 rounded-[10px] transition-all duration-150 whitespace-nowrap">Semua</button>
-                        <button type="button" @click="activeTab = 'fnb'"
-                            :class="activeTab === 'fnb' ?
-                                'bg-white dark:bg-[#1C1C1E] text-[#1D1D1F] dark:text-[#F5F5F7] shadow-sm' :
-                                'text-[#6E6E73] dark:text-[#86868B] hover:text-[#1D1D1F] dark:hover:text-[#F5F5F7]'"
-                            class="px-3 sm:px-4 py-1.5 rounded-[10px] transition-all duration-150 whitespace-nowrap">F&amp;B</button>
-                        <button type="button" @click="activeTab = 'service'"
-                            :class="activeTab === 'service' ?
-                                'bg-white dark:bg-[#1C1C1E] text-[#1D1D1F] dark:text-[#F5F5F7] shadow-sm' :
-                                'text-[#6E6E73] dark:text-[#86868B] hover:text-[#1D1D1F] dark:hover:text-[#F5F5F7]'"
-                            class="px-3 sm:px-4 py-1.5 rounded-[10px] transition-all duration-150 whitespace-nowrap">Jasa</button>
-                        <button type="button" @click="activeTab = 'retail'"
-                            :class="activeTab === 'retail' ?
-                                'bg-white dark:bg-[#1C1C1E] text-[#1D1D1F] dark:text-[#F5F5F7] shadow-sm' :
-                                'text-[#6E6E73] dark:text-[#86868B] hover:text-[#1D1D1F] dark:hover:text-[#F5F5F7]'"
-                            class="px-3 sm:px-4 py-1.5 rounded-[10px] transition-all duration-150 whitespace-nowrap">Retail</button>
+    <!-- ══════════════════════════════════════════════════════════════════════════ -->
+    <!-- ═══ 5. INTEGRASI OMNICHANNEL ("Jangkau Pelanggan di Semua Channel") ═══ -->
+    <!-- ══════════════════════════════════════════════════════════════════════════ -->
+    <section class="bg-white dark:bg-[#070A14] py-20 lg:py-24 border-b border-slate-100 dark:border-white/5 transition-colors">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+
+                <!-- Left Column -->
+                <div class="lg:col-span-5 space-y-5 text-center lg:text-left">
+                    <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-sky-100 dark:bg-sky-950/60 border border-sky-200 dark:border-sky-800/40 text-sky-700 dark:text-sky-300 text-xs font-semibold">
+                        <span>Integrasi Omnichannel</span>
                     </div>
-                </div>
 
-                <!-- Apple Bento Grid 2-Col on Mobile / 4-Col on Desktop -->
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
-                    <template x-for="ind in filtered()" :key="ind.slug">
-                        <a :href="'/solusi/' + ind.slug"
-                            class="glass-card p-3.5 sm:p-6 rounded-[20px] sm:rounded-[24px] flex flex-col justify-between group hover:border-[#007AFF]/30 active:scale-[0.98] transition-all">
-                            <div class="space-y-2.5 sm:space-y-3.5">
-                                <div class="flex items-center justify-between">
-                                    <div
-                                        class="w-9 h-9 sm:w-10 sm:h-10 rounded-[12px] sm:rounded-[14px] bg-black/[0.04] dark:bg-white/[0.06] text-[#007AFF] dark:text-[#0A84FF] flex items-center justify-center group-hover:scale-105 transition-transform">
-                                        <i :data-lucide="ind.icon" class="w-4 h-4 sm:w-5 sm:h-5"></i>
-                                    </div>
-                                    <span
-                                        class="text-[11px] sm:text-xs font-bold text-[#007AFF] dark:text-[#0A84FF] truncate max-w-[100px]"
-                                        x-text="ind.badge"></span>
-                                </div>
+                    <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-tight">
+                        Jangkau Pelanggan<br class="hidden sm:inline"> di Semua Channel
+                    </h2>
 
-                                <h3 class="text-xs sm:text-base font-bold text-[#1D1D1F] dark:text-[#F5F5F7] group-hover:text-[#007AFF] dark:group-hover:text-[#0A84FF] transition-colors leading-snug line-clamp-2"
-                                    x-text="ind.name"></h3>
+                    <p class="text-slate-600 dark:text-slate-400 text-sm sm:text-base leading-relaxed max-w-md mx-auto lg:mx-0">
+                        Dari media sosial, marketplace, WhatsApp hingga toko fisik, COOCA menghubungkan semua channel penjualan Anda.
+                    </p>
 
-                                <p class="text-[11px] sm:text-xs text-[#6E6E73] dark:text-[#86868B] leading-relaxed line-clamp-2"
-                                    x-text="ind.desc"></p>
-                            </div>
-
-                            <div
-                                class="pt-3 sm:pt-4 mt-3 sm:mt-4 border-t border-black/[0.04] dark:border-white/[0.06] flex items-center justify-between text-[11px] sm:text-xs font-semibold text-[#007AFF] dark:text-[#0A84FF]">
-                                <span>Lihat Solusi</span>
-                                <i data-lucide="arrow-right"
-                                    class="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform"></i>
-                            </div>
+                    <div>
+                        <a href="{{ route('public.omnichannel.social-media') }}"
+                            class="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#00C2FF] hover:bg-[#00B4D8] text-white font-bold text-xs sm:text-sm shadow-[0_0_20px_rgba(0,194,255,0.4)] hover:scale-105 active:scale-95 transition-all">
+                            <span>Jelajahi Omnichannel</span>
+                            <i data-lucide="arrow-right" class="w-4 h-4"></i>
                         </a>
-                    </template>
-                </div>
-            </div>
-        </section>
-
-        <!-- ═══ 4. BENTO SECTION: MULTI-DEVICE & BROWSER (Apple Hardware Ecosystem Bento) ═══ -->
-        <section
-            class="py-16 md:py-24 border-t border-black/[0.06] dark:border-white/[0.08] bg-white/40 dark:bg-[#121214]/40">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
-                <div class="text-center space-y-3 max-w-2xl mx-auto">
-                    <span
-                        class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#6E6E73] dark:text-[#86868B] inline-flex items-center gap-1.5">
-                        <i data-lucide="devices" class="w-3.5 h-3.5"></i>
-                        <span>Akses Fleksibel Tanpa Install</span>
-                    </span>
-                    <h2 class="text-3xl sm:text-4xl font-extrabold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight">Satu
-                        Akun di Semua Perangkat</h2>
-                    <p class="text-sm sm:text-base text-[#6E6E73] dark:text-[#86868B]">Tanpa install aplikasi. Buka browser
-                        favorit Anda dan aplikasi langsung siap melayani transaksi.</p>
+                    </div>
                 </div>
 
-                <!-- Bento 3 Devices Cards: 2-Col Mobile Bento (1 Wide + 2 Compact) / 3-Col Desktop -->
-                <div class="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
+                <!-- Right Column: Omnichannel Convergence Diagram -->
+                <div class="lg:col-span-7">
+                    <div class="p-6 sm:p-8 rounded-3xl bg-gradient-to-b from-[#F0F8FF] to-[#E6F4FE] dark:from-[#0C162D] dark:to-[#081022] border border-[#D4EAFB] dark:border-cyan-900/30 text-center relative overflow-hidden">
 
-                    <!-- Device 1: Laptop & Desktop (Spans 2-col on Mobile, 1-col on Desktop) -->
-                    <div
-                        class="col-span-2 md:col-span-1 glass-card p-5 sm:p-7 rounded-[22px] sm:rounded-[26px] space-y-3 sm:space-y-4 group">
-                        <div class="flex items-center justify-between">
-                            <div
-                                class="w-10 h-10 sm:w-12 sm:h-12 rounded-[14px] sm:rounded-[16px] bg-black/[0.04] dark:bg-white/[0.06] text-[#007AFF] dark:text-[#0A84FF] flex items-center justify-center">
-                                <i data-lucide="monitor" class="w-5 h-5 sm:w-6 sm:h-6"></i>
+                        <!-- Top: Channel Badges (Instagram, TikTok, Facebook, WhatsApp, Shopee, Tokopedia, Store) -->
+                        <div class="flex flex-wrap items-center justify-center gap-3 sm:gap-4 relative z-10">
+                            <!-- Instagram -->
+                            <div class="w-11 h-11 rounded-2xl bg-white dark:bg-[#141F36] shadow-sm border border-slate-200/60 dark:border-white/10 flex items-center justify-center hover:scale-110 transition-transform">
+                                <span class="w-5 h-5 rounded-full bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600"></span>
                             </div>
-                            <span
-                                class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF]">PC
-                                &amp; Mac</span>
+                            <!-- TikTok -->
+                            <div class="w-11 h-11 rounded-2xl bg-black shadow-sm border border-slate-800 flex items-center justify-center hover:scale-110 transition-transform text-white">
+                                <span class="text-xs font-black">♪</span>
+                            </div>
+                            <!-- Facebook -->
+                            <div class="w-11 h-11 rounded-2xl bg-[#1877F2] shadow-sm flex items-center justify-center hover:scale-110 transition-transform text-white font-black text-sm">
+                                f
+                            </div>
+                            <!-- WhatsApp -->
+                            <div class="w-11 h-11 rounded-2xl bg-[#25D366] shadow-sm flex items-center justify-center hover:scale-110 transition-transform text-white">
+                                <i data-lucide="message-circle" class="w-5 h-5"></i>
+                            </div>
+                            <!-- Shopee -->
+                            <div class="w-11 h-11 rounded-2xl bg-[#EE4D2D] shadow-sm flex items-center justify-center hover:scale-110 transition-transform text-white">
+                                <i data-lucide="shopping-bag" class="w-5 h-5"></i>
+                            </div>
+                            <!-- Tokopedia -->
+                            <div class="w-11 h-11 rounded-2xl bg-[#03AC0E] shadow-sm flex items-center justify-center hover:scale-110 transition-transform text-white">
+                                <i data-lucide="package" class="w-5 h-5"></i>
+                            </div>
+                            <!-- Toko Fisik -->
+                            <div class="w-11 h-11 rounded-2xl bg-indigo-600 shadow-sm flex items-center justify-center hover:scale-110 transition-transform text-white">
+                                <i data-lucide="store" class="w-5 h-5"></i>
+                            </div>
                         </div>
-                        <h3 class="text-base sm:text-lg font-bold text-[#1D1D1F] dark:text-[#F5F5F7]">Executive Workstation
+
+                        <!-- Connector Lines to Central Badge -->
+                        <div class="h-10 flex items-center justify-center my-2">
+                            <div class="w-0.5 h-full bg-gradient-to-b from-[#00C2FF] to-transparent"></div>
+                        </div>
+
+                        <!-- Center COOCA Hub Badge -->
+                        <div class="inline-flex items-center justify-center px-8 py-2.5 rounded-full bg-[#00C2FF] text-white font-extrabold text-sm shadow-[0_4px_20px_rgba(0,194,255,0.45)]">
+                            COOCA
+                        </div>
+
+                        <!-- Flow Arrow Down -->
+                        <div class="h-8 flex items-center justify-center my-2">
+                            <i data-lucide="chevron-down" class="w-5 h-5 text-[#00C2FF] animate-bounce"></i>
+                        </div>
+
+                        <!-- Bottom Process Flow -->
+                        <div class="flex items-center justify-center gap-4 sm:gap-6 text-slate-700 dark:text-slate-300">
+                            <!-- Order -->
+                            <div class="flex items-center gap-1.5 text-xs font-semibold">
+                                <i data-lucide="shopping-cart" class="w-4 h-4 text-sky-500"></i>
+                                <span>Order</span>
+                            </div>
+
+                            <i data-lucide="arrow-right" class="w-3.5 h-3.5 text-slate-400"></i>
+
+                            <!-- Inventory -->
+                            <div class="flex items-center gap-1.5 text-xs font-semibold">
+                                <i data-lucide="boxes" class="w-4 h-4 text-purple-500"></i>
+                                <span>Inventory</span>
+                            </div>
+
+                            <i data-lucide="arrow-right" class="w-3.5 h-3.5 text-slate-400"></i>
+
+                            <!-- Finance -->
+                            <div class="flex items-center gap-1.5 text-xs font-semibold">
+                                <i data-lucide="receipt" class="w-4 h-4 text-blue-500"></i>
+                                <span>Finance</span>
+                            </div>
+
+                            <i data-lucide="arrow-right" class="w-3.5 h-3.5 text-slate-400"></i>
+
+                            <!-- Customer -->
+                            <div class="flex items-center gap-1.5 text-xs font-semibold">
+                                <i data-lucide="user-check" class="w-4 h-4 text-emerald-500"></i>
+                                <span>Customer</span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+
+    <!-- ══════════════════════════════════════════════════════════════════════════ -->
+    <!-- ═══ 6. SPLIT SECTION: CONTENT AUTOMATION & MARKETPLACE ═══ -->
+    <!-- ══════════════════════════════════════════════════════════════════════════ -->
+    <section class="bg-[#F8FAFC] dark:bg-[#070B18] py-20 lg:py-24 border-b border-slate-100 dark:border-white/5 transition-colors">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+
+                <!-- ════ LEFT CARD: CONTENT AUTOMATION ════ -->
+                <div class="p-6 sm:p-8 rounded-3xl bg-white dark:bg-[#101726] border border-slate-200/80 dark:border-white/5 shadow-sm space-y-6">
+                    <div>
+                        <span class="text-xs font-bold text-[#00C2FF] uppercase tracking-wider block mb-1">Content Automation</span>
+                        <h3 class="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+                            Kelola Konten, Maksimalkan Dampak
                         </h3>
-                        <p class="text-xs text-[#6E6E73] dark:text-[#86868B] leading-relaxed">
-                            Layar lebar optimal untuk formula HPP resep, impor katalog barang via Excel, dan audit pembukuan
-                            bulanan.
+                        <p class="text-slate-600 dark:text-slate-400 text-xs sm:text-sm mt-2 leading-relaxed">
+                            Buat, jadwalkan, dan publikasikan konten ke berbagai platform sosial media dari satu tempat.
                         </p>
-                        <div
-                            class="grid grid-cols-2 sm:grid-cols-1 gap-1.5 pt-1 text-[11px] sm:text-xs font-medium text-[#1D1D1F] dark:text-[#F5F5F7]">
-                            <div class="flex items-center gap-1.5"><i data-lucide="check"
-                                    class="w-3.5 h-3.5 text-[#34C759] shrink-0"></i><span class="truncate">Shortcut
-                                    keyboard kilat</span></div>
-                            <div class="flex items-center gap-1.5"><i data-lucide="check"
-                                    class="w-3.5 h-3.5 text-[#34C759] shrink-0"></i><span class="truncate">Export Excel
-                                    &amp; PDF</span></div>
-                        </div>
                     </div>
 
-                    <!-- Device 2: Tablet & iPad (Spans 1-col on Mobile, 1-col on Desktop) -->
-                    <div
-                        class="col-span-1 md:col-span-1 glass-card p-4 sm:p-7 rounded-[22px] sm:rounded-[26px] space-y-2.5 sm:space-y-4 group">
-                        <div
-                            class="w-9 h-9 sm:w-12 sm:h-12 rounded-[14px] sm:rounded-[16px] bg-black/[0.04] dark:bg-white/[0.06] text-[#34C759] dark:text-[#30D158] flex items-center justify-center">
-                            <i data-lucide="tablet" class="w-4 h-4 sm:w-6 sm:h-6"></i>
-                        </div>
-                        <span
-                            class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#34C759] dark:text-[#30D158] block truncate">iPad
-                            &amp; Tablet</span>
-                        <h3 class="text-sm sm:text-lg font-bold text-[#1D1D1F] dark:text-[#F5F5F7] leading-snug">Kasir Meja
-                        </h3>
-                        <p
-                            class="text-[11px] sm:text-xs text-[#6E6E73] dark:text-[#86868B] leading-relaxed hidden sm:block">
-                            Layar sentuh elegan untuk kafe, resto, dan salon. Grid foto menu sentuh cepat.
-                        </p>
-                        <div class="pt-1 text-[11px] sm:text-xs space-y-1 font-medium text-[#1D1D1F] dark:text-[#F5F5F7]">
-                            <div class="flex items-center gap-1"><i data-lucide="check"
-                                    class="w-3 h-3 text-[#34C759] shrink-0"></i><span class="truncate">Split bill &amp;
-                                    meja</span></div>
-                            <div class="flex items-center gap-1"><i data-lucide="check"
-                                    class="w-3 h-3 text-[#34C759] shrink-0"></i><span class="truncate">Thermal
-                                    Bluetooth</span></div>
-                        </div>
+                    <div>
+                        <a href="{{ route('public.content.creation') }}"
+                            class="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-[#00C2FF] hover:bg-[#00B4D8] text-white font-bold text-xs shadow-sm hover:scale-105 active:scale-95 transition-all">
+                            <span>Pelajari Lebih Lanjut</span>
+                            <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                        </a>
                     </div>
 
-                    <!-- Device 3: Smartphone (Spans 1-col on Mobile, 1-col on Desktop) -->
-                    <div
-                        class="col-span-1 md:col-span-1 glass-card p-4 sm:p-7 rounded-[22px] sm:rounded-[26px] space-y-2.5 sm:space-y-4 group">
-                        <div
-                            class="w-9 h-9 sm:w-12 sm:h-12 rounded-[14px] sm:rounded-[16px] bg-black/[0.04] dark:bg-white/[0.06] text-[#FF9500] dark:text-[#FF9F0A] flex items-center justify-center">
-                            <i data-lucide="smartphone" class="w-4 h-4 sm:w-6 sm:h-6"></i>
-                        </div>
-                        <span
-                            class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#FF9500] dark:text-[#FF9F0A] block truncate">iPhone
-                            &amp; Android</span>
-                        <h3 class="text-sm sm:text-lg font-bold text-[#1D1D1F] dark:text-[#F5F5F7] leading-snug">Pantau
-                            Mobile</h3>
-                        <p
-                            class="text-[11px] sm:text-xs text-[#6E6E73] dark:text-[#86868B] leading-relaxed hidden sm:block">
-                            Cek omzet toko live dari mana saja. Kamera HP langsung berfungsi sebagai scanner barcode.
-                        </p>
-                        <div class="pt-1 text-[11px] sm:text-xs space-y-1 font-medium text-[#1D1D1F] dark:text-[#F5F5F7]">
-                            <div class="flex items-center gap-1"><i data-lucide="check"
-                                    class="w-3 h-3 text-[#34C759] shrink-0"></i><span class="truncate">Scan kamera
-                                    HP</span></div>
-                            <div class="flex items-center gap-1"><i data-lucide="check"
-                                    class="w-3 h-3 text-[#34C759] shrink-0"></i><span class="truncate">Live notifikasi
-                                    kas</span></div>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-        </section>
-
-        <!-- ═══ 5. BENTO PLAYGROUND: LIVE INTERACTIVE HPP & PRICING SIMULATOR ═══ -->
-        <section id="kalkulator-live" class="py-16 md:py-24 border-t border-black/[0.06] dark:border-white/[0.08]">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
-                <div class="text-center space-y-3 max-w-2xl mx-auto">
-                    <span
-                        class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#6E6E73] dark:text-[#86868B] inline-flex items-center gap-1.5">
-                        <i data-lucide="play" class="w-3.5 h-3.5"></i>
-                        <span>Interactive Playground</span>
-                    </span>
-                    <h2 class="text-3xl sm:text-4xl font-extrabold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight">Coba
-                        Langsung di Browser Anda</h2>
-                    <p class="text-sm sm:text-base text-[#6E6E73] dark:text-[#86868B]">Geser nilai biaya di bawah ini dan
-                        perhatikan bagaimana harga jual rekomendasi dan margin laba bereaksi secara real-time.</p>
-                </div>
-
-                <!-- Bento Playground (8-col input + 4-col sticky result) -->
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6" x-data="{
-                    matCost: 25000,
-                    labCost: 6500,
-                    ovhCost: 8500,
-                    targetRate: 40,
-                    isMargin: true,
-                    get hpp() { return this.matCost + this.labCost + this.ovhCost; },
-                    get price() {
-                        if (this.isMargin) {
-                            let m = Math.min(this.targetRate, 95);
-                            return Math.round(this.hpp / (1 - (m / 100)));
-                        }
-                        return Math.round(this.hpp * (1 + (this.targetRate / 100)));
-                    },
-                    get profit() { return this.price - this.hpp; },
-                    get marginPct() { return this.price > 0 ? Math.round((this.profit / this.price) * 100) : 0; },
-                    get markupPct() { return this.hpp > 0 ? Math.round((this.profit / this.hpp) * 100) : 0; }
-                }">
-
-                    <!-- Left: Apple Inset Controls (8 Kolom) -->
-                    <div
-                        class="glass-card p-6 sm:p-8 rounded-[28px] lg:col-span-8 flex flex-col justify-between space-y-6">
-                        <div
-                            class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-black/[0.06] dark:border-white/[0.08] pb-4">
-                            <div>
-                                <span
-                                    class="text-xs font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF]">Simulasi
-                                    HPP 3-Pilar</span>
-                                <h3 class="text-lg font-bold text-[#1D1D1F] dark:text-[#F5F5F7] mt-0.5">Komponen Modal
-                                    Langsung</h3>
+                    <!-- Visual UI Mockup (Composer + Scheduled Posts) -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                        <!-- Post Preview with Coffee/Pastry -->
+                        <div class="rounded-2xl border border-slate-100 dark:border-white/10 overflow-hidden bg-slate-50 dark:bg-slate-900/60 p-3">
+                            <img src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=600&q=80"
+                                alt="Post Preview" class="w-full h-32 object-cover rounded-xl mb-2.5">
+                            <div class="flex items-center gap-2 mb-1.5">
+                                <span class="w-5 h-5 rounded-full bg-pink-500 inline-block"></span>
+                                <span class="text-[10px] font-bold text-slate-700 dark:text-slate-200">Kopi Susu Aren Spesial</span>
                             </div>
-
-                            <!-- Segmented Switcher -->
-                            <div
-                                class="inline-flex p-1 bg-black/[0.04] dark:bg-white/[0.06] rounded-[12px] border border-black/[0.04] dark:border-white/[0.06] text-xs font-semibold shrink-0">
-                                <button type="button" @click="isMargin = true"
-                                    :class="isMargin ?
-                                        'bg-white dark:bg-[#1C1C1E] text-[#1D1D1F] dark:text-[#F5F5F7] shadow-sm' :
-                                        'text-[#6E6E73] dark:text-[#86868B]'"
-                                    class="px-4 py-1 rounded-[8px] transition-all">Margin</button>
-                                <button type="button" @click="isMargin = false"
-                                    :class="!isMargin ?
-                                        'bg-white dark:bg-[#1C1C1E] text-[#1D1D1F] dark:text-[#F5F5F7] shadow-sm' :
-                                        'text-[#6E6E73] dark:text-[#86868B]'"
-                                    class="px-4 py-1 rounded-[8px] transition-all">Markup</button>
-                            </div>
-                        </div>
-
-                        <!-- 3 Sliders Inset Containers (Mobile 2-Col Bento Layout) -->
-                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-3">
-                            <div
-                                class="col-span-1 p-3.5 sm:p-4 rounded-[18px] sm:rounded-[20px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06] space-y-1.5 sm:space-y-2">
-                                <div
-                                    class="flex flex-col sm:flex-row sm:justify-between sm:items-center text-xs font-medium text-[#6E6E73] dark:text-[#86868B]">
-                                    <span class="truncate">Bahan Baku</span>
-                                    <span class="font-bold text-[#007AFF] dark:text-[#0A84FF] font-mono">Rp <span
-                                            x-text="matCost.toLocaleString('id-ID')"></span></span>
-                                </div>
-                                <input type="range" x-model.number="matCost" min="5000" max="60000"
-                                    step="1000" class="w-full accent-[#007AFF] cursor-pointer">
-                                <span
-                                    class="text-[11px] sm:text-xs text-[#6E6E73] dark:text-[#86868B] block truncate">Bahan
-                                    per porsi</span>
-                            </div>
-                            <div
-                                class="col-span-1 p-3.5 sm:p-4 rounded-[18px] sm:rounded-[20px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06] space-y-1.5 sm:space-y-2">
-                                <div
-                                    class="flex flex-col sm:flex-row sm:justify-between sm:items-center text-xs font-medium text-[#6E6E73] dark:text-[#86868B]">
-                                    <span class="truncate">Tenaga Kerja</span>
-                                    <span class="font-bold text-[#1D1D1F] dark:text-[#F5F5F7] font-mono">Rp <span
-                                            x-text="labCost.toLocaleString('id-ID')"></span></span>
-                                </div>
-                                <input type="range" x-model.number="labCost" min="1000" max="30000"
-                                    step="500" class="w-full accent-[#007AFF] cursor-pointer">
-                                <span class="text-[11px] sm:text-xs text-[#6E6E73] dark:text-[#86868B] block truncate">Upah
-                                    per unit</span>
-                            </div>
-                            <div
-                                class="col-span-2 sm:col-span-1 p-3.5 sm:p-4 rounded-[18px] sm:rounded-[20px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06] space-y-1.5 sm:space-y-2">
-                                <div
-                                    class="flex flex-col sm:flex-row sm:justify-between sm:items-center text-xs font-medium text-[#6E6E73] dark:text-[#86868B]">
-                                    <span class="truncate">Overhead Listrik/Gas</span>
-                                    <span class="font-bold text-[#1D1D1F] dark:text-[#F5F5F7] font-mono">Rp <span
-                                            x-text="ovhCost.toLocaleString('id-ID')"></span></span>
-                                </div>
-                                <input type="range" x-model.number="ovhCost" min="1000" max="25000"
-                                    step="500" class="w-full accent-[#007AFF] cursor-pointer">
-                                <span class="text-[11px] sm:text-xs text-[#6E6E73] dark:text-[#86868B] block truncate">Gas,
-                                    listrik, operasional</span>
-                            </div>
-                        </div>
-
-                        <!-- Target Markup / Margin Slider & Result -->
-                        <div
-                            class="p-5 rounded-[22px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06] flex flex-col sm:flex-row items-center justify-between gap-5">
-                            <div class="space-y-1.5 w-full sm:w-1/2">
-                                <div class="flex justify-between text-xs font-semibold text-[#1D1D1F] dark:text-[#F5F5F7]">
-                                    <span>Target <span x-text="isMargin ? 'Gross Margin' : 'Markup'"></span>:</span>
-                                    <span class="font-mono font-bold text-[#007AFF] dark:text-[#0A84FF]"
-                                        x-text="targetRate + '%'"></span>
-                                </div>
-                                <input type="range" x-model.number="targetRate" min="10" max="80"
-                                    step="5" class="w-full accent-[#007AFF] cursor-pointer">
-                            </div>
-
-                            <div
-                                class="flex items-center gap-6 w-full sm:w-auto justify-between sm:justify-end border-t sm:border-t-0 pt-3 sm:pt-0 border-black/[0.06] dark:border-white/[0.08]">
-                                <div>
-                                    <div class="text-xs font-bold uppercase text-[#6E6E73] dark:text-[#86868B]">Total
-                                        HPP Modal</div>
-                                    <div
-                                        class="text-base sm:text-lg font-extrabold text-[#1D1D1F] dark:text-[#F5F5F7] font-mono">
-                                        Rp <span x-text="hpp.toLocaleString('id-ID')"></span></div>
-                                </div>
-                                <div>
-                                    <div class="text-xs font-bold uppercase text-[#34C759] dark:text-[#30D158]">Harga
-                                        Jual Saran</div>
-                                    <div
-                                        class="text-xl sm:text-2xl font-extrabold text-[#34C759] dark:text-[#30D158] font-mono">
-                                        Rp <span x-text="price.toLocaleString('id-ID')"></span></div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div
-                            class="text-xs text-center text-[#6E6E73] dark:text-[#86868B] border-t border-black/[0.06] dark:border-white/[0.08] pt-3">
-                            <span x-show="isMargin">Gross Margin: <strong class="text-[#34C759] dark:text-[#30D158]"
-                                    x-text="marginPct + '%'"></strong> • Keuntungan per Satuan: <strong
-                                    class="text-[#1D1D1F] dark:text-[#F5F5F7]">Rp <span
-                                        x-text="profit.toLocaleString('id-ID')"></span></strong></span>
-                            <span x-show="!isMargin">Markup Modal: <strong class="text-[#007AFF] dark:text-[#0A84FF]"
-                                    x-text="markupPct + '%'"></strong> • Keuntungan per Satuan: <strong
-                                    class="text-[#1D1D1F] dark:text-[#F5F5F7]">Rp <span
-                                        x-text="profit.toLocaleString('id-ID')"></span></strong></span>
-                        </div>
-                    </div>
-
-                    <!-- Right: Sticky Bento Output Card (4 Kolom) -->
-                    <div
-                        class="glass-card p-6 sm:p-7 rounded-[28px] lg:col-span-4 flex flex-col justify-between space-y-5">
-                        <div class="space-y-4">
-                            <div class="flex items-center justify-between">
-                                <span
-                                    class="text-xs font-bold uppercase tracking-wider text-[#34C759] dark:text-[#30D158]">Rekomendasi
-                                    Real-Time</span>
-                                <span class="w-2 h-2 rounded-full bg-[#34C759]"></span>
-                            </div>
-
-                            <div>
-                                <div class="text-xs text-[#6E6E73] dark:text-[#86868B]">Harga Jual Ideal:</div>
-                                <div class="text-3xl font-black text-[#34C759] dark:text-[#30D158] font-mono mt-1">
-                                    Rp <span x-text="price.toLocaleString('id-ID')"></span>
-                                </div>
-                                <div class="text-xs text-[#6E6E73] dark:text-[#86868B] mt-1">
-                                    Profit per porsi: <strong class="text-[#1D1D1F] dark:text-[#F5F5F7] font-mono">Rp <span
-                                            x-text="profit.toLocaleString('id-ID')"></span></strong>
-                                </div>
-                            </div>
-
-                            <!-- Mini breakdown table -->
-                            <div
-                                class="p-3.5 rounded-[18px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06] space-y-2 text-xs">
-                                <div class="flex justify-between text-[#6E6E73] dark:text-[#86868B]">
-                                    <span>Bahan Baku:</span>
-                                    <span class="font-mono text-[#1D1D1F] dark:text-[#F5F5F7]">Rp <span
-                                            x-text="matCost.toLocaleString('id-ID')"></span></span>
-                                </div>
-                                <div class="flex justify-between text-[#6E6E73] dark:text-[#86868B]">
-                                    <span>Upah &amp; Overhead:</span>
-                                    <span class="font-mono text-[#1D1D1F] dark:text-[#F5F5F7]">Rp <span
-                                            x-text="(labCost + ovhCost).toLocaleString('id-ID')"></span></span>
-                                </div>
-                                <div
-                                    class="flex justify-between font-semibold border-t border-black/[0.04] dark:border-white/[0.06] pt-1.5 text-[#1D1D1F] dark:text-[#F5F5F7]">
-                                    <span>Total Modal HPP:</span>
-                                    <span class="font-mono">Rp <span x-text="hpp.toLocaleString('id-ID')"></span></span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="space-y-2 pt-2">
-                            @if (auth('web')->check())
-                                <a href="{{ route('dashboard') }}"
-                                    class="w-full glow-btn py-3.5 rounded-[16px] text-white font-semibold text-xs flex items-center justify-center gap-2 active:scale-[0.98] transition-transform">
-                                    <span>Buka Dashboard Bisnis</span>
-                                    <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
-                                </a>
-                            @elseif (auth('admin')->check())
-                                <a href="{{ route('admin.dashboard') }}"
-                                    class="w-full glow-btn py-3.5 rounded-[16px] text-white font-semibold text-xs flex items-center justify-center gap-2 active:scale-[0.98] transition-transform">
-                                    <span>Buka Dashboard Admin</span>
-                                    <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
-                                </a>
-                            @else
-                                <a href="{{ route('register') }}"
-                                    class="w-full glow-btn py-3.5 rounded-[16px] text-white font-semibold text-xs flex items-center justify-center gap-2 active:scale-[0.98] transition-transform">
-                                    <span>Kunci HPP di Akun Kasir Anda</span>
-                                    <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
-                                </a>
-                            @endif
-                            <a href="{{ route('kalkulator.hpp') }}"
-                                class="w-full py-2.5 rounded-[14px] bg-black/[0.03] dark:bg-white/[0.05] hover:bg-black/[0.05] dark:hover:bg-white/[0.08] text-center text-xs font-semibold text-[#1D1D1F] dark:text-[#F5F5F7] block transition-colors">
-                                Buka Versi Lengkap Detail HPP
-                            </a>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-        </section>
-
-        <!-- ═══ 6. FAQ ACCORDION + BENTO SUPPORT DESK 24/7 ═══ -->
-        <section id="faq"
-            class="py-16 md:py-24 border-t border-black/[0.06] dark:border-white/[0.08] bg-white/40 dark:bg-[#121214]/40">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
-                <div class="text-center space-y-3 max-w-2xl mx-auto">
-                    <span
-                        class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#6E6E73] dark:text-[#86868B] inline-flex items-center gap-1.5">
-                        <i data-lucide="help-circle" class="w-3.5 h-3.5"></i>
-                        <span>Tanya Jawab &amp; Layanan Dukungan</span>
-                    </span>
-                    <h2 class="text-3xl sm:text-4xl font-extrabold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight">
-                        Frequently Asked Questions</h2>
-                    <p class="text-sm sm:text-base text-[#6E6E73] dark:text-[#86868B]">Jawaban transparan seputar komitmen
-                        gratis selamanya, keamanan data, dan integrasi perangkat.</p>
-                </div>
-
-                <!-- 2-Column: Left Accordion (7 Col) + Right Bento Support Desk (5 Col) -->
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-
-                    <!-- Left: Apple Inset Accordion (7 Col) -->
-                    <div class="lg:col-span-7 space-y-3" x-data="{ openFaq: 1 }">
-                        <div
-                            class="rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] overflow-hidden transition-all shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
-                            <button type="button" @click="openFaq = openFaq === 1 ? null : 1"
-                                class="w-full p-5 text-left font-semibold text-[#1D1D1F] dark:text-[#F5F5F7] text-sm sm:text-base flex items-center justify-between gap-3 hover:bg-black/[0.01] dark:hover:bg-white/[0.02] transition-colors">
-                                <span>Apakah Cooca benar-benar 100% gratis selamanya?</span>
-                                <i data-lucide="chevron-down"
-                                    class="w-4 h-4 text-[#6E6E73] dark:text-[#86868B] shrink-0 transition-transform duration-200"
-                                    :class="openFaq === 1 ? 'rotate-180' : ''"></i>
-                            </button>
-                            <div x-show="openFaq === 1" x-cloak x-transition
-                                class="p-5 pt-0 text-xs sm:text-sm text-[#6E6E73] dark:text-[#86868B] leading-relaxed border-t border-black/[0.04] dark:border-white/[0.06]">
-                                Ya! Seluruh fitur esensial seperti Kalkulator HPP, POS Kasir, mutasi inventori stok,
-                                pembukuan kas otomatis, dan konsultasi AI dapat digunakan <strong
-                                    class="text-[#34C759] dark:text-[#30D158]">100% gratis</strong> tanpa batasan jumlah
-                                transaksi dan tanpa masa kadaluarsa.
-                            </div>
-                        </div>
-
-                        <div
-                            class="rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] overflow-hidden transition-all shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
-                            <button type="button" @click="openFaq = openFaq === 2 ? null : 2"
-                                class="w-full p-5 text-left font-semibold text-[#1D1D1F] dark:text-[#F5F5F7] text-sm sm:text-base flex items-center justify-between gap-3 hover:bg-black/[0.01] dark:hover:bg-white/[0.02] transition-colors">
-                                <span>Apakah data keuangan dan pelanggan saya aman?</span>
-                                <i data-lucide="chevron-down"
-                                    class="w-4 h-4 text-[#6E6E73] dark:text-[#86868B] shrink-0 transition-transform duration-200"
-                                    :class="openFaq === 2 ? 'rotate-180' : ''"></i>
-                            </button>
-                            <div x-show="openFaq === 2" x-cloak x-transition
-                                class="p-5 pt-0 text-xs sm:text-sm text-[#6E6E73] dark:text-[#86868B] leading-relaxed border-t border-black/[0.04] dark:border-white/[0.06]">
-                                Sangat aman. Seluruh data transaksi dienkripsi dengan standar perbankan (TLS 1.3 / SSL
-                                256-bit). Kami tidak pernah menjual data pelanggan, omzet, atau resep kuliner Anda ke pihak
-                                mana pun.
-                            </div>
-                        </div>
-
-                        <div
-                            class="rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] overflow-hidden transition-all shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
-                            <button type="button" @click="openFaq = openFaq === 3 ? null : 3"
-                                class="w-full p-5 text-left font-semibold text-[#1D1D1F] dark:text-[#F5F5F7] text-sm sm:text-base flex items-center justify-between gap-3 hover:bg-black/[0.01] dark:hover:bg-white/[0.02] transition-colors">
-                                <span>Apakah mendukung printer thermal Bluetooth dan scan barcode?</span>
-                                <i data-lucide="chevron-down"
-                                    class="w-4 h-4 text-[#6E6E73] dark:text-[#86868B] shrink-0 transition-transform duration-200"
-                                    :class="openFaq === 3 ? 'rotate-180' : ''"></i>
-                            </button>
-                            <div x-show="openFaq === 3" x-cloak x-transition
-                                class="p-5 pt-0 text-xs sm:text-sm text-[#6E6E73] dark:text-[#86868B] leading-relaxed border-t border-black/[0.04] dark:border-white/[0.06]">
-                                Ya. Sistem kasir kami kompatibel dengan printer kasir thermal Bluetooth ukuran 58mm dan 80mm
-                                di Android, iOS, Windows, dan macOS, serta mendukung scan barcode langsung via kamera HP.
-                            </div>
-                        </div>
-
-                        <div
-                            class="rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] overflow-hidden transition-all shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
-                            <button type="button" @click="openFaq = openFaq === 4 ? null : 4"
-                                class="w-full p-5 text-left font-semibold text-[#1D1D1F] dark:text-[#F5F5F7] text-sm sm:text-base flex items-center justify-between gap-3 hover:bg-black/[0.01] dark:hover:bg-white/[0.02] transition-colors">
-                                <span>Bagaimana jika koneksi internet di toko mendadak terputus?</span>
-                                <i data-lucide="chevron-down"
-                                    class="w-4 h-4 text-[#6E6E73] dark:text-[#86868B] shrink-0 transition-transform duration-200"
-                                    :class="openFaq === 4 ? 'rotate-180' : ''"></i>
-                            </button>
-                            <div x-show="openFaq === 4" x-cloak x-transition
-                                class="p-5 pt-0 text-xs sm:text-sm text-[#6E6E73] dark:text-[#86868B] leading-relaxed border-t border-black/[0.04] dark:border-white/[0.06]">
-                                Cooca dilengkapi teknologi local storage cache offline. Transaksi kasir tetap bisa dicetak
-                                dan disimpan di browser, kemudian disinkronisasikan ke cloud saat internet kembali online.
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Right: Support Desk 24/7 (5 Col) -->
-                    <div class="lg:col-span-5 glass-card p-6 sm:p-7 rounded-[28px] space-y-6">
-                        <div>
-                            <div
-                                class="w-12 h-12 rounded-[18px] bg-[#34C759]/10 text-[#34C759] dark:text-[#30D158] flex items-center justify-center mb-3">
-                                <i data-lucide="headset" class="w-6 h-6"></i>
-                            </div>
-                            <h3 class="text-xl font-bold text-[#1D1D1F] dark:text-[#F5F5F7]">Support Desk 24/7</h3>
-                            <p class="text-xs text-[#6E6E73] dark:text-[#86868B] mt-1 leading-relaxed">
-                                Butuh bantuan setup awal, cara hitung HPP resep produk Anda, atau konsultasi kendala
-                                printer? Konsultan kami siap mendampingi Anda.
+                            <p class="text-[9px] text-slate-500 dark:text-slate-400 line-clamp-2">
+                                Awali pagi harimu dengan sensasi creamy gula aren murni. Promo buy 1 get 1 hari ini!
                             </p>
                         </div>
 
-                        <div class="space-y-3 text-xs">
-                            <div
-                                class="p-4 rounded-[18px] bg-[#34C759]/10 border border-[#34C759]/20 flex items-center justify-between">
-                                <div>
-                                    <span
-                                        class="text-xs font-bold uppercase text-[#34C759] dark:text-[#30D158] block">WhatsApp
-                                        Resmi</span>
-                                    <span
-                                        class="font-bold text-[#1D1D1F] dark:text-[#F5F5F7] font-mono text-sm">{{ \App\Models\SystemSetting::get('social_whatsapp_number', '0852 8786 4176') }}</span>
+                        <!-- Scheduled Channels List -->
+                        <div class="rounded-2xl border border-slate-100 dark:border-white/10 bg-slate-50 dark:bg-slate-900/60 p-3 flex flex-col justify-between">
+                            <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Jadwal Posting</div>
+                            <div class="space-y-2">
+                                <div class="flex items-center justify-between p-2 rounded-xl bg-white dark:bg-slate-800 text-[10px]">
+                                    <div class="flex items-center gap-2">
+                                        <span class="w-2.5 h-2.5 rounded-full bg-pink-500"></span>
+                                        <span class="font-bold text-slate-700 dark:text-slate-200">Instagram</span>
+                                    </div>
+                                    <span class="font-mono text-slate-500 font-semibold">12:00</span>
                                 </div>
-                                <span
-                                    class="inline-flex items-center gap-1.5 text-xs font-semibold text-[#34C759] dark:text-[#30D158]">
-                                    <i data-lucide="clock" class="w-3.5 h-3.5"></i>
-                                    Respon &lt; 5 Menit
-                                </span>
-                            </div>
-
-                            <div
-                                class="p-4 rounded-[18px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06] flex items-center justify-between">
-                                <div>
-                                    <span
-                                        class="text-xs font-bold uppercase text-[#6E6E73] dark:text-[#86868B] block">Email
-                                        Bantuan</span>
-                                    <span class="font-medium text-[#1D1D1F] dark:text-[#F5F5F7]">support@cooca.id</span>
+                                <div class="flex items-center justify-between p-2 rounded-xl bg-white dark:bg-slate-800 text-[10px]">
+                                    <div class="flex items-center gap-2">
+                                        <span class="w-2.5 h-2.5 rounded-full bg-blue-600"></span>
+                                        <span class="font-bold text-slate-700 dark:text-slate-200">Facebook</span>
+                                    </div>
+                                    <span class="font-mono text-slate-500 font-semibold">15:00</span>
                                 </div>
-                                <i data-lucide="mail" class="w-4 h-4 text-[#007AFF]"></i>
+                                <div class="flex items-center justify-between p-2 rounded-xl bg-white dark:bg-slate-800 text-[10px]">
+                                    <div class="flex items-center gap-2">
+                                        <span class="w-2.5 h-2.5 rounded-full bg-black dark:bg-white"></span>
+                                        <span class="font-bold text-slate-700 dark:text-slate-200">TikTok</span>
+                                    </div>
+                                    <span class="font-mono text-slate-500 font-semibold">19:00</span>
+                                </div>
+                                <div class="flex items-center justify-between p-2 rounded-xl bg-white dark:bg-slate-800 text-[10px]">
+                                    <div class="flex items-center gap-2">
+                                        <span class="w-2.5 h-2.5 rounded-full bg-slate-700"></span>
+                                        <span class="font-bold text-slate-700 dark:text-slate-200">Threads</span>
+                                    </div>
+                                    <span class="font-mono text-slate-500 font-semibold">21:00</span>
+                                </div>
                             </div>
                         </div>
+                    </div>
+                </div>
 
-                        <a href="{{ \App\Models\SystemSetting::get('social_whatsapp_url', 'https://wa.me/6285287864176') }}?text=Halo%20Tim%20Cooca%20UMKM,%20saya%20ingin%20konsultasi%20penggunaan%20aplikasi"
-                            target="_blank" rel="noopener"
-                            class="w-full py-3.5 rounded-[16px] bg-[#34C759] hover:bg-[#2DB84D] text-white font-semibold text-xs flex items-center justify-center gap-2 shadow-sm active:scale-[0.98] transition-all">
-                            <i data-lucide="message-circle" class="w-4 h-4"></i>
-                            <span>Chat WhatsApp Konsultan Sekarang</span>
+                <!-- ════ RIGHT CARD: MARKETPLACE ════ -->
+                <div class="p-6 sm:p-8 rounded-3xl bg-white dark:bg-[#101726] border border-slate-200/80 dark:border-white/5 shadow-sm space-y-6">
+                    <div>
+                        <span class="text-xs font-bold text-[#00C2FF] uppercase tracking-wider block mb-1">Marketplace</span>
+                        <h3 class="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+                            Temukan & Jual Lebih Mudah
+                        </h3>
+                        <p class="text-slate-600 dark:text-slate-400 text-xs sm:text-sm mt-2 leading-relaxed">
+                            Jelajahi ribuan bisnis dan produk dari berbagai kategori dan lokasi. Dukung pertumbuhan bisnis lokal.
+                        </p>
+                    </div>
+
+                    <div>
+                        <a href="{{ route('marketplace.index') }}"
+                            class="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-[#00C2FF] hover:bg-[#00B4D8] text-white font-bold text-xs shadow-sm hover:scale-105 active:scale-95 transition-all">
+                            <span>Jelajahi Marketplace</span>
+                            <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
                         </a>
                     </div>
 
+                    <!-- Visual UI Mockup (Search + Filter Pills + 3 Product Cards) -->
+                    <div class="space-y-3 pt-2">
+                        <!-- Search & Filter Bar -->
+                        <div class="flex items-center gap-2 p-2 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-white/10 text-xs">
+                            <i data-lucide="search" class="w-4 h-4 text-slate-400 ml-1"></i>
+                            <span class="text-slate-400 text-[11px]">Cari produk atau bisnis...</span>
+                            <div class="ml-auto flex items-center gap-1 text-[10px] text-slate-500 bg-white dark:bg-slate-800 px-2 py-1 rounded-lg border border-slate-100 dark:border-white/5">
+                                <i data-lucide="map-pin" class="w-3 h-3 text-rose-500"></i>
+                                <span>Semua Kota</span>
+                            </div>
+                        </div>
+
+                        <!-- Category Filter Chips -->
+                        <div class="flex items-center gap-1.5 overflow-x-auto pb-1 text-[10px]">
+                            <span class="px-2.5 py-1 rounded-full bg-[#00C2FF] text-white font-bold shrink-0">Semua</span>
+                            <span class="px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-medium shrink-0">F&B</span>
+                            <span class="px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-medium shrink-0">Retail</span>
+                            <span class="px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-medium shrink-0">Workshop</span>
+                            <span class="px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-medium shrink-0">Laundry</span>
+                            <span class="px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-medium shrink-0">Lainnya</span>
+                        </div>
+
+                        <!-- 3 Mini Product Cards -->
+                        <div class="grid grid-cols-3 gap-2.5">
+                            <!-- Product 1: Nasi Bebek Jakarta -->
+                            <div class="p-2 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-white/10 text-left">
+                                <img src="https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=400&q=80"
+                                    alt="Nasi Bebek" class="w-full h-16 object-cover rounded-lg mb-1.5">
+                                <div class="text-[10px] font-bold text-slate-800 dark:text-white truncate">Nasi Bebek Madura</div>
+                                <div class="text-[9px] text-slate-400">F&B</div>
+                                <div class="flex items-center justify-between text-[9px] mt-1 font-semibold text-slate-600 dark:text-slate-300">
+                                    <span class="flex items-center gap-0.5 text-amber-500">
+                                        <i data-lucide="star" class="w-2.5 h-2.5 fill-current"></i> 4.9
+                                    </span>
+                                    <span>Jakarta</span>
+                                </div>
+                            </div>
+
+                            <!-- Product 2: Kopi Susu Aren -->
+                            <div class="p-2 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-white/10 text-left">
+                                <img src="https://images.unsplash.com/photo-1517256064527-09c73fc73e38?auto=format&fit=crop&w=400&q=80"
+                                    alt="Kopi Susu" class="w-full h-16 object-cover rounded-lg mb-1.5">
+                                <div class="text-[10px] font-bold text-slate-800 dark:text-white truncate">Kopi Susu Aren</div>
+                                <div class="text-[9px] text-slate-400">Minuman</div>
+                                <div class="flex items-center justify-between text-[9px] mt-1 font-semibold text-slate-600 dark:text-slate-300">
+                                    <span class="flex items-center gap-0.5 text-amber-500">
+                                        <i data-lucide="star" class="w-2.5 h-2.5 fill-current"></i> 4.7
+                                    </span>
+                                    <span>Bandung</span>
+                                </div>
+                            </div>
+
+                            <!-- Product 3: Service AC -->
+                            <div class="p-2 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-white/10 text-left">
+                                <img src="https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=400&q=80"
+                                    alt="Service AC" class="w-full h-16 object-cover rounded-lg mb-1.5">
+                                <div class="text-[10px] font-bold text-slate-800 dark:text-white truncate">Jasa Service AC</div>
+                                <div class="text-[9px] text-slate-400">Jasa</div>
+                                <div class="flex items-center justify-between text-[9px] mt-1 font-semibold text-slate-600 dark:text-slate-300">
+                                    <span class="flex items-center gap-0.5 text-amber-500">
+                                        <i data-lucide="star" class="w-2.5 h-2.5 fill-current"></i> 4.8
+                                    </span>
+                                    <span>Surabaya</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+
+    <!-- ══════════════════════════════════════════════════════════════════════════ -->
+    <!-- ═══ 7. "COCOK UNTUK BERBAGAI JENIS BISNIS" (Solutions) ═══ -->
+    <!-- ══════════════════════════════════════════════════════════════════════════ -->
+    <section class="bg-white dark:bg-[#070A14] py-20 lg:py-24 transition-colors">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+            <!-- Section Header with Right-Aligned Button -->
+            <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
+                <div class="space-y-2">
+                    <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+                        Cocok untuk Berbagai Jenis Bisnis
+                    </h2>
+                    <p class="text-slate-600 dark:text-slate-400 text-sm sm:text-base">
+                        COOCA dapat disesuaikan dengan kebutuhan berbagai jenis industri.
+                    </p>
+                </div>
+                <div>
+                    <a href="{{ route('public.solutions.fnb') }}"
+                        class="inline-flex items-center gap-1.5 px-6 py-2.5 rounded-full bg-[#00C2FF] hover:bg-[#00B4D8] text-white font-bold text-xs sm:text-sm shadow-[0_0_15px_rgba(0,194,255,0.35)] hover:scale-105 active:scale-95 transition-all">
+                        <span>Lihat Semua Solusi</span>
+                        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </a>
                 </div>
             </div>
-        </section>
+
+            <!-- 6 Industry Photo Cards -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+
+                <!-- 1. F&B -->
+                <a href="{{ route('public.solutions.fnb') }}"
+                    class="group relative h-48 rounded-2xl overflow-hidden block shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
+                    <img src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=600&q=80"
+                        alt="F&B Restoran" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/30 to-transparent"></div>
+                    <div class="absolute bottom-3 inset-x-3 flex items-center justify-between text-white">
+                        <span class="text-xs font-bold">F&B</span>
+                        <i data-lucide="arrow-right" class="w-3.5 h-3.5 opacity-80 group-hover:translate-x-1 group-hover:opacity-100 transition-all"></i>
+                    </div>
+                </a>
+
+                <!-- 2. Retail -->
+                <a href="{{ route('public.solutions.retail') }}"
+                    class="group relative h-48 rounded-2xl overflow-hidden block shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
+                    <img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=600&q=80"
+                        alt="Retail Toko" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/30 to-transparent"></div>
+                    <div class="absolute bottom-3 inset-x-3 flex items-center justify-between text-white">
+                        <span class="text-xs font-bold">Retail</span>
+                        <i data-lucide="arrow-right" class="w-3.5 h-3.5 opacity-80 group-hover:translate-x-1 group-hover:opacity-100 transition-all"></i>
+                    </div>
+                </a>
+
+                <!-- 3. Workshop -->
+                <a href="{{ route('public.solutions.workshop') }}"
+                    class="group relative h-48 rounded-2xl overflow-hidden block shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
+                    <img src="https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?auto=format&fit=crop&w=600&q=80"
+                        alt="Bengkel" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/30 to-transparent"></div>
+                    <div class="absolute bottom-3 inset-x-3 flex items-center justify-between text-white">
+                        <span class="text-xs font-bold">Workshop</span>
+                        <i data-lucide="arrow-right" class="w-3.5 h-3.5 opacity-80 group-hover:translate-x-1 group-hover:opacity-100 transition-all"></i>
+                    </div>
+                </a>
+
+                <!-- 4. Laundry -->
+                <a href="{{ route('public.solutions.laundry') }}"
+                    class="group relative h-48 rounded-2xl overflow-hidden block shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
+                    <img src="https://images.unsplash.com/photo-1517677208171-0bc6725a3e60?auto=format&fit=crop&w=600&q=80"
+                        alt="Laundry" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/30 to-transparent"></div>
+                    <div class="absolute bottom-3 inset-x-3 flex items-center justify-between text-white">
+                        <span class="text-xs font-bold">Laundry</span>
+                        <i data-lucide="arrow-right" class="w-3.5 h-3.5 opacity-80 group-hover:translate-x-1 group-hover:opacity-100 transition-all"></i>
+                    </div>
+                </a>
+
+                <!-- 5. Manufacturing -->
+                <a href="{{ route('public.solutions.manufacturing') }}"
+                    class="group relative h-48 rounded-2xl overflow-hidden block shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
+                    <img src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=600&q=80"
+                        alt="Manufacturing" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/30 to-transparent"></div>
+                    <div class="absolute bottom-3 inset-x-3 flex items-center justify-between text-white">
+                        <span class="text-xs font-bold">Manufacturing</span>
+                        <i data-lucide="arrow-right" class="w-3.5 h-3.5 opacity-80 group-hover:translate-x-1 group-hover:opacity-100 transition-all"></i>
+                    </div>
+                </a>
+
+                <!-- 6. Services -->
+                <a href="{{ route('public.solutions.services') }}"
+                    class="group relative h-48 rounded-2xl overflow-hidden block shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
+                    <img src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?auto=format&fit=crop&w=600&q=80"
+                        alt="Services Jasa" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/30 to-transparent"></div>
+                    <div class="absolute bottom-3 inset-x-3 flex items-center justify-between text-white">
+                        <span class="text-xs font-bold">Services</span>
+                        <i data-lucide="arrow-right" class="w-3.5 h-3.5 opacity-80 group-hover:translate-x-1 group-hover:opacity-100 transition-all"></i>
+                    </div>
+                </a>
+
+            </div>
+        </div>
+    </section>
 
 
-    </div>
+    <!-- ══════════════════════════════════════════════════════════════════════════ -->
+    <!-- ═══ 8. BOTTOM CTA BANNER (Dark with Desk Setup & Handwriting) ═══ -->
+    <!-- ══════════════════════════════════════════════════════════════════════════ -->
+    <section class="relative bg-[#070B19] text-white py-20 lg:py-24 overflow-hidden border-t border-white/10">
+        <!-- Ambient lighting -->
+        <div class="absolute -top-24 right-1/4 w-[450px] h-[450px] bg-[#00C2FF]/15 rounded-full blur-[140px] pointer-events-none"></div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+
+                <!-- Left Column -->
+                <div class="lg:col-span-6 space-y-6 text-center lg:text-left">
+                    <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-cyan-950/60 border border-cyan-400/30 text-cyan-300 text-xs font-semibold">
+                        <span>Saatnya Beralih ke COOCA</span>
+                    </div>
+
+                    <h2 class="text-3xl sm:text-4xl lg:text-[44px] font-extrabold text-white tracking-tight leading-tight">
+                        Kelola Bisnis Anda dengan Lebih Mudah, Terintegrasi, dan Cerdas.
+                    </h2>
+
+                    <p class="text-slate-300 text-sm sm:text-base leading-relaxed max-w-xl mx-auto lg:mx-0">
+                        Mulai dari kebutuhan bisnis Anda. Pilih modul, hubungkan channel, dan jalankan bisnis Anda bersama COOCA.
+                    </p>
+
+                    <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 pt-2">
+                        <a href="{{ route('register') }}"
+                            class="w-full sm:w-auto px-7 py-3.5 rounded-full bg-[#00C2FF] hover:bg-[#00B4D8] text-slate-950 font-bold text-sm flex items-center justify-center gap-2 shadow-[0_0_25px_rgba(0,194,255,0.45)] hover:scale-105 active:scale-95 transition-all">
+                            <span>Coba COOCA Gratis</span>
+                            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </a>
+                        <a href="{{ route('public.demo') }}"
+                            class="w-full sm:w-auto px-6 py-3.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/20 text-white font-semibold text-sm flex items-center justify-center gap-2 hover:border-white/30 hover:scale-105 active:scale-95 transition-all">
+                            <span>Lihat Demo</span>
+                            <i data-lucide="play" class="w-3.5 h-3.5 fill-current"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Right Column: Laptop Workspace with Handwritten Annotation -->
+                <div class="lg:col-span-6 relative">
+                    <div class="relative max-w-md mx-auto lg:max-w-none">
+
+                        <!-- Handwritten Annotation (One System, Endless Possibilities) -->
+                        <div class="absolute -top-10 right-4 z-20 hidden sm:block text-right">
+                            <span style="font-family: 'Caveat', cursive;" class="text-2xl sm:text-3xl text-cyan-300 font-bold block transform -rotate-3 drop-shadow-[0_2px_10px_rgba(0,194,255,0.5)]">
+                                One System, Endless Possibilities
+                            </span>
+                            <!-- Hand-drawn curved arrow pointing to laptop -->
+                            <svg class="w-16 h-8 text-cyan-300 ml-auto mt-0.5" viewBox="0 0 100 50" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                                <path d="M 85 5 Q 50 35 15 45" />
+                                <path d="M 15 45 L 28 40" />
+                                <path d="M 15 45 L 24 32" />
+                            </svg>
+                        </div>
+
+                        <!-- Desk Mockup Container -->
+                        <div class="rounded-3xl overflow-hidden border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.5)] bg-slate-900">
+                            <img src="https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&w=1000&q=80"
+                                alt="COOCA Workspace" class="w-full h-72 sm:h-80 object-cover opacity-90 hover:opacity-100 transition-opacity duration-300">
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+</div>
 @endsection

@@ -1,6 +1,14 @@
 @extends('public.storefront.layouts.app')
 
 @section('content')
+
+{{-- Checkout payload is injected via a <script> block, NOT inside the x-data="..."
+     attribute. @json() emits literal double-quotes (e.g. [{"id":"..."}]) which would
+     terminate the double-quoted HTML attribute and leak the Alpine JS as raw text. --}}
+<script>
+    window.__coocaCheckoutData = @json(['shippingRules' => $shippingRules]);
+</script>
+
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12"
      x-data="{
          fulfillmentType: '{{ $storeSetting->allow_delivery ? 'delivery' : ($storeSetting->allow_pickup ? 'pickup' : 'dine_in') }}',
@@ -32,7 +40,7 @@
              }
          },
 
-         shippingRules: @json($shippingRules),
+         shippingRules: window.__coocaCheckoutData.shippingRules ?? [],
 
          init() {
              this.calculateShipping();
