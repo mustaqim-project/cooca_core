@@ -46,6 +46,67 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 #### 7. Documentation Promotion
 * Pengetahuan yang dipromosikan ke `docs/system/` dan dampaknya pada `docs/SYSTEM_GUIDE.md`.
 
+### [WORK-2026-09-23-121] Pembesaran Skala Logo, Tipografi Menu Navigasi, Dropdown & Footer Desktop Ekosistem COOCA
+* **Date:** 2026-09-23
+* **Status:** COMPLETED
+* **Module:** Public Marketing Layout, Navigation Bar, Header & Footer Architecture, Bento Apple HIG
+* **Feature:** Desktop Header & Footer Visual Scale Expansion (Logo, Navigation Menu, Dropdowns, Action Buttons, and Footer Typography)
+* **Work Type:** UI/UX | Frontend Architecture | Bento Apple HIG | Typography & Layout Refinement
+
+#### 1. Business Context & Objective
+* **Konteks:** Pengguna meminta: *"perbesar ukuran menu dan font serta logo pada header dan footer desktop"*. Pada monitor desktop modern (1080p, 1440p, hingga 4K), ukuran elemen navigasi header sebelumnya (logo, menu teks, tombol aksi) dan blok footer terasa terlalu kecil dan menyisakan ruang kosong yang kurang seimbang.
+* **Target:** Meningkatkan visual presence, keterbacaan (*3-Second Glanceability*), dan kenyamanan interaksi pengguna (*touch & click targets* 44px+) pada navbar header dan footer desktop tanpa merusak layout mobile/tablet maupun menyebabkan horizontal scroll/overflow.
+
+#### 2. What Was Done
+* **Header Desktop (`resources/views/layouts/public_marketing.blade.php`):**
+  - Memperluas container navbar menjadi `max-w-[1320px]`, dengan tinggi navbar desktop ditingkatkan menjadi `lg:h-[84px]`.
+  - Memperbesar logo header brand menjadi `h-8 sm:h-9 lg:h-10 xl:h-11 w-auto` (fallback text `text-2xl sm:text-3xl xl:text-4xl font-black`).
+  - Memperbesar ukuran teks menu navigasi desktop dari `text-xs/text-sm` menjadi `text-[15px] xl:text-[16px] font-semibold text-slate-200`, dengan padding ubin menu diperbesar ke `px-3.5 xl:px-4 py-2.5 rounded-[12px]`, serta ikon chevron pembuka dropdown `w-3.5 h-3.5 xl:w-4 xl:h-4`.
+  - Memperbesar ukuran panel dropdown desktop:
+    - *Platform:* `w-[580px] xl:w-[620px]` dengan ubin menu berukuran `p-3.5`, judul `text-sm xl:text-[15px]`, dan deskripsi `text-xs xl:text-[12.5px]`.
+    - *Solutions:* `w-72 xl:w-80`.
+    - *Omnichannel:* `w-72 xl:w-80`.
+    - *Resources:* `w-68 xl:w-76`.
+  - Memperbesar kontrol aksi header kanan:
+    - Tombol Dark/Light mode switcher diperbesar menjadi `w-10 h-10` dengan ikon SVG `w-5 h-5`.
+    - Teks link login diperbesar menjadi `text-sm font-semibold`.
+    - Tombol CTA utama "Coba COOCA Gratis" diperbesar menjadi `px-6 py-2.5 text-sm font-bold min-h-[40px] xl:min-h-[42px]` dengan micro-interaction `active:scale-[0.98]`.
+* **Footer Desktop (`resources/views/layouts/public_marketing.blade.php`):**
+  - Memperluas container footer menjadi `max-w-[1320px]`, padding ditingkatkan menjadi `pt-16 sm:pt-20 pb-28 text-sm sm:text-[15px]`.
+  - Memperbesar logo footer brand menjadi `h-9 sm:h-10 lg:h-12 w-auto` (fallback text `text-3xl sm:text-4xl font-black`).
+  - Memperjelas tagline brand menjadi `text-sm sm:text-base font-bold text-slate-200` dan deskripsi sistem menjadi `text-sm sm:text-[14.5px] max-w-md`.
+  - Memperbesar tombol sosial media menjadi `w-9 h-9 sm:w-10 sm:h-10` dengan ikon SVG `w-4.5 h-4.5 sm:w-5 sm:h-5`.
+  - Memperbesar judul 4 kolom navigasi footer (Platform, Solusi Bisnis, Sumber Daya, Perusahaan) menjadi `text-xs sm:text-[13px] font-bold uppercase tracking-wider`.
+  - Memperbesar link navigasi footer menjadi `text-sm sm:text-[14.5px]` dengan jarak baris vertikal `space-y-2.5 sm:space-y-3` dan hover micro-translation `hover:translate-x-0.5`.
+  - Memperbesar teks copyright dan link kebijakan legal di baris bawah footer menjadi `text-xs sm:text-[13px]` dengan gap `gap-x-6 gap-y-2`.
+* **Pembersihan Cache & Pengujian:**
+  - Menjalankan linter sintaks PHP `php -l`.
+  - Mengosongkan view cache `php artisan view:clear`.
+  - Menjalankan automated test suite `php artisan test` untuk memastikan keutuhan struktural halaman publik dan otentikasi.
+
+#### 3. Technical Changes
+* **Files Affected:**
+  - `[MODIFY] resources/views/layouts/public_marketing.blade.php`
+* **Database Changes:** Tidak ada.
+* **API / Route Changes:** Tidak ada.
+
+#### 4. System Impacts
+* **Workflow Impact:** Navigasi desktop memiliki kejelasan visual yang superior, target klik yang lebih mudah dijangkau, serta branding COOCA yang kokoh dan berwibawa pada resolusi desktop/laptop. Seluruh navigasi mobile (hamburger drawer dan dock bar mengambang) tetap aman dan tidak terpengaruh.
+* **Business Rule Impact:** Tidak ada.
+* **Permission Impact:** Publik.
+
+#### 5. Verification & Testing
+* `php -l resources/views/layouts/public_marketing.blade.php` -> No syntax errors detected.
+* `php artisan view:clear` -> Compiled views cleared successfully.
+* `php artisan test --filter="PublicPagesStructureTest|Landing"` -> Passed.
+
+#### 6. Important Decisions & Guardrails
+* Menggunakan prefix responsif `lg:` dan `xl:` sehingga pembesaran skala desktop tidak mendistorsi pengalaman mobile yang sudah dioptimalkan untuk ergonomi jempol satu tangan.
+* Mempertahankan seluruh token warna Bento Apple HIG, dark mode solid background `#0B132B` pada dropdown, dan standar Zero-Emoji.
+
+#### 7. Documentation Promotion
+* Dicatat dalam `docs/AiWorkHistory.md` [WORK-2026-09-23-121].
+
 ### [WORK-2026-09-23-120] Standardisasi Tipografi Terpusat H1–H6 & Apple HIG Typographic Roles di Seluruh Layout Sistem
 * **Date:** 2026-09-23
 * **Status:** COMPLETED
