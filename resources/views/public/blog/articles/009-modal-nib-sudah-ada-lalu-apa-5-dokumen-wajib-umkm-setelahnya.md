@@ -4,7 +4,7 @@
 Modal NIB Sudah Ada, Lalu Apa? 5 Dokumen Wajib UMKM Setelahnya
 
 **Cluster Konten \***
-Cluster E — Template & Checklist
+Cluster E - Template & Checklist
 
 **Kategori \***
 Legalitas
@@ -14,11 +14,12 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 NIB hanyalah langkah pertama. Berikut 5 dokumen lanjutan yang perlu disiapkan UMKM agar usaha semakin siap berkembang dan mengakses berbagai program pembiayaan.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>Setelah NIB terbit, banyak pelaku usaha merasa urusan legalitas sudah selesai. Padahal, ada beberapa dokumen lanjutan yang sebaiknya segera disiapkan agar usaha lebih siap berkembang.</p>
 
 <h2>1. NPWP Usaha</h2>
@@ -34,7 +35,7 @@ NIB hanyalah langkah pertama. Berikut 5 dokumen lanjutan yang perlu disiapkan UM
 <p>Memisahkan rekening pribadi dan usaha membantu pencatatan keuangan lebih rapi, sekaligus jadi syarat administratif banyak program pembiayaan dan kerja sama bisnis.</p>
 
 <h2>5. Pembukuan atau Laporan Keuangan Sederhana</h2>
-<p>Dokumen ini sering diabaikan, padahal pembukuan yang konsisten — walau sederhana — adalah syarat hampir semua pengajuan modal, baik dari bank, koperasi, maupun investor.</p>
+<p>Dokumen ini sering diabaikan, padahal pembukuan yang konsisten - walau sederhana - adalah syarat hampir semua pengajuan modal, baik dari bank, koperasi, maupun investor.</p>
 
 <blockquote>Legalitas usaha dan kerapian data keuangan adalah dua fondasi yang sama pentingnya untuk bisa mengakses modal dan pertumbuhan.</blockquote>
 

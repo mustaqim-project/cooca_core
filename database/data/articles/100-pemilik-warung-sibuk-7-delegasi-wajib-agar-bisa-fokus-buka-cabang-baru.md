@@ -4,7 +4,7 @@
 Pemilik Warung Sibuk? 7 Delegasi Wajib agar Bisa Fokus Buka Cabang Baru
 
 **Cluster Konten \***
-Cluster G — Strategi Bisnis
+Cluster G - Strategi Bisnis
 
 **Kategori \***
 Scale-up
@@ -14,11 +14,12 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 Owner yang ingin fokus membuka cabang baru perlu belajar mendelegasikan tugas operasional harian. Berikut 7 area yang wajib didelegasikan agar ekspansi bisa berjalan lancar.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>Banyak pemilik usaha kesulitan berkembang karena masih terjebak mengurus seluruh detail operasional harian sendirian. Untuk bisa fokus membuka cabang baru, kemampuan mendelegasikan tugas menjadi keterampilan yang wajib dikuasai.</p>
 
 <h2>7 Area yang Wajib Didelegasikan</h2>

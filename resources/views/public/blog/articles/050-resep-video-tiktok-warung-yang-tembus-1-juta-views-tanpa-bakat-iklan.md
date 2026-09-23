@@ -4,7 +4,7 @@
 Resep Video TikTok Warung yang Tembus 1 Juta Views (Tanpa Bakat Iklan)
 
 **Cluster Konten \***
-Cluster K — Tutorial "Cara"
+Cluster K - Tutorial "Cara"
 
 **Kategori \***
 Marketing
@@ -14,11 +14,12 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 Membuat video TikTok viral tidak butuh bakat iklan khusus. Berikut pola konten sederhana yang sering berhasil menarik banyak penonton untuk usaha warung.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>Banyak pemilik warung ragu membuat konten TikTok karena merasa tidak punya bakat membuat iklan menarik. Padahal, konten yang berhasil viral seringkali justru yang terasa alami dan tidak dibuat-buat.</p>
 
 <h2>Pola Konten yang Sering Berhasil Menarik Penonton</h2>
@@ -45,7 +46,7 @@ Membuat video TikTok viral tidak butuh bakat iklan khusus. Berikut pola konten s
 <blockquote>Konten yang terasa nyata dan tidak dipaksakan sering kali lebih efektif menarik perhatian dibanding video promosi yang terlalu formal.</blockquote>
 
 <h2>Konsistensi Lebih Penting dari Kesempurnaan</h2>
-<p>Satu video viral memang bisa memberi dorongan besar, tapi konsistensi mengunggah konten secara rutin — meski sederhana — lebih berdampak jangka panjang terhadap pertumbuhan pengikut dan calon pelanggan.</p>
+<p>Satu video viral memang bisa memberi dorongan besar, tapi konsistensi mengunggah konten secara rutin - meski sederhana - lebih berdampak jangka panjang terhadap pertumbuhan pengikut dan calon pelanggan.</p>
 
 <h2>Cara Mengukur Efektivitas Konten</h2>
 <p>Selain jumlah views, perhatikan juga interaksi seperti komentar dan pesan masuk yang mengarah ke pertanyaan produk atau niat membeli. Ini indikator yang lebih relevan dibanding sekadar angka penonton.</p>

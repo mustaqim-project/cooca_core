@@ -4,7 +4,7 @@
 Tanpa Sistem, Owner Warung Bisa Kehilangan Rp800 Ribu per Hari
 
 **Cluster Konten \***
-Cluster B — Solusi Masalah
+Cluster B - Solusi Masalah
 
 **Kategori \***
 Operasional
@@ -14,11 +14,12 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 Tanpa sistem pencatatan yang baik, kerugian usaha bisa terjadi tanpa disadari dari berbagai celah kecil yang terakumulasi setiap harinya.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>Kerugian usaha tidak selalu datang dari kejadian besar seperti pencurian atau bencana. Seringkali, kerugian terjadi dari celah-celah kecil yang terakumulasi setiap hari akibat tidak adanya sistem pencatatan yang memadai.</p>
 
 <h2>Sumber Kerugian yang Sering Tidak Disadari</h2>

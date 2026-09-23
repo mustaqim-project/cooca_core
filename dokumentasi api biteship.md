@@ -1,6 +1,6 @@
-1. Maps 
-Maps API Introduction
-Biteship provides Maps API to ease and standardize location names for your needs. With Maps API, you can query specific areas, cities or districts within a selected country.
+1. Maps
+   Maps API Introduction
+   Biteship provides Maps API to ease and standardize location names for your needs. With Maps API, you can query specific areas, cities or districts within a selected country.
 
 Endpoints
 GET /v1/maps/areas
@@ -21,62 +21,62 @@ NOTE: Please trigger your call function after user has done writing. Otherwise i
 
 Response
 {
-    "success": true,
-    "areas": [
-        {
-            "id": "IDNP6IDNC148IDND843IDZ12250",
-            "name": "Pesanggrahan, Jakarta Selatan, DKI Jakarta. 12250",
-            "country_name": "Indonesia",
-            "country_code": "ID",
-            "administrative_division_level_1_name": "DKI Jakarta",
-            "administrative_division_level_1_type": "province",
-            "administrative_division_level_2_name": "Jakarta Selatan",
-            "administrative_division_level_2_type": "city",
-            "administrative_division_level_3_name": "Pesanggrahan",
-            "administrative_division_level_3_type": "district",
-            "postal_code": 12250
-        },
-        {
-            "id": "IDNP6IDNC148IDND843IDZ12260",
-            "name": "Pesanggrahan, Jakarta Selatan, DKI Jakarta. 12260",
-            "country_name": "Indonesia",
-            "country_code": "ID",
-            "administrative_division_level_1_name": "DKI Jakarta",
-            "administrative_division_level_1_type": "province",
-            "administrative_division_level_2_name": "Jakarta Selatan",
-            "administrative_division_level_2_type": "city",
-            "administrative_division_level_3_name": "Pesanggrahan",
-            "administrative_division_level_3_type": "district",
-            "postal_code": 12260
-        },
-        {
-            "id": "IDNP6IDNC148IDND843IDZ12270",
-            "name": "Pesanggrahan, Jakarta Selatan, DKI Jakarta. 12270",
-            "country_name": "Indonesia",
-            "country_code": "ID",
-            "administrative_division_level_1_name": "DKI Jakarta",
-            "administrative_division_level_1_type": "province",
-            "administrative_division_level_2_name": "Jakarta Selatan",
-            "administrative_division_level_2_type": "city",
-            "administrative_division_level_3_name": "Pesanggrahan",
-            "administrative_division_level_3_type": "district",
-            "postal_code": 12270
-        }
-    ]
+"success": true,
+"areas": [
+{
+"id": "IDNP6IDNC148IDND843IDZ12250",
+"name": "Pesanggrahan, Jakarta Selatan, DKI Jakarta. 12250",
+"country_name": "Indonesia",
+"country_code": "ID",
+"administrative_division_level_1_name": "DKI Jakarta",
+"administrative_division_level_1_type": "province",
+"administrative_division_level_2_name": "Jakarta Selatan",
+"administrative_division_level_2_type": "city",
+"administrative_division_level_3_name": "Pesanggrahan",
+"administrative_division_level_3_type": "district",
+"postal_code": 12250
+},
+{
+"id": "IDNP6IDNC148IDND843IDZ12260",
+"name": "Pesanggrahan, Jakarta Selatan, DKI Jakarta. 12260",
+"country_name": "Indonesia",
+"country_code": "ID",
+"administrative_division_level_1_name": "DKI Jakarta",
+"administrative_division_level_1_type": "province",
+"administrative_division_level_2_name": "Jakarta Selatan",
+"administrative_division_level_2_type": "city",
+"administrative_division_level_3_name": "Pesanggrahan",
+"administrative_division_level_3_type": "district",
+"postal_code": 12260
+},
+{
+"id": "IDNP6IDNC148IDND843IDZ12270",
+"name": "Pesanggrahan, Jakarta Selatan, DKI Jakarta. 12270",
+"country_name": "Indonesia",
+"country_code": "ID",
+"administrative_division_level_1_name": "DKI Jakarta",
+"administrative_division_level_1_type": "province",
+"administrative_division_level_2_name": "Jakarta Selatan",
+"administrative_division_level_2_type": "city",
+"administrative_division_level_3_name": "Pesanggrahan",
+"administrative_division_level_3_type": "district",
+"postal_code": 12270
+}
+]
 }
 
 2. RATES
-Rates API Introduction
-Rates API will help you to browse multiple logistic options based on coordinates, area id, or postal codes that are requested through Biteship Platform. Biteship has 5 different cases with Rates API endpoint.
+   Rates API Introduction
+   Rates API will help you to browse multiple logistic options based on coordinates, area id, or postal codes that are requested through Biteship Platform. Biteship has 5 different cases with Rates API endpoint.
 
 Biteship has Rates different rates accuracy depending on which type of API you’re using as shown below
 
 Endpoints
-POST    /v1/rates/couriers       // by coordinates
-POST    /v1/rates/couriers       // by postal codes
-POST    /v1/rates/couriers       // by area id
-POST    /v1/rates/couriers       // by mix
-POST    /v1/rates/couriers       // by type
+POST /v1/rates/couriers // by coordinates
+POST /v1/rates/couriers // by postal codes
+POST /v1/rates/couriers // by area id
+POST /v1/rates/couriers // by mix
+POST /v1/rates/couriers // by type
 
 Retrieve a Courier Rates
 Endpoint
@@ -237,9 +237,9 @@ insurance_fee
 The price field for a jntcargo option is the shipping cost plus this insurance_fee, the same way price already includes insurance and COD for other couriers.
 caution
 items[].value is required for J&T Cargo. If the declared goods value is zero, the behaviour depends on what else you requested:
-You requested other couriers too — the request succeeds and jntcargo is silently omitted from pricing. Other couriers return normally. There is no error and no field telling you it was dropped.
-You requested only jntcargo — the request is rejected with code 40001007.
-On order creation (POST /v1/orders) — the request is rejected with code 40002072.
+You requested other couriers too - the request succeeds and jntcargo is silently omitted from pricing. Other couriers return normally. There is no error and no field telling you it was dropped.
+You requested only jntcargo - the request is rejected with code 40001007.
+On order creation (POST /v1/orders) - the request is rejected with code 40002072.
 JSON Body Request
 { "origin_postal_code": 40111, "destination_postal_code": 60111, "couriers": "jntcargo", "items": [ { "name": "Mesin", "description": "Industrial machine part", "value": 3000000, "length": 60, "width": 40, "height": 40, "weight": 20000, "quantity": 1 } ]}
 Response (pricing entry)
@@ -282,18 +282,18 @@ POST
 40001010
 No courier available for requested location. Please activate other courier option to receive other pricing rate.
 tip
-40001007 is only returned when jntcargo is the only courier you requested and no item value was declared. If you requested other couriers alongside it, the request succeeds and jntcargo is simply omitted from the results — see [J&T Cargo mandatory insurance](https://biteship.com/id/docs/api/rates/retrieve#jt-cargo-mandatory-insurance).
+40001007 is only returned when jntcargo is the only courier you requested and no item value was declared. If you requested other couriers alongside it, the request succeeds and jntcargo is simply omitted from the results - see [J&T Cargo mandatory insurance](https://biteship.com/id/docs/api/rates/retrieve#jt-cargo-mandatory-insurance).
 
 3. LOCATION
-Overview
-Location API Introduction
-Location API will let you create, edit and delete your location list data directly through an API call.
+   Overview
+   Location API Introduction
+   Location API will let you create, edit and delete your location list data directly through an API call.
 
 Endpoints
-POST    /v1/locations
-GET     /v1/locations/:id
-POST    /v1/locations/:id
-DELETE  /v1/locations/:id
+POST /v1/locations
+GET /v1/locations/:id
+POST /v1/locations/:id
+DELETE /v1/locations/:id
 
 Create a Location
 Endpoint
@@ -343,12 +343,12 @@ Check your location by location_id
 
 API Response
 {
-   "success": true,
-   "id": "61d565c69a3211036a05f3f8",
-   "name": "Apotek Gambir",
-   "contact_name": "Ahmad",
-   "contact_phone": "08123456789",
-   "address": "Jl. Gambir Selatan no 5. Blok F 92. Jakarta Pusat."
+"success": true,
+"id": "61d565c69a3211036a05f3f8",
+"name": "Apotek Gambir",
+"contact_name": "Ahmad",
+"contact_phone": "08123456789",
+"address": "Jl. Gambir Selatan no 5. Blok F 92. Jakarta Pusat."
 }
 
 Update a Location
@@ -361,17 +361,17 @@ For Example Let’s pretend if you want to change your location name. You can ju
 
 JSON Body Request
 {
-   "name":"Apotik Monas",
+"name":"Apotik Monas",
 }
 
 API Response
 {
-   "success": true,
-   "id": "61d565c69a3211036a05f3f8",
-   "name": "Apotek Monas",
-   "contact_name": "Ahmad",
-   "contact_phone": "08123456789",
-   "address": "Jl. Gambir Selatan no 5. Blok F 92. Jakarta Pusat."
+"success": true,
+"id": "61d565c69a3211036a05f3f8",
+"name": "Apotek Monas",
+"contact_name": "Ahmad",
+"contact_phone": "08123456789",
+"address": "Jl. Gambir Selatan no 5. Blok F 92. Jakarta Pusat."
 }
 
 Delete a Location
@@ -382,32 +382,32 @@ You can delete your existing location
 
 API Response
 {
-   "success": true,
-   "id": "61d565c69a3211036a05f3f8",
-   "message": "Location successfully been removed"
+"success": true,
+"id": "61d565c69a3211036a05f3f8",
+"message": "Location successfully been removed"
 }
 
 4. DRAF ORDER
-Overview
-Draft order API allows users to save an order before moving forward to order creation. Draft order will become an order after it has been confirmed using Confirm Draft Order API.
+   Overview
+   Draft order API allows users to save an order before moving forward to order creation. Draft order will become an order after it has been confirmed using Confirm Draft Order API.
 
 Different than Order API, Draft Order API allow user to change its order detail, including the courier service. Biteship will not create a waybill when in the order is still in draft.
 
 Endpoints
-POST    /v1/draft_orders
-GET     /v1/draft_orders/:id
-GET     /v1/draft_orders/:id/rates
-POST    /v1/draft_orders/:id
-DELETE  /v1/draft_orders/:id
-POST    /v1/draft_orders/:id/confirm
+POST /v1/draft_orders
+GET /v1/draft_orders/:id
+GET /v1/draft_orders/:id/rates
+POST /v1/draft_orders/:id
+DELETE /v1/draft_orders/:id
+POST /v1/draft_orders/:id/confirm
 
 Status Flow
 Status Flow
 Draft Order Status
-No	Status	Description	Available to Delete
-1	placed	Draft order is just barely placed, cannot be confirmed.	✅
-2	ready	Draft order is ready to be confirmed. Courier has been set.	✅
-3	confirmed	Draft order is ready to be confirmed. Courier has been set.	❌
+No Status Description Available to Delete
+1 placed Draft order is just barely placed, cannot be confirmed. ✅
+2 ready Draft order is ready to be confirmed. Courier has been set. ✅
+3 confirmed Draft order is ready to be confirmed. Courier has been set. ❌
 
 Create Draft Order
 Endpoint
@@ -562,111 +562,111 @@ You can retrieve draft order information.
 
 API Response
 {
-  "success": true,
-  "code": 20011004,
-  "object": "draft_order",
-  "id": "ef18275c-02a9-4887-a56b-f374edb96ec4",
-  "order_id": null,
-  "origin": {
-    "area_id": "IDNP6IDNC148IDND836IDNZ12430",
-    "address": "CITOS - Cilandak Town Square, Kota Jakarta Selatan, Jakarta 12430",
-    "note": null,
-    "contact_name": "John Doe",
-    "contact_phone": "081234567901",
-    "contact_email": "johndoe@example.com",
-    "coordinate": {
-      "latitude": null,
-      "longitude": null
-    },
-    "province_name": "DKI Jakarta",
-    "city_name": "Jakarta Selatan",
-    "district_name": "Cilandak",
-    "postal_code": 12430,
-    "collection_method": "pickup"
-  },
-  "destination": {
-    "area_id": "IDNP6IDNC147IDND835IDNZ10210",
-    "address": "Jl. Contoh No. 12",
-    "note": null,
-    "contact_name": "Jake Doe",
-    "contact_phone": "0812345678902",
-    "contact_email": "jakedoe@example.com",
-    "coordinate": {
-      "latitude": null,
-      "longitude": null
-    },
-    "province_name": "DKI Jakarta",
-    "city_name": "Jakarta Pusat",
-    "district_name": "Tanah Abang",
-    "postal_code": 10210,
-    "proof_of_delivery": {
-      "use": false,
-      "fee": 0,
-      "fee_currency": "IDR",
-      "note": null,
-      "link": null
-    },
-    "cash_on_delivery": {
-      "payment_method": null,
-      "amount": null,
-      "amount_currency": "IDR",
-      "note": null,
-      "type": null
-    }
-  },
-  "courier": {
-    "name": null,
-    "phone": null,
-    "company": "sicepat",
-    "type": "reg",
-    "link": null,
-    "tracking_id": null,
-    "waybill_id": null,
-    "insurance": {
-      "amount": 0,
-      "amount_currency": "IDR",
-      "fee": 0,
-      "fee_currency": "IDR",
-      "note": ""
-    },
-    "routing_code": null
-  },
-  "delivery": {
-    "type": "now",
-    "datetime": "2024-09-19T03:40:22.810Z",
-    "note": null,
-    "distance": null,
-    "distance_unit": "kilometer"
-  },
-  "extra": [],
-  "tags": [],
-  "metadata": null,
-  "items": [
-    {
-      "name": "Black Leather Bag",
-      "description": "Goods",
-      "value": 30,
-      "currency": "IDR",
-      "quantity": 1,
-      "height": 1,
-      "width": 1,
-      "length": 1,
-      "weight": 1
-    }
-  ],
-  "currency": "IDR",
-  "tax_lines": [],
-  "price": 11500,
-  "status": "ready",
-  "reference_id": "example/35ef876e-3902-4186-873a-e9012ea1e354",
-  "invoice_id": "1209839012839012",
-  "user_id": "6448e9d77ff7510bbadfa605",
-  "created_at": "2024-09-19T03:40:22.802Z",
-  "updated_at": "2024-09-19T03:40:22.802Z",
-  "placed_at": null,
-  "ready_at": "2024-09-19T03:40:22.802Z",
-  "confirmed_at": null,
-  "deleted_at": null
+"success": true,
+"code": 20011004,
+"object": "draft_order",
+"id": "ef18275c-02a9-4887-a56b-f374edb96ec4",
+"order_id": null,
+"origin": {
+"area_id": "IDNP6IDNC148IDND836IDNZ12430",
+"address": "CITOS - Cilandak Town Square, Kota Jakarta Selatan, Jakarta 12430",
+"note": null,
+"contact_name": "John Doe",
+"contact_phone": "081234567901",
+"contact_email": "johndoe@example.com",
+"coordinate": {
+"latitude": null,
+"longitude": null
+},
+"province_name": "DKI Jakarta",
+"city_name": "Jakarta Selatan",
+"district_name": "Cilandak",
+"postal_code": 12430,
+"collection_method": "pickup"
+},
+"destination": {
+"area_id": "IDNP6IDNC147IDND835IDNZ10210",
+"address": "Jl. Contoh No. 12",
+"note": null,
+"contact_name": "Jake Doe",
+"contact_phone": "0812345678902",
+"contact_email": "jakedoe@example.com",
+"coordinate": {
+"latitude": null,
+"longitude": null
+},
+"province_name": "DKI Jakarta",
+"city_name": "Jakarta Pusat",
+"district_name": "Tanah Abang",
+"postal_code": 10210,
+"proof_of_delivery": {
+"use": false,
+"fee": 0,
+"fee_currency": "IDR",
+"note": null,
+"link": null
+},
+"cash_on_delivery": {
+"payment_method": null,
+"amount": null,
+"amount_currency": "IDR",
+"note": null,
+"type": null
+}
+},
+"courier": {
+"name": null,
+"phone": null,
+"company": "sicepat",
+"type": "reg",
+"link": null,
+"tracking_id": null,
+"waybill_id": null,
+"insurance": {
+"amount": 0,
+"amount_currency": "IDR",
+"fee": 0,
+"fee_currency": "IDR",
+"note": ""
+},
+"routing_code": null
+},
+"delivery": {
+"type": "now",
+"datetime": "2024-09-19T03:40:22.810Z",
+"note": null,
+"distance": null,
+"distance_unit": "kilometer"
+},
+"extra": [],
+"tags": [],
+"metadata": null,
+"items": [
+{
+"name": "Black Leather Bag",
+"description": "Goods",
+"value": 30,
+"currency": "IDR",
+"quantity": 1,
+"height": 1,
+"width": 1,
+"length": 1,
+"weight": 1
+}
+],
+"currency": "IDR",
+"tax_lines": [],
+"price": 11500,
+"status": "ready",
+"reference_id": "example/35ef876e-3902-4186-873a-e9012ea1e354",
+"invoice_id": "1209839012839012",
+"user_id": "6448e9d77ff7510bbadfa605",
+"created_at": "2024-09-19T03:40:22.802Z",
+"updated_at": "2024-09-19T03:40:22.802Z",
+"placed_at": null,
+"ready_at": "2024-09-19T03:40:22.802Z",
+"confirmed_at": null,
+"deleted_at": null
 }
 
 Retrieve Draft Order Rates
@@ -677,154 +677,154 @@ You can retrieve draft order rates.
 
 API Response
 {
-    "success": true,
-    "object": "courier_pricing",
-    "message": "Success to retrieve courier pricing",
-    "code": 20001003,
-    "origin": {
-        "location_id": null,
-        "latitude": null,
-        "longitude": null,
-        "postal_code": 12430,
-        "country_name": "Indonesia",
-        "country_code": "ID",
-        "administrative_division_level_1_name": "DKI Jakarta",
-        "administrative_division_level_1_type": "province",
-        "administrative_division_level_2_name": "Jakarta Selatan",
-        "administrative_division_level_2_type": "city",
-        "administrative_division_level_3_name": "Cilandak",
-        "administrative_division_level_3_type": "district",
-        "administrative_division_level_4_name": "Cilandak Barat",
-        "administrative_division_level_4_type": "subdistrict",
-        "address": null
-    },
-    "stops": [],
-    "destination": {
-        "location_id": null,
-        "latitude": null,
-        "longitude": null,
-        "postal_code": 10210,
-        "country_name": "Indonesia",
-        "country_code": "ID",
-        "administrative_division_level_1_name": "DKI Jakarta",
-        "administrative_division_level_1_type": "province",
-        "administrative_division_level_2_name": "Jakarta Pusat",
-        "administrative_division_level_2_type": "city",
-        "administrative_division_level_3_name": "Tanah Abang",
-        "administrative_division_level_3_type": "district",
-        "administrative_division_level_4_name": "Bendungan Hilir",
-        "administrative_division_level_4_type": "subdistrict",
-        "address": null
-    },
-    "pricing": [
-        {
-            "available_collection_method": [
-                "pickup"
-            ],
-            "available_for_cash_on_delivery": false,
-            "available_for_proof_of_delivery": false,
-            "available_for_instant_waybill_id": true,
-            "available_for_insurance": true,
-            "company": "grab",
-            "courier_name": "GRAB",
-            "courier_code": "grab",
-            "courier_service_name": "Instant",
-            "courier_service_code": "instant",
-            "description": "Instant service for on demand needs.",
-            "duration": "1 - 3 Hours",
-            "shipment_duration_range": "1 - 3",
-            "shipment_duration_unit": "hours",
-            "service_type": "same_day",
-            "shipping_type": "parcel",
-            "price": 11000,
-            "type": "instant"
-        },
-        {
-            "available_collection_method": [
-                "pickup"
-            ],
-            "available_for_cash_on_delivery": true,
-            "available_for_proof_of_delivery": false,
-            "available_for_instant_waybill_id": true,
-            "available_for_insurance": true,
-            "company": "anteraja",
-            "courier_name": "AnterAja",
-            "courier_code": "anteraja",
-            "courier_service_name": "Reguler",
-            "courier_service_code": "reg",
-            "description": "Regular shipment",
-            "duration": "2 days",
-            "shipment_duration_range": "2",
-            "shipment_duration_unit": "days",
-            "service_type": "standard",
-            "shipping_type": "parcel",
-            "price": 10000,
-            "type": "reg"
-        },
-        {
-            "available_collection_method": [
-                "pickup"
-            ],
-            "available_for_cash_on_delivery": true,
-            "available_for_proof_of_delivery": false,
-            "available_for_instant_waybill_id": true,
-            "available_for_insurance": true,
-            "company": "sicepat",
-            "courier_name": "SiCepat",
-            "courier_code": "sicepat",
-            "courier_service_name": "Reguler",
-            "courier_service_code": "reg",
-            "description": "Layanan reguler",
-            "duration": "1 - 2 days",
-            "shipment_duration_range": "1 - 2",
-            "shipment_duration_unit": "days",
-            "service_type": "standard",
-            "shipping_type": "parcel",
-            "price": 11500,
-            "type": "reg"
-        },
-        {
-            "available_collection_method": [
-                "pickup"
-            ],
-            "available_for_cash_on_delivery": true,
-            "available_for_proof_of_delivery": false,
-            "available_for_instant_waybill_id": true,
-            "available_for_insurance": true,
-            "company": "sap",
-            "courier_name": "SAP",
-            "courier_code": "sap",
-            "courier_service_name": "Regular Service",
-            "courier_service_code": "reg",
-            "description": "Regular Service",
-            "duration": "4 days",
-            "shipment_duration_range": "4",
-            "shipment_duration_unit": "days",
-            "service_type": "standard",
-            "shipping_type": "parcel",
-            "price": 8000,
-            "type": "reg"
-        },
-        {
-            "available_for_cash_on_delivery": false,
-            "available_for_proof_of_delivery": false,
-            "available_for_instant_waybill_id": true,
-            "available_for_insurance": true,
-            "company": "ninja",
-            "courier_name": "Ninja Express",
-            "courier_code": "ninja",
-            "courier_service_name": "Reguler",
-            "courier_service_code": "standard",
-            "description": "Layanan reguler",
-            "duration": "2 - 3 days",
-            "shipment_duration_range": "2 - 3",
-            "shipment_duration_unit": "days",
-            "service_type": "standard",
-            "shipping_type": "parcel",
-            "price": 7777,
-            "type": "standard"
-        }
-    ]
+"success": true,
+"object": "courier_pricing",
+"message": "Success to retrieve courier pricing",
+"code": 20001003,
+"origin": {
+"location_id": null,
+"latitude": null,
+"longitude": null,
+"postal_code": 12430,
+"country_name": "Indonesia",
+"country_code": "ID",
+"administrative_division_level_1_name": "DKI Jakarta",
+"administrative_division_level_1_type": "province",
+"administrative_division_level_2_name": "Jakarta Selatan",
+"administrative_division_level_2_type": "city",
+"administrative_division_level_3_name": "Cilandak",
+"administrative_division_level_3_type": "district",
+"administrative_division_level_4_name": "Cilandak Barat",
+"administrative_division_level_4_type": "subdistrict",
+"address": null
+},
+"stops": [],
+"destination": {
+"location_id": null,
+"latitude": null,
+"longitude": null,
+"postal_code": 10210,
+"country_name": "Indonesia",
+"country_code": "ID",
+"administrative_division_level_1_name": "DKI Jakarta",
+"administrative_division_level_1_type": "province",
+"administrative_division_level_2_name": "Jakarta Pusat",
+"administrative_division_level_2_type": "city",
+"administrative_division_level_3_name": "Tanah Abang",
+"administrative_division_level_3_type": "district",
+"administrative_division_level_4_name": "Bendungan Hilir",
+"administrative_division_level_4_type": "subdistrict",
+"address": null
+},
+"pricing": [
+{
+"available_collection_method": [
+"pickup"
+],
+"available_for_cash_on_delivery": false,
+"available_for_proof_of_delivery": false,
+"available_for_instant_waybill_id": true,
+"available_for_insurance": true,
+"company": "grab",
+"courier_name": "GRAB",
+"courier_code": "grab",
+"courier_service_name": "Instant",
+"courier_service_code": "instant",
+"description": "Instant service for on demand needs.",
+"duration": "1 - 3 Hours",
+"shipment_duration_range": "1 - 3",
+"shipment_duration_unit": "hours",
+"service_type": "same_day",
+"shipping_type": "parcel",
+"price": 11000,
+"type": "instant"
+},
+{
+"available_collection_method": [
+"pickup"
+],
+"available_for_cash_on_delivery": true,
+"available_for_proof_of_delivery": false,
+"available_for_instant_waybill_id": true,
+"available_for_insurance": true,
+"company": "anteraja",
+"courier_name": "AnterAja",
+"courier_code": "anteraja",
+"courier_service_name": "Reguler",
+"courier_service_code": "reg",
+"description": "Regular shipment",
+"duration": "2 days",
+"shipment_duration_range": "2",
+"shipment_duration_unit": "days",
+"service_type": "standard",
+"shipping_type": "parcel",
+"price": 10000,
+"type": "reg"
+},
+{
+"available_collection_method": [
+"pickup"
+],
+"available_for_cash_on_delivery": true,
+"available_for_proof_of_delivery": false,
+"available_for_instant_waybill_id": true,
+"available_for_insurance": true,
+"company": "sicepat",
+"courier_name": "SiCepat",
+"courier_code": "sicepat",
+"courier_service_name": "Reguler",
+"courier_service_code": "reg",
+"description": "Layanan reguler",
+"duration": "1 - 2 days",
+"shipment_duration_range": "1 - 2",
+"shipment_duration_unit": "days",
+"service_type": "standard",
+"shipping_type": "parcel",
+"price": 11500,
+"type": "reg"
+},
+{
+"available_collection_method": [
+"pickup"
+],
+"available_for_cash_on_delivery": true,
+"available_for_proof_of_delivery": false,
+"available_for_instant_waybill_id": true,
+"available_for_insurance": true,
+"company": "sap",
+"courier_name": "SAP",
+"courier_code": "sap",
+"courier_service_name": "Regular Service",
+"courier_service_code": "reg",
+"description": "Regular Service",
+"duration": "4 days",
+"shipment_duration_range": "4",
+"shipment_duration_unit": "days",
+"service_type": "standard",
+"shipping_type": "parcel",
+"price": 8000,
+"type": "reg"
+},
+{
+"available_for_cash_on_delivery": false,
+"available_for_proof_of_delivery": false,
+"available_for_instant_waybill_id": true,
+"available_for_insurance": true,
+"company": "ninja",
+"courier_name": "Ninja Express",
+"courier_code": "ninja",
+"courier_service_name": "Reguler",
+"courier_service_code": "standard",
+"description": "Layanan reguler",
+"duration": "2 - 3 days",
+"shipment_duration_range": "2 - 3",
+"shipment_duration_unit": "days",
+"service_type": "standard",
+"shipping_type": "parcel",
+"price": 7777,
+"type": "standard"
+}
+]
 }
 
 Update Draft Order
@@ -954,8 +954,8 @@ Once you have selected the courier company and the courier type, the draft order
 
 JSON Body Request
 {
-  "courier_company": "sicepat",
-  "courier_type": "reg"
+"courier_company": "sicepat",
+"courier_type": "reg"
 }
 
 Set origin and destination
@@ -965,14 +965,14 @@ Upon changing, if the courier_company and courier_type already set, and it's ins
 
 JSON Body Request
 {
-  "origin_coordinate": {
-    "latitude": -6.1751,
-    "longitude": 106.8650
-  },
-  "destination_coordinate": {
-    "latitude": -6.2115,
-    "longitude": 106.8452
-  }
+"origin_coordinate": {
+"latitude": -6.1751,
+"longitude": 106.8650
+},
+"destination_coordinate": {
+"latitude": -6.2115,
+"longitude": 106.8452
+}
 }
 
 When you send origin and destination value, you must at least choose one type of origin or destination. Origin and destination must at least have postal codes, coordinates or area ids. You do not need to insert all of the three values.
@@ -981,109 +981,109 @@ API Response
 Updated
 API Response
 {
-    "success": true,
-    "code": 20011003,
-    "object": "draft_order",
-    "id": "ef18275c-02a9-4887-a56b-f374edb96ec4",
-    "order_id": null,
-    "origin": {
-        "area_id": "IDNP6IDNC148IDND836IDNZ12430",
-        "address": "CITOS - Cilandak Town Square, Kota Jakarta Selatan, Jakarta 12430",
-        "note": null,
-        "contact_name": "John Doe",
-        "contact_phone": "081234567901",
-        "contact_email": "johndoe@example.com",
-        "coordinate": {
-            "latitude": null,
-            "longitude": null
-        },
-        "province_name": "DKI Jakarta",
-        "city_name": "Jakarta Selatan",
-        "district_name": "Cilandak",
-        "postal_code": 12430,
-        "collection_method": "pickup"
-    },
-    "destination": {
-        "area_id": "IDNP6IDNC147IDND835IDNZ10210",
-        "address": "Jl. Contoh No. 12",
-        "note": null,
-        "contact_name": "Jake Doe",
-        "contact_phone": "0812345678902",
-        "contact_email": "jakedoe@example.com",
-        "coordinate": {
-            "latitude": null,
-            "longitude": null
-        },
-        "province_name": "DKI Jakarta",
-        "city_name": "Jakarta Pusat",
-        "district_name": "Tanah Abang",
-        "postal_code": 10210,
-        "proof_of_delivery": {
-            "use": false,
-            "fee": 0,
-            "note": null,
-            "link": null
-        },
-        "cash_on_delivery": {
-            "payment_method": null,
-            "amount": null,
-            "amount_currency": "IDR",
-            "note": null,
-            "type": null
-        }
-    },
-    "courier": {
-        "name": null,
-        "phone": null,
-        "company": "sicepat",
-        "type": "reg",
-        "link": null,
-        "tracking_id": null,
-        "waybill_id": null,
-        "insurance": {
-            "amount": 0,
-            "amount_currency": "IDR",
-            "fee": 0,
-            "fee_currency": "IDR",
-            "note": ""
-        },
-        "routing_code": null
-    },
-    "delivery": {
-        "type": "now",
-        "datetime": "2024-09-19T03:40:22.810Z",
-        "note": null,
-        "distance": null,
-        "distance_unit": "kilometer"
-    },
-    "extra": [],
-    "tags": [],
-    "metadata": null,
-    "items": [
-        {
-            "name": "Black Leather Bag",
-            "description": "Goods",
-            "value": 30,
-            "quantity": 1,
-            "height": 1,
-            "width": 1,
-            "length": 1,
-            "weight": 1
-        }
-    ],
-    "currency": "IDR",
-    "tax_lines": [],
-    "price": 11500,
-    "status": "ready",
-    "reference_id": "example/35ef876e-3902-4186-873a-e9012ea1e354",
-    "invoice_id": "1209839012839012",
-    "user_id": "6448e9d77ff7510bbadfa605",
-    "created_at": "2024-09-19T03:40:22.802Z",
-    "updated_at": "2024-09-19T03:40:22.802Z",
-    "placed_at": null,
-    "ready_at": "2024-09-19T03:40:22.802Z",
-    "confirmed_at": null,
-    "deleted_at": null
+"success": true,
+"code": 20011003,
+"object": "draft_order",
+"id": "ef18275c-02a9-4887-a56b-f374edb96ec4",
+"order_id": null,
+"origin": {
+"area_id": "IDNP6IDNC148IDND836IDNZ12430",
+"address": "CITOS - Cilandak Town Square, Kota Jakarta Selatan, Jakarta 12430",
+"note": null,
+"contact_name": "John Doe",
+"contact_phone": "081234567901",
+"contact_email": "johndoe@example.com",
+"coordinate": {
+"latitude": null,
+"longitude": null
+},
+"province_name": "DKI Jakarta",
+"city_name": "Jakarta Selatan",
+"district_name": "Cilandak",
+"postal_code": 12430,
+"collection_method": "pickup"
+},
+"destination": {
+"area_id": "IDNP6IDNC147IDND835IDNZ10210",
+"address": "Jl. Contoh No. 12",
+"note": null,
+"contact_name": "Jake Doe",
+"contact_phone": "0812345678902",
+"contact_email": "jakedoe@example.com",
+"coordinate": {
+"latitude": null,
+"longitude": null
+},
+"province_name": "DKI Jakarta",
+"city_name": "Jakarta Pusat",
+"district_name": "Tanah Abang",
+"postal_code": 10210,
+"proof_of_delivery": {
+"use": false,
+"fee": 0,
+"note": null,
+"link": null
+},
+"cash_on_delivery": {
+"payment_method": null,
+"amount": null,
+"amount_currency": "IDR",
+"note": null,
+"type": null
+}
+},
+"courier": {
+"name": null,
+"phone": null,
+"company": "sicepat",
+"type": "reg",
+"link": null,
+"tracking_id": null,
+"waybill_id": null,
+"insurance": {
+"amount": 0,
+"amount_currency": "IDR",
+"fee": 0,
+"fee_currency": "IDR",
+"note": ""
+},
+"routing_code": null
+},
+"delivery": {
+"type": "now",
+"datetime": "2024-09-19T03:40:22.810Z",
+"note": null,
+"distance": null,
+"distance_unit": "kilometer"
+},
+"extra": [],
+"tags": [],
+"metadata": null,
+"items": [
+{
+"name": "Black Leather Bag",
+"description": "Goods",
+"value": 30,
+"quantity": 1,
+"height": 1,
+"width": 1,
+"length": 1,
+"weight": 1
+}
+],
+"currency": "IDR",
+"tax_lines": [],
+"price": 11500,
+"status": "ready",
+"reference_id": "example/35ef876e-3902-4186-873a-e9012ea1e354",
+"invoice_id": "1209839012839012",
+"user_id": "6448e9d77ff7510bbadfa605",
+"created_at": "2024-09-19T03:40:22.802Z",
+"updated_at": "2024-09-19T03:40:22.802Z",
+"placed_at": null,
+"ready_at": "2024-09-19T03:40:22.802Z",
+"confirmed_at": null,
+"deleted_at": null
 }
 
 Delete Draft Order
@@ -1102,169 +1102,169 @@ The id on response from this endpoint is the order's id. You can then continue t
 
 API Response
 {
-    "success": true,
-    "message": "Order successfully created",
-    "object": "order",
-    "id": "66eba364e2e5a64816928197",
-    "draft_order_id": "ef18275c-02a9-4887-a56b-f374edb96ec4",
-    "shipper": {
-        "name": "Amir",
-        "email": "amir@example.com",
-        "phone": "081234567901",
-        "organization": "Biteship Test"
-    },
-    "origin": {
-        "contact_name": "John Doe",
-        "contact_phone": "081234567902",
-        "coordinate": {
-            "latitude": null,
-            "longitude": null
-        },
-        "address": "CITOS - Cilandak Town Square, Kota Jakarta Selatan, Jakarta 12430",
-        "note": "-",
-        "postal_code": 12430,
-        "collection_method": "pickup"
-    },
-    "destination": {
-        "contact_name": "Jack Doe",
-        "contact_phone": "081234567903",
-        "contact_email": "jackdoe@example.com",
-        "address": "Jl. Contoh No. 123",
-        "note": "-",
-        "proof_of_delivery": {
-            "use": false,
-            "fee": 0,
-            "note": null,
-            "link": null
-        },
-        "cash_on_delivery": {
-            "id": null,
-            "amount": 0,
-            "fee": 0,
-            "amount_currency": "IDR",
-            "fee_currency": "IDR",
-            "note": null,
-            "type": null,
-            "status": null,
-            "payment_status": "pending",
-            "payment_method": "cash"
-        },
-        "coordinate": {
-            "latitude": null,
-            "longitude": null
-        },
-        "postal_code": 10210
-    },
-    "stops": [],
-    "courier": {
-        "tracking_id": "66eba364e2e5a642a092819a",
-        "waybill_id": "000000000000",
-        "company": "sicepat",
-        "name": null,
-        "phone": null,
-        "type": "reg",
-        "link": "https://track.biteship.com?waybill_id=000000000000",
-        "insurance": {
-            "amount": 0,
-            "fee": 0,
-            "amount_currency": "IDR",
-            "fee_currency": "IDR",
-            "note": ""
-        },
-        "routing_code": null
-    },
-    "delivery": {
-        "datetime": "2024-09-19T11:07+07:00",
-        "note": null,
-        "type": "now",
-        "distance": null,
-        "distance_unit": "kilometer"
-    },
-    "reference_id": "0000000000",
-    "items": [
-        {
-            "name": "Black Leather Bag",
-            "description": "Goods",
-            "category": "others",
-            "sku": null,
-            "value": 30,
-            "quantity": 1,
-            "length": 1,
-            "width": 1,
-            "height": 1,
-            "weight": 1
-        }
-    ],
-    "extra": [],
-    "currency": "IDR",
-    "tax_lines": [],
-    "price": 11500,
-    "metadata": null,
-    "note": null,
-    "status": "confirmed"
+"success": true,
+"message": "Order successfully created",
+"object": "order",
+"id": "66eba364e2e5a64816928197",
+"draft_order_id": "ef18275c-02a9-4887-a56b-f374edb96ec4",
+"shipper": {
+"name": "Amir",
+"email": "amir@example.com",
+"phone": "081234567901",
+"organization": "Biteship Test"
+},
+"origin": {
+"contact_name": "John Doe",
+"contact_phone": "081234567902",
+"coordinate": {
+"latitude": null,
+"longitude": null
+},
+"address": "CITOS - Cilandak Town Square, Kota Jakarta Selatan, Jakarta 12430",
+"note": "-",
+"postal_code": 12430,
+"collection_method": "pickup"
+},
+"destination": {
+"contact_name": "Jack Doe",
+"contact_phone": "081234567903",
+"contact_email": "jackdoe@example.com",
+"address": "Jl. Contoh No. 123",
+"note": "-",
+"proof_of_delivery": {
+"use": false,
+"fee": 0,
+"note": null,
+"link": null
+},
+"cash_on_delivery": {
+"id": null,
+"amount": 0,
+"fee": 0,
+"amount_currency": "IDR",
+"fee_currency": "IDR",
+"note": null,
+"type": null,
+"status": null,
+"payment_status": "pending",
+"payment_method": "cash"
+},
+"coordinate": {
+"latitude": null,
+"longitude": null
+},
+"postal_code": 10210
+},
+"stops": [],
+"courier": {
+"tracking_id": "66eba364e2e5a642a092819a",
+"waybill_id": "000000000000",
+"company": "sicepat",
+"name": null,
+"phone": null,
+"type": "reg",
+"link": "https://track.biteship.com?waybill_id=000000000000",
+"insurance": {
+"amount": 0,
+"fee": 0,
+"amount_currency": "IDR",
+"fee_currency": "IDR",
+"note": ""
+},
+"routing_code": null
+},
+"delivery": {
+"datetime": "2024-09-19T11:07+07:00",
+"note": null,
+"type": "now",
+"distance": null,
+"distance_unit": "kilometer"
+},
+"reference_id": "0000000000",
+"items": [
+{
+"name": "Black Leather Bag",
+"description": "Goods",
+"category": "others",
+"sku": null,
+"value": 30,
+"quantity": 1,
+"length": 1,
+"width": 1,
+"height": 1,
+"weight": 1
+}
+],
+"extra": [],
+"currency": "IDR",
+"tax_lines": [],
+"price": 11500,
+"metadata": null,
+"note": null,
+"status": "confirmed"
 }
 
 Error Codes
 Below are the list of Draft Order error codes. You can use the 'Code' column and customize based on your platform.
 
-Method	Endpoint	Code	Message
-DELETE	/v1/draft_orders/:id	42211006	Draft order with 'id=$DRAFT_ORDER_ID' has been confirmed.
+Method Endpoint Code Message
+DELETE /v1/draft_orders/:id 42211006 Draft order with 'id=$DRAFT_ORDER_ID' has been confirmed.
 GET	/v1/draft_orders/:id	40411007	Draft order with 'id=$DRAFT_ORDER_ID' is not found.
-GET	/v1/draft_orders/:id/rates	40011001	Bad request.
-GET	/v1/draft_orders/:id/rates	40411007	Draft order with 'id=$DRAFT_ORDER_ID' is not found.
+GET /v1/draft_orders/:id/rates 40011001 Bad request.
+GET /v1/draft_orders/:id/rates 40411007 Draft order with 'id=$DRAFT_ORDER_ID' is not found.
 GET	/v1/draft_orders/:id/rates	42211006	Draft order with 'id=$DRAFT_ORDER_ID' has been confirmed.
-POST	/v1/draft_orders	40011001	Bad request.
-POST	/v1/draft_orders	42211009	Invoice with 'number=$INVOICE_NUMBER' has been paid.
+POST /v1/draft_orders 40011001 Bad request.
+POST /v1/draft_orders 42211009 Invoice with 'number=$INVOICE_NUMBER' has been paid.
 POST	/v1/draft_orders	42211010	'$CASH_ON_DELIVERY_TYPE' is not a valid cash on delivery type.
-POST	/v1/draft_orders	42211011	Cash on delivery amount cannot exceed Rp 15.000.000,-
-POST	/v1/draft_orders	42211012	Cash on delivery for '$COURIER_COMPANY' is not available for this account.
+POST /v1/draft_orders 42211011 Cash on delivery amount cannot exceed Rp 15.000.000,-
+POST /v1/draft_orders 42211012 Cash on delivery for '$COURIER_COMPANY' is not available for this account.
 POST	/v1/draft_orders	42211013	Postal code '$POSTAL_CODE' is not registered.
-POST	/v1/draft_orders	42211015	Reference ID '${reference_id}' is already taken.
+POST /v1/draft_orders 42211015 Reference ID '${reference_id}' is already taken.
 POST	/v1/draft_orders/:id	40011001	Bad request.
 POST	/v1/draft_orders/:id	40411007	Draft order with 'id=$DRAFT_ORDER_ID' is not found.
-POST	/v1/draft_orders/:id	42211006	Draft order with 'id=$DRAFT_ORDER_ID' has been confirmed.
+POST /v1/draft_orders/:id 42211006 Draft order with 'id=$DRAFT_ORDER_ID' has been confirmed.
 POST	/v1/draft_orders/:id	42211009	Invoice with 'number=$INVOICE_NUMBER' has been paid.
-POST	/v1/draft_orders/:id	42211010	'$CASH_ON_DELIVERY_TYPE' is not a valid cash on delivery type.
+POST /v1/draft_orders/:id 42211010 '$CASH_ON_DELIVERY_TYPE' is not a valid cash on delivery type.
 POST	/v1/draft_orders/:id	42211011	Cash on delivery amount cannot exceed Rp 15.000.000,-
 POST	/v1/draft_orders/:id	42211012	Cash on delivery for '$COURIER_COMPANY' is not available for this account.
-POST	/v1/draft_orders/:id	42211013	Postal code '$POSTAL_CODE' is not registered.
+POST /v1/draft_orders/:id 42211013 Postal code '$POSTAL_CODE' is not registered.
 POST	/v1/draft_orders/:id/confirm	40011001	Bad request.
 POST	/v1/draft_orders/:id/confirm	40411007	Draft order with 'id=$DRAFT_ORDER_ID' is not found.
-POST	/v1/draft_orders/:id/confirm	42211008	Draft order with 'id=$DRAFT_ORDER_ID' is not ready to be confirmed for it is on $DRAFT_ORDER_STATUS status.
+POST /v1/draft_orders/:id/confirm 42211008 Draft order with 'id=$DRAFT_ORDER_ID' is not ready to be confirmed for it is on $DRAFT_ORDER_STATUS status.
 
 5. ORDERS
-Overview
-Order API Introduction
-Order objects are created to handle sellers’ shipments. You can create, retrieve, update, and cancel individual orders. Orders are identified by a unique, random ID
+   Overview
+   Order API Introduction
+   Order objects are created to handle sellers’ shipments. You can create, retrieve, update, and cancel individual orders. Orders are identified by a unique, random ID
 
 Endpoints
-POST    /v1/orders
-GET     /v1/orders/:id
-POST    /v1/orders/:id
-POST    /v1/orders/:id/cancel
-DELETE  /v1/orders/:id  // deprecated
+POST /v1/orders
+GET /v1/orders/:id
+POST /v1/orders/:id
+POST /v1/orders/:id/cancel
+DELETE /v1/orders/:id // deprecated
 
 Status Flow
 Below is the order flow of general shipment with Biteship
 
 Biteship Flow Order
 Order Status
-No	Status	Description	Available to Delete
-1	confirmed	Order is ready to be confirmed. AWB has been generated.	✅
-2	scheduled	Order has been scheduled to be delivered. AWB has been generated.	✅
-3	allocated	Order has been allocated, courier will pickup the package.	✅
-4	picking_up	Courier is on the way to pickup the package. (First Mile)	✅
-5	picked	Package has been picked up by courier.	❌
-6	cancelled	Order has been cancelled.	❌
-7	on_hold	Order is on hold for any reason.	❌
-8	in_transit	Package is on the transit to the destination. (Middle Mile)	❌
-8	dropping_off	Courier is dropping off the package to the receiver. (Last Mile)	❌
-9	return_in_transit	Package is on the transit for a return to sender.	❌
-10	returned	Package has been returned to sender.	❌
-11	rejected	Order has been rejected.	❌
-12	disposed	Package has been disposed / destroyed.	❌
-13	courier_not_found	Cannot find courier for the order.	❌
-14	delivered	Package has been delivered to the receiver.	❌
+No Status Description Available to Delete
+1 confirmed Order is ready to be confirmed. AWB has been generated. ✅
+2 scheduled Order has been scheduled to be delivered. AWB has been generated. ✅
+3 allocated Order has been allocated, courier will pickup the package. ✅
+4 picking_up Courier is on the way to pickup the package. (First Mile) ✅
+5 picked Package has been picked up by courier. ❌
+6 cancelled Order has been cancelled. ❌
+7 on_hold Order is on hold for any reason. ❌
+8 in_transit Package is on the transit to the destination. (Middle Mile) ❌
+8 dropping_off Courier is dropping off the package to the receiver. (Last Mile) ❌
+9 return_in_transit Package is on the transit for a return to sender. ❌
+10 returned Package has been returned to sender. ❌
+11 rejected Order has been rejected. ❌
+12 disposed Package has been disposed / destroyed. ❌
+13 courier_not_found Cannot find courier for the order. ❌
+14 delivered Package has been delivered to the receiver. ❌
 Courier Status Availability
 For each uniqueness of all courier status, please go to this link All Courier Status Availability
 
@@ -1363,7 +1363,7 @@ destination_proof_of_delivery boolean
 Optional
 Proof of delivery feature.
 destination_proof_of_delivery_note string
-*REQUIRED / OPTIONAL
+\*REQUIRED / OPTIONAL
 Notes for proof of delivery. It is required if proof of delivery feature is activated.
 courier_company string
 REQUIRED
@@ -1405,286 +1405,286 @@ Type of Request
 Order for Standard Couriers
 JSON Body Request
 {
-  "shipper_contact_name": "Amir",
-  "shipper_contact_phone": "088888888888",
-  "shipper_contact_email": "biteship@test.com",
-  "shipper_organization": "Biteship Org Test",
-  "origin_contact_name": "Amir",
-  "origin_contact_phone": "088888888888",
-  "origin_address": "Plaza Senayan, Jalan Asia Afrik...",
-  "origin_note": "Deket pintu masuk STC",
-  "origin_postal_code": 12440,
-  "destination_contact_name": "John Doe",
-  "destination_contact_phone": "088888888888",
-  "destination_contact_email": "jon@test.com",
-  "destination_address": "Lebak Bulus MRT...",
-  "destination_postal_code": 12950,
-  "destination_note": "Near the gas station",
-  "courier_company": "jne",
-  "courier_type": "reg",
-  "courier_insurance": 500000,
-  "delivery_type": "now",
-  "order_note": "Please be careful",
-  "metadata": {},
-  "items": [
-    {
-      "name": "Black L",
-      "description": "White Shirt",
-      "category": "fashion",
-      "value": 165000,
-      "quantity": 1,
-      "height": 10,
-      "length": 10,
-      "weight": 200,
-      "width": 10
-    }
-  ]
+"shipper_contact_name": "Amir",
+"shipper_contact_phone": "088888888888",
+"shipper_contact_email": "biteship@test.com",
+"shipper_organization": "Biteship Org Test",
+"origin_contact_name": "Amir",
+"origin_contact_phone": "088888888888",
+"origin_address": "Plaza Senayan, Jalan Asia Afrik...",
+"origin_note": "Deket pintu masuk STC",
+"origin_postal_code": 12440,
+"destination_contact_name": "John Doe",
+"destination_contact_phone": "088888888888",
+"destination_contact_email": "jon@test.com",
+"destination_address": "Lebak Bulus MRT...",
+"destination_postal_code": 12950,
+"destination_note": "Near the gas station",
+"courier_company": "jne",
+"courier_type": "reg",
+"courier_insurance": 500000,
+"delivery_type": "now",
+"order_note": "Please be careful",
+"metadata": {},
+"items": [
+{
+"name": "Black L",
+"description": "White Shirt",
+"category": "fashion",
+"value": 165000,
+"quantity": 1,
+"height": 10,
+"length": 10,
+"weight": 200,
+"width": 10
+}
+]
 }
 
 Order for Instant Couriers
 JSON Body Request
 {
-  "shipper_contact_name": "Amir",
-  "shipper_contact_phone": "088888888888",
-  "shipper_contact_email": "biteship@test.com",
-  "shipper_organization": "Biteship Org Test",
-  "origin_contact_name": "Amir",
-  "origin_contact_phone": "088888888888",
-  "origin_address": "Plaza Senayan, Jalan Asia Afrik...",
-  "origin_note": "Deket pintu masuk STC",
-  "origin_coordinate": {
-    "latitude": -6.2253114,
-    "longitude": 106.7993735
-  },
-  "destination_contact_name": "John Doe",
-  "destination_contact_phone": "088888888888",
-  "destination_contact_email": "jon@test.com",
-  "destination_address": "Lebak Bulus MRT...",
-  "destination_note": "Near the gas station",
-  "destination_coordinate": {
-    "latitude": -6.28927,
-    "longitude": 106.77492000000007
-  },
-  "courier_company": "grab",
-  "courier_type": "instant",
-  "courier_insurance": 500000,
-  "delivery_type": "now",
-  "order_note": "Please be careful",
-  "metadata": {},
-  "items": [
-    {
-      "name": "Black L",
-      "description": "White Shirt",
-      "category": "fashion",
-      "category": "fashion",
-      "value": 165000,
-      "quantity": 1,
-      "height": 10,
-      "length": 10,
-      "weight": 200,
-      "width": 10
-    }
-  ]
+"shipper_contact_name": "Amir",
+"shipper_contact_phone": "088888888888",
+"shipper_contact_email": "biteship@test.com",
+"shipper_organization": "Biteship Org Test",
+"origin_contact_name": "Amir",
+"origin_contact_phone": "088888888888",
+"origin_address": "Plaza Senayan, Jalan Asia Afrik...",
+"origin_note": "Deket pintu masuk STC",
+"origin_coordinate": {
+"latitude": -6.2253114,
+"longitude": 106.7993735
+},
+"destination_contact_name": "John Doe",
+"destination_contact_phone": "088888888888",
+"destination_contact_email": "jon@test.com",
+"destination_address": "Lebak Bulus MRT...",
+"destination_note": "Near the gas station",
+"destination_coordinate": {
+"latitude": -6.28927,
+"longitude": 106.77492000000007
+},
+"courier_company": "grab",
+"courier_type": "instant",
+"courier_insurance": 500000,
+"delivery_type": "now",
+"order_note": "Please be careful",
+"metadata": {},
+"items": [
+{
+"name": "Black L",
+"description": "White Shirt",
+"category": "fashion",
+"category": "fashion",
+"value": 165000,
+"quantity": 1,
+"height": 10,
+"length": 10,
+"weight": 200,
+"width": 10
+}
+]
 }
 
 Order for Cash on Delivery
 JSON Body Request
 {
-  "shipper_contact_name": "Amir",
-  "shipper_contact_phone": "088888888888",
-  "shipper_contact_email": "biteship@test.com",
-  "shipper_organization": "Biteship Org Test",
-  "origin_contact_name": "Amir",
-  "origin_contact_phone": "088888888888",
-  "origin_address": "Plaza Senayan, Jalan Asia Afrik...",
-  "origin_note": "Deket pintu masuk STC",
-  "origin_postal_code": 12440,
-  "destination_contact_name": "John Doe",
-  "destination_contact_phone": "088888888888",
-  "destination_contact_email": "jon@test.com",
-  "destination_address": "Lebak Bulus MRT...",
-  "destination_note": "Near the gas station",
-  "destination_postal_code": 12950,
-  "destination_cash_on_delivery": 500000,
-  "destination_cash_on_delivery_type": "7_days",
-  "courier_company": "sicepat",
-  "courier_type": "reg",
-  "courier_insurance": 500000,
-  "delivery_type": "now",
-  "order_note": "Please be careful",
-  "metadata": {},
-  "items": [
-    {
-      "name": "Black L",
-      "description": "White Shirt",
-      "category": "fashion",
-      "value": 165000,
-      "quantity": 1,
-      "height": 10,
-      "length": 10,
-      "weight": 200,
-      "width": 10
-    }
-  ]
+"shipper_contact_name": "Amir",
+"shipper_contact_phone": "088888888888",
+"shipper_contact_email": "biteship@test.com",
+"shipper_organization": "Biteship Org Test",
+"origin_contact_name": "Amir",
+"origin_contact_phone": "088888888888",
+"origin_address": "Plaza Senayan, Jalan Asia Afrik...",
+"origin_note": "Deket pintu masuk STC",
+"origin_postal_code": 12440,
+"destination_contact_name": "John Doe",
+"destination_contact_phone": "088888888888",
+"destination_contact_email": "jon@test.com",
+"destination_address": "Lebak Bulus MRT...",
+"destination_note": "Near the gas station",
+"destination_postal_code": 12950,
+"destination_cash_on_delivery": 500000,
+"destination_cash_on_delivery_type": "7_days",
+"courier_company": "sicepat",
+"courier_type": "reg",
+"courier_insurance": 500000,
+"delivery_type": "now",
+"order_note": "Please be careful",
+"metadata": {},
+"items": [
+{
+"name": "Black L",
+"description": "White Shirt",
+"category": "fashion",
+"value": 165000,
+"quantity": 1,
+"height": 10,
+"length": 10,
+"weight": 200,
+"width": 10
+}
+]
 }
 
 Order for Drop Off collection method
 JSON Body Request
 {
-  "shipper_contact_name": "Amir",
-  "shipper_contact_phone": "088888888888",
-  "shipper_contact_email": "biteship@test.com",
-  "shipper_organization": "Biteship Org Test",
-  "origin_contact_name": "Amir",
-  "origin_contact_phone": "088888888888",
-  "origin_address": "Plaza Senayan, Jalan Asia Afrik...",
-  "origin_note": "Deket pintu masuk STC",
-  "origin_postal_code": 12440,
-  "origin_collection_method": "drop_off",
-  "destination_contact_name": "John Doe",
-  "destination_contact_phone": "088888888888",
-  "destination_contact_email": "jon@test.com",
-  "destination_address": "Lebak Bulus MRT...",
-  "destination_note": "Near the gas station",
-  "destination_postal_code": 12950,
-  "courier_company": "sicepat",
-  "courier_type": "reg",
-  "courier_insurance": 500000,
-  "delivery_type": "now",
-  "order_note": "Please be careful",
-  "metadata": {},
-  "items": [
-    {
-      "name": "Black L",
-      "description": "White Shirt",
-      "category": "fashion",
-      "value": 165000,
-      "quantity": 1,
-      "height": 10,
-      "length": 10,
-      "weight": 200,
-      "width": 10
-    }
-  ]
+"shipper_contact_name": "Amir",
+"shipper_contact_phone": "088888888888",
+"shipper_contact_email": "biteship@test.com",
+"shipper_organization": "Biteship Org Test",
+"origin_contact_name": "Amir",
+"origin_contact_phone": "088888888888",
+"origin_address": "Plaza Senayan, Jalan Asia Afrik...",
+"origin_note": "Deket pintu masuk STC",
+"origin_postal_code": 12440,
+"origin_collection_method": "drop_off",
+"destination_contact_name": "John Doe",
+"destination_contact_phone": "088888888888",
+"destination_contact_email": "jon@test.com",
+"destination_address": "Lebak Bulus MRT...",
+"destination_note": "Near the gas station",
+"destination_postal_code": 12950,
+"courier_company": "sicepat",
+"courier_type": "reg",
+"courier_insurance": 500000,
+"delivery_type": "now",
+"order_note": "Please be careful",
+"metadata": {},
+"items": [
+{
+"name": "Black L",
+"description": "White Shirt",
+"category": "fashion",
+"value": 165000,
+"quantity": 1,
+"height": 10,
+"length": 10,
+"weight": 200,
+"width": 10
+}
+]
 }
 
-*When you send origin and destination value, you must at least choose one type of origin or destination. Origin and destination must at least have postal codes, coordinates or area ids. You do not need to insert all of the three values.
+\*When you send origin and destination value, you must at least choose one type of origin or destination. Origin and destination must at least have postal codes, coordinates or area ids. You do not need to insert all of the three values.
 
 API Response
 Order Created
 Response
 {
-  "success": true,
-  "message": "Order successfully created",
-  "object": "order",
-  "id": "5dd599ebdefcd4158eb8470b",
-  "draft_order_id": null,
-  "shipper": {
-    "name": "Biteship Indonesia",
-    "email": "Biteship@gmail.com",
-    "phone": "08123456789",
-    "organization": "Biteship"
-  },
-  "origin": {
-    "contact_name": "Akbar",
-    "contact_phone": "08123456789",
-    "coordinate": {
-      "latitude": -6.2253114,
-      "longitude": 106.7993735
-    },
-    "address": "Plaza Senayan, Jalan Asia Afrika, RT.1/RW.3",
-    "note": "Deket pintu masuk STC",
-    "postal_code": 12440
-  },
-  "destination": {
-    "contact_name": "Bambang",
-    "contact_phone": "088888888888",
-    "contact_email": "mirsa@biteship.com",
-    "address": "Lebak Bulus MRT, Jalan R.A.Kartini",
-    "note": "Di deket pintu MRT",
-    "proof_of_delivery": {
-      "use": false,
-      "fee": 0,
-      "note": null,
-      "link": null
-    },
-    "cash_on_delivery": {
-      "id": "77bb0f60b029822ecb1411da",
-      "amount": 500000,
-      "amount_currency": "IDR",
-      "fee": 20000,
-      "fee_currency": "IDR",
-      "note": null,
-      "type": "7_days"
-    },
-    "coordinate": {
-      "latitude": -6.28927,
-      "longitude": 106.77492000000007
-    },
-    "postal_code": 12950
-  },
-  "courier": {
-    "tracking_id": "6de509ebdefgh4158ij3451c",
-    "waybill_id": "WYB-1112223333443",
-    "company": "anteraja",
-    "name": null,  // Deprecated
-    "phone": null, // Deprecated
-    "driver_name": null,
-    "driver_phone": null,
-    "driver_photo_url": null,
-    "driver_plate_number": null,
-    "type": "reg",
-    "link": null,
-    "insurance": {
-      "amount": 500000,
-      "amount_currency": "IDR",
-      "fee": 2500,
-      "fee_currency": "IDR",
-      "note": ""
-    },
-    "routing_code": null
-  },
-  "delivery": {
-    "datetime": "2029-09-24T12:00+07:00",
-    "note": null,
-    "type": "now",
-    "distance": 9.8,
-    "distance_unit": "kilometer"
-  },
-  "reference_id": null,
-  "items": [
-    {
-      "name": "Black L",
-      "description": "Feast/Bangkok'19 Invasion",
-      "sku": null,
-      "value": 165000,
-      "quantity": 1,
-      "length": 10,
-      "width": 10,
-      "height": 10,
-      "weight": 200
-    }
-  ],
-  "extra": [],
-  "currency": "IDR",
-  "tax_lines": [],
-  "price": 48000,
-  "metadata": {},
-  "note": "Please be careful",
-  "status": "confirmed"
+"success": true,
+"message": "Order successfully created",
+"object": "order",
+"id": "5dd599ebdefcd4158eb8470b",
+"draft_order_id": null,
+"shipper": {
+"name": "Biteship Indonesia",
+"email": "Biteship@gmail.com",
+"phone": "08123456789",
+"organization": "Biteship"
+},
+"origin": {
+"contact_name": "Akbar",
+"contact_phone": "08123456789",
+"coordinate": {
+"latitude": -6.2253114,
+"longitude": 106.7993735
+},
+"address": "Plaza Senayan, Jalan Asia Afrika, RT.1/RW.3",
+"note": "Deket pintu masuk STC",
+"postal_code": 12440
+},
+"destination": {
+"contact_name": "Bambang",
+"contact_phone": "088888888888",
+"contact_email": "mirsa@biteship.com",
+"address": "Lebak Bulus MRT, Jalan R.A.Kartini",
+"note": "Di deket pintu MRT",
+"proof_of_delivery": {
+"use": false,
+"fee": 0,
+"note": null,
+"link": null
+},
+"cash_on_delivery": {
+"id": "77bb0f60b029822ecb1411da",
+"amount": 500000,
+"amount_currency": "IDR",
+"fee": 20000,
+"fee_currency": "IDR",
+"note": null,
+"type": "7_days"
+},
+"coordinate": {
+"latitude": -6.28927,
+"longitude": 106.77492000000007
+},
+"postal_code": 12950
+},
+"courier": {
+"tracking_id": "6de509ebdefgh4158ij3451c",
+"waybill_id": "WYB-1112223333443",
+"company": "anteraja",
+"name": null, // Deprecated
+"phone": null, // Deprecated
+"driver_name": null,
+"driver_phone": null,
+"driver_photo_url": null,
+"driver_plate_number": null,
+"type": "reg",
+"link": null,
+"insurance": {
+"amount": 500000,
+"amount_currency": "IDR",
+"fee": 2500,
+"fee_currency": "IDR",
+"note": ""
+},
+"routing_code": null
+},
+"delivery": {
+"datetime": "2029-09-24T12:00+07:00",
+"note": null,
+"type": "now",
+"distance": 9.8,
+"distance_unit": "kilometer"
+},
+"reference_id": null,
+"items": [
+{
+"name": "Black L",
+"description": "Feast/Bangkok'19 Invasion",
+"sku": null,
+"value": 165000,
+"quantity": 1,
+"length": 10,
+"width": 10,
+"height": 10,
+"weight": 200
+}
+],
+"extra": [],
+"currency": "IDR",
+"tax_lines": [],
+"price": 48000,
+"metadata": {},
+"note": "Please be careful",
+"status": "confirmed"
 }
 
 Failed to Create Order due to Reference ID already used
 Response
 {
-  "success": false,
-  "error": "Reference id has already been used before. Please input other reference id",
-  "code": 40002060,
-  "details": {
-    "order_id": "660105377589b8dea565208b", // The order that uses given reference id
-    "waybill_id": "1028309128390", // The waybill of order that uses given reference id
-    "reference_id": "66010548c90b557a9e2dd7a4" // Given reference id
-  }
+"success": false,
+"error": "Reference id has already been used before. Please input other reference id",
+"code": 40002060,
+"details": {
+"order_id": "660105377589b8dea565208b", // The order that uses given reference id
+"waybill_id": "1028309128390", // The waybill of order that uses given reference id
+"reference_id": "66010548c90b557a9e2dd7a4" // Given reference id
+}
 }
 
 Retrieve an Order
@@ -1695,136 +1695,135 @@ Check your order history or tracking by orderId. You can get the Order ID from t
 
 Response
 {
-  "success": true,
-  "message": "Order successfully retrieved",
-  "object": "order",
-  "id": "5dd599ebdefcd4158eb8470b",
-  "draft_order_id": null,
-  "short_id": "URf_UO2nY3V",
-  "shipper": {
-    "name": "Amir",
-    "email": "biteship@example.com",
-    "phone": "088888888888",
-    "organization": "Biteship Org"
-  },
-  "origin": {
-    "contact_name": "Amir",
-    "contact_phone": "088888888888",
-    "address": "Plaza Senayan, Jalan Asia Afrik...",
-    "note": "Deket pintu masuk STC",
-    "postal_code": 10270,
-    "coordinate": {
-      "latitude": -6.2253114,
-      "longitude": 106.7993735
-    }
-  },
-  "destination": {
-    "contact_name": "John Doe",
-    "contact_phone": "088888888888",
-    "contact_email": "jon@example.com",
-    "address": "Lebak Bulus MRT...",
-    "note": "Near the gas station",
-    "proof_of_delivery": {
-      "use": false,
-      "fee": 0,
-      "note": null,
-      "link": null
-    },
-    "postal_code": 12310,
-    "coordinate": {
-      "latitude": -6.28927,
-      "longitude": 106.77492000000007
-    },
-    "cash_on_delivery": {
-      "id": null,
-      "amount": 0,
-      "amount_currency": "IDR",
-      "fee": 0,
-      "fee_currency": "IDR",
-      "note": null,
-      "type": null
-    }
-  },
-  "delivery": {
-    "datetime": "2023-09-24T12:00+07:00",
-    "note": null,
-    "type": "now",
-    "distance": 15.2,
-    "distance_unit": "kilometer"
-  },
-  "voucher": {
-    "id": null,
-    "name": null,
-    "value": null,
-    "type": null
-  },
-  "courier": {
-    "tracking_id": "65ddac3879699035b83dc561",
-    "waybill_id": "WYB-1112223333442",
-    "company": "jnt",
-    "history": [
-      {
-        "service_type": "-",
-        "status": "confirmed",
-        "note": "Order has been confirmed. Locating nearest driver to pickup.",
-        "updated_at": "2021-01-11T14:03:41+07:00"
-      },
-      {
-        "service_type": "-",
-        "status": "allocated",
-        "note": "Courier has been allocated. Waiting to pick up.",
-        "updated_at": "2021-01-11T15:49:25+07:00"
-      }
-    ],
-    "link": "https://example.com/10298309123809",
-    "name": "John Doe",   // Deprecated
-    "phone": "0888888888",  // Deprecated
-    "driver_name": "John Doe",
-    "driver_phone": "0888888888",
-    "driver_photo_url": "https://picsum.photos/200",
-    "driver_plate_number": "B 1234 ABC",
-    "type": "instant",
-    "shipment_fee": 25000,
-    "insurance": {
-      "amount": 500000,
-      "amount_currency": "IDR",
-      "fee": 2500,
-      "fee_currency": "IDR",
-      "note": null
-    },
-    "routing_code": "123-JKT45A-67"
-  },
-  "reference_id": null,
-  "invoice_id": null,
-  "items": [
-    {
-      "name": "Black L",
-      "description": "Feast/Bangkok'19 Invasion",
-      "sku": null,
-      "value": 165000,
-      "quantity": 1,
-      "length": 72,
-      "width": 54,
-      "height": 1,
-      "weight": 200
-    }
-  ],
-  "extra": null,
-  "metadata": null,
-  "tags": [],
-  "note": "Please be careful",
-  "currency": "IDR",
-  "tax_lines": [],
-  "price": 27500,
-  "status": "allocated",
-  "ticket_status": null
+"success": true,
+"message": "Order successfully retrieved",
+"object": "order",
+"id": "5dd599ebdefcd4158eb8470b",
+"draft_order_id": null,
+"short_id": "URf_UO2nY3V",
+"shipper": {
+"name": "Amir",
+"email": "biteship@example.com",
+"phone": "088888888888",
+"organization": "Biteship Org"
+},
+"origin": {
+"contact_name": "Amir",
+"contact_phone": "088888888888",
+"address": "Plaza Senayan, Jalan Asia Afrik...",
+"note": "Deket pintu masuk STC",
+"postal_code": 10270,
+"coordinate": {
+"latitude": -6.2253114,
+"longitude": 106.7993735
 }
-
+},
+"destination": {
+"contact_name": "John Doe",
+"contact_phone": "088888888888",
+"contact_email": "jon@example.com",
+"address": "Lebak Bulus MRT...",
+"note": "Near the gas station",
+"proof_of_delivery": {
+"use": false,
+"fee": 0,
+"note": null,
+"link": null
+},
+"postal_code": 12310,
+"coordinate": {
+"latitude": -6.28927,
+"longitude": 106.77492000000007
+},
+"cash_on_delivery": {
+"id": null,
+"amount": 0,
+"amount_currency": "IDR",
+"fee": 0,
+"fee_currency": "IDR",
+"note": null,
+"type": null
+}
+},
+"delivery": {
+"datetime": "2023-09-24T12:00+07:00",
+"note": null,
+"type": "now",
+"distance": 15.2,
+"distance_unit": "kilometer"
+},
+"voucher": {
+"id": null,
+"name": null,
+"value": null,
+"type": null
+},
+"courier": {
+"tracking_id": "65ddac3879699035b83dc561",
+"waybill_id": "WYB-1112223333442",
+"company": "jnt",
+"history": [
+{
+"service_type": "-",
+"status": "confirmed",
+"note": "Order has been confirmed. Locating nearest driver to pickup.",
+"updated_at": "2021-01-11T14:03:41+07:00"
+},
+{
+"service_type": "-",
+"status": "allocated",
+"note": "Courier has been allocated. Waiting to pick up.",
+"updated_at": "2021-01-11T15:49:25+07:00"
+}
+],
+"link": "https://example.com/10298309123809",
+"name": "John Doe", // Deprecated
+"phone": "0888888888", // Deprecated
+"driver_name": "John Doe",
+"driver_phone": "0888888888",
+"driver_photo_url": "https://picsum.photos/200",
+"driver_plate_number": "B 1234 ABC",
+"type": "instant",
+"shipment_fee": 25000,
+"insurance": {
+"amount": 500000,
+"amount_currency": "IDR",
+"fee": 2500,
+"fee_currency": "IDR",
+"note": null
+},
+"routing_code": "123-JKT45A-67"
+},
+"reference_id": null,
+"invoice_id": null,
+"items": [
+{
+"name": "Black L",
+"description": "Feast/Bangkok'19 Invasion",
+"sku": null,
+"value": 165000,
+"quantity": 1,
+"length": 72,
+"width": 54,
+"height": 1,
+"weight": 200
+}
+],
+"extra": null,
+"metadata": null,
+"tags": [],
+"note": "Please be careful",
+"currency": "IDR",
+"tax_lines": [],
+"price": 27500,
+"status": "allocated",
+"ticket_status": null
+}
 
 Delete an Order
 Endpoint
-POST    /v1/orders/:id/cancel
-DELETE  /v1/orders/:id  // deprecated
+POST /v1/orders/:id/cancel
+DELETE /v1/orders/:id // deprecated
 
 Order can be cancelled or rejected based on order id upon request.
 
@@ -1832,81 +1831,81 @@ Cancellation Reason Codes
 To cancel an order, please use one of the codes provided by this endpoint. Each code is paired with a cancellation reason. The cancellation reasons are available in two languages: Bahasa (id) and English (en), represented by the lang query parameter. The default language is Bahasa if you do not specify a language upon retrieval.
 
 Endpoint
-GET    /v1/orders/cancellation_reasons?lang=id // in bahasa
-GET    /v1/orders/cancellation_reasons?lang=en // in english
+GET /v1/orders/cancellation_reasons?lang=id // in bahasa
+GET /v1/orders/cancellation_reasons?lang=en // in english
 
 Cancellation Reasons in Bahasa
 Response Example
 {
-    "success": true,
-    "message": "Order cancellation reasons successfully retrieved",
-    "cancellation_reasons": [
-        {
-            "code": "change_courier",
-            "reason": "Ingin mengganti kurir"
-        },
-        {
-            "code": "pickup_delay",
-            "reason": "Waktu penjemputan terlalu lama"
-        },
-        {
-            "code": "change_address",
-            "reason": "Ingin mengganti alamat"
-        },
-        {
-            "code": "others",
-            "reason": "Pesanan dibatalkan oleh pedagang karena alasan lain"
-        }
-    ]
+"success": true,
+"message": "Order cancellation reasons successfully retrieved",
+"cancellation_reasons": [
+{
+"code": "change_courier",
+"reason": "Ingin mengganti kurir"
+},
+{
+"code": "pickup_delay",
+"reason": "Waktu penjemputan terlalu lama"
+},
+{
+"code": "change_address",
+"reason": "Ingin mengganti alamat"
+},
+{
+"code": "others",
+"reason": "Pesanan dibatalkan oleh pedagang karena alasan lain"
+}
+]
 }
 
 Cancellation Reasons in English
 Response Example
 {
-    "success": true,
-    "message": "Order cancellation reasons successfully retrieved",
-    "cancellation_reasons": [
-        {
-            "code": "change_courier",
-            "reason": "Want to change courier"
-        },
-        {
-            "code": "pickup_delay",
-            "reason": "Pickup time too long"
-        },
-        {
-            "code": "change_address",
-            "reason": "Want to change address"
-        },
-        {
-            "code": "others",
-            "reason": "Order cancelled by merchant for other reason"
-        }
-    ]
+"success": true,
+"message": "Order cancellation reasons successfully retrieved",
+"cancellation_reasons": [
+{
+"code": "change_courier",
+"reason": "Want to change courier"
+},
+{
+"code": "pickup_delay",
+"reason": "Pickup time too long"
+},
+{
+"code": "change_address",
+"reason": "Want to change address"
+},
+{
+"code": "others",
+"reason": "Order cancelled by merchant for other reason"
+}
+]
 }
 
 Type of Requests
 Using Cancellation Reason Code
 JSON Body Request
-{   
-    "cancellation_reason_code": "change_courier"
+{  
+ "cancellation_reason_code": "change_courier"
 }
 
 Custom Cancellation Reason
 JSON Body Request
-{   
-    "cancellation_reason_code": "others",
-    "cancellation_reason": "Accidentally ordered"
+{  
+ "cancellation_reason_code": "others",
+"cancellation_reason": "Accidentally ordered"
 }
 
 API Response
 Response
 {
-    "success": true,
-    "message": "Order successfully deleted",
-    "object": "order",
-    "id": "5dd5a396248481164a225af4",
-    "status": "cancelled",
-    "cancellation_reason_code": "others"
-    "cancellation_reason": "Accidentally ordered"
+"success": true,
+"message": "Order successfully deleted",
+"object": "order",
+"id": "5dd5a396248481164a225af4",
+"status": "cancelled",
+"cancellation_reason_code": "others"
+"cancellation_reason": "Accidentally ordered"
 }

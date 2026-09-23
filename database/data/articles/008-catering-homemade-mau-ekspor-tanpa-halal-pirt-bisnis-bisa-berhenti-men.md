@@ -4,7 +4,7 @@
 Catering Homemade Mau Ekspor? Tanpa Halal & PIRT Bisnis Bisa Berhenti Mendadak
 
 **Cluster Konten \***
-Cluster A — Awareness & Edukasi
+Cluster A - Awareness & Edukasi
 
 **Kategori \***
 Legalitas
@@ -14,11 +14,12 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 Banyak usaha catering rumahan ingin ekspansi ke pasar ekspor, tapi terhenti karena belum memenuhi syarat legalitas dasar seperti PIRT dan sertifikat halal.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>Pasar ekspor menjanjikan peluang besar bagi usaha kuliner rumahan yang produknya sudah punya banyak peminat lokal. Namun tanpa fondasi legalitas yang lengkap, rencana ekspansi ini bisa terhenti di tengah jalan.</p>
 
 <h2>Kenapa Legalitas Jadi Syarat Mutlak untuk Ekspor</h2>
@@ -26,10 +27,10 @@ Banyak usaha catering rumahan ingin ekspansi ke pasar ekspor, tapi terhenti kare
 
 <h2>Dokumen Dasar Sebelum Bicara Ekspor</h2>
 <ul>
-<li><strong>NIB</strong> — legalitas dasar usaha sebagai eksportir.</li>
-<li><strong>SPP-IRT atau izin edar BPOM</strong> — tergantung skala produksi dan jenis produk.</li>
-<li><strong>Sertifikat Halal</strong> — krusial untuk menembus pasar dengan mayoritas konsumen muslim.</li>
-<li><strong>Hasil uji laboratorium produk</strong> — terutama untuk aspek keamanan pangan dan masa simpan.</li>
+<li><strong>NIB</strong> - legalitas dasar usaha sebagai eksportir.</li>
+<li><strong>SPP-IRT atau izin edar BPOM</strong> - tergantung skala produksi dan jenis produk.</li>
+<li><strong>Sertifikat Halal</strong> - krusial untuk menembus pasar dengan mayoritas konsumen muslim.</li>
+<li><strong>Hasil uji laboratorium produk</strong> - terutama untuk aspek keamanan pangan dan masa simpan.</li>
 </ul>
 
 <h2>Kesalahan yang Sering Terjadi</h2>

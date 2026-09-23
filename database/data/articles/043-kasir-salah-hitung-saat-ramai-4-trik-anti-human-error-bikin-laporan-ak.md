@@ -4,7 +4,7 @@
 Kasir Salah Hitung Saat Ramai? 4 Trik Anti-Human Error Bikin Laporan Akurat
 
 **Cluster Konten \***
-Cluster B — Solusi Masalah
+Cluster B - Solusi Masalah
 
 **Kategori \***
 Operasional
@@ -14,11 +14,12 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 Kesalahan hitung di kasir sering terjadi saat warung sedang ramai. Berikut 4 trik untuk meminimalkan human error agar laporan penjualan tetap akurat.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>Semakin ramai pelanggan, semakin tinggi pula risiko kesalahan hitung di kasir. Kesalahan kecil yang berulang bisa berdampak besar pada keakuratan laporan penjualan harian.</p>
 
 <h2>1. Gunakan Sistem yang Menghitung Otomatis</h2>

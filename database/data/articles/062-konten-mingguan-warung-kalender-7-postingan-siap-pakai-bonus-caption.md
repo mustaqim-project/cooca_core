@@ -4,7 +4,7 @@
 Konten Mingguan Warung: Kalender 7 Postingan Siap Pakai (Bonus Caption)
 
 **Cluster Konten \***
-Cluster E — Template & Checklist
+Cluster E - Template & Checklist
 
 **Kategori \***
 Marketing
@@ -14,11 +14,12 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 Bingung mau posting apa setiap hari? Berikut contoh kalender konten mingguan untuk warung yang bisa langsung disesuaikan dan digunakan.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>Konsistensi posting konten sering terhambat karena kebingungan menentukan tema setiap harinya. Kalender konten sederhana bisa membantu warung tetap aktif di media sosial tanpa harus memikirkan ide dari nol setiap hari.</p>
 
 <h2>Contoh Kalender Konten 7 Hari</h2>
@@ -57,7 +58,7 @@ Bingung mau posting apa setiap hari? Berikut contoh kalender konten mingguan unt
 <li>Evaluasi performa tiap tema secara berkala untuk melihat mana yang paling banyak mendapat interaksi.</li>
 </ul>
 
-<blockquote>Kalender konten bukan aturan kaku — gunakan sebagai kerangka dasar yang bisa disesuaikan dengan momen atau kebutuhan promosi tertentu.</blockquote>
+<blockquote>Kalender konten bukan aturan kaku - gunakan sebagai kerangka dasar yang bisa disesuaikan dengan momen atau kebutuhan promosi tertentu.</blockquote>
 
 <h2>Kesimpulan</h2>
 <p>Memiliki kalender konten mingguan membantu warung tetap konsisten memposting tanpa harus memikirkan ide dari nol setiap hari. Konsistensi ini penting untuk menjaga keterikatan dengan pengikut dari waktu ke waktu.</p>

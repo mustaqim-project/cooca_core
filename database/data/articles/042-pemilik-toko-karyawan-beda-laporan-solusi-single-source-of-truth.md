@@ -4,7 +4,7 @@
 Pemilik Toko & Karyawan Beda Laporan? Solusi Single Source of Truth
 
 **Cluster Konten \***
-Cluster A — Awareness & Edukasi
+Cluster A - Awareness & Edukasi
 
 **Kategori \***
 Operasional
@@ -14,11 +14,12 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 Perbedaan laporan penjualan antara owner dan karyawan sering memicu kebingungan. Konsep single source of truth bisa jadi solusi untuk masalah ini.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>Salah satu masalah umum di usaha yang melibatkan lebih dari satu orang adalah perbedaan data laporan antara catatan karyawan dan catatan owner. Perbedaan ini sering memicu kecurigaan dan kebingungan yang sebenarnya bisa dihindari.</p>
 
 <h2>Kenapa Perbedaan Laporan Sering Terjadi</h2>
@@ -29,7 +30,7 @@ Perbedaan laporan penjualan antara owner dan karyawan sering memicu kebingungan.
 </ul>
 
 <h2>Apa Itu Single Source of Truth</h2>
-<p>Single source of truth adalah konsep di mana seluruh data operasional — penjualan, stok, dan keuangan — tercatat dalam satu sistem yang sama dan bisa diakses oleh semua pihak yang berkepentingan, sehingga tidak ada lagi versi data yang berbeda-beda.</p>
+<p>Single source of truth adalah konsep di mana seluruh data operasional - penjualan, stok, dan keuangan - tercatat dalam satu sistem yang sama dan bisa diakses oleh semua pihak yang berkepentingan, sehingga tidak ada lagi versi data yang berbeda-beda.</p>
 
 <h2>Cara Menerapkan Konsep Ini di Usaha Kecil</h2>
 <ol>

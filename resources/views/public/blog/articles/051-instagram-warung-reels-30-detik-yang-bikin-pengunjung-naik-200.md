@@ -4,7 +4,7 @@
 Instagram Warung: Reels 30 Detik yang Bikin Pengunjung Naik 200%
 
 **Cluster Konten \***
-Cluster K — Tutorial "Cara"
+Cluster K - Tutorial "Cara"
 
 **Kategori \***
 Marketing
@@ -14,11 +14,12 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 Reels Instagram berdurasi singkat bisa jadi alat efektif menarik pengunjung baru ke warung. Berikut strategi membuat Reels yang menarik perhatian calon pelanggan.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>Fitur Reels di Instagram memberi kesempatan bagi usaha kecil untuk menjangkau audiens baru di luar pengikut yang sudah ada, asalkan kontennya dibuat dengan strategi yang tepat.</p>
 
 <h2>Kenapa Reels Efektif untuk Usaha Kecil</h2>
@@ -26,8 +27,8 @@ Reels Instagram berdurasi singkat bisa jadi alat efektif menarik pengunjung baru
 
 <h2>Elemen Reels 30 Detik yang Menarik Perhatian</h2>
 <ol>
-<li><strong>3 detik pertama harus menarik</strong> — tampilkan visual paling menggugah, seperti proses memasak atau tampilan produk yang menarik.</li>
-<li><strong>Alur cerita singkat dan jelas</strong> — misalnya dari bahan mentah hingga produk jadi dalam beberapa potongan cepat.</li>
+<li><strong>3 detik pertama harus menarik</strong> - tampilkan visual paling menggugah, seperti proses memasak atau tampilan produk yang menarik.</li>
+<li><strong>Alur cerita singkat dan jelas</strong> - misalnya dari bahan mentah hingga produk jadi dalam beberapa potongan cepat.</li>
 <li><strong>Gunakan musik atau audio yang sedang tren</strong> untuk meningkatkan potensi jangkauan algoritma.</li>
 <li><strong>Sertakan call-to-action sederhana</strong> di akhir video, seperti lokasi warung atau jam operasional.</li>
 </ol>

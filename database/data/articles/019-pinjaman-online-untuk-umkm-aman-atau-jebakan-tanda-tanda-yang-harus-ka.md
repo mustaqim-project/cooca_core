@@ -4,7 +4,7 @@
 Pinjaman Online untuk UMKM: Aman atau Jebakan? Tanda-Tanda yang Harus Kamu Kenali
 
 **Cluster Konten \***
-Cluster A — Awareness & Edukasi
+Cluster A - Awareness & Edukasi
 
 **Kategori \***
 Modal
@@ -14,16 +14,17 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 Pinjaman online bisa jadi solusi modal cepat, tapi juga berisiko jika salah pilih platform. Kenali tanda-tanda pinjaman online yang aman dan legal.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>Kemudahan mengajukan pinjaman online membuat banyak pelaku UMKM tertarik menggunakannya sebagai solusi modal cepat. Namun di balik kemudahan itu, ada risiko besar jika platform yang dipilih ternyata tidak legal atau tidak diawasi otoritas.</p>
 
 <h2>Ciri Pinjaman Online yang Legal</h2>
 <ul>
-<li>Terdaftar dan diawasi oleh Otoritas Jasa Keuangan (OJK) — bisa dicek langsung di situs resmi OJK.</li>
+<li>Terdaftar dan diawasi oleh Otoritas Jasa Keuangan (OJK) - bisa dicek langsung di situs resmi OJK.</li>
 <li>Mencantumkan bunga dan biaya secara transparan sebelum pencairan dana.</li>
 <li>Memiliki mekanisme penagihan yang wajar dan sesuai etika, tanpa ancaman atau intimidasi.</li>
 <li>Memiliki kanal pengaduan resmi yang bisa dihubungi jika terjadi masalah.</li>

@@ -41,7 +41,7 @@ final class TestBiteshipSandboxOrder extends Command
     {
         $this->line('');
         $this->info('================================================================');
-        $this->info('  COOCA & BITESHIP LOGISTICS HUB — END-TO-END SANDBOX TESTER  ');
+        $this->info('  COOCA & BITESHIP LOGISTICS HUB - END-TO-END SANDBOX TESTER  ');
         $this->info('================================================================');
         $this->line('');
 
@@ -205,32 +205,32 @@ final class TestBiteshipSandboxOrder extends Command
         $orderNumber = 'ORD-SBX-' . date('ymd') . '-' . strtoupper(Str::random(4));
         $serviceFee = (float) $biteshipService->getServiceFee();
         $order = CommerceOrder::create([
-                'business_id'              => $business->id,
-                'location_id'              => $location->id,
-                'order_number'             => $orderNumber,
-                'order_type'               => 'delivery',
-                'fulfillment_type'         => 'delivery',
-                'customer_name'            => 'Budi Pembeli Sandbox',
-                'customer_phone'           => '081234567890',
-                'customer_email'           => 'sandbox_buyer@example.com',
-                'shipping_address'         => "Jl. Pela Mampang No. 45, RT 03/02, Mampang Prapatan",
-                'destination_postal_code'  => $destPostal,
-                'shipping_courier_code'    => $selectedRate['courier_code'],
-                'shipping_courier_service' => $selectedRate['courier_service_code'],
-                'shipping_courier_name'    => $selectedRate['courier_name'],
-                'shipping_cost'            => (float) $selectedRate['price'],
-                'shipping_fee'             => (float) $selectedRate['price'],
-                'biteship_service_fee'     => $serviceFee,
-                'subtotal_amount'          => 50000,
-                'total_amount'             => 50000 + (float) $selectedRate['price'] + $serviceFee,
-                'status'                   => CommerceOrder::STATUS_PAID,
-                'payment_status'           => CommerceOrder::PAYMENT_PAID,
-                'payment_gateway'          => CommerceOrder::GATEWAY_MANUAL,
-                'payment_channel'          => 'TRANSFER_BANK',
-                'paid_at'                  => now(),
-                'tracking_token'           => 'trk_' . Str::random(24),
-                'notes'                    => 'Paket uji coba sandbox - tolong jangan dibanting',
-            ]);
+            'business_id'              => $business->id,
+            'location_id'              => $location->id,
+            'order_number'             => $orderNumber,
+            'order_type'               => 'delivery',
+            'fulfillment_type'         => 'delivery',
+            'customer_name'            => 'Budi Pembeli Sandbox',
+            'customer_phone'           => '081234567890',
+            'customer_email'           => 'sandbox_buyer@example.com',
+            'shipping_address'         => "Jl. Pela Mampang No. 45, RT 03/02, Mampang Prapatan",
+            'destination_postal_code'  => $destPostal,
+            'shipping_courier_code'    => $selectedRate['courier_code'],
+            'shipping_courier_service' => $selectedRate['courier_service_code'],
+            'shipping_courier_name'    => $selectedRate['courier_name'],
+            'shipping_cost'            => (float) $selectedRate['price'],
+            'shipping_fee'             => (float) $selectedRate['price'],
+            'biteship_service_fee'     => $serviceFee,
+            'subtotal_amount'          => 50000,
+            'total_amount'             => 50000 + (float) $selectedRate['price'] + $serviceFee,
+            'status'                   => CommerceOrder::STATUS_PAID,
+            'payment_status'           => CommerceOrder::PAYMENT_PAID,
+            'payment_gateway'          => CommerceOrder::GATEWAY_MANUAL,
+            'payment_channel'          => 'TRANSFER_BANK',
+            'paid_at'                  => now(),
+            'tracking_token'           => 'trk_' . Str::random(24),
+            'notes'                    => 'Paket uji coba sandbox - tolong jangan dibanting',
+        ]);
 
         CommerceOrderItem::create([
             'commerce_order_id' => $order->id,

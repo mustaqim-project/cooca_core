@@ -1,10 +1,10 @@
 # Artikel #074
 
 **Judul Artikel \***
-HPP Catering per Porsi vs Laba 25% — 4 Langkah Hitung Wajib UMKM Catering Tau
+HPP Catering per Porsi vs Laba 25% - 4 Langkah Hitung Wajib UMKM Catering Tau
 
 **Cluster Konten \***
-Cluster K — Tutorial "Cara"
+Cluster K - Tutorial "Cara"
 
 **Kategori \***
 Keuangan
@@ -14,11 +14,12 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 Usaha catering punya struktur biaya yang sedikit berbeda dari warung biasa karena melibatkan pesanan dalam jumlah besar. Berikut 4 langkah menghitung HPP dan menetapkan margin yang tepat.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>Usaha catering sering melayani pesanan dalam jumlah besar sekaligus, sehingga perhitungan HPP per porsi perlu dilakukan dengan cermat agar margin keuntungan tetap terjaga meski harga jual per porsi terlihat lebih murah dibanding menjual satuan.</p>
 
 <h2>Langkah 1: Hitung Total Biaya Bahan Baku per Pesanan</h2>
@@ -51,7 +52,7 @@ Usaha catering punya struktur biaya yang sedikit berbeda dari warung biasa karen
 ## Pengaturan SEO (Meta Tags)
 
 **Meta Title**
-HPP Catering per Porsi vs Laba 25% — 4 Langkah Hitung Wajib UMKM Catering Tau
+HPP Catering per Porsi vs Laba 25% - 4 Langkah Hitung Wajib UMKM Catering Tau
 
 **Meta Description**
 4 langkah menghitung HPP catering per porsi dan menetapkan harga jual dengan target margin 25% untuk usaha UMKM catering.

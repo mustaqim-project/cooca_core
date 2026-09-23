@@ -1,9 +1,11 @@
 @extends('layouts.public_marketing')
 
 @section('title', 'Software Manajemen Karyawan, Shift & Absensi Outlet | COOCA')
-@section('description', 'Aplikasi manajemen staf dan SDM untuk toko ritel, F&B, dan jasa. Atur jadwal shift kerja,
+@section('description',
+    'Aplikasi manajemen staf dan SDM untuk toko ritel, F&B, dan jasa. Atur jadwal shift kerja,
     presensi digital GPS, pantau produktivitas penjualan kasir, dan rekap penggajian berbasis kehadiran.')
-@section('keywords', 'software hrm karyawan outlet, aplikasi jadwal shift kasir, absensi gps toko, manajemen sdm retail,
+@section('keywords',
+    'software hrm karyawan outlet, aplikasi jadwal shift kasir, absensi gps toko, manajemen sdm retail,
     rekap gaji karyawan umkm')
 
     @push('seo')
@@ -164,7 +166,7 @@
                                         <i data-lucide="users-2" class="w-4 h-4"></i>
                                     </span>
                                     <div class="min-w-0 flex-1">
-                                        <div class="font-bold text-white truncate">Outlet Senopati — Roster Hari Ini</div>
+                                        <div class="font-bold text-white truncate">Outlet Senopati - Roster Hari Ini</div>
                                         <div class="text-[10px] text-slate-400 truncate">Rabu, 23 September 2026 • 8 Staf
                                             Bertugas</div>
                                     </div>

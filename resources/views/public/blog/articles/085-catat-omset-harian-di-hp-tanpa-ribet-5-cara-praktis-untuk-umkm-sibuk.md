@@ -4,7 +4,7 @@
 Catat Omset Harian di HP, Tanpa Ribet: 5 Cara Praktis untuk UMKM Sibuk
 
 **Cluster Konten \***
-Cluster K — Tutorial "Cara"
+Cluster K - Tutorial "Cara"
 
 **Kategori \***
 Keuangan
@@ -14,11 +14,12 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 Kesibukan operasional harian sering membuat pemilik usaha menunda mencatat omset. Berikut 5 cara praktis mencatat omset harian langsung dari HP tanpa memakan banyak waktu.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>Kesibukan mengurus operasional warung sering membuat pencatatan omset harian terabaikan, padahal data ini penting untuk memantau kesehatan usaha secara berkelanjutan. Untungnya, ada beberapa cara praktis mencatat omset langsung dari HP.</p>
 
 <h2>1. Gunakan Aplikasi Kasir Digital yang Terintegrasi</h2>

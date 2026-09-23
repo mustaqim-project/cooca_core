@@ -4,7 +4,7 @@
 Kapan UMKM Wajib Tinggalkan Excel? 5 Tanda Bahaya Ini Jangan Diabaikan
 
 **Cluster Konten \***
-Cluster H — Tanya Jawab & Diagnostik
+Cluster H - Tanya Jawab & Diagnostik
 
 **Kategori \***
 Scale-up
@@ -14,11 +14,12 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 Excel sering jadi andalan awal UMKM untuk pencatatan usaha, tapi ada batas di mana ketergantungan pada Excel justru mulai membahayakan operasional.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>Excel adalah alat yang sangat membantu di tahap awal usaha, tapi seiring pertumbuhan bisnis, ada titik di mana ketergantungan pada Excel justru mulai menimbulkan risiko operasional yang perlu diwaspadai.</p>
 
 <h2>5 Tanda Bahaya yang Menunjukkan Saatnya Beralih dari Excel</h2>

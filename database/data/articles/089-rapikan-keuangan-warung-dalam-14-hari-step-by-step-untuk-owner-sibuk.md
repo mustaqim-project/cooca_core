@@ -4,7 +4,7 @@
 Rapikan Keuangan Warung dalam 14 Hari: Step-by-step untuk Owner Sibuk
 
 **Cluster Konten \***
-Cluster K — Tutorial "Cara"
+Cluster K - Tutorial "Cara"
 
 **Kategori \***
 Keuangan
@@ -14,11 +14,12 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 Merapikan keuangan usaha yang sudah lama berantakan bisa dilakukan bertahap dalam 14 hari tanpa harus mengorbankan waktu operasional harian.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>Bagi pemilik usaha yang sibuk dengan operasional harian, merapikan keuangan usaha yang sudah lama berantakan sering terasa seperti tugas besar yang terus ditunda. Padahal, proses ini bisa dipecah menjadi langkah-langkah kecil selama 14 hari.</p>
 
 <h2>Hari 1-3: Kumpulkan Semua Data yang Ada</h2>
@@ -28,7 +29,7 @@ Merapikan keuangan usaha yang sudah lama berantakan bisa dilakukan bertahap dala
 <p>Jika selama ini transaksi usaha dan pribadi masih tercampur, mulailah memilah data yang murni terkait usaha, sebagai fondasi laporan keuangan yang lebih akurat ke depannya.</p>
 
 <h2>Hari 7-9: Susun Kategori Pemasukan dan Pengeluaran</h2>
-<p>Kelompokkan seluruh transaksi ke dalam kategori yang jelas — pemasukan dari penjualan, pengeluaran untuk bahan baku, operasional, dan lain-lain — agar polanya lebih mudah dianalisis.</p>
+<p>Kelompokkan seluruh transaksi ke dalam kategori yang jelas - pemasukan dari penjualan, pengeluaran untuk bahan baku, operasional, dan lain-lain - agar polanya lebih mudah dianalisis.</p>
 
 <h2>Hari 10-11: Hitung Saldo Kas Riil Saat Ini</h2>
 <p>Cocokkan catatan yang sudah disusun dengan kondisi kas fisik atau saldo rekening usaha saat ini, untuk memastikan data yang direkap sesuai dengan kondisi riil.</p>
@@ -39,7 +40,7 @@ Merapikan keuangan usaha yang sudah lama berantakan bisa dilakukan bertahap dala
 <h2>Hari 14: Evaluasi dan Tetapkan Rutinitas Baru</h2>
 <p>Tinjau seluruh proses yang sudah dilakukan, lalu tetapkan jadwal rutin (harian atau mingguan) untuk mencatat dan mengevaluasi keuangan usaha ke depannya agar kondisi berantakan tidak terulang.</p>
 
-<blockquote>Merapikan keuangan yang sudah lama berantakan tidak harus dilakukan dalam satu waktu — memecahnya menjadi langkah kecil selama beberapa hari jauh lebih realistis bagi owner yang sibuk.</blockquote>
+<blockquote>Merapikan keuangan yang sudah lama berantakan tidak harus dilakukan dalam satu waktu - memecahnya menjadi langkah kecil selama beberapa hari jauh lebih realistis bagi owner yang sibuk.</blockquote>
 
 <h2>Tips agar Proses Ini Tidak Terasa Berat</h2>
 <ul>

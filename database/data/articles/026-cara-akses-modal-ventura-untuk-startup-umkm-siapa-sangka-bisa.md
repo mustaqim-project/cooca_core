@@ -4,7 +4,7 @@
 Cara Akses Modal Ventura untuk Startup UMKM: Siapa Sangka Bisa!
 
 **Cluster Konten \***
-Cluster A — Awareness & Edukasi
+Cluster A - Awareness & Edukasi
 
 **Kategori \***
 Modal
@@ -14,11 +14,12 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 Modal ventura tidak hanya untuk startup teknologi besar. UMKM dengan model bisnis skalabel juga berpeluang mengakses pendanaan jenis ini.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>Modal ventura sering diasosiasikan dengan startup teknologi berskala besar. Padahal, UMKM dengan model bisnis yang jelas dan potensi pertumbuhan skalabel juga berpeluang mengakses jenis pendanaan ini.</p>
 
 <h2>Apa Itu Modal Ventura</h2>

@@ -4,7 +4,7 @@
 Multi-Cabang Warung: 7 Masalah yang Akan Datang Kalau Tidak Punya Sistem
 
 **Cluster Konten \***
-Cluster A — Awareness & Edukasi
+Cluster A - Awareness & Edukasi
 
 **Kategori \***
 Scale-up
@@ -14,11 +14,12 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 Membuka banyak cabang tanpa sistem yang memadai berisiko menimbulkan berbagai masalah operasional yang bisa mengancam keberlangsungan bisnis secara keseluruhan.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>Ekspansi ke banyak cabang adalah pencapaian besar bagi usaha kecil, tapi tanpa sistem pendukung yang memadai, pertumbuhan ini justru bisa membawa berbagai masalah baru yang lebih kompleks dari sekadar mengelola satu lokasi.</p>
 
 <h2>7 Masalah yang Muncul Tanpa Sistem yang Memadai</h2>

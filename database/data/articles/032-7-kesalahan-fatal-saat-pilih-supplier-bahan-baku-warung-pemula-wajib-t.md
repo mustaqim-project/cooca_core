@@ -4,7 +4,7 @@
 7 Kesalahan Fatal Saat Pilih Supplier Bahan Baku (Warung Pemula Wajib Tau)
 
 **Cluster Konten \***
-Cluster B — Solusi Masalah
+Cluster B - Solusi Masalah
 
 **Kategori \***
 Operasional
@@ -14,11 +14,12 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 Memilih supplier yang salah bisa mengganggu operasional dan merugikan usaha dalam jangka panjang. Kenali 7 kesalahan umum ini sebelum menentukan supplier tetap.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>Supplier bahan baku adalah salah satu mitra bisnis paling krusial bagi usaha kuliner atau retail kecil. Kesalahan memilih supplier bisa berdampak langsung pada kualitas produk dan kelancaran operasional harian.</p>
 
 <h2>7 Kesalahan Umum Memilih Supplier</h2>

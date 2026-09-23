@@ -4,7 +4,7 @@
 UMKM Wajib NIB di 2026? Aturan Baru yang Perlu Kamu Tahu Sebelum Mulai Jualan
 
 **Cluster Konten \***
-Cluster J — Berita & Update
+Cluster J - Berita & Update
 
 **Kategori \***
 Legalitas
@@ -14,15 +14,16 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 Ketentuan seputar legalitas usaha terus diperbarui pemerintah. Berikut rangkuman arah kebijakan NIB dan OSS RBA yang perlu dipahami pelaku UMKM sebelum memulai usaha.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>Regulasi mengenai perizinan berusaha di Indonesia terus disesuaikan dari waktu ke waktu melalui sistem OSS Risk Based Approach (RBA). Bagi pelaku UMKM yang baru mau mulai usaha, memahami arah kebijakan ini penting agar tidak tertinggal informasi.</p>
 
 <h2>Semangat di Balik Kebijakan OSS RBA</h2>
-<p>Pendekatan berbasis risiko (risk based approach) membagi usaha berdasarkan tingkat risikonya — rendah, menengah rendah, menengah tinggi, dan tinggi. Usaha berisiko rendah seperti kebanyakan UMKM cukup memerlukan NIB sebagai legalitas dasar, tanpa harus melalui proses izin berlapis yang rumit.</p>
+<p>Pendekatan berbasis risiko (risk based approach) membagi usaha berdasarkan tingkat risikonya - rendah, menengah rendah, menengah tinggi, dan tinggi. Usaha berisiko rendah seperti kebanyakan UMKM cukup memerlukan NIB sebagai legalitas dasar, tanpa harus melalui proses izin berlapis yang rumit.</p>
 
 <h2>Yang Perlu Diperhatikan Pelaku UMKM</h2>
 <ul>

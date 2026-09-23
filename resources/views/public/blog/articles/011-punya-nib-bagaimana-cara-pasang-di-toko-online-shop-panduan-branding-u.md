@@ -4,7 +4,7 @@
 Punya NIB, Bagaimana Cara Pasang di Toko & Online Shop? Panduan Branding UMKM
 
 **Cluster Konten \***
-Cluster K — Tutorial "Cara"
+Cluster K - Tutorial "Cara"
 
 **Kategori \***
 Legalitas
@@ -14,11 +14,12 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 NIB tidak hanya untuk arsip, tapi juga bisa jadi elemen kepercayaan yang ditampilkan di toko fisik maupun online shop. Ini cara menampilkannya dengan tepat.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>Setelah NIB terbit, banyak pelaku usaha menyimpannya begitu saja tanpa memanfaatkannya sebagai elemen kepercayaan yang bisa dilihat pelanggan, baik di toko fisik maupun kanal online.</p>
 
 <h2>Kenapa Menampilkan NIB Itu Penting</h2>

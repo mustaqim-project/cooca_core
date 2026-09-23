@@ -4,7 +4,7 @@
 Setup Multi-Outlet COOCA UMKM dalam 24 Jam: Step-by-step Migrasi
 
 **Cluster Konten \***
-Cluster G — Strategi Bisnis
+Cluster G - Strategi Bisnis
 
 **Kategori \***
 Scale-up
@@ -14,27 +14,28 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 Migrasi ke pengaturan multi-outlet di COOCA.ID bisa dilakukan dengan cepat asal mengikuti tahapan yang tepat, tanpa mengganggu operasional harian usaha.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>Bagi pelaku usaha yang sudah mulai mengelola lebih dari satu lokasi, migrasi ke pengaturan multi-outlet di COOCA.ID bisa dilakukan dalam waktu singkat asal mengikuti tahapan yang terstruktur.</p>
 
 <h2>Persiapan Sebelum Migrasi</h2>
 <ul>
 <li>Pastikan data produk, harga, dan stok dari setiap cabang sudah terdokumentasi dengan jelas.</li>
-<li>Siapkan struktur pengguna — siapa saja yang akan mengakses sistem di setiap cabang beserta level aksesnya.</li>
+<li>Siapkan struktur pengguna - siapa saja yang akan mengakses sistem di setiap cabang beserta level aksesnya.</li>
 <li>Informasikan rencana migrasi kepada tim di setiap cabang agar mereka siap beradaptasi.</li>
 </ul>
 
 <h2>Tahapan Setup Multi-Outlet dalam 24 Jam</h2>
 <ol>
-<li><strong>Jam 1-4: Konfigurasi cabang utama</strong> — pastikan data cabang pertama sebagai acuan sudah lengkap dan akurat di sistem.</li>
-<li><strong>Jam 5-10: Tambahkan cabang baru</strong> — input data lokasi, produk, dan harga untuk setiap cabang tambahan ke dalam sistem.</li>
-<li><strong>Jam 11-15: Atur hak akses pengguna</strong> — tetapkan siapa yang bisa melihat atau mengelola data di masing-masing cabang sesuai perannya.</li>
-<li><strong>Jam 16-20: Uji coba transaksi di setiap cabang</strong> — pastikan pencatatan transaksi dan stok berjalan sesuai harapan di semua lokasi.</li>
-<li><strong>Jam 21-24: Pelatihan singkat untuk tim di setiap cabang</strong> — pastikan seluruh tim memahami cara menggunakan sistem sebelum benar-benar dioperasikan penuh.</li>
+<li><strong>Jam 1-4: Konfigurasi cabang utama</strong> - pastikan data cabang pertama sebagai acuan sudah lengkap dan akurat di sistem.</li>
+<li><strong>Jam 5-10: Tambahkan cabang baru</strong> - input data lokasi, produk, dan harga untuk setiap cabang tambahan ke dalam sistem.</li>
+<li><strong>Jam 11-15: Atur hak akses pengguna</strong> - tetapkan siapa yang bisa melihat atau mengelola data di masing-masing cabang sesuai perannya.</li>
+<li><strong>Jam 16-20: Uji coba transaksi di setiap cabang</strong> - pastikan pencatatan transaksi dan stok berjalan sesuai harapan di semua lokasi.</li>
+<li><strong>Jam 21-24: Pelatihan singkat untuk tim di setiap cabang</strong> - pastikan seluruh tim memahami cara menggunakan sistem sebelum benar-benar dioperasikan penuh.</li>
 </ol>
 
 <h2>Manfaat Sistem Multi-Outlet yang Terkonsolidasi</h2>

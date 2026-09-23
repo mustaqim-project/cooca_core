@@ -1,9 +1,11 @@
 @extends('layouts.public_marketing')
 
 @section('title', 'Software Manajemen Pesanan Omnichannel & Order Fulfillment | COOCA')
-@section('description', 'Satukan pesanan dari kasir POS toko fisik, website, WhatsApp, dan marketplace ke dalam satu
+@section('description',
+    'Satukan pesanan dari kasir POS toko fisik, website, WhatsApp, dan marketplace ke dalam satu
     pipeline pemrosesan terpadu. Rute pesanan ke cabang terdekat, cetak label massal, dan lacak status pengiriman.')
-@section('keywords', 'software manajemen pesanan omnichannel, aplikasi order fulfillment, sistem proses pesanan toko
+@section('keywords',
+    'software manajemen pesanan omnichannel, aplikasi order fulfillment, sistem proses pesanan toko
     online fisik, agregasi pesanan marketplace pos, order lifecycle indonesia')
 
     @push('seo')
@@ -39,7 +41,7 @@
       "name": "Bagaimana COOCA menggabungkan pesanan dari kasir toko fisik dan marketplace online?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Setiap pesanan yang terjadi—baik pelanggan yang memesan langsung di kasir toko, pemesanan lewat pesan WhatsApp, maupun checkout di Shopee dan Tokopedia—langsung masuk ke antrean Unified Orders COOCA dengan tanda label asal channel yang jelas."
+        "text": "Setiap pesanan yang terjadi-baik pelanggan yang memesan langsung di kasir toko, pemesanan lewat pesan WhatsApp, maupun checkout di Shopee dan Tokopedia-langsung masuk ke antrean Unified Orders COOCA dengan tanda label asal channel yang jelas."
       }
     },
     {
@@ -555,8 +557,8 @@
                             class="w-4 h-4 text-slate-500 group-open:rotate-180 transition-transform"></i>
                     </summary>
                     <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-3 leading-relaxed">
-                        Setiap pesanan yang terjadi—baik pelanggan yang memesan langsung di kasir toko, pemesanan lewat
-                        pesan WhatsApp, maupun checkout di Shopee dan Tokopedia—langsung masuk ke antrean Unified Orders
+                        Setiap pesanan yang terjadi-baik pelanggan yang memesan langsung di kasir toko, pemesanan lewat
+                        pesan WhatsApp, maupun checkout di Shopee dan Tokopedia-langsung masuk ke antrean Unified Orders
                         COOCA dengan tanda label asal channel yang jelas.
                     </p>
                 </details>

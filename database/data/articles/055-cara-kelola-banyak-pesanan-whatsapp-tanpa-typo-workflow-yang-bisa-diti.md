@@ -4,7 +4,7 @@
 Cara Kelola Banyak Pesanan WhatsApp Tanpa Typo: Workflow yang Bisa Ditiru
 
 **Cluster Konten \***
-Cluster K — Tutorial "Cara"
+Cluster K - Tutorial "Cara"
 
 **Kategori \***
 Marketing
@@ -14,11 +14,12 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 Menangani banyak pesanan melalui WhatsApp bisa jadi rumit tanpa alur kerja yang jelas. Berikut workflow sederhana agar pesanan tetap tercatat rapi dan minim kesalahan.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>WhatsApp menjadi salah satu kanal penjualan paling populer bagi usaha kecil, tapi tanpa alur kerja yang jelas, mengelola banyak pesanan sekaligus bisa berujung pada kesalahan pencatatan atau typo yang merugikan.</p>
 
 <h2>Masalah Umum Mengelola Pesanan via WhatsApp</h2>

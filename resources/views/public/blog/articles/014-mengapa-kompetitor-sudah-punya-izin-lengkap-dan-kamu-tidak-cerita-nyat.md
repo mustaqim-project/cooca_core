@@ -4,7 +4,7 @@
 Mengapa Kompetitor Sudah Punya Izin Lengkap dan Kamu Tidak? Cerita Nyata Pedagang
 
 **Cluster Konten \***
-Cluster F — Studi Kasus & Cerita
+Cluster F - Studi Kasus & Cerita
 
 **Kategori \***
 Legalitas
@@ -14,11 +14,12 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 Kisah seorang pedagang yang menyadari pentingnya legalitas usaha setelah melihat kompetitornya lebih dulu memiliki izin lengkap dan mendapat lebih banyak peluang kerja sama.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>Banyak pelaku usaha baru menyadari pentingnya legalitas setelah melihat kompetitor sejenis yang lebih dulu bergerak mengurus izin usahanya. Berikut gambaran situasi yang sering dialami banyak pedagang UMKM.</p>
 
 <h2>Titik Balik: Kalah Bersaing karena Dokumen</h2>

@@ -4,7 +4,7 @@
 AI untuk Warung Rumahan: 5 Kegunaan Praktis yang Bisa Dipakai Setiap Hari
 
 **Cluster Konten \***
-Cluster G — Strategi Bisnis
+Cluster G - Strategi Bisnis
 
 **Kategori \***
 Scale-up
@@ -14,11 +14,12 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 Teknologi AI kini semakin terjangkau dan bisa dimanfaatkan usaha rumahan untuk berbagai kebutuhan operasional harian, bukan hanya perusahaan besar.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>Kecerdasan buatan (AI) sering diasosiasikan dengan teknologi mahal yang hanya bisa dimanfaatkan perusahaan besar. Padahal, saat ini banyak kegunaan praktis AI yang bisa langsung dimanfaatkan usaha rumahan dalam operasional sehari-hari.</p>
 
 <h2>5 Kegunaan Praktis AI untuk Usaha Rumahan</h2>

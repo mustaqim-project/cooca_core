@@ -1,9 +1,11 @@
 @extends('layouts.public_marketing')
 
 @section('title', 'Software CRM & Sistem Loyalitas Pelanggan Terintegrasi POS | COOCA')
-@section('description', 'Aplikasi CRM dan database pelanggan multi-cabang untuk bisnis retail & jasa. Bangun program
+@section('description',
+    'Aplikasi CRM dan database pelanggan multi-cabang untuk bisnis retail & jasa. Bangun program
     membership poin, lacak riwayat belanja omnichannel, dan segmentasi otomatis untuk meningkatkan repeat order.')
-@section('keywords', 'software crm pelanggan, sistem membership loyalitas poin, database pelanggan retail, aplikasi
+@section('keywords',
+    'software crm pelanggan, sistem membership loyalitas poin, database pelanggan retail, aplikasi
     retensi pelanggan, crm terintegrasi pos')
 
     @push('seo')
@@ -481,7 +483,7 @@
                         </div>
                         <h3 class="text-base font-bold text-white">Riwayat Terkonsolidasi</h3>
                         <p class="text-xs text-slate-300 leading-relaxed">
-                            Setiap transaksi berikutnya—baik di cabang lain maupun melalui toko online—otomatis menambahkan
+                            Setiap transaksi berikutnya-baik di cabang lain maupun melalui toko online-otomatis menambahkan
                             riwayat belanja ke profil pelanggan yang sama.
                         </p>
                     </div>

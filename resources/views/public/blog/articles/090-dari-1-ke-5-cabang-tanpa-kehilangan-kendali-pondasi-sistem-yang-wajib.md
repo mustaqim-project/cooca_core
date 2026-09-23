@@ -4,7 +4,7 @@
 Dari 1 ke 5 Cabang Tanpa Kehilangan Kendali: Pondasi Sistem yang Wajib
 
 **Cluster Konten \***
-Cluster G — Strategi Bisnis
+Cluster G - Strategi Bisnis
 
 **Kategori \***
 Scale-up
@@ -14,11 +14,12 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 Berkembang dari satu ke beberapa cabang butuh fondasi sistem yang kuat agar owner tetap bisa mengontrol operasional tanpa harus hadir fisik di setiap lokasi.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>Membuka cabang baru adalah tanda pertumbuhan yang menggembirakan, tapi tanpa fondasi sistem yang tepat, ekspansi ini justru bisa membuat owner kehilangan kendali atas operasional yang selama ini berjalan baik di cabang pertama.</p>
 
 <h2>Kenapa Ekspansi Tanpa Sistem Berisiko</h2>

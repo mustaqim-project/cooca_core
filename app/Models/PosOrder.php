@@ -376,7 +376,7 @@ class PosOrder extends Model
                 'action' => 'bill_reprinted',
                 'risk_level' => $riskLevel,
                 'risk_reason' => $newCount > 2 ? 'Cetak ulang bill dilakukan lebih dari 2 kali' : null,
-                'notes' => "Cetak Ulang (Re-Print) Bill Order #{$this->order_number} — Salinan ke-{$newReprintCount} (Cetakan ke-{$newCount}) oleh {$actorName}",
+                'notes' => "Cetak Ulang (Re-Print) Bill Order #{$this->order_number} - Salinan ke-{$newReprintCount} (Cetakan ke-{$newCount}) oleh {$actorName}",
                 'old_values' => [
                     'print_count' => $oldCount,
                     'reprint_count' => max(0, $oldCount - 1),
@@ -397,4 +397,3 @@ class PosOrder extends Model
         return $this;
     }
 }
-

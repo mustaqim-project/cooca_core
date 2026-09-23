@@ -4,7 +4,7 @@
 Iklan Meta vs Google Ads untuk Warung Mikro: Mana yang Lebih Murah?
 
 **Cluster Konten \***
-Cluster C — Perbandingan & Pilihan
+Cluster C - Perbandingan & Pilihan
 
 **Kategori \***
 Marketing
@@ -14,11 +14,12 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 Memilih platform iklan yang tepat penting bagi warung dengan budget terbatas. Berikut perbandingan karakteristik iklan Meta (Facebook/Instagram) dan Google Ads untuk usaha mikro.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>Bagi warung dengan anggaran pemasaran terbatas, memilih platform iklan yang tepat sangat penting agar setiap rupiah yang dikeluarkan memberikan hasil yang maksimal.</p>
 
 <h2>Karakteristik Iklan Meta (Facebook/Instagram)</h2>

@@ -4,7 +4,7 @@
 Stok Opname Warung Sederhana: Cara Hitung Selisih Tanpa Drama dalam 30 Menit
 
 **Cluster Konten \***
-Cluster K — Tutorial "Cara"
+Cluster K - Tutorial "Cara"
 
 **Kategori \***
 Keuangan
@@ -14,11 +14,12 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 Menghitung selisih stok tidak harus jadi proses yang rumit dan memicu kepanikan. Berikut cara melakukan stok opname sederhana secara cepat dan sistematis.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>Stok opname sering dianggap sebagai proses yang menegangkan, terutama saat ditemukan selisih yang tidak sesuai catatan. Padahal, dengan pendekatan yang tepat, proses ini bisa dilakukan secara sederhana dan tidak perlu memicu kepanikan berlebihan.</p>
 
 <h2>Persiapan Sebelum Stok Opname</h2>
@@ -33,7 +34,7 @@ Menghitung selisih stok tidak harus jadi proses yang rumit dan memicu kepanikan.
 <li><strong>Hitung fisik barang</strong> per kategori secara berurutan, jangan acak agar tidak ada yang terlewat atau terhitung dua kali.</li>
 <li><strong>Catat hasil hitungan</strong> di samping catatan sistem untuk setiap produk.</li>
 <li><strong>Identifikasi selisih</strong> antara hasil hitungan fisik dengan catatan sistem.</li>
-<li><strong>Catat kemungkinan penyebab selisih</strong> — misalnya barang rusak yang belum dicatat, kesalahan input, atau memang ada kehilangan.</li>
+<li><strong>Catat kemungkinan penyebab selisih</strong> - misalnya barang rusak yang belum dicatat, kesalahan input, atau memang ada kehilangan.</li>
 </ol>
 
 <h2>Cara Menyikapi Selisih yang Ditemukan</h2>
@@ -43,7 +44,7 @@ Menghitung selisih stok tidak harus jadi proses yang rumit dan memicu kepanikan.
 <li>Hindari langsung menuduh karyawan tertentu tanpa investigasi lebih lanjut yang jelas.</li>
 </ul>
 
-<blockquote>Selisih dalam stok opname adalah hal yang wajar terjadi — yang penting adalah bagaimana meresponsnya secara sistematis, bukan reaktif.</blockquote>
+<blockquote>Selisih dalam stok opname adalah hal yang wajar terjadi - yang penting adalah bagaimana meresponsnya secara sistematis, bukan reaktif.</blockquote>
 
 <h2>Tips agar Stok Opname Lebih Cepat ke Depannya</h2>
 <ul>

@@ -1,10 +1,10 @@
 # Artikel #088
 
 **Judul Artikel \***
-Catatan Keuangan Warung: Buku Tulis vs Aplikasi — Mana yang Lebih Akurat?
+Catatan Keuangan Warung: Buku Tulis vs Aplikasi - Mana yang Lebih Akurat?
 
 **Cluster Konten \***
-Cluster C — Perbandingan & Pilihan
+Cluster C - Perbandingan & Pilihan
 
 **Kategori \***
 Keuangan
@@ -14,11 +14,12 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 Mencatat keuangan usaha bisa dilakukan dengan buku tulis konvensional atau aplikasi digital. Berikut perbandingan akurasi dan kepraktisan keduanya.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>Buku tulis masih menjadi pilihan banyak pemilik warung untuk mencatat keuangan usaha karena dianggap sederhana dan tidak membutuhkan perangkat tambahan. Namun, seberapa akurat metode ini dibanding menggunakan aplikasi digital?</p>
 
 <h2>Akurasi Pencatatan dengan Buku Tulis</h2>
@@ -54,7 +55,7 @@ Mencatat keuangan usaha bisa dilakukan dengan buku tulis konvensional atau aplik
 ## Pengaturan SEO (Meta Tags)
 
 **Meta Title**
-Catatan Keuangan Warung: Buku Tulis vs Aplikasi — Mana yang Lebih Akurat?
+Catatan Keuangan Warung: Buku Tulis vs Aplikasi - Mana yang Lebih Akurat?
 
 **Meta Description**
 Perbandingan akurasi pencatatan keuangan usaha menggunakan buku tulis konvensional dan aplikasi pembukuan digital untuk warung.

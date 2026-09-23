@@ -1,9 +1,11 @@
 @extends('layouts.public_marketing')
 
 @section('title', 'Software Pembuatan Konten Promosi & Workflow Kreasi Bisnis | COOCA')
-@section('description', 'Transformasikan produk toko fisik Anda menjadi materi promosi media sosial yang memikat.
+@section('description',
+    'Transformasikan produk toko fisik Anda menjadi materi promosi media sosial yang memikat.
     Workflow kreasi konten terpadu: copywriting multi-format, visual produk, dan persetujuan draf sebelum tayang.')
-@section('keywords', 'software pembuatan konten promosi, workflow kreasi konten bisnis, generator materi promosi produk,
+@section('keywords',
+    'software pembuatan konten promosi, workflow kreasi konten bisnis, generator materi promosi produk,
     copywriting katalog toko, studio konten umkm')
 
     @push('seo')
@@ -47,7 +49,7 @@
       "name": "Apakah teks promosi yang dihasilkan bisa disesuaikan dengan gaya bicara brand kami?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Bisa. Anda dapat mengatur Brand Voice (nada bicara brand)—misalnya kasual dan hangat untuk kafe kopi anak muda, atau profesional dan terpercaya untuk bengkel dan klinik kecantikan."
+        "text": "Bisa. Anda dapat mengatur Brand Voice (nada bicara brand)-misalnya kasual dan hangat untuk kafe kopi anak muda, atau profesional dan terpercaya untuk bengkel dan klinik kecantikan."
       }
     },
     {
@@ -129,7 +131,8 @@
                         </div>
 
                         {{-- Key Trust Specs --}}
-                        <div class="pt-4 border-t border-white/10 grid grid-cols-2 sm:grid-cols-3 gap-3.5 sm:gap-4 text-left">
+                        <div
+                            class="pt-4 border-t border-white/10 grid grid-cols-2 sm:grid-cols-3 gap-3.5 sm:gap-4 text-left">
                             <div class="min-w-0">
                                 <div class="text-xs text-slate-400 font-medium truncate">Sumber Konten</div>
                                 <div class="text-sm font-bold text-white mt-0.5 truncate">Katalog Stok Riil</div>
@@ -162,7 +165,8 @@
                                     </div>
                                 </div>
                                 <span
-                                    class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 text-[10px] font-mono font-bold shrink-0">Draf Siap Review</span>
+                                    class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 text-[10px] font-mono font-bold shrink-0">Draf
+                                    Siap Review</span>
                             </div>
 
                             {{-- Product Source Selector Pill --}}
@@ -174,8 +178,10 @@
                                         <i data-lucide="coffee" class="w-4 h-4"></i>
                                     </div>
                                     <div class="min-w-0">
-                                        <div class="font-semibold text-white text-[11px] truncate">Croissant Butter Fresh Oven</div>
-                                        <div class="text-[10px] text-slate-400 font-mono truncate">Rp 28.000 • Stok Sudirman: 15 pcs</div>
+                                        <div class="font-semibold text-white text-[11px] truncate">Croissant Butter Fresh
+                                            Oven</div>
+                                        <div class="text-[10px] text-slate-400 font-mono truncate">Rp 28.000 • Stok
+                                            Sudirman: 15 pcs</div>
                                     </div>
                                 </div>
                                 <span class="text-[10px] text-[#00C4D8] font-medium shrink-0">Ganti Produk</span>
@@ -217,7 +223,8 @@
                             </div>
 
                             {{-- Review & Approval Footer Action --}}
-                            <div class="mt-3 pt-2.5 border-t border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+                            <div
+                                class="mt-3 pt-2.5 border-t border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
                                 <span class="text-slate-400 text-[10px] truncate">Disusun: Admin Sarah (10:15 WIB)</span>
                                 <div class="flex items-center gap-2 shrink-0">
                                     <button
@@ -523,7 +530,7 @@
                             class="w-4 h-4 text-slate-500 group-open:rotate-180 transition-transform"></i>
                     </summary>
                     <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-3 leading-relaxed">
-                        Bisa. Anda dapat mengatur Brand Voice (nada bicara brand)—misalnya kasual dan hangat untuk kafe kopi
+                        Bisa. Anda dapat mengatur Brand Voice (nada bicara brand)-misalnya kasual dan hangat untuk kafe kopi
                         anak muda, atau profesional dan terpercaya untuk bengkel dan klinik kecantikan.
                     </p>
                 </details>

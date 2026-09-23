@@ -4,7 +4,7 @@
 Cara Tentukan Harga Jual Makanan Ringan yang Tidak Bikin Pembeli Kabur
 
 **Cluster Konten \***
-Cluster K — Tutorial "Cara"
+Cluster K - Tutorial "Cara"
 
 **Kategori \***
 Keuangan
@@ -14,19 +14,20 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 Menentukan harga jual makanan ringan perlu keseimbangan antara margin keuntungan dan daya beli target pasar agar tidak membuat calon pembeli mengurungkan niatnya.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>Usaha makanan ringan seperti keripik atau camilan kemasan sering menghadapi tantangan dalam menentukan harga jual yang kompetitif namun tetap memberikan margin yang layak bagi usaha.</p>
 
 <h2>Faktor yang Perlu Dipertimbangkan Saat Menentukan Harga</h2>
 <ul>
-<li><strong>HPP per kemasan</strong> — termasuk bahan baku, kemasan, dan biaya produksi lainnya.</li>
-<li><strong>Harga pasar untuk produk sejenis</strong> — sebagai acuan agar harga tidak terlalu jauh berbeda dari kompetitor.</li>
-<li><strong>Target segmen pasar</strong> — daya beli pelanggan yang disasar akan memengaruhi kisaran harga yang wajar diterima.</li>
-<li><strong>Ukuran atau berat kemasan</strong> — perbandingan harga per gram bisa membantu menentukan harga yang lebih masuk akal dibanding kompetitor.</li>
+<li><strong>HPP per kemasan</strong> - termasuk bahan baku, kemasan, dan biaya produksi lainnya.</li>
+<li><strong>Harga pasar untuk produk sejenis</strong> - sebagai acuan agar harga tidak terlalu jauh berbeda dari kompetitor.</li>
+<li><strong>Target segmen pasar</strong> - daya beli pelanggan yang disasar akan memengaruhi kisaran harga yang wajar diterima.</li>
+<li><strong>Ukuran atau berat kemasan</strong> - perbandingan harga per gram bisa membantu menentukan harga yang lebih masuk akal dibanding kompetitor.</li>
 </ul>
 
 <h2>Langkah Menentukan Harga Jual yang Tepat</h2>

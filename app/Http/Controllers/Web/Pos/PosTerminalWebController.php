@@ -41,7 +41,7 @@ final class PosTerminalWebController extends Controller
         $business = Context::requireBusiness();
         $user = auth()->user();
 
-        // 1. Locations / Outlets — only show outlet-type locations (not warehouse/logistics)
+        // 1. Locations / Outlets - only show outlet-type locations (not warehouse/logistics)
         $locations = Location::where('business_id', $business->id)
             ->where('is_active', true)
             ->whereIn('type', ['outlet', 'store', 'central_kitchen'])
@@ -541,7 +541,7 @@ final class PosTerminalWebController extends Controller
                     'total_amount' => (float) $o->total_amount,
                     'created_at_time' => $o->created_at->format('H:i:s'),
                     'notes' => $o->notes,
-                    'items' => $o->items->map(fn ($item) => [
+                    'items' => $o->items->map(fn($item) => [
                         'id' => $item->id,
                         'product_id' => $item->product_id,
                         'product_name' => $item->product_name,
@@ -639,14 +639,14 @@ final class PosTerminalWebController extends Controller
                     'customer_phone' => $session->customer_phone,
                     'opened_at' => $session->opened_at?->format('H:i') ?? '',
                     'total_amount' => (float) $session->total_amount,
-                    'unpaid_orders' => $unpaidOrders->map(fn ($o) => [
+                    'unpaid_orders' => $unpaidOrders->map(fn($o) => [
                         'id' => $o->id,
                         'order_number' => $o->order_number,
                         'status' => $o->status,
                         'total_amount' => (float) $o->total_amount,
                         'customer_name_guest' => $o->customer_name_guest,
                         'notes' => $o->notes,
-                        'items' => $o->items->map(fn ($item) => [
+                        'items' => $o->items->map(fn($item) => [
                             'id' => $item->id,
                             'product_id' => $item->product_id,
                             'product_name' => $item->product_name,

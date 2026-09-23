@@ -4,7 +4,7 @@
 Cara Kelola Ulasan 1 Bintang Tanpa Sungkan: Template Balasan untuk UMKM
 
 **Cluster Konten \***
-Cluster E — Template & Checklist
+Cluster E - Template & Checklist
 
 **Kategori \***
 Marketing
@@ -14,11 +14,12 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 Ulasan bintang satu bisa membuat pemilik usaha merasa tidak nyaman, tapi cara meresponsnya justru bisa jadi kesempatan menunjukkan profesionalisme.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>Mendapat ulasan bintang satu adalah hal yang wajar dialami hampir semua usaha, termasuk yang sudah punya reputasi baik. Cara meresponsnya secara publik justru bisa memengaruhi persepsi calon pelanggan lain yang membaca ulasan tersebut.</p>
 
 <h2>Kenapa Respons terhadap Ulasan Buruk Itu Penting</h2>

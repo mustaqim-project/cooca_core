@@ -4,7 +4,7 @@
 Panduan BPUM 2026: Apakah UMKM Kamu Termasuk Penerima? Cek Sekarang
 
 **Cluster Konten \***
-Cluster D — Kalkulasi & Simulasi
+Cluster D - Kalkulasi & Simulasi
 
 **Kategori \***
 Modal
@@ -14,11 +14,12 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 BPUM adalah salah satu bentuk bantuan langsung bagi pelaku UMKM. Berikut cara mengecek apakah usahamu termasuk kategori yang berpotensi menerima program ini.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>Bantuan Produktif Usaha Mikro (BPUM), yang juga dikenal sebagai bantuan presiden untuk UMKM, adalah salah satu bentuk dukungan langsung pemerintah bagi pelaku usaha mikro. Program semacam ini biasanya dibuka berkala sesuai kebijakan yang berlaku pada periode tertentu.</p>
 
 <h2>Kriteria Umum Penerima Program Bantuan UMKM</h2>
@@ -33,7 +34,7 @@ BPUM adalah salah satu bentuk bantuan langsung bagi pelaku UMKM. Berikut cara me
 <ol>
 <li><strong>Kunjungi kanal resmi</strong> yang ditunjuk pemerintah untuk pengecekan status bantuan UMKM, biasanya melalui situs resmi kementerian terkait atau eform yang diumumkan resmi.</li>
 <li><strong>Masukkan data diri</strong> sesuai KTP untuk verifikasi status pengajuan.</li>
-<li><strong>Cek hasil verifikasi</strong> — apakah terdaftar sebagai calon penerima, masih dalam proses, atau tidak memenuhi syarat.</li>
+<li><strong>Cek hasil verifikasi</strong> - apakah terdaftar sebagai calon penerima, masih dalam proses, atau tidak memenuhi syarat.</li>
 </ol>
 
 <h2>Yang Perlu Diwaspadai</h2>
@@ -42,7 +43,7 @@ BPUM adalah salah satu bentuk bantuan langsung bagi pelaku UMKM. Berikut cara me
 <li>Selalu verifikasi informasi program bantuan dari sumber resmi pemerintah, bukan dari pesan berantai media sosial yang belum jelas sumbernya.</li>
 </ul>
 
-<blockquote>Program bantuan seperti ini bersifat dinamis mengikuti kebijakan anggaran pemerintah — pastikan selalu mengecek informasi terbaru dari kanal resmi, bukan informasi lama yang sudah tidak berlaku.</blockquote>
+<blockquote>Program bantuan seperti ini bersifat dinamis mengikuti kebijakan anggaran pemerintah - pastikan selalu mengecek informasi terbaru dari kanal resmi, bukan informasi lama yang sudah tidak berlaku.</blockquote>
 
 <h2>Langkah Jika Belum Terdaftar sebagai Calon Penerima</h2>
 <p>Jika usahamu belum terdaftar, langkah pertama adalah memastikan NIB sudah aktif dan usaha sudah terdata di sistem Kemenkop UKM setempat. Data yang lengkap dan terverifikasi akan mempermudah proses pendataan untuk program bantuan di periode berikutnya.</p>

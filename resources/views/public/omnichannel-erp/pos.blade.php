@@ -162,7 +162,7 @@
                                 class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 px-3 py-2 bg-[#060B1E]/80 rounded-xl mb-2 text-xs border border-white/10">
                                 <div class="flex items-center gap-2 min-w-0 flex-1">
                                     <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shrink-0"></span>
-                                    <span class="text-slate-200 font-semibold truncate">Kasir 01 — Outlet Sudirman</span>
+                                    <span class="text-slate-200 font-semibold truncate">Kasir 01 - Outlet Sudirman</span>
                                     <span class="text-slate-400 truncate hidden sm:inline">| Shift: Pagi (Budi)</span>
                                 </div>
                                 <div class="flex items-center gap-2 text-slate-300 shrink-0 self-end sm:self-auto">

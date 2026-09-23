@@ -4,7 +4,7 @@
 Mau Buka Franchise? Digital Marketing Jadi Fondasi yang Wajib Kamu Bangun Dulu
 
 **Cluster Konten \***
-Cluster G — Strategi Bisnis
+Cluster G - Strategi Bisnis
 
 **Kategori \***
 Marketing
@@ -14,11 +14,12 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 Sebelum menawarkan kemitraan franchise, fondasi digital marketing yang kuat perlu dibangun terlebih dahulu agar brand punya daya tarik bagi calon mitra maupun konsumen.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>Rencana mengembangkan usaha menjadi franchise membutuhkan lebih dari sekadar produk yang laku di satu lokasi. Fondasi digital marketing yang kuat menjadi salah satu faktor penting yang menentukan daya tarik brand di mata calon mitra maupun konsumen.</p>
 
 <h2>Kenapa Digital Marketing Jadi Fondasi Penting Sebelum Franchise</h2>
@@ -26,10 +27,10 @@ Sebelum menawarkan kemitraan franchise, fondasi digital marketing yang kuat perl
 
 <h2>Elemen Fondasi Digital yang Perlu Dibangun</h2>
 <ul>
-<li><strong>Identitas brand yang konsisten</strong> — logo, warna, dan gaya komunikasi yang sama di semua kanal digital.</li>
-<li><strong>Kehadiran di media sosial yang aktif</strong> — bukan hanya ada akun, tapi juga rutin memposting dan berinteraksi dengan audiens.</li>
-<li><strong>Ulasan dan reputasi online yang baik</strong> — terutama di Google Maps dan platform marketplace tempat produk dijual.</li>
-<li><strong>Materi promosi yang bisa direplikasi</strong> — template konten, foto produk standar, dan panduan komunikasi yang bisa digunakan calon mitra di lokasi baru.</li>
+<li><strong>Identitas brand yang konsisten</strong> - logo, warna, dan gaya komunikasi yang sama di semua kanal digital.</li>
+<li><strong>Kehadiran di media sosial yang aktif</strong> - bukan hanya ada akun, tapi juga rutin memposting dan berinteraksi dengan audiens.</li>
+<li><strong>Ulasan dan reputasi online yang baik</strong> - terutama di Google Maps dan platform marketplace tempat produk dijual.</li>
+<li><strong>Materi promosi yang bisa direplikasi</strong> - template konten, foto produk standar, dan panduan komunikasi yang bisa digunakan calon mitra di lokasi baru.</li>
 </ul>
 
 <h2>Manfaat Fondasi Ini bagi Ekspansi Franchise</h2>

@@ -1,5 +1,5 @@
 {{--
-    COOCA — Apple HIG Typographic Hierarchy System
+    COOCA - Apple HIG Typographic Hierarchy System
     Sesuai mandat references/design-system.md §8 (Matriks Tipografi Lintas Perangkat)
     Mendefinisikan gaya h1, h2, h3, h4, h5, h6, semantic heading classes,
     Apple typographic roles (headline, subheadline, footnote, caption, overline/kicker),
@@ -9,9 +9,13 @@
     /* ==========================================================================
        1. BASE HEADINGS (H1 - H6)
        ========================================================================== */
-    h1, .h1, .heading-1, .heading-large-title {
+    h1,
+    .h1,
+    .heading-1,
+    .heading-large-title {
         font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter", system-ui, sans-serif;
-        font-size: 1.5rem; /* 24px Mobile */
+        font-size: 1.5rem;
+        /* 24px Mobile */
         line-height: 1.2;
         font-weight: 700;
         letter-spacing: -0.025em;
@@ -24,22 +28,36 @@
     }
 
     @media (min-width: 640px) {
-        h1, .h1, .heading-1, .heading-large-title {
-            font-size: 1.75rem; /* 28px Tablet */
+
+        h1,
+        .h1,
+        .heading-1,
+        .heading-large-title {
+            font-size: 1.75rem;
+            /* 28px Tablet */
             line-height: 1.2;
         }
     }
 
     @media (min-width: 1024px) {
-        h1, .h1, .heading-1, .heading-large-title {
-            font-size: 2.125rem; /* 34px Desktop Large Title */
+
+        h1,
+        .h1,
+        .heading-1,
+        .heading-large-title {
+            font-size: 2.125rem;
+            /* 34px Desktop Large Title */
             line-height: 1.18;
         }
     }
 
-    h2, .h2, .heading-2, .heading-title-1 {
+    h2,
+    .h2,
+    .heading-2,
+    .heading-title-1 {
         font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter", system-ui, sans-serif;
-        font-size: 1.25rem; /* 20px Mobile */
+        font-size: 1.25rem;
+        /* 20px Mobile */
         line-height: 1.25;
         font-weight: 600;
         letter-spacing: -0.02em;
@@ -52,15 +70,24 @@
     }
 
     @media (min-width: 640px) {
-        h2, .h2, .heading-2, .heading-title-1 {
-            font-size: 1.5rem; /* 24px Tablet & Desktop Title 1 */
+
+        h2,
+        .h2,
+        .heading-2,
+        .heading-title-1 {
+            font-size: 1.5rem;
+            /* 24px Tablet & Desktop Title 1 */
             line-height: 1.25;
         }
     }
 
-    h3, .h3, .heading-3, .heading-title-2 {
+    h3,
+    .h3,
+    .heading-3,
+    .heading-title-2 {
         font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Inter", system-ui, sans-serif;
-        font-size: 1.0625rem; /* 17px Mobile */
+        font-size: 1.0625rem;
+        /* 17px Mobile */
         line-height: 1.3;
         font-weight: 600;
         letter-spacing: -0.015em;
@@ -73,22 +100,36 @@
     }
 
     @media (min-width: 640px) {
-        h3, .h3, .heading-3, .heading-title-2 {
-            font-size: 1.125rem; /* 18px Tablet */
+
+        h3,
+        .h3,
+        .heading-3,
+        .heading-title-2 {
+            font-size: 1.125rem;
+            /* 18px Tablet */
             line-height: 1.3;
         }
     }
 
     @media (min-width: 1024px) {
-        h3, .h3, .heading-3, .heading-title-2 {
-            font-size: 1.25rem; /* 20px Desktop Title 2 / Card Header */
+
+        h3,
+        .h3,
+        .heading-3,
+        .heading-title-2 {
+            font-size: 1.25rem;
+            /* 20px Desktop Title 2 / Card Header */
             line-height: 1.3;
         }
     }
 
-    h4, .h4, .heading-4, .heading-headline {
+    h4,
+    .h4,
+    .heading-4,
+    .heading-headline {
         font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Inter", system-ui, sans-serif;
-        font-size: 1rem; /* 16px Headline */
+        font-size: 1rem;
+        /* 16px Headline */
         line-height: 1.35;
         font-weight: 600;
         letter-spacing: -0.01em;
@@ -100,9 +141,13 @@
         -moz-osx-font-smoothing: grayscale;
     }
 
-    h5, .h5, .heading-5, .heading-subheadline {
+    h5,
+    .h5,
+    .heading-5,
+    .heading-subheadline {
         font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Inter", system-ui, sans-serif;
-        font-size: 0.875rem; /* 14px Subheadline */
+        font-size: 0.875rem;
+        /* 14px Subheadline */
         line-height: 1.4;
         font-weight: 600;
         letter-spacing: -0.005em;
@@ -114,9 +159,13 @@
         -moz-osx-font-smoothing: grayscale;
     }
 
-    h6, .h6, .heading-6, .heading-caption {
+    h6,
+    .h6,
+    .heading-6,
+    .heading-caption {
         font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Inter", system-ui, sans-serif;
-        font-size: 0.75rem; /* 12px Caption / Overline */
+        font-size: 0.75rem;
+        /* 12px Caption / Overline */
         line-height: 1.35;
         font-weight: 600;
         letter-spacing: 0.04em;
@@ -164,6 +213,7 @@
         letter-spacing: -0.005em;
         color: var(--text-2, var(--apple-text-muted, rgba(60, 60, 67, 0.7)));
     }
+
     .dark .subheadline {
         color: var(--text-2, var(--apple-text-muted, rgba(235, 235, 245, 0.7)));
     }
@@ -175,6 +225,7 @@
         font-weight: 400;
         color: var(--text-2, var(--apple-text-muted, rgba(60, 60, 67, 0.6)));
     }
+
     .dark .footnote {
         color: var(--text-2, var(--apple-text-muted, rgba(235, 235, 245, 0.6)));
     }
@@ -186,13 +237,17 @@
         font-weight: 600;
         color: var(--text-2, var(--apple-text-muted, rgba(60, 60, 67, 0.6)));
     }
+
     .dark .caption-sm {
         color: var(--text-2, var(--apple-text-muted, rgba(235, 235, 245, 0.6)));
     }
 
     /* Pure Typographic Overline / Kicker (Mandat §3 Anti-Pill Abuse) */
-    .overline, .kicker, .typographic-overline {
-        font-size: 0.6875rem; /* 11px Mobile */
+    .overline,
+    .kicker,
+    .typographic-overline {
+        font-size: 0.6875rem;
+        /* 11px Mobile */
         line-height: 1.3;
         font-weight: 600;
         text-transform: uppercase;
@@ -203,8 +258,12 @@
     }
 
     @media (min-width: 640px) {
-        .overline, .kicker, .typographic-overline {
-            font-size: 0.75rem; /* 12px Tablet & Desktop */
+
+        .overline,
+        .kicker,
+        .typographic-overline {
+            font-size: 0.75rem;
+            /* 12px Tablet & Desktop */
         }
     }
 
@@ -217,7 +276,9 @@
     /* ==========================================================================
        3. TABULAR NUMERALS (MANDAT §8 FINANCIAL & QUANTITATIVE DATA)
        ========================================================================== */
-    .tabular-nums, .num-tabular, .tnum {
+    .tabular-nums,
+    .num-tabular,
+    .tnum {
         font-variant-numeric: tabular-nums;
         -moz-font-feature-settings: "tnum";
         -webkit-font-feature-settings: "tnum";
@@ -227,29 +288,50 @@
     /* ==========================================================================
        4. EDITORIAL & PROSE HEADINGS SPACING (.prose-headings / .article-body)
        ========================================================================== */
-    .prose-headings h1, .article-body h1, .article-content h1, .markdown-body h1 {
+    .prose-headings h1,
+    .article-body h1,
+    .article-content h1,
+    .markdown-body h1 {
         margin-top: 1.75rem;
         margin-bottom: 0.75rem;
     }
-    .prose-headings h2, .article-body h2, .article-content h2, .markdown-body h2 {
+
+    .prose-headings h2,
+    .article-body h2,
+    .article-content h2,
+    .markdown-body h2 {
         margin-top: 1.5rem;
         margin-bottom: 0.625rem;
     }
-    .prose-headings h3, .article-body h3, .article-content h3, .markdown-body h3 {
+
+    .prose-headings h3,
+    .article-body h3,
+    .article-content h3,
+    .markdown-body h3 {
         margin-top: 1.25rem;
         margin-bottom: 0.5rem;
     }
-    .prose-headings h4, .article-body h4, .article-content h4, .markdown-body h4,
-    .prose-headings h5, .article-body h5, .article-content h5, .markdown-body h5,
-    .prose-headings h6, .article-body h6, .article-content h6, .markdown-body h6 {
+
+    .prose-headings h4,
+    .article-body h4,
+    .article-content h4,
+    .markdown-body h4,
+    .prose-headings h5,
+    .article-body h5,
+    .article-content h5,
+    .markdown-body h5,
+    .prose-headings h6,
+    .article-body h6,
+    .article-content h6,
+    .markdown-body h6 {
         margin-top: 1rem;
         margin-bottom: 0.375rem;
     }
 
-    .prose-headings > *:first-child,
-    .article-body > *:first-child,
-    .article-content > *:first-child,
-    .markdown-body > *:first-child {
+    .prose-headings>*:first-child,
+    .article-body>*:first-child,
+    .article-content>*:first-child,
+    .markdown-body>*:first-child {
         margin-top: 0 !important;
     }
 

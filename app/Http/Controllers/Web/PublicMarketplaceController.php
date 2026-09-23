@@ -12,7 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 /**
- * Public Marketplace Controller — aggregates storefronts into a unified marketplace.
+ * Public Marketplace Controller - aggregates storefronts into a unified marketplace.
  *
  * All queries are scoped to publicly discoverable businesses only.
  * No tenant-specific data is exposed without proper scope.
@@ -20,7 +20,7 @@ use Illuminate\View\View;
 final class PublicMarketplaceController extends Controller
 {
     /**
-     * Marketplace homepage — featured stores, popular products, categories.
+     * Marketplace homepage - featured stores, popular products, categories.
      */
     public function index(Request $request): View
     {
@@ -28,10 +28,10 @@ final class PublicMarketplaceController extends Controller
         $featuredStores = Business::where('is_active', true)
             ->whereHas('storeSetting', function ($q): void {
                 $q->where('is_storefront_enabled', true)
-                  ->where('is_discoverable', true);
+                    ->where('is_discoverable', true);
             })
             ->with(['landingPage', 'storeSetting'])
-            ->withCount(['products' => fn ($q) => $q->where('is_active', true)])
+            ->withCount(['products' => fn($q) => $q->where('is_active', true)])
             ->having('products_count', '>', 0)
             ->orderByDesc('created_at')
             ->take(8)
@@ -42,10 +42,10 @@ final class PublicMarketplaceController extends Controller
             ->where('show_in_website', true)
             ->whereHas('business', function ($q): void {
                 $q->where('is_active', true)
-                  ->whereHas('storeSetting', function ($sq): void {
-                      $sq->where('is_storefront_enabled', true)
-                        ->where('is_discoverable', true);
-                  });
+                    ->whereHas('storeSetting', function ($sq): void {
+                        $sq->where('is_storefront_enabled', true)
+                            ->where('is_discoverable', true);
+                    });
             })
             ->with(['business', 'category'])
             ->orderByDesc('selling_price')
@@ -57,14 +57,14 @@ final class PublicMarketplaceController extends Controller
 
         // Statistics
         $totalStores = Business::where('is_active', true)
-            ->whereHas('storeSetting', fn ($q) => $q->where('is_storefront_enabled', true)->where('is_discoverable', true))
+            ->whereHas('storeSetting', fn($q) => $q->where('is_storefront_enabled', true)->where('is_discoverable', true))
             ->count();
 
         $totalProducts = Product::where('is_active', true)
             ->where('show_in_website', true)
             ->whereHas('business', function ($q): void {
                 $q->where('is_active', true)
-                  ->whereHas('storeSetting', fn ($sq) => $sq->where('is_storefront_enabled', true)->where('is_discoverable', true));
+                    ->whereHas('storeSetting', fn($sq) => $sq->where('is_storefront_enabled', true)->where('is_discoverable', true));
             })
             ->count();
 
@@ -94,10 +94,10 @@ final class PublicMarketplaceController extends Controller
             ->where('show_in_website', true)
             ->whereHas('business', function ($q): void {
                 $q->where('is_active', true)
-                  ->whereHas('storeSetting', function ($sq): void {
-                      $sq->where('is_storefront_enabled', true)
-                        ->where('is_discoverable', true);
-                  });
+                    ->whereHas('storeSetting', function ($sq): void {
+                        $sq->where('is_storefront_enabled', true)
+                            ->where('is_discoverable', true);
+                    });
             })
             ->with(['business.storeSetting', 'category']);
 
@@ -106,8 +106,8 @@ final class PublicMarketplaceController extends Controller
             $escapedSearch = str_replace(['%', '_'], ['\%', '\_'], $search);
             $query->where(function ($q) use ($escapedSearch): void {
                 $q->where('name', 'like', "%{$escapedSearch}%")
-                  ->orWhere('description', 'like', "%{$escapedSearch}%")
-                  ->orWhereHas('business', fn ($bq) => $bq->where('name', 'like', "%{$escapedSearch}%"));
+                    ->orWhere('description', 'like', "%{$escapedSearch}%")
+                    ->orWhereHas('business', fn($bq) => $bq->where('name', 'like', "%{$escapedSearch}%"));
             });
         }
 
@@ -116,7 +116,7 @@ final class PublicMarketplaceController extends Controller
             $query->where(function ($q) use ($category): void {
                 $q->whereHas('business', function ($bq) use ($category): void {
                     $bq->where('industry_category', $category)
-                      ->orWhere('template_code', 'like', "{$category}%");
+                        ->orWhere('template_code', 'like', "{$category}%");
                 })->orWhereHas('category', function ($cq) use ($category): void {
                     $cq->where('name', 'like', "%{$category}%");
                 });
@@ -203,50 +203,50 @@ final class PublicMarketplaceController extends Controller
      */
     private function buildCategoryData(): array
     {
-        $baseScope = fn ($q) => $q->where('is_active', true)
-            ->whereHas('storeSetting', fn ($sq) => $sq->where('is_storefront_enabled', true)->where('is_discoverable', true));
+        $baseScope = fn($q) => $q->where('is_active', true)
+            ->whereHas('storeSetting', fn($sq) => $sq->where('is_storefront_enabled', true)->where('is_discoverable', true));
 
         return [
             'fnb' => [
                 'label' => 'Kuliner & F&B',
                 'icon'  => 'utensils',
                 'count' => Business::where($baseScope)
-                    ->where(fn ($q) => $q->where('industry_category', 'fnb')->orWhere('template_code', 'like', 'fnb%'))
+                    ->where(fn($q) => $q->where('industry_category', 'fnb')->orWhere('template_code', 'like', 'fnb%'))
                     ->count(),
             ],
             'retail' => [
                 'label' => 'Ritel & Toko',
                 'icon'  => 'store',
                 'count' => Business::where($baseScope)
-                    ->where(fn ($q) => $q->where('industry_category', 'retail')->orWhere('template_code', 'like', 'retail%'))
+                    ->where(fn($q) => $q->where('industry_category', 'retail')->orWhere('template_code', 'like', 'retail%'))
                     ->count(),
             ],
             'service' => [
                 'label' => 'Jasa & Layanan',
                 'icon'  => 'briefcase',
                 'count' => Business::where($baseScope)
-                    ->where(fn ($q) => $q->where('industry_category', 'service')->orWhere('template_code', 'like', 'service%'))
+                    ->where(fn($q) => $q->where('industry_category', 'service')->orWhere('template_code', 'like', 'service%'))
                     ->count(),
             ],
             'workshop' => [
                 'label' => 'Bengkel & Otomotif',
                 'icon'  => 'wrench',
                 'count' => Business::where($baseScope)
-                    ->where(fn ($q) => $q->where('industry_category', 'workshop')->orWhere('template_code', 'like', 'workshop%')->orWhere('template_code', 'like', 'bengkel%'))
+                    ->where(fn($q) => $q->where('industry_category', 'workshop')->orWhere('template_code', 'like', 'workshop%')->orWhere('template_code', 'like', 'bengkel%'))
                     ->count(),
             ],
             'laundry' => [
                 'label' => 'Laundry & Cuci',
                 'icon'  => 'sparkles',
                 'count' => Business::where($baseScope)
-                    ->where(fn ($q) => $q->where('industry_category', 'laundry')->orWhere('template_code', 'like', 'laundry%'))
+                    ->where(fn($q) => $q->where('industry_category', 'laundry')->orWhere('template_code', 'like', 'laundry%'))
                     ->count(),
             ],
             'manufacture' => [
                 'label' => 'Produsen & Pabrik',
                 'icon'  => 'factory',
                 'count' => Business::where($baseScope)
-                    ->where(fn ($q) => $q->where('industry_category', 'manufacture')->orWhere('template_code', 'like', 'mfg%'))
+                    ->where(fn($q) => $q->where('industry_category', 'manufacture')->orWhere('template_code', 'like', 'mfg%'))
                     ->count(),
             ],
         ];

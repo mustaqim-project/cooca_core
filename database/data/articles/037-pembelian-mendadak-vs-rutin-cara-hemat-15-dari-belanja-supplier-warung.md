@@ -4,7 +4,7 @@
 Pembelian Mendadak vs Rutin: Cara Hemat 15% dari Belanja Supplier Warung
 
 **Cluster Konten \***
-Cluster K — Tutorial "Cara"
+Cluster K - Tutorial "Cara"
 
 **Kategori \***
 Operasional
@@ -14,11 +14,12 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 Pola belanja yang tidak terencana ke supplier bisa membuat biaya operasional membengkak. Ini cara mengatur pembelian rutin untuk menghemat pengeluaran usaha.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>Pembelian bahan baku yang dilakukan secara mendadak setiap kali stok menipis sering kali lebih mahal dibanding pembelian yang terencana dan rutin. Berikut cara mengatur pola belanja agar lebih hemat.</p>
 
 <h2>Kenapa Pembelian Mendadak Lebih Mahal</h2>

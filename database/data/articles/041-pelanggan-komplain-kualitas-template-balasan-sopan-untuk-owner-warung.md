@@ -4,7 +4,7 @@
 Pelanggan Komplain Kualitas? Template Balasan Sopan untuk Owner Warung
 
 **Cluster Konten \***
-Cluster E — Template & Checklist
+Cluster E - Template & Checklist
 
 **Kategori \***
 Operasional
@@ -14,11 +14,12 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 Menghadapi komplain pelanggan butuh cara komunikasi yang tepat agar hubungan tetap baik. Berikut template balasan sopan yang bisa disesuaikan untuk berbagai situasi.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>Komplain pelanggan adalah hal yang wajar terjadi dalam bisnis apa pun, termasuk usaha kecil. Cara merespons komplain ini sering kali lebih menentukan loyalitas pelanggan dibanding masalah itu sendiri.</p>
 
 <h2>Prinsip Dasar Merespons Komplain</h2>

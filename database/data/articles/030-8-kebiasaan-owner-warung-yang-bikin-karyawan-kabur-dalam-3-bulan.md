@@ -4,7 +4,7 @@
 8 Kebiasaan Owner Warung yang Bikin Karyawan Kabur dalam 3 Bulan
 
 **Cluster Konten \***
-Cluster A — Awareness & Edukasi
+Cluster A - Awareness & Edukasi
 
 **Kategori \***
 Operasional
@@ -14,11 +14,12 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 Tingginya turnover karyawan di warung sering disebabkan kebiasaan pemilik usaha sendiri. Kenali 8 kebiasaan ini agar karyawan lebih betah bekerja.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>Sulit mempertahankan karyawan bukan hanya soal gaji. Banyak pemilik warung tanpa sadar memiliki kebiasaan yang membuat karyawan merasa tidak nyaman dan akhirnya memilih resign dalam waktu singkat.</p>
 
 <h2>8 Kebiasaan yang Perlu Dihindari</h2>

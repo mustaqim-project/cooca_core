@@ -4,7 +4,7 @@
 Usaha Rumahan Tanpa NIB? Ini Risiko Tersembunyi yang Bikin Rugi Puluhan Juta
 
 **Cluster Konten \***
-Cluster B — Solusi Masalah
+Cluster B - Solusi Masalah
 
 **Kategori \***
 Legalitas
@@ -14,11 +14,12 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 Banyak usaha rumahan berjalan bertahun-tahun tanpa NIB. Kelihatannya aman, tapi ada risiko finansial dan operasional yang baru terasa saat usaha mulai berkembang.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>Usaha rumahan sering dimulai dengan modal seadanya dan tanpa dokumen resmi. Selama belum ada masalah, semua terasa baik-baik saja. Tapi ketika usaha mulai tumbuh, ketiadaan NIB bisa jadi bom waktu.</p>
 
 <h2>Risiko yang Sering Tidak Disadari</h2>
@@ -32,19 +33,19 @@ Banyak usaha rumahan berjalan bertahun-tahun tanpa NIB. Kelihatannya aman, tapi 
 <p>Usaha yang beroperasi di ruang publik atau menggunakan bahan baku tertentu (misalnya pangan olahan) berisiko terkena penertiban oleh dinas terkait jika tidak memiliki izin usaha yang sah.</p>
 
 <h3>4. Kesulitan saat Terjadi Sengketa</h3>
-<p>Tanpa status usaha yang legal, pemilik usaha berada di posisi lemah jika terjadi sengketa dengan pelanggan, karyawan, atau pemasok — karena usaha secara hukum belum tercatat sebagai entitas resmi.</p>
+<p>Tanpa status usaha yang legal, pemilik usaha berada di posisi lemah jika terjadi sengketa dengan pelanggan, karyawan, atau pemasok - karena usaha secara hukum belum tercatat sebagai entitas resmi.</p>
 
 <h2>Kenapa Banyak yang Menunda Urus NIB</h2>
 <ul>
 <li>Menganggap prosesnya rumit dan berbayar (padahal gratis).</li>
-<li>Takut jadi "sasaran pajak" — padahal NIB dan kewajiban pajak adalah dua hal yang bisa dikelola bertahap sesuai omzet.</li>
+<li>Takut jadi "sasaran pajak" - padahal NIB dan kewajiban pajak adalah dua hal yang bisa dikelola bertahap sesuai omzet.</li>
 <li>Tidak tahu harus mulai dari mana.</li>
 </ul>
 
 <blockquote>Semakin lama menunda, semakin besar potensi kerugian saat usaha sudah punya banyak pelanggan tapi harus berhenti mendadak karena masalah izin.</blockquote>
 
 <h2>Langkah Aman ke Depan</h2>
-<p>Mengurus NIB lewat OSS hanya butuh waktu singkat dan tidak dipungut biaya. Setelah itu, pastikan pencatatan transaksi dan keuangan usaha juga rapi — supaya saat suatu saat dibutuhkan untuk pengajuan modal atau kerja sama, semua data sudah siap tanpa perlu menyusun ulang dari nol.</p>
+<p>Mengurus NIB lewat OSS hanya butuh waktu singkat dan tidak dipungut biaya. Setelah itu, pastikan pencatatan transaksi dan keuangan usaha juga rapi - supaya saat suatu saat dibutuhkan untuk pengajuan modal atau kerja sama, semua data sudah siap tanpa perlu menyusun ulang dari nol.</p>
 
 <h2>Kesimpulan</h2>
 <p>Risiko usaha tanpa NIB bukan hanya soal denda, tapi soal hilangnya kesempatan berkembang. Mengurusnya sejak dini adalah investasi kecil dengan dampak besar untuk keberlangsungan usaha jangka panjang.</p>

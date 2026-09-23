@@ -1,9 +1,11 @@
 @extends('layouts.public_marketing')
 
 @section('title', 'Software Notifikasi WhatsApp Bisnis, Struk Kasir & Invoice Digital | COOCA')
-@section('description', 'Hubungkan sistem operasional bisnis Anda dengan WhatsApp. Kirim struk kasir digital otomatis,
+@section('description',
+    'Hubungkan sistem operasional bisnis Anda dengan WhatsApp. Kirim struk kasir digital otomatis,
     notifikasi status pesanan, update pengerjaan servis, dan pengingat invoice langsung ke chat pelanggan.')
-@section('keywords', 'software notifikasi whatsapp bisnis, kirim struk kasir via wa, invoice digital whatsapp,
+@section('keywords',
+    'software notifikasi whatsapp bisnis, kirim struk kasir via wa, invoice digital whatsapp,
     notifikasi pesanan wa umkm, reminder tagihan whatsapp')
 
     @push('seo')
@@ -55,7 +57,7 @@
       "name": "Apakah pesan WhatsApp ini aman dari pemblokiran (banned)?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "COOCA mengutamakan komunikasi transaksional nyata yang memang diharapkan oleh pelanggan—seperti konfirmasi struk pembelian, status cucian selesai, atau nota servis kendaraan. Kami tidak memfasilitasi pesan spam massal tanpa izin sehingga reputasi nomor bisnis Anda tetap terjaga sehat."
+        "text": "COOCA mengutamakan komunikasi transaksional nyata yang memang diharapkan oleh pelanggan-seperti konfirmasi struk pembelian, status cucian selesai, atau nota servis kendaraan. Kami tidak memfasilitasi pesan spam massal tanpa izin sehingga reputasi nomor bisnis Anda tetap terjaga sehat."
       }
     },
     {
@@ -182,7 +184,7 @@
                                     class="max-w-[90%] sm:max-w-[85%] bg-[#005C4B] text-white p-3 rounded-2xl rounded-tl-none shadow-sm space-y-2 text-xs break-words">
                                     <div class="text-[11px] leading-relaxed">
                                         Halo <strong>Kak Nadia Saraswati</strong>! Terima kasih telah berbelanja di
-                                        <strong>Kopi Seduh — Outlet Sudirman</strong>.
+                                        <strong>Kopi Seduh - Outlet Sudirman</strong>.
                                     </div>
 
                                     {{-- Receipt Summary Mini Box --}}
@@ -553,7 +555,7 @@
                             class="w-4 h-4 text-slate-400 group-open:rotate-180 transition-transform"></i>
                     </summary>
                     <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-3 leading-relaxed">
-                        COOCA mengutamakan komunikasi transaksional nyata yang memang diharapkan oleh pelanggan—seperti
+                        COOCA mengutamakan komunikasi transaksional nyata yang memang diharapkan oleh pelanggan-seperti
                         konfirmasi struk pembelian, status cucian selesai, atau nota servis kendaraan. Kami tidak
                         memfasilitasi pesan spam massal tanpa izin sehingga reputasi nomor bisnis Anda tetap terjaga sehat.
                     </p>

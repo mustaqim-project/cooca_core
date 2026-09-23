@@ -4,7 +4,7 @@
 Live Streaming Jualan: Rahasia Konversi 8% dari Sekali Tayang
 
 **Cluster Konten \***
-Cluster K — Tutorial "Cara"
+Cluster K - Tutorial "Cara"
 
 **Kategori \***
 Marketing
@@ -14,11 +14,12 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 Live streaming jualan bisa menghasilkan konversi yang jauh lebih tinggi dibanding konten biasa jika dilakukan dengan strategi yang tepat.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>Live streaming jualan semakin populer sebagai cara berinteraksi langsung dengan calon pembeli sekaligus mendorong keputusan pembelian secara real-time. Namun hasil yang maksimal butuh strategi, bukan sekadar menyalakan kamera.</p>
 
 <h2>Kenapa Live Streaming Efektif Mendorong Konversi</h2>
@@ -26,10 +27,10 @@ Live streaming jualan bisa menghasilkan konversi yang jauh lebih tinggi dibandin
 
 <h2>Elemen Penting dalam Live Streaming Jualan</h2>
 <ul>
-<li><strong>Pembukaan yang menarik perhatian</strong> — sampaikan produk unggulan atau promo khusus di awal sesi untuk menahan penonton lebih lama.</li>
-<li><strong>Demonstrasi produk secara langsung</strong> — tunjukkan detail, cara pakai, atau proses pembuatan produk secara nyata.</li>
-<li><strong>Interaksi aktif dengan penonton</strong> — jawab pertanyaan yang muncul di kolom komentar secara langsung.</li>
-<li><strong>Penawaran khusus selama sesi live</strong> — diskon atau bonus terbatas yang hanya berlaku selama siaran berlangsung untuk mendorong keputusan cepat.</li>
+<li><strong>Pembukaan yang menarik perhatian</strong> - sampaikan produk unggulan atau promo khusus di awal sesi untuk menahan penonton lebih lama.</li>
+<li><strong>Demonstrasi produk secara langsung</strong> - tunjukkan detail, cara pakai, atau proses pembuatan produk secara nyata.</li>
+<li><strong>Interaksi aktif dengan penonton</strong> - jawab pertanyaan yang muncul di kolom komentar secara langsung.</li>
+<li><strong>Penawaran khusus selama sesi live</strong> - diskon atau bonus terbatas yang hanya berlaku selama siaran berlangsung untuk mendorong keputusan cepat.</li>
 </ul>
 
 <h2>Tips Persiapan Sebelum Live Streaming</h2>

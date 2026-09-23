@@ -4,7 +4,7 @@
 Jangan Ajukan Pinjaman Sebelum Cek 5 Angka Ini di Bisnismu
 
 **Cluster Konten \***
-Cluster E — Template & Checklist
+Cluster E - Template & Checklist
 
 **Kategori \***
 Modal
@@ -14,11 +14,12 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 Sebelum mengajukan pinjaman usaha, ada 5 angka penting dalam bisnismu yang wajib dicek terlebih dahulu agar keputusan pinjaman tidak jadi beban di kemudian hari.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>Mengajukan pinjaman tanpa memeriksa kondisi keuangan usaha terlebih dahulu berisiko membuat cicilan justru menjadi beban baru, bukan solusi. Berikut 5 angka yang sebaiknya dicek dulu sebelum mengajukan pinjaman.</p>
 
 <h2>1. Rata-Rata Arus Kas Bulanan</h2>

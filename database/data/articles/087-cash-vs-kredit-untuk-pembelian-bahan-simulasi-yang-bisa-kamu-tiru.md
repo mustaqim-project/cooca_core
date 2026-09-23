@@ -4,7 +4,7 @@
 Cash vs Kredit untuk Pembelian Bahan: Simulasi yang Bisa Kamu Tiru
 
 **Cluster Konten \***
-Cluster D — Kalkulasi & Simulasi
+Cluster D - Kalkulasi & Simulasi
 
 **Kategori \***
 Keuangan
@@ -14,11 +14,12 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 Membeli bahan baku secara tunai atau kredit dari supplier punya dampak berbeda terhadap arus kas usaha. Berikut simulasi sederhana untuk membantu menentukan pilihan yang tepat.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>Selain leasing untuk peralatan, keputusan membeli bahan baku secara tunai atau kredit (tempo pembayaran) dari supplier juga berdampak signifikan terhadap arus kas usaha sehari-hari.</p>
 
 <h2>Karakteristik Pembelian Tunai</h2>
@@ -34,13 +35,13 @@ Membeli bahan baku secara tunai atau kredit dari supplier punya dampak berbeda t
 <ul>
 <li>Jika arus kas usaha cukup longgar dan diskon tunai yang ditawarkan cukup besar, pembelian tunai bisa lebih menguntungkan secara total biaya.</li>
 <li>Jika arus kas usaha ketat dan membutuhkan fleksibilitas, pembelian dengan tempo membantu menjaga likuiditas meski harus membayar sedikit lebih mahal.</li>
-<li>Pertimbangkan juga hubungan jangka panjang dengan supplier — pembayaran tempo yang selalu tepat waktu bisa membangun kepercayaan untuk negosiasi yang lebih baik ke depannya.</li>
+<li>Pertimbangkan juga hubungan jangka panjang dengan supplier - pembayaran tempo yang selalu tepat waktu bisa membangun kepercayaan untuk negosiasi yang lebih baik ke depannya.</li>
 </ul>
 
 <blockquote>Keputusan cash atau kredit sebaiknya didasarkan pada kondisi arus kas riil usaha, bukan sekadar mengejar diskon tanpa mempertimbangkan dampaknya pada likuiditas.</blockquote>
 
 <h2>Kombinasi Strategi yang Bisa Dipertimbangkan</h2>
-<p>Beberapa usaha memilih strategi kombinasi — membayar tunai untuk bahan baku dengan diskon besar dan volume kecil, sementara menggunakan tempo untuk pembelian rutin dalam jumlah besar yang membutuhkan modal kerja lebih banyak.</p>
+<p>Beberapa usaha memilih strategi kombinasi - membayar tunai untuk bahan baku dengan diskon besar dan volume kecil, sementara menggunakan tempo untuk pembelian rutin dalam jumlah besar yang membutuhkan modal kerja lebih banyak.</p>
 
 <h2>Kesimpulan</h2>
 <p>Baik pembelian tunai maupun kredit memiliki kelebihan masing-masing tergantung kondisi arus kas usaha. Melakukan simulasi sederhana seperti di atas membantu pemilik usaha membuat keputusan yang lebih terukur, bukan sekadar mengikuti kebiasaan tanpa perhitungan.</p>

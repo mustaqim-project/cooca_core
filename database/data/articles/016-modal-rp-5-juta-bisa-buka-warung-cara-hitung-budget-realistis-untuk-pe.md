@@ -4,7 +4,7 @@
 Modal Rp 5 Juta Bisa Buka Warung? Cara Hitung Budget Realistis untuk Pemula
 
 **Cluster Konten \***
-Cluster K — Tutorial "Cara"
+Cluster K - Tutorial "Cara"
 
 **Kategori \***
 Modal
@@ -14,11 +14,12 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 Modal Rp 5 juta memang terbatas, tapi bukan berarti mustahil untuk buka warung kecil. Ini cara menghitung dan mengalokasikan budget secara realistis.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>Banyak calon pengusaha warung mengira modal kecil seperti Rp 5 juta tidak cukup untuk memulai usaha. Padahal, dengan perencanaan yang tepat, jumlah ini bisa jadi titik awal yang realistis asal alokasinya dihitung dengan cermat.</p>
 
 <h2>Kenapa Perencanaan Budget Lebih Penting dari Jumlah Modal</h2>
@@ -26,10 +27,10 @@ Modal Rp 5 juta memang terbatas, tapi bukan berarti mustahil untuk buka warung k
 
 <h2>Contoh Alokasi Modal Rp 5 Juta untuk Warung Kecil</h2>
 <ul>
-<li><strong>Peralatan dasar (30-35%)</strong> — etalase sederhana, meja, kursi, peralatan masak dasar.</li>
-<li><strong>Stok barang dagangan awal (40-45%)</strong> — prioritaskan produk dengan perputaran cepat.</li>
-<li><strong>Biaya operasional bulan pertama (10-15%)</strong> — listrik, gas, kemasan.</li>
-<li><strong>Dana cadangan (10%)</strong> — untuk kebutuhan tak terduga di masa awal usaha.</li>
+<li><strong>Peralatan dasar (30-35%)</strong> - etalase sederhana, meja, kursi, peralatan masak dasar.</li>
+<li><strong>Stok barang dagangan awal (40-45%)</strong> - prioritaskan produk dengan perputaran cepat.</li>
+<li><strong>Biaya operasional bulan pertama (10-15%)</strong> - listrik, gas, kemasan.</li>
+<li><strong>Dana cadangan (10%)</strong> - untuk kebutuhan tak terduga di masa awal usaha.</li>
 </ul>
 
 <h2>Cara Menghitung Titik Impas Sejak Awal</h2>

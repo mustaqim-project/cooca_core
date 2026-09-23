@@ -4,7 +4,7 @@
 Coba Gratis 14 Hari Tanpa Kartu Kredit: Begini Activation Flow COOCA UMKM
 
 **Cluster Konten \***
-Cluster G — Strategi Bisnis
+Cluster G - Strategi Bisnis
 
 **Kategori \***
 Operasional
@@ -14,11 +14,12 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 COOCA.ID menyediakan masa coba gratis untuk pelaku UMKM yang ingin merasakan manfaat sistem digital sebelum berkomitmen berlangganan.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>Banyak pelaku UMKM ragu beralih ke sistem digital karena khawatir dengan biaya atau proses yang rumit. COOCA.ID hadir dengan opsi coba gratis selama 14 hari tanpa perlu kartu kredit, agar pelaku usaha bisa merasakan langsung manfaatnya sebelum memutuskan berlangganan.</p>
 
 <h2>Kenapa Masa Coba Gratis Penting bagi UMKM</h2>
@@ -28,7 +29,7 @@ COOCA.ID menyediakan masa coba gratis untuk pelaku UMKM yang ingin merasakan man
 <ol>
 <li><strong>Daftar akun</strong> menggunakan data usaha dasar seperti nama usaha dan nomor kontak aktif.</li>
 <li><strong>Pilih jenis usaha</strong> agar sistem bisa menyesuaikan fitur yang relevan, misalnya kuliner, retail, atau jasa.</li>
-<li><strong>Input data awal usaha</strong> — produk, stok, dan harga dasar untuk mulai menggunakan fitur pencatatan.</li>
+<li><strong>Input data awal usaha</strong> - produk, stok, dan harga dasar untuk mulai menggunakan fitur pencatatan.</li>
 <li><strong>Mulai gunakan fitur inti</strong> seperti pencatatan transaksi, pemantauan stok, dan laporan penjualan selama masa coba.</li>
 <li><strong>Evaluasi hasil setelah 14 hari</strong> untuk memutuskan apakah ingin melanjutkan ke paket berlangganan yang sesuai skala usaha.</li>
 </ol>

@@ -1,6 +1,6 @@
 /**
  * ============================================================================
- * GOOGLE APPS SCRIPT BACKEND — AI MARKETING STUDIO UMKM
+ * GOOGLE APPS SCRIPT BACKEND - AI MARKETING STUDIO UMKM
  * ============================================================================
  * Aplikasi ini berjalan native di lingkungan Google Workspace / Google One.
  * - Tanpa API Login pihak ketiga (otomatis membaca akun Google aktif)
@@ -32,7 +32,7 @@ function doGet(e) {
   }
 
   return htmlOutput
-    .setTitle('AI Marketing Studio UMKM — Google One')
+    .setTitle('AI Marketing Studio UMKM - Google One')
     .addMetaTag('viewport', 'width=device-width, initial-scale=1.0')
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }

@@ -4,7 +4,7 @@
 Kapan Saat Tepat Warung Harus 'Naik Kelas' ke Scale Plan? 7 Tanda Ini Jawabannya
 
 **Cluster Konten \***
-Cluster H — Tanya Jawab & Diagnostik
+Cluster H - Tanya Jawab & Diagnostik
 
 **Kategori \***
 Scale-up
@@ -14,11 +14,12 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 Beralih ke sistem atau paket layanan yang lebih lengkap perlu momentum yang tepat. Berikut 7 tanda usaha sudah saatnya naik kelas ke sistem yang lebih komprehensif.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>Banyak pelaku usaha ragu kapan waktu yang tepat untuk beralih dari sistem sederhana ke sistem yang lebih lengkap dan komprehensif seiring pertumbuhan usaha mereka. Berikut beberapa tanda yang bisa jadi acuan.</p>
 
 <h2>7 Tanda Usaha Sudah Saatnya Naik Kelas</h2>

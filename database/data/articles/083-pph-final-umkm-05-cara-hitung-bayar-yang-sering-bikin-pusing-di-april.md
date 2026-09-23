@@ -4,7 +4,7 @@
 PPH Final UMKM 0.5%: Cara Hitung & Bayar yang Sering Bikin Pusing di April
 
 **Cluster Konten \***
-Cluster D — Kalkulasi & Simulasi
+Cluster D - Kalkulasi & Simulasi
 
 **Kategori \***
 Keuangan
@@ -14,11 +14,12 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 Skema PPh Final dengan tarif tertentu bagi UMKM sering membingungkan saat harus dihitung dan dilaporkan. Berikut penjelasan dasar cara menghitungnya.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>Pemerintah menyediakan skema PPh Final dengan tarif tertentu bagi pelaku UMKM sebagai bentuk kemudahan pelaporan pajak dibanding skema pajak umum yang lebih kompleks. Namun banyak pelaku usaha masih bingung cara menghitung dan membayarnya.</p>
 
 <h2>Apa Itu PPh Final UMKM</h2>
@@ -26,7 +27,7 @@ Skema PPh Final dengan tarif tertentu bagi UMKM sering membingungkan saat harus 
 
 <h2>Cara Menghitung PPh Final Secara Sederhana</h2>
 <ol>
-<li><strong>Hitung total omzet bruto bulanan</strong> — seluruh pendapatan usaha sebelum dikurangi biaya apa pun.</li>
+<li><strong>Hitung total omzet bruto bulanan</strong> - seluruh pendapatan usaha sebelum dikurangi biaya apa pun.</li>
 <li><strong>Kalikan dengan tarif PPh Final yang berlaku</strong> sesuai ketentuan yang aktif saat itu.</li>
 <li><strong>Bayarkan pajak terutang</strong> melalui kanal pembayaran pajak resmi sebelum batas waktu yang ditentukan setiap bulannya.</li>
 </ol>

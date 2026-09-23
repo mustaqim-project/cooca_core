@@ -4,7 +4,7 @@
 70% Pembeli Cari di Google Maps: Optimasi Profil Bisnis Lokal dalam 1 Jam
 
 **Cluster Konten \***
-Cluster K — Tutorial "Cara"
+Cluster K - Tutorial "Cara"
 
 **Kategori \***
 Marketing
@@ -14,11 +14,12 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 Banyak calon pembeli mencari usaha lokal melalui Google Maps sebelum berkunjung. Berikut cara mengoptimalkan profil bisnis di Google Maps dalam waktu singkat.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>Sebelum mengunjungi sebuah usaha, banyak calon pelanggan terlebih dahulu mencarinya di Google Maps untuk melihat lokasi, jam operasional, dan ulasan dari pengunjung lain. Profil bisnis yang belum dioptimalkan bisa membuat usaha kehilangan calon pelanggan potensial.</p>
 
 <h2>Kenapa Google Maps Penting untuk Usaha Lokal</h2>
@@ -27,8 +28,8 @@ Banyak calon pembeli mencari usaha lokal melalui Google Maps sebelum berkunjung.
 <h2>Langkah Optimasi Profil Bisnis dalam 1 Jam</h2>
 <ol>
 <li><strong>Klaim dan verifikasi profil bisnis</strong> jika belum dilakukan, melalui Google Business Profile.</li>
-<li><strong>Lengkapi informasi dasar</strong> — nama usaha, kategori bisnis, alamat, nomor telepon, dan jam operasional yang akurat.</li>
-<li><strong>Unggah foto berkualitas</strong> — tampilan depan usaha, produk unggulan, dan suasana di dalam tempat usaha.</li>
+<li><strong>Lengkapi informasi dasar</strong> - nama usaha, kategori bisnis, alamat, nomor telepon, dan jam operasional yang akurat.</li>
+<li><strong>Unggah foto berkualitas</strong> - tampilan depan usaha, produk unggulan, dan suasana di dalam tempat usaha.</li>
 <li><strong>Tulis deskripsi bisnis yang jelas</strong> dengan menyebutkan jenis produk atau layanan utama.</li>
 <li><strong>Aktifkan fitur pesan atau tautan pemesanan</strong> jika tersedia untuk memudahkan calon pelanggan menghubungi langsung.</li>
 <li><strong>Minta pelanggan memberikan ulasan</strong> secara sopan setelah mereka berbelanja atau menggunakan layanan.</li>

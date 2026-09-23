@@ -4,7 +4,7 @@
 Harga Jual Terlalu Murah? Cara Hitung Margin Ideal untuk Setiap Menu
 
 **Cluster Konten \***
-Cluster D — Kalkulasi & Simulasi
+Cluster D - Kalkulasi & Simulasi
 
 **Kategori \***
 Keuangan
@@ -14,11 +14,12 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 Menentukan harga jual yang terlalu murah bisa membuat usaha sulit berkembang. Berikut cara menghitung margin ideal untuk setiap menu agar tetap kompetitif namun menguntungkan.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>Menetapkan harga jual yang terlalu rendah demi bersaing dengan kompetitor bisa berdampak buruk pada keberlangsungan usaha jangka panjang jika margin keuntungan yang dihasilkan terlalu tipis untuk menutup seluruh biaya operasional.</p>
 
 <h2>Kenapa Harga Jual Terlalu Murah Berisiko</h2>

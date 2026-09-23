@@ -4,7 +4,7 @@
 Daftar UMKM di Kemenkop UKM, Apa Bedanya dengan OSS? Mana yang Wajib?
 
 **Cluster Konten \***
-Cluster C — Perbandingan & Pilihan
+Cluster C - Perbandingan & Pilihan
 
 **Kategori \***
 Legalitas
@@ -14,11 +14,12 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 Selain OSS, ada juga pendataan UMKM melalui Kementerian Koperasi dan UKM. Apa bedanya, dan mana yang sebenarnya wajib diikuti pelaku usaha?
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>Selain NIB melalui OSS, pelaku UMKM juga sering mendengar tentang pendaftaran di Kementerian Koperasi dan UKM (Kemenkop UKM). Kedua hal ini sering membingungkan karena terlihat mirip padahal fungsinya berbeda.</p>
 
 <h2>OSS: Legalitas Resmi Usaha</h2>
@@ -29,8 +30,8 @@ Selain OSS, ada juga pendataan UMKM melalui Kementerian Koperasi dan UKM. Apa be
 
 <h2>Perbandingan Singkat</h2>
 <ul>
-<li><strong>OSS/NIB</strong> — wajib, berfungsi sebagai legalitas usaha yang berlaku hukum.</li>
-<li><strong>Pendataan Kemenkop UKM</strong> — melengkapi data untuk akses program pembinaan dan bantuan, sifatnya mendukung, bukan pengganti NIB.</li>
+<li><strong>OSS/NIB</strong> - wajib, berfungsi sebagai legalitas usaha yang berlaku hukum.</li>
+<li><strong>Pendataan Kemenkop UKM</strong> - melengkapi data untuk akses program pembinaan dan bantuan, sifatnya mendukung, bukan pengganti NIB.</li>
 </ul>
 
 <h2>Kenapa Sebaiknya Mengikuti Keduanya</h2>

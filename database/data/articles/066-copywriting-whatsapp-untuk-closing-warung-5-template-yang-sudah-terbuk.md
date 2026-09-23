@@ -4,7 +4,7 @@
 Copywriting WhatsApp untuk Closing Warung: 5 Template yang Sudah Terbukti
 
 **Cluster Konten \***
-Cluster E — Template & Checklist
+Cluster E - Template & Checklist
 
 **Kategori \***
 Marketing
@@ -14,11 +14,12 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 Kemampuan menulis pesan yang persuasif di WhatsApp bisa meningkatkan peluang closing penjualan. Berikut 5 template yang bisa langsung digunakan dan disesuaikan.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>Banyak transaksi usaha kecil terjadi melalui percakapan WhatsApp, sehingga cara menulis pesan balasan sangat berpengaruh terhadap keputusan pelanggan untuk jadi membeli atau tidak.</p>
 
 <h2>Template 1: Merespons Pertanyaan Harga</h2>

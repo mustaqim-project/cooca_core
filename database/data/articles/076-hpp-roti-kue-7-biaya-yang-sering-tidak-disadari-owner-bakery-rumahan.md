@@ -4,7 +4,7 @@
 HPP Roti & Kue: 7 Biaya yang Sering Tidak Disadari Owner Bakery Rumahan
 
 **Cluster Konten \***
-Cluster A — Awareness & Edukasi
+Cluster A - Awareness & Edukasi
 
 **Kategori \***
 Keuangan
@@ -14,11 +14,12 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 Usaha bakery rumahan sering menetapkan harga jual tanpa memperhitungkan seluruh komponen biaya produksi. Berikut 7 biaya yang sering terlewat dalam perhitungan HPP.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>Usaha bakery rumahan seperti roti dan kue sering menetapkan harga jual hanya berdasarkan biaya bahan baku utama, padahal ada beberapa komponen biaya lain yang sering terlewat namun berdampak signifikan terhadap margin keuntungan.</p>
 
 <h2>7 Biaya yang Sering Tidak Disadari</h2>

@@ -4,7 +4,7 @@
 Pembelian Subsidi vs Normal: Cara Tentukan Mana yang Layak Beli-Banyak
 
 **Cluster Konten \***
-Cluster K — Tutorial "Cara"
+Cluster K - Tutorial "Cara"
 
 **Kategori \***
 Operasional
@@ -14,11 +14,12 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 Membeli dalam jumlah banyak tidak selalu lebih hemat. Ini cara menentukan produk mana yang layak dibeli dalam jumlah besar dan mana yang sebaiknya rutin sedikit-sedikit.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>Strategi membeli bahan baku dalam jumlah besar sering dianggap selalu lebih hemat karena mendapat harga grosir. Padahal, keputusan ini perlu mempertimbangkan beberapa faktor lain agar benar-benar menguntungkan usaha.</p>
 
 <h2>Faktor yang Perlu Dipertimbangkan Sebelum Beli Banyak</h2>

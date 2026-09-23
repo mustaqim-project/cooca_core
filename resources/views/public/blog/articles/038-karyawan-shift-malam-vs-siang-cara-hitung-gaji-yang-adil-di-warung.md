@@ -4,7 +4,7 @@
 Karyawan Shift Malam vs Siang: Cara Hitung Gaji yang Adil di Warung
 
 **Cluster Konten \***
-Cluster D — Kalkulasi & Simulasi
+Cluster D - Kalkulasi & Simulasi
 
 **Kategori \***
 Operasional
@@ -14,11 +14,12 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 Menentukan besaran gaji untuk shift malam dan siang perlu perhitungan yang adil agar karyawan merasa dihargai sesuai beban kerja masing-masing shift.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>Beban kerja shift malam dan siang di warung sering berbeda, baik dari sisi risiko, kenyamanan, maupun tingkat kesulitan. Karena itu, banyak pemilik usaha mempertimbangkan perbedaan tarif untuk masing-masing shift.</p>
 
 <h2>Kenapa Shift Malam Sering Diberi Tarif Berbeda</h2>

@@ -4,7 +4,7 @@
 Hitung BEP Café Kecil (15 Meja): Contoh Nyata agar Tidak Salah Hitung
 
 **Cluster Konten \***
-Cluster E — Template & Checklist
+Cluster E - Template & Checklist
 
 **Kategori \***
 Keuangan
@@ -14,25 +14,26 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 Berikut contoh perhitungan BEP untuk café kecil berkapasitas 15 meja, lengkap dengan asumsi biaya yang bisa disesuaikan dengan kondisi usahamu sendiri.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>Menghitung Break Even Point (BEP) untuk café kecil membantu pemilik usaha mengetahui target penjualan minimal yang harus dicapai agar operasional tidak merugi. Berikut contoh perhitungan yang bisa dijadikan acuan.</p>
 
 <h2>Asumsi Dasar untuk Café dengan 15 Meja</h2>
 <ul>
-<li><strong>Biaya tetap bulanan</strong> — sewa tempat, gaji karyawan tetap, listrik dasar, dan internet: misalnya total Rp25.000.000 per bulan.</li>
-<li><strong>Harga jual rata-rata per transaksi</strong> — misalnya Rp35.000 per pelanggan (termasuk makanan dan minuman).</li>
-<li><strong>Biaya variabel rata-rata per transaksi</strong> — misalnya Rp15.000 (bahan baku dan kemasan jika ada).</li>
+<li><strong>Biaya tetap bulanan</strong> - sewa tempat, gaji karyawan tetap, listrik dasar, dan internet: misalnya total Rp25.000.000 per bulan.</li>
+<li><strong>Harga jual rata-rata per transaksi</strong> - misalnya Rp35.000 per pelanggan (termasuk makanan dan minuman).</li>
+<li><strong>Biaya variabel rata-rata per transaksi</strong> - misalnya Rp15.000 (bahan baku dan kemasan jika ada).</li>
 </ul>
 
 <h2>Langkah Perhitungan BEP</h2>
 <ol>
-<li><strong>Hitung margin kontribusi per transaksi</strong> — Rp35.000 – Rp15.000 = Rp20.000.</li>
-<li><strong>Hitung BEP dalam jumlah transaksi</strong> — Rp25.000.000 ÷ Rp20.000 = 1.250 transaksi per bulan.</li>
-<li><strong>Konversi ke transaksi harian</strong> — 1.250 ÷ 30 hari = sekitar 42 transaksi per hari.</li>
+<li><strong>Hitung margin kontribusi per transaksi</strong> - Rp35.000 – Rp15.000 = Rp20.000.</li>
+<li><strong>Hitung BEP dalam jumlah transaksi</strong> - Rp25.000.000 ÷ Rp20.000 = 1.250 transaksi per bulan.</li>
+<li><strong>Konversi ke transaksi harian</strong> - 1.250 ÷ 30 hari = sekitar 42 transaksi per hari.</li>
 </ol>
 
 <h2>Menerjemahkan ke Kapasitas 15 Meja</h2>

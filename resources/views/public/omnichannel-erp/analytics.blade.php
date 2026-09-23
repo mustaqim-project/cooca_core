@@ -1,9 +1,11 @@
 @extends('layouts.public_marketing')
 
 @section('title', 'Software Analitik Bisnis & Dashboard KPI Pemilik Usaha | COOCA')
-@section('description', 'Platform Business Intelligence (BI) dan dashboard eksekutif untuk pemilik bisnis retail, F&B,
+@section('description',
+    'Platform Business Intelligence (BI) dan dashboard eksekutif untuk pemilik bisnis retail, F&B,
     dan jasa. Pantau omzet real-time, margin kotor per SKU, perbandingan cabang, dan jam sibuk toko dalam satu layar.')
-@section('keywords', 'software analitik bisnis, dashboard kpi penjualan, laporan performa cabang, business intelligence
+@section('keywords',
+    'software analitik bisnis, dashboard kpi penjualan, laporan performa cabang, business intelligence
     umkm, analisis profit margin produk')
 
     @push('seo')
@@ -164,7 +166,7 @@
                                         <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
                                     </span>
                                     <div class="min-w-0 flex-1">
-                                        <div class="font-bold text-white truncate">Executive Overview — Seluruh Entitas
+                                        <div class="font-bold text-white truncate">Executive Overview - Seluruh Entitas
                                         </div>
                                         <div class="text-[10px] text-slate-400 truncate">3 Cabang Toko • 2 Marketplace •
                                             Real-Time</div>

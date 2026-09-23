@@ -4,7 +4,7 @@
 Caption Instagram Warung yang Bikin Like Otomatis (Tanpa Jualan Keras)
 
 **Cluster Konten \***
-Cluster E — Template & Checklist
+Cluster E - Template & Checklist
 
 **Kategori \***
 Marketing
@@ -14,11 +14,12 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 Caption yang terlalu jualan keras justru sering diabaikan pengikut. Berikut beberapa template caption yang lebih natural namun tetap efektif mendorong interaksi.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>Caption yang terlalu terang-terangan menjual sering membuat pengikut merasa "digurui" dan cenderung mengabaikannya. Pendekatan yang lebih santai dan relevan justru sering mendapat interaksi lebih baik.</p>
 
 <h2>Prinsip Dasar Caption yang Efektif</h2>

@@ -4,7 +4,7 @@
 Laporan Keuangan Sederhana UMKM: SAK EMKM vs Pembukuan Sederhana
 
 **Cluster Konten \***
-Cluster A — Awareness & Edukasi
+Cluster A - Awareness & Edukasi
 
 **Kategori \***
 Keuangan
@@ -14,11 +14,12 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 SAK EMKM adalah standar akuntansi yang dirancang khusus untuk usaha mikro, kecil, dan menengah. Berikut penjelasan perbedaannya dengan pembukuan sederhana biasa.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>Banyak pelaku UMKM belum familiar dengan istilah SAK EMKM (Standar Akuntansi Keuangan Entitas Mikro, Kecil, dan Menengah) dan menganggap pembukuan sederhana yang mereka lakukan sudah cukup. Padahal, keduanya memiliki tingkat kelengkapan yang berbeda.</p>
 
 <h2>Apa Itu SAK EMKM</h2>
@@ -29,8 +30,8 @@ SAK EMKM adalah standar akuntansi yang dirancang khusus untuk usaha mikro, kecil
 
 <h2>Perbedaan Utama Keduanya</h2>
 <ul>
-<li><strong>Pembukuan sederhana</strong> — fokus pada pencatatan transaksi harian, cocok untuk kebutuhan pemantauan arus kas sehari-hari.</li>
-<li><strong>SAK EMKM</strong> — menghasilkan laporan keuangan lengkap (neraca dan laba rugi) yang lebih terstruktur dan bisa digunakan untuk keperluan formal, seperti pengajuan pembiayaan ke bank atau investor.</li>
+<li><strong>Pembukuan sederhana</strong> - fokus pada pencatatan transaksi harian, cocok untuk kebutuhan pemantauan arus kas sehari-hari.</li>
+<li><strong>SAK EMKM</strong> - menghasilkan laporan keuangan lengkap (neraca dan laba rugi) yang lebih terstruktur dan bisa digunakan untuk keperluan formal, seperti pengajuan pembiayaan ke bank atau investor.</li>
 </ul>
 
 <h2>Kapan UMKM Perlu Beralih ke SAK EMKM</h2>

@@ -4,7 +4,7 @@
 Bantuan UMKM Pemerintah 2026: Cara Daftar Online Supaya Tidak Ketinggalan Kuota
 
 **Cluster Konten \***
-Cluster K — Tutorial "Cara"
+Cluster K - Tutorial "Cara"
 
 **Kategori \***
 Modal
@@ -14,11 +14,12 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 Program bantuan pemerintah untuk UMKM biasanya memiliki kuota terbatas dan periode pendaftaran tertentu. Ini cara mendaftar agar tidak ketinggalan informasi.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>Program bantuan pemerintah untuk pelaku UMKM biasanya dibuka secara berkala dengan kuota dan periode pendaftaran yang terbatas. Banyak pelaku usaha ketinggalan bukan karena tidak memenuhi syarat, tapi karena tidak tahu cara dan waktu pendaftarannya.</p>
 
 <h2>Jenis Bantuan yang Umum Tersedia untuk UMKM</h2>
@@ -31,8 +32,8 @@ Program bantuan pemerintah untuk UMKM biasanya memiliki kuota terbatas dan perio
 <h2>Langkah Umum Mendaftar Program Bantuan UMKM</h2>
 <ol>
 <li><strong>Pastikan data usaha sudah terdaftar</strong> di OSS (NIB) dan idealnya juga di sistem pendataan Kemenkop UKM setempat.</li>
-<li><strong>Pantau kanal resmi</strong> — website kementerian terkait, dinas koperasi dan UKM daerah, atau media sosial resmi pemerintah setempat.</li>
-<li><strong>Siapkan dokumen dasar</strong> — KTP, NIB, dan bukti kegiatan usaha seperti foto tempat usaha atau produk.</li>
+<li><strong>Pantau kanal resmi</strong> - website kementerian terkait, dinas koperasi dan UKM daerah, atau media sosial resmi pemerintah setempat.</li>
+<li><strong>Siapkan dokumen dasar</strong> - KTP, NIB, dan bukti kegiatan usaha seperti foto tempat usaha atau produk.</li>
 <li><strong>Daftar melalui kanal resmi</strong> yang diumumkan, hindari tautan tidak resmi yang mengatasnamakan program bantuan.</li>
 <li><strong>Pantau status pengajuan</strong> secara berkala melalui kanal yang sama.</li>
 </ol>

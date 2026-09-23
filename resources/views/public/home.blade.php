@@ -1,6 +1,6 @@
 @extends('layouts.public_marketing')
 
-@section('title', 'COOCA — Business Operating System & Omnichannel ERP Terpadu')
+@section('title', 'COOCA - Business Operating System & Omnichannel ERP Terpadu')
 @section('description',
     'Kelola operasional bisnis, kasir POS, stok inventaris, keuangan laba rugi, CRM pelanggan,
     marketplace, WhatsApp, dan otomasi dalam satu platform terhubung.')
@@ -10,13 +10,13 @@
 
     @push('seo')
         <link rel="canonical" href="{{ route('landing') }}">
-        <meta property="og:title" content="COOCA — Business Operating System & Omnichannel ERP Terpadu">
+        <meta property="og:title" content="COOCA - Business Operating System & Omnichannel ERP Terpadu">
         <meta property="og:description"
             content="Kendalikan seluruh bisnis Anda dari satu ekosistem: kasir, inventaris gudang, keuangan, marketplace, dan otomasi WhatsApp.">
         <meta property="og:url" content="{{ route('landing') }}">
         <meta property="og:type" content="website">
         <meta name="twitter:card" content="summary_large_image">
-        <meta name="twitter:title" content="COOCA — Business Operating System & Omnichannel ERP Terpadu">
+        <meta name="twitter:title" content="COOCA - Business Operating System & Omnichannel ERP Terpadu">
         <meta name="twitter:description"
             content="Platform operasional bisnis terpadu untuk UMKM dan bisnis berkembang di Indonesia.">
 
@@ -82,7 +82,8 @@
                             <div class="flex items-start gap-2.5 text-xs sm:text-sm font-semibold text-slate-200">
                                 <i data-lucide="check-circle-2" class="w-4 h-4 text-[#00C4D8] shrink-0 mt-0.5"
                                     aria-hidden="true"></i>
-                                <span class="min-w-0 flex-1 leading-snug">Hentikan ketik ulang di spreadsheet terpisah</span>
+                                <span class="min-w-0 flex-1 leading-snug">Hentikan ketik ulang di spreadsheet
+                                    terpisah</span>
                             </div>
                             <div class="flex items-start gap-2.5 text-xs sm:text-sm font-semibold text-slate-200">
                                 <i data-lucide="check-circle-2" class="w-4 h-4 text-[#00C4D8] shrink-0 mt-0.5"
@@ -184,11 +185,13 @@
                             {{-- Hardware & Channel Bar --}}
                             <div class="grid grid-cols-2 gap-3 text-xs">
                                 <div class="p-3 rounded-[12px] bg-white/5 border border-white/10 flex items-center gap-2">
-                                    <i data-lucide="printer" class="w-4 h-4 text-[#007AFF] shrink-0" aria-hidden="true"></i>
+                                    <i data-lucide="printer" class="w-4 h-4 text-[#007AFF] shrink-0"
+                                        aria-hidden="true"></i>
                                     <span class="font-medium text-slate-200 truncate">Printer Siap Cetak</span>
                                 </div>
                                 <div class="p-3 rounded-[12px] bg-white/5 border border-white/10 flex items-center gap-2">
-                                    <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400 shrink-0" aria-hidden="true"></i>
+                                    <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400 shrink-0"
+                                        aria-hidden="true"></i>
                                     <span class="font-medium text-slate-200 truncate">Data Terisolasi Aman</span>
                                 </div>
                             </div>
@@ -210,7 +213,8 @@
                     <span class="text-xs uppercase tracking-wider font-bold text-rose-600 dark:text-rose-400 block">
                         Tantangan Pengelolaan Bisnis
                     </span>
-                    <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mt-1 tracking-tight leading-[1.2] text-balance break-words">
+                    <h2
+                        class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mt-1 tracking-tight leading-[1.2] text-balance break-words">
                         Mengapa Menggunakan Banyak Aplikasi Terpisah Menghambat Bisnis Anda?
                     </h2>
                 </div>
@@ -221,7 +225,9 @@
                         <div
                             class="w-9 h-9 rounded-[12px] bg-rose-500/10 text-rose-600 font-bold text-xs flex items-center justify-center font-mono shrink-0">
                             01</div>
-                        <h3 class="text-base font-bold text-slate-900 dark:text-white leading-snug text-balance break-words">Data Terpecah di Mana-Mana</h3>
+                        <h3
+                            class="text-base font-bold text-slate-900 dark:text-white leading-snug text-balance break-words">
+                            Data Terpecah di Mana-Mana</h3>
                         <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed text-pretty">
                             Kasir menggunakan satu aplikasi, stok dicatat di buku atau Excel, pesanan online masuk lewat
                             chat WhatsApp pribadi, dan pembukuan di software akuntansi terpisah.
@@ -233,7 +239,9 @@
                         <div
                             class="w-9 h-9 rounded-[12px] bg-rose-500/10 text-rose-600 font-bold text-xs flex items-center justify-center font-mono shrink-0">
                             02</div>
-                        <h3 class="text-base font-bold text-slate-900 dark:text-white leading-snug text-balance break-words">Stok Selisih & Laba Semu</h3>
+                        <h3
+                            class="text-base font-bold text-slate-900 dark:text-white leading-snug text-balance break-words">
+                            Stok Selisih & Laba Semu</h3>
                         <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed text-pretty">
                             Karena sistem tidak terhubung, stok di kasir tidak mencerminkan sisa fisik di gudang. Penjualan
                             terlihat ramai setiap hari, tetapi kas akhir bulan selalu selisih tanpa jejak.
@@ -245,7 +253,9 @@
                         <div
                             class="w-9 h-9 rounded-[12px] bg-rose-500/10 text-rose-600 font-bold text-xs flex items-center justify-center font-mono shrink-0">
                             03</div>
-                        <h3 class="text-base font-bold text-slate-900 dark:text-white leading-snug text-balance break-words">Owner Terjebak Rutinitas Teknis</h3>
+                        <h3
+                            class="text-base font-bold text-slate-900 dark:text-white leading-snug text-balance break-words">
+                            Owner Terjebak Rutinitas Teknis</h3>
                         <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed text-pretty">
                             Pemilik bisnis menghabiskan 2–3 jam setiap malam hanya untuk menyalin ulang transaksi dan
                             mencocokkan nota kasir, alih-alih fokus ekspansi cabang dan strategi penjualan.
@@ -262,7 +272,8 @@
                     <span class="text-xs uppercase tracking-wider font-bold text-[#007AFF] dark:text-[#00C4D8] block">
                         Konsep Business Operating System
                     </span>
-                    <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-[1.2] text-balance break-words">
+                    <h2
+                        class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-[1.2] text-balance break-words">
                         Bagaimana COOCA Menyatukan Seluruh Lapisan Bisnis
                     </h2>
                 </div>
@@ -273,7 +284,9 @@
                         <div
                             class="w-10 h-10 rounded-[12px] bg-blue-500/10 text-[#007AFF] flex items-center justify-center font-bold shrink-0">
                             1</div>
-                        <h3 class="text-base font-bold text-slate-900 dark:text-white leading-snug text-balance break-words">Omnichannel Sales Layer</h3>
+                        <h3
+                            class="text-base font-bold text-slate-900 dark:text-white leading-snug text-balance break-words">
+                            Omnichannel Sales Layer</h3>
                         <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed text-pretty">
                             POS kasir toko fisik, storefront katalog online, pesanan QR meja, dan pesanan marketplace
                             bermuara ke satu antrean pemrosesan order terpusat.
@@ -285,7 +298,9 @@
                         <div
                             class="w-10 h-10 rounded-[12px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold shrink-0">
                             2</div>
-                        <h3 class="text-base font-bold text-slate-900 dark:text-white leading-snug text-balance break-words">Operational & Inventory Engine</h3>
+                        <h3
+                            class="text-base font-bold text-slate-900 dark:text-white leading-snug text-balance break-words">
+                            Operational & Inventory Engine</h3>
                         <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed text-pretty">
                             Kartu stok perpetual, konversi multi-satuan dus/pcs, resep bahan baku (BOM) kuliner, dan
                             perintah kerja SPK bengkel/manufaktur terpotong otomatis.
@@ -297,7 +312,9 @@
                         <div
                             class="w-10 h-10 rounded-[12px] bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center font-bold shrink-0">
                             3</div>
-                        <h3 class="text-base font-bold text-slate-900 dark:text-white leading-snug text-balance break-words">Financial & Accounting Core</h3>
+                        <h3
+                            class="text-base font-bold text-slate-900 dark:text-white leading-snug text-balance break-words">
+                            Financial & Accounting Core</h3>
                         <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed text-pretty">
                             Setiap transaksi penjualan dan pembelian langsung menghasilkan jurnal kas, mencatat HPP riil,
                             dan mengupdate laporan laba rugi owner seketika.
@@ -309,7 +326,9 @@
                         <div
                             class="w-10 h-10 rounded-[12px] bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold shrink-0">
                             4</div>
-                        <h3 class="text-base font-bold text-slate-900 dark:text-white leading-snug text-balance break-words">Communication & Automation</h3>
+                        <h3
+                            class="text-base font-bold text-slate-900 dark:text-white leading-snug text-balance break-words">
+                            Communication & Automation</h3>
                         <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed text-pretty">
                             Notifikasi nota WhatsApp otomatis, pengingat jadwal booking servis, penerbitan resi kurir, dan
                             kalender konten promosi bisnis berbasis AI.
@@ -326,7 +345,8 @@
                     <span class="text-xs uppercase tracking-wider font-bold text-[#007AFF] dark:text-[#00C4D8] block">
                         Modul Unggulan Ekosistem
                     </span>
-                    <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-[1.2] text-balance break-words">
+                    <h2
+                        class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-[1.2] text-balance break-words">
                         Modul Lengkap untuk Seluruh Aspek Bisnis Anda
                     </h2>
                 </div>
@@ -341,7 +361,8 @@
                         <h3
                             class="text-base font-bold text-slate-900 dark:text-white group-hover:text-[#007AFF] transition leading-snug text-balance break-words">
                             Omnichannel ERP Core</h3>
-                        <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed text-pretty">Penyatuan menyeluruh modul
+                        <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed text-pretty">Penyatuan
+                            menyeluruh modul
                             kasir, stok gudang, pengadaan barang, akuntansi, dan analisis bisnis.</p>
                     </a>
 
@@ -354,7 +375,8 @@
                         <h3
                             class="text-base font-bold text-slate-900 dark:text-white group-hover:text-[#007AFF] transition leading-snug text-balance break-words">
                             Point of Sale (POS) Cepat</h3>
-                        <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed text-pretty">Kasir responsif untuk offline
+                        <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed text-pretty">Kasir responsif
+                            untuk offline
                             dan online, scan barcode kilat, split bill meja, dan cetak struk Bluetooth.</p>
                     </a>
 
@@ -367,7 +389,8 @@
                         <h3
                             class="text-base font-bold text-slate-900 dark:text-white group-hover:text-[#007AFF] transition leading-snug text-balance break-words">
                             Smart Inventory & Gudang</h3>
-                        <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed text-pretty">Kartu stok perpetual, resep
+                        <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed text-pretty">Kartu stok
+                            perpetual, resep
                             bahan baku BOM, mutasi multi-cabang, dan peringatan reorder point ke distributor.</p>
                     </a>
 
@@ -380,7 +403,8 @@
                         <h3
                             class="text-base font-bold text-slate-900 dark:text-white group-hover:text-[#007AFF] transition leading-snug text-balance break-words">
                             Keuangan & Arus Kas</h3>
-                        <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed text-pretty">Pencatatan kas masuk dan
+                        <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed text-pretty">Pencatatan kas
+                            masuk dan
                             keluar otomatis, rekonsiliasi kasir tutup shift, dan transparansi arus kas bisnis.</p>
                     </a>
 
@@ -393,7 +417,8 @@
                         <h3
                             class="text-base font-bold text-slate-900 dark:text-white group-hover:text-[#007AFF] transition leading-snug text-balance break-words">
                             WhatsApp Customer CRM</h3>
-                        <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed text-pretty">Kirim nota struk belanja,
+                        <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed text-pretty">Kirim nota struk
+                            belanja,
                             tagihan kasbon, reminder jadwal servis, dan broadcast ramah langsung ke WA pelanggan.</p>
                     </a>
 
@@ -406,7 +431,8 @@
                         <h3
                             class="text-base font-bold text-slate-900 dark:text-white group-hover:text-[#007AFF] transition leading-snug text-balance break-words">
                             Otomasi Konten & Sosmed</h3>
-                        <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed text-pretty">Perencanaan kalender konten
+                        <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed text-pretty">Perencanaan
+                            kalender konten
                             promosi, penjadwalan publikasi multi-channel, dan pembuatan copy otomatis.</p>
                     </a>
                 </div>
@@ -423,7 +449,8 @@
                         <span class="text-xs uppercase tracking-wider font-bold text-[#007AFF] dark:text-[#00C4D8] block">
                             Solusi Spesifik Industri
                         </span>
-                        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-1 tracking-tight leading-[1.2] text-balance break-words">
+                        <h2
+                            class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-1 tracking-tight leading-[1.2] text-balance break-words">
                             Disesuaikan dengan Karakter Nyata Sektor Bisnis Anda
                         </h2>
                     </div>
@@ -528,7 +555,9 @@
                 <div class="text-center space-y-2">
                     <span class="text-xs uppercase tracking-wider font-bold text-[#007AFF] dark:text-[#00C4D8] block">Tanya
                         Jawab</span>
-                    <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white leading-[1.2] text-balance break-words">Pertanyaan Sering Diajukan
+                    <h2
+                        class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white leading-[1.2] text-balance break-words">
+                        Pertanyaan Sering Diajukan
                         Seputar COOCA</h2>
                 </div>
 
@@ -537,7 +566,8 @@
                         class="group bg-white dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 rounded-[18px] p-5 transition-all">
                         <summary
                             class="flex justify-between items-center gap-3 cursor-pointer font-bold text-sm sm:text-base text-slate-900 dark:text-white">
-                            <span class="min-w-0 flex-1 leading-snug">Apa perbedaan mendasar antara COOCA dan aplikasi POS kasir biasa?</span>
+                            <span class="min-w-0 flex-1 leading-snug">Apa perbedaan mendasar antara COOCA dan aplikasi POS
+                                kasir biasa?</span>
                             <i data-lucide="chevron-down"
                                 class="w-4 h-4 text-slate-400 group-open:rotate-180 transition-transform shrink-0"
                                 aria-hidden="true"></i>
@@ -556,7 +586,8 @@
                         class="group bg-white dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 rounded-[18px] p-5 transition-all">
                         <summary
                             class="flex justify-between items-center gap-3 cursor-pointer font-bold text-sm sm:text-base text-slate-900 dark:text-white">
-                            <span class="min-w-0 flex-1 leading-snug">Apakah saya harus membeli mesin kasir atau komputer mahal untuk menggunakan COOCA?</span>
+                            <span class="min-w-0 flex-1 leading-snug">Apakah saya harus membeli mesin kasir atau komputer
+                                mahal untuk menggunakan COOCA?</span>
                             <i data-lucide="chevron-down"
                                 class="w-4 h-4 text-slate-400 group-open:rotate-180 transition-transform shrink-0"
                                 aria-hidden="true"></i>
@@ -573,7 +604,8 @@
                         class="group bg-white dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 rounded-[18px] p-5 transition-all">
                         <summary
                             class="flex justify-between items-center gap-3 cursor-pointer font-bold text-sm sm:text-base text-slate-900 dark:text-white">
-                            <span class="min-w-0 flex-1 leading-snug">Bagaimana jika bisnis saya memiliki beberapa cabang gerai yang lokasinya berjauhan?</span>
+                            <span class="min-w-0 flex-1 leading-snug">Bagaimana jika bisnis saya memiliki beberapa cabang
+                                gerai yang lokasinya berjauhan?</span>
                             <i data-lucide="chevron-down"
                                 class="w-4 h-4 text-slate-400 group-open:rotate-180 transition-transform shrink-0"
                                 aria-hidden="true"></i>
@@ -590,7 +622,8 @@
                         class="group bg-white dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 rounded-[18px] p-5 transition-all">
                         <summary
                             class="flex justify-between items-center gap-3 cursor-pointer font-bold text-sm sm:text-base text-slate-900 dark:text-white">
-                            <span class="min-w-0 flex-1 leading-snug">Apakah data usaha dan database pelanggan saya aman di COOCA?</span>
+                            <span class="min-w-0 flex-1 leading-snug">Apakah data usaha dan database pelanggan saya aman di
+                                COOCA?</span>
                             <i data-lucide="chevron-down"
                                 class="w-4 h-4 text-slate-400 group-open:rotate-180 transition-transform shrink-0"
                                 aria-hidden="true"></i>
@@ -623,7 +656,8 @@
                         <i data-lucide="shield-check" class="w-4 h-4 text-[#00C4D8]" aria-hidden="true"></i>
                         <span>Telah Membantu Ribuan Pengusaha Mandiri di Indonesia</span>
                     </div>
-                    <h3 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight leading-[1.2] text-balance break-words">
+                    <h3
+                        class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight leading-[1.2] text-balance break-words">
                         Mulai Operasikan Bisnis Anda dengan Standar Tertinggi Hari Ini
                     </h3>
                     <p class="text-sm sm:text-base text-slate-300 leading-relaxed text-pretty">

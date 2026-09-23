@@ -4,7 +4,7 @@
 Hemat 3-5 Jam Seminggu: Rutinitas Owner Warung Setelah Pakai Sistem Digital
 
 **Cluster Konten \***
-Cluster A — Awareness & Edukasi
+Cluster A - Awareness & Edukasi
 
 **Kategori \***
 Operasional
@@ -14,11 +14,12 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 Beralih ke sistem digital tidak hanya soal kerapian data, tapi juga soal waktu yang bisa dihemat owner dalam menjalankan rutinitas operasional mingguan.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>Sebelum menggunakan sistem digital, banyak pemilik warung menghabiskan waktu cukup banyak setiap minggu hanya untuk merekap penjualan, mengecek stok, dan menghitung gaji karyawan secara manual.</p>
 
 <h2>Rutinitas Manual yang Menghabiskan Waktu</h2>

@@ -4,7 +4,7 @@
 Kelola Keuangan Warung dari Nol: 7 Kebiasaan Owner yang Bikin Rekening Tidak Tekor
 
 **Cluster Konten \***
-Cluster A — Awareness & Edukasi
+Cluster A - Awareness & Edukasi
 
 **Kategori \***
 Keuangan
@@ -14,11 +14,12 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 Mengelola keuangan usaha dari nol membutuhkan kebiasaan yang konsisten. Berikut 7 kebiasaan yang membantu menjaga kesehatan rekening usaha dalam jangka panjang.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>Bagi pemilik usaha yang baru mulai mengelola keuangan secara lebih serius, membangun kebiasaan finansial yang baik sejak awal jauh lebih mudah dibanding memperbaikinya setelah masalah keuangan menumpuk.</p>
 
 <h2>7 Kebiasaan Penting dalam Mengelola Keuangan Warung</h2>

@@ -4,7 +4,7 @@
 Manual vs Sistem: Mana Lebih Cepat untuk Catat Penjualan 50 Transaksi per Hari?
 
 **Cluster Konten \***
-Cluster C — Perbandingan & Pilihan
+Cluster C - Perbandingan & Pilihan
 
 **Kategori \***
 Operasional
@@ -14,11 +14,12 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 Mencatat 50 transaksi per hari secara manual jelas berbeda dengan menggunakan sistem kasir digital. Berikut perbandingan kecepatan dan akurasi keduanya.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>Warung dengan volume transaksi harian yang cukup tinggi, misalnya 50 transaksi per hari, sering dihadapkan pada pilihan: tetap mencatat secara manual atau beralih ke sistem kasir digital.</p>
 
 <h2>Pencatatan Manual</h2>
@@ -30,7 +31,7 @@ Mencatat 50 transaksi per hari secara manual jelas berbeda dengan menggunakan si
 <p><strong>Kekurangan:</strong> perlu adaptasi awal bagi karyawan yang belum terbiasa menggunakan sistem digital.</p>
 
 <h2>Perbandingan dari Sisi Waktu</h2>
-<p>Mencatat 50 transaksi secara manual, termasuk merekap total penjualan harian, bisa memakan waktu signifikan di akhir hari — belum termasuk waktu tambahan jika terjadi kesalahan hitung yang harus ditelusuri ulang. Dengan sistem kasir digital, rekap otomatis tersedia begitu transaksi terakhir selesai diinput, tanpa perlu penghitungan ulang manual.</p>
+<p>Mencatat 50 transaksi secara manual, termasuk merekap total penjualan harian, bisa memakan waktu signifikan di akhir hari - belum termasuk waktu tambahan jika terjadi kesalahan hitung yang harus ditelusuri ulang. Dengan sistem kasir digital, rekap otomatis tersedia begitu transaksi terakhir selesai diinput, tanpa perlu penghitungan ulang manual.</p>
 
 <h2>Perbandingan dari Sisi Akurasi</h2>
 <p>Pada volume transaksi yang cukup tinggi, potensi human error dalam pencatatan manual meningkat, terutama saat kasir harus melayani banyak pelanggan sekaligus. Sistem digital mengurangi risiko ini karena perhitungan otomatis dilakukan sistem, bukan manual oleh kasir.</p>

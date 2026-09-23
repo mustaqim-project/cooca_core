@@ -55,7 +55,7 @@
                         <div
                             class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#007AFF]/15 text-[#00C4D8] border border-[#00C4D8]/30 text-xs font-semibold backdrop-blur-sm">
                             <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-                            <span>Hubungi Tim Kami — Pusat Bantuan & Konsultasi Resmi</span>
+                            <span>Hubungi Tim Kami - Pusat Bantuan & Konsultasi Resmi</span>
                         </div>
 
                         <h1
@@ -76,7 +76,8 @@
                                     <i data-lucide="clock" class="w-4 h-4 text-[#00C4D8] shrink-0"></i>
                                     <span class="min-w-0 flex-1 leading-snug">Respon Cepat</span>
                                 </div>
-                                <div class="text-[12px] text-slate-300 mt-1 leading-normal text-pretty">Rata-rata &lt; 15 menit pada jam operasional
+                                <div class="text-[12px] text-slate-300 mt-1 leading-normal text-pretty">Rata-rata &lt; 15
+                                    menit pada jam operasional
                                 </div>
                             </div>
 
@@ -85,7 +86,8 @@
                                     <i data-lucide="video" class="w-4 h-4 text-emerald-400 shrink-0"></i>
                                     <span class="min-w-0 flex-1 leading-snug">Panduan Langsung</span>
                                 </div>
-                                <div class="text-[12px] text-slate-300 mt-1 leading-normal text-pretty">Bimbingan foto atau video call praktis</div>
+                                <div class="text-[12px] text-slate-300 mt-1 leading-normal text-pretty">Bimbingan foto atau
+                                    video call praktis</div>
                             </div>
 
                             <div class="p-3.5 rounded-[16px] bg-[#0E1E45]/60 border border-white/10 backdrop-blur-sm">
@@ -93,7 +95,8 @@
                                     <i data-lucide="shield-check" class="w-4 h-4 text-[#FF9500] shrink-0"></i>
                                     <span class="min-w-0 flex-1 leading-snug">Data Terjamin Aman</span>
                                 </div>
-                                <div class="text-[12px] text-slate-300 mt-1 leading-normal text-pretty">Privasi dan pembukuan terenkripsi penuh</div>
+                                <div class="text-[12px] text-slate-300 mt-1 leading-normal text-pretty">Privasi dan
+                                    pembukuan terenkripsi penuh</div>
                             </div>
                         </div>
 
@@ -142,9 +145,11 @@
                                         <i data-lucide="phone-call" class="w-5 h-5"></i>
                                     </div>
                                     <div class="min-w-0 flex-1">
-                                        <div class="text-[11px] font-semibold text-emerald-400 uppercase tracking-wider truncate">
+                                        <div
+                                            class="text-[11px] font-semibold text-emerald-400 uppercase tracking-wider truncate">
                                             WhatsApp Hotline</div>
-                                        <div class="text-base font-bold text-white font-mono truncate">{{ $officialWhatsapp }}</div>
+                                        <div class="text-base font-bold text-white font-mono truncate">
+                                            {{ $officialWhatsapp }}</div>
                                     </div>
                                 </div>
                                 <a href="https://wa.me/{{ $officialWhatsappRaw }}?text=Halo%20Tim%20Cooca%20UMKM"
@@ -163,7 +168,9 @@
                                         <i data-lucide="mail" class="w-5 h-5"></i>
                                     </div>
                                     <div class="min-w-0 flex-1">
-                                        <div class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider truncate">Email
+                                        <div
+                                            class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider truncate">
+                                            Email
                                             Surat Resmi</div>
                                         <a href="mailto:{{ $officialEmail }}"
                                             class="text-sm font-bold text-white hover:underline truncate block">{{ $officialEmail }}</a>
@@ -182,8 +189,10 @@
                                 <div class="min-w-0 flex-1">
                                     <div class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Kantor
                                         Operasional</div>
-                                    <div class="text-sm font-semibold text-white mt-0.5 leading-snug break-words">{{ $officeLocation }}</div>
-                                    <div class="text-xs text-slate-400 mt-1 leading-normal">Senin - Sabtu: 08.00 - 20.00 WIB</div>
+                                    <div class="text-sm font-semibold text-white mt-0.5 leading-snug break-words">
+                                        {{ $officeLocation }}</div>
+                                    <div class="text-xs text-slate-400 mt-1 leading-normal">Senin - Sabtu: 08.00 - 20.00
+                                        WIB</div>
                                 </div>
                             </div>
                         </div>
@@ -203,10 +212,12 @@
                             <i data-lucide="send" class="w-4 h-4"></i>
                             <span>Formulir Pesan Dukungan</span>
                         </div>
-                        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-tight text-balance break-words">
+                        <h2
+                            class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-tight text-balance break-words">
                             Tuliskan Pertanyaan atau Kendala Anda
                         </h2>
-                        <p class="text-sm text-slate-600 dark:text-slate-400 mt-1.5 leading-relaxed text-pretty break-words">
+                        <p
+                            class="text-sm text-slate-600 dark:text-slate-400 mt-1.5 leading-relaxed text-pretty break-words">
                             Isi data di bawah ini secara ringkas. Tim spesialis kami akan meninjau dan menghubungi Anda
                             kembali.
                         </p>

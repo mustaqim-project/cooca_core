@@ -4,7 +4,7 @@
 5 Kesalahan Saat Daftar NIB yang Bikin Pengajuan Ditolak OSS
 
 **Cluster Konten \***
-Cluster B — Solusi Masalah
+Cluster B - Solusi Masalah
 
 **Kategori \***
 Legalitas
@@ -14,11 +14,12 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 Pengajuan NIB di OSS seharusnya mudah, tapi banyak pelaku usaha gagal karena kesalahan teknis sederhana. Kenali 5 kesalahan paling umum ini sebelum mendaftar.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>OSS dirancang untuk mempermudah pelaku usaha, tapi tidak sedikit pengajuan NIB yang tertunda atau ditolak karena kesalahan kecil yang sebenarnya bisa dihindari.</p>
 
 <h2>1. Salah Pilih Kode KBLI</h2>
@@ -34,7 +35,7 @@ Pengajuan NIB di OSS seharusnya mudah, tapi banyak pelaku usaha gagal karena kes
 <p>OSS membagi usaha ke dalam skala mikro, kecil, menengah, dan besar berdasarkan modal usaha. Salah input modal usaha bisa membuat kategori risiko usaha berubah, yang berimbas pada dokumen tambahan yang diminta sistem.</p>
 
 <h2>5. Tidak Melengkapi Izin Berbasis Risiko</h2>
-<p>Untuk usaha dengan risiko menengah ke atas, NIB saja belum cukup — masih perlu sertifikat standar atau izin tambahan sesuai hasil penilaian risiko OSS RBA (Risk Based Approach). Banyak pelaku usaha berhenti di tahap NIB dan tidak melanjutkan proses ini.</p>
+<p>Untuk usaha dengan risiko menengah ke atas, NIB saja belum cukup - masih perlu sertifikat standar atau izin tambahan sesuai hasil penilaian risiko OSS RBA (Risk Based Approach). Banyak pelaku usaha berhenti di tahap NIB dan tidak melanjutkan proses ini.</p>
 
 <blockquote>Sebelum submit, cek ulang tiga hal: kode KBLI, kesesuaian alamat usaha, dan kecocokan data KTP-NPWP.</blockquote>
 

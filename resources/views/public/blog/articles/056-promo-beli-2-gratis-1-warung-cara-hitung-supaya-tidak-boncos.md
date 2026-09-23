@@ -4,7 +4,7 @@
 Promo 'Beli 2 Gratis 1' Warung: Cara Hitung Supaya Tidak Boncos
 
 **Cluster Konten \***
-Cluster D — Kalkulasi & Simulasi
+Cluster D - Kalkulasi & Simulasi
 
 **Kategori \***
 Marketing
@@ -14,11 +14,12 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 Promo beli 2 gratis 1 bisa menarik pelanggan, tapi jika salah hitung justru membuat usaha rugi. Ini cara menghitung promo ini agar tetap menguntungkan.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>Promo seperti "beli 2 gratis 1" memang efektif menarik minat pembeli, tapi tanpa perhitungan yang tepat, promo ini bisa membuat margin keuntungan usaha justru minus alih-alih menambah penjualan.</p>
 
 <h2>Kenapa Promo Ini Berisiko Jika Salah Hitung</h2>

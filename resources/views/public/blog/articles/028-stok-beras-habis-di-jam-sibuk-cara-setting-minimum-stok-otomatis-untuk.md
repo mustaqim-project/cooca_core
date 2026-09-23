@@ -4,7 +4,7 @@
 Stok Beras Habis di Jam Sibuk? Cara Setting Minimum Stok Otomatis untuk Warung
 
 **Cluster Konten \***
-Cluster K — Tutorial "Cara"
+Cluster K - Tutorial "Cara"
 
 **Kategori \***
 Operasional
@@ -14,11 +14,12 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 Kehabisan stok di jam ramai bisa bikin pelanggan kecewa dan omzet hilang. Ini cara mengatur minimum stok otomatis agar kejadian ini tidak terulang.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>Kehabisan bahan baku utama seperti beras di tengah jam sibuk adalah mimpi buruk bagi pemilik warung. Bukan hanya kehilangan penjualan hari itu, tapi juga berisiko membuat pelanggan kecewa dan beralih ke warung lain.</p>
 
 <h2>Kenapa Stok Sering Habis Tanpa Disadari</h2>

@@ -4,7 +4,7 @@
 Stok Akhir Bulan Berlebih = Uang Tidur. Konversi ke Cash Flow UMKM
 
 **Cluster Konten \***
-Cluster A — Awareness & Edukasi
+Cluster A - Awareness & Edukasi
 
 **Kategori \***
 Keuangan
@@ -14,11 +14,12 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 Stok yang menumpuk di akhir bulan sebenarnya adalah uang usaha yang 'tidur' dan tidak produktif. Ini penjelasan dampaknya terhadap arus kas usaha.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>Banyak pemilik usaha bangga melihat gudang atau rak penyimpanan penuh dengan stok, tanpa menyadari bahwa stok berlebih sebenarnya adalah modal usaha yang tertahan dan tidak menghasilkan apa-apa selama belum terjual.</p>
 
 <h2>Kenapa Stok Berlebih Disebut "Uang Tidur"</h2>

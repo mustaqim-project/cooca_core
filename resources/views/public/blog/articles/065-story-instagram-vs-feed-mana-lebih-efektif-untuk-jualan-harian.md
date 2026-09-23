@@ -4,7 +4,7 @@
 Story Instagram vs Feed: Mana Lebih Efektif untuk Jualan Harian?
 
 **Cluster Konten \***
-Cluster C — Perbandingan & Pilihan
+Cluster C - Perbandingan & Pilihan
 
 **Kategori \***
 Marketing
@@ -14,11 +14,12 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 Instagram Story dan Feed punya fungsi berbeda dalam strategi promosi harian. Berikut perbandingan keduanya untuk kebutuhan jualan sehari-hari usaha kecil.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>Instagram menyediakan beberapa format konten dengan karakteristik berbeda, di antaranya Story dan Feed. Memahami perbedaan fungsi keduanya membantu usaha kecil memaksimalkan strategi promosi harian.</p>
 
 <h2>Karakteristik Instagram Story</h2>
@@ -52,7 +53,7 @@ Instagram Story dan Feed punya fungsi berbeda dalam strategi promosi harian. Ber
 <blockquote>Story cocok untuk mendorong tindakan cepat, sementara Feed lebih berperan sebagai etalase permanen yang membangun kesan pertama bagi pengunjung baru.</blockquote>
 
 <h2>Strategi Kombinasi Keduanya</h2>
-<p>Idealnya, kedua format ini digunakan secara bersamaan — Feed sebagai etalase utama yang mencerminkan identitas brand, dan Story sebagai kanal komunikasi harian yang lebih santai dan real-time dengan followers.</p>
+<p>Idealnya, kedua format ini digunakan secara bersamaan - Feed sebagai etalase utama yang mencerminkan identitas brand, dan Story sebagai kanal komunikasi harian yang lebih santai dan real-time dengan followers.</p>
 
 <h2>Kesimpulan</h2>
 <p>Story dan Feed memiliki peran yang saling melengkapi dalam strategi promosi harian usaha kecil. Memahami kapan menggunakan masing-masing format membantu memaksimalkan potensi keduanya untuk mendukung penjualan.</p>

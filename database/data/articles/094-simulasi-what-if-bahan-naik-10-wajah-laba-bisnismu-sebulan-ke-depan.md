@@ -4,7 +4,7 @@
 Simulasi 'What-If' Bahan Naik 10%: Wajah Laba Bisnismu Sebulan ke Depan
 
 **Cluster Konten \***
-Cluster D — Kalkulasi & Simulasi
+Cluster D - Kalkulasi & Simulasi
 
 **Kategori \***
 Scale-up
@@ -14,26 +14,27 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 Melakukan simulasi skenario kenaikan harga bahan baku membantu pemilik usaha mempersiapkan strategi sebelum dampaknya benar-benar terjadi pada laba usaha.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>Kenaikan harga bahan baku adalah risiko yang selalu mungkin terjadi dalam bisnis kuliner atau retail. Melakukan simulasi skenario "what-if" membantu pemilik usaha mempersiapkan langkah antisipasi sebelum dampaknya benar-benar dirasakan.</p>
 
 <h2>Kenapa Simulasi Ini Penting Dilakukan Secara Berkala</h2>
-<p>Tanpa simulasi, pemilik usaha baru menyadari dampak kenaikan harga bahan baku setelah laporan keuangan bulan tersebut selesai dihitung — yang berarti sudah terlambat untuk mengambil tindakan pencegahan di bulan yang sama.</p>
+<p>Tanpa simulasi, pemilik usaha baru menyadari dampak kenaikan harga bahan baku setelah laporan keuangan bulan tersebut selesai dihitung - yang berarti sudah terlambat untuk mengambil tindakan pencegahan di bulan yang sama.</p>
 
 <h2>Cara Melakukan Simulasi What-If Kenaikan 10%</h2>
 <ol>
-<li><strong>Catat struktur biaya usaha saat ini</strong> — total biaya bahan baku, biaya operasional tetap, dan pendapatan rata-rata bulanan.</li>
+<li><strong>Catat struktur biaya usaha saat ini</strong> - total biaya bahan baku, biaya operasional tetap, dan pendapatan rata-rata bulanan.</li>
 <li><strong>Hitung skenario kenaikan biaya bahan baku sebesar 10%</strong> dari biaya bahan baku saat ini.</li>
 <li><strong>Hitung ulang laba bersih</strong> dengan asumsi tidak ada penyesuaian harga jual.</li>
 <li><strong>Bandingkan dengan skenario jika harga jual disesuaikan sebagian</strong>, misalnya menaikkan harga jual 5% untuk menutupi sebagian kenaikan biaya.</li>
 </ol>
 
 <h2>Contoh Ilustrasi Sederhana</h2>
-<p>Misalkan pendapatan bulanan Rp15.000.000 dengan biaya bahan baku Rp7.000.000 dan biaya operasional lain Rp5.000.000, sehingga laba bersih sekitar Rp3.000.000. Jika biaya bahan baku naik 10% menjadi Rp7.700.000 tanpa penyesuaian harga jual, laba bersih turun menjadi Rp2.300.000 — penurunan sekitar 23% dari laba semula.</p>
+<p>Misalkan pendapatan bulanan Rp15.000.000 dengan biaya bahan baku Rp7.000.000 dan biaya operasional lain Rp5.000.000, sehingga laba bersih sekitar Rp3.000.000. Jika biaya bahan baku naik 10% menjadi Rp7.700.000 tanpa penyesuaian harga jual, laba bersih turun menjadi Rp2.300.000 - penurunan sekitar 23% dari laba semula.</p>
 
 <blockquote>Simulasi ini membantu pemilik usaha melihat dampak riil kenaikan biaya sebelum benar-benar terjadi, sehingga bisa mempersiapkan strategi mitigasi lebih awal.</blockquote>
 

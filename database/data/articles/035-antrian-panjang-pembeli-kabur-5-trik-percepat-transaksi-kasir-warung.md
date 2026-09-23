@@ -4,7 +4,7 @@
 Antrian Panjang, Pembeli Kabur? 5 Trik Percepat Transaksi Kasir Warung
 
 **Cluster Konten \***
-Cluster B — Solusi Masalah
+Cluster B - Solusi Masalah
 
 **Kategori \***
 Operasional
@@ -14,11 +14,12 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 Antrian panjang di kasir bisa membuat calon pembeli berubah pikiran dan pergi. Ini 5 trik praktis untuk mempercepat proses transaksi di warung.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>Antrian panjang di kasir bukan hanya membuat pelanggan tidak nyaman, tapi juga berpotensi membuat calon pembeli membatalkan niat belanjanya. Berikut beberapa trik untuk mempercepat proses transaksi tanpa mengorbankan keramahan pelayanan.</p>
 
 <h2>1. Gunakan Sistem Kasir Digital</h2>

@@ -4,7 +4,7 @@
 Penjualan Naik, Profit Tidak? 7 Biaya Tersembunyi yang Sering Tidak Disadari Owner
 
 **Cluster Konten \***
-Cluster A — Awareness & Edukasi
+Cluster A - Awareness & Edukasi
 
 **Kategori \***
 Operasional
@@ -14,11 +14,12 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 Omzet yang naik tidak selalu berbanding lurus dengan profit. Ada beberapa biaya tersembunyi yang sering luput dari perhatian pemilik usaha kecil.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>Banyak pemilik usaha bingung ketika penjualan terus meningkat namun keuntungan yang didapat tidak kunjung bertambah signifikan. Salah satu penyebab umumnya adalah biaya tersembunyi yang tidak terpantau dengan baik.</p>
 
 <h2>7 Biaya Tersembunyi yang Sering Terlewat</h2>

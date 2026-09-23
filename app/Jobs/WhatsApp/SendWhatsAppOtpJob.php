@@ -81,7 +81,7 @@ class SendWhatsAppOtpJob implements ShouldQueue
         $maskedPhone = substr($this->phone, 0, 4) . '****' . substr($this->phone, -3);
 
         Log::channel('daily')->critical(
-            "[SendWhatsAppOtpJob] FINAL FAILURE — OTP untuk {$maskedPhone} gagal dikirim setelah {$this->tries} percobaan.",
+            "[SendWhatsAppOtpJob] FINAL FAILURE - OTP untuk {$maskedPhone} gagal dikirim setelah {$this->tries} percobaan.",
             ['error' => $exception?->getMessage()]
         );
     }

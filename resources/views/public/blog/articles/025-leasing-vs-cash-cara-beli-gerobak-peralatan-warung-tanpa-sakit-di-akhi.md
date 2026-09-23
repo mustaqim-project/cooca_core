@@ -4,7 +4,7 @@
 Leasing vs Cash: Cara Beli Gerobak & Peralatan Warung Tanpa Sakit di Akhir Bulan
 
 **Cluster Konten \***
-Cluster C — Perbandingan & Pilihan
+Cluster C - Perbandingan & Pilihan
 
 **Kategori \***
 Modal
@@ -14,11 +14,12 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 Membeli peralatan usaha seperti gerobak bisa dilakukan tunai atau leasing. Mana yang lebih menguntungkan tergantung kondisi arus kas usahamu.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>Peralatan usaha seperti gerobak, etalase, atau mesin produksi kecil bisa dibeli secara tunai atau melalui skema leasing (sewa guna usaha). Keputusan ini berdampak langsung pada arus kas usaha, terutama di bulan-bulan awal.</p>
 
 <h2>Membeli Secara Tunai</h2>
@@ -33,7 +34,7 @@ Membeli peralatan usaha seperti gerobak bisa dilakukan tunai atau leasing. Mana 
 <ul>
 <li>Jika modal usaha terbatas dan kebutuhan modal kerja (stok, operasional) lebih mendesak, leasing bisa membantu menjaga arus kas tetap sehat di awal.</li>
 <li>Jika usaha sudah memiliki cadangan dana yang cukup tanpa mengganggu operasional, membeli tunai lebih hemat dalam jangka panjang.</li>
-<li>Pertimbangkan juga umur ekonomis peralatan — untuk peralatan yang cepat usang atau perlu sering diganti, leasing bisa jadi pilihan yang lebih fleksibel.</li>
+<li>Pertimbangkan juga umur ekonomis peralatan - untuk peralatan yang cepat usang atau perlu sering diganti, leasing bisa jadi pilihan yang lebih fleksibel.</li>
 </ul>
 
 <blockquote>Keputusan leasing atau tunai sebaiknya didasarkan pada dampaknya terhadap arus kas operasional, bukan semata dari harga total yang terlihat.</blockquote>

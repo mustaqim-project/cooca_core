@@ -4,7 +4,7 @@
 HPP Satu Porsi Nasi Goreng = ??? Cara Hitung Real dalam 5 Menit
 
 **Cluster Konten \***
-Cluster D — Kalkulasi & Simulasi
+Cluster D - Kalkulasi & Simulasi
 
 **Kategori \***
 Keuangan
@@ -14,11 +14,12 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 Menghitung Harga Pokok Produksi (HPP) satu porsi nasi goreng bisa dilakukan dengan cepat asal tahu komponen biaya yang perlu dimasukkan.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>Banyak pemilik warung menentukan harga jual hanya berdasarkan perkiraan atau mengikuti harga kompetitor, tanpa benar-benar menghitung Harga Pokok Produksi (HPP) per porsi. Padahal, menghitungnya cukup sederhana dan bisa dilakukan dalam waktu singkat.</p>
 
 <h2>Apa Itu HPP dan Kenapa Penting</h2>
@@ -26,10 +27,10 @@ Menghitung Harga Pokok Produksi (HPP) satu porsi nasi goreng bisa dilakukan deng
 
 <h2>Komponen yang Perlu Dihitung</h2>
 <ul>
-<li><strong>Bahan baku langsung</strong> — nasi, telur, bumbu, minyak, dan bahan pelengkap lain per porsi.</li>
-<li><strong>Biaya gas atau listrik untuk memasak</strong> — dihitung secara proporsional per porsi berdasarkan estimasi pemakaian.</li>
-<li><strong>Kemasan (jika dijual take away)</strong> — kotak atau plastik kemasan per porsi.</li>
-<li><strong>Biaya tenaga kerja langsung (opsional)</strong> — jika ingin dimasukkan sebagai bagian dari HPP, bukan hanya biaya operasional umum.</li>
+<li><strong>Bahan baku langsung</strong> - nasi, telur, bumbu, minyak, dan bahan pelengkap lain per porsi.</li>
+<li><strong>Biaya gas atau listrik untuk memasak</strong> - dihitung secara proporsional per porsi berdasarkan estimasi pemakaian.</li>
+<li><strong>Kemasan (jika dijual take away)</strong> - kotak atau plastik kemasan per porsi.</li>
+<li><strong>Biaya tenaga kerja langsung (opsional)</strong> - jika ingin dimasukkan sebagai bagian dari HPP, bukan hanya biaya operasional umum.</li>
 </ul>
 
 <h2>Cara Menghitung dalam 5 Menit</h2>

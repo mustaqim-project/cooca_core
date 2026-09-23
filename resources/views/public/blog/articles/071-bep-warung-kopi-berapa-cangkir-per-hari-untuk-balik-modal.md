@@ -4,7 +4,7 @@
 BEP Warung Kopi: Berapa Cangkir per Hari untuk Balik Modal?
 
 **Cluster Konten \***
-Cluster D — Kalkulasi & Simulasi
+Cluster D - Kalkulasi & Simulasi
 
 **Kategori \***
 Keuangan
@@ -14,18 +14,19 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 Mengetahui titik impas (BEP) dalam bentuk jumlah cangkir yang harus terjual per hari membantu owner warung kopi menetapkan target penjualan yang realistis.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>Break Even Point (BEP) atau titik impas adalah kondisi di mana total pendapatan sama dengan total biaya, sehingga usaha tidak untung maupun rugi. Mengetahui BEP dalam satuan yang konkret, seperti jumlah cangkir kopi per hari, membantu owner menetapkan target operasional yang lebih jelas.</p>
 
 <h2>Komponen yang Dibutuhkan untuk Menghitung BEP</h2>
 <ul>
-<li><strong>Biaya tetap bulanan</strong> — sewa tempat, gaji karyawan tetap, listrik dasar, dan biaya rutin lain yang tidak berubah signifikan meski penjualan naik-turun.</li>
-<li><strong>Biaya variabel per cangkir</strong> — bahan baku kopi, susu, gula, dan kemasan per cangkir yang terjual.</li>
-<li><strong>Harga jual per cangkir</strong> — harga rata-rata yang ditetapkan untuk produk kopi yang dijual.</li>
+<li><strong>Biaya tetap bulanan</strong> - sewa tempat, gaji karyawan tetap, listrik dasar, dan biaya rutin lain yang tidak berubah signifikan meski penjualan naik-turun.</li>
+<li><strong>Biaya variabel per cangkir</strong> - bahan baku kopi, susu, gula, dan kemasan per cangkir yang terjual.</li>
+<li><strong>Harga jual per cangkir</strong> - harga rata-rata yang ditetapkan untuk produk kopi yang dijual.</li>
 </ul>
 
 <h2>Rumus Menghitung BEP dalam Jumlah Cangkir</h2>

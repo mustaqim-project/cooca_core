@@ -4,7 +4,7 @@
 Cara Atur Shift 3 Karyawan di Warung 24 Jam (Tanpa Drama Gaji)
 
 **Cluster Konten \***
-Cluster K — Tutorial "Cara"
+Cluster K - Tutorial "Cara"
 
 **Kategori \***
 Operasional
@@ -14,18 +14,19 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 Mengatur shift untuk warung yang buka 24 jam bisa jadi rumit jika tidak sistematis. Ini cara membagi shift 3 karyawan tanpa menimbulkan masalah gaji di kemudian hari.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>Warung yang beroperasi 24 jam membutuhkan pembagian shift yang jelas agar operasional tetap berjalan lancar tanpa menimbulkan kebingungan soal jam kerja dan perhitungan gaji karyawan.</p>
 
 <h2>Pola Dasar Pembagian Shift untuk 3 Karyawan</h2>
 <ul>
-<li><strong>Shift Pagi</strong> (misalnya 06.00–14.00) — biasanya jam paling sibuk untuk sarapan dan belanja harian.</li>
-<li><strong>Shift Siang/Sore</strong> (14.00–22.00) — mencakup jam makan siang hingga malam.</li>
-<li><strong>Shift Malam</strong> (22.00–06.00) — umumnya lebih sepi tapi tetap perlu dijaga untuk warung 24 jam.</li>
+<li><strong>Shift Pagi</strong> (misalnya 06.00–14.00) - biasanya jam paling sibuk untuk sarapan dan belanja harian.</li>
+<li><strong>Shift Siang/Sore</strong> (14.00–22.00) - mencakup jam makan siang hingga malam.</li>
+<li><strong>Shift Malam</strong> (22.00–06.00) - umumnya lebih sepi tapi tetap perlu dijaga untuk warung 24 jam.</li>
 </ul>
 
 <h2>Cara Menyusun Jadwal agar Adil</h2>

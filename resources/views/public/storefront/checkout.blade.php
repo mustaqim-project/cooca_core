@@ -163,7 +163,7 @@
             </a>
         </div>
 
-        {{-- Customer Login Gate (Marketplace Scheme — wajib login untuk checkout) --}}
+        {{-- Customer Login Gate (Marketplace Scheme - wajib login untuk checkout) --}}
         @if (auth('customer')->guest())
             <div x-show="$store.cart.count() > 0" class="py-12 text-center space-y-5 max-w-md mx-auto">
                 <div class="w-16 h-16 rounded-full bg-[#007AFF]/10 text-[#007AFF] mx-auto flex items-center justify-center">

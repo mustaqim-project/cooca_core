@@ -4,7 +4,7 @@
 Jualan di TikTok Shop vs Shopee vs GoFood: Mana Paling Profit untuk Warung Rumahan?
 
 **Cluster Konten \***
-Cluster C — Perbandingan & Pilihan
+Cluster C - Perbandingan & Pilihan
 
 **Kategori \***
 Marketing
@@ -14,11 +14,12 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 Setiap platform jualan online punya karakteristik berbeda. Berikut perbandingan TikTok Shop, Shopee, dan GoFood untuk membantu warung rumahan menentukan kanal paling sesuai.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>Warung rumahan kini punya banyak pilihan kanal penjualan online, masing-masing dengan karakteristik audiens dan skema biaya yang berbeda. Memilih kanal yang tepat bisa berdampak besar pada profitabilitas usaha.</p>
 
 <h2>TikTok Shop</h2>
@@ -43,7 +44,7 @@ Setiap platform jualan online punya karakteristik berbeda. Berikut perbandingan 
 <li>Produk dengan nilai visual menarik dan cerita di baliknya lebih berpotensi berkembang lewat TikTok Shop.</li>
 </ul>
 
-<blockquote>Tidak ada platform yang mutlak "paling profit" — kecocokan platform sangat tergantung pada jenis produk dan kesiapan pelaku usaha mengelola masing-masing kanal.</blockquote>
+<blockquote>Tidak ada platform yang mutlak "paling profit" - kecocokan platform sangat tergantung pada jenis produk dan kesiapan pelaku usaha mengelola masing-masing kanal.</blockquote>
 
 <h2>Pentingnya Menghitung Margin di Setiap Platform</h2>
 <p>Setiap platform memiliki skema biaya (komisi, biaya layanan, atau biaya promosi) yang berbeda. Pastikan harga jual di masing-masing kanal sudah memperhitungkan biaya ini agar margin keuntungan tetap terjaga.</p>

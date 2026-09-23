@@ -4,7 +4,7 @@
 Laba Bersih vs Laba Kotor: Mana yang Harus Diperhatikan Owner Warung?
 
 **Cluster Konten \***
-Cluster A — Awareness & Edukasi
+Cluster A - Awareness & Edukasi
 
 **Kategori \***
 Keuangan
@@ -14,11 +14,12 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 Banyak pemilik usaha keliru menyamakan laba kotor dengan keuntungan sebenarnya. Berikut penjelasan perbedaan keduanya dan mana yang seharusnya jadi fokus utama.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>Salah satu kesalahan umum pemilik usaha kecil adalah menganggap laba kotor sebagai keuntungan sebenarnya, padahal ada perbedaan mendasar antara laba kotor dan laba bersih yang berdampak besar pada pengambilan keputusan bisnis.</p>
 
 <h2>Apa Itu Laba Kotor</h2>
@@ -31,7 +32,7 @@ Banyak pemilik usaha keliru menyamakan laba kotor dengan keuntungan sebenarnya. 
 <p>Laba kotor biasanya terlihat lebih besar dan "menggembirakan" dibanding laba bersih, sehingga pemilik usaha bisa merasa usahanya sangat menguntungkan padahal setelah dikurangi biaya operasional, keuntungan riil jauh lebih kecil atau bahkan minus.</p>
 
 <h2>Contoh Ilustrasi Perbedaan Keduanya</h2>
-<p>Misalkan total penjualan bulanan Rp20.000.000 dengan HPP Rp10.000.000, maka laba kotor adalah Rp10.000.000. Namun setelah dikurangi biaya operasional seperti sewa, gaji, dan listrik sebesar Rp8.000.000, laba bersih yang sebenarnya hanya Rp2.000.000 — jauh lebih kecil dari kesan awal saat hanya melihat laba kotor.</p>
+<p>Misalkan total penjualan bulanan Rp20.000.000 dengan HPP Rp10.000.000, maka laba kotor adalah Rp10.000.000. Namun setelah dikurangi biaya operasional seperti sewa, gaji, dan listrik sebesar Rp8.000.000, laba bersih yang sebenarnya hanya Rp2.000.000 - jauh lebih kecil dari kesan awal saat hanya melihat laba kotor.</p>
 
 <blockquote>Fokus hanya pada laba kotor bisa membuat pemilik usaha mengambil keputusan ekspansi atau pengeluaran besar yang sebenarnya belum didukung oleh keuntungan riil.</blockquote>
 

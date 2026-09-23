@@ -4,7 +4,7 @@
 Bon Karyawan Menumpuk? SOP Pinjaman Karyawan yang Bikin Tenang Owner & SDM
 
 **Cluster Konten \***
-Cluster K — Tutorial "Cara"
+Cluster K - Tutorial "Cara"
 
 **Kategori \***
 Operasional
@@ -14,11 +14,12 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 Bon atau pinjaman karyawan yang tidak dikelola dengan jelas bisa menimbulkan kesalahpahaman. Ini SOP sederhana untuk mengelola pinjaman karyawan dengan tenang.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>Memberikan pinjaman atau kasbon kepada karyawan adalah hal yang umum di usaha kecil, tapi tanpa aturan yang jelas, praktik ini bisa menumpuk dan menimbulkan kesalahpahaman antara owner dan karyawan.</p>
 
 <h2>Kenapa Bon Karyawan Perlu SOP yang Jelas</h2>
@@ -27,10 +28,10 @@ Bon atau pinjaman karyawan yang tidak dikelola dengan jelas bisa menimbulkan kes
 <h2>SOP Sederhana Mengelola Pinjaman Karyawan</h2>
 <ol>
 <li><strong>Tetapkan batas maksimal bon</strong> yang bisa diajukan karyawan, misalnya tidak lebih dari persentase tertentu dari gaji bulanan.</li>
-<li><strong>Catat setiap pengajuan bon secara tertulis</strong> — nama karyawan, tanggal, jumlah, dan alasan singkat jika diperlukan.</li>
-<li><strong>Sepakati skema pembayaran</strong> — dipotong langsung dari gaji, dicicil beberapa periode, atau sesuai kesepakatan lain.</li>
+<li><strong>Catat setiap pengajuan bon secara tertulis</strong> - nama karyawan, tanggal, jumlah, dan alasan singkat jika diperlukan.</li>
+<li><strong>Sepakati skema pembayaran</strong> - dipotong langsung dari gaji, dicicil beberapa periode, atau sesuai kesepakatan lain.</li>
 <li><strong>Informasikan sisa bon setiap periode gaji</strong> agar karyawan selalu tahu posisi pinjamannya.</li>
-<li><strong>Evaluasi berkala</strong> — jika ada karyawan yang terlalu sering mengajukan bon, ini bisa jadi sinyal untuk diskusi lebih lanjut soal kondisi keuangannya.</li>
+<li><strong>Evaluasi berkala</strong> - jika ada karyawan yang terlalu sering mengajukan bon, ini bisa jadi sinyal untuk diskusi lebih lanjut soal kondisi keuangannya.</li>
 </ol>
 
 <h2>Manfaat SOP Ini bagi Owner</h2>

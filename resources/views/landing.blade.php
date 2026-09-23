@@ -817,7 +817,7 @@
                                     &amp; Loyalty</h3>
                             </div>
                             <p class="text-[11px] sm:text-xs text-slate-300 leading-relaxed pl-11">
-                                Profil pelanggan tunggal dari POS, WA, website &amp; medsos — untuk loyalty, riwayat, dan
+                                Profil pelanggan tunggal dari POS, WA, website &amp; medsos - untuk loyalty, riwayat, dan
                                 repeat order otomatis.
                             </p>
                         </div>

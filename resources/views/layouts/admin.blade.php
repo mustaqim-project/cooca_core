@@ -41,7 +41,8 @@
     <!-- Favicon -->
     @php
         $adminFavicon = \App\Models\SystemSetting::get('site_favicon');
-        $adminFaviconUrl = \App\Domain\Storage\AdminStorage::publicUrl($adminFavicon) ?? asset('assets/image/1785229034_favicon.png');
+        $adminFaviconUrl =
+            \App\Domain\Storage\AdminStorage::publicUrl($adminFavicon) ?? asset('assets/image/1785229034_favicon.png');
     @endphp
     <link rel="icon" type="image/png" href="{{ $adminFaviconUrl }}">
     <link rel="apple-touch-icon" href="{{ $adminFaviconUrl }}">
@@ -234,6 +235,7 @@
         .no-scrollbar::-webkit-scrollbar {
             display: none;
         }
+
         .no-scrollbar {
             -ms-overflow-style: none;
             scrollbar-width: none;
@@ -255,7 +257,8 @@
     )->count();
 @endphp
 
-<body class="min-h-screen bg-[#F4F4F7] dark:bg-[#161618] text-black dark:text-white antialiased flex flex-col overflow-x-hidden"
+<body
+    class="min-h-screen bg-[#F4F4F7] dark:bg-[#161618] text-black dark:text-white antialiased flex flex-col overflow-x-hidden"
     x-data="{
         sidebarOpen: false,
         quickActionOpen: false,
@@ -318,17 +321,25 @@
                     @php
                         $adminLogoDark = \App\Models\SystemSetting::get('site_logo_dark');
                         $adminLogoLight = \App\Models\SystemSetting::get('site_logo_light');
-                        $adminLogoDarkUrl = \App\Domain\Storage\AdminStorage::publicUrl($adminLogoDark) ?? asset('assets/image/1785229034_logo_dark.png');
-                        $adminLogoLightUrl = \App\Domain\Storage\AdminStorage::publicUrl($adminLogoLight) ?? asset('assets/image/1785229034_logo_dark.png');
+                        $adminLogoDarkUrl =
+                            \App\Domain\Storage\AdminStorage::publicUrl($adminLogoDark) ??
+                            asset('assets/image/1785229034_logo_dark.png');
+                        $adminLogoLightUrl =
+                            \App\Domain\Storage\AdminStorage::publicUrl($adminLogoLight) ??
+                            asset('assets/image/1785229034_logo_dark.png');
                         $adminAppName = \App\Models\SystemSetting::get('app_name', 'Cooca');
                     @endphp
                     <div class="h-8 max-w-[130px] flex items-center shrink-0">
-                        <img src="{{ $adminLogoLightUrl }}" alt="{{ $adminAppName }}" class="h-7 w-auto object-contain dark:hidden">
-                        <img src="{{ $adminLogoDarkUrl }}" alt="{{ $adminAppName }}" class="h-7 w-auto object-contain hidden dark:block">
+                        <img src="{{ $adminLogoLightUrl }}" alt="{{ $adminAppName }}"
+                            class="h-7 w-auto object-contain dark:hidden">
+                        <img src="{{ $adminLogoDarkUrl }}" alt="{{ $adminAppName }}"
+                            class="h-7 w-auto object-contain hidden dark:block">
                     </div>
                     <div class="border-l border-black/10 dark:border-white/10 pl-2 leading-tight min-w-0">
-                        <span class="font-extrabold text-[13px] tracking-tight text-black dark:text-white truncate block">Admin</span>
-                        <span class="text-[10px] font-medium text-black/45 dark:text-white/45 truncate block">Operations</span>
+                        <span
+                            class="font-extrabold text-[13px] tracking-tight text-black dark:text-white truncate block">Admin</span>
+                        <span
+                            class="text-[10px] font-medium text-black/45 dark:text-white/45 truncate block">Operations</span>
                     </div>
                 </a>
                 <button @click="sidebarOpen = false"
@@ -411,7 +422,10 @@
                 </a>
 
                 @php
-                    $pendingSettlementsBadge = \App\Models\PaymentSettlement::where('status', \App\Models\PaymentSettlement::STATUS_PENDING)->count();
+                    $pendingSettlementsBadge = \App\Models\PaymentSettlement::where(
+                        'status',
+                        \App\Models\PaymentSettlement::STATUS_PENDING,
+                    )->count();
                 @endphp
                 <a href="{{ route('admin.settlements.index') }}"
                     class="flex items-center justify-between px-3 h-10 rounded-[12px] transition-all {{ request()->routeIs('admin.settlements.*') ? 'bg-[#007AFF] text-white shadow-sm shadow-[#007AFF]/25 font-semibold' : 'text-[#3C3C43]/80 dark:text-[#EBEBF5]/80 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] hover:text-black dark:hover:text-white' }}">
@@ -448,7 +462,8 @@
                 <a href="{{ route('admin.whatsapp.index') }}"
                     class="flex items-center justify-between px-3 h-10 rounded-[12px] transition-all {{ request()->routeIs('admin.whatsapp.*') ? 'bg-[#007AFF] text-white shadow-sm shadow-[#007AFF]/25 font-semibold' : 'text-[#3C3C43]/80 dark:text-[#EBEBF5]/80 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] hover:text-black dark:hover:text-white' }}">
                     <div class="flex items-center gap-2.5 min-w-0 flex-1">
-                        <i data-lucide="message-circle" class="w-4.5 h-4.5 text-[#25D366] shrink-0" stroke-width="1.8"></i>
+                        <i data-lucide="message-circle" class="w-4.5 h-4.5 text-[#25D366] shrink-0"
+                            stroke-width="1.8"></i>
                         <span class="whitespace-nowrap truncate min-w-0 flex-1">WhatsApp Gateway</span>
                     </div>
                 </a>
@@ -550,7 +565,7 @@
     </aside>
 
     <!-- ============================================================ -->
-    <!-- Topbar / Toolbar — FIXED positioning (cross-browser reliable) -->
+    <!-- Topbar / Toolbar - FIXED positioning (cross-browser reliable) -->
     <!-- Must be OUTSIDE any overflow container to function correctly -->
     <!-- ============================================================ -->
     <header
@@ -566,8 +581,7 @@
                     class="text-[18px] sm:text-[20px] font-extrabold text-[#1C1C1E] dark:text-[#F2F2F7] tracking-tight truncate leading-snug">
                     {{ $headerTitle ?? 'Admin Console' }}
                 </h1>
-                <p
-                    class="text-[12px] text-black/50 dark:text-white/50 truncate hidden md:block leading-none mt-0.5">
+                <p class="text-[12px] text-black/50 dark:text-white/50 truncate hidden md:block leading-none mt-0.5">
                     {{ $headerSubtitle ?? 'Pusat Manajemen Sistem Cooca (cooca.id)' }}
                 </p>
             </div>
@@ -578,8 +592,7 @@
             <button type="button" @click="openSpotlight()"
                 class="h-10 px-3 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.05] border border-black/[0.04] dark:border-white/[0.06] text-black/60 dark:text-white/60 hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 transition-all hidden sm:flex items-center gap-2 text-[12px] font-medium"
                 aria-label="Pencarian & Navigasi Modul Admin" title="Pencarian Cepat Modul (Ctrl+K / ⌘K)">
-                <i data-lucide="search" class="w-3.5 h-3.5 text-black/40 dark:text-white/40"
-                    stroke-width="2"></i>
+                <i data-lucide="search" class="w-3.5 h-3.5 text-black/40 dark:text-white/40" stroke-width="2"></i>
                 <span class="text-black/45 dark:text-white/45 hidden md:inline">Cari modul...</span>
                 <kbd
                     class="px-1.5 py-0.5 rounded-[6px] text-[10px] font-mono font-bold bg-black/[0.06] dark:bg-white/[0.1] text-black/60 dark:text-white/60 border border-black/[0.06] dark:border-white/[0.08]">⌘K</kbd>
@@ -604,8 +617,8 @@
                     aria-label="Pilih tema" title="Pilih tema tampilan">
                     <i x-show="theme === 'light'" data-lucide="sun" class="w-4 h-4 text-[#FF9500]"
                         stroke-width="2"></i>
-                    <i x-show="theme === 'dark'" data-lucide="moon" class="w-4 h-4 text-[#5856D6]"
-                        stroke-width="2" style="display: none;"></i>
+                    <i x-show="theme === 'dark'" data-lucide="moon" class="w-4 h-4 text-[#5856D6]" stroke-width="2"
+                        style="display: none;"></i>
                     <i x-show="theme === 'system'" data-lucide="monitor" class="w-4 h-4 text-[#007AFF]"
                         stroke-width="2" style="display: none;"></i>
                     <span class="hidden sm:inline text-[12px] font-bold"
@@ -637,8 +650,7 @@
             <a href="{{ route('admin.profile.index') }}"
                 class="h-10 px-3 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.05] border border-black/[0.04] dark:border-white/[0.06] text-[13px] font-semibold text-black/75 dark:text-white/75 hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 transition-all flex items-center gap-1.5"
                 title="Profil & Ganti Kata Sandi">
-                <i data-lucide="key-round" class="w-4 h-4 text-[#007AFF] dark:text-[#0A84FF]"
-                    stroke-width="1.8"></i>
+                <i data-lucide="key-round" class="w-4 h-4 text-[#007AFF] dark:text-[#0A84FF]" stroke-width="1.8"></i>
                 <span class="hidden md:inline">Profil Admin</span>
             </a>
 
@@ -733,7 +745,8 @@
             (user saw a "dismiss popup" on every reload after a redirect).
             Individual views may still render their own inline flash banners.
         --}}
-        <main class="flex-1 p-3.5 sm:p-6 lg:p-8 max-w-[1440px] w-full min-w-0 mx-auto space-y-5 sm:space-y-6 pb-28 lg:pb-12">
+        <main
+            class="flex-1 p-3.5 sm:p-6 lg:p-8 max-w-[1440px] w-full min-w-0 mx-auto space-y-5 sm:space-y-6 pb-28 lg:pb-12">
             @if ($errors->any())
                 <div
                     class="rounded-[18px] px-5 py-4 bg-[#FF3B30]/12 border border-[#FF3B30]/25 text-[13px] space-y-1.5 backdrop-blur-md shadow-sm">
@@ -951,7 +964,8 @@
                         </div>
                         <div>
                             <div class="text-[13px] font-bold text-black dark:text-white">Pengaturan Platform</div>
-                            <div class="text-[10px] text-black/50 dark:text-white/50">OAuth, TriPay, WA, Social &amp; SMTP</div>
+                            <div class="text-[10px] text-black/50 dark:text-white/50">OAuth, TriPay, WA, Social &amp;
+                                SMTP</div>
                         </div>
                     </a>
                 </div>

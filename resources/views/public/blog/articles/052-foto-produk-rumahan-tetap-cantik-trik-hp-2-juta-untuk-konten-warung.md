@@ -4,7 +4,7 @@
 Foto Produk Rumahan Tetap Cantik: Trik HP 2 Juta untuk Konten Warung
 
 **Cluster Konten \***
-Cluster K — Tutorial "Cara"
+Cluster K - Tutorial "Cara"
 
 **Kategori \***
 Marketing
@@ -14,11 +14,12 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 Foto produk yang menarik tidak selalu butuh kamera mahal. Berikut trik memotret produk usaha rumahan hanya dengan HP kelas menengah agar tetap terlihat profesional.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>Kualitas foto produk berpengaruh besar terhadap minat calon pembeli, terutama di platform digital. Kabar baiknya, hasil foto yang menarik tidak selalu membutuhkan kamera atau peralatan mahal.</p>
 
 <h2>Manfaatkan Cahaya Alami</h2>
@@ -33,9 +34,9 @@ Foto produk yang menarik tidak selalu butuh kamera mahal. Berikut trik memotret 
 
 <h2>Teknik Sudut Pengambilan Gambar</h2>
 <ul>
-<li><strong>Sudut atas (flat lay)</strong> — cocok untuk produk makanan yang disajikan di piring atau kemasan datar.</li>
-<li><strong>Sudut sejajar mata (eye level)</strong> — memberi kesan produk terlihat "nyata" seperti dilihat langsung.</li>
-<li><strong>Sudut close-up</strong> — menonjolkan detail tekstur produk, terutama untuk makanan.</li>
+<li><strong>Sudut atas (flat lay)</strong> - cocok untuk produk makanan yang disajikan di piring atau kemasan datar.</li>
+<li><strong>Sudut sejajar mata (eye level)</strong> - memberi kesan produk terlihat "nyata" seperti dilihat langsung.</li>
+<li><strong>Sudut close-up</strong> - menonjolkan detail tekstur produk, terutama untuk makanan.</li>
 </ul>
 
 <h2>Manfaatkan Fitur Kamera HP dengan Optimal</h2>
@@ -45,7 +46,7 @@ Foto produk yang menarik tidak selalu butuh kamera mahal. Berikut trik memotret 
 <li>Hindari zoom digital berlebihan karena bisa menurunkan kualitas gambar; lebih baik mendekat secara fisik.</li>
 </ul>
 
-<blockquote>Konsistensi gaya foto — pencahayaan, sudut, dan latar — sering kali lebih penting untuk membangun kesan profesional dibanding kecanggihan kamera itu sendiri.</blockquote>
+<blockquote>Konsistensi gaya foto - pencahayaan, sudut, dan latar - sering kali lebih penting untuk membangun kesan profesional dibanding kecanggihan kamera itu sendiri.</blockquote>
 
 <h2>Edit Sederhana Tanpa Aplikasi Rumit</h2>
 <p>Aplikasi edit foto gratis yang banyak tersedia bisa membantu menyesuaikan kecerahan, kontras, dan ketajaman foto secara sederhana tanpa perlu keahlian desain khusus.</p>

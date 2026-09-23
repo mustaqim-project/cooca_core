@@ -41,7 +41,7 @@ final class SimulateBiteshipActivationOrders extends Command
     {
         $this->line('');
         $this->info('========================================================================');
-        $this->info('  BITESHIP PRODUCTION ACTIVATION SIMULATOR — 2 TEST ORDERS GENERATOR   ');
+        $this->info('  BITESHIP PRODUCTION ACTIVATION SIMULATOR - 2 TEST ORDERS GENERATOR   ');
         $this->info('========================================================================');
         $this->line('');
 
@@ -140,7 +140,7 @@ final class SimulateBiteshipActivationOrders extends Command
             'payment_channel'          => 'TRANSFER_BANK',
             'paid_at'                  => now()->subHours(8),
             'tracking_token'           => 'trk_del_' . Str::random(24),
-            'notes'                    => 'Pesanan uji coba aktivasi Biteship — Simulasi status terkirim (delivered)',
+            'notes'                    => 'Pesanan uji coba aktivasi Biteship - Simulasi status terkirim (delivered)',
         ]);
 
         CommerceOrderItem::create([
@@ -313,7 +313,7 @@ final class SimulateBiteshipActivationOrders extends Command
             'cancelled_at'             => now()->subMinutes(15),
             'rejection_reason'         => 'Pesanan uji coba aktivasi Biteship dibatalkan sesuai simulasi sandbox',
             'tracking_token'           => 'trk_cnc_' . Str::random(24),
-            'notes'                    => 'Pesanan uji coba aktivasi Biteship — Simulasi status dibatalkan (cancelled)',
+            'notes'                    => 'Pesanan uji coba aktivasi Biteship - Simulasi status dibatalkan (cancelled)',
         ]);
 
         CommerceOrderItem::create([
@@ -473,7 +473,7 @@ final class SimulateBiteshipActivationOrders extends Command
             'payment_channel'          => 'TRANSFER_BANK',
             'paid_at'                  => now()->subHours(4),
             'tracking_token'           => 'trk_rsv_' . Str::random(24),
-            'notes'                    => 'Pesanan uji coba aktivasi Biteship — Simulasi pergantian/update nomor resi pengiriman',
+            'notes'                    => 'Pesanan uji coba aktivasi Biteship - Simulasi pergantian/update nomor resi pengiriman',
         ]);
 
         CommerceOrderItem::create([

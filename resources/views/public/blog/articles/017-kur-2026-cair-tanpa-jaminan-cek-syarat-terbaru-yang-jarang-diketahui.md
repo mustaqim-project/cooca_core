@@ -4,7 +4,7 @@
 KUR 2026 Cair Tanpa Jaminan? Cek Syarat Terbaru yang Jarang Diketahui
 
 **Cluster Konten \***
-Cluster A — Awareness & Edukasi
+Cluster A - Awareness & Edukasi
 
 **Kategori \***
 Modal
@@ -14,11 +14,12 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 KUR mikro dikenal sebagai pinjaman tanpa agunan tambahan untuk plafon tertentu. Berikut syarat dan hal yang perlu diperhatikan sebelum mengajukan.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>Kredit Usaha Rakyat (KUR) tetap jadi salah satu sumber pembiayaan favorit UMKM karena bunga rendah dan untuk kategori mikro umumnya tidak mensyaratkan agunan tambahan pada plafon tertentu. Namun ada beberapa hal yang perlu dipahami sebelum mengajukan.</p>
 
 <h2>Apa Itu KUR dan Kategorinya</h2>
@@ -39,7 +40,7 @@ KUR mikro dikenal sebagai pinjaman tanpa agunan tambahan untuk plafon tertentu. 
 <h3>Plafon Tanpa Agunan Ada Batasnya</h3>
 <p>Kemudahan tanpa agunan tambahan biasanya berlaku untuk plafon di bawah batas tertentu. Di atas batas tersebut, bank penyalur bisa meminta jaminan tambahan sesuai kebijakan masing-masing.</p>
 
-<blockquote>Ketentuan plafon dan bunga KUR bisa berubah tiap tahun — selalu cek informasi resmi dari bank penyalur atau Kementerian Koordinator Bidang Perekonomian sebelum mengajukan.</blockquote>
+<blockquote>Ketentuan plafon dan bunga KUR bisa berubah tiap tahun - selalu cek informasi resmi dari bank penyalur atau Kementerian Koordinator Bidang Perekonomian sebelum mengajukan.</blockquote>
 
 <h2>Cara Mempersiapkan Diri Sebelum Mengajukan</h2>
 <ol>

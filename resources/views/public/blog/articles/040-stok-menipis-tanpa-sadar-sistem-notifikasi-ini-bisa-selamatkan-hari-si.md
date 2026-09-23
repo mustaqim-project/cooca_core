@@ -4,7 +4,7 @@
 Stok Menipis Tanpa Sadar? Sistem Notifikasi Ini Bisa Selamatkan Hari Sibukmu
 
 **Cluster Konten \***
-Cluster G — Strategi Bisnis
+Cluster G - Strategi Bisnis
 
 **Kategori \***
 Operasional
@@ -14,11 +14,12 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 Stok yang menipis tanpa disadari bisa mengganggu operasional di jam sibuk. Fitur notifikasi otomatis membantu owner mengantisipasi masalah ini lebih awal.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>Salah satu tantangan operasional harian usaha kecil adalah memantau stok secara real-time, terutama saat owner sedang sibuk melayani pelanggan atau tidak berada di tempat.</p>
 
 <h2>Masalah Umum Tanpa Sistem Notifikasi</h2>
@@ -33,9 +34,9 @@ Stok yang menipis tanpa disadari bisa mengganggu operasional di jam sibuk. Fitur
 
 <h2>Manfaat Nyata bagi Operasional Harian</h2>
 <ul>
-<li><strong>Antisipasi lebih awal</strong> — owner bisa segera memesan ulang sebelum stok benar-benar habis di jam sibuk.</li>
-<li><strong>Hemat waktu pengecekan manual</strong> — tidak perlu menghitung stok fisik setiap saat karena sistem sudah memantau secara otomatis.</li>
-<li><strong>Bisa dipantau dari mana saja</strong> — owner tetap mendapat notifikasi meski sedang tidak berada di lokasi usaha.</li>
+<li><strong>Antisipasi lebih awal</strong> - owner bisa segera memesan ulang sebelum stok benar-benar habis di jam sibuk.</li>
+<li><strong>Hemat waktu pengecekan manual</strong> - tidak perlu menghitung stok fisik setiap saat karena sistem sudah memantau secara otomatis.</li>
+<li><strong>Bisa dipantau dari mana saja</strong> - owner tetap mendapat notifikasi meski sedang tidak berada di lokasi usaha.</li>
 </ul>
 
 <blockquote>Notifikasi otomatis mengubah cara kerja dari reaktif (baru sadar setelah kehabisan) menjadi proaktif (mengantisipasi sebelum benar-benar habis).</blockquote>

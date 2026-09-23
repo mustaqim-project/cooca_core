@@ -1,9 +1,11 @@
 @extends('layouts.public_marketing')
 
 @section('title', 'Software Kalender Konten Editorial & Jadwal Promosi Bisnis | COOCA')
-@section('description', 'Rencanakan dan pantau seluruh jadwal publikasi konten media sosial bisnis Anda sebulan penuh di
+@section('description',
+    'Rencanakan dan pantau seluruh jadwal publikasi konten media sosial bisnis Anda sebulan penuh di
     muka. Kalender editorial visual drag-and-drop terhubung ke Instagram, Facebook, dan WhatsApp.')
-@section('keywords', 'software kalender konten, aplikasi jadwal promosi bisnis, editorial calendar medsos, perencanaan
+@section('keywords',
+    'software kalender konten, aplikasi jadwal promosi bisnis, editorial calendar medsos, perencanaan
     konten produk, jadwal posting instagram facebook')
 
     @push('seo')
@@ -55,7 +57,7 @@
       "name": "Apakah bisa memfilter tampilan kalender hanya untuk satu kanal media sosial tertentu?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Bisa. Anda dapat menyaring tampilan kalender per channel—misalnya hanya melihat jadwal postingan Instagram, atau hanya memantau jadwal broadcast promo WhatsApp pelanggan."
+        "text": "Bisa. Anda dapat menyaring tampilan kalender per channel-misalnya hanya melihat jadwal postingan Instagram, atau hanya memantau jadwal broadcast promo WhatsApp pelanggan."
       }
     },
     {
@@ -106,7 +108,8 @@
 
                         <h1
                             class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white leading-[1.2] text-balance break-words">
-                            Rencanakan Pemasaran Sebulan Penuh <span class="text-[#00C4D8]">Dalam Satu Tampilan Visual</span>
+                            Rencanakan Pemasaran Sebulan Penuh <span class="text-[#00C4D8]">Dalam Satu Tampilan
+                                Visual</span>
                         </h1>
 
                         <p class="text-base sm:text-lg text-slate-300 leading-relaxed font-normal">
@@ -129,7 +132,8 @@
                         </div>
 
                         {{-- Key Trust Specs --}}
-                        <div class="pt-4 border-t border-white/10 grid grid-cols-2 sm:grid-cols-3 gap-3.5 sm:gap-4 text-left">
+                        <div
+                            class="pt-4 border-t border-white/10 grid grid-cols-2 sm:grid-cols-3 gap-3.5 sm:gap-4 text-left">
                             <div class="min-w-0">
                                 <div class="text-xs text-slate-400 font-medium truncate">Rentang Pandang</div>
                                 <div class="text-sm font-bold text-white mt-0.5 truncate">Bulanan & Mingguan</div>
@@ -157,18 +161,20 @@
                                         <i data-lucide="calendar-range" class="w-4 h-4"></i>
                                     </span>
                                     <div class="min-w-0">
-                                        <div class="font-bold text-white truncate">September 2026 — Jadwal Editorial</div>
+                                        <div class="font-bold text-white truncate">September 2026 - Jadwal Editorial</div>
                                         <div class="text-[10px] text-slate-400 truncate">24 Terjadwal • 4 Draf Review</div>
                                     </div>
                                 </div>
-                                <span class="px-2 py-0.5 rounded bg-white/10 text-slate-300 text-[10px] shrink-0">Semua Kanal</span>
+                                <span class="px-2 py-0.5 rounded bg-white/10 text-slate-300 text-[10px] shrink-0">Semua
+                                    Kanal</span>
                             </div>
 
                             {{-- Calendar Days Grid Simulation --}}
                             <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 my-3 text-xs">
 
                                 {{-- Day 1 --}}
-                                <div class="p-2.5 rounded-xl bg-[#060B1E]/90 border border-white/10 space-y-1.5 text-left min-w-0">
+                                <div
+                                    class="p-2.5 rounded-xl bg-[#060B1E]/90 border border-white/10 space-y-1.5 text-left min-w-0">
                                     <div class="flex justify-between items-center text-[10px] text-slate-400">
                                         <span class="font-bold text-white">Senin, 21</span>
                                         <span class="text-emerald-400 text-[9px]">Tayang</span>
@@ -192,19 +198,22 @@
                                         <div class="flex items-center gap-1 text-[9px] text-[#00C4D8] font-semibold">
                                             <i data-lucide="instagram" class="w-3 h-3 shrink-0"></i> <span>15:30 WIB</span>
                                         </div>
-                                        <div class="text-[10px] text-white font-medium truncate">Croissant Butter Promo Beli 2</div>
+                                        <div class="text-[10px] text-white font-medium truncate">Croissant Butter Promo Beli
+                                            2</div>
                                     </div>
                                 </div>
 
                                 {{-- Day 3 --}}
-                                <div class="p-2.5 rounded-xl bg-[#060B1E]/90 border border-white/10 space-y-1.5 text-left min-w-0">
+                                <div
+                                    class="p-2.5 rounded-xl bg-[#060B1E]/90 border border-white/10 space-y-1.5 text-left min-w-0">
                                     <div class="flex justify-between items-center text-[10px] text-slate-400">
                                         <span class="font-bold text-white">Jumat, 25</span>
                                         <span class="text-blue-400 text-[9px]">Gajian</span>
                                     </div>
                                     <div class="p-1.5 rounded-lg bg-white/5 border border-white/10 space-y-1">
                                         <div class="flex items-center gap-1 text-[9px] text-emerald-400 font-semibold">
-                                            <i data-lucide="message-circle" class="w-3 h-3 shrink-0"></i> <span>19:00 WIB</span>
+                                            <i data-lucide="message-circle" class="w-3 h-3 shrink-0"></i> <span>19:00
+                                                WIB</span>
                                         </div>
                                         <div class="text-[10px] text-slate-200 truncate">Voucher Payday VIP Member</div>
                                     </div>
@@ -221,8 +230,10 @@
                                         <i data-lucide="move" class="w-4 h-4"></i>
                                     </div>
                                     <div class="min-w-0">
-                                        <div class="font-medium text-white text-[11px] truncate">Seret & Geser (Drag & Drop) Jadwal</div>
-                                        <div class="text-[10px] text-slate-400 truncate">Pindahkan tanggal tayang promo akhir pekan ke Sabtu</div>
+                                        <div class="font-medium text-white text-[11px] truncate">Seret & Geser (Drag & Drop)
+                                            Jadwal</div>
+                                        <div class="text-[10px] text-slate-400 truncate">Pindahkan tanggal tayang promo
+                                            akhir pekan ke Sabtu</div>
                                     </div>
                                 </div>
                                 <span class="text-[#00C4D8] text-[10px] font-mono shrink-0">Aktif</span>
@@ -548,7 +559,7 @@
                             class="w-4 h-4 text-slate-500 group-open:rotate-180 transition-transform"></i>
                     </summary>
                     <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-3 leading-relaxed">
-                        Bisa. Anda dapat menyaring tampilan kalender per channel—misalnya hanya melihat jadwal postingan
+                        Bisa. Anda dapat menyaring tampilan kalender per channel-misalnya hanya melihat jadwal postingan
                         Instagram, atau hanya memantau jadwal broadcast promo WhatsApp pelanggan.
                     </p>
                 </details>

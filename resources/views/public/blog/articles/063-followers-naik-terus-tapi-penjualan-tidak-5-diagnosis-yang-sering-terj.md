@@ -4,7 +4,7 @@
 Followers Naik Terus tapi Penjualan Tidak? 5 Diagnosis yang Sering Terjadi
 
 **Cluster Konten \***
-Cluster H — Tanya Jawab & Diagnostik
+Cluster H - Tanya Jawab & Diagnostik
 
 **Kategori \***
 Marketing
@@ -14,11 +14,12 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 Jumlah followers yang terus bertambah tidak selalu berbanding lurus dengan penjualan. Berikut 5 kemungkinan penyebab yang sering terjadi pada usaha kecil.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>Banyak pemilik usaha merasa senang saat jumlah followers media sosial mereka terus bertambah, tapi kebingungan ketika penjualan tidak ikut meningkat sebanding. Berikut beberapa kemungkinan penyebabnya.</p>
 
 <h2>1. Followers Tidak Sesuai Target Pasar</h2>
@@ -36,7 +37,7 @@ Jumlah followers yang terus bertambah tidak selalu berbanding lurus dengan penju
 <h2>5. Kurangnya Kepercayaan karena Minim Bukti Sosial</h2>
 <p>Followers yang banyak tapi tanpa disertai ulasan, testimoni, atau bukti transaksi nyata bisa membuat calon pembeli ragu terhadap kredibilitas usaha.</p>
 
-<blockquote>Followers adalah metrik jangkauan, sementara penjualan adalah metrik konversi — keduanya membutuhkan strategi yang berbeda untuk dioptimalkan.</blockquote>
+<blockquote>Followers adalah metrik jangkauan, sementara penjualan adalah metrik konversi - keduanya membutuhkan strategi yang berbeda untuk dioptimalkan.</blockquote>
 
 <h2>Cara Mendiagnosis Masalah di Usahamu</h2>
 <ol>

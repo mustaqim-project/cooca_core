@@ -4,7 +4,7 @@
 Food Cost 28-35%, Tapi Warungmu 60%? 5 Sumber 'Bocor' yang Perlu Diperbaiki
 
 **Cluster Konten \***
-Cluster B — Solusi Masalah
+Cluster B - Solusi Masalah
 
 **Kategori \***
 Keuangan
@@ -14,11 +14,12 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 Food cost yang jauh di atas standar industri kuliner biasanya menandakan ada kebocoran biaya yang perlu segera diidentifikasi dan diperbaiki.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>Food cost atau rasio biaya bahan baku terhadap penjualan yang jauh lebih tinggi dari standar umum industri kuliner bisa jadi tanda ada masalah dalam pengelolaan bahan baku yang perlu segera ditelusuri.</p>
 
 <h2>Apa Itu Food Cost dan Kenapa Perlu Dipantau</h2>
@@ -40,7 +41,7 @@ Food cost yang jauh di atas standar industri kuliner biasanya menandakan ada keb
 <h3>5. Kesalahan Pencatatan Penjualan</h3>
 <p>Transaksi yang tidak tercatat dengan baik membuat perhitungan rasio menjadi tidak akurat, seolah-olah food cost lebih tinggi dari kondisi sebenarnya.</p>
 
-<blockquote>Food cost yang tinggi jarang disebabkan oleh satu faktor tunggal — biasanya kombinasi dari beberapa kebocoran kecil yang terakumulasi.</blockquote>
+<blockquote>Food cost yang tinggi jarang disebabkan oleh satu faktor tunggal - biasanya kombinasi dari beberapa kebocoran kecil yang terakumulasi.</blockquote>
 
 <h2>Cara Mulai Memperbaiki Food Cost</h2>
 <ol>

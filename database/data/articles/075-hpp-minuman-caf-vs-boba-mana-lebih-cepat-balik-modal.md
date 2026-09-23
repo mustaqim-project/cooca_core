@@ -4,7 +4,7 @@
 HPP Minuman Café vs Boba: Mana Lebih Cepat Balik Modal?
 
 **Cluster Konten \***
-Cluster C — Perbandingan & Pilihan
+Cluster C - Perbandingan & Pilihan
 
 **Kategori \***
 Keuangan
@@ -14,11 +14,12 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 Minuman kopi kekinian dan minuman boba memiliki struktur biaya yang berbeda. Berikut perbandingan HPP dan potensi kecepatan balik modal antara keduanya.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>Usaha minuman kekinian, baik kopi maupun boba, sama-sama populer di kalangan pelaku UMKM. Namun struktur biaya dan potensi margin keduanya bisa berbeda, yang berdampak pada kecepatan balik modal usaha.</p>
 
 <h2>Karakteristik HPP Minuman Kopi Café</h2>
@@ -29,8 +30,8 @@ Minuman kopi kekinian dan minuman boba memiliki struktur biaya yang berbeda. Ber
 
 <h2>Perbandingan dari Sisi Investasi Awal</h2>
 <ul>
-<li><strong>Kopi café</strong> — investasi awal lebih tinggi karena kebutuhan mesin espresso dan peralatan barista lainnya.</li>
-<li><strong>Boba</strong> — investasi awal relatif lebih rendah karena peralatan yang dibutuhkan lebih sederhana.</li>
+<li><strong>Kopi café</strong> - investasi awal lebih tinggi karena kebutuhan mesin espresso dan peralatan barista lainnya.</li>
+<li><strong>Boba</strong> - investasi awal relatif lebih rendah karena peralatan yang dibutuhkan lebih sederhana.</li>
 </ul>
 
 <h2>Perbandingan dari Sisi Margin per Cup</h2>

@@ -4,7 +4,7 @@
 Modal dari Teman vs Bank vs Investor: Mana Paling Cocok untuk UMKM?
 
 **Cluster Konten \***
-Cluster C — Perbandingan & Pilihan
+Cluster C - Perbandingan & Pilihan
 
 **Kategori \***
 Modal
@@ -14,11 +14,12 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 Ada banyak sumber modal untuk UMKM, dari kerabat, bank, hingga investor. Masing-masing punya kelebihan dan risiko yang perlu dipertimbangkan.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>Saat membutuhkan tambahan modal, pelaku UMKM biasanya punya beberapa pilihan sumber dana: pinjam dari kerabat atau teman, mengajukan kredit bank, atau menggandeng investor. Ketiganya punya karakteristik yang sangat berbeda.</p>
 
 <h2>Modal dari Keluarga atau Teman</h2>

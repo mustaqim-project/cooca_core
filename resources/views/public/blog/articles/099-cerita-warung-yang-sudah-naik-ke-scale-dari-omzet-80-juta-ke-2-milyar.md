@@ -4,7 +4,7 @@
 Cerita Warung yang Sudah Naik ke Scale: Dari Omzet 80 Juta ke 2 Milyar per Bulan
 
 **Cluster Konten \***
-Cluster F — Studi Kasus & Cerita
+Cluster F - Studi Kasus & Cerita
 
 **Kategori \***
 Scale-up
@@ -14,11 +14,12 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 Kisah perjalanan sebuah usaha warung yang berhasil bertransformasi dari skala kecil menjadi bisnis besar berkat penerapan sistem dan strategi yang tepat.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>Pertumbuhan usaha dari skala warung kecil menjadi bisnis dengan omzet besar bukan hal yang mustahil, asal didukung strategi dan sistem yang tepat diterapkan secara konsisten seiring waktu.</p>
 
 <h2>Titik Awal: Warung dengan Operasional Sederhana</h2>
@@ -37,7 +38,7 @@ Kisah perjalanan sebuah usaha warung yang berhasil bertransformasi dari skala ke
 <h3>4. Delegasi Kepercayaan kepada Tim</h3>
 <p>Seiring pertumbuhan, pemilik usaha mulai mendelegasikan tanggung jawab operasional kepada kepala cabang atau manajer terpercaya, memungkinkan fokus pada strategi pengembangan bisnis secara keseluruhan.</p>
 
-<blockquote>Pertumbuhan dari skala kecil ke besar jarang terjadi dalam semalam — biasanya merupakan hasil dari serangkaian keputusan sistematis yang dilakukan secara konsisten selama bertahun-tahun.</blockquote>
+<blockquote>Pertumbuhan dari skala kecil ke besar jarang terjadi dalam semalam - biasanya merupakan hasil dari serangkaian keputusan sistematis yang dilakukan secara konsisten selama bertahun-tahun.</blockquote>
 
 <h2>Pelajaran yang Bisa Diambil Pelaku UMKM Lain</h2>
 <ul>

@@ -4,7 +4,7 @@
 Usaha Kamu Ilegal atau Cuma Belum Diproses? Cek 7 Tanda Ini Sekarang
 
 **Cluster Konten \***
-Cluster H — Tanya Jawab & Diagnostik
+Cluster H - Tanya Jawab & Diagnostik
 
 **Kategori \***
 Legalitas
@@ -14,11 +14,12 @@ Tim Edukasi COOCA
 
 **URL Cover Image (Opsional)**
 
-
 ## Ringkasan / Excerpt
+
 Bingung apakah usahamu sudah cukup legal atau masih ada yang tertinggal? Berikut 7 tanda yang bisa jadi indikasi legalitas usahamu belum lengkap.
 
 ## Konten Lengkap (HTML Didukung) \*
+
 <p>Status legalitas usaha kadang tidak sejelas hitam atau putih. Banyak pemilik UMKM sudah punya sebagian dokumen, tapi belum yakin apakah usahanya benar-benar sudah legal secara penuh.</p>
 
 <h2>7 Tanda Legalitas Usahamu Belum Lengkap</h2>
@@ -43,7 +44,7 @@ Bingung apakah usahamu sudah cukup legal atau masih ada yang tertinggal? Berikut
 <h3>7. Belum Ada Dokumen Pendukung untuk Kerja Sama Bisnis</h3>
 <p>Kesulitan menyediakan dokumen usaha saat diminta calon mitra atau bank adalah tanda kuat bahwa legalitas usaha masih perlu dirapikan.</p>
 
-<blockquote>Legalitas usaha bukan status sekali jadi — ia berkembang seiring usaha bertumbuh, dan perlu dicek ulang secara berkala.</blockquote>
+<blockquote>Legalitas usaha bukan status sekali jadi - ia berkembang seiring usaha bertumbuh, dan perlu dicek ulang secara berkala.</blockquote>
 
 <h2>Langkah Setelah Mengetahui Celahnya</h2>
 <p>Buat daftar prioritas dari tanda-tanda di atas yang paling relevan dengan kondisi usahamu, lalu selesaikan satu per satu, dimulai dari yang paling berisiko seperti ketiadaan NIB atau izin edar produk.</p>

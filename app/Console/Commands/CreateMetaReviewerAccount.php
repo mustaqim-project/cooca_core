@@ -36,7 +36,7 @@ class CreateMetaReviewerAccount extends Command
                 'onboarding_current_step' => 99,
                 'onboarding_version'      => 1,
             ]);
-            $this->info("User '{$email}' already exists — password reset successfully.");
+            $this->info("User '{$email}' already exists - password reset successfully.");
         } else {
             // Create new user
             $user = User::create([
