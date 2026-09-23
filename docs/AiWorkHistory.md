@@ -46,6 +46,56 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 #### 7. Documentation Promotion
 * Pengetahuan yang dipromosikan ke `docs/system/` dan dampaknya pada `docs/SYSTEM_GUIDE.md`.
 
+### [WORK-2026-09-23-108] Penegakan Background Solid & Redesain Styling Dropdown Header Ekosistem COOCA
+* **Date:** 2026-09-23
+* **Status:** COMPLETED
+* **Module:** Public Navigation Layout, Header Dropdowns, Bento Apple HIG
+* **Feature:**
+  1. **Penetapan Warna Background Solid Dropdown Header (#0B132B):**
+     - Memperbaiki kegagalan render background dropdown yang sebelumnya menggunakan utility kelas tidak valid `bg-[#0c1427]/98` (di mana `/98` tidak dikenali oleh skala opacity default Tailwind CSS, menyebabkan background ter-render 100% transparan).
+     - Menetapkan warna background solid resmi `#0B132B` (midnight dark navy) menggunakan class CSS khusus `.cooca-header-dropdown` serta deklarasi inline `style="background-color: #0B132B;"` untuk memastikan 100% opacity dan anti-tembus pandang di seluruh browser dan perangkat.
+  2. **Elevasi & Border Sesuai Tema (Apple HIG Bento Elevation):**
+     - Menambahkan border halus `border: 1px solid rgba(255, 255, 255, 0.14)` dan deep shadow `box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.95), 0 0 0 1px rgba(0, 194, 255, 0.15)` dengan ring aksen cyan COOCA.
+     - Mengubah styling item menu pada seluruh 4 dropdown (Platform, Solutions, Omnichannel, Resources) menjadi ubin Bento interaktif dengan squircle icon badges, label kategori bergradasi (`#00C2FF`, `#34C759`), dan efek hover halus `hover:bg-white/[0.08]`.
+  3. **Penegakan Soliditas Mobile Menu Drawer:**
+     - Mengubah `bg-[#060913]/98` pada container drawer mobile menjadi background solid `#060913` dengan `style="background-color: #060913;"`.
+* **Work Type:** UI/UX | Bug Fix | Bento Apple HIG
+
+#### 1. Business Context & Objective
+* **Konteks:** Dropdown menu header (Platform, Solutions, Omnichannel, Resources) merupakan pintu masuk navigasi utama bagi calon tenant dan pengunjung publik. Ketika dibuka, ketiadaan background solid menyebabkan teks dropdown bertabrakan langsung dengan elemen halaman di belakangnya (headline hero, teks, atau kartu putih saat di-scroll), membuat menu tidak terbaca.
+* **Target:** Seluruh dropdown header memiliki warna background solid pekat (#0B132B), teks dengan kontras tinggi, dan estetika Apple HIG yang selaras dengan tema COOCA.
+
+#### 2. What Was Done
+* Menambahkan aturan CSS `.cooca-header-dropdown` di `<head>` layout marketing publik.
+* Mengganti syntax kelas tidak valid `bg-[#0c1427]/98` menjadi solid `#0B132B` pada 4 panel dropdown desktop dan `#060913` pada drawer mobile.
+* Mempercantik struktur ubin dropdown dengan badge squircle Lucide SVG dan transisi interaktif.
+* Memvalidasi hasil pengujian otomatis dan kebijakan zero-emoji.
+
+#### 3. Technical Changes
+* **Files Affected:** `resources/views/layouts/public_marketing.blade.php`, `resources/views/landing.blade.php`.
+* **Database Changes:** Tidak ada.
+* **API / Route Changes:** Tidak ada.
+
+#### 4. System Impacts
+* **Workflow Impact:** Tidak ada perubahan alur bisnis.
+* **Business Rule Impact:** Tidak ada.
+* **Permission Impact:** Tidak ada.
+
+#### 5. Verification & Testing
+* `PublicPagesStructureTest`: 10 passed.
+* `LandingPageAuthTest`: 3 passed.
+* `PublicMarketplaceSearchTest`: 4 passed.
+* Total: **17 tests, 93 assertions passed (0 failures, 0 errors)**.
+* Scan emoji: 0 Unicode emoji (100% compliant).
+
+#### 6. Important Decisions & Guardrails
+* Menggunakan `style="background-color: #0B132B;"` bersama class `.cooca-header-dropdown` untuk menjamin rendering solid terbebas dari inkonsistensi parser Tailwind JIT/CDN.
+
+#### 7. Documentation Promotion
+* Tercatat pada `docs/AiWorkHistory.md`.
+
+---
+
 ### [WORK-2026-09-23-107] Perataan Hero Section Grid Kiri-Kanan & Penyeimbangan Visual Podest Ekosistem COOCA
 * **Date:** 2026-09-23
 * **Status:** COMPLETED
