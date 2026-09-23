@@ -10,7 +10,7 @@
         ['icon' => 'qr-code', 'title' => 'Coba Pemesanan QR Meja', 'desc' => 'Rasakan pengalaman pelanggan kafe memesan langsung dari meja tanpa unduh aplikasi.'],
         ['icon' => 'layout-dashboard', 'title' => 'Eksplorasi Dasbor Owner Bisnis', 'desc' => 'Lihat bagaimana grafik penjualan, tren jam ramai, dan sisa kas toko tersaji elegan.'],
         ['icon' => 'smartphone', 'title' => 'Tes di Smartphone Anda', 'desc' => 'Buka di HP Anda dan buktikan betapa ringannya aplikasi tanpa membebani memori penyimpanan.'],
-        ['icon' => 'sparkles', 'title' => 'Uji Coba AI Assistant', 'desc' => 'Tanyakan proyeksi penjualan hari ini atau analisis menu paling laris ke asisten AI.'],
+        ['icon' => 'cpu', 'title' => 'Uji Coba AI Assistant', 'desc' => 'Tanyakan proyeksi penjualan hari ini atau analisis menu paling laris ke asisten AI.'],
         ['icon' => 'user-plus', 'title' => 'Siap Pakai untuk Bisnis Nyata?', 'desc' => 'Daftar akun gratis kapan saja dan data simulasi dapat di-reset bersih dengan 1 klik.'],
     ]
 ])

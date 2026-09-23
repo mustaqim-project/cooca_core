@@ -2116,10 +2116,10 @@
                     if (groupParam) {
                         shareUrl += '&group=' + encodeURIComponent(groupParam);
                     }
-                    const msg = '🍱 Pre-Order {{ addslashes($business->name) }}\n' +
-                              (day ? '📅 Pengiriman: ' + day + (formatted ? ', ' + formatted : '') + '\n' : '') +
-                              (groupParam ? '🏢 Pesanan Kantor/Tim: ' + groupParam + '\n' : '') +
-                              '✨ Yuk ikutan pesan bareng! Pilih menu favoritmu di sini:\n👉 ' + shareUrl;
+                    const msg = '*Pre-Order {{ addslashes($business->name) }}*\n' +
+                              (day ? 'Pengiriman: ' + day + (formatted ? ', ' + formatted : '') + '\n' : '') +
+                              (groupParam ? 'Pesanan Kantor/Tim: ' + groupParam + '\n' : '') +
+                              'Yuk ikutan pesan bareng! Pilih menu favoritmu di sini:\n' + shareUrl;
 
                     if (navigator.clipboard && window.isSecureContext) {
                         navigator.clipboard.writeText(msg).then(() => {
@@ -2139,10 +2139,10 @@
                     if (groupParam) {
                         shareUrl += '&group=' + encodeURIComponent(groupParam);
                     }
-                    const msg = '🍱 Pre-Order {{ addslashes($business->name) }}\n' +
-                              (day ? '📅 Pengiriman: ' + day + (formatted ? ', ' + formatted : '') + '\n' : '') +
-                              (groupParam ? '🏢 Pesanan Kantor/Tim: ' + groupParam + '\n' : '') +
-                              '✨ Yuk ikutan pesan bareng! Pilih menu favoritmu di sini:\n👉 ' + shareUrl;
+                    const msg = '*Pre-Order {{ addslashes($business->name) }}*\n' +
+                              (day ? 'Pengiriman: ' + day + (formatted ? ', ' + formatted : '') + '\n' : '') +
+                              (groupParam ? 'Pesanan Kantor/Tim: ' + groupParam + '\n' : '') +
+                              'Yuk ikutan pesan bareng! Pilih menu favoritmu di sini:\n' + shareUrl;
                     window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent(msg), '_blank');
                 },
                 checkoutForm: {
@@ -2790,7 +2790,7 @@
                         if (res.ok && data.success) {
                             this.groupOrder.data = data.group;
                             this.groupOrder.splitBill = data.split_bill || [];
-                            this.showToast(action === 'lock' ? '🔒 Pesanan bersama berhasil dikunci!' : '🔓 Pesanan bersama dibuka kembali!');
+                            this.showToast(action === 'lock' ? 'Pesanan bersama berhasil dikunci!' : 'Pesanan bersama dibuka kembali!');
                         } else {
                             this.showToast(data.message || 'Gagal mengubah status pesanan.');
                         }
@@ -2860,11 +2860,11 @@
                 },
                 copyGroupOrderLink() {
                     const url = window.location.origin + window.location.pathname + '?group_order=' + encodeURIComponent(this.groupOrder.token);
-                    const msg = '🍱 *Pesan Bareng (Group Order) di {{ addslashes($business->name) }}*\n' +
-                                '🏢 *Grup:* ' + (this.groupOrder.data?.title || 'Pesanan Bersama') + '\n' +
-                                '👤 *Host:* ' + (this.groupOrder.data?.host_name || 'Rekan') + '\n' +
-                                (this.groupOrder.data?.scheduled_date ? ('📅 *Jadwal Pengiriman:* ' + this.groupOrder.data.scheduled_date + '\n') : '') +
-                                '\n✨ Yuk pilih makanan favoritmu! Semua pesanan akan otomatis masuk ke 1 keranjang:\n👉 ' + url;
+                    const msg = '*Pesan Bareng (Group Order) di {{ addslashes($business->name) }}*\n' +
+                                'Grup: ' + (this.groupOrder.data?.title || 'Pesanan Bersama') + '\n' +
+                                'Host: ' + (this.groupOrder.data?.host_name || 'Rekan') + '\n' +
+                                (this.groupOrder.data?.scheduled_date ? ('Jadwal Pengiriman: ' + this.groupOrder.data.scheduled_date + '\n') : '') +
+                                '\nYuk pilih menu favoritmu! Semua pesanan akan otomatis masuk ke 1 keranjang:\n' + url;
 
                     if (navigator.clipboard && window.isSecureContext) {
                         navigator.clipboard.writeText(msg).then(() => {
@@ -2878,32 +2878,32 @@
                 },
                 shareGroupOrderWa() {
                     const url = window.location.origin + window.location.pathname + '?group_order=' + encodeURIComponent(this.groupOrder.token);
-                    const msg = '🍱 *Pesan Bareng (Group Order) di {{ addslashes($business->name) }}*\n' +
-                                '🏢 *Grup:* ' + (this.groupOrder.data?.title || 'Pesanan Bersama') + '\n' +
-                                '👤 *Host:* ' + (this.groupOrder.data?.host_name || 'Rekan') + '\n' +
-                                (this.groupOrder.data?.scheduled_date ? ('📅 *Jadwal Pengiriman:* ' + this.groupOrder.data.scheduled_date + '\n') : '') +
-                                '\n✨ Yuk pilih makanan favoritmu! Semua pesanan akan otomatis masuk ke 1 keranjang:\n👉 ' + url;
+                    const msg = '*Pesan Bareng (Group Order) di {{ addslashes($business->name) }}*\n' +
+                                'Grup: ' + (this.groupOrder.data?.title || 'Pesanan Bersama') + '\n' +
+                                'Host: ' + (this.groupOrder.data?.host_name || 'Rekan') + '\n' +
+                                (this.groupOrder.data?.scheduled_date ? ('Jadwal Pengiriman: ' + this.groupOrder.data.scheduled_date + '\n') : '') +
+                                '\nYuk pilih menu favoritmu! Semua pesanan akan otomatis masuk ke 1 keranjang:\n' + url;
                     window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent(msg), '_blank');
                 },
                 copySplitBillText() {
                     if (!this.groupOrder.splitBill || !this.groupOrder.splitBill.length) return;
-                    let text = '🧾 *RINCIAN PATUNGAN (SPLIT BILL)*\n' +
-                               '🍱 {{ addslashes($business->name) }}\n' +
-                               '🏢 Grup: ' + (this.groupOrder.data?.title || 'Pesanan Bersama') + '\n' +
-                               (this.groupOrder.data?.scheduled_date ? ('📅 Tanggal: ' + this.groupOrder.data.scheduled_date + '\n') : '') +
+                    let text = '*RINCIAN PATUNGAN (SPLIT BILL)*\n' +
+                               '{{ addslashes($business->name) }}\n' +
+                               'Grup: ' + (this.groupOrder.data?.title || 'Pesanan Bersama') + '\n' +
+                               (this.groupOrder.data?.scheduled_date ? ('Tanggal: ' + this.groupOrder.data.scheduled_date + '\n') : '') +
                                '--------------------------------\n';
 
                     this.groupOrder.splitBill.forEach(member => {
-                        text += '\n👤 *' + member.member_name + '* (Total: ' + this.formatPrice(member.member_subtotal) + ')\n';
+                        text += '\n*' + member.member_name + '* (Total: ' + this.formatPrice(member.member_subtotal) + ')\n';
                         (member.items || []).forEach(it => {
                             text += '  • ' + it.quantity + 'x ' + it.product_name + ' (' + this.formatPrice(it.line_total) + ')' + (it.notes ? (' [' + it.notes + ']') : '') + '\n';
                         });
                     });
 
                     text += '\n--------------------------------\n' +
-                            '💰 *TOTAL AKHIR:* ' + this.formatPrice(this.groupOrder.data?.subtotal || 0) + '\n\n' +
-                            '💳 *Pembayaran/Transfer ke Host (' + (this.groupOrder.data?.host_name || 'Host') + '):*\n' +
-                            'Mohon transfer sesuai nominal di atas ya. Terima kasih! 🙏';
+                            '*TOTAL AKHIR:* ' + this.formatPrice(this.groupOrder.data?.subtotal || 0) + '\n\n' +
+                            '*Pembayaran/Transfer ke Host (' + (this.groupOrder.data?.host_name || 'Host') + '):*\n' +
+                            'Mohon transfer sesuai nominal di atas ya. Terima kasih!';
 
                     if (navigator.clipboard && window.isSecureContext) {
                         navigator.clipboard.writeText(text).then(() => {
@@ -4249,9 +4249,9 @@
                         $activeFullDate = $activeBatch['full_date'] ?? ($activeDayNameUpper . ', ' . $activeDayShort);
                         $activeQuota = $activeBatch['remaining_quota'] ?? null;
                         $activeUnit = $activeBatch['quota_unit'] ?? ($storeSetting?->preorder_quota_unit ?? 'PCS');
-                        $shareWaText = "🍱 *Pre-Order {$business->name}*\n📅 *Pengiriman:* {$activeFullDate}\n"
-                            . (!empty($groupRef) ? "🏢 *Pesanan Kantor / Tim:* {$groupRef}\n" : "")
-                            . "✨ Yuk pesan bareng! Pilih menu favoritmu di link berikut:\n👉 " . $shareUrl;
+                        $shareWaText = "*Pre-Order {$business->name}*\nPengiriman: {$activeFullDate}\n"
+                            . (!empty($groupRef) ? "Pesanan Kantor / Tim: {$groupRef}\n" : "")
+                            . "Yuk pesan bareng! Pilih menu favoritmu di link berikut:\n" . $shareUrl;
                     @endphp
                     <div class="pt-4" x-show="activeMainTab === 'batch' || activeMainTab === 'catalog' || activeMainTab === 'all'">
                         <div class="p-4 sm:p-6 rounded-[24px] bg-gradient-to-br from-brand-primary/[0.06] via-brand-primary/[0.02] to-black/[0.02] dark:to-white/[0.03] border border-brand-primary/20 shadow-xs space-y-4">
@@ -7062,7 +7062,7 @@
                                             <template x-for="member in groupOrder.splitBill" :key="member.member_id">
                                                 <div class="space-y-1">
                                                     <div class="text-[11.5px] font-bold text-brand-primary flex items-center justify-between pb-0.5 border-b border-black/5 dark:border-white/5">
-                                                        <span x-text="'👤 ' + member.member_name"></span>
+                                                        <span x-text="member.member_name"></span>
                                                         <span x-text="formatPrice(member.member_subtotal)" class="tabular-nums"></span>
                                                     </div>
                                                     <template x-for="it in member.items" :key="it.id">

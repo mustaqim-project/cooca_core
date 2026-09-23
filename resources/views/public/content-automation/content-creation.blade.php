@@ -2,11 +2,11 @@
     'title' => 'AI Content Creation',
     'category' => 'Content Automation',
     'badge' => 'Kreasi Konten Otomatis',
-    'icon' => 'wand-2',
+    'icon' => 'pen-tool',
     'headline' => 'Bikin Caption & Visual Konten Promosi dalam Hitungan Detik',
     'subtitle' => 'Didukung model AI cerdas yang memahami gaya bahasa media sosial Indonesia: buat copywriting promosi produk, ide konten harian, dan banner siap posting.',
     'features' => [
-        ['icon' => 'sparkles', 'title' => 'Generator Caption Media Sosial', 'desc' => 'Tulis ide singkat produk Anda, AI akan menghasilkan caption kreatif lengkap dengan hashtag relevan.'],
+        ['icon' => 'file-edit', 'title' => 'Generator Caption Media Sosial', 'desc' => 'Tulis ide singkat produk Anda, AI akan menghasilkan caption kreatif lengkap dengan hashtag relevan.'],
         ['icon' => 'image', 'title' => 'Smart Product Banner Builder', 'desc' => 'Gabungkan foto produk Anda dengan template banner estetik bergaya minimalis modern.'],
         ['icon' => 'languages', 'title' => 'Pilihan Tone of Voice', 'desc' => 'Pilih gaya bahasa yang pas untuk audiens Anda: Kasual, Santai, FOMO Promosi, Elegan, atau Profesional.'],
         ['icon' => 'lightbulb', 'title' => 'Inspirasi Ide Konten Mingguan', 'desc' => 'Rekomendasi topik konten edukasi, interaksi, dan promosi yang disesuaikan dengan jenis industri bisnis Anda.'],

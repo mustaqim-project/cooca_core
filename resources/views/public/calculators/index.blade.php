@@ -357,7 +357,7 @@
                     <div class="space-y-3">
                         <div class="flex items-center justify-between">
                             <div class="w-11 h-11 rounded-[14px] bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF] flex items-center justify-center group-hover:scale-105 transition-transform">
-                                <i data-lucide="sparkles" class="w-5 h-5"></i>
+                                <i data-lucide="sliders-horizontal" class="w-5 h-5"></i>
                             </div>
                             <span class="text-xs font-semibold text-[#007AFF] dark:text-[#0A84FF]">Simulasi Skenario</span>
                         </div>

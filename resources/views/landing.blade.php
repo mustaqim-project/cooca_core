@@ -127,16 +127,26 @@
                 <!-- Left Column: Copy & Value Proposition -->
                 <div class="lg:col-span-6 space-y-6 text-left flex flex-col justify-center">
                     
+                    <!-- Eyebrow Pill -->
+                    <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700/40 text-[#007AFF] text-xs font-semibold w-fit">
+                        <span>Business Operating System &bull; Omnichannel ERP</span>
+                    </div>
+
                     <!-- Main Headline -->
                     <h1 class="text-4xl sm:text-5xl lg:text-[3.25rem] xl:text-[3.75rem] font-extrabold text-slate-900 dark:text-white tracking-tight leading-[1.15]">
-                        Kelola Bisnis UMKM <br>
-                        <span class="text-[#007AFF]">Lebih Cerdas &amp;<br>Presisi</span>
+                        Run Your Business.<br>
+                        <span class="text-[#007AFF]">From One Operating System.</span>
                     </h1>
 
                     <!-- Subtitle -->
-                    <p class="text-base sm:text-lg text-slate-600 dark:text-slate-300 max-w-xl leading-relaxed">
-                        <strong class="font-bold text-slate-900 dark:text-white">Cooca</strong> adalah sistem operasi bisnis terlengkap: <span class="text-[#007AFF] font-medium">HPP presisi</span>, <span class="text-[#10B981] font-medium">POS Kasir</span>, stok real-time, pembukuan otomatis, dan asisten AI tanpa biaya lisensi bulanan.
-                    </p>
+                    <div class="space-y-2">
+                        <p class="text-base sm:text-lg text-slate-600 dark:text-slate-300 max-w-xl leading-relaxed">
+                            COOCA membantu bisnis mengelola operasional, penjualan, keuangan, inventory, customer, social media, marketplace, dan automation dalam satu ekosistem. <span class="font-semibold text-slate-900 dark:text-white">Kelola Bisnis UMKM Lebih Cerdas &amp; Presisi.</span>
+                        </p>
+                        <p class="text-xs sm:text-sm font-bold tracking-wide text-[#007AFF] uppercase">
+                            One Business. One System. One Control Center.
+                        </p>
+                    </div>
 
                     <!-- Dual CTAs (Auth-Aware) -->
                     <div class="flex flex-wrap items-center gap-3 pt-1">
@@ -155,20 +165,28 @@
                         @else
                             <a href="{{ route('register') }}"
                                 class="px-7 py-3.5 rounded-full bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-sm sm:text-base flex items-center gap-2 shadow-[0_4px_14px_rgba(0,122,255,0.35)] hover:scale-105 active:scale-95 transition-all">
-                                <span>Mulai Sekarang - Gratis</span>
+                                <span>Coba COOCA Gratis</span>
                                 <i data-lucide="arrow-right" class="w-4 h-4"></i>
                             </a>
-                            <a href="{{ route('login') }}"
+                            <a href="{{ route('public.bos.how-it-works') }}"
                                 class="px-6 py-3.5 rounded-full bg-white hover:bg-slate-50 dark:bg-white/10 dark:hover:bg-white/15 border border-slate-200 dark:border-white/20 text-slate-800 dark:text-white font-semibold text-sm sm:text-base flex items-center gap-2.5 shadow-sm hover:scale-105 active:scale-95 transition-all">
-                                <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24">
-                                    <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.65v3.03h3.88c2.27-2.09 3.665-5.17 3.665-9.12z"/>
-                                    <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.03c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.13C3.26 21.36 7.33 24 12 24z"/>
-                                    <path fill="#FBBC05" d="M5.28 14.29c-.25-.72-.38-1.49-.38-2.29s.13-1.57.38-2.29V6.58H1.25C.45 8.18 0 9.99 0 12s.45 3.82 1.25 5.42l4.03-3.13z"/>
-                                    <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.13c.95-2.83 3.6-4.96 6.72-4.96z"/>
-                                </svg>
-                                <span>Daftar via Google</span>
+                                <span>Lihat Cara Kerja</span>
+                                <i data-lucide="arrow-right" class="w-4 h-4"></i>
                             </a>
                         @endif
+                    </div>
+
+                    <!-- Tagline Pillar Badges -->
+                    <div class="flex flex-wrap items-center gap-2 pt-1 text-xs font-semibold text-slate-500 dark:text-slate-400">
+                        <span class="px-2.5 py-1 rounded-md bg-slate-100 dark:bg-white/5 border border-slate-200/60 dark:border-white/10">ERP</span>
+                        <span>&bull;</span>
+                        <span class="px-2.5 py-1 rounded-md bg-slate-100 dark:bg-white/5 border border-slate-200/60 dark:border-white/10">Omnichannel</span>
+                        <span>&bull;</span>
+                        <span class="px-2.5 py-1 rounded-md bg-slate-100 dark:bg-white/5 border border-slate-200/60 dark:border-white/10">Automation</span>
+                        <span>&bull;</span>
+                        <span class="px-2.5 py-1 rounded-md bg-slate-100 dark:bg-white/5 border border-slate-200/60 dark:border-white/10">Marketplace</span>
+                        <span>&bull;</span>
+                        <span class="px-2.5 py-1 rounded-md bg-slate-100 dark:bg-white/5 border border-slate-200/60 dark:border-white/10">AI</span>
                     </div>
 
                     <!-- Trust Checklist Badges -->
@@ -300,14 +318,27 @@
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
                 <!-- Section Header -->
-                <div class="text-center max-w-4xl mx-auto space-y-3">
+                <div class="text-center max-w-4xl mx-auto space-y-4">
+                    <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700/40 text-[#007AFF] text-xs font-semibold">
+                        <span>One Ecosystem for Your Business</span>
+                    </div>
                     <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-                        Semua yang Anda Butuhkan. Terhubung dalam Satu Sistem.
+                        Everything Your Business Needs. Connected.
                     </h2>
-                    <p class="text-slate-600 dark:text-slate-400 text-sm sm:text-base lg:text-lg leading-relaxed">
-                        Bisnis tidak berjalan dalam satu aplikasi. COOCA menghubungkan semua proses bisnis Anda, dari
-                        operasional hingga pemasaran, dalam satu ekosistem yang terintegrasi.
+                    <p class="text-xs sm:text-sm font-semibold text-[#007AFF] uppercase tracking-wider">
+                        Semua yang Anda Butuhkan. Terhubung dalam Satu Sistem.
                     </p>
+                    <div class="text-slate-600 dark:text-slate-400 text-sm sm:text-base leading-relaxed max-w-2xl mx-auto space-y-2">
+                        <p class="font-medium text-slate-800 dark:text-slate-200">
+                            Bisnis tidak berjalan dalam satu aplikasi.
+                        </p>
+                        <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+                            Penjualan terjadi di POS dan marketplace &bull; Customer datang dari WhatsApp dan social media &bull; Inventory berubah setiap ada transaksi &bull; Finance mengikuti setiap aktivitas bisnis.
+                        </p>
+                        <p class="font-bold text-slate-900 dark:text-white pt-1">
+                            COOCA menghubungkan semuanya.
+                        </p>
+                    </div>
                 </div>
 
                 <!-- 8 Bento Squircle Cards -->
@@ -345,7 +376,7 @@
                                 class="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-[#00C2FF]"></i>
                         </h3>
                         <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                            Pantau stok, warehouse, mutasi, hingga purchasing.
+                            Pantau stok, warehouse, purchasing, material, hingga pergerakan inventory.
                         </p>
                     </a>
 
@@ -363,7 +394,7 @@
                                 class="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-[#00C2FF]"></i>
                         </h3>
                         <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                            Kelola transaksi dan keuangan bisnis Anda.
+                            Hubungkan transaksi bisnis dengan finance dan accounting.
                         </p>
                     </a>
 
@@ -381,7 +412,7 @@
                                 class="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-[#00C2FF]"></i>
                         </h3>
                         <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                            Kelola customer, relationship, dan riwayat transaksi.
+                            Kelola customer, relationship, aktivitas, dan riwayat transaksi.
                         </p>
                     </a>
 
@@ -413,7 +444,7 @@
                                 class="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-[#00C2FF]"></i>
                         </h3>
                         <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                            Hubungkan akun social media dan kelola konten.
+                            Hubungkan akun social media dan kelola konten dari satu tempat.
                         </p>
                     </a>
 
@@ -431,7 +462,7 @@
                                 class="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-[#00C2FF]"></i>
                         </h3>
                         <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                            Plan, schedule, publish, dan monitor konten.
+                            Plan, schedule, publish, dan monitor konten bisnis.
                         </p>
                     </a>
 
@@ -449,7 +480,7 @@
                                 class="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-[#00C2FF]"></i>
                         </h3>
                         <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                            Tingkatkan penjualan melalui berbagai marketplace.
+                            Hubungkan bisnis dengan customer dan channel penjualan.
                         </p>
                     </a>
 
@@ -467,7 +498,7 @@
                                 class="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-[#00C2FF]"></i>
                         </h3>
                         <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                            Ubah data menjadi insight untuk keputusan lebih baik.
+                            Ubah data bisnis menjadi insight untuk membantu pengambilan keputusan.
                         </p>
                     </a>
 
@@ -488,7 +519,7 @@
                     <div class="lg:col-span-4 space-y-5 text-center lg:text-left">
                         <div
                             class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-sky-100 dark:bg-sky-950/60 border border-sky-200 dark:border-sky-800/40 text-sky-700 dark:text-sky-300 text-xs font-semibold">
-                            <span>Integrated Workflow</span>
+                            <span>From Attention to Transaction</span>
                         </div>
 
                         <h2
@@ -498,13 +529,13 @@
 
                         <p
                             class="text-slate-600 dark:text-slate-400 text-sm sm:text-base leading-relaxed max-w-md mx-auto lg:mx-0">
-                            Dari perolehan pelanggan hingga transaksi bisnis, semuanya saling terhubung dalam satu sistem.
+                            Semua aktivitas saling terhubung dalam satu sistem. Dari customer attention di media sosial hingga keputusan strategis bisnis Anda.
                         </p>
 
                         <div>
                             <a href="{{ route('public.bos.how-it-works') }}"
                                 class="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#00C2FF] hover:bg-[#00B4D8] text-white font-bold text-xs sm:text-sm shadow-[0_0_20px_rgba(0,194,255,0.4)] hover:scale-105 active:scale-95 transition-all">
-                                <span>Lihat Alur Lengkap</span>
+                                <span>Lihat Cara Kerja</span>
                                 <i data-lucide="arrow-right" class="w-4 h-4"></i>
                             </a>
                         </div>
@@ -571,7 +602,7 @@
                                         class="w-10 h-10 rounded-xl bg-rose-500 text-white flex items-center justify-center shadow-md">
                                         <i data-lucide="shopping-bag" class="w-5 h-5"></i>
                                     </div>
-                                    <span class="text-[10px] font-semibold text-slate-700 dark:text-slate-300 mt-2">Kasir /
+                                    <span class="text-[10px] font-semibold text-slate-700 dark:text-slate-300 mt-2">Sales /
                                         POS</span>
                                 </div>
 
@@ -588,46 +619,10 @@
                                 </div>
                             </div>
 
-                            <!-- Row 2: Production to Analytics (Connecting back) -->
+                            <!-- Row 2: Purchasing to Business Decision -->
                             <div
                                 class="flex items-center justify-between gap-2 p-4 rounded-3xl bg-white dark:bg-[#101726] border border-slate-200/80 dark:border-white/5 shadow-sm">
-                                <!-- Node 7: Analytics -->
-                                <div class="flex flex-col items-center text-center">
-                                    <div
-                                        class="w-10 h-10 rounded-xl bg-purple-600 text-white flex items-center justify-center shadow-md">
-                                        <i data-lucide="bar-chart-2" class="w-5 h-5"></i>
-                                    </div>
-                                    <span
-                                        class="text-[10px] font-semibold text-slate-700 dark:text-slate-300 mt-2">Analytics</span>
-                                </div>
-
-                                <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
-
-                                <!-- Node 8: Accounting -->
-                                <div class="flex flex-col items-center text-center">
-                                    <div
-                                        class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center shadow-md">
-                                        <i data-lucide="book-marked" class="w-5 h-5"></i>
-                                    </div>
-                                    <span
-                                        class="text-[10px] font-semibold text-slate-700 dark:text-slate-300 mt-2">Accounting</span>
-                                </div>
-
-                                <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
-
-                                <!-- Node 9: Finance -->
-                                <div class="flex flex-col items-center text-center">
-                                    <div
-                                        class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-md">
-                                        <i data-lucide="coins" class="w-5 h-5"></i>
-                                    </div>
-                                    <span
-                                        class="text-[10px] font-semibold text-slate-700 dark:text-slate-300 mt-2">Finance</span>
-                                </div>
-
-                                <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
-
-                                <!-- Node 10: Purchasing -->
+                                <!-- Node 7: Purchasing -->
                                 <div class="flex flex-col items-center text-center">
                                     <div
                                         class="w-10 h-10 rounded-xl bg-indigo-500 text-white flex items-center justify-center shadow-md">
@@ -639,14 +634,50 @@
 
                                 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
 
-                                <!-- Node 11: Production -->
+                                <!-- Node 8: Finance -->
                                 <div class="flex flex-col items-center text-center">
                                     <div
-                                        class="w-10 h-10 rounded-xl bg-blue-500 text-white flex items-center justify-center shadow-md">
-                                        <i data-lucide="factory" class="w-5 h-5"></i>
+                                        class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-md">
+                                        <i data-lucide="coins" class="w-5 h-5"></i>
                                     </div>
                                     <span
-                                        class="text-[10px] font-semibold text-slate-700 dark:text-slate-300 mt-2">Production</span>
+                                        class="text-[10px] font-semibold text-slate-700 dark:text-slate-300 mt-2">Finance</span>
+                                </div>
+
+                                <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
+
+                                <!-- Node 9: Accounting -->
+                                <div class="flex flex-col items-center text-center">
+                                    <div
+                                        class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center shadow-md">
+                                        <i data-lucide="book-marked" class="w-5 h-5"></i>
+                                    </div>
+                                    <span
+                                        class="text-[10px] font-semibold text-slate-700 dark:text-slate-300 mt-2">Accounting</span>
+                                </div>
+
+                                <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
+
+                                <!-- Node 10: Analytics -->
+                                <div class="flex flex-col items-center text-center">
+                                    <div
+                                        class="w-10 h-10 rounded-xl bg-purple-600 text-white flex items-center justify-center shadow-md">
+                                        <i data-lucide="bar-chart-2" class="w-5 h-5"></i>
+                                    </div>
+                                    <span
+                                        class="text-[10px] font-semibold text-slate-700 dark:text-slate-300 mt-2">Analytics</span>
+                                </div>
+
+                                <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
+
+                                <!-- Node 11: Business Decision -->
+                                <div class="flex flex-col items-center text-center">
+                                    <div
+                                        class="w-10 h-10 rounded-xl bg-[#007AFF] text-white flex items-center justify-center shadow-md">
+                                        <i data-lucide="compass" class="w-5 h-5"></i>
+                                    </div>
+                                    <span
+                                        class="text-[10px] font-semibold text-slate-700 dark:text-slate-300 mt-2">Business Decision</span>
                                 </div>
                             </div>
 
@@ -678,10 +709,12 @@
                     <h2 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
                         Lebih dari Sekadar ERP
                     </h2>
-                    <p class="text-slate-400 text-sm sm:text-base max-w-2xl leading-relaxed mx-auto lg:mx-0">
-                        COOCA adalah Business Operating System yang membantu Anda mengelola, menghubungkan, dan
-                        mengembangkan bisnis.
-                    </p>
+                    <div class="text-slate-400 text-sm sm:text-base max-w-2xl leading-relaxed mx-auto lg:mx-0 space-y-1">
+                        <p class="text-slate-200 font-medium">ERP membantu mengelola proses internal. COOCA melangkah lebih jauh.</p>
+                        <p class="text-xs sm:text-sm text-slate-400">
+                            Sebagai Business Operating System, COOCA menghubungkan operasional bisnis, channel penjualan, dan otomasi dalam satu pusat kendali.
+                        </p>
+                    </div>
                 </div>
 
                 <!-- Content Grid: 6 Pillars (Left) & Interactive Ecosystem Hub (Right) -->
@@ -698,7 +731,7 @@
                             </div>
                             <h4 class="text-sm font-bold text-white">Operate</h4>
                             <p class="text-xs text-slate-400 leading-relaxed">
-                                Kelola operasional bisnis sehari-hari.
+                                Kelola aktivitas operasional bisnis sehari-hari.
                             </p>
                         </div>
 
@@ -722,7 +755,7 @@
                             </div>
                             <h4 class="text-sm font-bold text-white">Engage</h4>
                             <p class="text-xs text-slate-400 leading-relaxed">
-                                Bangun hubungan dengan customer.
+                                Bangun hubungan dengan customer melalui berbagai channel.
                             </p>
                         </div>
 
@@ -746,7 +779,7 @@
                             </div>
                             <h4 class="text-sm font-bold text-white">Analyze</h4>
                             <p class="text-xs text-slate-400 leading-relaxed">
-                                Pahami bisnis melalui data dan analytics.
+                                Pahami kondisi bisnis melalui data dan analytics.
                             </p>
                         </div>
 
@@ -758,7 +791,7 @@
                             </div>
                             <h4 class="text-sm font-bold text-white">Decide</h4>
                             <p class="text-xs text-slate-400 leading-relaxed">
-                                Ambil keputusan lebih tepat dan cepat.
+                                Gunakan informasi bisnis untuk membantu mengambil keputusan.
                             </p>
                         </div>
 
@@ -1180,24 +1213,40 @@
                     <div class="lg:col-span-5 space-y-5 text-center lg:text-left">
                         <div
                             class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-sky-100 dark:bg-sky-950/60 border border-sky-200 dark:border-sky-800/40 text-sky-700 dark:text-sky-300 text-xs font-semibold">
-                            <span>Integrasi Omnichannel</span>
+                            <span>Omnichannel Commerce</span>
                         </div>
 
                         <h2
                             class="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-tight">
-                            Jangkau Pelanggan<br class="hidden sm:inline"> di Semua Channel
+                            Sell Beyond Your Store.<br class="hidden sm:inline">
+                            <span class="text-[#007AFF]">Jangkau Pelanggan di Semua Channel.</span>
                         </h2>
 
                         <p
                             class="text-slate-600 dark:text-slate-400 text-sm sm:text-base leading-relaxed max-w-md mx-auto lg:mx-0">
-                            Dari media sosial, marketplace, WhatsApp hingga toko fisik, COOCA menghubungkan semua channel
-                            penjualan Anda.
+                            Customer dapat menemukan bisnis Anda melalui berbagai channel. COOCA membantu menghubungkan customer journey dengan operational workflow.
                         </p>
 
-                        <div>
+                        <!-- Three Highlights -->
+                        <div class="grid grid-cols-3 gap-2 py-1 max-w-md mx-auto lg:mx-0 text-left">
+                            <div class="p-2.5 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5">
+                                <span class="text-[11px] font-extrabold text-slate-900 dark:text-white block">One order.</span>
+                                <span class="text-[10px] text-slate-500">Tersentralisasi</span>
+                            </div>
+                            <div class="p-2.5 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5">
+                                <span class="text-[11px] font-extrabold text-slate-900 dark:text-white block">One customer.</span>
+                                <span class="text-[10px] text-slate-500">Profil tunggal</span>
+                            </div>
+                            <div class="p-2.5 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5">
+                                <span class="text-[11px] font-extrabold text-slate-900 dark:text-white block">One record.</span>
+                                <span class="text-[10px] text-slate-500">Business record</span>
+                            </div>
+                        </div>
+
+                        <div class="pt-2">
                             <a href="{{ route('public.omnichannel.social-media') }}"
                                 class="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#00C2FF] hover:bg-[#00B4D8] text-white font-bold text-xs sm:text-sm shadow-[0_0_20px_rgba(0,194,255,0.4)] hover:scale-105 active:scale-95 transition-all">
-                                <span>Jelajahi Omnichannel</span>
+                                <span>Explore Omnichannel</span>
                                 <i data-lucide="arrow-right" class="w-4 h-4"></i>
                             </a>
                         </div>
@@ -1332,20 +1381,21 @@
                     <div
                         class="p-6 sm:p-8 rounded-3xl bg-white dark:bg-[#101726] border border-slate-200/80 dark:border-white/5 shadow-sm space-y-6">
                         <div>
-                            <span class="text-xs font-bold text-[#00C2FF] uppercase tracking-wider block mb-1">Content
-                                Automation</span>
+                            <span class="text-xs font-bold text-[#00C2FF] uppercase tracking-wider block mb-1">
+                                Create Once. Reach More Channels.
+                            </span>
                             <h3 class="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-                                Kelola Konten, Maksimalkan Dampak
+                                Content Automation &bull; Kelola Konten, Maksimalkan Dampak
                             </h3>
                             <p class="text-slate-600 dark:text-slate-400 text-xs sm:text-sm mt-2 leading-relaxed">
-                                Buat, jadwalkan, dan publikasikan konten ke berbagai platform sosial media dari satu tempat.
+                                Buat dan kelola konten bisnis tanpa harus berpindah-pindah platform. Plan, Create, Schedule, Publish, dan Analyze performa konten dalam satu alur kerja terhubung.
                             </p>
                         </div>
 
                         <div>
                             <a href="{{ route('public.content.creation') }}"
                                 class="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-[#00C2FF] hover:bg-[#00B4D8] text-white font-bold text-xs shadow-sm hover:scale-105 active:scale-95 transition-all">
-                                <span>Pelajari Lebih Lanjut</span>
+                                <span>Explore Content Automation</span>
                                 <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
                             </a>
                         </div>
@@ -1452,21 +1502,21 @@
                     <div
                         class="p-6 sm:p-8 rounded-3xl bg-white dark:bg-[#101726] border border-slate-200/80 dark:border-white/5 shadow-sm space-y-6">
                         <div>
-                            <span
-                                class="text-xs font-bold text-[#00C2FF] uppercase tracking-wider block mb-1">Marketplace</span>
+                            <span class="text-xs font-bold text-[#00C2FF] uppercase tracking-wider block mb-1">
+                                Discover Businesses. Discover Products.
+                            </span>
                             <h3 class="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-                                Temukan &amp; Jual Lebih Mudah
+                                COOCA Marketplace &bull; Temukan &amp; Jual Lebih Mudah
                             </h3>
                             <p class="text-slate-600 dark:text-slate-400 text-xs sm:text-sm mt-2 leading-relaxed">
-                                Jelajahi ribuan bisnis dan produk dari berbagai kategori dan lokasi. Dukung pertumbuhan
-                                bisnis lokal.
+                                Temukan bisnis dan produk dari berbagai kategori dan lokasi. Merchant mendapatkan channel tambahan untuk menjangkau customer.
                             </p>
                         </div>
 
                         <div>
                             <a href="{{ route('marketplace.index') }}"
                                 class="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-[#00C2FF] hover:bg-[#00B4D8] text-white font-bold text-xs shadow-sm hover:scale-105 active:scale-95 transition-all">
-                                <span>Jelajahi Marketplace</span>
+                                <span>Explore Marketplace</span>
                                 <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
                             </a>
                         </div>
@@ -1687,116 +1737,299 @@
                 <!-- Section Header with Right-Aligned Button -->
                 <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
                     <div class="space-y-2">
+                        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700/40 text-[#007AFF] text-xs font-semibold">
+                            <span>Tailored Industry Modules</span>
+                        </div>
                         <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-                            Cocok untuk Berbagai Jenis Bisnis
+                            Built for Different Businesses
                         </h2>
                         <p class="text-slate-600 dark:text-slate-400 text-sm sm:text-base">
-                            COOCA dapat disesuaikan dengan kebutuhan berbagai jenis industri.
+                            COOCA menyesuaikan sistem berdasarkan jenis bisnis Anda. Cocok untuk Berbagai Jenis Bisnis.
                         </p>
                     </div>
                     <div>
                         <a href="{{ route('public.solutions.fnb') }}"
                             class="inline-flex items-center gap-1.5 px-6 py-2.5 rounded-full bg-[#00C2FF] hover:bg-[#00B4D8] text-white font-bold text-xs sm:text-sm shadow-[0_0_15px_rgba(0,194,255,0.35)] hover:scale-105 active:scale-95 transition-all">
-                            <span>Lihat Semua Solusi</span>
+                            <span>Explore Solutions</span>
                             <i data-lucide="arrow-right" class="w-4 h-4"></i>
                         </a>
                     </div>
                 </div>
 
-                <!-- 6 Industry Photo Cards -->
+                <!-- 6 Industry Photo Cards with Module Badges -->
                 <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
 
                     <!-- 1. F&B -->
                     <a href="{{ route('public.solutions.fnb') }}"
-                        class="group relative h-48 rounded-2xl overflow-hidden block shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
+                        class="group relative h-56 rounded-2xl overflow-hidden block shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
                         <img src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=600&q=80"
                             alt="F&B Restoran"
                             class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
-                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/30 to-transparent">
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950/95 via-slate-950/40 to-transparent">
                         </div>
-                        <div class="absolute bottom-3 inset-x-3 flex items-center justify-between text-white">
-                            <span class="text-xs font-bold">F&amp;B</span>
-                            <i data-lucide="arrow-right"
-                                class="w-3.5 h-3.5 opacity-80 group-hover:translate-x-1 group-hover:opacity-100 transition-all"></i>
+                        <div class="absolute bottom-3 inset-x-3 text-white space-y-1">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold">F&amp;B</span>
+                                <i data-lucide="arrow-right"
+                                    class="w-3.5 h-3.5 opacity-80 group-hover:translate-x-1 group-hover:opacity-100 transition-all"></i>
+                            </div>
+                            <p class="text-[9px] text-slate-300 leading-tight">
+                                POS &bull; Recipe &bull; BOM &bull; Inventory &bull; Purchasing &bull; Finance
+                            </p>
                         </div>
                     </a>
 
                     <!-- 2. Retail -->
                     <a href="{{ route('public.solutions.retail') }}"
-                        class="group relative h-48 rounded-2xl overflow-hidden block shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
+                        class="group relative h-56 rounded-2xl overflow-hidden block shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
                         <img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=600&q=80"
                             alt="Retail Toko"
                             class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
-                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/30 to-transparent">
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950/95 via-slate-950/40 to-transparent">
                         </div>
-                        <div class="absolute bottom-3 inset-x-3 flex items-center justify-between text-white">
-                            <span class="text-xs font-bold">Retail</span>
-                            <i data-lucide="arrow-right"
-                                class="w-3.5 h-3.5 opacity-80 group-hover:translate-x-1 group-hover:opacity-100 transition-all"></i>
+                        <div class="absolute bottom-3 inset-x-3 text-white space-y-1">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold">Retail</span>
+                                <i data-lucide="arrow-right"
+                                    class="w-3.5 h-3.5 opacity-80 group-hover:translate-x-1 group-hover:opacity-100 transition-all"></i>
+                            </div>
+                            <p class="text-[9px] text-slate-300 leading-tight">
+                                Barcode &bull; POS &bull; Inventory &bull; Purchasing &bull; Customer
+                            </p>
                         </div>
                     </a>
 
                     <!-- 3. Workshop -->
                     <a href="{{ route('public.solutions.workshop') }}"
-                        class="group relative h-48 rounded-2xl overflow-hidden block shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
+                        class="group relative h-56 rounded-2xl overflow-hidden block shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
                         <img src="https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?auto=format&fit=crop&w=600&q=80"
                             alt="Bengkel"
                             class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
-                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/30 to-transparent">
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950/95 via-slate-950/40 to-transparent">
                         </div>
-                        <div class="absolute bottom-3 inset-x-3 flex items-center justify-between text-white">
-                            <span class="text-xs font-bold">Workshop</span>
-                            <i data-lucide="arrow-right"
-                                class="w-3.5 h-3.5 opacity-80 group-hover:translate-x-1 group-hover:opacity-100 transition-all"></i>
+                        <div class="absolute bottom-3 inset-x-3 text-white space-y-1">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold">Workshop</span>
+                                <i data-lucide="arrow-right"
+                                    class="w-3.5 h-3.5 opacity-80 group-hover:translate-x-1 group-hover:opacity-100 transition-all"></i>
+                            </div>
+                            <p class="text-[9px] text-slate-300 leading-tight">
+                                Service &bull; Spare Parts &bull; Customer &bull; Inventory &bull; Finance
+                            </p>
                         </div>
                     </a>
 
                     <!-- 4. Laundry -->
                     <a href="{{ route('public.solutions.laundry') }}"
-                        class="group relative h-48 rounded-2xl overflow-hidden block shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
+                        class="group relative h-56 rounded-2xl overflow-hidden block shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
                         <img src="https://images.unsplash.com/photo-1517677208171-0bc6725a3e60?auto=format&fit=crop&w=600&q=80"
                             alt="Laundry"
                             class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
-                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/30 to-transparent">
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950/95 via-slate-950/40 to-transparent">
                         </div>
-                        <div class="absolute bottom-3 inset-x-3 flex items-center justify-between text-white">
-                            <span class="text-xs font-bold">Laundry</span>
-                            <i data-lucide="arrow-right"
-                                class="w-3.5 h-3.5 opacity-80 group-hover:translate-x-1 group-hover:opacity-100 transition-all"></i>
+                        <div class="absolute bottom-3 inset-x-3 text-white space-y-1">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold">Laundry</span>
+                                <i data-lucide="arrow-right"
+                                    class="w-3.5 h-3.5 opacity-80 group-hover:translate-x-1 group-hover:opacity-100 transition-all"></i>
+                            </div>
+                            <p class="text-[9px] text-slate-300 leading-tight">
+                                Order &bull; Weight &bull; Production &bull; Inventory &bull; Customer
+                            </p>
                         </div>
                     </a>
 
                     <!-- 5. Manufacturing -->
                     <a href="{{ route('public.solutions.manufacturing') }}"
-                        class="group relative h-48 rounded-2xl overflow-hidden block shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
+                        class="group relative h-56 rounded-2xl overflow-hidden block shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
                         <img src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=600&q=80"
                             alt="Manufacturing"
                             class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
-                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/30 to-transparent">
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950/95 via-slate-950/40 to-transparent">
                         </div>
-                        <div class="absolute bottom-3 inset-x-3 flex items-center justify-between text-white">
-                            <span class="text-xs font-bold">Manufacturing</span>
-                            <i data-lucide="arrow-right"
-                                class="w-3.5 h-3.5 opacity-80 group-hover:translate-x-1 group-hover:opacity-100 transition-all"></i>
+                        <div class="absolute bottom-3 inset-x-3 text-white space-y-1">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold">Manufacturing</span>
+                                <i data-lucide="arrow-right"
+                                    class="w-3.5 h-3.5 opacity-80 group-hover:translate-x-1 group-hover:opacity-100 transition-all"></i>
+                            </div>
+                            <p class="text-[9px] text-slate-300 leading-tight">
+                                Material &bull; BOM &bull; Production &bull; MRP &bull; Inventory
+                            </p>
                         </div>
                     </a>
 
                     <!-- 6. Services -->
                     <a href="{{ route('public.solutions.services') }}"
-                        class="group relative h-48 rounded-2xl overflow-hidden block shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
+                        class="group relative h-56 rounded-2xl overflow-hidden block shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
                         <img src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?auto=format&fit=crop&w=600&q=80"
                             alt="Services Jasa"
                             class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
-                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/30 to-transparent">
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950/95 via-slate-950/40 to-transparent">
                         </div>
-                        <div class="absolute bottom-3 inset-x-3 flex items-center justify-between text-white">
-                            <span class="text-xs font-bold">Services</span>
-                            <i data-lucide="arrow-right"
-                                class="w-3.5 h-3.5 opacity-80 group-hover:translate-x-1 group-hover:opacity-100 transition-all"></i>
+                        <div class="absolute bottom-3 inset-x-3 text-white space-y-1">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold">Services</span>
+                                <i data-lucide="arrow-right"
+                                    class="w-3.5 h-3.5 opacity-80 group-hover:translate-x-1 group-hover:opacity-100 transition-all"></i>
+                            </div>
+                            <p class="text-[9px] text-slate-300 leading-tight">
+                                Customer &bull; Booking &bull; Project &bull; Invoice &bull; Finance
+                            </p>
                         </div>
                     </a>
 
                 </div>
+
+                <div class="mt-8 text-center">
+                    <p class="text-xs text-slate-500 dark:text-slate-400">
+                        Dan berbagai jenis bisnis lainnya yang membutuhkan fleksibilitas serta integrasi tanpa batas.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ══════════════════════════════════════════════════════════════════════════ -->
+        <!-- ═══ 7B. "ONE BUSINESS. ONE SOURCE OF TRUTH & BUILT FOR OWNERS" ═══ -->
+        <!-- ══════════════════════════════════════════════════════════════════════════ -->
+        <section class="bg-[#F8FAFC] dark:bg-[#080D1E] py-20 lg:py-24 border-y border-slate-100 dark:border-white/5 transition-colors">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                    
+                    <!-- Left: Source of Truth Architectural Visualization -->
+                    <div class="lg:col-span-6 space-y-6">
+                        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700/40 text-[#007AFF] text-xs font-semibold">
+                            <span>Single Source of Truth</span>
+                        </div>
+                        <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-tight">
+                            One Business.<br>
+                            <span class="text-[#007AFF]">One Source of Truth.</span>
+                        </h2>
+                        <p class="text-slate-600 dark:text-slate-400 text-sm sm:text-base leading-relaxed">
+                            Ketika setiap bagian bisnis menggunakan sistem yang berbeda, data mudah terpisah. COOCA menghubungkan data bisnis dalam satu ecosystem.
+                        </p>
+
+                        <!-- Clean Bento Architecture Diagram Card -->
+                        <div class="p-6 rounded-3xl bg-white dark:bg-[#101726] border border-slate-200/80 dark:border-white/5 shadow-sm space-y-4 text-center">
+                            <!-- Apex Node: COOCA -->
+                            <div class="inline-flex items-center gap-2 px-6 py-2 rounded-full bg-[#007AFF] text-white font-extrabold text-sm shadow-md">
+                                <i data-lucide="cpu" class="w-4 h-4"></i>
+                                <span>COOCA OS</span>
+                            </div>
+
+                            <!-- Stem -->
+                            <div class="h-4 flex items-center justify-center">
+                                <div class="w-0.5 h-full bg-[#007AFF]"></div>
+                            </div>
+
+                            <!-- Branch: Sales, Operations, Customer -->
+                            <div class="grid grid-cols-3 gap-3">
+                                <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-white/5">
+                                    <span class="text-[11px] font-bold text-slate-800 dark:text-slate-200 block">SALES</span>
+                                    <span class="text-[9px] text-slate-400">POS &bull; Order</span>
+                                </div>
+                                <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-white/5">
+                                    <span class="text-[11px] font-bold text-slate-800 dark:text-slate-200 block">OPERATIONS</span>
+                                    <span class="text-[9px] text-slate-400">Stok &bull; Gudang</span>
+                                </div>
+                                <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-white/5">
+                                    <span class="text-[11px] font-bold text-slate-800 dark:text-slate-200 block">CUSTOMER</span>
+                                    <span class="text-[9px] text-slate-400">CRM &bull; Chat</span>
+                                </div>
+                            </div>
+
+                            <!-- Converge to Finance, Analytics, Decisions -->
+                            <div class="flex items-center justify-center my-1">
+                                <i data-lucide="chevron-down" class="w-4 h-4 text-[#007AFF]"></i>
+                            </div>
+
+                            <div class="grid grid-cols-3 gap-3">
+                                <div class="p-2.5 rounded-xl bg-blue-50 dark:bg-blue-950/40 border border-blue-100 dark:border-blue-900/30 text-blue-700 dark:text-blue-300">
+                                    <span class="text-[11px] font-bold block">FINANCE</span>
+                                    <span class="text-[9px] text-slate-500">Cash Flow</span>
+                                </div>
+                                <div class="p-2.5 rounded-xl bg-purple-50 dark:bg-purple-950/40 border border-purple-100 dark:border-purple-900/30 text-purple-700 dark:text-purple-300">
+                                    <span class="text-[11px] font-bold block">ANALYTICS</span>
+                                    <span class="text-[9px] text-slate-500">Real-time KPI</span>
+                                </div>
+                                <div class="p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-100 dark:border-emerald-900/30 text-emerald-700 dark:text-emerald-300">
+                                    <span class="text-[11px] font-bold block">DECISIONS</span>
+                                    <span class="text-[9px] text-slate-500">Eksekusi Cepat</span>
+                                </div>
+                            </div>
+
+                            <div class="pt-2 text-xs font-semibold text-slate-600 dark:text-slate-300 italic border-t border-slate-100 dark:border-white/5">
+                                "Every transaction becomes business data. Every business data becomes business insight."
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Built for Business Owners (4 Cards Bento) -->
+                    <div class="lg:col-span-6 space-y-6">
+                        <div class="space-y-2">
+                            <span class="text-xs font-bold text-[#00C2FF] uppercase tracking-wider block">
+                                Built for Business Owners
+                            </span>
+                            <h3 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+                                Kendali Penuh di Tangan Owner
+                            </h3>
+                            <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
+                                COOCA dibuat agar owner tidak harus terus-menerus mengejar informasi dari berbagai tempat.
+                            </p>
+                        </div>
+
+                        <!-- 4 Bento Cards Grid -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <!-- Card 1 -->
+                            <div class="p-5 rounded-3xl bg-white dark:bg-[#101726] border border-slate-200/80 dark:border-white/5 shadow-sm space-y-2">
+                                <div class="w-9 h-9 rounded-xl bg-sky-50 dark:bg-sky-950/60 text-sky-500 flex items-center justify-center">
+                                    <i data-lucide="eye" class="w-5 h-5"></i>
+                                </div>
+                                <h4 class="text-sm font-bold text-slate-900 dark:text-white">Know what is happening.</h4>
+                                <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                                    Lihat seluruh aktivitas bisnis dan transaksi secara langsung tanpa delay.
+                                </p>
+                            </div>
+
+                            <!-- Card 2 -->
+                            <div class="p-5 rounded-3xl bg-white dark:bg-[#101726] border border-slate-200/80 dark:border-white/5 shadow-sm space-y-2">
+                                <div class="w-9 h-9 rounded-xl bg-amber-50 dark:bg-amber-950/60 text-amber-500 flex items-center justify-center">
+                                    <i data-lucide="alert-circle" class="w-5 h-5"></i>
+                                </div>
+                                <h4 class="text-sm font-bold text-slate-900 dark:text-white">Know what needs attention.</h4>
+                                <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                                    Temukan stok menipis, piutang jatuh tempo, dan hal yang butuh perhatian segera.
+                                </p>
+                            </div>
+
+                            <!-- Card 3 -->
+                            <div class="p-5 rounded-3xl bg-white dark:bg-[#101726] border border-slate-200/80 dark:border-white/5 shadow-sm space-y-2">
+                                <div class="w-9 h-9 rounded-xl bg-purple-50 dark:bg-purple-950/60 text-purple-500 flex items-center justify-center">
+                                    <i data-lucide="trending-up" class="w-5 h-5"></i>
+                                </div>
+                                <h4 class="text-sm font-bold text-slate-900 dark:text-white">Know what is changing.</h4>
+                                <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                                    Pahami perubahan performa bisnis, tren penjualan, dan fluktuasi margin secara jernih.
+                                </p>
+                            </div>
+
+                            <!-- Card 4 -->
+                            <div class="p-5 rounded-3xl bg-white dark:bg-[#101726] border border-slate-200/80 dark:border-white/5 shadow-sm space-y-2">
+                                <div class="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-500 flex items-center justify-center">
+                                    <i data-lucide="check-circle" class="w-5 h-5"></i>
+                                </div>
+                                <h4 class="text-sm font-bold text-slate-900 dark:text-white">Make better decisions.</h4>
+                                <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                                    Ambil keputusan bisnis strategis berdasarkan data yang saling terhubung.
+                                </p>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
             </div>
         </section>
 
@@ -1822,13 +2055,32 @@
 
                         <h2
                             class="text-3xl sm:text-4xl lg:text-[44px] font-extrabold text-white tracking-tight leading-tight">
-                            Kelola Bisnis Anda dengan Lebih Mudah, Terintegrasi, dan Cerdas.
+                            Start Building Your Business Operating System.
                         </h2>
 
                         <p class="text-slate-300 text-sm sm:text-base leading-relaxed max-w-xl mx-auto lg:mx-0">
-                            Mulai dari kebutuhan bisnis Anda. Pilih modul, hubungkan channel, dan jalankan bisnis Anda
-                            bersama COOCA.
+                            Tidak perlu membangun semuanya sekaligus. Mulai dari kebutuhan bisnis Anda.
                         </p>
+
+                        <!-- 4 Step Flow Ribbon -->
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1 text-xs font-semibold text-slate-300 text-left">
+                            <div class="p-2.5 rounded-xl bg-white/5 border border-white/10">
+                                <span class="text-[#00C2FF] font-bold block text-[10px]">01</span>
+                                <span>Create your business.</span>
+                            </div>
+                            <div class="p-2.5 rounded-xl bg-white/5 border border-white/10">
+                                <span class="text-[#00C2FF] font-bold block text-[10px]">02</span>
+                                <span>Choose your modules.</span>
+                            </div>
+                            <div class="p-2.5 rounded-xl bg-white/5 border border-white/10">
+                                <span class="text-[#00C2FF] font-bold block text-[10px]">03</span>
+                                <span>Connect your channels.</span>
+                            </div>
+                            <div class="p-2.5 rounded-xl bg-white/5 border border-white/10">
+                                <span class="text-[#00C2FF] font-bold block text-[10px]">04</span>
+                                <span>Run your business.</span>
+                            </div>
+                        </div>
 
                         <!-- Auth-Aware Dual CTAs -->
                         <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 pt-2">

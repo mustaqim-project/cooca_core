@@ -2,7 +2,7 @@
     'title' => 'Solusi Laundry & Dry Cleaning',
     'category' => 'Solutions',
     'badge' => 'Laundry Kiloan & Satuan',
-    'icon' => 'sparkles',
+    'icon' => 'droplets',
     'headline' => 'Solusi Usaha Laundry: Timbangan Digital, Nota WA, & Status Cuci',
     'subtitle' => 'Kelola cucian kiloan dan satuan dengan penomoran rak teratur. Kirim notifikasi WhatsApp otomatis saat cucian selesai dicuci atau siap diambil.',
     'features' => [

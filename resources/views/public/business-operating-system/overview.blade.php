@@ -22,7 +22,7 @@
             'desc' => 'Setiap bisnis memiliki proteksi data independen berstandar enterprise dengan audit trail dan enkripsi ketat.'
         ],
         [
-            'icon' => 'sparkles',
+            'icon' => 'cpu',
             'title' => 'AI Copilot & Smart Insight',
             'desc' => 'Asisten pintar yang memprediksi tren omzet, mendeteksi kebocoran modal HPP, dan merekomendasikan restock tepat waktu.'
         ],
