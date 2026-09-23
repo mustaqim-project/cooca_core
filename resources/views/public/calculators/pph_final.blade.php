@@ -34,12 +34,12 @@
                             Aturan Pajak Resmi PP 55/2022
                         </p>
                         <h1
-                            class="text-4xl sm:text-5xl lg:text-[3.25rem] xl:text-[3.75rem] font-extrabold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight leading-[1.15]">
+                            class="text-3xl sm:text-4xl md:text-5xl lg:text-[3.25rem] font-extrabold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight leading-[1.15] text-balance break-words">
                             Kalkulator PPh Final <span class="text-[#FF3B30] dark:text-[#FF453A]">UMKM 0.5%</span>
                         </h1>
                     </div>
 
-                    <p class="text-base sm:text-lg text-[#48484A] dark:text-[#AEAEB2] leading-relaxed max-w-xl font-normal">
+                    <p class="text-base sm:text-lg text-[#48484A] dark:text-[#AEAEB2] leading-relaxed max-w-xl font-normal text-pretty break-words">
                         Ketahui kewajiban pajak resmi Anda tanpa salah hitung. Pemilik usaha perseorangan berhak atas
                         fasilitas pembebasan pajak untuk omzet hingga <strong>Rp 500 Juta pertama</strong> per tahun.
                     </p>

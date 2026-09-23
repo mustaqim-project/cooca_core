@@ -42,12 +42,12 @@
                                 <span>Perjanjian Kontrak Layanan (Pasal 1338 KUHPerdata &amp; UU ITE)</span>
                             </div>
                             <h1
-                                class="text-4xl sm:text-5xl lg:text-[3.25rem] xl:text-[3.75rem] font-extrabold text-white tracking-tight leading-[1.12]">
+                                class="text-3xl sm:text-4xl md:text-5xl lg:text-[3.25rem] font-extrabold text-white tracking-tight leading-[1.15] text-balance break-words">
                                 {{ $page->title ?? 'Syarat & Ketentuan Layanan (Terms of Service)' }}
                             </h1>
                         </div>
 
-                        <p class="text-base sm:text-lg text-slate-300 leading-relaxed max-w-2xl font-normal">
+                        <p class="text-base sm:text-lg text-slate-300 leading-relaxed max-w-2xl font-normal text-pretty break-words">
                             {{ $page->subtitle ?? 'Perjanjian kontraktual penggunaan ekosistem Cooca, hak dan kewajiban Mitra Usaha & Pelanggan, tata kelola langganan SaaS, sistem escrow payment gateway, logistik, dan batas tanggung jawab.' }}
                         </p>
 
@@ -121,55 +121,55 @@
                             <div class="space-y-3">
                                 <!-- Item 1: Escrow & Settlement -->
                                 <div
-                                    class="p-3.5 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between">
-                                    <div class="flex items-center gap-3">
+                                    class="p-3.5 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between gap-3">
+                                    <div class="flex items-center gap-3 min-w-0 flex-1">
                                         <div
-                                            class="w-9 h-9 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+                                            class="w-9 h-9 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0">
                                             <i data-lucide="wallet" class="w-4 h-4"></i>
                                         </div>
-                                        <div>
-                                            <div class="text-xs font-bold text-white">Sistem Escrow &amp; Settlement Resmi
+                                        <div class="min-w-0 flex-1">
+                                            <div class="text-xs font-bold text-white leading-tight break-words">Sistem Escrow &amp; Settlement Resmi
                                             </div>
-                                            <div class="text-[11px] text-slate-400">Payment Gateway Berlisensi Bank
+                                            <div class="text-[11px] text-slate-400 leading-normal mt-0.5">Payment Gateway Berlisensi Bank
                                                 Indonesia</div>
                                         </div>
                                     </div>
-                                    <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400"></i>
+                                    <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"></i>
                                 </div>
 
                                 <!-- Item 2: SLA & Uptime -->
                                 <div
-                                    class="p-3.5 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between">
-                                    <div class="flex items-center gap-3">
+                                    class="p-3.5 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between gap-3">
+                                    <div class="flex items-center gap-3 min-w-0 flex-1">
                                         <div
-                                            class="w-9 h-9 rounded-lg bg-[#007AFF]/10 border border-[#007AFF]/30 flex items-center justify-center text-[#007AFF]">
+                                            class="w-9 h-9 rounded-lg bg-[#007AFF]/10 border border-[#007AFF]/30 flex items-center justify-center text-[#007AFF] shrink-0">
                                             <i data-lucide="activity" class="w-4 h-4"></i>
                                         </div>
-                                        <div>
-                                            <div class="text-xs font-bold text-white">99.9% Cloud Service Level Agreement
+                                        <div class="min-w-0 flex-1">
+                                            <div class="text-xs font-bold text-white leading-tight break-words">99.9% Cloud Service Level Agreement
                                             </div>
-                                            <div class="text-[11px] text-slate-400">Jaminan Ketersediaan POS &amp; Toko
+                                            <div class="text-[11px] text-slate-400 leading-normal mt-0.5">Jaminan Ketersediaan POS &amp; Toko
                                                 Online</div>
                                         </div>
                                     </div>
-                                    <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400"></i>
+                                    <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"></i>
                                 </div>
 
                                 <!-- Item 3: Indonesia Jurisdiction -->
                                 <div
-                                    class="p-3.5 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between">
-                                    <div class="flex items-center gap-3">
+                                    class="p-3.5 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between gap-3">
+                                    <div class="flex items-center gap-3 min-w-0 flex-1">
                                         <div
-                                            class="w-9 h-9 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
+                                            class="w-9 h-9 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0">
                                             <i data-lucide="scale" class="w-4 h-4"></i>
                                         </div>
-                                        <div>
-                                            <div class="text-xs font-bold text-white">Yurisdiksi Republik Indonesia</div>
-                                            <div class="text-[11px] text-slate-400">Tunduk pada Hukum Perdata &amp; UU ITE
+                                        <div class="min-w-0 flex-1">
+                                            <div class="text-xs font-bold text-white leading-tight break-words">Yurisdiksi Republik Indonesia</div>
+                                            <div class="text-[11px] text-slate-400 leading-normal mt-0.5">Tunduk pada Hukum Perdata &amp; UU ITE
                                             </div>
                                         </div>
                                     </div>
-                                    <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400"></i>
+                                    <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"></i>
                                 </div>
                             </div>
 
@@ -262,14 +262,14 @@
                             x-transition
                             class="p-8 sm:p-10 rounded-[28px] bg-white/85 dark:bg-[#1C1C1E]/85 border border-[#007AFF]/20 backdrop-blur-xl shadow-xs space-y-6 text-[14px] sm:text-[14.5px] leading-relaxed text-black/80 dark:text-white/80">
                             <div
-                                class="flex items-center justify-between pb-3 border-b border-black/[0.04] dark:border-white/[0.06]">
+                                class="flex flex-wrap sm:flex-nowrap items-center justify-between gap-3 pb-3 border-b border-black/[0.04] dark:border-white/[0.06]">
                                 <h2
-                                    class="text-xl sm:text-2xl font-bold text-black dark:text-white flex items-center gap-2">
-                                    <i data-lucide="store" class="w-5 h-5 text-[#007AFF]"></i>
+                                    class="text-xl sm:text-2xl font-bold text-black dark:text-white flex items-center gap-2 min-w-0 flex-1 leading-snug break-words">
+                                    <i data-lucide="store" class="w-5 h-5 text-[#007AFF] shrink-0"></i>
                                     <span>Ketentuan Khusus Pemilik Usaha (Owner UMKM)</span>
                                 </h2>
                                 <span
-                                    class="px-2.5 py-1 rounded-[8px] bg-[#007AFF]/10 text-[#007AFF] font-mono text-[11px] font-bold">Mitra
+                                    class="px-2.5 py-1 rounded-[8px] bg-[#007AFF]/10 text-[#007AFF] font-mono text-[11px] font-bold shrink-0">Mitra
                                     Merchant</span>
                             </div>
 
@@ -281,14 +281,14 @@
                             x-show="audienceFilter === 'all' || audienceFilter === 'customer'" x-transition
                             class="p-8 sm:p-10 rounded-[28px] bg-white/85 dark:bg-[#1C1C1E]/85 border border-[#FF9500]/20 backdrop-blur-xl shadow-xs space-y-6 text-[14px] sm:text-[14.5px] leading-relaxed text-black/80 dark:text-white/80">
                             <div
-                                class="flex items-center justify-between pb-3 border-b border-black/[0.04] dark:border-white/[0.06]">
+                                class="flex flex-wrap sm:flex-nowrap items-center justify-between gap-3 pb-3 border-b border-black/[0.04] dark:border-white/[0.06]">
                                 <h2
-                                    class="text-xl sm:text-2xl font-bold text-black dark:text-white flex items-center gap-2">
-                                    <i data-lucide="user-check" class="w-5 h-5 text-[#FF9500]"></i>
+                                    class="text-xl sm:text-2xl font-bold text-black dark:text-white flex items-center gap-2 min-w-0 flex-1 leading-snug break-words">
+                                    <i data-lucide="user-check" class="w-5 h-5 text-[#FF9500] shrink-0"></i>
                                     <span>Ketentuan Khusus Pelanggan Toko (Customer)</span>
                                 </h2>
                                 <span
-                                    class="px-2.5 py-1 rounded-[8px] bg-[#FF9500]/10 text-[#B25E00] dark:text-[#FF9F0A] font-mono text-[11px] font-bold">Pelanggan
+                                    class="px-2.5 py-1 rounded-[8px] bg-[#FF9500]/10 text-[#B25E00] dark:text-[#FF9F0A] font-mono text-[11px] font-bold shrink-0">Pelanggan
                                     Toko</span>
                             </div>
 

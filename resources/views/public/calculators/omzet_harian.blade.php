@@ -34,12 +34,12 @@
                             Pemecahan Target Penjualan Harian
                         </p>
                         <h1
-                            class="text-4xl sm:text-5xl lg:text-[3.25rem] xl:text-[3.75rem] font-extrabold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight leading-[1.15]">
+                            class="text-3xl sm:text-4xl md:text-5xl lg:text-[3.25rem] font-extrabold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight leading-[1.15] text-balance break-words">
                             Kalkulator Target <span class="text-[#007AFF] dark:text-[#0A84FF]">Omzet Harian</span>
                         </h1>
                     </div>
 
-                    <p class="text-base sm:text-lg text-[#48484A] dark:text-[#AEAEB2] leading-relaxed max-w-xl font-normal">
+                    <p class="text-base sm:text-lg text-[#48484A] dark:text-[#AEAEB2] leading-relaxed max-w-xl font-normal text-pretty break-words">
                         Jangan biarkan target bulanan terasa mustahil dicapai. Pecah menjadi target transaksi riil per hari
                         dan jumlah struk kasir yang perlu Anda layani setiap shift.
                     </p>

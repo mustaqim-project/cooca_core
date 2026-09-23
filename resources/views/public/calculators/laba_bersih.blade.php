@@ -34,13 +34,13 @@
                             Simulasi Profitabilitas Riil
                         </p>
                         <h1
-                            class="text-4xl sm:text-5xl lg:text-[3.25rem] xl:text-[3.75rem] font-extrabold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight leading-[1.15]">
+                            class="text-3xl sm:text-4xl md:text-5xl lg:text-[3.25rem] font-extrabold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight leading-[1.15] text-balance break-words">
                             Kalkulator Laba Bersih &amp; <span class="text-[#007AFF] dark:text-[#0A84FF]">Sisa Kas
                                 Usaha</span>
                         </h1>
                     </div>
 
-                    <p class="text-base sm:text-lg text-[#48484A] dark:text-[#AEAEB2] leading-relaxed max-w-xl font-normal">
+                    <p class="text-base sm:text-lg text-[#48484A] dark:text-[#AEAEB2] leading-relaxed max-w-xl font-normal text-pretty break-words">
                         Omzet besar belum tentu untung besar. Masukkan pendapatan kotor dan seluruh pos pengeluaran
                         operasional Anda untuk melihat berapa rupiah uang yang benar-benar bisa dibawa pulang.
                     </p>

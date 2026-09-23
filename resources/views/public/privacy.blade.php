@@ -42,12 +42,12 @@
                                 <span>Kepatuhan Resmi UU PDP No. 27/2022</span>
                             </div>
                             <h1
-                                class="text-4xl sm:text-5xl lg:text-[3.25rem] xl:text-[3.75rem] font-extrabold text-white tracking-tight leading-[1.12]">
+                                class="text-3xl sm:text-4xl md:text-5xl lg:text-[3.25rem] font-extrabold text-white tracking-tight leading-[1.15] text-balance break-words">
                                 {{ $page->title ?? 'Kebijakan Privasi & Pelindungan Data Pribadi' }}
                             </h1>
                         </div>
 
-                        <p class="text-base sm:text-lg text-slate-300 leading-relaxed max-w-2xl font-normal">
+                        <p class="text-base sm:text-lg text-slate-300 leading-relaxed max-w-2xl font-normal text-pretty break-words">
                             {{ $page->subtitle ?? 'Dokumen ini menguraikan komitmen Cooca dalam mengumpulkan, mengamankan, dan memproses data pemilik bisnis UMKM serta pelanggan toko secara terisolasi tanpa pernah menjual data pribadi kepada pihak ketiga.' }}
                         </p>
 
@@ -121,52 +121,52 @@
                             <div class="space-y-3">
                                 <!-- Item 1: AES-256 GCM -->
                                 <div
-                                    class="p-3.5 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between">
-                                    <div class="flex items-center gap-3">
+                                    class="p-3.5 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between gap-3">
+                                    <div class="flex items-center gap-3 min-w-0 flex-1">
                                         <div
-                                            class="w-9 h-9 rounded-lg bg-sky-500/10 border border-sky-400/30 flex items-center justify-center text-[#00C4D8]">
+                                            class="w-9 h-9 rounded-lg bg-sky-500/10 border border-sky-400/30 flex items-center justify-center text-[#00C4D8] shrink-0">
                                             <i data-lucide="key" class="w-4 h-4"></i>
                                         </div>
-                                        <div>
-                                            <div class="text-xs font-bold text-white">Enkripsi Simetris AES-256 GCM</div>
-                                            <div class="text-[11px] text-slate-400">At-Rest DB &amp; TLS 1.3 In-Transit
+                                        <div class="min-w-0 flex-1">
+                                            <div class="text-xs font-bold text-white leading-tight break-words">Enkripsi Simetris AES-256 GCM</div>
+                                            <div class="text-[11px] text-slate-400 leading-normal mt-0.5">At-Rest DB &amp; TLS 1.3 In-Transit
                                             </div>
                                         </div>
                                     </div>
-                                    <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400"></i>
+                                    <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"></i>
                                 </div>
 
                                 <!-- Item 2: Tenant Isolation -->
                                 <div
-                                    class="p-3.5 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between">
-                                    <div class="flex items-center gap-3">
+                                    class="p-3.5 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between gap-3">
+                                    <div class="flex items-center gap-3 min-w-0 flex-1">
                                         <div
-                                            class="w-9 h-9 rounded-lg bg-[#007AFF]/10 border border-[#007AFF]/30 flex items-center justify-center text-[#007AFF]">
+                                            class="w-9 h-9 rounded-lg bg-[#007AFF]/10 border border-[#007AFF]/30 flex items-center justify-center text-[#007AFF] shrink-0">
                                             <i data-lucide="database" class="w-4 h-4"></i>
                                         </div>
-                                        <div>
-                                            <div class="text-xs font-bold text-white">Multi-Tenant Database Isolation</div>
-                                            <div class="text-[11px] text-slate-400">Zero Cross-Tenant Query Leakage</div>
+                                        <div class="min-w-0 flex-1">
+                                            <div class="text-xs font-bold text-white leading-tight break-words">Multi-Tenant Database Isolation</div>
+                                            <div class="text-[11px] text-slate-400 leading-normal mt-0.5">Zero Cross-Tenant Query Leakage</div>
                                         </div>
                                     </div>
-                                    <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400"></i>
+                                    <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"></i>
                                 </div>
 
                                 <!-- Item 3: Zero Data Sale -->
                                 <div
-                                    class="p-3.5 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between">
-                                    <div class="flex items-center gap-3">
+                                    class="p-3.5 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between gap-3">
+                                    <div class="flex items-center gap-3 min-w-0 flex-1">
                                         <div
-                                            class="w-9 h-9 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+                                            class="w-9 h-9 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0">
                                             <i data-lucide="user-check" class="w-4 h-4"></i>
                                         </div>
-                                        <div>
-                                            <div class="text-xs font-bold text-white">100% Kedaulatan Data UMKM</div>
-                                            <div class="text-[11px] text-slate-400">Tidak pernah dijual ke pihak ketiga
+                                        <div class="min-w-0 flex-1">
+                                            <div class="text-xs font-bold text-white leading-tight break-words">100% Kedaulatan Data UMKM</div>
+                                            <div class="text-[11px] text-slate-400 leading-normal mt-0.5">Tidak pernah dijual ke pihak ketiga
                                             </div>
                                         </div>
                                     </div>
-                                    <i data-lucide="shield" class="w-4 h-4 text-emerald-400"></i>
+                                    <i data-lucide="shield" class="w-4 h-4 text-emerald-400 shrink-0"></i>
                                 </div>
                             </div>
 
@@ -256,14 +256,14 @@
                             x-transition
                             class="p-8 sm:p-10 rounded-[28px] bg-white/85 dark:bg-[#1C1C1E]/85 border border-[#007AFF]/20 backdrop-blur-xl shadow-xs space-y-6 text-[14px] sm:text-[14.5px] leading-relaxed text-black/80 dark:text-white/80">
                             <div
-                                class="flex items-center justify-between pb-3 border-b border-black/[0.04] dark:border-white/[0.06]">
+                                class="flex flex-wrap sm:flex-nowrap items-center justify-between gap-3 pb-3 border-b border-black/[0.04] dark:border-white/[0.06]">
                                 <h2
-                                    class="text-xl sm:text-2xl font-bold text-black dark:text-white flex items-center gap-2">
-                                    <i data-lucide="briefcase" class="w-5 h-5 text-[#007AFF]"></i>
+                                    class="text-xl sm:text-2xl font-bold text-black dark:text-white flex items-center gap-2 min-w-0 flex-1 leading-snug break-words">
+                                    <i data-lucide="briefcase" class="w-5 h-5 text-[#007AFF] shrink-0"></i>
                                     <span>Ketentuan Khusus Pemilik Usaha (Owner UMKM)</span>
                                 </h2>
                                 <span
-                                    class="px-2.5 py-1 rounded-[8px] bg-[#007AFF]/10 text-[#007AFF] font-mono text-[11px] font-bold">Mitra
+                                    class="px-2.5 py-1 rounded-[8px] bg-[#007AFF]/10 text-[#007AFF] font-mono text-[11px] font-bold shrink-0">Mitra
                                     Merchant</span>
                             </div>
 
@@ -275,14 +275,14 @@
                             x-transition
                             class="p-8 sm:p-10 rounded-[28px] bg-white/85 dark:bg-[#1C1C1E]/85 border border-[#34C759]/20 backdrop-blur-xl shadow-xs space-y-6 text-[14px] sm:text-[14.5px] leading-relaxed text-black/80 dark:text-white/80">
                             <div
-                                class="flex items-center justify-between pb-3 border-b border-black/[0.04] dark:border-white/[0.06]">
+                                class="flex flex-wrap sm:flex-nowrap items-center justify-between gap-3 pb-3 border-b border-black/[0.04] dark:border-white/[0.06]">
                                 <h2
-                                    class="text-xl sm:text-2xl font-bold text-black dark:text-white flex items-center gap-2">
-                                    <i data-lucide="shopping-bag" class="w-5 h-5 text-[#34C759]"></i>
+                                    class="text-xl sm:text-2xl font-bold text-black dark:text-white flex items-center gap-2 min-w-0 flex-1 leading-snug break-words">
+                                    <i data-lucide="shopping-bag" class="w-5 h-5 text-[#34C759] shrink-0"></i>
                                     <span>Ketentuan Khusus Pelanggan Toko (Customer)</span>
                                 </h2>
                                 <span
-                                    class="px-2.5 py-1 rounded-[8px] bg-[#34C759]/10 text-[#248A3D] dark:text-[#30D158] font-mono text-[11px] font-bold">Pelanggan
+                                    class="px-2.5 py-1 rounded-[8px] bg-[#34C759]/10 text-[#248A3D] dark:text-[#30D158] font-mono text-[11px] font-bold shrink-0">Pelanggan
                                     Toko</span>
                             </div>
 

@@ -63,37 +63,36 @@
                         </div>
 
                         <h1
-                            class="text-3xl sm:text-4xl md:text-3xl lg:text-[2.75rem] xl:text-[3.25rem] font-extrabold text-white tracking-tight leading-[1.15]">
+                            class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.75rem] xl:text-[3.25rem] font-extrabold text-white tracking-tight leading-[1.2] text-balance break-words">
                             Rasakan Kemudahan COOCA di Layar Anda <span class="text-[#00C4D8]">Tanpa Instalasi</span>
                         </h1>
 
-                        <p class="text-base sm:text-lg text-slate-300 leading-relaxed max-w-xl">
-                            Buktikan sendiri betapa ringannya kasir kasir kilat, akuratnya pemotongan stok bahan baku per
-                            porsi,
-                            dan jernihnya laporan keuangan COOCA langsung dari perangkat yang Anda gunakan saat ini.
+                        <p class="text-base sm:text-lg text-slate-300 leading-relaxed max-w-xl text-pretty">
+                            Buktikan sendiri betapa ringannya kasir kilat, akuratnya pemotongan stok bahan baku per
+                            porsi, dan jernihnya laporan keuangan COOCA langsung dari perangkat yang Anda gunakan saat ini.
                         </p>
 
                         {{-- Tangible Highlights --}}
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200">
-                                <i data-lucide="check-circle-2" class="w-4 h-4 text-[#00C4D8] shrink-0"
+                            <div class="flex items-start gap-2.5 text-xs sm:text-sm font-semibold text-slate-200">
+                                <i data-lucide="check-circle-2" class="w-4 h-4 text-[#00C4D8] shrink-0 mt-0.5"
                                     aria-hidden="true"></i>
-                                <span>Tanpa perlu kartu kredit atau komitmen bayar</span>
+                                <span class="min-w-0 flex-1 leading-snug">Tanpa perlu kartu kredit atau komitmen bayar</span>
                             </div>
-                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200">
-                                <i data-lucide="check-circle-2" class="w-4 h-4 text-[#00C4D8] shrink-0"
+                            <div class="flex items-start gap-2.5 text-xs sm:text-sm font-semibold text-slate-200">
+                                <i data-lucide="check-circle-2" class="w-4 h-4 text-[#00C4D8] shrink-0 mt-0.5"
                                     aria-hidden="true"></i>
-                                <span>Bisa dicoba di HP Android, iPad, maupun laptop</span>
+                                <span class="min-w-0 flex-1 leading-snug">Bisa dicoba di HP Android, iPad, maupun laptop</span>
                             </div>
-                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200">
-                                <i data-lucide="check-circle-2" class="w-4 h-4 text-[#00C4D8] shrink-0"
+                            <div class="flex items-start gap-2.5 text-xs sm:text-sm font-semibold text-slate-200">
+                                <i data-lucide="check-circle-2" class="w-4 h-4 text-[#00C4D8] shrink-0 mt-0.5"
                                     aria-hidden="true"></i>
-                                <span>Data simulasi siap pakai untuk berbagai industri</span>
+                                <span class="min-w-0 flex-1 leading-snug">Data simulasi siap pakai untuk berbagai industri</span>
                             </div>
-                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200">
-                                <i data-lucide="check-circle-2" class="w-4 h-4 text-[#00C4D8] shrink-0"
+                            <div class="flex items-start gap-2.5 text-xs sm:text-sm font-semibold text-slate-200">
+                                <i data-lucide="check-circle-2" class="w-4 h-4 text-[#00C4D8] shrink-0 mt-0.5"
                                     aria-hidden="true"></i>
-                                <span>Data uji coba dapat direset bersih dengan 1 klik</span>
+                                <span class="min-w-0 flex-1 leading-snug">Data uji coba dapat direset bersih dengan 1 klik</span>
                             </div>
                         </div>
 
@@ -102,12 +101,12 @@
                             <a href="{{ route('register') }}"
                                 class="h-12 px-7 rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-lg shadow-[#007AFF]/25 active:scale-[0.98] transition-all">
                                 <span>Mulai Coba Demo Sekarang</span>
-                                <i data-lucide="arrow-right" class="w-4 h-4" aria-hidden="true"></i>
+                                <i data-lucide="arrow-right" class="w-4 h-4 shrink-0" aria-hidden="true"></i>
                             </a>
                             <a href="{{ \App\Models\SystemSetting::get('social_whatsapp_url', 'https://wa.me/6285287864176') }}?text=Halo%20saya%20ingin%20jadwalkan%20demo%20privat%20COOCA"
                                 target="_blank" rel="noopener"
                                 class="h-12 px-6 rounded-[14px] bg-white/10 hover:bg-white/15 border border-white/15 text-white text-sm font-semibold flex items-center justify-center gap-2 shadow-sm transition active:scale-[0.98] backdrop-blur-sm">
-                                <i data-lucide="video" class="w-4 h-4 text-[#00C4D8]" aria-hidden="true"></i>
+                                <i data-lucide="video" class="w-4 h-4 text-[#00C4D8] shrink-0" aria-hidden="true"></i>
                                 <span>Minta Demo Panduan Video Call</span>
                             </a>
                         </div>
@@ -118,13 +117,13 @@
                         <div
                             class="rounded-2xl bg-[#0E1E45]/80 p-6 shadow-2xl border border-white/10 ring-1 ring-white/10 backdrop-blur-md text-white space-y-5">
                             <div class="flex items-center justify-between border-b border-white/10 pb-4">
-                                <div class="flex items-center gap-2">
-                                    <span class="w-2.5 h-2.5 rounded-full bg-[#00C4D8] animate-pulse"></span>
-                                    <span class="text-xs font-mono font-bold text-white">Simulasi Kasir & Dasbor
+                                <div class="flex items-center gap-2 min-w-0">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-[#00C4D8] animate-pulse shrink-0"></span>
+                                    <span class="text-xs font-mono font-bold text-white truncate">Simulasi Kasir & Dasbor
                                         Aktif</span>
                                 </div>
                                 <span
-                                    class="text-[11px] font-semibold text-[#00C4D8] bg-[#00C4D8]/15 border border-[#00C4D8]/30 px-2.5 py-0.5 rounded-full">
+                                    class="text-[11px] font-semibold text-[#00C4D8] bg-[#00C4D8]/15 border border-[#00C4D8]/30 px-2.5 py-0.5 rounded-full shrink-0">
                                     Sandbox Siap
                                 </span>
                             </div>
@@ -132,46 +131,46 @@
                             {{-- Sandbox Steps Preview --}}
                             <div class="space-y-3 text-xs">
                                 <div
-                                    class="p-3.5 rounded-[14px] bg-[#060B1E]/60 border border-white/10 flex items-center justify-between">
-                                    <div class="flex items-center gap-3">
+                                    class="p-3.5 rounded-[14px] bg-[#060B1E]/60 border border-white/10 flex items-center justify-between gap-3">
+                                    <div class="flex items-center gap-3 min-w-0">
                                         <div
-                                            class="w-8 h-8 rounded-[10px] bg-[#007AFF]/20 text-[#00C4D8] flex items-center justify-center font-bold">
+                                            class="w-8 h-8 rounded-[10px] bg-[#007AFF]/20 text-[#00C4D8] flex items-center justify-center font-bold shrink-0">
                                             1</div>
-                                        <div>
-                                            <p class="font-bold text-white">Kasir POS Transaksi</p>
-                                            <p class="text-[11px] text-slate-300">Coba scan barang & cetak nota simulasi</p>
+                                        <div class="min-w-0">
+                                            <p class="font-bold text-white truncate">Kasir POS Transaksi</p>
+                                            <p class="text-[11px] text-slate-300 truncate">Coba scan barang & cetak nota simulasi</p>
                                         </div>
                                     </div>
-                                    <span class="text-emerald-400 font-semibold">Tersedia</span>
+                                    <span class="text-emerald-400 font-semibold shrink-0">Tersedia</span>
                                 </div>
 
                                 <div
-                                    class="p-3.5 rounded-[14px] bg-[#060B1E]/60 border border-white/10 flex items-center justify-between">
-                                    <div class="flex items-center gap-3">
+                                    class="p-3.5 rounded-[14px] bg-[#060B1E]/60 border border-white/10 flex items-center justify-between gap-3">
+                                    <div class="flex items-center gap-3 min-w-0">
                                         <div
-                                            class="w-8 h-8 rounded-[10px] bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold">
+                                            class="w-8 h-8 rounded-[10px] bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold shrink-0">
                                             2</div>
-                                        <div>
-                                            <p class="font-bold text-white">Potong Stok Bahan Baku</p>
-                                            <p class="text-[11px] text-slate-300">Lihat stok resep gramatur berkurang</p>
+                                        <div class="min-w-0">
+                                            <p class="font-bold text-white truncate">Potong Stok Bahan Baku</p>
+                                            <p class="text-[11px] text-slate-300 truncate">Lihat stok resep gramatur berkurang</p>
                                         </div>
                                     </div>
-                                    <span class="text-emerald-400 font-semibold">Tersedia</span>
+                                    <span class="text-emerald-400 font-semibold shrink-0">Tersedia</span>
                                 </div>
 
                                 <div
-                                    class="p-3.5 rounded-[14px] bg-[#060B1E]/60 border border-white/10 flex items-center justify-between">
-                                    <div class="flex items-center gap-3">
+                                    class="p-3.5 rounded-[14px] bg-[#060B1E]/60 border border-white/10 flex items-center justify-between gap-3">
+                                    <div class="flex items-center gap-3 min-w-0">
                                         <div
-                                            class="w-8 h-8 rounded-[10px] bg-purple-500/20 text-purple-400 flex items-center justify-center font-bold">
+                                            class="w-8 h-8 rounded-[10px] bg-purple-500/20 text-purple-400 flex items-center justify-center font-bold shrink-0">
                                             3</div>
-                                        <div>
-                                            <p class="font-bold text-white">Laporan Laba Rugi Riil</p>
-                                            <p class="text-[11px] text-slate-300">Cek margin kotor & omzet harian otomatis
+                                        <div class="min-w-0">
+                                            <p class="font-bold text-white truncate">Laporan Laba Rugi Riil</p>
+                                            <p class="text-[11px] text-slate-300 truncate">Cek margin kotor & omzet harian otomatis
                                             </p>
                                         </div>
                                     </div>
-                                    <span class="text-emerald-400 font-semibold">Tersedia</span>
+                                    <span class="text-emerald-400 font-semibold shrink-0">Tersedia</span>
                                 </div>
                             </div>
 
@@ -180,7 +179,7 @@
                                 <a href="{{ route('register') }}"
                                     class="w-full h-11 rounded-[12px] bg-[#007AFF] hover:bg-[#0066DF] text-white text-xs font-semibold flex items-center justify-center gap-2 shadow-lg shadow-[#007AFF]/25 transition">
                                     <span>Buka Akses Demo Sekarang</span>
-                                    <i data-lucide="arrow-right" class="w-4 h-4" aria-hidden="true"></i>
+                                    <i data-lucide="arrow-right" class="w-4 h-4 shrink-0" aria-hidden="true"></i>
                                 </a>
                             </div>
                         </div>
@@ -198,7 +197,7 @@
                     <span class="text-xs uppercase tracking-wider font-bold text-[#007AFF] dark:text-[#00C4D8] block">
                         Apa yang Akan Anda Pelajari
                     </span>
-                    <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-[1.2] text-balance break-words">
                         Empat Stasiun Eksplorasi dalam Sesi Demo COOCA
                     </h2>
                 </div>
@@ -207,11 +206,11 @@
                     <div
                         class="p-7 rounded-[24px] bg-white dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 space-y-3 shadow-sm">
                         <div
-                            class="w-10 h-10 rounded-[12px] bg-blue-500/10 text-[#007AFF] flex items-center justify-center">
+                            class="w-10 h-10 rounded-[12px] bg-blue-500/10 text-[#007AFF] flex items-center justify-center shrink-0">
                             <i data-lucide="shopping-cart" class="w-5 h-5" aria-hidden="true"></i>
                         </div>
-                        <h3 class="text-lg font-bold text-slate-900 dark:text-white">1. Alur Transaksi Kasir POS Cepat</h3>
-                        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-white leading-snug text-balance break-words">1. Alur Transaksi Kasir POS Cepat</h3>
+                        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed text-pretty">
                             Coba menambahkan produk dengan barcode, pilih modifier topping, masukkan diskon toko, pisah
                             tagihan antar tamu (split bill), dan cetak struk pembayaran dalam hitungan detik.
                         </p>
@@ -220,12 +219,12 @@
                     <div
                         class="p-7 rounded-[24px] bg-white dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 space-y-3 shadow-sm">
                         <div
-                            class="w-10 h-10 rounded-[12px] bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+                            class="w-10 h-10 rounded-[12px] bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
                             <i data-lucide="layers" class="w-5 h-5" aria-hidden="true"></i>
                         </div>
-                        <h3 class="text-lg font-bold text-slate-900 dark:text-white">2. Manajemen Resep & Inventaris
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-white leading-snug text-balance break-words">2. Manajemen Resep & Inventaris
                             Otomatis</h3>
-                        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed text-pretty">
                             Lihat bagaimana bahan mentah (biji kopi, susu, kain, sparepart) terpotong otomatis di kartu stok
                             begitu kasir menekan tombol bayar, tanpa perlu rekap fisik berulang.
                         </p>
@@ -234,12 +233,12 @@
                     <div
                         class="p-7 rounded-[24px] bg-white dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 space-y-3 shadow-sm">
                         <div
-                            class="w-10 h-10 rounded-[12px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                            class="w-10 h-10 rounded-[12px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
                             <i data-lucide="message-circle" class="w-5 h-5" aria-hidden="true"></i>
                         </div>
-                        <h3 class="text-lg font-bold text-slate-900 dark:text-white">3. Notifikasi WhatsApp & Otomasi
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-white leading-snug text-balance break-words">3. Notifikasi WhatsApp & Otomasi
                             Pelanggan</h3>
-                        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed text-pretty">
                             Simulasikan pengiriman nota digital ke nomor WhatsApp pelanggan, pengingat jadwal servis rutin,
                             serta notifikasi saat cucian laundry telah selesai disetrika.
                         </p>
@@ -248,12 +247,12 @@
                     <div
                         class="p-7 rounded-[24px] bg-white dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 space-y-3 shadow-sm">
                         <div
-                            class="w-10 h-10 rounded-[12px] bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center">
+                            class="w-10 h-10 rounded-[12px] bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0">
                             <i data-lucide="line-chart" class="w-5 h-5" aria-hidden="true"></i>
                         </div>
-                        <h3 class="text-lg font-bold text-slate-900 dark:text-white">4. Dasbor Eksekutif Pemilik Bisnis
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-white leading-snug text-balance break-words">4. Dasbor Eksekutif Pemilik Bisnis
                         </h3>
-                        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed text-pretty">
                             Pantau pergerakan arus kas masuk dan keluar secara live, margin keuntungan kotor, jam-jam
                             penjualan tersibuk, dan performa kasir per cabang toko.
                         </p>
@@ -268,7 +267,7 @@
                     <span class="text-xs uppercase tracking-wider font-bold text-[#007AFF] dark:text-[#00C4D8] block">
                         Alur Uji Coba
                     </span>
-                    <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mt-1">
+                    <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mt-1 leading-snug text-balance break-words">
                         Tiga Langkah Mudah Menguji Coba COOCA
                     </h2>
                 </div>
@@ -277,22 +276,22 @@
                     <div
                         class="p-5 rounded-[18px] bg-slate-50 dark:bg-[#070A14] border border-slate-200/60 dark:border-white/5 space-y-2">
                         <div class="text-xs font-mono font-bold text-[#007AFF]">Langkah 01</div>
-                        <h4 class="text-sm font-bold text-slate-900 dark:text-white">Buka Akses Sandbox</h4>
-                        <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">Daftarkan akun gratis dengan
+                        <h4 class="text-sm font-bold text-slate-900 dark:text-white leading-snug">Buka Akses Sandbox</h4>
+                        <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed text-pretty">Daftarkan akun gratis dengan
                             email aktif dan pilih jenis industri usaha Anda.</p>
                     </div>
                     <div
                         class="p-5 rounded-[18px] bg-slate-50 dark:bg-[#070A14] border border-slate-200/60 dark:border-white/5 space-y-2">
                         <div class="text-xs font-mono font-bold text-amber-500">Langkah 02</div>
-                        <h4 class="text-sm font-bold text-slate-900 dark:text-white">Coba Transaksi Kasir</h4>
-                        <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">Gunakan contoh produk yang
+                        <h4 class="text-sm font-bold text-slate-900 dark:text-white leading-snug">Coba Transaksi Kasir</h4>
+                        <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed text-pretty">Gunakan contoh produk yang
                             telah kami sediakan untuk mencoba proses checkout.</p>
                     </div>
                     <div
                         class="p-5 rounded-[18px] bg-slate-50 dark:bg-[#070A14] border border-slate-200/60 dark:border-white/5 space-y-2">
                         <div class="text-xs font-mono font-bold text-emerald-500">Langkah 03</div>
-                        <h4 class="text-sm font-bold text-slate-900 dark:text-white">Siap untuk Jualan Riil</h4>
-                        <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">Hapus data uji coba kapan
+                        <h4 class="text-sm font-bold text-slate-900 dark:text-white leading-snug">Siap untuk Jualan Riil</h4>
+                        <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed text-pretty">Hapus data uji coba kapan
                             saja dan masukkan katalog produk toko Anda yang sebenarnya.</p>
                     </div>
                 </div>
@@ -303,7 +302,7 @@
                 <div class="text-center space-y-2">
                     <span class="text-xs uppercase tracking-wider font-bold text-[#007AFF] dark:text-[#00C4D8] block">Tanya
                         Jawab</span>
-                    <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">Pertanyaan Seputar Uji Coba
+                    <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white leading-[1.2] text-balance break-words">Pertanyaan Seputar Uji Coba
                         Demo</h2>
                 </div>
 
@@ -311,14 +310,14 @@
                     <details
                         class="group bg-white dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 rounded-[18px] p-5 transition-all">
                         <summary
-                            class="flex justify-between items-center cursor-pointer font-bold text-sm sm:text-base text-slate-900 dark:text-white">
-                            <span>Apakah saya harus menginstal aplikasi dari Play Store / App Store?</span>
+                            class="flex justify-between items-center gap-3 cursor-pointer font-bold text-sm sm:text-base text-slate-900 dark:text-white">
+                            <span class="min-w-0 flex-1 leading-snug">Apakah saya harus menginstal aplikasi dari Play Store / App Store?</span>
                             <i data-lucide="chevron-down"
-                                class="w-4 h-4 text-slate-400 group-open:rotate-180 transition-transform"
+                                class="w-4 h-4 text-slate-400 group-open:rotate-180 transition-transform shrink-0"
                                 aria-hidden="true"></i>
                         </summary>
                         <p
-                            class="mt-3 text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed border-t border-slate-100 dark:border-white/10 pt-3">
+                            class="mt-3 text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed text-pretty border-t border-slate-100 dark:border-white/10 pt-3">
                             Tidak wajib. COOCA berbasis web modern (PWA) yang dapat langsung dibuka dari browser Chrome,
                             Safari, atau Firefox di HP, tablet, maupun laptop Anda tanpa menghabiskan memori perangkat.
                         </p>
@@ -327,14 +326,14 @@
                     <details
                         class="group bg-white dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 rounded-[18px] p-5 transition-all">
                         <summary
-                            class="flex justify-between items-center cursor-pointer font-bold text-sm sm:text-base text-slate-900 dark:text-white">
-                            <span>Apakah data transaksi simulasi bisa dibersihkan sebelum mulai jualan sungguhan?</span>
+                            class="flex justify-between items-center gap-3 cursor-pointer font-bold text-sm sm:text-base text-slate-900 dark:text-white">
+                            <span class="min-w-0 flex-1 leading-snug">Apakah data transaksi simulasi bisa dibersihkan sebelum mulai jualan sungguhan?</span>
                             <i data-lucide="chevron-down"
-                                class="w-4 h-4 text-slate-400 group-open:rotate-180 transition-transform"
+                                class="w-4 h-4 text-slate-400 group-open:rotate-180 transition-transform shrink-0"
                                 aria-hidden="true"></i>
                         </summary>
                         <p
-                            class="mt-3 text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed border-t border-slate-100 dark:border-white/10 pt-3">
+                            class="mt-3 text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed text-pretty border-t border-slate-100 dark:border-white/10 pt-3">
                             Bisa. Tersedia tombol "Reset Data Simulasi" di menu pengaturan. Anda dapat membersihkan seluruh
                             transaksi percobaan dengan aman tanpa menghapus akun toko Anda.
                         </p>
@@ -343,14 +342,14 @@
                     <details
                         class="group bg-white dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 rounded-[18px] p-5 transition-all">
                         <summary
-                            class="flex justify-between items-center cursor-pointer font-bold text-sm sm:text-base text-slate-900 dark:text-white">
-                            <span>Apakah saya bisa meminta bantuan tim COOCA mendemokan via Google Meet / Zoom?</span>
+                            class="flex justify-between items-center gap-3 cursor-pointer font-bold text-sm sm:text-base text-slate-900 dark:text-white">
+                            <span class="min-w-0 flex-1 leading-snug">Apakah saya bisa meminta bantuan tim COOCA mendemokan via Google Meet / Zoom?</span>
                             <i data-lucide="chevron-down"
-                                class="w-4 h-4 text-slate-400 group-open:rotate-180 transition-transform"
+                                class="w-4 h-4 text-slate-400 group-open:rotate-180 transition-transform shrink-0"
                                 aria-hidden="true"></i>
                         </summary>
                         <p
-                            class="mt-3 text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed border-t border-slate-100 dark:border-white/10 pt-3">
+                            class="mt-3 text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed text-pretty border-t border-slate-100 dark:border-white/10 pt-3">
                             Sangat bisa. Anda dapat menghubungi tim kami lewat WhatsApp untuk menjadwalkan sesi onboarding
                             privat secara gratis bersama tim spesialis implementasi kami.
                         </p>
@@ -371,13 +370,13 @@
                 <div class="relative z-10 space-y-5 max-w-2xl mx-auto">
                     <div
                         class="text-xs font-semibold uppercase tracking-wider text-[#00C4D8] inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#007AFF]/15 border border-[#00C4D8]/30">
-                        <i data-lucide="shield-check" class="w-4 h-4 text-[#00C4D8]" aria-hidden="true"></i>
+                        <i data-lucide="shield-check" class="w-4 h-4 text-[#00C4D8] shrink-0" aria-hidden="true"></i>
                         <span>Coba Sekarang Tanpa Komitmen Pembayaran</span>
                     </div>
-                    <h3 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
+                    <h3 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight leading-[1.2] text-balance break-words">
                         Mulai Eksplorasi Demo COOCA dalam 60 Detik
                     </h3>
-                    <p class="text-sm text-slate-300 max-w-xl mx-auto leading-relaxed">
+                    <p class="text-sm text-slate-300 max-w-xl mx-auto leading-relaxed text-pretty">
                         Daftar akun gratis hari ini dan rasakan perbedaan sistem operasi bisnis yang dirancang dengan
                         standar kualitas tinggi untuk bisnis Anda.
                     </p>
@@ -385,7 +384,7 @@
                         <a href="{{ route('register') }}"
                             class="h-12 px-8 rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-sm inline-flex items-center gap-2 shadow-lg shadow-[#007AFF]/25 active:scale-95 transition-all">
                             <span>Akses Demo Gratis</span>
-                            <i data-lucide="arrow-right" class="w-4 h-4" aria-hidden="true"></i>
+                            <i data-lucide="arrow-right" class="w-4 h-4 shrink-0" aria-hidden="true"></i>
                         </a>
                         <a href="{{ route('public.pricing') }}"
                             class="h-12 px-7 rounded-[14px] bg-white/10 hover:bg-white/15 border border-white/15 text-white font-semibold text-sm inline-flex items-center gap-2 transition-all backdrop-blur-sm">

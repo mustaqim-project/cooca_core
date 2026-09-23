@@ -32,11 +32,11 @@
                         </div>
 
                         <h1
-                            class="text-4xl sm:text-5xl lg:text-[3.25rem] xl:text-[3.75rem] font-extrabold text-white tracking-tight leading-[1.15]">
+                            class="text-3xl sm:text-4xl md:text-5xl lg:text-[3.25rem] font-extrabold text-white tracking-tight leading-[1.15] text-balance break-words">
                             Wawasan Praktis untuk <span class="text-[#00C4D8]">Kembangkan Usaha Anda.</span>
                         </h1>
 
-                        <p class="text-base sm:text-lg text-slate-300 font-normal leading-relaxed max-w-xl">
+                        <p class="text-base sm:text-lg text-slate-300 font-normal leading-relaxed max-w-xl text-pretty break-words">
                             Pelajari cara menghitung modal pokok (HPP), titik impas (BEP), tips mengelola arus kas harian,
                             dan
                             tutorial penggunaan aplikasi kasir tanpa rumus yang rumit.
@@ -45,19 +45,19 @@
                         <!-- Trust highlights for UMKM -->
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
                             <div class="p-3.5 rounded-xl bg-white/5 border border-white/10">
-                                <div class="text-xs font-bold text-white flex items-center gap-1.5">
-                                    <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400"></i>
-                                    <span>Bahasa Sederhana</span>
+                                <div class="text-xs font-bold text-white flex items-center gap-2">
+                                    <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"></i>
+                                    <span class="min-w-0 flex-1 leading-snug">Bahasa Sederhana</span>
                                 </div>
-                                <div class="text-[12px] text-slate-300 mt-1">Bebas istilah finansial yang berbelit</div>
+                                <div class="text-[12px] text-slate-300 mt-1 leading-normal text-pretty">Bebas istilah finansial yang berbelit</div>
                             </div>
 
                             <div class="p-3.5 rounded-xl bg-white/5 border border-white/10">
-                                <div class="text-xs font-bold text-white flex items-center gap-1.5">
-                                    <i data-lucide="calculator" class="w-4 h-4 text-[#00C4D8]"></i>
-                                    <span>Lengkap Contoh</span>
+                                <div class="text-xs font-bold text-white flex items-center gap-2">
+                                    <i data-lucide="calculator" class="w-4 h-4 text-[#00C4D8] shrink-0"></i>
+                                    <span class="min-w-0 flex-1 leading-snug">Lengkap Contoh</span>
                                 </div>
-                                <div class="text-[12px] text-slate-300 mt-1">Studi kasus nyata warung &amp; bengkel</div>
+                                <div class="text-[12px] text-slate-300 mt-1 leading-normal text-pretty">Studi kasus nyata warung &amp; bengkel</div>
                             </div>
 
                             <div class="p-3.5 rounded-xl bg-white/5 border border-white/10">

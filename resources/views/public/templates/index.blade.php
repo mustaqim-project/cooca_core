@@ -32,11 +32,11 @@
                         </div>
 
                         <h1
-                            class="text-4xl sm:text-5xl lg:text-[3.25rem] xl:text-[3.75rem] font-extrabold text-white tracking-tight leading-[1.15]">
+                            class="text-3xl sm:text-4xl md:text-5xl lg:text-[3.25rem] font-extrabold text-white tracking-tight leading-[1.15] text-balance break-words">
                             Format Excel Pembukuan Praktis <span class="text-[#00C4D8]">Siap Pakai.</span>
                         </h1>
 
-                        <p class="text-base sm:text-lg text-slate-300 font-normal leading-relaxed max-w-xl">
+                        <p class="text-base sm:text-lg text-slate-300 font-normal leading-relaxed max-w-xl text-pretty break-words">
                             Koleksi spreadsheet pembukuan usaha yang sudah dilengkapi rumus otomatis. Didesain rapi, bersih,
                             dan
                             mudah diisi dari laptop maupun ponsel tanpa perlu keahlian akuntansi khusus.
@@ -45,19 +45,19 @@
                         <!-- Trust indicators for UMKM -->
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
                             <div class="p-3.5 rounded-xl bg-white/5 border border-white/10">
-                                <div class="text-xs font-bold text-white flex items-center gap-1.5">
-                                    <i data-lucide="calculator" class="w-4 h-4 text-emerald-400"></i>
-                                    <span>Rumus Otomatis</span>
+                                <div class="text-xs font-bold text-white flex items-center gap-2">
+                                    <i data-lucide="calculator" class="w-4 h-4 text-emerald-400 shrink-0"></i>
+                                    <span class="min-w-0 flex-1 leading-snug">Rumus Otomatis</span>
                                 </div>
-                                <div class="text-[12px] text-slate-300 mt-1">Saldo & total terjumlah otomatis</div>
+                                <div class="text-[12px] text-slate-300 mt-1 leading-normal text-pretty">Saldo &amp; total terjumlah otomatis</div>
                             </div>
 
                             <div class="p-3.5 rounded-xl bg-white/5 border border-white/10">
-                                <div class="text-xs font-bold text-white flex items-center gap-1.5">
-                                    <i data-lucide="shield-check" class="w-4 h-4 text-[#00C4D8]"></i>
-                                    <span>Bebas Macro</span>
+                                <div class="text-xs font-bold text-white flex items-center gap-2">
+                                    <i data-lucide="shield-check" class="w-4 h-4 text-[#00C4D8] shrink-0"></i>
+                                    <span class="min-w-0 flex-1 leading-snug">Bebas Macro</span>
                                 </div>
-                                <div class="text-[12px] text-slate-300 mt-1">Aman dibuka di Excel & WPS</div>
+                                <div class="text-[12px] text-slate-300 mt-1 leading-normal text-pretty">Aman dibuka di Excel &amp; WPS</div>
                             </div>
 
                             <div class="p-3.5 rounded-xl bg-white/5 border border-white/10">

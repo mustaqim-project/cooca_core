@@ -42,12 +42,12 @@
 
                     <!-- Main Heading -->
                     <h1
-                        class="text-4xl sm:text-5xl lg:text-[3.25rem] xl:text-[3.75rem] font-extrabold text-white tracking-tight leading-[1.15]">
+                        class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.75rem] xl:text-[3.25rem] font-extrabold text-white tracking-tight leading-[1.2] text-balance break-words">
                         Pilih Paket yang Sesuai dengan <span class="text-[#00C4D8]">Kebutuhan Bisnis Anda</span>
                     </h1>
 
                     <!-- Subtitle -->
-                    <p class="text-base sm:text-lg text-slate-300 leading-relaxed max-w-xl font-normal">
+                    <p class="text-base sm:text-lg text-slate-300 leading-relaxed max-w-xl font-normal text-pretty">
                         Mulai dari yang gratis, hingga paket lengkap dengan fitur AI dan omnichannel. Semua paket sudah
                         termasuk akses ke ekosistem COOCA.
                     </p>
@@ -56,18 +56,18 @@
                     <div class="pt-4 grid grid-cols-3 sm:grid-cols-5 gap-4 sm:gap-3 items-start">
 
                         <!-- 1. ERP Lengkap -->
-                        <div class="flex flex-col items-center text-center space-y-2 group cursor-default">
+                        <div class="flex flex-col items-center text-center space-y-2 group cursor-default min-w-0">
                             <div
-                                class="w-12 h-12 rounded-full border border-sky-400/40 bg-sky-500/10 flex items-center justify-center text-[#00C4D8] shadow-[0_0_15px_rgba(0,196,216,0.15)] group-hover:border-sky-400 group-hover:scale-105 transition-all">
+                                class="w-12 h-12 rounded-full border border-sky-400/40 bg-sky-500/10 flex items-center justify-center text-[#00C4D8] shadow-[0_0_15px_rgba(0,196,216,0.15)] group-hover:border-sky-400 group-hover:scale-105 transition-all shrink-0">
                                 <i data-lucide="layers" class="w-5 h-5"></i>
                             </div>
                             <span class="text-xs text-slate-300 font-medium leading-tight">ERP<br>Lengkap</span>
                         </div>
 
                         <!-- 2. Omnichannel Terintegrasi -->
-                        <div class="flex flex-col items-center text-center space-y-2 group cursor-default">
+                        <div class="flex flex-col items-center text-center space-y-2 group cursor-default min-w-0">
                             <div
-                                class="w-12 h-12 rounded-full border border-sky-400/40 bg-sky-500/10 flex items-center justify-center text-[#00C4D8] shadow-[0_0_15px_rgba(0,196,216,0.15)] group-hover:border-sky-400 group-hover:scale-105 transition-all">
+                                class="w-12 h-12 rounded-full border border-sky-400/40 bg-sky-500/10 flex items-center justify-center text-[#00C4D8] shadow-[0_0_15px_rgba(0,196,216,0.15)] group-hover:border-sky-400 group-hover:scale-105 transition-all shrink-0">
                                 <i data-lucide="share-2" class="w-5 h-5"></i>
                             </div>
                             <span
@@ -75,9 +75,9 @@
                         </div>
 
                         <!-- 3. Content Automation -->
-                        <div class="flex flex-col items-center text-center space-y-2 group cursor-default">
+                        <div class="flex flex-col items-center text-center space-y-2 group cursor-default min-w-0">
                             <div
-                                class="w-12 h-12 rounded-full border border-sky-400/40 bg-sky-500/10 flex items-center justify-center text-[#00C4D8] shadow-[0_0_15px_rgba(0,196,216,0.15)] group-hover:border-sky-400 group-hover:scale-105 transition-all">
+                                class="w-12 h-12 rounded-full border border-sky-400/40 bg-sky-500/10 flex items-center justify-center text-[#00C4D8] shadow-[0_0_15px_rgba(0,196,216,0.15)] group-hover:border-sky-400 group-hover:scale-105 transition-all shrink-0">
                                 <i data-lucide="pen-tool" class="w-5 h-5"></i>
                             </div>
                             <span class="text-xs text-slate-300 font-medium leading-tight">Content Automation<br>&amp;
@@ -85,18 +85,18 @@
                         </div>
 
                         <!-- 4. Marketplace & Order -->
-                        <div class="flex flex-col items-center text-center space-y-2 group cursor-default">
+                        <div class="flex flex-col items-center text-center space-y-2 group cursor-default min-w-0">
                             <div
-                                class="w-12 h-12 rounded-full border border-sky-400/40 bg-sky-500/10 flex items-center justify-center text-[#00C4D8] shadow-[0_0_15px_rgba(0,196,216,0.15)] group-hover:border-sky-400 group-hover:scale-105 transition-all">
+                                class="w-12 h-12 rounded-full border border-sky-400/40 bg-sky-500/10 flex items-center justify-center text-[#00C4D8] shadow-[0_0_15px_rgba(0,196,216,0.15)] group-hover:border-sky-400 group-hover:scale-105 transition-all shrink-0">
                                 <i data-lucide="store" class="w-5 h-5"></i>
                             </div>
                             <span class="text-xs text-slate-300 font-medium leading-tight">Marketplace<br>&amp; Order</span>
                         </div>
 
                         <!-- 5. AI Assistant -->
-                        <div class="flex flex-col items-center text-center space-y-2 group cursor-default">
+                        <div class="flex flex-col items-center text-center space-y-2 group cursor-default min-w-0">
                             <div
-                                class="w-12 h-12 rounded-full border border-sky-400/40 bg-sky-500/10 flex items-center justify-center text-[#00C4D8] shadow-[0_0_15px_rgba(0,196,216,0.15)] group-hover:border-sky-400 group-hover:scale-105 transition-all">
+                                class="w-12 h-12 rounded-full border border-sky-400/40 bg-sky-500/10 flex items-center justify-center text-[#00C4D8] shadow-[0_0_15px_rgba(0,196,216,0.15)] group-hover:border-sky-400 group-hover:scale-105 transition-all shrink-0">
                                 <i data-lucide="cpu" class="w-5 h-5"></i>
                             </div>
                             <span class="text-xs text-slate-300 font-medium leading-tight">AI Assistant<br>(berbayar)</span>
@@ -235,10 +235,10 @@
                             class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#00C4D8]/15 text-[#0096B4] dark:text-[#00C4D8] text-xs font-bold uppercase tracking-wider">
                             <span>Paket Harga</span>
                         </div>
-                        <h2 class="text-2xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+                        <h2 class="text-2xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-[1.2] text-balance break-words">
                             Pilih Paket yang Tepat untuk Anda
                         </h2>
-                        <p class="text-sm sm:text-base text-slate-600 dark:text-slate-400 leading-relaxed font-normal">
+                        <p class="text-sm sm:text-base text-slate-600 dark:text-slate-400 leading-relaxed font-normal text-pretty">
                             Mulai dari versi gratis dengan fitur dasar, hingga paket premium dengan fitur lengkap, AI, dan
                             dukungan prioritas. Semua paket dirancang untuk membantu bisnis Anda tumbuh lebih cepat.
                         </p>
@@ -264,12 +264,12 @@
 
                         <!-- Savings Callout with Arrow -->
                         <div class="hidden sm:flex items-center gap-1.5 text-xs font-semibold text-[#00B4D8]">
-                            <svg class="w-4 h-4 text-[#00B4D8] -rotate-45" fill="none" stroke="currentColor"
+                            <svg class="w-4 h-4 text-[#00B4D8] -rotate-45 shrink-0" fill="none" stroke="currentColor"
                                 viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M14 5l7 7m0 0l-7 7m7-7H3" />
                             </svg>
-                            <span>Hemat hingga 20% untuk pembayaran tahunan</span>
+                            <span class="text-pretty">Hemat hingga 20% untuk pembayaran tahunan</span>
                         </div>
                     </div>
 
@@ -284,7 +284,7 @@
                         <div class="space-y-4">
                             <div>
                                 <h3 class="text-xl font-bold text-slate-900 dark:text-white">Free</h3>
-                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 min-h-[32px] leading-relaxed">
+                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 min-h-[32px] leading-relaxed text-pretty">
                                     Cocok untuk mencoba dan memulai digitalisasi bisnis Anda.
                                 </p>
                             </div>
@@ -301,41 +301,41 @@
 
                             <!-- Features Checklist -->
                             <ul class="space-y-2.5 pt-2 text-xs text-slate-700 dark:text-slate-300">
-                                <li class="flex items-center gap-2">
-                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0"></i>
-                                    <span>1 Business / User / Outlet</span>
+                                <li class="flex items-start gap-2.5">
+                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0 mt-0.5"></i>
+                                    <span class="min-w-0 flex-1 leading-snug">1 Business / User / Outlet</span>
                                 </li>
-                                <li class="flex items-center gap-2">
-                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0"></i>
-                                    <span>50 Produk</span>
+                                <li class="flex items-start gap-2.5">
+                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0 mt-0.5"></i>
+                                    <span class="min-w-0 flex-1 leading-snug">50 Produk</span>
                                 </li>
-                                <li class="flex items-center gap-2">
-                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0"></i>
-                                    <span>20 Material</span>
+                                <li class="flex items-start gap-2.5">
+                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0 mt-0.5"></i>
+                                    <span class="min-w-0 flex-1 leading-snug">20 Material</span>
                                 </li>
-                                <li class="flex items-center gap-2">
-                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0"></i>
-                                    <span>30 Customer</span>
+                                <li class="flex items-start gap-2.5">
+                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0 mt-0.5"></i>
+                                    <span class="min-w-0 flex-1 leading-snug">30 Customer</span>
                                 </li>
-                                <li class="flex items-center gap-2">
-                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0"></i>
-                                    <span>20 Supplier</span>
+                                <li class="flex items-start gap-2.5">
+                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0 mt-0.5"></i>
+                                    <span class="min-w-0 flex-1 leading-snug">20 Supplier</span>
                                 </li>
-                                <li class="flex items-center gap-2">
-                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0"></i>
-                                    <span>10 PO / bulan</span>
+                                <li class="flex items-start gap-2.5">
+                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0 mt-0.5"></i>
+                                    <span class="min-w-0 flex-1 leading-snug">10 PO / bulan</span>
                                 </li>
-                                <li class="flex items-center gap-2">
-                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0"></i>
-                                    <span>10 Invoice / bulan</span>
+                                <li class="flex items-start gap-2.5">
+                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0 mt-0.5"></i>
+                                    <span class="min-w-0 flex-1 leading-snug">10 Invoice / bulan</span>
                                 </li>
-                                <li class="flex items-center gap-2">
-                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0"></i>
-                                    <span>100 POS Transaction / bulan</span>
+                                <li class="flex items-start gap-2.5">
+                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0 mt-0.5"></i>
+                                    <span class="min-w-0 flex-1 leading-snug">100 POS Transaction / bulan</span>
                                 </li>
-                                <li class="flex items-center gap-2">
-                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0"></i>
-                                    <span>3GB Storage / Owner</span>
+                                <li class="flex items-start gap-2.5">
+                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0 mt-0.5"></i>
+                                    <span class="min-w-0 flex-1 leading-snug">3GB Storage / Owner</span>
                                 </li>
                             </ul>
                         </div>
@@ -351,18 +351,18 @@
                         class="bg-white dark:bg-[#111827] rounded-[24px] border-2 border-[#00B4D8] p-6 sm:p-7 shadow-lg flex flex-col justify-between space-y-6 relative hover:shadow-xl transition-all">
 
                         <div class="space-y-4">
-                            <div class="flex items-center justify-between">
-                                <h3 class="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                            <div class="flex items-center justify-between gap-2">
+                                <h3 class="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-1.5 shrink-0">
                                     <span>Standard</span>
-                                    <i data-lucide="zap" class="w-4 h-4 text-amber-500 fill-amber-500"></i>
+                                    <i data-lucide="zap" class="w-4 h-4 text-amber-500 fill-amber-500 shrink-0"></i>
                                 </h3>
                                 <span
-                                    class="px-2.5 py-0.5 rounded-full bg-[#00B4D8] text-white text-[10px] font-bold uppercase tracking-wider">
+                                    class="px-2.5 py-0.5 rounded-full bg-[#00B4D8] text-white text-[10px] font-bold uppercase tracking-wider shrink-0 text-center">
                                     Paling Populer
                                 </span>
                             </div>
 
-                            <p class="text-xs text-slate-500 dark:text-slate-400 min-h-[32px] leading-relaxed">
+                            <p class="text-xs text-slate-500 dark:text-slate-400 min-h-[32px] leading-relaxed text-pretty">
                                 Untuk bisnis yang mulai berkembang dan membutuhkan lebih banyak fitur dasar.
                             </p>
 
@@ -383,29 +383,29 @@
 
                             <!-- Features Checklist -->
                             <ul class="space-y-2.5 text-xs text-slate-700 dark:text-slate-300">
-                                <li class="flex items-center gap-2">
-                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0"></i>
-                                    <span>Multi User</span>
+                                <li class="flex items-start gap-2.5">
+                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0 mt-0.5"></i>
+                                    <span class="min-w-0 flex-1 leading-snug">Multi User</span>
                                 </li>
-                                <li class="flex items-center gap-2">
-                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0"></i>
-                                    <span>Multi Outlet &amp; Warehouse</span>
+                                <li class="flex items-start gap-2.5">
+                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0 mt-0.5"></i>
+                                    <span class="min-w-0 flex-1 leading-snug">Multi Outlet &amp; Warehouse</span>
                                 </li>
-                                <li class="flex items-center gap-2">
-                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0"></i>
-                                    <span>B2B / B2C Sales</span>
+                                <li class="flex items-start gap-2.5">
+                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0 mt-0.5"></i>
+                                    <span class="min-w-0 flex-1 leading-snug">B2B / B2C Sales</span>
                                 </li>
-                                <li class="flex items-center gap-2">
-                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0"></i>
-                                    <span>Integrasi Marketplace &amp; WA</span>
+                                <li class="flex items-start gap-2.5">
+                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0 mt-0.5"></i>
+                                    <span class="min-w-0 flex-1 leading-snug">Integrasi Marketplace &amp; WA</span>
                                 </li>
-                                <li class="flex items-center gap-2">
-                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0"></i>
-                                    <span>Laporan &amp; Dashboard Lengkap</span>
+                                <li class="flex items-start gap-2.5">
+                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0 mt-0.5"></i>
+                                    <span class="min-w-0 flex-1 leading-snug">Laporan &amp; Dashboard Lengkap</span>
                                 </li>
-                                <li class="flex items-center gap-2">
-                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0"></i>
-                                    <span>Email Support</span>
+                                <li class="flex items-start gap-2.5">
+                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0 mt-0.5"></i>
+                                    <span class="min-w-0 flex-1 leading-snug">Email Support</span>
                                 </li>
                             </ul>
                         </div>
@@ -422,7 +422,7 @@
                         <div class="space-y-4">
                             <div>
                                 <h3 class="text-xl font-bold text-slate-900 dark:text-white">Premium</h3>
-                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 min-h-[32px] leading-relaxed">
+                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 min-h-[32px] leading-relaxed text-pretty">
                                     Untuk bisnis yang ingin lebih produktif dengan fitur omnichannel dan automation.
                                 </p>
                             </div>
@@ -444,29 +444,29 @@
 
                             <!-- Features Checklist -->
                             <ul class="space-y-2.5 text-xs text-slate-700 dark:text-slate-300">
-                                <li class="flex items-center gap-2">
-                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0"></i>
-                                    <span>Content Automation</span>
+                                <li class="flex items-start gap-2.5">
+                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0 mt-0.5"></i>
+                                    <span class="min-w-0 flex-1 leading-snug">Content Automation</span>
                                 </li>
-                                <li class="flex items-center gap-2">
-                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0"></i>
-                                    <span>Social Media Integration</span>
+                                <li class="flex items-start gap-2.5">
+                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0 mt-0.5"></i>
+                                    <span class="min-w-0 flex-1 leading-snug">Social Media Integration</span>
                                 </li>
-                                <li class="flex items-center gap-2">
-                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0"></i>
-                                    <span>Advanced Analytics</span>
+                                <li class="flex items-start gap-2.5">
+                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0 mt-0.5"></i>
+                                    <span class="min-w-0 flex-1 leading-snug">Advanced Analytics</span>
                                 </li>
-                                <li class="flex items-center gap-2">
-                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0"></i>
-                                    <span>Integrasi Marketplace (Shopee, TikTok)</span>
+                                <li class="flex items-start gap-2.5">
+                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0 mt-0.5"></i>
+                                    <span class="min-w-0 flex-1 leading-snug">Integrasi Marketplace (Shopee, TikTok)</span>
                                 </li>
-                                <li class="flex items-center gap-2">
-                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0"></i>
-                                    <span>API &amp; Webhook</span>
+                                <li class="flex items-start gap-2.5">
+                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0 mt-0.5"></i>
+                                    <span class="min-w-0 flex-1 leading-snug">API &amp; Webhook</span>
                                 </li>
-                                <li class="flex items-center gap-2">
-                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0"></i>
-                                    <span>Priority Support</span>
+                                <li class="flex items-start gap-2.5">
+                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0 mt-0.5"></i>
+                                    <span class="min-w-0 flex-1 leading-snug">Priority Support</span>
                                 </li>
                             </ul>
                         </div>
@@ -486,7 +486,7 @@
                                     <span class="text-amber-500">👑</span>
                                     <span>Prestige</span>
                                 </h3>
-                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 min-h-[32px] leading-relaxed">
+                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 min-h-[32px] leading-relaxed text-pretty">
                                     Untuk bisnis yang membutuhkan solusi lengkap dengan AI dan dukungan prioritas.
                                 </p>
                             </div>
@@ -508,29 +508,29 @@
 
                             <!-- Features Checklist -->
                             <ul class="space-y-2.5 text-xs text-slate-700 dark:text-slate-300">
-                                <li class="flex items-center gap-2">
-                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0"></i>
-                                    <span>AI Assistant (Chat &amp; Analytics)</span>
+                                <li class="flex items-start gap-2.5">
+                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0 mt-0.5"></i>
+                                    <span class="min-w-0 flex-1 leading-snug">AI Assistant (Chat &amp; Analytics)</span>
                                 </li>
-                                <li class="flex items-center gap-2">
-                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0"></i>
-                                    <span>AI Content Generation</span>
+                                <li class="flex items-start gap-2.5">
+                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0 mt-0.5"></i>
+                                    <span class="min-w-0 flex-1 leading-snug">AI Content Generation</span>
                                 </li>
-                                <li class="flex items-center gap-2">
-                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0"></i>
-                                    <span>Advanced Inventory &amp; Manufacturing</span>
+                                <li class="flex items-start gap-2.5">
+                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0 mt-0.5"></i>
+                                    <span class="min-w-0 flex-1 leading-snug">Advanced Inventory &amp; Manufacturing</span>
                                 </li>
-                                <li class="flex items-center gap-2">
-                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0"></i>
-                                    <span>Multi-Branch &amp; Multi-Company</span>
+                                <li class="flex items-start gap-2.5">
+                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0 mt-0.5"></i>
+                                    <span class="min-w-0 flex-1 leading-snug">Multi-Branch &amp; Multi-Company</span>
                                 </li>
-                                <li class="flex items-center gap-2">
-                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0"></i>
-                                    <span>Dedicated Account Manager</span>
+                                <li class="flex items-start gap-2.5">
+                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0 mt-0.5"></i>
+                                    <span class="min-w-0 flex-1 leading-snug">Dedicated Account Manager</span>
                                 </li>
-                                <li class="flex items-center gap-2">
-                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0"></i>
-                                    <span>Priority Support 24/7</span>
+                                <li class="flex items-start gap-2.5">
+                                    <i data-lucide="check" class="w-4 h-4 text-[#00B4D8] shrink-0 mt-0.5"></i>
+                                    <span class="min-w-0 flex-1 leading-snug">Priority Support 24/7</span>
                                 </li>
                             </ul>
                         </div>
@@ -564,19 +564,19 @@
                                 Add-On
                             </span>
                             <h3
-                                class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-snug">
+                                class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-snug text-balance break-words">
                                 Tingkatkan Potensi Bisnis Anda Dengan Add-On
                             </h3>
-                            <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed font-normal">
+                            <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed font-normal text-pretty">
                                 Sesuaikan kebutuhan bisnis Anda dengan add-on yang fleksibel. Aktifkan kapan saja sesuai
                                 kebutuhan.
                             </p>
                         </div>
 
                         <a href="{{ route('public.bos.overview') }}"
-                            class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#00B4D8] hover:bg-[#0096B4] text-white font-bold text-xs transition active:scale-[0.98] w-fit shadow-xs">
+                            class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#00B4D8] hover:bg-[#0096B4] text-white font-bold text-xs transition active:scale-[0.98] w-fit shadow-xs shrink-0">
                             <span>Lihat Detail Fitur</span>
-                            <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                            <i data-lucide="arrow-right" class="w-3.5 h-3.5 shrink-0"></i>
                         </a>
                     </div>
 
@@ -585,12 +585,12 @@
                         class="md:col-span-3.5 p-6 sm:p-7 rounded-[24px] bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-800 flex flex-col justify-between space-y-5 shadow-xs hover:shadow-md transition-all">
                         <div class="space-y-4">
                             <div
-                                class="w-12 h-12 rounded-[16px] bg-blue-500 text-white flex items-center justify-center shadow-md">
+                                class="w-12 h-12 rounded-[16px] bg-blue-500 text-white flex items-center justify-center shadow-md shrink-0">
                                 <i data-lucide="cloud" class="w-6 h-6"></i>
                             </div>
                             <div>
-                                <h4 class="text-base font-bold text-slate-900 dark:text-white">Storage</h4>
-                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                                <h4 class="text-base font-bold text-slate-900 dark:text-white leading-snug">Storage</h4>
+                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed text-pretty">
                                     Tambahan penyimpanan untuk file, media, dan data bisnis Anda.
                                 </p>
                             </div>
@@ -601,7 +601,7 @@
                         </div>
 
                         <a href="{{ route('login') }}"
-                            class="w-full py-2.5 rounded-full bg-[#00B4D8] hover:bg-[#0096B4] text-white font-bold text-xs text-center transition active:scale-95 flex items-center justify-center shadow-xs">
+                            class="w-full py-2.5 rounded-full bg-[#00B4D8] hover:bg-[#0096B4] text-white font-bold text-xs text-center transition active:scale-95 flex items-center justify-center shadow-xs min-h-[38px]">
                             Tambah
                         </a>
                     </div>
@@ -611,12 +611,12 @@
                         class="md:col-span-3.5 p-6 sm:p-7 rounded-[24px] bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-800 flex flex-col justify-between space-y-5 shadow-xs hover:shadow-md transition-all">
                         <div class="space-y-4">
                             <div
-                                class="w-12 h-12 rounded-[16px] bg-purple-600 text-white flex items-center justify-center shadow-md">
+                                class="w-12 h-12 rounded-[16px] bg-purple-600 text-white flex items-center justify-center shadow-md shrink-0">
                                 <i data-lucide="cpu" class="w-6 h-6"></i>
                             </div>
                             <div>
-                                <h4 class="text-base font-bold text-slate-900 dark:text-white">AI Token</h4>
-                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                                <h4 class="text-base font-bold text-slate-900 dark:text-white leading-snug">AI Token</h4>
+                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed text-pretty">
                                     Gunakan AI Assistant dan fitur AI lainnya untuk meningkatkan produktivitas.
                                 </p>
                             </div>
@@ -627,7 +627,7 @@
                         </div>
 
                         <a href="{{ route('login') }}"
-                            class="w-full py-2.5 rounded-full bg-[#00B4D8] hover:bg-[#0096B4] text-white font-bold text-xs text-center transition active:scale-95 flex items-center justify-center shadow-xs">
+                            class="w-full py-2.5 rounded-full bg-[#00B4D8] hover:bg-[#0096B4] text-white font-bold text-xs text-center transition active:scale-95 flex items-center justify-center shadow-xs min-h-[38px]">
                             Tambah
                         </a>
                     </div>
@@ -659,14 +659,14 @@
                                 class="w-full h-full object-contain">
                         </div>
 
-                        <div class="space-y-1">
+                        <div class="space-y-1 min-w-0 flex-1">
                             <div class="text-[#00C4D8] text-xs font-bold uppercase tracking-wider">
                                 Promo Spesial
                             </div>
-                            <h3 class="text-lg sm:text-2xl font-extrabold text-white tracking-tight">
+                            <h3 class="text-lg sm:text-2xl font-extrabold text-white tracking-tight leading-snug text-balance break-words">
                                 1 Bulan Gratis untuk Setiap Pendaftaran Baru
                             </h3>
-                            <p class="text-xs sm:text-sm text-slate-300 max-w-xl font-normal">
+                            <p class="text-xs sm:text-sm text-slate-300 max-w-xl font-normal leading-relaxed text-pretty">
                                 Dapatkan voucher 1 bulan gratis (patungan) untuk semua paket. Voucher dapat diaktifkan kapan
                                 saja.
                             </p>
@@ -675,9 +675,9 @@
 
                     <div class="z-10 shrink-0 w-full md:w-auto">
                         <a href="{{ route('register') }}"
-                            class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-[#00B4D8] hover:bg-[#0096B4] text-white font-bold text-xs sm:text-sm transition shadow-md active:scale-95 w-full md:w-auto">
+                            class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-[#00B4D8] hover:bg-[#0096B4] text-white font-bold text-xs sm:text-sm transition shadow-md active:scale-95 w-full md:w-auto min-h-[44px]">
                             <span>Daftar Sekarang</span>
-                            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                            <i data-lucide="arrow-right" class="w-4 h-4 shrink-0"></i>
                         </a>
                     </div>
 
@@ -700,19 +700,19 @@
                             class="px-2.5 py-0.5 rounded-full bg-[#00C4D8]/15 text-[#0096B4] dark:text-[#00C4D8] text-xs font-bold uppercase tracking-wider">
                             FAQ
                         </span>
-                        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+                        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-[1.2] text-balance break-words">
                             Pertanyaan yang Sering Diajukan
                         </h2>
-                        <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-normal">
+                        <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-normal leading-relaxed text-pretty">
                             Temukan jawaban untuk pertanyaan yang paling sering ditanyakan tentang paket harga dan fitur
                             COOCA.
                         </p>
                     </div>
 
                     <a href="{{ route('public.resources.faq') }}"
-                        class="text-xs font-bold text-[#00B4D8] hover:text-[#0096B4] flex items-center gap-1 transition-colors self-start sm:self-auto">
+                        class="text-xs font-bold text-[#00B4D8] hover:text-[#0096B4] flex items-center gap-1 transition-colors self-start sm:self-auto shrink-0">
                         <span>Lihat Semua FAQ</span>
-                        <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                        <i data-lucide="arrow-right" class="w-3.5 h-3.5 shrink-0"></i>
                     </a>
                 </div>
 
@@ -727,12 +727,12 @@
                             class="rounded-[16px] bg-slate-50 dark:bg-[#111827] border border-slate-200/80 dark:border-slate-800 transition-colors">
                             <button type="button" @click="toggleFaq(1)"
                                 class="w-full p-4 sm:p-5 text-left flex items-center justify-between gap-3 text-xs sm:text-sm font-bold text-slate-900 dark:text-white cursor-pointer">
-                                <span>Apakah ada biaya setup atau instalasi?</span>
+                                <span class="min-w-0 flex-1 leading-snug">Apakah ada biaya setup atau instalasi?</span>
                                 <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transition-transform shrink-0"
                                     :class="openFaq === 1 ? 'rotate-180 text-[#00B4D8]' : ''"></i>
                             </button>
                             <div x-show="openFaq === 1" x-collapse x-cloak
-                                class="px-4 pb-4 sm:px-5 sm:pb-5 pt-0 text-xs text-slate-600 dark:text-slate-400 leading-relaxed border-t border-slate-200/40 dark:border-slate-800/40">
+                                class="px-4 pb-4 sm:px-5 sm:pb-5 pt-0 text-xs text-slate-600 dark:text-slate-400 leading-relaxed text-pretty border-t border-slate-200/40 dark:border-slate-800/40">
                                 Tidak ada. Semua paket COOCA bebas biaya instalasi atau setup awal. Anda dapat langsung
                                 mendaftar dan menggunakan sistem dalam hitungan menit tanpa perlu perangkat keras khusus.
                             </div>
@@ -743,12 +743,12 @@
                             class="rounded-[16px] bg-slate-50 dark:bg-[#111827] border border-slate-200/80 dark:border-slate-800 transition-colors">
                             <button type="button" @click="toggleFaq(2)"
                                 class="w-full p-4 sm:p-5 text-left flex items-center justify-between gap-3 text-xs sm:text-sm font-bold text-slate-900 dark:text-white cursor-pointer">
-                                <span>Bisa upgrade atau downgrade paket kapan saja?</span>
+                                <span class="min-w-0 flex-1 leading-snug">Bisa upgrade atau downgrade paket kapan saja?</span>
                                 <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transition-transform shrink-0"
                                     :class="openFaq === 2 ? 'rotate-180 text-[#00B4D8]' : ''"></i>
                             </button>
                             <div x-show="openFaq === 2" x-collapse x-cloak
-                                class="px-4 pb-4 sm:px-5 sm:pb-5 pt-0 text-xs text-slate-600 dark:text-slate-400 leading-relaxed border-t border-slate-200/40 dark:border-slate-800/40">
+                                class="px-4 pb-4 sm:px-5 sm:pb-5 pt-0 text-xs text-slate-600 dark:text-slate-400 leading-relaxed text-pretty border-t border-slate-200/40 dark:border-slate-800/40">
                                 Ya, tentu saja. Anda dapat berpindah antar paket kapan saja secara fleksibel melalui dasbor
                                 billing. Sisa masa aktif Anda akan dikonversi secara prorata tanpa hangus.
                             </div>
@@ -759,12 +759,12 @@
                             class="rounded-[16px] bg-slate-50 dark:bg-[#111827] border border-slate-200/80 dark:border-slate-800 transition-colors">
                             <button type="button" @click="toggleFaq(3)"
                                 class="w-full p-4 sm:p-5 text-left flex items-center justify-between gap-3 text-xs sm:text-sm font-bold text-slate-900 dark:text-white cursor-pointer">
-                                <span>Bagaimana cara aktivasi voucher 1 bulan gratis?</span>
+                                <span class="min-w-0 flex-1 leading-snug">Bagaimana cara aktivasi voucher 1 bulan gratis?</span>
                                 <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transition-transform shrink-0"
                                     :class="openFaq === 3 ? 'rotate-180 text-[#00B4D8]' : ''"></i>
                             </button>
                             <div x-show="openFaq === 3" x-collapse x-cloak
-                                class="px-4 pb-4 sm:px-5 sm:pb-5 pt-0 text-xs text-slate-600 dark:text-slate-400 leading-relaxed border-t border-slate-200/40 dark:border-slate-800/40">
+                                class="px-4 pb-4 sm:px-5 sm:pb-5 pt-0 text-xs text-slate-600 dark:text-slate-400 leading-relaxed text-pretty border-t border-slate-200/40 dark:border-slate-800/40">
                                 Setiap pendaftaran akun baru akan otomatis menerima voucher gratis 1 bulan di akun Anda.
                                 Voucher dapat diaktifkan kapan pun Anda siap memulai paket berbayar tanpa batas kedaluwarsa.
                             </div>
@@ -780,12 +780,12 @@
                             class="rounded-[16px] bg-slate-50 dark:bg-[#111827] border border-slate-200/80 dark:border-slate-800 transition-colors">
                             <button type="button" @click="toggleFaq(4)"
                                 class="w-full p-4 sm:p-5 text-left flex items-center justify-between gap-3 text-xs sm:text-sm font-bold text-slate-900 dark:text-white cursor-pointer">
-                                <span>Apakah data saya aman di COOCA?</span>
+                                <span class="min-w-0 flex-1 leading-snug">Apakah data saya aman di COOCA?</span>
                                 <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transition-transform shrink-0"
                                     :class="openFaq === 4 ? 'rotate-180 text-[#00B4D8]' : ''"></i>
                             </button>
                             <div x-show="openFaq === 4" x-collapse x-cloak
-                                class="px-4 pb-4 sm:px-5 sm:pb-5 pt-0 text-xs text-slate-600 dark:text-slate-400 leading-relaxed border-t border-slate-200/40 dark:border-slate-800/40">
+                                class="px-4 pb-4 sm:px-5 sm:pb-5 pt-0 text-xs text-slate-600 dark:text-slate-400 leading-relaxed text-pretty border-t border-slate-200/40 dark:border-slate-800/40">
                                 Keamanan data Anda adalah prioritas utama kami. Seluruh database diisolasi per tenant dengan
                                 enkripsi AES-256, pencadangan harian otomatis, dan kepatuhan penuh terhadap regulasi UU PDP
                                 No. 27/2022.
@@ -797,12 +797,12 @@
                             class="rounded-[16px] bg-slate-50 dark:bg-[#111827] border border-slate-200/80 dark:border-slate-800 transition-colors">
                             <button type="button" @click="toggleFaq(5)"
                                 class="w-full p-4 sm:p-5 text-left flex items-center justify-between gap-3 text-xs sm:text-sm font-bold text-slate-900 dark:text-white cursor-pointer">
-                                <span>Apakah harga sudah termasuk semua fitur?</span>
+                                <span class="min-w-0 flex-1 leading-snug">Apakah harga sudah termasuk semua fitur?</span>
                                 <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transition-transform shrink-0"
                                     :class="openFaq === 5 ? 'rotate-180 text-[#00B4D8]' : ''"></i>
                             </button>
                             <div x-show="openFaq === 5" x-collapse x-cloak
-                                class="px-4 pb-4 sm:px-5 sm:pb-5 pt-0 text-xs text-slate-600 dark:text-slate-400 leading-relaxed border-t border-slate-200/40 dark:border-slate-800/40">
+                                class="px-4 pb-4 sm:px-5 sm:pb-5 pt-0 text-xs text-slate-600 dark:text-slate-400 leading-relaxed text-pretty border-t border-slate-200/40 dark:border-slate-800/40">
                                 Ya, harga yang tertera sudah mencakup seluruh fitur yang tertera pada masing-masing paket
                                 tanpa biaya tersembunyi. Untuk kebutuhan ekstra, Anda dapat menambah kuota Storage atau AI
                                 Token kapan saja.
@@ -814,12 +814,12 @@
                             class="rounded-[16px] bg-slate-50 dark:bg-[#111827] border border-slate-200/80 dark:border-slate-800 transition-colors">
                             <button type="button" @click="toggleFaq(6)"
                                 class="w-full p-4 sm:p-5 text-left flex items-center justify-between gap-3 text-xs sm:text-sm font-bold text-slate-900 dark:text-white cursor-pointer">
-                                <span>Bagaimana jika saya membutuhkan fitur khusus?</span>
+                                <span class="min-w-0 flex-1 leading-snug">Bagaimana jika saya membutuhkan fitur khusus?</span>
                                 <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transition-transform shrink-0"
                                     :class="openFaq === 6 ? 'rotate-180 text-[#00B4D8]' : ''"></i>
                             </button>
                             <div x-show="openFaq === 6" x-collapse x-cloak
-                                class="px-4 pb-4 sm:px-5 sm:pb-5 pt-0 text-xs text-slate-600 dark:text-slate-400 leading-relaxed border-t border-slate-200/40 dark:border-slate-800/40">
+                                class="px-4 pb-4 sm:px-5 sm:pb-5 pt-0 text-xs text-slate-600 dark:text-slate-400 leading-relaxed text-pretty border-t border-slate-200/40 dark:border-slate-800/40">
                                 Untuk kebutuhan kustom seperti integrasi API privat, arsitektur multi-perusahaan, atau modul
                                 industri bertingkat, tim konsultan kami siap membantu melalui opsi konsultasi Prestige
                                 Enterprise.
@@ -847,10 +847,10 @@
                             class="px-3 py-1 rounded-full bg-[#007AFF]/25 text-[#00C4D8] text-xs font-bold uppercase tracking-wider">
                             Mulai Sekarang
                         </span>
-                        <h2 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight leading-tight">
+                        <h2 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight leading-[1.2] text-balance break-words">
                             Siap Mengelola Bisnis Anda dengan COOCA?
                         </h2>
-                        <p class="text-xs sm:text-sm text-slate-300 leading-relaxed font-normal">
+                        <p class="text-xs sm:text-sm text-slate-300 leading-relaxed font-normal text-pretty">
                             Bergabunglah dengan ribuan bisnis lainnya yang sudah mempercayai COOCA sebagai Business
                             Operating System &amp; Omnichannel ERP.
                         </p>
@@ -859,13 +859,13 @@
                     <div
                         class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto z-10 shrink-0">
                         <a href="{{ route('register') }}"
-                            class="px-7 py-3.5 rounded-full bg-[#00B4D8] hover:bg-[#0096B4] text-white font-bold text-xs sm:text-sm transition shadow-lg active:scale-95 flex items-center justify-center gap-2">
+                            class="px-7 py-3.5 rounded-full bg-[#00B4D8] hover:bg-[#0096B4] text-white font-bold text-xs sm:text-sm transition shadow-lg active:scale-95 flex items-center justify-center gap-2 min-h-[44px]">
                             <span>Coba COOCA Gratis</span>
-                            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                            <i data-lucide="arrow-right" class="w-4 h-4 shrink-0"></i>
                         </a>
                         <a href="{{ \App\Models\SystemSetting::get('social_whatsapp_url', 'https://wa.me/6285287864176') }}?text={{ urlencode('Halo Tim COOCA, saya ingin berkonsultasi mengenai paket yang cocok untuk bisnis saya.') }}"
                             target="_blank" rel="noopener"
-                            class="px-7 py-3.5 rounded-full border border-white/30 hover:bg-white/10 text-white font-semibold text-xs sm:text-sm transition active:scale-95 flex items-center justify-center">
+                            class="px-7 py-3.5 rounded-full border border-white/30 hover:bg-white/10 text-white font-semibold text-xs sm:text-sm transition active:scale-95 flex items-center justify-center min-h-[44px]">
                             Hubungi Tim Kami
                         </a>
                     </div>

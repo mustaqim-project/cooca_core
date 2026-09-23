@@ -44,12 +44,12 @@
                                 {{ $badge ?? ($category ?? 'COOCA Business Operating System') }}
                             </p>
                             <h1
-                                class="text-4xl sm:text-5xl lg:text-[3.25rem] xl:text-[3.75rem] font-extrabold text-white tracking-tight leading-[1.12]">
+                                class="text-3xl sm:text-4xl md:text-5xl lg:text-[3.25rem] font-extrabold text-white tracking-tight leading-[1.15] text-balance break-words">
                                 {{ $headline ?? $title }}
                             </h1>
                         </div>
 
-                        <p class="text-base sm:text-lg text-slate-300 leading-relaxed max-w-2xl font-normal">
+                        <p class="text-base sm:text-lg text-slate-300 leading-relaxed max-w-2xl font-normal text-pretty break-words">
                             {{ $subtitle ?? ($description ?? 'Sistem operasional bisnis terpadu untuk UMKM Indonesia. Menghubungkan kasir, pembukuan, stok, dan pelanggan tanpa pencatatan manual ganda.') }}
                         </p>
 
@@ -182,10 +182,10 @@
                             <p class="text-xs font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF]">
                                 Kemampuan &amp; Fitur</p>
                             <h2
-                                class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight">
+                                class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight leading-tight text-balance break-words">
                                 Didesain Khusus untuk Kemudahan Operasional Anda
                             </h2>
-                            <p class="text-sm sm:text-base text-[#6E6E73] dark:text-[#86868B] leading-relaxed">
+                            <p class="text-sm sm:text-base text-[#6E6E73] dark:text-[#86868B] leading-relaxed text-pretty break-words">
                                 Setiap fungsi dirancang agar langsung dapat digunakan tanpa perlu pelatihan teknis yang
                                 rumit.
                             </p>
@@ -201,26 +201,26 @@
                                     <div class="space-y-3">
                                         <div class="flex items-center justify-between">
                                             <div
-                                                class="w-12 h-12 rounded-[14px] bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF] flex items-center justify-center font-bold">
+                                                class="w-12 h-12 rounded-[14px] bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF] flex items-center justify-center font-bold shrink-0">
                                                 <i data-lucide="{{ $feat['icon'] ?? 'check-circle' }}" class="w-6 h-6"></i>
                                             </div>
                                             @if ($loop->first)
                                                 <span
-                                                    class="text-xs font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF] px-3 py-1 rounded-[8px] bg-[#007AFF]/10">
+                                                    class="text-xs font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF] px-3 py-1 rounded-[8px] bg-[#007AFF]/10 shrink-0">
                                                     Fungsi Utama
                                                 </span>
                                             @else
                                                 <span
-                                                    class="text-xs font-mono text-[#8E8E93] dark:text-[#98989D]">0{{ $index + 1 }}</span>
+                                                    class="text-xs font-mono text-[#8E8E93] dark:text-[#98989D] shrink-0">0{{ $index + 1 }}</span>
                                             @endif
                                         </div>
 
                                         <h3
-                                            class="{{ $loop->first ? 'text-xl sm:text-2xl' : 'text-lg' }} font-bold text-[#1D1D1F] dark:text-[#F5F5F7]">
+                                            class="{{ $loop->first ? 'text-xl sm:text-2xl' : 'text-lg' }} font-bold text-[#1D1D1F] dark:text-[#F5F5F7] leading-snug text-balance break-words">
                                             {{ $feat['title'] }}
                                         </h3>
 
-                                        <p class="text-sm sm:text-base text-[#48484A] dark:text-[#AEAEB2] leading-relaxed">
+                                        <p class="text-sm sm:text-base text-[#48484A] dark:text-[#AEAEB2] leading-relaxed text-pretty break-words">
                                             {{ $feat['desc'] }}
                                         </p>
                                     </div>
@@ -261,10 +261,10 @@
                             <p class="text-xs font-bold uppercase tracking-wider text-[#00C4D8]">
                                 Langkah Mudah Berikutnya
                             </p>
-                            <h2 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+                            <h2 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-tight text-balance break-words">
                                 Mulai Otomatisasi Bisnis Anda Hari Ini
                             </h2>
-                            <p class="text-sm sm:text-base text-slate-300 leading-relaxed max-w-2xl font-normal">
+                            <p class="text-sm sm:text-base text-slate-300 leading-relaxed max-w-2xl font-normal text-pretty break-words">
                                 Bergabunglah bersama ribuan pengusaha UMKM di Indonesia yang telah menghemat waktu dan
                                 meningkatkan kepastian laba bersama Cooca. Tanpa biaya pendaftaran, tanpa kartu kredit.
                             </p>

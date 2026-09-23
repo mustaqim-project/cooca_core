@@ -33,12 +33,12 @@
                                 <span>Alat Bantu Keputusan Bisnis UMKM</span>
                             </div>
                             <h1
-                                class="text-4xl sm:text-5xl lg:text-[3.25rem] xl:text-[3.75rem] xl:text-6xl font-extrabold text-white tracking-tight leading-[1.12]">
+                                class="text-3xl sm:text-4xl md:text-5xl lg:text-[3.25rem] font-extrabold text-white tracking-tight leading-[1.15] text-balance break-words">
                                 Kalkulator Finansial &amp; <span class="text-[#00C4D8]">HPP Presisi</span>
                             </h1>
                         </div>
 
-                        <p class="text-base sm:text-lg text-slate-300 leading-relaxed max-w-2xl font-normal">
+                        <p class="text-base sm:text-lg text-slate-300 leading-relaxed max-w-2xl font-normal text-pretty break-words">
                             Ambil keputusan harga jual dan kelola modal dengan pasti. Hitung biaya bahan baku per porsi,
                             tentukan titik impas (BEP), dan simulasikan laba bersih riil secara instan tanpa perlu
                             registrasi.
@@ -162,10 +162,10 @@
                     <p class="text-xs font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#00C4D8]">Katalog
                         Perhitungan</p>
                     <h2
-                        class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+                        class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-tight text-balance break-words">
                         Pilih Alat Hitung Sesuai Kebutuhan Anda
                     </h2>
-                    <p class="text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed">
+                    <p class="text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed text-pretty break-words">
                         Didesain dengan petunjuk yang jelas dan bahasa Indonesia yang mudah dipahami pemilik usaha.
                     </p>
                 </div>
@@ -463,10 +463,10 @@
                         <p class="text-xs font-bold uppercase tracking-wider text-[#00C4D8]">
                             Otomatisasi Penuh
                         </p>
-                        <h3 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+                        <h3 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-tight text-balance break-words">
                             Otomatiskan Seluruh Perhitungan Ini di Kasir Cooca
                         </h3>
-                        <p class="text-sm sm:text-base text-slate-300 leading-relaxed max-w-2xl">
+                        <p class="text-sm sm:text-base text-slate-300 leading-relaxed max-w-2xl text-pretty break-words">
                             Tidak perlu lagi menghitung satu per satu. Setiap transaksi kasir POS otomatis memotong stok
                             bahan baku, menghitung HPP secara riil, dan menyusun laporan laba rugi harian.
                         </p>

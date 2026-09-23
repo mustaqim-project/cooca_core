@@ -34,12 +34,12 @@
                             Simulasi Pengambilan Keputusan Bisnis
                         </p>
                         <h1
-                            class="text-4xl sm:text-5xl lg:text-[3.25rem] xl:text-[3.75rem] font-extrabold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight leading-[1.15]">
+                            class="text-3xl sm:text-4xl md:text-5xl lg:text-[3.25rem] font-extrabold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight leading-[1.15] text-balance break-words">
                             Simulasi Skenario <span class="text-[#007AFF] dark:text-[#0A84FF]">What-If UMKM</span>
                         </h1>
                     </div>
 
-                    <p class="text-base sm:text-lg text-[#48484A] dark:text-[#AEAEB2] leading-relaxed max-w-xl font-normal">
+                    <p class="text-base sm:text-lg text-[#48484A] dark:text-[#AEAEB2] leading-relaxed max-w-xl font-normal text-pretty break-words">
                         Apa yang terjadi pada keuntungan Anda jika harga bahan baku naik 15%? Atau jika Anda memberi diskon
                         promo 20%? Uji dampaknya secara langsung sebelum mengambil risiko di dunia nyata.
                     </p>

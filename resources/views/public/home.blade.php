@@ -63,36 +63,36 @@
                         </div>
 
                         <h1
-                            class="text-4xl sm:text-5xl lg:text-[3.25rem] xl:text-[3.75rem] font-extrabold text-white tracking-tight leading-[1.12]">
+                            class="text-3xl sm:text-4xl md:text-5xl lg:text-[3.25rem] xl:text-[3.75rem] font-extrabold text-white tracking-tight leading-[1.15] text-balance break-words">
                             Satu Sistem untuk <span class="text-[#00C4D8]">Mengendalikan Seluruh Bisnis Anda</span>
                         </h1>
 
-                        <p class="text-base sm:text-lg text-slate-300 leading-relaxed max-w-xl font-normal">
+                        <p class="text-base sm:text-lg text-slate-300 leading-relaxed max-w-xl font-normal text-pretty">
                             Kelola operasional kasir, stok gudang, pembukuan keuangan, pelanggan, marketplace online,
                             komunikasi WhatsApp, hingga otomasi dalam satu platform yang saling terhubung tanpa jeda.
                         </p>
 
                         {{-- Tangible Proof Points --}}
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200">
-                                <i data-lucide="check-circle-2" class="w-4 h-4 text-[#00C4D8] shrink-0"
+                            <div class="flex items-start gap-2.5 text-xs sm:text-sm font-semibold text-slate-200">
+                                <i data-lucide="check-circle-2" class="w-4 h-4 text-[#00C4D8] shrink-0 mt-0.5"
                                     aria-hidden="true"></i>
-                                <span>Bukan sekadar aplikasi POS kasir biasa</span>
+                                <span class="min-w-0 flex-1 leading-snug">Bukan sekadar aplikasi POS kasir biasa</span>
                             </div>
-                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200">
-                                <i data-lucide="check-circle-2" class="w-4 h-4 text-[#00C4D8] shrink-0"
+                            <div class="flex items-start gap-2.5 text-xs sm:text-sm font-semibold text-slate-200">
+                                <i data-lucide="check-circle-2" class="w-4 h-4 text-[#00C4D8] shrink-0 mt-0.5"
                                     aria-hidden="true"></i>
-                                <span>Hentikan ketik ulang di spreadsheet terpisah</span>
+                                <span class="min-w-0 flex-1 leading-snug">Hentikan ketik ulang di spreadsheet terpisah</span>
                             </div>
-                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200">
-                                <i data-lucide="check-circle-2" class="w-4 h-4 text-[#00C4D8] shrink-0"
+                            <div class="flex items-start gap-2.5 text-xs sm:text-sm font-semibold text-slate-200">
+                                <i data-lucide="check-circle-2" class="w-4 h-4 text-[#00C4D8] shrink-0 mt-0.5"
                                     aria-hidden="true"></i>
-                                <span>Akses fleksibel dari HP, tablet, & laptop</span>
+                                <span class="min-w-0 flex-1 leading-snug">Akses fleksibel dari HP, tablet, & laptop</span>
                             </div>
-                            <div class="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-200">
-                                <i data-lucide="check-circle-2" class="w-4 h-4 text-[#00C4D8] shrink-0"
+                            <div class="flex items-start gap-2.5 text-xs sm:text-sm font-semibold text-slate-200">
+                                <i data-lucide="check-circle-2" class="w-4 h-4 text-[#00C4D8] shrink-0 mt-0.5"
                                     aria-hidden="true"></i>
-                                <span>Laba bersih & arus kas terpantau real-time</span>
+                                <span class="min-w-0 flex-1 leading-snug">Laba bersih & arus kas terpantau real-time</span>
                             </div>
                         </div>
 
@@ -101,7 +101,7 @@
                             <a href="{{ route('register') }}"
                                 class="h-12 px-7 rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-lg shadow-[#007AFF]/25 active:scale-[0.98] transition-all">
                                 <span>Mulai Pakai COOCA</span>
-                                <i data-lucide="arrow-right" class="w-4 h-4" aria-hidden="true"></i>
+                                <i data-lucide="arrow-right" class="w-4 h-4 shrink-0" aria-hidden="true"></i>
                             </a>
                             <a href="{{ route('public.bos.how-it-works') }}"
                                 class="h-12 px-6 rounded-[14px] bg-white/10 hover:bg-white/15 border border-white/15 text-white text-sm font-semibold flex items-center justify-center gap-2 shadow-sm transition active:scale-[0.98] backdrop-blur-sm">
@@ -109,7 +109,7 @@
                             </a>
                             <a href="{{ route('public.demo') }}"
                                 class="h-12 px-5 rounded-[14px] text-[#00C4D8] hover:text-white text-sm font-semibold flex items-center justify-center gap-1.5 transition">
-                                <i data-lucide="play" class="w-4 h-4" aria-hidden="true"></i>
+                                <i data-lucide="play" class="w-4 h-4 shrink-0" aria-hidden="true"></i>
                                 <span>Coba Live Demo</span>
                             </a>
                         </div>
@@ -120,13 +120,13 @@
                         <div
                             class="rounded-2xl bg-[#0E1E45]/80 p-5 sm:p-6 shadow-2xl border border-white/10 ring-1 ring-white/10 backdrop-blur-md text-white space-y-5">
                             <div class="flex items-center justify-between border-b border-white/10 pb-4">
-                                <div class="flex items-center gap-2">
-                                    <span class="w-2.5 h-2.5 rounded-full bg-[#00C4D8] animate-pulse"></span>
-                                    <span class="text-xs font-mono font-bold text-white">COOCA Business OS • Live
+                                <div class="flex items-center gap-2 min-w-0">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-[#00C4D8] animate-pulse shrink-0"></span>
+                                    <span class="text-xs font-mono font-bold text-white truncate">COOCA Business OS • Live
                                         Pulse</span>
                                 </div>
                                 <span
-                                    class="text-[11px] font-semibold text-[#00C4D8] bg-[#00C4D8]/15 border border-[#00C4D8]/30 px-2.5 py-0.5 rounded-full">
+                                    class="text-[11px] font-semibold text-[#00C4D8] bg-[#00C4D8]/15 border border-[#00C4D8]/30 px-2.5 py-0.5 rounded-full shrink-0">
                                     4 Modul Terhubung
                                 </span>
                             </div>
@@ -134,32 +134,32 @@
                             {{-- Multi-Channel Transaction Feed Simulation --}}
                             <div class="space-y-3 text-xs">
                                 <div class="p-3.5 rounded-[16px] bg-[#060B1E]/60 border border-white/10 space-y-2">
-                                    <div class="flex justify-between items-start font-semibold text-white">
-                                        <div class="flex items-center gap-2">
-                                            <span class="w-2 h-2 rounded-full bg-[#007AFF]"></span>
-                                            <span>Kasir POS Toko #TRX-8802</span>
+                                    <div class="flex justify-between items-start font-semibold text-white gap-2">
+                                        <div class="flex items-center gap-2 min-w-0">
+                                            <span class="w-2 h-2 rounded-full bg-[#007AFF] shrink-0"></span>
+                                            <span class="truncate">Kasir POS Toko #TRX-8802</span>
                                         </div>
-                                        <span class="font-mono text-emerald-400 font-bold">+ Rp 185.000</span>
+                                        <span class="font-mono text-emerald-400 font-bold shrink-0">+ Rp 185.000</span>
                                     </div>
                                     <div
-                                        class="flex items-center justify-between text-[11px] text-slate-300 font-mono pt-1 border-t border-dashed border-white/10">
-                                        <span>Gudang: 3 Item Terpotong</span>
-                                        <span class="text-[#00C4D8]">Jurnal Kasir Lunas</span>
+                                        class="flex items-center justify-between text-[11px] text-slate-300 font-mono pt-1 border-t border-dashed border-white/10 gap-2">
+                                        <span class="truncate">Gudang: 3 Item Terpotong</span>
+                                        <span class="text-[#00C4D8] shrink-0">Jurnal Kasir Lunas</span>
                                     </div>
                                 </div>
 
                                 <div class="p-3.5 rounded-[16px] bg-[#060B1E]/60 border border-white/10 space-y-2">
-                                    <div class="flex justify-between items-start font-semibold text-white">
-                                        <div class="flex items-center gap-2">
-                                            <span class="w-2 h-2 rounded-full bg-purple-400"></span>
-                                            <span>Pesanan Storefront Online #ORD-104</span>
+                                    <div class="flex justify-between items-start font-semibold text-white gap-2">
+                                        <div class="flex items-center gap-2 min-w-0">
+                                            <span class="w-2 h-2 rounded-full bg-purple-400 shrink-0"></span>
+                                            <span class="truncate">Pesanan Storefront Online #ORD-104</span>
                                         </div>
-                                        <span class="font-mono text-emerald-400 font-bold">+ Rp 320.000</span>
+                                        <span class="font-mono text-emerald-400 font-bold shrink-0">+ Rp 320.000</span>
                                     </div>
                                     <div
-                                        class="flex items-center justify-between text-[11px] text-slate-300 font-mono pt-1 border-t border-dashed border-white/10">
-                                        <span>Resi Kurir Biteship Siap</span>
-                                        <span class="text-emerald-400">Notif WA Terkirim</span>
+                                        class="flex items-center justify-between text-[11px] text-slate-300 font-mono pt-1 border-t border-dashed border-white/10 gap-2">
+                                        <span class="truncate">Resi Kurir Biteship Siap</span>
+                                        <span class="text-emerald-400 shrink-0">Notif WA Terkirim</span>
                                     </div>
                                 </div>
                             </div>
@@ -184,12 +184,12 @@
                             {{-- Hardware & Channel Bar --}}
                             <div class="grid grid-cols-2 gap-3 text-xs">
                                 <div class="p-3 rounded-[12px] bg-white/5 border border-white/10 flex items-center gap-2">
-                                    <i data-lucide="printer" class="w-4 h-4 text-[#007AFF]" aria-hidden="true"></i>
-                                    <span class="font-medium text-slate-200">Printer Siap Cetak</span>
+                                    <i data-lucide="printer" class="w-4 h-4 text-[#007AFF] shrink-0" aria-hidden="true"></i>
+                                    <span class="font-medium text-slate-200 truncate">Printer Siap Cetak</span>
                                 </div>
                                 <div class="p-3 rounded-[12px] bg-white/5 border border-white/10 flex items-center gap-2">
-                                    <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400" aria-hidden="true"></i>
-                                    <span class="font-medium text-slate-200">Data Terisolasi Aman</span>
+                                    <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400 shrink-0" aria-hidden="true"></i>
+                                    <span class="font-medium text-slate-200 truncate">Data Terisolasi Aman</span>
                                 </div>
                             </div>
                         </div>
@@ -210,7 +210,7 @@
                     <span class="text-xs uppercase tracking-wider font-bold text-rose-600 dark:text-rose-400 block">
                         Tantangan Pengelolaan Bisnis
                     </span>
-                    <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mt-1 tracking-tight">
+                    <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mt-1 tracking-tight leading-[1.2] text-balance break-words">
                         Mengapa Menggunakan Banyak Aplikasi Terpisah Menghambat Bisnis Anda?
                     </h2>
                 </div>
@@ -219,10 +219,10 @@
                     <div
                         class="p-6 rounded-[22px] bg-white dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 space-y-3 shadow-sm">
                         <div
-                            class="w-9 h-9 rounded-[12px] bg-rose-500/10 text-rose-600 font-bold text-xs flex items-center justify-center font-mono">
+                            class="w-9 h-9 rounded-[12px] bg-rose-500/10 text-rose-600 font-bold text-xs flex items-center justify-center font-mono shrink-0">
                             01</div>
-                        <h3 class="text-base font-bold text-slate-900 dark:text-white">Data Terpecah di Mana-Mana</h3>
-                        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                        <h3 class="text-base font-bold text-slate-900 dark:text-white leading-snug text-balance break-words">Data Terpecah di Mana-Mana</h3>
+                        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed text-pretty">
                             Kasir menggunakan satu aplikasi, stok dicatat di buku atau Excel, pesanan online masuk lewat
                             chat WhatsApp pribadi, dan pembukuan di software akuntansi terpisah.
                         </p>
@@ -231,10 +231,10 @@
                     <div
                         class="p-6 rounded-[22px] bg-white dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 space-y-3 shadow-sm">
                         <div
-                            class="w-9 h-9 rounded-[12px] bg-rose-500/10 text-rose-600 font-bold text-xs flex items-center justify-center font-mono">
+                            class="w-9 h-9 rounded-[12px] bg-rose-500/10 text-rose-600 font-bold text-xs flex items-center justify-center font-mono shrink-0">
                             02</div>
-                        <h3 class="text-base font-bold text-slate-900 dark:text-white">Stok Selisih & Laba Semu</h3>
-                        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                        <h3 class="text-base font-bold text-slate-900 dark:text-white leading-snug text-balance break-words">Stok Selisih & Laba Semu</h3>
+                        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed text-pretty">
                             Karena sistem tidak terhubung, stok di kasir tidak mencerminkan sisa fisik di gudang. Penjualan
                             terlihat ramai setiap hari, tetapi kas akhir bulan selalu selisih tanpa jejak.
                         </p>
@@ -243,10 +243,10 @@
                     <div
                         class="p-6 rounded-[22px] bg-white dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 space-y-3 shadow-sm">
                         <div
-                            class="w-9 h-9 rounded-[12px] bg-rose-500/10 text-rose-600 font-bold text-xs flex items-center justify-center font-mono">
+                            class="w-9 h-9 rounded-[12px] bg-rose-500/10 text-rose-600 font-bold text-xs flex items-center justify-center font-mono shrink-0">
                             03</div>
-                        <h3 class="text-base font-bold text-slate-900 dark:text-white">Owner Terjebak Rutinitas Teknis</h3>
-                        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                        <h3 class="text-base font-bold text-slate-900 dark:text-white leading-snug text-balance break-words">Owner Terjebak Rutinitas Teknis</h3>
+                        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed text-pretty">
                             Pemilik bisnis menghabiskan 2–3 jam setiap malam hanya untuk menyalin ulang transaksi dan
                             mencocokkan nota kasir, alih-alih fokus ekspansi cabang dan strategi penjualan.
                         </p>
@@ -262,7 +262,7 @@
                     <span class="text-xs uppercase tracking-wider font-bold text-[#007AFF] dark:text-[#00C4D8] block">
                         Konsep Business Operating System
                     </span>
-                    <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-[1.2] text-balance break-words">
                         Bagaimana COOCA Menyatukan Seluruh Lapisan Bisnis
                     </h2>
                 </div>
@@ -271,10 +271,10 @@
                     <div
                         class="p-6 rounded-[22px] bg-white dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 space-y-3 shadow-sm">
                         <div
-                            class="w-10 h-10 rounded-[12px] bg-blue-500/10 text-[#007AFF] flex items-center justify-center font-bold">
+                            class="w-10 h-10 rounded-[12px] bg-blue-500/10 text-[#007AFF] flex items-center justify-center font-bold shrink-0">
                             1</div>
-                        <h3 class="text-base font-bold text-slate-900 dark:text-white">Omnichannel Sales Layer</h3>
-                        <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                        <h3 class="text-base font-bold text-slate-900 dark:text-white leading-snug text-balance break-words">Omnichannel Sales Layer</h3>
+                        <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed text-pretty">
                             POS kasir toko fisik, storefront katalog online, pesanan QR meja, dan pesanan marketplace
                             bermuara ke satu antrean pemrosesan order terpusat.
                         </p>
@@ -283,10 +283,10 @@
                     <div
                         class="p-6 rounded-[22px] bg-white dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 space-y-3 shadow-sm">
                         <div
-                            class="w-10 h-10 rounded-[12px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold">
+                            class="w-10 h-10 rounded-[12px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold shrink-0">
                             2</div>
-                        <h3 class="text-base font-bold text-slate-900 dark:text-white">Operational & Inventory Engine</h3>
-                        <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                        <h3 class="text-base font-bold text-slate-900 dark:text-white leading-snug text-balance break-words">Operational & Inventory Engine</h3>
+                        <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed text-pretty">
                             Kartu stok perpetual, konversi multi-satuan dus/pcs, resep bahan baku (BOM) kuliner, dan
                             perintah kerja SPK bengkel/manufaktur terpotong otomatis.
                         </p>
@@ -295,10 +295,10 @@
                     <div
                         class="p-6 rounded-[22px] bg-white dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 space-y-3 shadow-sm">
                         <div
-                            class="w-10 h-10 rounded-[12px] bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center font-bold">
+                            class="w-10 h-10 rounded-[12px] bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center font-bold shrink-0">
                             3</div>
-                        <h3 class="text-base font-bold text-slate-900 dark:text-white">Financial & Accounting Core</h3>
-                        <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                        <h3 class="text-base font-bold text-slate-900 dark:text-white leading-snug text-balance break-words">Financial & Accounting Core</h3>
+                        <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed text-pretty">
                             Setiap transaksi penjualan dan pembelian langsung menghasilkan jurnal kas, mencatat HPP riil,
                             dan mengupdate laporan laba rugi owner seketika.
                         </p>
@@ -307,10 +307,10 @@
                     <div
                         class="p-6 rounded-[22px] bg-white dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 space-y-3 shadow-sm">
                         <div
-                            class="w-10 h-10 rounded-[12px] bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold">
+                            class="w-10 h-10 rounded-[12px] bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold shrink-0">
                             4</div>
-                        <h3 class="text-base font-bold text-slate-900 dark:text-white">Communication & Automation</h3>
-                        <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                        <h3 class="text-base font-bold text-slate-900 dark:text-white leading-snug text-balance break-words">Communication & Automation</h3>
+                        <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed text-pretty">
                             Notifikasi nota WhatsApp otomatis, pengingat jadwal booking servis, penerbitan resi kurir, dan
                             kalender konten promosi bisnis berbasis AI.
                         </p>
@@ -326,7 +326,7 @@
                     <span class="text-xs uppercase tracking-wider font-bold text-[#007AFF] dark:text-[#00C4D8] block">
                         Modul Unggulan Ekosistem
                     </span>
-                    <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-[1.2] text-balance break-words">
                         Modul Lengkap untuk Seluruh Aspek Bisnis Anda
                     </h2>
                 </div>
@@ -335,78 +335,78 @@
                     <a href="{{ route('public.erp.erp') }}"
                         class="p-6 rounded-[22px] bg-white dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 hover:border-[#007AFF]/40 hover:shadow-xl transition-all duration-300 shadow-sm space-y-3 group">
                         <div
-                            class="w-10 h-10 rounded-[12px] bg-blue-500/10 text-[#007AFF] flex items-center justify-center">
+                            class="w-10 h-10 rounded-[12px] bg-blue-500/10 text-[#007AFF] flex items-center justify-center shrink-0">
                             <i data-lucide="layers" class="w-5 h-5" aria-hidden="true"></i>
                         </div>
                         <h3
-                            class="text-base font-bold text-slate-900 dark:text-white group-hover:text-[#007AFF] transition">
+                            class="text-base font-bold text-slate-900 dark:text-white group-hover:text-[#007AFF] transition leading-snug text-balance break-words">
                             Omnichannel ERP Core</h3>
-                        <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">Penyatuan menyeluruh modul
+                        <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed text-pretty">Penyatuan menyeluruh modul
                             kasir, stok gudang, pengadaan barang, akuntansi, dan analisis bisnis.</p>
                     </a>
 
                     <a href="{{ route('public.erp.pos') }}"
                         class="p-6 rounded-[22px] bg-white dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 hover:border-[#007AFF]/40 hover:shadow-xl transition-all duration-300 shadow-sm space-y-3 group">
                         <div
-                            class="w-10 h-10 rounded-[12px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                            class="w-10 h-10 rounded-[12px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
                             <i data-lucide="shopping-cart" class="w-5 h-5" aria-hidden="true"></i>
                         </div>
                         <h3
-                            class="text-base font-bold text-slate-900 dark:text-white group-hover:text-[#007AFF] transition">
+                            class="text-base font-bold text-slate-900 dark:text-white group-hover:text-[#007AFF] transition leading-snug text-balance break-words">
                             Point of Sale (POS) Cepat</h3>
-                        <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">Kasir responsif untuk offline
+                        <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed text-pretty">Kasir responsif untuk offline
                             dan online, scan barcode kilat, split bill meja, dan cetak struk Bluetooth.</p>
                     </a>
 
                     <a href="{{ route('public.erp.inventory') }}"
                         class="p-6 rounded-[22px] bg-white dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 hover:border-[#007AFF]/40 hover:shadow-xl transition-all duration-300 shadow-sm space-y-3 group">
                         <div
-                            class="w-10 h-10 rounded-[12px] bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+                            class="w-10 h-10 rounded-[12px] bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
                             <i data-lucide="boxes" class="w-5 h-5" aria-hidden="true"></i>
                         </div>
                         <h3
-                            class="text-base font-bold text-slate-900 dark:text-white group-hover:text-[#007AFF] transition">
+                            class="text-base font-bold text-slate-900 dark:text-white group-hover:text-[#007AFF] transition leading-snug text-balance break-words">
                             Smart Inventory & Gudang</h3>
-                        <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">Kartu stok perpetual, resep
+                        <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed text-pretty">Kartu stok perpetual, resep
                             bahan baku BOM, mutasi multi-cabang, dan peringatan reorder point ke distributor.</p>
                     </a>
 
                     <a href="{{ route('public.erp.finance') }}"
                         class="p-6 rounded-[22px] bg-white dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 hover:border-[#007AFF]/40 hover:shadow-xl transition-all duration-300 shadow-sm space-y-3 group">
                         <div
-                            class="w-10 h-10 rounded-[12px] bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center">
+                            class="w-10 h-10 rounded-[12px] bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0">
                             <i data-lucide="wallet" class="w-5 h-5" aria-hidden="true"></i>
                         </div>
                         <h3
-                            class="text-base font-bold text-slate-900 dark:text-white group-hover:text-[#007AFF] transition">
+                            class="text-base font-bold text-slate-900 dark:text-white group-hover:text-[#007AFF] transition leading-snug text-balance break-words">
                             Keuangan & Arus Kas</h3>
-                        <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">Pencatatan kas masuk dan
+                        <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed text-pretty">Pencatatan kas masuk dan
                             keluar otomatis, rekonsiliasi kasir tutup shift, dan transparansi arus kas bisnis.</p>
                     </a>
 
                     <a href="{{ route('public.omnichannel.whatsapp') }}"
                         class="p-6 rounded-[22px] bg-white dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 hover:border-[#007AFF]/40 hover:shadow-xl transition-all duration-300 shadow-sm space-y-3 group">
                         <div
-                            class="w-10 h-10 rounded-[12px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                            class="w-10 h-10 rounded-[12px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
                             <i data-lucide="message-circle" class="w-5 h-5" aria-hidden="true"></i>
                         </div>
                         <h3
-                            class="text-base font-bold text-slate-900 dark:text-white group-hover:text-[#007AFF] transition">
+                            class="text-base font-bold text-slate-900 dark:text-white group-hover:text-[#007AFF] transition leading-snug text-balance break-words">
                             WhatsApp Customer CRM</h3>
-                        <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">Kirim nota struk belanja,
+                        <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed text-pretty">Kirim nota struk belanja,
                             tagihan kasbon, reminder jadwal servis, dan broadcast ramah langsung ke WA pelanggan.</p>
                     </a>
 
                     <a href="{{ route('public.content.creation') }}"
                         class="p-6 rounded-[22px] bg-white dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 hover:border-[#007AFF]/40 hover:shadow-xl transition-all duration-300 shadow-sm space-y-3 group">
                         <div
-                            class="w-10 h-10 rounded-[12px] bg-rose-500/10 text-rose-600 flex items-center justify-center">
+                            class="w-10 h-10 rounded-[12px] bg-rose-500/10 text-rose-600 flex items-center justify-center shrink-0">
                             <i data-lucide="pen-tool" class="w-5 h-5" aria-hidden="true"></i>
                         </div>
                         <h3
-                            class="text-base font-bold text-slate-900 dark:text-white group-hover:text-[#007AFF] transition">
+                            class="text-base font-bold text-slate-900 dark:text-white group-hover:text-[#007AFF] transition leading-snug text-balance break-words">
                             Otomasi Konten & Sosmed</h3>
-                        <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">Perencanaan kalender konten
+                        <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed text-pretty">Perencanaan kalender konten
                             promosi, penjadwalan publikasi multi-channel, dan pembuatan copy otomatis.</p>
                     </a>
                 </div>
@@ -423,14 +423,14 @@
                         <span class="text-xs uppercase tracking-wider font-bold text-[#007AFF] dark:text-[#00C4D8] block">
                             Solusi Spesifik Industri
                         </span>
-                        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-1 tracking-tight">
+                        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-1 tracking-tight leading-[1.2] text-balance break-words">
                             Disesuaikan dengan Karakter Nyata Sektor Bisnis Anda
                         </h2>
                     </div>
                     <a href="{{ route('public.bos.overview') }}"
                         class="text-xs sm:text-sm font-semibold text-[#007AFF] dark:text-[#00C4D8] hover:underline flex items-center gap-1 shrink-0">
                         <span>Lihat Seluruh Solusi</span>
-                        <i data-lucide="chevron-right" class="w-4 h-4" aria-hidden="true"></i>
+                        <i data-lucide="chevron-right" class="w-4 h-4 shrink-0" aria-hidden="true"></i>
                     </a>
                 </div>
 
@@ -438,12 +438,12 @@
                     <a href="{{ route('public.solutions.fnb') }}"
                         class="p-5 rounded-[18px] bg-slate-50 dark:bg-[#070A14] border border-slate-200/60 dark:border-white/5 hover:border-[#007AFF]/40 hover:shadow-md transition text-center group flex flex-col items-center justify-between gap-3">
                         <div
-                            class="w-10 h-10 rounded-[12px] bg-amber-500/10 text-amber-600 flex items-center justify-center">
+                            class="w-10 h-10 rounded-[12px] bg-amber-500/10 text-amber-600 flex items-center justify-center shrink-0">
                             <i data-lucide="utensils" class="w-5 h-5" aria-hidden="true"></i>
                         </div>
                         <div>
                             <h4
-                                class="font-bold text-xs sm:text-sm text-slate-900 dark:text-white group-hover:text-[#007AFF] transition">
+                                class="font-bold text-xs sm:text-sm text-slate-900 dark:text-white group-hover:text-[#007AFF] transition leading-snug text-balance break-words">
                                 F&B & Resto</h4>
                             <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Resep & KOT Dapur</p>
                         </div>
@@ -452,12 +452,12 @@
                     <a href="{{ route('public.solutions.retail') }}"
                         class="p-5 rounded-[18px] bg-slate-50 dark:bg-[#070A14] border border-slate-200/60 dark:border-white/5 hover:border-[#007AFF]/40 hover:shadow-md transition text-center group flex flex-col items-center justify-between gap-3">
                         <div
-                            class="w-10 h-10 rounded-[12px] bg-blue-500/10 text-[#007AFF] flex items-center justify-center">
+                            class="w-10 h-10 rounded-[12px] bg-blue-500/10 text-[#007AFF] flex items-center justify-center shrink-0">
                             <i data-lucide="store" class="w-5 h-5" aria-hidden="true"></i>
                         </div>
                         <div>
                             <h4
-                                class="font-bold text-xs sm:text-sm text-slate-900 dark:text-white group-hover:text-[#007AFF] transition">
+                                class="font-bold text-xs sm:text-sm text-slate-900 dark:text-white group-hover:text-[#007AFF] transition leading-snug text-balance break-words">
                                 Retail & Toko</h4>
                             <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Barcode & Dus/Pcs</p>
                         </div>
@@ -466,12 +466,12 @@
                     <a href="{{ route('public.solutions.workshop') }}"
                         class="p-5 rounded-[18px] bg-slate-50 dark:bg-[#070A14] border border-slate-200/60 dark:border-white/5 hover:border-[#007AFF]/40 hover:shadow-md transition text-center group flex flex-col items-center justify-between gap-3">
                         <div
-                            class="w-10 h-10 rounded-[12px] bg-slate-500/10 text-slate-600 flex items-center justify-center">
+                            class="w-10 h-10 rounded-[12px] bg-slate-500/10 text-slate-600 flex items-center justify-center shrink-0">
                             <i data-lucide="wrench" class="w-5 h-5" aria-hidden="true"></i>
                         </div>
                         <div>
                             <h4
-                                class="font-bold text-xs sm:text-sm text-slate-900 dark:text-white group-hover:text-[#007AFF] transition">
+                                class="font-bold text-xs sm:text-sm text-slate-900 dark:text-white group-hover:text-[#007AFF] transition leading-snug text-balance break-words">
                                 Bengkel Servis</h4>
                             <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">SPK & Komisi Montir</p>
                         </div>
@@ -480,12 +480,12 @@
                     <a href="{{ route('public.solutions.laundry') }}"
                         class="p-5 rounded-[18px] bg-slate-50 dark:bg-[#070A14] border border-slate-200/60 dark:border-white/5 hover:border-[#007AFF]/40 hover:shadow-md transition text-center group flex flex-col items-center justify-between gap-3">
                         <div
-                            class="w-10 h-10 rounded-[12px] bg-cyan-500/10 text-cyan-600 flex items-center justify-center">
+                            class="w-10 h-10 rounded-[12px] bg-cyan-500/10 text-cyan-600 flex items-center justify-center shrink-0">
                             <i data-lucide="droplets" class="w-5 h-5" aria-hidden="true"></i>
                         </div>
                         <div>
                             <h4
-                                class="font-bold text-xs sm:text-sm text-slate-900 dark:text-white group-hover:text-[#007AFF] transition">
+                                class="font-bold text-xs sm:text-sm text-slate-900 dark:text-white group-hover:text-[#007AFF] transition leading-snug text-balance break-words">
                                 Laundry Kiloan</h4>
                             <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Timbangan & Rak</p>
                         </div>
@@ -494,12 +494,12 @@
                     <a href="{{ route('public.solutions.manufacturing') }}"
                         class="p-5 rounded-[18px] bg-slate-50 dark:bg-[#070A14] border border-slate-200/60 dark:border-white/5 hover:border-[#007AFF]/40 hover:shadow-md transition text-center group flex flex-col items-center justify-between gap-3">
                         <div
-                            class="w-10 h-10 rounded-[12px] bg-indigo-500/10 text-indigo-600 flex items-center justify-center">
+                            class="w-10 h-10 rounded-[12px] bg-indigo-500/10 text-indigo-600 flex items-center justify-center shrink-0">
                             <i data-lucide="factory" class="w-5 h-5" aria-hidden="true"></i>
                         </div>
                         <div>
                             <h4
-                                class="font-bold text-xs sm:text-sm text-slate-900 dark:text-white group-hover:text-[#007AFF] transition">
+                                class="font-bold text-xs sm:text-sm text-slate-900 dark:text-white group-hover:text-[#007AFF] transition leading-snug text-balance break-words">
                                 Manufaktur</h4>
                             <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">BOM & HPP Pabrik</p>
                         </div>
@@ -508,12 +508,12 @@
                     <a href="{{ route('public.solutions.services') }}"
                         class="p-5 rounded-[18px] bg-slate-50 dark:bg-[#070A14] border border-slate-200/60 dark:border-white/5 hover:border-[#007AFF]/40 hover:shadow-md transition text-center group flex flex-col items-center justify-between gap-3">
                         <div
-                            class="w-10 h-10 rounded-[12px] bg-violet-500/10 text-violet-600 flex items-center justify-center">
+                            class="w-10 h-10 rounded-[12px] bg-violet-500/10 text-violet-600 flex items-center justify-center shrink-0">
                             <i data-lucide="briefcase" class="w-5 h-5" aria-hidden="true"></i>
                         </div>
                         <div>
                             <h4
-                                class="font-bold text-xs sm:text-sm text-slate-900 dark:text-white group-hover:text-[#007AFF] transition">
+                                class="font-bold text-xs sm:text-sm text-slate-900 dark:text-white group-hover:text-[#007AFF] transition leading-snug text-balance break-words">
                                 Bisnis Jasa</h4>
                             <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Booking & Termin DP</p>
                         </div>
@@ -528,7 +528,7 @@
                 <div class="text-center space-y-2">
                     <span class="text-xs uppercase tracking-wider font-bold text-[#007AFF] dark:text-[#00C4D8] block">Tanya
                         Jawab</span>
-                    <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">Pertanyaan Sering Diajukan
+                    <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white leading-[1.2] text-balance break-words">Pertanyaan Sering Diajukan
                         Seputar COOCA</h2>
                 </div>
 
@@ -536,16 +536,16 @@
                     <details
                         class="group bg-white dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 rounded-[18px] p-5 transition-all">
                         <summary
-                            class="flex justify-between items-center cursor-pointer font-bold text-sm sm:text-base text-slate-900 dark:text-white">
-                            <span>Apa perbedaan mendasar antara COOCA dan aplikasi POS kasir biasa?</span>
+                            class="flex justify-between items-center gap-3 cursor-pointer font-bold text-sm sm:text-base text-slate-900 dark:text-white">
+                            <span class="min-w-0 flex-1 leading-snug">Apa perbedaan mendasar antara COOCA dan aplikasi POS kasir biasa?</span>
                             <i data-lucide="chevron-down"
-                                class="w-4 h-4 text-slate-400 group-open:rotate-180 transition-transform"
+                                class="w-4 h-4 text-slate-400 group-open:rotate-180 transition-transform shrink-0"
                                 aria-hidden="true"></i>
                         </summary>
                         <p
-                            class="mt-3 text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed border-t border-slate-100 dark:border-white/10 pt-3">
+                            class="mt-3 text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed text-pretty border-t border-slate-100 dark:border-white/10 pt-3">
                             Aplikasi POS biasa umumnya hanya mencatat transaksi penjualan di meja kasir. COOCA adalah
-                            <strong>Business Operating System & Omnichannel ERP</strong> yang menghubungkan kasir kasir
+                            <strong>Business Operating System & Omnichannel ERP</strong> yang menghubungkan kasir
                             kilat dengan gudang bahan baku (BOM), pembukuan jurnal akuntansi otomatis, integrasi katalog
                             online storefront, notifikasi WhatsApp, hingga kalender konten promosi bisnis dari satu
                             dashboard terpadu.
@@ -555,14 +555,14 @@
                     <details
                         class="group bg-white dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 rounded-[18px] p-5 transition-all">
                         <summary
-                            class="flex justify-between items-center cursor-pointer font-bold text-sm sm:text-base text-slate-900 dark:text-white">
-                            <span>Apakah saya harus membeli mesin kasir atau komputer mahal untuk menggunakan COOCA?</span>
+                            class="flex justify-between items-center gap-3 cursor-pointer font-bold text-sm sm:text-base text-slate-900 dark:text-white">
+                            <span class="min-w-0 flex-1 leading-snug">Apakah saya harus membeli mesin kasir atau komputer mahal untuk menggunakan COOCA?</span>
                             <i data-lucide="chevron-down"
-                                class="w-4 h-4 text-slate-400 group-open:rotate-180 transition-transform"
+                                class="w-4 h-4 text-slate-400 group-open:rotate-180 transition-transform shrink-0"
                                 aria-hidden="true"></i>
                         </summary>
                         <p
-                            class="mt-3 text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed border-t border-slate-100 dark:border-white/10 pt-3">
+                            class="mt-3 text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed text-pretty border-t border-slate-100 dark:border-white/10 pt-3">
                             Sama sekali tidak. COOCA berbasis web modern yang dapat langsung dioperasikan dari smartphone
                             Android, tablet, iPad, maupun laptop yang sudah Anda miliki saat ini, serta dapat terhubung
                             dengan printer struk thermal Bluetooth standar 58mm/80mm.
@@ -572,14 +572,14 @@
                     <details
                         class="group bg-white dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 rounded-[18px] p-5 transition-all">
                         <summary
-                            class="flex justify-between items-center cursor-pointer font-bold text-sm sm:text-base text-slate-900 dark:text-white">
-                            <span>Bagaimana jika bisnis saya memiliki beberapa cabang gerai yang lokasinya berjauhan?</span>
+                            class="flex justify-between items-center gap-3 cursor-pointer font-bold text-sm sm:text-base text-slate-900 dark:text-white">
+                            <span class="min-w-0 flex-1 leading-snug">Bagaimana jika bisnis saya memiliki beberapa cabang gerai yang lokasinya berjauhan?</span>
                             <i data-lucide="chevron-down"
-                                class="w-4 h-4 text-slate-400 group-open:rotate-180 transition-transform"
+                                class="w-4 h-4 text-slate-400 group-open:rotate-180 transition-transform shrink-0"
                                 aria-hidden="true"></i>
                         </summary>
                         <p
-                            class="mt-3 text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed border-t border-slate-100 dark:border-white/10 pt-3">
+                            class="mt-3 text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed text-pretty border-t border-slate-100 dark:border-white/10 pt-3">
                             COOCA didesain secara native multi-outlet. Anda dapat memantau penjualan seluruh cabang secara
                             real-time dari satu smartphone, melakukan transfer stok antar gudang cabang, serta membatasi hak
                             akses kasir agar hanya bisa melihat data outletnya sendiri.
@@ -589,14 +589,14 @@
                     <details
                         class="group bg-white dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 rounded-[18px] p-5 transition-all">
                         <summary
-                            class="flex justify-between items-center cursor-pointer font-bold text-sm sm:text-base text-slate-900 dark:text-white">
-                            <span>Apakah data usaha dan database pelanggan saya aman di COOCA?</span>
+                            class="flex justify-between items-center gap-3 cursor-pointer font-bold text-sm sm:text-base text-slate-900 dark:text-white">
+                            <span class="min-w-0 flex-1 leading-snug">Apakah data usaha dan database pelanggan saya aman di COOCA?</span>
                             <i data-lucide="chevron-down"
-                                class="w-4 h-4 text-slate-400 group-open:rotate-180 transition-transform"
+                                class="w-4 h-4 text-slate-400 group-open:rotate-180 transition-transform shrink-0"
                                 aria-hidden="true"></i>
                         </summary>
                         <p
-                            class="mt-3 text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed border-t border-slate-100 dark:border-white/10 pt-3">
+                            class="mt-3 text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed text-pretty border-t border-slate-100 dark:border-white/10 pt-3">
                             Sangat aman. Kami menerapkan isolasi data multi-tenant ketat dan enkripsi standar industri. Kami
                             menjunjung tinggi privasi bisnis Anda sesuai regulasi UU PDP No. 27/2022 dan tidak pernah
                             menjual atau membagikan data Anda kepada pihak manapun.
@@ -623,10 +623,10 @@
                         <i data-lucide="shield-check" class="w-4 h-4 text-[#00C4D8]" aria-hidden="true"></i>
                         <span>Telah Membantu Ribuan Pengusaha Mandiri di Indonesia</span>
                     </div>
-                    <h3 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight leading-tight">
+                    <h3 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight leading-[1.2] text-balance break-words">
                         Mulai Operasikan Bisnis Anda dengan Standar Tertinggi Hari Ini
                     </h3>
-                    <p class="text-sm sm:text-base text-slate-300 leading-relaxed">
+                    <p class="text-sm sm:text-base text-slate-300 leading-relaxed text-pretty">
                         Daftar akun gratis sekarang. Hubungkan kasir, gudang, keuangan, dan saluran penjualan bisnis Anda
                         dalam satu ekosistem yang terintegrasi.
                     </p>
@@ -634,7 +634,7 @@
                         <a href="{{ route('register') }}"
                             class="h-12 px-8 rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-sm inline-flex items-center gap-2 shadow-lg shadow-[#007AFF]/25 active:scale-95 transition-all">
                             <span>Daftar Akun Gratis</span>
-                            <i data-lucide="arrow-right" class="w-4 h-4" aria-hidden="true"></i>
+                            <i data-lucide="arrow-right" class="w-4 h-4 shrink-0" aria-hidden="true"></i>
                         </a>
                         <a href="{{ route('public.pricing') }}"
                             class="h-12 px-7 rounded-[14px] bg-white/10 hover:bg-white/15 border border-white/15 text-white font-semibold text-sm inline-flex items-center gap-2 transition-all backdrop-blur-sm">

@@ -32,11 +32,11 @@
                         </div>
 
                         <h1
-                            class="text-4xl sm:text-5xl lg:text-[3.25rem] xl:text-[3.75rem] font-extrabold text-white tracking-tight leading-[1.15]">
+                            class="text-3xl sm:text-4xl md:text-5xl lg:text-[3.25rem] font-extrabold text-white tracking-tight leading-[1.15] text-balance break-words">
                             Jelajah Profil &amp; <span class="text-[#00C4D8]">Toko Resmi UMKM Lokal.</span>
                         </h1>
 
-                        <p class="text-base sm:text-lg text-slate-300 font-normal leading-relaxed max-w-xl">
+                        <p class="text-base sm:text-lg text-slate-300 font-normal leading-relaxed max-w-xl text-pretty break-words">
                             Temukan toko fisik, kafe, penyedia jasa servis, dan produsen kreatif di sekitar Anda. Transaksi
                             langsung ke pemilik usaha tanpa biaya perantara tambahan.
                         </p>

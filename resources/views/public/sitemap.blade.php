@@ -44,12 +44,12 @@
                                 <span>Arsitektur &amp; Navigasi Terbuka</span>
                             </div>
                             <h1
-                                class="text-4xl sm:text-5xl lg:text-[3.25rem] xl:text-[3.75rem] font-extrabold text-white tracking-tight leading-[1.12]">
+                                class="text-3xl sm:text-4xl md:text-5xl lg:text-[3.25rem] font-extrabold text-white tracking-tight leading-[1.15] text-balance break-words">
                                 Peta Situs Resmi <span class="text-[#00C4D8]">Cooca</span>
                             </h1>
                         </div>
 
-                        <p class="text-base sm:text-lg text-slate-300 leading-relaxed max-w-2xl font-normal">
+                        <p class="text-base sm:text-lg text-slate-300 leading-relaxed max-w-2xl font-normal text-pretty break-words">
                             Daftar lengkap seluruh halaman publik, modul kalkulator, solusi vertikal industri, dan pustaka
                             edukasi gratis yang terindeks resmi di ekosistem Cooca.
                         </p>
@@ -141,37 +141,37 @@
                         class="rounded-[24px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] p-6 shadow-sm hover:shadow-md hover:border-[#007AFF]/30 flex flex-col justify-between transition-all duration-200">
                         <div>
                             <div
-                                class="flex items-center justify-between pb-3.5 mb-4 border-b border-black/[0.06] dark:border-white/[0.08]">
-                                <h2 class="font-bold text-base text-[#1D1D1F] dark:text-[#F5F5F7] flex items-center gap-2">
+                                class="flex items-center justify-between gap-3 pb-3.5 mb-4 border-b border-black/[0.06] dark:border-white/[0.08]">
+                                <h2 class="font-bold text-base text-[#1D1D1F] dark:text-[#F5F5F7] flex items-center gap-2 min-w-0 flex-1 leading-snug break-words">
                                     @if (str_contains(strtolower($category), 'kalkulator'))
                                         <span
-                                            class="w-8 h-8 rounded-[10px] bg-[#34C759]/10 text-[#34C759] flex items-center justify-center text-sm"><i
+                                            class="w-8 h-8 rounded-[10px] bg-[#34C759]/10 text-[#34C759] flex items-center justify-center text-sm shrink-0"><i
                                                 data-lucide="calculator" class="w-4 h-4"></i></span>
                                     @elseif(str_contains(strtolower($category), 'solusi'))
                                         <span
-                                            class="w-8 h-8 rounded-[10px] bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center text-sm"><i
+                                            class="w-8 h-8 rounded-[10px] bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center text-sm shrink-0"><i
                                                 data-lucide="target" class="w-4 h-4"></i></span>
                                     @elseif(str_contains(strtolower($category), 'template'))
                                         <span
-                                            class="w-8 h-8 rounded-[10px] bg-[#FF9500]/10 text-[#FF9500] flex items-center justify-center text-sm"><i
+                                            class="w-8 h-8 rounded-[10px] bg-[#FF9500]/10 text-[#FF9500] flex items-center justify-center text-sm shrink-0"><i
                                                 data-lucide="file-spreadsheet" class="w-4 h-4"></i></span>
                                     @elseif(str_contains(strtolower($category), 'artikel') || str_contains(strtolower($category), 'edukasi'))
                                         <span
-                                            class="w-8 h-8 rounded-[10px] bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center text-sm"><i
+                                            class="w-8 h-8 rounded-[10px] bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center text-sm shrink-0"><i
                                                 data-lucide="book-open" class="w-4 h-4"></i></span>
                                     @elseif(str_contains(strtolower($category), 'bisnis'))
                                         <span
-                                            class="w-8 h-8 rounded-[10px] bg-[#34C759]/10 text-[#34C759] flex items-center justify-center text-sm"><i
+                                            class="w-8 h-8 rounded-[10px] bg-[#34C759]/10 text-[#34C759] flex items-center justify-center text-sm shrink-0"><i
                                                 data-lucide="store" class="w-4 h-4"></i></span>
                                     @else
                                         <span
-                                            class="w-8 h-8 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] text-[#6E6E73] flex items-center justify-center text-sm"><i
+                                            class="w-8 h-8 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] text-[#6E6E73] flex items-center justify-center text-sm shrink-0"><i
                                                 data-lucide="link" class="w-4 h-4"></i></span>
                                     @endif
-                                    <span>{{ $category }}</span>
+                                    <span class="truncate">{{ $category }}</span>
                                 </h2>
                                 <span
-                                    class="text-[10px] font-mono px-2.5 py-0.5 rounded-full bg-black/[0.03] dark:bg-white/[0.05] text-[#6E6E73] dark:text-[#86868B] font-semibold">
+                                    class="text-[10px] font-mono px-2.5 py-0.5 rounded-full bg-black/[0.03] dark:bg-white/[0.05] text-[#6E6E73] dark:text-[#86868B] font-semibold shrink-0">
                                     {{ count($items) }} Link
                                 </span>
                             </div>
@@ -180,9 +180,9 @@
                                 @foreach ($items as $item)
                                     <li>
                                         <a href="{{ $item['loc'] }}"
-                                            class="group flex items-start justify-between text-xs text-[#6E6E73] dark:text-[#86868B] hover:text-[#007AFF] dark:hover:text-[#0A84FF] transition-colors">
+                                            class="group flex items-start justify-between gap-2 text-xs text-[#6E6E73] dark:text-[#86868B] hover:text-[#007AFF] dark:hover:text-[#0A84FF] transition-colors">
                                             <span
-                                                class="line-clamp-2 pr-2 leading-relaxed group-hover:translate-x-0.5 transition-transform">
+                                                class="min-w-0 flex-1 line-clamp-2 pr-2 leading-relaxed group-hover:translate-x-0.5 transition-transform break-words">
                                                 {{ $item['title'] }}
                                             </span>
                                             <span

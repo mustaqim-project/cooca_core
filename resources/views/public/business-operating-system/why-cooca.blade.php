@@ -187,10 +187,10 @@
             <div class="max-w-[1320px] mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
                 <div class="max-w-3xl space-y-3">
                     <span class="text-xs font-bold uppercase tracking-wider text-red-500">Biaya Tersembunyi</span>
-                    <h2 class="text-2xl sm:text-4xl font-extrabold tracking-tight">
+                    <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight leading-[1.2] text-balance break-words">
                         4 Dampak Buruk Menggunakan Sistem Terpisah pada Bisnis Anda
                     </h2>
-                    <p class="text-sm sm:text-base text-neutral-600 dark:text-neutral-400 leading-relaxed">
+                    <p class="text-sm sm:text-base text-neutral-600 dark:text-neutral-400 leading-relaxed text-pretty">
                         Bukan hanya masalah uang langganan, aplikasi yang tidak terintegrasi menguras energi operasional dan
                         membahayakan kelangsungan usaha.
                     </p>
@@ -204,8 +204,8 @@
                             class="w-10 h-10 rounded-[12px] bg-amber-500/10 text-amber-500 flex items-center justify-center font-bold">
                             <i data-lucide="alert-triangle" class="w-5 h-5"></i>
                         </div>
-                        <h3 class="text-lg font-bold">1. Kebocoran Modal Akibat Selisih Stok & Kas</h3>
-                        <p class="text-xs sm:text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed">
+                        <h3 class="text-lg font-bold leading-snug text-balance break-words">1. Kebocoran Modal Akibat Selisih Stok & Kas</h3>
+                        <p class="text-xs sm:text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed text-pretty">
                             Saat kasir tidak terhubung dengan kartu stok gudang, kehilangan barang sering kali baru disadari
                             berminggu-minggu kemudian saat stock opname. Anda tidak bisa melacak apakah barang hilang,
                             rusak, atau lupa diinput.
@@ -219,8 +219,8 @@
                             class="w-10 h-10 rounded-[12px] bg-red-500/10 text-red-500 flex items-center justify-center font-bold">
                             <i data-lucide="clock" class="w-5 h-5"></i>
                         </div>
-                        <h3 class="text-lg font-bold">2. Laporan Keuangan Selalu Terlambat Masuk</h3>
-                        <p class="text-xs sm:text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed">
+                        <h3 class="text-lg font-bold leading-snug text-balance break-words">2. Laporan Keuangan Selalu Terlambat Masuk</h3>
+                        <p class="text-xs sm:text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed text-pretty">
                             Pemilik bisnis baru mengetahui apakah toko untung atau rugi di tanggal 15 bulan berikutnya,
                             setelah semua nota kertas diketik ulang. Keputusan bisnis penting jadi terlambat diambil karena
                             data selalu kedaluwarsa.
@@ -234,8 +234,8 @@
                             class="w-10 h-10 rounded-[12px] bg-purple-500/10 text-purple-500 flex items-center justify-center font-bold">
                             <i data-lucide="users-2" class="w-5 h-5"></i>
                         </div>
-                        <h3 class="text-lg font-bold">3. Karyawan Pusing Menghafal Banyak Akun</h3>
-                        <p class="text-xs sm:text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed">
+                        <h3 class="text-lg font-bold leading-snug text-balance break-words">3. Karyawan Pusing Menghafal Banyak Akun</h3>
+                        <p class="text-xs sm:text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed text-pretty">
                             Staf baru harus diajari 3-4 software berbeda: password kasir, password inventory, spreadsheet
                             drive, dan aplikasi perpesanan. Tingkat kesalahan operasional staf meningkat dan onboarding
                             karyawan memakan waktu berminggu-minggu.
@@ -249,8 +249,8 @@
                             class="w-10 h-10 rounded-[12px] bg-blue-500/10 text-[#007AFF] flex items-center justify-center font-bold">
                             <i data-lucide="trending-down" class="w-5 h-5"></i>
                         </div>
-                        <h3 class="text-lg font-bold">4. Sulit Buka Cabang Baru dengan Percaya Diri</h3>
-                        <p class="text-xs sm:text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed">
+                        <h3 class="text-lg font-bold leading-snug text-balance break-words">4. Sulit Buka Cabang Baru dengan Percaya Diri</h3>
+                        <p class="text-xs sm:text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed text-pretty">
                             Setiap membuka outlet baru, kekacauan operasional berlipat ganda. Pemilik tidak berani
                             berekspansi karena satu cabang saja sudah menyita seluruh waktu dan perhatian akibat kontrol
                             sistem yang rapuh.
@@ -269,10 +269,10 @@
                     <span
                         class="text-xs font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF]">Perbandingan
                         Langsung</span>
-                    <h2 class="text-2xl sm:text-4xl font-extrabold tracking-tight">
+                    <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight leading-[1.2] text-balance break-words">
                         COOCA vs Kombinasi Aplikasi Konvensional
                     </h2>
-                    <p class="text-sm text-neutral-600 dark:text-neutral-400 max-w-xl mx-auto">
+                    <p class="text-sm text-neutral-600 dark:text-neutral-400 max-w-xl mx-auto text-pretty">
                         Ketahui mengapa ratusan pelaku usaha beralih ke satu sistem operasi terpadu.
                     </p>
                 </div>
@@ -295,39 +295,39 @@
                             </thead>
                             <tbody class="divide-y divide-black/[0.04] dark:divide-white/[0.06]">
                                 <tr>
-                                    <td class="p-4 sm:p-5 font-medium">Biaya Berlangganan</td>
-                                    <td class="p-4 sm:p-5 text-neutral-500">Bayar 3-5 vendor berbeda (Rp 1.000.000+ /bln)
+                                    <td class="p-4 sm:p-5 font-medium leading-snug">Biaya Berlangganan</td>
+                                    <td class="p-4 sm:p-5 text-neutral-500 leading-snug">Bayar 3-5 vendor berbeda (Rp 1.000.000+ /bln)
                                     </td>
                                     <td
-                                        class="p-4 sm:p-5 font-bold text-emerald-600 dark:text-emerald-400 bg-blue-50/30 dark:bg-blue-950/10">
+                                        class="p-4 sm:p-5 font-bold text-emerald-600 dark:text-emerald-400 bg-blue-50/30 dark:bg-blue-950/10 leading-snug">
                                         1 Paket Terjangkau (Rp 0 - Rp 99rb /bln)</td>
                                 </tr>
                                 <tr>
-                                    <td class="p-4 sm:p-5 font-medium">Sinkronisasi Kasir & Gudang</td>
-                                    <td class="p-4 sm:p-5 text-neutral-500">Manual rekap stok atau pakai API rumit</td>
+                                    <td class="p-4 sm:p-5 font-medium leading-snug">Sinkronisasi Kasir & Gudang</td>
+                                    <td class="p-4 sm:p-5 text-neutral-500 leading-snug">Manual rekap stok atau pakai API rumit</td>
                                     <td
-                                        class="p-4 sm:p-5 font-bold text-emerald-600 dark:text-emerald-400 bg-blue-50/30 dark:bg-blue-950/10">
+                                        class="p-4 sm:p-5 font-bold text-emerald-600 dark:text-emerald-400 bg-blue-50/30 dark:bg-blue-950/10 leading-snug">
                                         Otomatis terpotong saat transaksi selesai</td>
                                 </tr>
                                 <tr>
-                                    <td class="p-4 sm:p-5 font-medium">Pencatatan Jurnal Akuntansi</td>
-                                    <td class="p-4 sm:p-5 text-neutral-500">Ketik ulang nota bon ke buku kas / Excel</td>
+                                    <td class="p-4 sm:p-5 font-medium leading-snug">Pencatatan Jurnal Akuntansi</td>
+                                    <td class="p-4 sm:p-5 text-neutral-500 leading-snug">Ketik ulang nota bon ke buku kas / Excel</td>
                                     <td
-                                        class="p-4 sm:p-5 font-bold text-emerald-600 dark:text-emerald-400 bg-blue-50/30 dark:bg-blue-950/10">
+                                        class="p-4 sm:p-5 font-bold text-emerald-600 dark:text-emerald-400 bg-blue-50/30 dark:bg-blue-950/10 leading-snug">
                                         Auto-Journal debit-kredit secara real-time</td>
                                 </tr>
                                 <tr>
-                                    <td class="p-4 sm:p-5 font-medium">Waktu Rekonsiliasi Owner</td>
-                                    <td class="p-4 sm:p-5 text-neutral-500">2-3 jam setiap malam menjelang tutup toko</td>
+                                    <td class="p-4 sm:p-5 font-medium leading-snug">Waktu Rekonsiliasi Owner</td>
+                                    <td class="p-4 sm:p-5 text-neutral-500 leading-snug">2-3 jam setiap malam menjelang tutup toko</td>
                                     <td
-                                        class="p-4 sm:p-5 font-bold text-emerald-600 dark:text-emerald-400 bg-blue-50/30 dark:bg-blue-950/10">
+                                        class="p-4 sm:p-5 font-bold text-emerald-600 dark:text-emerald-400 bg-blue-50/30 dark:bg-blue-950/10 leading-snug">
                                         0 menit (dashboard owner update seketika)</td>
                                 </tr>
                                 <tr>
-                                    <td class="p-4 sm:p-5 font-medium">Dukungan Multi-Outlet / Cabang</td>
-                                    <td class="p-4 sm:p-5 text-neutral-500">Biaya tambahan mahal per outlet baru</td>
+                                    <td class="p-4 sm:p-5 font-medium leading-snug">Dukungan Multi-Outlet / Cabang</td>
+                                    <td class="p-4 sm:p-5 text-neutral-500 leading-snug">Biaya tambahan mahal per outlet baru</td>
                                     <td
-                                        class="p-4 sm:p-5 font-bold text-emerald-600 dark:text-emerald-400 bg-blue-50/30 dark:bg-blue-950/10">
+                                        class="p-4 sm:p-5 font-bold text-emerald-600 dark:text-emerald-400 bg-blue-50/30 dark:bg-blue-950/10 leading-snug">
                                         Satu kontrol pusat untuk seluruh cabang toko</td>
                                 </tr>
                             </tbody>
@@ -345,10 +345,10 @@
                 <div class="text-center space-y-3">
                     <span class="text-xs font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF]">Tanya
                         Jawab</span>
-                    <h2 class="text-2xl sm:text-4xl font-extrabold tracking-tight">
+                    <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight leading-[1.2] text-balance break-words">
                         Pertanyaan Seputar Beralih ke COOCA
                     </h2>
-                    <p class="text-sm text-neutral-600 dark:text-neutral-400">
+                    <p class="text-sm text-neutral-600 dark:text-neutral-400 text-pretty">
                         Ketahui betapa mudahnya memindahkan data bisnis lama Anda ke ekosistem terpadu COOCA.
                     </p>
                 </div>
@@ -358,12 +358,12 @@
                         class="rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] overflow-hidden">
                         <button type="button" @click="openFaq = openFaq === 1 ? null : 1"
                             class="w-full p-5 text-left font-bold text-sm sm:text-base flex items-center justify-between gap-4 focus:outline-none">
-                            <span>Apakah saya bisa memindahkan data produk dan pelanggan dari aplikasi lama?</span>
-                            <i data-lucide="chevron-down" class="w-4 h-4 transition-transform text-[#007AFF]"
+                            <span class="min-w-0 flex-1 leading-snug">Apakah saya bisa memindahkan data produk dan pelanggan dari aplikasi lama?</span>
+                            <i data-lucide="chevron-down" class="w-4 h-4 transition-transform text-[#007AFF] shrink-0"
                                 :class="openFaq === 1 ? 'rotate-180' : ''"></i>
                         </button>
                         <div x-show="openFaq === 1" x-cloak
-                            class="px-5 pb-5 text-xs sm:text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed border-t border-black/[0.04] dark:border-white/[0.06] pt-3">
+                            class="px-5 pb-5 text-xs sm:text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed border-t border-black/[0.04] dark:border-white/[0.06] pt-3 text-pretty">
                             Bisa dengan sangat mudah. COOCA menyediakan template impor Excel (XLSX/CSV) untuk produk, harga
                             jual, stok awal, dan database nomor pelanggan. Cukup salin data dari aplikasi lama Anda dan
                             unggah ke COOCA dalam satu klik.
@@ -374,12 +374,12 @@
                         class="rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] overflow-hidden">
                         <button type="button" @click="openFaq = openFaq === 2 ? null : 2"
                             class="w-full p-5 text-left font-bold text-sm sm:text-base flex items-center justify-between gap-4 focus:outline-none">
-                            <span>Apakah saya harus langsung menggunakan semua modul di COOCA sekaligus?</span>
-                            <i data-lucide="chevron-down" class="w-4 h-4 transition-transform text-[#007AFF]"
+                            <span class="min-w-0 flex-1 leading-snug">Apakah saya harus langsung menggunakan semua modul di COOCA sekaligus?</span>
+                            <i data-lucide="chevron-down" class="w-4 h-4 transition-transform text-[#007AFF] shrink-0"
                                 :class="openFaq === 2 ? 'rotate-180' : ''"></i>
                         </button>
                         <div x-show="openFaq === 2" x-cloak
-                            class="px-5 pb-5 text-xs sm:text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed border-t border-black/[0.04] dark:border-white/[0.06] pt-3">
+                            class="px-5 pb-5 text-xs sm:text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed border-t border-black/[0.04] dark:border-white/[0.06] pt-3 text-pretty">
                             Tidak. COOCA dirancang bertahap (*modular adoption*). Anda dapat memulai hanya dari kasir POS
                             untuk melayani pelanggan. Setelah tim kasir terbiasa, Anda bisa mulai mengaktifkan pencatatan
                             stok gudang, lalu pembukuan otomatis, dan kampanye WhatsApp promosi secara bertahap sesuai
@@ -391,12 +391,12 @@
                         class="rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] overflow-hidden">
                         <button type="button" @click="openFaq = openFaq === 3 ? null : 3"
                             class="w-full p-5 text-left font-bold text-sm sm:text-base flex items-center justify-between gap-4 focus:outline-none">
-                            <span>Apakah ada biaya tersembunyi seperti biaya transaksi atau komisi omzet?</span>
-                            <i data-lucide="chevron-down" class="w-4 h-4 transition-transform text-[#007AFF]"
+                            <span class="min-w-0 flex-1 leading-snug">Apakah ada biaya tersembunyi seperti biaya transaksi atau komisi omzet?</span>
+                            <i data-lucide="chevron-down" class="w-4 h-4 transition-transform text-[#007AFF] shrink-0"
                                 :class="openFaq === 3 ? 'rotate-180' : ''"></i>
                         </button>
                         <div x-show="openFaq === 3" x-cloak
-                            class="px-5 pb-5 text-xs sm:text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed border-t border-black/[0.04] dark:border-white/[0.06] pt-3">
+                            class="px-5 pb-5 text-xs sm:text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed border-t border-black/[0.04] dark:border-white/[0.06] pt-3 text-pretty">
                             Tidak ada komisi penjualan sama sekali. Seluruh omzet dari toko Anda adalah 100% milik Anda.
                             Biaya layanan COOCA transparan sesuai paket yang Anda pilih, tanpa potongan komisi tersembunyi
                             pada transaksi kasir fisik.
@@ -415,11 +415,11 @@
                     <div>
                         <span class="text-xs font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF]">Langkah
                             Cerdas</span>
-                        <h3 class="text-xl sm:text-2xl font-bold tracking-tight">Pelajari Bagian Lain dari Ekosistem COOCA
+                        <h3 class="text-xl sm:text-2xl font-bold tracking-tight leading-snug text-balance break-words">Pelajari Bagian Lain dari Ekosistem COOCA
                         </h3>
                     </div>
                     <a href="{{ route('public.pricing') }}"
-                        class="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-[#007AFF] hover:underline">
+                        class="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-[#007AFF] hover:underline shrink-0">
                         <span>Lihat Rincian Biaya</span>
                         <i data-lucide="arrow-right" class="w-4 h-4"></i>
                     </a>
@@ -432,8 +432,8 @@
                             class="w-10 h-10 rounded-[12px] bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center font-bold mb-3">
                             <i data-lucide="cpu" class="w-5 h-5"></i>
                         </div>
-                        <div class="text-base font-bold group-hover:text-[#007AFF] transition-colors">Overview BOS</div>
-                        <p class="text-xs text-neutral-600 dark:text-neutral-400 mt-1 leading-snug">Konsep dasar sistem
+                        <div class="text-base font-bold group-hover:text-[#007AFF] transition-colors leading-snug text-balance">Overview BOS</div>
+                        <p class="text-xs text-neutral-600 dark:text-neutral-400 mt-1 leading-snug text-pretty">Konsep dasar sistem
                             operasi bisnis yang menyatukan seluruh toko.</p>
                     </a>
 
@@ -443,9 +443,9 @@
                             class="w-10 h-10 rounded-[12px] bg-[#34C759]/10 text-[#34C759] flex items-center justify-center font-bold mb-3">
                             <i data-lucide="workflow" class="w-5 h-5"></i>
                         </div>
-                        <div class="text-base font-bold group-hover:text-[#34C759] transition-colors">Cara Kerja Sistem
+                        <div class="text-base font-bold group-hover:text-[#34C759] transition-colors leading-snug text-balance">Cara Kerja Sistem
                         </div>
-                        <p class="text-xs text-neutral-600 dark:text-neutral-400 mt-1 leading-snug">Alur data transaksi
+                        <p class="text-xs text-neutral-600 dark:text-neutral-400 mt-1 leading-snug text-pretty">Alur data transaksi
                             kasir ke kartu gudang & laporan owner.</p>
                     </a>
 
@@ -455,8 +455,8 @@
                             class="w-10 h-10 rounded-[12px] bg-[#FF9500]/10 text-[#FF9500] flex items-center justify-center font-bold mb-3">
                             <i data-lucide="play" class="w-5 h-5"></i>
                         </div>
-                        <div class="text-base font-bold group-hover:text-[#FF9500] transition-colors">Demo Interaktif</div>
-                        <p class="text-xs text-neutral-600 dark:text-neutral-400 mt-1 leading-snug">Uji coba langsung
+                        <div class="text-base font-bold group-hover:text-[#FF9500] transition-colors leading-snug text-balance">Demo Interaktif</div>
+                        <p class="text-xs text-neutral-600 dark:text-neutral-400 mt-1 leading-snug text-pretty">Uji coba langsung
                             antarmuka kasir dan dasbor tanpa registrasi.</p>
                     </a>
 
@@ -466,8 +466,8 @@
                             class="w-10 h-10 rounded-[12px] bg-purple-500/10 text-purple-500 flex items-center justify-center font-bold mb-3">
                             <i data-lucide="tag" class="w-5 h-5"></i>
                         </div>
-                        <div class="text-base font-bold group-hover:text-purple-500 transition-colors">Paket & Harga</div>
-                        <p class="text-xs text-neutral-600 dark:text-neutral-400 mt-1 leading-snug">Pilihan harga
+                        <div class="text-base font-bold group-hover:text-purple-500 transition-colors leading-snug text-balance">Paket & Harga</div>
+                        <p class="text-xs text-neutral-600 dark:text-neutral-400 mt-1 leading-snug text-pretty">Pilihan harga
                             terjangkau mulai dari paket Free tanpa komisi.</p>
                     </a>
                 </div>
@@ -489,10 +489,10 @@
                         <div class="lg:col-span-8 space-y-3">
                             <span class="text-xs font-bold uppercase tracking-wider text-[#00C2FF]">Ambil Kendali Bisnis
                                 Anda</span>
-                            <h2 class="text-2xl sm:text-4xl font-black tracking-tight leading-tight">
+                            <h2 class="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight leading-[1.2] text-balance break-words">
                                 Sudah Waktunya Menyatukan Operasional Bisnis Anda
                             </h2>
-                            <p class="text-sm sm:text-base text-slate-300 max-w-xl font-normal leading-relaxed">
+                            <p class="text-sm sm:text-base text-slate-300 max-w-xl font-normal leading-relaxed text-pretty">
                                 Mulai dari versi gratis hari ini dan rasakan bagaimana rasanya pulang ke rumah dengan tenang
                                 karena seluruh kasir, stok, dan kas toko terpantau rapi.
                             </p>

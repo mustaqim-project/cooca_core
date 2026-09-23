@@ -59,11 +59,11 @@
                         </div>
 
                         <h1
-                            class="text-4xl sm:text-5xl lg:text-[3.25rem] xl:text-[3.75rem] font-extrabold text-white tracking-tight leading-[1.15]">
+                            class="text-3xl sm:text-4xl md:text-5xl lg:text-[3.25rem] font-extrabold text-white tracking-tight leading-[1.15] text-balance break-words">
                             Tim Kami Siap Mendampingi <span class="text-[#00C4D8]">Operasional Bisnis Anda.</span>
                         </h1>
 
-                        <p class="text-base sm:text-lg text-slate-300 leading-relaxed max-w-xl">
+                        <p class="text-base sm:text-lg text-slate-300 leading-relaxed max-w-xl text-pretty break-words">
                             Punya kendala teknis printer struk, sinkronisasi stok toko, atau ingin berkonsultasi mengenai
                             perhitungan pembukuan? Kami mengutamakan pendampingan ramah dan mudah dipahami tanpa bahasa
                             teknis yang rumit.
@@ -72,28 +72,28 @@
                         {{-- Trust indicators --}}
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
                             <div class="p-3.5 rounded-[16px] bg-[#0E1E45]/60 border border-white/10 backdrop-blur-sm">
-                                <div class="text-xs font-bold text-white flex items-center gap-1.5">
-                                    <i data-lucide="clock" class="w-4 h-4 text-[#00C4D8]"></i>
-                                    <span>Respon Cepat</span>
+                                <div class="text-xs font-bold text-white flex items-center gap-2">
+                                    <i data-lucide="clock" class="w-4 h-4 text-[#00C4D8] shrink-0"></i>
+                                    <span class="min-w-0 flex-1 leading-snug">Respon Cepat</span>
                                 </div>
-                                <div class="text-[12px] text-slate-300 mt-1">Rata-rata &lt; 15 menit pada jam operasional
+                                <div class="text-[12px] text-slate-300 mt-1 leading-normal text-pretty">Rata-rata &lt; 15 menit pada jam operasional
                                 </div>
                             </div>
 
                             <div class="p-3.5 rounded-[16px] bg-[#0E1E45]/60 border border-white/10 backdrop-blur-sm">
-                                <div class="text-xs font-bold text-white flex items-center gap-1.5">
-                                    <i data-lucide="video" class="w-4 h-4 text-emerald-400"></i>
-                                    <span>Panduan Langsung</span>
+                                <div class="text-xs font-bold text-white flex items-center gap-2">
+                                    <i data-lucide="video" class="w-4 h-4 text-emerald-400 shrink-0"></i>
+                                    <span class="min-w-0 flex-1 leading-snug">Panduan Langsung</span>
                                 </div>
-                                <div class="text-[12px] text-slate-300 mt-1">Bimbingan foto atau video call praktis</div>
+                                <div class="text-[12px] text-slate-300 mt-1 leading-normal text-pretty">Bimbingan foto atau video call praktis</div>
                             </div>
 
                             <div class="p-3.5 rounded-[16px] bg-[#0E1E45]/60 border border-white/10 backdrop-blur-sm">
-                                <div class="text-xs font-bold text-white flex items-center gap-1.5">
-                                    <i data-lucide="shield-check" class="w-4 h-4 text-[#FF9500]"></i>
-                                    <span>Data Terjamin Aman</span>
+                                <div class="text-xs font-bold text-white flex items-center gap-2">
+                                    <i data-lucide="shield-check" class="w-4 h-4 text-[#FF9500] shrink-0"></i>
+                                    <span class="min-w-0 flex-1 leading-snug">Data Terjamin Aman</span>
                                 </div>
-                                <div class="text-[12px] text-slate-300 mt-1">Privasi dan pembukuan terenkripsi penuh</div>
+                                <div class="text-[12px] text-slate-300 mt-1 leading-normal text-pretty">Privasi dan pembukuan terenkripsi penuh</div>
                             </div>
                         </div>
 
@@ -136,20 +136,20 @@
                             {{-- Channel 1: WhatsApp --}}
                             <div
                                 class="p-4 rounded-[16px] bg-[#060B1E]/60 border border-white/10 flex items-center justify-between gap-4">
-                                <div class="flex items-center gap-3">
+                                <div class="flex items-center gap-3 min-w-0 flex-1">
                                     <div
                                         class="w-10 h-10 rounded-[12px] bg-[#34C759] text-white flex items-center justify-center shrink-0 shadow-md">
                                         <i data-lucide="phone-call" class="w-5 h-5"></i>
                                     </div>
-                                    <div>
-                                        <div class="text-[11px] font-semibold text-emerald-400 uppercase tracking-wider">
+                                    <div class="min-w-0 flex-1">
+                                        <div class="text-[11px] font-semibold text-emerald-400 uppercase tracking-wider truncate">
                                             WhatsApp Hotline</div>
-                                        <div class="text-base font-bold text-white font-mono">{{ $officialWhatsapp }}</div>
+                                        <div class="text-base font-bold text-white font-mono truncate">{{ $officialWhatsapp }}</div>
                                     </div>
                                 </div>
                                 <a href="https://wa.me/{{ $officialWhatsappRaw }}?text=Halo%20Tim%20Cooca%20UMKM"
                                     target="_blank" rel="noopener"
-                                    class="text-xs font-bold text-emerald-400 hover:underline flex items-center gap-1">
+                                    class="text-xs font-bold text-emerald-400 hover:underline flex items-center gap-1 shrink-0">
                                     Chat <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
                                 </a>
                             </div>
@@ -157,20 +157,20 @@
                             {{-- Channel 2: Email --}}
                             <div
                                 class="p-4 rounded-[16px] bg-[#060B1E]/60 border border-white/10 flex items-center justify-between gap-4">
-                                <div class="flex items-center gap-3">
+                                <div class="flex items-center gap-3 min-w-0 flex-1">
                                     <div
                                         class="w-10 h-10 rounded-[12px] bg-[#007AFF]/20 text-[#00C4D8] flex items-center justify-center shrink-0">
                                         <i data-lucide="mail" class="w-5 h-5"></i>
                                     </div>
-                                    <div class="min-w-0">
-                                        <div class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Email
+                                    <div class="min-w-0 flex-1">
+                                        <div class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider truncate">Email
                                             Surat Resmi</div>
                                         <a href="mailto:{{ $officialEmail }}"
                                             class="text-sm font-bold text-white hover:underline truncate block">{{ $officialEmail }}</a>
                                     </div>
                                 </div>
                                 <a href="mailto:{{ $officialEmail }}"
-                                    class="text-xs font-bold text-[#00C4D8] hover:underline">Kirim</a>
+                                    class="text-xs font-bold text-[#00C4D8] hover:underline shrink-0">Kirim</a>
                             </div>
 
                             {{-- Channel 3: Office --}}
@@ -179,11 +179,11 @@
                                     class="w-10 h-10 rounded-[12px] bg-white/10 text-slate-200 flex items-center justify-center shrink-0 mt-0.5">
                                     <i data-lucide="map-pin" class="w-5 h-5"></i>
                                 </div>
-                                <div>
+                                <div class="min-w-0 flex-1">
                                     <div class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Kantor
                                         Operasional</div>
-                                    <div class="text-sm font-semibold text-white mt-0.5">{{ $officeLocation }}</div>
-                                    <div class="text-xs text-slate-400 mt-1">Senin - Sabtu: 08.00 - 20.00 WIB</div>
+                                    <div class="text-sm font-semibold text-white mt-0.5 leading-snug break-words">{{ $officeLocation }}</div>
+                                    <div class="text-xs text-slate-400 mt-1 leading-normal">Senin - Sabtu: 08.00 - 20.00 WIB</div>
                                 </div>
                             </div>
                         </div>
@@ -203,10 +203,10 @@
                             <i data-lucide="send" class="w-4 h-4"></i>
                             <span>Formulir Pesan Dukungan</span>
                         </div>
-                        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+                        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-tight text-balance break-words">
                             Tuliskan Pertanyaan atau Kendala Anda
                         </h2>
-                        <p class="text-sm text-slate-600 dark:text-slate-400 mt-1.5">
+                        <p class="text-sm text-slate-600 dark:text-slate-400 mt-1.5 leading-relaxed text-pretty break-words">
                             Isi data di bawah ini secara ringkas. Tim spesialis kami akan meninjau dan menghubungi Anda
                             kembali.
                         </p>
