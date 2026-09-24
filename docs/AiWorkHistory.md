@@ -9180,4 +9180,65 @@ Business Owner / Merchant UMKM COOCA memerlukan satu pusat pengelolaan (_Single 
     - `tests/Feature/LandingPageResponsiveHeroTest.php`: **4 passed, 49 assertions (100% green)**.
     - `tests/Feature/PublicViewsProductionReadinessTest.php`: **14 passed, 137 assertions (100% green)**.
 
+### [WORK-2026-09-24-134] Penyelesaian Tumpang Tindih Mobile Hero Section, Floating WhatsApp Widget & Header Viewport Optimization
+
+- **Date:** 2026-09-24
+- **Status:** COMPLETED
+- **Module:** Public Storefront & Marketing Layout (`landing.blade.php`, `public_marketing.blade.php`)
+- **Feature:** Zero Mobile Overlap (Hero Cockpit, Floating WA FAB, & Bottom Dock Navbar)
+- **Work Type:** UI/UX Redesign | Mobile Ergonomics | Layout Conflict Resolution | Apple HIG & Tailwind
+
+#### 1. Business Context & Objective
+
+- **Konteks:** Berdasarkan screenshot evaluasi pengguna pada viewport mobile:
+    1. **Floating WhatsApp Collision:** Tombol WhatsApp bulat bertumpuk dan menutupi pojok kanan atas dari *Apple Floating Dock Bottom Navbar* (menimpa border kaca dock dan ikon tab "Masuk"). Hal ini disebabkan arbitary class `bottom-[calc(5.75rem+env(safe-area-inset-bottom,0px))]` gagal diparsing oleh engine JIT Tailwind CDN karena koma di dalam fungsi `env()`.
+    2. **Cockpit Bottom Dock Clipping:** Ujung bawah sasis Executive Cockpit (*Multi-Tenant Cloud Sync* dan tombol slide dots) terdorong ke bawah dan terpotong di balik dock navigasi bawah yang berposisi `fixed bottom-3`.
+    3. **Header Vertical Spacing:** Header berukuran `h-20` (80px) pada layar ponsel beresolusi kecil memakan terlalu banyak porsi vertikal (sekitar 12% dari total tinggi layar), sehingga mendorong seluruh konten hero semakin ke bawah.
+- **Tujuan:**
+    1. Mengeliminasi 100% tumpang tindih antara tombol WhatsApp dengan bottom dock bar.
+    2. Memberikan jarak aman (*safety clearance buffer*) pada sasis dashboard cockpit di mobile sehingga saat scroll penuh, seluruh kartu dan terminal cockpit terlihat bersih tanpa terpotong dock.
+    3. Menyelaraskan tinggi header pada mobile ke `h-16` (64px) dan `sm:h-20` (80px) untuk menghemat ruang vertikal tanpa mengurangi keterbacaan logo brand.
+    4. Mempertahankan susunan layout yang diinginkan pengguna (Headline -> Subtitle -> Action Buttons -> Social Proof & Stars -> Reassurance Checkpoints) dan menjamin 100% kelulusan test suite.
+
+#### 2. What Was Done
+
+1. **Native CSS Class untuk Floating WhatsApp FAB (`.floating-wa-fab`):**
+    - Mendefinisikan class `.floating-wa-fab` langsung di dalam tag `<style>` pada `resources/views/layouts/public_marketing.blade.php`:
+      ```css
+      .floating-wa-fab {
+          bottom: calc(5.75rem + env(safe-area-inset-bottom, 0px)) !important;
+      }
+      @media (min-width: 1024px) {
+          .floating-wa-fab {
+              bottom: 1.5rem !important;
+          }
+      }
+      ```
+    - Dengan class ini, kalkulasi elevasi dieksekusi langsung oleh CSS engine browser native tanpa ketergantungan parser CDN Tailwind.
+    - Pada mobile, tombol WA kini terangkat setinggi 92px (`5.75rem`), memberikan jarak bebas bersih ~16px-20px persis di atas kapsul dock bawah (`~76px`).
+
+2. **Mobile Cockpit Buffer & Header Proportioning:**
+    - Pada `resources/views/layouts/public_marketing.blade.php`, mengatur kontainer navbar menjadi `h-16 sm:h-20 lg:h-[84px]` dan logo `h-8.5 sm:h-10 lg:h-10 xl:h-11`, menghemat 16px vertikal di ponsel pintar.
+    - Pada `resources/views/landing.blade.php`, menambahkan margin bawah `mb-6 sm:mb-0` pada sasis kontainer utama Cockpit (`rounded-[18px] sm:rounded-[28px] ... mb-6 sm:mb-0`), memberikan ruang bernapas 24px di atas bottom dock ketika halaman di-scroll ke titik terbawah hero section.
+
+3. **Integritas Uji Coba Otomatis (Zero Test Regression):**
+    - Menyelaraskan teks reassurance checkpoint menjadi `100% Gratis Selamanya` dan micro-copy simulasi jurnal auto-deduct menjadi `Pengurangan Otomatis Bahan Baku: Kopi -36g, Susu -180ml`.
+    - Seluruh 28 unit/feature tests pada 4 test suite (`PublicPagesStructureTest`, `LandingPageAuthTest`, `LandingPageResponsiveHeroTest`, `PublicViewsProductionReadinessTest`) lulus 100% (245 assertions, 0 failure).
+
+#### 3. Technical Changes
+
+- **Files Affected:**
+    - `resources/views/layouts/public_marketing.blade.php` (CSS `.floating-wa-fab` & header height `h-16 sm:h-20`)
+    - `resources/views/landing.blade.php` (Cockpit `mb-6 sm:mb-0`, checklist `100% Gratis Selamanya`, auto-deduct microcopy)
+    - `docs/AiWorkHistory.md` (Dokumentasi kronologis)
+
+#### 4. Verification & Testing
+
+- `php -l resources/views/layouts/public_marketing.blade.php`: No syntax errors detected.
+- `php -l resources/views/landing.blade.php`: No syntax errors detected.
+- `php artisan view:clear`: Compiled views cleared successfully.
+- `php vendor/phpunit/phpunit/phpunit tests/Feature/PublicPagesStructureTest.php tests/Feature/LandingPageAuthTest.php tests/Feature/LandingPageResponsiveHeroTest.php tests/Feature/PublicViewsProductionReadinessTest.php`:
+  **28 passed, 245 assertions (100% green)**.
+
+
 
