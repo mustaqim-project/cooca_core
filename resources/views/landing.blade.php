@@ -83,8 +83,7 @@
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
         <!-- ═══ 1. HERO SECTION (Executive Dashboard & UMKM OS - Full Viewport) ══════ -->
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
-        <section
-            class="relative w-full min-w-full bg-[#060B1E] text-white overflow-hidden border-b border-white/10 min-h-[calc(100svh-4rem)] lg:min-h-[calc(100svh-84px)] flex items-center">
+        <section class="relative w-full min-w-full bg-[#060B1E] text-white overflow-hidden border-b border-white/10 min-h-[calc(100svh-4rem)] lg:min-h-[calc(100svh-84px)] flex items-center">
 
             <!-- Subtle Ambient Background Glows (Pure CSS, No Heavy Images) -->
             <div
@@ -101,33 +100,27 @@
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-3.5 sm:gap-6 lg:gap-12 items-center w-full">
 
                     <!-- KIRI: Eyebrow, Headline, Subtitle, CTAs & Value Proof (Left-aligned on Mobile and Desktop ~ 5 Cols) -->
-                    <div
-                        class="lg:col-span-6 space-y-3 sm:space-y-4 lg:space-y-5 text-left flex flex-col items-start w-full">
-
+                    <div class="lg:col-span-6 space-y-5 sm:space-y-6 lg:space-y-7 text-left flex flex-col items-start w-full">
                         <!-- Pure Typographic Overline Kicker with Pulse Dot -->
-                        <div class="flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full bg-[#00C4D8] animate-pulse"></span>
-                            <p
-                                class="text-[10px] sm:text-xs lg:text-[13px] font-bold uppercase tracking-wider text-[#00C4D8]">
+                       <div class="flex items-center gap-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-[#00C4D8] animate-pulse"></span>
+                            <p class="text-xs sm:text-sm lg:text-[14px] font-bold uppercase tracking-wider text-[#00C4D8]">
                                 Business Operating System &amp; Omnichannel ERP
                             </p>
                         </div>
 
                         <!-- Main Headline with Gradient Glow Accent -->
-                        <div class="space-y-1 sm:space-y-2 w-full">
-                            <h1
-                                class="text-[1.35rem] xs:text-2xl sm:text-4xl md:text-5xl lg:text-[2.75rem] xl:text-[3.15rem] font-extrabold text-white tracking-tight leading-[1.12] text-balance break-words max-w-[21rem] sm:max-w-xl lg:max-w-none">
+                        <div class="w-full">
+                            <h1 class="text-2xl xs:text-3xl sm:text-5xl md:text-6xl lg:text-[3.25rem] xl:text-[3.5rem] font-extrabold text-white tracking-tight leading-[1.25] sm:leading-[1.18] text-balance break-words max-w-[22rem] sm:max-w-2xl lg:max-w-none">
                                 Satu Sistem Operasi untuk Seluruh <span
                                     class="bg-gradient-to-r from-[#00C4D8] via-[#60A5FA] to-[#007AFF] bg-clip-text text-transparent">Denyut
                                     Bisnis Anda.</span>
                             </h1>
                         </div>
 
-                        <!-- Subtitle Copy -->
-                        <p
-                            class="text-xs sm:text-base lg:text-lg text-slate-300 leading-snug sm:leading-relaxed max-w-[23rem] sm:max-w-[32rem] lg:max-w-xl font-normal text-pretty line-clamp-2 sm:line-clamp-none break-words">
-                            Satukan kasir POS, stok resep otomatis, pembukuan real-time, dan toko online tanpa ketik ulang
-                            manual.
+                         <!-- Subtitle Copy -->
+                        <p class="text-sm sm:text-lg lg:text-xl text-slate-300 leading-relaxed sm:leading-loose max-w-[24rem] sm:max-w-[34rem] lg:max-w-2xl font-normal text-pretty break-words">
+                            Satukan kasir POS, stok resep otomatis, pembukuan real-time, dan toko online tanpa ketik ulang manual.
                         </p>
 
                         <!-- Action Buttons (Row Left-Aligned on Mobile & Desktop) -->
