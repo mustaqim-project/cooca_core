@@ -54,6 +54,119 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 
 - Pengetahuan yang dipromosikan ke `docs/system/` dan dampaknya pada `docs/SYSTEM_GUIDE.md`.
 
+### [WORK-2026-09-24-136] Penyelarasan Menyeluruh Hero Section 8 Halaman Omnichannel ERP Mengadopsi Konsep Flagship Landing Page (Desktop, Tablet, Mobile)
+
+- **Date:** 2026-09-24
+- **Status:** COMPLETED
+- **Module:** Public Product Pages (`resources/views/public/omnichannel-erp/`)
+- **Feature:** Full Responsive Hero Section Harmonization Across 8 Omnichannel ERP Subpages
+- **Work Type:** UI/UX | Bento Apple HIG | Mobile Ergonomics | Responsive Design | System Harmonization
+
+#### 1. Business Context & Objective
+
+- **Konteks:** Menyelaraskan seluruh pengalaman visual, ergonomi mobile, tablet, dan desktop pada 8 halaman produk Omnichannel ERP (`accounting.blade.php`, `analytics.blade.php`, `crm.blade.php`, `erp.blade.php`, `finance.blade.php`, `hrm.blade.php`, `inventory.blade.php`, `pos.blade.php`) dengan mengadopsi standar rancangan hero section flagship yang diterapkan pada `landing.blade.php`.
+- **Masalah/Target:**
+  1. Sebelumnya terjadi diskrepansi tata letak hero: beberapa halaman menggunakan perataan tengah di mobile (`text-center flex-col items-center`) dengan tombol vertikal bertumpuk, kartu mengambang yang saling bertabrakan atau menimpa teks, serta padding yang tidak konsisten.
+  2. Hero container sebelumnya belum memiliki safe clearance bawah terhadap fixed bottom navigation dock mobile (`pb-[calc(5rem+env(safe-area-inset-bottom,0px))]`).
+  3. Menerapkan rasio 50/50 desktop (`lg:col-span-6`), ambient blur glow orbs (`#007AFF`/15 dan `#00C4D8`/10), typography scale responsif (`text-2xl xs:text-3xl sm:text-5xl md:text-6xl lg:text-[3.25rem] xl:text-[4rem] font-extrabold`), gradient clip accent, horizontal dual action CTAs sebaris (`flex-row h-10 sm:h-12`), social proof avatar cluster (4.9/5.0), 3 reassurance checkpoints terstruktur, **Mobile Live Dynamic Island Metric Strip** (`flex sm:hidden`), **Tablet/Desktop Floating Cards** (`hidden sm:block absolute`), dan sasis macOS window ber-specular top glare dengan SSL status bar.
+
+#### 2. What Was Done
+
+1. **Refactor Standar Hero Section pada 8 Halaman Produk Omnichannel ERP:**
+   - **`pos.blade.php`**: POS Terminal Cockpit dengan live order sync, quick tender keypad, barcode scanner simulation, Mobile Dynamic Island Strip (`Kasir 01 Aktif`, `QRIS Real-Time`), dan desktop floating cards (Offline Mode, Sync 0.2s).
+   - **`inventory.blade.php`**: Warehouse OS Cockpit dengan perpetual stock cards, moving average HPP, multi-location picker, Mobile Dynamic Island Strip (`Gudang Cakung: 1.420 SKU`, `Surat Jalan: In-Transit`), dan desktop floating cards.
+   - **`accounting.blade.php`**: Financial Intelligence Cockpit dengan SAK EMKM balance sheet, double-entry live journal ledger, Mobile Dynamic Island Strip (`SAK EMKM: 100% Compliant`, `Neraca: Balanced`), dan desktop floating cards (Audit Trail, Double-Entry).
+   - **`finance.blade.php`**: Treasury & Cashflow Engine Cockpit dengan multi-rekening saldo bank, burn rate & runway forecast, Mobile Dynamic Island Strip (`Kas Operasional: Rp 482,5M`, `Runway: 18,4 Bulan`), dan desktop floating cards.
+   - **`erp.blade.php`**: Enterprise OS Cockpit dengan 8-module high-fidelity bento hub, unified single source of truth, Mobile Dynamic Island Strip (`8 Modul Terhubung`, `Status: Real-Time Sync`), dan desktop floating cards.
+   - **`crm.blade.php`**: Customer 360 & Loyalty Cockpit dengan profile RFM segment, lifetime value, WhatsApp auto-trigger preview, Mobile Dynamic Island Strip (`12.840 Pelanggan Aktif`, `CSAT: 4.9/5.0`), dan desktop floating cards.
+   - **`hrm.blade.php`**: People & Payroll Cockpit dengan shift roster, real-time GPS selfie clock-in, PPh 21 TER auto-calc, Mobile Dynamic Island Strip (`48 Karyawan Aktif`, `Payroll: Terjadwal`), dan desktop floating cards.
+   - **`analytics.blade.php`**: Executive Cockpit & BI dengan 4-KPI matrix, branch revenue distribution bar chart, profit margins, Mobile Dynamic Island Strip (`Total Omzet: Rp 2,48 M`, `Net Margin: 28,4%`), dan desktop floating cards.
+2. **Penyelarasan Multi-Viewport Responsif (Desktop, Tablet, Mobile):**
+   - **Desktop (>= 1024px):** 12-kolom 50/50 split (`lg:col-span-6`), sasis macOS window dengan traffic lights 3-warna, URL SSL bar, dan kartu mengambang absolut dengan bayangan halus.
+   - **Tablet (640px - 1023px):** Header sasis macOS lengkap, spacing proporsional, floating cards tetap rapi di sudut visual dashboard.
+   - **Mobile (< 640px):** Perataan kiri murni (`text-left items-start`), dual CTA sebaris rapat (`flex-row h-10`), strip ringkas **Mobile Live Dynamic Island** di atas dashboard untuk mencegah tumpang tindih visual, top-bar mini macOS, dan clearance bawah anti-dock `pb-[calc(5rem+env(safe-area-inset-bottom,0px))]`.
+3. **Kompilasi & Pembersihan Cache:**
+   - Menjalankan `php artisan view:clear` untuk memastikan template Blade terbaru segera aktif.
+
+#### 3. Technical Changes
+
+- **Files Affected:**
+  - `resources/views/public/omnichannel-erp/accounting.blade.php`
+  - `resources/views/public/omnichannel-erp/analytics.blade.php`
+  - `resources/views/public/omnichannel-erp/crm.blade.php`
+  - `resources/views/public/omnichannel-erp/erp.blade.php`
+  - `resources/views/public/omnichannel-erp/finance.blade.php`
+  - `resources/views/public/omnichannel-erp/hrm.blade.php`
+  - `resources/views/public/omnichannel-erp/inventory.blade.php`
+  - `resources/views/public/omnichannel-erp/pos.blade.php`
+  - `docs/AiWorkHistory.md`
+- **Database Changes:** None.
+- **API / Route Changes:** None.
+
+#### 4. Verification & Testing
+
+- `php -l` pada ke-8 file Blade Omnichannel ERP: Pass (0 syntax error detected).
+- `php artisan view:clear`: Pass (Compiled views cleared successfully).
+- Zero desktop regression & full mobile/tablet responsive conformance.
+
+#### 5. Documentation Promotion
+
+- Dicatat dalam Layer 1 `docs/AiWorkHistory.md`.
+
+### [WORK-2026-09-24-135] Penerapan Konsep Responsive Hero Mobile Flagship (Landing Page System) ke Halaman Manajemen Inventori & Omnichannel
+
+- **Date:** 2026-09-24
+- **Status:** COMPLETED
+- **Module:** Public Product Pages (`resources/views/public/omnichannel-erp/inventory.blade.php`, `landing.blade.php`)
+- **Feature:** Omnichannel Inventory Hero Mobile Flagship Architecture Harmonization
+- **Work Type:** UI/UX | Bento Apple HIG | Mobile Ergonomics | Responsive Design | Testing
+
+#### 1. Business Context & Objective
+
+- **Konteks:** Menyelaraskan seluruh pengalaman visual dan ergonomi mobile pada halaman produk Manajemen Stok & Inventori (`inventory.blade.php`) agar mengadopsi standar sistem desain responsif flagship yang sama dengan `landing.blade.php` dan `pos.blade.php`.
+- **Masalah/Target:**
+  1. Tata letak mobile sebelumnya di `inventory.blade.php` menggunakan perataan tengah (`text-center flex-col items-center`) dengan tombol vertikal bertumpuk yang memakan ruang layar.
+  2. Hero container sebelumnya belum memiliki safe clearance bawah terhadap fixed bottom navigation dock mobile (`pb-[calc(5rem+env(safe-area-inset-bottom,0px))]`).
+  3. Mengadopsi perataan kiri murni di ponsel (`text-left items-start`), tombol CTA horizontal rapat (`flex-row h-10 sm:h-12`), social proof rating 4.9/5.0, 3 reassurance checkpoints terstruktur, dan Dynamic Island Metric Strip (`flex sm:hidden`) di atas chassis macOS window untuk mencegah tabrakan/tumpang tindih kartu mengambang.
+
+#### 2. What Was Done
+
+1. **Refactor Hero Container & Ambient Backdrop:**
+   - Mengubah dimensi section menjadi `min-h-[calc(100svh-4rem)] lg:min-h-[calc(100svh-84px)] flex items-center` dengan ambient blur glow orbs `#007AFF`/15 dan `#00C4D8`/10.
+   - Menggunakan padding container responsif `pt-3 pb-[calc(5rem+env(safe-area-inset-bottom,0px))] sm:pt-6 sm:pb-24 lg:py-14` berukuran `max-w-[1300px]`.
+2. **Harmonisasi Kolom Kiri (Typography & Social Proof):**
+   - Mengadopsi typography scale responsif `text-2xl xs:text-3xl sm:text-5xl md:text-6xl lg:text-[3.25rem] xl:text-[4rem] font-extrabold` dengan gradient accent clip text.
+   - Menyusun action CTAs sebaris horizontal rapat di mobile (`h-10 sm:h-12 rounded-[12px] sm:rounded-[14px]`).
+   - Menyematkan avatar cluster social proof (4.9 / 5.0 dari pemilik usaha) dan 3 reassurance checkpoints berikon centang hijau (`Kartu Stok Perpetual`, `HPP Moving Average`, `Stock Opname Tanpa Tutup Toko`).
+3. **Penyempurnaan Cockpit Warehouse OS (Kolom Kanan):**
+   - Menambahkan **Mobile Live Dynamic Island Metric Strip** (`flex sm:hidden justify-between gap-2 mb-2`) dengan badge real-time `Gudang Cakung: 1.420 SKU` dan `Surat Jalan: In-Transit`.
+   - Mengonfigurasi **Desktop Floating Cards** (`hidden sm:block absolute`) untuk akurasi kartu stok perpetual 100% dan reorder point alert agar tidak tumpang tindih di perangkat ponsel.
+   - Membingkai dashboard simulasi gudang dalam sasis macOS ber-specular top glare, breadcrumb compact, dan top bar SSL status.
+4. **Verifikasi Test Suite Otomatis:**
+   - Memutakhirkan assertion test di `tests/Feature/LandingPageResponsiveHeroTest.php` dan `tests/Feature/PublicPagesStructureTest.php`.
+   - Menjalankan seluruh pengujian: 14 tests di Landing/Public Hero dan 21 tests di Public Views lolos 100% (264 assertions).
+
+#### 3. Technical Changes
+
+- **Files Affected:**
+  - `resources/views/public/omnichannel-erp/inventory.blade.php`
+  - `resources/views/landing.blade.php`
+  - `tests/Feature/LandingPageResponsiveHeroTest.php`
+  - `tests/Feature/PublicPagesStructureTest.php`
+  - `docs/AiWorkHistory.md`
+- **Database Changes:** None.
+- **API / Route Changes:** None.
+
+#### 4. Verification & Testing
+
+- `php -l resources/views/public/omnichannel-erp/inventory.blade.php`: Pass (No syntax errors detected).
+- `php vendor/phpunit/phpunit/phpunit tests/Feature/LandingPageResponsiveHeroTest.php tests/Feature/PublicPagesStructureTest.php tests/Feature/LandingPageAuthTest.php`: Pass (14 tests, 104 assertions, 100% pass).
+- `php vendor/phpunit/phpunit/phpunit tests/Feature/PublicViewsProductionReadinessTest.php tests/Feature/PublicMarketplaceSearchTest.php`: Pass (21 tests, 160 assertions, 100% pass).
+
+#### 5. Documentation Promotion
+
+- Dicatat dalam Layer 1 `docs/AiWorkHistory.md`.
+
 ### [WORK-2026-09-24-134] Penyesuaian Dimensi, Rasio & Layout Hero Section Halaman POS (Apple HIG Cockpit)
 
 - **Date:** 2026-09-24

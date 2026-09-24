@@ -78,164 +78,288 @@
     <div
         class="relative overflow-hidden bg-white dark:bg-[#070A14] text-slate-900 dark:text-white transition-colors duration-300">
 
-        {{-- 1. HERO SECTION (Midnight Blue Standard - Type A Full Viewport) --}}
+        <!-- ══════════════════════════════════════════════════════════════════════════ -->
+        <!-- ═══ 1. HERO SECTION (Full Viewport 50/50 Ratio - Apple HIG Cockpit) ══════ -->
+        <!-- ══════════════════════════════════════════════════════════════════════════ -->
         <section
-            class="relative bg-[#060B1E] text-white lg:min-h-[calc(100svh-84px)] lg:flex lg:items-center py-12 lg:py-16 overflow-hidden border-b border-white/10 w-full min-w-full">
-            {{-- Ambient Glows --}}
+            class="relative w-full min-w-full bg-[#060B1E] text-white overflow-hidden border-b border-white/10 min-h-[calc(100svh-4rem)] lg:min-h-[calc(100svh-84px)] flex items-center">
+
+            <!-- Subtle Ambient Background Glows (Pure CSS, No Heavy Images) -->
             <div
-                class="absolute -top-32 -right-32 w-96 h-96 bg-[#007AFF]/15 rounded-full blur-[140px] pointer-events-none -z-0">
+                class="absolute -top-32 right-1/4 w-[500px] h-[500px] bg-[#007AFF]/15 rounded-full blur-[140px] pointer-events-none -z-0">
             </div>
             <div
-                class="absolute -bottom-32 -left-32 w-96 h-96 bg-[#00C4D8]/10 rounded-full blur-[120px] pointer-events-none -z-0">
+                class="absolute bottom-0 left-1/4 w-[450px] h-[450px] bg-[#00C4D8]/10 rounded-full blur-[130px] pointer-events-none -z-0">
             </div>
 
-            <div class="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
-                {{-- Breadcrumb --}}
-                <nav class="pb-6" aria-label="Breadcrumb">
-                    <ol class="flex items-center gap-2 text-xs text-slate-400">
-                        <li><a href="{{ route('landing') }}" class="hover:text-[#00C4D8] transition-colors">Home</a></li>
-                        <li><i data-lucide="chevron-right" class="w-3 h-3 text-slate-500"></i></li>
-                        <li><a href="{{ route('public.erp.erp') }}"
-                                class="hover:text-[#00C4D8] transition-colors">Omnichannel ERP</a></li>
-                        <li><i data-lucide="chevron-right" class="w-3 h-3 text-slate-500"></i></li>
-                        <li class="text-white font-semibold" aria-current="page">CRM & Loyalitas Pelanggan</li>
-                    </ol>
-                </nav>
+            <!-- Container Konten Hero (Safe from Fixed Bottom Nav on Mobile) -->
+            <div
+                class="max-w-[1300px] mx-auto px-3.5 sm:px-6 lg:px-8 relative z-10 w-full pt-3 pb-[calc(5rem+env(safe-area-inset-bottom,0px))] sm:pt-6 sm:pb-24 lg:py-14">
 
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
-                    {{-- Left Column: Eyebrow, Headline, Value Proposition & Action CTAs (Mobile Center, Desktop Left ~ 5 Cols) --}}
-                    <div class="lg:col-span-5 space-y-6 text-center mx-auto flex flex-col items-center lg:text-left lg:items-start lg:mx-0">
-                        <div class="space-y-3 w-full">
-                            <!-- Pure Typographic Overline Kicker (Zero Pill Abuse) -->
-                            <p class="text-xs sm:text-[13px] font-bold uppercase tracking-wider text-[#00C4D8]">
-                                Customer 360° &amp; Loyalty Points Engine
-                            </p>
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-3.5 sm:gap-6 lg:gap-12 items-center w-full">
 
+                    <!-- KIRI: Eyebrow, Headline, Subtitle, CTAs & Value Proof (Left-aligned on Mobile and Desktop ~ 6 Cols) -->
+                    <div
+                        class="lg:col-span-6 space-y-5 sm:space-y-6 lg:space-y-7 text-left flex flex-col items-start w-full">
+                        <!-- Breadcrumb & Overline Kicker -->
+                        <div class="space-y-2">
+                            <nav aria-label="Breadcrumb" class="flex items-center gap-1.5 text-[11px] sm:text-xs text-slate-400">
+                                <a href="{{ route('landing') }}" class="hover:text-[#00C4D8] transition-colors">Home</a>
+                                <i data-lucide="chevron-right" class="w-3 h-3 text-white/30"></i>
+                                <a href="{{ route('public.erp.erp') }}" class="hover:text-[#00C4D8] transition-colors">Omnichannel ERP</a>
+                                <i data-lucide="chevron-right" class="w-3 h-3 text-white/30"></i>
+                                <span class="text-white font-semibold" aria-current="page">CRM &amp; Loyalitas Pelanggan</span>
+                            </nav>
+
+                            <div class="flex items-center gap-2">
+                                <span class="w-2.5 h-2.5 rounded-full bg-[#00C4D8] animate-pulse"></span>
+                                <p class="text-xs sm:text-sm lg:text-[14px] font-bold uppercase tracking-wider text-[#00C4D8]">
+                                    Customer 360° &amp; Loyalty Points Engine
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Main Headline with Gradient Glow Accent -->
+                        <div class="w-full">
                             <h1
-                                class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.65rem] xl:text-[3rem] font-extrabold text-white tracking-tight leading-[1.15] text-balance break-words max-w-[22rem] sm:max-w-xl lg:max-w-none mx-auto lg:mx-0">
-                                Ubah Pembeli Sekali Datang Menjadi <span class="text-[#00C4D8]">Pelanggan Setia yang Terus Kembali</span>
+                                class="text-2xl xs:text-3xl sm:text-5xl md:text-6xl lg:text-[3.25rem] xl:text-[4rem] font-extrabold text-white tracking-tight leading-[1.25] sm:leading-[1.18] text-balance break-words max-w-[22rem] sm:max-w-2xl lg:max-w-none">
+                                Ubah Pembeli Sekali Datang Menjadi <span
+                                    class="bg-gradient-to-r from-[#00C4D8] via-[#60A5FA] to-[#007AFF] bg-clip-text text-transparent">Pelanggan
+                                    Setia yang Terus Kembali</span>
                             </h1>
                         </div>
 
-                        <p class="text-base sm:text-lg text-slate-300 font-normal leading-relaxed max-w-[32rem] lg:max-w-xl mx-auto lg:mx-0">
+                        <!-- Subtitle Copy -->
+                        <p
+                            class="text-sm sm:text-lg lg:text-xl text-slate-300 leading-relaxed sm:leading-loose max-w-[24rem] sm:max-w-[34rem] lg:max-w-2xl font-normal text-pretty break-words">
                             Biaya mencari pelanggan baru jauh lebih mahal daripada mempertahankan pelanggan lama. COOCA CRM menyatukan riwayat belanja pelanggan dari kasir toko fisik dan channel online, mengelola poin reward, serta memicu repeat order secara teratur.
                         </p>
 
-                        {{-- Action CTAs (Centered on Mobile, Row on Desktop) --}}
-                        <div class="flex flex-col sm:flex-row items-stretch sm:items-center sm:justify-center lg:justify-start gap-3.5 pt-2 w-full sm:w-auto">
+                        <!-- Action Buttons (Row Left-Aligned on Mobile & Desktop) -->
+                        <div class="pt-1 flex flex-row items-center justify-start gap-2 sm:gap-3.5 w-full sm:w-auto">
                             <a href="{{ route('public.demo') }}"
-                                class="inline-flex justify-center items-center gap-2 px-6 py-3.5 rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-sm shadow-lg shadow-[#007AFF]/25 transition-all duration-200 min-h-[48px]">
+                                class="h-10 sm:h-12 px-4 sm:px-7 rounded-[12px] sm:rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-xs sm:text-sm flex items-center justify-center gap-1.5 sm:gap-2 shadow-[0_4px_20px_rgba(0,122,255,0.45)] hover:shadow-[0_6px_25px_rgba(0,122,255,0.6)] active:scale-[0.98] transition-all min-h-[40px] sm:min-h-[48px] shrink-0 border border-white/20">
                                 <span>Coba Modul CRM Sekarang</span>
-                                <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                                <i data-lucide="arrow-right" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
                             </a>
                             <a href="{{ route('public.erp.pos') }}"
-                                class="inline-flex justify-center items-center gap-2 px-6 py-3.5 rounded-[14px] bg-white/10 hover:bg-white/15 border border-white/15 text-white backdrop-blur-sm font-semibold text-sm transition-all min-h-[48px]">
+                                class="h-10 sm:h-12 px-4 sm:px-7 rounded-[12px] sm:rounded-[14px] bg-white/10 hover:bg-white/15 border border-white/15 text-white font-semibold text-xs sm:text-sm flex items-center justify-center gap-1.5 sm:gap-2 backdrop-blur-sm active:scale-[0.98] transition-all min-h-[40px] sm:min-h-[48px] shrink-0">
                                 <span>Lihat Integrasi Kasir POS</span>
                             </a>
                         </div>
 
-                        {{-- Key Retention Specs (Centered on Mobile) --}}
-                        <div class="pt-6 border-t border-white/10 grid grid-cols-2 sm:grid-cols-3 gap-3.5 text-center sm:text-left w-full">
-                            <div class="min-w-0">
-                                <div class="text-xs text-slate-400 font-medium truncate">Pengenal Utama</div>
-                                <div class="text-sm font-bold text-white mt-0.5 truncate">Nomor WhatsApp</div>
+                        <!-- Social Proof & Customer Rating (High Trust Proof) -->
+                        <div class="pt-0.5 sm:pt-1 flex items-center gap-2.5 sm:gap-3.5">
+                            <div class="flex -space-x-2 overflow-hidden shrink-0">
+                                <div
+                                    class="inline-flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-full ring-2 ring-[#060B1E] bg-gradient-to-tr from-sky-400 to-blue-600 text-[10px] sm:text-xs font-bold text-white shadow-sm">
+                                    <span>NS</span>
+                                </div>
+                                <div
+                                    class="inline-flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-full ring-2 ring-[#060B1E] bg-gradient-to-tr from-emerald-400 to-teal-600 text-[10px] sm:text-xs font-bold text-white shadow-sm">
+                                    <span>VIP</span>
+                                </div>
+                                <div
+                                    class="inline-flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-full ring-2 ring-[#060B1E] bg-gradient-to-tr from-amber-400 to-orange-600 text-[10px] sm:text-xs font-bold text-white shadow-sm">
+                                    <span>RFM</span>
+                                </div>
                             </div>
-                            <div class="min-w-0">
-                                <div class="text-xs text-slate-400 font-medium truncate">Sistem Reward</div>
-                                <div class="text-sm font-bold text-white mt-0.5 truncate">Poin &amp; Tier Member</div>
-                            </div>
-                            <div class="min-w-0 col-span-2 sm:col-span-1">
-                                <div class="text-xs text-slate-400 font-medium truncate">Segmentasi</div>
-                                <div class="text-sm font-bold text-white mt-0.5 truncate">RFM Otomatis</div>
+                            <div class="flex flex-col justify-center">
+                                <div class="flex items-center gap-1 text-amber-400">
+                                    <i data-lucide="star" class="w-3 h-3 sm:w-3.5 sm:h-3.5 fill-amber-400"></i>
+                                    <i data-lucide="star" class="w-3 h-3 sm:w-3.5 sm:h-3.5 fill-amber-400"></i>
+                                    <i data-lucide="star" class="w-3 h-3 sm:w-3.5 sm:h-3.5 fill-amber-400"></i>
+                                    <i data-lucide="star" class="w-3 h-3 sm:w-3.5 sm:h-3.5 fill-amber-400"></i>
+                                    <i data-lucide="star" class="w-3 h-3 sm:w-3.5 sm:h-3.5 fill-amber-400"></i>
+                                    <span class="text-xs sm:text-sm font-extrabold text-white ml-1 tabular-nums">4.9 /
+                                        5.0</span>
+                                </div>
+                                <span class="text-[10px] sm:text-[11.5px] text-slate-400 font-medium">Retensi Pelanggan &amp; WhatsApp Broadcast</span>
                             </div>
                         </div>
+
+                        <!-- Reassurance Checkpoints (Left-Aligned on Mobile & Desktop) -->
+                        <div
+                            class="pt-0.5 sm:pt-1 flex flex-wrap items-center justify-start gap-x-3 sm:gap-x-5 gap-y-1 text-[10px] sm:text-xs text-slate-300">
+                            <div class="flex items-center gap-1 sm:gap-1.5">
+                                <i data-lucide="check" class="w-3 h-3 sm:w-4 sm:h-4 text-emerald-400"></i>
+                                <span>Nomor WhatsApp ID</span>
+                            </div>
+                            <div class="flex items-center gap-1 sm:gap-1.5">
+                                <i data-lucide="check" class="w-3 h-3 sm:w-4 sm:h-4 text-emerald-400"></i>
+                                <span>Poin &amp; Tier Member</span>
+                            </div>
+                            <div class="flex items-center gap-1 sm:gap-1.5">
+                                <i data-lucide="check" class="w-3 h-3 sm:w-4 sm:h-4 text-emerald-400"></i>
+                                <span>Segmentasi RFM Otomatis</span>
+                            </div>
+                        </div>
+
                     </div>
 
-                    {{-- Right Column: Simulated Live Customer 360° Profile UI (7 Cols ~ 58%) --}}
-                    <div class="lg:col-span-7">
+                    <!-- KANAN: Simulated Live Customer 360° Profile UI -->
+                    <div class="lg:col-span-6 relative w-full max-w-xl mx-auto lg:max-w-none">
+                        <!-- Ambient Spotlight Glow behind the Terminal Window -->
                         <div
-                            class="relative rounded-2xl bg-[#0E1E45]/80 border border-white/10 p-4 sm:p-5 shadow-2xl backdrop-blur-md text-white">
+                            class="absolute -inset-2 sm:-inset-4 bg-gradient-to-tr from-[#007AFF]/25 via-[#00C4D8]/15 to-transparent rounded-[32px] sm:rounded-[36px] blur-2xl sm:blur-3xl pointer-events-none -z-10">
+                        </div>
+
+                        <!-- Mobile Live Dynamic Island Metric Strip (Clean, non-colliding, zero overlap on Mobile) -->
+                        <div class="flex sm:hidden items-center justify-between gap-2 mb-2 w-full">
+                            <!-- Mobile Left Live Badge -->
+                            <div
+                                class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#0A122C]/95 border border-white/20 text-[10px] text-slate-200 backdrop-blur-xl shadow-md">
+                                <i data-lucide="star" class="w-3 h-3 text-amber-400 fill-amber-400"></i>
+                                <span class="text-slate-400 font-medium">Tier</span>
+                                <span class="font-extrabold text-amber-400">VIP Gold</span>
+                            </div>
+
+                            <!-- Mobile Right Live Badge -->
+                            <div
+                                class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#0A122C]/95 border border-white/20 text-[10px] text-slate-200 backdrop-blur-xl shadow-md">
+                                <i data-lucide="sparkles" class="w-3 h-3 text-[#00C4D8]"></i>
+                                <span class="text-slate-400 font-medium">Saldo</span>
+                                <span class="font-extrabold text-white">845 Pts</span>
+                            </div>
+                        </div>
+
+                        <!-- Floating Card Top-Right: Customer LTV (TABLET & DESKTOP - Zero mobile overlap) -->
+                        <div
+                            class="hidden sm:block absolute -top-5 -right-3 z-30 bg-[#0A122C]/95 border border-white/20 rounded-[18px] p-3.5 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.8),0_0_20px_rgba(0,122,255,0.2)] min-w-[170px] backdrop-blur-2xl text-white transform hover:-translate-y-0.5 transition-all">
+                            <div class="flex items-center justify-between gap-2">
+                                <div class="text-[11px] text-slate-400 font-medium">Customer LTV</div>
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                            </div>
+                            <div class="text-lg font-extrabold text-white tabular-nums tracking-tight mt-0.5">Rp 8.450.000</div>
+                            <div class="text-[11px] font-semibold text-amber-400 flex items-center gap-1 mt-0.5">
+                                <i data-lucide="award" class="w-3 h-3"></i>
+                                <span>18x Belanja &bull; VIP Gold</span>
+                            </div>
+                        </div>
+
+                        <!-- Floating Card Bottom-Left: WA Automation (TABLET & DESKTOP - Zero mobile overlap) -->
+                        <div
+                            class="hidden sm:block absolute -bottom-5 -left-3 z-30 bg-[#0A122C]/95 border border-white/20 rounded-[18px] p-3.5 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.8),0_0_20px_rgba(0,196,216,0.18)] min-w-[160px] backdrop-blur-2xl text-white transform hover:-translate-y-0.5 transition-all">
+                            <div class="text-[11px] text-slate-400 font-medium">Automated Trigger</div>
+                            <div class="text-lg font-extrabold text-white tabular-nums tracking-tight mt-0.5">WhatsApp Bot</div>
+                            <div class="text-[11px] font-semibold text-emerald-400 flex items-center gap-1.5 mt-0.5">
+                                <i data-lucide="check-circle-2" class="w-3 h-3"></i>
+                                <span>Voucher Ultah Terkirim</span>
+                            </div>
+                        </div>
+
+                        <!-- Main Chassis with Specular Top Highlight -->
+                        <div
+                            class="rounded-[18px] sm:rounded-[28px] bg-[#0A122C]/90 border border-white/15 p-2.5 sm:p-4 shadow-[0_30px_90px_-20px_rgba(0,0,0,0.85),0_0_60px_rgba(0,122,255,0.12)] backdrop-blur-2xl space-y-2.5 sm:space-y-3 text-white relative z-10 overflow-hidden mb-6 sm:mb-0">
+
+                            <!-- Top Edge Specular Glare -->
+                            <div
+                                class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent pointer-events-none">
+                            </div>
+
+                            <!-- Mobile Window Header (sm:hidden - Clean title & status, zero truncation) -->
+                            <div class="flex sm:hidden items-center justify-between border-b border-white/10 pb-2 gap-2">
+                                <div class="flex items-center gap-1.5 min-w-0">
+                                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0"></span>
+                                    <span class="text-[11px] font-bold text-white tracking-tight truncate">Customer 360 &bull; Nadia Saraswati</span>
+                                </div>
+                                <span
+                                    class="px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-400 text-[10px] font-semibold shrink-0">
+                                    VIP Gold
+                                </span>
+                            </div>
+
+                            <!-- Tablet & Desktop macOS Window Title Bar (hidden sm:flex) -->
+                            <div class="hidden sm:flex items-center justify-between border-b border-white/10 pb-3">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-[#FF5F56]/80"></span>
+                                    <span class="w-2.5 h-2.5 rounded-full bg-[#FFBD2E]/80"></span>
+                                    <span class="w-2.5 h-2.5 rounded-full bg-[#27C93F]/80"></span>
+                                    <div
+                                        class="ml-2 flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/5 border border-white/10 text-[11px] text-slate-300 font-mono">
+                                        <i data-lucide="lock" class="w-2.5 h-2.5 text-emerald-400"></i>
+                                        <span>cooca.id/app/crm/customer-360</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+                                    <span class="text-[11px] font-medium text-amber-400 font-mono">VIP Gold Member</span>
+                                </div>
+                            </div>
 
                             {{-- Profile Header Card --}}
                             <div
-                                class="p-3.5 rounded-xl bg-[#060B1E]/80 border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                                <div class="flex items-center gap-3 min-w-0 flex-1">
+                                class="p-2.5 sm:p-3.5 rounded-xl bg-[#060B1E]/80 border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                                <div class="flex items-center gap-2.5 min-w-0 flex-1">
                                     <div
-                                        class="w-11 h-11 rounded-full bg-gradient-to-tr from-[#007AFF] to-[#00C4D8] flex items-center justify-center text-white font-bold text-sm shadow-md shrink-0">
+                                        class="w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-gradient-to-tr from-[#007AFF] to-[#00C4D8] flex items-center justify-center text-white font-bold text-xs sm:text-sm shadow-md shrink-0">
                                         NS
                                     </div>
                                     <div class="min-w-0 flex-1">
                                         <div class="flex items-center gap-2">
-                                            <h3 class="font-bold text-white text-sm truncate">Nadia Saraswati</h3>
+                                            <h3 class="font-bold text-white text-xs sm:text-sm truncate">Nadia Saraswati</h3>
                                             <span
-                                                class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/40 shrink-0">VIP
-                                                Gold</span>
+                                                class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/40 shrink-0">VIP Gold</span>
                                         </div>
-                                        <div class="text-[11px] text-slate-400 font-mono mt-0.5 truncate">+62 812-9844-xxxx
-                                            • ID: CUST-8821</div>
+                                        <div class="text-[10px] sm:text-[11px] text-slate-400 font-mono mt-0.5 truncate">+62 812-9844-xxxx • ID: CUST-8821</div>
                                     </div>
                                 </div>
                                 <div class="sm:text-right shrink-0">
                                     <div class="text-[10px] text-slate-400">Saldo Poin</div>
-                                    <div class="text-base font-bold text-[#00C4D8] font-mono">845 Pts</div>
+                                    <div class="text-sm sm:text-base font-bold text-[#00C4D8] font-mono">845 Pts</div>
                                 </div>
                             </div>
 
                             {{-- Customer Lifetime Stats Grid --}}
-                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 my-3 text-center">
-                                <div class="p-2.5 rounded-xl bg-[#060B1E]/60 border border-white/10 min-w-0">
-                                    <div class="text-[10px] text-slate-400 truncate">Total Belanja (LTV)</div>
-                                    <div class="text-xs font-bold text-white font-mono mt-0.5 truncate">Rp 8.450.000</div>
+                            <div class="grid grid-cols-3 gap-1.5 sm:gap-2 my-1.5 sm:my-2 text-center">
+                                <div class="p-2 sm:p-2.5 rounded-xl bg-[#060B1E]/60 border border-white/10 min-w-0">
+                                    <div class="text-[9px] sm:text-[10px] text-slate-400 truncate">Total Belanja (LTV)</div>
+                                    <div class="text-[11px] sm:text-xs font-bold text-white font-mono mt-0.5 truncate">Rp 8.450.000</div>
                                 </div>
-                                <div class="p-2.5 rounded-xl bg-[#060B1E]/60 border border-white/10 min-w-0">
-                                    <div class="text-[10px] text-slate-400 truncate">Frekuensi Belanja</div>
-                                    <div class="text-xs font-bold text-white font-mono mt-0.5 truncate">18 Transaksi</div>
+                                <div class="p-2 sm:p-2.5 rounded-xl bg-[#060B1E]/60 border border-white/10 min-w-0">
+                                    <div class="text-[9px] sm:text-[10px] text-slate-400 truncate">Frekuensi Belanja</div>
+                                    <div class="text-[11px] sm:text-xs font-bold text-white font-mono mt-0.5 truncate">18 Transaksi</div>
                                 </div>
-                                <div class="p-2.5 rounded-xl bg-[#060B1E]/60 border border-white/10 min-w-0">
-                                    <div class="text-[10px] text-slate-400 truncate">Rata-rata Basket</div>
-                                    <div class="text-xs font-bold text-white font-mono mt-0.5 truncate">Rp 469.000</div>
+                                <div class="p-2 sm:p-2.5 rounded-xl bg-[#060B1E]/60 border border-white/10 min-w-0">
+                                    <div class="text-[9px] sm:text-[10px] text-slate-400 truncate">Rata-rata Basket</div>
+                                    <div class="text-[11px] sm:text-xs font-bold text-white font-mono mt-0.5 truncate">Rp 469.000</div>
                                 </div>
                             </div>
 
                             {{-- Recent Omnichannel Purchase Timeline --}}
-                            <div class="space-y-2 text-xs">
-                                <div class="text-[10px] uppercase font-mono text-slate-400 px-1">Riwayat Transaksi Lintas
-                                    Channel:</div>
+                            <div class="space-y-1.5 text-xs">
+                                <div class="text-[10px] uppercase font-mono text-slate-400 px-1">Riwayat Transaksi Lintas Channel:</div>
 
                                 <div
-                                    class="p-2.5 rounded-xl bg-[#060B1E]/60 border border-white/10 flex items-center justify-between gap-2.5">
+                                    class="p-2 sm:p-2.5 rounded-xl bg-[#060B1E]/60 border border-white/10 flex items-center justify-between gap-2">
                                     <div class="flex items-center gap-2 min-w-0 flex-1">
                                         <span class="p-1 rounded bg-[#007AFF]/20 text-[#00C4D8] shrink-0">
                                             <i data-lucide="store" class="w-3.5 h-3.5"></i>
                                         </span>
                                         <div class="min-w-0 flex-1">
-                                            <div class="font-medium text-white text-[11px] truncate">POS Outlet Sudirman
-                                            </div>
-                                            <div class="text-[10px] text-slate-400 truncate">2x Croissant Butter, 2x Kopi
-                                                Susu Aren</div>
+                                            <div class="font-medium text-white text-[11px] truncate">POS Outlet Sudirman</div>
+                                            <div class="text-[10px] text-slate-400 truncate">2x Croissant Butter, 2x Kopi Susu Aren</div>
                                         </div>
                                     </div>
                                     <div class="text-right shrink-0">
-                                        <div class="font-bold text-white font-mono whitespace-nowrap">Rp 100.000</div>
+                                        <div class="font-bold text-white font-mono text-[11px] whitespace-nowrap">Rp 100.000</div>
                                         <div class="text-[10px] text-[#00C4D8] whitespace-nowrap">+10 Poin</div>
                                     </div>
                                 </div>
 
                                 <div
-                                    class="p-2.5 rounded-xl bg-[#060B1E]/60 border border-white/10 flex items-center justify-between gap-2.5">
+                                    class="p-2 sm:p-2.5 rounded-xl bg-[#060B1E]/60 border border-white/10 flex items-center justify-between gap-2">
                                     <div class="flex items-center gap-2 min-w-0 flex-1">
                                         <span class="p-1 rounded bg-emerald-500/20 text-emerald-400 shrink-0">
                                             <i data-lucide="globe" class="w-3.5 h-3.5"></i>
                                         </span>
                                         <div class="min-w-0 flex-1">
-                                            <div class="font-medium text-white text-[11px] truncate">Website Online Store
-                                            </div>
-                                            <div class="text-[10px] text-slate-400 truncate">1x Kopi Biji Arabika 1kg (Kirim
-                                                ke Rumah)</div>
+                                            <div class="font-medium text-white text-[11px] truncate">Website Online Store</div>
+                                            <div class="text-[10px] text-slate-400 truncate">1x Kopi Biji Arabika 1kg (Kirim ke Rumah)</div>
                                         </div>
                                     </div>
                                     <div class="text-right shrink-0">
-                                        <div class="font-bold text-white font-mono whitespace-nowrap">Rp 280.000</div>
+                                        <div class="font-bold text-white font-mono text-[11px] whitespace-nowrap">Rp 280.000</div>
                                         <div class="text-[10px] text-[#00C4D8] whitespace-nowrap">+28 Poin</div>
                                     </div>
                                 </div>
@@ -243,7 +367,7 @@
 
                             {{-- Retention Action Trigger --}}
                             <div
-                                class="mt-3 p-2.5 rounded-xl bg-[#007AFF]/15 border border-[#007AFF]/30 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+                                class="mt-2 p-2.5 rounded-xl bg-[#007AFF]/15 border border-[#007AFF]/30 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
                                 <div class="flex items-center gap-2 min-w-0 flex-1">
                                     <i data-lucide="sparkles" class="w-4 h-4 text-[#00C4D8] shrink-0"></i>
                                     <div class="min-w-0 flex-1 truncate">

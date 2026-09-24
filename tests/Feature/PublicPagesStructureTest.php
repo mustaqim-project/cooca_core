@@ -28,7 +28,7 @@ final class PublicPagesStructureTest extends TestCase
         $response->assertDontSee('w-5 h-5 rounded-full bg-pink-500 inline-block');
 
         // Verify authentic vector SVG signatures exist
-        $response->assertSee('badge-dollar-sign', false); // Finance badge icon
+        $response->assertSee('wallet', false); // Finance badge icon
     }
 
     public function test_business_operating_system_subpages(): void

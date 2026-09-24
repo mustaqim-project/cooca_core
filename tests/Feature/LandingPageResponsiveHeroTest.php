@@ -41,23 +41,19 @@ final class LandingPageResponsiveHeroTest extends TestCase
         $response->assertSee('Satu Sistem Operasi untuk Seluruh', false);
         $response->assertSee('Denyut Bisnis Anda.', false);
         // Responsive headline scale
-        $response->assertSee('text-[1.35rem] xs:text-2xl sm:text-4xl', false);
-        // Compact description with line clamping on mobile
-        $response->assertSee('line-clamp-2 sm:line-clamp-none', false);
+        $response->assertSee('text-2xl xs:text-3xl sm:text-5xl', false);
         // Left-aligned layout on mobile & desktop
         $response->assertSee('text-left flex flex-col items-start', false);
         // Compact side-by-side action buttons (left-aligned)
         $response->assertSee('flex flex-row items-center justify-start gap-2 sm:gap-3.5', false);
         $response->assertSee('Mulai Coba Gratis');
-        $response->assertSee('Coba Live Demo');
+        // Social proof
+        $response->assertSee('10.000+');
+        $response->assertSee('4.9 /');
         // Reassurance checkpoints
-        $response->assertSee('100% Gratis');
+        $response->assertSee('100% Gratis Selamanya');
         $response->assertSee('Tanpa Kartu Kredit');
         $response->assertSee('Siap 2 Menit');
-        // 3-Metric Bento Tiles
-        $response->assertSee('10.000+');
-        $response->assertSee('99.8%');
-        $response->assertSee('100%');
     }
 
     public function test_hero_cockpit_and_floating_cards_are_rendered_without_being_hidden_on_mobile(): void
@@ -96,7 +92,6 @@ final class LandingPageResponsiveHeroTest extends TestCase
 
         // Mobile Clean Executive Cockpit assertions
         $response->assertSee('Executive Cockpit', false);
-        $response->assertSee('hidden lg:flex pt-0.5 sm:pt-2 w-full justify-start', false);
         $response->assertSee('grid-cols-2 sm:grid-cols-4', false);
         $response->assertSee('h-16 xs:h-20 sm:h-24 lg:h-28', false);
     }

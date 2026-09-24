@@ -116,8 +116,7 @@
                             <h1
                                 class="text-2xl xs:text-3xl sm:text-5xl md:text-6xl lg:text-[3.25rem] xl:text-[4.5rem] font-extrabold text-white tracking-tight leading-[1.25] sm:leading-[1.18] text-balance break-words max-w-[22rem] sm:max-w-2xl lg:max-w-none">
                                 Satu Sistem Operasi untuk Seluruh <span
-                                    class="bg-gradient-to-r from-[#00C4D8] via-[#60A5FA] to-[#007AFF] bg-clip-text text-transparent">Denyut
-                                    Bisnis Anda.</span>
+                                    class="bg-gradient-to-r from-[#00C4D8] via-[#60A5FA] to-[#007AFF] bg-clip-text text-transparent">Denyut Bisnis Anda.</span>
                             </h1>
                         </div>
 
@@ -315,7 +314,7 @@
                             </div>
                             <div class="text-[11px] font-semibold text-[#00C4D8] flex items-center gap-1 mt-0.5">
                                 <i data-lucide="refresh-cw" class="w-3 h-3"></i>
-                                <span>Realtime Sync</span>
+                                <span>Realtime Cloud Sync</span>
                             </div>
                         </div>
 
@@ -361,8 +360,7 @@
                             <div class="flex sm:hidden items-center justify-between border-b border-white/10 pb-2 gap-2">
                                 <div class="flex items-center gap-1.5 min-w-0">
                                     <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0"></span>
-                                    <span class="text-[11px] font-bold text-white tracking-tight truncate">Executive
-                                        Cockpit</span>
+                                    <span class="text-[11px] font-bold text-white tracking-tight truncate">Executive Cockpit</span>
                                 </div>
                                 <div
                                     class="flex items-center bg-white/[0.06] p-0.5 rounded-full border border-white/10 text-[10px] font-semibold shrink-0">
@@ -465,8 +463,7 @@
                                     <div
                                         class="p-2 sm:p-3 lg:p-3.5 rounded-[12px] sm:rounded-[16px] bg-white/[0.04] border border-white/[0.08] hover:border-white/20 transition-all space-y-0.5 sm:space-y-1">
                                         <span
-                                            class="text-[9px] sm:text-[11px] text-slate-400 block font-medium truncate">Total
-                                            Omset</span>
+                                            class="text-[9px] sm:text-[11px] text-slate-400 block font-medium truncate">Total Omset</span>
                                         <div
                                             class="text-sm sm:text-base lg:text-lg font-bold text-white tabular-nums tracking-tight">
                                             Rp 128.4j</div>
@@ -480,8 +477,7 @@
                                     <div
                                         class="hidden sm:block p-2 sm:p-3 lg:p-3.5 rounded-[12px] sm:rounded-[16px] bg-white/[0.04] border border-white/[0.08] hover:border-white/20 transition-all space-y-0.5 sm:space-y-1">
                                         <span
-                                            class="text-[9px] sm:text-[11px] text-slate-400 block font-medium truncate">Lisensi
-                                            POS</span>
+                                            class="text-[9px] sm:text-[11px] text-slate-400 block font-medium truncate">Lisensi POS</span>
                                         <div
                                             class="text-sm sm:text-base lg:text-lg font-bold text-white tabular-nums tracking-tight">
                                             12 Unit</div>
@@ -491,8 +487,7 @@
                                     <div
                                         class="hidden sm:block p-2 sm:p-3 lg:p-3.5 rounded-[12px] sm:rounded-[16px] bg-white/[0.04] border border-white/[0.08] hover:border-white/20 transition-all space-y-0.5 sm:space-y-1">
                                         <span
-                                            class="text-[9px] sm:text-[11px] text-slate-400 block font-medium truncate">Tenant
-                                            Aktif</span>
+                                            class="text-[9px] sm:text-[11px] text-slate-400 block font-medium truncate">Tenant Aktif</span>
                                         <div
                                             class="text-sm sm:text-base lg:text-lg font-bold text-white tabular-nums tracking-tight">
                                             48 Bisnis</div>
@@ -502,8 +497,7 @@
                                     <div
                                         class="p-2 sm:p-3 lg:p-3.5 rounded-[12px] sm:rounded-[16px] bg-white/[0.04] border border-white/[0.08] hover:border-white/20 transition-all space-y-0.5 sm:space-y-1">
                                         <span
-                                            class="text-[9px] sm:text-[11px] text-slate-400 block font-medium truncate">Laba
-                                            Bersih</span>
+                                            class="text-[9px] sm:text-[11px] text-slate-400 block font-medium truncate">Laba Bersih</span>
                                         <div
                                             class="text-sm sm:text-base lg:text-lg font-bold text-emerald-400 tabular-nums tracking-tight">
                                             Rp 42.1j</div>
@@ -578,18 +572,15 @@
                                             <i data-lucide="receipt" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
                                         </div>
                                         <div class="truncate">
-                                            <span class="font-semibold text-slate-200 text-[10px] sm:text-xs">Kasir POS
-                                                #TRX-2049</span>
+                                            <span class="font-semibold text-slate-200 text-[10px] sm:text-xs">Kasir POS #TRX-2049</span>
                                             <span class="text-slate-400 text-[9px] sm:text-[11px] hidden xs:inline"> &bull;
                                                 Pengurangan Otomatis Bahan Baku: Kopi -36g, Susu -180ml</span>
                                         </div>
                                     </div>
                                     <div class="flex items-center gap-1.5 sm:gap-3 shrink-0">
-                                        <span class="font-mono font-bold text-white text-[10px] sm:text-xs">Rp
-                                            36.000</span>
+                                        <span class="font-mono font-bold text-white text-[10px] sm:text-xs">Rp 36.000</span>
                                         <span
-                                            class="px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[8.5px] sm:text-[10px] font-mono font-bold">+Rp
-                                            21.600</span>
+                                            class="px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[8.5px] sm:text-[10px] font-mono font-bold">+Rp 21.600</span>
                                     </div>
                                 </div>
 
@@ -624,8 +615,7 @@
                                     <div
                                         class="p-2 sm:p-3 lg:p-3.5 rounded-[12px] sm:rounded-[16px] bg-white/[0.04] border border-white/[0.08] hover:border-white/20 transition-all space-y-0.5 sm:space-y-1">
                                         <span
-                                            class="text-[9px] sm:text-[11px] text-slate-400 block font-medium truncate">Pesanan
-                                            MP</span>
+                                            class="text-[9px] sm:text-[11px] text-slate-400 block font-medium truncate">Pesanan MP</span>
                                         <div
                                             class="text-sm sm:text-base lg:text-lg font-bold text-white tabular-nums tracking-tight">
                                             1.248 Pkt</div>
@@ -639,8 +629,7 @@
                                     <div
                                         class="hidden sm:block p-2 sm:p-3 lg:p-3.5 rounded-[12px] sm:rounded-[16px] bg-white/[0.04] border border-white/[0.08] hover:border-white/20 transition-all space-y-0.5 sm:space-y-1">
                                         <span
-                                            class="text-[9px] sm:text-[11px] text-slate-400 block font-medium truncate">Live
-                                            SKU</span>
+                                            class="text-[9px] sm:text-[11px] text-slate-400 block font-medium truncate">Live SKU</span>
                                         <div
                                             class="text-sm sm:text-base lg:text-lg font-bold text-white tabular-nums tracking-tight">
                                             1.420 SKU</div>
@@ -650,8 +639,7 @@
                                     <div
                                         class="hidden sm:block p-2 sm:p-3 lg:p-3.5 rounded-[12px] sm:rounded-[16px] bg-white/[0.04] border border-white/[0.08] hover:border-white/20 transition-all space-y-0.5 sm:space-y-1">
                                         <span
-                                            class="text-[9px] sm:text-[11px] text-slate-400 block font-medium truncate">Pick
-                                            Up</span>
+                                            class="text-[9px] sm:text-[11px] text-slate-400 block font-medium truncate">Pick Up</span>
                                         <div
                                             class="text-sm sm:text-base lg:text-lg font-bold text-sky-400 tabular-nums tracking-tight">
                                             86 Resi</div>
@@ -661,8 +649,7 @@
                                     <div
                                         class="p-2 sm:p-3 lg:p-3.5 rounded-[12px] sm:rounded-[16px] bg-white/[0.04] border border-white/[0.08] hover:border-white/20 transition-all space-y-0.5 sm:space-y-1">
                                         <span
-                                            class="text-[9px] sm:text-[11px] text-slate-400 block font-medium truncate">Hemat
-                                            Ongkir</span>
+                                            class="text-[9px] sm:text-[11px] text-slate-400 block font-medium truncate">Hemat Ongkir</span>
                                         <div
                                             class="text-sm sm:text-base lg:text-lg font-bold text-emerald-400 tabular-nums tracking-tight">
                                             Rp 3.4j</div>
