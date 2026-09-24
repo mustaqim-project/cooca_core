@@ -4,6 +4,7 @@
     $pTitle = $product->name . ' | ' . $business->name;
     $rawDesc = strip_tags($product->description ?: 'Beli ' . $product->name . ' original harga terbaik hanya di ' . $business->name . '. Kualitas terjamin, stok kasir resmi & pengiriman cepat.');
     $pDesc = \Illuminate\Support\Str::limit($rawDesc, 155);
+    $pCanonical = url('/' . $business->slug . '/produk/' . ($product->slug ?: $product->id));
     // Wajib: Untuk produk, mutlak prioritaskan foto/gambar produk
     $rawProdImg = $product->image_url ?: ($product->image_path ? (str_starts_with($product->image_path, 'http') ? $product->image_path : \App\Domain\Storage\TenantStorage::url($product->image_path)) : null);
     if (!empty($rawProdImg)) {

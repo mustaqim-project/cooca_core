@@ -22,10 +22,10 @@
     @include('public.partials.seo', [
         'siteName' => $business->name,
         'fallbackImage' => $defaultBrandImg ?: asset('assets/seo/cooca-og-default.jpg'),
-        'url' => $canonicalUrl ?? url('/' . $business->slug),
-        'title' => $pageTitle ?? ($landingPage->meta_title ?: $business->name . ' - ' . ($landingPage->headline ?: 'Toko Online Resmi')),
-        'description' => $ogDescription ?? ($landingPage->meta_description ?: ($landingPage->subheadline ?: ($business->description ?: 'Belanja aneka produk dan layanan berkualitas langsung dari ' . $business->name . ' dengan jaminan kualitas dan pengiriman terpercaya.'))),
-        'keywords' => $landingPage->meta_keywords ?? null,
+        'url' => $canonicalUrl ?? (View::hasSection('canonical') ? trim((string) View::yieldContent('canonical')) : url('/' . $business->slug)),
+        'title' => $pageTitle ?? (View::hasSection('title') ? trim((string) View::yieldContent('title')) : ($landingPage->meta_title ?: $business->name . ' - ' . ($landingPage->headline ?: 'Toko Online Resmi'))),
+        'description' => $ogDescription ?? (View::hasSection('description') ? trim((string) View::yieldContent('description')) : ($landingPage->meta_description ?: ($landingPage->subheadline ?: ($business->description ?: 'Belanja aneka produk dan layanan berkualitas langsung dari ' . $business->name . ' dengan jaminan kualitas dan pengiriman terpercaya.')))),
+        'keywords' => View::hasSection('keywords') ? trim((string) View::yieldContent('keywords')) : ($landingPage->meta_keywords ?? null),
     ])
 
     @stack('seo')

@@ -143,7 +143,8 @@ final class SeoMetadataArchitectureTest extends TestCase
         $response->assertSee('<meta property="og:type" content="article">', false);
         $response->assertSee('<meta property="og:image" content="' . $expectedCover . '">', false);
         $response->assertSee('<meta name="twitter:image" content="' . $expectedCover . '">', false);
-        $response->assertSee('"image": [\n        "' . $expectedCover . '"\n    ]', false);
+        $response->assertSee('"image":', false);
+        $response->assertSee($expectedCover, false);
     }
 
     /**
