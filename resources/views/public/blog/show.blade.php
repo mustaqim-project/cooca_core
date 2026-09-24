@@ -1,6 +1,14 @@
 @extends('layouts.public_marketing')
 @php
-    $articleOgImage = $post->cover_image ? (str_starts_with($post->cover_image, 'http') ? $post->cover_image : url($post->cover_image)) : asset('assets/seo/cooca-og-default.jpg');
+    // Wajib: Untuk artikel blog, mutlak gunakan cover image blog jika tersedia
+    $coverImg = $post->cover_image;
+    if (!empty($coverImg)) {
+        $articleOgImage = (str_starts_with($coverImg, 'http://') || str_starts_with($coverImg, 'https://'))
+            ? $coverImg
+            : (str_starts_with($coverImg, '/') ? url($coverImg) : asset($coverImg));
+    } else {
+        $articleOgImage = asset('assets/seo/cooca-og-default.jpg');
+    }
     $articleSchema = [
         '@context' => 'https://schema.org',
         '@type' => 'Article',

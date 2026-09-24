@@ -4,8 +4,15 @@
     $pTitle = $product->name . ' | ' . $business->name;
     $rawDesc = strip_tags($product->description ?: 'Beli ' . $product->name . ' original harga terbaik hanya di ' . $business->name . '. Kualitas terjamin, stok kasir resmi & pengiriman cepat.');
     $pDesc = \Illuminate\Support\Str::limit($rawDesc, 155);
-    $pCanonical = url('/' . $business->slug . '/produk/' . ($product->slug ?: $product->id));
-    $pOgImage = $product->image_url ?: ($landingPage->og_image_url ?: ($landingPage->hero_image_url ?: ($business->logo_url ?: asset('assets/seo/cooca-og-default.jpg'))));
+    // Wajib: Untuk produk, mutlak prioritaskan foto/gambar produk
+    $rawProdImg = $product->image_url ?: ($product->image_path ? (str_starts_with($product->image_path, 'http') ? $product->image_path : \App\Domain\Storage\TenantStorage::url($product->image_path)) : null);
+    if (!empty($rawProdImg)) {
+        $pOgImage = (str_starts_with($rawProdImg, 'http://') || str_starts_with($rawProdImg, 'https://'))
+            ? $rawProdImg
+            : (str_starts_with($rawProdImg, '/') ? url($rawProdImg) : asset($rawProdImg));
+    } else {
+        $pOgImage = $landingPage->og_image_url ?: ($landingPage->hero_image_url ?: ($business->logo_url ?: asset('assets/seo/cooca-og-default.jpg')));
+    }
     $pPrice = (float) $product->selling_price;
 @endphp
 

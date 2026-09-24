@@ -5,7 +5,15 @@
     $artRawDesc = strip_tags($article->excerpt ?: ($article->content ?: 'Baca artikel selengkapnya di ' . $business->name . '. Dapatkan wawasan menarik dan informasi terpercaya.'));
     $artDesc = \Illuminate\Support\Str::limit($artRawDesc, 155);
     $artCanonical = url('/' . $business->slug . '/artikel/' . $article->slug);
-    $artOgImage = $article->cover_image ?: ($landingPage->og_image_url ?: ($landingPage->hero_image_url ?: ($business->logo_url ?: asset('assets/seo/cooca-og-default.jpg'))));
+    // Wajib: Untuk artikel, mutlak prioritaskan cover image artikel
+    $rawArtImg = $article->cover_image;
+    if (!empty($rawArtImg)) {
+        $artOgImage = (str_starts_with($rawArtImg, 'http://') || str_starts_with($rawArtImg, 'https://'))
+            ? $rawArtImg
+            : (str_starts_with($rawArtImg, '/') ? url($rawArtImg) : asset($rawArtImg));
+    } else {
+        $artOgImage = $landingPage->og_image_url ?: ($landingPage->hero_image_url ?: ($business->logo_url ?: asset('assets/seo/cooca-og-default.jpg')));
+    }
 @endphp
 
 @section('title', $artTitle)

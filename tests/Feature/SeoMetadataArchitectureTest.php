@@ -87,46 +87,142 @@ final class SeoMetadataArchitectureTest extends TestCase
     }
 
     /**
-     * Test that the default OG image asset exists and has 1200x630 dimension.
+     * Test that the default OG image asset and official brand logos exist with standard dimensions.
      */
-    public function test_default_og_image_file_exists_and_has_standard_dimensions(): void
+    public function test_default_og_image_and_brand_logos_exist_with_proper_dimensions(): void
     {
-        $imagePath = public_path('assets/seo/cooca-og-default.jpg');
+        // 1. Social Graph Image (1200x630)
+        $ogPath = public_path('assets/seo/cooca-og-default.jpg');
+        $this->assertFileExists($ogPath);
+        $ogSize = getimagesize($ogPath);
+        $this->assertNotFalse($ogSize, 'OG image should be a valid image');
+        $this->assertSame(1200, $ogSize[0], 'OG image width must be 1200px');
+        $this->assertSame(630, $ogSize[1], 'OG image height must be 630px');
 
-        $this->assertFileExists($imagePath);
+        // 2. Square Logo 1:1 (1024x1024)
+        $squareLogoPath = public_path('assets/image/cooca-logo-square.png');
+        $this->assertFileExists($squareLogoPath);
+        $squareSize = getimagesize($squareLogoPath);
+        $this->assertNotFalse($squareSize, 'Square logo should be a valid image');
+        $this->assertSame(1024, $squareSize[0], 'Square logo width must be 1024px');
+        $this->assertSame(1024, $squareSize[1], 'Square logo height must be 1024px');
+        $this->assertSame($squareSize[0], $squareSize[1], 'Square logo must have 1:1 aspect ratio');
 
-        $size = getimagesize($imagePath);
-        $this->assertNotFalse($size, 'File should be a valid image');
-        $this->assertSame(1200, $size[0], 'OG image width must be 1200px');
-        $this->assertSame(630, $size[1], 'OG image height must be 630px');
+        // 3. Landscape Logo (1024x337)
+        $landscapeLogoPath = public_path('assets/image/cooca-logo-landscape.png');
+        $this->assertFileExists($landscapeLogoPath);
+        $landscapeSize = getimagesize($landscapeLogoPath);
+        $this->assertNotFalse($landscapeSize, 'Landscape logo should be a valid image');
+        $this->assertGreaterThan($landscapeSize[1], $landscapeSize[0], 'Landscape logo width must be wider than height');
     }
 
     /**
-     * Test blog post detail renders article Open Graph tags and Schema.org Article JSON-LD.
+     * Test blog post detail strictly uses the blog's cover image when available.
      */
-    public function test_blog_post_detail_renders_article_metadata_and_json_ld(): void
+    public function test_blog_post_detail_strictly_uses_blog_cover_image(): void
     {
         $user = \App\Models\User::factory()->create();
+        $expectedCover = 'https://cooca.id/storage/blog/omzet-meledak-2026.jpg';
 
         $post = \App\Models\Post::create([
             'user_id' => $user->id,
-            'title' => 'Panduan Lengkap Manajemen Stok UMKM',
-            'slug' => 'panduan-lengkap-manajemen-stok-umkm',
-            'excerpt' => 'Pelajari cara mengelola stok bahan baku dan produk jadi agar tidak basi.',
-            'content' => '<p>Konten artikel lengkap tentang manajemen stok ritel dan F&B.</p>',
+            'title' => 'Strategi Meningkatkan Omzet Bisnis F&B',
+            'slug' => 'strategi-meningkatkan-omzet-bisnis-fnb',
+            'excerpt' => 'Langkah praktis menaikkan omzet warung kopi dan resto.',
+            'content' => '<p>Konten lengkap strategi omzet.</p>',
+            'cover_image' => $expectedCover,
             'status' => 'published',
             'published_at' => now()->subDay(),
             'author_name' => 'Tim Pakar Bisnis COOCA',
-            'category' => 'Manajemen Stok',
+            'category' => 'Strategi Penjualan',
         ]);
 
         $response = $this->get(route('blog.show', $post->slug));
 
         $response->assertStatus(200);
         $response->assertSee('<meta property="og:type" content="article">', false);
-        $response->assertSee('<meta property="article:author" content="Tim Pakar Bisnis COOCA">', false);
-        $response->assertSee('<link rel="canonical" href="' . route('blog.show', $post->slug) . '">', false);
-        $response->assertSee('"@type": "Article"', false);
+        $response->assertSee('<meta property="og:image" content="' . $expectedCover . '">', false);
+        $response->assertSee('<meta name="twitter:image" content="' . $expectedCover . '">', false);
+        $response->assertSee('"image": [\n        "' . $expectedCover . '"\n    ]', false);
+    }
+
+    /**
+     * Test blog post detail falls back to the default social graph image when no cover image exists.
+     */
+    public function test_blog_post_without_cover_image_falls_back_to_default_social_graph(): void
+    {
+        $user = \App\Models\User::factory()->create();
+
+        $post = \App\Models\Post::create([
+            'user_id' => $user->id,
+            'title' => 'Tips Rekonsiliasi Kas Toko',
+            'slug' => 'tips-rekonsiliasi-kas-toko',
+            'excerpt' => 'Panduan rekonsiliasi kas harian.',
+            'content' => '<p>Konten rekonsiliasi.</p>',
+            'cover_image' => null,
+            'status' => 'published',
+            'published_at' => now()->subDay(),
+            'author_name' => 'Tim Akuntansi COOCA',
+            'category' => 'Keuangan',
+        ]);
+
+        $response = $this->get(route('blog.show', $post->slug));
+
+        $response->assertStatus(200);
+        $response->assertSee('<meta property="og:image" content="' . asset('assets/seo/cooca-og-default.jpg') . '">', false);
+        $response->assertSee('<meta name="twitter:image" content="' . asset('assets/seo/cooca-og-default.jpg') . '">', false);
+    }
+
+    /**
+     * Test storefront product detail strictly uses the product's image for social sharing.
+     */
+    public function test_product_detail_strictly_uses_product_image(): void
+    {
+        $business = \App\Models\Business::create([
+            'name' => 'Kedai Kopi Arabika Mantap',
+            'slug' => 'kedai-kopi-arabika-mantap',
+            'is_active' => true,
+            'currency' => 'IDR',
+        ]);
+
+        \App\Models\BusinessLandingPage::create([
+            'business_id' => $business->id,
+            'headline' => 'Kopi Pilihan Nusantara',
+            'is_published' => true,
+            'og_image_url' => 'https://cooca.id/assets/og/store-fallback.jpg',
+        ]);
+
+        \App\Models\CommerceStoreSetting::create([
+            'business_id' => $business->id,
+            'is_storefront_enabled' => true,
+            'is_discoverable' => true,
+        ]);
+
+        $unit = \App\Models\Unit::firstOrCreate(
+            ['code' => 'pack'],
+            ['name' => 'Pack', 'category' => 'count', 'is_base' => true]
+        );
+
+        $expectedProductImg = 'https://cooca.id/storage/products/arabika-gayo-specialty.jpg';
+
+        $product = \App\Models\Product::create([
+            'business_id' => $business->id,
+            'output_unit_id' => $unit->id,
+            'name' => 'Biji Kopi Arabika Gayo 200g',
+            'slug' => 'biji-kopi-arabika-gayo-200g',
+            'description' => 'Biji kopi pilihan single origin Gayo Aceh dengan cita rasa floral dan citrus.',
+            'selling_price' => 95000,
+            'image_path' => $expectedProductImg,
+            'is_active' => true,
+            'show_in_website' => true,
+        ]);
+
+        $response = $this->get('/' . $business->slug . '/produk/' . $product->slug);
+
+        $response->assertStatus(200);
+        $response->assertSee('<meta property="og:image" content="' . $expectedProductImg . '">', false);
+        $response->assertSee('<meta name="twitter:image" content="' . $expectedProductImg . '">', false);
+        $response->assertSee('"image": ["' . $expectedProductImg . '"]', false);
     }
 }
 

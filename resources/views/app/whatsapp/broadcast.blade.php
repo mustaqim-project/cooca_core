@@ -213,7 +213,8 @@
                                             class="text-[#34C759] dark:text-[#30D158] font-bold">{{ number_format($campaign->total_sent, 0, ',', '.') }}</span>
                                         @if ($campaign->total_failed > 0)
                                             <span class="text-[#FF3B30] dark:text-[#FF453A] font-medium text-[11px]">
-                                                ({{ $campaign->total_failed }} gagal)</span>
+                                                ({{ $campaign->total_failed }} gagal)
+                                            </span>
                                         @endif
                                     </td>
                                     <td class="px-4 py-3 text-center">

@@ -244,7 +244,8 @@
                                 class="text-black/75 dark:text-white/75 text-[12px] bg-black/[0.02] dark:bg-white/[0.02] p-2.5 rounded-[8px] leading-relaxed">
                                 {{ $log->message }}
                                 @if ($log->error_message)
-                                    <div class="text-[#FF3B30] dark:text-[#FF453A] text-[11px] mt-1 font-medium flex items-center gap-1">
+                                    <div
+                                        class="text-[#FF3B30] dark:text-[#FF453A] text-[11px] mt-1 font-medium flex items-center gap-1">
                                         <i data-lucide="alert-circle" class="w-3 h-3 shrink-0"></i>
                                         <span class="truncate">{{ $log->error_message }}</span>
                                     </div>
