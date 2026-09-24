@@ -1,9 +1,40 @@
 @extends('layouts.public_marketing')
 
-@section('title', 'COOCA — Business Operating System & Omnichannel ERP')
-@section('description', 'Platform terintegrasi kasir POS, akuntansi riil, stok resep bahan baku, WhatsApp otomatis, dan toko online untuk UMKM Indonesia.')
-@section('og_title', 'COOCA — Business Operating System & Omnichannel ERP')
-@section('og_description', 'Satu sistem operasi untuk seluruh denyut bisnis UMKM: POS, persediaan resep, akuntansi riil, WhatsApp otomatis, dan toko online.')
+@php
+    $landingMetaTitle = \App\Models\SystemSetting::get('seo_meta_title', 'COOCA — Business Operating System & Omnichannel ERP');
+    $landingMetaDescription = \App\Models\SystemSetting::get('seo_meta_description', 'Platform terintegrasi kasir POS, akuntansi riil, stok resep bahan baku, WhatsApp otomatis, dan toko online untuk UMKM Indonesia.');
+    $landingOgTitle = \App\Models\SystemSetting::get('seo_og_title') ?: $landingMetaTitle;
+    $landingOgDescription = \App\Models\SystemSetting::get('seo_og_description') ?: $landingMetaDescription;
+    $landingCanonical = \App\Models\SystemSetting::get('seo_canonical_url') ?: url('/');
+    $landingKeywords = \App\Models\SystemSetting::get('seo_meta_keywords');
+    $landingAuthor = \App\Models\SystemSetting::get('seo_author', 'COOCA Indonesia');
+    $landingRobots = \App\Models\SystemSetting::get('seo_robots', 'index, follow');
+    $landingTwitterCard = \App\Models\SystemSetting::get('seo_twitter_card', 'summary_large_image');
+    $landingTwitterSite = \App\Models\SystemSetting::get('seo_twitter_site', '@cooca_id');
+    $landingOgImageSetting = \App\Models\SystemSetting::get('seo_og_image');
+    $landingOgImageUrl = !empty($landingOgImageSetting)
+        ? \App\Domain\Storage\AdminStorage::publicUrl($landingOgImageSetting)
+        : null;
+    $landingAppName = \App\Models\SystemSetting::get('app_name', 'COOCA');
+@endphp
+
+@section('title', $landingMetaTitle)
+@section('description', $landingMetaDescription)
+@section('og_title', $landingOgTitle)
+@section('og_description', $landingOgDescription)
+@section('canonical', $landingCanonical)
+@section('robots', $landingRobots)
+@section('twitter_card', $landingTwitterCard)
+@section('twitter_site', $landingTwitterSite)
+@if(!empty($landingKeywords))
+@section('keywords', $landingKeywords)
+@endif
+@if(!empty($landingAuthor))
+@section('author', $landingAuthor)
+@endif
+@if(!empty($landingOgImageUrl))
+@section('og_image', $landingOgImageUrl)
+@endif
 
 @push('seo')
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -13,11 +44,11 @@
     {
         "@@context": "https://schema.org",
         "@@type": "SoftwareApplication",
-        "name": "COOCA",
+        "name": "{{ $landingAppName }}",
         "applicationCategory": "BusinessApplication",
         "operatingSystem": "Web, Cloud-based",
-        "description": "Business Operating System & Omnichannel ERP untuk UMKM: Operasional, Penjualan, Keuangan, Inventory, Social Media, Marketplace, dan Automation.",
-        "url": "{{ url('/') }}",
+        "description": "{{ addslashes($landingMetaDescription) }}",
+        "url": "{{ $landingCanonical }}",
         "offers": {
             "@@type": "Offer",
             "price": "0",
@@ -26,8 +57,8 @@
         },
         "publisher": {
             "@@type": "Organization",
-            "name": "COOCA",
-            "url": "{{ url('/') }}"
+            "name": "{{ $landingAppName }}",
+            "url": "{{ $landingCanonical }}"
         }
     }
     </script>
@@ -567,21 +598,6 @@
                 </div>
 
             </div>
-
-            <!-- Floating WhatsApp "Chat Kami" Widget (matching user reference image!) -->
-            <div class="fixed bottom-6 right-6 z-50 print:hidden">
-                <a href="https://api.whatsapp.com/send?phone=6281234567890&text={{ urlencode('Halo Tim COOCA, saya ingin berkonsultasi mengenai platform ERP dan Marketplace untuk bisnis saya.') }}"
-                    target="_blank" rel="noopener noreferrer"
-                    class="group flex items-center gap-2.5 px-4 py-2.5 rounded-full bg-[#25D366] hover:bg-[#20BD5A] text-white font-bold text-sm shadow-[0_10px_25px_-5px_rgba(37,211,102,0.45)] hover:shadow-[0_15px_30px_-5px_rgba(37,211,102,0.55)] active:scale-95 transition-all">
-                    <i data-lucide="message-circle" class="w-4 h-4 fill-current"></i>
-                    <span>Chat Kami</span>
-                    <span class="relative flex h-2.5 w-2.5">
-                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                        <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500 ring-2 ring-white"></span>
-                    </span>
-                </a>
-            </div>
-
         </section>
 
         <!-- ═══ 2. FEATURE GRID ("Semua yang Anda Butuhkan...") ═══ -->

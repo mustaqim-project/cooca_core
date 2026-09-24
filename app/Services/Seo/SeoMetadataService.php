@@ -90,17 +90,17 @@ final class SeoMetadataService
             $raw = trim((string) View::yieldContent('og_image'));
         }
 
-        // Priority 3: Explicit fallback passed (e.g. from featured image or product image)
-        if (empty($raw) && !empty($fallback)) {
-            $raw = $fallback;
-        }
-
-        // Priority 4: System Setting for SEO OG Image
+        // Priority 3: System Setting for SEO OG Image (from https://cooca.id/admin/settings)
         if (empty($raw)) {
             $settingImg = SystemSetting::get('seo_og_image');
             if (!empty($settingImg)) {
                 $raw = AdminStorage::publicUrl($settingImg);
             }
+        }
+
+        // Priority 4: Explicit fallback passed (e.g. default asset from layout)
+        if (empty($raw) && !empty($fallback)) {
+            $raw = $fallback;
         }
 
         // Priority 5: Global default COOCA OG image (1200x630)

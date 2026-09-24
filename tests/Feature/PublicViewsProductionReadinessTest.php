@@ -194,4 +194,132 @@ final class PublicViewsProductionReadinessTest extends TestCase
             $this->assertEquals(0, $hasEmoji, "Marketplace view {$url} must have zero emoji as per Apple HIG guidelines");
         }
     }
+
+    public function test_floating_whatsapp_widget_configured_via_admin_system_setting(): void
+    {
+        // Set specific whatsapp contact settings in SystemSetting
+        \App\Models\SystemSetting::set('social_whatsapp_number', '081299998888', 'social_media');
+        \App\Models\SystemSetting::set('social_whatsapp_url', 'https://wa.me/6281299998888', 'social_media');
+        \App\Models\SystemSetting::set('social_whatsapp_active', '1', 'social_media');
+
+        $response = $this->get('/');
+        $response->assertOk();
+        $response->assertSee('Chat Kami');
+        $response->assertSee('https://wa.me/6281299998888');
+
+        // Test deactivation from admin setting
+        \App\Models\SystemSetting::set('social_whatsapp_active', '0', 'social_media');
+        $inactiveResponse = $this->get('/');
+        $inactiveResponse->assertOk();
+        $inactiveResponse->assertDontSee('Chat Kami');
+    }
+
+    public function test_business_operating_system_suite_renders_with_zero_emoji(): void
+    {
+        $bosPages = [
+            '/business-operating-system/overview',
+            '/business-operating-system/how-it-works',
+            '/business-operating-system/why-cooca',
+        ];
+
+        foreach ($bosPages as $url) {
+            $response = $this->get($url);
+            $response->assertOk();
+
+            $content = $response->getContent();
+            $hasEmoji = preg_match('/[\x{1F600}-\x{1F64F}\x{1F300}-\x{1F5FF}\x{1F680}-\x{1F6FF}\x{1F700}-\x{1F77F}\x{1F780}-\x{1F7FF}\x{1F800}-\x{1F8FF}\x{1F900}-\x{1F9FF}\x{1FA00}-\x{1FA6F}\x{1FA70}-\x{1FAFF}\x{2600}-\x{26FF}\x{2700}-\x{27BF}]/u', $content);
+            $this->assertEquals(0, $hasEmoji, "BOS suite page {$url} must have zero emoji as per Apple HIG guidelines");
+        }
+    }
+
+    public function test_omnichannel_erp_suite_renders_with_zero_emoji(): void
+    {
+        $erpPages = [
+            '/omnichannel-erp/erp',
+            '/omnichannel-erp/pos',
+            '/omnichannel-erp/finance',
+            '/omnichannel-erp/inventory',
+            '/omnichannel-erp/crm',
+            '/omnichannel-erp/hrm',
+            '/omnichannel-erp/accounting',
+            '/omnichannel-erp/analytics',
+        ];
+
+        foreach ($erpPages as $url) {
+            $response = $this->get($url);
+            $response->assertOk();
+
+            $content = $response->getContent();
+            $hasEmoji = preg_match('/[\x{1F600}-\x{1F64F}\x{1F300}-\x{1F5FF}\x{1F680}-\x{1F6FF}\x{1F700}-\x{1F77F}\x{1F780}-\x{1F7FF}\x{1F800}-\x{1F8FF}\x{1F900}-\x{1F9FF}\x{1FA00}-\x{1FA6F}\x{1FA70}-\x{1FAFF}\x{2600}-\x{26FF}\x{2700}-\x{27BF}]/u', $content);
+            $this->assertEquals(0, $hasEmoji, "Omnichannel ERP page {$url} must have zero emoji as per Apple HIG guidelines");
+        }
+    }
+
+    public function test_omnichannel_and_content_automation_suites_render_with_zero_emoji(): void
+    {
+        $automationPages = [
+            '/omnichannel/social-media',
+            '/omnichannel/whatsapp',
+            '/omnichannel/marketplace',
+            '/omnichannel/orders',
+            '/omnichannel/customer',
+            '/content-automation/content-creation',
+            '/content-automation/content-calendar',
+            '/content-automation/publishing',
+            '/content-automation/analytics',
+        ];
+
+        foreach ($automationPages as $url) {
+            $response = $this->get($url);
+            $response->assertOk();
+
+            $content = $response->getContent();
+            $hasEmoji = preg_match('/[\x{1F600}-\x{1F64F}\x{1F300}-\x{1F5FF}\x{1F680}-\x{1F6FF}\x{1F700}-\x{1F77F}\x{1F780}-\x{1F7FF}\x{1F800}-\x{1F8FF}\x{1F900}-\x{1F9FF}\x{1FA00}-\x{1FA6F}\x{1FA70}-\x{1FAFF}\x{2600}-\x{26FF}\x{2700}-\x{27BF}]/u', $content);
+            $this->assertEquals(0, $hasEmoji, "Automation page {$url} must have zero emoji as per Apple HIG guidelines");
+        }
+    }
+
+    public function test_industry_solutions_suite_renders_with_zero_emoji(): void
+    {
+        $solutionPages = [
+            '/solutions/fnb',
+            '/solutions/retail',
+            '/solutions/workshop',
+            '/solutions/laundry',
+            '/solutions/manufacturing',
+            '/solutions/services',
+        ];
+
+        foreach ($solutionPages as $url) {
+            $response = $this->get($url);
+            $response->assertOk();
+
+            $content = $response->getContent();
+            $hasEmoji = preg_match('/[\x{1F600}-\x{1F64F}\x{1F300}-\x{1F5FF}\x{1F680}-\x{1F6FF}\x{1F700}-\x{1F77F}\x{1F780}-\x{1F7FF}\x{1F800}-\x{1F8FF}\x{1F900}-\x{1F9FF}\x{1FA00}-\x{1FA6F}\x{1FA70}-\x{1FAFF}\x{2600}-\x{26FF}\x{2700}-\x{27BF}]/u', $content);
+            $this->assertEquals(0, $hasEmoji, "Industry solutions page {$url} must have zero emoji as per Apple HIG guidelines");
+        }
+    }
+
+    public function test_commercial_and_legal_pages_render_with_zero_emoji(): void
+    {
+        $pages = [
+            '/about',
+            '/demo',
+            '/support',
+            '/terms',
+            '/privacy',
+            '/sitemap',
+        ];
+
+        foreach ($pages as $url) {
+            $response = $this->get($url);
+            $response->assertOk();
+
+            $content = $response->getContent();
+            $hasEmoji = preg_match('/[\x{1F600}-\x{1F64F}\x{1F300}-\x{1F5FF}\x{1F680}-\x{1F6FF}\x{1F700}-\x{1F77F}\x{1F780}-\x{1F7FF}\x{1F800}-\x{1F8FF}\x{1F900}-\x{1F9FF}\x{1FA00}-\x{1FA6F}\x{1FA70}-\x{1FAFF}\x{2600}-\x{26FF}\x{2700}-\x{27BF}]/u', $content);
+            $this->assertEquals(0, $hasEmoji, "Page {$url} must have zero emoji as per Apple HIG guidelines");
+        }
+    }
 }
+
+

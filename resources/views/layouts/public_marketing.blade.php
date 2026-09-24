@@ -75,8 +75,19 @@
         <meta name="msvalidate.01" content="{{ $seoBingVerification }}">
     @endif
 
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" href="{{ $siteFaviconUrl }}">
+    @php
+        $faviconPath = parse_url($siteFaviconUrl, PHP_URL_PATH) ?? '';
+        $faviconExt = strtolower(pathinfo($faviconPath, PATHINFO_EXTENSION));
+        $siteFaviconType = match ($faviconExt) {
+            'ico' => 'image/x-icon',
+            'svg' => 'image/svg+xml',
+            default => 'image/png',
+        };
+    @endphp
+
+    <!-- Favicon & Brand Icons (Dynamic from Admin Settings) -->
+    <link rel="icon" type="{{ $siteFaviconType }}" href="{{ $siteFaviconUrl }}">
+    <link rel="shortcut icon" href="{{ $siteFaviconUrl }}">
     <link rel="apple-touch-icon" href="{{ $siteFaviconUrl }}">
     @stack('seo')
 
@@ -311,10 +322,11 @@
             class="sticky top-0 z-50 backdrop-blur-2xl bg-[#060913]/95 text-white border-b border-white/10 relative transition-colors"
             @mouseleave="platformDropdown = false; solutionDropdown = false; omniDropdown = false; resourceDropdown = false"
             @keydown.escape.window="platformDropdown = false; solutionDropdown = false; omniDropdown = false; resourceDropdown = false">
-            <div class="max-w-[1320px] mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 lg:h-[84px] flex items-center justify-between">
+            <div
+                class="max-w-[1320px] mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 lg:h-[84px] flex items-center justify-between">
 
                 <!-- Logo Cooca (Perbesar Skala Desktop) -->
-                <a href="{{ route('landing') }}" 
+                <a href="{{ route('landing') }}"
                     @mouseenter="platformDropdown = false; solutionDropdown = false; omniDropdown = false; resourceDropdown = false"
                     class="flex items-center gap-3.5 group shrink-0">
                     @if (!empty($siteLogoDarkUrl))
@@ -327,16 +339,20 @@
                 </a>
 
                 <!-- Desktop Nav Menu (Perbesar Font & Target Sentuh) -->
-                <nav class="hidden lg:flex items-center gap-2 xl:gap-3 text-[15px] xl:text-[16px] font-semibold text-slate-200">
+                <nav
+                    class="hidden lg:flex items-center gap-2 xl:gap-3 text-[15px] xl:text-[16px] font-semibold text-slate-200">
 
                     <!-- 1. Platform Trigger -->
                     <button type="button"
                         @mouseenter="solutionDropdown = false; omniDropdown = false; resourceDropdown = false; marketplaceDropdown = false; platformDropdown = true"
                         @click="platformDropdown = !platformDropdown; solutionDropdown = false; omniDropdown = false; resourceDropdown = false"
                         class="flex items-center gap-1.5 px-3.5 xl:px-4 py-2.5 rounded-[12px] hover:text-white hover:bg-white/10 transition-all focus:outline-none"
-                        :class="platformDropdown ? 'bg-white/10 text-white' : ({{ request()->routeIs('public.bos.*') || request()->routeIs('public.erp.*') || request()->routeIs('public.content.*') ? 'true' : 'false' }} ? 'text-[#00C2FF] font-semibold' : '')">
+                        :class="platformDropdown ? 'bg-white/10 text-white' : (
+                            {{ request()->routeIs('public.bos.*') || request()->routeIs('public.erp.*') || request()->routeIs('public.content.*') ? 'true' : 'false' }} ?
+                            'text-[#00C2FF] font-semibold' : '')">
                         <span>Platform</span>
-                        <i data-lucide="chevron-down" class="w-3.5 h-3.5 xl:w-4 xl:h-4 transition-transform duration-200"
+                        <i data-lucide="chevron-down"
+                            class="w-3.5 h-3.5 xl:w-4 xl:h-4 transition-transform duration-200"
                             :class="platformDropdown ? 'rotate-180' : ''"></i>
                     </button>
 
@@ -345,9 +361,12 @@
                         @mouseenter="platformDropdown = false; omniDropdown = false; resourceDropdown = false; marketplaceDropdown = false; solutionDropdown = true"
                         @click="solutionDropdown = !solutionDropdown; platformDropdown = false; omniDropdown = false; resourceDropdown = false"
                         class="flex items-center gap-1.5 px-3.5 xl:px-4 py-2.5 rounded-[12px] hover:text-white hover:bg-white/10 transition-all focus:outline-none"
-                        :class="solutionDropdown ? 'bg-white/10 text-white' : ({{ request()->routeIs('public.solutions.*') || request()->routeIs('solusi.*') ? 'true' : 'false' }} ? 'text-[#00C2FF] font-semibold' : '')">
+                        :class="solutionDropdown ? 'bg-white/10 text-white' : (
+                            {{ request()->routeIs('public.solutions.*') || request()->routeIs('solusi.*') ? 'true' : 'false' }} ?
+                            'text-[#00C2FF] font-semibold' : '')">
                         <span>Solutions</span>
-                        <i data-lucide="chevron-down" class="w-3.5 h-3.5 xl:w-4 xl:h-4 transition-transform duration-200"
+                        <i data-lucide="chevron-down"
+                            class="w-3.5 h-3.5 xl:w-4 xl:h-4 transition-transform duration-200"
                             :class="solutionDropdown ? 'rotate-180' : ''"></i>
                     </button>
 
@@ -356,9 +375,12 @@
                         @mouseenter="platformDropdown = false; solutionDropdown = false; resourceDropdown = false; marketplaceDropdown = false; omniDropdown = true"
                         @click="omniDropdown = !omniDropdown; platformDropdown = false; solutionDropdown = false; resourceDropdown = false"
                         class="flex items-center gap-1.5 px-3.5 xl:px-4 py-2.5 rounded-[12px] hover:text-white hover:bg-white/10 transition-all focus:outline-none"
-                        :class="omniDropdown ? 'bg-white/10 text-white' : ({{ request()->routeIs('public.omnichannel.*') ? 'true' : 'false' }} ? 'text-[#00C2FF] font-semibold' : '')">
+                        :class="omniDropdown ? 'bg-white/10 text-white' : (
+                            {{ request()->routeIs('public.omnichannel.*') ? 'true' : 'false' }} ?
+                            'text-[#00C2FF] font-semibold' : '')">
                         <span>Omnichannel</span>
-                        <i data-lucide="chevron-down" class="w-3.5 h-3.5 xl:w-4 xl:h-4 transition-transform duration-200"
+                        <i data-lucide="chevron-down"
+                            class="w-3.5 h-3.5 xl:w-4 xl:h-4 transition-transform duration-200"
                             :class="omniDropdown ? 'rotate-180' : ''"></i>
                     </button>
 
@@ -367,9 +389,12 @@
                         @mouseenter="platformDropdown = false; solutionDropdown = false; omniDropdown = false; marketplaceDropdown = false; resourceDropdown = true"
                         @click="resourceDropdown = !resourceDropdown; platformDropdown = false; solutionDropdown = false; omniDropdown = false"
                         class="flex items-center gap-1.5 px-3.5 xl:px-4 py-2.5 rounded-[12px] hover:text-white hover:bg-white/10 transition-all focus:outline-none"
-                        :class="resourceDropdown ? 'bg-white/10 text-white' : ({{ request()->routeIs('public.resources.*') || request()->routeIs('blog.*') ? 'true' : 'false' }} ? 'text-[#00C2FF] font-semibold' : '')">
+                        :class="resourceDropdown ? 'bg-white/10 text-white' : (
+                            {{ request()->routeIs('public.resources.*') || request()->routeIs('blog.*') ? 'true' : 'false' }} ?
+                            'text-[#00C2FF] font-semibold' : '')">
                         <span>Resources</span>
-                        <i data-lucide="chevron-down" class="w-3.5 h-3.5 xl:w-4 xl:h-4 transition-transform duration-200"
+                        <i data-lucide="chevron-down"
+                            class="w-3.5 h-3.5 xl:w-4 xl:h-4 transition-transform duration-200"
                             :class="resourceDropdown ? 'rotate-180' : ''"></i>
                     </button>
 
@@ -387,8 +412,8 @@
                         class="w-10 h-10 rounded-full flex items-center justify-center text-slate-300 hover:text-white hover:bg-white/10 active:scale-[0.95] transition-all"
                         title="Ganti Mode Terang/Gelap" aria-label="Toggle Theme">
                         <!-- Sun Icon for Dark Mode (Switch to Light) -->
-                        <svg x-show="isDark" x-cloak class="w-5 h-5 text-[#FFD60A]" fill="none"
-                            stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <svg x-show="isDark" x-cloak class="w-5 h-5 text-[#FFD60A]" fill="none" stroke="currentColor"
+                            stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
                         </svg>
@@ -405,24 +430,26 @@
                             <a href="{{ route('admin.dashboard') }}"
                                 class="group inline-flex items-center gap-2 px-5.5 py-2.5 rounded-[12px] xl:rounded-[14px] bg-gradient-to-r from-[#00C2FF] via-[#00A3FF] to-[#007AFF] text-white font-bold text-sm shadow-[0_4px_16px_rgba(0,194,255,0.35),inset_0_1px_0_rgba(255,255,255,0.35)] hover:shadow-[0_6px_24px_rgba(0,194,255,0.55),inset_0_1px_0_rgba(255,255,255,0.5)] hover:scale-[1.02] active:scale-[0.98] min-h-[42px] xl:min-h-[44px] transition-all">
                                 <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
-                                <span>Dashboard Admin</span>
+                                <span>Dashboard</span>
                             </a>
                         @elseif (auth('web')->check())
                             <a href="{{ route('dashboard') }}"
                                 class="group inline-flex items-center gap-2 px-5.5 py-2.5 rounded-[12px] xl:rounded-[14px] bg-gradient-to-r from-[#00C2FF] via-[#00A3FF] to-[#007AFF] text-white font-bold text-sm shadow-[0_4px_16px_rgba(0,194,255,0.35),inset_0_1px_0_rgba(255,255,255,0.35)] hover:shadow-[0_6px_24px_rgba(0,194,255,0.55),inset_0_1px_0_rgba(255,255,255,0.5)] hover:scale-[1.02] active:scale-[0.98] min-h-[42px] xl:min-h-[44px] transition-all">
                                 <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
-                                <span>Ke Dashboard</span>
+                                <span>Dashboard</span>
                             </a>
                         @else
                             <a href="{{ route('login') }}"
                                 class="group px-3.5 py-2.5 text-sm font-semibold text-slate-200 hover:text-white hover:bg-white/10 rounded-[12px] transition-all min-h-[42px] flex items-center gap-1.5">
-                                <i data-lucide="user" class="w-4 h-4 text-slate-400 group-hover:text-white transition-colors"></i>
+                                <i data-lucide="user"
+                                    class="w-4 h-4 text-slate-400 group-hover:text-white transition-colors"></i>
                                 <span>Login</span>
                             </a>
                             <a href="{{ route('register') }}"
                                 class="group relative inline-flex items-center justify-center gap-2 px-6 xl:px-7 py-2.5 rounded-[12px] xl:rounded-[14px] bg-gradient-to-r from-[#00C2FF] via-[#00A3FF] to-[#007AFF] hover:from-[#1cd0ff] hover:to-[#006fe6] text-white font-bold text-sm xl:text-[14.5px] tracking-tight shadow-[0_4px_18px_rgba(0,194,255,0.4),inset_0_1px_0_rgba(255,255,255,0.4)] hover:shadow-[0_6px_28px_rgba(0,194,255,0.65),inset_0_1px_0_rgba(255,255,255,0.6)] hover:scale-[1.02] active:scale-[0.98] min-h-[42px] xl:min-h-[44px] transition-all">
                                 <span>Coba COOCA Gratis</span>
-                                <i data-lucide="arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-1"></i>
+                                <i data-lucide="arrow-right"
+                                    class="w-4 h-4 transition-transform group-hover:translate-x-1"></i>
                             </a>
                         @endif
                     </div>
@@ -437,99 +464,117 @@
             </div>
 
             <!-- ═══ 1. PLATFORM MEGA DROPDOWN (FULL WIDTH UNDER HEADER LINE) ═══ -->
-            <div x-show="platformDropdown" x-cloak 
-                @mouseenter="platformDropdown = true"
+            <div x-show="platformDropdown" x-cloak @mouseenter="platformDropdown = true"
                 x-transition:enter="transition ease-out duration-150"
-                x-transition:enter-start="opacity-0 -translate-y-1"
-                x-transition:enter-end="opacity-100 translate-y-0"
-                x-transition:leave="transition ease-in duration-100" 
-                x-transition:leave-start="opacity-100 translate-y-0"
-                x-transition:leave-end="opacity-0 -translate-y-1"
+                x-transition:enter-start="opacity-0 -translate-y-1" x-transition:enter-end="opacity-100 translate-y-0"
+                x-transition:leave="transition ease-in duration-100"
+                x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-1"
                 class="cooca-header-dropdown absolute top-full inset-x-0 w-full left-0 right-0 z-50">
-                
+
                 <div class="max-w-[1320px] mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-9">
                     <div class="grid grid-cols-12 gap-8 xl:gap-10 items-start">
-                        
+
                         <!-- LEFT 8 COLS: FITUR & PLATFORM -->
                         <div class="col-span-8 grid grid-cols-3 gap-8">
-                            
+
                             <!-- SUB-SECTION 1: FITUR (Span 2 Columns) -->
                             <div class="col-span-2 space-y-4">
-                                <p class="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-400">
+                                <p
+                                    class="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-400">
                                     Fitur
                                 </p>
-                                
+
                                 <div class="grid grid-cols-2 gap-x-6 gap-y-4">
                                     <!-- Point of Sale -->
-                                    <a href="{{ route('public.erp.pos') }}" class="group flex items-start gap-3.5 p-1 rounded-xl hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all">
-                                        <div class="w-8 h-8 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.06] flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:border-[#007AFF] dark:group-hover:border-[#00C2FF] group-hover:text-[#007AFF] dark:group-hover:text-[#00C2FF] group-hover:bg-blue-50/50 dark:group-hover:bg-cyan-500/10 transition-all shrink-0 mt-0.5">
+                                    <a href="{{ route('public.erp.pos') }}"
+                                        class="group flex items-start gap-3.5 p-1 rounded-xl hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all">
+                                        <div
+                                            class="w-8 h-8 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.06] flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:border-[#007AFF] dark:group-hover:border-[#00C2FF] group-hover:text-[#007AFF] dark:group-hover:text-[#00C2FF] group-hover:bg-blue-50/50 dark:group-hover:bg-cyan-500/10 transition-all shrink-0 mt-0.5">
                                             <i data-lucide="monitor" class="w-4 h-4"></i>
                                         </div>
                                         <div>
-                                            <span class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#007AFF] dark:group-hover:text-[#00C2FF] transition-colors block">
+                                            <span
+                                                class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#007AFF] dark:group-hover:text-[#00C2FF] transition-colors block">
                                                 Point of Sale
                                             </span>
-                                            <span class="text-xs text-slate-500 dark:text-slate-400 leading-snug block mt-0.5">
+                                            <span
+                                                class="text-xs text-slate-500 dark:text-slate-400 leading-snug block mt-0.5">
                                                 Hubungkan pesanan, pembayaran, dan pembukuan
                                             </span>
                                         </div>
                                     </a>
 
                                     <!-- Dynamic Budgeting -->
-                                    <a href="{{ route('public.erp.accounting') }}" class="group flex items-start gap-3.5 p-1 rounded-xl hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all">
-                                        <div class="w-8 h-8 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.06] flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:border-[#007AFF] dark:group-hover:border-[#00C2FF] group-hover:text-[#007AFF] dark:group-hover:text-[#00C2FF] group-hover:bg-blue-50/50 dark:group-hover:bg-cyan-500/10 transition-all shrink-0 mt-0.5">
+                                    <a href="{{ route('public.erp.accounting') }}"
+                                        class="group flex items-start gap-3.5 p-1 rounded-xl hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all">
+                                        <div
+                                            class="w-8 h-8 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.06] flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:border-[#007AFF] dark:group-hover:border-[#00C2FF] group-hover:text-[#007AFF] dark:group-hover:text-[#00C2FF] group-hover:bg-blue-50/50 dark:group-hover:bg-cyan-500/10 transition-all shrink-0 mt-0.5">
                                             <i data-lucide="bar-chart-3" class="w-4 h-4"></i>
                                         </div>
                                         <div>
-                                            <span class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#007AFF] dark:group-hover:text-[#00C2FF] transition-colors block">
+                                            <span
+                                                class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#007AFF] dark:group-hover:text-[#00C2FF] transition-colors block">
                                                 Dynamic Budgeting
                                             </span>
-                                            <span class="text-xs text-slate-500 dark:text-slate-400 leading-snug block mt-0.5">
+                                            <span
+                                                class="text-xs text-slate-500 dark:text-slate-400 leading-snug block mt-0.5">
                                                 Atur dan pantau dana secara real-time
                                             </span>
                                         </div>
                                     </a>
 
                                     <!-- Vendor Spend -->
-                                    <a href="{{ route('public.erp.erp') }}" class="group flex items-start gap-3.5 p-1 rounded-xl hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all">
-                                        <div class="w-8 h-8 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.06] flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:border-[#007AFF] dark:group-hover:border-[#00C2FF] group-hover:text-[#007AFF] dark:group-hover:text-[#00C2FF] group-hover:bg-blue-50/50 dark:group-hover:bg-cyan-500/10 transition-all shrink-0 mt-0.5">
+                                    <a href="{{ route('public.erp.erp') }}"
+                                        class="group flex items-start gap-3.5 p-1 rounded-xl hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all">
+                                        <div
+                                            class="w-8 h-8 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.06] flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:border-[#007AFF] dark:group-hover:border-[#00C2FF] group-hover:text-[#007AFF] dark:group-hover:text-[#00C2FF] group-hover:bg-blue-50/50 dark:group-hover:bg-cyan-500/10 transition-all shrink-0 mt-0.5">
                                             <i data-lucide="shopping-bag" class="w-4 h-4"></i>
                                         </div>
                                         <div>
-                                            <span class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#007AFF] dark:group-hover:text-[#00C2FF] transition-colors block">
+                                            <span
+                                                class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#007AFF] dark:group-hover:text-[#00C2FF] transition-colors block">
                                                 Vendor Spend
                                             </span>
-                                            <span class="text-xs text-slate-500 dark:text-slate-400 leading-snug block mt-0.5">
+                                            <span
+                                                class="text-xs text-slate-500 dark:text-slate-400 leading-snug block mt-0.5">
                                                 Kelola pembayaran SaaS &amp; vendor
                                             </span>
                                         </div>
                                     </a>
 
                                     <!-- Revenue Sync -->
-                                    <a href="{{ route('public.erp.inventory') }}" class="group flex items-start gap-3.5 p-1 rounded-xl hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all">
-                                        <div class="w-8 h-8 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.06] flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:border-[#007AFF] dark:group-hover:border-[#00C2FF] group-hover:text-[#007AFF] dark:group-hover:text-[#00C2FF] group-hover:bg-blue-50/50 dark:group-hover:bg-cyan-500/10 transition-all shrink-0 mt-0.5">
+                                    <a href="{{ route('public.erp.inventory') }}"
+                                        class="group flex items-start gap-3.5 p-1 rounded-xl hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all">
+                                        <div
+                                            class="w-8 h-8 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.06] flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:border-[#007AFF] dark:group-hover:border-[#00C2FF] group-hover:text-[#007AFF] dark:group-hover:text-[#00C2FF] group-hover:bg-blue-50/50 dark:group-hover:bg-cyan-500/10 transition-all shrink-0 mt-0.5">
                                             <i data-lucide="arrow-left-right" class="w-4 h-4"></i>
                                         </div>
                                         <div>
-                                            <span class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#007AFF] dark:group-hover:text-[#00C2FF] transition-colors block">
+                                            <span
+                                                class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#007AFF] dark:group-hover:text-[#00C2FF] transition-colors block">
                                                 Revenue Sync
                                             </span>
-                                            <span class="text-xs text-slate-500 dark:text-slate-400 leading-snug block mt-0.5">
+                                            <span
+                                                class="text-xs text-slate-500 dark:text-slate-400 leading-snug block mt-0.5">
                                                 Tarik data retainer &amp; POS otomatis
                                             </span>
                                         </div>
                                     </a>
 
                                     <!-- Receipt Capture -->
-                                    <a href="{{ route('public.omnichannel.orders') }}" class="group flex items-start gap-3.5 p-1 rounded-xl hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all">
-                                        <div class="w-8 h-8 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.06] flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:border-[#007AFF] dark:group-hover:border-[#00C2FF] group-hover:text-[#007AFF] dark:group-hover:text-[#00C2FF] group-hover:bg-blue-50/50 dark:group-hover:bg-cyan-500/10 transition-all shrink-0 mt-0.5">
+                                    <a href="{{ route('public.omnichannel.orders') }}"
+                                        class="group flex items-start gap-3.5 p-1 rounded-xl hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all">
+                                        <div
+                                            class="w-8 h-8 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.06] flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:border-[#007AFF] dark:group-hover:border-[#00C2FF] group-hover:text-[#007AFF] dark:group-hover:text-[#00C2FF] group-hover:bg-blue-50/50 dark:group-hover:bg-cyan-500/10 transition-all shrink-0 mt-0.5">
                                             <i data-lucide="receipt" class="w-4 h-4"></i>
                                         </div>
                                         <div>
-                                            <span class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#007AFF] dark:group-hover:text-[#00C2FF] transition-colors block">
+                                            <span
+                                                class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#007AFF] dark:group-hover:text-[#00C2FF] transition-colors block">
                                                 Receipt Capture
                                             </span>
-                                            <span class="text-xs text-slate-500 dark:text-slate-400 leading-snug block mt-0.5">
+                                            <span
+                                                class="text-xs text-slate-500 dark:text-slate-400 leading-snug block mt-0.5">
                                                 Otomatiskan urusan struk
                                             </span>
                                         </div>
@@ -539,51 +584,64 @@
 
                             <!-- SUB-SECTION 2: PLATFORM (Span 1 Column) -->
                             <div class="col-span-1 space-y-4">
-                                <p class="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-400">
+                                <p
+                                    class="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-400">
                                     Platform
                                 </p>
-                                
+
                                 <div class="space-y-4">
                                     <!-- COOCA AI Agents -->
-                                    <a href="{{ route('public.content.creation') }}" class="group flex items-start gap-3.5 p-1 rounded-xl hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all">
-                                        <div class="w-8 h-8 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.06] flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:border-[#007AFF] dark:group-hover:border-[#00C2FF] group-hover:text-[#007AFF] dark:group-hover:text-[#00C2FF] group-hover:bg-blue-50/50 dark:group-hover:bg-cyan-500/10 transition-all shrink-0 mt-0.5">
+                                    <a href="{{ route('public.content.creation') }}"
+                                        class="group flex items-start gap-3.5 p-1 rounded-xl hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all">
+                                        <div
+                                            class="w-8 h-8 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.06] flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:border-[#007AFF] dark:group-hover:border-[#00C2FF] group-hover:text-[#007AFF] dark:group-hover:text-[#00C2FF] group-hover:bg-blue-50/50 dark:group-hover:bg-cyan-500/10 transition-all shrink-0 mt-0.5">
                                             <i data-lucide="zap" class="w-4 h-4"></i>
                                         </div>
                                         <div>
-                                            <span class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#007AFF] dark:group-hover:text-[#00C2FF] transition-colors block">
+                                            <span
+                                                class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#007AFF] dark:group-hover:text-[#00C2FF] transition-colors block">
                                                 COOCA AI Agents
                                             </span>
-                                            <span class="text-xs text-slate-500 dark:text-slate-400 leading-snug block mt-0.5">
+                                            <span
+                                                class="text-xs text-slate-500 dark:text-slate-400 leading-snug block mt-0.5">
                                                 Lipat-gandakan efisiensi keuangan
                                             </span>
                                         </div>
                                     </a>
 
                                     <!-- Siap Global -->
-                                    <a href="{{ route('public.bos.overview') }}" class="group flex items-start gap-3.5 p-1 rounded-xl hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all">
-                                        <div class="w-8 h-8 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.06] flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:border-[#007AFF] dark:group-hover:border-[#00C2FF] group-hover:text-[#007AFF] dark:group-hover:text-[#00C2FF] group-hover:bg-blue-50/50 dark:group-hover:bg-cyan-500/10 transition-all shrink-0 mt-0.5">
+                                    <a href="{{ route('public.bos.overview') }}"
+                                        class="group flex items-start gap-3.5 p-1 rounded-xl hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all">
+                                        <div
+                                            class="w-8 h-8 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.06] flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:border-[#007AFF] dark:group-hover:border-[#00C2FF] group-hover:text-[#007AFF] dark:group-hover:text-[#00C2FF] group-hover:bg-blue-50/50 dark:group-hover:bg-cyan-500/10 transition-all shrink-0 mt-0.5">
                                             <i data-lucide="globe" class="w-4 h-4"></i>
                                         </div>
                                         <div>
-                                            <span class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#007AFF] dark:group-hover:text-[#00C2FF] transition-colors block">
+                                            <span
+                                                class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#007AFF] dark:group-hover:text-[#00C2FF] transition-colors block">
                                                 Siap Global
                                             </span>
-                                            <span class="text-xs text-slate-500 dark:text-slate-400 leading-snug block mt-0.5">
+                                            <span
+                                                class="text-xs text-slate-500 dark:text-slate-400 leading-snug block mt-0.5">
                                                 Invoice dalam IDR, USD, dan SGD
                                             </span>
                                         </div>
                                     </a>
 
                                     <!-- Integrasi Bawaan -->
-                                    <a href="{{ route('public.bos.how-it-works') }}" class="group flex items-start gap-3.5 p-1 rounded-xl hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all">
-                                        <div class="w-8 h-8 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.06] flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:border-[#007AFF] dark:group-hover:border-[#00C2FF] group-hover:text-[#007AFF] dark:group-hover:text-[#00C2FF] group-hover:bg-blue-50/50 dark:group-hover:bg-cyan-500/10 transition-all shrink-0 mt-0.5">
+                                    <a href="{{ route('public.bos.how-it-works') }}"
+                                        class="group flex items-start gap-3.5 p-1 rounded-xl hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all">
+                                        <div
+                                            class="w-8 h-8 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.06] flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:border-[#007AFF] dark:group-hover:border-[#00C2FF] group-hover:text-[#007AFF] dark:group-hover:text-[#00C2FF] group-hover:bg-blue-50/50 dark:group-hover:bg-cyan-500/10 transition-all shrink-0 mt-0.5">
                                             <i data-lucide="code-2" class="w-4 h-4"></i>
                                         </div>
                                         <div>
-                                            <span class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#007AFF] dark:group-hover:text-[#00C2FF] transition-colors block">
+                                            <span
+                                                class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#007AFF] dark:group-hover:text-[#00C2FF] transition-colors block">
                                                 Integrasi Bawaan
                                             </span>
-                                            <span class="text-xs text-slate-500 dark:text-slate-400 leading-snug block mt-0.5">
+                                            <span
+                                                class="text-xs text-slate-500 dark:text-slate-400 leading-snug block mt-0.5">
                                                 Hubungkan ERP, HRIS &amp; tools
                                             </span>
                                         </div>
@@ -594,20 +652,28 @@
                         </div>
 
                         <!-- RIGHT 4 COLS: RILIS TERBARU (With Vertical Divider) -->
-                        <div class="col-span-4 pl-8 border-l border-slate-200 dark:border-white/10 flex flex-col justify-between">
+                        <div
+                            class="col-span-4 pl-8 border-l border-slate-200 dark:border-white/10 flex flex-col justify-between">
                             <div>
-                                <p class="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-400 mb-3">
+                                <p
+                                    class="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-400 mb-3">
                                     Rilis Terbaru
                                 </p>
-                                
+
                                 <!-- Showcase Banner Card (Dark Spring Release Card) -->
-                                <a href="{{ route('public.omnichannel.whatsapp') }}" class="group block relative rounded-2xl overflow-hidden bg-[#0A0E1A] border border-slate-800/80 p-5 shadow-sm transition-all hover:scale-[1.01] hover:border-slate-700">
+                                <a href="{{ route('public.omnichannel.whatsapp') }}"
+                                    class="group block relative rounded-2xl overflow-hidden bg-[#0A0E1A] border border-slate-800/80 p-5 shadow-sm transition-all hover:scale-[1.01] hover:border-slate-700">
                                     <!-- Ambient Glow -->
-                                    <div class="absolute -right-6 -top-6 w-32 h-32 bg-[#00C2FF]/20 rounded-full blur-2xl pointer-events-none"></div>
-                                    <div class="absolute -left-6 -bottom-6 w-32 h-32 bg-[#007AFF]/20 rounded-full blur-2xl pointer-events-none"></div>
-                                    
+                                    <div
+                                        class="absolute -right-6 -top-6 w-32 h-32 bg-[#00C2FF]/20 rounded-full blur-2xl pointer-events-none">
+                                    </div>
+                                    <div
+                                        class="absolute -left-6 -bottom-6 w-32 h-32 bg-[#007AFF]/20 rounded-full blur-2xl pointer-events-none">
+                                    </div>
+
                                     <div class="relative z-10">
-                                        <div class="text-2xl sm:text-[28px] font-black text-white tracking-tighter leading-[1.05] uppercase font-sans">
+                                        <div
+                                            class="text-2xl sm:text-[28px] font-black text-white tracking-tighter leading-[1.05] uppercase font-sans">
                                             SPRING<br>RELEASE<br><span class="text-slate-300">2026</span>
                                         </div>
                                     </div>
@@ -615,12 +681,15 @@
 
                                 <!-- Sub-link below banner -->
                                 <div class="mt-4">
-                                    <a href="{{ route('public.omnichannel.whatsapp') }}" class="group inline-flex items-center gap-1.5 text-sm font-bold text-slate-900 dark:text-white hover:text-[#007AFF] dark:hover:text-[#00C2FF] transition-colors">
+                                    <a href="{{ route('public.omnichannel.whatsapp') }}"
+                                        class="group inline-flex items-center gap-1.5 text-sm font-bold text-slate-900 dark:text-white hover:text-[#007AFF] dark:hover:text-[#00C2FF] transition-colors">
                                         <span>WhatsApp AI Agents</span>
-                                        <i data-lucide="arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-1"></i>
+                                        <i data-lucide="arrow-right"
+                                            class="w-4 h-4 transition-transform group-hover:translate-x-1"></i>
                                     </a>
                                     <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-                                        Chat langsung dengan ledger Anda untuk menyelesaikan struk hilang, sync vendor, dan cek budget di mana saja.
+                                        Chat langsung dengan ledger Anda untuk menyelesaikan struk hilang, sync vendor,
+                                        dan cek budget di mana saja.
                                     </p>
                                 </div>
                             </div>
@@ -631,111 +700,132 @@
             </div>
 
             <!-- ═══ 2. SOLUTIONS MEGA DROPDOWN (FULL WIDTH UNDER HEADER LINE) ═══ -->
-            <div x-show="solutionDropdown" x-cloak 
-                @mouseenter="solutionDropdown = true"
+            <div x-show="solutionDropdown" x-cloak @mouseenter="solutionDropdown = true"
                 x-transition:enter="transition ease-out duration-150"
-                x-transition:enter-start="opacity-0 -translate-y-1"
-                x-transition:enter-end="opacity-100 translate-y-0"
-                x-transition:leave="transition ease-in duration-100" 
-                x-transition:leave-start="opacity-100 translate-y-0"
-                x-transition:leave-end="opacity-0 -translate-y-1"
+                x-transition:enter-start="opacity-0 -translate-y-1" x-transition:enter-end="opacity-100 translate-y-0"
+                x-transition:leave="transition ease-in duration-100"
+                x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-1"
                 class="cooca-header-dropdown absolute top-full inset-x-0 w-full left-0 right-0 z-50">
-                
+
                 <div class="max-w-[1320px] mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-9">
                     <div class="grid grid-cols-12 gap-8 xl:gap-10 items-start">
-                        
+
                         <!-- LEFT 8 COLS: SOLUSI SEKTOR INDUSTRI -->
                         <div class="col-span-8 space-y-4">
                             <p class="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-400">
                                 Solusi Sektor Industri
                             </p>
-                            
+
                             <div class="grid grid-cols-2 gap-x-6 gap-y-4">
                                 <!-- F&B & Resto -->
-                                <a href="{{ route('public.solutions.fnb') }}" class="group flex items-start gap-3.5 p-1 rounded-xl hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all">
-                                    <div class="w-8 h-8 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.06] flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:border-[#FF9500] group-hover:text-[#FF9500] group-hover:bg-amber-50/50 transition-all shrink-0 mt-0.5">
+                                <a href="{{ route('public.solutions.fnb') }}"
+                                    class="group flex items-start gap-3.5 p-1 rounded-xl hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all">
+                                    <div
+                                        class="w-8 h-8 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.06] flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:border-[#FF9500] group-hover:text-[#FF9500] group-hover:bg-amber-50/50 transition-all shrink-0 mt-0.5">
                                         <i data-lucide="utensils" class="w-4 h-4"></i>
                                     </div>
                                     <div>
-                                        <span class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#FF9500] transition-colors block">
+                                        <span
+                                            class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#FF9500] transition-colors block">
                                             F&amp;B &amp; Resto
                                         </span>
-                                        <span class="text-xs text-slate-500 dark:text-slate-400 leading-snug block mt-0.5">
+                                        <span
+                                            class="text-xs text-slate-500 dark:text-slate-400 leading-snug block mt-0.5">
                                             Meja, menu QR, dapur, &amp; split bill
                                         </span>
                                     </div>
                                 </a>
 
                                 <!-- Retail & Toko -->
-                                <a href="{{ route('public.solutions.retail') }}" class="group flex items-start gap-3.5 p-1 rounded-xl hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all">
-                                    <div class="w-8 h-8 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.06] flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:border-[#00C2FF] group-hover:text-[#00C2FF] group-hover:bg-cyan-50/50 transition-all shrink-0 mt-0.5">
+                                <a href="{{ route('public.solutions.retail') }}"
+                                    class="group flex items-start gap-3.5 p-1 rounded-xl hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all">
+                                    <div
+                                        class="w-8 h-8 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.06] flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:border-[#00C2FF] group-hover:text-[#00C2FF] group-hover:bg-cyan-50/50 transition-all shrink-0 mt-0.5">
                                         <i data-lucide="store" class="w-4 h-4"></i>
                                     </div>
                                     <div>
-                                        <span class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#00C2FF] transition-colors block">
+                                        <span
+                                            class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#00C2FF] transition-colors block">
                                             Retail &amp; Toko
                                         </span>
-                                        <span class="text-xs text-slate-500 dark:text-slate-400 leading-snug block mt-0.5">
+                                        <span
+                                            class="text-xs text-slate-500 dark:text-slate-400 leading-snug block mt-0.5">
                                             Barcode scanner, varian, &amp; multi-cabang
                                         </span>
                                     </div>
                                 </a>
 
                                 <!-- Bengkel & Otomotif -->
-                                <a href="{{ route('public.solutions.workshop') }}" class="group flex items-start gap-3.5 p-1 rounded-xl hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all">
-                                    <div class="w-8 h-8 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.06] flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:border-[#FF3B30] group-hover:text-[#FF3B30] group-hover:bg-red-50/50 transition-all shrink-0 mt-0.5">
+                                <a href="{{ route('public.solutions.workshop') }}"
+                                    class="group flex items-start gap-3.5 p-1 rounded-xl hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all">
+                                    <div
+                                        class="w-8 h-8 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.06] flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:border-[#FF3B30] group-hover:text-[#FF3B30] group-hover:bg-red-50/50 transition-all shrink-0 mt-0.5">
                                         <i data-lucide="wrench" class="w-4 h-4"></i>
                                     </div>
                                     <div>
-                                        <span class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#FF3B30] transition-colors block">
+                                        <span
+                                            class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#FF3B30] transition-colors block">
                                             Bengkel &amp; Otomotif
                                         </span>
-                                        <span class="text-xs text-slate-500 dark:text-slate-400 leading-snug block mt-0.5">
+                                        <span
+                                            class="text-xs text-slate-500 dark:text-slate-400 leading-snug block mt-0.5">
                                             SPK, antrean servis, part &amp; mekanik
                                         </span>
                                     </div>
                                 </a>
 
                                 <!-- Laundry -->
-                                <a href="{{ route('public.solutions.laundry') }}" class="group flex items-start gap-3.5 p-1 rounded-xl hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all">
-                                    <div class="w-8 h-8 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.06] flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:border-[#34C759] group-hover:text-[#34C759] group-hover:bg-emerald-50/50 transition-all shrink-0 mt-0.5">
+                                <a href="{{ route('public.solutions.laundry') }}"
+                                    class="group flex items-start gap-3.5 p-1 rounded-xl hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all">
+                                    <div
+                                        class="w-8 h-8 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.06] flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:border-[#34C759] group-hover:text-[#34C759] group-hover:bg-emerald-50/50 transition-all shrink-0 mt-0.5">
                                         <i data-lucide="sparkles" class="w-4 h-4"></i>
                                     </div>
                                     <div>
-                                        <span class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#34C759] transition-colors block">
+                                        <span
+                                            class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#34C759] transition-colors block">
                                             Laundry Kiloan &amp; Satuan
                                         </span>
-                                        <span class="text-xs text-slate-500 dark:text-slate-400 leading-snug block mt-0.5">
+                                        <span
+                                            class="text-xs text-slate-500 dark:text-slate-400 leading-snug block mt-0.5">
                                             Kiloan, satuan, barcode rak &amp; status cuci
                                         </span>
                                     </div>
                                 </a>
 
                                 <!-- Manufacturing -->
-                                <a href="{{ route('public.solutions.manufacturing') }}" class="group flex items-start gap-3.5 p-1 rounded-xl hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all">
-                                    <div class="w-8 h-8 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.06] flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:border-[#AF52DE] group-hover:text-[#AF52DE] group-hover:bg-purple-50/50 transition-all shrink-0 mt-0.5">
+                                <a href="{{ route('public.solutions.manufacturing') }}"
+                                    class="group flex items-start gap-3.5 p-1 rounded-xl hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all">
+                                    <div
+                                        class="w-8 h-8 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.06] flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:border-[#AF52DE] group-hover:text-[#AF52DE] group-hover:bg-purple-50/50 transition-all shrink-0 mt-0.5">
                                         <i data-lucide="factory" class="w-4 h-4"></i>
                                     </div>
                                     <div>
-                                        <span class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#AF52DE] transition-colors block">
+                                        <span
+                                            class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#AF52DE] transition-colors block">
                                             Manufaktur &amp; Produksi
                                         </span>
-                                        <span class="text-xs text-slate-500 dark:text-slate-400 leading-snug block mt-0.5">
+                                        <span
+                                            class="text-xs text-slate-500 dark:text-slate-400 leading-snug block mt-0.5">
                                             BOM, work order, &amp; alokasi bahan baku
                                         </span>
                                     </div>
                                 </a>
 
                                 <!-- Services & Jasa -->
-                                <a href="{{ route('public.solutions.services') }}" class="group flex items-start gap-3.5 p-1 rounded-xl hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all">
-                                    <div class="w-8 h-8 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.06] flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:border-[#007AFF] group-hover:text-[#007AFF] group-hover:bg-blue-50/50 transition-all shrink-0 mt-0.5">
+                                <a href="{{ route('public.solutions.services') }}"
+                                    class="group flex items-start gap-3.5 p-1 rounded-xl hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all">
+                                    <div
+                                        class="w-8 h-8 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.06] flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:border-[#007AFF] group-hover:text-[#007AFF] group-hover:bg-blue-50/50 transition-all shrink-0 mt-0.5">
                                         <i data-lucide="briefcase" class="w-4 h-4"></i>
                                     </div>
                                     <div>
-                                        <span class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#007AFF] transition-colors block">
+                                        <span
+                                            class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#007AFF] transition-colors block">
                                             Services &amp; Jasa
                                         </span>
-                                        <span class="text-xs text-slate-500 dark:text-slate-400 leading-snug block mt-0.5">
+                                        <span
+                                            class="text-xs text-slate-500 dark:text-slate-400 leading-snug block mt-0.5">
                                             Booking appointment, termin, &amp; invoicing
                                         </span>
                                     </div>
@@ -744,21 +834,31 @@
                         </div>
 
                         <!-- RIGHT 4 COLS: KONSULTASI BISNIS (With Vertical Divider) -->
-                        <div class="col-span-4 pl-8 border-l border-slate-200 dark:border-white/10 flex flex-col justify-between">
+                        <div
+                            class="col-span-4 pl-8 border-l border-slate-200 dark:border-white/10 flex flex-col justify-between">
                             <div>
-                                <p class="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-400 mb-3">
+                                <p
+                                    class="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-400 mb-3">
                                     Konsultasi Solusi
                                 </p>
-                                
+
                                 <!-- Showcase Banner Card -->
-                                <a href="{{ route('public.demo') }}" class="group block relative rounded-2xl overflow-hidden bg-[#0A0E1A] border border-slate-800/80 p-5 shadow-sm transition-all hover:scale-[1.01] hover:border-slate-700">
+                                <a href="{{ route('public.demo') }}"
+                                    class="group block relative rounded-2xl overflow-hidden bg-[#0A0E1A] border border-slate-800/80 p-5 shadow-sm transition-all hover:scale-[1.01] hover:border-slate-700">
                                     <!-- Ambient Glow -->
-                                    <div class="absolute -right-6 -top-6 w-32 h-32 bg-[#FF9500]/20 rounded-full blur-2xl pointer-events-none"></div>
-                                    <div class="absolute -left-6 -bottom-6 w-32 h-32 bg-[#007AFF]/20 rounded-full blur-2xl pointer-events-none"></div>
-                                    
+                                    <div
+                                        class="absolute -right-6 -top-6 w-32 h-32 bg-[#FF9500]/20 rounded-full blur-2xl pointer-events-none">
+                                    </div>
+                                    <div
+                                        class="absolute -left-6 -bottom-6 w-32 h-32 bg-[#007AFF]/20 rounded-full blur-2xl pointer-events-none">
+                                    </div>
+
                                     <div class="relative z-10">
-                                        <span class="text-[11px] font-bold uppercase tracking-wider text-[#FF9500] block mb-1">UMKM Architecture</span>
-                                        <div class="text-xl sm:text-2xl font-black text-white tracking-tighter leading-tight font-sans">
+                                        <span
+                                            class="text-[11px] font-bold uppercase tracking-wider text-[#FF9500] block mb-1">UMKM
+                                            Architecture</span>
+                                        <div
+                                            class="text-xl sm:text-2xl font-black text-white tracking-tighter leading-tight font-sans">
                                             Sistem Khusus Sesuai SOP Industri Anda
                                         </div>
                                     </div>
@@ -766,12 +866,15 @@
 
                                 <!-- Sub-link below banner -->
                                 <div class="mt-4">
-                                    <a href="{{ route('public.demo') }}" class="group inline-flex items-center gap-1.5 text-sm font-bold text-slate-900 dark:text-white hover:text-[#007AFF] dark:hover:text-[#00C2FF] transition-colors">
+                                    <a href="{{ route('public.demo') }}"
+                                        class="group inline-flex items-center gap-1.5 text-sm font-bold text-slate-900 dark:text-white hover:text-[#007AFF] dark:hover:text-[#00C2FF] transition-colors">
                                         <span>Jadwalkan Konsultasi Demo</span>
-                                        <i data-lucide="arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-1"></i>
+                                        <i data-lucide="arrow-right"
+                                            class="w-4 h-4 transition-transform group-hover:translate-x-1"></i>
                                     </a>
                                     <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-                                        Diskusikan konfigurasi alur kerja, integrasi hardware, dan modul yang sesuai skala bisnis Anda bersama tim kami.
+                                        Diskusikan konfigurasi alur kerja, integrasi hardware, dan modul yang sesuai
+                                        skala bisnis Anda bersama tim kami.
                                     </p>
                                 </div>
                             </div>
@@ -782,96 +885,113 @@
             </div>
 
             <!-- ═══ 3. OMNICHANNEL MEGA DROPDOWN (FULL WIDTH UNDER HEADER LINE) ═══ -->
-            <div x-show="omniDropdown" x-cloak 
-                @mouseenter="omniDropdown = true"
+            <div x-show="omniDropdown" x-cloak @mouseenter="omniDropdown = true"
                 x-transition:enter="transition ease-out duration-150"
-                x-transition:enter-start="opacity-0 -translate-y-1"
-                x-transition:enter-end="opacity-100 translate-y-0"
-                x-transition:leave="transition ease-in duration-100" 
-                x-transition:leave-start="opacity-100 translate-y-0"
-                x-transition:leave-end="opacity-0 -translate-y-1"
+                x-transition:enter-start="opacity-0 -translate-y-1" x-transition:enter-end="opacity-100 translate-y-0"
+                x-transition:leave="transition ease-in duration-100"
+                x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-1"
                 class="cooca-header-dropdown absolute top-full inset-x-0 w-full left-0 right-0 z-50">
-                
+
                 <div class="max-w-[1320px] mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-9">
                     <div class="grid grid-cols-12 gap-8 xl:gap-10 items-start">
-                        
+
                         <!-- LEFT 8 COLS: KANAL PENJUALAN & CRM -->
                         <div class="col-span-8 space-y-4">
                             <p class="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-400">
                                 Kanal Penjualan &amp; CRM Terpadu
                             </p>
-                            
+
                             <div class="grid grid-cols-2 gap-x-6 gap-y-4">
                                 <!-- Social Media -->
-                                <a href="{{ route('public.omnichannel.social-media') }}" class="group flex items-start gap-3.5 p-1 rounded-xl hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all">
-                                    <div class="w-8 h-8 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.06] flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:border-[#FF2D55] group-hover:text-[#FF2D55] group-hover:bg-pink-50/50 transition-all shrink-0 mt-0.5">
+                                <a href="{{ route('public.omnichannel.social-media') }}"
+                                    class="group flex items-start gap-3.5 p-1 rounded-xl hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all">
+                                    <div
+                                        class="w-8 h-8 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.06] flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:border-[#FF2D55] group-hover:text-[#FF2D55] group-hover:bg-pink-50/50 transition-all shrink-0 mt-0.5">
                                         <i data-lucide="share-2" class="w-4 h-4"></i>
                                     </div>
                                     <div>
-                                        <span class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#FF2D55] transition-colors block">
+                                        <span
+                                            class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#FF2D55] transition-colors block">
                                             Social Media Commerce
                                         </span>
-                                        <span class="text-xs text-slate-500 dark:text-slate-400 leading-snug block mt-0.5">
+                                        <span
+                                            class="text-xs text-slate-500 dark:text-slate-400 leading-snug block mt-0.5">
                                             Jadwal konten, auto-reply, &amp; katalog multi-channel
                                         </span>
                                     </div>
                                 </a>
 
                                 <!-- WhatsApp -->
-                                <a href="{{ route('public.omnichannel.whatsapp') }}" class="group flex items-start gap-3.5 p-1 rounded-xl hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all">
-                                    <div class="w-8 h-8 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.06] flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:border-[#34C759] group-hover:text-[#34C759] group-hover:bg-emerald-50/50 transition-all shrink-0 mt-0.5">
+                                <a href="{{ route('public.omnichannel.whatsapp') }}"
+                                    class="group flex items-start gap-3.5 p-1 rounded-xl hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all">
+                                    <div
+                                        class="w-8 h-8 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.06] flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:border-[#34C759] group-hover:text-[#34C759] group-hover:bg-emerald-50/50 transition-all shrink-0 mt-0.5">
                                         <i data-lucide="message-square" class="w-4 h-4"></i>
                                     </div>
                                     <div>
-                                        <span class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#34C759] transition-colors block">
+                                        <span
+                                            class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#34C759] transition-colors block">
                                             WhatsApp Official API
                                         </span>
-                                        <span class="text-xs text-slate-500 dark:text-slate-400 leading-snug block mt-0.5">
+                                        <span
+                                            class="text-xs text-slate-500 dark:text-slate-400 leading-snug block mt-0.5">
                                             Broadcast pesan massal &amp; multi-agent live chat
                                         </span>
                                     </div>
                                 </a>
 
                                 <!-- Marketplace Hub -->
-                                <a href="{{ route('public.omnichannel.marketplace') }}" class="group flex items-start gap-3.5 p-1 rounded-xl hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all">
-                                    <div class="w-8 h-8 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.06] flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:border-[#FF9500] group-hover:text-[#FF9500] group-hover:bg-amber-50/50 transition-all shrink-0 mt-0.5">
+                                <a href="{{ route('public.omnichannel.marketplace') }}"
+                                    class="group flex items-start gap-3.5 p-1 rounded-xl hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all">
+                                    <div
+                                        class="w-8 h-8 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.06] flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:border-[#FF9500] group-hover:text-[#FF9500] group-hover:bg-amber-50/50 transition-all shrink-0 mt-0.5">
                                         <i data-lucide="shopping-bag" class="w-4 h-4"></i>
                                     </div>
                                     <div>
-                                        <span class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#FF9500] transition-colors block">
+                                        <span
+                                            class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#FF9500] transition-colors block">
                                             Marketplace Hub
                                         </span>
-                                        <span class="text-xs text-slate-500 dark:text-slate-400 leading-snug block mt-0.5">
+                                        <span
+                                            class="text-xs text-slate-500 dark:text-slate-400 leading-snug block mt-0.5">
                                             Sinkronisasi stok Shopee, Tokopedia, &amp; TikTok
                                         </span>
                                     </div>
                                 </a>
 
                                 <!-- Central Orders -->
-                                <a href="{{ route('public.omnichannel.orders') }}" class="group flex items-start gap-3.5 p-1 rounded-xl hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all">
-                                    <div class="w-8 h-8 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.06] flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:border-[#007AFF] group-hover:text-[#007AFF] group-hover:bg-blue-50/50 transition-all shrink-0 mt-0.5">
+                                <a href="{{ route('public.omnichannel.orders') }}"
+                                    class="group flex items-start gap-3.5 p-1 rounded-xl hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all">
+                                    <div
+                                        class="w-8 h-8 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.06] flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:border-[#007AFF] group-hover:text-[#007AFF] group-hover:bg-blue-50/50 transition-all shrink-0 mt-0.5">
                                         <i data-lucide="clipboard-list" class="w-4 h-4"></i>
                                     </div>
                                     <div>
-                                        <span class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#007AFF] transition-colors block">
+                                        <span
+                                            class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#007AFF] transition-colors block">
                                             Central Orders
                                         </span>
-                                        <span class="text-xs text-slate-500 dark:text-slate-400 leading-snug block mt-0.5">
+                                        <span
+                                            class="text-xs text-slate-500 dark:text-slate-400 leading-snug block mt-0.5">
                                             Satu inbox pesanan terpadu untuk semua saluran
                                         </span>
                                     </div>
                                 </a>
 
                                 <!-- Customer Portal -->
-                                <a href="{{ route('public.omnichannel.customer') }}" class="group flex items-start gap-3.5 p-1 rounded-xl hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all">
-                                    <div class="w-8 h-8 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.06] flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:border-[#5856D6] group-hover:text-[#5856D6] group-hover:bg-indigo-50/50 transition-all shrink-0 mt-0.5">
+                                <a href="{{ route('public.omnichannel.customer') }}"
+                                    class="group flex items-start gap-3.5 p-1 rounded-xl hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all">
+                                    <div
+                                        class="w-8 h-8 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.06] flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:border-[#5856D6] group-hover:text-[#5856D6] group-hover:bg-indigo-50/50 transition-all shrink-0 mt-0.5">
                                         <i data-lucide="user-check" class="w-4 h-4"></i>
                                     </div>
                                     <div>
-                                        <span class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#5856D6] transition-colors block">
+                                        <span
+                                            class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#5856D6] transition-colors block">
                                             Customer Portal &amp; CRM
                                         </span>
-                                        <span class="text-xs text-slate-500 dark:text-slate-400 leading-snug block mt-0.5">
+                                        <span
+                                            class="text-xs text-slate-500 dark:text-slate-400 leading-snug block mt-0.5">
                                             Program loyalty, membership tier, &amp; poin belanja
                                         </span>
                                     </div>
@@ -880,21 +1000,31 @@
                         </div>
 
                         <!-- RIGHT 4 COLS: SOROTAN OMNICHANNEL (With Vertical Divider) -->
-                        <div class="col-span-4 pl-8 border-l border-slate-200 dark:border-white/10 flex flex-col justify-between">
+                        <div
+                            class="col-span-4 pl-8 border-l border-slate-200 dark:border-white/10 flex flex-col justify-between">
                             <div>
-                                <p class="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-400 mb-3">
+                                <p
+                                    class="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-400 mb-3">
                                     Sorotan Omnichannel
                                 </p>
-                                
+
                                 <!-- Showcase Banner Card -->
-                                <a href="{{ route('public.omnichannel.whatsapp') }}" class="group block relative rounded-2xl overflow-hidden bg-[#0A0E1A] border border-slate-800/80 p-5 shadow-sm transition-all hover:scale-[1.01] hover:border-slate-700">
+                                <a href="{{ route('public.omnichannel.whatsapp') }}"
+                                    class="group block relative rounded-2xl overflow-hidden bg-[#0A0E1A] border border-slate-800/80 p-5 shadow-sm transition-all hover:scale-[1.01] hover:border-slate-700">
                                     <!-- Ambient Glow -->
-                                    <div class="absolute -right-6 -top-6 w-32 h-32 bg-[#34C759]/20 rounded-full blur-2xl pointer-events-none"></div>
-                                    <div class="absolute -left-6 -bottom-6 w-32 h-32 bg-[#00C2FF]/20 rounded-full blur-2xl pointer-events-none"></div>
-                                    
+                                    <div
+                                        class="absolute -right-6 -top-6 w-32 h-32 bg-[#34C759]/20 rounded-full blur-2xl pointer-events-none">
+                                    </div>
+                                    <div
+                                        class="absolute -left-6 -bottom-6 w-32 h-32 bg-[#00C2FF]/20 rounded-full blur-2xl pointer-events-none">
+                                    </div>
+
                                     <div class="relative z-10">
-                                        <span class="text-[11px] font-bold uppercase tracking-wider text-[#34C759] block mb-1">Automasi WhatsApp &amp; POS</span>
-                                        <div class="text-xl sm:text-2xl font-black text-white tracking-tighter leading-tight font-sans">
+                                        <span
+                                            class="text-[11px] font-bold uppercase tracking-wider text-[#34C759] block mb-1">Automasi
+                                            WhatsApp &amp; POS</span>
+                                        <div
+                                            class="text-xl sm:text-2xl font-black text-white tracking-tighter leading-tight font-sans">
                                             Semua Chat &amp; Order Terhubung Otomatis
                                         </div>
                                     </div>
@@ -902,12 +1032,15 @@
 
                                 <!-- Sub-link below banner -->
                                 <div class="mt-4">
-                                    <a href="{{ route('public.omnichannel.whatsapp') }}" class="group inline-flex items-center gap-1.5 text-sm font-bold text-slate-900 dark:text-white hover:text-[#007AFF] dark:hover:text-[#00C2FF] transition-colors">
+                                    <a href="{{ route('public.omnichannel.whatsapp') }}"
+                                        class="group inline-flex items-center gap-1.5 text-sm font-bold text-slate-900 dark:text-white hover:text-[#007AFF] dark:hover:text-[#00C2FF] transition-colors">
                                         <span>Eksplorasi Fitur WhatsApp</span>
-                                        <i data-lucide="arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-1"></i>
+                                        <i data-lucide="arrow-right"
+                                            class="w-4 h-4 transition-transform group-hover:translate-x-1"></i>
                                     </a>
                                     <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-                                        Kelola pesanan dari toko fisik, chat WhatsApp, dan e-commerce dalam satu dashboard tanpa takut selisih stok.
+                                        Kelola pesanan dari toko fisik, chat WhatsApp, dan e-commerce dalam satu
+                                        dashboard tanpa takut selisih stok.
                                     </p>
                                 </div>
                             </div>
@@ -918,81 +1051,94 @@
             </div>
 
             <!-- ═══ 4. RESOURCES MEGA DROPDOWN (FULL WIDTH UNDER HEADER LINE) ═══ -->
-            <div x-show="resourceDropdown" x-cloak 
-                @mouseenter="resourceDropdown = true"
+            <div x-show="resourceDropdown" x-cloak @mouseenter="resourceDropdown = true"
                 x-transition:enter="transition ease-out duration-150"
-                x-transition:enter-start="opacity-0 -translate-y-1"
-                x-transition:enter-end="opacity-100 translate-y-0"
-                x-transition:leave="transition ease-in duration-100" 
-                x-transition:leave-start="opacity-100 translate-y-0"
-                x-transition:leave-end="opacity-0 -translate-y-1"
+                x-transition:enter-start="opacity-0 -translate-y-1" x-transition:enter-end="opacity-100 translate-y-0"
+                x-transition:leave="transition ease-in duration-100"
+                x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-1"
                 class="cooca-header-dropdown absolute top-full inset-x-0 w-full left-0 right-0 z-50">
-                
+
                 <div class="max-w-[1320px] mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-9">
                     <div class="grid grid-cols-12 gap-8 xl:gap-10 items-start">
-                        
+
                         <!-- LEFT 8 COLS: PUSAT EDUKASI & DOKUMENTASI -->
                         <div class="col-span-8 space-y-4">
                             <p class="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-400">
                                 Pusat Edukasi &amp; Dokumentasi
                             </p>
-                            
+
                             <div class="grid grid-cols-2 gap-x-6 gap-y-4">
                                 <!-- Blog -->
-                                <a href="{{ route('blog.index') }}" class="group flex items-start gap-3.5 p-1 rounded-xl hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all">
-                                    <div class="w-8 h-8 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.06] flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:border-[#007AFF] dark:group-hover:border-[#00C2FF] group-hover:text-[#007AFF] dark:group-hover:text-[#00C2FF] group-hover:bg-blue-50/50 dark:group-hover:bg-cyan-500/10 transition-all shrink-0 mt-0.5">
+                                <a href="{{ route('blog.index') }}"
+                                    class="group flex items-start gap-3.5 p-1 rounded-xl hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all">
+                                    <div
+                                        class="w-8 h-8 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.06] flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:border-[#007AFF] dark:group-hover:border-[#00C2FF] group-hover:text-[#007AFF] dark:group-hover:text-[#00C2FF] group-hover:bg-blue-50/50 dark:group-hover:bg-cyan-500/10 transition-all shrink-0 mt-0.5">
                                         <i data-lucide="book-open" class="w-4 h-4"></i>
                                     </div>
                                     <div>
-                                        <span class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#007AFF] dark:group-hover:text-[#00C2FF] transition-colors block">
+                                        <span
+                                            class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#007AFF] dark:group-hover:text-[#00C2FF] transition-colors block">
                                             Blog &amp; Insight Bisnis
                                         </span>
-                                        <span class="text-xs text-slate-500 dark:text-slate-400 leading-snug block mt-0.5">
+                                        <span
+                                            class="text-xs text-slate-500 dark:text-slate-400 leading-snug block mt-0.5">
                                             Artikel edukasi, tren pasar, &amp; strategi pertumbuhan
                                         </span>
                                     </div>
                                 </a>
 
                                 <!-- Guides -->
-                                <a href="{{ route('public.resources.guides') }}" class="group flex items-start gap-3.5 p-1 rounded-xl hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all">
-                                    <div class="w-8 h-8 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.06] flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:border-[#34C759] group-hover:text-[#34C759] group-hover:bg-emerald-50/50 transition-all shrink-0 mt-0.5">
+                                <a href="{{ route('public.resources.guides') }}"
+                                    class="group flex items-start gap-3.5 p-1 rounded-xl hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all">
+                                    <div
+                                        class="w-8 h-8 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.06] flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:border-[#34C759] group-hover:text-[#34C759] group-hover:bg-emerald-50/50 transition-all shrink-0 mt-0.5">
                                         <i data-lucide="file-text" class="w-4 h-4"></i>
                                     </div>
                                     <div>
-                                        <span class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#34C759] transition-colors block">
+                                        <span
+                                            class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#34C759] transition-colors block">
                                             Panduan &amp; Tutorial
                                         </span>
-                                        <span class="text-xs text-slate-500 dark:text-slate-400 leading-snug block mt-0.5">
+                                        <span
+                                            class="text-xs text-slate-500 dark:text-slate-400 leading-snug block mt-0.5">
                                             Tutorial step-by-step implementasi SOP dan POS
                                         </span>
                                     </div>
                                 </a>
 
                                 <!-- Case Studies -->
-                                <a href="{{ route('public.resources.case-studies') }}" class="group flex items-start gap-3.5 p-1 rounded-xl hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all">
-                                    <div class="w-8 h-8 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.06] flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:border-[#FF9500] group-hover:text-[#FF9500] group-hover:bg-amber-50/50 transition-all shrink-0 mt-0.5">
+                                <a href="{{ route('public.resources.case-studies') }}"
+                                    class="group flex items-start gap-3.5 p-1 rounded-xl hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all">
+                                    <div
+                                        class="w-8 h-8 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.06] flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:border-[#FF9500] group-hover:text-[#FF9500] group-hover:bg-amber-50/50 transition-all shrink-0 mt-0.5">
                                         <i data-lucide="award" class="w-4 h-4"></i>
                                     </div>
                                     <div>
-                                        <span class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#FF9500] transition-colors block">
+                                        <span
+                                            class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#FF9500] transition-colors block">
                                             Studi Kasus UMKM
                                         </span>
-                                        <span class="text-xs text-slate-500 dark:text-slate-400 leading-snug block mt-0.5">
+                                        <span
+                                            class="text-xs text-slate-500 dark:text-slate-400 leading-snug block mt-0.5">
                                             Kisah nyata pebisnis Indonesia scaling bersama COOCA
                                         </span>
                                     </div>
                                 </a>
 
                                 <!-- FAQ -->
-                                <a href="{{ route('public.resources.faq') }}" class="group flex items-start gap-3.5 p-1 rounded-xl hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all">
-                                    <div class="w-8 h-8 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.06] flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:border-[#AF52DE] group-hover:text-[#AF52DE] group-hover:bg-purple-50/50 transition-all shrink-0 mt-0.5">
+                                <a href="{{ route('public.resources.faq') }}"
+                                    class="group flex items-start gap-3.5 p-1 rounded-xl hover:bg-slate-50 dark:hover:bg-white/[0.05] transition-all">
+                                    <div
+                                        class="w-8 h-8 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.06] flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:border-[#AF52DE] group-hover:text-[#AF52DE] group-hover:bg-purple-50/50 transition-all shrink-0 mt-0.5">
                                         <i data-lucide="help-circle" class="w-4 h-4"></i>
                                     </div>
                                     <div>
-                                        <span class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#AF52DE] transition-colors block">
+                                        <span
+                                            class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#AF52DE] transition-colors block">
                                             Pusat Bantuan &amp; FAQ
                                         </span>
-                                        <span class="text-xs text-slate-500 dark:text-slate-400 leading-snug block mt-0.5">
+                                        <span
+                                            class="text-xs text-slate-500 dark:text-slate-400 leading-snug block mt-0.5">
                                             Jawaban cepat untuk pertanyaan teknis &amp; langganan
                                         </span>
                                     </div>
@@ -1001,21 +1147,31 @@
                         </div>
 
                         <!-- RIGHT 4 COLS: PUSAT PENGETAHUAN (With Vertical Divider) -->
-                        <div class="col-span-4 pl-8 border-l border-slate-200 dark:border-white/10 flex flex-col justify-between">
+                        <div
+                            class="col-span-4 pl-8 border-l border-slate-200 dark:border-white/10 flex flex-col justify-between">
                             <div>
-                                <p class="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-400 mb-3">
+                                <p
+                                    class="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-400 mb-3">
                                     Pusat Pengetahuan
                                 </p>
-                                
+
                                 <!-- Showcase Banner Card -->
-                                <a href="{{ route('public.resources.guides') }}" class="group block relative rounded-2xl overflow-hidden bg-[#0A0E1A] border border-slate-800/80 p-5 shadow-sm transition-all hover:scale-[1.01] hover:border-slate-700">
+                                <a href="{{ route('public.resources.guides') }}"
+                                    class="group block relative rounded-2xl overflow-hidden bg-[#0A0E1A] border border-slate-800/80 p-5 shadow-sm transition-all hover:scale-[1.01] hover:border-slate-700">
                                     <!-- Ambient Glow -->
-                                    <div class="absolute -right-6 -top-6 w-32 h-32 bg-[#AF52DE]/20 rounded-full blur-2xl pointer-events-none"></div>
-                                    <div class="absolute -left-6 -bottom-6 w-32 h-32 bg-[#007AFF]/20 rounded-full blur-2xl pointer-events-none"></div>
-                                    
+                                    <div
+                                        class="absolute -right-6 -top-6 w-32 h-32 bg-[#AF52DE]/20 rounded-full blur-2xl pointer-events-none">
+                                    </div>
+                                    <div
+                                        class="absolute -left-6 -bottom-6 w-32 h-32 bg-[#007AFF]/20 rounded-full blur-2xl pointer-events-none">
+                                    </div>
+
                                     <div class="relative z-10">
-                                        <span class="text-[11px] font-bold uppercase tracking-wider text-[#AF52DE] block mb-1">Knowledge Hub</span>
-                                        <div class="text-xl sm:text-2xl font-black text-white tracking-tighter leading-tight font-sans">
+                                        <span
+                                            class="text-[11px] font-bold uppercase tracking-wider text-[#AF52DE] block mb-1">Knowledge
+                                            Hub</span>
+                                        <div
+                                            class="text-xl sm:text-2xl font-black text-white tracking-tighter leading-tight font-sans">
                                             Kuasai Operasional Bisnis Bersama COOCA
                                         </div>
                                     </div>
@@ -1023,12 +1179,15 @@
 
                                 <!-- Sub-link below banner -->
                                 <div class="mt-4">
-                                    <a href="{{ route('public.resources.guides') }}" class="group inline-flex items-center gap-1.5 text-sm font-bold text-slate-900 dark:text-white hover:text-[#007AFF] dark:hover:text-[#00C2FF] transition-colors">
+                                    <a href="{{ route('public.resources.guides') }}"
+                                        class="group inline-flex items-center gap-1.5 text-sm font-bold text-slate-900 dark:text-white hover:text-[#007AFF] dark:hover:text-[#00C2FF] transition-colors">
                                         <span>Baca Panduan Operasional</span>
-                                        <i data-lucide="arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-1"></i>
+                                        <i data-lucide="arrow-right"
+                                            class="w-4 h-4 transition-transform group-hover:translate-x-1"></i>
                                     </a>
                                     <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-                                        Tutorial lengkap mulai dari setup awal toko, pencatatan jurnal keuangan, hingga strategi pemasaran omnichannel.
+                                        Tutorial lengkap mulai dari setup awal toko, pencatatan jurnal keuangan, hingga
+                                        strategi pemasaran omnichannel.
                                     </p>
                                 </div>
                             </div>
@@ -1178,7 +1337,7 @@
                         <a href="{{ route('admin.dashboard') }}" @click="mobileMenu = false"
                             class="w-full py-3 rounded-[14px] bg-[#00C2FF] hover:bg-[#00A3D7] text-slate-950 font-bold text-center flex items-center justify-center gap-2 active:scale-95 transition-all shadow-[0_0_15px_rgba(0,194,255,0.35)]">
                             <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
-                            <span>Dashboard Admin</span>
+                            <span>Dashboard</span>
                         </a>
                     </div>
                 @elseif (auth('web')->check())
@@ -1186,7 +1345,7 @@
                         <a href="{{ route('dashboard') }}" @click="mobileMenu = false"
                             class="w-full py-3 rounded-[14px] bg-[#00C2FF] hover:bg-[#00A3D7] text-slate-950 font-bold text-center flex items-center justify-center gap-2 active:scale-95 transition-all shadow-[0_0_15px_rgba(0,194,255,0.35)]">
                             <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
-                            <span>Ke Dashboard</span>
+                            <span>Dashboard</span>
                         </a>
                     </div>
                 @else
@@ -1199,7 +1358,8 @@
                         <a href="{{ route('register') }}"
                             class="group py-2.5 px-3 rounded-[12px] bg-gradient-to-r from-[#00C2FF] via-[#00A3FF] to-[#007AFF] text-center text-white font-bold text-xs shadow-[0_2px_12px_rgba(0,194,255,0.35)] active:scale-95 transition-all flex items-center justify-center gap-1.5">
                             <span>Coba COOCA Gratis</span>
-                            <i data-lucide="arrow-right" class="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5"></i>
+                            <i data-lucide="arrow-right"
+                                class="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5"></i>
                         </a>
                     </div>
                 @endif
@@ -1312,6 +1472,18 @@
                                         '<path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>',
                                     'hover' => 'hover:bg-white/15 hover:text-white',
                                 ],
+                                'whatsapp' => [
+                                    'active' => filter_var(
+                                        \App\Models\SystemSetting::get('social_whatsapp_active', '1'),
+                                        FILTER_VALIDATE_BOOLEAN,
+                                    ),
+                                    'url' => $footerWaUrl,
+                                    'name' => 'WhatsApp',
+                                    'handle' => $footerWaNum,
+                                    'svg' =>
+                                        '<path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>',
+                                    'hover' => 'hover:bg-[#25D366]/20 hover:text-[#25D366]',
+                                ],
                             ];
                         @endphp
 
@@ -1321,11 +1493,12 @@
                                     <img src="{{ $siteLogoDarkUrl }}" alt="{{ $siteAppName }}"
                                         class="h-9 sm:h-10 lg:h-12 w-auto object-contain transition-transform group-hover:scale-105">
                                 @else
-                                    <span class="font-black text-3xl sm:text-4xl tracking-tighter text-white font-sans">COOCA</span>
+                                    <span
+                                        class="font-black text-3xl sm:text-4xl tracking-tighter text-white font-sans">COOCA</span>
                                 @endif
                             </a>
                             <p class="text-sm sm:text-base font-bold text-slate-200">
-                                Business Operating System &amp; Omnichannel ERP
+                                {{ $siteTagline }}
                             </p>
                             <p class="text-sm sm:text-[14.5px] text-slate-400 leading-relaxed max-w-sm sm:max-w-md">
                                 Satu ekosistem untuk mengelola, menghubungkan, menghasilkan, dan mengembangkan bisnis
@@ -1354,17 +1527,20 @@
                         <div class="space-y-3.5">
                             <p class="font-bold text-white uppercase text-xs sm:text-[13px] tracking-wider">
                                 Platform</p>
-                            <nav class="flex flex-col space-y-2.5 sm:space-y-3 text-sm sm:text-[14.5px] text-slate-400">
+                            <nav
+                                class="flex flex-col space-y-2.5 sm:space-y-3 text-sm sm:text-[14.5px] text-slate-400">
                                 <a href="{{ route('public.erp.erp') }}"
                                     class="hover:text-white hover:translate-x-0.5 transition-all inline-block">ERP</a>
                                 <a href="{{ route('public.omnichannel.whatsapp') }}"
                                     class="hover:text-white hover:translate-x-0.5 transition-all inline-block">Omnichannel</a>
                                 <a href="{{ route('public.content.creation') }}"
-                                    class="hover:text-white hover:translate-x-0.5 transition-all inline-block">Content Automation</a>
+                                    class="hover:text-white hover:translate-x-0.5 transition-all inline-block">Content
+                                    Automation</a>
                                 <a href="{{ route('marketplace.index') }}"
                                     class="hover:text-white hover:translate-x-0.5 transition-all inline-block">Marketplace</a>
                                 <a href="{{ route('public.erp.analytics') }}"
-                                    class="hover:text-white hover:translate-x-0.5 transition-all inline-block">AI Assistant</a>
+                                    class="hover:text-white hover:translate-x-0.5 transition-all inline-block">AI
+                                    Assistant</a>
                             </nav>
                         </div>
 
@@ -1372,11 +1548,14 @@
                         <div class="space-y-3.5">
                             <p class="font-bold text-white uppercase text-xs sm:text-[13px] tracking-wider">
                                 Solutions</p>
-                            <nav class="flex flex-col space-y-2.5 sm:space-y-3 text-sm sm:text-[14.5px] text-slate-400">
+                            <nav
+                                class="flex flex-col space-y-2.5 sm:space-y-3 text-sm sm:text-[14.5px] text-slate-400">
                                 <a href="{{ route('public.solutions.fnb') }}"
-                                    class="hover:text-white hover:translate-x-0.5 transition-all inline-block">POS Kasir</a>
+                                    class="hover:text-white hover:translate-x-0.5 transition-all inline-block">POS
+                                    Kasir</a>
                                 <a href="{{ route('public.solutions.retail') }}"
-                                    class="hover:text-white hover:translate-x-0.5 transition-all inline-block">Retail &amp; Toko</a>
+                                    class="hover:text-white hover:translate-x-0.5 transition-all inline-block">Retail
+                                    &amp; Toko</a>
                                 <a href="{{ route('public.solutions.workshop') }}"
                                     class="hover:text-white hover:translate-x-0.5 transition-all inline-block">Bengkel</a>
                                 <a href="{{ route('public.solutions.laundry') }}"
@@ -1384,7 +1563,8 @@
                                 <a href="{{ route('public.solutions.manufacturing') }}"
                                     class="hover:text-white hover:translate-x-0.5 transition-all inline-block">Manufacturing</a>
                                 <a href="{{ route('public.solutions.services') }}"
-                                    class="hover:text-white hover:translate-x-0.5 transition-all inline-block">Jasa &amp; Service</a>
+                                    class="hover:text-white hover:translate-x-0.5 transition-all inline-block">Jasa
+                                    &amp; Service</a>
                             </nav>
                         </div>
 
@@ -1392,15 +1572,19 @@
                         <div class="space-y-3.5">
                             <p class="font-bold text-white uppercase text-xs sm:text-[13px] tracking-wider">
                                 Resources</p>
-                            <nav class="flex flex-col space-y-2.5 sm:space-y-3 text-sm sm:text-[14.5px] text-slate-400">
+                            <nav
+                                class="flex flex-col space-y-2.5 sm:space-y-3 text-sm sm:text-[14.5px] text-slate-400">
                                 <a href="{{ route('blog.index') }}"
-                                    class="hover:text-white hover:translate-x-0.5 transition-all inline-block">Blog &amp; Edukasi</a>
+                                    class="hover:text-white hover:translate-x-0.5 transition-all inline-block">Blog
+                                    &amp; Edukasi</a>
                                 <a href="{{ route('public.resources.guides') }}"
                                     class="hover:text-white hover:translate-x-0.5 transition-all inline-block">Guides</a>
                                 <a href="{{ route('public.resources.case-studies') }}"
-                                    class="hover:text-white hover:translate-x-0.5 transition-all inline-block">Case Studies</a>
+                                    class="hover:text-white hover:translate-x-0.5 transition-all inline-block">Case
+                                    Studies</a>
                                 <a href="{{ route('public.demo') }}"
-                                    class="hover:text-white hover:translate-x-0.5 transition-all inline-block">Webinar &amp; Demo</a>
+                                    class="hover:text-white hover:translate-x-0.5 transition-all inline-block">Webinar
+                                    &amp; Demo</a>
                                 <a href="{{ route('public.resources.faq') }}"
                                     class="hover:text-white hover:translate-x-0.5 transition-all inline-block">FAQ</a>
                             </nav>
@@ -1410,17 +1594,22 @@
                         <div class="space-y-3.5">
                             <p class="font-bold text-white uppercase text-xs sm:text-[13px] tracking-wider">
                                 Company</p>
-                            <nav class="flex flex-col space-y-2.5 sm:space-y-3 text-sm sm:text-[14.5px] text-slate-400">
+                            <nav
+                                class="flex flex-col space-y-2.5 sm:space-y-3 text-sm sm:text-[14.5px] text-slate-400">
                                 <a href="{{ route('public.about') }}"
-                                    class="hover:text-white hover:translate-x-0.5 transition-all inline-block">About Us</a>
+                                    class="hover:text-white hover:translate-x-0.5 transition-all inline-block">About
+                                    Us</a>
                                 <a href="{{ route('public.privacy') }}"
                                     class="hover:text-white hover:translate-x-0.5 transition-all inline-block">Security</a>
                                 <a href="{{ route('public.privacy') }}"
-                                    class="hover:text-white hover:translate-x-0.5 transition-all inline-block">Privacy Policy</a>
+                                    class="hover:text-white hover:translate-x-0.5 transition-all inline-block">Privacy
+                                    Policy</a>
                                 <a href="{{ route('public.terms') }}"
-                                    class="hover:text-white hover:translate-x-0.5 transition-all inline-block">Terms &amp; Conditions</a>
+                                    class="hover:text-white hover:translate-x-0.5 transition-all inline-block">Terms
+                                    &amp; Conditions</a>
                                 <a href="{{ route('public.support') }}"
-                                    class="hover:text-white hover:translate-x-0.5 transition-all inline-block">Bantuan &amp; Kontak</a>
+                                    class="hover:text-white hover:translate-x-0.5 transition-all inline-block">Bantuan
+                                    &amp; Kontak</a>
                             </nav>
                         </div>
 
@@ -1584,6 +1773,63 @@
                 </div>
             </div>
         </nav>
+    @endif
+
+    <!-- ══════════════════════════════════════════════════════════════════════════ -->
+    <!-- ═══ FLOATING WHATSAPP CHAT WIDGET (Configured via Admin Settings) ════════ -->
+    <!-- ══════════════════════════════════════════════════════════════════════════ -->
+    @if (empty($hideFloatingWa))
+        @php
+            $waActiveSetting = \App\Models\SystemSetting::get('social_whatsapp_active', '1');
+            $waIsActive = filter_var($waActiveSetting, FILTER_VALIDATE_BOOLEAN);
+            $waConfiguredNumber = \App\Models\SystemSetting::get('social_whatsapp_number', '0852 8786 4176');
+            $waConfiguredUrl = \App\Models\SystemSetting::get('social_whatsapp_url');
+
+            // Format nomor telepon menjadi format internasional Indonesia (62xxx)
+            $waDigits = preg_replace('/[^0-9]/', '', (string) $waConfiguredNumber);
+            if (str_starts_with($waDigits, '0')) {
+                $waDigits = '62' . substr($waDigits, 1);
+            } elseif (str_starts_with($waDigits, '8')) {
+                $waDigits = '62' . $waDigits;
+            }
+
+            $waDefaultMessage =
+                'Halo Tim COOCA, saya ingin berkonsultasi mengenai platform ERP dan operasional bisnis saya.';
+
+            if (
+                !empty($waConfiguredUrl) &&
+                (str_contains($waConfiguredUrl, 'wa.me') || str_contains($waConfiguredUrl, 'whatsapp.com'))
+            ) {
+                if (!str_contains($waConfiguredUrl, 'text=')) {
+                    $separator = str_contains($waConfiguredUrl, '?') ? '&' : '?';
+                    $waTargetUrl = $waConfiguredUrl . $separator . 'text=' . urlencode($waDefaultMessage);
+                } else {
+                    $waTargetUrl = $waConfiguredUrl;
+                }
+            } elseif (!empty($waDigits)) {
+                $waTargetUrl =
+                    'https://api.whatsapp.com/send?phone=' . $waDigits . '&text=' . urlencode($waDefaultMessage);
+            } else {
+                $waTargetUrl = 'https://wa.me/6285287864176?text=' . urlencode($waDefaultMessage);
+            }
+        @endphp
+
+        @if ($waIsActive)
+            <div class="fixed bottom-20 right-4 sm:bottom-22 sm:right-6 lg:bottom-6 lg:right-6 z-50 print:hidden">
+                <a href="{{ $waTargetUrl }}" target="_blank" rel="noopener noreferrer"
+                    aria-label="Chat WhatsApp Tim COOCA"
+                    class="group flex items-center gap-2.5 px-4 py-2.5 rounded-full bg-[#25D366] hover:bg-[#20BD5A] text-white font-bold text-sm shadow-[0_10px_25px_-5px_rgba(37,211,102,0.45)] hover:shadow-[0_15px_30px_-5px_rgba(37,211,102,0.55)] active:scale-95 transition-all">
+                    <i data-lucide="message-circle" class="w-4 h-4 fill-current"></i>
+                    <span>Chat Kami</span>
+                    <span class="relative flex h-2.5 w-2.5">
+                        <span
+                            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                        <span
+                            class="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500 ring-2 ring-white"></span>
+                    </span>
+                </a>
+            </div>
+        @endif
     @endif
 
     <!-- AppAlert (Centralized Alert & Confirm System) -->
