@@ -370,4 +370,79 @@ class LayoutSidebarNavbarPlanTest extends TestCase
         $response->assertSee('Pengaturan Toko Online & Pembayaran', false);
         $response->assertSee('Pengaturan Ongkos Kirim', false);
     }
+
+    public function test_settings_module_tab_renders_5_thematic_bento_clusters(): void
+    {
+        $this->seed(\Database\Seeders\RbacSeeder::class);
+
+        $response = $this->actingAs($this->user)
+            ->withSession(['active_business_id' => $this->business->id])
+            ->get(route('settings.index', ['tab' => 'modules']));
+
+        $response->assertStatus(200);
+
+        // Verify 5 Bento Clusters in Tab 4
+        $response->assertSee('Kelola Modul &amp; Penataan Menu Sidebar', false);
+        $response->assertSee('1. Operasional Kasir POS &amp; Restoran', false);
+        $response->assertSee('2. Penjualan B2B, Penawaran &amp; Invoice', false);
+        $response->assertSee('3. Produksi HPP, Resep BOM &amp; Pergudangan', false);
+        $response->assertSee('4. CRM, Loyalitas Pelanggan &amp; WhatsApp Marketing', false);
+        $response->assertSee('5. Toko Online, Reservasi &amp; Pemesanan Mandiri', false);
+
+        // Verify Live Impact Badges
+        $response->assertSee('Sidebar:</strong> Buka Kasir POS, Transaksi Kasir &amp; Shift, Laporan Kasir', false);
+        $response->assertSee('Sidebar:</strong> Pesanan Penjualan (SO), Penawaran Harga, Faktur Tagihan (Invoice), Retur Penjualan', false);
+        $response->assertSee('Sidebar:</strong> Bahan Baku &amp; Resep (BOM), Kategori Bahan Baku', false);
+    }
+
+    public function test_settings_module_update_by_owner_persists_and_restricts_non_owner(): void
+    {
+        $this->seed(\Database\Seeders\RbacSeeder::class);
+
+        // 1. Owner updates enabled modules
+        $enabledModules = [
+            \App\Domain\Template\ModuleRegistry::MODULE_POS_RETAIL,
+            \App\Domain\Template\ModuleRegistry::MODULE_INVENTORY_WAREHOUSE,
+        ];
+
+        $response = $this->actingAs($this->user)
+            ->withSession(['active_business_id' => $this->business->id])
+            ->put(route('settings.modules.update'), [
+                'enabled_modules' => $enabledModules,
+            ]);
+
+        $response->assertRedirect();
+        $this->business->refresh();
+
+        $this->assertTrue($this->business->isModuleEnabled(\App\Domain\Template\ModuleRegistry::MODULE_POS_RETAIL));
+        $this->assertTrue($this->business->isModuleEnabled(\App\Domain\Template\ModuleRegistry::MODULE_INVENTORY_WAREHOUSE));
+        $this->assertFalse($this->business->isModuleEnabled(\App\Domain\Template\ModuleRegistry::MODULE_B2B_SALES));
+        $this->assertFalse($this->business->isModuleEnabled(\App\Domain\Template\ModuleRegistry::MODULE_RECIPE_BOM));
+
+        // 2. Non-owner (cashier) attempts to update modules -> 403 Forbidden
+        $cashierRole = \App\Models\Role::where('slug', 'cashier')->firstOrFail();
+        $cashier = User::create([
+            'name' => 'Doni Kasir',
+            'email' => 'doni@cooca.id',
+            'password' => 'password123',
+        ]);
+        $this->business->users()->attach($cashier->id, [
+            'id' => (string) Str::uuid(),
+            'role' => 'cashier',
+            'role_id' => $cashierRole->id,
+        ]);
+        $cashier->update(['active_business_id' => $this->business->id]);
+
+        Context::flush();
+        $membership = BusinessMembership::where('business_id', $this->business->id)->where('user_id', $cashier->id)->first();
+        Context::setBusiness($this->business, $membership);
+
+        $forbiddenResponse = $this->actingAs($cashier)
+            ->withSession(['active_business_id' => $this->business->id])
+            ->put(route('settings.modules.update'), [
+                'enabled_modules' => [\App\Domain\Template\ModuleRegistry::MODULE_B2B_SALES],
+            ]);
+
+        $forbiddenResponse->assertStatus(403);
+    }
 }

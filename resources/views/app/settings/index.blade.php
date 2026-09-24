@@ -978,7 +978,7 @@
         </div>
 
         <!-- ===================================================== -->
-        <!-- TAB 4: KELOLA MODUL & FITUR BISNIS                   -->
+        <!-- TAB 4: KELOLA MODUL & PENATAAN MENU BISNIS            -->
         <!-- ===================================================== -->
         <div x-show="activeTab === 'modules'" class="space-y-6" style="display: none;">
             <form method="POST" action="{{ route('settings.modules.update') }}" class="space-y-6">
@@ -992,8 +992,7 @@
                         class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-black/5 dark:border-white/5 pb-4">
                         <div>
                             <div class="flex items-center gap-2">
-                                <h2 class="text-[17px] font-semibold text-black dark:text-white">Kelola Modul &amp;
-                                    Penataan Menu</h2>
+                                <h2 class="text-[17px] font-semibold text-black dark:text-white">Kelola Modul &amp; Penataan Menu Sidebar</h2>
                                 @if ($business->template_code)
                                     <span
                                         class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158] border border-[#34C759]/20">
@@ -1002,9 +1001,7 @@
                                 @endif
                             </div>
                             <p class="text-[13px] text-black/50 dark:text-white/50 mt-1">
-                                Sederhanakan antarmuka workspace bisnis Anda. Modul yang dinonaktifkan akan otomatis
-                                disembunyikan dari sidebar navigasi dan hak akses role staf tanpa menghapus data yang sudah
-                                ada.
+                                Sesuaikan kompleksitas antarmuka aplikasi dengan alur bisnis Anda. Modul yang dinonaktifkan akan disembunyikan otomatis dari menu sidebar dan hak akses staf, tanpa pernah menghapus data transaksi yang telah tersimpan.
                             </p>
                         </div>
 
@@ -1029,84 +1026,170 @@
                                 d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
                         </svg>
                         <div class="space-y-0.5">
-                            <p class="font-medium text-[#007AFF]">Wewenang Eksklusif Pemilik Bisnis (Owner)</p>
-                            <p>Hanya Owner yang dapat mengaktifkan atau menonaktifkan modul. Jika bisnis Anda bertumbuh dan
-                                memerlukan fitur tambahan (misalnya ingin membuka cabang baru dengan meja resto atau mulai
-                                memproduksi barang sendiri), cukup aktifkan tombol sakelar modul di bawah ini kapan saja.
-                            </p>
+                            <p class="font-medium text-[#007AFF]">Kontrol Penuh Pemilik Usaha (Business Owner)</p>
+                            <p>Hanya Owner yang dapat mengubah status modul. Saat bisnis Anda berkembang (misal: ingin mulai menghitung HPP produksi atau melayani reservasi meja), Anda dapat mengaktifkan kembali sakelar modul di bawah ini kapan saja tanpa konfigurasi ulang database.</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Modules Grid -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    @foreach ($allModules as $moduleKey => $mod)
-                        @php
-                            $isEnabled = $business->isModuleEnabled($moduleKey);
-                        @endphp
-                        <div
-                            class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-4 sm:p-5 flex flex-col justify-between gap-4 shadow-sm hover:border-[#007AFF]/30 transition-all">
-                            <div class="space-y-3">
-                                <div class="flex items-start justify-between gap-3">
-                                    <div class="flex items-center gap-3">
-                                        <div
-                                            class="w-10 h-10 rounded-[10px] {{ $isEnabled ? 'bg-[#007AFF]/10 text-[#007AFF]' : 'bg-black/5 dark:bg-white/5 text-black/40 dark:text-white/40' }} flex items-center justify-center shrink-0 transition-colors">
-                                            <i data-lucide="{{ $mod['icon'] }}" class="w-5 h-5"></i>
-                                        </div>
-                                        <div>
-                                            <span
-                                                class="text-[11px] font-semibold tracking-wide uppercase text-black/40 dark:text-white/40 block">{{ $mod['category'] }}</span>
-                                            <h3 class="text-[15px] font-semibold text-black dark:text-white leading-snug">
-                                                {{ $mod['name'] }}</h3>
-                                        </div>
-                                    </div>
+                @php
+                    $clusterMap = [
+                        'kasir' => [
+                            'title' => '1. Operasional Kasir POS & Restoran',
+                            'desc' => 'Modul kasir cepat, meja dine-in, dan layar dapur.',
+                            'icon' => 'calculator',
+                            'color' => 'text-[#007AFF]',
+                            'bg' => 'bg-[#007AFF]/10',
+                            'keys' => ['pos_retail', 'pos_dinein'],
+                            'impacts' => [
+                                'pos_retail' => 'Buka Kasir POS, Transaksi Kasir & Shift, Laporan Kasir',
+                                'pos_dinein' => 'KDS Layar Dapur, Pengaturan Meja QR',
+                            ],
+                        ],
+                        'b2b' => [
+                            'title' => '2. Penjualan B2B, Penawaran & Invoice',
+                            'desc' => 'Modul penawaran tender, sales order formal, dan piutang B2B.',
+                            'icon' => 'file-text',
+                            'color' => 'text-[#34C759]',
+                            'bg' => 'bg-[#34C759]/10',
+                            'keys' => ['b2b_sales'],
+                            'impacts' => [
+                                'b2b_sales' => 'Pesanan Penjualan (SO), Penawaran Harga, Faktur Tagihan (Invoice), Retur Penjualan',
+                            ],
+                        ],
+                        'produksi_gudang' => [
+                            'title' => '3. Produksi HPP, Resep BOM & Pergudangan',
+                            'desc' => 'Modul bahan baku, formulasi BOM, upah kerja produksi, multi-gudang, dan pengadaan PO.',
+                            'icon' => 'boxes',
+                            'color' => 'text-[#AF52DE]',
+                            'bg' => 'bg-[#AF52DE]/10',
+                            'keys' => ['recipe_bom', 'labor_machines', 'inventory_warehouse', 'procurement'],
+                            'impacts' => [
+                                'recipe_bom' => 'Bahan Baku & Resep (BOM), Kategori Bahan Baku',
+                                'labor_machines' => 'Upah Kerja & Mesin, Alokasi Biaya HPP',
+                                'inventory_warehouse' => 'Stok Gudang, Lokasi Gudang, Transfer Gudang, Opname Stok Fisik, Mutasi Stok',
+                                'procurement' => 'Pesanan Pembelian (PO), Tagihan Supplier (Bills), Supplier, Retur Pembelian',
+                            ],
+                        ],
+                        'crm_marketing' => [
+                            'title' => '4. CRM, Loyalitas Pelanggan & WhatsApp Marketing',
+                            'desc' => 'Modul keanggotaan pelanggan, poin belanja, voucher diskon, dan blast WhatsApp.',
+                            'icon' => 'award',
+                            'color' => 'text-[#FF9500]',
+                            'bg' => 'bg-[#FF9500]/10',
+                            'keys' => ['crm_loyalty', 'channels_marketing'],
+                            'impacts' => [
+                                'crm_loyalty' => 'Data Pelanggan, Poin Loyalitas Member, Kupon Voucher Diskon',
+                                'channels_marketing' => 'WhatsApp Gateway Struk & Promo, Landing Page CMS',
+                            ],
+                        ],
+                        'toko_online' => [
+                            'title' => '5. Toko Online, Reservasi & Pemesanan Mandiri',
+                            'desc' => 'Modul etalase storefront online, custom order, slot jadwal, dan kurir pengiriman.',
+                            'icon' => 'shopping-bag',
+                            'color' => 'text-[#5856D6]',
+                            'bg' => 'bg-[#5856D6]/10',
+                            'keys' => ['storefront_checkout', 'order_request', 'scheduled_order', 'customer_po', 'reservation', 'merchant_shipping'],
+                            'impacts' => [
+                                'storefront_checkout' => 'Pengaturan Toko Online, Pesanan Masuk Toko',
+                                'order_request' => 'Pengajuan Request Order Khusus',
+                                'scheduled_order' => 'Slot Tanggal Pemesanan & Lead Time',
+                                'customer_po' => 'PO Batch Klien & Multi-Drop',
+                                'reservation' => 'Reservasi Meja & Booking Jadwal',
+                                'merchant_shipping' => 'Pengaturan Ongkos Kirim & Kurir Toko',
+                            ],
+                        ],
+                    ];
+                @endphp
+
+                <!-- 5 Thematic Bento Clusters -->
+                @foreach ($clusterMap as $clusterId => $cluster)
+                    <div class="rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-5 sm:p-6 space-y-4 shadow-sm">
+                        <!-- Cluster Header -->
+                        <div class="flex items-center justify-between gap-3 border-b border-black/5 dark:border-white/5 pb-3.5">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-[10px] {{ $cluster['bg'] }} {{ $cluster['color'] }} flex items-center justify-center shrink-0">
+                                    <i data-lucide="{{ $cluster['icon'] }}" class="w-5 h-5"></i>
                                 </div>
-
-                                <p class="text-[12.5px] text-black/60 dark:text-white/60 leading-relaxed min-h-[38px]">
-                                    {{ $mod['description'] }}
-                                </p>
-
-                                <div class="pt-2 border-t border-black/5 dark:border-white/5">
-                                    <span class="text-[11px] text-black/40 dark:text-white/40 flex items-center gap-1">
-                                        <svg class="w-3.5 h-3.5 text-black/30 dark:text-white/30" fill="none"
-                                            stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
-                                        </svg>
-                                        <span>{{ count($mod['permissions']) }} hak akses terkait</span>
-                                    </span>
+                                <div>
+                                    <h3 class="text-[15px] font-semibold text-black dark:text-white">{{ $cluster['title'] }}</h3>
+                                    <p class="text-[12px] text-black/50 dark:text-white/50">{{ $cluster['desc'] }}</p>
                                 </div>
-                            </div>
-
-                            <!-- Apple Switch Toggle -->
-                            <div
-                                class="pt-3 border-t border-black/5 dark:border-white/5 flex items-center justify-between">
-                                <span
-                                    class="text-[12px] font-medium {{ $isEnabled ? 'text-[#248A3D] dark:text-[#30D158]' : 'text-black/40 dark:text-white/40' }}">
-                                    {{ $isEnabled ? 'Aktif (Menu Muncul)' : 'Nonaktif (Disembunyikan)' }}
-                                </span>
-
-                                <label class="relative inline-flex items-center cursor-pointer select-none">
-                                    <input type="checkbox" name="enabled_modules[]" value="{{ $moduleKey }}"
-                                        {{ $isEnabled ? 'checked' : '' }}
-                                        {{ !\App\Support\Context::isOwner() ? 'disabled' : '' }} class="sr-only peer">
-                                    <div
-                                        class="w-11 h-6 bg-black/20 dark:bg-white/20 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#34C759] transition-colors">
-                                    </div>
-                                </label>
                             </div>
                         </div>
-                    @endforeach
-                </div>
+
+                        <!-- Cards in Cluster -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            @foreach ($cluster['keys'] as $moduleKey)
+                                @if (isset($allModules[$moduleKey]))
+                                    @php
+                                        $mod = $allModules[$moduleKey];
+                                        $isEnabled = $business->isModuleEnabled($moduleKey);
+                                        $impactText = $cluster['impacts'][$moduleKey] ?? null;
+                                    @endphp
+                                    <div
+                                        class="rounded-[14px] bg-black/[0.02] dark:bg-white/[0.02] border {{ $isEnabled ? 'border-[#34C759]/30 dark:border-[#34C759]/30 bg-[#34C759]/[0.02]' : 'border-black/5 dark:border-white/5 opacity-75' }} p-4 sm:p-4.5 flex flex-col justify-between gap-3.5 transition-all hover:border-black/15 dark:hover:border-white/15">
+                                        <div class="space-y-2.5">
+                                            <div class="flex items-start justify-between gap-3">
+                                                <div class="flex items-center gap-2.5">
+                                                    <div
+                                                        class="w-9 h-9 rounded-[9px] {{ $isEnabled ? 'bg-[#007AFF]/10 text-[#007AFF]' : 'bg-black/5 dark:bg-white/5 text-black/40 dark:text-white/40' }} flex items-center justify-center shrink-0 transition-colors">
+                                                        <i data-lucide="{{ $mod['icon'] }}" class="w-4.5 h-4.5"></i>
+                                                    </div>
+                                                    <div>
+                                                        <h4 class="text-[14px] font-semibold text-black dark:text-white leading-snug">
+                                                            {{ $mod['name'] }}
+                                                        </h4>
+                                                        <span class="text-[10.5px] text-black/40 dark:text-white/40 uppercase font-semibold">{{ $mod['category'] }}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <p class="text-[12px] text-black/60 dark:text-white/60 leading-relaxed min-h-[34px]">
+                                                {{ $mod['description'] }}
+                                            </p>
+
+                                            <!-- Live Impact Badge -->
+                                            @if ($impactText)
+                                                <div class="rounded-[8px] bg-black/[0.03] dark:bg-white/[0.04] px-2.5 py-1.5 text-[11px] text-black/65 dark:text-white/65 flex items-start gap-1.5 border border-black/5 dark:border-white/5">
+                                                    <i data-lucide="layout-panel-left" class="w-3.5 h-3.5 text-black/40 dark:text-white/40 shrink-0 mt-0.5"></i>
+                                                    <div class="line-clamp-2 leading-tight">
+                                                        <strong class="font-medium text-black dark:text-white">Sidebar:</strong> {{ $impactText }}
+                                                    </div>
+                                                </div>
+                                            @endif
+                                        </div>
+
+                                        <!-- Apple Switch Toggle -->
+                                        <div class="pt-3 border-t border-black/5 dark:border-white/5 flex items-center justify-between">
+                                            <span class="text-[11.5px] font-medium {{ $isEnabled ? 'text-[#248A3D] dark:text-[#30D158]' : 'text-black/40 dark:text-white/40' }}">
+                                                {{ $isEnabled ? 'Aktif (Menu Muncul)' : 'Nonaktif (Disembunyikan)' }}
+                                            </span>
+
+                                            <label class="relative inline-flex items-center cursor-pointer select-none">
+                                                <input type="checkbox" name="enabled_modules[]" value="{{ $moduleKey }}"
+                                                    {{ $isEnabled ? 'checked' : '' }}
+                                                    {{ !\App\Support\Context::isOwner() ? 'disabled' : '' }} class="sr-only peer">
+                                                <div
+                                                    class="w-11 h-6 bg-black/20 dark:bg-white/20 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#34C759] transition-colors">
+                                                </div>
+                                            </label>
+                                        </div>
+                                    </div>
+                                @endif
+                            @endforeach
+                        </div>
+                    </div>
+                @endforeach
 
                 <!-- Bottom Action Footer -->
                 @if (\App\Support\Context::isOwner())
                     <div
                         class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-sm">
-                        <p class="text-[12px] text-black/50 dark:text-white/50">
-                            Perubahan konfigurasi modul akan langsung berdampak pada menu navigasi sidebar seluruh karyawan
-                            di bisnis ini.
-                        </p>
+                        <div class="flex items-center gap-2 text-[12px] text-black/50 dark:text-white/50">
+                            <i data-lucide="info" class="w-4 h-4 text-[#007AFF] shrink-0"></i>
+                            <span>Perubahan konfigurasi modul akan langsung berdampak pada menu navigasi sidebar seluruh anggota tim di bisnis ini.</span>
+                        </div>
                         <button type="submit"
                             class="h-9 px-5 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-2 shadow-[0_1px_2px_rgba(0,122,255,0.25)] shrink-0">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"

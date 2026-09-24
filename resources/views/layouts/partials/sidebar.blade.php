@@ -2143,6 +2143,9 @@
                                 {{ request()->fullUrlIs('*tab=cash_flow*') ? 'aria-current="page"' : '' }}
                                 class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-colors {{ request()->fullUrlIs('*tab=cash_flow*') ? 'text-[#007AFF] dark:text-[#0A84FF] font-semibold bg-[#007AFF]/8' : 'text-black/65 dark:text-white/65 hover:text-black dark:hover:text-white hover:bg-black/[0.03] dark:hover:bg-white/[0.04]' }}">
                                 <span class="w-1.5 h-1.5 rounded-full {{ request()->fullUrlIs('*tab=cash_flow*') ? 'bg-[#007AFF]' : 'bg-black/25 dark:bg-white/30' }} shrink-0"></span>
+                                <span class="truncate">Arus Kas (Cash Flow)</span>
+                            </a>
+
                             {{-- Neraca Keuangan SAK EMKM --}}
                             <a href="{{ route('finance.balance-sheet') }}"
                                 {{ request()->routeIs('finance.balance-sheet') ? 'aria-current="page"' : '' }}

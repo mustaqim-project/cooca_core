@@ -54,6 +54,55 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 
 - Pengetahuan yang dipromosikan ke `docs/system/` dan dampaknya pada `docs/SYSTEM_GUIDE.md`.
 
+### [WORK-2026-09-24-138] Restrukturisasi Tab Kelola Modul (5 Klaster Tematik Bento Apple HIG) & Keterkaitan Dinamis Menu Sidebar
+
+- **Date:** 2026-09-24
+- **Status:** COMPLETED
+- **Module:** Settings & Navigation (`resources/views/app/settings/index.blade.php`, `resources/views/layouts/partials/sidebar.blade.php`, `tests/Feature/LayoutSidebarNavbarPlanTest.php`)
+- **Feature:** 5 Thematic Bento Clusters for Module Management with Live Sidebar Impact Badges and Dynamic RBAC Auto-Gating
+- **Work Type:** UI/UX | Bento Apple HIG | Architecture | Multi-Tenant Security | RBAC | Automated Testing
+
+#### 1. Business Context & Objective
+
+- **Konteks:** Menata ulang antarmuka tab "Kelola Modul" pada halaman Pengaturan Bisnis (`settings.index?tab=modules`) agar selaras dengan 8 pilar menu sidebar dan 15 definisi modul pada `ModuleRegistry`.
+- **Masalah/Target:**
+  1. Tampilan sebelumnya berupa flat grid 15 item acak yang membingungkan pemilik bisnis (terutama usia 40–65 tahun) dalam memahami menu sidebar mana yang akan terpengaruh jika suatu modul dinonaktifkan.
+  2. Kebutuhan transparansi visual (*Live Impact Badge*) yang mencantumkan nama-nama menu sidebar terkait di setiap kartu modul.
+  3. Mengelompokkan 15 modul ke dalam 5 Klaster Tematik Bento Apple HIG:
+     - **1. Operasional Kasir POS & Restoran:** Kasir POS & Struk Cepat, Meja & Kitchen Display (KDS).
+     - **2. Penjualan B2B, Penawaran & Invoice:** Penjualan B2B, Penawaran & Invoice.
+     - **3. Produksi HPP, Resep BOM & Pergudangan:** Resep Formula BOM & Bahan Baku, Upah Kerja Langsung & Mesin Produksi, Multi-Gudang & Stock Opname Fisik, Pengadaan PO & Hutang Supplier.
+     - **4. CRM, Loyalitas Pelanggan & WhatsApp Marketing:** CRM, Poin Loyalitas & Voucher, WhatsApp Gateway & Landing Page CMS.
+     - **5. Toko Online, Reservasi & Pemesanan Mandiri:** Toko Online & Checkout Mandiri, Request Order Kustom, Pesanan Terjadwal & Slot Waktu, Purchase Order Klien & PO Batch, Reservasi Meja & Booking Jadwal, Aturan Ongkir & Kurir Toko.
+  4. Menjamin isolasi peran (hanya Owner yang berwenang mengubah modul) dan perlindungan data (penonaktifan modul tidak menghapus catatan transaksi masa lalu).
+
+#### 2. What Was Done
+
+1. **Restrukturisasi Tab 4 Kelola Modul ke 5 Klaster Tematik Bento Apple HIG:**
+   - Menyusun 5 section card ber-border halus `border-black/5 dark:border-white/5` dengan header icon, judul berurutan, dan deskripsi ringkas.
+   - Setiap kartu modul dilengkapi badge status aktif hijau semantik (`bg-[#34C759]`), switch toggle khas Apple, Lucide icon, dan callout `Sidebar:` yang mencantumkan rute/menu persis yang diatur oleh modul tersebut.
+2. **Penguatan Security & Multi-Tenant Isolation:**
+   - Memastikan endpoint `PUT /settings/modules` dilindungi middleware `require.role:owner`, verifikasi tenant `Context::requireBusiness()`, dan validasi ketat `in:allModuleKeys`.
+3. **Pengujian Nyata Otomatis (PHPUnit):**
+   - Menambahkan test case pada `tests/Feature/LayoutSidebarNavbarPlanTest.php` untuk memverifikasi rendering 5 klaster Bento, assert teks impact badge sidebar, persistensi update modul oleh Owner, dan penolakan 403 Forbidden untuk non-owner (Kasir).
+   - 10 dari 10 pengujian berhasil lolos (136 assertions).
+
+#### 3. Technical Changes
+
+- **Files Affected:**
+  - `resources/views/app/settings/index.blade.php`
+  - `tests/Feature/LayoutSidebarNavbarPlanTest.php`
+  - `docs/AiWorkHistory.md`
+- **Database Changes:** None (`businesses.disabled_modules` JSON field reuse).
+- **API / Route Changes:** None (`PUT /settings/modules` handler preservation).
+
+#### 4. Verification & Testing
+
+- **Automated Tests:** `php vendor/phpunit/phpunit/phpunit tests/Feature/LayoutSidebarNavbarPlanTest.php` → **10 passed, 0 failures, 136 assertions**.
+- **Syntax Check:** Validated syntax across all modified Blade and PHP files.
+
+---
+
 ### [WORK-2026-09-24-137] Harmonisasi Menu Hamburger Mobile Mengadopsi Konsep Mega Dropdown Desktop (Platform, Solutions, Omnichannel, Resources)
 
 - **Date:** 2026-09-24
