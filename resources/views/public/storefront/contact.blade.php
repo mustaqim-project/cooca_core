@@ -4,7 +4,7 @@
     $contactTitle = 'Kontak & Lokasi Cabang | ' . $business->name;
     $contactDesc = 'Hubungi tim layanan pelanggan ' . $business->name . '. Temukan informasi alamat lengkap, jam operasional toko, nomor WhatsApp resmi, dan lokasi cabang terdekat.';
     $contactCanonical = url('/' . $business->slug . '/kontak');
-    $contactOgImage = $landingPage->og_image_url ?: ($landingPage->hero_image_url ?: ($business->logo_url ?: asset('assets/image/cooca.png')));
+    $contactOgImage = $landingPage->og_image_url ?: ($landingPage->hero_image_url ?: ($business->logo_url ?: asset('assets/seo/cooca-og-default.jpg')));
 @endphp
 
 @section('title', $contactTitle)

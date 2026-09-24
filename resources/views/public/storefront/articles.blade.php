@@ -4,7 +4,7 @@
     $articlesTitle = 'Artikel, Tips & Wawasan | ' . $business->name;
     $articlesDesc = 'Kumpulan artikel informatif, tips praktis, panduan produk, serta kabar update resmi dan promo terbaru langsung dari ' . $business->name . '.';
     $articlesCanonical = url('/' . $business->slug . '/artikel');
-    $articlesOgImage = $landingPage->og_image_url ?: ($landingPage->hero_image_url ?: ($business->logo_url ?: asset('assets/image/cooca.png')));
+    $articlesOgImage = $landingPage->og_image_url ?: ($landingPage->hero_image_url ?: ($business->logo_url ?: asset('assets/seo/cooca-og-default.jpg')));
 @endphp
 
 @section('title', $articlesTitle)

@@ -34,7 +34,7 @@
             \App\Domain\Storage\AdminStorage::publicUrl($siteFaviconSetting) ??
             asset('assets/image/1785229034_favicon.png');
         $seoOgImageUrl =
-            \App\Domain\Storage\AdminStorage::publicUrl($seoOgImageSetting) ?? asset('assets/image/cooca.png');
+            \App\Domain\Storage\AdminStorage::publicUrl($seoOgImageSetting) ?? asset('assets/seo/cooca-og-default.jpg');
 
         $siteAppName = \App\Models\SystemSetting::get('app_name', 'Cooca');
         $siteTagline = \App\Models\SystemSetting::get('site_tagline', 'Business Operating System & Omnichannel ERP');
@@ -63,44 +63,9 @@
         $seoCustomHeadScripts = \App\Models\SystemSetting::get('seo_custom_head_scripts');
     @endphp
 
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>
-        @hasSection('title')
-            @yield('title')
-        @else
-            {{ $title ?? $seoMetaTitle }}
-        @endif
-    </title>
-    <meta name="description" content="@yield('description', $seoMetaDesc)">
-    <meta name="keywords" content="@yield('keywords', $seoKeywords)">
-    <meta name="author" content="{{ $seoAuthor }}">
-
-    @php
-        $rawOgImage = View::hasSection('og_image') ? trim(View::yieldContent('og_image')) : $seoOgImageUrl;
-        $canonicalOgImage = str_starts_with($rawOgImage, 'http://') || str_starts_with($rawOgImage, 'https://')
-            ? $rawOgImage
-            : url($rawOgImage);
-    @endphp
-
-    <!-- Open Graph / Facebook / WhatsApp -->
-    <meta property="og:type" content="@yield('og_type', 'website')">
-    <meta property="og:site_name" content="{{ $siteAppName }}">
-    <meta property="og:locale" content="id_ID">
-    <meta property="og:url" content="@yield('canonical', $seoCanonical)">
-    <meta property="og:title" content="@hasSection('og_title')@yield('og_title')@elseif(View::hasSection('title'))@yield('title')@else{{ $title ?? $seoOgTitle }}@endif">
-    <meta property="og:description" content="@yield('og_description', View::hasSection('description') ? View::yieldContent('description') : $seoOgDesc)">
-    <meta property="og:image" content="{{ $canonicalOgImage }}">
-    <meta property="og:image:width" content="1200">
-    <meta property="og:image:height" content="630">
-    <meta property="og:image:alt" content="@yield('og_image_alt', View::hasSection('title') ? View::yieldContent('title') : $siteAppName)">
-
-    <!-- Twitter / X Card -->
-    <meta name="twitter:card" content="@yield('twitter_card', $seoTwitterCard)">
-    <meta name="twitter:site" content="{{ $seoTwitterSite }}">
-    <meta name="twitter:title" content="@hasSection('twitter_title')@yield('twitter_title')@elseif(View::hasSection('og_title'))@yield('og_title')@elseif(View::hasSection('title'))@yield('title')@else{{ $title ?? $seoOgTitle }}@endif">
-    <meta name="twitter:description" content="@yield('twitter_description', View::hasSection('og_description') ? View::yieldContent('og_description') : (View::hasSection('description') ? View::yieldContent('description') : $seoOgDesc))">
-    <meta name="twitter:image" content="{{ $canonicalOgImage }}">
+    @include('public.partials.seo', [
+        'fallbackImage' => asset('assets/seo/cooca-og-default.jpg'),
+    ])
 
     <!-- Webmaster Verification -->
     @if (!empty($seoGoogleVerification))
@@ -113,14 +78,6 @@
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="{{ $siteFaviconUrl }}">
     <link rel="apple-touch-icon" href="{{ $siteFaviconUrl }}">
-
-    <!-- SEO Canonical & Robots -->
-    <link rel="canonical" href="@yield('canonical', $seoCanonical)">
-    @if ($noindex ?? false)
-        <meta name="robots" content="noindex, nofollow">
-    @else
-        <meta name="robots" content="@yield('robots', $seoRobots)">
-    @endif
     @stack('seo')
 
     <!-- Google Analytics (GA4) -->

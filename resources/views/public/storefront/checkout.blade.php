@@ -4,12 +4,13 @@
     $checkoutTitle = 'Checkout Pesanan | ' . $business->name;
     $checkoutDesc = 'Selesaikan pemesanan produk dan layanan di ' . $business->name . ' dengan aman. Pembayaran mudah, konfirmasi instan, dan opsi pengiriman terpercaya.';
     $checkoutCanonical = url('/' . $business->slug . '/checkout');
-    $checkoutOgImage = $landingPage->og_image_url ?: ($landingPage->hero_image_url ?: ($business->logo_url ?: asset('assets/image/cooca.png')));
+    $checkoutOgImage = $landingPage->og_image_url ?: ($landingPage->hero_image_url ?: ($business->logo_url ?: asset('assets/seo/cooca-og-default.jpg')));
 @endphp
 
 @section('title', $checkoutTitle)
 @section('description', $checkoutDesc)
 @section('canonical', $checkoutCanonical)
+@section('robots', 'noindex, follow')
 @section('og_title', 'Checkout & Pembayaran Pesanan - ' . $business->name)
 @section('og_description', $checkoutDesc)
 @section('og_image', $checkoutOgImage)

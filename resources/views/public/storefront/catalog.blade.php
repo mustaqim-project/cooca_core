@@ -3,7 +3,7 @@
 @php
     $catTitle = 'Katalog Produk & Layanan | ' . $business->name;
     $catDesc = 'Jelajahi seluruh koleksi produk dan layanan resmi ' . $business->name . '. Dapatkan penawaran harga terbaik, stok kasir terjamin, dan pengiriman aman.';
-    $catOgImage = $landingPage->og_image_url ?: ($landingPage->hero_image_url ?: ($business->logo_url ?: asset('assets/image/cooca.png')));
+    $catOgImage = $landingPage->og_image_url ?: ($landingPage->hero_image_url ?: ($business->logo_url ?: asset('assets/seo/cooca-og-default.jpg')));
     $catCanonical = url('/' . $business->slug . '/katalog');
 @endphp
 

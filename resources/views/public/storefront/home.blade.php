@@ -4,7 +4,7 @@
     $pageTitle = $landingPage->meta_title ?: ($business->name . ' - ' . ($landingPage->headline ?: 'Toko Online Resmi'));
     $pageDesc = $landingPage->meta_description ?: ($landingPage->subheadline ?: ($business->description ?: 'Selamat datang di toko resmi ' . $business->name . '. Belanja aneka produk dan layanan berkualitas dengan transaksi aman.'));
     $pageDesc = \Illuminate\Support\Str::limit(strip_tags((string) $pageDesc), 155);
-    $pageOgImage = $landingPage->og_image_url ?: ($landingPage->hero_image_url ?: ($business->logo_url ?: asset('assets/image/cooca.png')));
+    $pageOgImage = $landingPage->og_image_url ?: ($landingPage->hero_image_url ?: ($business->logo_url ?: asset('assets/seo/cooca-og-default.jpg')));
     $pageCanonical = url('/' . $business->slug);
 @endphp
 

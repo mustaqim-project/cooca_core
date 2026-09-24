@@ -8,6 +8,9 @@
 @section('og_title', ($search ? "Hasil Pencarian: {$search}" : 'Katalog Produk & Direktori UMKM') . ' | Cooca Marketplace')
 @section('og_description', 'Jelajahi dan temukan aneka produk lokal berkualitas dari ribuan bisnis UMKM Indonesia.')
 @section('og_type', 'website')
+@if(request()->filled('q') || request()->filled('category') || request()->filled('city') || request()->filled('sort') || request()->filled('business_type'))
+@section('robots', 'noindex, follow')
+@endif
 
 @push('seo')
     <script type="application/ld+json">

@@ -13,41 +13,20 @@
     <meta name="theme-color" content="{{ $initialDarkMode ? '#000000' : '#F2F2F7' }}">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    {{-- SEO METADATA --}}
+    {{-- Unified SEO & Social Media Metadata --}}
     @php
-        $bizTitle = $landingPage->meta_title ?: ($business->name . ' - ' . ($landingPage->headline ?: 'Toko Online & Layanan Resmi'));
-        $rawBizDesc = $landingPage->meta_description ?: ($landingPage->subheadline ?: ($business->description ?: 'Selamat datang di website resmi ' . $business->name . '. Temukan aneka produk terbaik, kemudahan pemesanan, dan layanan pelanggan terpercaya.'));
-        $bizDesc = \Illuminate\Support\Str::limit(strip_tags((string) $rawBizDesc), 155);
-        $bizCanonical = (str_starts_with((string)$business->public_url, 'http://') || str_starts_with((string)$business->public_url, 'https://')) ? $business->public_url : url($business->public_url);
         $canonicalBrandLogo = $business->logo_url ?: $landingPage->logo_url;
-        $bizRawOgImg = $landingPage->og_image_url ?: ($landingPage->hero_image_url ?: ($canonicalBrandLogo ?: asset('assets/image/cooca.png')));
-        $bizCanonicalOgImg = (str_starts_with((string)$bizRawOgImg, 'http://') || str_starts_with((string)$bizRawOgImg, 'https://')) ? $bizRawOgImg : url($bizRawOgImg);
+        $bizCanonical = (str_starts_with((string)$business->public_url, 'http://') || str_starts_with((string)$business->public_url, 'https://')) ? $business->public_url : url($business->public_url);
+        $bizOgImage = $landingPage->og_image_url ?: ($landingPage->hero_image_url ?: ($canonicalBrandLogo ?: asset('assets/seo/cooca-og-default.jpg')));
     @endphp
-
-    <title>{{ $bizTitle }}</title>
-    <meta name="description" content="{{ $bizDesc }}">
-    @if ($landingPage->meta_keywords)
-        <meta name="keywords" content="{{ $landingPage->meta_keywords }}">
-    @endif
-    <link rel="canonical" href="{{ $bizCanonical }}">
-
-    {{-- Open Graph / Social Sharing (WhatsApp, Telegram, Facebook, LinkedIn) --}}
-    <meta property="og:type" content="website">
-    <meta property="og:site_name" content="{{ $business->name }}">
-    <meta property="og:locale" content="id_ID">
-    <meta property="og:url" content="{{ $bizCanonical }}">
-    <meta property="og:title" content="{{ $bizTitle }}">
-    <meta property="og:description" content="{{ $bizDesc }}">
-    <meta property="og:image" content="{{ $bizCanonicalOgImg }}">
-    <meta property="og:image:width" content="1200">
-    <meta property="og:image:height" content="630">
-    <meta property="og:image:alt" content="{{ $bizTitle }}">
-
-    {{-- Twitter / X Metadata --}}
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="{{ $bizTitle }}">
-    <meta name="twitter:description" content="{{ $bizDesc }}">
-    <meta name="twitter:image" content="{{ $bizCanonicalOgImg }}">
+    @include('public.partials.seo', [
+        'siteName' => $business->name,
+        'title' => $landingPage->meta_title ?: ($business->name . ' - ' . ($landingPage->headline ?: 'Toko Online & Layanan Resmi')),
+        'description' => $landingPage->meta_description ?: ($landingPage->subheadline ?: ($business->description ?: 'Selamat datang di website resmi ' . $business->name . '. Temukan aneka produk terbaik, kemudahan pemesanan, dan layanan pelanggan terpercaya.')),
+        'url' => $bizCanonical,
+        'image' => $bizOgImage,
+        'keywords' => $landingPage->meta_keywords ?? null,
+    ])
 
     {{-- Schema.org JSON-LD LocalBusiness Structured Data --}}
     @php

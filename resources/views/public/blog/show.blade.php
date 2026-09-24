@@ -1,4 +1,32 @@
 @extends('layouts.public_marketing')
+@php
+    $articleOgImage = $post->cover_image ? (str_starts_with($post->cover_image, 'http') ? $post->cover_image : url($post->cover_image)) : asset('assets/seo/cooca-og-default.jpg');
+    $articleSchema = [
+        '@context' => 'https://schema.org',
+        '@type' => 'Article',
+        'headline' => $post->title,
+        'description' => $post->excerpt,
+        'image' => [$articleOgImage],
+        'author' => [
+            '@type' => 'Person',
+            'name' => $post->author_name ?? 'Tim Edukasi COOCA',
+        ],
+        'publisher' => [
+            '@type' => 'Organization',
+            'name' => 'COOCA Indonesia',
+            'logo' => [
+                '@type' => 'ImageObject',
+                'url' => asset('assets/image/1785229034_logo_dark.png'),
+            ],
+        ],
+        'datePublished' => $post->published_at ? $post->published_at->toIso8601String() : $post->created_at->toIso8601String(),
+        'dateModified' => $post->updated_at->toIso8601String(),
+        'mainEntityOfPage' => [
+            '@type' => 'WebPage',
+            '@id' => route('blog.show', $post->slug),
+        ],
+    ];
+@endphp
 
 @section('title', ($post->meta_title ?? $post->title) . ' | COOCA Edukasi UMKM')
 @section('description', $post->meta_description ?? $post->excerpt)
@@ -6,32 +34,14 @@
 @section('og_description', $post->meta_description ?? $post->excerpt)
 @section('canonical', route('blog.show', $post->slug))
 @section('og_type', 'article')
-@section('og_image', $post->cover_image ?? 'https://cooca.id/assets/image/cooca.png')
+@section('og_image', $articleOgImage)
+@section('article_published_time', $post->published_at ? $post->published_at->toIso8601String() : $post->created_at->toIso8601String())
+@section('article_modified_time', $post->updated_at->toIso8601String())
+@section('article_author', $post->author_name ?? 'COOCA Indonesia')
 
 @push('seo')
-
     <script type="application/ld+json">
-    {
-        "@@context": "https://schema.org",
-        "@type": "Article",
-        "headline": "{{ addslashes($post->title) }}",
-        "description": "{{ addslashes($post->excerpt) }}",
-        "image": "{{ $post->cover_image ?? 'https://cooca.id/assets/image/cooca.png' }}",
-        "author": {
-            "@type": "Organization",
-            "name": "{{ addslashes($post->author_name) }}"
-        },
-        "publisher": {
-            "@type": "Organization",
-            "name": "COOCA Indonesia",
-            "logo": {
-                "@type": "ImageObject",
-                "url": "https://cooca.id/assets/image/1785229034_logo_dark.png"
-            }
-        },
-        "datePublished": "{{ $post->published_at ? $post->published_at->toIso8601String() : $post->created_at->toIso8601String() }}",
-        "dateModified": "{{ $post->updated_at->toIso8601String() }}"
-    }
+    {!! json_encode($articleSchema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) !!}
     </script>
 @endpush
 

@@ -4,7 +4,7 @@
     $aboutTitle = 'Tentang Kami | ' . $business->name;
     $aboutDesc = 'Mengenal visi, komitmen mutu, dan perjalanan ' . $business->name . '. Kami berdedikasi memberikan produk dan layanan terpercaya dengan standar kepuasan terbaik.';
     $aboutCanonical = url('/' . $business->slug . '/tentang-kami');
-    $aboutOgImage = $landingPage->og_image_url ?: ($landingPage->hero_image_url ?: ($business->logo_url ?: asset('assets/image/cooca.png')));
+    $aboutOgImage = $landingPage->og_image_url ?: ($landingPage->hero_image_url ?: ($business->logo_url ?: asset('assets/seo/cooca-og-default.jpg')));
 @endphp
 
 @section('title', $aboutTitle)

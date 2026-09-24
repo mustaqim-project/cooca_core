@@ -17,85 +17,16 @@
 
     {{-- SEO & Social Media Metadata Architecture --}}
     @php
-        // 1. Resolve Title
-        $resolvedTitle = View::hasSection('title')
-            ? html_entity_decode(strip_tags((string) View::yieldContent('title')), ENT_QUOTES, 'UTF-8')
-            : ($pageTitle ?? ($landingPage->meta_title ?: $business->name . ' - ' . ($landingPage->headline ?: 'Toko Online Resmi')));
-
-        // 2. Resolve Description (clean, 120-160 chars)
-        $rawDesc = View::hasSection('description')
-            ? html_entity_decode(strip_tags((string) View::yieldContent('description')), ENT_QUOTES, 'UTF-8')
-            : ($ogDescription ?? ($landingPage->meta_description ?: ($landingPage->subheadline ?: ($business->description ?: 'Belanja aneka produk dan layanan berkualitas langsung dari ' . $business->name . ' dengan jaminan kualitas dan pengiriman terpercaya.'))));
-        $resolvedDesc = \Illuminate\Support\Str::limit($rawDesc, 160);
-
-        // 3. Resolve Canonical & OG URL (Clean, absolute, no query params)
-        $resolvedCanonical = View::hasSection('canonical')
-            ? trim((string) View::yieldContent('canonical'))
-            : ($canonicalUrl ?? url('/' . $business->slug));
-
-        // 4. Resolve OG Type
-        $resolvedOgType = View::hasSection('og_type')
-            ? trim((string) View::yieldContent('og_type'))
-            : ($ogType ?? 'website');
-
-        // 5. Resolve OG Title & OG Description
-        $resolvedOgTitle = View::hasSection('og_title')
-            ? html_entity_decode(strip_tags((string) View::yieldContent('og_title')), ENT_QUOTES, 'UTF-8')
-            : ($ogTitle ?? $resolvedTitle);
-
-        $rawOgDesc = View::hasSection('og_description')
-            ? html_entity_decode(strip_tags((string) View::yieldContent('og_description')), ENT_QUOTES, 'UTF-8')
-            : $resolvedDesc;
-        $resolvedOgDesc = \Illuminate\Support\Str::limit($rawOgDesc, 160);
-
-        // 6. Resolve OG Image (Absolute URL, 1200x630 compliant)
         $defaultBrandImg = $business->logo_url ?: ($landingPage->logo_url ?: $landingPage->hero_image_url);
-        $rawOgImage = View::hasSection('og_image')
-            ? trim(View::yieldContent('og_image'))
-            : ($ogImage ?? ($landingPage->og_image_url ?: ($defaultBrandImg ?: asset('assets/image/cooca.png'))));
-
-        $canonicalOgImage = (str_starts_with((string) $rawOgImage, 'http://') || str_starts_with((string) $rawOgImage, 'https://'))
-            ? (string) $rawOgImage
-            : url((string) $rawOgImage);
-
-        // 7. Resolve OG Image Alt
-        $resolvedOgAlt = View::hasSection('og_image_alt')
-            ? View::yieldContent('og_image_alt')
-            : ($business->name . ' - ' . $resolvedTitle);
     @endphp
-
-    <title>{{ $resolvedTitle }}</title>
-    <meta name="description" content="{{ $resolvedDesc }}">
-    @if (View::hasSection('keywords') || $landingPage->meta_keywords)
-        <meta name="keywords" content="@yield('keywords', $landingPage->meta_keywords)">
-    @endif
-    <link rel="canonical" href="{{ $resolvedCanonical }}">
-
-    {{-- Open Graph / Social Sharing (WhatsApp, Telegram, Facebook, LinkedIn, Discord) --}}
-    <meta property="og:type" content="{{ $resolvedOgType }}">
-    <meta property="og:site_name" content="{{ $business->name }}">
-    <meta property="og:locale" content="id_ID">
-    <meta property="og:url" content="{{ $resolvedCanonical }}">
-    <meta property="og:title" content="{{ $resolvedOgTitle }}">
-    <meta property="og:description" content="{{ $resolvedOgDesc }}">
-    <meta property="og:image" content="{{ $canonicalOgImage }}">
-    <meta property="og:image:width" content="1200">
-    <meta property="og:image:height" content="630">
-    <meta property="og:image:alt" content="{{ $resolvedOgAlt }}">
-
-    @php
-        $resolvedPrice = View::hasSection('product_price') ? trim(View::yieldContent('product_price')) : ($ogPrice ?? null);
-    @endphp
-    @if (!empty($resolvedPrice))
-        <meta property="product:price:amount" content="{{ $resolvedPrice }}">
-        <meta property="product:price:currency" content="IDR">
-    @endif
-
-    {{-- Twitter / X Metadata --}}
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="{{ $resolvedOgTitle }}">
-    <meta name="twitter:description" content="{{ $resolvedOgDesc }}">
-    <meta name="twitter:image" content="{{ $canonicalOgImage }}">
+    @include('public.partials.seo', [
+        'siteName' => $business->name,
+        'fallbackImage' => $defaultBrandImg ?: asset('assets/seo/cooca-og-default.jpg'),
+        'url' => $canonicalUrl ?? url('/' . $business->slug),
+        'title' => $pageTitle ?? ($landingPage->meta_title ?: $business->name . ' - ' . ($landingPage->headline ?: 'Toko Online Resmi')),
+        'description' => $ogDescription ?? ($landingPage->meta_description ?: ($landingPage->subheadline ?: ($business->description ?: 'Belanja aneka produk dan layanan berkualitas langsung dari ' . $business->name . ' dengan jaminan kualitas dan pengiriman terpercaya.'))),
+        'keywords' => $landingPage->meta_keywords ?? null,
+    ])
 
     @stack('seo')
 

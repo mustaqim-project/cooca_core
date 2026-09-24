@@ -4,7 +4,7 @@
     $resTitle = 'Reservasi Meja & Layanan | ' . $business->name;
     $resDesc = 'Booking meja makan, reservasi jadwal treatment atau konsultasi di ' . $business->name . ' secara praktis. Konfirmasi instan dan tanpa antre panjang.';
     $resCanonical = url('/' . $business->slug . '/reservasi');
-    $resOgImage = $landingPage->og_image_url ?: ($landingPage->hero_image_url ?: ($business->logo_url ?: asset('assets/image/cooca.png')));
+    $resOgImage = $landingPage->og_image_url ?: ($landingPage->hero_image_url ?: ($business->logo_url ?: asset('assets/seo/cooca-og-default.jpg')));
 @endphp
 
 @section('title', $resTitle)

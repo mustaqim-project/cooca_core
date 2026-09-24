@@ -5,7 +5,7 @@
     $artRawDesc = strip_tags($article->excerpt ?: ($article->content ?: 'Baca artikel selengkapnya di ' . $business->name . '. Dapatkan wawasan menarik dan informasi terpercaya.'));
     $artDesc = \Illuminate\Support\Str::limit($artRawDesc, 155);
     $artCanonical = url('/' . $business->slug . '/artikel/' . $article->slug);
-    $artOgImage = $article->cover_image ?: ($landingPage->og_image_url ?: ($landingPage->hero_image_url ?: ($business->logo_url ?: asset('assets/image/cooca.png'))));
+    $artOgImage = $article->cover_image ?: ($landingPage->og_image_url ?: ($landingPage->hero_image_url ?: ($business->logo_url ?: asset('assets/seo/cooca-og-default.jpg'))));
 @endphp
 
 @section('title', $artTitle)

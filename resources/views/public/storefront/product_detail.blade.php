@@ -5,7 +5,7 @@
     $rawDesc = strip_tags($product->description ?: 'Beli ' . $product->name . ' original harga terbaik hanya di ' . $business->name . '. Kualitas terjamin, stok kasir resmi & pengiriman cepat.');
     $pDesc = \Illuminate\Support\Str::limit($rawDesc, 155);
     $pCanonical = url('/' . $business->slug . '/produk/' . ($product->slug ?: $product->id));
-    $pOgImage = $product->image_url ?: ($landingPage->og_image_url ?: ($landingPage->hero_image_url ?: ($business->logo_url ?: asset('assets/image/cooca.png'))));
+    $pOgImage = $product->image_url ?: ($landingPage->og_image_url ?: ($landingPage->hero_image_url ?: ($business->logo_url ?: asset('assets/seo/cooca-og-default.jpg'))));
     $pPrice = (float) $product->selling_price;
 @endphp
 

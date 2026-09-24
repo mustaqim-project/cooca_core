@@ -8,18 +8,12 @@
     'business operating system, omnichannel erp indonesia, software kasir terintegrasi, aplikasi
     manajemen bisnis umkm, sistem operasional terpadu, software pos multi outlet')
 
-    @push('seo')
-        <link rel="canonical" href="{{ route('landing') }}">
-        <meta property="og:title" content="COOCA - Business Operating System & Omnichannel ERP Terpadu">
-        <meta property="og:description"
-            content="Kendalikan seluruh bisnis Anda dari satu ekosistem: kasir, inventaris gudang, keuangan, marketplace, dan otomasi WhatsApp.">
-        <meta property="og:url" content="{{ route('landing') }}">
-        <meta property="og:type" content="website">
-        <meta name="twitter:card" content="summary_large_image">
-        <meta name="twitter:title" content="COOCA - Business Operating System & Omnichannel ERP Terpadu">
-        <meta name="twitter:description"
-            content="Platform operasional bisnis terpadu untuk UMKM dan bisnis berkembang di Indonesia.">
+@section('canonical', route('landing'))
+@section('og_title', 'COOCA - Business Operating System & Omnichannel ERP Terpadu')
+@section('og_description', 'Kendalikan seluruh bisnis Anda dari satu ekosistem: kasir, inventaris gudang, keuangan, marketplace, dan otomasi WhatsApp.')
+@section('og_type', 'website')
 
+    @push('seo')
         <script type="application/ld+json">
     {
       "@@context": "https://schema.org",

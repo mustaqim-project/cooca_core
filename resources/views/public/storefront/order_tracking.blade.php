@@ -5,35 +5,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    @php
-        $trackingTitle = 'Status Pesanan #' . $order->order_number . ' - ' . $business->name;
-        $trackingDesc = 'Pantau rincian status pesanan #' . $order->order_number . ' di ' . $business->name . ' secara real-time. Informasi pembayaran, proses kemas, hingga resi pengiriman.';
-        $trackingCanonical = url("/{$business->slug}/order/{$order->tracking_token}");
-        $rawOgImg = $business->logo_url ?: asset('assets/image/cooca.png');
-        $canonicalOgImg = (str_starts_with((string)$rawOgImg, 'http://') || str_starts_with((string)$rawOgImg, 'https://')) ? $rawOgImg : url($rawOgImg);
-    @endphp
-
-    <title>{{ $trackingTitle }}</title>
-    <meta name="description" content="{{ $trackingDesc }}">
-    <link rel="canonical" href="{{ $trackingCanonical }}">
-
-    {{-- Open Graph / Social Sharing --}}
-    <meta property="og:type" content="website">
-    <meta property="og:site_name" content="{{ $business->name }}">
-    <meta property="og:locale" content="id_ID">
-    <meta property="og:url" content="{{ $trackingCanonical }}">
-    <meta property="og:title" content="{{ $trackingTitle }}">
-    <meta property="og:description" content="{{ $trackingDesc }}">
-    <meta property="og:image" content="{{ $canonicalOgImg }}">
-    <meta property="og:image:width" content="1200">
-    <meta property="og:image:height" content="630">
-    <meta property="og:image:alt" content="Status Pesanan #{{ $order->order_number }} - {{ $business->name }}">
-
-    {{-- Twitter / X Metadata --}}
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="{{ $trackingTitle }}">
-    <meta name="twitter:description" content="{{ $trackingDesc }}">
-    <meta name="twitter:image" content="{{ $canonicalOgImg }}">
+    @include('public.partials.seo', [
+        'siteName' => $business->name,
+        'title' => 'Status Pesanan #' . $order->order_number . ' - ' . $business->name,
+        'description' => 'Pantau rincian status pesanan #' . $order->order_number . ' di ' . $business->name . ' secara real-time. Informasi pembayaran, proses kemas, hingga resi pengiriman.',
+        'url' => url("/{$business->slug}/order/{$order->tracking_token}"),
+        'image' => $business->logo_url ?: asset('assets/seo/cooca-og-default.jpg'),
+        'imageAlt' => 'Status Pesanan #' . $order->order_number . ' - ' . $business->name,
+        'robots' => 'noindex, follow',
+    ])
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
