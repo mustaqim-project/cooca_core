@@ -77,50 +77,47 @@
 @section('content')
     <div class="bg-white dark:bg-[#070A14] text-slate-900 dark:text-white transition-colors duration-300">
 
-        {{-- 1. HERO SECTION (Type A Full Viewport) --}}
+        {{-- 1. HERO SECTION (Apple Bento Modern Dark Style without Breadcrumb) --}}
         <section
-            class="relative bg-[#060B1E] text-white lg:min-h-[calc(100svh-84px)] lg:flex lg:items-center py-12 lg:py-16 overflow-hidden border-b border-white/10 w-full min-w-full">
+            class="relative w-full min-w-full bg-[#060B1E] text-white overflow-hidden border-b border-white/10 min-h-[calc(100svh-4rem)] lg:min-h-[calc(100svh-84px)] flex items-center">
             {{-- Ambient Glows --}}
-            <div class="absolute top-0 right-1/4 w-96 h-96 bg-[#007AFF]/15 rounded-full blur-[140px] pointer-events-none">
+            <div
+                class="absolute -top-32 right-1/4 w-[500px] h-[500px] bg-[#007AFF]/15 rounded-full blur-[140px] pointer-events-none -z-0">
             </div>
-            <div class="absolute bottom-0 left-10 w-80 h-80 bg-[#00C4D8]/10 rounded-full blur-[120px] pointer-events-none">
+            <div
+                class="absolute bottom-0 left-1/4 w-[450px] h-[450px] bg-[#00C4D8]/10 rounded-full blur-[130px] pointer-events-none -z-0">
             </div>
 
-            <div class="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
-                {{-- Breadcrumb --}}
-                <nav class="pb-6" aria-label="Breadcrumb">
-                    <ol class="flex items-center gap-2 text-xs text-slate-400">
-                        <li><a href="{{ route('landing') }}" class="hover:text-white transition-colors">Home</a></li>
-                        <li><i data-lucide="chevron-right" class="w-3 h-3 text-slate-500"></i></li>
-                        <li><span class="text-slate-400">Content Automation</span></li>
-                        <li><i data-lucide="chevron-right" class="w-3 h-3 text-slate-500"></i></li>
-                        <li class="text-slate-200 font-semibold" aria-current="page">Publikasi Multi-Kanal Otomatis</li>
-                    </ol>
-                </nav>
-
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
-                    {{-- Left Column: Copy & Value Proposition (Mobile Center, Desktop Left ~ 5 Cols) --}}
-                    <div class="lg:col-span-5 space-y-6 text-center mx-auto flex flex-col items-center lg:text-left lg:items-start lg:mx-0">
+            <div
+                class="max-w-[1300px] mx-auto px-3.5 sm:px-6 lg:px-8 relative z-10 w-full pt-6 pb-[calc(5rem+env(safe-area-inset-bottom,0px))] sm:pt-10 sm:pb-20 lg:py-14">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center w-full">
+                    {{-- Left Column: Copy & Value Proposition --}}
+                    <div class="lg:col-span-6 space-y-6 text-left flex flex-col items-start w-full">
                         <div class="space-y-3 w-full">
-                            <!-- Pure Typographic Overline Kicker (Zero Pill Abuse) -->
-                            <p class="text-xs sm:text-[13px] font-bold uppercase tracking-wider text-[#00C4D8]">
-                                Cloud Publishing Queue &amp; Multi-Platform Dispatch
-                            </p>
+                            <div
+                                class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.06] border border-white/10 text-xs sm:text-[13px] font-semibold text-[#00C4D8] backdrop-blur-md mb-2">
+                                <span class="w-2 h-2 rounded-full bg-[#00C4D8] animate-pulse"></span>
+                                <span>Cloud Dispatch &amp; Auto-Posting Engine</span>
+                            </div>
 
                             <h1
-                                class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.65rem] xl:text-[3rem] font-extrabold tracking-tight text-white leading-[1.15] text-balance break-words max-w-[22rem] sm:max-w-xl lg:max-w-none mx-auto lg:mx-0">
-                                Tayangkan Konten Promosi Tepat Waktu <span class="text-[#00C4D8]">Tanpa Perlu Unggah Manual</span>
+                                class="text-2.5xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-[2.65rem] xl:text-[3rem] font-black tracking-tight text-white leading-[1.15] text-balance break-words text-left">
+                                Tayangkan Konten Promosi Tepat Waktu <span
+                                    class="bg-gradient-to-r from-[#00C4D8] via-[#60A5FA] to-[#007AFF] bg-clip-text text-transparent">Tanpa
+                                    Perlu Unggah Manual</span>
                             </h1>
                         </div>
 
-                        <p class="text-base sm:text-lg text-slate-300 leading-relaxed font-normal text-pretty max-w-[32rem] lg:max-w-xl mx-auto lg:mx-0">
+                        <p
+                            class="text-sm sm:text-base lg:text-lg text-slate-300 leading-relaxed font-normal text-pretty text-left max-w-xl">
                             Lupakan alarm pengingat jam posting yang mengganggu aktivitas Anda. Mesin publikasi berbasis
-                            cloud COOCA mengeksekusi penayangan teks, foto, dan video promosi ke Instagram dan Facebook
-                            secara otomatis dan presisi sesuai menit yang telah Anda jadwalkan.
+                            cloud COOCA mengeksekusi penayangan materi promosi ke Instagram dan Facebook
+                            secara otomatis, presisi, dan aman sesuai jadwal yang telah ditentukan.
                         </p>
 
-                        {{-- Action CTAs (Centered on Mobile, Row on Desktop) --}}
-                        <div class="flex flex-col sm:flex-row items-stretch sm:items-center sm:justify-center lg:justify-start gap-3.5 pt-2 w-full sm:w-auto">
+                        {{-- Action CTAs --}}
+                        <div
+                            class="flex flex-col sm:flex-row items-stretch sm:items-center justify-start gap-3.5 pt-2 w-full sm:w-auto">
                             <a href="{{ route('public.demo') }}"
                                 class="inline-flex justify-center items-center gap-2 px-6 py-3.5 rounded-xl bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-sm shadow-lg shadow-[#007AFF]/25 transition-all duration-200 min-h-[48px]">
                                 <span>Coba Modul Publikasi</span>
@@ -132,27 +129,41 @@
                             </a>
                         </div>
 
-                        {{-- Key Trust Specs (Centered on Mobile) --}}
-                        <div class="pt-4 border-t border-white/10 grid grid-cols-2 sm:grid-cols-3 gap-3.5 sm:gap-4 text-center sm:text-left w-full">
-                            <div class="min-w-0">
-                                <div class="text-xs text-slate-400 font-medium truncate">Metode Publikasi</div>
-                                <div class="text-sm font-bold text-white mt-0.5 truncate">Cloud Auto-Post</div>
+                        {{-- Key Trust Checklist Badges --}}
+                        <div
+                            class="flex flex-wrap items-center gap-x-6 gap-y-2.5 pt-4 border-t border-white/10 text-xs sm:text-sm text-slate-300 font-medium w-full">
+                            <div class="flex items-center gap-2">
+                                <div
+                                    class="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+                                    <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                                </div>
+                                <span>Cloud Auto-Post 24/7</span>
                             </div>
-                            <div class="min-w-0">
-                                <div class="text-xs text-slate-400 font-medium truncate">Keandalan API</div>
-                                <div class="text-sm font-bold text-white mt-0.5 truncate">Meta API Resmi</div>
+                            <div class="flex items-center gap-2">
+                                <div
+                                    class="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+                                    <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                                </div>
+                                <span>Meta API Resmi (IG &amp; FB)</span>
                             </div>
-                            <div class="min-w-0 col-span-2 sm:col-span-1">
-                                <div class="text-xs text-slate-400 font-medium truncate">Penanganan Error</div>
-                                <div class="text-sm font-bold text-white mt-0.5 truncate">Auto-Retry Cerdas</div>
+                            <div class="flex items-center gap-2">
+                                <div
+                                    class="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+                                    <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                                </div>
+                                <span>Auto-Retry Cerdas</span>
                             </div>
                         </div>
                     </div>
 
-                    {{-- Right Column: Simulated Live Publishing Engine Feed UI (7 Cols ~ 58%) --}}
-                    <div class="lg:col-span-7">
+                    {{-- Right Column: Simulated Live Publishing Engine Feed UI --}}
+                    <div class="lg:col-span-6 relative w-full mt-4 lg:mt-0">
                         <div
-                            class="relative rounded-2xl bg-[#0E1E45]/80 p-4 sm:p-5 shadow-2xl border border-white/10 ring-1 ring-white/10 backdrop-blur-md text-white">
+                            class="relative rounded-2xl sm:rounded-3xl bg-gradient-to-b from-[#0E1E45]/90 to-[#0A122C]/90 p-4 sm:p-6 shadow-2xl border border-white/15 ring-1 ring-white/10 backdrop-blur-xl text-white overflow-hidden">
+                            {{-- Spotlight Decoration --}}
+                            <div
+                                class="absolute -top-24 -right-24 w-48 h-48 bg-[#007AFF]/25 rounded-full blur-3xl pointer-events-none">
+                            </div>
 
                             {{-- Header Engine Status --}}
                             <div class="flex items-center justify-between gap-2 pb-3 border-b border-white/10 text-xs">
@@ -162,26 +173,25 @@
                                     </span>
                                     <div class="min-w-0">
                                         <div class="font-bold text-white truncate">Mesin Antrean Publikasi Aktif</div>
-                                        <div class="text-[10px] text-slate-400 truncate">Instagram Business & Facebook Page</div>
+                                        <div class="text-[10px] text-slate-400 truncate">Instagram Business &amp; Facebook Page</div>
                                     </div>
                                 </div>
                                 <span
-                                    class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-[10px] font-mono font-bold shrink-0">Engine: Siaga 24/7</span>
+                                    class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-[10px] font-mono font-bold shrink-0">Siaga 24/7</span>
                             </div>
 
                             {{-- Live Queue Dispatch Items --}}
-                            <div class="space-y-2 my-3 text-xs text-left">
-
+                            <div class="space-y-2.5 my-3.5 text-xs text-left">
                                 {{-- Post 1: Success Live --}}
                                 <div
-                                    class="p-2.5 rounded-xl bg-[#060B1E]/90 border border-white/10 flex items-center justify-between gap-2.5">
+                                    class="p-3 rounded-xl bg-[#060B1E]/90 border border-white/10 flex items-center justify-between gap-2.5 hover:border-white/20 transition-all">
                                     <div class="flex items-center gap-2.5 min-w-0 flex-1">
                                         <div
                                             class="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0">
                                             <i data-lucide="check" class="w-4 h-4"></i>
                                         </div>
                                         <div class="min-w-0">
-                                            <div class="font-medium text-white text-[11px] truncate">Promo Kopi Susu Aren Pagi (Feed IG + FB)</div>
+                                            <div class="font-semibold text-white text-[12px] truncate">Promo Kopi Susu Aren Pagi (IG + FB)</div>
                                             <div class="text-[10px] text-slate-400 truncate">Tayang: 08:30 WIB • Sukses via API</div>
                                         </div>
                                     </div>
@@ -191,14 +201,14 @@
 
                                 {{-- Post 2: In Queue Today --}}
                                 <div
-                                    class="p-2.5 rounded-xl bg-[#060B1E]/95 border border-[#007AFF]/50 ring-1 ring-[#007AFF]/30 flex items-center justify-between gap-2.5">
+                                    class="p-3 rounded-xl bg-[#060B1E]/95 border border-[#007AFF]/50 ring-1 ring-[#007AFF]/30 flex items-center justify-between gap-2.5">
                                     <div class="flex items-center gap-2.5 min-w-0 flex-1">
                                         <div
                                             class="w-8 h-8 rounded-lg bg-[#007AFF]/20 border border-[#007AFF]/30 flex items-center justify-center text-[#00C4D8] shrink-0">
                                             <i data-lucide="clock" class="w-4 h-4 animate-spin"></i>
                                         </div>
                                         <div class="min-w-0">
-                                            <div class="font-medium text-white text-[11px] truncate">Croissant Butter Beli 2 Gratis 1 (Feed)</div>
+                                            <div class="font-semibold text-white text-[12px] truncate">Croissant Butter Beli 2 Gratis 1 (Feed)</div>
                                             <div class="text-[10px] text-[#00C4D8] font-mono truncate">Jadwal: 15:30 WIB Hari Ini • Terkunci</div>
                                         </div>
                                     </div>
@@ -208,33 +218,32 @@
 
                                 {{-- Post 3: Scheduled Future --}}
                                 <div
-                                    class="p-2.5 rounded-xl bg-[#060B1E]/90 border border-white/10 flex items-center justify-between gap-2.5">
+                                    class="p-3 rounded-xl bg-[#060B1E]/90 border border-white/10 flex items-center justify-between gap-2.5 hover:border-white/20 transition-all">
                                     <div class="flex items-center gap-2.5 min-w-0 flex-1">
                                         <div
                                             class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center text-slate-400 shrink-0">
                                             <i data-lucide="calendar" class="w-4 h-4"></i>
                                         </div>
                                         <div class="min-w-0">
-                                            <div class="font-medium text-slate-300 text-[11px] truncate">Voucher Payday Spesial (Member WA)</div>
+                                            <div class="font-medium text-slate-300 text-[12px] truncate">Voucher Payday Spesial (Member WA)</div>
                                             <div class="text-[10px] text-slate-400 truncate">Jadwal: Jumat, 25 Sep • 19:00 WIB</div>
                                         </div>
                                     </div>
                                     <span
                                         class="px-2 py-0.5 rounded bg-white/10 text-slate-400 text-[10px] font-mono shrink-0">Terjadwal</span>
                                 </div>
-
                             </div>
 
                             {{-- Technical Resilience Footer --}}
                             <div
-                                class="pt-2 border-t border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[11px] text-slate-400">
+                                class="pt-3 border-t border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[11px] text-slate-400">
                                 <span class="flex items-center gap-1.5 min-w-0">
                                     <i data-lucide="shield-check" class="w-3.5 h-3.5 text-[#00C4D8] shrink-0"></i>
                                     <span class="truncate">Koneksi Resmi Token Meta Graph API: Aman</span>
                                 </span>
-                                <a href="{{ route('public.demo') }}" class="text-[#00C4D8] hover:underline font-medium shrink-0">Buka Log Dispatch →</a>
+                                <a href="{{ route('public.demo') }}"
+                                    class="text-[#00C4D8] hover:underline font-medium shrink-0">Buka Log Dispatch →</a>
                             </div>
-
                         </div>
                     </div>
                 </div>

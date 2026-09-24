@@ -340,10 +340,12 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
             Route::get('/tax', [TaxWebController::class, 'index'])->name('tax.index');
             Route::post('/tax/simulate-pph21', [TaxWebController::class, 'simulatePPh21'])->name('tax.simulate.pph21');
             Route::post('/tax/simulate-umkm', [TaxWebController::class, 'simulateUmkm'])->name('tax.simulate.umkm');
+            Route::post('/tax/simulate-net-income', [TaxWebController::class, 'simulateNetIncome'])->name('tax.simulate.net_income');
             Route::post('/tax/simulate-sales', [TaxWebController::class, 'simulateSales'])->name('tax.simulate.sales');
             Route::post('/tax/simulate-payroll', [TaxWebController::class, 'simulatePayroll'])->name('tax.simulate.payroll');
             Route::get('/tax/export-ebupot', [TaxWebController::class, 'exportEbupot'])->middleware('entitlement:export')->name('tax.export.ebupot');
             Route::get('/tax/export-pph-final', [TaxWebController::class, 'exportPPhFinal'])->middleware('entitlement:export')->name('tax.export.pph_final');
+            Route::get('/tax/export-net-income', [TaxWebController::class, 'exportNetIncomeTax'])->middleware('entitlement:export')->name('tax.export.net_income');
         });
 
         // Business Settings (Profil Usaha, POS & Template Industri)

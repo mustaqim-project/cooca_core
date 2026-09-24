@@ -77,174 +77,183 @@
 @section('content')
     <div class="bg-white dark:bg-[#070A14] text-slate-900 dark:text-white transition-colors duration-300">
 
-        {{-- 1. HERO SECTION (Type A Full Viewport) --}}
+        {{-- 1. HERO SECTION (Adopted from landing.blade.php concept - Full Viewport) --}}
         <section
-            class="relative bg-[#060B1E] text-white lg:min-h-[calc(100svh-84px)] lg:flex lg:items-center py-12 lg:py-16 overflow-hidden border-b border-white/10 w-full min-w-full">
-            {{-- Ambient Glows --}}
-            <div class="absolute top-0 right-1/4 w-96 h-96 bg-[#007AFF]/15 rounded-full blur-[140px] pointer-events-none">
+            class="relative w-full min-w-full bg-[#060B1E] text-white overflow-hidden border-b border-white/10 min-h-[calc(100svh-4rem)] lg:min-h-[calc(100svh-84px)] flex items-center">
+            {{-- Subtle Ambient Background Glows (Pure CSS) --}}
+            <div
+                class="absolute -top-32 right-1/4 w-[500px] h-[500px] bg-[#007AFF]/15 rounded-full blur-[140px] pointer-events-none -z-0">
             </div>
-            <div class="absolute bottom-0 left-10 w-80 h-80 bg-[#00C4D8]/10 rounded-full blur-[120px] pointer-events-none">
+            <div
+                class="absolute bottom-0 left-1/4 w-[450px] h-[450px] bg-[#00C4D8]/10 rounded-full blur-[130px] pointer-events-none -z-0">
             </div>
 
-            <div class="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
-                {{-- Breadcrumb --}}
-                <nav class="pb-6" aria-label="Breadcrumb">
-                    <ol class="flex items-center gap-2 text-xs text-slate-400">
-                        <li><a href="{{ route('landing') }}" class="hover:text-white transition-colors">Home</a></li>
-                        <li><i data-lucide="chevron-right" class="w-3 h-3 text-slate-500"></i></li>
-                        <li><span class="text-slate-400">Content Automation</span></li>
-                        <li><i data-lucide="chevron-right" class="w-3 h-3 text-slate-500"></i></li>
-                        <li class="text-slate-200 font-semibold" aria-current="page">Analitik Konten & Performa</li>
-                    </ol>
-                </nav>
-
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
-                    {{-- Left Column: Copy & Value Proposition (Mobile Center, Desktop Left ~ 5 Cols) --}}
-                    <div class="lg:col-span-5 space-y-6 text-center mx-auto flex flex-col items-center lg:text-left lg:items-start lg:mx-0">
-                        <div class="space-y-3 w-full">
-                            <!-- Pure Typographic Overline Kicker (Zero Pill Abuse) -->
-                            <p class="text-xs sm:text-[13px] font-bold uppercase tracking-wider text-[#00C4D8]">
+            <!-- Container Konten Hero -->
+            <div
+                class="max-w-[1300px] mx-auto px-3.5 sm:px-6 lg:px-8 relative z-10 w-full pt-6 pb-[calc(5rem+env(safe-area-inset-bottom,0px))] sm:pt-10 sm:pb-20 lg:py-14">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-12 items-center w-full">
+                    
+                    {{-- KIRI: Eyebrow, Headline, Subtitle, CTAs & Value Proof --}}
+                    <div
+                        class="lg:col-span-5 space-y-5 sm:space-y-6 text-left flex flex-col items-start w-full">
+                        
+                        <!-- Pure Typographic Overline Kicker with Pulse Dot -->
+                        <div class="flex items-center gap-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-[#00C4D8] animate-pulse"></span>
+                            <p class="text-xs sm:text-sm lg:text-[14px] font-bold uppercase tracking-wider text-[#00C4D8]">
                                 Content Performance &amp; Conversion Intelligence
                             </p>
+                        </div>
 
+                        <!-- Main Headline with Gradient Glow Accent -->
+                        <div class="w-full">
                             <h1
-                                class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.65rem] xl:text-[3rem] font-extrabold tracking-tight text-white leading-[1.15] text-balance break-words max-w-[22rem] sm:max-w-xl lg:max-w-none mx-auto lg:mx-0">
-                                Ketahui Konten Mana yang Benar-Benar <span class="text-[#00C4D8]">Menghasilkan Penjualan</span>
+                                class="text-2xl xs:text-3xl sm:text-5xl md:text-6xl lg:text-[2.65rem] xl:text-[3.25rem] font-extrabold text-white tracking-tight leading-[1.25] sm:leading-[1.18] text-balance break-words">
+                                Ketahui Konten Mana yang Benar-Benar <span
+                                    class="bg-gradient-to-r from-[#00C4D8] via-[#60A5FA] to-[#007AFF] bg-clip-text text-transparent">Menghasilkan Penjualan.</span>
                             </h1>
                         </div>
 
-                        <p class="text-base sm:text-lg text-slate-300 leading-relaxed font-normal text-pretty max-w-[32rem] lg:max-w-xl mx-auto lg:mx-0">
+                        <!-- Subtitle Copy -->
+                        <p
+                            class="text-sm sm:text-lg text-slate-300 leading-relaxed font-normal text-pretty max-w-xl">
                             Jumlah likes dan komentar tidak ada artinya jika tidak berujung pada pembelian. COOCA
                             memperlihatkan metrik performa media sosial yang terhubung langsung dengan klik katalog produk
                             dan transaksi kasir toko Anda.
                         </p>
 
-                        {{-- Action CTAs (Centered on Mobile, Row on Desktop) --}}
-                        <div class="flex flex-col sm:flex-row items-stretch sm:items-center sm:justify-center lg:justify-start gap-3.5 pt-2 w-full sm:w-auto">
+                        {{-- Action Buttons --}}
+                        <div class="pt-1 flex flex-row flex-wrap items-center justify-start gap-2 sm:gap-3.5 w-full sm:w-auto">
                             <a href="{{ route('public.demo') }}"
-                                class="inline-flex justify-center items-center gap-2 px-6 py-3.5 rounded-xl bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-sm shadow-lg shadow-[#007AFF]/25 transition-all duration-200 min-h-[48px]">
-                                <span>Coba Demo Analitik Konten</span>
-                                <i data-lucide="arrow-right" class="w-4 h-4 shrink-0"></i>
+                                class="h-10 sm:h-12 px-5 sm:px-8 rounded-[12px] sm:rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-xs sm:text-base flex items-center justify-center gap-1.5 sm:gap-2 shadow-[0_4px_20px_rgba(0,122,255,0.45)] hover:shadow-[0_6px_25px_rgba(0,122,255,0.6)] active:scale-[0.98] transition-all min-h-[40px] sm:min-h-[48px] shrink-0 border border-white/20">
+                                <span>Coba Demo Analitik</span>
+                                <i data-lucide="arrow-right" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
                             </a>
                             <a href="{{ route('public.content.creation') }}"
-                                class="inline-flex justify-center items-center gap-2 px-6 py-3.5 rounded-xl bg-white/10 hover:bg-white/15 text-white font-semibold text-sm border border-white/15 backdrop-blur-sm transition-all min-h-[48px]">
+                                class="h-10 sm:h-12 px-4 sm:px-6 rounded-[12px] sm:rounded-[14px] bg-white/10 hover:bg-white/15 text-white font-semibold text-xs sm:text-sm flex items-center justify-center gap-1.5 sm:gap-2 border border-white/15 backdrop-blur-sm transition-all min-h-[40px] sm:min-h-[48px]">
                                 <span>Buat Konten Baru</span>
                             </a>
                         </div>
 
-                        {{-- Key Trust Specs (Centered on Mobile) --}}
-                        <div class="pt-4 border-t border-white/10 grid grid-cols-2 sm:grid-cols-3 gap-3.5 sm:gap-4 text-center sm:text-left w-full">
-                            <div class="min-w-0">
-                                <div class="text-xs text-slate-400 font-medium truncate">Metrik Utama</div>
-                                <div class="text-sm font-bold text-white mt-0.5 truncate">Reach & Klik Order</div>
+                        {{-- Key Trust Checkpoints --}}
+                        <div
+                            class="pt-1 flex flex-wrap items-center justify-start gap-x-4 gap-y-1.5 text-[11px] sm:text-xs text-slate-300">
+                            <div class="flex items-center gap-1.5">
+                                <i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i>
+                                <span>Reach &amp; Klik Order Riil</span>
                             </div>
-                            <div class="min-w-0">
-                                <div class="text-xs text-slate-400 font-medium truncate">Korelasi Penjualan</div>
-                                <div class="text-sm font-bold text-white mt-0.5 truncate">Terkait Omzet POS</div>
+                            <div class="flex items-center gap-1.5">
+                                <i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i>
+                                <span>Terkait Omzet Kasir POS</span>
                             </div>
-                            <div class="min-w-0 col-span-2 sm:col-span-1">
-                                <div class="text-xs text-slate-400 font-medium truncate">Waktu Optimal</div>
-                                <div class="text-sm font-bold text-white mt-0.5 truncate">Rekomendasi Jam Tayang</div>
+                            <div class="flex items-center gap-1.5">
+                                <i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i>
+                                <span>Rekomendasi Jam Tayang</span>
                             </div>
                         </div>
                     </div>
 
-                    {{-- Right Column: Simulated Live Content Performance Dashboard UI (7 Cols ~ 58%) --}}
-                    <div class="lg:col-span-7">
+                    {{-- KANAN: Simulated Live Content Performance Dashboard Bento Glass UI --}}
+                    <div class="lg:col-span-7 relative w-full">
+                        <!-- Ambient Spotlight Glow -->
                         <div
-                            class="relative rounded-2xl bg-[#0E1E45]/80 p-4 sm:p-5 shadow-2xl border border-white/10 ring-1 ring-white/10 backdrop-blur-md text-white">
+                            class="absolute -inset-2 sm:-inset-4 bg-gradient-to-tr from-[#007AFF]/25 via-[#00C4D8]/15 to-transparent rounded-[32px] blur-2xl pointer-events-none -z-10">
+                        </div>
+
+                        <div
+                            class="relative rounded-2xl sm:rounded-3xl bg-[#0E1E45]/85 p-4 sm:p-6 shadow-2xl border border-white/15 ring-1 ring-white/10 backdrop-blur-xl text-white">
 
                             {{-- Dashboard Header --}}
-                            <div class="flex items-center justify-between gap-2 pb-3 border-b border-white/10 text-xs">
-                                <div class="flex items-center gap-2 min-w-0 flex-1">
-                                    <span class="p-1.5 rounded-lg bg-[#007AFF]/20 text-[#00C4D8] shrink-0">
+                            <div class="flex items-center justify-between gap-2 pb-3.5 border-b border-white/10 text-xs">
+                                <div class="flex items-center gap-2.5 min-w-0 flex-1">
+                                    <span class="p-2 rounded-xl bg-[#007AFF]/20 text-[#00C4D8] shrink-0">
                                         <i data-lucide="trending-up" class="w-4 h-4"></i>
                                     </span>
                                     <div class="min-w-0">
-                                        <div class="font-bold text-white truncate">Performa Konten Pemasaran</div>
-                                        <div class="text-[10px] text-slate-400 truncate">30 Hari Terakhir • Seluruh Kanal</div>
+                                        <div class="font-bold text-white text-sm truncate">Performa Konten Pemasaran</div>
+                                        <div class="text-[11px] text-slate-400 truncate">30 Hari Terakhir • Seluruh Kanal Aktif</div>
                                     </div>
                                 </div>
                                 <span
-                                    class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-[10px] font-mono font-bold shrink-0">+24.8% Klik</span>
+                                    class="px-2.5 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 text-[11px] font-mono font-bold shrink-0">+24.8% Klik Order</span>
                             </div>
 
                             {{-- 4 Metric Tiles --}}
-                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 my-3">
-                                <div class="p-2.5 rounded-xl bg-[#060B1E]/90 border border-white/10 min-w-0">
-                                    <div class="text-[10px] text-slate-400 truncate">Total Reach</div>
-                                    <div class="text-xs sm:text-sm font-bold text-white font-mono mt-0.5 truncate">184.2k</div>
-                                    <div class="text-[9px] text-emerald-400 mt-1 truncate">↑ 32% Akun</div>
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 my-3.5">
+                                <div class="p-3 rounded-2xl bg-[#060B1E]/90 border border-white/10 min-w-0">
+                                    <div class="text-[10px] sm:text-[11px] text-slate-400 truncate">Total Reach</div>
+                                    <div class="text-xs sm:text-base font-bold text-white font-mono mt-0.5 truncate">184.2k</div>
+                                    <div class="text-[10px] text-emerald-400 mt-1 truncate">↑ 32% Akun</div>
                                 </div>
-                                <div class="p-2.5 rounded-xl bg-[#060B1E]/90 border border-white/10 min-w-0">
-                                    <div class="text-[10px] text-slate-400 truncate">Engagement</div>
-                                    <div class="text-xs sm:text-sm font-bold text-pink-400 font-mono mt-0.5 truncate">4.6%</div>
-                                    <div class="text-[9px] text-slate-400 mt-1 truncate">Interaksi Sehat</div>
+                                <div class="p-3 rounded-2xl bg-[#060B1E]/90 border border-white/10 min-w-0">
+                                    <div class="text-[10px] sm:text-[11px] text-slate-400 truncate">Engagement</div>
+                                    <div class="text-xs sm:text-base font-bold text-pink-400 font-mono mt-0.5 truncate">4.6%</div>
+                                    <div class="text-[10px] text-slate-400 mt-1 truncate">Interaksi Sehat</div>
                                 </div>
-                                <div class="p-2.5 rounded-xl bg-[#060B1E]/90 border border-white/10 min-w-0">
-                                    <div class="text-[10px] text-slate-400 truncate">Klik Link</div>
-                                    <div class="text-xs sm:text-sm font-bold text-[#00C4D8] font-mono mt-0.5 truncate">1.420</div>
-                                    <div class="text-[9px] text-slate-400 mt-1 truncate">Ke Katalog</div>
+                                <div class="p-3 rounded-2xl bg-[#060B1E]/90 border border-white/10 min-w-0">
+                                    <div class="text-[10px] sm:text-[11px] text-slate-400 truncate">Klik Link</div>
+                                    <div class="text-xs sm:text-base font-bold text-[#00C4D8] font-mono mt-0.5 truncate">1.420</div>
+                                    <div class="text-[10px] text-slate-400 mt-1 truncate">Ke Katalog</div>
                                 </div>
-                                <div class="p-2.5 rounded-xl bg-[#060B1E]/90 border border-white/10 min-w-0">
-                                    <div class="text-[10px] text-slate-400 truncate">Konversi POS</div>
-                                    <div class="text-xs sm:text-sm font-bold text-emerald-400 font-mono mt-0.5 truncate">Rp 42.8M</div>
-                                    <div class="text-[9px] text-slate-400 mt-1 truncate">124 Transaksi</div>
+                                <div class="p-3 rounded-2xl bg-[#060B1E]/90 border border-white/10 min-w-0">
+                                    <div class="text-[10px] sm:text-[11px] text-slate-400 truncate">Konversi POS</div>
+                                    <div class="text-xs sm:text-base font-bold text-emerald-400 font-mono mt-0.5 truncate">Rp 42.8M</div>
+                                    <div class="text-[10px] text-slate-400 mt-1 truncate">124 Transaksi</div>
                                 </div>
                             </div>
 
                             {{-- Top Performing Posts List --}}
-                            <div class="space-y-1.5 text-xs text-left">
-                                <div class="text-[10px] uppercase font-mono text-slate-400 px-1">Konten Penghasil Penjualan Tertinggi:</div>
+                            <div class="space-y-2 text-xs text-left">
+                                <div class="text-[10.5px] uppercase font-mono tracking-wider text-slate-400 px-1">Konten Penghasil Penjualan Tertinggi:</div>
 
                                 {{-- Item 1 --}}
                                 <div
-                                    class="p-2.5 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between gap-2">
-                                    <div class="flex items-center gap-2 min-w-0 flex-1">
-                                        <span class="p-1 rounded bg-[#007AFF]/20 text-[#00C4D8] shrink-0">
-                                            <i data-lucide="video" class="w-3.5 h-3.5"></i>
+                                    class="p-3 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between gap-2.5">
+                                    <div class="flex items-center gap-2.5 min-w-0 flex-1">
+                                        <span class="p-1.5 rounded-xl bg-[#007AFF]/20 text-[#00C4D8] shrink-0">
+                                            <i data-lucide="video" class="w-4 h-4"></i>
                                         </span>
                                         <div class="min-w-0">
-                                            <div class="font-medium text-white text-[11px] truncate">Reels: Resep Kopi Susu Aren</div>
-                                            <div class="text-[10px] text-slate-400 truncate">42.8k Tayang • 38 Beli di POS</div>
+                                            <div class="font-medium text-white text-[12px] truncate">Reels: Resep Kopi Susu Aren</div>
+                                            <div class="text-[10.5px] text-slate-400 truncate">42.8k Tayang • 38 Beli di Kasir POS</div>
                                         </div>
                                     </div>
                                     <div class="text-right shrink-0">
-                                        <div class="font-bold text-emerald-400 font-mono text-[11px]">Rp 18.2M</div>
-                                        <div class="text-[9px] text-slate-400">ROI Tertinggi</div>
+                                        <div class="font-bold text-emerald-400 font-mono text-[12px]">Rp 18.2M</div>
+                                        <div class="text-[10px] text-slate-400">ROI Tertinggi</div>
                                     </div>
                                 </div>
 
                                 {{-- Item 2 --}}
                                 <div
-                                    class="p-2.5 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between gap-2">
-                                    <div class="flex items-center gap-2 min-w-0 flex-1">
-                                        <span class="p-1 rounded bg-blue-500/20 text-blue-400 shrink-0">
-                                            <i data-lucide="image" class="w-3.5 h-3.5"></i>
+                                    class="p-3 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between gap-2.5">
+                                    <div class="flex items-center gap-2.5 min-w-0 flex-1">
+                                        <span class="p-1.5 rounded-xl bg-blue-500/20 text-blue-400 shrink-0">
+                                            <i data-lucide="image" class="w-4 h-4"></i>
                                         </span>
                                         <div class="min-w-0">
-                                            <div class="font-medium text-white text-[11px] truncate">Feed: Promo Beli 2 Croissant</div>
-                                            <div class="text-[10px] text-slate-400 truncate">28.1k Jangkauan • 52 Kupon Kasir</div>
+                                            <div class="font-medium text-white text-[12px] truncate">Feed: Promo Beli 2 Croissant</div>
+                                            <div class="text-[10.5px] text-slate-400 truncate">28.1k Jangkauan • 52 Kupon Kasir</div>
                                         </div>
                                     </div>
                                     <div class="text-right shrink-0">
-                                        <div class="font-bold text-emerald-400 font-mono text-[11px]">Rp 15.6M</div>
-                                        <div class="text-[9px] text-slate-400">Kupon Kasir</div>
+                                        <div class="font-bold text-emerald-400 font-mono text-[12px]">Rp 15.6M</div>
+                                        <div class="text-[10px] text-slate-400">Kupon Kasir</div>
                                     </div>
                                 </div>
                             </div>
 
                             {{-- Best Time to Post Insight --}}
                             <div
-                                class="mt-3 p-2.5 rounded-xl bg-[#007AFF]/15 border border-[#007AFF]/30 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+                                class="mt-3.5 p-3 rounded-2xl bg-[#007AFF]/15 border border-[#007AFF]/30 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
                                 <div class="flex items-center gap-2 min-w-0 flex-1">
                                     <i data-lucide="clock" class="w-4 h-4 text-[#00C4D8] shrink-0"></i>
                                     <div class="min-w-0">
-                                        <span class="text-white font-medium text-[11px] block truncate">Waktu Tayang Paling Menghasilkan:</span>
-                                        <span class="text-slate-300 text-[10px] block truncate">Rabu & Jumat jam 15:00 - 17:00 WIB</span>
+                                        <span class="text-white font-medium text-[11.5px] block truncate">Waktu Tayang Paling Menghasilkan:</span>
+                                        <span class="text-slate-300 text-[10.5px] block truncate">Rabu &amp; Jumat jam 15:00 - 17:00 WIB</span>
                                     </div>
                                 </div>
-                                <span class="text-[#00C4D8] text-[10px] font-mono shrink-0">Berdasarkan Data Toko</span>
+                                <span class="text-[#00C4D8] text-[10.5px] font-mono shrink-0">Berdasarkan Data Toko</span>
                             </div>
 
                         </div>
