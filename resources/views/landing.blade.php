@@ -199,7 +199,15 @@
                                     }
                                 }, 6500);
                             },
-                              <!-- Mobile Live Dynamic Island Metric Strip (Clean, non-colliding, zero overlap) -->
+                            setSlide(n) {
+                                this.activeSlide = n;
+                                this.autoSlide = false;
+                            }
+                        }"
+                        @mouseenter="autoSlide = false"
+                        @mouseleave="autoSlide = true">
+
+                        <!-- Mobile Live Dynamic Island Metric Strip (Clean, non-colliding, zero overlap) -->
                         <div class="flex sm:hidden items-center justify-between gap-2 mb-2 w-full">
                             <!-- Mobile Left Live Badge -->
                             <div x-show="activeSlide === 1"
