@@ -78,7 +78,7 @@
         <!-- ═══ 1. HERO SECTION (Executive Dashboard & UMKM OS - Full Viewport) ══════ -->
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
         <section
-            class="relative w-full min-w-full bg-[#060B1E] text-white overflow-hidden border-b border-white/10 lg:min-h-[calc(100svh-84px)] lg:flex lg:items-center">
+            class="relative w-full min-w-full bg-[#060B1E] text-white overflow-hidden border-b border-white/10 min-h-[calc(100svh-4rem)] lg:min-h-[calc(100svh-84px)] flex items-center">
 
             <!-- Subtle Ambient Background Glows (Pure CSS, No Heavy Images) -->
             <div
@@ -88,95 +88,99 @@
                 class="absolute bottom-0 left-1/4 w-[450px] h-[450px] bg-[#00C4D8]/10 rounded-full blur-[130px] pointer-events-none -z-0">
             </div>
 
-            <!-- Container Konten Hero -->
-            <div class="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full py-10 sm:py-12 lg:py-14">
+            <!-- Container Konten Hero (Safe from Fixed Bottom Nav on Mobile) -->
+            <div
+                class="max-w-[1300px] mx-auto px-3.5 sm:px-6 lg:px-8 relative z-10 w-full pt-3 pb-[calc(5rem+env(safe-area-inset-bottom,0px))] sm:pt-6 sm:pb-24 lg:py-14">
 
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-3.5 sm:gap-6 lg:gap-12 items-center w-full">
 
                     <!-- KIRI: Eyebrow, Headline, Subtitle, CTAs & Value Proof (Mobile Center, Desktop Left ~ 5 Cols) -->
-                    <div class="lg:col-span-5 space-y-6 text-center mx-auto flex flex-col items-center lg:text-left lg:items-start lg:mx-0">
-                        <div class="space-y-3 w-full">
+                    <div
+                        class="lg:col-span-5 space-y-2.5 sm:space-y-4 lg:space-y-6 text-center mx-auto flex flex-col items-center lg:text-left lg:items-start lg:mx-0 w-full">
+                        <div class="space-y-1 sm:space-y-2 lg:space-y-3 w-full">
                             <!-- Pure Typographic Overline Kicker (Zero Pill Abuse) -->
-                            <p class="text-xs sm:text-[13px] font-bold uppercase tracking-wider text-[#00C4D8]">
+                            <p class="text-[10px] sm:text-xs lg:text-[13px] font-bold uppercase tracking-wider text-[#00C4D8]">
                                 Business Operating System &amp; Omnichannel ERP
                             </p>
 
                             <h1
-                                class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.75rem] xl:text-[3.1rem] font-extrabold text-white tracking-tight leading-[1.12] text-balance break-words max-w-[22rem] sm:max-w-xl lg:max-w-none mx-auto lg:mx-0">
+                                class="text-[1.35rem] xs:text-2xl sm:text-4xl md:text-5xl lg:text-[2.75rem] xl:text-[3.1rem] font-extrabold text-white tracking-tight leading-[1.14] text-balance break-words max-w-[21rem] sm:max-w-xl lg:max-w-none mx-auto lg:mx-0">
                                 Satu Sistem Operasi untuk Seluruh <span class="text-[#00C4D8]">Denyut Bisnis Anda.</span>
                             </h1>
                         </div>
 
                         <p
-                            class="text-base sm:text-lg text-slate-300 leading-relaxed max-w-[32rem] lg:max-w-xl font-normal text-pretty break-words mx-auto lg:mx-0">
+                            class="text-xs sm:text-base lg:text-lg text-slate-300 leading-snug sm:leading-relaxed max-w-[23rem] sm:max-w-[32rem] lg:max-w-xl font-normal text-pretty line-clamp-2 sm:line-clamp-none break-words mx-auto lg:mx-0">
                             Satukan kasir POS, inventaris resep bahan baku otomatis, pembukuan finansial real-time,
                             katalog toko online, hingga notifikasi WhatsApp tanpa mengetik ulang data secara manual.
                         </p>
 
-                        <!-- Action Buttons (Centered on Mobile, Row on Desktop) -->
-                        <div class="pt-1 flex flex-col sm:flex-row items-stretch sm:items-center sm:justify-center lg:justify-start gap-3.5 w-full sm:w-auto">
+                        <!-- Action Buttons (Row on Mobile, Row on Desktop) -->
+                        <div
+                            class="pt-0.5 sm:pt-1 flex flex-row items-center justify-center lg:justify-start gap-2 sm:gap-3.5 w-full sm:w-auto">
                             @if (auth('admin')->check())
                                 <a href="{{ route('admin.dashboard') }}"
-                                    class="h-12 px-7 rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-[0_4px_16px_rgba(0,122,255,0.35)] active:scale-[0.98] transition-all">
+                                    class="h-9 sm:h-12 px-4 sm:px-7 rounded-[12px] sm:rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-xs sm:text-sm flex items-center justify-center gap-1.5 sm:gap-2 shadow-[0_4px_16px_rgba(0,122,255,0.35)] active:scale-[0.98] transition-all min-h-[38px] sm:min-h-[48px]">
                                     <span>Dashboard Admin</span>
-                                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                                    <i data-lucide="arrow-right" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
                                 </a>
                             @elseif (auth('web')->check())
                                 <a href="{{ route('dashboard') }}"
-                                    class="h-12 px-7 rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-[0_4px_16px_rgba(0,122,255,0.35)] active:scale-[0.98] transition-all">
+                                    class="h-9 sm:h-12 px-4 sm:px-7 rounded-[12px] sm:rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-xs sm:text-sm flex items-center justify-center gap-1.5 sm:gap-2 shadow-[0_4px_16px_rgba(0,122,255,0.35)] active:scale-[0.98] transition-all min-h-[38px] sm:min-h-[48px]">
                                     <span>Ke Dashboard Bisnis</span>
-                                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                                    <i data-lucide="arrow-right" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
                                 </a>
                             @else
                                 <a href="{{ route('register') }}"
-                                    class="h-12 px-8 rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-base flex items-center justify-center gap-2 shadow-[0_4px_16px_rgba(0,122,255,0.35)] active:scale-[0.98] transition-all min-h-[48px]">
+                                    class="h-9 sm:h-12 px-4 sm:px-8 rounded-[12px] sm:rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-xs sm:text-base flex items-center justify-center gap-1.5 sm:gap-2 shadow-[0_4px_16px_rgba(0,122,255,0.35)] active:scale-[0.98] transition-all min-h-[38px] sm:min-h-[48px] flex-1 sm:flex-initial">
                                     <span>Mulai Coba Gratis</span>
-                                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                                    <i data-lucide="arrow-right" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
                                 </a>
                                 <a href="{{ route('public.demo') }}"
-                                    class="h-12 px-6 rounded-[14px] bg-white/10 hover:bg-white/15 border border-white/15 text-white font-semibold text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition-all backdrop-blur-sm min-h-[48px]">
-                                    <i data-lucide="play" class="w-4 h-4 text-[#00C4D8]"></i>
+                                    class="h-9 sm:h-12 px-3.5 sm:px-6 rounded-[12px] sm:rounded-[14px] bg-white/10 hover:bg-white/15 border border-white/15 text-white font-semibold text-xs sm:text-sm flex items-center justify-center gap-1.5 sm:gap-2 active:scale-[0.98] transition-all backdrop-blur-sm min-h-[38px] sm:min-h-[48px] flex-1 sm:flex-initial">
+                                    <i data-lucide="play" class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#00C4D8]"></i>
                                     <span>Coba Live Demo</span>
                                 </a>
                             @endif
                         </div>
 
-                        <!-- Reassurance Checkpoints (Centered on Mobile) -->
-                        <div class="pt-1 flex flex-wrap items-center justify-center lg:justify-start gap-x-5 gap-y-2 text-xs text-slate-300">
-                            <div class="flex items-center gap-1.5">
-                                <i data-lucide="check" class="w-4 h-4 text-emerald-400"></i>
-                                <span>100% Gratis Selamanya</span>
+                        <!-- Reassurance Checkpoints (Centered on Mobile, Row on Desktop) -->
+                        <div
+                            class="pt-0.5 sm:pt-1 flex flex-wrap items-center justify-center lg:justify-start gap-x-3 sm:gap-x-5 gap-y-1 text-[10px] sm:text-xs text-slate-300">
+                            <div class="flex items-center gap-1 sm:gap-1.5">
+                                <i data-lucide="check" class="w-3 h-3 sm:w-4 sm:h-4 text-emerald-400"></i>
+                                <span>100% Gratis</span>
                             </div>
-                            <div class="flex items-center gap-1.5">
-                                <i data-lucide="check" class="w-4 h-4 text-emerald-400"></i>
+                            <div class="flex items-center gap-1 sm:gap-1.5">
+                                <i data-lucide="check" class="w-3 h-3 sm:w-4 sm:h-4 text-emerald-400"></i>
                                 <span>Tanpa Kartu Kredit</span>
                             </div>
-                            <div class="flex items-center gap-1.5">
-                                <i data-lucide="check" class="w-4 h-4 text-emerald-400"></i>
-                                <span>Siap Pakai 2 Menit</span>
+                            <div class="flex items-center gap-1 sm:gap-1.5">
+                                <i data-lucide="check" class="w-3 h-3 sm:w-4 sm:h-4 text-emerald-400"></i>
+                                <span>Siap 2 Menit</span>
                             </div>
                         </div>
 
-                        <!-- 3-Metric Bento Tiles (Centered on Mobile) -->
-                        <div class="pt-2 w-full flex justify-center lg:justify-start">
+                        <!-- 3-Metric Bento Tiles (Compact on Mobile, Full on Desktop) -->
+                        <div class="pt-0.5 sm:pt-2 w-full flex justify-center lg:justify-start">
                             <div
-                                class="bg-white/[0.05] backdrop-blur-xl rounded-[18px] p-3.5 sm:p-4 border border-white/10 shadow-lg grid grid-cols-3 divide-x divide-white/10 text-center max-w-md w-full">
-                                <div class="px-2">
-                                    <div class="text-xl sm:text-2xl font-extrabold text-white tabular-nums tracking-tight">
+                                class="bg-white/[0.05] backdrop-blur-xl rounded-[12px] sm:rounded-[18px] p-2 sm:p-3.5 lg:p-4 border border-white/10 shadow-lg grid grid-cols-3 divide-x divide-white/10 text-center max-w-xs sm:max-w-md w-full">
+                                <div class="px-1 sm:px-2">
+                                    <div class="text-xs sm:text-xl lg:text-2xl font-extrabold text-white tabular-nums tracking-tight">
                                         10.000+</div>
-                                    <div class="text-[11px] text-slate-400 font-medium mt-0.5">UMKM Terdaftar</div>
+                                    <div class="text-[9px] sm:text-[11px] text-slate-400 font-medium sm:mt-0.5">UMKM Terdaftar</div>
                                 </div>
-                                <div class="px-2">
+                                <div class="px-1 sm:px-2">
                                     <div
-                                        class="text-xl sm:text-2xl font-extrabold text-emerald-400 tabular-nums tracking-tight">
+                                        class="text-xs sm:text-xl lg:text-2xl font-extrabold text-emerald-400 tabular-nums tracking-tight">
                                         99.8%</div>
-                                    <div class="text-[11px] text-slate-400 font-medium mt-0.5">Akurasi Finansial</div>
+                                    <div class="text-[9px] sm:text-[11px] text-slate-400 font-medium sm:mt-0.5">Akurasi Finansial</div>
                                 </div>
-                                <div class="px-2">
+                                <div class="px-1 sm:px-2">
                                     <div
-                                        class="text-xl sm:text-2xl font-extrabold text-[#00C4D8] tabular-nums tracking-tight">
+                                        class="text-xs sm:text-xl lg:text-2xl font-extrabold text-[#00C4D8] tabular-nums tracking-tight">
                                         100%</div>
-                                    <div class="text-[11px] text-slate-400 font-medium mt-0.5">Realtime Cloud Sync</div>
+                                    <div class="text-[9px] sm:text-[11px] text-slate-400 font-medium sm:mt-0.5">Realtime Cloud Sync</div>
                                 </div>
                             </div>
                         </div>
@@ -184,7 +188,7 @@
                     </div>
 
                     <!-- KANAN: Interactive Apple Bento Business OS Cockpit with 2 Slides & Floating Cards (7 Cols ~ 58%) -->
-                    <div class="lg:col-span-7 relative"
+                    <div class="lg:col-span-7 relative w-full max-w-xl mx-auto lg:max-w-none"
                         x-data="{
                             activeSlide: 1,
                             autoSlide: true,
@@ -204,16 +208,16 @@
                         @mouseenter="autoSlide = false"
                         @mouseleave="autoSlide = true">
 
-                        <!-- Floating Card Top-Right (Matching user reference image!) -->
+                        <!-- Floating Card Top-Right: Revenue / Shipping (VISIBLE ON BOTH MOBILE & DESKTOP) -->
                         <div x-show="activeSlide === 1"
                             x-transition:enter="transition ease-out duration-300"
                             x-transition:enter-start="opacity-0 translate-y-2 scale-95"
                             x-transition:enter-end="opacity-100 translate-y-0 scale-100"
-                            class="hidden sm:block absolute -top-5 -right-3 z-30 bg-[#0E1E45]/90 border border-white/15 rounded-[18px] p-3.5 shadow-[0_20px_40px_-5px_rgba(0,0,0,0.6)] min-w-[170px] backdrop-blur-xl text-white">
-                            <div class="text-[11px] text-slate-400 font-medium">Total Pendapatan</div>
-                            <div class="text-lg font-extrabold text-white tabular-nums tracking-tight">Rp 128.4j</div>
-                            <div class="text-[11px] font-semibold text-emerald-400 flex items-center gap-1 mt-0.5">
-                                <i data-lucide="trending-up" class="w-3 h-3"></i>
+                            class="absolute -top-2.5 sm:-top-5 -right-1 sm:-right-3 z-30 bg-[#0E1E45]/95 border border-white/15 rounded-[12px] sm:rounded-[18px] p-1.5 sm:p-3.5 shadow-[0_12px_30px_-5px_rgba(0,0,0,0.6)] min-w-[95px] sm:min-w-[170px] backdrop-blur-xl text-white pointer-events-none sm:pointer-events-auto">
+                            <div class="text-[8.5px] sm:text-[11px] text-slate-400 font-medium">Total Pendapatan</div>
+                            <div class="text-xs sm:text-lg font-extrabold text-white tabular-nums tracking-tight">Rp 128.4j</div>
+                            <div class="text-[8px] sm:text-[11px] font-semibold text-emerald-400 flex items-center gap-0.5 sm:gap-1 mt-0.5">
+                                <i data-lucide="trending-up" class="w-2.5 h-2.5 sm:w-3 sm:h-3"></i>
                                 <span>+8.4% bulan ini</span>
                             </div>
                         </div>
@@ -222,25 +226,25 @@
                             x-transition:enter="transition ease-out duration-300"
                             x-transition:enter-start="opacity-0 translate-y-2 scale-95"
                             x-transition:enter-end="opacity-100 translate-y-0 scale-100"
-                            class="hidden sm:block absolute -top-5 -right-3 z-30 bg-[#0E1E45]/90 border border-white/15 rounded-[18px] p-3.5 shadow-[0_20px_40px_-5px_rgba(0,0,0,0.6)] min-w-[170px] backdrop-blur-xl text-white">
-                            <div class="text-[11px] text-slate-400 font-medium">Live Shipping Resi</div>
-                            <div class="text-lg font-extrabold text-white tabular-nums tracking-tight">86 Paket</div>
-                            <div class="text-[11px] font-semibold text-sky-400 flex items-center gap-1 mt-0.5">
-                                <i data-lucide="truck" class="w-3 h-3"></i>
-                                <span>Siap Pick Up Hari Ini</span>
+                            class="absolute -top-2.5 sm:-top-5 -right-1 sm:-right-3 z-30 bg-[#0E1E45]/95 border border-white/15 rounded-[12px] sm:rounded-[18px] p-1.5 sm:p-3.5 shadow-[0_12px_30px_-5px_rgba(0,0,0,0.6)] min-w-[95px] sm:min-w-[170px] backdrop-blur-xl text-white pointer-events-none sm:pointer-events-auto">
+                            <div class="text-[8.5px] sm:text-[11px] text-slate-400 font-medium">Live Resi Kirim</div>
+                            <div class="text-xs sm:text-lg font-extrabold text-white tabular-nums tracking-tight">86 Paket</div>
+                            <div class="text-[8px] sm:text-[11px] font-semibold text-sky-400 flex items-center gap-0.5 sm:gap-1 mt-0.5">
+                                <i data-lucide="truck" class="w-2.5 h-2.5 sm:w-3 sm:h-3"></i>
+                                <span>Siap Pick Up</span>
                             </div>
                         </div>
 
-                        <!-- Floating Card Bottom-Left (Matching user reference image!) -->
+                        <!-- Floating Card Bottom-Left: Bisnis Aktif / Multi-MP Sync (VISIBLE ON BOTH MOBILE & DESKTOP) -->
                         <div x-show="activeSlide === 1"
                             x-transition:enter="transition ease-out duration-300"
                             x-transition:enter-start="opacity-0 translate-y-2 scale-95"
                             x-transition:enter-end="opacity-100 translate-y-0 scale-100"
-                            class="hidden sm:block absolute -bottom-5 -left-3 z-30 bg-[#0E1E45]/90 border border-white/15 rounded-[18px] p-3.5 shadow-[0_20px_40px_-5px_rgba(0,0,0,0.6)] min-w-[145px] backdrop-blur-xl text-white">
-                            <div class="text-[11px] text-slate-400 font-medium">Bisnis Aktif</div>
-                            <div class="text-lg font-extrabold text-white tabular-nums tracking-tight">12 Unit</div>
-                            <div class="text-[11px] font-semibold text-emerald-400 flex items-center gap-1 mt-0.5">
-                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                            class="absolute -bottom-2.5 sm:-bottom-5 -left-1 sm:-left-3 z-30 bg-[#0E1E45]/95 border border-white/15 rounded-[12px] sm:rounded-[18px] p-1.5 sm:p-3.5 shadow-[0_12px_30px_-5px_rgba(0,0,0,0.6)] min-w-[85px] sm:min-w-[145px] backdrop-blur-xl text-white pointer-events-none sm:pointer-events-auto">
+                            <div class="text-[8.5px] sm:text-[11px] text-slate-400 font-medium">Bisnis Aktif</div>
+                            <div class="text-xs sm:text-lg font-extrabold text-white tabular-nums tracking-tight">12 Unit</div>
+                            <div class="text-[8px] sm:text-[11px] font-semibold text-emerald-400 flex items-center gap-1 mt-0.5">
+                                <span class="w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
                                 <span>All Online</span>
                             </div>
                         </div>
@@ -249,21 +253,21 @@
                             x-transition:enter="transition ease-out duration-300"
                             x-transition:enter-start="opacity-0 translate-y-2 scale-95"
                             x-transition:enter-end="opacity-100 translate-y-0 scale-100"
-                            class="hidden sm:block absolute -bottom-5 -left-3 z-30 bg-[#0E1E45]/90 border border-white/15 rounded-[18px] p-3.5 shadow-[0_20px_40px_-5px_rgba(0,0,0,0.6)] min-w-[145px] backdrop-blur-xl text-white">
-                            <div class="text-[11px] text-slate-400 font-medium">Multi-MP Sync</div>
-                            <div class="text-lg font-extrabold text-white tabular-nums tracking-tight">1.420 SKU</div>
-                            <div class="text-[11px] font-semibold text-[#00C4D8] flex items-center gap-1 mt-0.5">
-                                <i data-lucide="refresh-cw" class="w-3 h-3"></i>
+                            class="absolute -bottom-2.5 sm:-bottom-5 -left-1 sm:-left-3 z-30 bg-[#0E1E45]/95 border border-white/15 rounded-[12px] sm:rounded-[18px] p-1.5 sm:p-3.5 shadow-[0_12px_30px_-5px_rgba(0,0,0,0.6)] min-w-[85px] sm:min-w-[145px] backdrop-blur-xl text-white pointer-events-none sm:pointer-events-auto">
+                            <div class="text-[8.5px] sm:text-[11px] text-slate-400 font-medium">Multi-MP Sync</div>
+                            <div class="text-xs sm:text-lg font-extrabold text-white tabular-nums tracking-tight">1.420 SKU</div>
+                            <div class="text-[8px] sm:text-[11px] font-semibold text-[#00C4D8] flex items-center gap-1 mt-0.5">
+                                <i data-lucide="refresh-cw" class="w-2.5 h-2.5 sm:w-3 sm:h-3"></i>
                                 <span>Realtime Sync</span>
                             </div>
                         </div>
 
-                        <!-- Floating Notification Toast (Bottom-Right edge, matching user reference image!) -->
+                        <!-- Floating Notification Toast (MD+ / Desktop) -->
                         <div x-show="activeSlide === 1"
                             x-transition:enter="transition ease-out duration-300"
                             x-transition:enter-start="opacity-0 translate-y-2 scale-95"
                             x-transition:enter-end="opacity-100 translate-y-0 scale-100"
-                            class="hidden sm:flex items-center gap-2.5 absolute bottom-8 -right-3 z-30 bg-[#0E1E45]/95 border border-white/15 rounded-[16px] px-3.5 py-2.5 shadow-[0_20px_40px_-5px_rgba(0,0,0,0.6)] backdrop-blur-xl max-w-xs text-white">
+                            class="hidden md:flex items-center gap-2.5 absolute bottom-8 -right-3 z-30 bg-[#0E1E45]/95 border border-white/15 rounded-[16px] px-3.5 py-2.5 shadow-[0_20px_40px_-5px_rgba(0,0,0,0.6)] backdrop-blur-xl max-w-xs text-white">
                             <div class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center shrink-0 text-white">
                                 <i data-lucide="bell" class="w-4 h-4 text-slate-200"></i>
                             </div>
@@ -277,7 +281,7 @@
                             x-transition:enter="transition ease-out duration-300"
                             x-transition:enter-start="opacity-0 translate-y-2 scale-95"
                             x-transition:enter-end="opacity-100 translate-y-0 scale-100"
-                            class="hidden sm:flex items-center gap-2.5 absolute bottom-8 -right-3 z-30 bg-[#0E1E45]/95 border border-white/15 rounded-[16px] px-3.5 py-2.5 shadow-[0_20px_40px_-5px_rgba(0,0,0,0.6)] backdrop-blur-xl max-w-xs text-white">
+                            class="hidden md:flex items-center gap-2.5 absolute bottom-8 -right-3 z-30 bg-[#0E1E45]/95 border border-white/15 rounded-[16px] px-3.5 py-2.5 shadow-[0_20px_40px_-5px_rgba(0,0,0,0.6)] backdrop-blur-xl max-w-xs text-white">
                             <div class="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center shrink-0 text-emerald-400">
                                 <i data-lucide="package-check" class="w-4 h-4"></i>
                             </div>
@@ -289,41 +293,42 @@
 
                         <!-- Main Cockpit Window -->
                         <div
-                            class="rounded-[24px] sm:rounded-[28px] bg-[#0E1E45]/85 border border-white/15 p-4 sm:p-6 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.7)] backdrop-blur-xl space-y-4 text-white relative z-10">
+                            class="rounded-[18px] sm:rounded-[28px] bg-[#0E1E45]/85 border border-white/15 p-2.5 sm:p-5 lg:p-6 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.7)] backdrop-blur-xl space-y-2 sm:space-y-3.5 lg:space-y-4 text-white relative z-10">
 
                             <!-- macOS Window Top Bar with URL & Interactive Slide Tabs -->
-                            <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between border-b border-white/10 pb-3 gap-2.5">
-                                <div class="flex items-center justify-between sm:justify-start gap-3">
-                                    <div class="flex items-center gap-1.5">
-                                        <span class="w-3 h-3 rounded-full bg-[#FF5F56] shadow-inner"></span>
-                                        <span class="w-3 h-3 rounded-full bg-[#FFBD2E] shadow-inner"></span>
-                                        <span class="w-3 h-3 rounded-full bg-[#27C93F] shadow-inner"></span>
+                            <div class="flex items-center justify-between border-b border-white/10 pb-2 sm:pb-3 gap-2">
+                                <div class="flex items-center gap-1.5 sm:gap-3 min-w-0">
+                                    <div class="flex items-center gap-1 sm:gap-1.5 shrink-0">
+                                        <span class="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-[#FF5F56] shadow-inner"></span>
+                                        <span class="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-[#FFBD2E] shadow-inner"></span>
+                                        <span class="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-[#27C93F] shadow-inner"></span>
                                     </div>
-                                    <!-- URL Address Bar (matching reference image) -->
-                                    <div class="py-1 px-3 rounded-full bg-white/[0.06] border border-white/10 text-[11px] font-mono text-slate-300 truncate max-w-[210px] sm:max-w-[260px]">
-                                        <span x-text="activeSlide === 1 ? 'https://cooca.id/app/dashboard' : 'https://cooca.id/app/marketplace-shipping'"></span>
+                                    <!-- URL Address Bar -->
+                                    <div class="py-0.5 sm:py-1 px-2 sm:px-3 rounded-full bg-white/[0.06] border border-white/10 text-[9px] sm:text-[11px] font-mono text-slate-300 truncate max-w-[125px] xs:max-w-[180px] sm:max-w-[260px]">
+                                        <span x-text="activeSlide === 1 ? 'https://cooca.id/app/dashboard' : 'https://cooca.id/app/shipping'"></span>
                                     </div>
                                 </div>
 
                                 <!-- Interactive 2-Slide Toggle Tabs -->
-                                <div class="flex items-center justify-between sm:justify-end gap-2">
-                                    <div class="flex items-center bg-white/[0.06] p-1 rounded-full border border-white/10 text-xs font-semibold">
+                                <div class="flex items-center gap-1 sm:gap-2 shrink-0">
+                                    <div class="flex items-center bg-white/[0.06] p-0.5 sm:p-1 rounded-full border border-white/10 text-[10px] sm:text-xs font-semibold">
                                         <button type="button" @click="setSlide(1)"
                                             :class="activeSlide === 1 ? 'bg-[#007AFF] text-white shadow-xs' : 'text-slate-400 hover:text-white'"
-                                            class="px-2.5 sm:px-3 py-1 rounded-full transition-all flex items-center gap-1.5">
-                                            <i data-lucide="line-chart" class="w-3.5 h-3.5"></i>
+                                            class="px-2 sm:px-3 py-0.5 sm:py-1 rounded-full transition-all flex items-center gap-1">
+                                            <i data-lucide="line-chart" class="w-3 h-3 sm:w-3.5 sm:h-3.5"></i>
                                             <span>Keuangan</span>
                                         </button>
                                         <button type="button" @click="setSlide(2)"
                                             :class="activeSlide === 2 ? 'bg-[#007AFF] text-white shadow-xs' : 'text-slate-400 hover:text-white'"
-                                            class="px-2.5 sm:px-3 py-1 rounded-full transition-all flex items-center gap-1.5">
-                                            <i data-lucide="store" class="w-3.5 h-3.5"></i>
-                                            <span>Marketplace &amp; Shipping</span>
+                                            class="px-2 sm:px-3 py-0.5 sm:py-1 rounded-full transition-all flex items-center gap-1">
+                                            <i data-lucide="store" class="w-3 h-3 sm:w-3.5 sm:h-3.5"></i>
+                                            <span class="hidden xs:inline">Marketplace</span>
+                                            <span class="xs:hidden">MP</span>
                                         </button>
                                     </div>
 
                                     <span
-                                        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-[11px] font-semibold">
+                                        class="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-[11px] font-semibold">
                                         <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
                                         Active
                                     </span>
@@ -337,59 +342,59 @@
                                 x-transition:enter="transition ease-out duration-300 transform"
                                 x-transition:enter-start="opacity-0 translate-y-2"
                                 x-transition:enter-end="opacity-100 translate-y-0"
-                                class="space-y-4">
+                                class="space-y-2 sm:space-y-3.5 lg:space-y-4">
 
                                 <!-- Cockpit Tenant Banner -->
                                 <div class="flex items-center justify-between">
                                     <div>
-                                        <div class="text-sm font-bold text-white">Cooca Enterprise POS &amp; Keuangan ERP</div>
-                                        <div class="text-xs text-slate-400">Tenant: Restoran &amp; HQ Outlets</div>
+                                        <div class="text-xs sm:text-sm font-bold text-white">Cooca Enterprise POS &amp; Keuangan ERP</div>
+                                        <div class="text-[9px] sm:text-xs text-slate-400">Tenant: Restoran &amp; HQ Outlets</div>
                                     </div>
-                                    <span class="px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-400 text-xs font-semibold flex items-center gap-1">
-                                        <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i>
+                                    <span class="px-1.5 sm:px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-400 text-[9px] sm:text-xs font-semibold flex items-center gap-1">
+                                        <i data-lucide="check-circle-2" class="w-3 h-3 sm:w-3.5 sm:h-3.5"></i>
                                         <span>Buku Besar Auto-Sync</span>
                                     </span>
                                 </div>
 
-                                <!-- 4-Metric Grid (styled exactly like the reference screenshot!) -->
-                                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
-                                    <div class="p-3 sm:p-3.5 rounded-[16px] bg-white/[0.04] border border-white/[0.08] space-y-1">
-                                        <span class="text-[11px] text-slate-400 block font-medium">Total Pendapatan</span>
-                                        <div class="text-base sm:text-lg font-bold text-white tabular-nums tracking-tight">Rp 128.4j</div>
-                                        <span class="text-[10px] font-semibold text-emerald-400 flex items-center gap-0.5">
-                                            <i data-lucide="trending-up" class="w-3 h-3"></i>
+                                <!-- 4-Metric Grid (Compact on Mobile, Full on Desktop) -->
+                                <div class="grid grid-cols-4 gap-1.5 sm:gap-2.5 lg:gap-3">
+                                    <div class="p-1.5 sm:p-3 lg:p-3.5 rounded-[10px] sm:rounded-[16px] bg-white/[0.04] border border-white/[0.08] space-y-0.5 sm:space-y-1">
+                                        <span class="text-[8.5px] sm:text-[11px] text-slate-400 block font-medium truncate">Total Omset</span>
+                                        <div class="text-xs sm:text-base lg:text-lg font-bold text-white tabular-nums tracking-tight">Rp 128.4j</div>
+                                        <span class="text-[8px] sm:text-[10px] font-semibold text-emerald-400 flex items-center gap-0.5">
+                                            <i data-lucide="trending-up" class="w-2.5 h-2.5 sm:w-3 sm:h-3"></i>
                                             +8.4%
                                         </span>
                                     </div>
 
-                                    <div class="p-3 sm:p-3.5 rounded-[16px] bg-white/[0.04] border border-white/[0.08] space-y-1">
-                                        <span class="text-[11px] text-slate-400 block font-medium">Lisensi Aktif</span>
-                                        <div class="text-base sm:text-lg font-bold text-white tabular-nums tracking-tight">12 Unit</div>
-                                        <span class="text-[10px] text-sky-400 font-medium">All Online</span>
+                                    <div class="p-1.5 sm:p-3 lg:p-3.5 rounded-[10px] sm:rounded-[16px] bg-white/[0.04] border border-white/[0.08] space-y-0.5 sm:space-y-1">
+                                        <span class="text-[8.5px] sm:text-[11px] text-slate-400 block font-medium truncate">Lisensi POS</span>
+                                        <div class="text-xs sm:text-base lg:text-lg font-bold text-white tabular-nums tracking-tight">12 Unit</div>
+                                        <span class="text-[8px] sm:text-[10px] text-sky-400 font-medium">Online</span>
                                     </div>
 
-                                    <div class="p-3 sm:p-3.5 rounded-[16px] bg-white/[0.04] border border-white/[0.08] space-y-1">
-                                        <span class="text-[11px] text-slate-400 block font-medium">Tenant Aktif</span>
-                                        <div class="text-base sm:text-lg font-bold text-white tabular-nums tracking-tight">48 Bisnis</div>
-                                        <span class="text-[10px] text-slate-400 font-medium">+6 bulan ini</span>
+                                    <div class="p-1.5 sm:p-3 lg:p-3.5 rounded-[10px] sm:rounded-[16px] bg-white/[0.04] border border-white/[0.08] space-y-0.5 sm:space-y-1">
+                                        <span class="text-[8.5px] sm:text-[11px] text-slate-400 block font-medium truncate">Tenant Aktif</span>
+                                        <div class="text-xs sm:text-base lg:text-lg font-bold text-white tabular-nums tracking-tight">48 Bisnis</div>
+                                        <span class="text-[8px] sm:text-[10px] text-slate-400 font-medium">+6 bln</span>
                                     </div>
 
-                                    <div class="p-3 sm:p-3.5 rounded-[16px] bg-white/[0.04] border border-white/[0.08] space-y-1">
-                                        <span class="text-[11px] text-slate-400 block font-medium">Laba Bersih Riil</span>
-                                        <div class="text-base sm:text-lg font-bold text-emerald-400 tabular-nums tracking-tight">Rp 42.1j</div>
-                                        <span class="text-[10px] text-slate-400 font-medium">Margin 32.8%</span>
+                                    <div class="p-1.5 sm:p-3 lg:p-3.5 rounded-[10px] sm:rounded-[16px] bg-white/[0.04] border border-white/[0.08] space-y-0.5 sm:space-y-1">
+                                        <span class="text-[8.5px] sm:text-[11px] text-slate-400 block font-medium truncate">Laba Bersih</span>
+                                        <div class="text-xs sm:text-base lg:text-lg font-bold text-emerald-400 tabular-nums tracking-tight">Rp 42.1j</div>
+                                        <span class="text-[8px] sm:text-[10px] text-slate-400 font-medium">32.8%</span>
                                     </div>
                                 </div>
 
-                                <!-- Chart Area: Grafik Pendapatan — 7 Hari Terakhir (matching user reference wave!) -->
-                                <div class="p-3.5 sm:p-4 rounded-[18px] bg-white/[0.03] border border-white/[0.06] space-y-2">
-                                    <div class="flex items-center justify-between text-xs">
-                                        <span class="font-bold text-slate-200">Grafik Pendapatan &amp; Margin — 7 Hari Terakhir</span>
-                                        <span class="text-[11px] text-slate-400 font-mono">Puncak: Rp 22.8jt</span>
+                                <!-- Chart Area: Grafik Pendapatan — 7 Hari Terakhir -->
+                                <div class="p-2 sm:p-3.5 lg:p-4 rounded-[12px] sm:rounded-[18px] bg-white/[0.03] border border-white/[0.06] space-y-1 sm:space-y-2">
+                                    <div class="flex items-center justify-between text-[10px] sm:text-xs">
+                                        <span class="font-bold text-slate-200">Grafik Pendapatan &amp; Margin 7 Hari</span>
+                                        <span class="text-[9px] sm:text-[11px] text-slate-400 font-mono">Puncak: Rp 22.8jt</span>
                                     </div>
 
                                     <!-- Smooth SVG Spline Chart with Gradient Area Fill -->
-                                    <div class="w-full h-24 sm:h-28 relative">
+                                    <div class="w-full h-12 xs:h-14 sm:h-24 lg:h-28 relative">
                                         <svg class="w-full h-full overflow-visible" viewBox="0 0 500 100" preserveAspectRatio="none">
                                             <defs>
                                                 <linearGradient id="chartGradientHero" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -404,14 +409,14 @@
                                             <path d="M 0,75 C 60,68 100,50 160,56 C 220,62 260,35 340,42 C 400,48 440,15 500,20"
                                                   fill="none" stroke="#007AFF" stroke-width="3" stroke-linecap="round" />
                                             <!-- Data point dots -->
-                                            <circle cx="160" cy="56" r="4" class="fill-[#007AFF] ring-2 ring-white/40" />
-                                            <circle cx="340" cy="42" r="4" class="fill-[#007AFF] ring-2 ring-white/40" />
-                                            <circle cx="500" cy="20" r="4.5" class="fill-[#00C4D8] ring-2 ring-white" />
+                                            <circle cx="160" cy="56" r="3.5" class="fill-[#007AFF] ring-2 ring-white/40" />
+                                            <circle cx="340" cy="42" r="3.5" class="fill-[#007AFF] ring-2 ring-white/40" />
+                                            <circle cx="500" cy="20" r="4" class="fill-[#00C4D8] ring-2 ring-white" />
                                         </svg>
                                     </div>
 
                                     <!-- Days Axis -->
-                                    <div class="flex items-center justify-between text-[10.5px] text-slate-400 font-mono pt-0.5">
+                                    <div class="flex items-center justify-between text-[8px] sm:text-[10.5px] text-slate-400 font-mono pt-0.5">
                                         <span>Sen</span>
                                         <span>Sel</span>
                                         <span>Rab</span>
@@ -423,19 +428,19 @@
                                 </div>
 
                                 <!-- Financial Auto-Journal Mini Row (POS -> Recipe -> Net Profit) -->
-                                <div class="p-3 rounded-[16px] bg-white/[0.04] border border-white/[0.08] flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
-                                    <div class="flex items-center gap-2 min-w-0">
-                                        <div class="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
-                                            <i data-lucide="receipt" class="w-4 h-4"></i>
+                                <div class="p-1.5 sm:p-3 rounded-[12px] sm:rounded-[16px] bg-white/[0.04] border border-white/[0.08] flex items-center justify-between gap-2 text-xs">
+                                    <div class="flex items-center gap-1.5 sm:gap-2 min-w-0">
+                                        <div class="w-5 h-5 sm:w-7 sm:h-7 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+                                            <i data-lucide="receipt" class="w-3 h-3 sm:w-4 sm:h-4"></i>
                                         </div>
                                         <div class="truncate">
-                                            <span class="font-semibold text-slate-200">Kasir POS #TRX-2049</span>
-                                            <span class="text-slate-400 block text-[11px]">Pengurangan Otomatis Bahan Baku: Kopi -36g, Susu -180ml</span>
+                                            <span class="font-semibold text-slate-200 text-[10px] sm:text-xs">Kasir POS #TRX-2049</span>
+                                            <span class="text-slate-400 text-[9px] sm:text-[11px] hidden xs:inline"> &bull; Potong Bahan: Kopi -36g, Susu -180ml</span>
                                         </div>
                                     </div>
-                                    <div class="flex items-center justify-between sm:justify-end gap-3 shrink-0">
-                                        <span class="font-mono font-bold text-white">Rp 36.000</span>
-                                        <span class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-mono">Laba +Rp 21.600</span>
+                                    <div class="flex items-center gap-1.5 sm:gap-3 shrink-0">
+                                        <span class="font-mono font-bold text-white text-[10px] sm:text-xs">Rp 36.000</span>
+                                        <span class="px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[8.5px] sm:text-[10px] font-mono">+Rp 21.600</span>
                                     </div>
                                 </div>
 
@@ -448,77 +453,77 @@
                                 x-transition:enter="transition ease-out duration-300 transform"
                                 x-transition:enter-start="opacity-0 translate-y-2"
                                 x-transition:enter-end="opacity-100 translate-y-0"
-                                class="space-y-4">
+                                class="space-y-2 sm:space-y-3.5 lg:space-y-4">
 
                                 <!-- Cockpit Marketplace Banner -->
                                 <div class="flex items-center justify-between">
                                     <div>
-                                        <div class="text-sm font-bold text-white">Cooca Omnichannel Marketplace &amp; Shipping Hub</div>
-                                        <div class="text-xs text-slate-400">Sinkronisasi Stok 1-Pintu • Resi Otomatis • Kurir Nasional</div>
+                                        <div class="text-xs sm:text-sm font-bold text-white">Cooca Marketplace &amp; Shipping Hub</div>
+                                        <div class="text-[9px] sm:text-xs text-slate-400 hidden xs:block">Sinkronisasi Stok 1-Pintu &bull; Resi Otomatis &bull; Ekspedisi Nasional</div>
                                     </div>
-                                    <span class="px-2 py-0.5 rounded-md bg-blue-500/20 text-sky-400 text-xs font-semibold flex items-center gap-1">
-                                        <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i>
-                                        <span>4 Channel Terhubung</span>
+                                    <span class="px-1.5 sm:px-2 py-0.5 rounded-md bg-blue-500/20 text-sky-400 text-[9px] sm:text-xs font-semibold flex items-center gap-1">
+                                        <i data-lucide="check-circle-2" class="w-3 h-3 sm:w-3.5 sm:h-3.5"></i>
+                                        <span>4 Channel Sync</span>
                                     </span>
                                 </div>
 
                                 <!-- 4-Metric Grid (Marketplace & Shipping KPIs) -->
-                                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
-                                    <div class="p-3 sm:p-3.5 rounded-[16px] bg-white/[0.04] border border-white/[0.08] space-y-1">
-                                        <span class="text-[11px] text-slate-400 block font-medium">Total Pesanan MP</span>
-                                        <div class="text-base sm:text-lg font-bold text-white tabular-nums tracking-tight">1.248 Paket</div>
-                                        <span class="text-[10px] font-semibold text-emerald-400 flex items-center gap-0.5">
-                                            <i data-lucide="trending-up" class="w-3 h-3"></i>
-                                            +24.6% minggu ini
+                                <div class="grid grid-cols-4 gap-1.5 sm:gap-2.5 lg:gap-3">
+                                    <div class="p-1.5 sm:p-3 lg:p-3.5 rounded-[10px] sm:rounded-[16px] bg-white/[0.04] border border-white/[0.08] space-y-0.5 sm:space-y-1">
+                                        <span class="text-[8.5px] sm:text-[11px] text-slate-400 block font-medium truncate">Pesanan MP</span>
+                                        <div class="text-xs sm:text-base lg:text-lg font-bold text-white tabular-nums tracking-tight">1.248 Pkt</div>
+                                        <span class="text-[8px] sm:text-[10px] font-semibold text-emerald-400 flex items-center gap-0.5">
+                                            <i data-lucide="trending-up" class="w-2.5 h-2.5 sm:w-3 sm:h-3"></i>
+                                            +24.6%
                                         </span>
                                     </div>
 
-                                    <div class="p-3 sm:p-3.5 rounded-[16px] bg-white/[0.04] border border-white/[0.08] space-y-1">
-                                        <span class="text-[11px] text-slate-400 block font-medium">Live SKU Sync</span>
-                                        <div class="text-base sm:text-lg font-bold text-white tabular-nums tracking-tight">1.420 SKU</div>
-                                        <span class="text-[10px] text-[#00C4D8] font-medium">100% Selaras</span>
+                                    <div class="p-1.5 sm:p-3 lg:p-3.5 rounded-[10px] sm:rounded-[16px] bg-white/[0.04] border border-white/[0.08] space-y-0.5 sm:space-y-1">
+                                        <span class="text-[8.5px] sm:text-[11px] text-slate-400 block font-medium truncate">Live SKU</span>
+                                        <div class="text-xs sm:text-base lg:text-lg font-bold text-white tabular-nums tracking-tight">1.420 SKU</div>
+                                        <span class="text-[8px] sm:text-[10px] text-[#00C4D8] font-medium">Sync</span>
                                     </div>
 
-                                    <div class="p-3 sm:p-3.5 rounded-[16px] bg-white/[0.04] border border-white/[0.08] space-y-1">
-                                        <span class="text-[11px] text-slate-400 block font-medium">Siap Pick Up</span>
-                                        <div class="text-base sm:text-lg font-bold text-sky-400 tabular-nums tracking-tight">86 Resi</div>
-                                        <span class="text-[10px] text-slate-400 font-medium">J&amp;T, SiCepat, GoSend</span>
+                                    <div class="p-1.5 sm:p-3 lg:p-3.5 rounded-[10px] sm:rounded-[16px] bg-white/[0.04] border border-white/[0.08] space-y-0.5 sm:space-y-1">
+                                        <span class="text-[8.5px] sm:text-[11px] text-slate-400 block font-medium truncate">Pick Up</span>
+                                        <div class="text-xs sm:text-base lg:text-lg font-bold text-sky-400 tabular-nums tracking-tight">86 Resi</div>
+                                        <span class="text-[8px] sm:text-[10px] text-slate-400 font-medium">Siap</span>
                                     </div>
 
-                                    <div class="p-3 sm:p-3.5 rounded-[16px] bg-white/[0.04] border border-white/[0.08] space-y-1">
-                                        <span class="text-[11px] text-slate-400 block font-medium">Hemat Ongkir</span>
-                                        <div class="text-base sm:text-lg font-bold text-emerald-400 tabular-nums tracking-tight">Rp 3.420k</div>
-                                        <span class="text-[10px] text-slate-400 font-medium">Diskon s/d 25%</span>
+                                    <div class="p-1.5 sm:p-3 lg:p-3.5 rounded-[10px] sm:rounded-[16px] bg-white/[0.04] border border-white/[0.08] space-y-0.5 sm:space-y-1">
+                                        <span class="text-[8.5px] sm:text-[11px] text-slate-400 block font-medium truncate">Hemat Ongkir</span>
+                                        <div class="text-xs sm:text-base lg:text-lg font-bold text-emerald-400 tabular-nums tracking-tight">Rp 3.4j</div>
+                                        <span class="text-[8px] sm:text-[10px] text-slate-400 font-medium">s/d 25%</span>
                                     </div>
                                 </div>
 
                                 <!-- Live Multi-Channel & Shipping Orders Feed -->
-                                <div class="space-y-2">
-                                    <div class="flex items-center justify-between text-xs px-1">
+                                <div class="space-y-1 sm:space-y-2">
+                                    <div class="flex items-center justify-between text-[10px] sm:text-xs px-1">
                                         <span class="font-bold text-slate-200 flex items-center gap-1.5">
-                                            <i data-lucide="package" class="w-3.5 h-3.5 text-[#00C4D8]"></i>
-                                            <span>Antrean Pesanan &amp; Ekspedisi Pengiriman Real-Time</span>
+                                            <i data-lucide="package" class="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#00C4D8]"></i>
+                                            <span>Antrean Pesanan &amp; Resi Pengiriman Real-Time</span>
                                         </span>
-                                        <span class="text-[11px] text-slate-400 font-mono">Auto-Print Resi Aktif</span>
+                                        <span class="text-[9px] sm:text-[11px] text-slate-400 font-mono hidden xs:inline">Auto-Print Resi</span>
                                     </div>
 
                                     <!-- Shipping Order Item 1: Shopee + J&T Cargo -->
-                                    <div class="p-3 rounded-[16px] bg-white/[0.04] border border-white/[0.08] flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
-                                        <div class="flex items-center gap-2.5 min-w-0">
-                                            <span class="px-2 py-0.5 rounded bg-orange-500/20 text-orange-400 font-bold text-[10px] shrink-0">Shopee</span>
+                                    <div class="p-1.5 sm:p-3 rounded-[12px] sm:rounded-[16px] bg-white/[0.04] border border-white/[0.08] flex items-center justify-between gap-2 text-xs">
+                                        <div class="flex items-center gap-2 min-w-0">
+                                            <span class="px-1.5 py-0.5 rounded bg-orange-500/20 text-orange-400 font-bold text-[9px] sm:text-[10px] shrink-0">Shopee</span>
                                             <div class="truncate">
-                                                <div class="font-semibold text-white truncate">#SHP-8821 &bull; Budi Santoso (Surabaya)</div>
-                                                <div class="text-[11px] text-slate-300 truncate">2x Kopi Arabika Gayo &bull; J&amp;T Cargo (JT892019482ID)</div>
+                                                <div class="font-semibold text-white truncate text-[10px] sm:text-xs">#SHP-8821 &bull; Budi S. (Surabaya)</div>
+                                                <div class="text-[9px] sm:text-[11px] text-slate-300 truncate hidden xs:block">2x Kopi Arabika Gayo &bull; J&amp;T Cargo</div>
                                             </div>
                                         </div>
-                                        <div class="flex items-center justify-between sm:justify-end gap-2 shrink-0">
-                                            <span class="px-2.5 py-0.5 rounded-full bg-blue-500/20 text-sky-400 text-[10px] font-semibold">Kurir Picked Up</span>
-                                            <span class="font-mono text-[11px] text-slate-400">14:20 WIB</span>
+                                        <div class="flex items-center gap-2 shrink-0">
+                                            <span class="px-2 py-0.5 rounded-full bg-blue-500/20 text-sky-400 text-[8.5px] sm:text-[10px] font-semibold">Picked Up</span>
+                                            <span class="font-mono text-[9px] sm:text-[11px] text-slate-400 hidden xs:inline">14:20</span>
                                         </div>
                                     </div>
 
-                                    <!-- Shipping Order Item 2: Tokopedia + SiCepat -->
-                                    <div class="p-3 rounded-[16px] bg-white/[0.04] border border-white/[0.08] flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+                                    <!-- Shipping Order Item 2: Tokopedia + SiCepat (Shown on SM+) -->
+                                    <div class="hidden sm:flex p-3 rounded-[16px] bg-white/[0.04] border border-white/[0.08] items-center justify-between gap-2 text-xs">
                                         <div class="flex items-center gap-2.5 min-w-0">
                                             <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold text-[10px] shrink-0">Tokopedia</span>
                                             <div class="truncate">
@@ -526,14 +531,14 @@
                                                 <div class="text-[11px] text-slate-300 truncate">1x Grinder Kopi Manual &bull; SiCepat REG (002948104820)</div>
                                             </div>
                                         </div>
-                                        <div class="flex items-center justify-between sm:justify-end gap-2 shrink-0">
+                                        <div class="flex items-center gap-2 shrink-0">
                                             <span class="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-[10px] font-semibold">Dalam Perjalanan</span>
                                             <span class="font-mono text-[11px] text-slate-400">13:45 WIB</span>
                                         </div>
                                     </div>
 
-                                    <!-- Shipping Order Item 3: Toko Online Cooca + GoSend Instant -->
-                                    <div class="p-3 rounded-[16px] bg-white/[0.04] border border-white/[0.08] flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+                                    <!-- Shipping Order Item 3: Toko Online Cooca + GoSend (Shown on LG+) -->
+                                    <div class="hidden lg:flex p-3 rounded-[16px] bg-white/[0.04] border border-white/[0.08] items-center justify-between gap-2 text-xs">
                                         <div class="flex items-center gap-2.5 min-w-0">
                                             <span class="px-2 py-0.5 rounded bg-sky-500/20 text-sky-300 font-bold text-[10px] shrink-0">Web Cooca</span>
                                             <div class="truncate">
@@ -541,7 +546,7 @@
                                                 <div class="text-[11px] text-slate-300 truncate">4x Cold Brew Botol 500ml &bull; GoSend Instant</div>
                                             </div>
                                         </div>
-                                        <div class="flex items-center justify-between sm:justify-end gap-2 shrink-0">
+                                        <div class="flex items-center gap-2 shrink-0">
                                             <span class="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-semibold flex items-center gap-1">
                                                 <i data-lucide="check" class="w-3 h-3"></i>
                                                 <span>Terkirim (WA POD)</span>
@@ -552,18 +557,18 @@
                                 </div>
 
                                 <!-- Shipping Automation Strip -->
-                                <div class="p-2.5 rounded-[14px] bg-white/[0.04] border border-white/[0.08] flex items-center justify-between text-[11px] text-slate-300">
-                                    <div class="flex items-center gap-1.5 font-medium">
-                                        <i data-lucide="printer" class="w-3.5 h-3.5 text-[#00C4D8]"></i>
-                                        <span>Cetak Label Thermal 1-Klik</span>
+                                <div class="p-1.5 sm:p-2.5 rounded-[10px] sm:rounded-[14px] bg-white/[0.04] border border-white/[0.08] flex items-center justify-between text-[9px] sm:text-[11px] text-slate-300">
+                                    <div class="flex items-center gap-1 sm:gap-1.5 font-medium">
+                                        <i data-lucide="printer" class="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#00C4D8]"></i>
+                                        <span>Cetak Label Thermal</span>
                                     </div>
-                                    <div class="flex items-center gap-1.5 font-medium">
-                                        <i data-lucide="message-square" class="w-3.5 h-3.5 text-emerald-400"></i>
+                                    <div class="flex items-center gap-1 sm:gap-1.5 font-medium">
+                                        <i data-lucide="message-square" class="w-3 h-3 sm:w-3.5 sm:h-3.5 text-emerald-400"></i>
                                         <span>Resi WA Otomatis</span>
                                     </div>
-                                    <div class="flex items-center gap-1.5 font-medium">
-                                        <i data-lucide="map-pin" class="w-3.5 h-3.5 text-sky-400"></i>
-                                        <span>Lacak Kurir Real-Time</span>
+                                    <div class="flex items-center gap-1 sm:gap-1.5 font-medium hidden xs:flex">
+                                        <i data-lucide="map-pin" class="w-3 h-3 sm:w-3.5 sm:h-3.5 text-sky-400"></i>
+                                        <span>Lacak Real-Time</span>
                                     </div>
                                 </div>
 
@@ -571,8 +576,8 @@
 
                             <!-- Footer Cockpit Terminal with Slide Dots -->
                             <div
-                                class="pt-2 flex items-center justify-between text-[11px] text-slate-400 border-t border-white/10 font-mono">
-                                <div class="flex items-center gap-2">
+                                class="pt-1.5 sm:pt-2 flex items-center justify-between text-[9px] sm:text-[11px] text-slate-400 border-t border-white/10 font-mono">
+                                <div class="flex items-center gap-1.5 sm:gap-2">
                                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
                                     <span class="text-slate-300 font-medium">Multi-Tenant Cloud Sync</span>
                                 </div>
@@ -580,12 +585,12 @@
                                 <!-- Dots Indicator -->
                                 <div class="flex items-center gap-1.5">
                                     <button type="button" @click="setSlide(1)"
-                                        :class="activeSlide === 1 ? 'w-5 bg-[#00C4D8]' : 'w-2 bg-white/20'"
-                                        class="h-2 rounded-full transition-all"
+                                        :class="activeSlide === 1 ? 'w-4 sm:w-5 bg-[#00C4D8]' : 'w-1.5 sm:w-2 bg-white/20'"
+                                        class="h-1.5 sm:h-2 rounded-full transition-all"
                                         title="Slide 1: Laporan Keuangan"></button>
                                     <button type="button" @click="setSlide(2)"
-                                        :class="activeSlide === 2 ? 'w-5 bg-[#00C4D8]' : 'w-2 bg-white/20'"
-                                        class="h-2 rounded-full transition-all"
+                                        :class="activeSlide === 2 ? 'w-4 sm:w-5 bg-[#00C4D8]' : 'w-1.5 sm:w-2 bg-white/20'"
+                                        class="h-1.5 sm:h-2 rounded-full transition-all"
                                         title="Slide 2: Marketplace & Shipping"></button>
                                 </div>
 

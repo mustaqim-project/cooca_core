@@ -54,6 +54,51 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 
 - Pengetahuan yang dipromosikan ke `docs/system/` dan dampaknya pada `docs/SYSTEM_GUIDE.md`.
 
+### [WORK-2026-09-24-130] Refactor Hero Section Responsif: Desain Terpadu Satu Sistem Skala Multi-Viewport (Desktop Full Cockpit & Mobile Compact ±1 Viewport)
+
+- **Date:** 2026-09-24
+- **Status:** COMPLETED
+- **Module:** Public Marketing & Storefront (`landing.blade.php`)
+- **Feature:** Responsive Hero Section Refactor (One Design System, Multiple Responsive Scales)
+- **Work Type:** UI/UX | Bento Apple HIG | Responsive Refactor | Performance
+
+#### 1. Business Context & Objective
+
+- **Konteks:** Hero section pada halaman utama (`/` / `resources/views/landing.blade.php`) merupakan representasi visual pertama identitas brand COOCA. Tampilan desktop telah memiliki desain eksekutif cockpit interaktif yang sangat solid, namun pada mobile layout sebelumnya terlalu tinggi (>1500px, 2-3 kali tinggi layar) akibat tombol bertumpuk vertikal, teks berlebih tanpa line clamping, 3-metric bento tiles besar, dan yang paling krusial: dashboard cockpit terdorong jauh ke bawah fold serta kartu mengambang (*floating cards*) tersembunyi (`hidden sm:block`).
+- **Masalah & Target:**
+  1. *Desktop Preservation:* Mempertahankan 100% tata letak desktop 12-kolom (5-kolom teks/kiri dan 7-kolom cockpit/kanan), floating cards, grafik spline SVG, notifikasi toast, dan bento tiles tanpa perubahan visual yang merugikan.
+  2. *Mobile Compact 1-Screen Hero:* Mengondisikan seluruh komposisi hero di mobile agar tampil tuntas dalam $\pm 1$ viewport (~500px tinggi konten) tanpa mengharuskan pengguna melakukan scrolling jauh untuk melihat produk visual.
+  3. *Product Visual & Floating Cards Retention:* Tidak menghapus cockpit interaktif maupun kartu melayang pada ponsel. Floating cards (Revenue badge di kanan atas & Active business badge di kiri bawah) tetap aktif dengan skala mikro kompak dan offset presisi tanpa horizontal overflow.
+  4. *Bottom Navigation Safe Clearance:* Menjaga jarak batas bawah (`pb-[calc(5rem+env(safe-area-inset-bottom,0px))]`) sehingga dock menu navigasi bawah mobile tidak pernah menutupi maupun memotong cockpit dashboard.
+
+#### 2. What Was Done
+
+1. Menganalisis tinggi komponen navbar (`h-16` / 64px pada mobile, `h-[84px]` pada desktop) dan dock bawah mobile (~76px) untuk menetapkan kalkulasi viewport modern `min-h-[calc(100svh-4rem)] lg:min-h-[calc(100svh-84px)]`.
+2. Melakukan refactor container hero dengan padding aman anti-overlap dock navigasi bawah (`pt-3 pb-[calc(5rem+env(safe-area-inset-bottom,0px))] sm:pt-6 sm:pb-24 lg:py-14`).
+3. Mengadopsi responsive typography pada headline (`text-[1.35rem] xs:text-2xl sm:text-4xl md:text-5xl lg:text-[2.75rem] xl:text-[3.1rem]`) dan line-clamping 2 baris pada deskripsi di layar kecil (`line-clamp-2 sm:line-clamp-none`).
+4. Mengubah susunan action CTA di ponsel dari tumpukan tombol vertikal tinggi menjadi sebaris horizontal ramping (`flex-row items-center justify-center gap-2`, tinggi `h-9 min-h-[38px]`), menghemat lebih dari 60px ruang vertikal.
+5. Menata ulang 3-metric bento tiles menjadi strip ringkas di mobile dengan padding `p-2 sm:p-3.5 lg:p-4`.
+6. Mengaktifkan floating cards di layar mobile (menghapus blokade `hidden sm:block`) dengan proporsi mikro proporsional (`min-w-[95px] p-1.5`, offset `-top-2.5 -right-1` dan `-bottom-2.5 -left-1`), menjaga kartu ketiga sebagai toast di breakpoint `md:`.
+7. Mengompakkan cockpit dashboard di ponsel: traffic light 8px, URL bar mikro, tab slider interaktif `Keuangan` dan `Marketplace`, 4 kartu KPI dalam 1 baris (`grid-cols-4`), grafik spline SVG tinggi `h-12 xs:h-14 sm:h-24 lg:h-28`, serta jurnal/order feed baris tunggal.
+8. Menulis feature test otomatis `tests/Feature/LandingPageResponsiveHeroTest.php` (4 tests, 44 assertions, 100% pass) untuk mengunci seluruh spesifikasi responsive hero.
+
+#### 3. Technical Changes
+
+- **Files Affected:**
+  - `resources/views/landing.blade.php` (Refactor responsive hero section)
+  - `tests/Feature/LandingPageResponsiveHeroTest.php` (Test suite baru untuk verifikasi visual hero)
+  - `docs/AiWorkHistory.md` (Dokumentasi kronologis)
+
+#### 4. Verification & Testing
+
+- `php -l resources/views/landing.blade.php` (0 syntax error).
+- `php vendor/phpunit/phpunit/phpunit tests/Feature/LandingPageResponsiveHeroTest.php` (4 tests passed, 44 assertions, 0 failure).
+- `php vendor/phpunit/phpunit/phpunit tests/Feature/LandingPageAuthTest.php` (3 tests passed, 15 assertions, 0 failure).
+- `php vendor/phpunit/phpunit/phpunit tests/Feature/PublicViewsProductionReadinessTest.php` (14 tests passed, 137 assertions, 0 failure).
+- `php vendor/phpunit/phpunit/phpunit tests/Feature/PublicMarketplaceSearchTest.php` (7 tests passed, 23 assertions, 0 failure).
+
+---
+
 ### [WORK-2026-09-24-129] Redesign Halaman Registrasi Standar: Layout Bento Apple HIG Luas & Penataan Modul Interaktif dengan Toggle Sakelar Mandiri
 
 - **Date:** 2026-09-24
