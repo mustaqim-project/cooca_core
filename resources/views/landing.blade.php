@@ -102,7 +102,7 @@
 
                     <!-- KIRI: Eyebrow, Headline, Subtitle, CTAs & Value Proof (Left-aligned on Mobile and Desktop ~ 5 Cols) -->
                     <div
-                        class="lg:col-span-5 space-y-3 sm:space-y-4 lg:space-y-5 text-left flex flex-col items-start w-full">
+                        class="lg:col-span-6 space-y-3 sm:space-y-4 lg:space-y-5 text-left flex flex-col items-start w-full">
 
                         <!-- Pure Typographic Overline Kicker with Pulse Dot -->
                         <div class="flex items-center gap-2">
@@ -149,11 +149,6 @@
                                     class="h-10 sm:h-12 px-5 sm:px-8 rounded-[12px] sm:rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-xs sm:text-base flex items-center justify-center gap-1.5 sm:gap-2 shadow-[0_4px_20px_rgba(0,122,255,0.45)] hover:shadow-[0_6px_25px_rgba(0,122,255,0.6)] active:scale-[0.98] transition-all min-h-[40px] sm:min-h-[48px] shrink-0 border border-white/20">
                                     <span>Mulai Coba Gratis</span>
                                     <i data-lucide="arrow-right" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
-                                </a>
-                                <a href="{{ route('public.demo') }}"
-                                    class="h-10 sm:h-12 px-3.5 sm:px-6 rounded-[12px] sm:rounded-[14px] bg-white/[0.08] hover:bg-white/[0.14] border border-white/15 text-white font-semibold text-xs sm:text-sm flex items-center justify-center gap-1.5 sm:gap-2 active:scale-[0.98] transition-all backdrop-blur-md min-h-[40px] sm:min-h-[48px] shrink-0">
-                                    <i data-lucide="play" class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#00C4D8]"></i>
-                                    <span>Coba Live Demo</span>
                                 </a>
                             @endif
                         </div>
@@ -213,7 +208,7 @@
                     </div>
 
                     <!-- KANAN: Interactive Apple Bento Business OS Cockpit with 2 Slides & Floating Cards (7 Cols ~ 58%) -->
-                    <div class="lg:col-span-7 relative w-full max-w-xl mx-auto lg:max-w-none" x-data="{
+                    <div class="lg:col-span-6 relative w-full max-w-xl mx-auto lg:max-w-none" x-data="{
                         activeSlide: 1,
                         autoSlide: true,
                         slideTimer: null,
