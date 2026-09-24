@@ -323,18 +323,18 @@
             @mouseleave="platformDropdown = false; solutionDropdown = false; omniDropdown = false; resourceDropdown = false"
             @keydown.escape.window="platformDropdown = false; solutionDropdown = false; omniDropdown = false; resourceDropdown = false">
             <div
-                class="max-w-[1320px] mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 lg:h-[84px] flex items-center justify-between">
+                class="max-w-[1320px] mx-auto px-4 sm:px-6 lg:px-8 h-20 lg:h-[84px] flex items-center justify-between">
 
-                <!-- Logo Cooca (Perbesar Skala Desktop) -->
+                <!-- Logo Cooca (Perbesar Skala Desktop & Mobile) -->
                 <a href="{{ route('landing') }}"
                     @mouseenter="platformDropdown = false; solutionDropdown = false; omniDropdown = false; resourceDropdown = false"
                     class="flex items-center gap-3.5 group shrink-0">
                     @if (!empty($siteLogoDarkUrl))
                         <img src="{{ $siteLogoDarkUrl }}" alt="{{ $siteAppName }}"
-                            class="h-8 sm:h-9 lg:h-10 xl:h-11 w-auto object-contain transition-transform group-hover:scale-105">
+                            class="h-10 lg:h-10 xl:h-11 w-auto object-contain transition-transform group-hover:scale-105">
                     @else
                         <span
-                            class="font-black text-2xl sm:text-3xl xl:text-4xl tracking-tighter text-white font-sans">COOCA</span>
+                            class="font-black text-3xl xl:text-4xl tracking-tighter text-white font-sans">COOCA</span>
                     @endif
                 </a>
 
@@ -409,16 +409,16 @@
                     @mouseenter="platformDropdown = false; solutionDropdown = false; omniDropdown = false; resourceDropdown = false">
                     <!-- Apple Theme Switcher Button -->
                     <button type="button" @click="toggleTheme()"
-                        class="w-10 h-10 rounded-full flex items-center justify-center text-slate-300 hover:text-white hover:bg-white/10 active:scale-[0.95] transition-all"
+                        class="w-11 h-11 lg:w-10 lg:h-10 rounded-full flex items-center justify-center text-slate-300 hover:text-white hover:bg-white/10 active:scale-[0.95] transition-all"
                         title="Ganti Mode Terang/Gelap" aria-label="Toggle Theme">
                         <!-- Sun Icon for Dark Mode (Switch to Light) -->
-                        <svg x-show="isDark" x-cloak class="w-5 h-5 text-[#FFD60A]" fill="none" stroke="currentColor"
+                        <svg x-show="isDark" x-cloak class="w-5.5 h-5.5 lg:w-5 lg:h-5 text-[#FFD60A]" fill="none" stroke="currentColor"
                             stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
                         </svg>
                         <!-- Moon Icon for Light Mode (Switch to Dark) -->
-                        <svg x-show="!isDark" class="w-5 h-5 text-slate-300" fill="none" stroke="currentColor"
+                        <svg x-show="!isDark" class="w-5.5 h-5.5 lg:w-5 lg:h-5 text-slate-300" fill="none" stroke="currentColor"
                             stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
@@ -454,12 +454,12 @@
                         @endif
                     </div>
 
-                    <!-- Mobile Hamburger Button -->
+                    <!-- Mobile Hamburger Button (Larger Apple Touch Target) -->
                     <button @click="mobileMenu = !mobileMenu"
-                        class="lg:hidden p-2 rounded-[12px] bg-white/10 text-white hover:bg-white/15 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+                        class="lg:hidden p-2.5 rounded-[14px] bg-white/10 text-white hover:bg-white/15 active:scale-95 transition-all min-w-[48px] min-h-[48px] flex items-center justify-center shadow-xs"
                         aria-label="Toggle Mobile Navigation">
-                        <i x-show="!mobileMenu" data-lucide="menu" class="w-5 h-5"></i>
-                        <i x-show="mobileMenu" x-cloak data-lucide="x" class="w-5 h-5"></i>
+                        <i x-show="!mobileMenu" data-lucide="menu" class="w-6 h-6"></i>
+                        <i x-show="mobileMenu" x-cloak data-lucide="x" class="w-6 h-6"></i>
                     </button>
                 </div>
             </div>
@@ -1816,18 +1816,14 @@
         @endphp
 
         @if ($waIsActive)
-            <div class="fixed bottom-20 right-4 sm:bottom-22 sm:right-6 lg:bottom-6 lg:right-6 z-50 print:hidden">
+            <!-- Floating WhatsApp Button (Pure Icon FAB, Elevated safely above Mobile Floating Dock Navbar) -->
+            <div class="fixed bottom-[calc(5.75rem+env(safe-area-inset-bottom,0px))] right-4 sm:bottom-[calc(6.25rem+env(safe-area-inset-bottom,0px))] sm:right-6 lg:bottom-6 lg:right-6 z-50 print:hidden">
                 <a href="{{ $waTargetUrl }}" target="_blank" rel="noopener noreferrer"
                     aria-label="Chat WhatsApp Tim COOCA"
-                    class="group flex items-center gap-2.5 px-4 py-2.5 rounded-full bg-[#25D366] hover:bg-[#20BD5A] text-white font-bold text-sm shadow-[0_10px_25px_-5px_rgba(37,211,102,0.45)] hover:shadow-[0_15px_30px_-5px_rgba(37,211,102,0.55)] active:scale-95 transition-all">
-                    <i data-lucide="message-circle" class="w-4 h-4 fill-current"></i>
-                    <span>Chat Kami</span>
-                    <span class="relative flex h-2.5 w-2.5">
-                        <span
-                            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                        <span
-                            class="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500 ring-2 ring-white"></span>
-                    </span>
+                    title="Chat WhatsApp Tim COOCA"
+                    class="group relative w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-[#25D366] hover:bg-[#20BD5A] text-white flex items-center justify-center shadow-[0_8px_25px_rgba(37,211,102,0.45)] hover:shadow-[0_12px_32px_rgba(37,211,102,0.6)] hover:scale-105 active:scale-95 transition-all">
+                    <i data-lucide="message-circle" class="w-6 h-6 sm:w-7 sm:h-7 fill-current stroke-[1.75]"></i>
+                    <span class="sr-only">Chat Kami</span>
                 </a>
             </div>
         @endif

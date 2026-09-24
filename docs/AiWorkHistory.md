@@ -9100,3 +9100,84 @@ Business Owner / Merchant UMKM COOCA memerlukan satu pusat pengelolaan (_Single 
     - `tests/Feature/LandingPageResponsiveHeroTest.php`: **4 passed, 49 assertions (100% green)**.
     - `tests/Feature/LandingPageAuthTest.php`: **3 passed, 15 assertions (100% green)**.
 
+### [WORK-2026-09-24-132] Hero Section Left & Right Grid Visual Reconstruction (Ultra-Modern Apple Studio Cockpit)
+
+- **Date:** 2026-09-24
+- **Status:** COMPLETED
+- **Module:** Public Marketing Landing Page
+- **Feature:** Hero Section Visual & Conversion Optimization (Left Grid & Right Grid)
+- **Work Type:** UI/UX Redesign | Apple HIG & Bento Design System | Conversion Rate Optimization (CRO) | Social Proof
+
+#### 1. Business Context & Objective
+
+- **Konteks:** User menginginkan rekonstruksi ulang tampilan visual hero section pada kolom kiri (value proposition, social proof, call to action) dan kolom kanan (product visual cockpit & telemetry) agar terlihat menarik, modern, berkelas tinggi (standar Apple Studio / Stripe / Linear), dan meningkatkan rasio konversi pendaftaran UMKM.
+- **Tujuan:**
+    1. **Left Grid:** Meningkatkan trust & konversi dengan menambahkan social proof rating bintang (4.9 / 5.0 dari 10.000+ UMKM) dan tumpukan avatar pengguna nyata, glowing Apple-grade CTA button dengan bayangan dinamis, kicker overline tipografi murni berdenyut, serta mempertahankan 3-kartu reassurance.
+    2. **Right Grid:** Merekontruksi tampilan Business OS Cockpit dengan sasis kaca frosted glass mewah (`#0A122C/90`), specular ambient spotlight di belakang jendela, top-edge specular glare line, kurva ganda grafik spline finansial (Omset & Garis Laba Bersih Emerald), notifikasi toast WhatsApp Auto-Struk simulasi, kartu melayang berkilau dengan pulse indikator, dan telemetry cloud sync dengan latensi real-time.
+    3. **Integrity & Guardrails:** Memastikan keseimbangan tag HTML 100% (`0 unclosed divs`), zero emoji Unicode (hanya Lucide icons), serta lulus 100% seluruh asersi pengujian responsif pada `tests/Feature/LandingPageResponsiveHeroTest.php`.
+
+#### 2. What Was Done
+
+1. **Left Grid Reconstruction (Column 5/12):**
+    - **Overline Kicker:** Tipografi murni berdenyut dengan titik cyan neon (`Business Operating System & Omnichannel ERP`).
+    - **Headline with Gradient Highlight:** Menyorot frasa kunci *"Denyut Bisnis Anda."* dengan gradasi linier cyan-ke-biru modern.
+    - **High-Trust Social Proof:** Stack 4 avatar multi-warna (`BS`, `RM`, `FD`, `+10k`), 5 bintang emas (`fill-amber-400`), skor `4.9 / 5.0`, dan keterangan *"Dari 10.000+ Pemilik Usaha & UMKM"*.
+    - **Apple-grade Glowing Primary CTA:** Tombol `Mulai Coba Gratis` dengan drop shadow biru bercahaya (`shadow-[0_4px_20px_rgba(0,122,255,0.45)] hover:shadow-[0_6px_25px_rgba(0,122,255,0.6)]`), transisi tactile aktif, dan micro-interaction icon panah.
+    - **Reassurance Strip & 3-Metric Bento:** Tiga pilar tanpa risiko (*100% Gratis*, *Tanpa Kartu Kredit*, *Siap 2 Menit*) dan bento metrik frosted glass (*10.000+*, *99.8%*, *100%*).
+
+2. **Right Grid Reconstruction (Column 7/12):**
+    - **Ambient Spotlight & Top-Edge Glare:** Radial ambient glow di belakang cockpit chassis (`bg-gradient-to-tr from-[#007AFF]/25 via-[#00C4D8]/15 blur-3xl`) dan garis pantulan cahaya specular di bibir atas jendela.
+    - **High-Fidelity macOS & Mobile Bar:** Traffic lights berkilau, address bar SSL dengan ikon gembok emerald (`https://cooca.id/app/dashboard`), serta tombol switch slide tab (*Keuangan* & *Marketplace*) dengan status `Active` pulsing.
+    - **Floating Cards Refinement:** Kartu melayang *Total Pendapatan (Rp 128.4j)* dan *Bisnis Aktif (12 Unit)* ditingkatkan dengan lapisan kaca `#0A122C/95`, border specular berkilau, dan efek micro-hover elevation.
+    - **Slide 1 Live Telemetry & Dual-Curve Chart:**
+        - Kartu KPI omset dan laba bersih dengan rasio margin.
+        - Grafik spline SVG dengan area fill gradasi dan kurva sekunder garis putus-putus emerald untuk representasi margin laba bersih.
+        - Row simulasi auto-journal POS (*Kasir POS #TRX-2049* -> Potong Bahan -> Margin *+Rp 21.600*).
+        - Floating Toast notifikasi: *WhatsApp Auto-Struk (Nota #TRX-2049 Terkirim ke WA)*.
+    - **Slide 2 Omnichannel Hub:**
+        - Kartu KPI pesanan marketplace dan live SKU sync.
+        - Feed pesanan kurir live (Shopee J&T, Tokopedia SiCepat, Web Cooca GoSend POD).
+        - Automasi pengiriman: *Cetak Label Thermal*, *Resi WA Otomatis*, *Lacak Real-Time*.
+    - **Terminal Status:** Indikator latensi *24ms*, *Multi-Tenant Cloud Sync*, dan *AES-256 Protected*.
+
+3. **Verification & Testing:**
+    - `php -l resources/views/landing.blade.php`: Syntax valid, 0 errors.
+    - Node HTML parser: Token `<div>` seimbang sempurna (**0 unclosed divs**).
+    - `php artisan view:clear`: Berhasil membersihkan cache compiled blade.
+    - `tests/Feature/LandingPageResponsiveHeroTest.php`: **4 passed, 49 assertions (100% green)**.
+
+### [WORK-2026-09-24-133] Mobile Header Upscaling & Pure Icon Floating WhatsApp Widget Optimization
+
+- **Date:** 2026-09-24
+- **Status:** COMPLETED
+- **Module:** Public Marketing Layout (`public_marketing.blade.php`)
+- **Feature:** Mobile Header Scale & Floating WhatsApp FAB with Bottom Dock Clearance
+- **Work Type:** UI/UX Redesign | Mobile Responsiveness | Touch Target Optimization | Navigation
+
+#### 1. Business Context & Objective
+
+- **Konteks:** User meminta 2 penyesuaian esensial pada tampilan mobile di seluruh halaman publik:
+    1. Header pada layar mobile sebelumnya terlalu sempit (`h-16`, 64px) dengan logo yang kecil, sehingga ingin diperbesar agar proporsional dan gagah seperti skala desktop (`h-20` / 80px).
+    2. Tombol mengambang (floating) WhatsApp sebelumnya berupa pill lebar ("Chat Kami" dengan ping badge merah) yang bertabrakan / tumpang tindih (overlap) dengan *Apple Floating Dock Bottom Navbar* pada layar smartphone. User menginginkan tombol WhatsApp cukup berupa icon saja (FAB bulat murni) dan posisinya dipindahkan agar tidak lagi menutupi dock navigasi bawah.
+
+#### 2. What Was Done
+
+1. **Mobile Header Upscaling to Desktop Proportions:**
+    - Mengubah kontainer tinggi header dari `h-16 sm:h-20 lg:h-[84px]` menjadi `h-20 lg:h-[84px]` (skala mobile kini mencapai 80px, setara kenyamanan dan kelapangan desktop).
+    - Membesarkan logo brand image dari `h-8 sm:h-9` menjadi `h-10 lg:h-10 xl:h-11` (skala logo mobile kini 40px, identik dengan desktop).
+    - Membesarkan logo teks fallback dari `text-2xl` menjadi `text-3xl`.
+    - Membesarkan tombol *Apple Theme Switcher* pada mobile menjadi `w-11 h-11` dengan ikon `w-5.5 h-5.5`.
+    - Membesarkan tombol *Mobile Hamburger Menu* menjadi target sentuh ergonomis `min-w-[48px] min-h-[48px]` dengan ikon `w-6 h-6`.
+
+2. **Pure Icon Floating WhatsApp Button with Safe Dock Clearance:**
+    - Mentransformasi tombol WhatsApp dari pill panjang menjadi Floating Action Button (FAB) bulat minimalis murni: `w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-[#25D366]` dengan ikon Lucide `message-circle` (`w-6 h-6 sm:w-7 sm:h-7`).
+    - Mempertahankan label tersembunyi untuk aksesibilitas dan screen reader (`<span class="sr-only">Chat Kami</span>`) sekaligus menjamin kompatibilitas pengujian otomatis.
+    - Mengatur ulang elevasi posisi pada mobile & tablet menjadi `bottom-[calc(5.75rem+env(safe-area-inset-bottom,0px))]` (memberikan jarak aman ~16px-20px di atas dock bawah `z-40`), dan `lg:bottom-6 lg:right-6` pada desktop (bebas overlap 100%).
+
+3. **Verification & Automated Testing:**
+    - `php -l resources/views/layouts/public_marketing.blade.php`: Syntax valid, 0 errors.
+    - `php artisan view:clear`: Sukses membersihkan compiled views.
+    - `tests/Feature/LandingPageResponsiveHeroTest.php`: **4 passed, 49 assertions (100% green)**.
+    - `tests/Feature/PublicViewsProductionReadinessTest.php`: **14 passed, 137 assertions (100% green)**.
+
+
