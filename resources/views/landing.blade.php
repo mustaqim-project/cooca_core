@@ -94,9 +94,9 @@
 
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-3.5 sm:gap-6 lg:gap-12 items-center w-full">
 
-                    <!-- KIRI: Eyebrow, Headline, Subtitle, CTAs & Value Proof (Mobile Center, Desktop Left ~ 5 Cols) -->
+                    <!-- KIRI: Eyebrow, Headline, Subtitle, CTAs & Value Proof (Left-aligned on Mobile and Desktop ~ 5 Cols) -->
                     <div
-                        class="lg:col-span-5 space-y-2.5 sm:space-y-4 lg:space-y-6 text-center mx-auto flex flex-col items-center lg:text-left lg:items-start lg:mx-0 w-full">
+                        class="lg:col-span-5 space-y-2.5 sm:space-y-4 lg:space-y-6 text-left flex flex-col items-start w-full">
                         <div class="space-y-1 sm:space-y-2 lg:space-y-3 w-full">
                             <!-- Pure Typographic Overline Kicker (Zero Pill Abuse) -->
                             <p class="text-[10px] sm:text-xs lg:text-[13px] font-bold uppercase tracking-wider text-[#00C4D8]">
@@ -104,20 +104,20 @@
                             </p>
 
                             <h1
-                                class="text-[1.35rem] xs:text-2xl sm:text-4xl md:text-5xl lg:text-[2.75rem] xl:text-[3.1rem] font-extrabold text-white tracking-tight leading-[1.14] text-balance break-words max-w-[21rem] sm:max-w-xl lg:max-w-none mx-auto lg:mx-0">
+                                class="text-[1.35rem] xs:text-2xl sm:text-4xl md:text-5xl lg:text-[2.75rem] xl:text-[3.1rem] font-extrabold text-white tracking-tight leading-[1.14] text-balance break-words max-w-[21rem] sm:max-w-xl lg:max-w-none">
                                 Satu Sistem Operasi untuk Seluruh <span class="text-[#00C4D8]">Denyut Bisnis Anda.</span>
                             </h1>
                         </div>
 
                         <p
-                            class="text-xs sm:text-base lg:text-lg text-slate-300 leading-snug sm:leading-relaxed max-w-[23rem] sm:max-w-[32rem] lg:max-w-xl font-normal text-pretty line-clamp-2 sm:line-clamp-none break-words mx-auto lg:mx-0">
+                            class="text-xs sm:text-base lg:text-lg text-slate-300 leading-snug sm:leading-relaxed max-w-[23rem] sm:max-w-[32rem] lg:max-w-xl font-normal text-pretty line-clamp-2 sm:line-clamp-none break-words">
                             Satukan kasir POS, inventaris resep bahan baku otomatis, pembukuan finansial real-time,
                             katalog toko online, hingga notifikasi WhatsApp tanpa mengetik ulang data secara manual.
                         </p>
 
-                        <!-- Action Buttons (Row on Mobile, Row on Desktop) -->
+                        <!-- Action Buttons (Row Left-Aligned on Mobile & Desktop) -->
                         <div
-                            class="pt-0.5 sm:pt-1 flex flex-row items-center justify-center lg:justify-start gap-2 sm:gap-3.5 w-full sm:w-auto">
+                            class="pt-0.5 sm:pt-1 flex flex-row items-center justify-start gap-2 sm:gap-3.5 w-full sm:w-auto">
                             @if (auth('admin')->check())
                                 <a href="{{ route('admin.dashboard') }}"
                                     class="h-9 sm:h-12 px-4 sm:px-7 rounded-[12px] sm:rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-xs sm:text-sm flex items-center justify-center gap-1.5 sm:gap-2 shadow-[0_4px_16px_rgba(0,122,255,0.35)] active:scale-[0.98] transition-all min-h-[38px] sm:min-h-[48px]">
@@ -132,21 +132,21 @@
                                 </a>
                             @else
                                 <a href="{{ route('register') }}"
-                                    class="h-9 sm:h-12 px-4 sm:px-8 rounded-[12px] sm:rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-xs sm:text-base flex items-center justify-center gap-1.5 sm:gap-2 shadow-[0_4px_16px_rgba(0,122,255,0.35)] active:scale-[0.98] transition-all min-h-[38px] sm:min-h-[48px] flex-1 sm:flex-initial">
+                                    class="h-9 sm:h-12 px-4 sm:px-8 rounded-[12px] sm:rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-xs sm:text-base flex items-center justify-center gap-1.5 sm:gap-2 shadow-[0_4px_16px_rgba(0,122,255,0.35)] active:scale-[0.98] transition-all min-h-[38px] sm:min-h-[48px] shrink-0">
                                     <span>Mulai Coba Gratis</span>
                                     <i data-lucide="arrow-right" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
                                 </a>
                                 <a href="{{ route('public.demo') }}"
-                                    class="h-9 sm:h-12 px-3.5 sm:px-6 rounded-[12px] sm:rounded-[14px] bg-white/10 hover:bg-white/15 border border-white/15 text-white font-semibold text-xs sm:text-sm flex items-center justify-center gap-1.5 sm:gap-2 active:scale-[0.98] transition-all backdrop-blur-sm min-h-[38px] sm:min-h-[48px] flex-1 sm:flex-initial">
+                                    class="h-9 sm:h-12 px-3.5 sm:px-6 rounded-[12px] sm:rounded-[14px] bg-white/10 hover:bg-white/15 border border-white/15 text-white font-semibold text-xs sm:text-sm flex items-center justify-center gap-1.5 sm:gap-2 active:scale-[0.98] transition-all backdrop-blur-sm min-h-[38px] sm:min-h-[48px] shrink-0">
                                     <i data-lucide="play" class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#00C4D8]"></i>
                                     <span>Coba Live Demo</span>
                                 </a>
                             @endif
                         </div>
 
-                        <!-- Reassurance Checkpoints (Centered on Mobile, Row on Desktop) -->
+                        <!-- Reassurance Checkpoints (Left-Aligned on Mobile & Desktop) -->
                         <div
-                            class="pt-0.5 sm:pt-1 flex flex-wrap items-center justify-center lg:justify-start gap-x-3 sm:gap-x-5 gap-y-1 text-[10px] sm:text-xs text-slate-300">
+                            class="pt-0.5 sm:pt-1 flex flex-wrap items-center justify-start gap-x-3 sm:gap-x-5 gap-y-1 text-[10px] sm:text-xs text-slate-300">
                             <div class="flex items-center gap-1 sm:gap-1.5">
                                 <i data-lucide="check" class="w-3 h-3 sm:w-4 sm:h-4 text-emerald-400"></i>
                                 <span>100% Gratis</span>
@@ -161,8 +161,8 @@
                             </div>
                         </div>
 
-                        <!-- 3-Metric Bento Tiles (Compact on Mobile, Full on Desktop) -->
-                        <div class="pt-0.5 sm:pt-2 w-full flex justify-center lg:justify-start">
+                        <!-- 3-Metric Bento Tiles (Left-Aligned on Mobile & Desktop) -->
+                        <div class="pt-0.5 sm:pt-2 w-full flex justify-start">
                             <div
                                 class="bg-white/[0.05] backdrop-blur-xl rounded-[12px] sm:rounded-[18px] p-2 sm:p-3.5 lg:p-4 border border-white/10 shadow-lg grid grid-cols-3 divide-x divide-white/10 text-center max-w-xs sm:max-w-md w-full">
                                 <div class="px-1 sm:px-2">

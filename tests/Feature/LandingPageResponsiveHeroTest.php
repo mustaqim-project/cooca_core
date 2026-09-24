@@ -44,8 +44,10 @@ final class LandingPageResponsiveHeroTest extends TestCase
         $response->assertSee('text-[1.35rem] xs:text-2xl sm:text-4xl', false);
         // Compact description with line clamping on mobile
         $response->assertSee('line-clamp-2 sm:line-clamp-none', false);
-        // Compact side-by-side action buttons
-        $response->assertSee('flex flex-row items-center justify-center lg:justify-start gap-2 sm:gap-3.5', false);
+        // Left-aligned layout on mobile & desktop
+        $response->assertSee('text-left flex flex-col items-start', false);
+        // Compact side-by-side action buttons (left-aligned)
+        $response->assertSee('flex flex-row items-center justify-start gap-2 sm:gap-3.5', false);
         $response->assertSee('Mulai Coba Gratis');
         $response->assertSee('Coba Live Demo');
         // Reassurance checkpoints
