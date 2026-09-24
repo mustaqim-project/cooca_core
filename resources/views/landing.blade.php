@@ -111,8 +111,7 @@
 
                         <p
                             class="text-xs sm:text-base lg:text-lg text-slate-300 leading-snug sm:leading-relaxed max-w-[23rem] sm:max-w-[32rem] lg:max-w-xl font-normal text-pretty line-clamp-2 sm:line-clamp-none break-words">
-                            Satukan kasir POS, inventaris resep bahan baku otomatis, pembukuan finansial real-time,
-                            katalog toko online, hingga notifikasi WhatsApp tanpa mengetik ulang data secara manual.
+                            Satukan kasir POS, stok resep otomatis, pembukuan real-time, dan toko online tanpa ketik ulang manual.
                         </p>
 
                         <!-- Action Buttons (Row Left-Aligned on Mobile & Desktop) -->
@@ -161,8 +160,8 @@
                             </div>
                         </div>
 
-                        <!-- 3-Metric Bento Tiles (Left-Aligned on Mobile & Desktop) -->
-                        <div class="pt-0.5 sm:pt-2 w-full flex justify-start">
+                        <!-- 3-Metric Bento Tiles (Desktop only to prevent mobile clutter & duplicate metrics) -->
+                        <div class="hidden lg:flex pt-0.5 sm:pt-2 w-full justify-start">
                             <div
                                 class="bg-white/[0.05] backdrop-blur-xl rounded-[12px] sm:rounded-[18px] p-2 sm:p-3.5 lg:p-4 border border-white/10 shadow-lg grid grid-cols-3 divide-x divide-white/10 text-center max-w-xs sm:max-w-md w-full">
                                 <div class="px-1 sm:px-2">
@@ -200,24 +199,47 @@
                                     }
                                 }, 6500);
                             },
-                            setSlide(n) {
-                                this.activeSlide = n;
-                                this.autoSlide = false;
-                            }
-                        }"
-                        @mouseenter="autoSlide = false"
-                        @mouseleave="autoSlide = true">
+                              <!-- Mobile Live Dynamic Island Metric Strip (Clean, non-colliding, zero overlap) -->
+                        <div class="flex sm:hidden items-center justify-between gap-2 mb-2 w-full">
+                            <!-- Mobile Left Live Badge -->
+                            <div x-show="activeSlide === 1"
+                                class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#0E1E45]/90 border border-white/15 text-[10px] text-slate-200 backdrop-blur-xl shadow-md">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                                <span class="text-slate-400 font-medium">Bisnis Aktif</span>
+                                <span class="font-extrabold text-white">12 Unit</span>
+                            </div>
+                            <div x-show="activeSlide === 2"
+                                class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#0E1E45]/90 border border-white/15 text-[10px] text-slate-200 backdrop-blur-xl shadow-md">
+                                <i data-lucide="refresh-cw" class="w-3 h-3 text-[#00C4D8]"></i>
+                                <span class="text-slate-400 font-medium">Multi-MP</span>
+                                <span class="font-extrabold text-white">1.420 SKU</span>
+                            </div>
 
-                        <!-- Floating Card Top-Right: Revenue / Shipping (VISIBLE ON BOTH MOBILE & DESKTOP) -->
+                            <!-- Mobile Right Live Badge -->
+                            <div x-show="activeSlide === 1"
+                                class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#0E1E45]/90 border border-white/15 text-[10px] text-slate-200 backdrop-blur-xl shadow-md">
+                                <span class="text-slate-400 font-medium">Total</span>
+                                <span class="font-extrabold text-white">Rp 128.4j</span>
+                                <span class="text-emerald-400 font-semibold">(+8.4%)</span>
+                            </div>
+                            <div x-show="activeSlide === 2"
+                                class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#0E1E45]/90 border border-white/15 text-[10px] text-slate-200 backdrop-blur-xl shadow-md">
+                                <i data-lucide="truck" class="w-3 h-3 text-sky-400"></i>
+                                <span class="text-slate-400 font-medium">Resi</span>
+                                <span class="font-extrabold text-white">86 Paket</span>
+                            </div>
+                        </div>
+
+                        <!-- Floating Card Top-Right: Revenue / Shipping (TABLET & DESKTOP - Zero mobile overlap) -->
                         <div x-show="activeSlide === 1"
                             x-transition:enter="transition ease-out duration-300"
                             x-transition:enter-start="opacity-0 translate-y-2 scale-95"
                             x-transition:enter-end="opacity-100 translate-y-0 scale-100"
-                            class="absolute -top-2.5 sm:-top-5 -right-1 sm:-right-3 z-30 bg-[#0E1E45]/95 border border-white/15 rounded-[12px] sm:rounded-[18px] p-1.5 sm:p-3.5 shadow-[0_12px_30px_-5px_rgba(0,0,0,0.6)] min-w-[95px] sm:min-w-[170px] backdrop-blur-xl text-white pointer-events-none sm:pointer-events-auto">
-                            <div class="text-[8.5px] sm:text-[11px] text-slate-400 font-medium">Total Pendapatan</div>
-                            <div class="text-xs sm:text-lg font-extrabold text-white tabular-nums tracking-tight">Rp 128.4j</div>
-                            <div class="text-[8px] sm:text-[11px] font-semibold text-emerald-400 flex items-center gap-0.5 sm:gap-1 mt-0.5">
-                                <i data-lucide="trending-up" class="w-2.5 h-2.5 sm:w-3 sm:h-3"></i>
+                            class="hidden sm:block absolute -top-5 -right-3 z-30 bg-[#0E1E45]/95 border border-white/15 rounded-[18px] p-3.5 shadow-[0_12px_30px_-5px_rgba(0,0,0,0.6)] min-w-[170px] backdrop-blur-xl text-white">
+                            <div class="text-[11px] text-slate-400 font-medium">Total Pendapatan</div>
+                            <div class="text-lg font-extrabold text-white tabular-nums tracking-tight">Rp 128.4j</div>
+                            <div class="text-[11px] font-semibold text-emerald-400 flex items-center gap-1 mt-0.5">
+                                <i data-lucide="trending-up" class="w-3 h-3"></i>
                                 <span>+8.4% bulan ini</span>
                             </div>
                         </div>
@@ -226,25 +248,25 @@
                             x-transition:enter="transition ease-out duration-300"
                             x-transition:enter-start="opacity-0 translate-y-2 scale-95"
                             x-transition:enter-end="opacity-100 translate-y-0 scale-100"
-                            class="absolute -top-2.5 sm:-top-5 -right-1 sm:-right-3 z-30 bg-[#0E1E45]/95 border border-white/15 rounded-[12px] sm:rounded-[18px] p-1.5 sm:p-3.5 shadow-[0_12px_30px_-5px_rgba(0,0,0,0.6)] min-w-[95px] sm:min-w-[170px] backdrop-blur-xl text-white pointer-events-none sm:pointer-events-auto">
-                            <div class="text-[8.5px] sm:text-[11px] text-slate-400 font-medium">Live Resi Kirim</div>
-                            <div class="text-xs sm:text-lg font-extrabold text-white tabular-nums tracking-tight">86 Paket</div>
-                            <div class="text-[8px] sm:text-[11px] font-semibold text-sky-400 flex items-center gap-0.5 sm:gap-1 mt-0.5">
-                                <i data-lucide="truck" class="w-2.5 h-2.5 sm:w-3 sm:h-3"></i>
+                            class="hidden sm:block absolute -top-5 -right-3 z-30 bg-[#0E1E45]/95 border border-white/15 rounded-[18px] p-3.5 shadow-[0_12px_30px_-5px_rgba(0,0,0,0.6)] min-w-[170px] backdrop-blur-xl text-white">
+                            <div class="text-[11px] text-slate-400 font-medium">Live Resi Kirim</div>
+                            <div class="text-lg font-extrabold text-white tabular-nums tracking-tight">86 Paket</div>
+                            <div class="text-[11px] font-semibold text-sky-400 flex items-center gap-1 mt-0.5">
+                                <i data-lucide="truck" class="w-3 h-3"></i>
                                 <span>Siap Pick Up</span>
                             </div>
                         </div>
 
-                        <!-- Floating Card Bottom-Left: Bisnis Aktif / Multi-MP Sync (VISIBLE ON BOTH MOBILE & DESKTOP) -->
+                        <!-- Floating Card Bottom-Left: Bisnis Aktif / Multi-MP Sync (TABLET & DESKTOP - Zero mobile overlap) -->
                         <div x-show="activeSlide === 1"
                             x-transition:enter="transition ease-out duration-300"
                             x-transition:enter-start="opacity-0 translate-y-2 scale-95"
                             x-transition:enter-end="opacity-100 translate-y-0 scale-100"
-                            class="absolute -bottom-2.5 sm:-bottom-5 -left-1 sm:-left-3 z-30 bg-[#0E1E45]/95 border border-white/15 rounded-[12px] sm:rounded-[18px] p-1.5 sm:p-3.5 shadow-[0_12px_30px_-5px_rgba(0,0,0,0.6)] min-w-[85px] sm:min-w-[145px] backdrop-blur-xl text-white pointer-events-none sm:pointer-events-auto">
-                            <div class="text-[8.5px] sm:text-[11px] text-slate-400 font-medium">Bisnis Aktif</div>
-                            <div class="text-xs sm:text-lg font-extrabold text-white tabular-nums tracking-tight">12 Unit</div>
-                            <div class="text-[8px] sm:text-[11px] font-semibold text-emerald-400 flex items-center gap-1 mt-0.5">
-                                <span class="w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                            class="hidden sm:block absolute -bottom-5 -left-3 z-30 bg-[#0E1E45]/95 border border-white/15 rounded-[18px] p-3.5 shadow-[0_12px_30px_-5px_rgba(0,0,0,0.6)] min-w-[145px] backdrop-blur-xl text-white">
+                            <div class="text-[11px] text-slate-400 font-medium">Bisnis Aktif</div>
+                            <div class="text-lg font-extrabold text-white tabular-nums tracking-tight">12 Unit</div>
+                            <div class="text-[11px] font-semibold text-emerald-400 flex items-center gap-1 mt-0.5">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
                                 <span>All Online</span>
                             </div>
                         </div>
@@ -253,11 +275,11 @@
                             x-transition:enter="transition ease-out duration-300"
                             x-transition:enter-start="opacity-0 translate-y-2 scale-95"
                             x-transition:enter-end="opacity-100 translate-y-0 scale-100"
-                            class="absolute -bottom-2.5 sm:-bottom-5 -left-1 sm:-left-3 z-30 bg-[#0E1E45]/95 border border-white/15 rounded-[12px] sm:rounded-[18px] p-1.5 sm:p-3.5 shadow-[0_12px_30px_-5px_rgba(0,0,0,0.6)] min-w-[85px] sm:min-w-[145px] backdrop-blur-xl text-white pointer-events-none sm:pointer-events-auto">
-                            <div class="text-[8.5px] sm:text-[11px] text-slate-400 font-medium">Multi-MP Sync</div>
-                            <div class="text-xs sm:text-lg font-extrabold text-white tabular-nums tracking-tight">1.420 SKU</div>
-                            <div class="text-[8px] sm:text-[11px] font-semibold text-[#00C4D8] flex items-center gap-1 mt-0.5">
-                                <i data-lucide="refresh-cw" class="w-2.5 h-2.5 sm:w-3 sm:h-3"></i>
+                            class="hidden sm:block absolute -bottom-5 -left-3 z-30 bg-[#0E1E45]/95 border border-white/15 rounded-[18px] p-3.5 shadow-[0_12px_30px_-5px_rgba(0,0,0,0.6)] min-w-[145px] backdrop-blur-xl text-white">
+                            <div class="text-[11px] text-slate-400 font-medium">Multi-MP Sync</div>
+                            <div class="text-lg font-extrabold text-white tabular-nums tracking-tight">1.420 SKU</div>
+                            <div class="text-[11px] font-semibold text-[#00C4D8] flex items-center gap-1 mt-0.5">
+                                <i data-lucide="refresh-cw" class="w-3 h-3"></i>
                                 <span>Realtime Sync</span>
                             </div>
                         </div>
@@ -295,8 +317,30 @@
                         <div
                             class="rounded-[18px] sm:rounded-[28px] bg-[#0E1E45]/85 border border-white/15 p-2.5 sm:p-5 lg:p-6 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.7)] backdrop-blur-xl space-y-2 sm:space-y-3.5 lg:space-y-4 text-white relative z-10">
 
-                            <!-- macOS Window Top Bar with URL & Interactive Slide Tabs -->
-                            <div class="flex items-center justify-between border-b border-white/10 pb-2 sm:pb-3 gap-2">
+                            <!-- Mobile Window Header (sm:hidden - Clean title & spacious slide tabs, zero truncation) -->
+                            <div class="flex sm:hidden items-center justify-between border-b border-white/10 pb-2 gap-2">
+                                <div class="flex items-center gap-1.5 min-w-0">
+                                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0"></span>
+                                    <span class="text-[11px] font-bold text-white tracking-tight truncate">Executive Cockpit</span>
+                                </div>
+                                <div class="flex items-center bg-white/[0.06] p-0.5 rounded-full border border-white/10 text-[10px] font-semibold shrink-0">
+                                    <button type="button" @click="setSlide(1)"
+                                        :class="activeSlide === 1 ? 'bg-[#007AFF] text-white shadow-xs' : 'text-slate-400 hover:text-white'"
+                                        class="px-2.5 py-1 rounded-full transition-all flex items-center gap-1">
+                                        <i data-lucide="line-chart" class="w-3 h-3"></i>
+                                        <span>Keuangan</span>
+                                    </button>
+                                    <button type="button" @click="setSlide(2)"
+                                        :class="activeSlide === 2 ? 'bg-[#007AFF] text-white shadow-xs' : 'text-slate-400 hover:text-white'"
+                                        class="px-2.5 py-1 rounded-full transition-all flex items-center gap-1">
+                                        <i data-lucide="store" class="w-3 h-3"></i>
+                                        <span>Marketplace</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Desktop/Tablet macOS Window Top Bar (hidden sm:flex with traffic lights, URL bar & tabs) -->
+                            <div class="hidden sm:flex items-center justify-between border-b border-white/10 pb-2 sm:pb-3 gap-2">
                                 <div class="flex items-center gap-1.5 sm:gap-3 min-w-0">
                                     <div class="flex items-center gap-1 sm:gap-1.5 shrink-0">
                                         <span class="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-[#FF5F56] shadow-inner"></span>
@@ -322,8 +366,7 @@
                                             :class="activeSlide === 2 ? 'bg-[#007AFF] text-white shadow-xs' : 'text-slate-400 hover:text-white'"
                                             class="px-2 sm:px-3 py-0.5 sm:py-1 rounded-full transition-all flex items-center gap-1">
                                             <i data-lucide="store" class="w-3 h-3 sm:w-3.5 sm:h-3.5"></i>
-                                            <span class="hidden xs:inline">Marketplace</span>
-                                            <span class="xs:hidden">MP</span>
+                                            <span>Marketplace</span>
                                         </button>
                                     </div>
 
@@ -356,33 +399,33 @@
                                     </span>
                                 </div>
 
-                                <!-- 4-Metric Grid (Compact on Mobile, Full on Desktop) -->
-                                <div class="grid grid-cols-4 gap-1.5 sm:gap-2.5 lg:gap-3">
-                                    <div class="p-1.5 sm:p-3 lg:p-3.5 rounded-[10px] sm:rounded-[16px] bg-white/[0.04] border border-white/[0.08] space-y-0.5 sm:space-y-1">
-                                        <span class="text-[8.5px] sm:text-[11px] text-slate-400 block font-medium truncate">Total Omset</span>
-                                        <div class="text-xs sm:text-base lg:text-lg font-bold text-white tabular-nums tracking-tight">Rp 128.4j</div>
-                                        <span class="text-[8px] sm:text-[10px] font-semibold text-emerald-400 flex items-center gap-0.5">
+                                <!-- KPI Metric Grid (2 spacious cards on Mobile, 4 cards on Tablet/Desktop) -->
+                                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-2.5 lg:gap-3">
+                                    <div class="p-2 sm:p-3 lg:p-3.5 rounded-[12px] sm:rounded-[16px] bg-white/[0.04] border border-white/[0.08] space-y-0.5 sm:space-y-1">
+                                        <span class="text-[9px] sm:text-[11px] text-slate-400 block font-medium truncate">Total Omset</span>
+                                        <div class="text-sm sm:text-base lg:text-lg font-bold text-white tabular-nums tracking-tight">Rp 128.4j</div>
+                                        <span class="text-[8.5px] sm:text-[10px] font-semibold text-emerald-400 flex items-center gap-0.5">
                                             <i data-lucide="trending-up" class="w-2.5 h-2.5 sm:w-3 sm:h-3"></i>
                                             +8.4%
                                         </span>
                                     </div>
 
-                                    <div class="p-1.5 sm:p-3 lg:p-3.5 rounded-[10px] sm:rounded-[16px] bg-white/[0.04] border border-white/[0.08] space-y-0.5 sm:space-y-1">
-                                        <span class="text-[8.5px] sm:text-[11px] text-slate-400 block font-medium truncate">Lisensi POS</span>
-                                        <div class="text-xs sm:text-base lg:text-lg font-bold text-white tabular-nums tracking-tight">12 Unit</div>
-                                        <span class="text-[8px] sm:text-[10px] text-sky-400 font-medium">Online</span>
+                                    <div class="hidden sm:block p-2 sm:p-3 lg:p-3.5 rounded-[12px] sm:rounded-[16px] bg-white/[0.04] border border-white/[0.08] space-y-0.5 sm:space-y-1">
+                                        <span class="text-[9px] sm:text-[11px] text-slate-400 block font-medium truncate">Lisensi POS</span>
+                                        <div class="text-sm sm:text-base lg:text-lg font-bold text-white tabular-nums tracking-tight">12 Unit</div>
+                                        <span class="text-[8.5px] sm:text-[10px] text-sky-400 font-medium">Online</span>
                                     </div>
 
-                                    <div class="p-1.5 sm:p-3 lg:p-3.5 rounded-[10px] sm:rounded-[16px] bg-white/[0.04] border border-white/[0.08] space-y-0.5 sm:space-y-1">
-                                        <span class="text-[8.5px] sm:text-[11px] text-slate-400 block font-medium truncate">Tenant Aktif</span>
-                                        <div class="text-xs sm:text-base lg:text-lg font-bold text-white tabular-nums tracking-tight">48 Bisnis</div>
-                                        <span class="text-[8px] sm:text-[10px] text-slate-400 font-medium">+6 bln</span>
+                                    <div class="hidden sm:block p-2 sm:p-3 lg:p-3.5 rounded-[12px] sm:rounded-[16px] bg-white/[0.04] border border-white/[0.08] space-y-0.5 sm:space-y-1">
+                                        <span class="text-[9px] sm:text-[11px] text-slate-400 block font-medium truncate">Tenant Aktif</span>
+                                        <div class="text-sm sm:text-base lg:text-lg font-bold text-white tabular-nums tracking-tight">48 Bisnis</div>
+                                        <span class="text-[8.5px] sm:text-[10px] text-slate-400 font-medium">+6 bln</span>
                                     </div>
 
-                                    <div class="p-1.5 sm:p-3 lg:p-3.5 rounded-[10px] sm:rounded-[16px] bg-white/[0.04] border border-white/[0.08] space-y-0.5 sm:space-y-1">
-                                        <span class="text-[8.5px] sm:text-[11px] text-slate-400 block font-medium truncate">Laba Bersih</span>
-                                        <div class="text-xs sm:text-base lg:text-lg font-bold text-emerald-400 tabular-nums tracking-tight">Rp 42.1j</div>
-                                        <span class="text-[8px] sm:text-[10px] text-slate-400 font-medium">32.8%</span>
+                                    <div class="p-2 sm:p-3 lg:p-3.5 rounded-[12px] sm:rounded-[16px] bg-white/[0.04] border border-white/[0.08] space-y-0.5 sm:space-y-1">
+                                        <span class="text-[9px] sm:text-[11px] text-slate-400 block font-medium truncate">Laba Bersih</span>
+                                        <div class="text-sm sm:text-base lg:text-lg font-bold text-emerald-400 tabular-nums tracking-tight">Rp 42.1j</div>
+                                        <span class="text-[8.5px] sm:text-[10px] text-slate-400 font-medium">32.8%</span>
                                     </div>
                                 </div>
 
@@ -394,7 +437,7 @@
                                     </div>
 
                                     <!-- Smooth SVG Spline Chart with Gradient Area Fill -->
-                                    <div class="w-full h-12 xs:h-14 sm:h-24 lg:h-28 relative">
+                                    <div class="w-full h-16 xs:h-20 sm:h-24 lg:h-28 relative">
                                         <svg class="w-full h-full overflow-visible" viewBox="0 0 500 100" preserveAspectRatio="none">
                                             <defs>
                                                 <linearGradient id="chartGradientHero" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -467,33 +510,33 @@
                                     </span>
                                 </div>
 
-                                <!-- 4-Metric Grid (Marketplace & Shipping KPIs) -->
-                                <div class="grid grid-cols-4 gap-1.5 sm:gap-2.5 lg:gap-3">
-                                    <div class="p-1.5 sm:p-3 lg:p-3.5 rounded-[10px] sm:rounded-[16px] bg-white/[0.04] border border-white/[0.08] space-y-0.5 sm:space-y-1">
-                                        <span class="text-[8.5px] sm:text-[11px] text-slate-400 block font-medium truncate">Pesanan MP</span>
-                                        <div class="text-xs sm:text-base lg:text-lg font-bold text-white tabular-nums tracking-tight">1.248 Pkt</div>
-                                        <span class="text-[8px] sm:text-[10px] font-semibold text-emerald-400 flex items-center gap-0.5">
+                                <!-- KPI Metric Grid (Marketplace & Shipping KPIs - 2 spacious on mobile, 4 on desktop) -->
+                                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-2.5 lg:gap-3">
+                                    <div class="p-2 sm:p-3 lg:p-3.5 rounded-[12px] sm:rounded-[16px] bg-white/[0.04] border border-white/[0.08] space-y-0.5 sm:space-y-1">
+                                        <span class="text-[9px] sm:text-[11px] text-slate-400 block font-medium truncate">Pesanan MP</span>
+                                        <div class="text-sm sm:text-base lg:text-lg font-bold text-white tabular-nums tracking-tight">1.248 Pkt</div>
+                                        <span class="text-[8.5px] sm:text-[10px] font-semibold text-emerald-400 flex items-center gap-0.5">
                                             <i data-lucide="trending-up" class="w-2.5 h-2.5 sm:w-3 sm:h-3"></i>
                                             +24.6%
                                         </span>
                                     </div>
 
-                                    <div class="p-1.5 sm:p-3 lg:p-3.5 rounded-[10px] sm:rounded-[16px] bg-white/[0.04] border border-white/[0.08] space-y-0.5 sm:space-y-1">
-                                        <span class="text-[8.5px] sm:text-[11px] text-slate-400 block font-medium truncate">Live SKU</span>
-                                        <div class="text-xs sm:text-base lg:text-lg font-bold text-white tabular-nums tracking-tight">1.420 SKU</div>
-                                        <span class="text-[8px] sm:text-[10px] text-[#00C4D8] font-medium">Sync</span>
+                                    <div class="hidden sm:block p-2 sm:p-3 lg:p-3.5 rounded-[12px] sm:rounded-[16px] bg-white/[0.04] border border-white/[0.08] space-y-0.5 sm:space-y-1">
+                                        <span class="text-[9px] sm:text-[11px] text-slate-400 block font-medium truncate">Live SKU</span>
+                                        <div class="text-sm sm:text-base lg:text-lg font-bold text-white tabular-nums tracking-tight">1.420 SKU</div>
+                                        <span class="text-[8.5px] sm:text-[10px] text-[#00C4D8] font-medium">Sync</span>
                                     </div>
 
-                                    <div class="p-1.5 sm:p-3 lg:p-3.5 rounded-[10px] sm:rounded-[16px] bg-white/[0.04] border border-white/[0.08] space-y-0.5 sm:space-y-1">
-                                        <span class="text-[8.5px] sm:text-[11px] text-slate-400 block font-medium truncate">Pick Up</span>
-                                        <div class="text-xs sm:text-base lg:text-lg font-bold text-sky-400 tabular-nums tracking-tight">86 Resi</div>
-                                        <span class="text-[8px] sm:text-[10px] text-slate-400 font-medium">Siap</span>
+                                    <div class="hidden sm:block p-2 sm:p-3 lg:p-3.5 rounded-[12px] sm:rounded-[16px] bg-white/[0.04] border border-white/[0.08] space-y-0.5 sm:space-y-1">
+                                        <span class="text-[9px] sm:text-[11px] text-slate-400 block font-medium truncate">Pick Up</span>
+                                        <div class="text-sm sm:text-base lg:text-lg font-bold text-sky-400 tabular-nums tracking-tight">86 Resi</div>
+                                        <span class="text-[8.5px] sm:text-[10px] text-slate-400 font-medium">Siap</span>
                                     </div>
 
-                                    <div class="p-1.5 sm:p-3 lg:p-3.5 rounded-[10px] sm:rounded-[16px] bg-white/[0.04] border border-white/[0.08] space-y-0.5 sm:space-y-1">
-                                        <span class="text-[8.5px] sm:text-[11px] text-slate-400 block font-medium truncate">Hemat Ongkir</span>
-                                        <div class="text-xs sm:text-base lg:text-lg font-bold text-emerald-400 tabular-nums tracking-tight">Rp 3.4j</div>
-                                        <span class="text-[8px] sm:text-[10px] text-slate-400 font-medium">s/d 25%</span>
+                                    <div class="p-2 sm:p-3 lg:p-3.5 rounded-[12px] sm:rounded-[16px] bg-white/[0.04] border border-white/[0.08] space-y-0.5 sm:space-y-1">
+                                        <span class="text-[9px] sm:text-[11px] text-slate-400 block font-medium truncate">Hemat Ongkir</span>
+                                        <div class="text-sm sm:text-base lg:text-lg font-bold text-emerald-400 tabular-nums tracking-tight">Rp 3.4j</div>
+                                        <span class="text-[8.5px] sm:text-[10px] text-slate-400 font-medium">s/d 25%</span>
                                     </div>
                                 </div>
 

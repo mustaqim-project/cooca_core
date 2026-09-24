@@ -93,5 +93,11 @@ final class LandingPageResponsiveHeroTest extends TestCase
         $response->assertSee('#SHP-8821', false);
         $response->assertSee('Cetak Label Thermal', false);
         $response->assertSee('Resi WA Otomatis', false);
+
+        // Mobile Clean Executive Cockpit assertions
+        $response->assertSee('Executive Cockpit', false);
+        $response->assertSee('hidden lg:flex pt-0.5 sm:pt-2 w-full justify-start', false);
+        $response->assertSee('grid-cols-2 sm:grid-cols-4', false);
+        $response->assertSee('h-16 xs:h-20 sm:h-24 lg:h-28', false);
     }
 }

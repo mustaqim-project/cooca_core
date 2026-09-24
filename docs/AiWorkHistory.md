@@ -76,23 +76,23 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 1. Menganalisis tinggi komponen navbar (`h-16` / 64px pada mobile, `h-[84px]` pada desktop) dan dock bawah mobile (~76px) untuk menetapkan kalkulasi viewport modern `min-h-[calc(100svh-4rem)] lg:min-h-[calc(100svh-84px)]`.
 2. Melakukan refactor container hero dengan padding aman anti-overlap dock navigasi bawah (`pt-3 pb-[calc(5rem+env(safe-area-inset-bottom,0px))] sm:pt-6 sm:pb-24 lg:py-14`).
 3. Mengadopsi responsive typography pada headline (`text-[1.35rem] xs:text-2xl sm:text-4xl md:text-5xl lg:text-[2.75rem] xl:text-[3.1rem]`) dan line-clamping 2 baris pada deskripsi di layar kecil (`line-clamp-2 sm:line-clamp-none`).
-4. Mengubah susunan action CTA di ponsel dari tumpukan tombol vertikal tinggi menjadi sebaris horizontal ramping (`flex-row items-center justify-center gap-2`, tinggi `h-9 min-h-[38px]`), menghemat lebih dari 60px ruang vertikal.
-5. Menata ulang 3-metric bento tiles menjadi strip ringkas di mobile dengan padding `p-2 sm:p-3.5 lg:p-4`.
+4. Mengubah susunan action CTA di ponsel dari tumpukan tombol vertikal tinggi menjadi sebaris horizontal ramping rata kiri (`flex-row items-center justify-start gap-2`, tinggi `h-9 min-h-[38px]`), serta mengondisikan seluruh grid konten kiri (eyebrow, headline, deskripsi, CTA, checklist, dan 3-metric bento) menjadi rata kiri murni (`text-left flex flex-col items-start justify-start mx-0`) di seluruh ukuran layar.
+5. Menata ulang 3-metric bento tiles menjadi strip ringkas rata kiri di mobile dengan padding `p-2 sm:p-3.5 lg:p-4`.
 6. Mengaktifkan floating cards di layar mobile (menghapus blokade `hidden sm:block`) dengan proporsi mikro proporsional (`min-w-[95px] p-1.5`, offset `-top-2.5 -right-1` dan `-bottom-2.5 -left-1`), menjaga kartu ketiga sebagai toast di breakpoint `md:`.
 7. Mengompakkan cockpit dashboard di ponsel: traffic light 8px, URL bar mikro, tab slider interaktif `Keuangan` dan `Marketplace`, 4 kartu KPI dalam 1 baris (`grid-cols-4`), grafik spline SVG tinggi `h-12 xs:h-14 sm:h-24 lg:h-28`, serta jurnal/order feed baris tunggal.
-8. Menulis feature test otomatis `tests/Feature/LandingPageResponsiveHeroTest.php` (4 tests, 44 assertions, 100% pass) untuk mengunci seluruh spesifikasi responsive hero.
+8. Menulis feature test otomatis `tests/Feature/LandingPageResponsiveHeroTest.php` (4 tests, 45 assertions, 100% pass) untuk mengunci seluruh spesifikasi responsive hero.
 
 #### 3. Technical Changes
 
 - **Files Affected:**
-  - `resources/views/landing.blade.php` (Refactor responsive hero section)
+  - `resources/views/landing.blade.php` (Refactor responsive hero section & rata kiri grid konten mobile)
   - `tests/Feature/LandingPageResponsiveHeroTest.php` (Test suite baru untuk verifikasi visual hero)
   - `docs/AiWorkHistory.md` (Dokumentasi kronologis)
 
 #### 4. Verification & Testing
 
 - `php -l resources/views/landing.blade.php` (0 syntax error).
-- `php vendor/phpunit/phpunit/phpunit tests/Feature/LandingPageResponsiveHeroTest.php` (4 tests passed, 44 assertions, 0 failure).
+- `php vendor/phpunit/phpunit/phpunit tests/Feature/LandingPageResponsiveHeroTest.php` (4 tests passed, 45 assertions, 0 failure).
 - `php vendor/phpunit/phpunit/phpunit tests/Feature/LandingPageAuthTest.php` (3 tests passed, 15 assertions, 0 failure).
 - `php vendor/phpunit/phpunit/phpunit tests/Feature/PublicViewsProductionReadinessTest.php` (14 tests passed, 137 assertions, 0 failure).
 - `php vendor/phpunit/phpunit/phpunit tests/Feature/PublicMarketplaceSearchTest.php` (7 tests passed, 23 assertions, 0 failure).
@@ -9051,4 +9051,52 @@ Business Owner / Merchant UMKM COOCA memerlukan satu pusat pengelolaan (_Single 
     - Tag `<div>` seimbang (235 open vs 235 close).
     - `php artisan view:clear` sukses.
     - Test suite: **17 passed, 93 assertions (100% green)**.
-```
+
+### [WORK-2026-09-24-131] Landing Page Responsive Hero Section Refactor (Clean Executive Cockpit)
+
+- **Date:** 2026-09-24
+- **Status:** COMPLETED
+- **Module:** Public Marketing Landing Page
+- **Feature:** Responsive Hero Section & Mobile Executive Cockpit
+- **Work Type:** UI/UX | Mobile Responsiveness | Bento Apple HIG | Automated Testing
+
+#### 1. Business Context & Objective
+
+- **Konteks:** Tampilan mobile hero section sebelumnya mengalami tabrakan visual (collision) parah: floating cards bertumpuk di atas tombol tab window dan teks footer, barisan angka bertumpuk (bento 3-metrik redundant di atas 4 KPI cockpit), deskripsi terpotong secara canggung ("hingga..."), dan tab navigasi tertekan menjadi sempit ("Ke...").
+- **Tujuan:**
+    1. Mengimplementasikan arsitektur **Clean Executive Cockpit** untuk pengalaman mobile yang bersih, elegan, dan setara standar Apple HIG.
+    2. Menghilangkan tabrakan kartu mengambang pada mobile dengan mentransformasikannya menjadi Dynamic Island live pill strip tepat di atas cockpit.
+    3. Mempertahankan 100% tampilan desktop yang sudah dinamis (floating cards, 4 KPI, bento 3-metrik, dan switch slide interaktif).
+    4. Mengoptimalkan teks deskripsi agar tampil tuntas dalam 2 baris tanpa terpotong ellipsis secara canggung.
+    5. Menyajikan 2 KPI utama yang luas dan mudah dibaca pada mobile, serta 4 KPI penuh pada tablet/desktop.
+    6. Memberikan ruang napas vertikal yang cukup untuk grafik spline SVG dan memastikan seluruh hero section mobile pas dalam 1 viewport tanpa scroll berlebih.
+
+#### 2. What Was Done
+
+1. **Left Column Mobile Left-Alignment & Concise Copywriting:**
+    - Memastikan alignment kiri total pada mobile & desktop (`text-left flex flex-col items-start`).
+    - Menyederhanakan kalimat deskripsi hero sehingga tuntas terbaca dalam 2 baris tanpa terpotong canggung di kata "hingga...".
+    - Memindahkan kontainer bento 3-metrik ke mode desktop-only (`hidden lg:flex`) guna memangkas ~70px ruang vertikal yang tidak perlu di mobile dan mencegah duplikasi metrik angka.
+
+2. **Mobile Live Dynamic Island Metric Strip:**
+    - Mengganti absolute negative positioning yang bertabrakan di mobile dengan strip pil metrik live Dynamic Island non-overlapping (`flex sm:hidden items-center justify-between gap-2 mb-2 w-full`).
+    - Pil Kiri: Menampilkan `🟢 Bisnis Aktif 12 Unit` pada slide 1 dan `🔄 Multi-MP 1.420 SKU` pada slide 2.
+    - Pil Kanan: Menampilkan `📈 Total Rp 128.4j (+8.4%)` pada slide 1 dan `🚚 Resi 86 Paket` pada slide 2.
+    - Menjaga kartu melayang besar (`hidden sm:block`) dengan bayangan dramatis pada tablet & desktop.
+
+3. **Cockpit Header Separation & Spacious Controls:**
+    - Memisahkan header mobile (`flex sm:hidden`) dan header macOS desktop (`hidden sm:flex`).
+    - Pada mobile, menyajikan badge judul `🟢 Executive Cockpit` dan tombol tab pill yang lega tanpa ada teks terpotong: `[Keuangan]` dan `[Marketplace]`.
+    - Pada desktop, mempertahankan traffic lights macOS, URL bar `https://cooca.id/app/dashboard`, dan badge `Active`.
+
+4. **2-Column Spacious KPI Grid & Taller Spline Wave:**
+    - Pada mobile, menampilkan 2 kartu metrik utama (`Total Omset Rp 128.4j` dan `Laba Bersih Rp 42.1j`) dengan lebar ~140px yang proporsional dan mudah dibaca.
+    - Menampilkan seluruh 4 kartu metrik pada tablet dan desktop (`hidden sm:block sm:grid-cols-4`).
+    - Memberi tinggi vertikal ekstra pada kurva chart spline SVG (`h-16 xs:h-20 sm:h-24 lg:h-28`) agar gelombangnya bernapas dan memiliki dampak visual kuat.
+    - Memastikan footer terminal unblocked 100% tanpa tertutup kartu apa pun.
+
+5. **Verification & Automated Testing:**
+    - `php -l resources/views/landing.blade.php`: Tidak ada error sintaks.
+    - `tests/Feature/LandingPageResponsiveHeroTest.php`: **4 passed, 49 assertions (100% green)**.
+    - `tests/Feature/LandingPageAuthTest.php`: **3 passed, 15 assertions (100% green)**.
+
