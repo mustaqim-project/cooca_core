@@ -24,79 +24,68 @@
     <div class="bg-white dark:bg-[#070A14] text-slate-900 dark:text-white transition-colors duration-300">
 
         {{-- ══════════════════════════════════════════════════════════════════════ --}}
-        {{-- HERO SECTION (Midnight #060B1E Full-Bleed - Type A Full Viewport) --}}
+        {{-- HERO SECTION (Modern Apple HIG Bento Cockpit - No Breadcrumbs) --}}
         {{-- ══════════════════════════════════════════════════════════════════════ --}}
-        <section
-            class="relative bg-[#060B1E] text-white lg:min-h-[calc(100svh-84px)] lg:flex lg:items-center py-12 lg:py-16 overflow-hidden border-b border-white/10 w-full min-w-full">
-            {{-- Dual Ambient Glows --}}
-            <div class="absolute top-0 right-1/4 w-96 h-96 bg-[#007AFF]/15 rounded-full blur-[140px] pointer-events-none">
-            </div>
-            <div class="absolute bottom-0 left-1/4 w-96 h-96 bg-[#00C4D8]/10 rounded-full blur-[120px] pointer-events-none">
-            </div>
+        <section class="relative bg-[#060B1E] text-white overflow-hidden border-b border-white/10 min-h-[calc(100svh-4rem)] lg:min-h-[calc(100svh-84px)] flex items-center">
+            {{-- Dual Ambient Glowing Blurs --}}
+            <div class="absolute top-0 right-1/4 w-96 h-96 bg-[#007AFF]/20 rounded-full blur-[140px] pointer-events-none"></div>
+            <div class="absolute bottom-0 left-1/4 w-96 h-96 bg-[#00C4D8]/15 rounded-full blur-[120px] pointer-events-none"></div>
 
-            <div class="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-8 w-full">
-                {{-- Breadcrumb --}}
-                <nav class="flex items-center gap-2 text-xs text-slate-400" aria-label="Breadcrumb">
-                    <a href="{{ route('landing') }}" class="hover:text-white transition-colors">Beranda</a>
-                    <span aria-hidden="true" class="text-white/20">/</span>
-                    <span>Bantuan</span>
-                    <span aria-hidden="true" class="text-white/20">/</span>
-                    <span class="text-[#00C4D8] font-semibold" aria-current="page">Pusat Bantuan</span>
-                </nav>
-
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
-                    {{-- Left: Headline & Support Contact (Mobile Center, Desktop Left ~ 5 Cols) --}}
-                    <div class="lg:col-span-5 space-y-6 text-center mx-auto flex flex-col items-center lg:text-left lg:items-start lg:mx-0">
-                        <div class="space-y-3 w-full">
-                            <!-- Pure Typographic Overline Kicker (Zero Pill Abuse) -->
-                            <p class="text-xs sm:text-[13px] font-bold uppercase tracking-wider text-[#00C4D8]">
-                                Layanan Pendampingan Bisnis
-                            </p>
-
-                            <h1
-                                class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.65rem] xl:text-[3rem] font-extrabold text-white tracking-tight leading-[1.15] text-balance break-words max-w-[22rem] sm:max-w-xl lg:max-w-none mx-auto lg:mx-0">
-                                Ada Pertanyaan Teknis? <span class="text-[#00C4D8]">Tim Kami Siap Mendampingi Anda</span>
-                            </h1>
+            <div class="max-w-[1300px] mx-auto px-3.5 sm:px-6 lg:px-8 relative z-10 w-full pt-6 pb-[calc(5rem+env(safe-area-inset-bottom,0px))] sm:pt-8 sm:pb-20 lg:py-14">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-10 lg:gap-12 items-center">
+                    {{-- Left Column: Headline, Highlights, & Action CTAs --}}
+                    <div class="lg:col-span-6 space-y-5 text-left">
+                        {{-- Typographic Overline with Pulse Dot --}}
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-[#00C4D8] animate-pulse shrink-0"></span>
+                            <span class="text-xs sm:text-sm font-semibold tracking-wider uppercase text-[#00C4D8]">
+                                Layanan Pendampingan Bisnis & Support Teknis
+                            </span>
                         </div>
 
-                        <p class="text-base sm:text-lg text-slate-300 leading-relaxed font-normal text-pretty max-w-[32rem] lg:max-w-xl mx-auto lg:mx-0">
-                            Kami memahami bahwa kelancaran kasir dan pembukuan adalah denyut nadi toko Anda. Temukan jawaban
-                            dari panduan tertulis atau hubungi konsultan technical support kami secara langsung.
+                        {{-- Hero Headline --}}
+                        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight leading-[1.12] text-balance break-words">
+                            Ada Pertanyaan Teknis? <span class="bg-gradient-to-r from-[#00C4D8] via-[#60A5FA] to-[#007AFF] bg-clip-text text-transparent">Tim Kami Siap Mendampingi</span>
+                        </h1>
+
+                        {{-- Subtitle --}}
+                        <p class="text-sm sm:text-base lg:text-lg text-slate-300 leading-relaxed font-normal text-pretty max-w-2xl">
+                            Kami memahami kelancaran kasir, sinkronisasi stok, dan pembukuan adalah denyut nadi toko Anda. Temukan jawaban dari panduan resmi atau hubungi konsultan technical support kami secara langsung.
                         </p>
 
                         {{-- Escalation Channels Bento Tiles --}}
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2 text-left w-full">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1 w-full">
                             <div class="p-3 rounded-[14px] bg-white/[0.05] border border-white/10 flex items-start gap-2.5 hover:bg-white/[0.08] transition-colors">
-                                <div class="w-6 h-6 rounded-[8px] bg-sky-500/15 text-[#00C4D8] flex items-center justify-center shrink-0 mt-0.5 border border-sky-400/20">
+                                <div class="w-7 h-7 rounded-[8px] bg-sky-500/15 text-[#00C4D8] flex items-center justify-center shrink-0 mt-0.5 border border-sky-400/20">
                                     <i data-lucide="headphones" class="w-3.5 h-3.5" aria-hidden="true"></i>
                                 </div>
-                                <span class="text-xs sm:text-sm font-semibold text-slate-200 leading-snug min-w-0 flex-1">Respon WhatsApp langsung oleh tim manusia</span>
+                                <span class="text-xs sm:text-[13px] font-semibold text-slate-200 leading-snug">Respon WhatsApp langsung manusia</span>
                             </div>
                             <div class="p-3 rounded-[14px] bg-white/[0.05] border border-white/10 flex items-start gap-2.5 hover:bg-white/[0.08] transition-colors">
-                                <div class="w-6 h-6 rounded-[8px] bg-sky-500/15 text-[#00C4D8] flex items-center justify-center shrink-0 mt-0.5 border border-sky-400/20">
+                                <div class="w-7 h-7 rounded-[8px] bg-sky-500/15 text-[#00C4D8] flex items-center justify-center shrink-0 mt-0.5 border border-sky-400/20">
                                     <i data-lucide="printer" class="w-3.5 h-3.5" aria-hidden="true"></i>
                                 </div>
-                                <span class="text-xs sm:text-sm font-semibold text-slate-200 leading-snug min-w-0 flex-1">Panduan printer thermal Bluetooth</span>
+                                <span class="text-xs sm:text-[13px] font-semibold text-slate-200 leading-snug">Panduan printer thermal Bluetooth</span>
                             </div>
                             <div class="p-3 rounded-[14px] bg-white/[0.05] border border-white/10 flex items-start gap-2.5 hover:bg-white/[0.08] transition-colors">
-                                <div class="w-6 h-6 rounded-[8px] bg-sky-500/15 text-[#00C4D8] flex items-center justify-center shrink-0 mt-0.5 border border-sky-400/20">
+                                <div class="w-7 h-7 rounded-[8px] bg-sky-500/15 text-[#00C4D8] flex items-center justify-center shrink-0 mt-0.5 border border-sky-400/20">
                                     <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5" aria-hidden="true"></i>
                                 </div>
-                                <span class="text-xs sm:text-sm font-semibold text-slate-200 leading-snug min-w-0 flex-1">Bantuan migrasi data produk dari Excel</span>
+                                <span class="text-xs sm:text-[13px] font-semibold text-slate-200 leading-snug">Bantuan migrasi data produk Excel</span>
                             </div>
                             <div class="p-3 rounded-[14px] bg-white/[0.05] border border-white/10 flex items-start gap-2.5 hover:bg-white/[0.08] transition-colors">
-                                <div class="w-6 h-6 rounded-[8px] bg-sky-500/15 text-[#00C4D8] flex items-center justify-center shrink-0 mt-0.5 border border-sky-400/20">
+                                <div class="w-7 h-7 rounded-[8px] bg-sky-500/15 text-[#00C4D8] flex items-center justify-center shrink-0 mt-0.5 border border-sky-400/20">
                                     <i data-lucide="users" class="w-3.5 h-3.5" aria-hidden="true"></i>
                                 </div>
-                                <span class="text-xs sm:text-sm font-semibold text-slate-200 leading-snug min-w-0 flex-1">Sesi privat training online untuk staf gerai</span>
+                                <span class="text-xs sm:text-[13px] font-semibold text-slate-200 leading-snug">Sesi privat training online staf</span>
                             </div>
                         </div>
 
-                        {{-- Direct Action Buttons (Centered on Mobile, Row on Desktop) --}}
-                        <div class="pt-3 flex flex-col sm:flex-row items-stretch sm:items-center sm:justify-center lg:justify-start gap-3.5 w-full sm:w-auto">
+                        {{-- Direct Action Buttons --}}
+                        <div class="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center justify-start gap-3 w-full sm:w-auto">
                             <a href="{{ \App\Models\SystemSetting::get('social_whatsapp_url', 'https://wa.me/6285287864176') }}?text=Halo%20tim%20Support%20COOCA,%20saya%20membutuhkan%20bantuan"
                                 target="_blank" rel="noopener"
-                                class="h-12 px-7 rounded-[14px] bg-[#34C759] hover:bg-[#2DB04D] text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/25 active:scale-[0.98] transition-all min-h-[48px]">
+                                class="h-12 px-6 rounded-[14px] bg-[#34C759] hover:bg-[#2DB04D] text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/25 active:scale-[0.98] transition-all min-h-[48px]">
                                 <i data-lucide="message-circle" class="w-4 h-4 shrink-0" aria-hidden="true"></i>
                                 <span>Chat WhatsApp Bantuan</span>
                             </a>
@@ -106,64 +95,103 @@
                                 <span>Coba Demo Interaktif</span>
                             </a>
                         </div>
+
+                        {{-- Reassurance Checkpoints --}}
+                        <div class="pt-2 flex flex-wrap items-center gap-x-6 gap-y-2 text-xs sm:text-sm text-slate-300">
+                            <span class="inline-flex items-center gap-1.5 font-medium">
+                                <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0" aria-hidden="true"></i>
+                                Respon WhatsApp Cepat
+                            </span>
+                            <span class="inline-flex items-center gap-1.5 font-medium">
+                                <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0" aria-hidden="true"></i>
+                                Panduan Lengkap Hardware
+                            </span>
+                            <span class="inline-flex items-center gap-1.5 font-medium">
+                                <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0" aria-hidden="true"></i>
+                                Bantuan Migrasi Gratis
+                            </span>
+                        </div>
                     </div>
 
-                    {{-- Right: Support Desk Card (7 Cols ~ 58%) --}}
-                    <div class="lg:col-span-7">
-                        <div
-                            class="rounded-2xl bg-[#0E1E45]/80 p-6 shadow-2xl border border-white/10 ring-1 ring-white/10 backdrop-blur-md text-white space-y-5">
-                            <div class="flex items-center justify-between border-b border-white/10 pb-4">
-                                <div class="flex items-center gap-2 min-w-0">
-                                    <span class="w-2.5 h-2.5 rounded-full bg-[#00C4D8] animate-pulse shrink-0"></span>
-                                    <span class="text-xs font-mono font-bold text-white truncate">Kanal Dukungan Resmi</span>
+                    {{-- Right Column: Apple Bento Support Cockpit --}}
+                    <div class="lg:col-span-6 relative mt-4 lg:mt-0">
+                        <div class="relative max-w-lg mx-auto lg:max-w-none">
+                            <!-- Spotlight Glow Behind Card -->
+                            <div class="absolute -inset-1 bg-gradient-to-r from-[#007AFF]/30 to-[#00C4D8]/30 rounded-[22px] sm:rounded-[32px] blur-xl opacity-70 pointer-events-none"></div>
+
+                            <!-- Bento Card Chassis -->
+                            <div class="relative rounded-[18px] sm:rounded-[28px] bg-[#0A122C]/90 p-4 sm:p-6 shadow-2xl border border-white/15 ring-1 ring-white/10 backdrop-blur-2xl text-white space-y-4">
+                                <!-- Top Specular Highlight Line -->
+                                <div class="absolute top-0 inset-x-8 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+
+                                <div class="flex items-center justify-between border-b border-white/10 pb-3">
+                                    <div class="flex items-center gap-2 min-w-0">
+                                        <span class="w-2.5 h-2.5 rounded-full bg-[#00C4D8] animate-pulse shrink-0"></span>
+                                        <span class="text-xs font-mono font-bold text-white truncate">Kanal Dukungan Resmi</span>
+                                    </div>
+                                    <span class="text-[11px] font-semibold text-[#00C4D8] bg-[#00C4D8]/15 border border-[#00C4D8]/30 px-2.5 py-0.5 rounded-full shrink-0">
+                                        Tim Support Online
+                                    </span>
                                 </div>
-                                <span
-                                    class="text-[11px] font-semibold text-[#00C4D8] bg-[#00C4D8]/15 border border-[#00C4D8]/30 px-2.5 py-0.5 rounded-full shrink-0">
-                                    Tim Online
-                                </span>
+
+                                <!-- Channels Deck -->
+                                <div class="space-y-2.5 text-xs">
+                                    <div class="p-3.5 rounded-[14px] bg-[#060B1E]/70 border border-white/10 space-y-1">
+                                        <div class="flex justify-between items-center font-bold text-white gap-2">
+                                            <span class="flex items-center gap-2 min-w-0">
+                                                <i data-lucide="message-circle" class="w-4 h-4 text-[#34C759] shrink-0"></i>
+                                                <span class="truncate">WhatsApp Customer Care</span>
+                                            </span>
+                                            <span class="font-mono text-emerald-400 shrink-0 text-xs">Aktif</span>
+                                        </div>
+                                        <p class="text-[11px] text-slate-300">Respon cepat setiap hari: 08:00 - 22:00 WIB</p>
+                                    </div>
+
+                                    <div class="p-3.5 rounded-[14px] bg-[#060B1E]/70 border border-white/10 space-y-1">
+                                        <div class="flex justify-between items-center font-bold text-white gap-2">
+                                            <span class="flex items-center gap-2 min-w-0">
+                                                <i data-lucide="mail" class="w-4 h-4 text-[#007AFF] shrink-0"></i>
+                                                <span class="truncate">Email Support</span>
+                                            </span>
+                                            <span class="font-mono text-[#00C4D8] shrink-0 text-xs">support@cooca.id</span>
+                                        </div>
+                                        <p class="text-[11px] text-slate-300">Eskalasi kendala akun, API developer, & kemitraan</p>
+                                    </div>
+
+                                    <div class="p-3.5 rounded-[14px] bg-[#060B1E]/70 border border-white/10 space-y-1">
+                                        <div class="flex justify-between items-center font-bold text-white gap-2">
+                                            <span class="flex items-center gap-2 min-w-0">
+                                                <i data-lucide="activity" class="w-4 h-4 text-emerald-400 shrink-0"></i>
+                                                <span class="truncate">Status Server Cloud</span>
+                                            </span>
+                                            <span class="font-mono text-emerald-400 shrink-0 text-xs">100% Operational</span>
+                                        </div>
+                                        <p class="text-[11px] text-slate-300">Database multi-tenant, POS offline-first, & sync aman</p>
+                                    </div>
+                                </div>
+
+                                <!-- Quick Help Note -->
+                                <div class="p-3 rounded-[12px] bg-[#007AFF]/15 border border-[#007AFF]/30 text-[#00C4D8] text-xs font-semibold text-center leading-snug">
+                                    Dukungan teknis tersedia untuk seluruh mitra pengguna COOCA tanpa biaya tambahan.
+                                </div>
                             </div>
 
-                            {{-- Channels Deck --}}
-                            <div class="space-y-3 text-xs">
-                                <div class="p-3.5 rounded-[14px] bg-[#060B1E]/60 border border-white/10 space-y-1">
-                                    <div class="flex justify-between items-center font-bold text-white gap-2">
-                                        <span class="flex items-center gap-2 min-w-0">
-                                            <i data-lucide="message-circle" class="w-4 h-4 text-[#34C759] shrink-0"></i>
-                                            <span class="truncate">WhatsApp Customer Care</span>
-                                        </span>
-                                        <span class="font-mono text-emerald-400 shrink-0">Aktif</span>
-                                    </div>
-                                    <p class="text-[11px] text-slate-300">Respon cepat setiap hari: 08:00 - 22:00 WIB</p>
-                                </div>
-
-                                <div class="p-3.5 rounded-[14px] bg-[#060B1E]/60 border border-white/10 space-y-1">
-                                    <div class="flex justify-between items-center font-bold text-white gap-2">
-                                        <span class="flex items-center gap-2 min-w-0">
-                                            <i data-lucide="mail" class="w-4 h-4 text-[#007AFF] shrink-0"></i>
-                                            <span class="truncate">Email Support</span>
-                                        </span>
-                                        <span class="font-mono text-[#00C4D8] shrink-0">support@cooca.id</span>
-                                    </div>
-                                    <p class="text-[11px] text-slate-300">Untuk eskalasi kendala akun dan kemitraan</p>
-                                </div>
-
-                                <div class="p-3.5 rounded-[14px] bg-[#060B1E]/60 border border-white/10 space-y-1">
-                                    <div class="flex justify-between items-center font-bold text-white gap-2">
-                                        <span class="flex items-center gap-2 min-w-0">
-                                            <i data-lucide="activity" class="w-4 h-4 text-emerald-400 shrink-0"></i>
-                                            <span class="truncate">Status Server Cloud</span>
-                                        </span>
-                                        <span class="font-mono text-emerald-400 shrink-0">100% Operational</span>
-                                    </div>
-                                    <p class="text-[11px] text-slate-300">Server database, API payment, & POS aktif normal
-                                    </p>
+                            <!-- Floating Badge 1: Top Right -->
+                            <div class="hidden sm:flex absolute -top-4 -right-4 z-20 items-center gap-2.5 px-3.5 py-2 rounded-xl bg-[#060B1E]/95 border border-white/20 shadow-2xl backdrop-blur-md">
+                                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+                                <div>
+                                    <p class="text-[10px] uppercase font-bold tracking-wider text-slate-400">Support Tim Ahli</p>
+                                    <p class="text-xs font-bold text-white">Live Konsultasi</p>
                                 </div>
                             </div>
 
-                            {{-- Quick Help Note --}}
-                            <div
-                                class="p-3 rounded-[12px] bg-[#007AFF]/15 border border-[#007AFF]/30 text-[#00C4D8] text-xs font-semibold text-center leading-snug">
-                                Dukungan tersedia untuk seluruh pengguna COOCA tanpa biaya tambahan.
+                            <!-- Floating Badge 2: Bottom Left -->
+                            <div class="hidden sm:flex absolute -bottom-4 -left-4 z-20 items-center gap-2 px-3.5 py-2 rounded-xl bg-[#060B1E]/95 border border-white/20 shadow-2xl backdrop-blur-md">
+                                <i data-lucide="clock" class="w-4 h-4 text-[#00C4D8]"></i>
+                                <div>
+                                    <p class="text-[10px] text-slate-400">Kecepatan Respon</p>
+                                    <p class="text-xs font-bold text-white">&lt; 5 Menit di Jam Kerja</p>
+                                </div>
                             </div>
                         </div>
                     </div>

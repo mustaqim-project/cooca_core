@@ -36,100 +36,129 @@
     <div class="bg-white dark:bg-[#070A14] text-slate-900 dark:text-white transition-colors duration-300">
 
         {{-- ══════════════════════════════════════════════════════════════════════ --}}
-        {{-- 1. HERO SECTION (Midnight #060B1E Full-Bleed) --}}
+        {{-- 1. HERO SECTION (Unified Bento Cockpit - No Breadcrumb) --}}
         {{-- ══════════════════════════════════════════════════════════════════════ --}}
         <section
-            class="relative bg-[#060B1E] text-white pt-10 sm:pt-14 pb-16 lg:pb-24 lg:min-h-[calc(100svh-84px)] lg:flex lg:items-center overflow-hidden border-b border-white/10 w-full min-w-full">
-            {{-- Dual Ambient Glows --}}
-            <div class="absolute top-0 right-1/4 w-96 h-96 bg-[#007AFF]/15 rounded-full blur-[140px] pointer-events-none">
+            class="relative bg-[#060B1E] text-white overflow-hidden border-b border-white/10 min-h-[calc(100svh-4rem)] lg:min-h-[calc(100svh-84px)] flex items-center">
+            {{-- Dual Ambient Glowing Blurs --}}
+            <div class="absolute top-1/4 -right-24 w-96 h-96 bg-[#007AFF]/20 rounded-full blur-[120px] pointer-events-none">
             </div>
-            <div class="absolute bottom-0 left-1/4 w-96 h-96 bg-[#00C4D8]/10 rounded-full blur-[120px] pointer-events-none">
+            <div class="absolute -bottom-24 -left-24 w-96 h-96 bg-[#00C4D8]/15 rounded-full blur-[140px] pointer-events-none">
             </div>
 
-            <div class="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
+            <div
+                class="max-w-[1300px] mx-auto px-3.5 sm:px-6 lg:px-8 relative z-10 w-full pt-6 pb-[calc(5rem+env(safe-area-inset-bottom,0px))] sm:pt-8 sm:pb-20 lg:py-14">
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-                    {{-- Left: Eyebrow, Headline, Value Proposition, Action CTAs --}}
-                    <div class="lg:col-span-7 space-y-6 text-center mx-auto flex flex-col items-center lg:text-left lg:items-start lg:mx-0">
-                        <div class="space-y-3 w-full">
-                            <!-- Pure Typographic Overline Kicker (Zero Pill Abuse) -->
+
+                    {{-- Left Column: Eyebrow, Headline, Value Proposition, Action CTAs (6 Cols) --}}
+                    <div class="lg:col-span-6 space-y-5 text-left">
+                        {{-- Typographic Overline Kicker with Pulse Dot --}}
+                        <div class="flex items-center gap-2.5">
+                            <span class="inline-flex w-2 h-2 rounded-full bg-[#00C4D8] animate-pulse"></span>
                             <p class="text-xs sm:text-[13px] font-bold uppercase tracking-wider text-[#00C4D8]">
                                 Business Operating System &amp; Omnichannel ERP
                             </p>
-
-                            <h1
-                                class="text-3xl sm:text-4xl md:text-5xl lg:text-[3.25rem] xl:text-[3.75rem] font-extrabold text-white tracking-tight leading-[1.15] text-balance break-words max-w-[22rem] sm:max-w-xl lg:max-w-none mx-auto lg:mx-0">
-                                Satu Sistem untuk <span class="text-[#00C4D8]">Mengendalikan Seluruh Bisnis Anda</span>
-                            </h1>
                         </div>
 
-                        <p class="text-base sm:text-lg text-slate-300 leading-relaxed max-w-[32rem] lg:max-w-xl font-normal text-pretty break-words mx-auto lg:mx-0">
-                            Kelola operasional kasir, stok gudang, pembukuan keuangan, pelanggan, marketplace online,
-                            komunikasi WhatsApp, hingga otomasi dalam satu platform yang saling terhubung tanpa jeda.
+                        {{-- Main Headline --}}
+                        <h1
+                            class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.85rem] xl:text-[3.25rem] font-extrabold text-white tracking-tight leading-[1.12] text-balance">
+                            Satu Sistem untuk <span
+                                class="bg-gradient-to-r from-[#00C4D8] via-[#60A5FA] to-[#007AFF] bg-clip-text text-transparent">Mengendalikan Seluruh Bisnis Anda</span>
+                        </h1>
+
+                        {{-- Subtitle Paragraph --}}
+                        <p class="text-base sm:text-lg text-slate-300 leading-relaxed font-normal text-pretty max-w-2xl">
+                            Kelola operasional kasir, stok gudang, pembukuan keuangan, pelanggan, marketplace online, komunikasi WhatsApp, hingga otomasi dalam satu platform yang saling terhubung tanpa jeda.
                         </p>
 
-                        {{-- Tangible Proof Points (Centered on Mobile) --}}
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 w-full text-left">
-                            <div class="flex items-start gap-2.5 text-xs sm:text-sm font-semibold text-slate-200">
-                                <i data-lucide="check-circle-2" class="w-4 h-4 text-[#00C4D8] shrink-0 mt-0.5"
-                                    aria-hidden="true"></i>
-                                <span class="min-w-0 flex-1 leading-snug">Bukan sekadar aplikasi POS kasir biasa</span>
+                        {{-- Tangible Highlights Bento Tiles --}}
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1 text-left w-full">
+                            <div class="p-2.5 sm:p-3 rounded-xl bg-white/[0.05] border border-white/10 flex items-start gap-2.5 hover:bg-white/[0.08] transition-colors">
+                                <div class="w-6 h-6 rounded-lg bg-emerald-500/15 text-emerald-400 flex items-center justify-center shrink-0 mt-0.5 border border-emerald-500/20">
+                                    <i data-lucide="check-circle-2" class="w-3.5 h-3.5" aria-hidden="true"></i>
+                                </div>
+                                <span class="text-xs sm:text-sm font-semibold text-slate-200 leading-snug min-w-0 flex-1">Bukan sekadar aplikasi kasir POS biasa</span>
                             </div>
-                            <div class="flex items-start gap-2.5 text-xs sm:text-sm font-semibold text-slate-200">
-                                <i data-lucide="check-circle-2" class="w-4 h-4 text-[#00C4D8] shrink-0 mt-0.5"
-                                    aria-hidden="true"></i>
-                                <span class="min-w-0 flex-1 leading-snug">Hentikan ketik ulang di spreadsheet
-                                    terpisah</span>
+                            <div class="p-2.5 sm:p-3 rounded-xl bg-white/[0.05] border border-white/10 flex items-start gap-2.5 hover:bg-white/[0.08] transition-colors">
+                                <div class="w-6 h-6 rounded-lg bg-sky-500/15 text-[#00C4D8] flex items-center justify-center shrink-0 mt-0.5 border border-sky-400/20">
+                                    <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5" aria-hidden="true"></i>
+                                </div>
+                                <span class="text-xs sm:text-sm font-semibold text-slate-200 leading-snug min-w-0 flex-1">Hentikan ketik ulang spreadsheet manual</span>
                             </div>
-                            <div class="flex items-start gap-2.5 text-xs sm:text-sm font-semibold text-slate-200">
-                                <i data-lucide="check-circle-2" class="w-4 h-4 text-[#00C4D8] shrink-0 mt-0.5"
-                                    aria-hidden="true"></i>
-                                <span class="min-w-0 flex-1 leading-snug">Akses fleksibel dari HP, tablet, &amp; laptop</span>
+                            <div class="p-2.5 sm:p-3 rounded-xl bg-white/[0.05] border border-white/10 flex items-start gap-2.5 hover:bg-white/[0.08] transition-colors">
+                                <div class="w-6 h-6 rounded-lg bg-amber-500/15 text-amber-400 flex items-center justify-center shrink-0 mt-0.5 border border-amber-400/20">
+                                    <i data-lucide="smartphone" class="w-3.5 h-3.5" aria-hidden="true"></i>
+                                </div>
+                                <span class="text-xs sm:text-sm font-semibold text-slate-200 leading-snug min-w-0 flex-1">Akses fleksibel dari HP, tablet, &amp; laptop</span>
                             </div>
-                            <div class="flex items-start gap-2.5 text-xs sm:text-sm font-semibold text-slate-200">
-                                <i data-lucide="check-circle-2" class="w-4 h-4 text-[#00C4D8] shrink-0 mt-0.5"
-                                    aria-hidden="true"></i>
-                                <span class="min-w-0 flex-1 leading-snug">Laba bersih &amp; arus kas terpantau real-time</span>
+                            <div class="p-2.5 sm:p-3 rounded-xl bg-white/[0.05] border border-white/10 flex items-start gap-2.5 hover:bg-white/[0.08] transition-colors">
+                                <div class="w-6 h-6 rounded-lg bg-purple-500/15 text-purple-400 flex items-center justify-center shrink-0 mt-0.5 border border-purple-400/20">
+                                    <i data-lucide="line-chart" class="w-3.5 h-3.5" aria-hidden="true"></i>
+                                </div>
+                                <span class="text-xs sm:text-sm font-semibold text-slate-200 leading-snug min-w-0 flex-1">Laba bersih &amp; arus kas real-time</span>
                             </div>
                         </div>
 
-                        {{-- Action Buttons (Centered on Mobile) --}}
-                        <div class="pt-3 flex flex-col sm:flex-row items-stretch sm:items-center sm:justify-center lg:justify-start gap-3.5 w-full sm:w-auto">
+                        {{-- Action CTAs (Left-aligned) --}}
+                        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 pt-2">
                             <a href="{{ route('register') }}"
-                                class="h-12 px-7 rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-lg shadow-[#007AFF]/25 active:scale-[0.98] transition-all min-h-[48px]">
+                                class="inline-flex justify-center items-center gap-2.5 px-6 py-3.5 rounded-xl bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-sm shadow-lg shadow-[#007AFF]/25 hover:shadow-xl hover:shadow-[#007AFF]/35 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 min-h-[48px]">
                                 <span>Mulai Pakai COOCA</span>
                                 <i data-lucide="arrow-right" class="w-4 h-4 shrink-0" aria-hidden="true"></i>
                             </a>
                             <a href="{{ route('public.bos.how-it-works') }}"
-                                class="h-12 px-6 rounded-[14px] bg-white/10 hover:bg-white/15 border border-white/15 text-white text-sm font-semibold flex items-center justify-center gap-2 shadow-sm transition active:scale-[0.98] backdrop-blur-sm min-h-[48px]">
+                                class="inline-flex justify-center items-center gap-2 px-6 py-3.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-white backdrop-blur-sm text-sm font-semibold hover:-translate-y-0.5 active:translate-y-0 transition-all min-h-[48px]">
                                 <span>Lihat Cara Kerja</span>
                             </a>
                             <a href="{{ route('public.demo') }}"
-                                class="h-12 px-5 rounded-[14px] text-[#00C4D8] hover:text-white text-sm font-semibold flex items-center justify-center gap-1.5 transition min-h-[48px]">
+                                class="inline-flex justify-center items-center gap-1.5 px-4 py-3.5 text-[#00C4D8] hover:text-white text-sm font-semibold transition min-h-[48px]">
                                 <i data-lucide="play" class="w-4 h-4 shrink-0" aria-hidden="true"></i>
                                 <span>Coba Live Demo</span>
                             </a>
                         </div>
+
+                        {{-- Reassurance Checkpoints --}}
+                        <div class="pt-3 border-t border-white/10 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-slate-300">
+                            <div class="flex items-center gap-1.5">
+                                <i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0"></i>
+                                <span>Multi-Channel POS &amp; Toko Online</span>
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0"></i>
+                                <span>Sinkron Gudang Otomatis</span>
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0"></i>
+                                <span>Pembukuan Laba Bersih Akurat</span>
+                            </div>
+                        </div>
                     </div>
 
-                    {{-- Right: Master Operating System Bento Deck --}}
-                    <div class="lg:col-span-5">
+                    {{-- Right Column: Master Operating System Bento Deck (6 Cols) --}}
+                    <div class="lg:col-span-6 relative mt-4 lg:mt-0">
+                        {{-- Spotlight glow behind window --}}
+                        <div class="absolute -inset-1.5 bg-gradient-to-r from-[#007AFF]/30 to-[#00C4D8]/30 rounded-[32px] blur-xl opacity-75"></div>
+
                         <div
-                            class="rounded-2xl bg-[#0E1E45]/80 p-5 sm:p-6 shadow-2xl border border-white/10 ring-1 ring-white/10 backdrop-blur-md text-white space-y-5">
-                            <div class="flex items-center justify-between border-b border-white/10 pb-4">
+                            class="relative bg-[#0A122C]/90 border border-white/15 rounded-[18px] sm:rounded-[28px] p-4 sm:p-6 shadow-2xl backdrop-blur-2xl text-white space-y-4">
+                            {{-- Specular top highlight line --}}
+                            <div class="absolute top-0 inset-x-8 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+
+                            <div class="flex items-center justify-between pb-3 border-b border-white/10">
                                 <div class="flex items-center gap-2 min-w-0">
                                     <span class="w-2.5 h-2.5 rounded-full bg-[#00C4D8] animate-pulse shrink-0"></span>
-                                    <span class="text-xs font-mono font-bold text-white truncate">COOCA Business OS • Live
-                                        Pulse</span>
+                                    <span class="text-xs font-mono font-bold text-white truncate">COOCA Business OS • Live Pulse</span>
                                 </div>
                                 <span
-                                    class="text-[11px] font-semibold text-[#00C4D8] bg-[#00C4D8]/15 border border-[#00C4D8]/30 px-2.5 py-0.5 rounded-full shrink-0">
+                                    class="text-[11px] font-semibold text-[#00C4D8] bg-[#00C4D8]/15 border border-[#00C4D8]/30 px-2.5 py-1 rounded-full shrink-0">
                                     4 Modul Terhubung
                                 </span>
                             </div>
 
                             {{-- Multi-Channel Transaction Feed Simulation --}}
-                            <div class="space-y-3 text-xs">
-                                <div class="p-3.5 rounded-[16px] bg-[#060B1E]/60 border border-white/10 space-y-2">
+                            <div class="space-y-2.5 text-xs">
+                                <div class="p-3 rounded-xl bg-[#060B1E]/80 border border-white/10 space-y-2">
                                     <div class="flex justify-between items-start font-semibold text-white gap-2">
                                         <div class="flex items-center gap-2 min-w-0">
                                             <span class="w-2 h-2 rounded-full bg-[#007AFF] shrink-0"></span>
@@ -138,13 +167,13 @@
                                         <span class="font-mono text-emerald-400 font-bold shrink-0">+ Rp 185.000</span>
                                     </div>
                                     <div
-                                        class="flex items-center justify-between text-[11px] text-slate-300 font-mono pt-1 border-t border-dashed border-white/10 gap-2">
+                                        class="flex items-center justify-between text-[11px] text-slate-300 font-mono pt-1.5 border-t border-dashed border-white/10 gap-2">
                                         <span class="truncate">Gudang: 3 Item Terpotong</span>
-                                        <span class="text-[#00C4D8] shrink-0">Jurnal Kasir Lunas</span>
+                                        <span class="text-[#00C4D8] shrink-0 font-semibold">Jurnal Kasir Lunas</span>
                                     </div>
                                 </div>
 
-                                <div class="p-3.5 rounded-[16px] bg-[#060B1E]/60 border border-white/10 space-y-2">
+                                <div class="p-3 rounded-xl bg-[#060B1E]/80 border border-white/10 space-y-2">
                                     <div class="flex justify-between items-start font-semibold text-white gap-2">
                                         <div class="flex items-center gap-2 min-w-0">
                                             <span class="w-2 h-2 rounded-full bg-purple-400 shrink-0"></span>
@@ -153,45 +182,54 @@
                                         <span class="font-mono text-emerald-400 font-bold shrink-0">+ Rp 320.000</span>
                                     </div>
                                     <div
-                                        class="flex items-center justify-between text-[11px] text-slate-300 font-mono pt-1 border-t border-dashed border-white/10 gap-2">
+                                        class="flex items-center justify-between text-[11px] text-slate-300 font-mono pt-1.5 border-t border-dashed border-white/10 gap-2">
                                         <span class="truncate">Resi Kurir Biteship Siap</span>
-                                        <span class="text-emerald-400 shrink-0">Notif WA Terkirim</span>
+                                        <span class="text-emerald-400 shrink-0 font-semibold">Notif WA Terkirim</span>
                                     </div>
                                 </div>
                             </div>
 
                             {{-- Real-Time Owner Overview Breakdown --}}
-                            <div class="p-4 rounded-[16px] bg-[#060B1E]/80 border border-white/10 text-white space-y-2.5">
-                                <div class="flex justify-between text-xs text-slate-400">
+                            <div class="p-3.5 rounded-xl bg-[#060B1E]/90 border border-white/10 text-white space-y-1.5 text-xs">
+                                <div class="flex justify-between text-slate-400">
                                     <span>Arus Kas Masuk Hari Ini</span>
                                     <span class="font-mono text-emerald-400 font-bold">Rp 4.820.000</span>
                                 </div>
-                                <div class="flex justify-between text-xs text-slate-400">
-                                    <span>Estimasi HPP & Beban Operasional</span>
+                                <div class="flex justify-between text-slate-400">
+                                    <span>Estimasi HPP &amp; Beban Operasional</span>
                                     <span class="font-mono text-slate-300">- Rp 2.410.000</span>
                                 </div>
                                 <div
-                                    class="pt-2 border-t border-white/10 flex justify-between items-center text-xs font-bold">
+                                    class="pt-2 border-t border-white/10 flex justify-between items-center text-xs font-bold sm:text-sm">
                                     <span class="text-slate-200">Laba Bersih Riil Owner</span>
-                                    <span class="font-mono text-sm text-[#00C4D8]">+ Rp 2.410.000 (50.0%)</span>
+                                    <span class="font-mono text-[#00C4D8] font-extrabold">+ Rp 2.410.000 (50.0%)</span>
                                 </div>
                             </div>
 
                             {{-- Hardware & Channel Bar --}}
-                            <div class="grid grid-cols-2 gap-3 text-xs">
-                                <div class="p-3 rounded-[12px] bg-white/5 border border-white/10 flex items-center gap-2">
-                                    <i data-lucide="printer" class="w-4 h-4 text-[#007AFF] shrink-0"
-                                        aria-hidden="true"></i>
-                                    <span class="font-medium text-slate-200 truncate">Printer Siap Cetak</span>
+                            <div class="grid grid-cols-2 gap-2.5 text-xs">
+                                <div class="p-2.5 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center gap-2">
+                                    <i data-lucide="printer" class="w-3.5 h-3.5 text-[#007AFF] shrink-0" aria-hidden="true"></i>
+                                    <span class="font-medium text-slate-200 text-[11px] truncate">Printer Siap Cetak</span>
                                 </div>
-                                <div class="p-3 rounded-[12px] bg-white/5 border border-white/10 flex items-center gap-2">
-                                    <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400 shrink-0"
-                                        aria-hidden="true"></i>
-                                    <span class="font-medium text-slate-200 truncate">Data Terisolasi Aman</span>
+                                <div class="p-2.5 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center gap-2">
+                                    <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-400 shrink-0" aria-hidden="true"></i>
+                                    <span class="font-medium text-slate-200 text-[11px] truncate">Data Terisolasi Aman</span>
                                 </div>
+                            </div>
+
+                            {{-- Floating Badges --}}
+                            <div class="hidden sm:flex absolute -top-3.5 -right-3.5 items-center gap-2 px-3 py-1.5 rounded-xl bg-[#060B1E]/95 border border-emerald-500/40 shadow-xl backdrop-blur-md text-[11px] font-medium text-white">
+                                <i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-emerald-400"></i>
+                                <span>Real-Time Sync: <strong class="text-emerald-400">Active</strong></span>
+                            </div>
+                            <div class="hidden sm:flex absolute -bottom-3.5 -left-3.5 items-center gap-2 px-3 py-1.5 rounded-xl bg-[#060B1E]/95 border border-[#00C4D8]/40 shadow-xl backdrop-blur-md text-[11px] font-medium text-white">
+                                <i data-lucide="activity" class="w-3.5 h-3.5 text-[#00C4D8]"></i>
+                                <span>All Channels Connected</span>
                             </div>
                         </div>
                     </div>
+
                 </div>
             </div>
         </section>

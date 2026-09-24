@@ -64,73 +64,68 @@
         <!-- ═══ 1. HERO SECTION (Midnight Blue 2-Column Bento Cockpit) ═══════════════ -->
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
         <section
-            class="relative w-full min-w-full bg-[#060B1E] text-white overflow-hidden border-b border-white/10 lg:min-h-[calc(100svh-84px)] lg:flex lg:items-center py-10 sm:py-12 lg:py-14">
+            class="relative w-full min-w-full bg-[#060B1E] text-white overflow-hidden border-b border-white/10 min-h-[calc(100svh-4rem)] lg:min-h-[calc(100svh-84px)] flex items-center">
 
             <!-- Subtle Ambient Background Glows -->
             <div
-                class="absolute -top-32 right-1/4 w-[500px] h-[500px] bg-[#007AFF]/15 rounded-full blur-[140px] pointer-events-none -z-0">
+                class="absolute top-1/4 -right-24 w-96 h-96 bg-[#007AFF]/20 rounded-full blur-[120px] pointer-events-none -z-0">
             </div>
             <div
-                class="absolute bottom-0 left-1/4 w-[450px] h-[450px] bg-[#00C4D8]/10 rounded-full blur-[130px] pointer-events-none -z-0">
+                class="absolute -bottom-24 -left-24 w-96 h-96 bg-[#00C4D8]/15 rounded-full blur-[140px] pointer-events-none -z-0">
             </div>
 
             <!-- Container Konten Hero -->
-            <div class="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full space-y-6">
-
-                <!-- Breadcrumbs (Clean Apple HIG Hairline Nav) -->
-                <nav aria-label="Breadcrumb" class="flex items-center gap-2 text-xs text-slate-400 overflow-x-auto py-1">
-                    <a href="{{ route('landing') }}" class="hover:text-[#00C4D8] transition-colors shrink-0">Beranda</a>
-                    <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-white/20 shrink-0"></i>
-                    <span class="text-white font-semibold shrink-0">Paket &amp; Biaya</span>
-                </nav>
+            <div class="max-w-[1300px] mx-auto px-3.5 sm:px-6 lg:px-8 relative z-10 w-full pt-6 pb-[calc(5rem+env(safe-area-inset-bottom,0px))] sm:pt-8 sm:pb-20 lg:py-14">
 
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
 
                     <!-- KIRI: Eyebrow, Headline, Description, CTAs & Guarantees (5 Cols) -->
-                    <div class="lg:col-span-5 space-y-6 text-center mx-auto flex flex-col items-center lg:text-left lg:items-start lg:mx-0">
-                        <div class="space-y-3 w-full">
-                            <!-- Pure Typographic Overline Kicker (Zero Pill Abuse) -->
+                    <div class="lg:col-span-5 space-y-5 text-left">
+                        {{-- Typographic Overline Kicker with Pulse Dot --}}
+                        <div class="flex items-center gap-2.5">
+                            <span class="inline-flex w-2 h-2 rounded-full bg-[#00C4D8] animate-pulse"></span>
                             <p class="text-xs sm:text-[13px] font-bold uppercase tracking-wider text-[#00C4D8]">
                                 PILIHAN PAKET &amp; BIAYA TRANSPARAN
                             </p>
-
-                            <h1
-                                class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.65rem] xl:text-[3rem] font-extrabold text-white tracking-tight leading-[1.14] text-balance break-words max-w-[22rem] sm:max-w-xl lg:max-w-none mx-auto lg:mx-0">
-                                Investasi Jujur dan Terjangkau untuk <span class="text-[#00C4D8]">Kemajuan Usaha Anda.</span>
-                            </h1>
                         </div>
 
+                        <h1
+                            class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.85rem] xl:text-[3.25rem] font-extrabold text-white tracking-tight leading-[1.12] text-balance">
+                            Investasi Jujur &amp; Terjangkau untuk <span
+                                class="bg-gradient-to-r from-[#00C4D8] via-[#60A5FA] to-[#007AFF] bg-clip-text text-transparent">Kemajuan Usaha Anda</span>
+                        </h1>
+
                         <p
-                            class="text-base sm:text-lg text-slate-300 leading-relaxed font-normal text-pretty max-w-[32rem] lg:max-w-xl mx-auto lg:mx-0">
-                            Dirancang ramah dan mudah dipahami pemilik usaha usia 40–65 tahun. Mulai dari Rp 0 tanpa kartu kredit hingga paket multi-cabang lengkap. Tanpa biaya pasang dan bebas berhenti kapan saja.
+                            class="text-base sm:text-lg text-slate-300 leading-relaxed font-normal text-pretty max-w-2xl">
+                            Dirancang ramah dan mudah dipahami pemilik usaha. Mulai dari Rp 0 tanpa kartu kredit hingga paket multi-cabang lengkap. Tanpa biaya pasang tersembunyi dan bebas berhenti kapan saja.
                         </p>
 
-                        <!-- Action Buttons (Centered on Mobile, Row on Desktop) -->
-                        <div class="pt-1 flex flex-col sm:flex-row items-stretch sm:items-center sm:justify-center lg:justify-start gap-3.5 w-full sm:w-auto">
+                        <!-- Action Buttons (Left-aligned) -->
+                        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 pt-2">
                             <a href="{{ route('register') }}"
-                                class="h-12 px-7 rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-[0_4px_16px_rgba(0,122,255,0.35)] active:scale-[0.98] transition-all min-h-[48px]">
+                                class="inline-flex justify-center items-center gap-2.5 px-6 py-3.5 rounded-xl bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-sm shadow-lg shadow-[#007AFF]/25 hover:shadow-xl hover:shadow-[#007AFF]/35 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 min-h-[48px]">
                                 <span>Mulai Gratis Sekarang</span>
-                                <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                                <i data-lucide="arrow-right" class="w-4 h-4 shrink-0"></i>
                             </a>
                             <button type="button" @click="openComparison()"
-                                class="h-12 px-6 rounded-[14px] bg-white/10 hover:bg-white/15 border border-white/15 text-white font-semibold text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition-all backdrop-blur-sm min-h-[48px] cursor-pointer">
-                                <i data-lucide="columns-3" class="w-4 h-4 text-[#00C4D8]"></i>
+                                class="inline-flex justify-center items-center gap-2 px-6 py-3.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-white backdrop-blur-sm text-sm font-semibold hover:-translate-y-0.5 active:translate-y-0 transition-all min-h-[48px] cursor-pointer">
+                                <i data-lucide="columns-3" class="w-4 h-4 text-[#00C4D8] shrink-0"></i>
                                 <span>Bandingkan Semua Fitur</span>
                             </button>
                         </div>
 
-                        <!-- 3 Core Guarantees for UMKM (Centered on Mobile) -->
-                        <div class="pt-2 flex flex-wrap items-center justify-center lg:justify-start gap-x-5 gap-y-2 text-xs text-slate-300">
+                        <!-- 3 Core Guarantees for UMKM -->
+                        <div class="pt-3 border-t border-white/10 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-slate-300">
                             <div class="flex items-center gap-1.5">
-                                <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400"></i>
+                                <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400 shrink-0"></i>
                                 <span>Tanpa Biaya Pasang</span>
                             </div>
                             <div class="flex items-center gap-1.5">
-                                <i data-lucide="unlock" class="w-4 h-4 text-emerald-400"></i>
+                                <i data-lucide="unlock" class="w-4 h-4 text-emerald-400 shrink-0"></i>
                                 <span>Bebas Ikatan Kontrak</span>
                             </div>
                             <div class="flex items-center gap-1.5">
-                                <i data-lucide="database" class="w-4 h-4 text-[#00C4D8]"></i>
+                                <i data-lucide="database" class="w-4 h-4 text-[#00C4D8] shrink-0"></i>
                                 <span>Data Milik Anda 100%</span>
                             </div>
                         </div>
@@ -138,7 +133,9 @@
                     </div>
 
                     <!-- KANAN: Plan & ROI Interactive Bento Cockpit (7 Cols ~ 58%) -->
-                    <div class="lg:col-span-7">
+                    <div class="lg:col-span-7 relative mt-4 lg:mt-0">
+                        {{-- Spotlight glow behind window --}}
+                        <div class="absolute -inset-1.5 bg-gradient-to-r from-[#007AFF]/30 to-[#00C4D8]/30 rounded-[32px] blur-xl opacity-75"></div>
                         <div
                             class="rounded-[24px] sm:rounded-[28px] bg-[#0E1E45]/85 border border-white/15 p-4 sm:p-6 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.7)] backdrop-blur-xl space-y-4 text-white">
 
