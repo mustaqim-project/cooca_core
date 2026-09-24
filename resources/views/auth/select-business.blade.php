@@ -4,20 +4,18 @@
     <div class="min-h-[calc(100vh-16rem)] flex flex-col justify-center py-10 sm:py-16 px-4 sm:px-6 lg:px-8"
         x-data="{ showCreateModal: false }">
         <div class="sm:mx-auto sm:w-full sm:max-w-xl">
-            <!-- Apple HIG Header -->
+            <!-- Official COOCA Branding & Header -->
             <div class="text-center mb-8">
-                <div
-                    class="inline-flex items-center justify-center w-14 h-14 rounded-[20px] bg-[#007AFF]/10 text-[#007AFF] dark:bg-[#0A84FF]/15 dark:text-[#0A84FF] mb-3.5 shadow-sm">
-                    <i data-lucide="building-2" class="w-7 h-7"></i>
-                </div>
-                <h1 class="text-2xl sm:text-3xl font-extrabold text-black dark:text-white tracking-tight">Pilih Workspace Bisnis</h1>
-                <p class="mt-2 text-sm text-black/60 dark:text-white/60">Pilih entitas toko yang ingin Anda operasikan atau
-                    buka cabang bisnis baru</p>
+                <a href="{{ route('landing') }}" class="inline-block transition-transform hover:scale-105 mb-5 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 rounded-xl" aria-label="COOCA Beranda">
+                    <img src="{{ asset('assets/image/cooca-logo-landscape.png') }}" alt="COOCA" class="h-9 sm:h-10 w-auto object-contain mx-auto">
+                </a>
+                <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">Pilih Workspace Bisnis</h1>
+                <p class="mt-2 text-xs sm:text-sm text-slate-600 dark:text-slate-400">Pilih entitas toko yang ingin Anda operasikan atau buka cabang bisnis baru</p>
             </div>
 
-            <!-- Businesses Selection List (Apple Inset Bento Grouped) -->
+            <!-- Businesses Selection List (Bento Grouped Card) -->
             <div
-                class="glass-card bg-white/85 dark:bg-[#1C1C1E]/85 backdrop-blur-2xl border border-black/[0.06] dark:border-white/[0.08] rounded-[28px] p-6 sm:p-8 shadow-2xl shadow-black/5 dark:shadow-black/50 space-y-5 transition-all">
+                class="bg-white dark:bg-[#151B2B] border border-slate-200/80 dark:border-white/10 rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-sm dark:shadow-2xl dark:shadow-black/40 space-y-5 transition-all">
                 @if ($businesses->isEmpty())
                     <div class="text-center py-10 px-4 text-black/60 dark:text-white/60">
                         <div

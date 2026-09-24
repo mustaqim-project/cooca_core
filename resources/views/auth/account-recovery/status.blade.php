@@ -16,20 +16,19 @@
         </div>
 
         <div class="w-full max-w-xl mx-auto space-y-6">
-            <!-- Header -->
+            <!-- Official COOCA Branding & Header -->
             <div class="text-center space-y-2 mb-2">
-                <div
-                    class="inline-flex items-center justify-center w-14 h-14 rounded-[20px] bg-[#007AFF]/10 text-[#007AFF] dark:bg-[#0A84FF]/15 dark:text-[#0A84FF] shadow-sm mb-2">
-                    <i data-lucide="shield-check" class="w-7 h-7"></i>
-                </div>
-                <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-black dark:text-white">Status Pemulihan Akun</h1>
-                <p class="text-xs sm:text-sm text-black/60 dark:text-white/60">Pantau perkembangan verifikasi berkas
+                <a href="{{ route('landing') }}" class="inline-block transition-transform hover:scale-105 mb-3 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 rounded-xl" aria-label="COOCA Beranda">
+                    <img src="{{ asset('assets/image/cooca-logo-landscape.png') }}" alt="COOCA" class="h-9 sm:h-10 w-auto object-contain mx-auto">
+                </a>
+                <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">Status Pemulihan Akun</h1>
+                <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400">Pantau perkembangan verifikasi berkas
                     permohonan pemulihan akses Anda</p>
             </div>
 
             @if ($recovery)
-                <!-- Ticket Detail Card (Apple Inset Bento Card) -->
-                <div class="glass-card bg-white/85 dark:bg-[#1C1C1E]/85 backdrop-blur-2xl border border-black/[0.06] dark:border-white/[0.08] rounded-[28px] p-6 sm:p-8 shadow-2xl shadow-black/5 dark:shadow-black/50 space-y-6 transition-all"
+                <!-- Ticket Detail Card (Bento Grouped Card) -->
+                <div class="bg-white dark:bg-[#151B2B] border border-slate-200/80 dark:border-white/10 rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-sm dark:shadow-2xl dark:shadow-black/40 space-y-6 transition-all"
                     x-data="{ copied: false }">
                     <!-- Ticket Hero Bar -->
                     <div
