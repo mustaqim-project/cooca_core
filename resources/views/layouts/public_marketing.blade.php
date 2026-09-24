@@ -281,6 +281,16 @@
         [x-cloak] {
             display: none !important;
         }
+
+        /* Floating WhatsApp Button Elevation (Safe clearance above Mobile Floating Bottom Dock) */
+        .floating-wa-fab {
+            bottom: calc(5.75rem + env(safe-area-inset-bottom, 0px)) !important;
+        }
+        @media (min-width: 1024px) {
+            .floating-wa-fab {
+                bottom: 1.5rem !important;
+            }
+        }
     </style>
 
     {{-- Universal Typography Hierarchy (H1 - H6 & Typographic Roles) --}}
@@ -323,18 +333,18 @@
             @mouseleave="platformDropdown = false; solutionDropdown = false; omniDropdown = false; resourceDropdown = false"
             @keydown.escape.window="platformDropdown = false; solutionDropdown = false; omniDropdown = false; resourceDropdown = false">
             <div
-                class="max-w-[1320px] mx-auto px-4 sm:px-6 lg:px-8 h-20 lg:h-[84px] flex items-center justify-between">
+                class="max-w-[1320px] mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 lg:h-[84px] flex items-center justify-between">
 
                 <!-- Logo Cooca (Perbesar Skala Desktop & Mobile) -->
                 <a href="{{ route('landing') }}"
                     @mouseenter="platformDropdown = false; solutionDropdown = false; omniDropdown = false; resourceDropdown = false"
-                    class="flex items-center gap-3.5 group shrink-0">
+                    class="flex items-center gap-3 sm:gap-3.5 group shrink-0">
                     @if (!empty($siteLogoDarkUrl))
                         <img src="{{ $siteLogoDarkUrl }}" alt="{{ $siteAppName }}"
-                            class="h-10 lg:h-10 xl:h-11 w-auto object-contain transition-transform group-hover:scale-105">
+                            class="h-8.5 sm:h-10 lg:h-10 xl:h-11 w-auto object-contain transition-transform group-hover:scale-105">
                     @else
                         <span
-                            class="font-black text-3xl xl:text-4xl tracking-tighter text-white font-sans">COOCA</span>
+                            class="font-black text-2xl sm:text-3xl xl:text-4xl tracking-tighter text-white font-sans">COOCA</span>
                     @endif
                 </a>
 
@@ -1817,12 +1827,12 @@
 
         @if ($waIsActive)
             <!-- Floating WhatsApp Button (Pure Icon FAB, Elevated safely above Mobile Floating Dock Navbar) -->
-            <div class="fixed bottom-[calc(5.75rem+env(safe-area-inset-bottom,0px))] right-4 sm:bottom-[calc(6.25rem+env(safe-area-inset-bottom,0px))] sm:right-6 lg:bottom-6 lg:right-6 z-50 print:hidden">
+            <div class="fixed floating-wa-fab right-4 sm:right-6 lg:right-6 z-50 print:hidden">
                 <a href="{{ $waTargetUrl }}" target="_blank" rel="noopener noreferrer"
                     aria-label="Chat WhatsApp Tim COOCA"
                     title="Chat WhatsApp Tim COOCA"
-                    class="group relative w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-[#25D366] hover:bg-[#20BD5A] text-white flex items-center justify-center shadow-[0_8px_25px_rgba(37,211,102,0.45)] hover:shadow-[0_12px_32px_rgba(37,211,102,0.6)] hover:scale-105 active:scale-95 transition-all">
-                    <i data-lucide="message-circle" class="w-6 h-6 sm:w-7 sm:h-7 fill-current stroke-[1.75]"></i>
+                    class="group relative w-12 h-12 sm:w-13 sm:h-13 rounded-full bg-[#25D366] hover:bg-[#20BD5A] text-white flex items-center justify-center shadow-[0_8px_25px_rgba(37,211,102,0.45)] hover:shadow-[0_12px_32px_rgba(37,211,102,0.6)] hover:scale-105 active:scale-95 transition-all">
+                    <i data-lucide="message-circle" class="w-6 h-6 sm:w-6.5 sm:h-6.5 fill-current stroke-[1.75]"></i>
                     <span class="sr-only">Chat Kami</span>
                 </a>
             </div>
