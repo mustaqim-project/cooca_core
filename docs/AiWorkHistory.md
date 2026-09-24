@@ -54,6 +54,52 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 
 - Pengetahuan yang dipromosikan ke `docs/system/` dan dampaknya pada `docs/SYSTEM_GUIDE.md`.
 
+### [WORK-2026-09-24-134] Penyesuaian Dimensi, Rasio & Layout Hero Section Halaman POS (Apple HIG Cockpit)
+
+- **Date:** 2026-09-24
+- **Status:** COMPLETED
+- **Module:** Public Product Pages (`resources/views/public/omnichannel-erp/pos.blade.php`)
+- **Feature:** POS Hero Section Layout Harmonization with Landing Page
+- **Work Type:** UI/UX | Bento Apple HIG | Layout System | Responsive Design
+
+#### 1. Business Context & Objective
+
+- **Konteks:** Hero section pada halaman produk POS (`pos.blade.php`) memiliki ketidaksesuaian proporsi, layout centering vertikal, dan typography hierarchy jika dibandingkan dengan standar hero section flagship pada `landing.blade.php`.
+- **Masalah/Target:**
+  1. Section container sebelumnya menggunakan padding manual `py-10 sm:py-14` dan `max-w-[1250px]` dengan elemen `space-y-6` pada wrapper yang membuat grid vertikal tidak simetris.
+  2. Kolom kiri menggunakan perataan tengah di mobile yang inkonsisten (`text-center mx-auto items-center lg:text-left`) alih-alih perataan kiri yang tegas dan terstruktur ala Apple HIG seperti di `landing.blade.php`.
+  3. Action CTAs dan trust metrics belum mengikuti geometri tombol, tinggi (`h-10 sm:h-12`), dan typography scale landing page.
+  4. Menyelaraskan ukuran, rasio 50/50, ambient glow, container `max-w-[1300px]`, dan layout positioning agar 100% konsisten dengan `landing.blade.php`.
+
+#### 2. What Was Done
+
+1. **Penyelarasan Container & Viewport Geometry:**
+   - Menerapkan container standar hero: `min-h-[calc(100svh-4rem)] lg:min-h-[calc(100svh-84px)] flex items-center` dengan ambient blur backdrop `-top-32` dan `bottom-0 left-1/4`.
+   - Menggunakan container `max-w-[1300px] mx-auto px-3.5 sm:px-6 lg:px-8 relative z-10 w-full pt-3 pb-[calc(5rem+env(safe-area-inset-bottom,0px))] sm:pt-6 sm:pb-24 lg:py-14`.
+2. **Harmonisasi Kolom Kiri (Typography & CTAs):**
+   - Mengubah kolom kiri menjadi `lg:col-span-6 space-y-5 sm:space-y-6 lg:space-y-7 text-left flex flex-col items-start w-full`.
+   - Menyelaraskan headline dengan gradient clip text accent: `text-2xl xs:text-3xl sm:text-5xl md:text-6xl lg:text-[3.25rem] xl:text-[4rem] font-extrabold`.
+   - Mengadopsi dual action CTA buttons standar (`h-10 sm:h-12 px-4 sm:px-7 rounded-[12px] sm:rounded-[14px]`).
+   - Menambahkan avatar cluster social proof dan reassurance checkpoints dengan susunan left-aligned.
+3. **Penyempurnaan Framing Terminal POS (Kolom Kanan):**
+   - Menempatkan terminal POS dalam container `lg:col-span-6 relative w-full max-w-xl mx-auto lg:max-w-none` berbingkai `rounded-[22px] sm:rounded-[28px] bg-[#0A122C]/90 backdrop-blur-xl p-2.5 sm:p-4 shadow-[0_25px_60px_rgba(0,0,0,0.6)] border border-white/15 ring-1 ring-white/10` dengan ambient spotlight glow di belakangnya.
+
+#### 3. Technical Changes
+
+- **Files Affected:**
+  - `resources/views/public/omnichannel-erp/pos.blade.php`
+- **Database Changes:** None.
+- **API / Route Changes:** None.
+
+#### 4. Verification & Testing
+
+- `php -l resources/views/public/omnichannel-erp/pos.blade.php`: Pass (No syntax errors detected).
+- `php artisan view:clear`: Pass (Compiled views cleared).
+
+#### 5. Documentation Promotion
+
+- Dicatat dalam Layer 1 `docs/AiWorkHistory.md`.
+
 ### [WORK-2026-09-24-133] Eliminasi Redundansi & Streamlining Landing Page (8 Section ke 6 Section)
 
 - **Date:** 2026-09-24
