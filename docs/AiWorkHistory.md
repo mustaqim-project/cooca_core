@@ -54,6 +54,55 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 
 - Pengetahuan yang dipromosikan ke `docs/system/` dan dampaknya pada `docs/SYSTEM_GUIDE.md`.
 
+### [WORK-2026-09-24-139] Pembersihan dan Restrukturisasi Menu Navigasi Sidebar (Bento Apple HIG Accordion & Eliminasi Redundansi Sublink)
+
+- **Date:** 2026-09-24
+- **Status:** COMPLETED
+- **Module:** Layout & Navigation (`resources/views/layouts/partials/sidebar.blade.php`, `tests/Feature/LayoutSidebarNavbarPlanTest.php`)
+- **Feature:** Eliminasi 26+ Duplikasi Sublink Liar (Ringkasan X & Laporan X) dan Standardisasi Collapsible Accordion Grup 7 (Laporan & Analitik)
+- **Work Type:** UI/UX | Bento Apple HIG | Bug Fix | Refactoring | Automated Testing
+
+#### 1. Business Context & Objective
+
+- **Konteks:** Mengatasi keluhan pengguna terkait menu sidebar yang berantakan (*cluttered/messy*) akibat puluhan sublink duplikat "Ringkasan X" di Grup 1 dan daftar flat terbuka "Laporan X" di Grup 7.
+- **Masalah/Target:**
+  1. Grup 1 (*Ringkasan & Dashboard*) sebelumnya menampilkan 8 link liar (*Ringkasan Finansial*, *Ringkasan POS*, *Ringkasan B2B*, dll.) yang sebenarnya merupakan duplikasi dari modul-modul di bawahnya.
+  2. Grup 7 (*Laporan & Analitik*) tidak menggunakan accordion Alpine.js collapsible melainkan flat list permanen terbuka yang menduplikasi 18 rute operasional (Kas & Bank, Jurnal, Piutang, Hutang, Mutasi Stok, BEP, Medsos) dan memiliki markup tag HTML tidak tertutup rapi.
+  3. Menyederhanakan struktur menjadi 8 Pilar Bersih Bento Apple HIG dengan default collapsible accordion di setiap grup.
+
+#### 2. What Was Done
+
+1. **Pembersihan Grup 1 (Ringkasan & Dashboard):**
+   - Menghapus semua sublink duplikat "Ringkasan X".
+   - Menyisakan hanya hero link utama `Dashboard Utama`, standalone top-level `Asisten Cerdas AI`, serta conditional alert `Persetujuan Pending` dan `Peringatan Audit` (hanya jika ada item).
+2. **Standardisasi Grup 7 (Laporan & Analitik):**
+   - Mengubah Grup 7 menjadi accordion collapsible button standar (`reportsOpen = !reportsOpen`).
+   - Menyaring isi Grup 7 menjadi 7 item laporan murni:
+     1. `Pusat Laporan` (`route('reports.index')`)
+     2. `Analitik Bisnis & Tren` (`route('analytics.index')`)
+     3. `Laba Rugi (Profit & Loss)` (`route('reports.index', ['tab' => 'income_statement'])`)
+     4. `Arus Kas (Cash Flow)` (`route('reports.index', ['tab' => 'cash_flow'])`)
+     5. `Laporan Penjualan Kasir` (`route('pos.reports.index')`)
+     6. `Valuasi & Perputaran Stok` (`route('reports.index', ['tab' => 'stock'])`)
+     7. `Ringkasan Laporan Pajak` (`route('tax.index')`)
+   - Memperbaiki flyout collapsed submenu agar rapi dan tidak tumpang-tindih.
+3. **Pengujian Nyata Otomatis (PHPUnit):**
+   - Memperbarui dan menjalankan `tests/Feature/LayoutSidebarNavbarPlanTest.php`.
+   - 10 dari 10 pengujian berhasil lulus 100% (128 assertions).
+
+#### 3. Technical Changes
+
+- **Files Affected:**
+  - `resources/views/layouts/partials/sidebar.blade.php`
+  - `tests/Feature/LayoutSidebarNavbarPlanTest.php`
+  - `docs/AiWorkHistory.md`
+- **Database Changes:** None.
+- **API / Route Changes:** None.
+
+#### 4. Verification & Testing
+
+- PHPUnit: `php vendor/phpunit/phpunit/phpunit tests/Feature/LayoutSidebarNavbarPlanTest.php` -> 10 tests, 10 passed, 128 assertions, duration 11.7s.
+
 ### [WORK-2026-09-24-138] Restrukturisasi Tab Kelola Modul (5 Klaster Tematik Bento Apple HIG) & Keterkaitan Dinamis Menu Sidebar
 
 - **Date:** 2026-09-24

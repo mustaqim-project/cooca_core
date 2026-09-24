@@ -76,26 +76,18 @@ class LayoutSidebarNavbarPlanTest extends TestCase
         $response->assertSee('Laporan & Analitik');
         $response->assertSee('Pengaturan Usaha');
 
-        // Check Overview list (Image 1 pattern)
-        $response->assertSee('Ringkasan Finansial & Kas');
-        $response->assertSee('Ringkasan Kasir POS');
-        $response->assertSee('Ringkasan Karyawan & Payroll');
-        $response->assertSee('Ringkasan Pelanggan & Member');
-        $response->assertSee('Ringkasan Gudang & Persediaan');
-        $response->assertSee('Ringkasan Pemasaran Digital');
+        // Check Overview list (Clean Bento Apple HIG)
+        $response->assertSee('Dashboard Utama');
         $response->assertSee('Asisten Cerdas AI');
 
-        // Check Reports Center list (Image 2 pattern)
+        // Check Reports Center list (Clean 7 pure report items)
         $response->assertSee('Pusat Laporan');
+        $response->assertSee('Analitik Bisnis & Tren');
         $response->assertSee('Laba Rugi (Profit & Loss)');
         $response->assertSee('Arus Kas (Cash Flow)');
-        $response->assertSee('Rekening Kas & Bank');
-        $response->assertSee('Buku Besar Akun');
-        $response->assertSee('Buku Jurnal Keuangan');
         $response->assertSee('Laporan Penjualan Kasir');
-        $response->assertSee('Daftar Piutang Usaha');
-        $response->assertSee('Daftar Utang Usaha');
         $response->assertSee('Valuasi & Perputaran Stok');
+        $response->assertSee('Ringkasan Laporan Pajak');
 
         // Check key menu routes & tour IDs
         $response->assertSee('id="tour-nav-dashboard"', false);
