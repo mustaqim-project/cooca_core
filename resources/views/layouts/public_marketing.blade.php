@@ -498,15 +498,15 @@
                     </div>
 
                     <!-- Mobile Hamburger Button (Apple HIG Touch Target & Clean Responsive SVG) -->
-                    <button @click="mobileMenu = !mobileMenu; $nextTick(() => { if (typeof lucide !== 'undefined' && lucide.createIcons) lucide.createIcons(); })"
-                        class="lg:hidden w-10 h-10 sm:w-11 sm:h-11 rounded-[12px] bg-white/10 text-white hover:bg-white/15 active:scale-95 transition-all flex items-center justify-center shadow-xs focus:outline-none shrink-0"
-                        :class="mobileMenu ? 'bg-white/20 text-[#00C2FF] ring-2 ring-[#00C2FF]/40' : ''"
+                    <button type="button" @click="mobileMenu = !mobileMenu; $nextTick(() => { if (typeof lucide !== 'undefined' && lucide.createIcons) lucide.createIcons(); })"
+                        class="lg:hidden w-9 h-9 sm:w-10 sm:h-10 rounded-[11px] sm:rounded-[12px] bg-white/10 hover:bg-white/15 text-slate-200 hover:text-white active:scale-95 transition-all flex items-center justify-center shadow-xs focus:outline-none shrink-0 border border-white/10"
+                        :class="mobileMenu ? 'bg-white/20 text-[#00C2FF] border-[#00C2FF]/40 ring-2 ring-[#00C2FF]/30' : ''"
                         aria-label="Toggle Mobile Navigation"
                         :aria-expanded="mobileMenu ? 'true' : 'false'">
-                        <svg x-show="!mobileMenu" class="w-5.5 h-5.5 sm:w-6 sm:h-6 stroke-current stroke-[2.2]" fill="none" viewBox="0 0 24 24">
+                        <svg x-show="!mobileMenu" class="w-5 h-5 stroke-current stroke-2" fill="none" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
                         </svg>
-                        <svg x-show="mobileMenu" x-cloak class="w-5.5 h-5.5 sm:w-6 sm:h-6 stroke-current stroke-[2.2]" fill="none" viewBox="0 0 24 24">
+                        <svg x-show="mobileMenu" x-cloak class="w-5 h-5 stroke-current stroke-2" fill="none" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </button>
@@ -1247,27 +1247,15 @@
                 </div>
             </div>
 
-            <!-- Mobile Navigation Backdrop Overlay -->
+            <!-- Mobile Drawer Menu (Full Width Absolute Sheet Attached Under Header Line) -->
             <div x-show="mobileMenu" x-cloak
                 x-transition:enter="transition ease-out duration-200"
-                x-transition:enter-start="opacity-0"
-                x-transition:enter-end="opacity-100"
-                x-transition:leave="transition ease-in duration-150"
-                x-transition:leave-start="opacity-100"
-                x-transition:leave-end="opacity-0"
-                @click="mobileMenu = false"
-                class="fixed inset-0 top-16 sm:top-20 lg:hidden z-40 bg-black/80 backdrop-blur-sm pointer-events-auto">
-            </div>
-
-            <!-- Mobile Drawer Menu (Full Height Native Sheet with Apple Collapsible Insets) -->
-            <div x-show="mobileMenu" x-cloak
-                x-transition:enter="transition cubic-bezier(0.16, 1, 0.3, 1) duration-250"
                 x-transition:enter-start="opacity-0 -translate-y-2"
                 x-transition:enter-end="opacity-100 translate-y-0"
                 x-transition:leave="transition ease-in duration-150"
                 x-transition:leave-start="opacity-100 translate-y-0"
                 x-transition:leave-end="opacity-0 -translate-y-2"
-                class="fixed top-16 sm:top-20 inset-x-0 bottom-0 w-full z-50 lg:hidden bg-[#060913]/98 backdrop-blur-2xl border-t border-white/10 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.95)] overflow-y-auto overscroll-contain text-slate-200 p-4 sm:p-5 space-y-3 pb-24">
+                class="absolute top-full inset-x-0 w-full lg:hidden bg-[#060913] text-slate-200 border-t border-b border-white/10 shadow-[0_30px_60px_rgba(0,0,0,0.95)] max-h-[calc(100dvh-4rem)] sm:max-h-[calc(100dvh-5rem)] overflow-y-auto overscroll-contain p-4 sm:p-5 space-y-3 pb-28 z-50">
 
                 <!-- 1. Top Auth & User Profile Card -->
                 @if (auth('admin')->check())
@@ -1669,6 +1657,18 @@
                 </div>
             </div>
         </header>
+
+        <!-- Mobile Navigation Backdrop Scrim (Outside header for clean full viewport coverage) -->
+        <div x-show="mobileMenu" x-cloak
+            x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0"
+            x-transition:enter-end="opacity-100"
+            x-transition:leave="transition ease-in duration-150"
+            x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0"
+            @click="mobileMenu = false"
+            class="fixed inset-0 top-16 sm:top-20 lg:hidden z-40 bg-black/75 backdrop-blur-sm pointer-events-auto">
+        </div>
     @endif
 
     <!-- ═══ MAIN CONTENT ═══ -->

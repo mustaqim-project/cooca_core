@@ -54,6 +54,42 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 
 - Pengetahuan yang dipromosikan ke `docs/system/` dan dampaknya pada `docs/SYSTEM_GUIDE.md`.
 
+### [WORK-2026-09-24-132] Perbaikan Icon Hamburger & Eliminasi Overlap Dropdown Menu Mobile
+
+- **Date:** 2026-09-24
+- **Status:** COMPLETED
+- **Module:** Public Marketing Layout (`layouts/public_marketing.blade.php`)
+- **Feature:** Mobile Hamburger Icon Resizing & Dropdown Stacking Context Fix
+- **Work Type:** UI/UX | Bento Apple HIG | CSS Bug Fix | Mobile Navigation
+
+#### 1. Business Context & Objective
+
+- **Konteks:** Pada tampilan mobile header publik (`layouts/public_marketing.blade.php`), pengunjung menemukan masalah visual di mana ikon hamburger dan close button berukuran tidak proporsional (terlalu besar/tebal), serta menu dropdown yang terbuka tumpang tindih (*overlapping*) langsung di atas teks hero landing page alih-alih tampil sebagai sheet drawer yang solid dan menutupi layar dengan rapi.
+- **Masalah/Target:**
+  1. Ikon hamburger dan close (`X`) menggunakan class non-standar `w-5.5 h-5.5` dengan stroke tebal yang membuat ikon close tampak mendominasi dan tidak seimbang.
+  2. Element drawer mobile sebelumnya menggunakan `position: fixed` di dalam `<header>` yang memiliki `backdrop-blur-2xl`. Menurut spesifikasi CSS, `backdrop-filter` pada parent menciptakan containing block baru bagi elemen `fixed`, sehingga tinggi drawer terkunci dalam batas tinggi header 64px dan konten meluap (*overflow*) secara transparan menimpa hero title.
+  3. Memperbaiki proporsi ikon, touch target, dan mengubah drawer menjadi solid absolute sheet dengan external backdrop scrim.
+
+#### 2. What Was Done
+
+1. **Restrukturisasi Stacking Context & Posisi Drawer:**
+   - Mengubah container drawer mobile dari `fixed` yang terperangkap di dalam header menjadi `absolute top-full inset-x-0 w-full` dengan background solid `#060913`, border pembatas `border-t border-b border-white/10`, bayangan `shadow-[0_30px_60px_rgba(0,0,0,0.95)]`, dan batasan tinggi `max-h-[calc(100dvh-4rem)] sm:max-h-[calc(100dvh-5rem)] overflow-y-auto overscroll-contain`.
+   - Memindahkan backdrop scrim (`fixed inset-0 top-16 sm:top-20 z-40 bg-black/75 backdrop-blur-sm`) ke luar tag `<header>` agar memiliki cakupan viewport penuh yang sesungguhnya.
+2. **Harmonisasi Dimensi Icon & Touch Target Hamburger:**
+   - Menyesuaikan ukuran tombol menjadi `w-9 h-9 sm:w-10 sm:h-10 rounded-[11px] sm:rounded-[12px] border border-white/10`.
+   - Menggunakan SVG icon berdimensi standar Tailwind `w-5 h-5` dengan ketebalan garis elegan `stroke-2`, menghasilkan tampilan close icon `X` dan hamburger bar yang presisi, proporsional, dan estetik ala Apple HIG.
+
+#### 3. Technical Changes
+
+- **Files Affected:**
+  - `resources/views/layouts/public_marketing.blade.php`: Koreksi class SVG icon hamburger/close, konversi drawer ke solid full-width sheet (`absolute top-full`), dan pemindahan backdrop scrim ke luar header.
+  - `docs/AiWorkHistory.md`: Pencatatan histori pekerjaan.
+
+#### 4. Verification & Testing
+
+- `php -l resources/views/layouts/public_marketing.blade.php`: PASS (No syntax errors detected).
+- `php artisan route:list --name=landing`: PASS (Route aktif dan responsif).
+
 ### [WORK-2026-09-24-131] Perbaikan Header Versi Mobile: Eliminasi CLS, Bento Apple Control Center Drawer, & Ergonomi Touch Target
 
 - **Date:** 2026-09-24
