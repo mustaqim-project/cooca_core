@@ -54,6 +54,65 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 
 - Pengetahuan yang dipromosikan ke `docs/system/` dan dampaknya pada `docs/SYSTEM_GUIDE.md`.
 
+### [WORK-2026-09-24-133] Eliminasi Redundansi & Streamlining Landing Page (8 Section ke 6 Section)
+
+- **Date:** 2026-09-24
+- **Status:** COMPLETED
+- **Module:** Public Landing Page (`landing.blade.php`)
+- **Feature:** Landing Page Information Architecture Redundancy Elimination
+- **Work Type:** UI/UX | Information Architecture | Performance Optimization | Copywriting & Conversion
+
+#### 1. Business Context & Objective
+
+- **Konteks:** Pada audit informasi `landing.blade.php`, ditemukan bahwa halaman memuat 8 section panjang di mana beberapa section mengulang representasi visual dan pesan yang identik (redundansi modular dan omnichannel).
+- **Masalah/Target:**
+  1. Section 3 lama (*Integrated Workflow: "Your Business, Connected End-to-End"*) menampilkan 11 kotak modul linear statis dengan panah chevron yang menyampaikan hal yang sama persis namun secara lebih inferior dibanding Section 4 (*Interactive Ecosystem Hub* dengan animasi live SVG beam data flow).
+  2. Section 5 lama (*Integrasi Omnichannel: "Sell Beyond Your Store"*) menampilkan diagram statis 5 ikon medsos yang mengerucut ke COOCA dan bercabang ke Order/Inventory/Finance, yang sudah dijelaskan di Hub dan didemonstrasikan langsung di Section Content Automation & Marketplace.
+  3. Mengeliminasi kedua section redundan tersebut dan merestrukturisasi landing page menjadi **6 Section Berdampak Tinggi (*The Golden Flow*)** untuk mengurangi beban kognitif pengunjung, meningkatkan retensi/konversi, serta mempercepat load time DOM.
+
+#### 2. What Was Done
+
+1. **Eliminasi Section Redundan:**
+   - Menghapus Section 3 lama (*Integrated Workflow*, ~183 baris kode HTML statis).
+   - Menghapus Section 5 lama (*Integrasi Omnichannel Diagram*, ~174 baris kode HTML statis).
+2. **Restrukturisasi & Renumbering Alur Informasi Menjadi 6 Section:**
+   - **Section 1:** Hero Section & Executive Dashboard Cockpit Showcase.
+   - **Section 2:** 8 Core Capabilities Bento Grid (*POS, Omnichannel, Inventory, Procurement, WhatsApp CRM, Finance, Content, Analytics*).
+   - **Section 3:** Interactive Ecosystem Hub (*"Lebih dari Sekadar ERP"* dengan animated dynamic beam SVG).
+   - **Section 4:** Split Section: Content Automation & Live Marketplace Discovery.
+   - **Section 5:** Industry Solutions (*F&B, Retail, Workshop, Laundry, Manufacturing, Services*).
+   - **Section 6:** Bottom CTA Banner & 4-Step Onboarding.
+3. **Verifikasi & Kompilasi:**
+   - Menjalankan `php -l` dan `php artisan view:clear` untuk memastikan zero syntax/rendering regression.
+
+#### 3. Technical Changes
+
+- **Files Affected:**
+  - `resources/views/landing.blade.php`: Pengurangan ukuran berkas dari 2,637 baris menjadi 2,276 baris (~361 baris kode redundan dieliminasi).
+- **Database Changes:** None.
+- **API / Route Changes:** None (Route `public.landing` tetap stabil).
+
+#### 4. System Impacts
+
+- **Workflow Impact:** User journey pengunjung landing page menjadi jauh lebih padat, ringkas, dan fokus tanpa distraksi pengulangan visual diagram yang redundant.
+- **Business Rule Impact:** None.
+- **Permission Impact:** None.
+
+#### 5. Verification & Testing
+
+- `php -l resources/views/landing.blade.php`: Pass (No syntax errors detected).
+- `php artisan view:clear`: Pass (Compiled views cleared).
+- Route integrity checked via `php artisan route:list`.
+
+#### 6. Important Decisions & Guardrails
+
+- Mempertahankan seluruh interactive state Alpine.js pada Interactive Ecosystem Hub dan Live Search Marketplace.
+- Mempertahankan estetika Apple HIG dark mode, responsive bento grid, serta typography hierarchy tanpa ada styling yang patah.
+
+#### 7. Documentation Promotion
+
+- Dicatat dalam Layer 1 `docs/AiWorkHistory.md`.
+
 ### [WORK-2026-09-24-132] Perbaikan Icon Hamburger & Eliminasi Overlap Dropdown Menu Mobile
 
 - **Date:** 2026-09-24
