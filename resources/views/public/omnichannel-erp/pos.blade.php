@@ -190,37 +190,142 @@
 
                     </div>
 
-                    <!-- KANAN: Simulated Live POS Terminal UI (6 Cols) -->
+                    <!-- KANAN: Simulated Live POS Terminal UI with Apple HIG Cockpit Window & Mobile Dynamic Island Strip -->
                     <div class="lg:col-span-6 relative w-full max-w-xl mx-auto lg:max-w-none">
                         <!-- Ambient Spotlight Glow behind the Terminal Window -->
                         <div
                             class="absolute -inset-2 sm:-inset-4 bg-gradient-to-tr from-[#007AFF]/25 via-[#00C4D8]/15 to-transparent rounded-[32px] sm:rounded-[36px] blur-2xl sm:blur-3xl pointer-events-none -z-10">
                         </div>
 
-                        <div
-                            class="relative rounded-[22px] sm:rounded-[28px] bg-[#0A122C]/90 backdrop-blur-xl p-2.5 sm:p-4 shadow-[0_25px_60px_rgba(0,0,0,0.6)] border border-white/15 ring-1 ring-white/10">
-                            {{-- Device Top Bar --}}
+                        <!-- Mobile Live Dynamic Island Metric Strip (Clean, non-colliding, zero overlap on Mobile) -->
+                        <div class="flex sm:hidden items-center justify-between gap-2 mb-2 w-full">
+                            <!-- Mobile Left Live Badge -->
                             <div
-                                class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 px-3 py-2 bg-[#060B1E]/80 rounded-xl mb-2.5 text-xs border border-white/10">
-                                <div class="flex items-center gap-2 min-w-0 flex-1">
-                                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shrink-0"></span>
-                                    <span class="text-slate-200 font-semibold truncate">Kasir 01 - Outlet Sudirman</span>
-                                    <span class="text-slate-400 truncate hidden sm:inline">| Shift: Pagi (Budi)</span>
+                                class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#0A122C]/95 border border-white/20 text-[10px] text-slate-200 backdrop-blur-xl shadow-md">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                                <span class="text-slate-400 font-medium">Kasir 01</span>
+                                <span class="font-extrabold text-white">Online</span>
+                            </div>
+
+                            <!-- Mobile Right Live Badge -->
+                            <div
+                                class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#0A122C]/95 border border-white/20 text-[10px] text-slate-200 backdrop-blur-xl shadow-md">
+                                <i data-lucide="printer" class="w-3 h-3 text-[#00C4D8]"></i>
+                                <span class="text-slate-400 font-medium">Thermal</span>
+                                <span class="font-extrabold text-white">Terhubung</span>
+                            </div>
+                        </div>
+
+                        <!-- Floating Card Top-Right: Kecepatan Checkout (TABLET & DESKTOP - Zero mobile overlap) -->
+                        <div
+                            class="hidden sm:block absolute -top-5 -right-3 z-30 bg-[#0A122C]/95 border border-white/20 rounded-[18px] p-3.5 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.8),0_0_20px_rgba(0,122,255,0.2)] min-w-[170px] backdrop-blur-2xl text-white transform hover:-translate-y-0.5 transition-all">
+                            <div class="flex items-center justify-between gap-2">
+                                <div class="text-[11px] text-slate-400 font-medium">Kecepatan Transaksi</div>
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                            </div>
+                            <div class="text-lg font-extrabold text-white tabular-nums tracking-tight mt-0.5">&lt; 3 Detik / Order</div>
+                            <div class="text-[11px] font-semibold text-emerald-400 flex items-center gap-1 mt-0.5">
+                                <i data-lucide="zap" class="w-3 h-3"></i>
+                                <span>QRIS &amp; Thermal Instan</span>
+                            </div>
+                        </div>
+
+                        <!-- Floating Card Bottom-Left: Sinkronisasi Gudang (TABLET & DESKTOP - Zero mobile overlap) -->
+                        <div
+                            class="hidden sm:block absolute -bottom-5 -left-3 z-30 bg-[#0A122C]/95 border border-white/20 rounded-[18px] p-3.5 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.8),0_0_20px_rgba(0,196,216,0.18)] min-w-[160px] backdrop-blur-2xl text-white transform hover:-translate-y-0.5 transition-all">
+                            <div class="text-[11px] text-slate-400 font-medium">Sinkronisasi Gudang</div>
+                            <div class="text-lg font-extrabold text-white tabular-nums tracking-tight mt-0.5">Auto Potong BOM</div>
+                            <div class="text-[11px] font-semibold text-emerald-400 flex items-center gap-1.5 mt-0.5">
+                                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                                <span>Jurnal Otomatis</span>
+                            </div>
+                        </div>
+
+                        <!-- Floating Notification Toast (MD+ / Desktop) -->
+                        <div
+                            class="hidden md:flex items-center gap-2.5 absolute bottom-8 -right-3 z-30 bg-[#0A122C]/95 border border-white/20 rounded-[16px] px-3.5 py-2.5 shadow-[0_20px_40px_-5px_rgba(0,0,0,0.7)] backdrop-blur-2xl max-w-xs text-white">
+                            <div
+                                class="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center shrink-0 text-emerald-400">
+                                <i data-lucide="printer" class="w-4 h-4"></i>
+                            </div>
+                            <div>
+                                <div class="text-[10px] text-slate-400 font-medium">Struk Otomatis Terbit</div>
+                                <div class="text-xs font-bold text-white">TRX-9402 Dicetak &amp; Input Akuntansi</div>
+                            </div>
+                        </div>
+
+                        <!-- Main Terminal Window Chassis with Specular Top Highlight -->
+                        <div
+                            class="rounded-[18px] sm:rounded-[28px] bg-[#0A122C]/90 border border-white/15 p-2.5 sm:p-4 shadow-[0_30px_90px_-20px_rgba(0,0,0,0.85),0_0_60px_rgba(0,122,255,0.12)] backdrop-blur-2xl space-y-2 sm:space-y-3 text-white relative z-10 overflow-hidden mb-6 sm:mb-0">
+
+                            <!-- Top Edge Specular Glare -->
+                            <div
+                                class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent pointer-events-none">
+                            </div>
+
+                            <!-- Mobile Window Header (sm:hidden - Clean title & status, zero truncation) -->
+                            <div class="flex sm:hidden items-center justify-between border-b border-white/10 pb-2 gap-2">
+                                <div class="flex items-center gap-1.5 min-w-0">
+                                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0"></span>
+                                    <span class="text-[11px] font-bold text-white tracking-tight truncate">POS Terminal &bull; Outlet Sudirman</span>
                                 </div>
-                                <div class="flex items-center gap-2 text-slate-300 shrink-0 self-end sm:self-auto">
-                                    <i data-lucide="printer" class="w-3.5 h-3.5 text-[#00C4D8]"></i>
-                                    <span class="text-[11px] text-slate-300">BT-58mm Terhubung</span>
+                                <span
+                                    class="px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-[10px] font-semibold shrink-0">
+                                    Shift Pagi
+                                </span>
+                            </div>
+
+                            <!-- Desktop/Tablet macOS Window Top Bar (hidden sm:flex with traffic lights, URL bar & status) -->
+                            <div
+                                class="hidden sm:flex items-center justify-between border-b border-white/10 pb-2 sm:pb-3 gap-2">
+                                <div class="flex items-center gap-1.5 sm:gap-3 min-w-0">
+                                    <div class="flex items-center gap-1 sm:gap-1.5 shrink-0">
+                                        <span
+                                            class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-[#FF5F56] shadow-inner"></span>
+                                        <span
+                                            class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-[#FFBD2E] shadow-inner"></span>
+                                        <span
+                                            class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-[#27C93F] shadow-inner"></span>
+                                    </div>
+                                    <!-- URL Address Bar with SSL Lock Icon -->
+                                    <div
+                                        class="py-0.5 sm:py-1 px-2.5 sm:px-3 rounded-full bg-white/[0.06] border border-white/10 text-[9px] sm:text-[11px] font-mono text-slate-300 flex items-center gap-1.5 truncate max-w-[150px] sm:max-w-[280px]">
+                                        <i data-lucide="lock"
+                                            class="w-2.5 h-2.5 sm:w-3 sm:h-3 text-emerald-400 shrink-0"></i>
+                                        <span class="truncate">https://cooca.id/app/pos/terminal-01</span>
+                                    </div>
                                 </div>
+
+                                <div class="flex items-center gap-2 shrink-0">
+                                    <span
+                                        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-[11px] font-semibold">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                                        Kasir Aktif (Shift Pagi)
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- POS Sub-Banner Info -->
+                            <div class="flex items-center justify-between text-xs pb-0.5">
+                                <div>
+                                    <div class="text-xs sm:text-sm font-bold text-white">Kasir 01 - Kasir Cepat</div>
+                                    <div class="text-[9px] sm:text-xs text-slate-400">Kasir: Budi &bull; Meja 04</div>
+                                </div>
+                                <span
+                                    class="px-2 py-0.5 rounded-md bg-cyan-500/15 text-[#00C4D8] text-[9px] sm:text-xs font-semibold flex items-center gap-1 border border-cyan-500/20">
+                                    <i data-lucide="printer" class="w-3 h-3 sm:w-3.5 sm:h-3.5"></i>
+                                    <span>BT-58mm Terhubung</span>
+                                </span>
                             </div>
 
                             {{-- Main POS Dual Workspace (Items Grid + Cart Summary) --}}
                             <div
-                                class="grid grid-cols-1 sm:grid-cols-12 gap-3 bg-[#060B1E]/90 p-2.5 sm:p-3 rounded-xl border border-white/10">
+                                class="grid grid-cols-1 sm:grid-cols-12 gap-2.5 sm:gap-3 bg-[#060B1E]/90 p-2 sm:p-3 rounded-xl border border-white/10">
 
                                 {{-- Items Catalog (7 Cols) --}}
                                 <div class="col-span-1 sm:col-span-7 space-y-2 min-w-0">
                                     {{-- Category Tabs --}}
-                                    <div class="flex items-center gap-1.5 overflow-x-auto pb-1 text-[11px]">
+                                    <div class="flex items-center gap-1.5 overflow-x-auto pb-1 text-[10px] sm:text-[11px]">
                                         <span
                                             class="px-2.5 py-1 bg-[#007AFF] text-white font-medium rounded-lg shrink-0">Semua
                                             (24)</span>
@@ -358,7 +463,7 @@
                             </div>
                             {{-- Automated Sync Note --}}
                             <div
-                                class="mt-2 text-center text-[11px] text-slate-400 flex items-center justify-center gap-1.5 py-1 px-2 text-balance break-words">
+                                class="mt-2 text-center text-[10px] sm:text-[11px] text-slate-400 flex items-center justify-center gap-1.5 py-1 px-2 text-balance break-words">
                                 <i data-lucide="refresh-cw" class="w-3 h-3 text-[#00C4D8] animate-spin shrink-0"></i>
                                 <span>Otomatis memotong 2 botol susu, 1 pack butter, dan input kas ke Akuntansi</span>
                             </div>

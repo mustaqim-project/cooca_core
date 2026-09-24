@@ -81,124 +81,274 @@
         class="relative overflow-hidden bg-white dark:bg-[#070A14] text-slate-900 dark:text-white transition-colors duration-300">
 
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
-        <!-- ═══ 1. HERO SECTION (Full Viewport 45/55 Ratio) ══════════════════════════ -->
+        <!-- ═══ 1. HERO SECTION (Full Viewport 50/50 Ratio - Apple HIG Cockpit) ══════ -->
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
         <section
-            class="relative bg-[#060B1E] text-white overflow-hidden border-b border-white/10 lg:min-h-[calc(100svh-84px)] lg:flex lg:items-center py-10 sm:py-14 w-full min-w-full">
-            <!-- Subtle Ambient Background Glows -->
+            class="relative w-full min-w-full bg-[#060B1E] text-white overflow-hidden border-b border-white/10 min-h-[calc(100svh-4rem)] lg:min-h-[calc(100svh-84px)] flex items-center">
+
+            <!-- Subtle Ambient Background Glows (Pure CSS, No Heavy Images) -->
             <div
-                class="absolute -top-24 right-1/4 w-[500px] h-[500px] bg-[#007AFF]/15 rounded-full blur-[140px] pointer-events-none -z-0">
+                class="absolute -top-32 right-1/4 w-[500px] h-[500px] bg-[#007AFF]/15 rounded-full blur-[140px] pointer-events-none -z-0">
             </div>
             <div
-                class="absolute bottom-0 left-1/4 w-[400px] h-[400px] bg-[#00C4D8]/10 rounded-full blur-[120px] pointer-events-none -z-0">
+                class="absolute bottom-0 left-1/4 w-[450px] h-[450px] bg-[#00C4D8]/10 rounded-full blur-[130px] pointer-events-none -z-0">
             </div>
 
-            <div class="max-w-[1250px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-6 w-full">
-                {{-- Breadcrumb --}}
-                <nav aria-label="Breadcrumb" class="flex items-center gap-2 text-xs text-slate-400">
-                    <a href="{{ route('landing') }}" class="hover:text-[#00C4D8] transition-colors">Home</a>
-                    <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-white/30"></i>
-                    <a href="{{ route('public.erp.erp') }}" class="hover:text-[#00C4D8] transition-colors">Omnichannel
-                        ERP</a>
-                    <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-white/30"></i>
-                    <span class="text-white font-semibold" aria-current="page">Manajemen Stok &amp; Inventori</span>
-                </nav>
+            <!-- Container Konten Hero (Safe from Fixed Bottom Nav on Mobile) -->
+            <div
+                class="max-w-[1300px] mx-auto px-3.5 sm:px-6 lg:px-8 relative z-10 w-full pt-3 pb-[calc(5rem+env(safe-area-inset-bottom,0px))] sm:pt-6 sm:pb-24 lg:py-14">
 
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-                    {{-- Left Column: Eyebrow, Headline, Value Proposition & Action CTAs (Mobile Center, Desktop Left ~ 5 Cols) --}}
-                    <div class="lg:col-span-5 space-y-6 text-center mx-auto flex flex-col items-center lg:text-left lg:items-start lg:mx-0">
-                        <div class="space-y-3 w-full">
-                            <!-- Pure Typographic Overline Kicker (Zero Pill Abuse) -->
-                            <p class="text-xs sm:text-[13px] font-bold uppercase tracking-wider text-[#00C4D8]">
-                                Perpetual Stock &amp; Multi-Warehouse Control
-                            </p>
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-3.5 sm:gap-6 lg:gap-12 items-center w-full">
 
+                    <!-- KIRI: Eyebrow, Headline, Subtitle, CTAs & Value Proof (Left-aligned on Mobile and Desktop ~ 6 Cols) -->
+                    <div
+                        class="lg:col-span-6 space-y-5 sm:space-y-6 lg:space-y-7 text-left flex flex-col items-start w-full">
+                        <!-- Breadcrumb & Overline Kicker -->
+                        <div class="space-y-2">
+                            <nav aria-label="Breadcrumb" class="flex items-center gap-1.5 text-[11px] sm:text-xs text-slate-400">
+                                <a href="{{ route('landing') }}" class="hover:text-[#00C4D8] transition-colors">Home</a>
+                                <i data-lucide="chevron-right" class="w-3 h-3 text-white/30"></i>
+                                <a href="{{ route('public.erp.erp') }}" class="hover:text-[#00C4D8] transition-colors">Omnichannel ERP</a>
+                                <i data-lucide="chevron-right" class="w-3 h-3 text-white/30"></i>
+                                <span class="text-white font-semibold" aria-current="page">Manajemen Stok</span>
+                            </nav>
+
+                            <div class="flex items-center gap-2">
+                                <span class="w-2.5 h-2.5 rounded-full bg-[#00C4D8] animate-pulse"></span>
+                                <p class="text-xs sm:text-sm lg:text-[14px] font-bold uppercase tracking-wider text-[#00C4D8]">
+                                    Perpetual Stock &amp; Multi-Warehouse Control
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Main Headline with Gradient Glow Accent -->
+                        <div class="w-full">
                             <h1
-                                class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.65rem] xl:text-[3rem] font-extrabold text-white tracking-tight leading-[1.15] text-balance break-words max-w-[22rem] sm:max-w-xl lg:max-w-none mx-auto lg:mx-0">
-                                Kendalikan Stok di Setiap Gudang <span class="text-[#00C4D8]">Tanpa Selisih Misterius</span>
+                                class="text-2xl xs:text-3xl sm:text-5xl md:text-6xl lg:text-[3.25rem] xl:text-[4rem] font-extrabold text-white tracking-tight leading-[1.25] sm:leading-[1.18] text-balance break-words max-w-[22rem] sm:max-w-2xl lg:max-w-none">
+                                Kendalikan Stok di Setiap Gudang <span
+                                    class="bg-gradient-to-r from-[#00C4D8] via-[#60A5FA] to-[#007AFF] bg-clip-text text-transparent">Tanpa
+                                    Selisih Misterius</span>
                             </h1>
                         </div>
 
-                        <p class="text-base sm:text-lg text-slate-300 leading-relaxed font-normal max-w-[32rem] lg:max-w-xl mx-auto lg:mx-0">
+                        <!-- Subtitle Copy -->
+                        <p
+                            class="text-sm sm:text-lg lg:text-xl text-slate-300 leading-relaxed sm:leading-loose max-w-[24rem] sm:max-w-[34rem] lg:max-w-2xl font-normal text-pretty break-words">
                             Hentikan barang hilang dan kehabisan stok saat pelanggan siap membeli. COOCA menyajikan kartu stok perpetual real-time, mutasi antar cabang dengan surat jalan, resep bahan baku (BOM), dan peringatan restock sebelum terlambat.
                         </p>
 
-                        {{-- Action CTAs (Centered on Mobile, Row on Desktop) --}}
-                        <div class="flex flex-col sm:flex-row items-stretch sm:items-center sm:justify-center lg:justify-start gap-3.5 pt-2 w-full sm:w-auto">
+                        <!-- Action Buttons (Row Left-Aligned on Mobile & Desktop) -->
+                        <div class="pt-1 flex flex-row items-center justify-start gap-2 sm:gap-3.5 w-full sm:w-auto">
                             <a href="{{ route('public.demo') }}"
-                                class="inline-flex justify-center items-center gap-2 px-6 py-3.5 rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-sm shadow-lg shadow-[#007AFF]/25 transition-all duration-200 min-h-[48px]">
-                                <span>Coba Modul Stok Sekarang</span>
-                                <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                                class="h-10 sm:h-12 px-4 sm:px-7 rounded-[12px] sm:rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-xs sm:text-sm flex items-center justify-center gap-1.5 sm:gap-2 shadow-[0_4px_20px_rgba(0,122,255,0.45)] hover:shadow-[0_6px_25px_rgba(0,122,255,0.6)] active:scale-[0.98] transition-all min-h-[40px] sm:min-h-[48px] shrink-0 border border-white/20">
+                                <span>Coba Modul Stok</span>
+                                <i data-lucide="arrow-right" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
                             </a>
                             <a href="{{ route('public.erp.pos') }}"
-                                class="inline-flex justify-center items-center gap-2 px-6 py-3.5 rounded-[14px] bg-white/10 hover:bg-white/15 border border-white/15 text-white font-semibold text-sm backdrop-blur-sm transition-all min-h-[48px]">
-                                <span>Lihat Koneksi ke POS Kasir</span>
+                                class="h-10 sm:h-12 px-4 sm:px-7 rounded-[12px] sm:rounded-[14px] bg-white/10 hover:bg-white/15 border border-white/15 text-white font-semibold text-xs sm:text-sm flex items-center justify-center gap-1.5 sm:gap-2 backdrop-blur-sm active:scale-[0.98] transition-all min-h-[40px] sm:min-h-[48px] shrink-0">
+                                <span>Koneksi ke POS Kasir</span>
                             </a>
                         </div>
 
-                        {{-- Key Operational Metrics (Centered on Mobile) --}}
-                        <div class="pt-4 border-t border-white/10 grid grid-cols-2 sm:grid-cols-3 gap-3.5 text-center sm:text-left w-full">
-                            <div class="min-w-0">
-                                <div class="text-xs text-slate-400 font-medium truncate">Metode Penilaian HPP</div>
-                                <div class="text-sm font-bold text-white mt-0.5 truncate">Moving Average</div>
+                        <!-- Social Proof & Customer Rating (High Trust Proof) -->
+                        <div class="pt-0.5 sm:pt-1 flex items-center gap-2.5 sm:gap-3.5">
+                            <div class="flex -space-x-2 overflow-hidden shrink-0">
+                                <div
+                                    class="inline-flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-full ring-2 ring-[#060B1E] bg-gradient-to-tr from-sky-400 to-blue-600 text-[10px] sm:text-xs font-bold text-white shadow-sm">
+                                    <span>WH</span>
+                                </div>
+                                <div
+                                    class="inline-flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-full ring-2 ring-[#060B1E] bg-gradient-to-tr from-emerald-400 to-teal-600 text-[10px] sm:text-xs font-bold text-white shadow-sm">
+                                    <span>BOM</span>
+                                </div>
+                                <div
+                                    class="inline-flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-full ring-2 ring-[#060B1E] bg-gradient-to-tr from-amber-400 to-orange-600 text-[10px] sm:text-xs font-bold text-white shadow-sm">
+                                    <span>SKU</span>
+                                </div>
                             </div>
-                            <div class="min-w-0">
-                                <div class="text-xs text-slate-400 font-medium truncate">Akurasi Kartu Stok</div>
-                                <div class="text-sm font-bold text-white mt-0.5 truncate">Perpetual 100%</div>
-                            </div>
-                            <div class="min-w-0 col-span-2 sm:col-span-1">
-                                <div class="text-xs text-slate-400 font-medium truncate">Kapasitas Gudang</div>
-                                <div class="text-sm font-bold text-white mt-0.5 truncate">Multi-Lokasi / Rak</div>
+                            <div class="flex flex-col justify-center">
+                                <div class="flex items-center gap-1 text-amber-400">
+                                    <i data-lucide="star" class="w-3 h-3 sm:w-3.5 sm:h-3.5 fill-amber-400"></i>
+                                    <i data-lucide="star" class="w-3 h-3 sm:w-3.5 sm:h-3.5 fill-amber-400"></i>
+                                    <i data-lucide="star" class="w-3 h-3 sm:w-3.5 sm:h-3.5 fill-amber-400"></i>
+                                    <i data-lucide="star" class="w-3 h-3 sm:w-3.5 sm:h-3.5 fill-amber-400"></i>
+                                    <i data-lucide="star" class="w-3 h-3 sm:w-3.5 sm:h-3.5 fill-amber-400"></i>
+                                    <span class="text-xs sm:text-sm font-extrabold text-white ml-1 tabular-nums">4.9 /
+                                        5.0</span>
+                                </div>
+                                <span class="text-[10px] sm:text-[11.5px] text-slate-400 font-medium">Akurasi Audit Stok &amp; Multi-Gudang</span>
                             </div>
                         </div>
+
+                        <!-- Reassurance Checkpoints (Left-Aligned on Mobile & Desktop) -->
+                        <div
+                            class="pt-0.5 sm:pt-1 flex flex-wrap items-center justify-start gap-x-3 sm:gap-x-5 gap-y-1 text-[10px] sm:text-xs text-slate-300">
+                            <div class="flex items-center gap-1 sm:gap-1.5">
+                                <i data-lucide="check" class="w-3 h-3 sm:w-4 sm:h-4 text-emerald-400"></i>
+                                <span>Kartu Stok Perpetual</span>
+                            </div>
+                            <div class="flex items-center gap-1 sm:gap-1.5">
+                                <i data-lucide="check" class="w-3 h-3 sm:w-4 sm:h-4 text-emerald-400"></i>
+                                <span>HPP Moving Average</span>
+                            </div>
+                            <div class="flex items-center gap-1 sm:gap-1.5">
+                                <i data-lucide="check" class="w-3 h-3 sm:w-4 sm:h-4 text-emerald-400"></i>
+                                <span>Stock Opname Tanpa Tutup Toko</span>
+                            </div>
+                        </div>
+
                     </div>
 
-                    {{-- Right Column: Simulated Warehouse Inventory Dashboard UI (7 Cols ~ 58%) --}}
-                    <div class="lg:col-span-7">
+                    <!-- KANAN: Simulated Warehouse Inventory Dashboard UI with Apple HIG Cockpit Window & Mobile Dynamic Island Strip -->
+                    <div class="lg:col-span-6 relative w-full max-w-xl mx-auto lg:max-w-none">
+                        <!-- Ambient Spotlight Glow behind the Terminal Window -->
                         <div
-                            class="relative rounded-2xl bg-[#0E1E45]/80 backdrop-blur-md p-3 sm:p-4 shadow-2xl border border-white/10 ring-1 ring-white/10">
+                            class="absolute -inset-2 sm:-inset-4 bg-gradient-to-tr from-[#007AFF]/25 via-[#00C4D8]/15 to-transparent rounded-[32px] sm:rounded-[36px] blur-2xl sm:blur-3xl pointer-events-none -z-10">
+                        </div>
+
+                        <!-- Mobile Live Dynamic Island Metric Strip (Clean, non-colliding, zero overlap on Mobile) -->
+                        <div class="flex sm:hidden items-center justify-between gap-2 mb-2 w-full">
+                            <!-- Mobile Left Live Badge -->
+                            <div
+                                class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#0A122C]/95 border border-white/20 text-[10px] text-slate-200 backdrop-blur-xl shadow-md">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                                <span class="text-slate-400 font-medium">Gudang Cakung</span>
+                                <span class="font-extrabold text-white">1.420 SKU</span>
+                            </div>
+
+                            <!-- Mobile Right Live Badge -->
+                            <div
+                                class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#0A122C]/95 border border-white/20 text-[10px] text-slate-200 backdrop-blur-xl shadow-md">
+                                <i data-lucide="truck" class="w-3 h-3 text-[#00C4D8]"></i>
+                                <span class="text-slate-400 font-medium">Surat Jalan</span>
+                                <span class="font-extrabold text-white">In-Transit</span>
+                            </div>
+                        </div>
+
+                        <!-- Floating Card Top-Right: Akurasi Stok (TABLET & DESKTOP - Zero mobile overlap) -->
+                        <div
+                            class="hidden sm:block absolute -top-5 -right-3 z-30 bg-[#0A122C]/95 border border-white/20 rounded-[18px] p-3.5 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.8),0_0_20px_rgba(0,122,255,0.2)] min-w-[170px] backdrop-blur-2xl text-white transform hover:-translate-y-0.5 transition-all">
+                            <div class="flex items-center justify-between gap-2">
+                                <div class="text-[11px] text-slate-400 font-medium">Akurasi Kartu Stok</div>
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                            </div>
+                            <div class="text-lg font-extrabold text-white tabular-nums tracking-tight mt-0.5">Perpetual 100%</div>
+                            <div class="text-[11px] font-semibold text-emerald-400 flex items-center gap-1 mt-0.5">
+                                <i data-lucide="shield-check" class="w-3 h-3"></i>
+                                <span>Audit Trail Lengkap</span>
+                            </div>
+                        </div>
+
+                        <!-- Floating Card Bottom-Left: Reorder Alert (TABLET & DESKTOP - Zero mobile overlap) -->
+                        <div
+                            class="hidden sm:block absolute -bottom-5 -left-3 z-30 bg-[#0A122C]/95 border border-white/20 rounded-[18px] p-3.5 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.8),0_0_20px_rgba(0,196,216,0.18)] min-w-[160px] backdrop-blur-2xl text-white transform hover:-translate-y-0.5 transition-all">
+                            <div class="text-[11px] text-slate-400 font-medium">Reorder Alert</div>
+                            <div class="text-lg font-extrabold text-white tabular-nums tracking-tight mt-0.5">Auto-Draft PO</div>
+                            <div class="text-[11px] font-semibold text-rose-400 flex items-center gap-1.5 mt-0.5">
+                                <span class="w-2 h-2 rounded-full bg-rose-400 animate-pulse"></span>
+                                <span>3 SKU Low Stock</span>
+                            </div>
+                        </div>
+
+                        <!-- Floating Notification Toast (MD+ / Desktop) -->
+                        <div
+                            class="hidden md:flex items-center gap-2.5 absolute bottom-8 -right-3 z-30 bg-[#0A122C]/95 border border-white/20 rounded-[16px] px-3.5 py-2.5 shadow-[0_20px_40px_-5px_rgba(0,0,0,0.7)] backdrop-blur-2xl max-w-xs text-white">
+                            <div
+                                class="w-8 h-8 rounded-full bg-sky-500/20 flex items-center justify-center shrink-0 text-sky-400">
+                                <i data-lucide="file-check" class="w-4 h-4"></i>
+                            </div>
+                            <div>
+                                <div class="text-[10px] text-slate-400 font-medium">Surat Jalan Terbit</div>
+                                <div class="text-xs font-bold text-white">#TR-108 Menuju Cabang Sudirman</div>
+                            </div>
+                        </div>
+
+                        <!-- Main Chassis with Specular Top Highlight -->
+                        <div
+                            class="rounded-[18px] sm:rounded-[28px] bg-[#0A122C]/90 border border-white/15 p-2.5 sm:p-4 shadow-[0_30px_90px_-20px_rgba(0,0,0,0.85),0_0_60px_rgba(0,122,255,0.12)] backdrop-blur-2xl space-y-2.5 sm:space-y-3 text-white relative z-10 overflow-hidden mb-6 sm:mb-0">
+
+                            <!-- Top Edge Specular Glare -->
+                            <div
+                                class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent pointer-events-none">
+                            </div>
+
+                            <!-- Mobile Window Header (sm:hidden - Clean title & status, zero truncation) -->
+                            <div class="flex sm:hidden items-center justify-between border-b border-white/10 pb-2 gap-2">
+                                <div class="flex items-center gap-1.5 min-w-0">
+                                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0"></span>
+                                    <span class="text-[11px] font-bold text-white tracking-tight truncate">Warehouse OS &bull; Gudang Cakung</span>
+                                </div>
+                                <span
+                                    class="px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-[10px] font-semibold shrink-0">
+                                    Online Sync
+                                </span>
+                            </div>
+
+                            <!-- Desktop/Tablet macOS Window Top Bar (hidden sm:flex with traffic lights, URL bar & status) -->
+                            <div
+                                class="hidden sm:flex items-center justify-between border-b border-white/10 pb-2 sm:pb-3 gap-2">
+                                <div class="flex items-center gap-1.5 sm:gap-3 min-w-0">
+                                    <div class="flex items-center gap-1 sm:gap-1.5 shrink-0">
+                                        <span
+                                            class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-[#FF5F56] shadow-inner"></span>
+                                        <span
+                                            class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-[#FFBD2E] shadow-inner"></span>
+                                        <span
+                                            class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-[#27C93F] shadow-inner"></span>
+                                    </div>
+                                    <!-- URL Address Bar with SSL Lock Icon -->
+                                    <div
+                                        class="py-0.5 sm:py-1 px-2.5 sm:px-3 rounded-full bg-white/[0.06] border border-white/10 text-[9px] sm:text-[11px] font-mono text-slate-300 flex items-center gap-1.5 truncate max-w-[150px] sm:max-w-[280px]">
+                                        <i data-lucide="lock"
+                                            class="w-2.5 h-2.5 sm:w-3 sm:h-3 text-emerald-400 shrink-0"></i>
+                                        <span class="truncate">https://cooca.id/app/inventory/warehouse-01</span>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center gap-2 shrink-0">
+                                    <span
+                                        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-[11px] font-semibold">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                                        Perpetual Sync Aktif
+                                    </span>
+                                </div>
+                            </div>
 
                             {{-- Warehouse Control Filter Header --}}
                             <div
-                                class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-3 border-b border-white/10 text-xs">
+                                class="flex items-center justify-between gap-2.5 pb-2 border-b border-white/10 text-xs">
                                 <div class="flex items-center gap-2 min-w-0 flex-1">
                                     <span class="p-1.5 rounded-lg bg-[#007AFF]/20 text-[#00C4D8] shrink-0">
                                         <i data-lucide="warehouse" class="w-4 h-4"></i>
                                     </span>
                                     <div class="min-w-0 flex-1">
-                                        <div class="font-bold text-white truncate">Gudang Utama Cakung</div>
-                                        <div class="text-[10px] text-slate-400 truncate">Kapasitas Terpakai: 74% • 1.420 SKU
-                                        </div>
+                                        <div class="font-bold text-white text-xs sm:text-sm truncate">Gudang Utama Cakung</div>
+                                        <div class="text-[9px] sm:text-[11px] text-slate-400 truncate">Kapasitas: 74% &bull; 1.420 SKU</div>
                                     </div>
                                 </div>
-                                <div class="flex items-center gap-1.5 shrink-0 self-end sm:self-auto">
+                                <div class="flex items-center gap-1.5 shrink-0">
                                     <span
-                                        class="px-2 py-1 rounded bg-white/10 text-[11px] text-slate-300 font-mono">Transfer
-                                        Order #TR-108</span>
+                                        class="px-2 py-0.5 rounded bg-white/10 text-[10px] sm:text-[11px] text-slate-300 font-mono">#TR-108</span>
                                     <span
-                                        class="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[10px] font-semibold">In
-                                        Transit</span>
+                                        class="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[9px] sm:text-[10px] font-semibold">In-Transit</span>
                                 </div>
                             </div>
 
                             {{-- Low Stock Reorder Notification Banner --}}
                             <div
-                                class="my-3 p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
-                                <div class="flex items-center gap-2 text-rose-300 min-w-0 flex-1">
-                                    <i data-lucide="alert-triangle" class="w-4 h-4 text-rose-400 shrink-0"></i>
-                                    <span class="text-[11px] truncate"><strong>3 Barang di Bawah Batas Minimum:</strong>
-                                        Segera
-                                        terbitkan PO</span>
+                                class="p-2 sm:p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-between gap-2 text-xs">
+                                <div class="flex items-center gap-1.5 sm:gap-2 text-rose-300 min-w-0 flex-1">
+                                    <i data-lucide="alert-triangle" class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-rose-400 shrink-0"></i>
+                                    <span class="text-[10px] sm:text-[11px] truncate"><strong>3 Item Low Stock:</strong> Rekomendasi terbitkan PO</span>
                                 </div>
                                 <span
-                                    class="text-[10px] px-2 py-0.5 rounded bg-rose-500/30 text-rose-200 font-bold shrink-0 self-end sm:self-auto">Buat
-                                    PO</span>
+                                    class="text-[9px] sm:text-[10px] px-2 py-0.5 rounded bg-rose-500/30 text-rose-200 font-bold shrink-0">Buat PO</span>
                             </div>
 
                             {{-- Inventory Data Table Mockup --}}
                             <div class="space-y-1.5 overflow-hidden text-left">
                                 <div
-                                    class="grid grid-cols-12 gap-1 text-[10px] uppercase font-mono text-slate-400 px-2 py-1 bg-[#060B1E]/80 rounded-lg border border-white/5">
+                                    class="grid grid-cols-12 gap-1 text-[9px] sm:text-[10px] uppercase font-mono text-slate-400 px-2 py-1 bg-[#060B1E]/80 rounded-lg border border-white/5">
                                     <div class="col-span-5 truncate">Barang &amp; SKU</div>
                                     <div class="col-span-2 text-center truncate">Fisik</div>
                                     <div class="col-span-2 text-center truncate">Tersedia</div>
@@ -207,66 +357,59 @@
 
                                 {{-- Item 1 --}}
                                 <div
-                                    class="grid grid-cols-12 gap-1 items-center p-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs transition-colors">
+                                    class="grid grid-cols-12 gap-1 items-center p-1.5 sm:p-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs transition-colors">
                                     <div class="col-span-5 min-w-0">
-                                        <div class="font-medium text-white truncate">Biji Kopi Arabika 1kg</div>
-                                        <div class="text-[10px] text-slate-400 font-mono truncate">SKU-KOP-01 • Rak B-02
-                                        </div>
+                                        <div class="font-medium text-white text-[11px] sm:text-xs truncate">Biji Kopi Arabika 1kg</div>
+                                        <div class="text-[9px] sm:text-[10px] text-slate-400 font-mono truncate">SKU-KOP-01 &bull; Rak B-02</div>
                                     </div>
-                                    <div class="col-span-2 text-center font-mono text-slate-300 truncate">142 kg</div>
-                                    <div class="col-span-2 text-center font-mono text-emerald-400 truncate">128 kg</div>
+                                    <div class="col-span-2 text-center font-mono text-[11px] sm:text-xs text-slate-300 truncate">142 kg</div>
+                                    <div class="col-span-2 text-center font-mono text-[11px] sm:text-xs text-emerald-400 truncate">128 kg</div>
                                     <div class="col-span-3 text-right shrink-0">
                                         <span
-                                            class="px-2 py-0.5 rounded-full text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 whitespace-nowrap">Stok
-                                            Aman</span>
+                                            class="px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 whitespace-nowrap">Stok Aman</span>
                                     </div>
                                 </div>
 
                                 {{-- Item 2 (Low stock) --}}
                                 <div
-                                    class="grid grid-cols-12 gap-1 items-center p-2 rounded-xl bg-white/5 hover:bg-white/10 border border-rose-500/30 text-xs transition-colors">
+                                    class="grid grid-cols-12 gap-1 items-center p-1.5 sm:p-2 rounded-xl bg-white/5 hover:bg-white/10 border border-rose-500/30 text-xs transition-colors">
                                     <div class="col-span-5 min-w-0">
-                                        <div class="font-medium text-white truncate">Paper Cup 12oz Cold</div>
-                                        <div class="text-[10px] text-slate-400 font-mono truncate">SKU-PKG-44 • Rak A-01
-                                        </div>
+                                        <div class="font-medium text-white text-[11px] sm:text-xs truncate">Paper Cup 12oz Cold</div>
+                                        <div class="text-[9px] sm:text-[10px] text-slate-400 font-mono truncate">SKU-PKG-44 &bull; Rak A-01</div>
                                     </div>
-                                    <div class="col-span-2 text-center font-mono text-slate-300 truncate">80 pcs</div>
-                                    <div class="col-span-2 text-center font-mono text-rose-400 truncate">40 pcs</div>
+                                    <div class="col-span-2 text-center font-mono text-[11px] sm:text-xs text-slate-300 truncate">80 pcs</div>
+                                    <div class="col-span-2 text-center font-mono text-[11px] sm:text-xs text-rose-400 truncate">40 pcs</div>
                                     <div class="col-span-3 text-right shrink-0">
                                         <span
-                                            class="px-2 py-0.5 rounded-full text-[10px] bg-rose-500/20 text-rose-300 border border-rose-500/40 font-bold whitespace-nowrap">Reorder
-                                            Segera</span>
+                                            class="px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] bg-rose-500/20 text-rose-300 border border-rose-500/40 font-bold whitespace-nowrap">Reorder</span>
                                     </div>
                                 </div>
 
                                 {{-- Item 3 --}}
                                 <div
-                                    class="grid grid-cols-12 gap-1 items-center p-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs transition-colors">
+                                    class="grid grid-cols-12 gap-1 items-center p-1.5 sm:p-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs transition-colors">
                                     <div class="col-span-5 min-w-0">
-                                        <div class="font-medium text-white truncate">Fresh Milk Pasteurisasi 1L</div>
-                                        <div class="text-[10px] text-slate-400 font-mono truncate">SKU-DRY-12 • Chiller 01
-                                        </div>
+                                        <div class="font-medium text-white text-[11px] sm:text-xs truncate">Fresh Milk 1L</div>
+                                        <div class="text-[9px] sm:text-[10px] text-slate-400 font-mono truncate">SKU-DRY-12 &bull; Chiller 01</div>
                                     </div>
-                                    <div class="col-span-2 text-center font-mono text-slate-300 truncate">48 btl</div>
-                                    <div class="col-span-2 text-center font-mono text-slate-200 truncate">48 btl</div>
+                                    <div class="col-span-2 text-center font-mono text-[11px] sm:text-xs text-slate-300 truncate">48 btl</div>
+                                    <div class="col-span-2 text-center font-mono text-[11px] sm:text-xs text-slate-200 truncate">48 btl</div>
                                     <div class="col-span-3 text-right shrink-0">
                                         <span
-                                            class="px-2 py-0.5 rounded-full text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 whitespace-nowrap">Stok
-                                            Aman</span>
+                                            class="px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 whitespace-nowrap">Stok Aman</span>
                                     </div>
                                 </div>
                             </div>
 
                             {{-- Stock Card Audit Trail Footer --}}
                             <div
-                                class="mt-3 pt-2.5 border-t border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[11px] text-slate-400">
+                                class="pt-2 border-t border-white/10 flex items-center justify-between gap-2 text-[10px] sm:text-[11px] text-slate-400">
                                 <span class="flex items-center gap-1.5 truncate">
                                     <i data-lucide="check-check" class="w-3.5 h-3.5 text-emerald-400 shrink-0"></i>
-                                    <span class="truncate">Sinkronisasi HPP Moving Average: Aktif</span>
+                                    <span class="truncate">HPP Moving Average: Aktif</span>
                                 </span>
                                 <a href="{{ route('public.demo') }}"
-                                    class="text-[#00C4D8] hover:underline font-medium shrink-0">Buka
-                                    Kartu Stok Detail →</a>
+                                    class="text-[#00C4D8] hover:underline font-medium shrink-0">Buka Kartu Stok &rarr;</a>
                             </div>
                         </div>
                     </div>
