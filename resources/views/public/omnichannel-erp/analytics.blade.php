@@ -103,14 +103,6 @@
                         class="lg:col-span-6 space-y-5 sm:space-y-6 lg:space-y-7 text-left flex flex-col items-start w-full">
                         <!-- Breadcrumb & Overline Kicker -->
                         <div class="space-y-2">
-                            <nav aria-label="Breadcrumb" class="flex items-center gap-1.5 text-[11px] sm:text-xs text-slate-400">
-                                <a href="{{ route('landing') }}" class="hover:text-[#00C4D8] transition-colors">Home</a>
-                                <i data-lucide="chevron-right" class="w-3 h-3 text-white/30"></i>
-                                <a href="{{ route('public.erp.erp') }}" class="hover:text-[#00C4D8] transition-colors">Omnichannel ERP</a>
-                                <i data-lucide="chevron-right" class="w-3 h-3 text-white/30"></i>
-                                <span class="text-white font-semibold" aria-current="page">Analitik Bisnis &amp; BI</span>
-                            </nav>
-
                             <div class="flex items-center gap-2">
                                 <span class="w-2.5 h-2.5 rounded-full bg-[#00C4D8] animate-pulse"></span>
                                 <p class="text-xs sm:text-sm lg:text-[14px] font-bold uppercase tracking-wider text-[#00C4D8]">

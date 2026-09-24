@@ -54,6 +54,58 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 
 - Pengetahuan yang dipromosikan ke `docs/system/` dan dampaknya pada `docs/SYSTEM_GUIDE.md`.
 
+### [WORK-2026-09-24-137] Harmonisasi Menu Hamburger Mobile Mengadopsi Konsep Mega Dropdown Desktop (Platform, Solutions, Omnichannel, Resources)
+
+- **Date:** 2026-09-24
+- **Status:** COMPLETED
+- **Module:** Public Marketing Layout (`resources/views/layouts/public_marketing.blade.php`)
+- **Feature:** Mobile Hamburger Drawer Redesign Harmonized with Desktop Mega Dropdown Architecture
+- **Work Type:** UI/UX | Bento Apple HIG | Mobile Ergonomics | Navigation Architecture
+
+#### 1. Business Context & Objective
+
+- **Konteks:** Menyelaraskan struktur, taksonomi, dan estetika visual menu drawer hamburger mobile (`layouts/public_marketing.blade.php`) agar mengadopsi konsep yang sama persis dengan sistem mega dropdown navigasi desktop.
+- **Masalah/Target:**
+  1. Menu mobile sebelumnya memiliki pengelompokan yang tidak sinkron dengan desktop (penggabungan acak platform/ERP dan ketiadaan pembagian 4 pilar utama).
+  2. Kartu item di mobile sebelumnya berupa link mini polos tanpa deskripsi subtitle manfaat dan tanpa badge showcase produk unggulan yang ada di desktop.
+  3. Mengadopsi 4 pilar kategori dropdown desktop yang terstruktur:
+     - **Platform:** Sub-section *Fitur Operasional* (POS Kasir, Dynamic Budgeting, Vendor Spend, Revenue Sync, Receipt Capture), *Platform Core* (COOCA AI Agents, Siap Global, Integrasi Bawaan), serta Showcase Card *Rilis Terbaru Spring Release: WhatsApp AI Agents*.
+     - **Solutions:** Sub-section *Solusi Sektor Industri* (F&B & Resto, Retail & Toko, Bengkel & Otomotif, Laundry, Manufaktur & Produksi, Services & Jasa), serta Showcase Card *Konsultasi Demo Solusi UMKM*.
+     - **Omnichannel:** Sub-section *Kanal Penjualan & CRM Terpadu* (Social Media Commerce, WhatsApp Official API, Marketplace Hub, Central Orders, Customer Portal & CRM), serta Showcase Card *Automasi WhatsApp & POS*.
+     - **Resources:** Sub-section *Pusat Edukasi & Dokumentasi* (Blog & Insight Bisnis, Panduan & Tutorial, Studi Kasus UMKM, Pusat Bantuan & FAQ), serta Showcase Card *Knowledge Hub*.
+  4. Menyediakan akses cepat ke *Pricing (Harga & Paket)*, *Live Demo*, *Template Excel Gratis*, *Kalkulator Finansial*, dan *Apple Inset Theme Switcher* (Terang/Gelap).
+
+#### 2. What Was Done
+
+1. **Restrukturisasi Accordion Mobile Menjadi 4 Pilar Navigasi Desktop:**
+   - Mengubah drawer mobile menjadi kartu squircle Bento Apple HIG dengan 4 accordion dinamis beranimasi halus Alpine.js (`platform`, `solutions`, `omnichannel`, `resources`).
+   - Setiap kartu accordion dilengkapi dengan icon badge berwarna kontras, judul pilar, subtitle ringkas, pill count badge (misal `8 Modul`, `6 Industri`, `5 Kanal`, `4 Edukasi`), dan animated chevron toggle.
+2. **Harmonisasi Kartu Item & Deskripsi Subtitle (Desktop-Quality Microcopy):**
+   - Setiap item modul/solusi kini memiliki ikon squircle berwarna khusus, judul tebal, dan teks deskripsi subtitle 1 baris yang menjelaskan nilai fitur secara presisi (identik dengan versi desktop).
+   - Menyematkan mini showcase banner card gelap dengan aksen ambient glow di setiap bagian bawah dropdown accordion (Spring Release WA AI, Konsultasi Demo, Automasi Omnichannel, dan Knowledge Hub).
+3. **Penyempurnaan Essential Quick Links & Ergonomi:**
+   - Grid 2-kolom squircle untuk Pricing Highlight bergradasi biru, Live Demo, Template Excel, dan 9 Kalkulator Finansial.
+   - Preservasi auth state guardrails (Guest: Masuk / Daftar; Tenant: Ke Dashboard; Admin: Dashboard Admin).
+   - Inset theme toggle bar dengan live text label.
+
+#### 3. Technical Changes
+
+- **Files Affected:**
+  - `resources/views/layouts/public_marketing.blade.php`
+  - `docs/AiWorkHistory.md`
+- **Database Changes:** None.
+- **API / Route Changes:** None.
+
+#### 4. Verification & Testing
+
+- `php -l resources/views/layouts/public_marketing.blade.php`: Pass (0 syntax error detected).
+- `php artisan view:clear`: Pass (Compiled views cleared).
+- `php vendor/phpunit/phpunit/phpunit tests/Feature/PublicPagesStructureTest.php tests/Feature/LandingPageResponsiveHeroTest.php tests/Feature/LandingPageAuthTest.php tests/Feature/PublicViewsProductionReadinessTest.php`: Pass (28 tests, 241 assertions, 100% pass).
+
+#### 5. Documentation Promotion
+
+- Dicatat dalam Layer 1 `docs/AiWorkHistory.md`.
+
 ### [WORK-2026-09-24-136] Penyelarasan Menyeluruh Hero Section 8 Halaman Omnichannel ERP Mengadopsi Konsep Flagship Landing Page (Desktop, Tablet, Mobile)
 
 - **Date:** 2026-09-24

@@ -1255,7 +1255,7 @@
                 x-transition:leave="transition ease-in duration-150"
                 x-transition:leave-start="opacity-100 translate-y-0"
                 x-transition:leave-end="opacity-0 -translate-y-2"
-                class="absolute top-full inset-x-0 w-full lg:hidden bg-[#060913] text-slate-200 border-t border-b border-white/10 shadow-[0_30px_60px_rgba(0,0,0,0.95)] max-h-[calc(100dvh-4rem)] sm:max-h-[calc(100dvh-5rem)] overflow-y-auto overscroll-contain p-4 sm:p-5 space-y-3 pb-28 z-50">
+                class="absolute top-full inset-x-0 w-full lg:hidden bg-[#060913] text-slate-200 border-t border-b border-white/10 shadow-[0_30px_60px_rgba(0,0,0,0.95)] max-h-[calc(100dvh-4rem)] sm:max-h-[calc(100dvh-5rem)] overflow-y-auto overscroll-contain p-3.5 sm:p-5 space-y-3 pb-28 z-50">
 
                 <!-- 1. Top Auth & User Profile Card -->
                 @if (auth('admin')->check())
@@ -1312,7 +1312,7 @@
                     </div>
                 @endif
 
-                <!-- 2. Primary Navigation Quick Trio -->
+                <!-- 2. Primary Navigation Quick Trio (Beranda, Marketplace, Jelajah) -->
                 <div class="grid grid-cols-3 gap-2">
                     <a href="{{ route('landing') }}" @click="mobileMenu = false"
                         class="py-2.5 px-2 rounded-[14px] bg-white/[0.04] border border-white/10 hover:bg-white/[0.08] active:scale-95 transition-all text-center flex flex-col items-center justify-center gap-1 group {{ request()->routeIs('landing') || request()->is('/') ? 'ring-1 ring-[#00C2FF]/50 bg-white/[0.08]' : '' }}">
@@ -1331,7 +1331,9 @@
                     </a>
                 </div>
 
-                <!-- 3. Collapsible Section 1: Platform & ERP Modules -->
+                <!-- ════════════════════════════════════════════════════════════════════════ -->
+                <!-- ═══ 3. DROPDOWN 1: PLATFORM (ADOPT DESKTOP DROPDOWN CONCEPT) ════════════ -->
+                <!-- ════════════════════════════════════════════════════════════════════════ -->
                 <div class="rounded-[16px] bg-white/[0.03] border border-white/10 overflow-hidden">
                     <button type="button" @click="toggleMobileSection('platform')"
                         class="w-full p-3.5 flex items-center justify-between text-left hover:bg-white/[0.04] transition-colors">
@@ -1340,8 +1342,8 @@
                                 <i data-lucide="layers" class="w-4 h-4"></i>
                             </div>
                             <div>
-                                <span class="text-xs font-bold text-white block">Platform &amp; Omnichannel ERP</span>
-                                <span class="text-[10px] text-slate-400 block">POS, Akuntansi, Stok &amp; AI</span>
+                                <span class="text-xs font-bold text-white block">Platform</span>
+                                <span class="text-[10px] text-slate-400 block">Fitur Operasional, ERP Core &amp; AI</span>
                             </div>
                         </div>
                         <div class="flex items-center gap-1.5">
@@ -1358,93 +1360,138 @@
                         x-transition:leave="transition ease-in duration-100"
                         x-transition:leave-start="opacity-100 translate-y-0"
                         x-transition:leave-end="opacity-0 -translate-y-1"
-                        class="p-3 pt-0 border-t border-white/10">
-                        <div class="grid grid-cols-2 gap-2 pt-2.5">
-                            <a href="{{ route('public.bos.overview') }}" @click="mobileMenu = false"
-                                class="p-2.5 rounded-[12px] bg-white/[0.04] hover:bg-white/[0.08] border border-white/5 flex items-center gap-2 text-slate-200">
-                                <div class="w-6 h-6 rounded-md bg-[#007AFF]/20 text-[#00C2FF] flex items-center justify-center shrink-0">
-                                    <i data-lucide="cpu" class="w-3.5 h-3.5"></i>
-                                </div>
-                                <div class="min-w-0">
-                                    <span class="font-semibold block text-white text-[11px] truncate">Overview BOS</span>
-                                    <span class="text-[9px] text-slate-400 block truncate">Sistem Operasi</span>
-                                </div>
-                            </a>
-                            <a href="{{ route('public.erp.pos') }}" @click="mobileMenu = false"
-                                class="p-2.5 rounded-[12px] bg-white/[0.04] hover:bg-white/[0.08] border border-white/5 flex items-center gap-2 text-slate-200">
-                                <div class="w-6 h-6 rounded-md bg-[#FF9500]/20 text-[#FF9500] flex items-center justify-center shrink-0">
-                                    <i data-lucide="monitor" class="w-3.5 h-3.5"></i>
-                                </div>
-                                <div class="min-w-0">
-                                    <span class="font-semibold block text-white text-[11px] truncate">POS Kasir</span>
-                                    <span class="text-[9px] text-slate-400 block truncate">Kasir Cepat</span>
-                                </div>
-                            </a>
-                            <a href="{{ route('public.erp.erp') }}" @click="mobileMenu = false"
-                                class="p-2.5 rounded-[12px] bg-white/[0.04] hover:bg-white/[0.08] border border-white/5 flex items-center gap-2 text-slate-200">
-                                <div class="w-6 h-6 rounded-md bg-[#34C759]/20 text-[#34C759] flex items-center justify-center shrink-0">
-                                    <i data-lucide="box" class="w-3.5 h-3.5"></i>
-                                </div>
-                                <div class="min-w-0">
-                                    <span class="font-semibold block text-white text-[11px] truncate">ERP Core</span>
-                                    <span class="text-[9px] text-slate-400 block truncate">Operasional</span>
-                                </div>
-                            </a>
-                            <a href="{{ route('public.erp.accounting') }}" @click="mobileMenu = false"
-                                class="p-2.5 rounded-[12px] bg-white/[0.04] hover:bg-white/[0.08] border border-white/5 flex items-center gap-2 text-slate-200">
-                                <div class="w-6 h-6 rounded-md bg-[#5856D6]/20 text-[#5856D6] flex items-center justify-center shrink-0">
-                                    <i data-lucide="bar-chart-3" class="w-3.5 h-3.5"></i>
-                                </div>
-                                <div class="min-w-0">
-                                    <span class="font-semibold block text-white text-[11px] truncate">Budgeting</span>
-                                    <span class="text-[9px] text-slate-400 block truncate">Pembukuan</span>
-                                </div>
-                            </a>
-                            <a href="{{ route('public.erp.inventory') }}" @click="mobileMenu = false"
-                                class="p-2.5 rounded-[12px] bg-white/[0.04] hover:bg-white/[0.08] border border-white/5 flex items-center gap-2 text-slate-200">
-                                <div class="w-6 h-6 rounded-md bg-[#30B0C7]/20 text-[#30B0C7] flex items-center justify-center shrink-0">
-                                    <i data-lucide="archive" class="w-3.5 h-3.5"></i>
-                                </div>
-                                <div class="min-w-0">
-                                    <span class="font-semibold block text-white text-[11px] truncate">Stok Barang</span>
-                                    <span class="text-[9px] text-slate-400 block truncate">Multi-Gudang</span>
-                                </div>
-                            </a>
+                        class="p-3 pt-0 border-t border-white/10 space-y-3">
+                        
+                        <!-- Sub-Section 1: Fitur -->
+                        <div class="space-y-2 pt-2.5">
+                            <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-1">Fitur Operasional</p>
+                            <div class="space-y-1.5">
+                                <!-- Point of Sale -->
+                                <a href="{{ route('public.erp.pos') }}" @click="mobileMenu = false"
+                                    class="p-2 rounded-[12px] bg-white/[0.04] hover:bg-white/[0.08] border border-white/5 flex items-start gap-2.5 text-slate-200 transition-all">
+                                    <div class="w-7 h-7 rounded-lg bg-[#007AFF]/20 text-[#00C2FF] flex items-center justify-center shrink-0 mt-0.5">
+                                        <i data-lucide="monitor" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <div class="min-w-0">
+                                        <span class="font-bold block text-white text-xs">Point of Sale</span>
+                                        <span class="text-[10px] text-slate-400 block leading-tight">Hubungkan pesanan, pembayaran, dan pembukuan</span>
+                                    </div>
+                                </a>
+
+                                <!-- Dynamic Budgeting -->
+                                <a href="{{ route('public.erp.accounting') }}" @click="mobileMenu = false"
+                                    class="p-2 rounded-[12px] bg-white/[0.04] hover:bg-white/[0.08] border border-white/5 flex items-start gap-2.5 text-slate-200 transition-all">
+                                    <div class="w-7 h-7 rounded-lg bg-[#5856D6]/20 text-[#5856D6] flex items-center justify-center shrink-0 mt-0.5">
+                                        <i data-lucide="bar-chart-3" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <div class="min-w-0">
+                                        <span class="font-bold block text-white text-xs">Dynamic Budgeting</span>
+                                        <span class="text-[10px] text-slate-400 block leading-tight">Atur dan pantau dana secara real-time</span>
+                                    </div>
+                                </a>
+
+                                <!-- Vendor Spend -->
+                                <a href="{{ route('public.erp.erp') }}" @click="mobileMenu = false"
+                                    class="p-2 rounded-[12px] bg-white/[0.04] hover:bg-white/[0.08] border border-white/5 flex items-start gap-2.5 text-slate-200 transition-all">
+                                    <div class="w-7 h-7 rounded-lg bg-[#FF9500]/20 text-[#FF9500] flex items-center justify-center shrink-0 mt-0.5">
+                                        <i data-lucide="shopping-bag" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <div class="min-w-0">
+                                        <span class="font-bold block text-white text-xs">Vendor Spend</span>
+                                        <span class="text-[10px] text-slate-400 block leading-tight">Kelola pembayaran SaaS &amp; vendor</span>
+                                    </div>
+                                </a>
+
+                                <!-- Revenue Sync -->
+                                <a href="{{ route('public.erp.inventory') }}" @click="mobileMenu = false"
+                                    class="p-2 rounded-[12px] bg-white/[0.04] hover:bg-white/[0.08] border border-white/5 flex items-start gap-2.5 text-slate-200 transition-all">
+                                    <div class="w-7 h-7 rounded-lg bg-[#30B0C7]/20 text-[#30B0C7] flex items-center justify-center shrink-0 mt-0.5">
+                                        <i data-lucide="arrow-left-right" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <div class="min-w-0">
+                                        <span class="font-bold block text-white text-xs">Revenue Sync</span>
+                                        <span class="text-[10px] text-slate-400 block leading-tight">Tarik data retainer &amp; POS otomatis</span>
+                                    </div>
+                                </a>
+
+                                <!-- Receipt Capture -->
+                                <a href="{{ route('public.omnichannel.orders') }}" @click="mobileMenu = false"
+                                    class="p-2 rounded-[12px] bg-white/[0.04] hover:bg-white/[0.08] border border-white/5 flex items-start gap-2.5 text-slate-200 transition-all">
+                                    <div class="w-7 h-7 rounded-lg bg-[#34C759]/20 text-[#34C759] flex items-center justify-center shrink-0 mt-0.5">
+                                        <i data-lucide="receipt" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <div class="min-w-0">
+                                        <span class="font-bold block text-white text-xs">Receipt Capture</span>
+                                        <span class="text-[10px] text-slate-400 block leading-tight">Otomatiskan urusan struk</span>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Sub-Section 2: Platform Core -->
+                        <div class="space-y-2 pt-1 border-t border-white/5">
+                            <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-1">Platform Core</p>
+                            <div class="space-y-1.5">
+                                <!-- COOCA AI Agents -->
+                                <a href="{{ route('public.content.creation') }}" @click="mobileMenu = false"
+                                    class="p-2 rounded-[12px] bg-[#00C2FF]/10 hover:bg-[#00C2FF]/15 border border-[#00C2FF]/30 flex items-start gap-2.5 text-slate-200 transition-all">
+                                    <div class="w-7 h-7 rounded-lg bg-[#00C2FF]/20 text-[#00C2FF] flex items-center justify-center shrink-0 mt-0.5">
+                                        <i data-lucide="zap" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <div class="min-w-0">
+                                        <span class="font-bold block text-[#00C2FF] text-xs">COOCA AI Agents</span>
+                                        <span class="text-[10px] text-slate-400 block leading-tight">Lipat-gandakan efisiensi keuangan</span>
+                                    </div>
+                                </a>
+
+                                <!-- Siap Global -->
+                                <a href="{{ route('public.bos.overview') }}" @click="mobileMenu = false"
+                                    class="p-2 rounded-[12px] bg-white/[0.04] hover:bg-white/[0.08] border border-white/5 flex items-start gap-2.5 text-slate-200 transition-all">
+                                    <div class="w-7 h-7 rounded-lg bg-[#007AFF]/20 text-[#00C2FF] flex items-center justify-center shrink-0 mt-0.5">
+                                        <i data-lucide="globe" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <div class="min-w-0">
+                                        <span class="font-bold block text-white text-xs">Siap Global</span>
+                                        <span class="text-[10px] text-slate-400 block leading-tight">Invoice dalam IDR, USD, dan SGD</span>
+                                    </div>
+                                </a>
+
+                                <!-- Integrasi Bawaan -->
+                                <a href="{{ route('public.bos.how-it-works') }}" @click="mobileMenu = false"
+                                    class="p-2 rounded-[12px] bg-white/[0.04] hover:bg-white/[0.08] border border-white/5 flex items-start gap-2.5 text-slate-200 transition-all">
+                                    <div class="w-7 h-7 rounded-lg bg-[#AF52DE]/20 text-[#AF52DE] flex items-center justify-center shrink-0 mt-0.5">
+                                        <i data-lucide="code-2" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <div class="min-w-0">
+                                        <span class="font-bold block text-white text-xs">Integrasi Bawaan</span>
+                                        <span class="text-[10px] text-slate-400 block leading-tight">Hubungkan ERP, HRIS &amp; tools</span>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Showcase Banner Card: Rilis Terbaru -->
+                        <div class="pt-1 border-t border-white/5">
                             <a href="{{ route('public.omnichannel.whatsapp') }}" @click="mobileMenu = false"
-                                class="p-2.5 rounded-[12px] bg-white/[0.04] hover:bg-white/[0.08] border border-white/5 flex items-center gap-2 text-slate-200">
-                                <div class="w-6 h-6 rounded-md bg-[#25D366]/20 text-[#25D366] flex items-center justify-center shrink-0">
-                                    <i data-lucide="message-square" class="w-3.5 h-3.5"></i>
-                                </div>
-                                <div class="min-w-0">
-                                    <span class="font-semibold block text-white text-[11px] truncate">WhatsApp Hub</span>
-                                    <span class="text-[9px] text-slate-400 block truncate">Auto Struk/Resi</span>
-                                </div>
-                            </a>
-                            <a href="{{ route('public.omnichannel.orders') }}" @click="mobileMenu = false"
-                                class="p-2.5 rounded-[12px] bg-white/[0.04] hover:bg-white/[0.08] border border-white/5 flex items-center gap-2 text-slate-200">
-                                <div class="w-6 h-6 rounded-md bg-[#FF9F0A]/20 text-[#FF9F0A] flex items-center justify-center shrink-0">
-                                    <i data-lucide="truck" class="w-3.5 h-3.5"></i>
-                                </div>
-                                <div class="min-w-0">
-                                    <span class="font-semibold block text-white text-[11px] truncate">Order &amp; Resi</span>
-                                    <span class="text-[9px] text-slate-400 block truncate">Sinkron MP</span>
-                                </div>
-                            </a>
-                            <a href="{{ route('public.content.creation') }}" @click="mobileMenu = false"
-                                class="p-2.5 rounded-[12px] bg-[#00C2FF]/10 hover:bg-[#00C2FF]/15 border border-[#00C2FF]/30 flex items-center gap-2 text-slate-200">
-                                <div class="w-6 h-6 rounded-md bg-[#00C2FF]/20 text-[#00C2FF] flex items-center justify-center shrink-0">
-                                    <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
-                                </div>
-                                <div class="min-w-0">
-                                    <span class="font-semibold block text-[#00C2FF] text-[11px] truncate">Content AI</span>
-                                    <span class="text-[9px] text-slate-400 block truncate">Auto Copywriting</span>
+                                class="block relative rounded-xl overflow-hidden bg-[#0A0E1A] border border-slate-800 p-3 shadow-xs">
+                                <div class="flex items-center justify-between gap-2">
+                                    <div>
+                                        <span class="text-[9px] font-bold uppercase tracking-wider text-[#00C2FF] block">Rilis Terbaru</span>
+                                        <span class="text-xs font-bold text-white block">WhatsApp AI Agents</span>
+                                        <span class="text-[10px] text-slate-400 block leading-tight mt-0.5">Chat langsung dengan ledger pembukuan Anda</span>
+                                    </div>
+                                    <div class="w-6 h-6 rounded-full bg-[#00C2FF]/20 text-[#00C2FF] flex items-center justify-center shrink-0">
+                                        <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                                    </div>
                                 </div>
                             </a>
                         </div>
                     </div>
                 </div>
 
-                <!-- 4. Collapsible Section 2: Solusi Industri -->
+                <!-- ════════════════════════════════════════════════════════════════════════ -->
+                <!-- ═══ 4. DROPDOWN 2: SOLUTIONS (SOLUSI INDUSTRI) ═══════════════════════════ -->
+                <!-- ════════════════════════════════════════════════════════════════════════ -->
                 <div class="rounded-[16px] bg-white/[0.03] border border-white/10 overflow-hidden">
                     <button type="button" @click="toggleMobileSection('solutions')"
                         class="w-full p-3.5 flex items-center justify-between text-left hover:bg-white/[0.04] transition-colors">
@@ -1453,8 +1500,8 @@
                                 <i data-lucide="store" class="w-4 h-4"></i>
                             </div>
                             <div>
-                                <span class="text-xs font-bold text-white block">Solusi Industri</span>
-                                <span class="text-[10px] text-slate-400 block">Sesuai Alur Bisnis Spesifik</span>
+                                <span class="text-xs font-bold text-white block">Solutions</span>
+                                <span class="text-[10px] text-slate-400 block">Solusi Spesifik 6 Sektor Industri</span>
                             </div>
                         </div>
                         <div class="flex items-center gap-1.5">
@@ -1471,170 +1518,370 @@
                         x-transition:leave="transition ease-in duration-100"
                         x-transition:leave-start="opacity-100 translate-y-0"
                         x-transition:leave-end="opacity-0 -translate-y-1"
-                        class="p-3 pt-0 border-t border-white/10">
-                        <div class="grid grid-cols-2 gap-2 pt-2.5">
-                            <a href="{{ route('public.solutions.fnb') }}" @click="mobileMenu = false"
-                                class="p-2.5 rounded-[12px] bg-white/[0.04] hover:bg-white/[0.08] border border-white/5 flex items-center gap-2 text-slate-200">
-                                <div class="w-6 h-6 rounded-md bg-[#FF9500]/20 text-[#FF9500] flex items-center justify-center shrink-0">
-                                    <i data-lucide="utensils" class="w-3.5 h-3.5"></i>
-                                </div>
-                                <div class="min-w-0">
-                                    <span class="font-semibold block text-white text-[11px] truncate">F&amp;B Resto</span>
-                                    <span class="text-[9px] text-slate-400 block truncate">Meja &amp; Dapur</span>
-                                </div>
-                            </a>
-                            <a href="{{ route('public.solutions.retail') }}" @click="mobileMenu = false"
-                                class="p-2.5 rounded-[12px] bg-white/[0.04] hover:bg-white/[0.08] border border-white/5 flex items-center gap-2 text-slate-200">
-                                <div class="w-6 h-6 rounded-md bg-[#007AFF]/20 text-[#00C2FF] flex items-center justify-center shrink-0">
-                                    <i data-lucide="store" class="w-3.5 h-3.5"></i>
-                                </div>
-                                <div class="min-w-0">
-                                    <span class="font-semibold block text-white text-[11px] truncate">Retail Toko</span>
-                                    <span class="text-[9px] text-slate-400 block truncate">Barcode Kasir</span>
-                                </div>
-                            </a>
-                            <a href="{{ route('public.solutions.workshop') }}" @click="mobileMenu = false"
-                                class="p-2.5 rounded-[12px] bg-white/[0.04] hover:bg-white/[0.08] border border-white/5 flex items-center gap-2 text-slate-200">
-                                <div class="w-6 h-6 rounded-md bg-[#FF3B30]/20 text-[#FF3B30] flex items-center justify-center shrink-0">
-                                    <i data-lucide="wrench" class="w-3.5 h-3.5"></i>
-                                </div>
-                                <div class="min-w-0">
-                                    <span class="font-semibold block text-white text-[11px] truncate">Bengkel</span>
-                                    <span class="text-[9px] text-slate-400 block truncate">Servis &amp; Part</span>
-                                </div>
-                            </a>
-                            <a href="{{ route('public.solutions.laundry') }}" @click="mobileMenu = false"
-                                class="p-2.5 rounded-[12px] bg-white/[0.04] hover:bg-white/[0.08] border border-white/5 flex items-center gap-2 text-slate-200">
-                                <div class="w-6 h-6 rounded-md bg-[#34C759]/20 text-[#34C759] flex items-center justify-center shrink-0">
-                                    <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
-                                </div>
-                                <div class="min-w-0">
-                                    <span class="font-semibold block text-white text-[11px] truncate">Laundry</span>
-                                    <span class="text-[9px] text-slate-400 block truncate">Kiloan &amp; Rak</span>
-                                </div>
-                            </a>
-                            <a href="{{ route('public.solutions.manufacturing') }}" @click="mobileMenu = false"
-                                class="p-2.5 rounded-[12px] bg-white/[0.04] hover:bg-white/[0.08] border border-white/5 flex items-center gap-2 text-slate-200">
-                                <div class="w-6 h-6 rounded-md bg-[#AF52DE]/20 text-[#AF52DE] flex items-center justify-center shrink-0">
-                                    <i data-lucide="factory" class="w-3.5 h-3.5"></i>
-                                </div>
-                                <div class="min-w-0">
-                                    <span class="font-semibold block text-white text-[11px] truncate">Pabrik</span>
-                                    <span class="text-[9px] text-slate-400 block truncate">BOM &amp; Produksi</span>
-                                </div>
-                            </a>
-                            <a href="{{ route('public.solutions.services') }}" @click="mobileMenu = false"
-                                class="p-2.5 rounded-[12px] bg-white/[0.04] hover:bg-white/[0.08] border border-white/5 flex items-center gap-2 text-slate-200">
-                                <div class="w-6 h-6 rounded-md bg-[#00C2FF]/20 text-[#00C2FF] flex items-center justify-center shrink-0">
-                                    <i data-lucide="briefcase" class="w-3.5 h-3.5"></i>
-                                </div>
-                                <div class="min-w-0">
-                                    <span class="font-semibold block text-white text-[11px] truncate">Jasa &amp; Service</span>
-                                    <span class="text-[9px] text-slate-400 block truncate">Booking &amp; Nota</span>
+                        class="p-3 pt-0 border-t border-white/10 space-y-3">
+                        
+                        <div class="space-y-2 pt-2.5">
+                            <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-1">Solusi Sektor Industri</p>
+                            <div class="grid grid-cols-1 gap-1.5">
+                                <!-- F&B & Resto -->
+                                <a href="{{ route('public.solutions.fnb') }}" @click="mobileMenu = false"
+                                    class="p-2 rounded-[12px] bg-white/[0.04] hover:bg-white/[0.08] border border-white/5 flex items-start gap-2.5 text-slate-200 transition-all">
+                                    <div class="w-7 h-7 rounded-lg bg-[#FF9500]/20 text-[#FF9500] flex items-center justify-center shrink-0 mt-0.5">
+                                        <i data-lucide="utensils" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <div class="min-w-0">
+                                        <span class="font-bold block text-white text-xs">F&amp;B &amp; Resto</span>
+                                        <span class="text-[10px] text-slate-400 block leading-tight">Meja, menu QR, dapur, &amp; split bill</span>
+                                    </div>
+                                </a>
+
+                                <!-- Retail & Toko -->
+                                <a href="{{ route('public.solutions.retail') }}" @click="mobileMenu = false"
+                                    class="p-2 rounded-[12px] bg-white/[0.04] hover:bg-white/[0.08] border border-white/5 flex items-start gap-2.5 text-slate-200 transition-all">
+                                    <div class="w-7 h-7 rounded-lg bg-[#00C2FF]/20 text-[#00C2FF] flex items-center justify-center shrink-0 mt-0.5">
+                                        <i data-lucide="store" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <div class="min-w-0">
+                                        <span class="font-bold block text-white text-xs">Retail &amp; Toko</span>
+                                        <span class="text-[10px] text-slate-400 block leading-tight">Barcode scanner, varian, &amp; multi-cabang</span>
+                                    </div>
+                                </a>
+
+                                <!-- Bengkel & Otomotif -->
+                                <a href="{{ route('public.solutions.workshop') }}" @click="mobileMenu = false"
+                                    class="p-2 rounded-[12px] bg-white/[0.04] hover:bg-white/[0.08] border border-white/5 flex items-start gap-2.5 text-slate-200 transition-all">
+                                    <div class="w-7 h-7 rounded-lg bg-[#FF3B30]/20 text-[#FF3B30] flex items-center justify-center shrink-0 mt-0.5">
+                                        <i data-lucide="wrench" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <div class="min-w-0">
+                                        <span class="font-bold block text-white text-xs">Bengkel &amp; Otomotif</span>
+                                        <span class="text-[10px] text-slate-400 block leading-tight">SPK, antrean servis, part &amp; mekanik</span>
+                                    </div>
+                                </a>
+
+                                <!-- Laundry -->
+                                <a href="{{ route('public.solutions.laundry') }}" @click="mobileMenu = false"
+                                    class="p-2 rounded-[12px] bg-white/[0.04] hover:bg-white/[0.08] border border-white/5 flex items-start gap-2.5 text-slate-200 transition-all">
+                                    <div class="w-7 h-7 rounded-lg bg-[#34C759]/20 text-[#34C759] flex items-center justify-center shrink-0 mt-0.5">
+                                        <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <div class="min-w-0">
+                                        <span class="font-bold block text-white text-xs">Laundry Kiloan &amp; Satuan</span>
+                                        <span class="text-[10px] text-slate-400 block leading-tight">Kiloan, satuan, barcode rak &amp; status cuci</span>
+                                    </div>
+                                </a>
+
+                                <!-- Manufacturing -->
+                                <a href="{{ route('public.solutions.manufacturing') }}" @click="mobileMenu = false"
+                                    class="p-2 rounded-[12px] bg-white/[0.04] hover:bg-white/[0.08] border border-white/5 flex items-start gap-2.5 text-slate-200 transition-all">
+                                    <div class="w-7 h-7 rounded-lg bg-[#AF52DE]/20 text-[#AF52DE] flex items-center justify-center shrink-0 mt-0.5">
+                                        <i data-lucide="factory" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <div class="min-w-0">
+                                        <span class="font-bold block text-white text-xs">Manufaktur &amp; Produksi</span>
+                                        <span class="text-[10px] text-slate-400 block leading-tight">BOM, work order, &amp; alokasi bahan baku</span>
+                                    </div>
+                                </a>
+
+                                <!-- Services & Jasa -->
+                                <a href="{{ route('public.solutions.services') }}" @click="mobileMenu = false"
+                                    class="p-2 rounded-[12px] bg-white/[0.04] hover:bg-white/[0.08] border border-white/5 flex items-start gap-2.5 text-slate-200 transition-all">
+                                    <div class="w-7 h-7 rounded-lg bg-[#007AFF]/20 text-[#007AFF] flex items-center justify-center shrink-0 mt-0.5">
+                                        <i data-lucide="briefcase" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <div class="min-w-0">
+                                        <span class="font-bold block text-white text-xs">Services &amp; Jasa</span>
+                                        <span class="text-[10px] text-slate-400 block leading-tight">Booking appointment, termin, &amp; invoicing</span>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Showcase Banner Card: Konsultasi Solusi -->
+                        <div class="pt-1 border-t border-white/5">
+                            <a href="{{ route('public.demo') }}" @click="mobileMenu = false"
+                                class="block relative rounded-xl overflow-hidden bg-[#0A0E1A] border border-slate-800 p-3 shadow-xs">
+                                <div class="flex items-center justify-between gap-2">
+                                    <div>
+                                        <span class="text-[9px] font-bold uppercase tracking-wider text-[#FF9500] block">Konsultasi Solusi</span>
+                                        <span class="text-xs font-bold text-white block">Jadwalkan Konsultasi Demo</span>
+                                        <span class="text-[10px] text-slate-400 block leading-tight mt-0.5">Sistem khusus sesuai SOP industri Anda</span>
+                                    </div>
+                                    <div class="w-6 h-6 rounded-full bg-[#FF9500]/20 text-[#FF9500] flex items-center justify-center shrink-0">
+                                        <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                                    </div>
                                 </div>
                             </a>
                         </div>
                     </div>
                 </div>
 
-                <!-- 5. Collapsible Section 3: Alat & Edukasi UMKM -->
+                <!-- ════════════════════════════════════════════════════════════════════════ -->
+                <!-- ═══ 5. DROPDOWN 3: OMNICHANNEL ═══════════════════════════════════════════ -->
+                <!-- ════════════════════════════════════════════════════════════════════════ -->
                 <div class="rounded-[16px] bg-white/[0.03] border border-white/10 overflow-hidden">
-                    <button type="button" @click="toggleMobileSection('tools')"
+                    <button type="button" @click="toggleMobileSection('omnichannel')"
                         class="w-full p-3.5 flex items-center justify-between text-left hover:bg-white/[0.04] transition-colors">
                         <div class="flex items-center gap-2.5">
-                            <div class="w-7 h-7 rounded-lg bg-[#FF9500]/20 text-[#FF9500] flex items-center justify-center">
-                                <i data-lucide="wrench" class="w-4 h-4"></i>
+                            <div class="w-7 h-7 rounded-lg bg-[#FF2D55]/20 text-[#FF2D55] flex items-center justify-center">
+                                <i data-lucide="share-2" class="w-4 h-4"></i>
                             </div>
                             <div>
-                                <span class="text-xs font-bold text-white block">Alat &amp; Edukasi UMKM</span>
-                                <span class="text-[10px] text-slate-400 block">Template Excel &amp; Kalkulator</span>
+                                <span class="text-xs font-bold text-white block">Omnichannel</span>
+                                <span class="text-[10px] text-slate-400 block">Kanal Penjualan, WhatsApp &amp; CRM</span>
                             </div>
                         </div>
                         <div class="flex items-center gap-1.5">
-                            <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-white/10 text-slate-300">4 Tools</span>
+                            <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-white/10 text-slate-300">5 Kanal</span>
                             <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transition-transform duration-200"
-                                :class="mobileSection === 'tools' ? 'rotate-180 text-[#FF9500]' : ''"></i>
+                                :class="mobileSection === 'omnichannel' ? 'rotate-180 text-[#FF2D55]' : ''"></i>
                         </div>
                     </button>
 
-                    <div x-show="mobileSection === 'tools'" x-cloak
+                    <div x-show="mobileSection === 'omnichannel'" x-cloak
                         x-transition:enter="transition ease-out duration-150"
                         x-transition:enter-start="opacity-0 -translate-y-1"
                         x-transition:enter-end="opacity-100 translate-y-0"
                         x-transition:leave="transition ease-in duration-100"
                         x-transition:leave-start="opacity-100 translate-y-0"
                         x-transition:leave-end="opacity-0 -translate-y-1"
-                        class="p-3 pt-0 border-t border-white/10">
-                        <div class="grid grid-cols-2 gap-2 pt-2.5">
-                            <a href="{{ route('template.index') }}" @click="mobileMenu = false"
-                                class="p-2.5 rounded-[12px] bg-white/[0.04] hover:bg-white/[0.08] border border-white/5 flex items-center gap-2 text-slate-200">
-                                <div class="w-6 h-6 rounded-md bg-[#34C759]/20 text-[#34C759] flex items-center justify-center shrink-0">
-                                    <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5"></i>
-                                </div>
-                                <div class="min-w-0">
-                                    <span class="font-semibold block text-white text-[11px] truncate">Template Excel</span>
-                                    <span class="text-[9px] text-slate-400 block truncate">Download Gratis</span>
-                                </div>
-                            </a>
-                            <a href="{{ url('/kalkulator') }}" @click="mobileMenu = false"
-                                class="p-2.5 rounded-[12px] bg-white/[0.04] hover:bg-white/[0.08] border border-white/5 flex items-center gap-2 text-slate-200">
-                                <div class="w-6 h-6 rounded-md bg-[#FF9500]/20 text-[#FF9500] flex items-center justify-center shrink-0">
-                                    <i data-lucide="calculator" class="w-3.5 h-3.5"></i>
-                                </div>
-                                <div class="min-w-0">
-                                    <span class="font-semibold block text-white text-[11px] truncate">Kalkulator</span>
-                                    <span class="text-[9px] text-slate-400 block truncate">9 Tool Finansial</span>
-                                </div>
-                            </a>
-                            <a href="{{ route('blog.index') }}" @click="mobileMenu = false"
-                                class="p-2.5 rounded-[12px] bg-white/[0.04] hover:bg-white/[0.08] border border-white/5 flex items-center gap-2 text-slate-200">
-                                <div class="w-6 h-6 rounded-md bg-[#00C2FF]/20 text-[#00C2FF] flex items-center justify-center shrink-0">
-                                    <i data-lucide="book-open" class="w-3.5 h-3.5"></i>
-                                </div>
-                                <div class="min-w-0">
-                                    <span class="font-semibold block text-white text-[11px] truncate">Blog Edukasi</span>
-                                    <span class="text-[9px] text-slate-400 block truncate">Artikel &amp; Riset</span>
-                                </div>
-                            </a>
-                            <a href="{{ route('public.resources.guides') }}" @click="mobileMenu = false"
-                                class="p-2.5 rounded-[12px] bg-white/[0.04] hover:bg-white/[0.08] border border-white/5 flex items-center gap-2 text-slate-200">
-                                <div class="w-6 h-6 rounded-md bg-[#AF52DE]/20 text-[#AF52DE] flex items-center justify-center shrink-0">
-                                    <i data-lucide="compass" class="w-3.5 h-3.5"></i>
-                                </div>
-                                <div class="min-w-0">
-                                    <span class="font-semibold block text-white text-[11px] truncate">Panduan</span>
-                                    <span class="text-[9px] text-slate-400 block truncate">Tutorial Sistem</span>
+                        class="p-3 pt-0 border-t border-white/10 space-y-3">
+                        
+                        <div class="space-y-2 pt-2.5">
+                            <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-1">Kanal Penjualan &amp; CRM Terpadu</p>
+                            <div class="space-y-1.5">
+                                <!-- Social Media -->
+                                <a href="{{ route('public.omnichannel.social-media') }}" @click="mobileMenu = false"
+                                    class="p-2 rounded-[12px] bg-white/[0.04] hover:bg-white/[0.08] border border-white/5 flex items-start gap-2.5 text-slate-200 transition-all">
+                                    <div class="w-7 h-7 rounded-lg bg-[#FF2D55]/20 text-[#FF2D55] flex items-center justify-center shrink-0 mt-0.5">
+                                        <i data-lucide="share-2" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <div class="min-w-0">
+                                        <span class="font-bold block text-white text-xs">Social Media Commerce</span>
+                                        <span class="text-[10px] text-slate-400 block leading-tight">Jadwal konten, auto-reply, &amp; katalog multi-channel</span>
+                                    </div>
+                                </a>
+
+                                <!-- WhatsApp -->
+                                <a href="{{ route('public.omnichannel.whatsapp') }}" @click="mobileMenu = false"
+                                    class="p-2 rounded-[12px] bg-white/[0.04] hover:bg-white/[0.08] border border-white/5 flex items-start gap-2.5 text-slate-200 transition-all">
+                                    <div class="w-7 h-7 rounded-lg bg-[#34C759]/20 text-[#34C759] flex items-center justify-center shrink-0 mt-0.5">
+                                        <i data-lucide="message-square" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <div class="min-w-0">
+                                        <span class="font-bold block text-white text-xs">WhatsApp Official API</span>
+                                        <span class="text-[10px] text-slate-400 block leading-tight">Broadcast pesan massal &amp; multi-agent live chat</span>
+                                    </div>
+                                </a>
+
+                                <!-- Marketplace Hub -->
+                                <a href="{{ route('public.omnichannel.marketplace') }}" @click="mobileMenu = false"
+                                    class="p-2 rounded-[12px] bg-white/[0.04] hover:bg-white/[0.08] border border-white/5 flex items-start gap-2.5 text-slate-200 transition-all">
+                                    <div class="w-7 h-7 rounded-lg bg-[#FF9500]/20 text-[#FF9500] flex items-center justify-center shrink-0 mt-0.5">
+                                        <i data-lucide="shopping-bag" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <div class="min-w-0">
+                                        <span class="font-bold block text-white text-xs">Marketplace Hub</span>
+                                        <span class="text-[10px] text-slate-400 block leading-tight">Sinkronisasi stok Shopee, Tokopedia, &amp; TikTok</span>
+                                    </div>
+                                </a>
+
+                                <!-- Central Orders -->
+                                <a href="{{ route('public.omnichannel.orders') }}" @click="mobileMenu = false"
+                                    class="p-2 rounded-[12px] bg-white/[0.04] hover:bg-white/[0.08] border border-white/5 flex items-start gap-2.5 text-slate-200 transition-all">
+                                    <div class="w-7 h-7 rounded-lg bg-[#007AFF]/20 text-[#007AFF] flex items-center justify-center shrink-0 mt-0.5">
+                                        <i data-lucide="clipboard-list" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <div class="min-w-0">
+                                        <span class="font-bold block text-white text-xs">Central Orders</span>
+                                        <span class="text-[10px] text-slate-400 block leading-tight">Satu inbox pesanan terpadu untuk semua saluran</span>
+                                    </div>
+                                </a>
+
+                                <!-- Customer Portal -->
+                                <a href="{{ route('public.omnichannel.customer') }}" @click="mobileMenu = false"
+                                    class="p-2 rounded-[12px] bg-white/[0.04] hover:bg-white/[0.08] border border-white/5 flex items-start gap-2.5 text-slate-200 transition-all">
+                                    <div class="w-7 h-7 rounded-lg bg-[#5856D6]/20 text-[#5856D6] flex items-center justify-center shrink-0 mt-0.5">
+                                        <i data-lucide="user-check" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <div class="min-w-0">
+                                        <span class="font-bold block text-white text-xs">Customer Portal &amp; CRM</span>
+                                        <span class="text-[10px] text-slate-400 block leading-tight">Program loyalty, membership tier, &amp; poin belanja</span>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Showcase Banner Card: Sorotan Omnichannel -->
+                        <div class="pt-1 border-t border-white/5">
+                            <a href="{{ route('public.omnichannel.whatsapp') }}" @click="mobileMenu = false"
+                                class="block relative rounded-xl overflow-hidden bg-[#0A0E1A] border border-slate-800 p-3 shadow-xs">
+                                <div class="flex items-center justify-between gap-2">
+                                    <div>
+                                        <span class="text-[9px] font-bold uppercase tracking-wider text-[#34C759] block">Automasi WhatsApp &amp; POS</span>
+                                        <span class="text-xs font-bold text-white block">Eksplorasi Fitur WhatsApp</span>
+                                        <span class="text-[10px] text-slate-400 block leading-tight mt-0.5">Semua Chat &amp; Order Terhubung Otomatis</span>
+                                    </div>
+                                    <div class="w-6 h-6 rounded-full bg-[#34C759]/20 text-[#34C759] flex items-center justify-center shrink-0">
+                                        <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                                    </div>
                                 </div>
                             </a>
                         </div>
                     </div>
                 </div>
 
-                <!-- 6. Essential Single Links (Pricing, Demo, FAQ, Support) -->
+                <!-- ════════════════════════════════════════════════════════════════════════ -->
+                <!-- ═══ 6. DROPDOWN 4: RESOURCES (PUSAT EDUKASI & BANTUAN) ══════════════════ -->
+                <!-- ════════════════════════════════════════════════════════════════════════ -->
+                <div class="rounded-[16px] bg-white/[0.03] border border-white/10 overflow-hidden">
+                    <button type="button" @click="toggleMobileSection('resources')"
+                        class="w-full p-3.5 flex items-center justify-between text-left hover:bg-white/[0.04] transition-colors">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-7 h-7 rounded-lg bg-[#AF52DE]/20 text-[#AF52DE] flex items-center justify-center">
+                                <i data-lucide="book-open" class="w-4 h-4"></i>
+                            </div>
+                            <div>
+                                <span class="text-xs font-bold text-white block">Resources</span>
+                                <span class="text-[10px] text-slate-400 block">Blog, Panduan, Studi Kasus &amp; FAQ</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-white/10 text-slate-300">4 Edukasi</span>
+                            <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transition-transform duration-200"
+                                :class="mobileSection === 'resources' ? 'rotate-180 text-[#AF52DE]' : ''"></i>
+                        </div>
+                    </button>
+
+                    <div x-show="mobileSection === 'resources'" x-cloak
+                        x-transition:enter="transition ease-out duration-150"
+                        x-transition:enter-start="opacity-0 -translate-y-1"
+                        x-transition:enter-end="opacity-100 translate-y-0"
+                        x-transition:leave="transition ease-in duration-100"
+                        x-transition:leave-start="opacity-100 translate-y-0"
+                        x-transition:leave-end="opacity-0 -translate-y-1"
+                        class="p-3 pt-0 border-t border-white/10 space-y-3">
+                        
+                        <div class="space-y-2 pt-2.5">
+                            <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-1">Pusat Edukasi &amp; Dokumentasi</p>
+                            <div class="space-y-1.5">
+                                <!-- Blog -->
+                                <a href="{{ route('blog.index') }}" @click="mobileMenu = false"
+                                    class="p-2 rounded-[12px] bg-white/[0.04] hover:bg-white/[0.08] border border-white/5 flex items-start gap-2.5 text-slate-200 transition-all">
+                                    <div class="w-7 h-7 rounded-lg bg-[#007AFF]/20 text-[#00C2FF] flex items-center justify-center shrink-0 mt-0.5">
+                                        <i data-lucide="book-open" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <div class="min-w-0">
+                                        <span class="font-bold block text-white text-xs">Blog &amp; Insight Bisnis</span>
+                                        <span class="text-[10px] text-slate-400 block leading-tight">Artikel edukasi, tren pasar, &amp; strategi</span>
+                                    </div>
+                                </a>
+
+                                <!-- Guides -->
+                                <a href="{{ route('public.resources.guides') }}" @click="mobileMenu = false"
+                                    class="p-2 rounded-[12px] bg-white/[0.04] hover:bg-white/[0.08] border border-white/5 flex items-start gap-2.5 text-slate-200 transition-all">
+                                    <div class="w-7 h-7 rounded-lg bg-[#34C759]/20 text-[#34C759] flex items-center justify-center shrink-0 mt-0.5">
+                                        <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <div class="min-w-0">
+                                        <span class="font-bold block text-white text-xs">Panduan &amp; Tutorial</span>
+                                        <span class="text-[10px] text-slate-400 block leading-tight">Tutorial step-by-step implementasi SOP dan POS</span>
+                                    </div>
+                                </a>
+
+                                <!-- Case Studies -->
+                                <a href="{{ route('public.resources.case-studies') }}" @click="mobileMenu = false"
+                                    class="p-2 rounded-[12px] bg-white/[0.04] hover:bg-white/[0.08] border border-white/5 flex items-start gap-2.5 text-slate-200 transition-all">
+                                    <div class="w-7 h-7 rounded-lg bg-[#FF9500]/20 text-[#FF9500] flex items-center justify-center shrink-0 mt-0.5">
+                                        <i data-lucide="award" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <div class="min-w-0">
+                                        <span class="font-bold block text-white text-xs">Studi Kasus UMKM</span>
+                                        <span class="text-[10px] text-slate-400 block leading-tight">Kisah nyata pebisnis Indonesia scaling bersama COOCA</span>
+                                    </div>
+                                </a>
+
+                                <!-- FAQ -->
+                                <a href="{{ route('public.resources.faq') }}" @click="mobileMenu = false"
+                                    class="p-2 rounded-[12px] bg-white/[0.04] hover:bg-white/[0.08] border border-white/5 flex items-start gap-2.5 text-slate-200 transition-all">
+                                    <div class="w-7 h-7 rounded-lg bg-[#AF52DE]/20 text-[#AF52DE] flex items-center justify-center shrink-0 mt-0.5">
+                                        <i data-lucide="help-circle" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <div class="min-w-0">
+                                        <span class="font-bold block text-white text-xs">Pusat Bantuan &amp; FAQ</span>
+                                        <span class="text-[10px] text-slate-400 block leading-tight">Jawaban cepat pertanyaan teknis &amp; langganan</span>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Showcase Banner Card: Knowledge Hub -->
+                        <div class="pt-1 border-t border-white/5">
+                            <a href="{{ route('public.resources.guides') }}" @click="mobileMenu = false"
+                                class="block relative rounded-xl overflow-hidden bg-[#0A0E1A] border border-slate-800 p-3 shadow-xs">
+                                <div class="flex items-center justify-between gap-2">
+                                    <div>
+                                        <span class="text-[9px] font-bold uppercase tracking-wider text-[#AF52DE] block">Knowledge Hub</span>
+                                        <span class="text-xs font-bold text-white block">Baca Panduan Operasional</span>
+                                        <span class="text-[10px] text-slate-400 block leading-tight mt-0.5">Kuasai Operasional Bisnis Bersama COOCA</span>
+                                    </div>
+                                    <div class="w-6 h-6 rounded-full bg-[#AF52DE]/20 text-[#AF52DE] flex items-center justify-center shrink-0">
+                                        <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ════════════════════════════════════════════════════════════════════════ -->
+                <!-- ═══ 7. PRICING & ESSENTIAL TOOLS ═════════════════════════════════════════ -->
+                <!-- ════════════════════════════════════════════════════════════════════════ -->
                 <div class="grid grid-cols-2 gap-2 text-xs pt-1">
+                    <!-- Pricing Highlight -->
                     <a href="{{ route('public.pricing') }}" @click="mobileMenu = false"
-                        class="p-3 rounded-[14px] bg-white/[0.03] border border-white/10 hover:bg-white/[0.07] flex items-center gap-2.5 transition-colors">
+                        class="p-3 rounded-[14px] bg-gradient-to-r from-[#00C2FF]/10 via-white/[0.04] to-transparent border border-[#00C2FF]/30 hover:bg-white/[0.07] flex items-center gap-2.5 transition-colors">
                         <i data-lucide="tag" class="w-4 h-4 text-[#00C2FF]"></i>
-                        <span class="font-semibold text-white truncate">Harga &amp; Paket</span>
+                        <div class="min-w-0">
+                            <span class="font-bold text-white block truncate">Pricing</span>
+                            <span class="text-[9px] text-[#00C2FF] block truncate">Paket &amp; Fitur</span>
+                        </div>
                     </a>
+
+                    <!-- Live Demo -->
                     <a href="{{ route('public.demo') }}" @click="mobileMenu = false"
                         class="p-3 rounded-[14px] bg-white/[0.03] border border-white/10 hover:bg-white/[0.07] flex items-center gap-2.5 transition-colors">
                         <i data-lucide="play" class="w-4 h-4 text-[#34C759]"></i>
-                        <span class="font-semibold text-white truncate">Live Demo</span>
+                        <div class="min-w-0">
+                            <span class="font-bold text-white block truncate">Live Demo</span>
+                            <span class="text-[9px] text-slate-400 block truncate">Coba Sistem</span>
+                        </div>
                     </a>
-                    <a href="{{ route('public.resources.faq') }}" @click="mobileMenu = false"
+
+                    <!-- Template Excel -->
+                    <a href="{{ route('template.index') }}" @click="mobileMenu = false"
                         class="p-3 rounded-[14px] bg-white/[0.03] border border-white/10 hover:bg-white/[0.07] flex items-center gap-2.5 transition-colors">
-                        <i data-lucide="help-circle" class="w-4 h-4 text-[#FF9500]"></i>
-                        <span class="font-semibold text-white truncate">FAQ Pertanyaan</span>
+                        <i data-lucide="file-spreadsheet" class="w-4 h-4 text-[#34C759]"></i>
+                        <div class="min-w-0">
+                            <span class="font-bold text-white block truncate">Template Excel</span>
+                            <span class="text-[9px] text-slate-400 block truncate">Download Gratis</span>
+                        </div>
                     </a>
-                    <a href="{{ route('public.support') }}" @click="mobileMenu = false"
+
+                    <!-- Kalkulator Keuangan -->
+                    <a href="{{ url('/kalkulator') }}" @click="mobileMenu = false"
                         class="p-3 rounded-[14px] bg-white/[0.03] border border-white/10 hover:bg-white/[0.07] flex items-center gap-2.5 transition-colors">
-                        <i data-lucide="headphones" class="w-4 h-4 text-[#AF52DE]"></i>
-                        <span class="font-semibold text-white truncate">Bantuan</span>
+                        <i data-lucide="calculator" class="w-4 h-4 text-[#FF9500]"></i>
+                        <div class="min-w-0">
+                            <span class="font-bold text-white block truncate">Kalkulator</span>
+                            <span class="text-[9px] text-slate-400 block truncate">9 Tool Finansial</span>
+                        </div>
                     </a>
                 </div>
 
-                <!-- 7. Theme Toggle Row (Apple Inset Setting Style) -->
+                <!-- ════════════════════════════════════════════════════════════════════════ -->
+                <!-- ═══ 8. THEME TOGGLE ROW (APPLE INSET SETTING STYLE) ══════════════════════ -->
+                <!-- ════════════════════════════════════════════════════════════════════════ -->
                 <div class="p-3 rounded-[14px] bg-white/[0.03] border border-white/10 flex items-center justify-between">
                     <div class="flex items-center gap-2.5">
                         <div class="w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center text-[#FFD60A]">
