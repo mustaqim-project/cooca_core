@@ -121,7 +121,10 @@ final class GoogleAuthController extends Controller
             ];
         }
 
-        return view('auth.google-register', compact('pending', 'templates', 'templateSummaries'));
+        $allModules = \App\Domain\Template\ModuleRegistry::definitions();
+        $templateDisabledMap = \App\Domain\Template\ModuleRegistry::templateDisabledModulesMap();
+
+        return view('auth.google-register', compact('pending', 'templates', 'templateSummaries', 'allModules', 'templateDisabledMap'));
     }
 
     public function beginGoogleRegistration(Request $request, AdminWhatsAppService $adminWa): RedirectResponse
@@ -136,6 +139,9 @@ final class GoogleAuthController extends Controller
             'business_scale' => ['nullable', 'string', 'in:umkm,corporate'],
             'phone' => ['required', 'string', 'min:10', 'max:20'],
             'template_code' => ['nullable', 'string', 'exists:business_type_templates,code'],
+            'enabled_modules' => ['nullable', 'array'],
+            'enabled_modules.*' => ['string'],
+            'has_module_selection' => ['nullable', 'in:0,1'],
         ]);
         $phone = $this->normalizePhone($validated['phone']);
         if ($phone === null) {
@@ -145,6 +151,19 @@ final class GoogleAuthController extends Controller
         $businessScale = ($validated['business_scale'] ?? \App\Models\Business::SCALE_UMKM) === \App\Models\Business::SCALE_CORPORATE
             ? \App\Models\Business::SCALE_CORPORATE
             : \App\Models\Business::SCALE_UMKM;
+
+        $templateCode = $validated['template_code'] ?? null;
+        $allModuleKeys = array_keys(\App\Domain\Template\ModuleRegistry::definitions());
+
+        if ($request->has('has_module_selection') && $request->input('has_module_selection') === '1') {
+            $enabledModules = (array) ($request->input('enabled_modules') ?? []);
+            $enabledModules = array_values(array_intersect($enabledModules, $allModuleKeys));
+            $disabledModules = array_values(array_diff($allModuleKeys, $enabledModules));
+            $customModules = true;
+        } else {
+            $disabledModules = \App\Domain\Template\ModuleRegistry::getDisabledModulesForTemplate($templateCode);
+            $customModules = false;
+        }
 
         $otp = (string) random_int(100000, 999999);
         $result = $adminWa->sendOtp($phone, $otp);
@@ -157,7 +176,9 @@ final class GoogleAuthController extends Controller
             'phone' => $phone,
             'business_name' => $validated['business_name'],
             'business_scale' => $businessScale,
-            'template_code' => $validated['template_code'] ?? null,
+            'template_code' => $templateCode,
+            'disabled_modules' => $disabledModules,
+            'custom_modules' => $customModules,
             'password' => Hash::make(Str::random(32)),
             'otp_hash' => Hash::make($otp),
             'expires_at' => now()->addMinutes(10)->timestamp,

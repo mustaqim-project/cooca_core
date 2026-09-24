@@ -54,6 +54,95 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 
 - Pengetahuan yang dipromosikan ke `docs/system/` dan dampaknya pada `docs/SYSTEM_GUIDE.md`.
 
+### [WORK-2026-09-24-129] Redesign Halaman Registrasi Standar: Layout Bento Apple HIG Luas & Penataan Modul Interaktif dengan Toggle Sakelar Mandiri
+
+- **Date:** 2026-09-24
+- **Status:** COMPLETED
+- **Module:** Auth (Standard Web Registration Flow) & Modular System
+- **Feature:** Standard Web Registration Bento Expansion & Interactive Module Toggle Management
+- **Work Type:** UI/UX | Bento Apple HIG | Feature Enhancement | Architectural Integrity
+
+#### 1. Business Context & Objective
+
+- **Konteks:** Mengikuti peningkatan pada alur pendaftaran Google SSO (`/register/google`), halaman pendaftaran reguler (`https://cooca.id/register` / `resources/views/auth/register.blade.php`) juga membutuhkan transformasi arsitektural yang sama. Antarmuka lama terkurung dalam kontainer sempit (`max-w-xl` / `max-w-md`) dan pratinjau modul pasif tanpa kemampuan kustomisasi sakelar toggle.
+- **Masalah & Target:**
+  1. *Layout Terlalu Sempit:* Memperluas kontainer menjadi kanvas lapang `max-w-7xl` dengan struktur layout 2-kolom Bento Apple HIG yang seimbang, elegan di layar desktop lebar, dan ergonomis di tablet maupun ponsel pintar kasir (font input $\ge 16\text{px}$ anti-zoom di iOS).
+  2. *Penataan Modul Dinamis dengan Toggle Sakelar:* Menampilkan grid 15 modul kerja sistem dengan toggle sakelar Apple Switch (`sr-only peer` + `peer-checked:bg-[#34C759]`), identik dengan antarmuka tab "Kelola Modul" pada menu Pengaturan Bisnis (`resources/views/app/settings/index.blade.php`).
+  3. *Reaktivitas Template Industri:* Setiap kali dropdown template industri dipilih (misal: Toko Retail & Reseller, Kafe & Resto, Jasa Konsultan, Bengkel & Otomotif, dll.), sakelar modul otomatis terkonfigurasi sesuai preset industri secara instan tanpa reload halaman, dilengkapi live status pill ("X Aktif", "Y Nonaktif"), filter toolbar (*Semua*, *Aktif*, *Nonaktif*), dan quick actions (*Aktifkan Semua*, *Reset Preset*).
+  4. *Integritas Data End-to-End:* Pilihan modul pengguna dikirim via form submission (`enabled_modules[]`, `has_module_selection`), disimpan dalam sesi `pending_registration`, dan dipersistensi saat verifikasi OTP WhatsApp (`verifyRegisterOtp`) ke dalam kolom `disabled_modules` pada model `Business`.
+
+#### 2. What Was Done
+
+1. Mengembangkan ulang view `resources/views/auth/register.blade.php` dengan kanvas `max-w-7xl`, split 2-kolom Bento Apple HIG (Kolom Kiri sticky: Google SSO shortcut, Nama Pemilik, Email Bisnis, Kata Sandi & Konfirmasi Sandi dengan toggle visibility, Nama Usaha, Nomor WhatsApp anti-zoom, Segmentasi Skala Bisnis UMKM/Multi-Cabang, dan CTA Submit; Kolom Kanan: Selector Template Industri, Bento kartu pratinjau preset, toolbar filter dan aksi cepat, serta grid 15 modul interaktif dengan Apple Switch toggle).
+2. Memperbarui `AuthWebController::showRegister` untuk menyediakan kumpulan data modular (`$allModules`, `$templateDisabledMap`) ke view Blade registrasi standar.
+3. Memperbarui `AuthWebController::register` untuk memvalidasi `enabled_modules[]` dan flag `has_module_selection`, mengkalkulasi selisih modul menjadi `disabled_modules`, dan menyimpannya ke dalam session `pending_registration`.
+4. Memperbarui `AuthWebController::verifyRegisterOtp` agar menghormati kustomisasi `disabled_modules` yang dipilih calon pengguna tanpa tertimpa fallback default template.
+5. Menyelaraskan label segmentasi skala bisnis (`Skala & Model Operasional Bisnis`, `UMKM & Toko Mandiri`, `Korporasi & Multi-Cabang`) di kedua view registrasi (`register.blade.php` & `google-register.blade.php`) untuk menjaga konsistensi microcopy Apple HIG dan kompatibilitas suite pengujian.
+6. Menulis suite pengujian otomatis komprehensif baru di `tests/Feature/AuthWebRegistrationModuleTest.php` yang memvalidasi render antarmuka Bento, persistensi modul ke session, serta pembuatan model `Business` dengan modul yang sesuai.
+
+#### 3. Technical Changes
+
+- **Files Affected:**
+  - `resources/views/auth/register.blade.php` (Redesign layout Bento 2-kolom lapang + interaktivitas toggle modul Apple HIG)
+  - `resources/views/auth/google-register.blade.php` (Sinkronisasi label microcopy skala bisnis)
+  - `app/Http/Controllers/Web/AuthWebController.php` (Pass `$allModules` & `$templateDisabledMap`, validasi & persistensi modul)
+  - `tests/Feature/AuthWebRegistrationModuleTest.php` (Feature test suite baru: 3 tests, 28 assertions, 100% pass)
+  - `tests/Feature/BusinessScaleRegistrationTest.php` (5 tests, 34 assertions, 100% pass)
+
+#### 4. Verification & Testing
+
+- `php -l` seluruh controller, model, dan test files (0 syntax error).
+- `php vendor/phpunit/phpunit/phpunit tests/Feature/AuthWebRegistrationModuleTest.php` (3 tests passed, 28 assertions, 0 failure).
+- `php vendor/phpunit/phpunit/phpunit tests/Feature/GoogleRegistrationTest.php` (4 tests passed, 24 assertions, 0 failure).
+- `php vendor/phpunit/phpunit/phpunit tests/Feature/BusinessScaleRegistrationTest.php` (5 tests passed, 34 assertions, 0 failure).
+- `php vendor/phpunit/phpunit/phpunit tests/Feature/IndustryTemplateModularizationTest.php` (11 tests passed, 409 assertions, 0 failure).
+- Seluruh 23 skenario pengujian modularisasi & registrasi lolos 100% (495 assertions).
+
+---
+
+### [WORK-2026-09-24-128] Redesign Halaman Registrasi Google: Layout Bento Apple HIG Luas & Penataan Modul Interaktif dengan Toggle Sakelar Mandiri
+
+- **Date:** 2026-09-24
+- **Status:** COMPLETED
+- **Module:** Auth (Google SSO Registration Flow) & Modular System
+- **Feature:** Google Registration Bento Expansion & Interactive Module Toggle Management
+- **Work Type:** UI/UX | Bento Apple HIG | Feature Enhancement | Architectural Integrity
+
+#### 1. Business Context & Objective
+
+- **Konteks:** Pada alur pendaftaran Google SSO (`/register/google`), antarmuka sebelumnya dibatasi pada kontainer `max-w-md` (448px) yang sangat sempit di layar desktop kasir/pemilik bisnis. Selain itu, pratinjau modul industri sebelumnya hanya menampilkan pill kosong dan tidak dapat disesuaikan oleh pengguna secara langsung saat mendaftar.
+- **Masalah & Target:**
+  1. *Layout Terlalu Sempit:* Memperluas kontainer menjadi `max-w-7xl` dengan struktur layout 2-kolom Bento Apple HIG yang lapang, proporsional, dan elegan di desktop, serta responsif sempurna di perangkat mobile kasir.
+  2. *Penataan Modul Dinamis:* Menampilkan seluruh 15 modul kerja sistem dengan tata letak visual squircle Apple HIG, kategori, nama, deskripsi, jumlah hak akses terhubung, dan sakelar toggle mandiri (`Aktif (Menu Muncul)` vs `Nonaktif (Disembunyikan)`) persis seperti pada menu Pengaturan (`settings.index` tab `modules`).
+  3. *Reaktivitas Template Industri:* Ketika pengguna memilih template industri (misal: F&B Resto, Bengkel, Event Organizer, Retail, dll.), seluruh sakelar modul otomatis menyesuaikan dengan preset industri tersebut secara seketika via Alpine.js, dengan opsi filter tab (*Semua*, *Aktif*, *Nonaktif*) dan tombol aksi cepat (*Aktifkan Semua*, *Reset Preset*).
+  4. *Preservasi Kustomisasi Hulu-ke-Hilir:* Modul yang diaktifkan/dinonaktifkan oleh pengguna saat registrasi dikirimkan ke server (`enabled_modules[]`), disimpan dalam sesi `pending_registration`, dan diterapkan saat pembuatan entitas `Business` baru setelah verifikasi OTP WhatsApp berhasil.
+
+#### 2. What Was Done
+
+1. Mengembangkan view `resources/views/auth/google-register.blade.php` dengan kanvas `max-w-7xl`, split 2-kolom (Kolom Kiri: Profil Google, Identitas Usaha, Skala Bisnis UMKM/Multi-Cabang, WhatsApp, dan CTA submit; Kolom Kanan: Dropdown template industri, kartu informasi preset, filter toolbar, dan grid modul lengkap dengan Apple Switch toggle).
+2. Memperbarui `ModuleRegistry::getFeaturesSummaryForTemplate` agar mengembalikan array objek terstruktur lengkap (`key`, `name`, `icon`, `category`, `description`, `permissions_count`), mengeliminasi bug pill kosong pada pratinjau registrasi.
+3. Memperbarui `GoogleAuthController::showGoogleRegistration` untuk menyediakan data `$allModules` dan `$templateDisabledMap` ke view Blade.
+4. Memperbarui `GoogleAuthController::beginGoogleRegistration` untuk menerima dan memproses `enabled_modules[]` serta flag `has_module_selection`, mengkalkulasi `disabled_modules`, dan menyimpannya ke session `pending_registration`.
+5. Memperbarui `AuthWebController::verifyRegisterOtp` agar memprioritaskan kustomisasi `disabled_modules` pengguna saat menginstansiasi model `Business`.
+6. Menambahkan suite pengujian otomatis komprehensif `tests/Feature/GoogleRegistrationTest.php` dan memperbaiki assertion count pada `tests/Feature/IndustryTemplateModularizationTest.php` (11 pengujian, 409 assertions lolos 100%).
+
+#### 3. Technical Changes
+
+- **Files Affected:**
+  - `resources/views/auth/google-register.blade.php` (Redesign layout Bento 2-kolom luas + modul toggle grid)
+  - `app/Domain/Template/ModuleRegistry.php` (Rich structured data on `getFeaturesSummaryForTemplate`)
+  - `app/Http/Controllers/Auth/GoogleAuthController.php` (Pass definitions & disabled mapping, validate & persist module selections)
+  - `app/Http/Controllers/Web/AuthWebController.php` (Respect custom disabled modules from pending registration)
+  - `tests/Feature/IndustryTemplateModularizationTest.php` (Update assertion count for 15 module definitions)
+  - `tests/Feature/GoogleRegistrationTest.php` (New feature tests verifying registration rendering and toggle persistence)
+
+#### 4. Verification & Testing
+
+- `php -l` pada seluruh file terdampak (0 syntax error).
+- `php artisan test tests/Feature/GoogleRegistrationTest.php tests/Feature/IndustryTemplateModularizationTest.php` (11 tests passed, 409 assertions, 0 failure).
+
+---
+
 ### [WORK-2026-09-24-127] Optimization UI/UX Menyeluruh Website Publik COOCA: Mobile Bento UI, Hero Viewport Proportions, & Cross-Device Ergonomics
 
 - **Date:** 2026-09-24

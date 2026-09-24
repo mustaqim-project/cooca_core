@@ -405,27 +405,36 @@ final class ModuleRegistry
      * Summary of enabled and disabled features for UI presentation during registration.
      *
      * @return array{
-     *     enabled: array<int, string>,
-     *     disabled: array<int, string>
+     *     enabled: array<int, array{key: string, name: string, icon: string, category: string, description: string, permissions_count: int}>,
+     *     disabled: array<int, array{key: string, name: string, icon: string, category: string, description: string, permissions_count: int}>
      * }
      */
     public static function getFeaturesSummaryForTemplate(?string $templateCode): array
     {
         $disabled = self::getDisabledModulesForTemplate($templateCode);
         $enabled = [];
-        $disabledNames = [];
+        $disabledModules = [];
 
         foreach (self::definitions() as $key => $def) {
+            $item = [
+                'key' => $key,
+                'name' => $def['name'],
+                'icon' => $def['icon'],
+                'category' => $def['category'],
+                'description' => $def['description'],
+                'permissions_count' => count($def['permissions']),
+            ];
+
             if (in_array($key, $disabled, true)) {
-                $disabledNames[] = $def['name'];
+                $disabledModules[] = $item;
             } else {
-                $enabled[] = $def['name'];
+                $enabled[] = $item;
             }
         }
 
         return [
             'enabled' => $enabled,
-            'disabled' => $disabledNames,
+            'disabled' => $disabledModules,
         ];
     }
 }

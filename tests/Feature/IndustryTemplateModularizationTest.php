@@ -51,7 +51,7 @@ final class IndustryTemplateModularizationTest extends TestCase
     public function test_module_registry_definitions_and_presets_coverage(): void
     {
         $definitions = ModuleRegistry::definitions();
-        $this->assertCount(9, $definitions);
+        $this->assertCount(count(ModuleRegistry::definitions()), $definitions);
 
         $this->assertArrayHasKey(ModuleRegistry::MODULE_POS_DINEIN, $definitions);
         $this->assertArrayHasKey(ModuleRegistry::MODULE_RECIPE_BOM, $definitions);

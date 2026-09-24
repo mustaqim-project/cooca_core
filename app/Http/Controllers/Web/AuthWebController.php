@@ -184,7 +184,10 @@ final class AuthWebController extends Controller
             ];
         }
 
-        return view('auth.register', compact('templates', 'templateSummaries'));
+        $allModules = \App\Domain\Template\ModuleRegistry::definitions();
+        $templateDisabledMap = \App\Domain\Template\ModuleRegistry::templateDisabledModulesMap();
+
+        return view('auth.register', compact('templates', 'templateSummaries', 'allModules', 'templateDisabledMap'));
     }
 
     /**
@@ -231,6 +234,9 @@ final class AuthWebController extends Controller
             'business_name' => ['required', 'string', 'max:255', 'unique:businesses,name'],
             'business_scale' => ['nullable', 'string', 'in:umkm,corporate'],
             'template_code' => ['nullable', 'string', 'exists:business_type_templates,code'],
+            'enabled_modules' => ['nullable', 'array'],
+            'enabled_modules.*' => ['string'],
+            'has_module_selection' => ['nullable', 'in:0,1'],
         ]);
 
         $phone = $this->normalizePhone((string) $validated['phone']);
@@ -242,6 +248,19 @@ final class AuthWebController extends Controller
             ? Business::SCALE_CORPORATE
             : Business::SCALE_UMKM;
 
+        $templateCode = $validated['template_code'] ?? null;
+        $allModuleKeys = array_keys(\App\Domain\Template\ModuleRegistry::definitions());
+
+        if ($request->has('has_module_selection') && $request->input('has_module_selection') === '1') {
+            $enabledModules = (array) ($request->input('enabled_modules') ?? []);
+            $enabledModules = array_values(array_intersect($enabledModules, $allModuleKeys));
+            $disabledModules = array_values(array_diff($allModuleKeys, $enabledModules));
+            $customModules = true;
+        } else {
+            $disabledModules = \App\Domain\Template\ModuleRegistry::getDisabledModulesForTemplate($templateCode);
+            $customModules = false;
+        }
+
         $otp = (string) random_int(100000, 999999);
         $pending = [
             'name' => $validated['name'],
@@ -250,7 +269,9 @@ final class AuthWebController extends Controller
             'password' => Hash::make($validated['password']),
             'business_name' => $validated['business_name'],
             'business_scale' => $businessScale,
-            'template_code' => $validated['template_code'] ?? null,
+            'template_code' => $templateCode,
+            'disabled_modules' => $disabledModules,
+            'custom_modules' => $customModules,
             'otp_hash' => Hash::make($otp),
             'expires_at' => now()->addMinutes(10)->timestamp,
             'attempts' => 0,
@@ -343,14 +364,19 @@ final class AuthWebController extends Controller
 
             $templateCode = $pending['template_code'] ?? null;
             $tmpl = ! empty($templateCode) ? BusinessTypeTemplate::where('code', $templateCode)->first() : null;
-            $disabledModules = $tmpl ? \App\Domain\Template\ModuleRegistry::getDisabledModulesForTemplate($tmpl->code) : [];
+
+            if (isset($pending['disabled_modules']) && is_array($pending['disabled_modules'])) {
+                $disabledModules = $pending['disabled_modules'];
+            } else {
+                $disabledModules = $tmpl ? \App\Domain\Template\ModuleRegistry::getDisabledModulesForTemplate($tmpl->code) : [];
+            }
 
             $businessScale = ($pending['business_scale'] ?? Business::SCALE_UMKM) === Business::SCALE_CORPORATE
                 ? Business::SCALE_CORPORATE
                 : Business::SCALE_UMKM;
 
-            // Inisialisasi modul enterprise yang dinonaktifkan jika memilih segmen UMKM
-            if ($businessScale === Business::SCALE_UMKM) {
+            // Inisialisasi modul enterprise yang dinonaktifkan jika memilih segmen UMKM dan tidak ada kustomisasi eksplisit
+            if ($businessScale === Business::SCALE_UMKM && empty($pending['custom_modules'])) {
                 $corporateModules = [
                     \App\Domain\Template\ModuleRegistry::MODULE_B2B_SALES,
                     \App\Domain\Template\ModuleRegistry::MODULE_LABOR_MACHINES,
