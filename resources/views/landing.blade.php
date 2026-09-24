@@ -185,7 +185,7 @@
                             class="pt-0.5 sm:pt-1 flex flex-wrap items-center justify-start gap-x-3 sm:gap-x-5 gap-y-1 text-[10px] sm:text-xs text-slate-300">
                             <div class="flex items-center gap-1 sm:gap-1.5">
                                 <i data-lucide="check" class="w-3 h-3 sm:w-4 sm:h-4 text-emerald-400"></i>
-                                <span>100% Gratis</span>
+                                <span>100% Gratis Selamanya</span>
                             </div>
                             <div class="flex items-center gap-1 sm:gap-1.5">
                                 <i data-lucide="check" class="w-3 h-3 sm:w-4 sm:h-4 text-emerald-400"></i>
@@ -539,7 +539,7 @@
                                         </div>
                                         <div class="truncate">
                                             <span class="font-semibold text-slate-200 text-[10px] sm:text-xs">Kasir POS #TRX-2049</span>
-                                            <span class="text-slate-400 text-[9px] sm:text-[11px] hidden xs:inline"> &bull; Potong Bahan: Kopi -36g, Susu -180ml</span>
+                                            <span class="text-slate-400 text-[9px] sm:text-[11px] hidden xs:inline"> &bull; Pengurangan Otomatis Bahan Baku: Kopi -36g, Susu -180ml</span>
                                         </div>
                                     </div>
                                     <div class="flex items-center gap-1.5 sm:gap-3 shrink-0">
