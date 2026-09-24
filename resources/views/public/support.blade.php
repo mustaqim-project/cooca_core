@@ -27,7 +27,7 @@
         {{-- HERO SECTION (Midnight #060B1E Full-Bleed - Type A Full Viewport) --}}
         {{-- ══════════════════════════════════════════════════════════════════════ --}}
         <section
-            class="relative bg-[#060B1E] text-white min-h-[calc(100svh-84px)] lg:flex lg:items-center py-12 lg:py-16 overflow-hidden border-b border-white/10 w-full min-w-full">
+            class="relative bg-[#060B1E] text-white lg:min-h-[calc(100svh-84px)] lg:flex lg:items-center py-12 lg:py-16 overflow-hidden border-b border-white/10 w-full min-w-full">
             {{-- Dual Ambient Glows --}}
             <div class="absolute top-0 right-1/4 w-96 h-96 bg-[#007AFF]/15 rounded-full blur-[140px] pointer-events-none">
             </div>

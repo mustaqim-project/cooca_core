@@ -147,16 +147,23 @@ class="w-full font-sans antialiased bg-[#F2F2F7] dark:bg-[#000000] text-[#1D1D1F
     <!-- ══════════════════════════════════════════════════════════════════════════ -->
     <!-- ═══ 2. ARTICLE HERO & METADATA SECTION ═══════════════════════════════════ -->
     <!-- ══════════════════════════════════════════════════════════════════════════ -->
-    <header class="pt-10 sm:pt-14 pb-10 sm:pb-12 border-b border-black/[0.06] dark:border-white/[0.08] bg-white dark:bg-[#151B2B]">
-        <div class="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+    <!-- ══════════════════════════════════════════════════════════════════════════ -->
+    <!-- ═══ 2. ARTICLE HERO & METADATA SECTION (Midnight #060B1E Bento Canvas) ══ -->
+    <!-- ══════════════════════════════════════════════════════════════════════════ -->
+    <header class="relative bg-[#060B1E] text-white pt-10 sm:pt-14 pb-12 sm:pb-16 border-b border-white/10 overflow-hidden w-full min-w-full">
+        {{-- Dual Ambient Glows --}}
+        <div class="absolute top-0 right-1/4 w-96 h-96 bg-[#007AFF]/15 rounded-full blur-[140px] pointer-events-none"></div>
+        <div class="absolute bottom-0 left-1/4 w-96 h-96 bg-[#00C4D8]/10 rounded-full blur-[120px] pointer-events-none"></div>
+
+        <div class="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-6">
             
             <!-- Breadcrumbs -->
-            <nav class="flex items-center justify-center lg:justify-start gap-2 text-xs text-slate-500 dark:text-slate-400" aria-label="Breadcrumb">
-                <a href="{{ route('landing') }}" class="hover:text-slate-900 dark:hover:text-white transition-colors">Beranda</a>
-                <span aria-hidden="true" class="text-slate-300 dark:text-slate-700">/</span>
-                <a href="{{ route('blog.index') }}" class="hover:text-slate-900 dark:hover:text-white transition-colors">Katalog Blog</a>
-                <span aria-hidden="true" class="text-slate-300 dark:text-slate-700">/</span>
-                <span class="text-[#007AFF] dark:text-[#0A84FF] font-semibold truncate max-w-[200px] sm:max-w-none" aria-current="page">
+            <nav class="flex items-center justify-center lg:justify-start gap-2 text-xs text-slate-400" aria-label="Breadcrumb">
+                <a href="{{ route('landing') }}" class="hover:text-white transition-colors">Beranda</a>
+                <span aria-hidden="true" class="text-white/20">/</span>
+                <a href="{{ route('blog.index') }}" class="hover:text-white transition-colors">Katalog Blog</a>
+                <span aria-hidden="true" class="text-white/20">/</span>
+                <span class="text-[#00C4D8] font-semibold truncate max-w-[200px] sm:max-w-none" aria-current="page">
                     {{ $post->category ?? 'Edukasi UMKM' }}
                 </span>
             </nav>
@@ -165,53 +172,53 @@ class="w-full font-sans antialiased bg-[#F2F2F7] dark:bg-[#000000] text-[#1D1D1F
                 
                 <!-- Category Kicker & Reading Time Badges -->
                 <div class="flex flex-wrap items-center justify-center lg:justify-start gap-2.5">
-                    <span class="text-xs sm:text-[13px] font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF]">
+                    <span class="text-xs sm:text-[13px] font-bold uppercase tracking-wider text-[#00C4D8]">
                         {{ $post->category ?? 'Panduan Bisnis' }}
                     </span>
-                    <span class="text-xs text-slate-300 dark:text-slate-700">•</span>
-                    <span class="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1.5 font-medium">
-                        <i data-lucide="clock" class="w-3.5 h-3.5"></i>
+                    <span class="text-xs text-white/20">•</span>
+                    <span class="text-xs text-slate-300 flex items-center gap-1.5 font-medium">
+                        <i data-lucide="clock" class="w-3.5 h-3.5 text-[#00C4D8]"></i>
                         <span>{{ $post->read_time ?? 3 }} menit baca</span>
                     </span>
-                    <span class="text-xs text-slate-300 dark:text-slate-700">•</span>
-                    <span class="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1.5 font-medium">
-                        <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
+                    <span class="text-xs text-white/20">•</span>
+                    <span class="text-xs text-slate-300 flex items-center gap-1.5 font-medium">
+                        <i data-lucide="calendar" class="w-3.5 h-3.5 text-emerald-400"></i>
                         <span>{{ $post->published_at ? $post->published_at->format('d M Y') : $post->created_at->format('d M Y') }}</span>
                     </span>
                     @if ($post->views_count > 0)
-                        <span class="text-xs text-slate-300 dark:text-slate-700">•</span>
-                        <span class="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1.5 font-medium">
-                            <i data-lucide="eye" class="w-3.5 h-3.5"></i>
+                        <span class="text-xs text-white/20">•</span>
+                        <span class="text-xs text-slate-300 flex items-center gap-1.5 font-medium">
+                            <i data-lucide="eye" class="w-3.5 h-3.5 text-purple-400"></i>
                             <span>{{ number_format($post->views_count) }} kali dibaca</span>
                         </span>
                     @endif
                 </div>
 
                 <!-- Main Article Title (H1) -->
-                <h1 class="text-3xl sm:text-4xl lg:text-[2.75rem] font-extrabold text-slate-900 dark:text-white leading-[1.2] tracking-tight text-balance max-w-[22rem] sm:max-w-xl lg:max-w-none mx-auto lg:mx-0">
+                <h1 class="text-3xl sm:text-4xl lg:text-[2.75rem] font-extrabold text-white leading-[1.2] tracking-tight text-balance max-w-[22rem] sm:max-w-xl lg:max-w-none mx-auto lg:mx-0">
                     {{ $post->title }}
                 </h1>
 
                 <!-- Excerpt Subtitle -->
                 @if ($post->excerpt)
-                    <p class="text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed font-normal pt-1 text-pretty max-w-[32rem] lg:max-w-none mx-auto lg:mx-0">
+                    <p class="text-base sm:text-lg text-slate-300 leading-relaxed font-normal pt-1 text-pretty max-w-[32rem] lg:max-w-none mx-auto lg:mx-0">
                         {{ $post->excerpt }}
                     </p>
                 @endif
 
                 <!-- Author & Reading Accessibility Toolbar -->
-                <div class="w-full pt-4 border-t border-black/[0.06] dark:border-white/[0.08] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div class="w-full pt-4 border-t border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     
                     <!-- Author Information -->
                     <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-full bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF] flex items-center justify-center font-bold text-sm shrink-0">
+                        <div class="w-10 h-10 rounded-full bg-[#007AFF]/20 text-[#00C4D8] border border-[#00C4D8]/30 flex items-center justify-center font-bold text-sm shrink-0">
                             <i data-lucide="user-check" class="w-5 h-5"></i>
                         </div>
                         <div>
-                            <div class="text-sm font-bold text-slate-900 dark:text-white leading-tight">
+                            <div class="text-sm font-bold text-white leading-tight">
                                 {{ $post->author_name ?? 'Tim Edukasi COOCA' }}
                             </div>
-                            <div class="text-xs text-slate-500 dark:text-slate-400 leading-tight mt-0.5">
+                            <div class="text-xs text-slate-400 leading-tight mt-0.5">
                                 Ditinjau untuk standar operasional UMKM Indonesia
                             </div>
                         </div>
@@ -220,15 +227,15 @@ class="w-full font-sans antialiased bg-[#F2F2F7] dark:bg-[#000000] text-[#1D1D1F
                     <!-- Reading Tools: Font Resizer & Quick Sharing -->
                     <div class="flex items-center gap-2">
                         <!-- Font Size Toggle -->
-                        <div class="flex items-center bg-[#F2F2F7] dark:bg-[#1C1C1E] rounded-[10px] p-1 border border-black/[0.06] dark:border-white/[0.08]">
+                        <div class="flex items-center bg-[#0E1E45] rounded-[10px] p-1 border border-white/15">
                             <button @click="fontSize = 'normal'" 
-                                :class="fontSize === 'normal' ? 'bg-white dark:bg-[#2C2C2E] text-slate-900 dark:text-white shadow-xs font-bold' : 'text-slate-500 dark:text-slate-400 font-medium'"
-                                class="px-2.5 py-1 text-xs rounded-[7px] transition-all" title="Ukuran Font Standar">
+                                :class="fontSize === 'normal' ? 'bg-[#007AFF] text-white shadow-xs font-bold' : 'text-slate-300 font-medium'"
+                                class="px-2.5 py-1 text-xs rounded-[7px] transition-all cursor-pointer" title="Ukuran Font Standar">
                                 A
                             </button>
                             <button @click="fontSize = 'large'" 
-                                :class="fontSize === 'large' ? 'bg-white dark:bg-[#2C2C2E] text-[#007AFF] dark:text-[#0A84FF] shadow-xs font-bold' : 'text-slate-500 dark:text-slate-400 font-medium'"
-                                class="px-2.5 py-1 text-sm rounded-[7px] transition-all font-semibold" title="Ukuran Font Besar (Ramah 40-65 Thn)">
+                                :class="fontSize === 'large' ? 'bg-[#007AFF] text-white shadow-xs font-bold' : 'text-slate-300 font-medium'"
+                                class="px-2.5 py-1 text-sm rounded-[7px] transition-all font-semibold cursor-pointer" title="Ukuran Font Besar (Ramah 40-65 Thn)">
                                 A+
                             </button>
                         </div>
@@ -236,7 +243,7 @@ class="w-full font-sans antialiased bg-[#F2F2F7] dark:bg-[#000000] text-[#1D1D1F
                         <!-- WhatsApp Share -->
                         <a href="https://api.whatsapp.com/send?text={{ urlencode($post->title . ' - Baca panduan selengkapnya di COOCA: ' . url()->current()) }}"
                             target="_blank" rel="noopener noreferrer"
-                            class="h-9 px-3 rounded-[10px] bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold flex items-center gap-1.5 transition shadow-sm"
+                            class="h-9 px-3.5 rounded-[10px] bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold flex items-center gap-1.5 transition shadow-sm"
                             title="Bagikan ke WhatsApp">
                             <i data-lucide="share-2" class="w-3.5 h-3.5"></i>
                             <span class="hidden sm:inline">Kirim WA</span>
@@ -244,8 +251,8 @@ class="w-full font-sans antialiased bg-[#F2F2F7] dark:bg-[#000000] text-[#1D1D1F
 
                         <!-- Copy Link Button -->
                         <button @click="copyArticleLink()" 
-                            class="h-9 px-3 rounded-[10px] bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white text-xs font-semibold flex items-center gap-1.5 transition">
-                            <i data-lucide="link" class="w-3.5 h-3.5"></i>
+                            class="h-9 px-3.5 rounded-[10px] bg-white/10 hover:bg-white/15 border border-white/15 text-white text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer">
+                            <i data-lucide="link" class="w-3.5 h-3.5 text-slate-300"></i>
                             <span x-text="copiedLink ? 'Tersalin!' : 'Salin'">Salin</span>
                         </button>
                     </div>

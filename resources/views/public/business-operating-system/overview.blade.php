@@ -64,7 +64,7 @@
         <!-- ═══ 1. HERO SECTION (Full Viewport 45/55 Ratio) ══════════════════════════ -->
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
         <section
-            class="relative bg-[#060B1E] text-white overflow-hidden border-b border-white/10 min-h-[calc(100svh-84px)] lg:flex lg:items-center py-10 sm:py-14">
+            class="relative bg-[#060B1E] text-white overflow-hidden border-b border-white/10 lg:min-h-[calc(100svh-84px)] lg:flex lg:items-center py-10 sm:py-14 lg:py-16">
             <!-- Ambient lighting -->
             <div
                 class="absolute -top-32 right-1/4 w-[500px] h-[500px] bg-[#007AFF]/15 rounded-full blur-[140px] pointer-events-none">
@@ -427,17 +427,17 @@
                 </div>
 
                 <!-- Workflow 4-Step Interactive Card Grid -->
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6">
                     <!-- Step 1 -->
                     <div
-                        class="p-6 rounded-[22px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-sm space-y-3 relative">
-                        <span class="text-xs font-mono font-bold text-slate-400">LANGKAH 01</span>
+                        class="p-4 sm:p-6 rounded-[18px] sm:rounded-[22px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-sm space-y-2.5 sm:space-y-3 relative">
+                        <span class="text-[10px] sm:text-xs font-mono font-bold text-slate-400">LANGKAH 01</span>
                         <div
-                            class="w-10 h-10 rounded-[12px] bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center font-bold">
-                            <i data-lucide="scan" class="w-5 h-5"></i>
+                            class="w-9 h-9 sm:w-10 sm:h-10 rounded-[10px] sm:rounded-[12px] bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center font-bold">
+                            <i data-lucide="scan" class="w-4 h-4 sm:w-5 sm:h-5"></i>
                         </div>
-                        <h3 class="text-base font-bold leading-snug text-balance break-words">Transaksi Diterima</h3>
-                        <p class="text-xs text-neutral-600 dark:text-neutral-400 leading-relaxed text-pretty">
+                        <h3 class="text-sm sm:text-base font-bold leading-snug text-balance break-words">Transaksi Diterima</h3>
+                        <p class="text-[11px] sm:text-xs text-neutral-600 dark:text-neutral-400 leading-relaxed text-pretty">
                             Kasir scan barcode atau pembeli bayar via QRIS di meja. Bukti bayar terverifikasi seketika dan
                             nota struk tercetak via printer Bluetooth.
                         </p>
@@ -445,14 +445,14 @@
 
                     <!-- Step 2 -->
                     <div
-                        class="p-6 rounded-[22px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-sm space-y-3 relative">
-                        <span class="text-xs font-mono font-bold text-slate-400">LANGKAH 02</span>
+                        class="p-4 sm:p-6 rounded-[18px] sm:rounded-[22px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-sm space-y-2.5 sm:space-y-3 relative">
+                        <span class="text-[10px] sm:text-xs font-mono font-bold text-slate-400">LANGKAH 02</span>
                         <div
-                            class="w-10 h-10 rounded-[12px] bg-[#34C759]/10 text-[#34C759] flex items-center justify-center font-bold">
-                            <i data-lucide="package-minus" class="w-5 h-5"></i>
+                            class="w-9 h-9 sm:w-10 sm:h-10 rounded-[10px] sm:rounded-[12px] bg-[#34C759]/10 text-[#34C759] flex items-center justify-center font-bold">
+                            <i data-lucide="package-minus" class="w-4 h-4 sm:w-5 sm:h-5"></i>
                         </div>
-                        <h3 class="text-base font-bold leading-snug text-balance break-words">Stok & Bahan Terpotong</h3>
-                        <p class="text-xs text-neutral-600 dark:text-neutral-400 leading-relaxed text-pretty">
+                        <h3 class="text-sm sm:text-base font-bold leading-snug text-balance break-words">Stok & Bahan Terpotong</h3>
+                        <p class="text-[11px] sm:text-xs text-neutral-600 dark:text-neutral-400 leading-relaxed text-pretty">
                             Kartu stok perpetual gudang cabang langsung berkurang. Jika barang melewati batas minimum,
                             notifikasi restock otomatis menyala.
                         </p>
@@ -460,14 +460,14 @@
 
                     <!-- Step 3 -->
                     <div
-                        class="p-6 rounded-[22px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-sm space-y-3 relative">
-                        <span class="text-xs font-mono font-bold text-slate-400">LANGKAH 03</span>
+                        class="p-4 sm:p-6 rounded-[18px] sm:rounded-[22px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-sm space-y-2.5 sm:space-y-3 relative">
+                        <span class="text-[10px] sm:text-xs font-mono font-bold text-slate-400">LANGKAH 03</span>
                         <div
-                            class="w-10 h-10 rounded-[12px] bg-[#FF9500]/10 text-[#FF9500] flex items-center justify-center font-bold">
-                            <i data-lucide="book-open-check" class="w-5 h-5"></i>
+                            class="w-9 h-9 sm:w-10 sm:h-10 rounded-[10px] sm:rounded-[12px] bg-[#FF9500]/10 text-[#FF9500] flex items-center justify-center font-bold">
+                            <i data-lucide="book-open-check" class="w-4 h-4 sm:w-5 sm:h-5"></i>
                         </div>
-                        <h3 class="text-base font-bold leading-snug text-balance break-words">Jurnal Akuntansi Masuk</h3>
-                        <p class="text-xs text-neutral-600 dark:text-neutral-400 leading-relaxed text-pretty">
+                        <h3 class="text-sm sm:text-base font-bold leading-snug text-balance break-words">Jurnal Akuntansi Masuk</h3>
+                        <p class="text-[11px] sm:text-xs text-neutral-600 dark:text-neutral-400 leading-relaxed text-pretty">
                             Sistem mendebit Kas/Bank dan mengkredit Penjualan serta mengalokasikan Beban Pokok Penjualan
                             (HPP) otomatis ke jurnal umum.
                         </p>
@@ -475,14 +475,14 @@
 
                     <!-- Step 4 -->
                     <div
-                        class="p-6 rounded-[22px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-sm space-y-3 relative">
-                        <span class="text-xs font-mono font-bold text-slate-400">LANGKAH 04</span>
+                        class="p-4 sm:p-6 rounded-[18px] sm:rounded-[22px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-sm space-y-2.5 sm:space-y-3 relative">
+                        <span class="text-[10px] sm:text-xs font-mono font-bold text-slate-400">LANGKAH 04</span>
                         <div
-                            class="w-10 h-10 rounded-[12px] bg-[#AF52DE]/10 text-[#AF52DE] flex items-center justify-center font-bold">
-                            <i data-lucide="smartphone" class="w-5 h-5"></i>
+                            class="w-9 h-9 sm:w-10 sm:h-10 rounded-[10px] sm:rounded-[12px] bg-[#AF52DE]/10 text-[#AF52DE] flex items-center justify-center font-bold">
+                            <i data-lucide="smartphone" class="w-4 h-4 sm:w-5 sm:h-5"></i>
                         </div>
-                        <h3 class="text-base font-bold leading-snug text-balance break-words">Owner Melihat Hasil</h3>
-                        <p class="text-xs text-neutral-600 dark:text-neutral-400 leading-relaxed text-pretty">
+                        <h3 class="text-sm sm:text-base font-bold leading-snug text-balance break-words">Owner Melihat Hasil</h3>
+                        <p class="text-[11px] sm:text-xs text-neutral-600 dark:text-neutral-400 leading-relaxed text-pretty">
                             Laba bersih, sisa kas riil, dan rekap omzet harian sudah terhitung rapi di dasbor ponsel pemilik
                             tanpa menunggu laporan akhir bulan.
                         </p>
@@ -601,52 +601,52 @@
                     </a>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
                     <a href="{{ route('public.erp.pos') }}"
-                        class="group p-5 rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] hover:border-[#007AFF]/40 hover:shadow-md transition-all">
+                        class="group p-3.5 sm:p-5 rounded-[16px] sm:rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] hover:border-[#007AFF]/40 hover:shadow-md transition-all">
                         <div
-                            class="w-10 h-10 rounded-[12px] bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center font-bold mb-3">
-                            <i data-lucide="monitor" class="w-5 h-5"></i>
+                            class="w-9 h-9 sm:w-10 sm:h-10 rounded-[10px] sm:rounded-[12px] bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center font-bold mb-2.5 sm:mb-3">
+                            <i data-lucide="monitor" class="w-4 h-4 sm:w-5 sm:h-5"></i>
                         </div>
-                        <div class="text-base font-bold group-hover:text-[#007AFF] transition-colors leading-snug text-balance">Point of Sale (POS)
+                        <div class="text-sm sm:text-base font-bold group-hover:text-[#007AFF] transition-colors leading-snug text-balance">Point of Sale (POS)
                         </div>
-                        <p class="text-xs text-neutral-600 dark:text-neutral-400 mt-1 leading-snug text-pretty">Kasir cepat, cetak
+                        <p class="text-[11px] sm:text-xs text-neutral-600 dark:text-neutral-400 mt-1 leading-snug text-pretty">Kasir cepat, cetak
                             struk Bluetooth, barcode scan, & mutasi kas harian.</p>
                     </a>
 
                     <a href="{{ route('public.erp.inventory') }}"
-                        class="group p-5 rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] hover:border-[#34C759]/40 hover:shadow-md transition-all">
+                        class="group p-3.5 sm:p-5 rounded-[16px] sm:rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] hover:border-[#34C759]/40 hover:shadow-md transition-all">
                         <div
-                            class="w-10 h-10 rounded-[12px] bg-[#34C759]/10 text-[#34C759] flex items-center justify-center font-bold mb-3">
-                            <i data-lucide="boxes" class="w-5 h-5"></i>
+                            class="w-9 h-9 sm:w-10 sm:h-10 rounded-[10px] sm:rounded-[12px] bg-[#34C759]/10 text-[#34C759] flex items-center justify-center font-bold mb-2.5 sm:mb-3">
+                            <i data-lucide="boxes" class="w-4 h-4 sm:w-5 sm:h-5"></i>
                         </div>
-                        <div class="text-base font-bold group-hover:text-[#34C759] transition-colors leading-snug text-balance">Software Inventory
+                        <div class="text-sm sm:text-base font-bold group-hover:text-[#34C759] transition-colors leading-snug text-balance">Software Inventory
                         </div>
-                        <p class="text-xs text-neutral-600 dark:text-neutral-400 mt-1 leading-snug text-pretty">Multi-gudang, kartu
+                        <p class="text-[11px] sm:text-xs text-neutral-600 dark:text-neutral-400 mt-1 leading-snug text-pretty">Multi-gudang, kartu
                             stok perpetual, resep BOM, & reorder point.</p>
                     </a>
 
                     <a href="{{ route('public.erp.accounting') }}"
-                        class="group p-5 rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] hover:border-[#FF9500]/40 hover:shadow-md transition-all">
+                        class="group p-3.5 sm:p-5 rounded-[16px] sm:rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] hover:border-[#FF9500]/40 hover:shadow-md transition-all">
                         <div
-                            class="w-10 h-10 rounded-[12px] bg-[#FF9500]/10 text-[#FF9500] flex items-center justify-center font-bold mb-3">
-                            <i data-lucide="file-spreadsheet" class="w-5 h-5"></i>
+                            class="w-9 h-9 sm:w-10 sm:h-10 rounded-[10px] sm:rounded-[12px] bg-[#FF9500]/10 text-[#FF9500] flex items-center justify-center font-bold mb-2.5 sm:mb-3">
+                            <i data-lucide="file-spreadsheet" class="w-4 h-4 sm:w-5 sm:h-5"></i>
                         </div>
-                        <div class="text-base font-bold group-hover:text-[#FF9500] transition-colors leading-snug text-balance">Pembukuan Otomatis
+                        <div class="text-sm sm:text-base font-bold group-hover:text-[#FF9500] transition-colors leading-snug text-balance">Pembukuan Otomatis
                         </div>
-                        <p class="text-xs text-neutral-600 dark:text-neutral-400 mt-1 leading-snug text-pretty">Jurnal umum otomatis,
+                        <p class="text-[11px] sm:text-xs text-neutral-600 dark:text-neutral-400 mt-1 leading-snug text-pretty">Jurnal umum otomatis,
                             buku besar, neraca, & laba rugi terbit tanpa delay.</p>
                     </a>
 
                     <a href="{{ route('public.omnichannel.whatsapp') }}"
-                        class="group p-5 rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] hover:border-emerald-500/40 hover:shadow-md transition-all">
+                        class="group p-3.5 sm:p-5 rounded-[16px] sm:rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] hover:border-emerald-500/40 hover:shadow-md transition-all">
                         <div
-                            class="w-10 h-10 rounded-[12px] bg-emerald-500/10 text-emerald-500 flex items-center justify-center font-bold mb-3">
-                            <i data-lucide="message-circle" class="w-5 h-5"></i>
+                            class="w-9 h-9 sm:w-10 sm:h-10 rounded-[10px] sm:rounded-[12px] bg-emerald-500/10 text-emerald-500 flex items-center justify-center font-bold mb-2.5 sm:mb-3">
+                            <i data-lucide="message-circle" class="w-4 h-4 sm:w-5 sm:h-5"></i>
                         </div>
-                        <div class="text-base font-bold group-hover:text-emerald-500 transition-colors leading-snug text-balance">WhatsApp Commerce
+                        <div class="text-sm sm:text-base font-bold group-hover:text-emerald-500 transition-colors leading-snug text-balance">WhatsApp Commerce
                         </div>
-                        <p class="text-xs text-neutral-600 dark:text-neutral-400 mt-1 leading-snug text-pretty">Kirim nota belanja
+                        <p class="text-[11px] sm:text-xs text-neutral-600 dark:text-neutral-400 mt-1 leading-snug text-pretty">Kirim nota belanja
                             digital, tagihan piutang, dan update pesanan resmi via WA.</p>
                     </a>
                 </div>

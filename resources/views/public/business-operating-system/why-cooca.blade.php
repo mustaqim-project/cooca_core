@@ -57,7 +57,7 @@
         <!-- ═══ 1. HERO SECTION (Full Viewport 45/55 Ratio) ══════════════════════════ -->
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
         <section
-            class="relative bg-[#060B1E] text-white overflow-hidden border-b border-white/10 min-h-[calc(100svh-84px)] lg:flex lg:items-center py-10 sm:py-14">
+            class="relative bg-[#060B1E] text-white overflow-hidden border-b border-white/10 lg:min-h-[calc(100svh-84px)] lg:flex lg:items-center py-10 sm:py-14 lg:py-16">
             <div
                 class="absolute -top-32 right-1/4 w-[500px] h-[500px] bg-[#007AFF]/15 rounded-full blur-[140px] pointer-events-none">
             </div>
@@ -563,49 +563,49 @@
                     </a>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
                     <a href="{{ route('public.bos.overview') }}"
-                        class="group p-5 rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] hover:border-[#007AFF]/40 hover:shadow-md transition-all">
+                        class="group p-3.5 sm:p-5 rounded-[16px] sm:rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] hover:border-[#007AFF]/40 hover:shadow-md transition-all">
                         <div
-                            class="w-10 h-10 rounded-[12px] bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center font-bold mb-3">
-                            <i data-lucide="cpu" class="w-5 h-5"></i>
+                            class="w-9 h-9 sm:w-10 sm:h-10 rounded-[10px] sm:rounded-[12px] bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center font-bold mb-2.5 sm:mb-3">
+                            <i data-lucide="cpu" class="w-4 h-4 sm:w-5 sm:h-5"></i>
                         </div>
-                        <div class="text-base font-bold group-hover:text-[#007AFF] transition-colors leading-snug text-balance">Overview BOS</div>
-                        <p class="text-xs text-neutral-600 dark:text-neutral-400 mt-1 leading-snug text-pretty">Konsep dasar sistem
+                        <div class="text-sm sm:text-base font-bold group-hover:text-[#007AFF] transition-colors leading-snug text-balance">Overview BOS</div>
+                        <p class="text-[11px] sm:text-xs text-neutral-600 dark:text-neutral-400 mt-1 leading-snug text-pretty">Konsep dasar sistem
                             operasi bisnis yang menyatukan seluruh toko.</p>
                     </a>
 
                     <a href="{{ route('public.bos.how-it-works') }}"
-                        class="group p-5 rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] hover:border-[#34C759]/40 hover:shadow-md transition-all">
+                        class="group p-3.5 sm:p-5 rounded-[16px] sm:rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] hover:border-[#34C759]/40 hover:shadow-md transition-all">
                         <div
-                            class="w-10 h-10 rounded-[12px] bg-[#34C759]/10 text-[#34C759] flex items-center justify-center font-bold mb-3">
-                            <i data-lucide="workflow" class="w-5 h-5"></i>
+                            class="w-9 h-9 sm:w-10 sm:h-10 rounded-[10px] sm:rounded-[12px] bg-[#34C759]/10 text-[#34C759] flex items-center justify-center font-bold mb-2.5 sm:mb-3">
+                            <i data-lucide="workflow" class="w-4 h-4 sm:w-5 sm:h-5"></i>
                         </div>
-                        <div class="text-base font-bold group-hover:text-[#34C759] transition-colors leading-snug text-balance">Cara Kerja Sistem
+                        <div class="text-sm sm:text-base font-bold group-hover:text-[#34C759] transition-colors leading-snug text-balance">Cara Kerja Sistem
                         </div>
-                        <p class="text-xs text-neutral-600 dark:text-neutral-400 mt-1 leading-snug text-pretty">Alur data transaksi
+                        <p class="text-[11px] sm:text-xs text-neutral-600 dark:text-neutral-400 mt-1 leading-snug text-pretty">Alur data transaksi
                             kasir ke kartu gudang & laporan owner.</p>
                     </a>
 
                     <a href="{{ route('public.demo') }}"
-                        class="group p-5 rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] hover:border-[#FF9500]/40 hover:shadow-md transition-all">
+                        class="group p-3.5 sm:p-5 rounded-[16px] sm:rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] hover:border-[#FF9500]/40 hover:shadow-md transition-all">
                         <div
-                            class="w-10 h-10 rounded-[12px] bg-[#FF9500]/10 text-[#FF9500] flex items-center justify-center font-bold mb-3">
-                            <i data-lucide="play" class="w-5 h-5"></i>
+                            class="w-9 h-9 sm:w-10 sm:h-10 rounded-[10px] sm:rounded-[12px] bg-[#FF9500]/10 text-[#FF9500] flex items-center justify-center font-bold mb-2.5 sm:mb-3">
+                            <i data-lucide="play" class="w-4 h-4 sm:w-5 sm:h-5"></i>
                         </div>
-                        <div class="text-base font-bold group-hover:text-[#FF9500] transition-colors leading-snug text-balance">Demo Interaktif</div>
-                        <p class="text-xs text-neutral-600 dark:text-neutral-400 mt-1 leading-snug text-pretty">Uji coba langsung
+                        <div class="text-sm sm:text-base font-bold group-hover:text-[#FF9500] transition-colors leading-snug text-balance">Demo Interaktif</div>
+                        <p class="text-[11px] sm:text-xs text-neutral-600 dark:text-neutral-400 mt-1 leading-snug text-pretty">Uji coba langsung
                             antarmuka kasir dan dasbor tanpa registrasi.</p>
                     </a>
 
                     <a href="{{ route('public.pricing') }}"
-                        class="group p-5 rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] hover:border-purple-500/40 hover:shadow-md transition-all">
+                        class="group p-3.5 sm:p-5 rounded-[16px] sm:rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] hover:border-purple-500/40 hover:shadow-md transition-all">
                         <div
-                            class="w-10 h-10 rounded-[12px] bg-purple-500/10 text-purple-500 flex items-center justify-center font-bold mb-3">
-                            <i data-lucide="tag" class="w-5 h-5"></i>
+                            class="w-9 h-9 sm:w-10 sm:h-10 rounded-[10px] sm:rounded-[12px] bg-purple-500/10 text-purple-500 flex items-center justify-center font-bold mb-2.5 sm:mb-3">
+                            <i data-lucide="tag" class="w-4 h-4 sm:w-5 sm:h-5"></i>
                         </div>
-                        <div class="text-base font-bold group-hover:text-purple-500 transition-colors leading-snug text-balance">Paket & Harga</div>
-                        <p class="text-xs text-neutral-600 dark:text-neutral-400 mt-1 leading-snug text-pretty">Pilihan harga
+                        <div class="text-sm sm:text-base font-bold group-hover:text-purple-500 transition-colors leading-snug text-balance">Paket & Harga</div>
+                        <p class="text-[11px] sm:text-xs text-neutral-600 dark:text-neutral-400 mt-1 leading-snug text-pretty">Pilihan harga
                             terjangkau mulai dari paket Free tanpa komisi.</p>
                     </a>
                 </div>

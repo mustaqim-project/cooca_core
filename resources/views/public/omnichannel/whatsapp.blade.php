@@ -80,7 +80,7 @@
 
         {{-- 1. HERO SECTION (Midnight Blue Standard - Type A Full Viewport) --}}
         <section
-            class="relative bg-[#060B1E] text-white min-h-[calc(100svh-84px)] lg:flex lg:items-center py-12 lg:py-16 overflow-hidden border-b border-white/10 w-full min-w-full">
+            class="relative bg-[#060B1E] text-white lg:min-h-[calc(100svh-84px)] lg:flex lg:items-center py-12 lg:py-16 overflow-hidden border-b border-white/10 w-full min-w-full">
             {{-- Ambient Glows --}}
             <div
                 class="absolute -top-32 -right-32 w-96 h-96 bg-[#007AFF]/15 rounded-full blur-[140px] pointer-events-none -z-0">
@@ -451,7 +451,7 @@
                     </p>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6">
                     {{-- Step 1 --}}
                     <div class="p-6 rounded-2xl bg-white/5 border border-white/10 space-y-3">
                         <div
@@ -597,7 +597,7 @@
                 </a>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
                 <a href="{{ route('public.erp.pos') }}"
                     class="p-5 rounded-2xl bg-[#FAFAFC] dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 hover:border-[#007AFF]/50 transition-all group shadow-sm">
                     <div

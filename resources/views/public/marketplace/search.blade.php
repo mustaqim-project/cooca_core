@@ -332,13 +332,13 @@
                                         <span class="text-xs font-bold text-slate-400 mr-1.5">Rp</span>
                                         <input type="number" name="min_harga" value="{{ $minPrice }}"
                                             placeholder="Harga Minimum" min="0" step="1000"
-                                            class="w-full bg-transparent border-0 p-0 text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none tabular-nums">
+                                            class="w-full bg-transparent border-0 p-0 text-[16px] sm:text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none tabular-nums">
                                     </div>
                                     <div class="relative flex items-center bg-slate-50 dark:bg-[#070A14] rounded-[12px] px-3 py-1.5 border border-slate-200 dark:border-white/10 focus-within:ring-2 focus-within:ring-[#007AFF]">
                                         <span class="text-xs font-bold text-slate-400 mr-1.5">Rp</span>
                                         <input type="number" name="max_harga" value="{{ $maxPrice }}"
                                             placeholder="Harga Maksimum" min="0" step="1000"
-                                            class="w-full bg-transparent border-0 p-0 text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none tabular-nums">
+                                            class="w-full bg-transparent border-0 p-0 text-[16px] sm:text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none tabular-nums">
                                     </div>
                                 </div>
 
@@ -753,13 +753,13 @@
                                 <span class="text-xs font-bold text-slate-400 mr-1.5">Rp</span>
                                 <input type="number" name="min_harga" value="{{ $minPrice }}" placeholder="Min"
                                     min="0" step="1000"
-                                    class="w-full bg-transparent border-0 p-0 text-xs text-slate-900 dark:text-white focus:outline-none tabular-nums">
+                                    class="w-full bg-transparent border-0 p-0 text-[16px] sm:text-xs text-slate-900 dark:text-white focus:outline-none tabular-nums">
                             </div>
                             <div class="relative flex items-center bg-slate-50 dark:bg-[#070A14] rounded-[12px] px-3 py-2 border border-slate-200 dark:border-white/10">
                                 <span class="text-xs font-bold text-slate-400 mr-1.5">Rp</span>
                                 <input type="number" name="max_harga" value="{{ $maxPrice }}" placeholder="Maks"
                                     min="0" step="1000"
-                                    class="w-full bg-transparent border-0 p-0 text-xs text-slate-900 dark:text-white focus:outline-none tabular-nums">
+                                    class="w-full bg-transparent border-0 p-0 text-[16px] sm:text-xs text-slate-900 dark:text-white focus:outline-none tabular-nums">
                             </div>
                         </div>
                         <button type="submit"

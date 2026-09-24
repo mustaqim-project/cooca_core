@@ -154,7 +154,7 @@ class="w-full font-sans antialiased bg-[#F2F2F7] dark:bg-[#000000] text-[#1D1D1F
                                     Modal Bahan Pokok (Rp)
                                 </label>
                                 <input type="number" x-model.number="sampleCost" step="1000" min="1000"
-                                    class="w-full h-11 px-4 rounded-[12px] bg-white/[0.05] border border-white/15 text-sm font-semibold tabular-nums text-white focus:outline-none focus:ring-2 focus:ring-[#00C4D8]/30 focus:border-[#00C4D8]">
+                                    class="w-full h-11 px-4 rounded-[12px] bg-white/[0.05] border border-white/15 text-[16px] sm:text-sm font-semibold tabular-nums text-white focus:outline-none focus:ring-2 focus:ring-[#00C4D8]/30 focus:border-[#00C4D8]">
                             </div>
 
                             <div>

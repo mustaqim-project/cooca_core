@@ -11,56 +11,115 @@
     <div class="w-full font-sans antialiased bg-[#F2F2F7] dark:bg-[#000000] text-[#1D1D1F] dark:text-[#F5F5F7] transition-colors pb-24">
         
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
-        <!-- ═══ TYPE D SITEMAP HEADER (Calm, Precise, System Navigation) ═════════════ -->
+        <!-- ═══ TYPE D SITEMAP HERO (Midnight #060B1E Bento Canvas) ══════════════════ -->
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
-        <header class="bg-white dark:bg-[#1C1C1E] border-b border-black/[0.06] dark:border-white/[0.08] pt-8 sm:pt-12 pb-8 sm:pb-10 transition-colors">
-            <div class="max-w-[1250px] mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+        <header class="relative bg-[#060B1E] text-white pt-10 sm:pt-14 pb-14 sm:pb-16 overflow-hidden border-b border-white/10 w-full min-w-full">
+            {{-- Dual Ambient Glows --}}
+            <div class="absolute top-0 right-1/4 w-96 h-96 bg-[#007AFF]/15 rounded-full blur-[140px] pointer-events-none"></div>
+            <div class="absolute bottom-0 left-1/4 w-96 h-96 bg-[#00C4D8]/10 rounded-full blur-[120px] pointer-events-none"></div>
+
+            <div class="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-6">
 
                 <!-- Breadcrumbs -->
-                <nav aria-label="Breadcrumb" class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 overflow-x-auto py-1">
-                    <a href="{{ route('landing') }}" class="hover:text-[#007AFF] dark:hover:text-[#0A84FF] transition-colors shrink-0">Beranda</a>
-                    <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-slate-300 dark:text-slate-600 shrink-0"></i>
-                    <span class="text-slate-900 dark:text-white font-semibold shrink-0">Peta Situs</span>
+                <nav aria-label="Breadcrumb" class="flex items-center gap-2 text-xs text-slate-400 overflow-x-auto py-1">
+                    <a href="{{ route('landing') }}" class="hover:text-white transition-colors shrink-0">Beranda</a>
+                    <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-white/20 shrink-0"></i>
+                    <span class="text-[#00C4D8] font-semibold shrink-0">Peta Situs</span>
                 </nav>
 
-                <div class="space-y-3">
-                    <div class="text-[12px] font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF] flex items-center gap-2">
-                        <i data-lucide="map" class="w-4 h-4"></i>
-                        <span>Arsitektur &amp; Navigasi Publik</span>
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+                    
+                    <!-- Left Column: Copy, Stats & XML Action (7 Cols) -->
+                    <div class="lg:col-span-7 space-y-5 text-center mx-auto flex flex-col items-center lg:text-left lg:items-start lg:mx-0">
+                        <div class="space-y-2.5 w-full">
+                            <p class="text-xs sm:text-[13px] font-bold uppercase tracking-wider text-[#00C4D8] flex items-center justify-center lg:justify-start gap-2">
+                                <i data-lucide="map" class="w-4 h-4"></i>
+                                <span>Arsitektur Informasi &amp; Navigasi Publik</span>
+                            </p>
+
+                            <h1 class="text-3xl sm:text-4xl lg:text-[2.65rem] font-extrabold text-white tracking-tight leading-[1.15] text-balance break-words max-w-[22rem] sm:max-w-xl lg:max-w-none mx-auto lg:mx-0">
+                                Peta Situs Resmi COOCA
+                            </h1>
+                        </div>
+
+                        <p class="text-base sm:text-lg text-slate-300 leading-relaxed font-normal text-pretty max-w-[32rem] lg:max-w-xl mx-auto lg:mx-0">
+                            Daftar lengkap seluruh halaman publik, modul kalkulator bisnis gratis, solusi per industri UMKM, dan pustaka edukasi operasional yang terindeks resmi di platform COOCA.
+                        </p>
+
+                        <!-- Meta Pills & XML Sitemap Link -->
+                        <div class="pt-2 flex flex-wrap items-center justify-center lg:justify-start gap-2.5 text-xs text-slate-300 w-full">
+                            <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] bg-white/10 border border-white/10 font-mono">
+                                <i data-lucide="link-2" class="w-3.5 h-3.5 text-emerald-400"></i>
+                                <span>Total URL: <strong class="text-white font-bold">{{ $totalUrls }}</strong></span>
+                            </div>
+                            <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] bg-white/10 border border-white/10 font-mono">
+                                <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-[#00C4D8]"></i>
+                                <span>sitemaps.org/0.9</span>
+                            </div>
+                            <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 font-medium">
+                                <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+                                <span>Auto-Sync XML</span>
+                            </div>
+                            <a href="{{ url('/sitemap.xml') }}" target="_blank" rel="noopener"
+                                class="h-8 px-3.5 rounded-[10px] text-xs font-semibold text-white bg-[#007AFF] hover:bg-[#0066DF] transition-all inline-flex items-center gap-1.5 cursor-pointer shadow-sm active:scale-[0.98]">
+                                <i data-lucide="file-code-2" class="w-3.5 h-3.5"></i>
+                                <span>Buka Raw XML</span>
+                                <i data-lucide="external-link" class="w-3 h-3 text-white/70"></i>
+                            </a>
+                        </div>
                     </div>
 
-                    <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-[1.2]">
-                        Peta Situs Resmi COOCA
-                    </h1>
+                    <!-- Right Column: Simulated Ecosystem Architecture Matrix Bento Cockpit (5 Cols) -->
+                    <div class="lg:col-span-5">
+                        <div class="rounded-[24px] bg-[#0E1E45]/80 p-5 sm:p-6 shadow-2xl border border-white/10 ring-1 ring-white/10 backdrop-blur-md text-white space-y-4">
+                            <div class="flex items-center justify-between border-b border-white/10 pb-3">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-[#FF5F56]"></span>
+                                    <span class="w-2.5 h-2.5 rounded-full bg-[#FFBD2E]"></span>
+                                    <span class="w-2.5 h-2.5 rounded-full bg-[#27C93F]"></span>
+                                    <span class="text-xs font-mono font-semibold text-slate-300 ml-2">Indeks Pilar Ekosistem</span>
+                                </div>
+                                <span class="text-[11px] font-semibold text-[#00C4D8] bg-[#00C4D8]/15 border border-[#00C4D8]/30 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                                    <i data-lucide="layers" class="w-3 h-3"></i> 5 Pilar Terpadu
+                                </span>
+                            </div>
 
-                    <p class="text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed max-w-3xl font-normal pt-1">
-                        Daftar lengkap seluruh halaman publik, modul kalkulator bisnis gratis, solusi per industri UMKM, dan pustaka edukasi operasional yang terindeks resmi di platform COOCA.
-                    </p>
-                </div>
+                            <div class="grid grid-cols-2 gap-2.5 text-xs">
+                                <div class="p-3 rounded-[14px] bg-[#060B1E]/70 border border-white/10 space-y-1">
+                                    <div class="w-7 h-7 rounded-[8px] bg-[#007AFF]/15 text-[#00C4D8] flex items-center justify-center font-bold">
+                                        <i data-lucide="cpu" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <div class="font-bold text-white text-xs">Platform BOS</div>
+                                    <div class="text-[10px] text-slate-300">Overview, why-cooca, alur kerja</div>
+                                </div>
 
-                <!-- Meta Pills & XML Sitemap Link -->
-                <div class="pt-2 flex flex-wrap items-center justify-between gap-4 border-t border-black/[0.06] dark:border-white/[0.08] pt-4">
-                    <div class="flex flex-wrap items-center gap-2.5 text-xs text-slate-600 dark:text-slate-400">
-                        <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] bg-slate-100 dark:bg-white/[0.06] font-mono">
-                            <i data-lucide="link-2" class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400"></i>
-                            <span>Total URL: <strong class="text-slate-900 dark:text-white font-bold">{{ $totalUrls }}</strong></span>
-                        </div>
-                        <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] bg-slate-100 dark:bg-white/[0.06] font-mono">
-                            <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-[#007AFF] dark:text-[#0A84FF]"></i>
-                            <span>Schema: sitemaps.org/0.9</span>
-                        </div>
-                        <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 font-medium">
-                            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
-                            <span>Update Harian Otomatis</span>
+                                <div class="p-3 rounded-[14px] bg-[#060B1E]/70 border border-white/10 space-y-1">
+                                    <div class="w-7 h-7 rounded-[8px] bg-emerald-500/15 text-emerald-400 flex items-center justify-center font-bold">
+                                        <i data-lucide="store" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <div class="font-bold text-white text-xs">Omnichannel ERP</div>
+                                    <div class="text-[10px] text-slate-300">POS, stok, keuangan, CRM</div>
+                                </div>
+
+                                <div class="p-3 rounded-[14px] bg-[#060B1E]/70 border border-white/10 space-y-1">
+                                    <div class="w-7 h-7 rounded-[8px] bg-purple-500/15 text-purple-400 flex items-center justify-center font-bold">
+                                        <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <div class="font-bold text-white text-xs">Content Studio</div>
+                                    <div class="text-[10px] text-slate-300">Jadwal medsos, auto-post</div>
+                                </div>
+
+                                <div class="p-3 rounded-[14px] bg-[#060B1E]/70 border border-white/10 space-y-1">
+                                    <div class="w-7 h-7 rounded-[8px] bg-amber-500/15 text-amber-400 flex items-center justify-center font-bold">
+                                        <i data-lucide="shopping-bag" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <div class="font-bold text-white text-xs">Marketplace UMKM</div>
+                                    <div class="text-[10px] text-slate-300">Katalog produk, profil toko</div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <a href="{{ url('/sitemap.xml') }}" target="_blank" rel="noopener"
-                        class="h-9 px-4 rounded-[12px] text-xs font-semibold text-[#007AFF] dark:text-[#0A84FF] bg-blue-50 hover:bg-blue-100 dark:bg-blue-500/10 dark:hover:bg-blue-500/20 transition-all inline-flex items-center gap-2 cursor-pointer shadow-xs active:scale-[0.98]">
-                        <i data-lucide="file-code-2" class="w-3.5 h-3.5"></i>
-                        <span>Lihat Raw Sitemap XML</span>
-                        <i data-lucide="external-link" class="w-3 h-3 text-[#007AFF]/60 dark:text-[#0A84FF]/60"></i>
-                    </a>
                 </div>
 
             </div>
@@ -73,7 +132,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 @foreach ($groupedUrls as $category => $items)
                     <div
-                        class="rounded-[24px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] p-6 shadow-xs hover:border-[#007AFF]/30 flex flex-col justify-between transition-all duration-200">
+                        class="rounded-[20px] sm:rounded-[24px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] p-4 sm:p-6 shadow-xs hover:border-[#007AFF]/30 flex flex-col justify-between transition-all duration-200">
                         <div>
                             <div
                                 class="flex items-center justify-between gap-3 pb-3.5 mb-4 border-b border-black/[0.06] dark:border-white/[0.08]">

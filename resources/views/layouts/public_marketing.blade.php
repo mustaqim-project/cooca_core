@@ -456,9 +456,10 @@
 
                     <!-- Mobile Hamburger Button -->
                     <button @click="mobileMenu = !mobileMenu"
-                        class="lg:hidden p-2 rounded-[12px] bg-white/10 text-white hover:bg-white/15 transition-colors min-w-[40px] min-h-[40px] flex items-center justify-center"
-                        aria-label="Open Mobile Navigation">
-                        <i :data-lucide="mobileMenu ? 'x' : 'menu'" class="w-5 h-5"></i>
+                        class="lg:hidden p-2 rounded-[12px] bg-white/10 text-white hover:bg-white/15 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+                        aria-label="Toggle Mobile Navigation">
+                        <i x-show="!mobileMenu" data-lucide="menu" class="w-5 h-5"></i>
+                        <i x-show="mobileMenu" x-cloak data-lucide="x" class="w-5 h-5"></i>
                     </button>
                 </div>
             </div>

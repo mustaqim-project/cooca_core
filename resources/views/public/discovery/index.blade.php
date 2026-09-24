@@ -53,7 +53,7 @@ class="w-full font-sans antialiased bg-[#F2F2F7] dark:bg-[#000000] text-[#1D1D1F
             <nav class="flex items-center gap-2 text-xs text-slate-400 mb-6" aria-label="Breadcrumb">
                 <a href="{{ route('landing') }}" class="hover:text-white transition-colors">Beranda</a>
                 <span aria-hidden="true" class="text-slate-600">/</span>
-                <span class="text-[#0A84FF] font-semibold" aria-current="page">Jelajah &amp; Direktori Toko</span>
+                <span class="text-[#0A84FF] font-semibold" aria-current="page">Jelajah Toko &amp; Etalase</span>
             </nav>
 
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
@@ -67,7 +67,7 @@ class="w-full font-sans antialiased bg-[#F2F2F7] dark:bg-[#000000] text-[#1D1D1F
                         </div>
 
                         <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.65rem] xl:text-[3rem] font-extrabold tracking-tight text-white leading-[1.15] text-balance break-words max-w-[22rem] sm:max-w-xl lg:max-w-none mx-auto lg:mx-0">
-                            Jelajah Profil &amp; Toko Resmi UMKM Lokal
+                            Jelajah Toko &amp; Etalase Resmi UMKM Lokal
                         </h1>
                     </div>
 
@@ -87,7 +87,7 @@ class="w-full font-sans antialiased bg-[#F2F2F7] dark:bg-[#000000] text-[#1D1D1F
                             <i data-lucide="search" class="w-5 h-5 ml-3.5 text-slate-400 shrink-0"></i>
                             <input type="text" name="q" value="{{ $search }}"
                                 placeholder="Cari nama toko, jenis usaha, atau kota..."
-                                class="w-full bg-transparent border-0 px-3.5 py-2.5 text-sm text-white placeholder-slate-400 focus:outline-none">
+                                class="w-full bg-transparent border-0 px-3.5 py-2.5 text-[16px] sm:text-sm text-white placeholder-slate-400 focus:outline-none">
                             <button type="submit"
                                 class="shrink-0 h-10 px-5 rounded-[12px] bg-[#007AFF] hover:bg-[#0066DF] text-white text-xs font-semibold shadow-xs active:scale-[0.98] transition flex items-center gap-1.5 min-h-[44px]">
                                 <span>Cari</span>

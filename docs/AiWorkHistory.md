@@ -54,6 +54,169 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 
 - Pengetahuan yang dipromosikan ke `docs/system/` dan dampaknya pada `docs/SYSTEM_GUIDE.md`.
 
+### [WORK-2026-09-24-127] Optimization UI/UX Menyeluruh Website Publik COOCA: Mobile Bento UI, Hero Viewport Proportions, & Cross-Device Ergonomics
+
+- **Date:** 2026-09-24
+- **Status:** COMPLETED
+- **Module:** Public Marketing (Landing, BOS, Omnichannel ERP, Omnichannel Hub, Content Automation, Vertical Solutions, Marketplace, Resources, Calculators, Discovery, Legal)
+- **Feature:** Mobile Bento UI Composition, Responsive Hero Optimization, Zero-Emoji & Dark/Light Mode Polishing
+- **Work Type:** UI/UX | Mobile Optimization | Bento UI | Apple HIG | Accessibility
+
+#### 1. Business Context & Objective
+
+- **Konteks:** Sesuai arahan utama, tampilan Desktop yang telah berstandar Apple HIG dipertahankan 100% (Zero Desktop Regression). Fokus perbaikan dialokasikan penuh pada pengoptimalan pengalaman Mobile (layar 320px–430px) agar terasa sebagai produk native yang dirancang khusus untuk mobile, bukan desktop yang dipaksa mengecil.
+- **Masalah & Target:**
+  1. *Unconditional Viewport Height on Mobile:* Sebelumnya sebanyak 32 berkas subhalaman memiliki class `min-h-[calc(100svh-84px)]` tanpa prefix `lg:`. Pada layar HP (<1024px), hal ini menyebabkan dead space raksasa dan scrolling kosong yang membingungkan pengguna UMKM. Target: Mengubah menjadi `lg:min-h-[calc(100svh-84px)] lg:flex lg:items-center py-10 sm:py-14 lg:py-16` sehingga desktop tetap full-height 100%, sementara mobile proporsional dan ringkas.
+  2. *Bento UI & Grid Composition di Mobile:* Menghilangkan pola tumpukan kartu vertikal linear yang panjang. Mengonversi alur 4-langkah dan modul terkait menjadi 2-kolom mini Bento grid (`grid-cols-2 md:grid-cols-4`) dengan padding kompak (`p-4 sm:p-6 rounded-[18px] sm:rounded-[22px]`).
+  3. *Konsistensi Dark & Light Mode:* Menjamin kontras tinggi pada kedua tema (`#F5F5F7` / `#000000` base, `#FFFFFF` / `#1C1C1E` card surfaces, subtle borders, tidak ada teks putih di atas latar putih).
+  4. *Ergonomi & Aksesibilitas UMKM:* Font input formulir >= 16px (`text-[16px] sm:text-sm`) untuk mencegah iOS Safari auto-zoom, touch target >= 44px, tabel komparasi modal responsif dengan horizontal scrolling terkontrol (`overflow-x-auto min-w-[550px]`).
+  5. *Preservasi Total:* 100% data dinamis Blade, routing, SEO meta, schema JSON-LD, dan business logic dipertahankan tanpa perubahan.
+
+#### 2. What Was Done
+
+- **Audit & Pemutakhiran Hero 32 Berkas:** Mengeliminasi pemaksaan tinggi `100svh` di mobile pada seluruh berkas BOS, Omnichannel ERP, Hub, Content Automation, Solutions, dan Core Pages, dengan tetap mempertahankan full viewport di desktop (`lg:`).
+- **Mobile Bento Transformation:**
+  - `resources/views/landing.blade.php`: Mengubah 8 Squircle Bento Cards ke 2-kolom mobile grid (`grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5 xl:gap-6`), menaikkan ukuran micro-typography dari 9px ke 10.5–11px agar nyaman dibaca oleh pengguna usia 40–65 tahun.
+  - `resources/views/public/partials/subpage_layout.blade.php`: Mengubah fitur grid menjadi 2-kolom Bento (`grid-cols-2 lg:grid-cols-3`), kartu pertama span 2 di mobile, padding responsif.
+  - Seluruh subhalaman BOS & ERP: Alur 4-langkah dan tautan modul terkait diubah dari vertical list menjadi 2-kolom Bento grid (`grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6` dan `grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5`).
+- **Mobile Navigation & Table Fixes:**
+  - `resources/views/layouts/public_marketing.blade.php`: Memperbaiki toggle hamburger menu dengan elemen terpisah `x-show="!mobileMenu"` / `x-show="mobileMenu"` untuk mencegah Lucide SVG icon freeze saat dibuka/tutup, serta memperbesar area sentuh menjadi `min-w-[44px] min-h-[44px]`.
+  - `resources/views/public/pricing.blade.php`: Menambahkan wrapper `overflow-x-auto` dan `min-w-[550px]` pada seluruh tabel komparasi modal (4 kategori) guna mencegah terpotongnya kolom pada layar 320–390px.
+- **Form Ergonomics & Anti-Zoom:**
+  - Menstandarisasi font input form pada kontak, pencarian marketplace, discovery, blog, dan kalkulator ke `text-[16px]` di mobile.
+
+#### 3. Technical Changes
+
+- **Files Affected:**
+  - `resources/views/layouts/public_marketing.blade.php`
+  - `resources/views/landing.blade.php`
+  - `resources/views/public/partials/subpage_layout.blade.php`
+  - `resources/views/public/pricing.blade.php`
+  - `resources/views/public/sitemap.blade.php`
+  - `resources/views/public/business-operating-system/why-cooca.blade.php`
+  - `resources/views/public/business-operating-system/overview.blade.php`
+  - `resources/views/public/business-operating-system/how-it-works.blade.php`
+  - `resources/views/public/omnichannel-erp/erp.blade.php`
+  - `resources/views/public/omnichannel-erp/pos.blade.php`
+  - `resources/views/public/omnichannel-erp/inventory.blade.php`
+  - `resources/views/public/omnichannel-erp/finance.blade.php`
+  - `resources/views/public/omnichannel-erp/accounting.blade.php`
+  - `resources/views/public/omnichannel-erp/crm.blade.php`
+  - `resources/views/public/omnichannel-erp/hrm.blade.php`
+  - `resources/views/public/omnichannel-erp/analytics.blade.php`
+  - `resources/views/public/omnichannel/social-media.blade.php`
+  - `resources/views/public/omnichannel/whatsapp.blade.php`
+  - `resources/views/public/omnichannel/marketplace.blade.php`
+  - `resources/views/public/omnichannel/orders.blade.php`
+  - `resources/views/public/omnichannel/customer.blade.php`
+  - `resources/views/public/content-automation/content-creation.blade.php`
+  - `resources/views/public/content-automation/content-calendar.blade.php`
+  - `resources/views/public/content-automation/publishing.blade.php`
+  - `resources/views/public/content-automation/analytics.blade.php`
+  - `resources/views/public/solutions/fnb.blade.php`
+  - `resources/views/public/solutions/retail.blade.php`
+  - `resources/views/public/solutions/workshop.blade.php`
+  - `resources/views/public/solutions/laundry.blade.php`
+  - `resources/views/public/solutions/manufacturing.blade.php`
+  - `resources/views/public/solutions/services.blade.php`
+  - `resources/views/public/solutions/show.blade.php`
+  - `resources/views/public/home.blade.php`
+  - `resources/views/public/about.blade.php`
+  - `resources/views/public/demo.blade.php`
+  - `resources/views/public/support.blade.php`
+  - `resources/views/public/contact/index.blade.php`
+  - `resources/views/public/discovery/index.blade.php`
+  - `resources/views/public/marketplace/search.blade.php`
+  - `resources/views/public/calculators/index.blade.php`
+  - `resources/views/public/blog/index.blade.php`
+  - `resources/views/public/blog/show.blade.php`
+  - `resources/views/public/templates/show.blade.php`
+  - `resources/views/public/terms.blade.php`
+  - `resources/views/public/privacy.blade.php`
+
+#### 4. Verification & Testing
+
+- **Syntax Validation:** `php -l` executed on all modified blade files with 0 syntax errors.
+- **Automated Tests:** `php artisan test tests/Feature/PublicPagesStructureTest.php tests/Feature/LandingPageAuthTest.php` passing 10/10 tests (59 assertions).
+- **View Cache:** `php artisan view:clear` executed successfully.
+
+---
+
+### [WORK-2026-09-24-126] Audit & Penyelarasan UI/UX Global Seluruh 54 Halaman Publik COOCA (Bento Apple HIG, Zero-Emoji, Anti-Slop, & Ergonomi Mobile UMKM)
+
+- **Date:** 2026-09-24
+- **Status:** COMPLETED
+- **Module:** Public Marketing, Solutions, Omnichannel, BOS, Calculators, Marketplace, Discovery, Blog & Legal Pages
+- **Feature:** Unified Apple HIG Midnight Blue Bento System Across 54 Public Views
+- **Work Type:** UI/UX | Bento Apple HIG | Mobile Ergonomics | Accessibility | Bug Fix
+
+#### 1. Business Context & Objective
+
+- **Konteks:** Seluruh 54 halaman publik COOCA (Core landing, BOS, Omnichannel ERP, Content Automation, Solutions Industri, Marketplace, Resources, Calculators, Discovery, Blog, dan Legal) diaudit dan diselaraskan secara menyeluruh agar mencerminkan standar produk SaaS kelas atas rancangan Senior Product Designer.
+- **Target:**
+  1. Menerapkan 2-Column Hero System di Desktop (Kiri: narrative kicker + H1 + CTA; Kanan: contextual bento product/dashboard visualization, seperti simulated POS, KOT kitchen tickets, live ERP, warehouse inventory, order dispatch, digital laundry scale).
+  2. Memastikan Mobile-First Bento UI dengan progressive disclosure (menghilangkan tumpukan kartu vertikal yang membosankan).
+  3. Mematuhi prinsip zero-emoji (100% Lucide SVG icons), anti-AI-slop (tanpa gradient ungu/pink murah, floating cards liar, atau dekorasi tanpa fungsi).
+  4. Ergonomi khusus pemilik UMKM usia 40–65 tahun: font input minimal 16px di mobile (`text-[16px] sm:text-sm`) guna mencegah auto-zoom bug di iOS Safari, touch target minimal 44–48px, dan kontras tinggi.
+  5. Menjaga 100% integritas SEO, Open Graph, meta description, JSON-LD Schema.org, serta keselamatan logika Blade.
+
+#### 2. What Was Done
+
+- **Deep Audit 54 Halaman:** Memindai seluruh 54 berkas publik dengan script audit khusus:
+  - 100% berkas konsisten mengadopsi palet deep midnight blue `#060B1E` dengan ambient glow orbs dan hairline border `border-white/10`.
+  - Terverifikasi 0 emoji di seluruh 54 halaman publik.
+  - 100% halaman memiliki tag `<title>`, `<meta description>`, dan Open Graph lengkap.
+- **Surgical Bug Fixes & Refinements:**
+  - `resources/views/public/solutions/retail.blade.php`: Memperbaiki tag penutup HTML yang rusak pada baris 178 (`</div>div></div></div>` -> `</div></div>`).
+  - `resources/views/public/templates/show.blade.php`: Memperbarui 4 form input dari `text-sm` ke `text-[16px] sm:text-sm` agar tidak memicu iOS Safari auto-zoom.
+  - `resources/views/public/discovery/index.blade.php`: Memperbarui search input ke `text-[16px] sm:text-sm` serta menyelaraskan breadcrumb & headline dengan assertion test `Toko & Etalase`.
+  - `resources/views/public/blog/index.blade.php`: Memperbarui search input ke `text-[16px] sm:text-sm`.
+  - `resources/views/public/marketplace/search.blade.php`: Memperbarui input harga minimum/maksimum di drawer & sidebar ke `text-[16px] sm:text-xs`.
+  - `resources/views/public/calculators/index.blade.php`: Memperbarui simulated cost input ke `text-[16px] sm:text-sm`.
+  - `resources/views/landing.blade.php`: Memperbarui interactive marketplace search bar ke `text-[16px] sm:text-xs`.
+- **Layout Safety & Subpage Standardization:**
+  - Memverifikasi `resources/views/public/partials/subpage_layout.blade.php` sebagai layout bento standar yang mendukung slot `@section('subpage_hero_visual')` dan fallback ke macOS window status real-time.
+
+#### 3. Technical Changes
+
+- **Files Affected:**
+  - `resources/views/public/solutions/retail.blade.php`
+  - `resources/views/public/templates/show.blade.php`
+  - `resources/views/public/discovery/index.blade.php`
+  - `resources/views/public/blog/index.blade.php`
+  - `resources/views/public/marketplace/search.blade.php`
+  - `resources/views/public/calculators/index.blade.php`
+  - `resources/views/landing.blade.php`
+  - `resources/views/public/about.blade.php`
+  - `resources/views/public/blog/show.blade.php`
+  - `resources/views/public/privacy.blade.php`
+  - `resources/views/public/sitemap.blade.php`
+  - `resources/views/public/terms.blade.php`
+- **Database Changes:** Tidak ada.
+- **API / Route Changes:** Tidak ada.
+
+#### 4. System Impacts
+
+- **Workflow Impact:** Navigasi mobile lebih mulus tanpa auto-zoom yang menggeser viewport pengguna, tata letak visual di semua subhalaman konsisten dalam ekosistem produk yang sama.
+- **Business Rule Impact:** Tidak ada perubahan logika bisnis.
+- **Permission Impact:** Publik.
+
+#### 5. Verification & Testing
+
+- `php -l` pada semua berkas yang dimodifikasi: No syntax errors detected.
+- `php artisan view:clear`: Cache views dikosongkan.
+- `php artisan test tests/Feature/PublicPagesStructureTest.php tests/Feature/LandingPageAuthTest.php`: 10 passed, 59 assertions sukses.
+
+#### 6. Important Decisions & Guardrails
+
+- **Apple HIG & Boomer Ergonomics:** Menetapkan batas minimal ukuran input `16px` pada perangkat mobile demi kenyamanan pemilik UMKM usia 40–65 tahun dan kepatuhan terhadap Safari iOS behavior.
+- **Zero Emoji Compliance:** Hanya menggunakan Lucide vector icons untuk seluruh elemen UI.
+- **Safety First:** Seluruh route, controller, auth guard, dan metadata SEO dipertahankan utuh.
+
+#### 7. Documentation Promotion
+
+- Dicatat dalam `docs/AiWorkHistory.md`.
+
 ### [WORK-2026-09-23-125] Penyelarasan Background Bottom Conversion Card Subpage Layout dengan Hero Section
 
 - **Date:** 2026-09-23

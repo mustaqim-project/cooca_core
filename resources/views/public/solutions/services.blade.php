@@ -31,7 +31,7 @@
 
         {{-- Hero Section (Midnight #060B1E Full-Bleed - Type A Full Viewport) --}}
         <section
-            class="relative bg-[#060B1E] text-white min-h-[calc(100svh-84px)] lg:flex lg:items-center py-12 lg:py-16 overflow-hidden border-b border-white/10 w-full min-w-full">
+            class="relative bg-[#060B1E] text-white lg:min-h-[calc(100svh-84px)] lg:flex lg:items-center py-12 lg:py-16 overflow-hidden border-b border-white/10 w-full min-w-full">
             {{-- Dual Ambient Glows --}}
             <div class="absolute top-0 right-1/4 w-96 h-96 bg-[#007AFF]/15 rounded-full blur-[140px] pointer-events-none">
             </div>
@@ -224,7 +224,7 @@
                     </h2>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
                     <div
                         class="p-5 rounded-[18px] bg-white dark:bg-[#0E172F]/70 border border-slate-200/80 dark:border-white/10 space-y-3 shadow-sm">
                         <div
@@ -378,7 +378,7 @@
                     </h2>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 relative z-10">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 relative z-10">
                     <div class="p-5 rounded-[18px] bg-white/5 border border-white/10 space-y-2 backdrop-blur-sm">
                         <div class="text-xs font-mono font-bold text-[#00C4D8]">Langkah 01</div>
                         <h4 class="text-sm font-bold text-white">Reservasi Jadwal</h4>

@@ -189,7 +189,7 @@ class="w-full font-sans antialiased bg-[#F2F2F7] dark:bg-[#000000] text-[#1D1D1F
                                     Nama Lengkap *
                                 </label>
                                 <input type="text" x-model="form.name" required placeholder="Contoh: Budi Santoso"
-                                    class="w-full h-11 px-4 bg-white/[0.06] border border-white/[0.12] rounded-[12px] text-white text-sm focus:border-[#0A84FF] focus:ring-2 focus:ring-[#0A84FF]/20 focus:outline-none transition placeholder-slate-400">
+                                    class="w-full h-11 px-4 bg-white/[0.06] border border-white/[0.12] rounded-[12px] text-white text-[16px] sm:text-sm focus:border-[#0A84FF] focus:ring-2 focus:ring-[#0A84FF]/20 focus:outline-none transition placeholder-slate-400">
                             </div>
 
                             <div>
@@ -197,7 +197,7 @@ class="w-full font-sans antialiased bg-[#F2F2F7] dark:bg-[#000000] text-[#1D1D1F
                                     Nomor WhatsApp / HP *
                                 </label>
                                 <input type="tel" x-model="form.phone" required placeholder="Contoh: 081234567890"
-                                    class="w-full h-11 px-4 bg-white/[0.06] border border-white/[0.12] rounded-[12px] text-white text-sm focus:border-[#0A84FF] focus:ring-2 focus:ring-[#0A84FF]/20 focus:outline-none transition placeholder-slate-400">
+                                    class="w-full h-11 px-4 bg-white/[0.06] border border-white/[0.12] rounded-[12px] text-white text-[16px] sm:text-sm focus:border-[#0A84FF] focus:ring-2 focus:ring-[#0A84FF]/20 focus:outline-none transition placeholder-slate-400">
                             </div>
 
                             <div>
@@ -206,7 +206,7 @@ class="w-full font-sans antialiased bg-[#F2F2F7] dark:bg-[#000000] text-[#1D1D1F
                                 </label>
                                 <input type="text" x-model="form.business_name"
                                     placeholder="Contoh: Toko Berkah Mandiri"
-                                    class="w-full h-11 px-4 bg-white/[0.06] border border-white/[0.12] rounded-[12px] text-white text-sm focus:border-[#0A84FF] focus:ring-2 focus:ring-[#0A84FF]/20 focus:outline-none transition placeholder-slate-400">
+                                    class="w-full h-11 px-4 bg-white/[0.06] border border-white/[0.12] rounded-[12px] text-white text-[16px] sm:text-sm focus:border-[#0A84FF] focus:ring-2 focus:ring-[#0A84FF]/20 focus:outline-none transition placeholder-slate-400">
                             </div>
 
                             <div>
@@ -214,7 +214,7 @@ class="w-full font-sans antialiased bg-[#F2F2F7] dark:bg-[#000000] text-[#1D1D1F
                                     Email (Opsional)
                                 </label>
                                 <input type="email" x-model="form.email" placeholder="email@contohtoko.com"
-                                    class="w-full h-11 px-4 bg-white/[0.06] border border-white/[0.12] rounded-[12px] text-white text-sm focus:border-[#0A84FF] focus:ring-2 focus:ring-[#0A84FF]/20 focus:outline-none transition placeholder-slate-400">
+                                    class="w-full h-11 px-4 bg-white/[0.06] border border-white/[0.12] rounded-[12px] text-white text-[16px] sm:text-sm focus:border-[#0A84FF] focus:ring-2 focus:ring-[#0A84FF]/20 focus:outline-none transition placeholder-slate-400">
                             </div>
 
                             <button type="submit" :disabled="loading"

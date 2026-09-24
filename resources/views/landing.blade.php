@@ -78,7 +78,7 @@
         <!-- ═══ 1. HERO SECTION (Executive Dashboard & UMKM OS - Full Viewport) ══════ -->
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
         <section
-            class="relative w-full min-w-full bg-[#060B1E] text-white overflow-hidden border-b border-white/10 min-h-[calc(100svh-84px)] lg:flex lg:items-center">
+            class="relative w-full min-w-full bg-[#060B1E] text-white overflow-hidden border-b border-white/10 lg:min-h-[calc(100svh-84px)] lg:flex lg:items-center">
 
             <!-- Subtle Ambient Background Glows (Pure CSS, No Heavy Images) -->
             <div
@@ -627,86 +627,86 @@
                     </div>
                 </div>
 
-                <!-- 8 Bento Squircle Cards -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 xl:gap-6 mt-12">
+                <!-- 8 Bento Squircle Cards (Mobile 2-Col Bento Grid, Desktop 4-Col Grid) -->
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5 xl:gap-6 mt-10 sm:mt-12">
 
                     <!-- 1. Sales -->
                     <a href="{{ route('public.erp.pos') }}"
-                        class="group block p-5 sm:p-6 rounded-[22px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:border-black/15 dark:hover:border-white/20 hover:shadow-[0_12px_28px_rgba(0,122,255,0.08)] hover:-translate-y-1 transition-all duration-300">
+                        class="group block p-4 sm:p-5 lg:p-6 rounded-[20px] sm:rounded-[22px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:border-black/15 dark:hover:border-white/20 hover:shadow-[0_12px_28px_rgba(0,122,255,0.08)] hover:-translate-y-1 transition-all duration-300">
                         <div
-                            class="w-12 h-12 rounded-[14px] bg-sky-50 dark:bg-sky-950/60 border border-sky-100 dark:border-sky-800/40 text-[#007AFF] flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
-                            <i data-lucide="shopping-cart" class="w-6 h-6"></i>
+                            class="w-10 h-10 sm:w-12 sm:h-12 rounded-[12px] sm:rounded-[14px] bg-sky-50 dark:bg-sky-950/60 border border-sky-100 dark:border-sky-800/40 text-[#007AFF] flex items-center justify-center mb-3 sm:mb-4 group-hover:scale-105 transition-transform">
+                            <i data-lucide="shopping-cart" class="w-5 h-5 sm:w-6 sm:h-6"></i>
                         </div>
                         <h3
-                            class="text-base font-bold text-slate-900 dark:text-white mb-1.5 flex items-center justify-between">
+                            class="text-sm sm:text-base font-bold text-slate-900 dark:text-white mb-1 sm:mb-1.5 flex items-center justify-between">
                             <span>Sales</span>
                             <i data-lucide="arrow-right"
-                                class="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-[#007AFF]"></i>
+                                class="w-3.5 h-3.5 sm:w-4 sm:h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-[#007AFF]"></i>
                         </h3>
-                        <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                        <p class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                             Kelola POS, order, quotation, invoice, dan penjualan.
                         </p>
                     </a>
 
                     <!-- 2. Inventory -->
                     <a href="{{ route('public.erp.inventory') }}"
-                        class="group block p-5 sm:p-6 rounded-[22px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:border-black/15 dark:hover:border-white/20 hover:shadow-[0_12px_28px_rgba(0,122,255,0.08)] hover:-translate-y-1 transition-all duration-300">
+                        class="group block p-4 sm:p-5 lg:p-6 rounded-[20px] sm:rounded-[22px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:border-black/15 dark:hover:border-white/20 hover:shadow-[0_12px_28px_rgba(0,122,255,0.08)] hover:-translate-y-1 transition-all duration-300">
                         <div
-                            class="w-12 h-12 rounded-[14px] bg-purple-50 dark:bg-purple-950/60 border border-purple-100 dark:border-purple-800/40 text-purple-500 flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
-                            <i data-lucide="layers" class="w-6 h-6"></i>
+                            class="w-10 h-10 sm:w-12 sm:h-12 rounded-[12px] sm:rounded-[14px] bg-purple-50 dark:bg-purple-950/60 border border-purple-100 dark:border-purple-800/40 text-purple-500 flex items-center justify-center mb-3 sm:mb-4 group-hover:scale-105 transition-transform">
+                            <i data-lucide="layers" class="w-5 h-5 sm:w-6 sm:h-6"></i>
                         </div>
                         <h3
-                            class="text-base font-bold text-slate-900 dark:text-white mb-1.5 flex items-center justify-between">
+                            class="text-sm sm:text-base font-bold text-slate-900 dark:text-white mb-1 sm:mb-1.5 flex items-center justify-between">
                             <span>Inventory</span>
                             <i data-lucide="arrow-right"
-                                class="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-[#007AFF]"></i>
+                                class="w-3.5 h-3.5 sm:w-4 sm:h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-[#007AFF]"></i>
                         </h3>
-                        <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                        <p class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                             Pantau stok, warehouse, purchasing, material, hingga pergerakan inventory.
                         </p>
                     </a>
 
                     <!-- 3. Finance -->
                     <a href="{{ route('public.erp.finance') }}"
-                        class="group block p-5 sm:p-6 rounded-[22px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:border-black/15 dark:hover:border-white/20 hover:shadow-[0_12px_28px_rgba(0,122,255,0.08)] hover:-translate-y-1 transition-all duration-300">
+                        class="group block p-4 sm:p-5 lg:p-6 rounded-[20px] sm:rounded-[22px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:border-black/15 dark:hover:border-white/20 hover:shadow-[0_12px_28px_rgba(0,122,255,0.08)] hover:-translate-y-1 transition-all duration-300">
                         <div
-                            class="w-12 h-12 rounded-[14px] bg-blue-50 dark:bg-blue-950/60 border border-blue-100 dark:border-blue-800/40 text-blue-500 flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
-                            <i data-lucide="wallet" class="w-6 h-6"></i>
+                            class="w-10 h-10 sm:w-12 sm:h-12 rounded-[12px] sm:rounded-[14px] bg-blue-50 dark:bg-blue-950/60 border border-blue-100 dark:border-blue-800/40 text-blue-500 flex items-center justify-center mb-3 sm:mb-4 group-hover:scale-105 transition-transform">
+                            <i data-lucide="wallet" class="w-5 h-5 sm:w-6 sm:h-6"></i>
                         </div>
                         <h3
-                            class="text-base font-bold text-slate-900 dark:text-white mb-1.5 flex items-center justify-between">
+                            class="text-sm sm:text-base font-bold text-slate-900 dark:text-white mb-1 sm:mb-1.5 flex items-center justify-between">
                             <span>Finance</span>
                             <i data-lucide="arrow-right"
-                                class="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-[#007AFF]"></i>
+                                class="w-3.5 h-3.5 sm:w-4 sm:h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-[#007AFF]"></i>
                         </h3>
-                        <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                        <p class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                             Hubungkan transaksi bisnis dengan finance dan accounting.
                         </p>
                     </a>
 
                     <!-- 4. Customer -->
                     <a href="{{ route('public.omnichannel.customer') }}"
-                        class="group block p-5 sm:p-6 rounded-[22px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:border-black/15 dark:hover:border-white/20 hover:shadow-[0_12px_28px_rgba(0,122,255,0.08)] hover:-translate-y-1 transition-all duration-300">
+                        class="group block p-4 sm:p-5 lg:p-6 rounded-[20px] sm:rounded-[22px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:border-black/15 dark:hover:border-white/20 hover:shadow-[0_12px_28px_rgba(0,122,255,0.08)] hover:-translate-y-1 transition-all duration-300">
                         <div
-                            class="w-12 h-12 rounded-[14px] bg-cyan-50 dark:bg-cyan-950/60 border border-cyan-100 dark:border-cyan-800/40 text-cyan-500 flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
-                            <i data-lucide="users" class="w-6 h-6"></i>
+                            class="w-10 h-10 sm:w-12 sm:h-12 rounded-[12px] sm:rounded-[14px] bg-cyan-50 dark:bg-cyan-950/60 border border-cyan-100 dark:border-cyan-800/40 text-cyan-500 flex items-center justify-center mb-3 sm:mb-4 group-hover:scale-105 transition-transform">
+                            <i data-lucide="users" class="w-5 h-5 sm:w-6 sm:h-6"></i>
                         </div>
                         <h3
-                            class="text-base font-bold text-slate-900 dark:text-white mb-1.5 flex items-center justify-between">
+                            class="text-sm sm:text-base font-bold text-slate-900 dark:text-white mb-1 sm:mb-1.5 flex items-center justify-between">
                             <span>Customer</span>
                             <i data-lucide="arrow-right"
-                                class="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-[#007AFF]"></i>
+                                class="w-3.5 h-3.5 sm:w-4 sm:h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-[#007AFF]"></i>
                         </h3>
-                        <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                        <p class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                             Kelola customer, relationship, aktivitas, dan riwayat transaksi.
                         </p>
                     </a>
 
                     <!-- 5. Social Media -->
                     <a href="{{ route('public.omnichannel.social-media') }}"
-                        class="group block p-5 sm:p-6 rounded-[22px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:border-black/15 dark:hover:border-white/20 hover:shadow-[0_12px_28px_rgba(0,122,255,0.08)] hover:-translate-y-1 transition-all duration-300">
+                        class="group block p-4 sm:p-5 lg:p-6 rounded-[20px] sm:rounded-[22px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:border-black/15 dark:hover:border-white/20 hover:shadow-[0_12px_28px_rgba(0,122,255,0.08)] hover:-translate-y-1 transition-all duration-300">
                         <div
-                            class="w-12 h-12 rounded-[14px] bg-pink-50 dark:bg-pink-950/60 border border-pink-100 dark:border-pink-800/40 flex items-center justify-center gap-1.5 mb-4 group-hover:scale-105 transition-transform">
+                            class="w-10 h-10 sm:w-12 sm:h-12 rounded-[12px] sm:rounded-[14px] bg-pink-50 dark:bg-pink-950/60 border border-pink-100 dark:border-pink-800/40 flex items-center justify-center gap-1.5 mb-3 sm:mb-4 group-hover:scale-105 transition-transform">
                             <span
                                 class="w-4 h-4 rounded-[4px] bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] flex items-center justify-center text-white shrink-0 shadow-xs">
                                 <svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -724,66 +724,66 @@
                             </span>
                         </div>
                         <h3
-                            class="text-base font-bold text-slate-900 dark:text-white mb-1.5 flex items-center justify-between">
+                            class="text-sm sm:text-base font-bold text-slate-900 dark:text-white mb-1 sm:mb-1.5 flex items-center justify-between">
                             <span>Social Media</span>
                             <i data-lucide="arrow-right"
-                                class="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-[#007AFF]"></i>
+                                class="w-3.5 h-3.5 sm:w-4 sm:h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-[#007AFF]"></i>
                         </h3>
-                        <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                        <p class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                             Hubungkan akun social media dan kelola konten dari satu tempat.
                         </p>
                     </a>
 
                     <!-- 6. Content Automation -->
                     <a href="{{ route('public.content.creation') }}"
-                        class="group block p-5 sm:p-6 rounded-[22px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:border-black/15 dark:hover:border-white/20 hover:shadow-[0_12px_28px_rgba(0,122,255,0.08)] hover:-translate-y-1 transition-all duration-300">
+                        class="group block p-4 sm:p-5 lg:p-6 rounded-[20px] sm:rounded-[22px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:border-black/15 dark:hover:border-white/20 hover:shadow-[0_12px_28px_rgba(0,122,255,0.08)] hover:-translate-y-1 transition-all duration-300">
                         <div
-                            class="w-12 h-12 rounded-[14px] bg-fuchsia-50 dark:bg-fuchsia-950/60 border border-fuchsia-100 dark:border-fuchsia-800/40 text-fuchsia-500 flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
-                            <i data-lucide="megaphone" class="w-6 h-6"></i>
+                            class="w-10 h-10 sm:w-12 sm:h-12 rounded-[12px] sm:rounded-[14px] bg-fuchsia-50 dark:bg-fuchsia-950/60 border border-fuchsia-100 dark:border-fuchsia-800/40 text-fuchsia-500 flex items-center justify-center mb-3 sm:mb-4 group-hover:scale-105 transition-transform">
+                            <i data-lucide="megaphone" class="w-5 h-5 sm:w-6 sm:h-6"></i>
                         </div>
                         <h3
-                            class="text-base font-bold text-slate-900 dark:text-white mb-1.5 flex items-center justify-between">
+                            class="text-sm sm:text-base font-bold text-slate-900 dark:text-white mb-1 sm:mb-1.5 flex items-center justify-between">
                             <span>Content Automation</span>
                             <i data-lucide="arrow-right"
-                                class="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-[#007AFF]"></i>
+                                class="w-3.5 h-3.5 sm:w-4 sm:h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-[#007AFF]"></i>
                         </h3>
-                        <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                        <p class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                             Plan, schedule, publish, dan monitor konten bisnis.
                         </p>
                     </a>
 
                     <!-- 7. Marketplace -->
                     <a href="{{ route('marketplace.index') }}"
-                        class="group block p-5 sm:p-6 rounded-[22px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:border-black/15 dark:hover:border-white/20 hover:shadow-[0_12px_28px_rgba(0,122,255,0.08)] hover:-translate-y-1 transition-all duration-300">
+                        class="group block p-4 sm:p-5 lg:p-6 rounded-[20px] sm:rounded-[22px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:border-black/15 dark:hover:border-white/20 hover:shadow-[0_12px_28px_rgba(0,122,255,0.08)] hover:-translate-y-1 transition-all duration-300">
                         <div
-                            class="w-12 h-12 rounded-[14px] bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-100 dark:border-indigo-800/40 text-indigo-500 flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
-                            <i data-lucide="store" class="w-6 h-6"></i>
+                            class="w-10 h-10 sm:w-12 sm:h-12 rounded-[12px] sm:rounded-[14px] bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-100 dark:border-indigo-800/40 text-indigo-500 flex items-center justify-center mb-3 sm:mb-4 group-hover:scale-105 transition-transform">
+                            <i data-lucide="store" class="w-5 h-5 sm:w-6 sm:h-6"></i>
                         </div>
                         <h3
-                            class="text-base font-bold text-slate-900 dark:text-white mb-1.5 flex items-center justify-between">
+                            class="text-sm sm:text-base font-bold text-slate-900 dark:text-white mb-1 sm:mb-1.5 flex items-center justify-between">
                             <span>Marketplace</span>
                             <i data-lucide="arrow-right"
-                                class="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-[#007AFF]"></i>
+                                class="w-3.5 h-3.5 sm:w-4 sm:h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-[#007AFF]"></i>
                         </h3>
-                        <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                        <p class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                             Hubungkan bisnis dengan customer dan channel penjualan.
                         </p>
                     </a>
 
                     <!-- 8. Analytics & AI -->
                     <a href="{{ route('public.erp.analytics') }}"
-                        class="group block p-5 sm:p-6 rounded-[22px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:border-black/15 dark:hover:border-white/20 hover:shadow-[0_12px_28px_rgba(0,122,255,0.08)] hover:-translate-y-1 transition-all duration-300">
+                        class="group block p-4 sm:p-5 lg:p-6 rounded-[20px] sm:rounded-[22px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:border-black/15 dark:hover:border-white/20 hover:shadow-[0_12px_28px_rgba(0,122,255,0.08)] hover:-translate-y-1 transition-all duration-300">
                         <div
-                            class="w-12 h-12 rounded-[14px] bg-violet-50 dark:bg-violet-950/60 border border-violet-100 dark:border-violet-800/40 text-violet-500 flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
-                            <i data-lucide="trending-up" class="w-6 h-6"></i>
+                            class="w-10 h-10 sm:w-12 sm:h-12 rounded-[12px] sm:rounded-[14px] bg-violet-50 dark:bg-violet-950/60 border border-violet-100 dark:border-violet-800/40 text-violet-500 flex items-center justify-center mb-3 sm:mb-4 group-hover:scale-105 transition-transform">
+                            <i data-lucide="trending-up" class="w-5 h-5 sm:w-6 sm:h-6"></i>
                         </div>
                         <h3
-                            class="text-base font-bold text-slate-900 dark:text-white mb-1.5 flex items-center justify-between">
+                            class="text-sm sm:text-base font-bold text-slate-900 dark:text-white mb-1 sm:mb-1.5 flex items-center justify-between">
                             <span>Analytics &amp; AI</span>
                             <i data-lucide="arrow-right"
-                                class="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-[#007AFF]"></i>
+                                class="w-3.5 h-3.5 sm:w-4 sm:h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-[#007AFF]"></i>
                         </h3>
-                        <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                        <p class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                             Ubah data bisnis menjadi insight untuk membantu pengambilan keputusan.
                         </p>
                     </a>
@@ -1965,7 +1965,7 @@
                                         <input type="text" name="q" x-model="query"
                                             @input.debounce.300ms="searchProducts()"
                                             placeholder="Cari produk atau bisnis..." autocomplete="off"
-                                            class="w-full bg-transparent border-0 text-[11px] sm:text-xs text-slate-800 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-0 p-1">
+                                            class="w-full bg-transparent border-0 text-[16px] sm:text-xs text-slate-800 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-0 p-1">
                                         <button type="submit"
                                             class="shrink-0 px-3 py-1.5 rounded-xl bg-[#00C2FF] hover:bg-[#00B4D8] text-slate-950 font-bold text-[11px] shadow-sm hover:scale-105 active:scale-95 transition-all">
                                             Cari
@@ -2183,7 +2183,7 @@
                                 <i data-lucide="arrow-right"
                                     class="w-3.5 h-3.5 opacity-80 group-hover:translate-x-1 group-hover:opacity-100 transition-all"></i>
                             </div>
-                            <p class="text-[9px] text-slate-300 leading-tight">
+                            <p class="text-[10.5px] sm:text-[11px] text-slate-300 leading-tight">
                                 POS &bull; Recipe &bull; BOM &bull; Inventory &bull; Purchasing &bull; Finance
                             </p>
                         </div>
@@ -2203,7 +2203,7 @@
                                 <i data-lucide="arrow-right"
                                     class="w-3.5 h-3.5 opacity-80 group-hover:translate-x-1 group-hover:opacity-100 transition-all"></i>
                             </div>
-                            <p class="text-[9px] text-slate-300 leading-tight">
+                            <p class="text-[10.5px] sm:text-[11px] text-slate-300 leading-tight">
                                 Barcode &bull; POS &bull; Inventory &bull; Purchasing &bull; Customer
                             </p>
                         </div>
@@ -2223,7 +2223,7 @@
                                 <i data-lucide="arrow-right"
                                     class="w-3.5 h-3.5 opacity-80 group-hover:translate-x-1 group-hover:opacity-100 transition-all"></i>
                             </div>
-                            <p class="text-[9px] text-slate-300 leading-tight">
+                            <p class="text-[10.5px] sm:text-[11px] text-slate-300 leading-tight">
                                 Service &bull; Spare Parts &bull; Customer &bull; Inventory &bull; Finance
                             </p>
                         </div>
@@ -2243,7 +2243,7 @@
                                 <i data-lucide="arrow-right"
                                     class="w-3.5 h-3.5 opacity-80 group-hover:translate-x-1 group-hover:opacity-100 transition-all"></i>
                             </div>
-                            <p class="text-[9px] text-slate-300 leading-tight">
+                            <p class="text-[10.5px] sm:text-[11px] text-slate-300 leading-tight">
                                 Order &bull; Weight &bull; Production &bull; Inventory &bull; Customer
                             </p>
                         </div>
@@ -2263,7 +2263,7 @@
                                 <i data-lucide="arrow-right"
                                     class="w-3.5 h-3.5 opacity-80 group-hover:translate-x-1 group-hover:opacity-100 transition-all"></i>
                             </div>
-                            <p class="text-[9px] text-slate-300 leading-tight">
+                            <p class="text-[10.5px] sm:text-[11px] text-slate-300 leading-tight">
                                 Material &bull; BOM &bull; Production &bull; MRP &bull; Inventory
                             </p>
                         </div>
@@ -2283,7 +2283,7 @@
                                 <i data-lucide="arrow-right"
                                     class="w-3.5 h-3.5 opacity-80 group-hover:translate-x-1 group-hover:opacity-100 transition-all"></i>
                             </div>
-                            <p class="text-[9px] text-slate-300 leading-tight">
+                            <p class="text-[10.5px] sm:text-[11px] text-slate-300 leading-tight">
                                 Customer &bull; Booking &bull; Project &bull; Invoice &bull; Finance
                             </p>
                         </div>

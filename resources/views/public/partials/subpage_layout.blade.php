@@ -17,7 +17,7 @@
         <!-- ═══ HERO SECTION (Full Above-The-Fold 2-Grid Layout) ════════════════════ -->
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
         <section
-            class="relative bg-[#060B1E] text-white pt-8 sm:pt-12 pb-16 lg:pb-20 min-h-[calc(100svh-84px)] lg:flex lg:items-center overflow-hidden border-b border-white/10 w-full min-w-full">
+            class="relative bg-[#060B1E] text-white py-10 sm:py-14 lg:py-0 lg:min-h-[calc(100svh-84px)] lg:flex lg:items-center overflow-hidden border-b border-white/10 w-full min-w-full">
 
             <!-- Subtle Ambient Background Glows -->
             <div
@@ -182,12 +182,12 @@
         </section>
 
         <!-- ═══ SUBPAGE BODY CONTENT CONTAINER ═══ -->
-        <div class="py-16 sm:py-20">
-            <div class="max-w-[1250px] mx-auto px-4 sm:px-6 lg:px-8 space-y-16 sm:space-y-20">
+        <div class="py-12 sm:py-16 lg:py-20">
+            <div class="max-w-[1250px] mx-auto px-4 sm:px-6 lg:px-8 space-y-12 sm:space-y-16 lg:space-y-20">
 
                 <!-- ═══ BENTO GRID: KEMAMPUAN & FITUR UTAMA ═══ -->
                 @if (isset($features) && is_array($features) && count($features) > 0)
-                    <section class="space-y-8">
+                    <section class="space-y-6 sm:space-y-8">
                         <div class="max-w-2xl space-y-2">
                             <p class="text-xs font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF]">
                                 Kemampuan &amp; Fitur</p>
@@ -201,45 +201,49 @@
                             </p>
                         </div>
 
-                        <!-- Bento Composition: Asymmetric Hierarchy -->
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                        <!-- Bento Composition: Mobile 2-Column Bento + Desktop 3-Col Asymmetric Grid -->
+                        <div class="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
 
                             @foreach ($features as $index => $feat)
+                                @php
+                                    $isFirst = $loop->first;
+                                    $isLastOdd = $loop->last && (count($features) % 2 === 0); // 1 wide + (even remaining) -> last might be odd in 2-col
+                                @endphp
                                 <div
-                                    class="{{ $loop->first ? 'md:col-span-2 lg:col-span-2' : 'col-span-1' }} p-6 sm:p-8 rounded-[24px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-sm flex flex-col justify-between space-y-4 hover:border-[#007AFF]/30 transition-all">
+                                    class="{{ $isFirst ? 'col-span-2 md:col-span-2 lg:col-span-2' : ($isLastOdd ? 'col-span-2 sm:col-span-1 lg:col-span-1' : 'col-span-1') }} p-4 sm:p-6 lg:p-8 rounded-[20px] sm:rounded-[24px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-sm flex flex-col justify-between space-y-3 sm:space-y-4 hover:border-[#007AFF]/30 transition-all">
 
-                                    <div class="space-y-3">
+                                    <div class="space-y-2.5 sm:space-y-3">
                                         <div class="flex items-center justify-between">
                                             <div
-                                                class="w-12 h-12 rounded-[14px] bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF] flex items-center justify-center font-bold shrink-0">
-                                                <i data-lucide="{{ $feat['icon'] ?? 'check-circle' }}" class="w-6 h-6"></i>
+                                                class="w-9 h-9 sm:w-11 sm:h-11 lg:w-12 lg:h-12 rounded-[12px] sm:rounded-[14px] bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF] flex items-center justify-center font-bold shrink-0">
+                                                <i data-lucide="{{ $feat['icon'] ?? 'check-circle' }}" class="w-4.5 h-4.5 sm:w-5 sm:h-5 lg:w-6 lg:h-6"></i>
                                             </div>
-                                            @if ($loop->first)
+                                            @if ($isFirst)
                                                 <span
-                                                    class="text-xs font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF] px-3 py-1 rounded-[8px] bg-[#007AFF]/10 shrink-0">
+                                                    class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF] px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-[8px] bg-[#007AFF]/10 shrink-0">
                                                     Fungsi Utama
                                                 </span>
                                             @else
                                                 <span
-                                                    class="text-xs font-mono text-[#8E8E93] dark:text-[#98989D] shrink-0">0{{ $index + 1 }}</span>
+                                                    class="text-[11px] sm:text-xs font-mono text-[#8E8E93] dark:text-[#98989D] shrink-0">0{{ $index + 1 }}</span>
                                             @endif
                                         </div>
 
                                         <h3
-                                            class="{{ $loop->first ? 'text-xl sm:text-2xl' : 'text-lg' }} font-bold text-[#1D1D1F] dark:text-[#F5F5F7] leading-snug text-balance break-words">
+                                            class="{{ $isFirst ? 'text-base sm:text-xl lg:text-2xl' : 'text-xs sm:text-base lg:text-lg' }} font-bold text-[#1D1D1F] dark:text-[#F5F5F7] leading-snug text-balance break-words">
                                             {{ $feat['title'] }}
                                         </h3>
 
-                                        <p class="text-sm sm:text-base text-[#48484A] dark:text-[#AEAEB2] leading-relaxed text-pretty break-words">
+                                        <p class="{{ $isFirst ? 'text-xs sm:text-sm lg:text-base' : 'text-[11.5px] sm:text-xs lg:text-sm line-clamp-3 sm:line-clamp-none' }} text-[#48484A] dark:text-[#AEAEB2] leading-relaxed text-pretty break-words">
                                             {{ $feat['desc'] }}
                                         </p>
                                     </div>
 
-                                    @if ($loop->first)
+                                    @if ($isFirst)
                                         <div
-                                            class="pt-4 border-t border-black/[0.06] dark:border-white/[0.08] flex items-center gap-2 text-xs font-semibold text-[#007AFF] dark:text-[#0A84FF]">
-                                            <i data-lucide="check" class="w-4 h-4"></i>
-                                            <span>Terintegrasi penuh dengan seluruh laporan dan kasir POS Cooca</span>
+                                            class="pt-3 sm:pt-4 border-t border-black/[0.06] dark:border-white/[0.08] flex items-center gap-2 text-xs font-semibold text-[#007AFF] dark:text-[#0A84FF]">
+                                            <i data-lucide="check" class="w-4 h-4 shrink-0"></i>
+                                            <span class="truncate sm:whitespace-normal">Terintegrasi penuh dengan seluruh laporan dan kasir POS Cooca</span>
                                         </div>
                                     @endif
 

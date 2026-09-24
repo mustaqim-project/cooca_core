@@ -57,7 +57,7 @@
         <!-- ═══ 1. HERO SECTION (Full Viewport 45/55 Ratio) ══════════════════════════ -->
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
         <section
-            class="relative bg-[#060B1E] text-white overflow-hidden border-b border-white/10 min-h-[calc(100svh-84px)] lg:flex lg:items-center py-10 sm:py-14">
+            class="relative bg-[#060B1E] text-white overflow-hidden border-b border-white/10 lg:min-h-[calc(100svh-84px)] lg:flex lg:items-center py-10 sm:py-14 lg:py-16">
             <div
                 class="absolute -top-32 right-1/4 w-[500px] h-[500px] bg-[#007AFF]/15 rounded-full blur-[140px] pointer-events-none">
             </div>
@@ -560,51 +560,51 @@
                     </a>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
                     <a href="{{ route('public.bos.why-cooca') }}"
-                        class="group p-5 rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] hover:border-[#007AFF]/40 hover:shadow-md transition-all">
+                        class="group p-3.5 sm:p-5 rounded-[16px] sm:rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] hover:border-[#007AFF]/40 hover:shadow-md transition-all">
                         <div
-                            class="w-10 h-10 rounded-[12px] bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center font-bold mb-3">
-                            <i data-lucide="help-circle" class="w-5 h-5"></i>
+                            class="w-9 h-9 sm:w-10 sm:h-10 rounded-[10px] sm:rounded-[12px] bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center font-bold mb-2.5 sm:mb-3">
+                            <i data-lucide="help-circle" class="w-4 h-4 sm:w-5 sm:h-5"></i>
                         </div>
-                        <div class="text-base font-bold group-hover:text-[#007AFF] transition-colors leading-snug text-balance">Kenapa Pilih COOCA?
+                        <div class="text-sm sm:text-base font-bold group-hover:text-[#007AFF] transition-colors leading-snug text-balance">Kenapa Pilih COOCA?
                         </div>
-                        <p class="text-xs text-neutral-600 dark:text-neutral-400 mt-1 leading-snug text-pretty">Perbandingan biaya dan
+                        <p class="text-[11px] sm:text-xs text-neutral-600 dark:text-neutral-400 mt-1 leading-snug text-pretty">Perbandingan biaya dan
                             efisiensi COOCA vs banyak aplikasi terpisah.</p>
                     </a>
 
                     <a href="{{ route('public.erp.erp') }}"
-                        class="group p-5 rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] hover:border-[#34C759]/40 hover:shadow-md transition-all">
+                        class="group p-3.5 sm:p-5 rounded-[16px] sm:rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] hover:border-[#34C759]/40 hover:shadow-md transition-all">
                         <div
-                            class="w-10 h-10 rounded-[12px] bg-[#34C759]/10 text-[#34C759] flex items-center justify-center font-bold mb-3">
-                            <i data-lucide="layers" class="w-5 h-5"></i>
+                            class="w-9 h-9 sm:w-10 sm:h-10 rounded-[10px] sm:rounded-[12px] bg-[#34C759]/10 text-[#34C759] flex items-center justify-center font-bold mb-2.5 sm:mb-3">
+                            <i data-lucide="layers" class="w-4 h-4 sm:w-5 sm:h-5"></i>
                         </div>
-                        <div class="text-base font-bold group-hover:text-[#34C759] transition-colors leading-snug text-balance">Omnichannel ERP Core
+                        <div class="text-sm sm:text-base font-bold group-hover:text-[#34C759] transition-colors leading-snug text-balance">Omnichannel ERP Core
                         </div>
-                        <p class="text-xs text-neutral-600 dark:text-neutral-400 mt-1 leading-snug text-pretty">Hubungkan operasional,
+                        <p class="text-[11px] sm:text-xs text-neutral-600 dark:text-neutral-400 mt-1 leading-snug text-pretty">Hubungkan operasional,
                             stok, purchasing, dan akuntansi.</p>
                     </a>
 
                     <a href="{{ route('public.omnichannel.orders') }}"
-                        class="group p-5 rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] hover:border-[#FF9500]/40 hover:shadow-md transition-all">
+                        class="group p-3.5 sm:p-5 rounded-[16px] sm:rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] hover:border-[#FF9500]/40 hover:shadow-md transition-all">
                         <div
-                            class="w-10 h-10 rounded-[12px] bg-[#FF9500]/10 text-[#FF9500] flex items-center justify-center font-bold mb-3">
-                            <i data-lucide="inbox" class="w-5 h-5"></i>
+                            class="w-9 h-9 sm:w-10 sm:h-10 rounded-[10px] sm:rounded-[12px] bg-[#FF9500]/10 text-[#FF9500] flex items-center justify-center font-bold mb-2.5 sm:mb-3">
+                            <i data-lucide="inbox" class="w-4 h-4 sm:w-5 sm:h-5"></i>
                         </div>
-                        <div class="text-base font-bold group-hover:text-[#FF9500] transition-colors leading-snug text-balance">Manajemen Order</div>
-                        <p class="text-xs text-neutral-600 dark:text-neutral-400 mt-1 leading-snug text-pretty">Kelola pesanan dari
+                        <div class="text-sm sm:text-base font-bold group-hover:text-[#FF9500] transition-colors leading-snug text-balance">Manajemen Order</div>
+                        <p class="text-[11px] sm:text-xs text-neutral-600 dark:text-neutral-400 mt-1 leading-snug text-pretty">Kelola pesanan dari
                             berbagai channel dalam satu layar antrean.</p>
                     </a>
 
                     <a href="{{ route('public.erp.analytics') }}"
-                        class="group p-5 rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] hover:border-[#00C2FF]/40 hover:shadow-md transition-all">
+                        class="group p-3.5 sm:p-5 rounded-[16px] sm:rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] hover:border-[#00C2FF]/40 hover:shadow-md transition-all">
                         <div
-                            class="w-10 h-10 rounded-[12px] bg-[#00C2FF]/10 text-[#00C2FF] flex items-center justify-center font-bold mb-3">
-                            <i data-lucide="bar-chart-2" class="w-5 h-5"></i>
+                            class="w-9 h-9 sm:w-10 sm:h-10 rounded-[10px] sm:rounded-[12px] bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center font-bold mb-2.5 sm:mb-3">
+                            <i data-lucide="bar-chart-2" class="w-4 h-4 sm:w-5 sm:h-5"></i>
                         </div>
-                        <div class="text-base font-bold group-hover:text-[#00C2FF] transition-colors leading-snug text-balance">Dasbor Analitik
+                        <div class="text-sm sm:text-base font-bold group-hover:text-[#00C2FF] transition-colors leading-snug text-balance">Dasbor Analitik
                             Bisnis</div>
-                        <p class="text-xs text-neutral-600 dark:text-neutral-400 mt-1 leading-snug text-pretty">Pantau performa omzet
+                        <p class="text-[11px] sm:text-xs text-neutral-600 dark:text-neutral-400 mt-1 leading-snug text-pretty">Pantau performa omzet
                             dan margin cabang dari ponsel Anda.</p>
                     </a>
                 </div>

@@ -64,7 +64,7 @@
         <!-- ═══ 1. HERO SECTION (Midnight Blue 2-Column Bento Cockpit) ═══════════════ -->
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
         <section
-            class="relative w-full min-w-full bg-[#060B1E] text-white overflow-hidden border-b border-white/10 min-h-[calc(100svh-84px)] lg:flex lg:items-center py-10 sm:py-12 lg:py-14">
+            class="relative w-full min-w-full bg-[#060B1E] text-white overflow-hidden border-b border-white/10 lg:min-h-[calc(100svh-84px)] lg:flex lg:items-center py-10 sm:py-12 lg:py-14">
 
             <!-- Subtle Ambient Background Glows -->
             <div
@@ -1209,8 +1209,8 @@
                             class="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                             1. Kapasitas &amp; Batas Kuota Toko
                         </h4>
-                        <div class="rounded-[16px] border border-black/[0.06] dark:border-white/[0.08] overflow-hidden">
-                            <table class="w-full text-left text-xs sm:text-sm">
+                        <div class="rounded-[16px] border border-black/[0.06] dark:border-white/[0.08] overflow-x-auto">
+                            <table class="w-full min-w-[550px] text-left text-xs sm:text-sm">
                                 <tbody class="divide-y divide-black/[0.04] dark:divide-white/[0.06]">
                                     <tr class="bg-black/[0.01] dark:bg-white/[0.01]">
                                         <td class="p-3 sm:p-4 font-semibold text-slate-800 dark:text-slate-200">Jumlah Toko
@@ -1264,8 +1264,8 @@
                             class="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                             2. Fitur Kasir &amp; Nota Penjualan
                         </h4>
-                        <div class="rounded-[16px] border border-black/[0.06] dark:border-white/[0.08] overflow-hidden">
-                            <table class="w-full text-left text-xs sm:text-sm">
+                        <div class="rounded-[16px] border border-black/[0.06] dark:border-white/[0.08] overflow-x-auto">
+                            <table class="w-full min-w-[550px] text-left text-xs sm:text-sm">
                                 <tbody class="divide-y divide-black/[0.04] dark:divide-white/[0.06]">
                                     <tr class="bg-black/[0.01] dark:bg-white/[0.01]">
                                         <td class="p-3 sm:p-4 font-semibold text-slate-800 dark:text-slate-200">Cetak Struk
@@ -1323,8 +1323,8 @@
                             class="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                             3. Inventori, Stok &amp; Bahan Baku
                         </h4>
-                        <div class="rounded-[16px] border border-black/[0.06] dark:border-white/[0.08] overflow-hidden">
-                            <table class="w-full text-left text-xs sm:text-sm">
+                        <div class="rounded-[16px] border border-black/[0.06] dark:border-white/[0.08] overflow-x-auto">
+                            <table class="w-full min-w-[550px] text-left text-xs sm:text-sm">
                                 <tbody class="divide-y divide-black/[0.04] dark:divide-white/[0.06]">
                                     <tr class="bg-black/[0.01] dark:bg-white/[0.01]">
                                         <td class="p-3 sm:p-4 font-semibold text-slate-800 dark:text-slate-200">Peringatan
@@ -1369,8 +1369,8 @@
                             class="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                             4. Integrasi Marketplace, AI &amp; Pendampingan
                         </h4>
-                        <div class="rounded-[16px] border border-black/[0.06] dark:border-white/[0.08] overflow-hidden">
-                            <table class="w-full text-left text-xs sm:text-sm">
+                        <div class="rounded-[16px] border border-black/[0.06] dark:border-white/[0.08] overflow-x-auto">
+                            <table class="w-full min-w-[550px] text-left text-xs sm:text-sm">
                                 <tbody class="divide-y divide-black/[0.04] dark:divide-white/[0.06]">
                                     <tr class="bg-black/[0.01] dark:bg-white/[0.01]">
                                         <td class="p-3 sm:p-4 font-semibold text-slate-800 dark:text-slate-200">

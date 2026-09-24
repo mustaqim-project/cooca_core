@@ -247,7 +247,7 @@ class="w-full font-sans antialiased bg-[#F2F2F7] dark:bg-[#000000] text-[#1D1D1F
                         <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5"></i>
                         <input type="text" name="q" value="{{ $search }}"
                             placeholder="Cari judul artikel atau topik..."
-                            class="w-full h-11 pl-10 pr-4 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[14px] text-slate-900 dark:text-white text-sm placeholder-slate-400 focus:border-[#007AFF] focus:ring-2 focus:ring-[#007AFF]/20 focus:outline-none transition shadow-xs">
+                            class="w-full h-11 pl-10 pr-4 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[14px] text-slate-900 dark:text-white text-[16px] sm:text-sm placeholder-slate-400 focus:border-[#007AFF] focus:ring-2 focus:ring-[#007AFF]/20 focus:outline-none transition shadow-xs">
                     </div>
                 </form>
             </div>
