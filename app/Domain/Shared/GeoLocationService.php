@@ -82,22 +82,16 @@ final class GeoLocationService
             if ($response->successful()) {
                 $data = $response->json();
                 $addr = $data['address'] ?? [];
-
-                $village = $addr['village'] ?? $addr['suburb'] ?? $addr['quarter'] ?? $addr['neighbourhood'] ?? '';
-                $district = $addr['municipality'] ?? $addr['subdistrict'] ?? $addr['district'] ?? '';
-                $city = $addr['city'] ?? $addr['town'] ?? $addr['county'] ?? $addr['city_district'] ?? '';
-                $province = $addr['state'] ?? $addr['region'] ?? '';
-                $road = $addr['road'] ?? $addr['pedestrian'] ?? '';
-                $postalCode = (string) ($addr['postcode'] ?? '');
+                $parsed = $this->parseNominatimAddress($addr);
 
                 return [
                     'success' => true,
-                    'road' => $road,
-                    'village' => $village,
-                    'district' => $district,
-                    'city' => $city,
-                    'province' => $province,
-                    'postal_code' => $postalCode,
+                    'road' => $parsed['road'],
+                    'village' => $parsed['village'],
+                    'district' => $parsed['district'],
+                    'city' => $parsed['city'],
+                    'province' => $parsed['province'],
+                    'postal_code' => $parsed['postal_code'],
                     'display_name' => (string) ($data['display_name'] ?? ''),
                     'latitude' => $latitude,
                     'longitude' => $longitude,
@@ -228,13 +222,15 @@ final class GeoLocationService
 
                 foreach ($items as $item) {
                     $addr = $item['address'] ?? [];
-                    $village = $addr['village'] ?? $addr['suburb'] ?? $addr['quarter'] ?? $addr['neighbourhood'] ?? '';
-                    $district = $addr['municipality'] ?? $addr['subdistrict'] ?? $addr['district'] ?? '';
-                    $city = $addr['city'] ?? $addr['town'] ?? $addr['county'] ?? $addr['city_district'] ?? '';
-                    $province = $addr['state'] ?? $addr['region'] ?? '';
-                    $postalCode = (string) ($addr['postcode'] ?? '');
+                    $parsed = $this->parseNominatimAddress($addr);
 
-                    $parts = array_filter([$village ?: $item['name'] ?? '', $district, $city, $province]);
+                    $village = $parsed['village'];
+                    $district = $parsed['district'];
+                    $city = $parsed['city'];
+                    $province = $parsed['province'];
+                    $postalCode = $parsed['postal_code'];
+
+                    $parts = array_filter([$village ?: ($item['name'] ?? ''), $district, $city, $province]);
                     $label = implode(', ', $parts) . ($postalCode ? " ({$postalCode})" : '');
 
                     $results[] = [
@@ -257,5 +253,74 @@ final class GeoLocationService
         }
 
         return [];
+    }
+
+    /**
+     * Helper ekstraksi hierarki wilayah Indonesia dari struktur OpenStreetMap Nominatim.
+     *
+     * @param array<string, mixed> $addr
+     * @return array{
+     *     village: string,
+     *     district: string,
+     *     city: string,
+     *     province: string,
+     *     postal_code: string,
+     *     road: string
+     * }
+     */
+    private function parseNominatimAddress(array $addr): array
+    {
+        $road = (string) ($addr['road'] ?? $addr['pedestrian'] ?? $addr['street'] ?? $addr['path'] ?? '');
+
+        $village = (string) (
+            $addr['village']
+            ?? $addr['neighbourhood']
+            ?? $addr['quarter']
+            ?? $addr['suburb']
+            ?? $addr['hamlet']
+            ?? $addr['residential']
+            ?? ''
+        );
+
+        $district = (string) (
+            $addr['municipality']
+            ?? $addr['subdistrict']
+            ?? $addr['district']
+            ?? $addr['city_district']
+            ?? $addr['county']
+            ?? $addr['township']
+            ?? $addr['borough']
+            ?? ''
+        );
+
+        $city = (string) (
+            $addr['city']
+            ?? $addr['town']
+            ?? $addr['regency']
+            ?? $addr['state_district']
+            ?? ($addr['county'] ?? '')
+        );
+
+        $province = (string) (
+            $addr['state']
+            ?? $addr['region']
+            ?? $addr['province']
+            ?? ''
+        );
+
+        $postalCode = (string) ($addr['postcode'] ?? '');
+
+        if (empty($district) && ! empty($addr['suburb']) && $addr['suburb'] !== $village) {
+            $district = (string) $addr['suburb'];
+        }
+
+        return [
+            'village' => trim($village),
+            'district' => trim($district),
+            'city' => trim($city),
+            'province' => trim($province),
+            'postal_code' => trim($postalCode),
+            'road' => trim($road),
+        ];
     }
 }

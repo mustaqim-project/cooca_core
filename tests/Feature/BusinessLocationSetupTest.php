@@ -249,5 +249,59 @@ final class BusinessLocationSetupTest extends TestCase
         $this->assertSame('Kota Yogyakarta', $locA->city);
         $this->assertSame('55213', $locA->postal_code);
     }
+
+    public function test_complete_profile_renders_editable_district_and_regional_inputs(): void
+    {
+        $user = User::create([
+            'name' => 'Pak Rudi',
+            'email' => 'rudi@toko.test',
+            'password' => 'password123',
+        ]);
+        $business = Business::create(['name' => 'Toko Rudi Elektronik']);
+        $business->users()->attach($user->id, ['id' => (string) Str::uuid(), 'role' => 'owner']);
+        $user->update(['active_business_id' => $business->id]);
+
+        $response = $this->actingAs($user)
+            ->withSession(['active_business_id' => $business->id])
+            ->get(route('profile.complete'));
+
+        $response->assertOk();
+        // Visible inputs with their corresponding name attributes
+        $response->assertSee('name="province"', false);
+        $response->assertSee('name="city"', false);
+        $response->assertSee('name="district"', false);
+        $response->assertSee('name="village"', false);
+        $response->assertSee('name="postal_code"', false);
+        $response->assertSee('x-model="selectedArea.district"', false);
+        $response->assertSee('Data Wilayah Administratif Usaha', false);
+    }
+
+    public function test_geolocation_service_parses_various_osm_district_keys(): void
+    {
+        Http::fake([
+            'https://nominatim.openstreetmap.org/reverse*' => Http::response([
+                'display_name' => 'Grogol Petamburan, Jakarta Barat, DKI Jakarta, 11470, Indonesia',
+                'address' => [
+                    'suburb' => 'Tomang',
+                    'city_district' => 'Grogol Petamburan',
+                    'city' => 'Jakarta Barat',
+                    'state' => 'DKI Jakarta',
+                    'postcode' => '11470',
+                    'road' => 'Jl. Tomang Raya',
+                ],
+            ], 200),
+        ]);
+
+        $service = app(GeoLocationService::class);
+        $result = $service->reverseGeocode(-6.1702, 106.7901);
+
+        $this->assertTrue($result['success']);
+        $this->assertSame('Grogol Petamburan', $result['district']);
+        $this->assertSame('Tomang', $result['village']);
+        $this->assertSame('Jakarta Barat', $result['city']);
+        $this->assertSame('DKI Jakarta', $result['province']);
+        $this->assertSame('11470', $result['postal_code']);
+        $this->assertSame('Jl. Tomang Raya', $result['road']);
+    }
 }
 

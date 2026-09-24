@@ -690,10 +690,10 @@ final class AuthWebController extends Controller
             'biteship_area_id' => ['nullable', 'string', 'max:100'],
         ], [
             'address.required' => 'Detail alamat usaha (nama jalan / nomor toko) wajib diisi.',
-            'province.required' => 'Provinsi wajib dipilih dari hasil pencarian wilayah.',
-            'city.required' => 'Kota/Kabupaten wajib dipilih dari hasil pencarian wilayah.',
-            'district.required' => 'Kecamatan wajib dipilih dari hasil pencarian wilayah.',
-            'village.required' => 'Kelurahan / Desa wajib dipilih dari hasil pencarian wilayah atau kode pos.',
+            'province.required' => 'Nama provinsi wajib diisi (pilih dari pencarian atau ketik langsung).',
+            'city.required' => 'Nama kota/kabupaten wajib diisi (pilih dari pencarian atau ketik langsung).',
+            'district.required' => 'Nama kecamatan wajib diisi (pilih dari pencarian atau ketik langsung).',
+            'village.required' => 'Nama kelurahan / desa wajib diisi (pilih dari pencarian atau ketik langsung).',
             'postal_code.required' => 'Kode pos wilayah usaha wajib diisi.',
         ]);
 

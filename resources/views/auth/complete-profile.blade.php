@@ -1,6 +1,19 @@
 @extends('layouts.public_marketing', ['title' => 'Lengkapi Profil & Lokasi Usaha - Cooca', 'noindex' => true])
 
 @section('content')
+    @php
+        $initProvince = (string) old('province', optional($primaryLocation)->province ?? '');
+        $initCity = (string) old('city', optional($primaryLocation)->city ?? '');
+        $initDistrict = (string) old('district', optional($primaryLocation)->district ?? '');
+        $initVillage = (string) old('village', optional($primaryLocation)->village ?? '');
+        $initPostalCode = (string) old('postal_code', optional($primaryLocation)->postal_code ?? '');
+        $initBiteshipId = (string) old('biteship_area_id', optional($primaryLocation)->biteship_area_id ?? '');
+        $initAddress = (string) old('address', optional($primaryLocation)->address ?? '');
+        $initLat = (string) old('latitude', optional($primaryLocation)->latitude ?? '-6.2088');
+        $initLng = (string) old('longitude', optional($primaryLocation)->longitude ?? '106.8456');
+        $initLabel = $initVillage ? implode(', ', array_filter([$initVillage, $initDistrict, $initCity, $initProvince])) : '';
+    @endphp
+
     <!-- Leaflet.js Assets for Interactive Business Mapping -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
@@ -116,10 +129,10 @@
                             <span class="text-[11px] font-medium text-black/45 dark:text-white/45">Tingkat Desa / Kelurahan</span>
                         </div>
 
-                        <!-- Autocomplete Pencarian Wilayah Indonesia (Kode Pos atau Kelurahan/Desa) -->
+                        <!-- Autocomplete Pencarian Cepat Wilayah Indonesia -->
                         <div class="relative">
                             <label class="block font-semibold text-black/80 dark:text-white/85 text-xs sm:text-sm mb-1.5">
-                                Cari Wilayah Indonesia <span class="text-[#FF3B30]">*</span>
+                                Cari Wilayah Cepat (Autocomplete)
                             </label>
                             <div class="relative">
                                 <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-black/40 dark:text-white/40">
@@ -138,7 +151,7 @@
                                 </div>
                             </div>
                             <p class="text-[11.5px] text-black/50 dark:text-white/50 mt-1">
-                                Ketik minimal 3 karakter untuk menampilkan opsi kelurahan, kecamatan, kota, &amp; kode pos.
+                                Ketik minimal 3 karakter untuk mengisi otomatis seluruh kolom wilayah di bawah, atau isi langsung secara manual.
                             </p>
 
                             <!-- Dropdown Hasil Pencarian Wilayah -->
@@ -162,42 +175,67 @@
                             </div>
                         </div>
 
-                        <!-- Bento Status Wilayah Terpilih -->
-                        <div x-show="selectedArea.village || selectedArea.postal_code" x-cloak
-                            class="p-4 rounded-[18px] bg-[#007AFF]/5 dark:bg-[#0A84FF]/10 border border-[#007AFF]/20 dark:border-[#0A84FF]/30 space-y-2.5">
-                            <div class="flex items-center justify-between">
-                                <span class="text-[11px] font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF] flex items-center gap-1.5">
-                                    <i data-lucide="check-circle-2" class="w-4 h-4"></i>
-                                    Wilayah Terkonfirmasi
+                        <!-- Bento Grid Form Wilayah Administratif (Visible & Editable) -->
+                        <div class="p-4 sm:p-5 rounded-[20px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/10 dark:border-white/10 space-y-3.5">
+                            <div class="flex items-center justify-between pb-1 border-b border-black/5 dark:border-white/5">
+                                <span class="text-[11.5px] font-bold uppercase tracking-wider text-black/70 dark:text-white/70 flex items-center gap-1.5">
+                                    <i data-lucide="map-pinned" class="w-4 h-4 text-[#007AFF]"></i>
+                                    Data Wilayah Administratif Usaha
                                 </span>
-                                <span class="text-[12px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-[#007AFF]/15 text-[#007AFF] dark:text-[#0A84FF]" x-text="'Kode Pos: ' + (selectedArea.postal_code || '-')"></span>
+                                <span class="text-[11px] font-medium text-black/45 dark:text-white/45">Bisa diedit manual</span>
                             </div>
-                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
-                                <div class="bg-white/70 dark:bg-black/20 p-2.5 rounded-[12px]">
-                                    <span class="block text-[10.5px] text-black/45 dark:text-white/45 uppercase font-medium">Kelurahan / Desa</span>
-                                    <span class="font-bold text-black dark:text-white truncate block mt-0.5" x-text="selectedArea.village || '-'"></span>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                                <div>
+                                    <label for="province" class="block font-semibold text-black/80 dark:text-white/85 text-xs mb-1">
+                                        Provinsi <span class="text-[#FF3B30]">*</span>
+                                    </label>
+                                    <input type="text" name="province" id="province" x-model="selectedArea.province" required
+                                        class="w-full px-3.5 py-2.5 bg-white dark:bg-[#1E2538] border border-black/10 dark:border-white/10 focus:border-[#007AFF] focus:ring-4 focus:ring-[#007AFF]/15 rounded-[14px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 transition-all text-[14px] outline-none"
+                                        placeholder="Contoh: DKI Jakarta">
                                 </div>
-                                <div class="bg-white/70 dark:bg-black/20 p-2.5 rounded-[12px]">
-                                    <span class="block text-[10.5px] text-black/45 dark:text-white/45 uppercase font-medium">Kecamatan</span>
-                                    <span class="font-bold text-black dark:text-white truncate block mt-0.5" x-text="selectedArea.district || '-'"></span>
+
+                                <div>
+                                    <label for="city" class="block font-semibold text-black/80 dark:text-white/85 text-xs mb-1">
+                                        Kota / Kabupaten <span class="text-[#FF3B30]">*</span>
+                                    </label>
+                                    <input type="text" name="city" id="city" x-model="selectedArea.city" required
+                                        class="w-full px-3.5 py-2.5 bg-white dark:bg-[#1E2538] border border-black/10 dark:border-white/10 focus:border-[#007AFF] focus:ring-4 focus:ring-[#007AFF]/15 rounded-[14px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 transition-all text-[14px] outline-none"
+                                        placeholder="Contoh: Kota Jakarta Selatan">
                                 </div>
-                                <div class="bg-white/70 dark:bg-black/20 p-2.5 rounded-[12px]">
-                                    <span class="block text-[10.5px] text-black/45 dark:text-white/45 uppercase font-medium">Kota / Kabupaten</span>
-                                    <span class="font-bold text-black dark:text-white truncate block mt-0.5" x-text="selectedArea.city || '-'"></span>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                                <div>
+                                    <label for="district" class="block font-semibold text-black/80 dark:text-white/85 text-xs mb-1">
+                                        Kecamatan <span class="text-[#FF3B30]">*</span>
+                                    </label>
+                                    <input type="text" name="district" id="district" x-model="selectedArea.district" required
+                                        class="w-full px-3.5 py-2.5 bg-white dark:bg-[#1E2538] border border-black/10 dark:border-white/10 focus:border-[#007AFF] focus:ring-4 focus:ring-[#007AFF]/15 rounded-[14px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 transition-all text-[14px] outline-none"
+                                        placeholder="Contoh: Kebayoran Baru">
                                 </div>
-                                <div class="bg-white/70 dark:bg-black/20 p-2.5 rounded-[12px]">
-                                    <span class="block text-[10.5px] text-black/45 dark:text-white/45 uppercase font-medium">Provinsi</span>
-                                    <span class="font-bold text-black dark:text-white truncate block mt-0.5" x-text="selectedArea.province || '-'"></span>
+
+                                <div>
+                                    <label for="village" class="block font-semibold text-black/80 dark:text-white/85 text-xs mb-1">
+                                        Kelurahan / Desa <span class="text-[#FF3B30]">*</span>
+                                    </label>
+                                    <input type="text" name="village" id="village" x-model="selectedArea.village" required
+                                        class="w-full px-3.5 py-2.5 bg-white dark:bg-[#1E2538] border border-black/10 dark:border-white/10 focus:border-[#007AFF] focus:ring-4 focus:ring-[#007AFF]/15 rounded-[14px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 transition-all text-[14px] outline-none"
+                                        placeholder="Contoh: Senayan">
                                 </div>
+                            </div>
+
+                            <div>
+                                <label for="postal_code" class="block font-semibold text-black/80 dark:text-white/85 text-xs mb-1">
+                                    Kode Pos <span class="text-[#FF3B30]">*</span>
+                                </label>
+                                <input type="text" name="postal_code" id="postal_code" x-model="selectedArea.postal_code" required
+                                    class="w-full sm:w-1/2 px-3.5 py-2.5 bg-white dark:bg-[#1E2538] border border-black/10 dark:border-white/10 focus:border-[#007AFF] focus:ring-4 focus:ring-[#007AFF]/15 rounded-[14px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 transition-all text-[14px] outline-none font-mono"
+                                    placeholder="Contoh: 12190">
                             </div>
                         </div>
 
-                        <!-- Hidden Form Inputs for Regional Data -->
-                        <input type="hidden" name="province" :value="selectedArea.province">
-                        <input type="hidden" name="city" :value="selectedArea.city">
-                        <input type="hidden" name="district" :value="selectedArea.district">
-                        <input type="hidden" name="village" :value="selectedArea.village">
-                        <input type="hidden" name="postal_code" :value="selectedArea.postal_code">
+                        <!-- Hidden Form Inputs for Geolocation Metadata -->
                         <input type="hidden" name="latitude" :value="latitude">
                         <input type="hidden" name="longitude" :value="longitude">
                         <input type="hidden" name="biteship_area_id" :value="selectedArea.biteship_area_id">
@@ -273,17 +311,17 @@
                 searchResults: [],
                 showDropdown: false,
                 selectedArea: {
-                    province: '{{ old('province', $primaryLocation->province ?? '') }}',
-                    city: '{{ old('city', $primaryLocation->city ?? '') }}',
-                    district: '{{ old('district', $primaryLocation->district ?? '') }}',
-                    village: '{{ old('village', $primaryLocation->village ?? '') }}',
-                    postal_code: '{{ old('postal_code', $primaryLocation->postal_code ?? '') }}',
-                    biteship_area_id: '{{ old('biteship_area_id', $primaryLocation->biteship_area_id ?? '') }}',
-                    label: '{{ old('village', $primaryLocation->village ?? '') ? ($primaryLocation->village . ', ' . $primaryLocation->district . ', ' . $primaryLocation->city . ', ' . $primaryLocation->province) : '' }}'
+                    province: {!! json_encode($initProvince) !!},
+                    city: {!! json_encode($initCity) !!},
+                    district: {!! json_encode($initDistrict) !!},
+                    village: {!! json_encode($initVillage) !!},
+                    postal_code: {!! json_encode($initPostalCode) !!},
+                    biteship_area_id: {!! json_encode($initBiteshipId) !!},
+                    label: {!! json_encode($initLabel) !!}
                 },
-                address: @json(old('address', $primaryLocation->address ?? '')),
-                latitude: '{{ old('latitude', $primaryLocation->latitude ?? -6.2088) }}',
-                longitude: '{{ old('longitude', $primaryLocation->longitude ?? 106.8456) }}',
+                address: {!! json_encode($initAddress) !!},
+                latitude: {!! json_encode($initLat) !!},
+                longitude: {!! json_encode($initLng) !!},
                 isGpsLoading: false,
                 map: null,
                 marker: null,
