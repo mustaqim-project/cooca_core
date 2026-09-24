@@ -43,11 +43,12 @@ final class GoogleRegistrationTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertSee('agungmustaqim15@gmail.com');
-        $response->assertSeeText('Lengkapi Pendaftaran Workspace');
-        $response->assertSeeText('Penataan Modul & Fitur Bisnis');
-        $response->assertSeeText('Kasir POS & Struk Cepat');
-        $response->assertSeeText('Aktifkan Semua');
-        $response->assertSeeText('Reset Preset');
+        $response->assertSeeText('Lengkapi Pendaftaran Bisnis');
+        $response->assertSee('name="business_name"', false);
+        $response->assertSee('name="phone"', false);
+        $response->assertSee('name="template_code"', false);
+        $response->assertSee('name="business_scale"', false);
+        $response->assertDontSee('name="enabled_modules[]"', false);
     }
 
     public function test_google_registration_redirects_if_no_pending_session(): void

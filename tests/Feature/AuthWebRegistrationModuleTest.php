@@ -28,19 +28,20 @@ final class AuthWebRegistrationModuleTest extends TestCase
         $this->seed(BusinessTemplateSeeder::class);
     }
 
-    public function test_register_page_renders_apple_hig_bento_value_and_protects_internal_module_switches(): void
+    public function test_register_page_renders_apple_hig_focused_form_and_protects_internal_module_switches(): void
     {
         $response = $this->get(route('register'));
 
         $response->assertStatus(200);
         $response->assertSeeText('Daftarkan Bisnis Anda');
-        $response->assertSeeText('Semua Kebutuhan Usaha Anda dalam Satu Ekosistem');
-        $response->assertSeeText('Kasir POS & Meja');
-        $response->assertSeeText('Laba Rugi Otomatis');
-        $response->assertSeeText('Jaminan Keamanan & Kerahasiaan Data Bisnis');
+        $response->assertSee('name="name"', false);
+        $response->assertSee('name="email"', false);
+        $response->assertSee('name="password"', false);
+        $response->assertSee('name="password_confirmation"', false);
         $response->assertSee('name="business_name"', false);
         $response->assertSee('name="phone"', false);
         $response->assertSee('name="template_code"', false);
+        $response->assertSee('name="business_scale"', false);
         // Public registration should not expose internal technical module switch toggles
         $response->assertDontSee('name="enabled_modules[]"', false);
         $response->assertDontSee('Aktifkan Semua', false);

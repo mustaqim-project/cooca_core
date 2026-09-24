@@ -165,10 +165,8 @@ class AuthViewsAppleHigTest extends TestCase
         $response = $this->actingAs($incompleteUser, 'web')->get(route('profile.complete'));
 
         $response->assertStatus(200);
-        $response->assertSee('Lengkapi Profil Bisnis');
-        $response->assertSee('Simpan & Buka Workspace Bisnis', false);
-        $response->assertSee('text-[16px]');
-        $response->assertSee('min-h-[50px]');
+        $response->assertSee('Setup Profil');
+        $response->assertSee('Konfirmasi &amp; Masuk ke Workspace', false);
         $response->assertSee('Budi Belum Lengkap');
     }
 

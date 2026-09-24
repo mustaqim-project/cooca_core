@@ -54,6 +54,65 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 
 - Pengetahuan yang dipromosikan ke `docs/system/` dan dampaknya pada `docs/SYSTEM_GUIDE.md`.
 
+### [WORK-2026-09-25-140] Redesain Halaman Registrasi Terpusat (Single Centered Card, Eliminasi Right Column & 2-Column Grid Skala Bisnis Mobile/Desktop)
+
+- **Date:** 2026-09-25
+- **Status:** COMPLETED
+- **Module:** Auth & Registration (`resources/views/auth/register.blade.php`, `resources/views/auth/google-register.blade.php`, `tests/Feature/AuthWebRegistrationModuleTest.php`, `tests/Feature/GoogleRegistrationTest.php`)
+- **Feature:** Redesain Formulir Registrasi Menjadi Satu Kartu Terpusat Bersih (Tanpa Right Column) & Grid Kiri-Kanan 2 Kolom untuk Skala Bisnis (Mobile & Desktop)
+- **Work Type:** UI/UX | Bento Apple HIG | Mobile Responsiveness | Automated Testing
+
+#### 1. Business Context & Objective
+
+- **Konteks:** Menjawab instruksi owner untuk meredefinisi layout halaman registrasi (`/register` dan `/auth/google/register`) menjadi tata letak satu kartu terpusat (*single centered card*), menghapus seluruh kolom kanan (*right column*), serta menerapkan kartu skala bisnis kiri-kanan (*grid-cols-2*) baik di mobile maupun desktop.
+- **Masalah/Target:**
+  1. *Single-Card Focused Register:* Memberikan pengalaman pendaftaran yang bersih, fokus, dan nyaman tanpa distraksi kolom samping.
+  2. *Grid Kiri Kanan Skala Operasional:* Opsi "UMKM & Toko Mandiri" vs "Korporasi & Multi-Cabang" tampil berdampingan 2 kolom (`grid-cols-2`) di semua resolusi (layar HP/mobile maupun desktop/laptop).
+  3. *Apple HIG Ergonomics:* Mempertahankan input anti-zoom (`text-[16px]`), tap targets minimum 48–50px, zero-emoji (Lucide SVG), dan microcopy jaminan privasi data di bawah kartu.
+
+#### 2. What Was Done
+
+1. **Redesain Halaman Registrasi Standar (`resources/views/auth/register.blade.php`):**
+   - Mengubah layout split 12-kolom menjadi kontainer terpusat `max-w-xl mx-auto`.
+   - Mengintegrasikan tombol Google SSO, form input data pemilik & usaha dengan ikon Lucide, toggle visibilitas kata sandi, dan selector template industri.
+   - Mengimplementasikan kartu pilihan Skala Operasional Bisnis dalam format `grid grid-cols-2 gap-2.5 sm:gap-3.5` (kiri: UMKM, kanan: Korporasi) yang konsisten di mobile dan desktop.
+   - Menghapus seluruh Right Column.
+2. **Redesain Halaman Registrasi Google (`resources/views/auth/google-register.blade.php`):**
+   - Menerapkan arsitektur visual terpusat `max-w-xl mx-auto` yang identik.
+   - Menampilkan badge profil Google terverifikasi di header kartu, input nama usaha, WhatsApp pemilik, dan kartu skala bisnis 2-kolom mobile/desktop.
+   - Menghapus seluruh Right Column.
+3. **Penyelarasan Test Suite Otomatis:**
+   - Memperbarui `tests/Feature/AuthWebRegistrationModuleTest.php` dan `tests/Feature/GoogleRegistrationTest.php`.
+   - Memverifikasi 29 tests pada seluruh suite auth, scale, dan view lulus 100%.
+
+#### 3. Technical Changes
+
+- **Files Affected:**
+  - `resources/views/auth/register.blade.php`
+  - `resources/views/auth/google-register.blade.php`
+  - `tests/Feature/AuthWebRegistrationModuleTest.php`
+  - `tests/Feature/GoogleRegistrationTest.php`
+  - `tests/Feature/BusinessScaleRegistrationTest.php`
+  - `tests/Feature/AuthViewsAppleHigTest.php`
+  - `tests/Feature/AdminAuthAndRecoveryAppleHigTest.php`
+  - `docs/AiWorkHistory.md`
+
+#### 4. System Impacts
+
+- **Workflow Impact:** Formulir registrasi menjadi sangat ringkas dan terfokus.
+- **Mobile Impact:** Tampilan di layar smartphone menjadi proporsional, lapang, dan opsi skala usaha sejajar 2 kolom yang mudah di-tap.
+
+#### 5. Verification & Testing
+
+- `tests/Feature/GoogleRegistrationTest.php`: 4 tests, 28 assertions (PASSED).
+- `tests/Feature/BusinessScaleRegistrationTest.php`: 5 tests, 33 assertions (PASSED).
+- `tests/Feature/AuthWebRegistrationModuleTest.php`: 4 tests, 38 assertions (PASSED).
+- `tests/Feature/AuthViewsAppleHigTest.php`: 11 tests, 57 assertions (PASSED).
+- `tests/Feature/AdminAuthAndRecoveryAppleHigTest.php`: 5 tests, 43 assertions (PASSED).
+- Total: 29 tests, 199 assertions (100% PASSED).
+
+---
+
 ### [WORK-2026-09-24-139] Pembersihan dan Restrukturisasi Menu Navigasi Sidebar (Bento Apple HIG Accordion & Eliminasi Redundansi Sublink)
 
 - **Date:** 2026-09-24

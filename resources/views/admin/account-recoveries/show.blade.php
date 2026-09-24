@@ -89,8 +89,7 @@
                                 class="w-8 h-8 rounded-[10px] bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center">
                                 <i data-lucide="arrow-left-right" class="w-4 h-4"></i>
                             </div>
-                            <h3 class="text-sm sm:text-base font-bold text-black dark:text-white">Komparasi Data Akun
-                                Terdaftar vs Kontak Baru</h3>
+                            <h3 class="text-sm sm:text-base font-bold text-black dark:text-white">Komparasi Data Akun Terdaftar vs Kontak Baru</h3>
                         </div>
                         <span class="text-[11.5px] font-medium text-black/60 dark:text-white/60">
                             {{ $recovery->getIssueTypeLabel() }}
@@ -182,8 +181,7 @@
                                 class="w-8 h-8 rounded-[10px] bg-[#5856D6]/10 text-[#5856D6] flex items-center justify-center">
                                 <i data-lucide="file-check" class="w-4 h-4"></i>
                             </div>
-                            <h3 class="text-sm sm:text-base font-bold text-black dark:text-white">Meja Uji Bukti Otentik
-                                Kepemilikan Akun</h3>
+                            <h3 class="text-sm sm:text-base font-bold text-black dark:text-white">Meja Uji Bukti Otentik Kepemilikan Akun</h3>
                         </div>
                         <span class="text-[11px] text-black/40 dark:text-white/40">Klik gambar untuk perbesar</span>
                     </div>
