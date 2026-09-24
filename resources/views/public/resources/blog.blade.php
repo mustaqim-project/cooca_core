@@ -55,16 +55,20 @@
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
         <!-- ═══ 1. HERO SECTION: 2-Grid Bento Apple HIG Canvas ══════════════════════ -->
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
-        <section class="pt-12 sm:pt-16 lg:pt-20 pb-12 sm:pb-16 border-b border-black/[0.06] dark:border-white/[0.08]">
-            <div class="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
+        <section class="relative bg-[#060B1E] text-white pt-10 sm:pt-14 pb-16 lg:pb-20 overflow-hidden border-b border-white/10 w-full min-w-full">
+            {{-- Dual Ambient Glows --}}
+            <div class="absolute top-0 right-1/4 w-96 h-96 bg-[#007AFF]/15 rounded-full blur-[140px] pointer-events-none"></div>
+            <div class="absolute bottom-0 left-1/4 w-96 h-96 bg-[#00C4D8]/10 rounded-full blur-[120px] pointer-events-none"></div>
+
+            <div class="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-6">
 
                 <!-- Breadcrumb Navigation -->
-                <nav class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 mb-6" aria-label="Breadcrumb">
-                    <a href="{{ route('landing') }}" class="hover:text-slate-900 dark:hover:text-white transition-colors">Beranda</a>
-                    <span aria-hidden="true" class="text-slate-300 dark:text-slate-700">/</span>
-                    <span>Pusat Sumber Daya</span>
-                    <span aria-hidden="true" class="text-slate-300 dark:text-slate-700">/</span>
-                    <span class="text-[#007AFF] dark:text-[#0A84FF] font-semibold" aria-current="page">Edukasi &amp; Kurikulum</span>
+                <nav class="flex items-center gap-2 text-xs text-slate-400" aria-label="Breadcrumb">
+                    <a href="{{ route('landing') }}" class="hover:text-white transition-colors">Beranda</a>
+                    <span aria-hidden="true" class="text-white/20">/</span>
+                    <span class="text-slate-400">Pusat Sumber Daya</span>
+                    <span aria-hidden="true" class="text-white/20">/</span>
+                    <span class="text-[#00C4D8] font-semibold" aria-current="page">Edukasi &amp; Kurikulum</span>
                 </nav>
 
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
@@ -73,38 +77,38 @@
                     <div class="lg:col-span-5 space-y-6 text-center mx-auto flex flex-col items-center lg:text-left lg:items-start lg:mx-0">
                         <div class="space-y-3 w-full">
                             <!-- Pure Typographic Kicker -->
-                            <div class="text-[12px] sm:text-[13px] font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF]">
-                                KURIKULUM &amp; BASIS PENGETAHUAN UMKM
+                            <div class="text-xs sm:text-[13px] font-bold uppercase tracking-wider text-[#00C4D8]">
+                                Kurikulum &amp; Basis Pengetahuan UMKM
                             </div>
 
-                            <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.65rem] xl:text-[3rem] font-extrabold tracking-tight text-slate-900 dark:text-white leading-[1.15] text-balance break-words max-w-[22rem] sm:max-w-xl lg:max-w-none mx-auto lg:mx-0">
+                            <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.65rem] xl:text-[3rem] font-extrabold tracking-tight text-white leading-[1.15] text-balance break-words max-w-[22rem] sm:max-w-xl lg:max-w-none mx-auto lg:mx-0">
                                 Kembangkan Usaha Anda dengan Wawasan Finansial &amp; Operasional Nyata
                             </h1>
                         </div>
 
-                        <p class="text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed font-normal text-pretty max-w-[32rem] lg:max-w-xl mx-auto lg:mx-0">
+                        <p class="text-base sm:text-lg text-slate-300 leading-relaxed font-normal text-pretty max-w-[32rem] lg:max-w-xl mx-auto lg:mx-0">
                             Menjalankan bisnis bukan sekadar menunggu pembeli datang. Pelajari disiplin pemisahan arus kas, cara tepat menentukan harga pokok penjualan (HPP), teknik kasir cepat, hingga strategi mengikat pelanggan setia.
                         </p>
 
                         <!-- Trust Guarantees for UMKM (40-65 y.o. peace of mind) -->
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 text-left w-full">
-                            <div class="p-3.5 rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] flex items-center gap-3">
-                                <div class="w-9 h-9 rounded-[10px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+                            <div class="p-3.5 rounded-[16px] bg-white/[0.05] border border-white/10 flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-[10px] bg-emerald-500/15 text-emerald-400 flex items-center justify-center shrink-0">
                                     <i data-lucide="check" class="w-5 h-5"></i>
                                 </div>
                                 <div class="min-w-0">
-                                    <div class="text-[13px] font-bold text-slate-900 dark:text-white leading-tight">Bahasa Sederhana</div>
-                                    <div class="text-[11px] text-slate-500 dark:text-slate-400 leading-tight mt-0.5">Tanpa istilah asing yang membingungkan</div>
+                                    <div class="text-[13px] font-bold text-white leading-tight">Bahasa Sederhana</div>
+                                    <div class="text-[11px] text-slate-400 leading-tight mt-0.5">Tanpa istilah asing yang membingungkan</div>
                                 </div>
                             </div>
 
-                            <div class="p-3.5 rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] flex items-center gap-3">
-                                <div class="w-9 h-9 rounded-[10px] bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF] flex items-center justify-center shrink-0">
+                            <div class="p-3.5 rounded-[16px] bg-white/[0.05] border border-white/10 flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-[10px] bg-sky-500/15 text-[#00C4D8] flex items-center justify-center shrink-0">
                                     <i data-lucide="calculator" class="w-5 h-5"></i>
                                 </div>
                                 <div class="min-w-0">
-                                    <div class="text-[13px] font-bold text-slate-900 dark:text-white leading-tight">Contoh Kasus Riil</div>
-                                    <div class="text-[11px] text-slate-500 dark:text-slate-400 leading-tight mt-0.5">Langsung dari toko, kafe, dan bengkel</div>
+                                    <div class="text-[13px] font-bold text-white leading-tight">Contoh Kasus Riil</div>
+                                    <div class="text-[11px] text-slate-400 leading-tight mt-0.5">Langsung dari toko, kafe, dan bengkel</div>
                                 </div>
                             </div>
                         </div>
@@ -112,91 +116,92 @@
                         <!-- Direct Primary & Secondary CTA Buttons (Centered on Mobile, Row on Desktop) -->
                         <div class="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center sm:justify-center lg:justify-start gap-3.5 w-full sm:w-auto">
                             <a href="{{ route('blog.index') }}"
-                                class="h-12 px-7 rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition-all shadow-sm min-h-[48px]">
+                                class="h-12 px-7 rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition-all shadow-lg shadow-[#007AFF]/25 min-h-[48px]">
                                 <span>Buka Katalog 100 Artikel</span>
                                 <i data-lucide="arrow-right" class="w-4 h-4 shrink-0"></i>
                             </a>
                             <button @click="openSyllabus(1)"
-                                class="h-12 px-6 rounded-[14px] bg-white dark:bg-[#1C1C1E] hover:bg-slate-50 dark:hover:bg-[#2C2C2E] border border-black/[0.08] dark:border-white/[0.12] text-slate-800 dark:text-slate-200 text-sm font-semibold flex items-center justify-center gap-2 transition active:scale-[0.98] min-h-[48px]">
-                                <i data-lucide="book-open" class="w-4 h-4 text-[#007AFF] dark:text-[#0A84FF] shrink-0"></i>
+                                class="h-12 px-6 rounded-[14px] bg-white/10 hover:bg-white/15 border border-white/15 text-white text-sm font-semibold flex items-center justify-center gap-2 transition active:scale-[0.98] backdrop-blur-sm min-h-[48px]">
+                                <i data-lucide="book-open" class="w-4 h-4 text-[#00C4D8] shrink-0"></i>
                                 <span>Lihat Silabus Pembelajaran</span>
                             </button>
                         </div>
                     </div>
 
                     <!-- KANAN: Product UI Visualization (Real Business Ledger & Recipe Preview - 7 Cols ~ 58%) -->
-                    <div class="lg:col-span-7">
-                        <div class="rounded-[24px] bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] p-6 shadow-sm space-y-4">
+                    <div class="lg:col-span-7 w-full">
+                        <div class="rounded-[24px] bg-[#0B132B]/90 border border-white/10 p-5 sm:p-6 shadow-2xl backdrop-blur-xl text-white space-y-4">
                             
                             <!-- Header Window Card -->
-                            <div class="flex items-center justify-between border-b border-black/[0.06] dark:border-white/[0.08] pb-3">
+                            <div class="flex items-center justify-between border-b border-white/10 pb-3">
                                 <div>
-                                    <div class="text-xs font-bold text-slate-900 dark:text-white">Rekapitulasi Usaha Mandiri</div>
-                                    <div class="text-[11px] text-slate-500 dark:text-slate-400">Contoh Laporan Bersih Toko Harian</div>
+                                    <div class="text-xs font-bold text-white">Rekapitulasi Usaha Mandiri</div>
+                                    <div class="text-[11px] text-slate-400">Contoh Laporan Bersih Toko Harian</div>
                                 </div>
-                                <span class="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-[8px]">
+                                <span class="text-[11px] font-bold text-emerald-400 bg-emerald-500/15 border border-emerald-500/25 px-2.5 py-1 rounded-[8px] flex items-center gap-1">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
                                     Laba Terkunci
                                 </span>
                             </div>
 
                             <!-- Financial Numbers Snapshot -->
                             <div class="grid grid-cols-2 gap-3">
-                                <div class="p-3 rounded-[14px] bg-[#F2F2F7] dark:bg-[#2C2C2E] border border-black/[0.04] dark:border-white/[0.06]">
-                                    <div class="text-[11px] font-medium text-slate-500 dark:text-slate-400">Total Penjualan Kotor</div>
-                                    <div class="text-lg font-bold text-slate-900 dark:text-white tabular-nums mt-0.5">Rp 1.450.000</div>
-                                    <div class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">42 Transaksi Kasir</div>
+                                <div class="p-3.5 rounded-[16px] bg-white/[0.04] border border-white/10">
+                                    <div class="text-[11px] font-medium text-slate-400">Total Penjualan Kotor</div>
+                                    <div class="text-lg font-bold text-white tabular-nums mt-0.5">Rp 1.450.000</div>
+                                    <div class="text-[10px] text-slate-400 mt-0.5">42 Transaksi Kasir</div>
                                 </div>
-                                <div class="p-3 rounded-[14px] bg-[#F2F2F7] dark:bg-[#2C2C2E] border border-black/[0.04] dark:border-white/[0.06]">
-                                    <div class="text-[11px] font-medium text-slate-500 dark:text-slate-400">Modal Bahan Baku (HPP)</div>
-                                    <div class="text-lg font-bold text-slate-900 dark:text-white tabular-nums mt-0.5">Rp 780.000</div>
-                                    <div class="text-[10px] text-emerald-600 dark:text-emerald-400 mt-0.5">Margin 46.2%</div>
+                                <div class="p-3.5 rounded-[16px] bg-white/[0.04] border border-white/10">
+                                    <div class="text-[11px] font-medium text-slate-400">Modal Bahan Baku (HPP)</div>
+                                    <div class="text-lg font-bold text-white tabular-nums mt-0.5">Rp 780.000</div>
+                                    <div class="text-[10px] text-emerald-400 mt-0.5">Margin 46.2%</div>
                                 </div>
                             </div>
 
                             <!-- Interactive Topic Highlights -->
                             <div class="space-y-2.5 pt-1">
-                                <div class="p-3 rounded-[14px] border border-black/[0.06] dark:border-white/[0.08] bg-[#F9F9FB] dark:bg-[#242426] flex items-center justify-between gap-3">
+                                <div class="p-3 rounded-[14px] border border-white/10 bg-white/[0.04] flex items-center justify-between gap-3">
                                     <div class="flex items-center gap-3 min-w-0">
-                                        <div class="w-8 h-8 rounded-[10px] bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF] flex items-center justify-center font-bold text-xs shrink-0">
+                                        <div class="w-8 h-8 rounded-[10px] bg-[#007AFF]/20 text-[#00C4D8] flex items-center justify-center font-bold text-xs shrink-0">
                                             01
                                         </div>
                                         <div class="min-w-0">
-                                            <div class="text-xs font-bold text-slate-900 dark:text-white truncate">Pemisahan Rekening Usaha</div>
-                                            <div class="text-[11px] text-slate-500 dark:text-slate-400 truncate">Cara agar modal kulakan tidak terpakai</div>
+                                            <div class="text-xs font-bold text-white truncate">Pemisahan Rekening Usaha</div>
+                                            <div class="text-[11px] text-slate-400 truncate">Cara agar modal kulakan tidak terpakai</div>
                                         </div>
                                     </div>
-                                    <i data-lucide="check-circle" class="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0"></i>
+                                    <i data-lucide="check-circle" class="w-4 h-4 text-emerald-400 shrink-0"></i>
                                 </div>
 
-                                <div class="p-3 rounded-[14px] border border-black/[0.06] dark:border-white/[0.08] bg-[#F9F9FB] dark:bg-[#242426] flex items-center justify-between gap-3">
+                                <div class="p-3 rounded-[14px] border border-white/10 bg-white/[0.04] flex items-center justify-between gap-3">
                                     <div class="flex items-center gap-3 min-w-0">
-                                        <div class="w-8 h-8 rounded-[10px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold text-xs shrink-0">
+                                        <div class="w-8 h-8 rounded-[10px] bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs shrink-0">
                                             02
                                         </div>
                                         <div class="min-w-0">
-                                            <div class="text-xs font-bold text-slate-900 dark:text-white truncate">Rumus Menghitung HPP</div>
-                                            <div class="text-[11px] text-slate-500 dark:text-slate-400 truncate">Bahan baku, porsi, dan biaya operasional</div>
+                                            <div class="text-xs font-bold text-white truncate">Rumus Menghitung HPP</div>
+                                            <div class="text-[11px] text-slate-400 truncate">Bahan baku, porsi, dan biaya operasional</div>
                                         </div>
                                     </div>
-                                    <i data-lucide="check-circle" class="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0"></i>
+                                    <i data-lucide="check-circle" class="w-4 h-4 text-emerald-400 shrink-0"></i>
                                 </div>
 
-                                <div class="p-3 rounded-[14px] border border-black/[0.06] dark:border-white/[0.08] bg-[#F9F9FB] dark:bg-[#242426] flex items-center justify-between gap-3">
+                                <div class="p-3 rounded-[14px] border border-white/10 bg-white/[0.04] flex items-center justify-between gap-3">
                                     <div class="flex items-center gap-3 min-w-0">
-                                        <div class="w-8 h-8 rounded-[10px] bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold text-xs shrink-0">
+                                        <div class="w-8 h-8 rounded-[10px] bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-xs shrink-0">
                                             03
                                         </div>
                                         <div class="min-w-0">
-                                            <div class="text-xs font-bold text-slate-900 dark:text-white truncate">Otomasi Kasir POS Kilat</div>
-                                            <div class="text-[11px] text-slate-500 dark:text-slate-400 truncate">Cetak struk thermal &amp; nota WhatsApp</div>
+                                            <div class="text-xs font-bold text-white truncate">Otomasi Kasir POS Kilat</div>
+                                            <div class="text-[11px] text-slate-400 truncate">Cetak struk thermal &amp; nota WhatsApp</div>
                                         </div>
                                     </div>
-                                    <i data-lucide="check-circle" class="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0"></i>
+                                    <i data-lucide="check-circle" class="w-4 h-4 text-amber-400 shrink-0"></i>
                                 </div>
                             </div>
 
                             <!-- Footer Reassurance -->
-                            <div class="p-2.5 rounded-[12px] bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF] text-xs font-semibold text-center flex items-center justify-center gap-2">
+                            <div class="p-2.5 rounded-[12px] bg-white/[0.04] border border-white/5 text-[#00C4D8] text-xs font-semibold text-center flex items-center justify-center gap-2">
                                 <i data-lucide="book-marked" class="w-4 h-4"></i>
                                 <span>Materi Edukasi Terbuka Gratis Selamanya</span>
                             </div>

@@ -40,14 +40,20 @@ class="w-full font-sans antialiased bg-[#F2F2F7] dark:bg-[#000000] text-[#1D1D1F
     <!-- ══════════════════════════════════════════════════════════════════════════ -->
     <!-- ═══ 1. HERO SECTION: 2-Grid Bento Apple HIG Canvas ══════════════════════ -->
     <!-- ══════════════════════════════════════════════════════════════════════════ -->
-    <section class="pt-12 sm:pt-16 lg:pt-20 pb-12 sm:pb-16 border-b border-black/[0.06] dark:border-white/[0.08]">
-        <div class="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- ══════════════════════════════════════════════════════════════════════════ -->
+    <!-- ═══ 1. HERO SECTION: 2-Grid Bento Apple HIG Canvas (Midnight Blue) ══════ -->
+    <!-- ══════════════════════════════════════════════════════════════════════════ -->
+    <section class="relative bg-[#060B1E] text-white pt-12 sm:pt-16 lg:pt-20 pb-12 sm:pb-16 border-b border-white/[0.08] overflow-hidden">
+        <!-- Subtle Glow -->
+        <div class="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-20%,rgba(0,122,255,0.15),transparent)] pointer-events-none"></div>
+
+        <div class="relative max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
 
             <!-- Breadcrumb Navigation -->
-            <nav class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 mb-6" aria-label="Breadcrumb">
-                <a href="{{ route('landing') }}" class="hover:text-slate-900 dark:hover:text-white transition-colors">Beranda</a>
-                <span aria-hidden="true" class="text-slate-300 dark:text-slate-700">/</span>
-                <span class="text-[#007AFF] dark:text-[#0A84FF] font-semibold" aria-current="page">Jelajah &amp; Direktori Toko</span>
+            <nav class="flex items-center gap-2 text-xs text-slate-400 mb-6" aria-label="Breadcrumb">
+                <a href="{{ route('landing') }}" class="hover:text-white transition-colors">Beranda</a>
+                <span aria-hidden="true" class="text-slate-600">/</span>
+                <span class="text-[#0A84FF] font-semibold" aria-current="page">Jelajah &amp; Direktori Toko</span>
             </nav>
 
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
@@ -56,16 +62,16 @@ class="w-full font-sans antialiased bg-[#F2F2F7] dark:bg-[#000000] text-[#1D1D1F
                 <div class="lg:col-span-5 space-y-6 text-center mx-auto flex flex-col items-center lg:text-left lg:items-start lg:mx-0">
                     <div class="space-y-3 w-full">
                         <!-- Pure Typographic Kicker -->
-                        <div class="text-[12px] sm:text-[13px] font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF]">
+                        <div class="text-[12px] sm:text-[13px] font-bold uppercase tracking-wider text-[#0A84FF]">
                             DIREKTORI UMKM TERVERIFIKASI
                         </div>
 
-                        <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.65rem] xl:text-[3rem] font-extrabold tracking-tight text-slate-900 dark:text-white leading-[1.15] text-balance break-words max-w-[22rem] sm:max-w-xl lg:max-w-none mx-auto lg:mx-0">
+                        <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.65rem] xl:text-[3rem] font-extrabold tracking-tight text-white leading-[1.15] text-balance break-words max-w-[22rem] sm:max-w-xl lg:max-w-none mx-auto lg:mx-0">
                             Jelajah Profil &amp; Toko Resmi UMKM Lokal
                         </h1>
                     </div>
 
-                    <p class="text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed font-normal text-pretty max-w-[32rem] lg:max-w-xl mx-auto lg:mx-0">
+                    <p class="text-base sm:text-lg text-slate-300 leading-relaxed font-normal text-pretty max-w-[32rem] lg:max-w-xl mx-auto lg:mx-0">
                         Temukan toko fisik, kafe, penyedia jasa servis, dan produsen kreatif di sekitar Anda. Transaksi langsung ke pemilik usaha tanpa biaya perantara tambahan.
                     </p>
 
@@ -77,11 +83,11 @@ class="w-full font-sans antialiased bg-[#F2F2F7] dark:bg-[#000000] text-[#1D1D1F
                         @if ($capability)
                             <input type="hidden" name="fitur" value="{{ $capability }}">
                         @endif
-                        <div class="relative flex items-center bg-white dark:bg-[#1C1C1E] rounded-[16px] border border-black/[0.08] dark:border-white/[0.12] p-1.5 shadow-sm focus-within:ring-2 focus-within:ring-[#007AFF]/30 focus-within:border-[#007AFF] transition">
+                        <div class="relative flex items-center bg-white/[0.06] rounded-[16px] border border-white/[0.12] p-1.5 shadow-sm focus-within:ring-2 focus-within:ring-[#0A84FF]/30 focus-within:border-[#0A84FF] transition">
                             <i data-lucide="search" class="w-5 h-5 ml-3.5 text-slate-400 shrink-0"></i>
                             <input type="text" name="q" value="{{ $search }}"
                                 placeholder="Cari nama toko, jenis usaha, atau kota..."
-                                class="w-full bg-transparent border-0 px-3.5 py-2.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none">
+                                class="w-full bg-transparent border-0 px-3.5 py-2.5 text-sm text-white placeholder-slate-400 focus:outline-none">
                             <button type="submit"
                                 class="shrink-0 h-10 px-5 rounded-[12px] bg-[#007AFF] hover:bg-[#0066DF] text-white text-xs font-semibold shadow-xs active:scale-[0.98] transition flex items-center gap-1.5 min-h-[44px]">
                                 <span>Cari</span>
@@ -92,83 +98,83 @@ class="w-full font-sans antialiased bg-[#F2F2F7] dark:bg-[#000000] text-[#1D1D1F
 
                     <!-- Quick Reassurance Badges -->
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1 text-left w-full">
-                        <div class="p-3.5 rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08]">
-                            <div class="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
-                                <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0"></i>
+                        <div class="p-3.5 rounded-[16px] bg-white/[0.04] border border-white/[0.08]">
+                            <div class="text-xs font-bold text-white flex items-center gap-1.5">
+                                <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"></i>
                                 <span>{{ $totalStores }} Toko</span>
                             </div>
-                            <div class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Terdaftar resmi</div>
+                            <div class="text-[11px] text-slate-400 mt-0.5">Terdaftar resmi</div>
                         </div>
 
-                        <div class="p-3.5 rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08]">
-                            <div class="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
-                                <i data-lucide="shield-check" class="w-4 h-4 text-[#007AFF] dark:text-[#0A84FF] shrink-0"></i>
+                        <div class="p-3.5 rounded-[16px] bg-white/[0.04] border border-white/[0.08]">
+                            <div class="text-xs font-bold text-white flex items-center gap-1.5">
+                                <i data-lucide="shield-check" class="w-4 h-4 text-[#0A84FF] shrink-0"></i>
                                 <span>Terverifikasi</span>
                             </div>
-                            <div class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Identitas pemilik sah</div>
+                            <div class="text-[11px] text-slate-400 mt-0.5">Identitas pemilik sah</div>
                         </div>
 
-                        <div class="p-3.5 rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08]">
-                            <div class="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
-                                <i data-lucide="phone" class="w-4 h-4 text-amber-500 shrink-0"></i>
+                        <div class="p-3.5 rounded-[16px] bg-white/[0.04] border border-white/[0.08]">
+                            <div class="text-xs font-bold text-white flex items-center gap-1.5">
+                                <i data-lucide="phone" class="w-4 h-4 text-amber-400 shrink-0"></i>
                                 <span>Langsung</span>
                             </div>
-                            <div class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Bebas komisi perantara</div>
+                            <div class="text-[11px] text-slate-400 mt-0.5">Bebas komisi perantara</div>
                         </div>
                     </div>
                 </div>
 
                 <!-- KANAN: Directory Ecosystem Preview Widget (7 Cols ~ 58%) -->
                 <div class="lg:col-span-7">
-                    <div class="rounded-[24px] bg-white dark:bg-[#1C1C1E] p-6 sm:p-7 shadow-sm border border-black/[0.06] dark:border-white/[0.08] space-y-4">
-                        <div class="flex items-center justify-between border-b border-black/[0.06] dark:border-white/[0.08] pb-3">
+                    <div class="rounded-[24px] bg-white/[0.04] backdrop-blur-md p-6 sm:p-7 border border-white/[0.08] space-y-4">
+                        <div class="flex items-center justify-between border-b border-white/[0.08] pb-3">
                             <div class="flex items-center gap-2">
                                 <span class="w-3 h-3 rounded-full bg-[#FF5F56]"></span>
                                 <span class="w-3 h-3 rounded-full bg-[#FFBD2E]"></span>
                                 <span class="w-3 h-3 rounded-full bg-[#27C93F]"></span>
-                                <span class="text-xs font-mono font-semibold text-slate-500 dark:text-slate-400 ml-2">
+                                <span class="text-xs font-mono font-semibold text-slate-300 ml-2">
                                     Direktori Bisnis Aktif
                                 </span>
                             </div>
-                            <span class="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full flex items-center gap-1.5">
-                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                            <span class="text-[11px] font-semibold text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full flex items-center gap-1.5 border border-emerald-500/20">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
                                 Realtime
                             </span>
                         </div>
 
                         <!-- Mini Store Directory Spotlight -->
-                        <div class="p-4 rounded-[18px] bg-[#F2F2F7] dark:bg-[#2C2C2E] border border-black/[0.04] dark:border-white/[0.04] space-y-3">
+                        <div class="p-4 rounded-[18px] bg-white/[0.03] border border-white/[0.06] space-y-3">
                             <div class="flex items-center justify-between">
-                                <div class="text-xs font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF]">
+                                <div class="text-xs font-bold uppercase tracking-wider text-[#0A84FF]">
                                     Layanan Tersedia di Seluruh Indonesia
                                 </div>
-                                <span class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Bebas Potongan</span>
+                                <span class="text-[11px] text-slate-400 font-medium">Bebas Potongan</span>
                             </div>
 
                             <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
-                                <div class="p-3 rounded-[12px] bg-white dark:bg-[#1C1C1E] border border-black/[0.04] dark:border-white/[0.06] flex items-center gap-2 font-medium text-slate-800 dark:text-slate-200">
-                                    <div class="w-7 h-7 rounded-[8px] bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF] flex items-center justify-center shrink-0">
+                                <div class="p-3 rounded-[12px] bg-white/[0.04] border border-white/[0.08] flex items-center gap-2 font-medium text-slate-200">
+                                    <div class="w-7 h-7 rounded-[8px] bg-[#007AFF]/15 text-[#0A84FF] flex items-center justify-center shrink-0">
                                         <i data-lucide="store" class="w-3.5 h-3.5"></i>
                                     </div>
                                     <span class="truncate">Ambil di Toko</span>
                                 </div>
 
-                                <div class="p-3 rounded-[12px] bg-white dark:bg-[#1C1C1E] border border-black/[0.04] dark:border-white/[0.06] flex items-center gap-2 font-medium text-slate-800 dark:text-slate-200">
-                                    <div class="w-7 h-7 rounded-[8px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+                                <div class="p-3 rounded-[12px] bg-white/[0.04] border border-white/[0.08] flex items-center gap-2 font-medium text-slate-200">
+                                    <div class="w-7 h-7 rounded-[8px] bg-emerald-500/15 text-emerald-400 flex items-center justify-center shrink-0">
                                         <i data-lucide="bike" class="w-3.5 h-3.5"></i>
                                     </div>
                                     <span class="truncate">Kurir Lokal</span>
                                 </div>
 
-                                <div class="p-3 rounded-[12px] bg-white dark:bg-[#1C1C1E] border border-black/[0.04] dark:border-white/[0.06] flex items-center gap-2 font-medium text-slate-800 dark:text-slate-200">
-                                    <div class="w-7 h-7 rounded-[8px] bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
+                                <div class="p-3 rounded-[12px] bg-white/[0.04] border border-white/[0.08] flex items-center gap-2 font-medium text-slate-200">
+                                    <div class="w-7 h-7 rounded-[8px] bg-indigo-500/15 text-indigo-400 flex items-center justify-center shrink-0">
                                         <i data-lucide="calendar-check" class="w-3.5 h-3.5"></i>
                                     </div>
                                     <span class="truncate">Reservasi</span>
                                 </div>
 
-                                <div class="p-3 rounded-[12px] bg-white dark:bg-[#1C1C1E] border border-black/[0.04] dark:border-white/[0.06] flex items-center gap-2 font-medium text-slate-800 dark:text-slate-200">
-                                    <div class="w-7 h-7 rounded-[8px] bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+                                <div class="p-3 rounded-[12px] bg-white/[0.04] border border-white/[0.08] flex items-center gap-2 font-medium text-slate-200">
+                                    <div class="w-7 h-7 rounded-[8px] bg-amber-500/15 text-amber-400 flex items-center justify-center shrink-0">
                                         <i data-lucide="truck" class="w-3.5 h-3.5"></i>
                                     </div>
                                     <span class="truncate">Pesanan PO</span>
@@ -177,12 +183,12 @@ class="w-full font-sans antialiased bg-[#F2F2F7] dark:bg-[#000000] text-[#1D1D1F
                         </div>
 
                         <!-- Verification Footer -->
-                        <div class="p-3.5 rounded-[16px] bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-emerald-400 text-xs font-semibold flex items-center justify-between">
+                        <div class="p-3.5 rounded-[16px] bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold flex items-center justify-between">
                             <div class="flex items-center gap-2">
                                 <i data-lucide="shield-check" class="w-4 h-4 shrink-0"></i>
                                 <span>Status Toko: Terdaftar Resmi &amp; Bebas Biaya Transaksi</span>
                             </div>
-                            <a href="{{ route('register') }}" class="font-bold underline text-xs shrink-0 ml-2">
+                            <a href="{{ route('register') }}" class="font-bold underline text-xs shrink-0 ml-2 hover:text-emerald-300">
                                 Daftarkan Usaha Anda
                             </a>
                         </div>

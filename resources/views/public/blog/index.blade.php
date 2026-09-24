@@ -40,14 +40,20 @@ class="w-full font-sans antialiased bg-[#F2F2F7] dark:bg-[#000000] text-[#1D1D1F
     <!-- ══════════════════════════════════════════════════════════════════════════ -->
     <!-- ═══ 1. HERO SECTION: 2-Grid Bento Apple HIG Canvas ══════════════════════ -->
     <!-- ══════════════════════════════════════════════════════════════════════════ -->
-    <section class="pt-12 sm:pt-16 lg:pt-20 pb-12 sm:pb-16 border-b border-black/[0.06] dark:border-white/[0.08]">
-        <div class="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- ══════════════════════════════════════════════════════════════════════════ -->
+    <!-- ═══ 1. HERO SECTION: 2-Grid Bento Apple HIG Canvas (Midnight Blue) ══════ -->
+    <!-- ══════════════════════════════════════════════════════════════════════════ -->
+    <section class="relative bg-[#060B1E] text-white pt-12 sm:pt-16 lg:pt-20 pb-12 sm:pb-16 border-b border-white/[0.08] overflow-hidden">
+        <!-- Subtle Glow -->
+        <div class="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-20%,rgba(0,122,255,0.15),transparent)] pointer-events-none"></div>
+
+        <div class="relative max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
 
             <!-- Breadcrumb Navigation -->
-            <nav class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 mb-6" aria-label="Breadcrumb">
-                <a href="{{ route('landing') }}" class="hover:text-slate-900 dark:hover:text-white transition-colors">Beranda</a>
-                <span aria-hidden="true" class="text-slate-300 dark:text-slate-700">/</span>
-                <span class="text-[#007AFF] dark:text-[#0A84FF] font-semibold" aria-current="page">Blog &amp; Panduan Praktis</span>
+            <nav class="flex items-center gap-2 text-xs text-slate-400 mb-6" aria-label="Breadcrumb">
+                <a href="{{ route('landing') }}" class="hover:text-white transition-colors">Beranda</a>
+                <span aria-hidden="true" class="text-slate-600">/</span>
+                <span class="text-[#0A84FF] font-semibold" aria-current="page">Blog &amp; Panduan Praktis</span>
             </nav>
 
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
@@ -56,43 +62,43 @@ class="w-full font-sans antialiased bg-[#F2F2F7] dark:bg-[#000000] text-[#1D1D1F
                 <div class="lg:col-span-5 space-y-6 text-center mx-auto flex flex-col items-center lg:text-left lg:items-start lg:mx-0">
                     <div class="space-y-3 w-full">
                         <!-- Pure Typographic Kicker -->
-                        <div class="text-[12px] sm:text-[13px] font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF]">
+                        <div class="text-[12px] sm:text-[13px] font-bold uppercase tracking-wider text-[#0A84FF]">
                             PUSAT PANDUAN &amp; EDUKASI UMKM
                         </div>
 
-                        <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.65rem] xl:text-[3rem] font-extrabold tracking-tight text-slate-900 dark:text-white leading-[1.15] text-balance break-words max-w-[22rem] sm:max-w-xl lg:max-w-none mx-auto lg:mx-0">
+                        <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.65rem] xl:text-[3rem] font-extrabold tracking-tight text-white leading-[1.15] text-balance break-words max-w-[22rem] sm:max-w-xl lg:max-w-none mx-auto lg:mx-0">
                             Wawasan Praktis untuk Kembangkan Usaha Anda
                         </h1>
                     </div>
 
-                    <p class="text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed font-normal text-pretty max-w-[32rem] lg:max-w-xl mx-auto lg:mx-0">
+                    <p class="text-base sm:text-lg text-slate-300 leading-relaxed font-normal text-pretty max-w-[32rem] lg:max-w-xl mx-auto lg:mx-0">
                         Pelajari cara menghitung modal pokok (HPP), titik impas (BEP), tips mengelola arus kas harian, dan tutorial kasir tanpa rumus yang rumit.
                     </p>
 
                     <!-- Trust Commitments for UMKM -->
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1 text-left w-full">
-                        <div class="p-3.5 rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08]">
-                            <div class="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                                <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0"></i>
+                        <div class="p-3.5 rounded-[16px] bg-white/[0.04] border border-white/[0.08]">
+                            <div class="text-xs font-bold text-white flex items-center gap-2">
+                                <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"></i>
                                 <span class="leading-snug">Bahasa Mudah</span>
                             </div>
-                            <div class="text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-normal">Bebas istilah asing</div>
+                            <div class="text-[11px] text-slate-400 mt-1 leading-normal">Bebas istilah asing</div>
                         </div>
 
-                        <div class="p-3.5 rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08]">
-                            <div class="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                                <i data-lucide="calculator" class="w-4 h-4 text-[#007AFF] dark:text-[#0A84FF] shrink-0"></i>
+                        <div class="p-3.5 rounded-[16px] bg-white/[0.04] border border-white/[0.08]">
+                            <div class="text-xs font-bold text-white flex items-center gap-2">
+                                <i data-lucide="calculator" class="w-4 h-4 text-[#0A84FF] shrink-0"></i>
                                 <span class="leading-snug">Contoh Nyata</span>
                             </div>
-                            <div class="text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-normal">Studi kasus toko &amp; resto</div>
+                            <div class="text-[11px] text-slate-400 mt-1 leading-normal">Studi kasus toko &amp; resto</div>
                         </div>
 
-                        <div class="p-3.5 rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08]">
-                            <div class="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                                <i data-lucide="award" class="w-4 h-4 text-amber-500 shrink-0"></i>
+                        <div class="p-3.5 rounded-[16px] bg-white/[0.04] border border-white/[0.08]">
+                            <div class="text-xs font-bold text-white flex items-center gap-2">
+                                <i data-lucide="award" class="w-4 h-4 text-amber-400 shrink-0"></i>
                                 <span class="leading-snug">Siap Pakai</span>
                             </div>
-                            <div class="text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-normal">Bisa diterapkan hari ini</div>
+                            <div class="text-[11px] text-slate-400 mt-1 leading-normal">Bisa diterapkan hari ini</div>
                         </div>
                     </div>
 
@@ -104,8 +110,8 @@ class="w-full font-sans antialiased bg-[#F2F2F7] dark:bg-[#000000] text-[#1D1D1F
                             <i data-lucide="arrow-down" class="w-4 h-4 shrink-0"></i>
                         </a>
                         <a href="{{ route('kalkulator.index') }}"
-                            class="h-12 px-6 rounded-[14px] bg-white dark:bg-[#1C1C1E] hover:bg-slate-50 dark:hover:bg-[#2C2C2E] border border-black/[0.08] dark:border-white/[0.12] text-slate-800 dark:text-slate-200 text-sm font-semibold flex items-center justify-center gap-2 transition active:scale-[0.98] min-h-[48px]">
-                            <i data-lucide="calculator" class="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0"></i>
+                            class="h-12 px-6 rounded-[14px] bg-white/[0.06] hover:bg-white/[0.1] border border-white/[0.12] text-white text-sm font-semibold flex items-center justify-center gap-2 transition active:scale-[0.98] min-h-[48px]">
+                            <i data-lucide="calculator" class="w-4 h-4 text-emerald-400 shrink-0"></i>
                             <span>Coba Kalkulator Usaha</span>
                         </a>
                     </div>
@@ -113,17 +119,17 @@ class="w-full font-sans antialiased bg-[#F2F2F7] dark:bg-[#000000] text-[#1D1D1F
 
                 <!-- KANAN: Knowledge Base Preview Widget (7 Cols ~ 58%) -->
                 <div class="lg:col-span-7">
-                    <div class="rounded-[24px] bg-white dark:bg-[#1C1C1E] p-6 sm:p-7 shadow-sm border border-black/[0.06] dark:border-white/[0.08] space-y-4">
-                        <div class="flex items-center justify-between border-b border-black/[0.06] dark:border-white/[0.08] pb-3">
+                    <div class="rounded-[24px] bg-white/[0.04] backdrop-blur-md p-6 sm:p-7 border border-white/[0.08] space-y-4">
+                        <div class="flex items-center justify-between border-b border-white/[0.08] pb-3">
                             <div class="flex items-center gap-2">
                                 <span class="w-3 h-3 rounded-full bg-[#FF5F56]"></span>
                                 <span class="w-3 h-3 rounded-full bg-[#FFBD2E]"></span>
                                 <span class="w-3 h-3 rounded-full bg-[#27C93F]"></span>
-                                <span class="text-xs font-mono font-semibold text-slate-500 dark:text-slate-400 ml-2">
+                                <span class="text-xs font-mono font-semibold text-slate-300 ml-2">
                                     Topik Unggulan UMKM
                                 </span>
                             </div>
-                            <span class="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full">
+                            <span class="text-[11px] font-semibold text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">
                                 Bebas Akses
                             </span>
                         </div>
@@ -131,69 +137,69 @@ class="w-full font-sans antialiased bg-[#F2F2F7] dark:bg-[#000000] text-[#1D1D1F
                         <!-- Top Topic Bento Highlights -->
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                             <a href="{{ route('kalkulator.hpp') }}" 
-                                class="p-4 rounded-[16px] bg-[#F2F2F7] dark:bg-[#2C2C2E] hover:bg-slate-200/70 dark:hover:bg-[#38383A] transition border border-black/[0.04] dark:border-white/[0.04] group flex flex-col justify-between">
+                                class="p-4 rounded-[16px] bg-white/[0.03] hover:bg-white/[0.06] transition border border-white/[0.06] hover:border-[#0A84FF]/40 group flex flex-col justify-between">
                                 <div class="space-y-2">
-                                    <div class="w-8 h-8 rounded-[10px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold text-xs">
+                                    <div class="w-8 h-8 rounded-[10px] bg-emerald-500/10 text-emerald-400 flex items-center justify-center font-bold text-xs border border-emerald-500/20">
                                         01
                                     </div>
-                                    <div class="text-xs font-bold text-slate-900 dark:text-white group-hover:text-[#007AFF] dark:group-hover:text-[#0A84FF] transition">
+                                    <div class="text-xs font-bold text-white group-hover:text-[#0A84FF] transition">
                                         Rumus HPP Kuliner
                                     </div>
-                                    <div class="text-[11px] text-slate-500 dark:text-slate-400 leading-normal">
+                                    <div class="text-[11px] text-slate-400 leading-normal">
                                         Bahan baku, porsi, dan takaran akurat.
                                     </div>
                                 </div>
-                                <div class="pt-3 flex items-center text-[11px] font-semibold text-[#007AFF] dark:text-[#0A84FF]">
+                                <div class="pt-3 flex items-center text-[11px] font-semibold text-[#0A84FF]">
                                     <span>Buka Alat</span>
                                     <i data-lucide="arrow-right" class="w-3 h-3 ml-1 group-hover:translate-x-0.5 transition-transform"></i>
                                 </div>
                             </a>
 
                             <a href="{{ route('kalkulator.bep') }}" 
-                                class="p-4 rounded-[16px] bg-[#F2F2F7] dark:bg-[#2C2C2E] hover:bg-slate-200/70 dark:hover:bg-[#38383A] transition border border-black/[0.04] dark:border-white/[0.04] group flex flex-col justify-between">
+                                class="p-4 rounded-[16px] bg-white/[0.03] hover:bg-white/[0.06] transition border border-white/[0.06] hover:border-[#0A84FF]/40 group flex flex-col justify-between">
                                 <div class="space-y-2">
-                                    <div class="w-8 h-8 rounded-[10px] bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF] flex items-center justify-center font-bold text-xs">
+                                    <div class="w-8 h-8 rounded-[10px] bg-[#007AFF]/15 text-[#0A84FF] flex items-center justify-center font-bold text-xs border border-[#0A84FF]/30">
                                         02
                                     </div>
-                                    <div class="text-xs font-bold text-slate-900 dark:text-white group-hover:text-[#007AFF] dark:group-hover:text-[#0A84FF] transition">
+                                    <div class="text-xs font-bold text-white group-hover:text-[#0A84FF] transition">
                                         Titik Impas (BEP)
                                     </div>
-                                    <div class="text-[11px] text-slate-500 dark:text-slate-400 leading-normal">
+                                    <div class="text-[11px] text-slate-400 leading-normal">
                                         Berapa porsi minimal agar usaha tidak rugi.
                                     </div>
                                 </div>
-                                <div class="pt-3 flex items-center text-[11px] font-semibold text-[#007AFF] dark:text-[#0A84FF]">
+                                <div class="pt-3 flex items-center text-[11px] font-semibold text-[#0A84FF]">
                                     <span>Buka Alat</span>
                                     <i data-lucide="arrow-right" class="w-3 h-3 ml-1 group-hover:translate-x-0.5 transition-transform"></i>
                                 </div>
                             </a>
 
                             <a href="{{ route('public.resources.guides') }}" 
-                                class="p-4 rounded-[16px] bg-[#F2F2F7] dark:bg-[#2C2C2E] hover:bg-slate-200/70 dark:hover:bg-[#38383A] transition border border-black/[0.04] dark:border-white/[0.04] group flex flex-col justify-between">
+                                class="p-4 rounded-[16px] bg-white/[0.03] hover:bg-white/[0.06] transition border border-white/[0.06] hover:border-[#0A84FF]/40 group flex flex-col justify-between">
                                 <div class="space-y-2">
-                                    <div class="w-8 h-8 rounded-[10px] bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold text-xs">
+                                    <div class="w-8 h-8 rounded-[10px] bg-amber-500/15 text-amber-400 flex items-center justify-center font-bold text-xs border border-amber-500/30">
                                         03
                                     </div>
-                                    <div class="text-xs font-bold text-slate-900 dark:text-white group-hover:text-[#007AFF] dark:group-hover:text-[#0A84FF] transition">
+                                    <div class="text-xs font-bold text-white group-hover:text-[#0A84FF] transition">
                                         SOP Kasir Toko
                                     </div>
-                                    <div class="text-[11px] text-slate-500 dark:text-slate-400 leading-normal">
+                                    <div class="text-[11px] text-slate-400 leading-normal">
                                         Cegah kebocoran kas dan selisih shift.
                                     </div>
                                 </div>
-                                <div class="pt-3 flex items-center text-[11px] font-semibold text-[#007AFF] dark:text-[#0A84FF]">
+                                <div class="pt-3 flex items-center text-[11px] font-semibold text-[#0A84FF]">
                                     <span>Buka Panduan</span>
                                     <i data-lucide="arrow-right" class="w-3 h-3 ml-1 group-hover:translate-x-0.5 transition-transform"></i>
                                 </div>
                             </a>
                         </div>
 
-                        <div class="p-3.5 rounded-[16px] bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-emerald-400 text-xs font-semibold flex items-center justify-between">
+                        <div class="p-3.5 rounded-[16px] bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold flex items-center justify-between">
                             <div class="flex items-center gap-2">
                                 <i data-lucide="book-open" class="w-4 h-4 shrink-0"></i>
                                 <span>Kurikulum dan artikel diperbarui setiap minggu secara gratis.</span>
                             </div>
-                            <a href="{{ route('public.resources.blog') }}" class="font-bold underline text-xs shrink-0 ml-2">
+                            <a href="{{ route('public.resources.blog') }}" class="font-bold underline text-xs shrink-0 ml-2 hover:text-emerald-300">
                                 Kurikulum Lengkap
                             </a>
                         </div>

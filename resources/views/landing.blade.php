@@ -176,7 +176,7 @@
                                     <div
                                         class="text-xl sm:text-2xl font-extrabold text-[#00C4D8] tabular-nums tracking-tight">
                                         100%</div>
-                                    <div class="text-[11px] text-slate-400 font-medium mt-0.5">Cloud Sync Aktif</div>
+                                    <div class="text-[11px] text-slate-400 font-medium mt-0.5">Realtime Cloud Sync</div>
                                 </div>
                             </div>
                         </div>
@@ -301,7 +301,7 @@
                                     </div>
                                     <!-- URL Address Bar (matching reference image) -->
                                     <div class="py-1 px-3 rounded-full bg-white/[0.06] border border-white/10 text-[11px] font-mono text-slate-300 truncate max-w-[210px] sm:max-w-[260px]">
-                                        <span x-text="activeSlide === 1 ? 'https://app.cooca.id/laporan-keuangan' : 'https://app.cooca.id/marketplace-shipping'"></span>
+                                        <span x-text="activeSlide === 1 ? 'https://cooca.id/app/dashboard' : 'https://cooca.id/app/marketplace-shipping'"></span>
                                     </div>
                                 </div>
 
@@ -430,7 +430,7 @@
                                         </div>
                                         <div class="truncate">
                                             <span class="font-semibold text-slate-200">Kasir POS #TRX-2049</span>
-                                            <span class="text-slate-400 block text-[11px]">Resep terpotong otomatis: Kopi -36g, Susu -180ml</span>
+                                            <span class="text-slate-400 block text-[11px]">Pengurangan Otomatis Bahan Baku: Kopi -36g, Susu -180ml</span>
                                         </div>
                                     </div>
                                     <div class="flex items-center justify-between sm:justify-end gap-3 shrink-0">

@@ -52,35 +52,108 @@
                 <span class="text-[#00C4D8] font-semibold" aria-current="page">Katalog Produk</span>
             </nav>
 
-            {{-- Header & Search Bar --}}
-            <div class="max-w-3xl space-y-4 text-center mx-auto flex flex-col items-center lg:text-left lg:items-start lg:mx-0">
-                <div class="space-y-3 w-full">
-                    <!-- Pure Typographic Overline Kicker (Zero Pill Abuse) -->
-                    <p class="text-xs sm:text-[13px] font-bold uppercase tracking-wider text-[#00C4D8]">
-                        Katalog Produk Asli UMKM
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+                {{-- Left: Header & Search Bar (7 Cols) --}}
+                <div class="lg:col-span-7 space-y-6 text-center mx-auto flex flex-col items-center lg:text-left lg:items-start lg:mx-0">
+                    <div class="space-y-3 w-full">
+                        <!-- Pure Typographic Overline Kicker (Zero Pill Abuse) -->
+                        <p class="text-xs sm:text-[13px] font-bold uppercase tracking-wider text-[#00C4D8]">
+                            Katalog Produk Asli UMKM
+                        </p>
+
+                        <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.65rem] xl:text-[3rem] font-extrabold text-white tracking-tight leading-[1.15] text-balance break-words max-w-[22rem] sm:max-w-xl lg:max-w-none mx-auto lg:mx-0">
+                            Katalog Produk Pilihan Langsung dari <span class="text-[#00C4D8]">Produsen &amp; Penjual</span>
+                        </h1>
+                    </div>
+
+                    <p class="text-base sm:text-lg text-slate-300 leading-relaxed font-normal text-pretty max-w-[32rem] lg:max-w-xl mx-auto lg:mx-0">
+                        Dukung produk lokal berkualitas. Setiap transaksi terhubung langsung ke persediaan inventaris gerai penjual, menjamin stok selalu siap kirim atau siap diambil di tempat.
                     </p>
 
-                    <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.65rem] xl:text-[3rem] font-extrabold text-white tracking-tight leading-[1.15] text-balance break-words max-w-[22rem] sm:max-w-xl lg:max-w-none mx-auto lg:mx-0">
-                        Katalog Produk Pilihan Langsung dari <span class="text-[#00C4D8]">Produsen &amp; Penjual</span>
-                    </h1>
+                    {{-- Search Form --}}
+                    <form method="GET" action="{{ route('marketplace.search') }}" class="pt-1 w-full max-w-[32rem] lg:max-w-none">
+                        <div class="relative flex items-center bg-[#0E1E45]/80 rounded-[20px] border border-white/15 p-1.5 shadow-2xl backdrop-blur-md focus-within:ring-2 focus-within:ring-[#00C4D8] transition">
+                            <i data-lucide="search" class="w-5 h-5 ml-3.5 text-slate-400 shrink-0" aria-hidden="true"></i>
+                            <input type="text" name="q" placeholder="Cari nama barang, kuliner, pakaian, atau jasa..."
+                                class="w-full bg-transparent border-0 px-3.5 py-3 text-[16px] text-white placeholder-slate-400 focus:outline-none">
+                            <button type="submit"
+                                class="shrink-0 h-11 px-6 rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white text-sm font-semibold shadow-lg shadow-[#007AFF]/25 active:scale-[0.98] transition min-h-[44px]">
+                                Cari Produk
+                            </button>
+                        </div>
+                    </form>
+
+                    {{-- Micro Trust Tags --}}
+                    <div class="pt-1 flex flex-wrap items-center justify-center lg:justify-start gap-y-2 gap-x-5 text-xs text-slate-400">
+                        <div class="flex items-center gap-1.5">
+                            <i data-lucide="layers" class="w-4 h-4 text-[#00C4D8] shrink-0"></i>
+                            <span>Stok Terhubung Riil</span>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400 shrink-0"></i>
+                            <span>Harga Asli Produsen</span>
+                        </div>
+                    </div>
                 </div>
 
-                <p class="text-base sm:text-lg text-slate-300 leading-relaxed font-normal text-pretty max-w-[32rem] lg:max-w-xl mx-auto lg:mx-0">
-                    Dukung produk lokal berkualitas. Setiap transaksi terhubung langsung ke persediaan inventaris gerai penjual, menjamin stok selalu siap kirim atau siap diambil di tempat.
-                </p>
+                {{-- Right: Live Product Card Bento Showcase (5 Cols) --}}
+                <div class="lg:col-span-5 w-full">
+                    <div class="rounded-[24px] bg-[#0E1E45]/80 border border-white/10 p-5 sm:p-6 shadow-2xl backdrop-blur-xl text-white space-y-4">
+                        <div class="flex items-center justify-between border-b border-white/10 pb-3">
+                            <div class="flex items-center gap-1.5 shrink-0">
+                                <span class="w-2.5 h-2.5 rounded-full bg-[#FF5F56]"></span>
+                                <span class="w-2.5 h-2.5 rounded-full bg-[#FFBD2E]"></span>
+                                <span class="w-2.5 h-2.5 rounded-full bg-[#27C93F]"></span>
+                                <span class="text-xs font-mono font-semibold text-slate-300 ml-2">Katalog Siap Kirim</span>
+                            </div>
+                            <span class="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-400 shrink-0">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                                Stok Siap
+                            </span>
+                        </div>
 
-                {{-- Search Form --}}
-                <form method="GET" action="{{ route('marketplace.search') }}" class="pt-2 w-full max-w-[32rem] lg:max-w-none">
-                    <div class="relative flex items-center bg-[#0E1E45]/80 rounded-[20px] border border-white/15 p-1.5 shadow-2xl backdrop-blur-md focus-within:ring-2 focus-within:ring-[#00C4D8] transition">
-                        <i data-lucide="search" class="w-5 h-5 ml-3.5 text-slate-400 shrink-0" aria-hidden="true"></i>
-                        <input type="text" name="q" placeholder="Cari nama barang, kuliner, pakaian, atau jasa..."
-                            class="w-full bg-transparent border-0 px-3.5 py-3 text-[16px] sm:text-base text-white placeholder-slate-400 focus:outline-none">
-                        <button type="submit"
-                            class="shrink-0 h-11 px-6 rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white text-sm font-semibold shadow-lg shadow-[#007AFF]/25 active:scale-[0.98] transition min-h-[44px]">
-                            Cari Produk
-                        </button>
+                        {{-- Product Card Simulation --}}
+                        <div class="p-4 rounded-[18px] bg-[#060B1E]/60 border border-white/10 space-y-3">
+                            <div class="flex items-start justify-between gap-3">
+                                <div class="space-y-1 min-w-0">
+                                    <span class="text-[10px] font-mono font-semibold uppercase px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                                        Stok: 24 pack
+                                    </span>
+                                    <div class="font-bold text-sm text-white leading-snug truncate">Kopi Arabika Gayo Single Origin 250g</div>
+                                    <div class="text-xs text-slate-400 flex items-center gap-1">
+                                        <span>Sentra Kopi Nusantara</span>
+                                        <i data-lucide="badge-check" class="w-3.5 h-3.5 text-[#00C4D8]"></i>
+                                    </div>
+                                </div>
+                                <div class="text-right shrink-0">
+                                    <div class="text-base font-extrabold text-white">Rp 65.000</div>
+                                    <div class="text-[10px] text-slate-400">Harga Gerai</div>
+                                </div>
+                            </div>
+
+                            {{-- Mini Feature Badges --}}
+                            <div class="grid grid-cols-2 gap-2 pt-2 border-t border-white/10 text-xs text-slate-300">
+                                <div class="flex items-center gap-1.5 p-2 rounded-[10px] bg-white/[0.04]">
+                                    <i data-lucide="truck" class="w-3.5 h-3.5 text-[#00C4D8]"></i>
+                                    <span class="text-[11px] truncate">Kirim Hari Ini</span>
+                                </div>
+                                <div class="flex items-center gap-1.5 p-2 rounded-[10px] bg-white/[0.04]">
+                                    <i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i>
+                                    <span class="text-[11px] truncate">0% Biaya Titip</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Direct Order Bar --}}
+                        <div class="p-3 rounded-[16px] bg-[#007AFF]/15 border border-[#007AFF]/30 flex items-center justify-between text-xs">
+                            <div class="flex items-center gap-2 text-white font-medium">
+                                <i data-lucide="shopping-bag" class="w-4 h-4 text-[#00C4D8] shrink-0"></i>
+                                <span>Pesan Langsung ke Pemilik Toko</span>
+                            </div>
+                            <span class="text-[11px] text-[#00C4D8] font-semibold">Tanpa Perantara</span>
+                        </div>
                     </div>
-                </form>
+                </div>
             </div>
         </div>
     </section>

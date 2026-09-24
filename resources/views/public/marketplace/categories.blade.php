@@ -136,22 +136,91 @@
                 <span class="text-[#00C4D8] font-semibold" aria-current="page">Kategori Usaha</span>
             </nav>
 
-            {{-- Header --}}
-            <div class="max-w-3xl space-y-4 text-center mx-auto flex flex-col items-center lg:text-left lg:items-start lg:mx-0">
-                <div class="space-y-3 w-full">
-                    <!-- Pure Typographic Overline Kicker (Zero Pill Abuse) -->
-                    <p class="text-xs sm:text-[13px] font-bold uppercase tracking-wider text-[#00C4D8]">
-                        Klasifikasi Sektor Bisnis
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+                {{-- Left: Header & Sector Narrative (7 Cols) --}}
+                <div class="lg:col-span-7 space-y-6 text-center mx-auto flex flex-col items-center lg:text-left lg:items-start lg:mx-0">
+                    <div class="space-y-3 w-full">
+                        <!-- Pure Typographic Overline Kicker (Zero Pill Abuse) -->
+                        <p class="text-xs sm:text-[13px] font-bold uppercase tracking-wider text-[#00C4D8]">
+                            Klasifikasi Sektor Bisnis
+                        </p>
+
+                        <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.65rem] xl:text-[3rem] font-extrabold text-white tracking-tight leading-[1.15] text-balance break-words max-w-[22rem] sm:max-w-xl lg:max-w-none mx-auto lg:mx-0">
+                            Jelajahi Berbagai Kategori <span class="text-[#00C4D8]">Produk &amp; Layanan Bisnis</span>
+                        </h1>
+                    </div>
+
+                    <p class="text-base sm:text-lg text-slate-300 leading-relaxed font-normal text-pretty max-w-[32rem] lg:max-w-xl mx-auto lg:mx-0">
+                        Setiap toko dan produk di COOCA dikelompokkan secara terstruktur berdasarkan sektor industri, memudahkan Anda menemukan barang kebutuhan harian maupun layanan profesional terdekat.
                     </p>
 
-                    <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.65rem] xl:text-[3rem] font-extrabold text-white tracking-tight leading-[1.15] text-balance break-words max-w-[22rem] sm:max-w-xl lg:max-w-none mx-auto lg:mx-0">
-                        Jelajahi Berbagai Kategori <span class="text-[#00C4D8]">Produk &amp; Layanan Bisnis</span>
-                    </h1>
+                    {{-- Quick Action Links --}}
+                    <div class="pt-1 flex flex-wrap items-center justify-center lg:justify-start gap-3 w-full sm:w-auto">
+                        <a href="{{ route('marketplace.sub.businesses') }}"
+                            class="h-11 px-6 rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white text-sm font-semibold flex items-center gap-2 shadow-lg shadow-[#007AFF]/25 transition active:scale-[0.98] min-h-[44px]">
+                            <i data-lucide="store" class="w-4 h-4 shrink-0"></i>
+                            <span>Buka Direktori Toko</span>
+                        </a>
+                        <a href="{{ route('marketplace.sub.products') }}"
+                            class="h-11 px-5 rounded-[14px] bg-white/10 hover:bg-white/15 text-white border border-white/15 text-sm font-semibold transition active:scale-[0.98] flex items-center gap-2 backdrop-blur-sm min-h-[44px]">
+                            <i data-lucide="package" class="w-4 h-4 shrink-0"></i>
+                            <span>Lihat Katalog Produk</span>
+                        </a>
+                    </div>
                 </div>
 
-                <p class="text-base sm:text-lg text-slate-300 leading-relaxed font-normal text-pretty max-w-[32rem] lg:max-w-xl mx-auto lg:mx-0">
-                    Setiap toko dan produk di COOCA dikelompokkan secara terstruktur berdasarkan sektor industri, memudahkan Anda menemukan barang kebutuhan harian maupun layanan profesional terdekat.
-                </p>
+                {{-- Right: 4-Sector Bento Matrix Showcase (5 Cols) --}}
+                <div class="lg:col-span-5 w-full">
+                    <div class="rounded-[24px] bg-[#0E1E45]/80 border border-white/10 p-5 sm:p-6 shadow-2xl backdrop-blur-xl text-white space-y-4">
+                        <div class="flex items-center justify-between border-b border-white/10 pb-3">
+                            <div class="flex items-center gap-1.5 shrink-0">
+                                <span class="w-2.5 h-2.5 rounded-full bg-[#FF5F56]"></span>
+                                <span class="w-2.5 h-2.5 rounded-full bg-[#FFBD2E]"></span>
+                                <span class="w-2.5 h-2.5 rounded-full bg-[#27C93F]"></span>
+                                <span class="text-xs font-mono font-semibold text-slate-300 ml-2">Sektor Terkoneksi</span>
+                            </div>
+                            <span class="text-[11px] font-mono text-[#00C4D8] font-bold">100% Terverifikasi</span>
+                        </div>
+
+                        {{-- 4 Sector Bento Tiles --}}
+                        <div class="grid grid-cols-2 gap-2.5">
+                            <div class="p-3.5 rounded-[16px] bg-[#060B1E]/60 border border-white/10 space-y-2">
+                                <div class="w-8 h-8 rounded-[10px] bg-amber-500/15 text-amber-400 flex items-center justify-center">
+                                    <i data-lucide="utensils" class="w-4 h-4"></i>
+                                </div>
+                                <div class="text-xs font-bold text-white">Kuliner &amp; F&amp;B</div>
+                                <div class="text-[10px] text-slate-400">Resto &bull; Kafe &bull; Frozen</div>
+                            </div>
+                            <div class="p-3.5 rounded-[16px] bg-[#060B1E]/60 border border-white/10 space-y-2">
+                                <div class="w-8 h-8 rounded-[10px] bg-[#007AFF]/15 text-[#007AFF] flex items-center justify-center">
+                                    <i data-lucide="store" class="w-4 h-4"></i>
+                                </div>
+                                <div class="text-xs font-bold text-white">Retail Swalayan</div>
+                                <div class="text-[10px] text-slate-400">Kelontong &bull; Butik &bull; Grosir</div>
+                            </div>
+                            <div class="p-3.5 rounded-[16px] bg-[#060B1E]/60 border border-white/10 space-y-2">
+                                <div class="w-8 h-8 rounded-[10px] bg-slate-500/15 text-slate-300 flex items-center justify-center">
+                                    <i data-lucide="wrench" class="w-4 h-4"></i>
+                                </div>
+                                <div class="text-xs font-bold text-white">Otomotif &amp; Bengkel</div>
+                                <div class="text-[10px] text-slate-400">Sparepart &bull; Servis Motor</div>
+                            </div>
+                            <div class="p-3.5 rounded-[16px] bg-[#060B1E]/60 border border-white/10 space-y-2">
+                                <div class="w-8 h-8 rounded-[10px] bg-[#00C4D8]/15 text-[#00C4D8] flex items-center justify-center">
+                                    <i data-lucide="droplets" class="w-4 h-4"></i>
+                                </div>
+                                <div class="text-xs font-bold text-white">Laundry &amp; Jasa</div>
+                                <div class="text-[10px] text-slate-400">Kiloan &bull; Dry Cleaning</div>
+                            </div>
+                        </div>
+
+                        {{-- Footer Badge --}}
+                        <div class="p-2.5 rounded-[12px] bg-white/[0.04] border border-white/5 flex items-center justify-between text-xs text-slate-400">
+                            <span class="truncate">Integrasi Inventaris Riil</span>
+                            <span class="text-emerald-400 font-semibold shrink-0">Aktif</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </section>

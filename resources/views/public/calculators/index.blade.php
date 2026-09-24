@@ -42,14 +42,18 @@ class="w-full font-sans antialiased bg-[#F2F2F7] dark:bg-[#000000] text-[#1D1D1F
     <!-- ══════════════════════════════════════════════════════════════════════════ -->
     <!-- ═══ 1. HERO SECTION: 2-Grid Bento Apple HIG Canvas ══════════════════════ -->
     <!-- ══════════════════════════════════════════════════════════════════════════ -->
-    <section class="pt-12 sm:pt-16 lg:pt-20 pb-12 sm:pb-16 border-b border-black/[0.06] dark:border-white/[0.08]">
-        <div class="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
+    <section class="relative bg-[#060B1E] text-white pt-10 sm:pt-14 pb-16 lg:pb-20 overflow-hidden border-b border-white/10 w-full min-w-full">
+        {{-- Dual Ambient Glows --}}
+        <div class="absolute top-0 right-1/4 w-96 h-96 bg-[#007AFF]/15 rounded-full blur-[140px] pointer-events-none"></div>
+        <div class="absolute bottom-0 left-1/4 w-96 h-96 bg-[#00C4D8]/10 rounded-full blur-[120px] pointer-events-none"></div>
+
+        <div class="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-6">
 
             <!-- Breadcrumb Navigation -->
-            <nav class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 mb-6" aria-label="Breadcrumb">
-                <a href="{{ route('landing') }}" class="hover:text-slate-900 dark:hover:text-white transition-colors">Beranda</a>
-                <span aria-hidden="true" class="text-slate-300 dark:text-slate-700">/</span>
-                <span class="text-[#007AFF] dark:text-[#0A84FF] font-semibold" aria-current="page">Alat Hitung Bisnis UMKM</span>
+            <nav class="flex items-center gap-2 text-xs text-slate-400" aria-label="Breadcrumb">
+                <a href="{{ route('landing') }}" class="hover:text-white transition-colors">Beranda</a>
+                <span aria-hidden="true" class="text-white/20">/</span>
+                <span class="text-[#00C4D8] font-semibold" aria-current="page">Alat Hitung Bisnis UMKM</span>
             </nav>
 
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
@@ -58,63 +62,63 @@ class="w-full font-sans antialiased bg-[#F2F2F7] dark:bg-[#000000] text-[#1D1D1F
                 <div class="lg:col-span-5 space-y-6 text-center mx-auto flex flex-col items-center lg:text-left lg:items-start lg:mx-0">
                     <div class="space-y-3 w-full">
                         <!-- Pure Typographic Kicker -->
-                        <div class="text-[12px] sm:text-[13px] font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF]">
-                            ALAT BANTU KEPUTUSAN FINANSIAL UMKM
+                        <div class="text-xs sm:text-[13px] font-bold uppercase tracking-wider text-[#00C4D8]">
+                            Alat Bantu Keputusan Finansial UMKM
                         </div>
 
-                        <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.65rem] xl:text-[3rem] font-extrabold tracking-tight text-slate-900 dark:text-white leading-[1.15] text-balance break-words max-w-[22rem] sm:max-w-xl lg:max-w-none mx-auto lg:mx-0">
+                        <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.65rem] xl:text-[3rem] font-extrabold tracking-tight text-white leading-[1.15] text-balance break-words max-w-[22rem] sm:max-w-xl lg:max-w-none mx-auto lg:mx-0">
                             Kalkulator Finansial &amp; HPP Presisi
                         </h1>
                     </div>
 
-                    <p class="text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed font-normal text-pretty max-w-[32rem] lg:max-w-xl mx-auto lg:mx-0">
+                    <p class="text-base sm:text-lg text-slate-300 leading-relaxed font-normal text-pretty max-w-[32rem] lg:max-w-xl mx-auto lg:mx-0">
                         Ambil keputusan harga jual dan kelola modal dengan pasti. Hitung biaya bahan baku per porsi, tentukan titik impas (BEP), dan simulasikan laba bersih riil secara instan tanpa perlu registrasi.
                     </p>
 
                     <!-- Trust Checkpoints -->
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1 text-left w-full">
-                        <div class="p-3.5 rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08]">
-                            <div class="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
-                                <i data-lucide="check" class="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0"></i>
+                        <div class="p-3.5 rounded-[16px] bg-white/[0.05] border border-white/10">
+                            <div class="text-xs font-bold text-white flex items-center gap-1.5">
+                                <i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0"></i>
                                 <span>100% Gratis</span>
                             </div>
-                            <div class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Tanpa registrasi</div>
+                            <div class="text-[11px] text-slate-400 mt-0.5">Tanpa registrasi</div>
                         </div>
 
-                        <div class="p-3.5 rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08]">
-                            <div class="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
-                                <i data-lucide="check" class="w-4 h-4 text-[#007AFF] dark:text-[#0A84FF] shrink-0"></i>
+                        <div class="p-3.5 rounded-[16px] bg-white/[0.05] border border-white/10">
+                            <div class="text-xs font-bold text-white flex items-center gap-1.5">
+                                <i data-lucide="check" class="w-4 h-4 text-[#00C4D8] shrink-0"></i>
                                 <span>Standar Akurat</span>
                             </div>
-                            <div class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Rumus akuntansi riil</div>
+                            <div class="text-[11px] text-slate-400 mt-0.5">Rumus akuntansi riil</div>
                         </div>
 
-                        <div class="p-3.5 rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08]">
-                            <div class="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
-                                <i data-lucide="shield-check" class="w-4 h-4 text-amber-500 shrink-0"></i>
+                        <div class="p-3.5 rounded-[16px] bg-white/[0.05] border border-white/10">
+                            <div class="text-xs font-bold text-white flex items-center gap-1.5">
+                                <i data-lucide="shield-check" class="w-4 h-4 text-amber-400 shrink-0"></i>
                                 <span>Privasi Aman</span>
                             </div>
-                            <div class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Dihitung di browser</div>
+                            <div class="text-[11px] text-slate-400 mt-0.5">Dihitung di browser</div>
                         </div>
                     </div>
 
                     <!-- Direct Action Buttons (Centered on Mobile, Row on Desktop) -->
                     <div class="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center sm:justify-center lg:justify-start gap-3.5 w-full sm:w-auto">
                         <a href="#katalog-kalkulator"
-                            class="h-12 px-7 rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition shadow-sm min-h-[48px]">
+                            class="h-12 px-7 rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition shadow-lg shadow-[#007AFF]/25 min-h-[48px]">
                             <span>Pilih Alat Hitung</span>
                             <i data-lucide="arrow-down" class="w-4 h-4 shrink-0"></i>
                         </a>
                         <a href="{{ route('kalkulator.hpp') }}"
-                            class="h-12 px-6 rounded-[14px] bg-white dark:bg-[#1C1C1E] hover:bg-slate-50 dark:hover:bg-[#2C2C2E] border border-black/[0.08] dark:border-white/[0.12] text-slate-800 dark:text-slate-200 text-sm font-semibold flex items-center justify-center gap-2 transition active:scale-[0.98] min-h-[48px]">
-                            <i data-lucide="layers" class="w-4 h-4 text-[#007AFF] dark:text-[#0A84FF] shrink-0"></i>
+                            class="h-12 px-6 rounded-[14px] bg-white/10 hover:bg-white/15 border border-white/15 text-white text-sm font-semibold flex items-center justify-center gap-2 transition active:scale-[0.98] backdrop-blur-sm min-h-[48px]">
+                            <i data-lucide="layers" class="w-4 h-4 text-[#00C4D8] shrink-0"></i>
                             <span>Hitung HPP Kuliner</span>
                         </a>
                     </div>
                 </div>
 
                 <!-- KANAN: Interactive Live Simulator Widget (7 Cols ~ 58%) -->
-                <div class="lg:col-span-7" x-data="{
+                <div class="lg:col-span-7 w-full" x-data="{
                     sampleCost: 20000,
                     targetMargin: 40,
                     get sellingPrice() {
@@ -127,17 +131,18 @@ class="w-full font-sans antialiased bg-[#F2F2F7] dark:bg-[#000000] text-[#1D1D1F
                         return this.sellingPrice - (parseFloat(this.sampleCost) || 0);
                     }
                 }">
-                    <div class="rounded-[24px] bg-white dark:bg-[#1C1C1E] p-6 sm:p-7 shadow-sm border border-black/[0.06] dark:border-white/[0.08] space-y-5">
-                        <div class="flex items-center justify-between border-b border-black/[0.06] dark:border-white/[0.08] pb-3">
+                    <div class="rounded-[24px] bg-[#0B132B]/90 p-5 sm:p-6 shadow-2xl border border-white/10 backdrop-blur-xl text-white space-y-5">
+                        <div class="flex items-center justify-between border-b border-white/10 pb-3">
                             <div class="flex items-center gap-2">
-                                <span class="w-3 h-3 rounded-full bg-[#FF5F56]"></span>
-                                <span class="w-3 h-3 rounded-full bg-[#FFBD2E]"></span>
-                                <span class="w-3 h-3 rounded-full bg-[#27C93F]"></span>
-                                <span class="text-xs font-mono font-semibold text-slate-500 dark:text-slate-400 ml-2">
+                                <span class="w-2.5 h-2.5 rounded-full bg-[#FF5F56]"></span>
+                                <span class="w-2.5 h-2.5 rounded-full bg-[#FFBD2E]"></span>
+                                <span class="w-2.5 h-2.5 rounded-full bg-[#27C93F]"></span>
+                                <span class="text-xs font-mono font-semibold text-slate-300 ml-2">
                                     Simulasi Instan HPP &amp; Laba
                                 </span>
                             </div>
-                            <span class="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full">
+                            <span class="text-[11px] font-semibold text-emerald-400 bg-emerald-500/15 border border-emerald-500/25 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
                                 Simulator Langsung
                             </span>
                         </div>
@@ -145,17 +150,17 @@ class="w-full font-sans antialiased bg-[#F2F2F7] dark:bg-[#000000] text-[#1D1D1F
                         <!-- Interactive Inputs -->
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                                <label class="block text-xs font-semibold text-slate-300 mb-1.5">
                                     Modal Bahan Pokok (Rp)
                                 </label>
                                 <input type="number" x-model.number="sampleCost" step="1000" min="1000"
-                                    class="w-full h-11 px-4 rounded-[12px] bg-[#F2F2F7] dark:bg-[#2C2C2E] border border-black/[0.08] dark:border-white/[0.12] text-sm font-semibold tabular-nums text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/20 focus:border-[#007AFF]">
+                                    class="w-full h-11 px-4 rounded-[12px] bg-white/[0.05] border border-white/15 text-sm font-semibold tabular-nums text-white focus:outline-none focus:ring-2 focus:ring-[#00C4D8]/30 focus:border-[#00C4D8]">
                             </div>
 
                             <div>
                                 <div class="flex items-center justify-between mb-1.5">
-                                    <label class="text-xs font-semibold text-slate-700 dark:text-slate-300">Target Margin Laba</label>
-                                    <span class="text-xs font-bold text-[#007AFF] dark:text-[#0A84FF]" x-text="targetMargin + '%'"></span>
+                                    <label class="text-xs font-semibold text-slate-300">Target Margin Laba</label>
+                                    <span class="text-xs font-bold text-[#00C4D8]" x-text="targetMargin + '%'"></span>
                                 </div>
                                 <input type="range" min="10" max="80" step="5"
                                     x-model.number="targetMargin" class="w-full accent-[#007AFF] cursor-pointer mt-2">
@@ -163,26 +168,26 @@ class="w-full font-sans antialiased bg-[#F2F2F7] dark:bg-[#000000] text-[#1D1D1F
                         </div>
 
                         <!-- Real-Time Calculation Result Card -->
-                        <div class="p-4 sm:p-5 rounded-[18px] bg-[#F2F2F7] dark:bg-[#2C2C2E] border border-black/[0.04] dark:border-white/[0.04] space-y-3">
+                        <div class="p-4 sm:p-5 rounded-[18px] bg-[#060B1E]/70 border border-white/10 space-y-3">
                             <div class="flex items-center justify-between">
-                                <span class="text-xs text-slate-600 dark:text-slate-400">Harga Jual Rekomendasi:</span>
-                                <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-[6px]">
+                                <span class="text-xs text-slate-300">Harga Jual Rekomendasi:</span>
+                                <span class="text-xs font-bold text-emerald-400 bg-emerald-500/15 border border-emerald-500/25 px-2 py-0.5 rounded-[6px]">
                                     Aman Dari Rugi
                                 </span>
                             </div>
-                            <p class="text-2xl sm:text-3xl font-extrabold tabular-nums text-slate-900 dark:text-white">
+                            <p class="text-2xl sm:text-3xl font-extrabold tabular-nums text-white">
                                 Rp <span x-text="sellingPrice.toLocaleString('id-ID')"></span>
                             </p>
-                            <div class="flex items-center justify-between pt-2 border-t border-black/[0.04] dark:border-white/[0.06] text-xs">
-                                <span class="text-slate-500 dark:text-slate-400">Estimasi Laba per Porsi:</span>
-                                <span class="font-bold text-emerald-600 dark:text-emerald-400 tabular-nums">
+                            <div class="flex items-center justify-between pt-2 border-t border-white/10 text-xs">
+                                <span class="text-slate-400">Estimasi Laba per Porsi:</span>
+                                <span class="font-bold text-emerald-400 tabular-nums">
                                     +Rp <span x-text="profitAmount.toLocaleString('id-ID')"></span>
                                 </span>
                             </div>
                         </div>
 
                         <a href="{{ route('kalkulator.hpp') }}"
-                            class="w-full h-11 rounded-[12px] bg-[#007AFF] hover:bg-[#0066DF] text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition shadow-xs active:scale-[0.98]">
+                            class="w-full h-11 rounded-[12px] bg-[#007AFF] hover:bg-[#0066DF] text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition shadow-lg shadow-[#007AFF]/25 active:scale-[0.98]">
                             <span>Buka Kalkulator HPP Lengkap dengan Takaran Bahan</span>
                             <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
                         </a>

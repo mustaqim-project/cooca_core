@@ -41,16 +41,22 @@ class="w-full font-sans antialiased bg-[#F2F2F7] dark:bg-[#000000] text-[#1D1D1F
     <!-- ══════════════════════════════════════════════════════════════════════════ -->
     <!-- ═══ 1. HERO SECTION: 2-Grid Bento Apple HIG Canvas ══════════════════════ -->
     <!-- ══════════════════════════════════════════════════════════════════════════ -->
-    <section class="pt-10 sm:pt-14 pb-12 sm:pb-16 border-b border-black/[0.06] dark:border-white/[0.08]">
-        <div class="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+    <!-- ══════════════════════════════════════════════════════════════════════════ -->
+    <!-- ═══ 1. HERO SECTION: 2-Grid Bento Apple HIG Canvas (Midnight Blue) ══════ -->
+    <!-- ══════════════════════════════════════════════════════════════════════════ -->
+    <section class="relative bg-[#060B1E] text-white pt-10 sm:pt-14 pb-12 sm:pb-16 border-b border-white/[0.08] overflow-hidden">
+        <!-- Subtle Glow -->
+        <div class="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-20%,rgba(0,122,255,0.15),transparent)] pointer-events-none"></div>
+
+        <div class="relative max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
             
             <!-- Breadcrumbs -->
-            <nav class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400" aria-label="Breadcrumb">
-                <a href="{{ route('landing') }}" class="hover:text-slate-900 dark:hover:text-white transition-colors">Beranda</a>
-                <span aria-hidden="true" class="text-slate-300 dark:text-slate-700">/</span>
-                <a href="{{ route('template.index') }}" class="hover:text-slate-900 dark:hover:text-white transition-colors">Template Spreadsheet</a>
-                <span aria-hidden="true" class="text-slate-300 dark:text-slate-700">/</span>
-                <span class="text-[#007AFF] dark:text-[#0A84FF] font-semibold truncate max-w-[200px] sm:max-w-none" aria-current="page">{{ $template['name'] }}</span>
+            <nav class="flex items-center gap-2 text-xs text-slate-400" aria-label="Breadcrumb">
+                <a href="{{ route('landing') }}" class="hover:text-white transition-colors">Beranda</a>
+                <span aria-hidden="true" class="text-slate-600">/</span>
+                <a href="{{ route('template.index') }}" class="hover:text-white transition-colors">Template Spreadsheet</a>
+                <span aria-hidden="true" class="text-slate-600">/</span>
+                <span class="text-[#0A84FF] font-semibold truncate max-w-[200px] sm:max-w-none" aria-current="page">{{ $template['name'] }}</span>
             </nav>
 
             <!-- 2-Grid: Details (Left 7 cols) + Lead Capture / Download (Right 5 cols) -->
@@ -60,33 +66,33 @@ class="w-full font-sans antialiased bg-[#F2F2F7] dark:bg-[#000000] text-[#1D1D1F
                 <div class="lg:col-span-7 space-y-6 text-center mx-auto flex flex-col items-center lg:text-left lg:items-start lg:mx-0">
                     <div class="space-y-3 w-full">
                         <!-- Pure Typographic Overline Kicker (Zero Pill Abuse) -->
-                        <p class="text-xs sm:text-[13px] font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF]">
+                        <p class="text-xs sm:text-[13px] font-bold uppercase tracking-wider text-[#0A84FF]">
                             {{ $template['category'] }} • 100% Bebas Biaya
                         </p>
 
-                        <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.65rem] xl:text-[3rem] font-extrabold text-slate-900 dark:text-white leading-[1.15] tracking-tight text-balance break-words max-w-[22rem] sm:max-w-xl lg:max-w-none mx-auto lg:mx-0">
+                        <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.65rem] xl:text-[3rem] font-extrabold text-white leading-[1.15] tracking-tight text-balance break-words max-w-[22rem] sm:max-w-xl lg:max-w-none mx-auto lg:mx-0">
                             {{ $template['name'] }}
                         </h1>
                     </div>
 
-                    <p class="text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed font-normal text-pretty max-w-[32rem] lg:max-w-xl mx-auto lg:mx-0">
+                    <p class="text-base sm:text-lg text-slate-300 leading-relaxed font-normal text-pretty max-w-[32rem] lg:max-w-xl mx-auto lg:mx-0">
                         {{ $template['description'] }}
                     </p>
 
                     <!-- Feature Bento Card -->
                     @if (!empty($template['highlights']))
-                        <div class="p-6 sm:p-7 rounded-[22px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] space-y-4 shadow-sm w-full text-left">
-                            <h2 class="text-xs font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF] flex items-center gap-2">
+                        <div class="p-6 sm:p-7 rounded-[22px] bg-white/[0.04] border border-white/[0.08] space-y-4 shadow-sm w-full text-left">
+                            <h2 class="text-xs font-bold uppercase tracking-wider text-[#0A84FF] flex items-center gap-2">
                                 <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
                                 <span>Keunggulan Formula Dalam Template Ini:</span>
                             </h2>
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                                 @foreach ($template['highlights'] as $hl)
-                                    <div class="p-3 rounded-[12px] bg-[#F2F2F7] dark:bg-[#2C2C2E] border border-black/[0.03] dark:border-white/[0.04] flex items-start gap-2.5">
-                                        <div class="w-5 h-5 rounded-[6px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 mt-0.5">
+                                    <div class="p-3 rounded-[12px] bg-white/[0.03] border border-white/[0.05] flex items-start gap-2.5">
+                                        <div class="w-5 h-5 rounded-[6px] bg-emerald-500/10 text-emerald-400 flex items-center justify-center shrink-0 mt-0.5">
                                             <i data-lucide="check" class="w-3 h-3"></i>
                                         </div>
-                                        <span class="text-xs sm:text-sm text-slate-800 dark:text-slate-200 leading-snug font-medium text-pretty">{{ $hl }}</span>
+                                        <span class="text-xs sm:text-sm text-slate-200 leading-snug font-medium text-pretty">{{ $hl }}</span>
                                     </div>
                                 @endforeach
                             </div>
@@ -94,19 +100,19 @@ class="w-full font-sans antialiased bg-[#F2F2F7] dark:bg-[#000000] text-[#1D1D1F
                     @endif
 
                     <!-- Trust Signal Inset Box -->
-                    <div class="p-5 rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] text-xs text-slate-600 dark:text-slate-400 flex items-center gap-3.5 shadow-sm w-full text-left">
-                        <div class="w-10 h-10 rounded-[12px] bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF] flex items-center justify-center shrink-0">
+                    <div class="p-5 rounded-[18px] bg-white/[0.04] border border-white/[0.08] text-xs text-slate-300 flex items-center gap-3.5 shadow-sm w-full text-left">
+                        <div class="w-10 h-10 rounded-[12px] bg-[#007AFF]/10 text-[#0A84FF] flex items-center justify-center shrink-0">
                             <i data-lucide="shield-check" class="w-5 h-5"></i>
                         </div>
                         <div class="space-y-0.5">
-                            <span class="font-bold text-sm text-slate-900 dark:text-white block">Aman &amp; Kompatibel Universal</span>
-                            <span class="text-xs text-slate-500 dark:text-slate-400">Kompatibel dengan Microsoft Excel 2013+, Google Sheets, dan WPS Office tanpa macro VBA berbahaya.</span>
+                            <span class="font-bold text-sm text-white block">Aman &amp; Kompatibel Universal</span>
+                            <span class="text-xs text-slate-400">Kompatibel dengan Microsoft Excel 2013+, Google Sheets, dan WPS Office tanpa macro VBA berbahaya.</span>
                         </div>
                     </div>
                 </div>
 
                 <!-- Right: Lead Capture Form Card (5 Cols Sticky) -->
-                <div class="lg:col-span-5 bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] p-6 sm:p-8 rounded-[24px] shadow-sm lg:sticky lg:top-24 text-slate-900 dark:text-white"
+                <div class="lg:col-span-5 bg-white/[0.05] backdrop-blur-md border border-white/[0.08] p-6 sm:p-8 rounded-[24px] shadow-2xl lg:sticky lg:top-24 text-white"
                     x-data="{
                         submitted: false,
                         loading: false,
@@ -164,51 +170,51 @@ class="w-full font-sans antialiased bg-[#F2F2F7] dark:bg-[#000000] text-[#1D1D1F
                     <!-- State 1: Form Input -->
                     <div x-show="!submitted">
                         <div class="text-center mb-6 space-y-2">
-                            <div class="w-12 h-12 rounded-[14px] bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF] flex items-center justify-center mx-auto mb-2">
+                            <div class="w-12 h-12 rounded-[14px] bg-[#007AFF]/20 text-[#0A84FF] flex items-center justify-center mx-auto mb-2 border border-[#0A84FF]/30">
                                 <i data-lucide="download" class="w-6 h-6"></i>
                             </div>
-                            <h3 class="text-xl font-bold text-slate-900 dark:text-white">Unduh Spreadsheet Gratis</h3>
-                            <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+                            <h3 class="text-xl font-bold text-white">Unduh Spreadsheet Gratis</h3>
+                            <p class="text-xs sm:text-sm text-slate-400">
                                 Masukkan kontak Anda agar kami dapat mengirimkan file serta pembaruan rumus terbaru.
                             </p>
                         </div>
 
                         <form @submit.prevent="submitLead" class="space-y-4">
                             <div x-show="errorMessage"
-                                class="p-3.5 rounded-[12px] bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 text-xs font-semibold"
+                                class="p-3.5 rounded-[12px] bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs font-semibold"
                                 x-text="errorMessage"></div>
 
                             <div>
-                                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                                <label class="block text-xs font-semibold text-slate-300 mb-1.5">
                                     Nama Lengkap *
                                 </label>
                                 <input type="text" x-model="form.name" required placeholder="Contoh: Budi Santoso"
-                                    class="w-full h-11 px-4 bg-[#F2F2F7] dark:bg-[#2C2C2E] border border-black/[0.08] dark:border-white/[0.12] rounded-[12px] text-slate-900 dark:text-white text-sm focus:border-[#007AFF] focus:ring-2 focus:ring-[#007AFF]/20 focus:outline-none transition placeholder-slate-400">
+                                    class="w-full h-11 px-4 bg-white/[0.06] border border-white/[0.12] rounded-[12px] text-white text-sm focus:border-[#0A84FF] focus:ring-2 focus:ring-[#0A84FF]/20 focus:outline-none transition placeholder-slate-400">
                             </div>
 
                             <div>
-                                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                                <label class="block text-xs font-semibold text-slate-300 mb-1.5">
                                     Nomor WhatsApp / HP *
                                 </label>
                                 <input type="tel" x-model="form.phone" required placeholder="Contoh: 081234567890"
-                                    class="w-full h-11 px-4 bg-[#F2F2F7] dark:bg-[#2C2C2E] border border-black/[0.08] dark:border-white/[0.12] rounded-[12px] text-slate-900 dark:text-white text-sm focus:border-[#007AFF] focus:ring-2 focus:ring-[#007AFF]/20 focus:outline-none transition placeholder-slate-400">
+                                    class="w-full h-11 px-4 bg-white/[0.06] border border-white/[0.12] rounded-[12px] text-white text-sm focus:border-[#0A84FF] focus:ring-2 focus:ring-[#0A84FF]/20 focus:outline-none transition placeholder-slate-400">
                             </div>
 
                             <div>
-                                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                                <label class="block text-xs font-semibold text-slate-300 mb-1.5">
                                     Nama Usaha / Toko (Opsional)
                                 </label>
                                 <input type="text" x-model="form.business_name"
                                     placeholder="Contoh: Toko Berkah Mandiri"
-                                    class="w-full h-11 px-4 bg-[#F2F2F7] dark:bg-[#2C2C2E] border border-black/[0.08] dark:border-white/[0.12] rounded-[12px] text-slate-900 dark:text-white text-sm focus:border-[#007AFF] focus:ring-2 focus:ring-[#007AFF]/20 focus:outline-none transition placeholder-slate-400">
+                                    class="w-full h-11 px-4 bg-white/[0.06] border border-white/[0.12] rounded-[12px] text-white text-sm focus:border-[#0A84FF] focus:ring-2 focus:ring-[#0A84FF]/20 focus:outline-none transition placeholder-slate-400">
                             </div>
 
                             <div>
-                                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                                <label class="block text-xs font-semibold text-slate-300 mb-1.5">
                                     Email (Opsional)
                                 </label>
                                 <input type="email" x-model="form.email" placeholder="email@contohtoko.com"
-                                    class="w-full h-11 px-4 bg-[#F2F2F7] dark:bg-[#2C2C2E] border border-black/[0.08] dark:border-white/[0.12] rounded-[12px] text-slate-900 dark:text-white text-sm focus:border-[#007AFF] focus:ring-2 focus:ring-[#007AFF]/20 focus:outline-none transition placeholder-slate-400">
+                                    class="w-full h-11 px-4 bg-white/[0.06] border border-white/[0.12] rounded-[12px] text-white text-sm focus:border-[#0A84FF] focus:ring-2 focus:ring-[#0A84FF]/20 focus:outline-none transition placeholder-slate-400">
                             </div>
 
                             <button type="submit" :disabled="loading"
@@ -225,20 +231,20 @@ class="w-full font-sans antialiased bg-[#F2F2F7] dark:bg-[#000000] text-[#1D1D1F
 
                     <!-- State 2: Download Ready! -->
                     <div x-show="submitted" x-cloak class="text-center py-6 space-y-5">
-                        <div class="w-14 h-14 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto">
+                        <div class="w-14 h-14 rounded-full bg-emerald-500/10 text-emerald-400 flex items-center justify-center mx-auto border border-emerald-500/20">
                             <i data-lucide="check-circle" class="w-7 h-7"></i>
                         </div>
-                        <h3 class="text-xl font-bold text-slate-900 dark:text-white">File Template Siap Diunduh</h3>
-                        <p class="text-sm text-slate-600 dark:text-slate-300">
+                        <h3 class="text-xl font-bold text-white">File Template Siap Diunduh</h3>
+                        <p class="text-sm text-slate-300">
                             Unduhan sedang berjalan. Jika unduhan tidak otomatis dimulai, klik tombol di bawah ini:
                         </p>
 
-                        <div class="p-4 rounded-[14px] bg-[#F2F2F7] dark:bg-[#2C2C2E] text-left space-y-2 border border-black/[0.04] dark:border-white/[0.04]">
-                            <div class="flex items-center gap-2 text-xs font-mono text-emerald-600 dark:text-emerald-400">
+                        <div class="p-4 rounded-[14px] bg-white/[0.04] text-left space-y-2 border border-white/[0.08]">
+                            <div class="flex items-center gap-2 text-xs font-mono text-emerald-400">
                                 <i data-lucide="file-spreadsheet" class="w-4 h-4 shrink-0"></i>
                                 <span class="truncate font-semibold" x-text="fileName"></span>
                             </div>
-                            <div class="text-xs text-slate-500 dark:text-slate-400 flex items-center justify-between">
+                            <div class="text-xs text-slate-400 flex items-center justify-between">
                                 <span>Format: Excel Spreadsheet (.xlsx)</span>
                                 <span x-show="fileSize" x-text="'Ukuran: ' + fileSize"></span>
                             </div>
@@ -252,10 +258,10 @@ class="w-full font-sans antialiased bg-[#F2F2F7] dark:bg-[#000000] text-[#1D1D1F
                             </a>
                         </div>
 
-                        <div class="pt-6 border-t border-black/[0.06] dark:border-white/[0.08] mt-4">
-                            <p class="text-xs text-slate-500 dark:text-slate-400 mb-2">Ingin coba aplikasi kasir &amp; pembukuan otomatis?</p>
+                        <div class="pt-6 border-t border-white/[0.08] mt-4">
+                            <p class="text-xs text-slate-400 mb-2">Ingin coba aplikasi kasir &amp; pembukuan otomatis?</p>
                             <a href="{{ route('register') }}"
-                                class="text-sm font-bold text-[#007AFF] dark:text-[#0A84FF] hover:underline inline-flex items-center gap-1.5">
+                                class="text-sm font-bold text-[#0A84FF] hover:underline inline-flex items-center gap-1.5">
                                 <span>Daftar COOCA Gratis Selamanya</span>
                                 <i data-lucide="arrow-right" class="w-4 h-4"></i>
                             </a>

@@ -89,19 +89,20 @@
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
         <!-- ═══ 1. HERO SECTION: 2-Grid Bento Apple HIG Canvas ══════════════════════ -->
         <!-- ══════════════════════════════════════════════════════════════════════════ -->
-        <section class="pt-12 sm:pt-16 lg:pt-20 pb-12 sm:pb-16 border-b border-black/[0.06] dark:border-white/[0.08]">
-            <div class="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
+        <section class="relative bg-[#060B1E] text-white pt-10 sm:pt-14 pb-16 lg:pb-20 overflow-hidden border-b border-white/10 w-full min-w-full">
+            {{-- Dual Ambient Glows --}}
+            <div class="absolute top-0 right-1/4 w-96 h-96 bg-[#007AFF]/15 rounded-full blur-[140px] pointer-events-none"></div>
+            <div class="absolute bottom-0 left-1/4 w-96 h-96 bg-[#00C4D8]/10 rounded-full blur-[120px] pointer-events-none"></div>
+
+            <div class="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-6">
 
                 <!-- Breadcrumb Navigation -->
-                <nav class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 mb-6"
-                    aria-label="Breadcrumb">
-                    <a href="{{ route('landing') }}"
-                        class="hover:text-slate-900 dark:hover:text-white transition-colors">Beranda</a>
-                    <span aria-hidden="true" class="text-slate-300 dark:text-slate-700">/</span>
-                    <span>Pusat Sumber Daya</span>
-                    <span aria-hidden="true" class="text-slate-300 dark:text-slate-700">/</span>
-                    <span class="text-[#007AFF] dark:text-[#0A84FF] font-semibold" aria-current="page">Studi Kasus
-                        UMKM</span>
+                <nav class="flex items-center gap-2 text-xs text-slate-400" aria-label="Breadcrumb">
+                    <a href="{{ route('landing') }}" class="hover:text-white transition-colors">Beranda</a>
+                    <span aria-hidden="true" class="text-white/20">/</span>
+                    <span class="text-slate-400">Pusat Sumber Daya</span>
+                    <span aria-hidden="true" class="text-white/20">/</span>
+                    <span class="text-[#00C4D8] font-semibold" aria-current="page">Studi Kasus UMKM</span>
                 </nav>
 
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
@@ -110,126 +111,101 @@
                     <div class="lg:col-span-5 space-y-6 text-center mx-auto flex flex-col items-center lg:text-left lg:items-start lg:mx-0">
                         <div class="space-y-3 w-full">
                             <!-- Pure Typographic Kicker -->
-                            <div
-                                class="text-[12px] sm:text-[13px] font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF]">
-                                STUDI KASUS &amp; BUKTI NYATA
+                            <div class="text-xs sm:text-[13px] font-bold uppercase tracking-wider text-[#00C4D8]">
+                                Studi Kasus &amp; Bukti Nyata
                             </div>
 
-                            <h1
-                                class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.65rem] xl:text-[3rem] font-extrabold tracking-tight text-slate-900 dark:text-white leading-[1.15] text-balance break-words max-w-[22rem] sm:max-w-xl lg:max-w-none mx-auto lg:mx-0">
+                            <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.65rem] xl:text-[3rem] font-extrabold tracking-tight text-white leading-[1.15] text-balance break-words max-w-[22rem] sm:max-w-xl lg:max-w-none mx-auto lg:mx-0">
                                 Kisah Nyata UMKM yang Berhasil Menutup Kebocoran Kasir dan Naik Kelas
                             </h1>
                         </div>
 
-                        <p
-                            class="text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed font-normal text-pretty max-w-[32rem] lg:max-w-xl mx-auto lg:mx-0">
-                            Bukan sekadar teori manajemen. Pelajari bagaimana pemilik kedai kopi, minimarket kelontong,
-                            bengkel motor, dan konveksi menata ulang operasional harian, menghentikan selisih uang kasir,
-                            dan membuka cabang baru dengan tenang.
+                        <p class="text-base sm:text-lg text-slate-300 leading-relaxed font-normal text-pretty max-w-[32rem] lg:max-w-xl mx-auto lg:mx-0">
+                            Bukan sekadar teori manajemen. Pelajari bagaimana pemilik kedai kopi, minimarket kelontong, bengkel motor, dan konveksi menata ulang operasional harian, menghentikan selisih uang kasir, dan membuka cabang baru dengan tenang.
                         </p>
 
                         <!-- Tangible Impact Indicators (40-65 y.o. focus) -->
                         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1 text-left w-full">
-                            <div
-                                class="p-3.5 rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-sm">
-                                <div class="text-2xl font-bold text-emerald-600 dark:text-emerald-400 tabular-nums">12.4%
-                                </div>
-                                <div class="text-[11px] font-medium text-slate-500 dark:text-slate-400 mt-0.5">Hemat Biaya
-                                    Bahan</div>
+                            <div class="p-3.5 rounded-[16px] bg-white/[0.05] border border-white/10 shadow-sm">
+                                <div class="text-2xl font-bold text-emerald-400 tabular-nums">12.4%</div>
+                                <div class="text-[11px] font-medium text-slate-400 mt-0.5">Hemat Biaya Bahan</div>
                             </div>
 
-                            <div
-                                class="p-3.5 rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-sm">
-                                <div class="text-2xl font-bold text-[#007AFF] dark:text-[#0A84FF] tabular-nums">5 Menit
-                                </div>
-                                <div class="text-[11px] font-medium text-slate-500 dark:text-slate-400 mt-0.5">Tutup Buku
-                                    Tiap Shift</div>
+                            <div class="p-3.5 rounded-[16px] bg-white/[0.05] border border-white/10 shadow-sm">
+                                <div class="text-2xl font-bold text-[#00C4D8] tabular-nums">5 Menit</div>
+                                <div class="text-[11px] font-medium text-slate-400 mt-0.5">Tutup Buku Tiap Shift</div>
                             </div>
 
-                            <div
-                                class="p-3.5 rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-sm">
-                                <div class="text-2xl font-bold text-amber-600 dark:text-amber-400 tabular-nums">99.8%</div>
-                                <div class="text-[11px] font-medium text-slate-500 dark:text-slate-400 mt-0.5">Kesesuaian
-                                    Stok</div>
+                            <div class="p-3.5 rounded-[16px] bg-white/[0.05] border border-white/10 shadow-sm">
+                                <div class="text-2xl font-bold text-amber-400 tabular-nums">99.8%</div>
+                                <div class="text-[11px] font-medium text-slate-400 mt-0.5">Kesesuaian Stok</div>
                             </div>
 
-                            <div
-                                class="p-3.5 rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-sm">
-                                <div class="text-2xl font-bold text-purple-600 dark:text-purple-400 tabular-nums">0%</div>
-                                <div class="text-[11px] font-medium text-slate-500 dark:text-slate-400 mt-0.5">Nota Kasbon
-                                    Hilang</div>
+                            <div class="p-3.5 rounded-[16px] bg-white/[0.05] border border-white/10 shadow-sm">
+                                <div class="text-2xl font-bold text-purple-400 tabular-nums">0%</div>
+                                <div class="text-[11px] font-medium text-slate-400 mt-0.5">Nota Kasbon Hilang</div>
                             </div>
                         </div>
 
                         <!-- Direct Action Buttons (Centered on Mobile, Row on Desktop) -->
                         <div class="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center sm:justify-center lg:justify-start gap-3.5 w-full sm:w-auto">
                             <a href="#katalog-studi-kasus"
-                                class="h-12 px-7 rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition-all shadow-sm min-h-[48px]">
+                                class="h-12 px-7 rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition-all shadow-lg shadow-[#007AFF]/25 min-h-[48px]">
                                 <span>Pilih Kategori Usaha Anda</span>
                                 <i data-lucide="arrow-down" class="w-4 h-4 shrink-0"></i>
                             </a>
                             <a href="{{ route('register') }}"
-                                class="h-12 px-6 rounded-[14px] bg-white dark:bg-[#1C1C1E] hover:bg-slate-50 dark:hover:bg-[#2C2C2E] border border-black/[0.08] dark:border-white/[0.12] text-slate-800 dark:text-slate-200 text-sm font-semibold flex items-center justify-center gap-2 transition active:scale-[0.98] min-h-[48px]">
-                                <i data-lucide="shield-check" class="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0"></i>
+                                class="h-12 px-6 rounded-[14px] bg-white/10 hover:bg-white/15 border border-white/15 text-white text-sm font-semibold flex items-center justify-center gap-2 transition active:scale-[0.98] backdrop-blur-sm min-h-[48px]">
+                                <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400 shrink-0"></i>
                                 <span>Coba COOCA Gratis</span>
                             </a>
                         </div>
                     </div>
 
                     <!-- KANAN: Real Verification UI Bento (F&B Multi-Outlet Audit Card - 7 Cols ~ 58%) -->
-                    <div class="lg:col-span-7">
-                        <div
-                            class="rounded-[24px] bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] p-6 shadow-sm space-y-4">
+                    <div class="lg:col-span-7 w-full">
+                        <div class="rounded-[24px] bg-[#0B132B]/90 border border-white/10 p-5 sm:p-6 shadow-2xl backdrop-blur-xl text-white space-y-4">
 
                             <!-- Header Verification -->
-                            <div
-                                class="flex items-center justify-between border-b border-black/[0.06] dark:border-white/[0.08] pb-3">
+                            <div class="flex items-center justify-between border-b border-white/10 pb-3">
                                 <div>
-                                    <div class="text-xs font-bold text-slate-900 dark:text-white">Audit Operasional
-                                        Terverifikasi</div>
-                                    <div class="text-[11px] text-slate-500 dark:text-slate-400">Kopi Sudut Santai - 3 Gerai
-                                        (Bandung)</div>
+                                    <div class="text-xs font-bold text-white">Audit Operasional Terverifikasi</div>
+                                    <div class="text-[11px] text-slate-400">Kopi Sudut Santai - 3 Gerai (Bandung)</div>
                                 </div>
-                                <span
-                                    class="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-[8px]">
+                                <span class="text-[11px] font-bold text-emerald-400 bg-emerald-500/15 border border-emerald-500/25 px-2.5 py-1 rounded-[8px] flex items-center gap-1">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
                                     Sukses Terverifikasi
                                 </span>
                             </div>
 
                             <!-- Before & After Direct Comparison -->
                             <div class="space-y-2.5">
-                                <div
-                                    class="p-3.5 rounded-[14px] bg-[#F2F2F7] dark:bg-[#2C2C2E] border border-black/[0.04] dark:border-white/[0.06]">
-                                    <div
-                                        class="text-[11px] font-bold uppercase tracking-wider text-rose-600 dark:text-rose-400">
-                                        Kondisi Sebelum Sistem</div>
-                                    <div class="text-xs text-slate-700 dark:text-slate-300 mt-1 leading-relaxed">
-                                        Takaran susu berbeda per barista. Selisih 45 liter susu fresh per bulan tanpa
-                                        kejelasan transaksi kasir.
+                                <div class="p-3.5 rounded-[14px] bg-rose-950/30 border border-rose-500/25">
+                                    <div class="text-[11px] font-bold uppercase tracking-wider text-rose-400">
+                                        Kondisi Sebelum Sistem
+                                    </div>
+                                    <div class="text-xs text-slate-300 mt-1 leading-relaxed">
+                                        Takaran susu berbeda per barista. Selisih 45 liter susu fresh per bulan tanpa kejelasan transaksi kasir.
                                     </div>
                                 </div>
 
-                                <div
-                                    class="p-3.5 rounded-[14px] bg-emerald-500/[0.08] dark:bg-emerald-500/[0.12] border border-emerald-500/20">
-                                    <div
-                                        class="text-[11px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
-                                        Hasil Setelah COOCA</div>
-                                    <div
-                                        class="text-xs text-slate-800 dark:text-slate-200 mt-1 leading-relaxed font-medium">
-                                        Resep otomatis memotong stok bahan per porsi kopi. Biaya bahan baku (Food Cost)
-                                        terpangkas 12.4% dan kasir tutup buku dalam 5 menit.
+                                <div class="p-3.5 rounded-[14px] bg-emerald-950/30 border border-emerald-500/30">
+                                    <div class="text-[11px] font-bold uppercase tracking-wider text-emerald-400">
+                                        Hasil Setelah COOCA
+                                    </div>
+                                    <div class="text-xs text-emerald-100 mt-1 leading-relaxed font-medium">
+                                        Resep otomatis memotong stok bahan per porsi kopi. Biaya bahan baku (Food Cost) terpangkas 12.4% dan kasir tutup buku dalam 5 menit.
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Timeline & Modules -->
-                            <div
-                                class="pt-2 border-t border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between text-xs">
-                                <div class="flex items-center gap-2 text-slate-500 dark:text-slate-400">
+                            <div class="pt-2 border-t border-white/10 flex items-center justify-between text-xs">
+                                <div class="flex items-center gap-2 text-slate-400">
                                     <i data-lucide="clock" class="w-3.5 h-3.5"></i>
                                     <span>Waktu Migrasi: 2 Hari Kerja</span>
                                 </div>
-                                <span class="font-bold text-[#007AFF] dark:text-[#0A84FF]">Modul: Kasir + BOM Resep</span>
+                                <span class="font-bold text-[#00C4D8]">Modul: Kasir + BOM Resep</span>
                             </div>
 
                         </div>

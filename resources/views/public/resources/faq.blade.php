@@ -101,16 +101,20 @@ class="w-full font-sans antialiased bg-[#F2F2F7] dark:bg-[#000000] text-[#1D1D1F
     <!-- ══════════════════════════════════════════════════════════════════════════ -->
     <!-- ═══ 1. HERO SECTION: 2-Grid Bento Apple HIG Canvas ══════════════════════ -->
     <!-- ══════════════════════════════════════════════════════════════════════════ -->
-    <section class="pt-12 sm:pt-16 lg:pt-20 pb-12 sm:pb-16 border-b border-black/[0.06] dark:border-white/[0.08]">
-        <div class="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
+    <section class="relative bg-[#060B1E] text-white pt-10 sm:pt-14 pb-16 lg:pb-20 overflow-hidden border-b border-white/10 w-full min-w-full">
+        {{-- Dual Ambient Glows --}}
+        <div class="absolute top-0 right-1/4 w-96 h-96 bg-[#007AFF]/15 rounded-full blur-[140px] pointer-events-none"></div>
+        <div class="absolute bottom-0 left-1/4 w-96 h-96 bg-[#00C4D8]/10 rounded-full blur-[120px] pointer-events-none"></div>
+
+        <div class="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-6">
 
             <!-- Breadcrumb Navigation -->
-            <nav class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 mb-6" aria-label="Breadcrumb">
-                <a href="{{ route('landing') }}" class="hover:text-slate-900 dark:hover:text-white transition-colors">Beranda</a>
-                <span aria-hidden="true" class="text-slate-300 dark:text-slate-700">/</span>
-                <span>Pusat Sumber Daya</span>
-                <span aria-hidden="true" class="text-slate-300 dark:text-slate-700">/</span>
-                <span class="text-[#007AFF] dark:text-[#0A84FF] font-semibold" aria-current="page">Pusat Bantuan &amp; FAQ</span>
+            <nav class="flex items-center gap-2 text-xs text-slate-400" aria-label="Breadcrumb">
+                <a href="{{ route('landing') }}" class="hover:text-white transition-colors">Beranda</a>
+                <span aria-hidden="true" class="text-white/20">/</span>
+                <span class="text-slate-400">Pusat Sumber Daya</span>
+                <span aria-hidden="true" class="text-white/20">/</span>
+                <span class="text-[#00C4D8] font-semibold" aria-current="page">Pusat Bantuan &amp; FAQ</span>
             </nav>
 
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
@@ -119,38 +123,38 @@ class="w-full font-sans antialiased bg-[#F2F2F7] dark:bg-[#000000] text-[#1D1D1F
                 <div class="lg:col-span-5 space-y-6 text-center mx-auto flex flex-col items-center lg:text-left lg:items-start lg:mx-0">
                     <div class="space-y-3 w-full">
                         <!-- Pure Typographic Kicker -->
-                        <div class="text-[12px] sm:text-[13px] font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF]">
-                            PUSAT BANTUAN &amp; TANYA JAWAB
+                        <div class="text-xs sm:text-[13px] font-bold uppercase tracking-wider text-[#00C4D8]">
+                            Pusat Bantuan &amp; Tanya Jawab
                         </div>
 
-                        <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.65rem] xl:text-[3rem] font-extrabold tracking-tight text-slate-900 dark:text-white leading-[1.15] text-balance break-words max-w-[22rem] sm:max-w-xl lg:max-w-none mx-auto lg:mx-0">
+                        <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.65rem] xl:text-[3rem] font-extrabold tracking-tight text-white leading-[1.15] text-balance break-words max-w-[22rem] sm:max-w-xl lg:max-w-none mx-auto lg:mx-0">
                             Semua Jawaban Jelas untuk Menjalankan Usaha Tanpa Rasa Ragu
                         </h1>
                     </div>
 
-                    <p class="text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed font-normal text-pretty max-w-[32rem] lg:max-w-xl mx-auto lg:mx-0">
+                    <p class="text-base sm:text-lg text-slate-300 leading-relaxed font-normal text-pretty max-w-[32rem] lg:max-w-xl mx-auto lg:mx-0">
                         Penjelasan jujur dan transparan mengenai skema gratis, cara menghubungkan printer thermal Bluetooth, keamanan data bisnis, hingga cara kerja kasir saat internet toko sedang mati.
                     </p>
 
                     <!-- Quick Support Commitments (40-65 y.o. reassurance) -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 text-left w-full">
-                        <div class="p-3.5 rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] flex items-center gap-3">
-                            <div class="w-9 h-9 rounded-[10px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+                        <div class="p-3.5 rounded-[16px] bg-white/[0.05] border border-white/10 flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-[10px] bg-emerald-500/15 text-emerald-400 flex items-center justify-center shrink-0">
                                 <i data-lucide="check" class="w-5 h-5"></i>
                             </div>
                             <div class="min-w-0">
-                                <div class="text-[13px] font-bold text-slate-900 dark:text-white leading-tight">Jawaban Transparan</div>
-                                <div class="text-[11px] text-slate-500 dark:text-slate-400 leading-tight mt-0.5">Tanpa syarat tersembunyi</div>
+                                <div class="text-[13px] font-bold text-white leading-tight">Jawaban Transparan</div>
+                                <div class="text-[11px] text-slate-400 leading-tight mt-0.5">Tanpa syarat tersembunyi</div>
                             </div>
                         </div>
 
-                        <div class="p-3.5 rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] flex items-center gap-3">
-                            <div class="w-9 h-9 rounded-[10px] bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF] flex items-center justify-center shrink-0">
+                        <div class="p-3.5 rounded-[16px] bg-white/[0.05] border border-white/10 flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-[10px] bg-sky-500/15 text-[#00C4D8] flex items-center justify-center shrink-0">
                                 <i data-lucide="headphones" class="w-5 h-5"></i>
                             </div>
                             <div class="min-w-0">
-                                <div class="text-[13px] font-bold text-slate-900 dark:text-white leading-tight">Dukungan WhatsApp</div>
-                                <div class="text-[11px] text-slate-500 dark:text-slate-400 leading-tight mt-0.5">Bantuan tim teknis manusia</div>
+                                <div class="text-[13px] font-bold text-white leading-tight">Dukungan WhatsApp</div>
+                                <div class="text-[11px] text-slate-400 leading-tight mt-0.5">Bantuan tim teknis manusia</div>
                             </div>
                         </div>
                     </div>
@@ -158,91 +162,92 @@ class="w-full font-sans antialiased bg-[#F2F2F7] dark:bg-[#000000] text-[#1D1D1F
                     <!-- Direct Action Buttons (Centered on Mobile, Row on Desktop) -->
                     <div class="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center sm:justify-center lg:justify-start gap-3.5 w-full sm:w-auto">
                         <a href="#katalog-pertanyaan"
-                            class="h-12 px-7 rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition-all shadow-sm min-h-[48px]">
+                            class="h-12 px-7 rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition-all shadow-lg shadow-[#007AFF]/25 min-h-[48px]">
                             <span>Telusuri Pertanyaan Populer</span>
                             <i data-lucide="arrow-down" class="w-4 h-4 shrink-0"></i>
                         </a>
                         <a href="{{ \App\Models\SystemSetting::get('social_whatsapp_url', 'https://wa.me/6285287864176') }}?text=Halo%20Tim%20COOCA,%20saya%20ingin%20bertanya%20seputar%20sistem%20kasir"
                             target="_blank" rel="noopener"
-                            class="h-12 px-6 rounded-[14px] bg-white dark:bg-[#1C1C1E] hover:bg-slate-50 dark:hover:bg-[#2C2C2E] border border-black/[0.08] dark:border-white/[0.12] text-slate-800 dark:text-slate-200 text-sm font-semibold flex items-center justify-center gap-2 transition active:scale-[0.98] min-h-[48px]">
-                            <i data-lucide="message-circle" class="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0"></i>
+                            class="h-12 px-6 rounded-[14px] bg-white/10 hover:bg-white/15 border border-white/15 text-white text-sm font-semibold flex items-center justify-center gap-2 transition active:scale-[0.98] backdrop-blur-sm min-h-[48px]">
+                            <i data-lucide="message-circle" class="w-4 h-4 text-emerald-400 shrink-0"></i>
                             <span>Tanya Langsung via WhatsApp</span>
                         </a>
                     </div>
                 </div>
 
                 <!-- KANAN: Real System & Compatibility Status Bento (7 Cols ~ 58%) -->
-                <div class="lg:col-span-7">
-                    <div class="rounded-[24px] bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] p-6 shadow-sm space-y-4">
+                <div class="lg:col-span-7 w-full">
+                    <div class="rounded-[24px] bg-[#0B132B]/90 border border-white/10 p-5 sm:p-6 shadow-2xl backdrop-blur-xl text-white space-y-4">
                         
-                        <div class="flex items-center justify-between border-b border-black/[0.06] dark:border-white/[0.08] pb-3">
+                        <div class="flex items-center justify-between border-b border-white/10 pb-3">
                             <div>
-                                <div class="text-xs font-bold text-slate-900 dark:text-white">Status Kompatibilitas Sistem</div>
-                                <div class="text-[11px] text-slate-500 dark:text-slate-400">Standar Perangkat Keras COOCA</div>
+                                <div class="text-xs font-bold text-white">Status Kompatibilitas Sistem</div>
+                                <div class="text-[11px] text-slate-400">Standar Perangkat Keras COOCA</div>
                             </div>
-                            <span class="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-[8px]">
+                            <span class="text-[11px] font-bold text-emerald-400 bg-emerald-500/15 border border-emerald-500/25 px-2.5 py-1 rounded-[8px] flex items-center gap-1">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
                                 Teruji di Lapangan
                             </span>
                         </div>
 
                         <!-- 4 Key Readiness Badges -->
                         <div class="space-y-2.5">
-                            <div class="p-3 rounded-[14px] bg-[#F9F9FB] dark:bg-[#242426] border border-black/[0.04] dark:border-white/[0.06] flex items-center justify-between gap-3">
+                            <div class="p-3.5 rounded-[16px] bg-white/[0.04] border border-white/10 flex items-center justify-between gap-3">
                                 <div class="flex items-center gap-3 min-w-0">
-                                    <div class="w-8 h-8 rounded-[10px] bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF] flex items-center justify-center font-bold text-xs shrink-0">
+                                    <div class="w-8 h-8 rounded-[10px] bg-[#007AFF]/20 text-[#00C4D8] flex items-center justify-center font-bold text-xs shrink-0">
                                         <i data-lucide="printer" class="w-4 h-4"></i>
                                     </div>
                                     <div class="min-w-0">
-                                        <div class="text-xs font-bold text-slate-900 dark:text-white truncate">Printer Thermal Mini</div>
-                                        <div class="text-[11px] text-slate-500 dark:text-slate-400 truncate">Bluetooth 58mm &amp; 80mm Auto-Cutter</div>
+                                        <div class="text-xs font-bold text-white truncate">Printer Thermal Mini</div>
+                                        <div class="text-[11px] text-slate-400 truncate">Bluetooth 58mm &amp; 80mm Auto-Cutter</div>
                                     </div>
                                 </div>
-                                <span class="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 shrink-0">Plug &amp; Play</span>
+                                <span class="text-[11px] font-semibold text-emerald-400 shrink-0">Plug &amp; Play</span>
                             </div>
 
-                            <div class="p-3 rounded-[14px] bg-[#F9F9FB] dark:bg-[#242426] border border-black/[0.04] dark:border-white/[0.06] flex items-center justify-between gap-3">
+                            <div class="p-3.5 rounded-[16px] bg-white/[0.04] border border-white/10 flex items-center justify-between gap-3">
                                 <div class="flex items-center gap-3 min-w-0">
-                                    <div class="w-8 h-8 rounded-[10px] bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold text-xs shrink-0">
+                                    <div class="w-8 h-8 rounded-[10px] bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-xs shrink-0">
                                         <i data-lucide="wifi-off" class="w-4 h-4"></i>
                                     </div>
                                     <div class="min-w-0">
-                                        <div class="text-xs font-bold text-slate-900 dark:text-white truncate">Mode Kasir Offline</div>
-                                        <div class="text-[11px] text-slate-500 dark:text-slate-400 truncate">Tetap transaksi &amp; cetak saat internet mati</div>
+                                        <div class="text-xs font-bold text-white truncate">Mode Kasir Offline</div>
+                                        <div class="text-[11px] text-slate-400 truncate">Tetap transaksi &amp; cetak saat internet mati</div>
                                     </div>
                                 </div>
-                                <span class="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 shrink-0">Otomatis Sync</span>
+                                <span class="text-[11px] font-semibold text-emerald-400 shrink-0">Otomatis Sync</span>
                             </div>
 
-                            <div class="p-3 rounded-[14px] bg-[#F9F9FB] dark:bg-[#242426] border border-black/[0.04] dark:border-white/[0.06] flex items-center justify-between gap-3">
+                            <div class="p-3.5 rounded-[16px] bg-white/[0.04] border border-white/10 flex items-center justify-between gap-3">
                                 <div class="flex items-center gap-3 min-w-0">
-                                    <div class="w-8 h-8 rounded-[10px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold text-xs shrink-0">
+                                    <div class="w-8 h-8 rounded-[10px] bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs shrink-0">
                                         <i data-lucide="shield-check" class="w-4 h-4"></i>
                                     </div>
                                     <div class="min-w-0">
-                                        <div class="text-xs font-bold text-slate-900 dark:text-white truncate">Keamanan Data Toko</div>
-                                        <div class="text-[11px] text-slate-500 dark:text-slate-400 truncate">Isolasi tenant &amp; enkripsi bank-grade</div>
+                                        <div class="text-xs font-bold text-white truncate">Keamanan Data Toko</div>
+                                        <div class="text-[11px] text-slate-400 truncate">Isolasi tenant &amp; enkripsi SSL 256-bit</div>
                                     </div>
                                 </div>
-                                <span class="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 shrink-0">100% Aman</span>
+                                <span class="text-[11px] font-semibold text-emerald-400 shrink-0">100% Aman</span>
                             </div>
 
-                            <div class="p-3 rounded-[14px] bg-[#F9F9FB] dark:bg-[#242426] border border-black/[0.04] dark:border-white/[0.06] flex items-center justify-between gap-3">
+                            <div class="p-3.5 rounded-[16px] bg-white/[0.04] border border-white/10 flex items-center justify-between gap-3">
                                 <div class="flex items-center gap-3 min-w-0">
-                                    <div class="w-8 h-8 rounded-[10px] bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center font-bold text-xs shrink-0">
+                                    <div class="w-8 h-8 rounded-[10px] bg-purple-500/20 text-purple-400 flex items-center justify-center font-bold text-xs shrink-0">
                                         <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
                                     </div>
                                     <div class="min-w-0">
-                                        <div class="text-xs font-bold text-slate-900 dark:text-white truncate">Migrasi Data Produk</div>
-                                        <div class="text-[11px] text-slate-500 dark:text-slate-400 truncate">Salin tempel template Excel 1 klik</div>
+                                        <div class="text-xs font-bold text-white truncate">Migrasi Data Produk</div>
+                                        <div class="text-[11px] text-slate-400 truncate">Salin tempel template Excel 1 klik</div>
                                     </div>
                                 </div>
-                                <span class="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 shrink-0">Format Baku</span>
+                                <span class="text-[11px] font-semibold text-emerald-400 shrink-0">Format Baku</span>
                             </div>
                         </div>
 
                         <!-- Footer Helper -->
-                        <div class="pt-2 border-t border-black/[0.06] dark:border-white/[0.08] text-center">
-                            <span class="text-xs text-slate-500 dark:text-slate-400">Tidak perlu beli perangkat kasir baru yang mahal</span>
+                        <div class="pt-2 border-t border-white/10 text-center">
+                            <span class="text-xs text-slate-400">Tidak perlu beli perangkat kasir baru yang mahal</span>
                         </div>
 
                     </div>

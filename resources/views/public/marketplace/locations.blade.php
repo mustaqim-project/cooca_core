@@ -130,35 +130,99 @@
                 <span class="text-[#00C4D8] font-semibold" aria-current="page">Cakupan Wilayah</span>
             </nav>
 
-            {{-- Header & Search Bar --}}
-            <div class="max-w-3xl space-y-4 text-center mx-auto flex flex-col items-center lg:text-left lg:items-start lg:mx-0">
-                <div class="space-y-3 w-full">
-                    <!-- Pure Typographic Overline Kicker (Zero Pill Abuse) -->
-                    <p class="text-xs sm:text-[13px] font-bold uppercase tracking-wider text-[#00C4D8]">
-                        Cakupan Wilayah Nusantara
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+                {{-- Left: Header, City Search & Trust Info (7 Cols) --}}
+                <div class="lg:col-span-7 space-y-6 text-center mx-auto flex flex-col items-center lg:text-left lg:items-start lg:mx-0">
+                    <div class="space-y-3 w-full">
+                        <!-- Pure Typographic Overline Kicker (Zero Pill Abuse) -->
+                        <p class="text-xs sm:text-[13px] font-bold uppercase tracking-wider text-[#00C4D8]">
+                            Cakupan Wilayah Nusantara
+                        </p>
+
+                        <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.65rem] xl:text-[3rem] font-extrabold text-white tracking-tight leading-[1.15] text-balance break-words max-w-[22rem] sm:max-w-xl lg:max-w-none mx-auto lg:mx-0">
+                            Temukan Bisnis &amp; <span class="text-[#00C4D8]">Toko Lokal di Kota Anda</span>
+                        </h1>
+                    </div>
+
+                    <p class="text-base sm:text-lg text-slate-300 leading-relaxed font-normal text-pretty max-w-[32rem] lg:max-w-xl mx-auto lg:mx-0">
+                        Dukung pertumbuhan perputaran ekonomi daerah. Jelajahi ribuan pelaku usaha yang memiliki gerai fisik maupun etalase online di kota tempat tinggal Anda.
                     </p>
 
-                    <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.65rem] xl:text-[3rem] font-extrabold text-white tracking-tight leading-[1.15] text-balance break-words max-w-[22rem] sm:max-w-xl lg:max-w-none mx-auto lg:mx-0">
-                        Temukan Bisnis &amp; <span class="text-[#00C4D8]">Toko Lokal di Kota Anda</span>
-                    </h1>
+                    {{-- City Search Form --}}
+                    <form method="GET" action="{{ route('marketplace.search') }}" class="pt-1 w-full max-w-[32rem] lg:max-w-none">
+                        <div class="relative flex items-center bg-[#0E1E45]/80 rounded-[20px] border border-white/15 p-1.5 shadow-2xl backdrop-blur-md focus-within:ring-2 focus-within:ring-[#00C4D8] transition">
+                            <i data-lucide="map-pin" class="w-5 h-5 ml-3.5 text-slate-400 shrink-0" aria-hidden="true"></i>
+                            <input type="text" name="q" placeholder="Ketik nama kota, misalnya: Bandung, Surabaya, Solo..."
+                                class="w-full bg-transparent border-0 px-3.5 py-3 text-[16px] text-white placeholder-slate-400 focus:outline-none">
+                            <button type="submit"
+                                class="shrink-0 h-11 px-6 rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white text-sm font-semibold shadow-lg shadow-[#007AFF]/25 active:scale-[0.98] transition min-h-[44px]">
+                                Cari Kota
+                            </button>
+                        </div>
+                    </form>
+
+                    {{-- Micro Trust Tags --}}
+                    <div class="pt-1 flex flex-wrap items-center justify-center lg:justify-start gap-y-2 gap-x-5 text-xs text-slate-400">
+                        <div class="flex items-center gap-1.5">
+                            <i data-lucide="compass" class="w-4 h-4 text-[#00C4D8] shrink-0"></i>
+                            <span>Sentra Usaha Daerah</span>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <i data-lucide="map" class="w-4 h-4 text-emerald-400 shrink-0"></i>
+                            <span>500+ Kota Terjangkau</span>
+                        </div>
+                    </div>
                 </div>
 
-                <p class="text-base sm:text-lg text-slate-300 leading-relaxed font-normal text-pretty max-w-[32rem] lg:max-w-xl mx-auto lg:mx-0">
-                    Dukung pertumbuhan perputaran ekonomi daerah. Jelajahi ribuan pelaku usaha yang memiliki gerai fisik maupun etalase online di kota tempat tinggal Anda.
-                </p>
+                {{-- Right: Regional Coverage Bento Cockpit (5 Cols) --}}
+                <div class="lg:col-span-5 w-full">
+                    <div class="rounded-[24px] bg-[#0E1E45]/80 border border-white/10 p-5 sm:p-6 shadow-2xl backdrop-blur-xl text-white space-y-4">
+                        <div class="flex items-center justify-between border-b border-white/10 pb-3">
+                            <div class="flex items-center gap-1.5 shrink-0">
+                                <span class="w-2.5 h-2.5 rounded-full bg-[#FF5F56]"></span>
+                                <span class="w-2.5 h-2.5 rounded-full bg-[#FFBD2E]"></span>
+                                <span class="w-2.5 h-2.5 rounded-full bg-[#27C93F]"></span>
+                                <span class="text-xs font-mono font-semibold text-slate-300 ml-2">Jangkauan Wilayah</span>
+                            </div>
+                            <span class="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-400 shrink-0">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                                Live Sync
+                            </span>
+                        </div>
 
-                {{-- City Search Form --}}
-                <form method="GET" action="{{ route('marketplace.search') }}" class="pt-2 w-full max-w-[32rem] lg:max-w-none">
-                    <div class="relative flex items-center bg-[#0E1E45]/80 rounded-[20px] border border-white/15 p-1.5 shadow-2xl backdrop-blur-md focus-within:ring-2 focus-within:ring-[#00C4D8] transition">
-                        <i data-lucide="map-pin" class="w-5 h-5 ml-3.5 text-slate-400 shrink-0" aria-hidden="true"></i>
-                        <input type="text" name="q" placeholder="Ketik nama kota, misalnya: Bandung, Surabaya, Solo..."
-                            class="w-full bg-transparent border-0 px-3.5 py-3 text-[16px] sm:text-base text-white placeholder-slate-400 focus:outline-none">
-                        <button type="submit"
-                            class="shrink-0 h-11 px-6 rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white text-sm font-semibold shadow-lg shadow-[#007AFF]/25 active:scale-[0.98] transition min-h-[44px]">
-                            Cari Kota
-                        </button>
+                        {{-- 3 Key Regional Metrics Bento --}}
+                        <div class="grid grid-cols-2 gap-2.5">
+                            <div class="p-3.5 rounded-[16px] bg-[#060B1E]/60 border border-white/10 space-y-1">
+                                <div class="text-[11px] text-slate-400">Total Hub Wilayah</div>
+                                <div class="text-xl font-bold text-white">6 Koridor</div>
+                                <div class="text-[10px] text-[#00C4D8]">Jawa hingga Papua</div>
+                            </div>
+                            <div class="p-3.5 rounded-[16px] bg-[#060B1E]/60 border border-white/10 space-y-1">
+                                <div class="text-[11px] text-slate-400">Ambil di Gerai</div>
+                                <div class="text-xl font-bold text-emerald-400">Tersedia</div>
+                                <div class="text-[10px] text-slate-400">Pick-up langsung</div>
+                            </div>
+                        </div>
+
+                        {{-- Sample City Route Pill --}}
+                        <div class="p-3 rounded-[16px] bg-white/[0.04] border border-white/10 space-y-2">
+                            <div class="text-xs font-semibold text-slate-300 flex items-center justify-between">
+                                <span class="flex items-center gap-1.5">
+                                    <i data-lucide="navigation" class="w-3.5 h-3.5 text-[#00C4D8]"></i>
+                                    <span>Kota Teraktif Minggu Ini</span>
+                                </span>
+                                <span class="text-[10px] font-mono text-emerald-400 font-bold">100% Realtime</span>
+                            </div>
+                            <div class="flex flex-wrap gap-1.5 text-[11px] font-medium text-slate-300">
+                                <span class="px-2.5 py-1 rounded-[8px] bg-white/5 border border-white/10">Bandung</span>
+                                <span class="px-2.5 py-1 rounded-[8px] bg-white/5 border border-white/10">Surabaya</span>
+                                <span class="px-2.5 py-1 rounded-[8px] bg-white/5 border border-white/10">Yogyakarta</span>
+                                <span class="px-2.5 py-1 rounded-[8px] bg-white/5 border border-white/10">Medan</span>
+                                <span class="px-2.5 py-1 rounded-[8px] bg-white/5 border border-white/10">Makassar</span>
+                            </div>
+                        </div>
                     </div>
-                </form>
+                </div>
             </div>
         </div>
     </section>
