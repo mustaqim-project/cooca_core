@@ -321,7 +321,7 @@
                 localStorage.setItem('cooca-theme', 'light');
             }
         }
-    }" x-init="lucide.createIcons()">
+    }" x-init="lucide.createIcons(); $watch('mobileMenu', value => { if (value) { document.body.classList.add('overflow-hidden', 'lg:overflow-auto'); } else { document.body.classList.remove('overflow-hidden', 'lg:overflow-auto'); } })">
 
     @php
         $isLandingPage = request()->routeIs('landing') || request()->is('/');
@@ -331,7 +331,8 @@
         <header
             class="sticky top-0 z-50 backdrop-blur-2xl bg-[#060913]/95 text-white border-b border-white/10 relative transition-colors"
             @mouseleave="platformDropdown = false; solutionDropdown = false; omniDropdown = false; resourceDropdown = false"
-            @keydown.escape.window="platformDropdown = false; solutionDropdown = false; omniDropdown = false; resourceDropdown = false">
+            @keydown.escape.window="platformDropdown = false; solutionDropdown = false; omniDropdown = false; resourceDropdown = false; mobileMenu = false"
+            @resize.window="if (window.innerWidth >= 1024) mobileMenu = false">
             <div
                 class="max-w-[1320px] mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 lg:h-[84px] flex items-center justify-between">
 
@@ -341,7 +342,7 @@
                     class="flex items-center gap-3 sm:gap-3.5 group shrink-0">
                     @if (!empty($siteLogoDarkUrl))
                         <img src="{{ $siteLogoDarkUrl }}" alt="{{ $siteAppName }}"
-                            class="h-8.5 sm:h-10 lg:h-10 xl:h-11 w-auto object-contain transition-transform group-hover:scale-105">
+                            class="h-8 sm:h-9 lg:h-10 xl:h-11 w-auto object-contain transition-transform group-hover:scale-105">
                     @else
                         <span
                             class="font-black text-2xl sm:text-3xl xl:text-4xl tracking-tighter text-white font-sans">COOCA</span>
@@ -415,26 +416,49 @@
                 </nav>
 
                 <!-- Action Controls & Theme Toggle -->
-                <div class="flex items-center gap-2.5"
+                <div class="flex items-center gap-2 sm:gap-2.5"
                     @mouseenter="platformDropdown = false; solutionDropdown = false; omniDropdown = false; resourceDropdown = false">
                     <!-- Apple Theme Switcher Button -->
                     <button type="button" @click="toggleTheme()"
-                        class="w-11 h-11 lg:w-10 lg:h-10 rounded-full flex items-center justify-center text-slate-300 hover:text-white hover:bg-white/10 active:scale-[0.95] transition-all"
+                        class="w-10 h-10 sm:w-11 sm:h-11 lg:w-10 lg:h-10 rounded-full flex items-center justify-center text-slate-300 hover:text-white hover:bg-white/10 active:scale-[0.95] transition-all"
                         title="Ganti Mode Terang/Gelap" aria-label="Toggle Theme">
                         <!-- Sun Icon for Dark Mode (Switch to Light) -->
-                        <svg x-show="isDark" x-cloak class="w-5.5 h-5.5 lg:w-5 lg:h-5 text-[#FFD60A]" fill="none" stroke="currentColor"
+                        <svg x-show="isDark" x-cloak class="w-5 h-5 sm:w-5.5 sm:h-5.5 lg:w-5 lg:h-5 text-[#FFD60A]" fill="none" stroke="currentColor"
                             stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
                         </svg>
                         <!-- Moon Icon for Light Mode (Switch to Dark) -->
-                        <svg x-show="!isDark" class="w-5.5 h-5.5 lg:w-5 lg:h-5 text-slate-300" fill="none" stroke="currentColor"
+                        <svg x-show="!isDark" class="w-5 h-5 sm:w-5.5 sm:h-5.5 lg:w-5 lg:h-5 text-slate-300" fill="none" stroke="currentColor"
                             stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
                         </svg>
                     </button>
 
+                    <!-- Mobile Quick Action CTA (sm:hidden) -->
+                    <div class="sm:hidden flex items-center">
+                        @if (auth('admin')->check())
+                            <a href="{{ route('admin.dashboard') }}"
+                                class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-[10px] bg-gradient-to-r from-[#00C2FF] via-[#00A3FF] to-[#007AFF] text-white font-bold text-xs shadow-xs active:scale-95 transition-all">
+                                <i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i>
+                                <span>Admin</span>
+                            </a>
+                        @elseif (auth('web')->check())
+                            <a href="{{ route('dashboard') }}"
+                                class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-[10px] bg-gradient-to-r from-[#00C2FF] via-[#00A3FF] to-[#007AFF] text-white font-bold text-xs shadow-xs active:scale-95 transition-all">
+                                <i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i>
+                                <span>Dashboard</span>
+                            </a>
+                        @else
+                            <a href="{{ route('register') }}"
+                                class="inline-flex items-center justify-center px-3 py-1.5 rounded-[10px] bg-gradient-to-r from-[#00C2FF] via-[#00A3FF] to-[#007AFF] text-white font-bold text-xs shadow-xs active:scale-95 transition-all">
+                                <span>Coba Gratis</span>
+                            </a>
+                        @endif
+                    </div>
+
+                    <!-- Desktop & Tablet Action Buttons (hidden sm:flex) -->
                     <div class="hidden sm:flex items-center gap-3">
                         @if (auth('admin')->check())
                             <a href="{{ route('admin.dashboard') }}"
@@ -464,12 +488,18 @@
                         @endif
                     </div>
 
-                    <!-- Mobile Hamburger Button (Larger Apple Touch Target) -->
-                    <button @click="mobileMenu = !mobileMenu"
-                        class="lg:hidden p-2.5 rounded-[14px] bg-white/10 text-white hover:bg-white/15 active:scale-95 transition-all min-w-[48px] min-h-[48px] flex items-center justify-center shadow-xs"
-                        aria-label="Toggle Mobile Navigation">
-                        <i x-show="!mobileMenu" data-lucide="menu" class="w-6 h-6"></i>
-                        <i x-show="mobileMenu" x-cloak data-lucide="x" class="w-6 h-6"></i>
+                    <!-- Mobile Hamburger Button (Apple HIG Touch Target & Inline Responsive SVG) -->
+                    <button @click="mobileMenu = !mobileMenu; $nextTick(() => { if (typeof lucide !== 'undefined' && lucide.createIcons) lucide.createIcons(); })"
+                        class="lg:hidden p-2 rounded-[12px] sm:rounded-[14px] bg-white/10 text-white hover:bg-white/15 active:scale-95 transition-all min-w-[42px] min-h-[42px] sm:min-w-[48px] sm:min-h-[48px] flex items-center justify-center shadow-xs focus:outline-none"
+                        :class="mobileMenu ? 'bg-white/20 text-[#00C2FF] ring-2 ring-[#00C2FF]/40' : ''"
+                        aria-label="Toggle Mobile Navigation"
+                        :aria-expanded="mobileMenu ? 'true' : 'false'">
+                        <svg x-show="!mobileMenu" class="w-5.5 h-5.5 sm:w-6 sm:h-6 stroke-current stroke-[2.2]" fill="none" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                        </svg>
+                        <svg x-show="mobileMenu" x-cloak class="w-5.5 h-5.5 sm:w-6 sm:h-6 stroke-current stroke-[2.2]" fill="none" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
                     </button>
                 </div>
             </div>
@@ -1208,147 +1238,356 @@
                 </div>
             </div>
 
+            <!-- Mobile Navigation Backdrop Overlay -->
+            <div x-show="mobileMenu" x-cloak
+                x-transition:enter="transition ease-out duration-200"
+                x-transition:enter-start="opacity-0"
+                x-transition:enter-end="opacity-100"
+                x-transition:leave="transition ease-in duration-150"
+                x-transition:leave-start="opacity-100"
+                x-transition:leave-end="opacity-0"
+                @click="mobileMenu = false"
+                class="fixed inset-0 top-16 sm:top-20 lg:hidden z-40 bg-black/75 backdrop-blur-sm pointer-events-auto">
+            </div>
+
             <!-- Mobile Drawer Menu (Apple Control Center Bento Sheet) -->
-            <div x-show="mobileMenu" x-cloak x-transition:enter="transition ease-out duration-200"
-                x-transition:enter-start="opacity-0 -translate-y-2" x-transition:enter-end="opacity-100 translate-y-0"
-                style="background-color: #060913;"
-                class="lg:hidden p-4 sm:p-5 bg-[#060913] border-b border-white/10 space-y-3.5 text-sm font-medium max-h-[85vh] overflow-y-auto text-slate-200">
+            <div x-show="mobileMenu" x-cloak
+                x-transition:enter="transition cubic-bezier(0.16, 1, 0.3, 1) duration-250"
+                x-transition:enter-start="opacity-0 -translate-y-3 scale-[0.99]"
+                x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+                x-transition:leave="transition ease-in duration-150"
+                x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+                x-transition:leave-end="opacity-0 -translate-y-3 scale-[0.99]"
+                @click.outside="mobileMenu = false"
+                class="absolute top-full inset-x-0 w-full z-50 lg:hidden bg-[#060913]/98 backdrop-blur-2xl border-b border-white/10 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.95)] max-h-[calc(100svh-4rem)] sm:max-h-[calc(100svh-5rem)] overflow-y-auto overscroll-contain text-slate-200 p-4 sm:p-5 space-y-4 pb-28 sm:pb-32">
+
+                <!-- 1. Top Onboarding & User State Card -->
+                @if (auth('admin')->check())
+                    <div class="p-3.5 rounded-[16px] bg-gradient-to-r from-[#00C2FF]/15 via-white/[0.04] to-transparent border border-[#00C2FF]/30 flex items-center justify-between gap-3">
+                        <div class="flex items-center gap-2.5 min-w-0">
+                            <div class="w-8 h-8 rounded-full bg-[#00C2FF]/20 flex items-center justify-center text-[#00C2FF] shrink-0 font-bold text-xs">
+                                AD
+                            </div>
+                            <div class="min-w-0">
+                                <span class="text-xs font-bold text-white tracking-tight truncate block">{{ auth('admin')->user()->name }}</span>
+                                <span class="text-[10px] text-slate-400 block">Superadmin Ekosistem</span>
+                            </div>
+                        </div>
+                        <a href="{{ route('admin.dashboard') }}" @click="mobileMenu = false"
+                            class="shrink-0 px-3 py-1.5 rounded-[10px] bg-[#00C2FF] text-slate-950 font-bold text-xs shadow-xs active:scale-95 transition-all flex items-center gap-1">
+                            <i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i>
+                            <span>Dashboard Admin</span>
+                        </a>
+                    </div>
+                @elseif (auth('web')->check())
+                    <div class="p-3.5 rounded-[16px] bg-gradient-to-r from-[#00C2FF]/15 via-white/[0.04] to-transparent border border-[#00C2FF]/30 flex items-center justify-between gap-3">
+                        <div class="flex items-center gap-2.5 min-w-0">
+                            <div class="w-8 h-8 rounded-full bg-[#00C2FF]/20 flex items-center justify-center text-[#00C2FF] shrink-0 font-bold text-xs">
+                                {{ strtoupper(substr(auth('web')->user()->name, 0, 2)) }}
+                            </div>
+                            <div class="min-w-0">
+                                <span class="text-xs font-bold text-white tracking-tight truncate block">{{ auth('web')->user()->name }}</span>
+                                <span class="text-[10px] text-slate-400 block">Akun Bisnis Aktif</span>
+                            </div>
+                        </div>
+                        <a href="{{ route('dashboard') }}" @click="mobileMenu = false"
+                            class="shrink-0 px-3 py-1.5 rounded-[10px] bg-[#00C2FF] text-slate-950 font-bold text-xs shadow-xs active:scale-95 transition-all flex items-center gap-1">
+                            <i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i>
+                            <span>Ke Dashboard</span>
+                        </a>
+                    </div>
+                @else
+                    <div class="p-3.5 rounded-[16px] bg-gradient-to-r from-white/[0.06] via-white/[0.03] to-transparent border border-white/10 flex items-center justify-between gap-3">
+                        <div class="min-w-0">
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-[#00C2FF] block">Ekosistem Bisnis UMKM</span>
+                            <span class="text-xs font-semibold text-white truncate block">Coba Gratis Tanpa Kartu Kredit</span>
+                        </div>
+                        <div class="flex items-center gap-1.5 shrink-0">
+                            <a href="{{ route('login') }}" @click="mobileMenu = false"
+                                class="px-2.5 py-1.5 rounded-[10px] bg-white/10 hover:bg-white/15 text-white text-xs font-semibold active:scale-95 transition-all">
+                                Masuk
+                            </a>
+                            <a href="{{ route('register') }}" @click="mobileMenu = false"
+                                class="px-3 py-1.5 rounded-[10px] bg-gradient-to-r from-[#00C2FF] via-[#00A3FF] to-[#007AFF] text-white text-xs font-bold shadow-xs active:scale-95 transition-all flex items-center gap-1">
+                                <span>Daftar</span>
+                                <i data-lucide="arrow-right" class="w-3 h-3"></i>
+                            </a>
+                        </div>
+                    </div>
+                @endif
+
+                <!-- 2. Primary Navigation Trio Pills -->
                 <div class="grid grid-cols-3 gap-2">
                     <a href="{{ route('landing') }}" @click="mobileMenu = false"
-                        class="block py-2.5 px-3 rounded-[14px] bg-white/[0.04] border border-white/10 text-white font-semibold hover:bg-white/[0.08] transition-colors">
-                        <span class="flex items-center gap-2 text-xs">
-                            <i data-lucide="home" class="w-4 h-4 text-[#00C2FF]"></i>
-                            <span>Beranda</span>
-                        </span>
+                        class="py-2.5 px-2 rounded-[14px] bg-white/[0.04] border border-white/10 hover:bg-white/[0.08] active:scale-95 transition-all text-center group {{ request()->routeIs('landing') || request()->is('/') ? 'ring-1 ring-[#00C2FF]/40 bg-white/[0.08]' : '' }}">
+                        <div class="flex flex-col items-center justify-center gap-1">
+                            <i data-lucide="home" class="w-4 h-4 text-[#00C2FF] group-hover:scale-110 transition-transform"></i>
+                            <span class="text-xs font-semibold text-white truncate w-full">Beranda</span>
+                        </div>
                     </a>
                     <a href="{{ route('marketplace.index') }}" @click="mobileMenu = false"
-                        class="block py-2.5 px-3 rounded-[14px] bg-white/[0.04] border border-white/10 text-white font-semibold hover:bg-white/[0.08] transition-colors">
-                        <span class="flex items-center gap-2 text-xs">
-                            <i data-lucide="shopping-bag" class="w-4 h-4 text-[#FF9500]"></i>
-                            <span>Marketplace</span>
-                        </span>
+                        class="py-2.5 px-2 rounded-[14px] bg-white/[0.04] border border-white/10 hover:bg-white/[0.08] active:scale-95 transition-all text-center group {{ request()->routeIs('marketplace.*') ? 'ring-1 ring-[#FF9500]/40 bg-white/[0.08]' : '' }}">
+                        <div class="flex flex-col items-center justify-center gap-1">
+                            <i data-lucide="shopping-bag" class="w-4 h-4 text-[#FF9500] group-hover:scale-110 transition-transform"></i>
+                            <span class="text-xs font-semibold text-white truncate w-full">Marketplace</span>
+                        </div>
                     </a>
                     <a href="{{ route('public.discovery.index') }}" @click="mobileMenu = false"
-                        class="block py-2.5 px-3 rounded-[14px] bg-white/[0.04] border border-white/10 text-white font-semibold hover:bg-white/[0.08] transition-colors">
-                        <span class="flex items-center gap-2 text-xs">
-                            <i data-lucide="compass" class="w-4 h-4 text-[#34C759]"></i>
-                            <span>Jelajah Toko</span>
-                        </span>
+                        class="py-2.5 px-2 rounded-[14px] bg-white/[0.04] border border-white/10 hover:bg-white/[0.08] active:scale-95 transition-all text-center group {{ request()->routeIs('public.discovery.*') || request()->routeIs('public.directory.*') ? 'ring-1 ring-[#34C759]/40 bg-white/[0.08]' : '' }}">
+                        <div class="flex flex-col items-center justify-center gap-1">
+                            <i data-lucide="compass" class="w-4 h-4 text-[#34C759] group-hover:scale-110 transition-transform"></i>
+                            <span class="text-xs font-semibold text-white truncate w-full">Jelajah Toko</span>
+                        </div>
                     </a>
                 </div>
 
-                <!-- Bento Tile Section: Platform & ERP -->
+                <!-- 3. Bento Section: Platform & Omnichannel ERP -->
                 <div class="py-2 border-t border-white/10">
-                    <div
-                        class="text-[11px] font-bold text-[#00C2FF] uppercase tracking-wider px-1 mb-2 flex items-center gap-1.5">
-                        <i data-lucide="layers" class="w-3.5 h-3.5"></i>
-                        <span>Platform &amp; Omnichannel ERP</span>
+                    <div class="text-[11px] font-bold text-[#00C2FF] uppercase tracking-wider px-1 mb-2.5 flex items-center justify-between">
+                        <span class="flex items-center gap-1.5">
+                            <i data-lucide="layers" class="w-3.5 h-3.5"></i>
+                            <span>Platform &amp; Omnichannel ERP</span>
+                        </span>
+                        <a href="{{ route('public.bos.overview') }}" @click="mobileMenu = false" class="text-[10px] text-slate-400 hover:text-[#00C2FF] font-semibold lowercase tracking-normal flex items-center gap-0.5">
+                            <span>semua</span>
+                            <i data-lucide="chevron-right" class="w-3 h-3"></i>
+                        </a>
                     </div>
                     <div class="grid grid-cols-2 gap-2 text-xs">
                         <a href="{{ route('public.bos.overview') }}" @click="mobileMenu = false"
-                            class="p-2.5 rounded-[14px] bg-white/[0.04] border border-white/10 flex items-center gap-2 text-slate-200 hover:text-white hover:bg-white/[0.08] active:scale-95 transition-all">
-                            <i data-lucide="cpu" class="w-4 h-4 text-[#00C2FF] shrink-0"></i>
-                            <span class="truncate font-medium">Overview BOS</span>
-                        </a>
-                        <a href="{{ route('public.erp.erp') }}" @click="mobileMenu = false"
-                            class="p-2.5 rounded-[14px] bg-white/[0.04] border border-white/10 flex items-center gap-2 text-slate-200 hover:text-white hover:bg-white/[0.08] active:scale-95 transition-all">
-                            <i data-lucide="box" class="w-4 h-4 text-[#34C759] shrink-0"></i>
-                            <span class="truncate font-medium">ERP Core</span>
+                            class="p-2.5 rounded-[14px] bg-white/[0.04] border border-white/10 flex items-center gap-2.5 text-slate-200 hover:text-white hover:bg-white/[0.08] active:scale-95 transition-all group">
+                            <div class="w-7 h-7 rounded-lg bg-[#007AFF]/15 text-[#00C2FF] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                                <i data-lucide="cpu" class="w-3.5 h-3.5"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <span class="truncate font-semibold block text-white text-[11.5px]">Overview BOS</span>
+                                <span class="text-[9.5px] text-slate-400 block truncate">Sistem Operasi</span>
+                            </div>
                         </a>
                         <a href="{{ route('public.erp.pos') }}" @click="mobileMenu = false"
-                            class="p-2.5 rounded-[14px] bg-white/[0.04] border border-white/10 flex items-center gap-2 text-slate-200 hover:text-white hover:bg-white/[0.08] active:scale-95 transition-all">
-                            <i data-lucide="shopping-cart" class="w-4 h-4 text-[#FF9500] shrink-0"></i>
-                            <span class="truncate font-medium">POS Kasir</span>
+                            class="p-2.5 rounded-[14px] bg-white/[0.04] border border-white/10 flex items-center gap-2.5 text-slate-200 hover:text-white hover:bg-white/[0.08] active:scale-95 transition-all group">
+                            <div class="w-7 h-7 rounded-lg bg-[#FF9500]/15 text-[#FF9500] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                                <i data-lucide="monitor" class="w-3.5 h-3.5"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <span class="truncate font-semibold block text-white text-[11.5px]">Point of Sale</span>
+                                <span class="text-[9.5px] text-slate-400 block truncate">Kasir POS Cepat</span>
+                            </div>
+                        </a>
+                        <a href="{{ route('public.erp.erp') }}" @click="mobileMenu = false"
+                            class="p-2.5 rounded-[14px] bg-white/[0.04] border border-white/10 flex items-center gap-2.5 text-slate-200 hover:text-white hover:bg-white/[0.08] active:scale-95 transition-all group">
+                            <div class="w-7 h-7 rounded-lg bg-[#34C759]/15 text-[#34C759] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                                <i data-lucide="box" class="w-3.5 h-3.5"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <span class="truncate font-semibold block text-white text-[11.5px]">ERP Core</span>
+                                <span class="text-[9.5px] text-slate-400 block truncate">Operasional Toko</span>
+                            </div>
+                        </a>
+                        <a href="{{ route('public.erp.accounting') }}" @click="mobileMenu = false"
+                            class="p-2.5 rounded-[14px] bg-white/[0.04] border border-white/10 flex items-center gap-2.5 text-slate-200 hover:text-white hover:bg-white/[0.08] active:scale-95 transition-all group">
+                            <div class="w-7 h-7 rounded-lg bg-[#5856D6]/15 text-[#5856D6] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                                <i data-lucide="bar-chart-3" class="w-3.5 h-3.5"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <span class="truncate font-semibold block text-white text-[11.5px]">Dynamic Budgeting</span>
+                                <span class="text-[9.5px] text-slate-400 block truncate">Pembukuan Otomatis</span>
+                            </div>
                         </a>
                         <a href="{{ route('public.erp.inventory') }}" @click="mobileMenu = false"
-                            class="p-2.5 rounded-[14px] bg-white/[0.04] border border-white/10 flex items-center gap-2 text-slate-200 hover:text-white hover:bg-white/[0.08] active:scale-95 transition-all">
-                            <i data-lucide="archive" class="w-4 h-4 text-[#00C2FF] shrink-0"></i>
-                            <span class="truncate font-medium">Inventory</span>
+                            class="p-2.5 rounded-[14px] bg-white/[0.04] border border-white/10 flex items-center gap-2.5 text-slate-200 hover:text-white hover:bg-white/[0.08] active:scale-95 transition-all group">
+                            <div class="w-7 h-7 rounded-lg bg-[#30B0C7]/15 text-[#30B0C7] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                                <i data-lucide="archive" class="w-3.5 h-3.5"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <span class="truncate font-semibold block text-white text-[11.5px]">Manajemen Stok</span>
+                                <span class="text-[9.5px] text-slate-400 block truncate">Stok Multi-Gudang</span>
+                            </div>
                         </a>
                         <a href="{{ route('public.omnichannel.whatsapp') }}" @click="mobileMenu = false"
-                            class="p-2.5 rounded-[14px] bg-white/[0.04] border border-white/10 flex items-center gap-2 text-slate-200 hover:text-white hover:bg-white/[0.08] active:scale-95 transition-all">
-                            <i data-lucide="message-square" class="w-4 h-4 text-[#34C759] shrink-0"></i>
-                            <span class="truncate font-medium">WhatsApp Hub</span>
+                            class="p-2.5 rounded-[14px] bg-white/[0.04] border border-white/10 flex items-center gap-2.5 text-slate-200 hover:text-white hover:bg-white/[0.08] active:scale-95 transition-all group">
+                            <div class="w-7 h-7 rounded-lg bg-[#25D366]/15 text-[#25D366] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                                <i data-lucide="message-square" class="w-3.5 h-3.5"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <span class="truncate font-semibold block text-white text-[11.5px]">WhatsApp Hub</span>
+                                <span class="text-[9.5px] text-slate-400 block truncate">Auto Struk &amp; Resi</span>
+                            </div>
+                        </a>
+                        <a href="{{ route('public.omnichannel.orders') }}" @click="mobileMenu = false"
+                            class="p-2.5 rounded-[14px] bg-white/[0.04] border border-white/10 flex items-center gap-2.5 text-slate-200 hover:text-white hover:bg-white/[0.08] active:scale-95 transition-all group">
+                            <div class="w-7 h-7 rounded-lg bg-[#FF9F0A]/15 text-[#FF9F0A] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                                <i data-lucide="truck" class="w-3.5 h-3.5"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <span class="truncate font-semibold block text-white text-[11.5px]">Order &amp; Resi</span>
+                                <span class="text-[9.5px] text-slate-400 block truncate">Sinkron Marketplace</span>
+                            </div>
                         </a>
                         <a href="{{ route('public.content.creation') }}" @click="mobileMenu = false"
-                            class="p-2.5 rounded-[14px] bg-cyan-950/60 border border-cyan-400/30 flex items-center gap-2 text-cyan-300 font-semibold active:scale-95 transition-all">
-                            <i data-lucide="sparkles" class="w-4 h-4 shrink-0"></i>
-                            <span class="truncate font-semibold">Content AI</span>
+                            class="p-2.5 rounded-[14px] bg-[#00C2FF]/10 border border-[#00C2FF]/30 flex items-center gap-2.5 text-slate-200 hover:text-white hover:bg-[#00C2FF]/15 active:scale-95 transition-all group">
+                            <div class="w-7 h-7 rounded-lg bg-[#00C2FF]/20 text-[#00C2FF] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                                <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <span class="truncate font-semibold block text-[#00C2FF] text-[11.5px]">Content AI</span>
+                                <span class="text-[9.5px] text-slate-400 block truncate">Auto Copywriting</span>
+                            </div>
                         </a>
                     </div>
                 </div>
 
-                <!-- Bento Tile Section: Solusi Industri -->
+                <!-- 4. Bento Section: Solusi Industri -->
                 <div class="py-2 border-t border-white/10">
-                    <div
-                        class="text-[11px] font-bold text-[#34C759] uppercase tracking-wider px-1 mb-2 flex items-center gap-1.5">
+                    <div class="text-[11px] font-bold text-[#34C759] uppercase tracking-wider px-1 mb-2.5 flex items-center gap-1.5">
                         <i data-lucide="store" class="w-3.5 h-3.5"></i>
                         <span>Solusi Industri</span>
                     </div>
                     <div class="grid grid-cols-2 gap-2 text-xs">
                         <a href="{{ route('public.solutions.fnb') }}" @click="mobileMenu = false"
-                            class="p-2.5 rounded-[14px] bg-white/[0.04] border border-white/10 flex items-center gap-2 text-slate-200 hover:text-white hover:bg-white/[0.08] active:scale-95 transition-all">
-                            <i data-lucide="utensils" class="w-4 h-4 text-[#FF9500] shrink-0"></i>
-                            <span class="truncate font-medium">F&amp;B Resto</span>
+                            class="p-2.5 rounded-[14px] bg-white/[0.04] border border-white/10 flex items-center gap-2.5 text-slate-200 hover:text-white hover:bg-white/[0.08] active:scale-95 transition-all group">
+                            <div class="w-7 h-7 rounded-lg bg-[#FF9500]/15 text-[#FF9500] flex items-center justify-center shrink-0">
+                                <i data-lucide="utensils" class="w-3.5 h-3.5"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <span class="truncate font-semibold block text-white text-[11.5px]">F&amp;B Resto</span>
+                                <span class="text-[9.5px] text-slate-400 block truncate">Meja, Dapur &amp; Menu</span>
+                            </div>
                         </a>
                         <a href="{{ route('public.solutions.retail') }}" @click="mobileMenu = false"
-                            class="p-2.5 rounded-[14px] bg-white/[0.04] border border-white/10 flex items-center gap-2 text-slate-200 hover:text-white hover:bg-white/[0.08] active:scale-95 transition-all">
-                            <i data-lucide="store" class="w-4 h-4 text-[#00C2FF] shrink-0"></i>
-                            <span class="truncate font-medium">Retail Toko</span>
+                            class="p-2.5 rounded-[14px] bg-white/[0.04] border border-white/10 flex items-center gap-2.5 text-slate-200 hover:text-white hover:bg-white/[0.08] active:scale-95 transition-all group">
+                            <div class="w-7 h-7 rounded-lg bg-[#007AFF]/15 text-[#00C2FF] flex items-center justify-center shrink-0">
+                                <i data-lucide="store" class="w-3.5 h-3.5"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <span class="truncate font-semibold block text-white text-[11.5px]">Retail Toko</span>
+                                <span class="text-[9.5px] text-slate-400 block truncate">Barcode &amp; Kasir</span>
+                            </div>
                         </a>
                         <a href="{{ route('public.solutions.workshop') }}" @click="mobileMenu = false"
-                            class="p-2.5 rounded-[14px] bg-white/[0.04] border border-white/10 flex items-center gap-2 text-slate-200 hover:text-white hover:bg-white/[0.08] active:scale-95 transition-all">
-                            <i data-lucide="wrench" class="w-4 h-4 text-[#FF3B30] shrink-0"></i>
-                            <span class="truncate font-medium">Bengkel</span>
+                            class="p-2.5 rounded-[14px] bg-white/[0.04] border border-white/10 flex items-center gap-2.5 text-slate-200 hover:text-white hover:bg-white/[0.08] active:scale-95 transition-all group">
+                            <div class="w-7 h-7 rounded-lg bg-[#FF3B30]/15 text-[#FF3B30] flex items-center justify-center shrink-0">
+                                <i data-lucide="wrench" class="w-3.5 h-3.5"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <span class="truncate font-semibold block text-white text-[11.5px]">Bengkel</span>
+                                <span class="text-[9.5px] text-slate-400 block truncate">Servis &amp; Part</span>
+                            </div>
                         </a>
                         <a href="{{ route('public.solutions.laundry') }}" @click="mobileMenu = false"
-                            class="p-2.5 rounded-[14px] bg-white/[0.04] border border-white/10 flex items-center gap-2 text-slate-200 hover:text-white hover:bg-white/[0.08] active:scale-95 transition-all">
-                            <i data-lucide="sparkles" class="w-4 h-4 text-[#34C759] shrink-0"></i>
-                            <span class="truncate font-medium">Laundry</span>
+                            class="p-2.5 rounded-[14px] bg-white/[0.04] border border-white/10 flex items-center gap-2.5 text-slate-200 hover:text-white hover:bg-white/[0.08] active:scale-95 transition-all group">
+                            <div class="w-7 h-7 rounded-lg bg-[#34C759]/15 text-[#34C759] flex items-center justify-center shrink-0">
+                                <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <span class="truncate font-semibold block text-white text-[11.5px]">Laundry</span>
+                                <span class="text-[9.5px] text-slate-400 block truncate">Kiloan &amp; Rak</span>
+                            </div>
                         </a>
                         <a href="{{ route('public.solutions.manufacturing') }}" @click="mobileMenu = false"
-                            class="p-2.5 rounded-[14px] bg-white/[0.04] border border-white/10 flex items-center gap-2 text-slate-200 hover:text-white hover:bg-white/[0.08] active:scale-95 transition-all">
-                            <i data-lucide="factory" class="w-4 h-4 text-[#AF52DE] shrink-0"></i>
-                            <span class="truncate font-medium">Pabrik</span>
+                            class="p-2.5 rounded-[14px] bg-white/[0.04] border border-white/10 flex items-center gap-2.5 text-slate-200 hover:text-white hover:bg-white/[0.08] active:scale-95 transition-all group">
+                            <div class="w-7 h-7 rounded-lg bg-[#AF52DE]/15 text-[#AF52DE] flex items-center justify-center shrink-0">
+                                <i data-lucide="factory" class="w-3.5 h-3.5"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <span class="truncate font-semibold block text-white text-[11.5px]">Pabrik</span>
+                                <span class="text-[9.5px] text-slate-400 block truncate">BOM &amp; Produksi</span>
+                            </div>
                         </a>
                         <a href="{{ route('public.solutions.services') }}" @click="mobileMenu = false"
-                            class="p-2.5 rounded-[14px] bg-white/[0.04] border border-white/10 flex items-center gap-2 text-slate-200 hover:text-white hover:bg-white/[0.08] active:scale-95 transition-all">
-                            <i data-lucide="briefcase" class="w-4 h-4 text-[#00C2FF] shrink-0"></i>
-                            <span class="truncate font-medium">Services Jasa</span>
+                            class="p-2.5 rounded-[14px] bg-white/[0.04] border border-white/10 flex items-center gap-2.5 text-slate-200 hover:text-white hover:bg-white/[0.08] active:scale-95 transition-all group">
+                            <div class="w-7 h-7 rounded-lg bg-[#00C2FF]/15 text-[#00C2FF] flex items-center justify-center shrink-0">
+                                <i data-lucide="briefcase" class="w-3.5 h-3.5"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <span class="truncate font-semibold block text-white text-[11.5px]">Jasa &amp; Services</span>
+                                <span class="text-[9.5px] text-slate-400 block truncate">Booking &amp; Tagihan</span>
+                            </div>
                         </a>
                     </div>
                 </div>
 
-                <!-- Inset Links -->
-                <div class="py-2 border-t border-white/10 space-y-1 text-xs">
+                <!-- 5. Bento Section: Alat Bisnis Gratis & Edukasi -->
+                <div class="py-2 border-t border-white/10">
+                    <div class="text-[11px] font-bold text-[#FF9500] uppercase tracking-wider px-1 mb-2.5 flex items-center gap-1.5">
+                        <i data-lucide="wrench" class="w-3.5 h-3.5"></i>
+                        <span>Alat &amp; Edukasi UMKM</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 text-xs">
+                        <a href="{{ route('template.index') }}" @click="mobileMenu = false"
+                            class="p-2.5 rounded-[14px] bg-white/[0.04] border border-white/10 flex items-center gap-2.5 text-slate-200 hover:text-white hover:bg-white/[0.08] active:scale-95 transition-all group">
+                            <div class="w-7 h-7 rounded-lg bg-[#34C759]/15 text-[#34C759] flex items-center justify-center shrink-0">
+                                <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <span class="truncate font-semibold block text-white text-[11.5px]">Template Excel</span>
+                                <span class="text-[9.5px] text-slate-400 block truncate">Gratis Download</span>
+                            </div>
+                        </a>
+                        <a href="{{ url('/kalkulator') }}" @click="mobileMenu = false"
+                            class="p-2.5 rounded-[14px] bg-white/[0.04] border border-white/10 flex items-center gap-2.5 text-slate-200 hover:text-white hover:bg-white/[0.08] active:scale-95 transition-all group">
+                            <div class="w-7 h-7 rounded-lg bg-[#FF9500]/15 text-[#FF9500] flex items-center justify-center shrink-0">
+                                <i data-lucide="calculator" class="w-3.5 h-3.5"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <span class="truncate font-semibold block text-white text-[11.5px]">Kalkulator Bisnis</span>
+                                <span class="text-[9.5px] text-slate-400 block truncate">9 Tool Finansial</span>
+                            </div>
+                        </a>
+                        <a href="{{ route('blog.index') }}" @click="mobileMenu = false"
+                            class="p-2.5 rounded-[14px] bg-white/[0.04] border border-white/10 flex items-center gap-2.5 text-slate-200 hover:text-white hover:bg-white/[0.08] active:scale-95 transition-all group">
+                            <div class="w-7 h-7 rounded-lg bg-[#00C2FF]/15 text-[#00C2FF] flex items-center justify-center shrink-0">
+                                <i data-lucide="book-open" class="w-3.5 h-3.5"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <span class="truncate font-semibold block text-white text-[11.5px]">Blog &amp; Edukasi</span>
+                                <span class="text-[9.5px] text-slate-400 block truncate">Artikel &amp; Riset</span>
+                            </div>
+                        </a>
+                        <a href="{{ route('public.resources.guides') }}" @click="mobileMenu = false"
+                            class="p-2.5 rounded-[14px] bg-white/[0.04] border border-white/10 flex items-center gap-2.5 text-slate-200 hover:text-white hover:bg-white/[0.08] active:scale-95 transition-all group">
+                            <div class="w-7 h-7 rounded-lg bg-[#AF52DE]/15 text-[#AF52DE] flex items-center justify-center shrink-0">
+                                <i data-lucide="compass" class="w-3.5 h-3.5"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <span class="truncate font-semibold block text-white text-[11.5px]">Panduan Sistem</span>
+                                <span class="text-[9.5px] text-slate-400 block truncate">Tutorial Step-by-Step</span>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 6. Bento Section: Menu Informasi Tambahan -->
+                <div class="py-2 border-t border-white/10 grid grid-cols-2 gap-1.5 text-xs">
                     <a href="{{ route('public.pricing') }}" @click="mobileMenu = false"
-                        class="flex items-center gap-2 py-2 px-3 rounded-[12px] text-slate-300 hover:text-white hover:bg-white/5 transition-colors">
+                        class="flex items-center gap-2 py-2 px-2.5 rounded-[12px] text-slate-300 hover:text-white hover:bg-white/5 transition-colors">
                         <i data-lucide="tag" class="w-4 h-4 text-[#00C2FF]"></i>
-                        <span>Harga &amp; Paket (Pricing)</span>
+                        <span class="truncate font-medium">Harga &amp; Paket</span>
                     </a>
                     <a href="{{ route('public.demo') }}" @click="mobileMenu = false"
-                        class="flex items-center gap-2 py-2 px-3 rounded-[12px] text-slate-300 hover:text-white hover:bg-white/5 transition-colors">
+                        class="flex items-center gap-2 py-2 px-2.5 rounded-[12px] text-slate-300 hover:text-white hover:bg-white/5 transition-colors">
                         <i data-lucide="play" class="w-4 h-4 text-[#34C759]"></i>
-                        <span>Live Demo Sistem</span>
+                        <span class="truncate font-medium">Live Demo Sistem</span>
                     </a>
-                    <a href="{{ route('blog.index') }}" @click="mobileMenu = false"
-                        class="flex items-center gap-2 py-2 px-3 rounded-[12px] text-slate-300 hover:text-white hover:bg-white/5 transition-colors">
-                        <i data-lucide="book-open" class="w-4 h-4 text-[#FF9500]"></i>
-                        <span>Blog &amp; Edukasi UMKM</span>
+                    <a href="{{ route('public.resources.faq') }}" @click="mobileMenu = false"
+                        class="flex items-center gap-2 py-2 px-2.5 rounded-[12px] text-slate-300 hover:text-white hover:bg-white/5 transition-colors">
+                        <i data-lucide="help-circle" class="w-4 h-4 text-[#FF9500]"></i>
+                        <span class="truncate font-medium">FAQ Pertanyaan</span>
                     </a>
                     <a href="{{ route('public.support') }}" @click="mobileMenu = false"
-                        class="flex items-center gap-2 py-2 px-3 rounded-[12px] text-slate-300 hover:text-white hover:bg-white/5 transition-colors">
+                        class="flex items-center gap-2 py-2 px-2.5 rounded-[12px] text-slate-300 hover:text-white hover:bg-white/5 transition-colors">
                         <i data-lucide="headphones" class="w-4 h-4 text-[#AF52DE]"></i>
-                        <span>Bantuan &amp; Support</span>
+                        <span class="truncate font-medium">Bantuan &amp; Support</span>
                     </a>
                 </div>
 
+                <!-- 7. Bottom Sticky Auth Actions -->
                 @if (auth('admin')->check())
                     <div class="pt-3 border-t border-white/10">
                         <a href="{{ route('admin.dashboard') }}" @click="mobileMenu = false"
                             class="w-full py-3 rounded-[14px] bg-[#00C2FF] hover:bg-[#00A3D7] text-slate-950 font-bold text-center flex items-center justify-center gap-2 active:scale-95 transition-all shadow-[0_0_15px_rgba(0,194,255,0.35)]">
                             <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
-                            <span>Dashboard</span>
+                            <span>Dashboard Admin</span>
                         </a>
                     </div>
                 @elseif (auth('web')->check())
@@ -1356,21 +1595,20 @@
                         <a href="{{ route('dashboard') }}" @click="mobileMenu = false"
                             class="w-full py-3 rounded-[14px] bg-[#00C2FF] hover:bg-[#00A3D7] text-slate-950 font-bold text-center flex items-center justify-center gap-2 active:scale-95 transition-all shadow-[0_0_15px_rgba(0,194,255,0.35)]">
                             <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
-                            <span>Dashboard</span>
+                            <span>Ke Dashboard</span>
                         </a>
                     </div>
                 @else
                     <div class="pt-3 border-t border-white/10 grid grid-cols-2 gap-2">
-                        <a href="{{ route('login') }}"
-                            class="py-2.5 rounded-[12px] bg-white/10 text-center text-white font-semibold text-xs active:scale-95 hover:bg-white/15 transition-all flex items-center justify-center gap-1.5">
+                        <a href="{{ route('login') }}" @click="mobileMenu = false"
+                            class="py-2.5 px-3 rounded-[12px] bg-white/10 hover:bg-white/15 text-center text-white font-semibold text-xs active:scale-95 transition-all flex items-center justify-center gap-1.5 min-h-[42px]">
                             <i data-lucide="user" class="w-3.5 h-3.5 text-slate-300"></i>
                             <span>Login</span>
                         </a>
-                        <a href="{{ route('register') }}"
-                            class="group py-2.5 px-3 rounded-[12px] bg-gradient-to-r from-[#00C2FF] via-[#00A3FF] to-[#007AFF] text-center text-white font-bold text-xs shadow-[0_2px_12px_rgba(0,194,255,0.35)] active:scale-95 transition-all flex items-center justify-center gap-1.5">
+                        <a href="{{ route('register') }}" @click="mobileMenu = false"
+                            class="group py-2.5 px-3 rounded-[12px] bg-gradient-to-r from-[#00C2FF] via-[#00A3FF] to-[#007AFF] hover:from-[#1cd0ff] hover:to-[#006fe6] text-center text-white font-bold text-xs shadow-[0_2px_12px_rgba(0,194,255,0.35)] active:scale-95 transition-all flex items-center justify-center gap-1.5 min-h-[42px]">
                             <span>Coba COOCA Gratis</span>
-                            <i data-lucide="arrow-right"
-                                class="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5"></i>
+                            <i data-lucide="arrow-right" class="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5"></i>
                         </a>
                     </div>
                 @endif

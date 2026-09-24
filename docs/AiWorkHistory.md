@@ -54,6 +54,66 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 
 - Pengetahuan yang dipromosikan ke `docs/system/` dan dampaknya pada `docs/SYSTEM_GUIDE.md`.
 
+### [WORK-2026-09-24-131] Perbaikan Header Versi Mobile: Eliminasi CLS, Bento Apple Control Center Drawer, & Ergonomi Touch Target
+
+- **Date:** 2026-09-24
+- **Status:** COMPLETED
+- **Module:** Public Marketing Layout (`layouts/public_marketing.blade.php`)
+- **Feature:** Mobile Header Optimization & Apple Control Center Bento Drawer
+- **Work Type:** UI/UX | Bento Apple HIG | Mobile Ergonomics | Performance | Bug Fix
+
+#### 1. Business Context & Objective
+
+- **Konteks:** Header publik (`resources/views/layouts/public_marketing.blade.php`) adalah gerbang utama navigasi pengunjung situs web COOCA. Versi desktop telah memiliki 12-kolom navbar dan mega dropdown full-width edge-to-edge yang sangat matang. Namun, pada tampilan mobile terdapat beberapa masalah teknis dan visual:
+  1. *Cumulative Layout Shift (CLS):* Menu drawer mobile sebelumnya dirender dalam aliran dokumen statis (`static`) di dalam `<header class="sticky top-0">`, menyebabkan tinggi header membengkak dari 64px menjadi 750px+ dan mendorong seluruh konten halaman ke bawah saat menu dibuka.
+  2. *Logo Glitch / Invalid Tailwind Class:* Tag `<img>` logo menggunakan class kustom tidak standar `h-8.5` yang berpotensi kolaps atau rendering shift pada browser modern.
+  3. *Ketiadaan Quick Action di Mobile Bar:* Pada bar atas mobile (`sm:hidden`), tidak ada tombol aksi langsung (CTA) di sebelah theme toggle dan tombol hamburger, memaksa pengunjung membuka menu drawer hanya untuk mendaftar/login.
+  4. *Mobile Drawer yang Monoton:* Menu mobile sebelumnya berupa daftar tautan teks biasa yang panjang tanpa struktur Bento, tanpa kartu status pengguna yang dinamis, dan tidak ramah ibu jari (*thumb zone*).
+  5. *Overlap dengan Dock Navigasi Bawah:* Drawer mobile tidak memiliki safe clearance bawah (`pb-28 sm:pb-32`), berisiko terpotong oleh floating bottom navigation dock.
+
+#### 2. What Was Done
+
+1. **Eliminasi CLS dengan Absolute Dropdown Sheet:**
+   - Mengubah drawer mobile menjadi dropdown sheet mengambang absolut (`absolute top-full inset-x-0 w-full z-50`) yang menempel presisi di bawah garis border header.
+   - Menambahkan backdrop scrim gelap terpisah (`fixed inset-0 top-16 bg-black/75 backdrop-blur-sm z-40`) dengan animasi fade transisi dan handler `@click="mobileMenu = false"`.
+   - Mengintegrasikan `$watch('mobileMenu')` pada `x-init` Alpine.js untuk mengunci scroll body (`document.body.classList.add('overflow-hidden', 'lg:overflow-auto')`) saat menu terbuka, mencegah background ikut tergulung.
+   - Menambahkan listener keyboard escape (`@keydown.escape.window="mobileMenu = false"`) dan auto-close saat resize ke desktop (`@resize.window="if (window.innerWidth >= 1024) mobileMenu = false"`).
+2. **Koreksi Dimensi Logo Standar:**
+   - Memperbaiki class logo dari `h-8.5` menjadi skala standar Tailwind responsif `h-8 sm:h-9 lg:h-10 xl:h-11 w-auto object-contain` dengan `aspect-ratio` terjaga.
+3. **Penambahan Compact Mobile CTA di Top Bar:**
+   - Menyematkan tombol CTA mikro (`sm:hidden`) di sebelah switcher tema: tombol gradasi `Coba Gratis` untuk pengunjung tamu (guest), tombol `Dashboard` untuk user tenant login, dan tombol `Admin` untuk superadmin, dengan tinggi touch target terjamin $\ge 38\text{px}$.
+4. **Peningkatan Tombol Hamburger Apple HIG:**
+   - Memastikan tombol hamburger memiliki dimensi `w-10 h-10 min-w-[40px] min-h-[40px]` dengan radius squircle `rounded-[12px]`, transisi aktif `active:scale-95`, serta visual state ring/background saat menu aktif (`mobileMenu ? 'bg-white/15 text-white ring-2 ring-[#00C2FF]/40' : 'text-slate-300 hover:text-white hover:bg-white/10'`).
+5. **Redesain Mobile Drawer Menjadi Apple Control Center Bento Sheet:**
+   - **Kartu Identitas Pengguna / Guest State (Bento Top Card):** Menampilkan status akun aktif (foto/avatar, nama tenant/admin, status pill online hijau, dan tombol logout mikro) atau badge sambutan guest UMKM lengkap dengan tautan login cepat.
+   - **Quick Action Pills (3-Column Squircle Grid):** Akses seketika ke `Toko & Etalase` (Jelajah), `Katalog Produk` (Marketplace), dan `Kalkulator Profit`.
+   - **Bento 2-Kolom Modul Platform:** Akses cepat berikon squircle kontras ke POS Kasir, Sinkronisasi Pendapatan, Kontrol Stok & Gudang, dan AI Automasi Keuangan.
+   - **Bento 2-Kolom Solusi Industri:** Shortcut ke F&B Resto, Bengkel Otomotif, Toko Retail, dan Bisnis Laundry.
+   - **Bento Pusat Edukasi & Bantuan:** Shortcut ke Blog & Edukasi, Panduan Sistem, serta grid tautan inset (Harga/Pricing, Live Demo, FAQ, Bantuan).
+   - **Bottom Sticky Action Bars:** Tombol aksi utama (Coba COOCA Gratis, Ke Dashboard, Dashboard Admin) dengan tinggi minimal 42px touch target dan safe clearance `pb-28 sm:pb-32` anti-overlap dock navigasi bawah.
+
+#### 3. Technical Changes
+
+- **Files Affected:**
+  - `resources/views/layouts/public_marketing.blade.php`: Header bar mobile CTA, hamburger touch target, absolute positioning sheet + backdrop scrim, overflow scroll lock, dan Bento Apple HIG mobile drawer menu.
+  - `docs/AiWorkHistory.md`: Pencatatan kronologis pekerjaan.
+
+#### 4. Verification & Testing
+
+- `php -l resources/views/layouts/public_marketing.blade.php` -> Syntax OK (0 errors).
+- `php artisan view:clear` -> Compiled views cleared successfully.
+- `php vendor/phpunit/phpunit/phpunit tests/Feature/LandingPageResponsiveHeroTest.php tests/Feature/LandingPageAuthTest.php` -> 7 tests passed, 64 assertions (100% pass).
+- `php vendor/phpunit/phpunit/phpunit tests/Feature/PublicViewsProductionReadinessTest.php tests/Feature/PublicMarketplaceSearchTest.php` -> 21 tests passed, 160 assertions (100% pass).
+- Total verifikasi: 28 feature tests, 224 assertions lolos 100% tanpa regresi.
+
+#### 5. Important Decisions & Guardrails
+
+- **Zero Desktop Regression:** Struktur navbar 12-kolom desktop dan 4 mega dropdown edge-to-edge tidak diubah sedikit pun.
+- **Strict Auth Guardrails Compliance:** Penamaan label tombol aksi dan atribut route di mobile header bar dan drawer menu mematuhi secara ketat kondisi pengujian `LandingPageAuthTest.php` (`route('login')`, `route('register')`, `route('dashboard')` dengan teks `Ke Dashboard`, serta `route('admin.dashboard')` dengan teks `Dashboard Admin`).
+- **Safe Area Padding:** Menggunakan padding bawah `pb-28 sm:pb-32` pada container scrollable drawer untuk memastikan tombol aksi terbawah tidak tertutup oleh floating bottom dock menu pada perangkat ponsel.
+
+---
+
 ### [WORK-2026-09-24-130] Refactor Hero Section Responsif: Desain Terpadu Satu Sistem Skala Multi-Viewport (Desktop Full Cockpit & Mobile Compact ±1 Viewport)
 
 - **Date:** 2026-09-24
