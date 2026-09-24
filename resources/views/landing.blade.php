@@ -141,6 +141,11 @@
                                     <span>Mulai Coba Gratis</span>
                                     <i data-lucide="arrow-right" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
                                 </a>
+                                <a href="{{ route('public.demo') }}"
+                                    class="h-10 sm:h-12 px-3.5 sm:px-6 rounded-[12px] sm:rounded-[14px] bg-white/[0.08] hover:bg-white/[0.14] border border-white/15 text-white font-semibold text-xs sm:text-sm flex items-center justify-center gap-1.5 sm:gap-2 active:scale-[0.98] transition-all backdrop-blur-md min-h-[40px] sm:min-h-[48px] shrink-0">
+                                    <i data-lucide="play" class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#00C4D8]"></i>
+                                    <span>Coba Live Demo</span>
+                                </a>
                             @endif
                         </div>
 
@@ -189,7 +194,34 @@
                                 <span>Siap 2 Menit</span>
                             </div>
                         </div>
-                   
+
+                        <!-- 3-Metric Bento Tiles (Desktop only to prevent mobile clutter & duplicate metrics) -->
+                        <div class="hidden lg:flex pt-0.5 sm:pt-2 w-full justify-start">
+                            <div
+                                class="bg-white/[0.04] backdrop-blur-2xl rounded-[14px] sm:rounded-[18px] p-2.5 sm:p-3.5 border border-white/10 shadow-[0_10px_35px_rgba(0,0,0,0.35)] grid grid-cols-3 divide-x divide-white/10 text-center max-w-xs sm:max-w-md w-full">
+                                <div class="px-1.5 sm:px-2">
+                                    <div
+                                        class="text-xs sm:text-xl lg:text-2xl font-extrabold text-white tabular-nums tracking-tight">
+                                        10.000+</div>
+                                    <div class="text-[9px] sm:text-xs text-slate-400 font-medium mt-0.5">Pengguna
+                                        Aktif</div>
+                                </div>
+                                <div class="px-1.5 sm:px-2">
+                                    <div
+                                        class="text-xs sm:text-xl lg:text-2xl font-extrabold text-white tabular-nums tracking-tight">
+                                        99.8%</div>
+                                    <div class="text-[9px] sm:text-xs text-slate-400 font-medium mt-0.5">Uptime
+                                        SLA</div>
+                                </div>
+                                <div class="px-1.5 sm:px-2">
+                                    <div
+                                        class="text-xs sm:text-xl lg:text-2xl font-extrabold text-[#00C4D8] tabular-nums tracking-tight">
+                                        100%</div>
+                                    <div class="text-[9px] sm:text-xs text-slate-400 font-medium mt-0.5">Gratis
+                                        Selamanya</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- KANAN: Interactive Apple Bento Business OS Cockpit with 2 Slides & Floating Cards (7 Cols ~ 58%) -->
