@@ -46,7 +46,7 @@
                     <!-- Google SSO Shortcut -->
                     <a href="{{ route('auth.google') }}"
                         class="w-full min-h-[48px] py-2.5 px-4 rounded-xl bg-slate-50 dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-white/[0.08] text-slate-800 dark:text-slate-100 font-semibold text-xs sm:text-sm flex items-center justify-center gap-3 transition-all shadow-xs active:scale-[0.99] group focus:outline-none focus:ring-2 focus:ring-[#007AFF]/20 cursor-pointer">
-                        <svg class="w-4.5 h-4.5 shrink-0" viewBox="0 0 24 24">
+                        <svg class="w-5 h-5 shrink-0" width="20" height="20" viewBox="0 0 24 24">
                             <path fill="#EA4335"
                                 d="M12 5c1.6 0 3 .6 4.1 1.7l3.1-3.1C17.3 1.8 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.4 9 5 12 5z" />
                             <path fill="#4285F4"
