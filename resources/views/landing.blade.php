@@ -62,29 +62,28 @@
 
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
 
-                    <!-- KIRI: Headline, Subtitle, CTAs & Value Proof (5 Cols ~ 42%) -->
-                    <div class="lg:col-span-5 space-y-6 text-left">
-                        <div class="space-y-3">
-                            <div
-                                class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#007AFF]/15 text-[#00C4D8] border border-[#00C4D8]/30 text-xs font-semibold backdrop-blur-sm">
-                                <i data-lucide="cpu" class="w-3.5 h-3.5 text-[#00C4D8]"></i>
-                                <span>Business Operating System &amp; Omnichannel ERP</span>
-                            </div>
+                    <!-- KIRI: Eyebrow, Headline, Subtitle, CTAs & Value Proof (Mobile Center, Desktop Left ~ 5 Cols) -->
+                    <div class="lg:col-span-5 space-y-6 text-center mx-auto flex flex-col items-center lg:text-left lg:items-start lg:mx-0">
+                        <div class="space-y-3 w-full">
+                            <!-- Pure Typographic Overline Kicker (Zero Pill Abuse) -->
+                            <p class="text-xs sm:text-[13px] font-bold uppercase tracking-wider text-[#00C4D8]">
+                                Business Operating System &amp; Omnichannel ERP
+                            </p>
 
                             <h1
-                                class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.75rem] xl:text-[3.1rem] font-extrabold text-white tracking-tight leading-[1.12] text-balance break-words">
+                                class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.75rem] xl:text-[3.1rem] font-extrabold text-white tracking-tight leading-[1.12] text-balance break-words max-w-[22rem] sm:max-w-xl lg:max-w-none mx-auto lg:mx-0">
                                 Satu Sistem Operasi untuk Seluruh <span class="text-[#00C4D8]">Denyut Bisnis Anda.</span>
                             </h1>
                         </div>
 
                         <p
-                            class="text-base sm:text-lg text-slate-300 leading-relaxed max-w-xl font-normal text-pretty break-words">
+                            class="text-base sm:text-lg text-slate-300 leading-relaxed max-w-[32rem] lg:max-w-xl font-normal text-pretty break-words mx-auto lg:mx-0">
                             Satukan kasir POS, inventaris resep bahan baku otomatis, pembukuan finansial real-time,
                             katalog toko online, hingga notifikasi WhatsApp tanpa mengetik ulang data secara manual.
                         </p>
 
-                        <!-- Action Buttons -->
-                        <div class="pt-1 flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5">
+                        <!-- Action Buttons (Centered on Mobile, Row on Desktop) -->
+                        <div class="pt-1 flex flex-col sm:flex-row items-stretch sm:items-center sm:justify-center lg:justify-start gap-3.5 w-full sm:w-auto">
                             @if (auth('admin')->check())
                                 <a href="{{ route('admin.dashboard') }}"
                                     class="h-12 px-7 rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-[0_4px_16px_rgba(0,122,255,0.35)] active:scale-[0.98] transition-all">
@@ -111,8 +110,8 @@
                             @endif
                         </div>
 
-                        <!-- Reassurance Checkpoints -->
-                        <div class="pt-1 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-slate-300">
+                        <!-- Reassurance Checkpoints (Centered on Mobile) -->
+                        <div class="pt-1 flex flex-wrap items-center justify-center lg:justify-start gap-x-5 gap-y-2 text-xs text-slate-300">
                             <div class="flex items-center gap-1.5">
                                 <i data-lucide="check" class="w-4 h-4 text-emerald-400"></i>
                                 <span>100% Gratis Selamanya</span>
@@ -127,10 +126,10 @@
                             </div>
                         </div>
 
-                        <!-- 3-Metric Bento Tiles -->
-                        <div class="pt-2">
+                        <!-- 3-Metric Bento Tiles (Centered on Mobile) -->
+                        <div class="pt-2 w-full flex justify-center lg:justify-start">
                             <div
-                                class="bg-white/[0.05] backdrop-blur-xl rounded-[18px] p-3.5 sm:p-4 border border-white/10 shadow-lg grid grid-cols-3 divide-x divide-white/10 text-center max-w-md">
+                                class="bg-white/[0.05] backdrop-blur-xl rounded-[18px] p-3.5 sm:p-4 border border-white/10 shadow-lg grid grid-cols-3 divide-x divide-white/10 text-center max-w-md w-full">
                                 <div class="px-2">
                                     <div class="text-xl sm:text-2xl font-extrabold text-white tabular-nums tracking-tight">
                                         10.000+</div>

@@ -45,35 +45,36 @@
         {{-- 1. HERO SECTION (Midnight #060B1E Full-Bleed) --}}
         {{-- ══════════════════════════════════════════════════════════════════════ --}}
         <section
-            class="relative bg-[#060B1E] text-white pt-10 sm:pt-14 pb-16 lg:pb-24 overflow-hidden border-b border-white/10 w-full min-w-full">
+            class="relative bg-[#060B1E] text-white pt-10 sm:pt-14 pb-16 lg:pb-24 min-h-[calc(100svh-84px)] lg:flex lg:items-center overflow-hidden border-b border-white/10 w-full min-w-full">
             {{-- Dual Ambient Glows --}}
             <div class="absolute top-0 right-1/4 w-96 h-96 bg-[#007AFF]/15 rounded-full blur-[140px] pointer-events-none">
             </div>
             <div class="absolute bottom-0 left-1/4 w-96 h-96 bg-[#00C4D8]/10 rounded-full blur-[120px] pointer-events-none">
             </div>
 
-            <div class="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-                    {{-- Left: Headline, Value Proposition, Action CTAs --}}
-                    <div class="lg:col-span-7 space-y-6">
-                        <div
-                            class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#007AFF]/15 text-[#00C4D8] border border-[#00C4D8]/30 text-xs font-semibold backdrop-blur-sm">
-                            <i data-lucide="layers" class="w-3.5 h-3.5" aria-hidden="true"></i>
-                            <span>COOCA • Business Operating System & Omnichannel ERP</span>
+                    {{-- Left: Eyebrow, Headline, Value Proposition, Action CTAs --}}
+                    <div class="lg:col-span-7 space-y-6 text-center mx-auto flex flex-col items-center lg:text-left lg:items-start lg:mx-0">
+                        <div class="space-y-3 w-full">
+                            <!-- Pure Typographic Overline Kicker (Zero Pill Abuse) -->
+                            <p class="text-xs sm:text-[13px] font-bold uppercase tracking-wider text-[#00C4D8]">
+                                Business Operating System &amp; Omnichannel ERP
+                            </p>
+
+                            <h1
+                                class="text-3xl sm:text-4xl md:text-5xl lg:text-[3.25rem] xl:text-[3.75rem] font-extrabold text-white tracking-tight leading-[1.15] text-balance break-words max-w-[22rem] sm:max-w-xl lg:max-w-none mx-auto lg:mx-0">
+                                Satu Sistem untuk <span class="text-[#00C4D8]">Mengendalikan Seluruh Bisnis Anda</span>
+                            </h1>
                         </div>
 
-                        <h1
-                            class="text-3xl sm:text-4xl md:text-5xl lg:text-[3.25rem] xl:text-[3.75rem] font-extrabold text-white tracking-tight leading-[1.15] text-balance break-words">
-                            Satu Sistem untuk <span class="text-[#00C4D8]">Mengendalikan Seluruh Bisnis Anda</span>
-                        </h1>
-
-                        <p class="text-base sm:text-lg text-slate-300 leading-relaxed max-w-xl font-normal text-pretty">
+                        <p class="text-base sm:text-lg text-slate-300 leading-relaxed max-w-[32rem] lg:max-w-xl font-normal text-pretty break-words mx-auto lg:mx-0">
                             Kelola operasional kasir, stok gudang, pembukuan keuangan, pelanggan, marketplace online,
                             komunikasi WhatsApp, hingga otomasi dalam satu platform yang saling terhubung tanpa jeda.
                         </p>
 
-                        {{-- Tangible Proof Points --}}
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                        {{-- Tangible Proof Points (Centered on Mobile) --}}
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 w-full text-left">
                             <div class="flex items-start gap-2.5 text-xs sm:text-sm font-semibold text-slate-200">
                                 <i data-lucide="check-circle-2" class="w-4 h-4 text-[#00C4D8] shrink-0 mt-0.5"
                                     aria-hidden="true"></i>
@@ -88,28 +89,28 @@
                             <div class="flex items-start gap-2.5 text-xs sm:text-sm font-semibold text-slate-200">
                                 <i data-lucide="check-circle-2" class="w-4 h-4 text-[#00C4D8] shrink-0 mt-0.5"
                                     aria-hidden="true"></i>
-                                <span class="min-w-0 flex-1 leading-snug">Akses fleksibel dari HP, tablet, & laptop</span>
+                                <span class="min-w-0 flex-1 leading-snug">Akses fleksibel dari HP, tablet, &amp; laptop</span>
                             </div>
                             <div class="flex items-start gap-2.5 text-xs sm:text-sm font-semibold text-slate-200">
                                 <i data-lucide="check-circle-2" class="w-4 h-4 text-[#00C4D8] shrink-0 mt-0.5"
                                     aria-hidden="true"></i>
-                                <span class="min-w-0 flex-1 leading-snug">Laba bersih & arus kas terpantau real-time</span>
+                                <span class="min-w-0 flex-1 leading-snug">Laba bersih &amp; arus kas terpantau real-time</span>
                             </div>
                         </div>
 
-                        {{-- Action Buttons --}}
-                        <div class="pt-3 flex flex-wrap items-center gap-3.5">
+                        {{-- Action Buttons (Centered on Mobile) --}}
+                        <div class="pt-3 flex flex-col sm:flex-row items-stretch sm:items-center sm:justify-center lg:justify-start gap-3.5 w-full sm:w-auto">
                             <a href="{{ route('register') }}"
-                                class="h-12 px-7 rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-lg shadow-[#007AFF]/25 active:scale-[0.98] transition-all">
+                                class="h-12 px-7 rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-lg shadow-[#007AFF]/25 active:scale-[0.98] transition-all min-h-[48px]">
                                 <span>Mulai Pakai COOCA</span>
                                 <i data-lucide="arrow-right" class="w-4 h-4 shrink-0" aria-hidden="true"></i>
                             </a>
                             <a href="{{ route('public.bos.how-it-works') }}"
-                                class="h-12 px-6 rounded-[14px] bg-white/10 hover:bg-white/15 border border-white/15 text-white text-sm font-semibold flex items-center justify-center gap-2 shadow-sm transition active:scale-[0.98] backdrop-blur-sm">
+                                class="h-12 px-6 rounded-[14px] bg-white/10 hover:bg-white/15 border border-white/15 text-white text-sm font-semibold flex items-center justify-center gap-2 shadow-sm transition active:scale-[0.98] backdrop-blur-sm min-h-[48px]">
                                 <span>Lihat Cara Kerja</span>
                             </a>
                             <a href="{{ route('public.demo') }}"
-                                class="h-12 px-5 rounded-[14px] text-[#00C4D8] hover:text-white text-sm font-semibold flex items-center justify-center gap-1.5 transition">
+                                class="h-12 px-5 rounded-[14px] text-[#00C4D8] hover:text-white text-sm font-semibold flex items-center justify-center gap-1.5 transition min-h-[48px]">
                                 <i data-lucide="play" class="w-4 h-4 shrink-0" aria-hidden="true"></i>
                                 <span>Coba Live Demo</span>
                             </a>

@@ -43,27 +43,28 @@
                 </nav>
 
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
-                    {{-- Left Column: Copy & Core Actions (5 Cols ~ 42%) --}}
-                    <div class="lg:col-span-5 space-y-6">
-                        <div
-                            class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#007AFF]/15 text-[#00C4D8] border border-[#00C4D8]/30 text-xs font-semibold backdrop-blur-sm">
-                            <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-                            <span>Hubungi Tim Kami - Pusat Bantuan & Konsultasi Resmi</span>
+                    {{-- Left Column: Copy & Core Actions (Mobile Center, Desktop Left ~ 5 Cols) --}}
+                    <div class="lg:col-span-5 space-y-6 text-center mx-auto flex flex-col items-center lg:text-left lg:items-start lg:mx-0">
+                        <div class="space-y-3 w-full">
+                            <!-- Pure Typographic Overline Kicker (Zero Pill Abuse) -->
+                            <p class="text-xs sm:text-[13px] font-bold uppercase tracking-wider text-[#00C4D8]">
+                                Hubungi Tim Kami — Pusat Bantuan &amp; Konsultasi Resmi
+                            </p>
+
+                            <h1
+                                class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.65rem] xl:text-[3rem] font-extrabold text-white tracking-tight leading-[1.15] text-balance break-words max-w-[22rem] sm:max-w-xl lg:max-w-none mx-auto lg:mx-0">
+                                Tim Kami Siap Mendampingi <span class="text-[#00C4D8]">Operasional Bisnis Anda.</span>
+                            </h1>
                         </div>
 
-                        <h1
-                            class="text-3xl sm:text-4xl md:text-5xl lg:text-[3.25rem] font-extrabold text-white tracking-tight leading-[1.15] text-balance break-words">
-                            Tim Kami Siap Mendampingi <span class="text-[#00C4D8]">Operasional Bisnis Anda.</span>
-                        </h1>
-
-                        <p class="text-base sm:text-lg text-slate-300 leading-relaxed max-w-xl text-pretty break-words">
+                        <p class="text-base sm:text-lg text-slate-300 leading-relaxed font-normal text-pretty max-w-[32rem] lg:max-w-xl mx-auto lg:mx-0">
                             Punya kendala teknis printer struk, sinkronisasi stok toko, atau ingin berkonsultasi mengenai
                             perhitungan pembukuan? Kami mengutamakan pendampingan ramah dan mudah dipahami tanpa bahasa
                             teknis yang rumit.
                         </p>
 
                         {{-- Trust indicators --}}
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 text-left w-full">
                             <div class="p-3.5 rounded-[16px] bg-[#0E1E45]/60 border border-white/10 backdrop-blur-sm">
                                 <div class="text-xs font-bold text-white flex items-center gap-2">
                                     <i data-lucide="clock" class="w-4 h-4 text-[#00C4D8] shrink-0"></i>
@@ -93,17 +94,17 @@
                             </div>
                         </div>
 
-                        {{-- Direct Primary Actions --}}
-                        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-2">
+                        {{-- Direct Primary Actions (Centered on Mobile, Row on Desktop) --}}
+                        <div class="flex flex-col sm:flex-row items-stretch sm:items-center sm:justify-center lg:justify-start gap-3 pt-2 w-full sm:w-auto">
                             <a href="https://wa.me/{{ $officialWhatsappRaw }}?text=Halo%20Tim%20Cooca%20UMKM,%20saya%20butuh%20bantuan%20seputar%20aplikasi"
                                 target="_blank" rel="noopener"
-                                class="h-12 px-6 rounded-[14px] bg-[#34C759] hover:bg-[#2DB84D] text-white font-semibold text-sm flex items-center justify-center gap-2.5 shadow-lg shadow-emerald-500/25 active:scale-[0.98] transition-all">
-                                <i data-lucide="message-circle" class="w-5 h-5"></i>
+                                class="h-12 px-6 rounded-[14px] bg-[#34C759] hover:bg-[#2DB84D] text-white font-semibold text-sm flex items-center justify-center gap-2.5 shadow-lg shadow-emerald-500/25 active:scale-[0.98] transition-all min-h-[48px]">
+                                <i data-lucide="message-circle" class="w-5 h-5 shrink-0"></i>
                                 <span>Chat Langsung WhatsApp</span>
                             </a>
                             <a href="#form-pesan"
-                                class="h-12 px-6 rounded-[14px] bg-white/10 hover:bg-white/15 text-white border border-white/15 font-semibold text-sm flex items-center justify-center gap-2 transition-all backdrop-blur-sm">
-                                <i data-lucide="mail" class="w-5 h-5 text-slate-300"></i>
+                                class="h-12 px-6 rounded-[14px] bg-white/10 hover:bg-white/15 text-white border border-white/15 font-semibold text-sm flex items-center justify-center gap-2 transition-all backdrop-blur-sm min-h-[48px]">
+                                <i data-lucide="mail" class="w-5 h-5 text-slate-300 shrink-0"></i>
                                 <span>Kirim Formulir Pesan</span>
                             </a>
                         </div>

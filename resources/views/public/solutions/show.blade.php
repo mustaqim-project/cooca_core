@@ -49,25 +49,26 @@
                 </nav>
 
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
-                    {{-- Left: Headline, Value Proposition, Actions (5 Cols ~ 42%) --}}
-                    <div class="lg:col-span-5 space-y-6">
-                        <div
-                            class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#007AFF]/15 text-[#00C4D8] border border-[#00C4D8]/30 text-xs font-semibold backdrop-blur-sm">
-                            <i data-lucide="store" class="w-3.5 h-3.5" aria-hidden="true"></i>
-                            <span>Solusi Khusus {{ $solution['badge'] }}</span>
+                    {{-- Left: Headline, Value Proposition, Actions (Mobile Center, Desktop Left ~ 5 Cols) --}}
+                    <div class="lg:col-span-5 space-y-6 text-center mx-auto flex flex-col items-center lg:text-left lg:items-start lg:mx-0">
+                        <div class="space-y-3 w-full">
+                            <!-- Pure Typographic Overline Kicker (Zero Pill Abuse) -->
+                            <p class="text-xs sm:text-[13px] font-bold uppercase tracking-wider text-[#00C4D8]">
+                                Solusi Khusus {{ $solution['badge'] }}
+                            </p>
+
+                            <h1
+                                class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.65rem] xl:text-[3rem] font-extrabold text-white tracking-tight leading-[1.15] text-balance break-words max-w-[22rem] sm:max-w-xl lg:max-w-none mx-auto lg:mx-0">
+                                {{ $solution['headline'] }}
+                            </h1>
                         </div>
 
-                        <h1
-                            class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.75rem] xl:text-[3.25rem] font-extrabold text-white tracking-tight leading-[1.2] text-balance break-words">
-                            {{ $solution['headline'] }}
-                        </h1>
-
-                        <p class="text-base sm:text-lg text-slate-300 leading-relaxed max-w-xl text-pretty">
+                        <p class="text-base sm:text-lg text-slate-300 leading-relaxed font-normal text-pretty max-w-[32rem] lg:max-w-xl mx-auto lg:mx-0">
                             {{ $solution['subheadline'] }}
                         </p>
 
                         {{-- Tangible Operational Highlights Bento Tiles --}}
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2 text-left w-full">
                             <div class="p-3 rounded-[14px] bg-white/[0.05] border border-white/10 flex items-start gap-2.5 hover:bg-white/[0.08] transition-colors">
                                 <div class="w-6 h-6 rounded-[8px] bg-emerald-500/15 text-emerald-400 flex items-center justify-center shrink-0 mt-0.5 border border-emerald-500/20">
                                     <i data-lucide="smartphone" class="w-3.5 h-3.5" aria-hidden="true"></i>
@@ -94,16 +95,16 @@
                             </div>
                         </div>
 
-                        {{-- CTAs --}}
-                        <div class="pt-3 flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5">
+                        {{-- CTAs (Centered on Mobile, Row on Desktop) --}}
+                        <div class="pt-3 flex flex-col sm:flex-row items-stretch sm:items-center sm:justify-center lg:justify-start gap-3.5 w-full sm:w-auto">
                             <a href="{{ route('register') }}"
-                                class="h-12 px-7 rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-lg shadow-[#007AFF]/25 active:scale-[0.98] transition-all">
+                                class="h-12 px-7 rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-lg shadow-[#007AFF]/25 active:scale-[0.98] transition-all min-h-[48px]">
                                 <span>Mulai Coba Sekarang</span>
                                 <i data-lucide="arrow-right" class="w-4 h-4 shrink-0" aria-hidden="true"></i>
                             </a>
                             <a href="{{ \App\Models\SystemSetting::get('social_whatsapp_url', 'https://wa.me/6285287864176') }}?text=Halo%20saya%20tertarik%20dengan%20solusi%20{{ urlencode($solution['title']) }}"
                                 target="_blank" rel="noopener"
-                                class="h-12 px-6 rounded-[14px] bg-white/10 hover:bg-white/15 border border-white/15 text-white backdrop-blur-sm text-sm font-semibold flex items-center justify-center gap-2 transition active:scale-[0.98]">
+                                class="h-12 px-6 rounded-[14px] bg-white/10 hover:bg-white/15 border border-white/15 text-white backdrop-blur-sm text-sm font-semibold flex items-center justify-center gap-2 transition active:scale-[0.98] min-h-[48px]">
                                 <i data-lucide="message-circle" class="w-4 h-4 text-emerald-400 shrink-0" aria-hidden="true"></i>
                                 <span>Konsultasi via WhatsApp</span>
                             </a>

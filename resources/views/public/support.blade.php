@@ -45,26 +45,27 @@
                 </nav>
 
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
-                    {{-- Left: Headline & Support Contact (5 Cols ~ 42%) --}}
-                    <div class="lg:col-span-5 space-y-6">
-                        <div
-                            class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#007AFF]/15 text-[#00C4D8] border border-[#00C4D8]/30 text-xs font-semibold backdrop-blur-sm">
-                            <i data-lucide="headphones" class="w-3.5 h-3.5" aria-hidden="true"></i>
-                            <span>Layanan Pendampingan Bisnis</span>
+                    {{-- Left: Headline & Support Contact (Mobile Center, Desktop Left ~ 5 Cols) --}}
+                    <div class="lg:col-span-5 space-y-6 text-center mx-auto flex flex-col items-center lg:text-left lg:items-start lg:mx-0">
+                        <div class="space-y-3 w-full">
+                            <!-- Pure Typographic Overline Kicker (Zero Pill Abuse) -->
+                            <p class="text-xs sm:text-[13px] font-bold uppercase tracking-wider text-[#00C4D8]">
+                                Layanan Pendampingan Bisnis
+                            </p>
+
+                            <h1
+                                class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.65rem] xl:text-[3rem] font-extrabold text-white tracking-tight leading-[1.15] text-balance break-words max-w-[22rem] sm:max-w-xl lg:max-w-none mx-auto lg:mx-0">
+                                Ada Pertanyaan Teknis? <span class="text-[#00C4D8]">Tim Kami Siap Mendampingi Anda</span>
+                            </h1>
                         </div>
 
-                        <h1
-                            class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.75rem] xl:text-[3.25rem] font-extrabold text-white tracking-tight leading-[1.2] text-balance break-words">
-                            Ada Pertanyaan Teknis? <span class="text-[#00C4D8]">Tim Kami Siap Mendampingi Anda</span>
-                        </h1>
-
-                        <p class="text-base sm:text-lg text-slate-300 leading-relaxed max-w-xl text-pretty">
+                        <p class="text-base sm:text-lg text-slate-300 leading-relaxed font-normal text-pretty max-w-[32rem] lg:max-w-xl mx-auto lg:mx-0">
                             Kami memahami bahwa kelancaran kasir dan pembukuan adalah denyut nadi toko Anda. Temukan jawaban
                             dari panduan tertulis atau hubungi konsultan technical support kami secara langsung.
                         </p>
 
                         {{-- Escalation Channels Bento Tiles --}}
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2 text-left w-full">
                             <div class="p-3 rounded-[14px] bg-white/[0.05] border border-white/10 flex items-start gap-2.5 hover:bg-white/[0.08] transition-colors">
                                 <div class="w-6 h-6 rounded-[8px] bg-sky-500/15 text-[#00C4D8] flex items-center justify-center shrink-0 mt-0.5 border border-sky-400/20">
                                     <i data-lucide="headphones" class="w-3.5 h-3.5" aria-hidden="true"></i>
@@ -91,16 +92,16 @@
                             </div>
                         </div>
 
-                        {{-- Direct Action Buttons --}}
-                        <div class="pt-3 flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5">
+                        {{-- Direct Action Buttons (Centered on Mobile, Row on Desktop) --}}
+                        <div class="pt-3 flex flex-col sm:flex-row items-stretch sm:items-center sm:justify-center lg:justify-start gap-3.5 w-full sm:w-auto">
                             <a href="{{ \App\Models\SystemSetting::get('social_whatsapp_url', 'https://wa.me/6285287864176') }}?text=Halo%20tim%20Support%20COOCA,%20saya%20membutuhkan%20bantuan"
                                 target="_blank" rel="noopener"
-                                class="h-12 px-7 rounded-[14px] bg-[#34C759] hover:bg-[#2DB04D] text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/25 active:scale-[0.98] transition-all">
+                                class="h-12 px-7 rounded-[14px] bg-[#34C759] hover:bg-[#2DB04D] text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/25 active:scale-[0.98] transition-all min-h-[48px]">
                                 <i data-lucide="message-circle" class="w-4 h-4 shrink-0" aria-hidden="true"></i>
                                 <span>Chat WhatsApp Bantuan</span>
                             </a>
                             <a href="{{ route('public.demo') }}"
-                                class="h-12 px-6 rounded-[14px] bg-white/10 hover:bg-white/15 border border-white/15 text-white text-sm font-semibold flex items-center justify-center gap-2 shadow-sm transition active:scale-[0.98] backdrop-blur-sm">
+                                class="h-12 px-6 rounded-[14px] bg-white/10 hover:bg-white/15 border border-white/15 text-white text-sm font-semibold flex items-center justify-center gap-2 shadow-sm transition active:scale-[0.98] backdrop-blur-sm min-h-[48px]">
                                 <i data-lucide="play" class="w-4 h-4 text-[#00C4D8] shrink-0" aria-hidden="true"></i>
                                 <span>Coba Demo Interaktif</span>
                             </a>

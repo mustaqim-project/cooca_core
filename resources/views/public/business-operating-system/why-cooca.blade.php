@@ -76,25 +76,26 @@
                 </nav>
 
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-                    <!-- Left: Headline & Rationale (5 Cols ~ 42%) -->
-                    <div class="lg:col-span-5 space-y-6 text-left">
-                        <div
-                            class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 border border-white/15 text-xs font-semibold text-[#00C2FF] tracking-wide">
-                            <i data-lucide="check-check" class="w-3.5 h-3.5"></i>
-                            <span>Efisiensi Nyata Tanpa Biaya Tersembunyi</span>
+                    <!-- Left: Eyebrow, Headline & Rationale (Mobile Center, Desktop Left ~ 5 Cols) -->
+                    <div class="lg:col-span-5 space-y-6 text-center mx-auto flex flex-col items-center lg:text-left lg:items-start lg:mx-0">
+                        <div class="space-y-3 w-full">
+                            <!-- Pure Typographic Overline Kicker (Zero Pill Abuse) -->
+                            <p class="text-xs sm:text-[13px] font-bold uppercase tracking-wider text-[#00C2FF]">
+                                Efisiensi Nyata Tanpa Biaya Tersembunyi
+                            </p>
+
+                            <h1
+                                class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.65rem] xl:text-[3rem] font-extrabold text-white tracking-tight leading-[1.15] text-balance break-words max-w-[22rem] sm:max-w-xl lg:max-w-none mx-auto lg:mx-0">
+                                Berhenti Membayar Banyak Software Terpisah yang Tidak Terhubung
+                            </h1>
                         </div>
 
-                        <h1
-                            class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.65rem] xl:text-[3rem] font-extrabold text-white tracking-tight leading-[1.15] text-balance break-words">
-                            Berhenti Membayar Banyak Software Terpisah yang Tidak Terhubung
-                        </h1>
-
-                        <p class="text-base sm:text-lg text-slate-300 leading-relaxed max-w-xl font-normal text-pretty">
+                        <p class="text-base sm:text-lg text-slate-300 leading-relaxed max-w-[32rem] lg:max-w-xl font-normal text-pretty mx-auto lg:mx-0">
                             Saat bisnis Anda tumbuh, memakai POS dari vendor A, stok di vendor B, pembukuan spreadsheet, dan WhatsApp broadcast di vendor C justru memicu biaya mahal, data selisih, dan waktu terbuang.
                         </p>
 
-                        <!-- CTAs -->
-                        <div class="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5">
+                        <!-- CTAs (Centered on Mobile, Row on Desktop) -->
+                        <div class="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center sm:justify-center lg:justify-start gap-3.5 w-full sm:w-auto">
                             <a href="{{ route('register') }}"
                                 class="px-7 py-3.5 rounded-[14px] bg-[#007AFF] hover:bg-[#0071E3] text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-[0_4px_16px_rgba(0,122,255,0.35)] active:scale-[0.98] transition-all min-h-[48px]">
                                 <span>Beralih ke COOCA Sekarang</span>
@@ -106,8 +107,8 @@
                             </a>
                         </div>
 
-                        <!-- Bullet Reassurances -->
-                        <div class="pt-2 flex flex-wrap items-center gap-y-2 gap-x-5 text-xs text-slate-400">
+                        <!-- Bullet Reassurances (Centered on Mobile) -->
+                        <div class="pt-2 flex flex-wrap items-center justify-center lg:justify-start gap-y-2 gap-x-5 text-xs text-slate-400">
                             <div class="flex items-center gap-1.5">
                                 <i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0"></i>
                                 <span>Hemat biaya hingga 75% per bulan</span>

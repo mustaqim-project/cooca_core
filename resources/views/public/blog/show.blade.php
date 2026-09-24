@@ -133,7 +133,7 @@ class="w-full font-sans antialiased bg-[#F2F2F7] dark:bg-[#000000] text-[#1D1D1F
         <div class="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
             
             <!-- Breadcrumbs -->
-            <nav class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400" aria-label="Breadcrumb">
+            <nav class="flex items-center justify-center lg:justify-start gap-2 text-xs text-slate-500 dark:text-slate-400" aria-label="Breadcrumb">
                 <a href="{{ route('landing') }}" class="hover:text-slate-900 dark:hover:text-white transition-colors">Beranda</a>
                 <span aria-hidden="true" class="text-slate-300 dark:text-slate-700">/</span>
                 <a href="{{ route('blog.index') }}" class="hover:text-slate-900 dark:hover:text-white transition-colors">Katalog Blog</a>
@@ -143,13 +143,14 @@ class="w-full font-sans antialiased bg-[#F2F2F7] dark:bg-[#000000] text-[#1D1D1F
                 </span>
             </nav>
 
-            <div class="max-w-4xl space-y-4">
+            <div class="max-w-4xl space-y-4 text-center mx-auto flex flex-col items-center lg:text-left lg:items-start lg:mx-0">
                 
                 <!-- Category Kicker & Reading Time Badges -->
-                <div class="flex flex-wrap items-center gap-2.5">
-                    <span class="text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-[8px] bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF]">
+                <div class="flex flex-wrap items-center justify-center lg:justify-start gap-2.5">
+                    <span class="text-xs sm:text-[13px] font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF]">
                         {{ $post->category ?? 'Panduan Bisnis' }}
                     </span>
+                    <span class="text-xs text-slate-300 dark:text-slate-700">•</span>
                     <span class="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1.5 font-medium">
                         <i data-lucide="clock" class="w-3.5 h-3.5"></i>
                         <span>{{ $post->read_time ?? 3 }} menit baca</span>
@@ -169,19 +170,19 @@ class="w-full font-sans antialiased bg-[#F2F2F7] dark:bg-[#000000] text-[#1D1D1F
                 </div>
 
                 <!-- Main Article Title (H1) -->
-                <h1 class="text-3xl sm:text-4xl lg:text-[2.75rem] font-extrabold text-slate-900 dark:text-white leading-[1.2] tracking-tight text-balance">
+                <h1 class="text-3xl sm:text-4xl lg:text-[2.75rem] font-extrabold text-slate-900 dark:text-white leading-[1.2] tracking-tight text-balance max-w-[22rem] sm:max-w-xl lg:max-w-none mx-auto lg:mx-0">
                     {{ $post->title }}
                 </h1>
 
                 <!-- Excerpt Subtitle -->
                 @if ($post->excerpt)
-                    <p class="text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed font-normal pt-1 text-pretty">
+                    <p class="text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed font-normal pt-1 text-pretty max-w-[32rem] lg:max-w-none mx-auto lg:mx-0">
                         {{ $post->excerpt }}
                     </p>
                 @endif
 
                 <!-- Author & Reading Accessibility Toolbar -->
-                <div class="pt-4 border-t border-black/[0.06] dark:border-white/[0.08] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div class="w-full pt-4 border-t border-black/[0.06] dark:border-white/[0.08] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     
                     <!-- Author Information -->
                     <div class="flex items-center gap-3">

@@ -52,22 +52,25 @@ class="w-full font-sans antialiased bg-[#F2F2F7] dark:bg-[#000000] text-[#1D1D1F
 
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
                 
-                <!-- KIRI: Headline, Search & Reassurance (5 Cols ~ 42%) -->
-                <div class="lg:col-span-5 space-y-6">
-                    <div class="text-[12px] sm:text-[13px] font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF]">
-                        DIREKTORI UMKM TERVERIFIKASI
+                <!-- KIRI: Headline, Search & Reassurance (Mobile Center, Desktop Left ~ 5 Cols) -->
+                <div class="lg:col-span-5 space-y-6 text-center mx-auto flex flex-col items-center lg:text-left lg:items-start lg:mx-0">
+                    <div class="space-y-3 w-full">
+                        <!-- Pure Typographic Kicker -->
+                        <div class="text-[12px] sm:text-[13px] font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF]">
+                            DIREKTORI UMKM TERVERIFIKASI
+                        </div>
+
+                        <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.65rem] xl:text-[3rem] font-extrabold tracking-tight text-slate-900 dark:text-white leading-[1.15] text-balance break-words max-w-[22rem] sm:max-w-xl lg:max-w-none mx-auto lg:mx-0">
+                            Jelajah Profil &amp; Toko Resmi UMKM Lokal
+                        </h1>
                     </div>
 
-                    <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-[1.2] text-balance">
-                        Jelajah Profil &amp; Toko Resmi UMKM Lokal
-                    </h1>
-
-                    <p class="text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed font-normal text-pretty max-w-xl">
+                    <p class="text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed font-normal text-pretty max-w-[32rem] lg:max-w-xl mx-auto lg:mx-0">
                         Temukan toko fisik, kafe, penyedia jasa servis, dan produsen kreatif di sekitar Anda. Transaksi langsung ke pemilik usaha tanpa biaya perantara tambahan.
                     </p>
 
                     <!-- Search Form inside Hero -->
-                    <form method="GET" action="{{ route('public.discovery.index') }}" class="pt-1">
+                    <form method="GET" action="{{ route('public.discovery.index') }}" class="pt-1 w-full max-w-[32rem] lg:max-w-none">
                         @if ($category)
                             <input type="hidden" name="kategori" value="{{ $category }}">
                         @endif
@@ -80,15 +83,15 @@ class="w-full font-sans antialiased bg-[#F2F2F7] dark:bg-[#000000] text-[#1D1D1F
                                 placeholder="Cari nama toko, jenis usaha, atau kota..."
                                 class="w-full bg-transparent border-0 px-3.5 py-2.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none">
                             <button type="submit"
-                                class="shrink-0 h-10 px-5 rounded-[12px] bg-[#007AFF] hover:bg-[#0066DF] text-white text-xs font-semibold shadow-xs active:scale-[0.98] transition flex items-center gap-1.5">
+                                class="shrink-0 h-10 px-5 rounded-[12px] bg-[#007AFF] hover:bg-[#0066DF] text-white text-xs font-semibold shadow-xs active:scale-[0.98] transition flex items-center gap-1.5 min-h-[44px]">
                                 <span>Cari</span>
-                                <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                                <i data-lucide="arrow-right" class="w-3.5 h-3.5 shrink-0"></i>
                             </button>
                         </div>
                     </form>
 
                     <!-- Quick Reassurance Badges -->
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1 text-left w-full">
                         <div class="p-3.5 rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08]">
                             <div class="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
                                 <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0"></i>

@@ -116,23 +116,25 @@
                     @endif
                 </nav>
 
-                <div class="max-w-3xl space-y-3">
-                    <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#007AFF]/15 text-[#00C4D8] border border-[#00C4D8]/30 text-xs font-semibold backdrop-blur-sm">
-                        <i data-lucide="search" class="w-3.5 h-3.5"></i>
-                        <span>Pencarian Produk & Direktori UMKM</span>
+                <div class="max-w-3xl space-y-3 text-center mx-auto flex flex-col items-center lg:text-left lg:items-start lg:mx-0">
+                    <div class="space-y-2 w-full">
+                        <!-- Pure Typographic Overline Kicker (Zero Pill Abuse) -->
+                        <p class="text-xs sm:text-[13px] font-bold uppercase tracking-wider text-[#00C4D8]">
+                            Pencarian Produk &amp; Direktori UMKM
+                        </p>
+
+                        <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white tracking-tight leading-[1.2] text-balance break-words max-w-[22rem] sm:max-w-xl lg:max-w-none mx-auto lg:mx-0">
+                            @if ($search)
+                                Hasil Pencarian: <span class="text-[#00C4D8]">"{{ $search }}"</span>
+                            @elseif ($category && $category !== 'semua' && isset($categories[$category]))
+                                Kategori: <span class="text-[#00C4D8]">{{ $categories[$category]['label'] }}</span>
+                            @else
+                                Katalog Produk &amp; <span class="text-[#00C4D8]">Toko UMKM Lokal</span>
+                            @endif
+                        </h1>
                     </div>
 
-                    <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white tracking-tight leading-[1.2]">
-                        @if ($search)
-                            Hasil Pencarian: <span class="text-[#00C4D8]">"{{ $search }}"</span>
-                        @elseif ($category && $category !== 'semua' && isset($categories[$category]))
-                            Kategori: <span class="text-[#00C4D8]">{{ $categories[$category]['label'] }}</span>
-                        @else
-                            Katalog Produk & <span class="text-[#00C4D8]">Toko UMKM Lokal</span>
-                        @endif
-                    </h1>
-
-                    <p class="text-xs sm:text-sm text-slate-300 leading-relaxed max-w-2xl">
+                    <p class="text-xs sm:text-sm text-slate-300 leading-relaxed font-normal text-pretty max-w-[32rem] lg:max-w-2xl mx-auto lg:mx-0">
                         Jelajahi produk lokal berkualitas langsung dari ribuan pemilik bisnis di seluruh Indonesia dengan stok sinkron kasir real-time.
                     </p>
                 </div>

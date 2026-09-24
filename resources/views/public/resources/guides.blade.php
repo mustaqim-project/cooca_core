@@ -85,23 +85,25 @@ class="w-full font-sans antialiased bg-[#F2F2F7] dark:bg-[#000000] text-[#1D1D1F
 
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
                 
-                <!-- KIRI: Headline, Value Proposition & Actions (5 Cols ~ 42%) -->
-                <div class="lg:col-span-5 space-y-6">
-                    <!-- Pure Typographic Kicker -->
-                    <div class="text-[12px] sm:text-[13px] font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF]">
-                        PANDUAN OPERASIONAL &amp; SOP GERAI
+                <!-- KIRI: Headline, Value Proposition & Actions (Mobile Center, Desktop Left ~ 5 Cols) -->
+                <div class="lg:col-span-5 space-y-6 text-center mx-auto flex flex-col items-center lg:text-left lg:items-start lg:mx-0">
+                    <div class="space-y-3 w-full">
+                        <!-- Pure Typographic Kicker -->
+                        <div class="text-[12px] sm:text-[13px] font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF]">
+                            PANDUAN OPERASIONAL &amp; SOP GERAI
+                        </div>
+
+                        <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.65rem] xl:text-[3rem] font-extrabold tracking-tight text-slate-900 dark:text-white leading-[1.15] text-balance break-words max-w-[22rem] sm:max-w-xl lg:max-w-none mx-auto lg:mx-0">
+                            Langkah Praktis Membangun Operasional Gerai yang Rapi dan Tertib
+                        </h1>
                     </div>
 
-                    <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-[1.2] text-balance">
-                        Langkah Praktis Membangun Operasional Gerai yang Rapi dan Tertib
-                    </h1>
-
-                    <p class="text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed font-normal text-pretty max-w-xl">
+                    <p class="text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed font-normal text-pretty max-w-[32rem] lg:max-w-xl mx-auto lg:mx-0">
                         Petunjuk langsung untuk pemilik usaha dan staf kasir. Dari cara mudah menyambungkan printer thermal Bluetooth, mengimpor ribuan produk dari Excel, hingga SOP tutup kasir tanpa selisih uang setoran.
                     </p>
 
                     <!-- Trust Commitments for UMKM (40-65 y.o. reassurance) -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 text-left w-full">
                         <div class="p-3.5 rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] flex items-center gap-3">
                             <div class="w-9 h-9 rounded-[10px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
                                 <i data-lucide="check" class="w-5 h-5"></i>
@@ -123,16 +125,16 @@ class="w-full font-sans antialiased bg-[#F2F2F7] dark:bg-[#000000] text-[#1D1D1F
                         </div>
                     </div>
 
-                    <!-- Direct Action Buttons -->
-                    <div class="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5">
+                    <!-- Direct Action Buttons (Centered on Mobile, Row on Desktop) -->
+                    <div class="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center sm:justify-center lg:justify-start gap-3.5 w-full sm:w-auto">
                         <a href="#panduan-setup"
-                            class="h-12 px-7 rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition-all shadow-sm">
+                            class="h-12 px-7 rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition-all shadow-sm min-h-[48px]">
                             <span>Mulai Setup 4 Langkah</span>
-                            <i data-lucide="arrow-down" class="w-4 h-4"></i>
+                            <i data-lucide="arrow-down" class="w-4 h-4 shrink-0"></i>
                         </a>
                         <a href="{{ route('template.index') }}"
-                            class="h-12 px-6 rounded-[14px] bg-white dark:bg-[#1C1C1E] hover:bg-slate-50 dark:hover:bg-[#2C2C2E] border border-black/[0.08] dark:border-white/[0.12] text-slate-800 dark:text-slate-200 text-sm font-semibold flex items-center justify-center gap-2 transition active:scale-[0.98]">
-                            <i data-lucide="file-spreadsheet" class="w-4 h-4 text-emerald-600 dark:text-emerald-400"></i>
+                            class="h-12 px-6 rounded-[14px] bg-white dark:bg-[#1C1C1E] hover:bg-slate-50 dark:hover:bg-[#2C2C2E] border border-black/[0.08] dark:border-white/[0.12] text-slate-800 dark:text-slate-200 text-sm font-semibold flex items-center justify-center gap-2 transition active:scale-[0.98] min-h-[48px]">
+                            <i data-lucide="file-spreadsheet" class="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0"></i>
                             <span>Unduh Template Excel</span>
                         </a>
                     </div>

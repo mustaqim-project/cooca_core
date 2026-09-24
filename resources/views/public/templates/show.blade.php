@@ -56,26 +56,26 @@ class="w-full font-sans antialiased bg-[#F2F2F7] dark:bg-[#000000] text-[#1D1D1F
             <!-- 2-Grid: Details (Left 7 cols) + Lead Capture / Download (Right 5 cols) -->
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
 
-                <!-- Left: Description & Highlights (7 Cols) -->
-                <div class="lg:col-span-7 space-y-6">
-                    <div class="space-y-4">
-                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-[8px] bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF] text-xs font-semibold">
-                            <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
-                            <span>{{ $template['category'] }} • 100% Bebas Biaya</span>
-                        </div>
+                <!-- Left: Description & Highlights (Mobile Center, Desktop Left ~ 7 Cols) -->
+                <div class="lg:col-span-7 space-y-6 text-center mx-auto flex flex-col items-center lg:text-left lg:items-start lg:mx-0">
+                    <div class="space-y-3 w-full">
+                        <!-- Pure Typographic Overline Kicker (Zero Pill Abuse) -->
+                        <p class="text-xs sm:text-[13px] font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF]">
+                            {{ $template['category'] }} • 100% Bebas Biaya
+                        </p>
 
-                        <h1 class="text-3xl sm:text-4xl lg:text-[2.75rem] font-extrabold text-slate-900 dark:text-white leading-[1.2] tracking-tight text-balance">
+                        <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.65rem] xl:text-[3rem] font-extrabold text-slate-900 dark:text-white leading-[1.15] tracking-tight text-balance break-words max-w-[22rem] sm:max-w-xl lg:max-w-none mx-auto lg:mx-0">
                             {{ $template['name'] }}
                         </h1>
-
-                        <p class="text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed font-normal text-pretty">
-                            {{ $template['description'] }}
-                        </p>
                     </div>
+
+                    <p class="text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed font-normal text-pretty max-w-[32rem] lg:max-w-xl mx-auto lg:mx-0">
+                        {{ $template['description'] }}
+                    </p>
 
                     <!-- Feature Bento Card -->
                     @if (!empty($template['highlights']))
-                        <div class="p-6 sm:p-7 rounded-[22px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] space-y-4 shadow-sm">
+                        <div class="p-6 sm:p-7 rounded-[22px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] space-y-4 shadow-sm w-full text-left">
                             <h2 class="text-xs font-bold uppercase tracking-wider text-[#007AFF] dark:text-[#0A84FF] flex items-center gap-2">
                                 <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
                                 <span>Keunggulan Formula Dalam Template Ini:</span>
@@ -94,7 +94,7 @@ class="w-full font-sans antialiased bg-[#F2F2F7] dark:bg-[#000000] text-[#1D1D1F
                     @endif
 
                     <!-- Trust Signal Inset Box -->
-                    <div class="p-5 rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] text-xs text-slate-600 dark:text-slate-400 flex items-center gap-3.5 shadow-sm">
+                    <div class="p-5 rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] text-xs text-slate-600 dark:text-slate-400 flex items-center gap-3.5 shadow-sm w-full text-left">
                         <div class="w-10 h-10 rounded-[12px] bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF] flex items-center justify-center shrink-0">
                             <i data-lucide="shield-check" class="w-5 h-5"></i>
                         </div>

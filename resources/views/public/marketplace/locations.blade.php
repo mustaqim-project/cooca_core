@@ -131,28 +131,30 @@
             </nav>
 
             {{-- Header & Search Bar --}}
-            <div class="max-w-3xl space-y-4">
-                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#007AFF]/15 text-[#00C4D8] border border-[#00C4D8]/30 text-xs font-semibold backdrop-blur-sm">
-                    <i data-lucide="map-pin" class="w-3.5 h-3.5" aria-hidden="true"></i>
-                    <span>Cakupan Wilayah Nusantara</span>
+            <div class="max-w-3xl space-y-4 text-center mx-auto flex flex-col items-center lg:text-left lg:items-start lg:mx-0">
+                <div class="space-y-3 w-full">
+                    <!-- Pure Typographic Overline Kicker (Zero Pill Abuse) -->
+                    <p class="text-xs sm:text-[13px] font-bold uppercase tracking-wider text-[#00C4D8]">
+                        Cakupan Wilayah Nusantara
+                    </p>
+
+                    <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.65rem] xl:text-[3rem] font-extrabold text-white tracking-tight leading-[1.15] text-balance break-words max-w-[22rem] sm:max-w-xl lg:max-w-none mx-auto lg:mx-0">
+                        Temukan Bisnis &amp; <span class="text-[#00C4D8]">Toko Lokal di Kota Anda</span>
+                    </h1>
                 </div>
 
-                <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white tracking-tight leading-[1.15]">
-                    Temukan Bisnis & <span class="text-[#00C4D8]">Toko Lokal di Kota Anda</span>
-                </h1>
-
-                <p class="text-base sm:text-lg text-slate-300 leading-relaxed">
+                <p class="text-base sm:text-lg text-slate-300 leading-relaxed font-normal text-pretty max-w-[32rem] lg:max-w-xl mx-auto lg:mx-0">
                     Dukung pertumbuhan perputaran ekonomi daerah. Jelajahi ribuan pelaku usaha yang memiliki gerai fisik maupun etalase online di kota tempat tinggal Anda.
                 </p>
 
                 {{-- City Search Form --}}
-                <form method="GET" action="{{ route('marketplace.search') }}" class="pt-2">
+                <form method="GET" action="{{ route('marketplace.search') }}" class="pt-2 w-full max-w-[32rem] lg:max-w-none">
                     <div class="relative flex items-center bg-[#0E1E45]/80 rounded-[20px] border border-white/15 p-1.5 shadow-2xl backdrop-blur-md focus-within:ring-2 focus-within:ring-[#00C4D8] transition">
                         <i data-lucide="map-pin" class="w-5 h-5 ml-3.5 text-slate-400 shrink-0" aria-hidden="true"></i>
                         <input type="text" name="q" placeholder="Ketik nama kota, misalnya: Bandung, Surabaya, Solo..."
                             class="w-full bg-transparent border-0 px-3.5 py-3 text-[16px] sm:text-base text-white placeholder-slate-400 focus:outline-none">
                         <button type="submit"
-                            class="shrink-0 h-11 px-6 rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white text-sm font-semibold shadow-lg shadow-[#007AFF]/25 active:scale-[0.98] transition">
+                            class="shrink-0 h-11 px-6 rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white text-sm font-semibold shadow-lg shadow-[#007AFF]/25 active:scale-[0.98] transition min-h-[44px]">
                             Cari Kota
                         </button>
                     </div>

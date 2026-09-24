@@ -99,31 +99,32 @@
                 </nav>
 
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
-                    {{-- Left Column: Copy & Value Proposition (5 Cols ~ 42%) --}}
-                    <div class="lg:col-span-5 space-y-6">
-                        <div
-                            class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#007AFF]/15 text-[#00C4D8] border border-[#00C4D8]/30 text-xs font-semibold tracking-wide">
-                            <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
-                            <span>Product-Driven Content Creation Studio</span>
+                    {{-- Left Column: Copy & Value Proposition (Mobile Center, Desktop Left ~ 5 Cols) --}}
+                    <div class="lg:col-span-5 space-y-6 text-center mx-auto flex flex-col items-center lg:text-left lg:items-start lg:mx-0">
+                        <div class="space-y-3 w-full">
+                            <!-- Pure Typographic Overline Kicker (Zero Pill Abuse) -->
+                            <p class="text-xs sm:text-[13px] font-bold uppercase tracking-wider text-[#00C4D8]">
+                                Product-Driven Content Creation Studio
+                            </p>
+
+                            <h1
+                                class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.65rem] xl:text-[3rem] font-extrabold tracking-tight text-white leading-[1.15] text-balance break-words max-w-[22rem] sm:max-w-xl lg:max-w-none mx-auto lg:mx-0">
+                                Ubah Produk & Menu Toko Menjadi <span class="text-[#00C4D8]">Konten Promosi yang Menjual</span>
+                            </h1>
                         </div>
 
-                        <h1
-                            class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white leading-[1.2] text-balance break-words">
-                            Ubah Produk & Menu Toko Menjadi <span class="text-[#00C4D8]">Konten Promosi yang Menjual</span>
-                        </h1>
-
-                        <p class="text-base sm:text-lg text-slate-300 leading-relaxed font-normal">
+                        <p class="text-base sm:text-lg text-slate-300 leading-relaxed font-normal text-pretty max-w-[32rem] lg:max-w-xl mx-auto lg:mx-0">
                             Berhenti membuang waktu berjam-jam memikirkan ide postingan media sosial dari nol. Pilih produk
                             langsung dari katalog toko Anda, susun variasi pesan untuk Instagram, TikTok, dan WhatsApp, lalu
                             tinjau draf bersama tim sebelum otomatis dipublikasikan.
                         </p>
 
-                        {{-- Action CTAs --}}
-                        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 pt-2">
+                        {{-- Action CTAs (Centered on Mobile, Row on Desktop) --}}
+                        <div class="flex flex-col sm:flex-row items-stretch sm:items-center sm:justify-center lg:justify-start gap-3.5 pt-2 w-full sm:w-auto">
                             <a href="{{ route('public.demo') }}"
                                 class="inline-flex justify-center items-center gap-2 px-6 py-3.5 rounded-xl bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-sm shadow-lg shadow-[#007AFF]/25 transition-all duration-200 min-h-[48px]">
                                 <span>Coba Studio Konten Sekarang</span>
-                                <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                                <i data-lucide="arrow-right" class="w-4 h-4 shrink-0"></i>
                             </a>
                             <a href="{{ route('public.content.calendar') }}"
                                 class="inline-flex justify-center items-center gap-2 px-6 py-3.5 rounded-xl bg-white/10 hover:bg-white/15 text-white font-semibold text-sm border border-white/15 backdrop-blur-sm transition-all min-h-[48px]">
@@ -131,9 +132,9 @@
                             </a>
                         </div>
 
-                        {{-- Key Trust Specs --}}
+                        {{-- Key Trust Specs (Centered on Mobile) --}}
                         <div
-                            class="pt-4 border-t border-white/10 grid grid-cols-2 sm:grid-cols-3 gap-3.5 sm:gap-4 text-left">
+                            class="pt-4 border-t border-white/10 grid grid-cols-2 sm:grid-cols-3 gap-3.5 sm:gap-4 text-center sm:text-left w-full">
                             <div class="min-w-0">
                                 <div class="text-xs text-slate-400 font-medium truncate">Sumber Konten</div>
                                 <div class="text-sm font-bold text-white mt-0.5 truncate">Katalog Stok Riil</div>

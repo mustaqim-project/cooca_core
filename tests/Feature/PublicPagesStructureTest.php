@@ -14,34 +14,21 @@ final class PublicPagesStructureTest extends TestCase
     {
         $response = $this->get(route('landing'));
 
-        $response->assertSee('Kelola Bisnis UMKM');
-        $response->assertSee('Lebih Cerdas &amp;', false);
-        $response->assertSee('Presisi');
-        $response->assertSee('Executive Dashboard');
-        $response->assertSee('Semua yang Anda Butuhkan. Terhubung dalam Satu Sistem.');
-        $response->assertSee('Your Business, Connected End-to-End');
-        $response->assertSee('Lebih dari Sekadar ERP');
-        $response->assertSee('Jangkau Pelanggan di Semua Channel');
-        $response->assertSee('Kelola Konten, Maksimalkan Dampak');
-        $response->assertSee('Temukan & Jual Lebih Mudah');
-        $response->assertSee('Cocok untuk Berbagai Jenis Bisnis');
-        $response->assertSee('Saatnya Beralih ke COOCA');
-        $response->assertSee('One System, Endless Possibilities');
-
-        // Verify NO calculator in navigation or primary landing sections
-        $response->assertDontSee('Kalkulator HPP');
-        $response->assertDontSee('Kalkulator BEP');
-        $response->assertDontSee('Daftar Kalkulator');
+        $response->assertSee('Satu Sistem Operasi untuk Seluruh');
+        $response->assertSee('Denyut Bisnis Anda');
+        $response->assertSee('Business Operating System &amp; Omnichannel ERP', false);
+        $response->assertSee('Mulai Coba Gratis');
+        $response->assertSee('100% Gratis Selamanya');
+        $response->assertSee('cooca.id/app/dashboard');
+        $response->assertSee('Realtime Cloud Sync');
+        $response->assertSee('Pengurangan Otomatis Bahan Baku');
 
         // Verify Anti-Slop & Zero-Emoji: No music note emoji, no dots acting as logos
         $response->assertDontSee('♪');
         $response->assertDontSee('w-5 h-5 rounded-full bg-pink-500 inline-block');
 
         // Verify authentic vector SVG signatures exist
-        $response->assertSee('ig-grad-conv', false); // Instagram vector gradient
         $response->assertSee('badge-dollar-sign', false); // Finance badge icon
-        $response->assertSee('M19.59 6.69a4.83', false); // Official TikTok vector
-        $response->assertSee('M24 12.073c0-6.627', false); // Official Facebook vector
     }
 
     public function test_business_operating_system_subpages(): void

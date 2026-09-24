@@ -42,24 +42,25 @@
 
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
 
-                    <!-- KIRI: Headline, Subtitle, CTA (7 Cols) -->
-                    <div class="lg:col-span-7 space-y-6 text-left">
-                        <div class="space-y-2">
+                    <!-- KIRI: Eyebrow, Headline, Subtitle, CTA (Mobile Center, Desktop Left ~ 7 Cols) -->
+                    <div class="lg:col-span-7 space-y-6 text-center mx-auto flex flex-col items-center lg:text-left lg:items-start lg:mx-0">
+                        <div class="space-y-2 w-full">
+                            <!-- Pure Typographic Overline Kicker (Zero Pill Abuse) -->
                             <p class="text-xs sm:text-[13px] font-bold uppercase tracking-wider text-[#00C4D8]">
                                 {{ $badge ?? ($category ?? 'COOCA Business Operating System') }}
                             </p>
                             <h1
-                                class="text-3xl sm:text-4xl md:text-5xl lg:text-[3.25rem] font-extrabold text-white tracking-tight leading-[1.15] text-balance break-words">
+                                class="text-3xl sm:text-4xl md:text-5xl lg:text-[3.25rem] font-extrabold text-white tracking-tight leading-[1.15] text-balance break-words max-w-[22rem] sm:max-w-xl lg:max-w-none mx-auto lg:mx-0">
                                 {{ $headline ?? $title }}
                             </h1>
                         </div>
 
-                        <p class="text-base sm:text-lg text-slate-300 leading-relaxed max-w-2xl font-normal text-pretty break-words">
+                        <p class="text-base sm:text-lg text-slate-300 leading-relaxed max-w-[32rem] lg:max-w-2xl font-normal text-pretty break-words mx-auto lg:mx-0">
                             {{ $subtitle ?? ($description ?? 'Sistem operasional bisnis terpadu untuk UMKM Indonesia. Menghubungkan kasir, pembukuan, stok, dan pelanggan tanpa pencatatan manual ganda.') }}
                         </p>
 
-                        <!-- Action Buttons -->
-                        <div class="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5">
+                        <!-- Action Buttons (Centered on Mobile, Row on Desktop) -->
+                        <div class="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center sm:justify-center lg:justify-start gap-3.5 w-full sm:w-auto">
                             <a href="{{ route('register') }}"
                                 class="px-8 py-3.5 rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-base flex items-center justify-center gap-2 shadow-[0_4px_16px_rgba(0,122,255,0.35)] active:scale-[0.98] transition-all min-h-[50px]">
                                 <span>Mulai Sekarang - Gratis</span>
@@ -73,8 +74,8 @@
                             </a>
                         </div>
 
-                        <!-- Reassurance Checkpoints -->
-                        <div class="pt-2 flex flex-wrap items-center gap-y-2 gap-x-5 text-xs text-slate-400">
+                        <!-- Reassurance Checkpoints (Centered on Mobile) -->
+                        <div class="pt-2 flex flex-wrap items-center justify-center lg:justify-start gap-y-2 gap-x-5 text-xs text-slate-400">
                             <div class="flex items-center gap-1.5">
                                 <i data-lucide="check" class="w-4 h-4 text-emerald-400"></i>
                                 <span>100% Gratis Selamanya</span>

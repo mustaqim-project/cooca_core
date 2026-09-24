@@ -103,38 +103,39 @@
                 </nav>
 
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-                    {{-- Left Column: Copy & Value Proposition (5 Cols ~ 42%) --}}
-                    <div class="lg:col-span-5 space-y-6 text-left">
-                        <div
-                            class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#007AFF]/15 text-[#00C4D8] border border-[#00C4D8]/30 text-xs font-semibold tracking-wide">
-                            <i data-lucide="book-open" class="w-3.5 h-3.5"></i>
-                            <span>Double-Entry &amp; Automated SAK EMKM Reporting</span>
+                    {{-- Left Column: Eyebrow, Headline, Value Proposition & Action CTAs (Mobile Center, Desktop Left ~ 5 Cols) --}}
+                    <div class="lg:col-span-5 space-y-6 text-center mx-auto flex flex-col items-center lg:text-left lg:items-start lg:mx-0">
+                        <div class="space-y-3 w-full">
+                            <!-- Pure Typographic Overline Kicker (Zero Pill Abuse) -->
+                            <p class="text-xs sm:text-[13px] font-bold uppercase tracking-wider text-[#00C4D8]">
+                                Double-Entry &amp; Automated SAK EMKM Reporting
+                            </p>
+
+                            <h1
+                                class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.65rem] xl:text-[3rem] font-extrabold text-white tracking-tight leading-[1.15] text-balance break-words max-w-[22rem] sm:max-w-xl lg:max-w-none mx-auto lg:mx-0">
+                                Laporan Laba Rugi &amp; Neraca Terbit Otomatis <span class="text-[#00C4D8]">Tanpa Rekap Manual</span>
+                            </h1>
                         </div>
 
-                        <h1
-                            class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.65rem] xl:text-[3rem] font-extrabold text-white tracking-tight leading-[1.15] text-balance break-words">
-                            Laporan Laba Rugi &amp; Neraca Terbit Otomatis <span class="text-[#00C4D8]">Tanpa Rekap Manual</span>
-                        </h1>
-
-                        <p class="text-base sm:text-lg text-slate-300 font-normal leading-relaxed max-w-xl">
+                        <p class="text-base sm:text-lg text-slate-300 font-normal leading-relaxed max-w-[32rem] lg:max-w-xl mx-auto lg:mx-0">
                             Tinggalkan lembur berhari-hari menjurnal nota kasir dan pembelian barang. Setiap transaksi penjualan, mutasi gudang, dan pengeluaran operasional otomatis membentuk jurnal debit-kredit rapi standar SAK EMKM.
                         </p>
 
-                        {{-- Action CTAs --}}
-                        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 pt-2">
+                        {{-- Action CTAs (Centered on Mobile, Row on Desktop) --}}
+                        <div class="flex flex-col sm:flex-row items-stretch sm:items-center sm:justify-center lg:justify-start gap-3.5 pt-2 w-full sm:w-auto">
                             <a href="{{ route('public.demo') }}"
-                                class="inline-flex justify-center items-center gap-2 px-6 py-3.5 rounded-xl bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-sm shadow-lg shadow-[#007AFF]/25 transition-all duration-200 min-h-[48px]">
+                                class="inline-flex justify-center items-center gap-2 px-6 py-3.5 rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-sm shadow-lg shadow-[#007AFF]/25 transition-all duration-200 min-h-[48px]">
                                 <span>Lihat Demo Akuntansi</span>
                                 <i data-lucide="arrow-right" class="w-4 h-4"></i>
                             </a>
                             <a href="{{ route('public.erp.finance') }}"
-                                class="inline-flex justify-center items-center gap-2 px-6 py-3.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-white backdrop-blur-sm font-semibold text-sm transition-all min-h-[48px]">
+                                class="inline-flex justify-center items-center gap-2 px-6 py-3.5 rounded-[14px] bg-white/10 hover:bg-white/15 border border-white/15 text-white backdrop-blur-sm font-semibold text-sm transition-all min-h-[48px]">
                                 <span>Koneksi ke Manajemen Kas</span>
                             </a>
                         </div>
 
-                        {{-- Trust Specs --}}
-                        <div class="pt-6 border-t border-white/10 grid grid-cols-2 sm:grid-cols-3 gap-3.5 text-left">
+                        {{-- Trust Specs (Centered on Mobile) --}}
+                        <div class="pt-6 border-t border-white/10 grid grid-cols-2 sm:grid-cols-3 gap-3.5 text-center sm:text-left w-full">
                             <div class="min-w-0">
                                 <div class="text-xs text-slate-400 font-medium truncate">Standar Akuntansi</div>
                                 <div class="text-sm font-bold text-white mt-0.5 truncate">SAK EMKM &amp; SAK EP</div>

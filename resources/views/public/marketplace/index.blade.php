@@ -42,60 +42,62 @@
             </nav>
 
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-                {{-- Left: Headline, Search, Actions (7 cols) --}}
-                <div class="lg:col-span-7 space-y-6">
-                    <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#007AFF]/15 text-[#00C4D8] border border-[#00C4D8]/30 text-xs font-semibold backdrop-blur-sm">
-                        <i data-lucide="store" class="w-4 h-4 text-[#00C4D8]"></i>
-                        <span>Direktori UMKM Indonesia Terverifikasi</span>
+                {{-- Left: Headline, Search, Actions (Mobile Center, Desktop Left ~ 7 cols) --}}
+                <div class="lg:col-span-7 space-y-6 text-center mx-auto flex flex-col items-center lg:text-left lg:items-start lg:mx-0">
+                    <div class="space-y-3 w-full">
+                        <!-- Pure Typographic Overline Kicker (Zero Pill Abuse) -->
+                        <p class="text-xs sm:text-[13px] font-bold uppercase tracking-wider text-[#00C4D8]">
+                            Direktori UMKM Indonesia Terverifikasi
+                        </p>
+
+                        <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.65rem] xl:text-[3rem] font-extrabold text-white tracking-tight leading-[1.15] text-balance break-words max-w-[22rem] sm:max-w-xl lg:max-w-none mx-auto lg:mx-0">
+                            Belanja Langsung dari <span class="text-[#00C4D8]">Pemilik Usaha Lokal.</span>
+                        </h1>
                     </div>
 
-                    <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-[3.25rem] font-extrabold text-white tracking-tight leading-[1.15] text-balance break-words">
-                        Belanja Langsung dari <span class="text-[#00C4D8]">Pemilik Usaha Lokal.</span>
-                    </h1>
-
-                    <p class="text-base sm:text-lg text-slate-300 leading-relaxed max-w-xl text-pretty break-words">
+                    <p class="text-base sm:text-lg text-slate-300 leading-relaxed font-normal text-pretty max-w-[32rem] lg:max-w-xl mx-auto lg:mx-0">
                         Temukan {{ number_format($totalProducts) }} produk unggulan dari {{ number_format($totalStores) }} toko UMKM terverifikasi di seluruh Indonesia. Transaksi langsung, aman, dan tanpa potongan biaya perantara.
                     </p>
 
                     {{-- Search Input Form --}}
-                    <form method="GET" action="{{ route('marketplace.search') }}" class="pt-1">
+                    <form method="GET" action="{{ route('marketplace.search') }}" class="pt-1 w-full max-w-[32rem] lg:max-w-none">
                         <div class="relative flex items-center bg-[#0E1E45]/80 rounded-[20px] border border-white/15 p-1.5 shadow-2xl backdrop-blur-md focus-within:ring-2 focus-within:ring-[#00C4D8] transition">
                             <i data-lucide="search" class="w-5 h-5 ml-3.5 text-slate-400 shrink-0"></i>
                             <input type="text" name="q" placeholder="Cari nama produk, toko, atau kota..."
                                 class="w-full bg-transparent border-0 px-3.5 py-3 text-[16px] text-white placeholder-slate-400 focus:outline-none">
                             <button type="submit"
-                                class="shrink-0 h-11 px-6 rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white text-sm font-semibold shadow-lg shadow-[#007AFF]/25 active:scale-[0.98] transition">
+                                class="shrink-0 h-11 px-6 rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white text-sm font-semibold shadow-lg shadow-[#007AFF]/25 active:scale-[0.98] transition min-h-[44px]">
                                 Cari
                             </button>
                         </div>
                     </form>
 
-                    {{-- Quick Action Hub --}}
-                    <div class="flex flex-wrap items-center gap-3 pt-1">
+                    {{-- Quick Action Hub (Centered on Mobile, Row on Desktop) --}}
+                    <div class="flex flex-wrap items-center justify-center lg:justify-start gap-3 pt-1 w-full sm:w-auto">
                         @if (auth('customer')->guest())
                             <a href="{{ route('customer.login') }}"
-                                class="h-11 px-5 rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white text-xs sm:text-sm font-semibold flex items-center gap-2 shadow-lg shadow-[#007AFF]/25 transition active:scale-[0.98]">
-                                <i data-lucide="user" class="w-4 h-4"></i>
+                                class="h-11 px-5 rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white text-xs sm:text-sm font-semibold flex items-center gap-2 shadow-lg shadow-[#007AFF]/25 transition active:scale-[0.98] min-h-[44px]">
+                                <i data-lucide="user" class="w-4 h-4 shrink-0"></i>
                                 <span>Masuk Sebagai Pembeli</span>
                             </a>
                         @else
                             <a href="{{ route('customer.dashboard') }}"
-                                class="h-11 px-5 rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white text-xs sm:text-sm font-semibold flex items-center gap-2 shadow-lg shadow-[#007AFF]/25 transition active:scale-[0.98]">
-                                <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+                                class="h-11 px-5 rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white text-xs sm:text-sm font-semibold flex items-center gap-2 shadow-lg shadow-[#007AFF]/25 transition active:scale-[0.98] min-h-[44px]">
+                                <i data-lucide="layout-dashboard" class="w-4 h-4 shrink-0"></i>
                                 <span>Dashboard Saya</span>
                             </a>
                         @endif
 
                         <a href="{{ route('login') }}"
-                            class="h-11 px-5 rounded-[14px] bg-white/10 hover:bg-white/15 text-white border border-white/15 text-xs sm:text-sm font-semibold transition active:scale-[0.98] flex items-center gap-2 backdrop-blur-sm">
-                            <i data-lucide="store" class="w-4 h-4"></i>
+                            class="h-11 px-5 rounded-[14px] bg-white/10 hover:bg-white/15 text-white border border-white/15 text-xs sm:text-sm font-semibold transition active:scale-[0.98] flex items-center gap-2 backdrop-blur-sm min-h-[44px]">
+                            <i data-lucide="store" class="w-4 h-4 shrink-0"></i>
                             <span>Masuk Toko</span>
                         </a>
 
                         @if (auth('web')->guest())
                             <a href="{{ route('register') }}"
-                                class="h-11 px-5 rounded-[14px] bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs sm:text-sm font-semibold hover:bg-emerald-500/25 transition active:scale-[0.98] flex items-center gap-2">
-                                <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                                class="h-11 px-5 rounded-[14px] bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs sm:text-sm font-semibold hover:bg-emerald-500/25 transition active:scale-[0.98] flex items-center gap-2 min-h-[44px]">
+                                <i data-lucide="plus-circle" class="w-4 h-4 shrink-0"></i>
                                 <span>Buka Toko Gratis</span>
                             </a>
                         @endif
