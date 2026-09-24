@@ -152,104 +152,413 @@
 
                     </div>
 
-                    <!-- KANAN: Simulated Apple Bento Business OS Cockpit (7 Cols ~ 58%) -->
-                    <div class="lg:col-span-7">
-                        <div
-                            class="rounded-[24px] bg-[#0E1E45]/85 border border-white/15 p-5 sm:p-6 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.7)] backdrop-blur-xl space-y-4 text-white">
+                    <!-- KANAN: Interactive Apple Bento Business OS Cockpit with 2 Slides & Floating Cards (7 Cols ~ 58%) -->
+                    <div class="lg:col-span-7 relative"
+                        x-data="{
+                            activeSlide: 1,
+                            autoSlide: true,
+                            slideTimer: null,
+                            init() {
+                                this.slideTimer = setInterval(() => {
+                                    if (this.autoSlide) {
+                                        this.activeSlide = this.activeSlide === 1 ? 2 : 1;
+                                    }
+                                }, 6500);
+                            },
+                            setSlide(n) {
+                                this.activeSlide = n;
+                                this.autoSlide = false;
+                            }
+                        }"
+                        @mouseenter="autoSlide = false"
+                        @mouseleave="autoSlide = true">
 
-                            <!-- macOS Window Top Bar -->
-                            <div class="flex items-center justify-between border-b border-white/10 pb-3">
-                                <div class="flex items-center gap-2">
-                                    <span class="w-3 h-3 rounded-full bg-[#FF5F56] shadow-inner"></span>
-                                    <span class="w-3 h-3 rounded-full bg-[#FFBD2E] shadow-inner"></span>
-                                    <span class="w-3 h-3 rounded-full bg-[#27C93F] shadow-inner"></span>
-                                    <span
-                                        class="text-xs font-mono font-semibold text-slate-300 ml-2">cooca.id/app/dashboard</span>
+                        <!-- Floating Card Top-Right (Matching user reference image!) -->
+                        <div x-show="activeSlide === 1"
+                            x-transition:enter="transition ease-out duration-300"
+                            x-transition:enter-start="opacity-0 translate-y-2 scale-95"
+                            x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+                            class="hidden sm:block absolute -top-5 -right-3 z-30 bg-[#0E1E45]/90 border border-white/15 rounded-[18px] p-3.5 shadow-[0_20px_40px_-5px_rgba(0,0,0,0.6)] min-w-[170px] backdrop-blur-xl text-white">
+                            <div class="text-[11px] text-slate-400 font-medium">Total Pendapatan</div>
+                            <div class="text-lg font-extrabold text-white tabular-nums tracking-tight">Rp 128.4j</div>
+                            <div class="text-[11px] font-semibold text-emerald-400 flex items-center gap-1 mt-0.5">
+                                <i data-lucide="trending-up" class="w-3 h-3"></i>
+                                <span>+8.4% bulan ini</span>
+                            </div>
+                        </div>
+
+                        <div x-show="activeSlide === 2"
+                            x-transition:enter="transition ease-out duration-300"
+                            x-transition:enter-start="opacity-0 translate-y-2 scale-95"
+                            x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+                            class="hidden sm:block absolute -top-5 -right-3 z-30 bg-[#0E1E45]/90 border border-white/15 rounded-[18px] p-3.5 shadow-[0_20px_40px_-5px_rgba(0,0,0,0.6)] min-w-[170px] backdrop-blur-xl text-white">
+                            <div class="text-[11px] text-slate-400 font-medium">Live Shipping Resi</div>
+                            <div class="text-lg font-extrabold text-white tabular-nums tracking-tight">86 Paket</div>
+                            <div class="text-[11px] font-semibold text-sky-400 flex items-center gap-1 mt-0.5">
+                                <i data-lucide="truck" class="w-3 h-3"></i>
+                                <span>Siap Pick Up Hari Ini</span>
+                            </div>
+                        </div>
+
+                        <!-- Floating Card Bottom-Left (Matching user reference image!) -->
+                        <div x-show="activeSlide === 1"
+                            x-transition:enter="transition ease-out duration-300"
+                            x-transition:enter-start="opacity-0 translate-y-2 scale-95"
+                            x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+                            class="hidden sm:block absolute -bottom-5 -left-3 z-30 bg-[#0E1E45]/90 border border-white/15 rounded-[18px] p-3.5 shadow-[0_20px_40px_-5px_rgba(0,0,0,0.6)] min-w-[145px] backdrop-blur-xl text-white">
+                            <div class="text-[11px] text-slate-400 font-medium">Bisnis Aktif</div>
+                            <div class="text-lg font-extrabold text-white tabular-nums tracking-tight">12 Unit</div>
+                            <div class="text-[11px] font-semibold text-emerald-400 flex items-center gap-1 mt-0.5">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                                <span>All Online</span>
+                            </div>
+                        </div>
+
+                        <div x-show="activeSlide === 2"
+                            x-transition:enter="transition ease-out duration-300"
+                            x-transition:enter-start="opacity-0 translate-y-2 scale-95"
+                            x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+                            class="hidden sm:block absolute -bottom-5 -left-3 z-30 bg-[#0E1E45]/90 border border-white/15 rounded-[18px] p-3.5 shadow-[0_20px_40px_-5px_rgba(0,0,0,0.6)] min-w-[145px] backdrop-blur-xl text-white">
+                            <div class="text-[11px] text-slate-400 font-medium">Multi-MP Sync</div>
+                            <div class="text-lg font-extrabold text-white tabular-nums tracking-tight">1.420 SKU</div>
+                            <div class="text-[11px] font-semibold text-[#00C4D8] flex items-center gap-1 mt-0.5">
+                                <i data-lucide="refresh-cw" class="w-3 h-3"></i>
+                                <span>Realtime Sync</span>
+                            </div>
+                        </div>
+
+                        <!-- Floating Notification Toast (Bottom-Right edge, matching user reference image!) -->
+                        <div x-show="activeSlide === 1"
+                            x-transition:enter="transition ease-out duration-300"
+                            x-transition:enter-start="opacity-0 translate-y-2 scale-95"
+                            x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+                            class="hidden sm:flex items-center gap-2.5 absolute bottom-8 -right-3 z-30 bg-[#0E1E45]/95 border border-white/15 rounded-[16px] px-3.5 py-2.5 shadow-[0_20px_40px_-5px_rgba(0,0,0,0.6)] backdrop-blur-xl max-w-xs text-white">
+                            <div class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center shrink-0 text-white">
+                                <i data-lucide="bell" class="w-4 h-4 text-slate-200"></i>
+                            </div>
+                            <div>
+                                <div class="text-[10px] text-slate-400 font-medium">Notifikasi Baru</div>
+                                <div class="text-xs font-bold text-white">Transaksi berhasil</div>
+                            </div>
+                        </div>
+
+                        <div x-show="activeSlide === 2"
+                            x-transition:enter="transition ease-out duration-300"
+                            x-transition:enter-start="opacity-0 translate-y-2 scale-95"
+                            x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+                            class="hidden sm:flex items-center gap-2.5 absolute bottom-8 -right-3 z-30 bg-[#0E1E45]/95 border border-white/15 rounded-[16px] px-3.5 py-2.5 shadow-[0_20px_40px_-5px_rgba(0,0,0,0.6)] backdrop-blur-xl max-w-xs text-white">
+                            <div class="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center shrink-0 text-emerald-400">
+                                <i data-lucide="package-check" class="w-4 h-4"></i>
+                            </div>
+                            <div>
+                                <div class="text-[10px] text-slate-400 font-medium">Notifikasi Kurir</div>
+                                <div class="text-xs font-bold text-white">Resi J&amp;T Terbit &amp; Kirim ke WA</div>
+                            </div>
+                        </div>
+
+                        <!-- Main Cockpit Window -->
+                        <div
+                            class="rounded-[24px] sm:rounded-[28px] bg-[#0E1E45]/85 border border-white/15 p-4 sm:p-6 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.7)] backdrop-blur-xl space-y-4 text-white relative z-10">
+
+                            <!-- macOS Window Top Bar with URL & Interactive Slide Tabs -->
+                            <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between border-b border-white/10 pb-3 gap-2.5">
+                                <div class="flex items-center justify-between sm:justify-start gap-3">
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="w-3 h-3 rounded-full bg-[#FF5F56] shadow-inner"></span>
+                                        <span class="w-3 h-3 rounded-full bg-[#FFBD2E] shadow-inner"></span>
+                                        <span class="w-3 h-3 rounded-full bg-[#27C93F] shadow-inner"></span>
+                                    </div>
+                                    <!-- URL Address Bar (matching reference image) -->
+                                    <div class="py-1 px-3 rounded-full bg-white/[0.06] border border-white/10 text-[11px] font-mono text-slate-300 truncate max-w-[210px] sm:max-w-[260px]">
+                                        <span x-text="activeSlide === 1 ? 'https://app.cooca.id/laporan-keuangan' : 'https://app.cooca.id/marketplace-shipping'"></span>
+                                    </div>
                                 </div>
-                                <span
-                                    class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-[11px] font-semibold">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                                    Realtime Cloud Sync
-                                </span>
+
+                                <!-- Interactive 2-Slide Toggle Tabs -->
+                                <div class="flex items-center justify-between sm:justify-end gap-2">
+                                    <div class="flex items-center bg-white/[0.06] p-1 rounded-full border border-white/10 text-xs font-semibold">
+                                        <button type="button" @click="setSlide(1)"
+                                            :class="activeSlide === 1 ? 'bg-[#007AFF] text-white shadow-xs' : 'text-slate-400 hover:text-white'"
+                                            class="px-2.5 sm:px-3 py-1 rounded-full transition-all flex items-center gap-1.5">
+                                            <i data-lucide="line-chart" class="w-3.5 h-3.5"></i>
+                                            <span>Keuangan</span>
+                                        </button>
+                                        <button type="button" @click="setSlide(2)"
+                                            :class="activeSlide === 2 ? 'bg-[#007AFF] text-white shadow-xs' : 'text-slate-400 hover:text-white'"
+                                            class="px-2.5 sm:px-3 py-1 rounded-full transition-all flex items-center gap-1.5">
+                                            <i data-lucide="store" class="w-3.5 h-3.5"></i>
+                                            <span>Marketplace &amp; Shipping</span>
+                                        </button>
+                                    </div>
+
+                                    <span
+                                        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-[11px] font-semibold">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                                        Active
+                                    </span>
+                                </div>
                             </div>
 
-                            <!-- Bento Grid Internal (POS + Financials) -->
-                            <div class="grid grid-cols-1 md:grid-cols-12 gap-3.5">
-                                <!-- Bento Module 1: Live Cashier POS & Instant Stock Deduction (7 Cols) -->
-                                <div class="md:col-span-7 p-4 rounded-[18px] bg-white/[0.04] border border-white/[0.08] space-y-2.5">
-                                    <div class="flex items-center justify-between text-xs">
-                                        <span class="font-bold text-white flex items-center gap-1.5">
-                                            <i data-lucide="shopping-cart" class="w-3.5 h-3.5 text-[#00C4D8]"></i>
-                                            <span>Kasir POS &bull; Transaksi #TRX-2049</span>
+                            <!-- ═══════════════════════════════════════════════════════ -->
+                            <!-- SLIDE 1: TAMPILAN LAPORAN KEUANGAN (P&L & CASH FLOW)   -->
+                            <!-- ═══════════════════════════════════════════════════════ -->
+                            <div x-show="activeSlide === 1"
+                                x-transition:enter="transition ease-out duration-300 transform"
+                                x-transition:enter-start="opacity-0 translate-y-2"
+                                x-transition:enter-end="opacity-100 translate-y-0"
+                                class="space-y-4">
+
+                                <!-- Cockpit Tenant Banner -->
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <div class="text-sm font-bold text-white">Cooca Enterprise POS &amp; Keuangan ERP</div>
+                                        <div class="text-xs text-slate-400">Tenant: Restoran &amp; HQ Outlets</div>
+                                    </div>
+                                    <span class="px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-400 text-xs font-semibold flex items-center gap-1">
+                                        <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i>
+                                        <span>Buku Besar Auto-Sync</span>
+                                    </span>
+                                </div>
+
+                                <!-- 4-Metric Grid (styled exactly like the reference screenshot!) -->
+                                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
+                                    <div class="p-3 sm:p-3.5 rounded-[16px] bg-white/[0.04] border border-white/[0.08] space-y-1">
+                                        <span class="text-[11px] text-slate-400 block font-medium">Total Pendapatan</span>
+                                        <div class="text-base sm:text-lg font-bold text-white tabular-nums tracking-tight">Rp 128.4j</div>
+                                        <span class="text-[10px] font-semibold text-emerald-400 flex items-center gap-0.5">
+                                            <i data-lucide="trending-up" class="w-3 h-3"></i>
+                                            +8.4%
                                         </span>
-                                        <span class="font-mono text-emerald-400 font-bold px-2 py-0.5 rounded bg-emerald-500/10 text-[10px]">Lunas QRIS</span>
                                     </div>
-                                    <div class="flex items-center justify-between text-xs text-slate-300 pt-0.5">
-                                        <span class="font-medium">2x Kopi Susu Aren Spesial</span>
-                                        <span class="font-mono font-bold text-white text-sm">Rp 36.000</span>
+
+                                    <div class="p-3 sm:p-3.5 rounded-[16px] bg-white/[0.04] border border-white/[0.08] space-y-1">
+                                        <span class="text-[11px] text-slate-400 block font-medium">Lisensi Aktif</span>
+                                        <div class="text-base sm:text-lg font-bold text-white tabular-nums tracking-tight">12 Unit</div>
+                                        <span class="text-[10px] text-sky-400 font-medium">All Online</span>
                                     </div>
-                                    <!-- Auto-deduct chips -->
-                                    <div class="pt-1.5 border-t border-white/5 space-y-1">
-                                        <span class="text-[10px] text-slate-400 font-medium block">Pengurangan Otomatis Bahan Baku:</span>
-                                        <div class="flex flex-wrap gap-1.5 text-[10.5px]">
-                                            <span
-                                                class="px-2 py-0.5 rounded-[6px] bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 font-mono">
-                                                Biji Kopi -36g
+
+                                    <div class="p-3 sm:p-3.5 rounded-[16px] bg-white/[0.04] border border-white/[0.08] space-y-1">
+                                        <span class="text-[11px] text-slate-400 block font-medium">Tenant Aktif</span>
+                                        <div class="text-base sm:text-lg font-bold text-white tabular-nums tracking-tight">48 Bisnis</div>
+                                        <span class="text-[10px] text-slate-400 font-medium">+6 bulan ini</span>
+                                    </div>
+
+                                    <div class="p-3 sm:p-3.5 rounded-[16px] bg-white/[0.04] border border-white/[0.08] space-y-1">
+                                        <span class="text-[11px] text-slate-400 block font-medium">Laba Bersih Riil</span>
+                                        <div class="text-base sm:text-lg font-bold text-emerald-400 tabular-nums tracking-tight">Rp 42.1j</div>
+                                        <span class="text-[10px] text-slate-400 font-medium">Margin 32.8%</span>
+                                    </div>
+                                </div>
+
+                                <!-- Chart Area: Grafik Pendapatan — 7 Hari Terakhir (matching user reference wave!) -->
+                                <div class="p-3.5 sm:p-4 rounded-[18px] bg-white/[0.03] border border-white/[0.06] space-y-2">
+                                    <div class="flex items-center justify-between text-xs">
+                                        <span class="font-bold text-slate-200">Grafik Pendapatan &amp; Margin — 7 Hari Terakhir</span>
+                                        <span class="text-[11px] text-slate-400 font-mono">Puncak: Rp 22.8jt</span>
+                                    </div>
+
+                                    <!-- Smooth SVG Spline Chart with Gradient Area Fill -->
+                                    <div class="w-full h-24 sm:h-28 relative">
+                                        <svg class="w-full h-full overflow-visible" viewBox="0 0 500 100" preserveAspectRatio="none">
+                                            <defs>
+                                                <linearGradient id="chartGradientHero" x1="0%" y1="0%" x2="0%" y2="100%">
+                                                    <stop offset="0%" stop-color="#007AFF" stop-opacity="0.4" />
+                                                    <stop offset="100%" stop-color="#007AFF" stop-opacity="0.0" />
+                                                </linearGradient>
+                                            </defs>
+                                            <!-- Gradient Fill -->
+                                            <path d="M 0,75 C 60,68 100,50 160,56 C 220,62 260,35 340,42 C 400,48 440,15 500,20 L 500,100 L 0,100 Z"
+                                                  fill="url(#chartGradientHero)" />
+                                            <!-- Curve Stroke -->
+                                            <path d="M 0,75 C 60,68 100,50 160,56 C 220,62 260,35 340,42 C 400,48 440,15 500,20"
+                                                  fill="none" stroke="#007AFF" stroke-width="3" stroke-linecap="round" />
+                                            <!-- Data point dots -->
+                                            <circle cx="160" cy="56" r="4" class="fill-[#007AFF] ring-2 ring-white/40" />
+                                            <circle cx="340" cy="42" r="4" class="fill-[#007AFF] ring-2 ring-white/40" />
+                                            <circle cx="500" cy="20" r="4.5" class="fill-[#00C4D8] ring-2 ring-white" />
+                                        </svg>
+                                    </div>
+
+                                    <!-- Days Axis -->
+                                    <div class="flex items-center justify-between text-[10.5px] text-slate-400 font-mono pt-0.5">
+                                        <span>Sen</span>
+                                        <span>Sel</span>
+                                        <span>Rab</span>
+                                        <span>Kam</span>
+                                        <span>Jum</span>
+                                        <span>Sab</span>
+                                        <span class="font-bold text-[#00C4D8]">Min</span>
+                                    </div>
+                                </div>
+
+                                <!-- Financial Auto-Journal Mini Row (POS -> Recipe -> Net Profit) -->
+                                <div class="p-3 rounded-[16px] bg-white/[0.04] border border-white/[0.08] flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+                                    <div class="flex items-center gap-2 min-w-0">
+                                        <div class="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+                                            <i data-lucide="receipt" class="w-4 h-4"></i>
+                                        </div>
+                                        <div class="truncate">
+                                            <span class="font-semibold text-slate-200">Kasir POS #TRX-2049</span>
+                                            <span class="text-slate-400 block text-[11px]">Resep terpotong otomatis: Kopi -36g, Susu -180ml</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center justify-between sm:justify-end gap-3 shrink-0">
+                                        <span class="font-mono font-bold text-white">Rp 36.000</span>
+                                        <span class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-mono">Laba +Rp 21.600</span>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <!-- ═══════════════════════════════════════════════════════ -->
+                            <!-- SLIDE 2: SISTEM MARKETPLACE LENGKAP DENGAN SHIPPING    -->
+                            <!-- ═══════════════════════════════════════════════════════ -->
+                            <div x-show="activeSlide === 2"
+                                x-transition:enter="transition ease-out duration-300 transform"
+                                x-transition:enter-start="opacity-0 translate-y-2"
+                                x-transition:enter-end="opacity-100 translate-y-0"
+                                class="space-y-4">
+
+                                <!-- Cockpit Marketplace Banner -->
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <div class="text-sm font-bold text-white">Cooca Omnichannel Marketplace &amp; Shipping Hub</div>
+                                        <div class="text-xs text-slate-400">Sinkronisasi Stok 1-Pintu • Resi Otomatis • Kurir Nasional</div>
+                                    </div>
+                                    <span class="px-2 py-0.5 rounded-md bg-blue-500/20 text-sky-400 text-xs font-semibold flex items-center gap-1">
+                                        <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i>
+                                        <span>4 Channel Terhubung</span>
+                                    </span>
+                                </div>
+
+                                <!-- 4-Metric Grid (Marketplace & Shipping KPIs) -->
+                                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
+                                    <div class="p-3 sm:p-3.5 rounded-[16px] bg-white/[0.04] border border-white/[0.08] space-y-1">
+                                        <span class="text-[11px] text-slate-400 block font-medium">Total Pesanan MP</span>
+                                        <div class="text-base sm:text-lg font-bold text-white tabular-nums tracking-tight">1.248 Paket</div>
+                                        <span class="text-[10px] font-semibold text-emerald-400 flex items-center gap-0.5">
+                                            <i data-lucide="trending-up" class="w-3 h-3"></i>
+                                            +24.6% minggu ini
+                                        </span>
+                                    </div>
+
+                                    <div class="p-3 sm:p-3.5 rounded-[16px] bg-white/[0.04] border border-white/[0.08] space-y-1">
+                                        <span class="text-[11px] text-slate-400 block font-medium">Live SKU Sync</span>
+                                        <div class="text-base sm:text-lg font-bold text-white tabular-nums tracking-tight">1.420 SKU</div>
+                                        <span class="text-[10px] text-[#00C4D8] font-medium">100% Selaras</span>
+                                    </div>
+
+                                    <div class="p-3 sm:p-3.5 rounded-[16px] bg-white/[0.04] border border-white/[0.08] space-y-1">
+                                        <span class="text-[11px] text-slate-400 block font-medium">Siap Pick Up</span>
+                                        <div class="text-base sm:text-lg font-bold text-sky-400 tabular-nums tracking-tight">86 Resi</div>
+                                        <span class="text-[10px] text-slate-400 font-medium">J&amp;T, SiCepat, GoSend</span>
+                                    </div>
+
+                                    <div class="p-3 sm:p-3.5 rounded-[16px] bg-white/[0.04] border border-white/[0.08] space-y-1">
+                                        <span class="text-[11px] text-slate-400 block font-medium">Hemat Ongkir</span>
+                                        <div class="text-base sm:text-lg font-bold text-emerald-400 tabular-nums tracking-tight">Rp 3.420k</div>
+                                        <span class="text-[10px] text-slate-400 font-medium">Diskon s/d 25%</span>
+                                    </div>
+                                </div>
+
+                                <!-- Live Multi-Channel & Shipping Orders Feed -->
+                                <div class="space-y-2">
+                                    <div class="flex items-center justify-between text-xs px-1">
+                                        <span class="font-bold text-slate-200 flex items-center gap-1.5">
+                                            <i data-lucide="package" class="w-3.5 h-3.5 text-[#00C4D8]"></i>
+                                            <span>Antrean Pesanan &amp; Ekspedisi Pengiriman Real-Time</span>
+                                        </span>
+                                        <span class="text-[11px] text-slate-400 font-mono">Auto-Print Resi Aktif</span>
+                                    </div>
+
+                                    <!-- Shipping Order Item 1: Shopee + J&T Cargo -->
+                                    <div class="p-3 rounded-[16px] bg-white/[0.04] border border-white/[0.08] flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+                                        <div class="flex items-center gap-2.5 min-w-0">
+                                            <span class="px-2 py-0.5 rounded bg-orange-500/20 text-orange-400 font-bold text-[10px] shrink-0">Shopee</span>
+                                            <div class="truncate">
+                                                <div class="font-semibold text-white truncate">#SHP-8821 &bull; Budi Santoso (Surabaya)</div>
+                                                <div class="text-[11px] text-slate-300 truncate">2x Kopi Arabika Gayo &bull; J&amp;T Cargo (JT892019482ID)</div>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center justify-between sm:justify-end gap-2 shrink-0">
+                                            <span class="px-2.5 py-0.5 rounded-full bg-blue-500/20 text-sky-400 text-[10px] font-semibold">Kurir Picked Up</span>
+                                            <span class="font-mono text-[11px] text-slate-400">14:20 WIB</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Shipping Order Item 2: Tokopedia + SiCepat -->
+                                    <div class="p-3 rounded-[16px] bg-white/[0.04] border border-white/[0.08] flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+                                        <div class="flex items-center gap-2.5 min-w-0">
+                                            <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold text-[10px] shrink-0">Tokopedia</span>
+                                            <div class="truncate">
+                                                <div class="font-semibold text-white truncate">#TKP-8820 &bull; Dewi Sartika (Bandung)</div>
+                                                <div class="text-[11px] text-slate-300 truncate">1x Grinder Kopi Manual &bull; SiCepat REG (002948104820)</div>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center justify-between sm:justify-end gap-2 shrink-0">
+                                            <span class="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-[10px] font-semibold">Dalam Perjalanan</span>
+                                            <span class="font-mono text-[11px] text-slate-400">13:45 WIB</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Shipping Order Item 3: Toko Online Cooca + GoSend Instant -->
+                                    <div class="p-3 rounded-[16px] bg-white/[0.04] border border-white/[0.08] flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+                                        <div class="flex items-center gap-2.5 min-w-0">
+                                            <span class="px-2 py-0.5 rounded bg-sky-500/20 text-sky-300 font-bold text-[10px] shrink-0">Web Cooca</span>
+                                            <div class="truncate">
+                                                <div class="font-semibold text-white truncate">#WEB-8819 &bull; Rian Ardiansyah (Jakarta)</div>
+                                                <div class="text-[11px] text-slate-300 truncate">4x Cold Brew Botol 500ml &bull; GoSend Instant</div>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center justify-between sm:justify-end gap-2 shrink-0">
+                                            <span class="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-semibold flex items-center gap-1">
+                                                <i data-lucide="check" class="w-3 h-3"></i>
+                                                <span>Terkirim (WA POD)</span>
                                             </span>
-                                            <span
-                                                class="px-2 py-0.5 rounded-[6px] bg-sky-500/10 border border-sky-500/20 text-sky-300 font-mono">
-                                                Susu Segar -180ml
-                                            </span>
-                                            <span
-                                                class="px-2 py-0.5 rounded-[6px] bg-amber-500/10 border border-amber-500/20 text-amber-300 font-mono">
-                                                Gula Aren -40ml
-                                            </span>
+                                            <span class="font-mono text-[11px] text-slate-400">12:30 WIB</span>
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- Bento Module 2: Realtime Gross Revenue & Profit Calculation (5 Cols) -->
-                                <div class="md:col-span-5 flex flex-col gap-3">
-                                    <div class="p-3.5 rounded-[18px] bg-white/[0.04] border border-white/[0.08] space-y-1 flex-1">
-                                        <span class="text-[11px] text-slate-400 block font-medium">Omzet Hari Ini</span>
-                                        <div class="text-lg font-bold text-white tabular-nums">Rp 4.850.000</div>
-                                        <span class="text-[10.5px] font-semibold text-emerald-400 flex items-center gap-1">
-                                            <i data-lucide="trending-up" class="w-3 h-3"></i>
-                                            +18.4% vs kemarin
-                                        </span>
+                                <!-- Shipping Automation Strip -->
+                                <div class="p-2.5 rounded-[14px] bg-white/[0.04] border border-white/[0.08] flex items-center justify-between text-[11px] text-slate-300">
+                                    <div class="flex items-center gap-1.5 font-medium">
+                                        <i data-lucide="printer" class="w-3.5 h-3.5 text-[#00C4D8]"></i>
+                                        <span>Cetak Label Thermal 1-Klik</span>
                                     </div>
-                                    <div class="p-3.5 rounded-[18px] bg-white/[0.04] border border-white/[0.08] space-y-1 flex-1">
-                                        <span class="text-[11px] text-slate-400 block font-medium">Laba Bersih Riil</span>
-                                        <div class="text-lg font-bold text-emerald-400 tabular-nums">Rp 1.940.000</div>
-                                        <span class="text-[10.5px] text-slate-400 block font-mono">
-                                            Margin 40% bersih
-                                        </span>
+                                    <div class="flex items-center gap-1.5 font-medium">
+                                        <i data-lucide="message-square" class="w-3.5 h-3.5 text-emerald-400"></i>
+                                        <span>Resi WA Otomatis</span>
+                                    </div>
+                                    <div class="flex items-center gap-1.5 font-medium">
+                                        <i data-lucide="map-pin" class="w-3.5 h-3.5 text-sky-400"></i>
+                                        <span>Lacak Kurir Real-Time</span>
                                     </div>
                                 </div>
+
                             </div>
 
-                            <!-- Bento Module 3: Instant WhatsApp Automated Notification -->
-                            <div
-                                class="p-3.5 rounded-[16px] bg-[#34C759]/10 border border-[#34C759]/25 flex items-center gap-3">
-                                <div
-                                    class="w-8 h-8 rounded-[10px] bg-[#34C759]/20 text-[#34C759] flex items-center justify-center shrink-0">
-                                    <i data-lucide="message-circle" class="w-4 h-4"></i>
-                                </div>
-                                <div class="min-w-0 flex-1 text-xs">
-                                    <p class="font-bold text-white truncate">Nota WhatsApp &amp; Struk Digital Terkirim</p>
-                                    <p class="text-[11px] text-slate-300 truncate">Terkirim instan ke nomor pembeli tanpa perlu menyimpan kontak</p>
-                                </div>
-                                <span class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-mono shrink-0">Delivered</span>
-                            </div>
-
-                            <!-- Bento Module 4: Connected Multi-Outlet & Terminal Footer -->
+                            <!-- Footer Cockpit Terminal with Slide Dots -->
                             <div
                                 class="pt-2 flex items-center justify-between text-[11px] text-slate-400 border-t border-white/10 font-mono">
-                                <span class="flex items-center gap-1.5">
+                                <div class="flex items-center gap-2">
                                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-                                    Gerai Utama &bull; 2 Cabang Terhubung
-                                </span>
-                                <span>Cloud Database AES-256</span>
+                                    <span class="text-slate-300 font-medium">Multi-Tenant Cloud Sync</span>
+                                </div>
+
+                                <!-- Dots Indicator -->
+                                <div class="flex items-center gap-1.5">
+                                    <button type="button" @click="setSlide(1)"
+                                        :class="activeSlide === 1 ? 'w-5 bg-[#00C4D8]' : 'w-2 bg-white/20'"
+                                        class="h-2 rounded-full transition-all"
+                                        title="Slide 1: Laporan Keuangan"></button>
+                                    <button type="button" @click="setSlide(2)"
+                                        :class="activeSlide === 2 ? 'w-5 bg-[#00C4D8]' : 'w-2 bg-white/20'"
+                                        class="h-2 rounded-full transition-all"
+                                        title="Slide 2: Marketplace & Shipping"></button>
+                                </div>
+
+                                <span class="hidden sm:inline">AES-256 Protected</span>
                             </div>
 
                         </div>
@@ -258,6 +567,21 @@
                 </div>
 
             </div>
+
+            <!-- Floating WhatsApp "Chat Kami" Widget (matching user reference image!) -->
+            <div class="fixed bottom-6 right-6 z-50 print:hidden">
+                <a href="https://api.whatsapp.com/send?phone=6281234567890&text={{ urlencode('Halo Tim COOCA, saya ingin berkonsultasi mengenai platform ERP dan Marketplace untuk bisnis saya.') }}"
+                    target="_blank" rel="noopener noreferrer"
+                    class="group flex items-center gap-2.5 px-4 py-2.5 rounded-full bg-[#25D366] hover:bg-[#20BD5A] text-white font-bold text-sm shadow-[0_10px_25px_-5px_rgba(37,211,102,0.45)] hover:shadow-[0_15px_30px_-5px_rgba(37,211,102,0.55)] active:scale-95 transition-all">
+                    <i data-lucide="message-circle" class="w-4 h-4 fill-current"></i>
+                    <span>Chat Kami</span>
+                    <span class="relative flex h-2.5 w-2.5">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500 ring-2 ring-white"></span>
+                    </span>
+                </a>
+            </div>
+
         </section>
 
         <!-- ═══ 2. FEATURE GRID ("Semua yang Anda Butuhkan...") ═══ -->
