@@ -1035,14 +1035,14 @@
                         </div>
 
                         <!-- 2. Satellite Nodes Grid -->
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        <div class="grid grid-cols-2 gap-2 sm:gap-2.5">
 
                             <!-- Operasional -->
                             <div @mouseenter="activeNode = 'operasional'" @mouseleave="activeNode = null"
                                 :class="activeNode === 'operasional' ?
                                     'bg-cyan-500/[0.14] border-cyan-400 shadow-[0_0_20px_rgba(0,194,255,0.2)] ring-1 ring-cyan-400/30' :
                                     'bg-white/[0.03] border-white/10 hover:border-cyan-400/40 hover:bg-white/[0.05]'"
-                                class="p-3 rounded-[16px] border transition-all duration-200 cursor-pointer">
+                                class="p-2.5 sm:p-3 rounded-[14px] sm:rounded-[16px] border transition-all duration-200 cursor-pointer">
                                 <div class="flex items-center gap-2 mb-1.5">
                                     <div
                                         class="w-7 h-7 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400 shrink-0">
@@ -1050,7 +1050,7 @@
                                     </div>
                                     <h4 class="text-xs font-bold text-white tracking-tight">Operasional &amp; HPP</h4>
                                 </div>
-                                <p class="text-[11px] text-slate-400 leading-relaxed">
+                                <p class="text-[10.5px] sm:text-[11px] text-slate-400 leading-snug sm:leading-relaxed">
                                     Stok real-time, HPP presisi, restock otomatis.
                                 </p>
                             </div>
@@ -1060,7 +1060,7 @@
                                 :class="activeNode === 'pos' ?
                                     'bg-cyan-500/[0.14] border-cyan-400 shadow-[0_0_20px_rgba(0,194,255,0.2)] ring-1 ring-cyan-400/30' :
                                     'bg-white/[0.03] border-white/10 hover:border-cyan-400/40 hover:bg-white/[0.05]'"
-                                class="p-3 rounded-[16px] border transition-all duration-200 cursor-pointer">
+                                class="p-2.5 sm:p-3 rounded-[14px] sm:rounded-[16px] border transition-all duration-200 cursor-pointer">
                                 <div class="flex items-center gap-2 mb-1.5">
                                     <div
                                         class="w-7 h-7 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400 shrink-0">
@@ -1068,7 +1068,7 @@
                                     </div>
                                     <h4 class="text-xs font-bold text-white tracking-tight">POS &amp; QRIS</h4>
                                 </div>
-                                <p class="text-[11px] text-slate-400 leading-relaxed">
+                                <p class="text-[10.5px] sm:text-[11px] text-slate-400 leading-snug sm:leading-relaxed">
                                     Kasir cepat, struk thermal, bayar QRIS.
                                 </p>
                             </div>
@@ -1078,7 +1078,7 @@
                                 :class="activeNode === 'whatsapp' ?
                                     'bg-emerald-500/[0.14] border-emerald-400 shadow-[0_0_20px_rgba(52,211,153,0.2)] ring-1 ring-emerald-400/30' :
                                     'bg-white/[0.03] border-white/10 hover:border-emerald-400/40 hover:bg-white/[0.05]'"
-                                class="p-3 rounded-[16px] border transition-all duration-200 cursor-pointer">
+                                class="p-2.5 sm:p-3 rounded-[14px] sm:rounded-[16px] border transition-all duration-200 cursor-pointer">
                                 <div class="flex items-center gap-2 mb-1.5">
                                     <div
                                         class="w-7 h-7 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0">
@@ -1086,7 +1086,7 @@
                                     </div>
                                     <h4 class="text-xs font-bold text-white tracking-tight">WhatsApp</h4>
                                 </div>
-                                <p class="text-[11px] text-slate-400 leading-relaxed">
+                                <p class="text-[10.5px] sm:text-[11px] text-slate-400 leading-snug sm:leading-relaxed">
                                     E-struk otomatis, bot pesanan, CS multi-agen.
                                 </p>
                             </div>
@@ -1096,7 +1096,7 @@
                                 :class="activeNode === 'social' ?
                                     'bg-pink-500/[0.14] border-pink-400 shadow-[0_0_20px_rgba(244,114,182,0.2)] ring-1 ring-pink-400/30' :
                                     'bg-white/[0.03] border-white/10 hover:border-pink-400/40 hover:bg-white/[0.05]'"
-                                class="p-3 rounded-[16px] border transition-all duration-200 cursor-pointer">
+                                class="p-2.5 sm:p-3 rounded-[14px] sm:rounded-[16px] border transition-all duration-200 cursor-pointer">
                                 <div class="flex items-center gap-2 mb-1.5">
                                     <div
                                         class="w-7 h-7 rounded-lg bg-pink-500/10 border border-pink-500/20 flex items-center justify-center text-pink-400 shrink-0">
@@ -1104,7 +1104,7 @@
                                     </div>
                                     <h4 class="text-xs font-bold text-white tracking-tight">Social Media</h4>
                                 </div>
-                                <p class="text-[11px] text-slate-400 leading-relaxed">
+                                <p class="text-[10.5px] sm:text-[11px] text-slate-400 leading-snug sm:leading-relaxed">
                                     Jadwalkan Postingan ke IG, TikTok, FB, Threads.
                                 </p>
                             </div>
@@ -1114,7 +1114,7 @@
                                 :class="activeNode === 'website' ?
                                     'bg-blue-500/[0.14] border-blue-400 shadow-[0_0_20px_rgba(96,165,250,0.2)] ring-1 ring-blue-400/30' :
                                     'bg-white/[0.03] border-white/10 hover:border-blue-400/40 hover:bg-white/[0.05]'"
-                                class="p-3 rounded-[16px] border transition-all duration-200 cursor-pointer">
+                                class="p-2.5 sm:p-3 rounded-[14px] sm:rounded-[16px] border transition-all duration-200 cursor-pointer">
                                 <div class="flex items-center gap-2 mb-1.5">
                                     <div
                                         class="w-7 h-7 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 shrink-0">
@@ -1122,7 +1122,7 @@
                                     </div>
                                     <h4 class="text-xs font-bold text-white tracking-tight">Website &amp; Self-Order</h4>
                                 </div>
-                                <p class="text-[11px] text-slate-400 leading-relaxed">
+                                <p class="text-[10.5px] sm:text-[11px] text-slate-400 leading-snug sm:leading-relaxed">
                                     Order langsung, tanpa komisi pihak ketiga.
                                 </p>
                             </div>
@@ -1132,7 +1132,7 @@
                                 :class="activeNode === 'automation' ?
                                     'bg-purple-500/[0.14] border-purple-400 shadow-[0_0_20px_rgba(192,132,252,0.2)] ring-1 ring-purple-400/30' :
                                     'bg-white/[0.03] border-white/10 hover:border-purple-400/40 hover:bg-white/[0.05]'"
-                                class="p-3 rounded-[16px] border transition-all duration-200 cursor-pointer">
+                                class="p-2.5 sm:p-3 rounded-[14px] sm:rounded-[16px] border transition-all duration-200 cursor-pointer">
                                 <div class="flex items-center gap-2 mb-1.5">
                                     <div
                                         class="w-7 h-7 rounded-lg bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 shrink-0">
@@ -1140,7 +1140,7 @@
                                     </div>
                                     <h4 class="text-xs font-bold text-white tracking-tight">Content AI</h4>
                                 </div>
-                                <p class="text-[11px] text-slate-400 leading-relaxed">
+                                <p class="text-[10.5px] sm:text-[11px] text-slate-400 leading-snug sm:leading-relaxed">
                                     Generate promo &amp; jadwal posting otomatis.
                                 </p>
                             </div>
@@ -1828,10 +1828,10 @@
                                                 stroke-width="2.5"></line>
                                         </svg>
                                     </div>
-                                    <span class="text-[10px] font-bold text-slate-700 dark:text-slate-200">Kopi Susu Aren
+                                    <span class="text-[11.5px] sm:text-xs font-bold text-slate-700 dark:text-slate-200">Kopi Susu Aren
                                         Spesial</span>
                                 </div>
-                                <p class="text-[9px] text-slate-500 dark:text-slate-400 line-clamp-2">
+                                <p class="text-[10.5px] sm:text-xs text-slate-500 dark:text-slate-400 line-clamp-2">
                                     Awali pagi harimu dengan sensasi creamy gula aren murni. Promo buy 1 get 1 hari ini!
                                 </p>
                             </div>
@@ -1839,11 +1839,11 @@
                             <!-- Scheduled Channels List -->
                             <div
                                 class="rounded-2xl border border-slate-100 dark:border-white/10 bg-slate-50 dark:bg-slate-900/60 p-3 flex flex-col justify-between">
-                                <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Jadwal
+                                <div class="text-[10.5px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Jadwal
                                     Posting</div>
                                 <div class="space-y-2">
                                     <div
-                                        class="flex items-center justify-between p-2 rounded-xl bg-white dark:bg-slate-800 text-[10px]">
+                                        class="flex items-center justify-between p-2 rounded-xl bg-white dark:bg-slate-800 text-[11px] sm:text-xs">
                                         <div class="flex items-center gap-2">
                                             <span
                                                 class="w-4 h-4 rounded-[4px] bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] flex items-center justify-center text-white shrink-0 shadow-xs">
@@ -1859,7 +1859,7 @@
                                         <span class="font-mono text-slate-500 font-semibold">12:00</span>
                                     </div>
                                     <div
-                                        class="flex items-center justify-between p-2 rounded-xl bg-white dark:bg-slate-800 text-[10px]">
+                                        class="flex items-center justify-between p-2 rounded-xl bg-white dark:bg-slate-800 text-[11px] sm:text-xs">
                                         <div class="flex items-center gap-2">
                                             <span
                                                 class="w-4 h-4 rounded-[4px] bg-[#1877F2] flex items-center justify-center text-white shrink-0 shadow-xs">
@@ -1873,7 +1873,7 @@
                                         <span class="font-mono text-slate-500 font-semibold">15:00</span>
                                     </div>
                                     <div
-                                        class="flex items-center justify-between p-2 rounded-xl bg-white dark:bg-slate-800 text-[10px]">
+                                        class="flex items-center justify-between p-2 rounded-xl bg-white dark:bg-slate-800 text-[11px] sm:text-xs">
                                         <div class="flex items-center gap-2">
                                             <span
                                                 class="w-4 h-4 rounded-[4px] bg-black flex items-center justify-center text-white shrink-0 shadow-xs">
@@ -1887,7 +1887,7 @@
                                         <span class="font-mono text-slate-500 font-semibold">19:00</span>
                                     </div>
                                     <div
-                                        class="flex items-center justify-between p-2 rounded-xl bg-white dark:bg-slate-800 text-[10px]">
+                                        class="flex items-center justify-between p-2 rounded-xl bg-white dark:bg-slate-800 text-[11px] sm:text-xs">
                                         <div class="flex items-center gap-2">
                                             <span
                                                 class="w-4 h-4 rounded-[4px] bg-slate-900 dark:bg-slate-700 flex items-center justify-center text-white shrink-0 shadow-xs">
@@ -2051,14 +2051,14 @@
                                             <img src="{{ $productImage }}" alt="{{ $product->name }}"
                                                 class="w-full h-16 object-cover rounded-lg mb-1.5 group-hover:scale-[1.02] transition-transform">
                                             <div
-                                                class="text-[10px] font-bold text-slate-800 dark:text-white truncate group-hover:text-[#00C2FF]">
+                                                class="text-[11px] sm:text-xs font-bold text-slate-800 dark:text-white truncate group-hover:text-[#00C2FF]">
                                                 {{ $product->name }}
                                             </div>
-                                            <div class="text-[9px] text-slate-400 truncate">
+                                            <div class="text-[10px] sm:text-[11px] text-slate-400 truncate">
                                                 {{ $product->category?->name ?? 'Produk' }}
                                             </div>
                                             <div
-                                                class="flex items-center justify-between text-[9px] mt-1 font-semibold text-slate-600 dark:text-slate-300">
+                                                class="flex items-center justify-between text-[10px] sm:text-[11px] mt-1 font-semibold text-slate-600 dark:text-slate-300">
                                                 <span class="flex items-center gap-0.5 text-[#00C2FF]">
                                                     Rp {{ number_format((float) $product->selling_price, 0, ',', '.') }}
                                                 </span>
@@ -2075,12 +2075,12 @@
                                             alt="Nasi Bebek"
                                             class="w-full h-16 object-cover rounded-lg mb-1.5 group-hover:scale-[1.02] transition-transform">
                                         <div
-                                            class="text-[10px] font-bold text-slate-800 dark:text-white truncate group-hover:text-[#00C2FF]">
+                                            class="text-[11px] sm:text-xs font-bold text-slate-800 dark:text-white truncate group-hover:text-[#00C2FF]">
                                             Nasi Bebek Madura
                                         </div>
-                                        <div class="text-[9px] text-slate-400">F&amp;B</div>
+                                        <div class="text-[10px] sm:text-[11px] text-slate-400">F&amp;B</div>
                                         <div
-                                            class="flex items-center justify-between text-[9px] mt-1 font-semibold text-slate-600 dark:text-slate-300">
+                                            class="flex items-center justify-between text-[10px] sm:text-[11px] mt-1 font-semibold text-slate-600 dark:text-slate-300">
                                             <span class="flex items-center gap-0.5 text-amber-500">
                                                 <i data-lucide="star" class="w-2.5 h-2.5 fill-current"></i> 4.9
                                             </span>
@@ -2094,12 +2094,12 @@
                                             alt="Kopi Susu"
                                             class="w-full h-16 object-cover rounded-lg mb-1.5 group-hover:scale-[1.02] transition-transform">
                                         <div
-                                            class="text-[10px] font-bold text-slate-800 dark:text-white truncate group-hover:text-[#00C2FF]">
+                                            class="text-[11px] sm:text-xs font-bold text-slate-800 dark:text-white truncate group-hover:text-[#00C2FF]">
                                             Kopi Susu Aren
                                         </div>
-                                        <div class="text-[9px] text-slate-400">Minuman</div>
+                                        <div class="text-[10px] sm:text-[11px] text-slate-400">Minuman</div>
                                         <div
-                                            class="flex items-center justify-between text-[9px] mt-1 font-semibold text-slate-600 dark:text-slate-300">
+                                            class="flex items-center justify-between text-[10px] sm:text-[11px] mt-1 font-semibold text-slate-600 dark:text-slate-300">
                                             <span class="flex items-center gap-0.5 text-amber-500">
                                                 <i data-lucide="star" class="w-2.5 h-2.5 fill-current"></i> 4.7
                                             </span>
@@ -2113,12 +2113,12 @@
                                             alt="Service AC"
                                             class="w-full h-16 object-cover rounded-lg mb-1.5 group-hover:scale-[1.02] transition-transform">
                                         <div
-                                            class="text-[10px] font-bold text-slate-800 dark:text-white truncate group-hover:text-[#00C2FF]">
+                                            class="text-[11px] sm:text-xs font-bold text-slate-800 dark:text-white truncate group-hover:text-[#00C2FF]">
                                             Jasa Service AC
                                         </div>
-                                        <div class="text-[9px] text-slate-400">Jasa</div>
+                                        <div class="text-[10px] sm:text-[11px] text-slate-400">Jasa</div>
                                         <div
-                                            class="flex items-center justify-between text-[9px] mt-1 font-semibold text-slate-600 dark:text-slate-300">
+                                            class="flex items-center justify-between text-[10px] sm:text-[11px] mt-1 font-semibold text-slate-600 dark:text-slate-300">
                                             <span class="flex items-center gap-0.5 text-amber-500">
                                                 <i data-lucide="star" class="w-2.5 h-2.5 fill-current"></i> 4.8
                                             </span>

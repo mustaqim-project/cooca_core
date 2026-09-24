@@ -76,7 +76,7 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 
 - **Audit & Pemutakhiran Hero 32 Berkas:** Mengeliminasi pemaksaan tinggi `100svh` di mobile pada seluruh berkas BOS, Omnichannel ERP, Hub, Content Automation, Solutions, dan Core Pages, dengan tetap mempertahankan full viewport di desktop (`lg:`).
 - **Mobile Bento Transformation:**
-  - `resources/views/landing.blade.php`: Mengubah 8 Squircle Bento Cards ke 2-kolom mobile grid (`grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5 xl:gap-6`), menaikkan ukuran micro-typography dari 9px ke 10.5–11px agar nyaman dibaca oleh pengguna usia 40–65 tahun.
+  - `resources/views/landing.blade.php`: Mengubah 8 Squircle Bento Cards ke 2-kolom mobile grid (`grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5 xl:gap-6`), mengubah Satellite Nodes Grid menjadi 2x3 mobile Bento grid (`grid-cols-2 gap-2 sm:gap-2.5`), serta menaikkan ukuran micro-typography (Content Automation & Marketplace previews) dari 9–10px ke 10.5–12px agar nyaman dibaca oleh pengguna UMKM usia 40–65 tahun.
   - `resources/views/public/partials/subpage_layout.blade.php`: Mengubah fitur grid menjadi 2-kolom Bento (`grid-cols-2 lg:grid-cols-3`), kartu pertama span 2 di mobile, padding responsif.
   - Seluruh subhalaman BOS & ERP: Alur 4-langkah dan tautan modul terkait diubah dari vertical list menjadi 2-kolom Bento grid (`grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6` dan `grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5`).
 - **Mobile Navigation & Table Fixes:**
