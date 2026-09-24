@@ -78,112 +78,104 @@
     <div
         class="relative overflow-hidden bg-white dark:bg-[#070A14] text-slate-900 dark:text-white transition-colors duration-300">
 
-        {{-- 1. HERO SECTION (Midnight Blue Standard - Type A Full Viewport) --}}
+        {{-- 1. HERO SECTION (Unified Bento Cockpit - No Breadcrumb) --}}
         <section
-            class="relative bg-[#060B1E] text-white lg:min-h-[calc(100svh-84px)] lg:flex lg:items-center py-12 lg:py-16 overflow-hidden border-b border-white/10 w-full min-w-full">
-            {{-- Ambient Glows --}}
+            class="relative bg-[#060B1E] text-white overflow-hidden border-b border-white/10 min-h-[calc(100svh-4rem)] lg:min-h-[calc(100svh-84px)] flex items-center">
+            {{-- Dual Ambient Glowing Blurs --}}
             <div
-                class="absolute -top-32 -right-32 w-96 h-96 bg-[#007AFF]/15 rounded-full blur-[140px] pointer-events-none -z-0">
+                class="absolute top-1/4 -right-24 w-96 h-96 bg-[#007AFF]/20 rounded-full blur-[120px] pointer-events-none">
             </div>
             <div
-                class="absolute -bottom-32 -left-32 w-96 h-96 bg-[#00C4D8]/10 rounded-full blur-[120px] pointer-events-none -z-0">
+                class="absolute -bottom-24 -left-24 w-96 h-96 bg-[#00C4D8]/15 rounded-full blur-[140px] pointer-events-none">
             </div>
 
-            <div class="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
-                {{-- Breadcrumb --}}
-                <nav class="pb-6" aria-label="Breadcrumb">
-                    <ol class="flex items-center gap-2 text-xs text-slate-400">
-                        <li><a href="{{ route('landing') }}" class="hover:text-[#00C4D8] transition-colors">Home</a></li>
-                        <li><i data-lucide="chevron-right" class="w-3 h-3 text-slate-500"></i></li>
-                        <li><span class="text-slate-400">Omnichannel</span></li>
-                        <li><i data-lucide="chevron-right" class="w-3 h-3 text-slate-500"></i></li>
-                        <li class="text-white font-semibold" aria-current="page">Manajemen Media Sosial</li>
-                    </ol>
-                </nav>
+            <div
+                class="max-w-[1300px] mx-auto px-3.5 sm:px-6 lg:px-8 relative z-10 w-full pt-6 pb-[calc(5rem+env(safe-area-inset-bottom,0px))] sm:pt-8 sm:pb-20 lg:py-14">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
 
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
-                    {{-- Left Column: Copy & Value Proposition (Mobile Center, Desktop Left ~ 5 Cols) --}}
-                    <div class="lg:col-span-5 space-y-6 text-center mx-auto flex flex-col items-center lg:text-left lg:items-start lg:mx-0">
-                        <div class="space-y-3 w-full">
-                            <!-- Pure Typographic Overline Kicker (Zero Pill Abuse) -->
+                    {{-- Left Column: Copy & Value Proposition (6 Cols) --}}
+                    <div class="lg:col-span-6 space-y-5 text-left">
+                        {{-- Typographic Overline Kicker with Pulse Dot (Zero Pill Abuse) --}}
+                        <div class="flex items-center gap-2.5">
+                            <span class="inline-flex w-2 h-2 rounded-full bg-[#00C4D8] animate-pulse"></span>
                             <p class="text-xs sm:text-[13px] font-bold uppercase tracking-wider text-[#00C4D8]">
                                 Omnichannel Social Media &amp; Product Showcase
                             </p>
-
-                            <h1
-                                class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.65rem] xl:text-[3rem] font-extrabold text-white tracking-tight leading-[1.15] text-balance break-words max-w-[22rem] sm:max-w-xl lg:max-w-none mx-auto lg:mx-0">
-                                Kelola Seluruh Kanal Media Sosial Bisnis <span class="text-[#00C4D8]">Dari Satu Ruang Kerja
-                                    Terpadu</span>
-                            </h1>
                         </div>
 
-                        <p class="text-base sm:text-lg text-slate-300 font-normal leading-relaxed text-pretty max-w-[32rem] lg:max-w-xl mx-auto lg:mx-0">
-                            Hentikan repotnya berganti-ganti akun di smartphone. Jadwalkan konten promosi ke Instagram,
-                            Facebook, dan kanal sosial lainnya, sinkronkan langsung dengan katalog produk toko Anda, dan
-                            ubah
-                            pengikut media sosial menjadi pembeli nyata.
+                        {{-- Main Headline --}}
+                        <h1
+                            class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.85rem] xl:text-[3.25rem] font-extrabold text-white tracking-tight leading-[1.12] text-balance">
+                            Kelola Seluruh Kanal Media Sosial Bisnis <span
+                                class="bg-gradient-to-r from-[#00C4D8] via-[#60A5FA] to-[#007AFF] bg-clip-text text-transparent">Dari Satu Ruang Kerja Terpadu</span>
+                        </h1>
+
+                        {{-- Subtitle Paragraph --}}
+                        <p class="text-base sm:text-lg text-slate-300 font-normal leading-relaxed text-pretty max-w-2xl">
+                            Hentikan repotnya berganti-ganti akun di smartphone. Jadwalkan konten promosi ke Instagram, Facebook, dan TikTok, sinkronkan langsung dengan katalog produk toko Anda, dan ubah pengikut media sosial menjadi pembeli nyata.
                         </p>
 
-                        {{-- Action CTAs (Centered on Mobile, Row on Desktop) --}}
-                        <div class="flex flex-col sm:flex-row items-stretch sm:items-center sm:justify-center lg:justify-start gap-3.5 pt-2 w-full sm:w-auto">
+                        {{-- Action CTAs (Left-aligned) --}}
+                        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 pt-2">
                             <a href="{{ route('public.demo') }}"
-                                class="inline-flex justify-center items-center gap-2 px-6 py-3.5 rounded-xl bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-sm shadow-lg shadow-[#007AFF]/25 transition-all duration-200 min-h-[48px]">
+                                class="inline-flex justify-center items-center gap-2.5 px-6 py-3.5 rounded-xl bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-sm shadow-lg shadow-[#007AFF]/25 hover:shadow-xl hover:shadow-[#007AFF]/35 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 min-h-[48px]">
                                 <span>Coba Demo Media Sosial</span>
                                 <i data-lucide="arrow-right" class="w-4 h-4 shrink-0"></i>
                             </a>
                             <a href="{{ route('public.content.calendar') }}"
-                                class="inline-flex justify-center items-center gap-2 px-6 py-3.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-white backdrop-blur-sm font-semibold text-sm transition-all min-h-[48px]">
+                                class="inline-flex justify-center items-center gap-2 px-6 py-3.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-white backdrop-blur-sm font-semibold text-sm hover:-translate-y-0.5 active:translate-y-0 transition-all min-h-[48px]">
                                 <span>Lihat Kalender Konten</span>
                             </a>
                         </div>
 
-                        {{-- Key Trust Specs (Centered on Mobile) --}}
-                        <div class="pt-6 border-t border-white/10 grid grid-cols-2 sm:grid-cols-3 gap-3.5 text-center sm:text-left w-full">
-                            <div class="min-w-0">
-                                <div class="text-xs text-slate-400 font-medium truncate">Multi-Akun</div>
-                                <div class="text-sm font-bold text-white mt-0.5 truncate">IG, FB, & TikTok</div>
+                        {{-- Reassurance Checkpoints --}}
+                        <div class="pt-3 border-t border-white/10 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-slate-300">
+                            <div class="flex items-center gap-1.5">
+                                <i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0"></i>
+                                <span>Multi-Akun: IG, FB, &amp; TikTok</span>
                             </div>
-                            <div class="min-w-0">
-                                <div class="text-xs text-slate-400 font-medium truncate">Katalog Toko</div>
-                                <div class="text-sm font-bold text-white mt-0.5 truncate">Sync Stok Langsung</div>
+                            <div class="flex items-center gap-1.5">
+                                <i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0"></i>
+                                <span>Hubungkan ke Katalog POS</span>
                             </div>
-                            <div class="min-w-0 col-span-2 sm:col-span-1">
-                                <div class="text-xs text-slate-400 font-medium truncate">Keamanan Sandi</div>
-                                <div class="text-sm font-bold text-white mt-0.5 truncate">Tanpa Bagi Password</div>
+                            <div class="flex items-center gap-1.5">
+                                <i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0"></i>
+                                <span>Aman Tanpa Bagi Password</span>
                             </div>
                         </div>
                     </div>
 
-                    {{-- Right Column: Simulated Social Media Multi-Channel Cockpit UI (7 Cols ~ 58%) --}}
-                    <div class="lg:col-span-7">
+                    {{-- Right Column: Apple Bento Social Media Cockpit (6 Cols) --}}
+                    <div class="lg:col-span-6 relative mt-4 lg:mt-0">
+                        {{-- Spotlight glow behind window --}}
+                        <div class="absolute -inset-1.5 bg-gradient-to-r from-[#007AFF]/30 to-[#00C4D8]/30 rounded-[32px] blur-xl opacity-75"></div>
+
                         <div
-                            class="relative rounded-2xl bg-[#0E1E45]/80 border border-white/10 p-4 sm:p-5 shadow-2xl backdrop-blur-md text-white">
+                            class="relative bg-[#0A122C]/90 border border-white/15 rounded-[18px] sm:rounded-[28px] p-3.5 sm:p-5 lg:p-6 shadow-2xl backdrop-blur-2xl text-white">
+                            {{-- Specular top highlight line --}}
+                            <div class="absolute top-0 inset-x-8 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
 
                             {{-- Channel Header Selector --}}
-                            <div
-                                class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-white/10 text-xs">
-                                <div class="flex items-center gap-2 min-w-0 flex-1">
-                                    <span class="p-1.5 rounded-lg bg-[#007AFF]/20 text-[#00C4D8] shrink-0">
+                            <div class="flex items-center justify-between gap-3 pb-3.5 border-b border-white/10">
+                                <div class="flex items-center gap-2.5 min-w-0">
+                                    <div class="w-8 h-8 rounded-lg bg-[#007AFF]/20 text-[#00C4D8] flex items-center justify-center shrink-0 border border-[#007AFF]/30">
                                         <i data-lucide="layers" class="w-4 h-4"></i>
-                                    </span>
-                                    <div class="min-w-0 flex-1">
-                                        <div class="font-bold text-white truncate">Kanal Media Sosial Terhubung</div>
-                                        <div class="text-[10px] text-slate-400 truncate">3 Akun Aktif • Status: Terjadwal
-                                        </div>
+                                    </div>
+                                    <div class="min-w-0">
+                                        <div class="font-bold text-white text-xs sm:text-sm truncate">Kanal Media Sosial Terhubung</div>
+                                        <div class="text-[10px] text-slate-400 truncate">3 Akun Aktif • Status: Terjadwal</div>
                                     </div>
                                 </div>
-                                <div class="flex items-center gap-1.5 shrink-0 self-end sm:self-auto">
-                                    <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-                                    <span class="text-[11px] text-slate-200 font-medium">Sync Normal</span>
+                                <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-[10px] sm:text-xs font-mono font-bold shrink-0">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                                    <span>Sync Normal</span>
                                 </div>
                             </div>
 
                             {{-- Connected Accounts Strip --}}
-                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 my-3 text-xs">
-                                <div
-                                    class="p-2.5 rounded-xl bg-[#060B1E]/80 border border-white/10 flex items-center gap-2 min-w-0">
-                                    <div
-                                        class="w-7 h-7 rounded-lg bg-gradient-to-tr from-[#007AFF] to-[#00C4D8] flex items-center justify-center text-white text-[11px] font-bold shrink-0">
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 my-3.5 text-xs">
+                                <div class="p-2.5 rounded-xl bg-[#060B1E]/80 border border-white/10 flex items-center gap-2.5 min-w-0">
+                                    <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-[#007AFF] to-[#00C4D8] flex items-center justify-center text-white text-xs font-bold shrink-0 shadow-sm">
                                         IG
                                     </div>
                                     <div class="min-w-0 flex-1">
@@ -192,10 +184,8 @@
                                     </div>
                                 </div>
 
-                                <div
-                                    class="p-2.5 rounded-xl bg-[#060B1E]/80 border border-white/10 flex items-center gap-2 min-w-0">
-                                    <div
-                                        class="w-7 h-7 rounded-lg bg-blue-600 flex items-center justify-center text-white text-[11px] font-bold shrink-0">
+                                <div class="p-2.5 rounded-xl bg-[#060B1E]/80 border border-white/10 flex items-center gap-2.5 min-w-0">
+                                    <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white text-xs font-bold shrink-0 shadow-sm">
                                         FB
                                     </div>
                                     <div class="min-w-0 flex-1">
@@ -204,10 +194,8 @@
                                     </div>
                                 </div>
 
-                                <div
-                                    class="p-2.5 rounded-xl bg-[#060B1E]/80 border border-white/10 flex items-center gap-2 min-w-0">
-                                    <div
-                                        class="w-7 h-7 rounded-lg bg-neutral-800 border border-white/10 flex items-center justify-center text-white text-[11px] font-bold shrink-0">
+                                <div class="p-2.5 rounded-xl bg-[#060B1E]/80 border border-white/10 flex items-center gap-2.5 min-w-0">
+                                    <div class="w-8 h-8 rounded-lg bg-neutral-800 border border-white/10 flex items-center justify-center text-white text-xs font-bold shrink-0 shadow-sm">
                                         TT
                                     </div>
                                     <div class="min-w-0 flex-1">
@@ -218,30 +206,25 @@
                             </div>
 
                             {{-- Next Scheduled Post Preview Card --}}
-                            <div class="p-3 rounded-xl bg-[#060B1E]/90 border border-white/10 space-y-2 text-xs">
+                            <div class="p-3 sm:p-3.5 rounded-xl bg-[#060B1E]/90 border border-white/10 space-y-2.5 text-xs">
                                 <div class="flex items-center justify-between text-[11px]">
                                     <span class="font-mono text-[#00C4D8] font-semibold flex items-center gap-1.5 truncate">
-                                        <i data-lucide="clock" class="w-3.5 h-3.5 shrink-0"></i> <span
-                                            class="truncate">Tayang Hari Ini • 15:30 WIB</span>
+                                        <i data-lucide="clock" class="w-3.5 h-3.5 shrink-0"></i>
+                                        <span class="truncate">Tayang Hari Ini • 15:30 WIB</span>
                                     </span>
-                                    <span class="px-2 py-0.5 rounded bg-white/10 text-[10px] text-slate-300 shrink-0">IG &
-                                        FB</span>
+                                    <span class="px-2 py-0.5 rounded bg-white/10 text-[10px] text-slate-300 font-mono shrink-0">IG &amp; FB</span>
                                 </div>
 
                                 <div class="flex flex-col sm:flex-row gap-3 items-start sm:items-center pt-1">
-                                    <div
-                                        class="w-16 h-16 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 shrink-0">
-                                        <i data-lucide="image" class="w-6 h-6 text-slate-300"></i>
+                                    <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 shrink-0">
+                                        <i data-lucide="image" class="w-6 h-6 text-[#00C4D8]"></i>
                                     </div>
                                     <div class="space-y-1 text-left min-w-0 flex-1">
-                                        <div class="font-semibold text-white text-[11px] truncate">Promo Spesial: Buy 1 Get
-                                            1 Kopi Susu Aren</div>
-                                        <div class="text-[10px] text-slate-400 line-clamp-2">
-                                            "Ajak teman terbaikmu mampir ke outlet Sudirman & Senopati! Dapatkan promo
-                                            spesial cukup dengan tunjukkan postingan ini..."
+                                        <div class="font-semibold text-white text-[11px] sm:text-xs truncate">Promo Spesial: Buy 1 Get 1 Kopi Susu Aren</div>
+                                        <div class="text-[10px] text-slate-400 line-clamp-2 leading-relaxed">
+                                            "Ajak teman terbaikmu mampir ke outlet Sudirman &amp; Senopati! Dapatkan promo spesial cukup tunjukkan postingan ini..."
                                         </div>
-                                        <div
-                                            class="flex items-center gap-2 pt-0.5 text-[9px] text-emerald-400 font-mono truncate">
+                                        <div class="flex items-center gap-2 pt-0.5 text-[9px] text-emerald-400 font-mono truncate">
                                             <span class="truncate">Terkait: SKU-KOP-01</span>
                                             <span>•</span>
                                             <span class="truncate">Link Order Aktif</span>
@@ -251,22 +234,33 @@
                             </div>
 
                             {{-- Performance Metric Summary --}}
-                            <div
-                                class="mt-3 p-2.5 rounded-xl bg-[#060B1E]/60 border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+                            <div class="mt-3 p-2.5 rounded-xl bg-[#060B1E]/60 border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
                                 <div class="flex items-center gap-2 min-w-0 flex-1">
                                     <i data-lucide="trending-up" class="w-4 h-4 text-emerald-400 shrink-0"></i>
                                     <div class="min-w-0 flex-1 truncate">
-                                        <span class="text-white font-medium text-[11px]">Konversi Penjualan Medsos:</span>
+                                        <span class="text-white font-medium text-[11px]">Konversi Medsos:</span>
                                         <span class="text-slate-400 text-[10px]"> 148 Klik Link Toko • 32 Order POS</span>
                                     </div>
                                 </div>
                                 <a href="{{ route('public.content.analytics') }}"
-                                    class="text-[#00C4D8] hover:underline text-[10px] font-semibold shrink-0 self-end sm:self-auto">Analitik
-                                    Konten →</a>
+                                    class="text-[#00C4D8] hover:text-white text-[10px] font-semibold transition-colors flex items-center gap-1 shrink-0 self-end sm:self-auto">
+                                    <span>Analitik Konten</span>
+                                    <i data-lucide="arrow-right" class="w-3 h-3"></i>
+                                </a>
                             </div>
 
+                            {{-- Floating Badges --}}
+                            <div class="hidden sm:flex absolute -top-3.5 -right-3.5 items-center gap-2 px-3 py-1.5 rounded-xl bg-[#060B1E]/95 border border-emerald-500/40 shadow-xl backdrop-blur-md text-[11px] font-medium text-white">
+                                <i data-lucide="share-2" class="w-3.5 h-3.5 text-emerald-400"></i>
+                                <span>Multi-Platform Sync: <strong class="text-emerald-400">Real-Time</strong></span>
+                            </div>
+                            <div class="hidden sm:flex absolute -bottom-3.5 -left-3.5 items-center gap-2 px-3 py-1.5 rounded-xl bg-[#060B1E]/95 border border-[#00C4D8]/40 shadow-xl backdrop-blur-md text-[11px] font-medium text-white">
+                                <i data-lucide="link-2" class="w-3.5 h-3.5 text-[#00C4D8]"></i>
+                                <span>Auto-Catalog Link</span>
+                            </div>
                         </div>
                     </div>
+
                 </div>
             </div>
         </section>

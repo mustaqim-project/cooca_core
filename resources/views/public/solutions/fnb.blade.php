@@ -32,147 +32,169 @@
 @section('content')
     <div class="bg-white dark:bg-[#070A14] text-slate-900 dark:text-white transition-colors duration-300">
 
-        {{-- Hero Section (Midnight #060B1E Full-Bleed - Type A Full Viewport) --}}
+        {{-- 1. HERO SECTION (Unified Bento Cockpit - No Breadcrumb) --}}
         <section
-            class="relative bg-[#060B1E] text-white lg:min-h-[calc(100svh-84px)] lg:flex lg:items-center py-12 lg:py-16 overflow-hidden border-b border-white/10 w-full min-w-full">
-            {{-- Dual Ambient Glows --}}
-            <div class="absolute top-0 right-1/4 w-96 h-96 bg-[#007AFF]/15 rounded-full blur-[140px] pointer-events-none">
+            class="relative bg-[#060B1E] text-white overflow-hidden border-b border-white/10 min-h-[calc(100svh-4rem)] lg:min-h-[calc(100svh-84px)] flex items-center">
+            {{-- Dual Ambient Glowing Blurs --}}
+            <div class="absolute top-1/4 -right-24 w-96 h-96 bg-[#007AFF]/20 rounded-full blur-[120px] pointer-events-none">
             </div>
-            <div class="absolute bottom-0 left-1/4 w-96 h-96 bg-[#00C4D8]/10 rounded-full blur-[120px] pointer-events-none">
+            <div class="absolute -bottom-24 -left-24 w-96 h-96 bg-[#00C4D8]/15 rounded-full blur-[140px] pointer-events-none">
             </div>
 
-            <div class="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-8 w-full">
-                {{-- Breadcrumb --}}
-                <nav class="flex items-center gap-2 text-xs text-slate-400" aria-label="Breadcrumb">
-                    <a href="{{ route('landing') }}" class="hover:text-white transition-colors">Beranda</a>
-                    <span aria-hidden="true">/</span>
-                    <span class="text-slate-400">Solusi Industri</span>
-                    <span aria-hidden="true">/</span>
-                    <span class="text-[#00C4D8] font-semibold" aria-current="page">F&B & Restoran</span>
-                </nav>
+            <div
+                class="max-w-[1300px] mx-auto px-3.5 sm:px-6 lg:px-8 relative z-10 w-full pt-6 pb-[calc(5rem+env(safe-area-inset-bottom,0px))] sm:pt-8 sm:pb-20 lg:py-14">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
 
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
-                    {{-- Left: Narrative & CTA (Mobile Center, Desktop Left ~ 5 Cols) --}}
-                    <div class="lg:col-span-5 space-y-6 text-center mx-auto flex flex-col items-center lg:text-left lg:items-start lg:mx-0">
-                        <div class="space-y-3 w-full">
-                            <!-- Pure Typographic Overline Kicker (Zero Pill Abuse) -->
+                    {{-- Left Column: Narrative & CTA (6 Cols) --}}
+                    <div class="lg:col-span-6 space-y-5 text-left">
+                        {{-- Typographic Overline Kicker with Pulse Dot (Zero Pill Abuse) --}}
+                        <div class="flex items-center gap-2.5">
+                            <span class="inline-flex w-2 h-2 rounded-full bg-[#00C4D8] animate-pulse"></span>
                             <p class="text-xs sm:text-[13px] font-bold uppercase tracking-wider text-[#00C4D8]">
                                 Sistem Operasi Bisnis Kuliner &amp; Kafe
                             </p>
-
-                            <h1
-                                class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.65rem] xl:text-[3rem] font-extrabold text-white tracking-tight leading-[1.15] text-balance break-words max-w-[22rem] sm:max-w-xl lg:max-w-none mx-auto lg:mx-0">
-                                Dari Meja Tamu, Dapur, hingga Stok Resep <span class="text-[#00C4D8]">Terhubung Otomatis</span>
-                            </h1>
                         </div>
 
-                        <p class="text-base sm:text-lg text-slate-300 leading-relaxed font-normal text-pretty max-w-[32rem] lg:max-w-xl mx-auto lg:mx-0">
-                            Kendalikan operasional kafe, kedai kopi, restoran, dan cloud kitchen Anda dalam satu sistem.
-                            Setiap
-                            porsi pesanan di kasir otomatis memotong takaran bahan baku di dapur, mencetak tiket masak, dan
-                            menghitung laba bersih tanpa kalkulasi manual.
+                        {{-- Main Headline --}}
+                        <h1
+                            class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.85rem] xl:text-[3.25rem] font-extrabold text-white tracking-tight leading-[1.12] text-balance">
+                            Dari Meja Tamu, Dapur, hingga Stok Resep <span
+                                class="bg-gradient-to-r from-[#00C4D8] via-[#60A5FA] to-[#007AFF] bg-clip-text text-transparent">Terhubung Otomatis</span>
+                        </h1>
+
+                        {{-- Subtitle Paragraph --}}
+                        <p class="text-base sm:text-lg text-slate-300 leading-relaxed font-normal text-pretty max-w-2xl">
+                            Kendalikan operasional kafe, kedai kopi, restoran, dan cloud kitchen Anda dalam satu sistem. Setiap porsi pesanan di kasir otomatis memotong takaran bahan baku di dapur, mencetak tiket masak, dan menghitung laba bersih tanpa kalkulasi manual.
                         </p>
 
                         {{-- Tangible Value Highlights Bento Tiles --}}
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2 text-left w-full">
-                            <div class="p-3 rounded-[14px] bg-white/[0.05] border border-white/10 flex items-start gap-2.5 hover:bg-white/[0.08] transition-colors">
-                                <div class="w-6 h-6 rounded-[8px] bg-emerald-500/15 text-emerald-400 flex items-center justify-center shrink-0 mt-0.5 border border-emerald-500/20">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1 text-left w-full">
+                            <div class="p-2.5 sm:p-3 rounded-xl bg-white/[0.05] border border-white/10 flex items-start gap-2.5 hover:bg-white/[0.08] transition-colors">
+                                <div class="w-6 h-6 rounded-lg bg-emerald-500/15 text-emerald-400 flex items-center justify-center shrink-0 mt-0.5 border border-emerald-500/20">
                                     <i data-lucide="scale" class="w-3.5 h-3.5" aria-hidden="true"></i>
                                 </div>
-                                <span class="text-xs sm:text-sm font-semibold text-slate-200 leading-snug min-w-0 flex-1">Potong stok bahan baku per gram & ml</span>
+                                <span class="text-xs sm:text-sm font-semibold text-slate-200 leading-snug min-w-0 flex-1">Potong stok bahan baku per gram &amp; ml</span>
                             </div>
-                            <div class="p-3 rounded-[14px] bg-white/[0.05] border border-white/10 flex items-start gap-2.5 hover:bg-white/[0.08] transition-colors">
-                                <div class="w-6 h-6 rounded-[8px] bg-sky-500/15 text-[#00C4D8] flex items-center justify-center shrink-0 mt-0.5 border border-sky-400/20">
+                            <div class="p-2.5 sm:p-3 rounded-xl bg-white/[0.05] border border-white/10 flex items-start gap-2.5 hover:bg-white/[0.08] transition-colors">
+                                <div class="w-6 h-6 rounded-lg bg-sky-500/15 text-[#00C4D8] flex items-center justify-center shrink-0 mt-0.5 border border-sky-400/20">
                                     <i data-lucide="printer" class="w-3.5 h-3.5" aria-hidden="true"></i>
                                 </div>
-                                <span class="text-xs sm:text-sm font-semibold text-slate-200 leading-snug min-w-0 flex-1">Cetak tiket KOT terpisah (Kitchen & Bar)</span>
+                                <span class="text-xs sm:text-sm font-semibold text-slate-200 leading-snug min-w-0 flex-1">Cetak tiket KOT terpisah (Kitchen &amp; Bar)</span>
                             </div>
-                            <div class="p-3 rounded-[14px] bg-white/[0.05] border border-white/10 flex items-start gap-2.5 hover:bg-white/[0.08] transition-colors">
-                                <div class="w-6 h-6 rounded-[8px] bg-amber-500/15 text-amber-400 flex items-center justify-center shrink-0 mt-0.5 border border-amber-400/20">
+                            <div class="p-2.5 sm:p-3 rounded-xl bg-white/[0.05] border border-white/10 flex items-start gap-2.5 hover:bg-white/[0.08] transition-colors">
+                                <div class="w-6 h-6 rounded-lg bg-amber-500/15 text-amber-400 flex items-center justify-center shrink-0 mt-0.5 border border-amber-400/20">
                                     <i data-lucide="layout-grid" class="w-3.5 h-3.5" aria-hidden="true"></i>
                                 </div>
-                                <span class="text-xs sm:text-sm font-semibold text-slate-200 leading-snug min-w-0 flex-1">Split bill & manajemen visual meja</span>
+                                <span class="text-xs sm:text-sm font-semibold text-slate-200 leading-snug min-w-0 flex-1">Split bill &amp; manajemen visual meja</span>
                             </div>
-                            <div class="p-3 rounded-[14px] bg-white/[0.05] border border-white/10 flex items-start gap-2.5 hover:bg-white/[0.08] transition-colors">
-                                <div class="w-6 h-6 rounded-[8px] bg-purple-500/15 text-purple-400 flex items-center justify-center shrink-0 mt-0.5 border border-purple-400/20">
+                            <div class="p-2.5 sm:p-3 rounded-xl bg-white/[0.05] border border-white/10 flex items-start gap-2.5 hover:bg-white/[0.08] transition-colors">
+                                <div class="w-6 h-6 rounded-lg bg-purple-500/15 text-purple-400 flex items-center justify-center shrink-0 mt-0.5 border border-purple-400/20">
                                     <i data-lucide="pie-chart" class="w-3.5 h-3.5" aria-hidden="true"></i>
                                 </div>
-                                <span class="text-xs sm:text-sm font-semibold text-slate-200 leading-snug min-w-0 flex-1">Pantau food cost & HPP porsi akurat</span>
+                                <span class="text-xs sm:text-sm font-semibold text-slate-200 leading-snug min-w-0 flex-1">Pantau food cost &amp; HPP porsi akurat</span>
                             </div>
                         </div>
 
-                        {{-- CTAs (Centered on Mobile, Row on Desktop) --}}
-                        <div class="pt-3 flex flex-col sm:flex-row items-stretch sm:items-center sm:justify-center lg:justify-start gap-3.5 w-full sm:w-auto">
+                        {{-- Action CTAs (Left-aligned) --}}
+                        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 pt-2">
                             <a href="{{ route('register') }}"
-                                class="h-12 px-7 rounded-[14px] bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-lg shadow-[#007AFF]/25 active:scale-[0.98] transition-all min-h-[48px]">
-                                <span>Mulai Coba F&B POS</span>
+                                class="inline-flex justify-center items-center gap-2.5 px-6 py-3.5 rounded-xl bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-sm shadow-lg shadow-[#007AFF]/25 hover:shadow-xl hover:shadow-[#007AFF]/35 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 min-h-[48px]">
+                                <span>Mulai Coba F&amp;B POS</span>
                                 <i data-lucide="arrow-right" class="w-4 h-4 shrink-0" aria-hidden="true"></i>
                             </a>
                             <a href="{{ \App\Models\SystemSetting::get('social_whatsapp_url', 'https://wa.me/6285287864176') }}?text=Halo%20saya%20tertarik%20dengan%20solusi%20FnB%20dan%20Restoran%20COOCA"
                                 target="_blank" rel="noopener"
-                                class="h-12 px-6 rounded-[14px] bg-white/10 hover:bg-white/15 border border-white/15 text-white backdrop-blur-sm text-sm font-semibold flex items-center justify-center gap-2 transition active:scale-[0.98] min-h-[48px]">
+                                class="inline-flex justify-center items-center gap-2 px-6 py-3.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-white backdrop-blur-sm text-sm font-semibold hover:-translate-y-0.5 active:translate-y-0 transition-all min-h-[48px]">
                                 <i data-lucide="message-circle" class="w-4 h-4 text-emerald-400 shrink-0" aria-hidden="true"></i>
                                 <span>Tanya Solusi Kuliner</span>
                             </a>
                         </div>
+
+                        {{-- Reassurance Checkpoints --}}
+                        <div class="pt-3 border-t border-white/10 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-slate-300">
+                            <div class="flex items-center gap-1.5">
+                                <i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0"></i>
+                                <span>Multi-Meja &amp; Split Bill</span>
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0"></i>
+                                <span>BOM Resep Gram &amp; Ml</span>
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0"></i>
+                                <span>Cetak KOT Dapur &amp; Bar</span>
+                            </div>
+                        </div>
                     </div>
 
-                    {{-- Right: Simulated Apple Bento Restaurant Deck (7 Cols ~ 58%) --}}
-                    <div class="lg:col-span-7">
+                    {{-- Right Column: Apple Bento Restaurant Deck Cockpit (6 Cols) --}}
+                    <div class="lg:col-span-6 relative mt-4 lg:mt-0">
+                        {{-- Spotlight glow behind window --}}
+                        <div class="absolute -inset-1.5 bg-gradient-to-r from-[#007AFF]/30 to-[#00C4D8]/30 rounded-[32px] blur-xl opacity-75"></div>
+
                         <div
-                            class="rounded-2xl bg-[#0E1E45]/80 p-5 sm:p-6 shadow-2xl border border-white/10 ring-1 ring-white/10 backdrop-blur-md text-white space-y-5">
-                            <div class="flex items-center justify-between gap-2 border-b border-white/10 pb-4">
-                                <div class="flex items-center gap-2 min-w-0">
-                                    <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse shrink-0"></span>
-                                    <span class="text-xs font-mono font-bold text-white truncate">Meja #04 - Sedang Makan</span>
+                            class="relative bg-[#0A122C]/90 border border-white/15 rounded-[18px] sm:rounded-[28px] p-3.5 sm:p-5 lg:p-6 shadow-2xl backdrop-blur-2xl text-white space-y-4">
+                            {{-- Specular top highlight line --}}
+                            <div class="absolute top-0 inset-x-8 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+
+                            {{-- Header Table Status --}}
+                            <div class="flex items-center justify-between gap-3 pb-3 border-b border-white/10">
+                                <div class="flex items-center gap-2.5 min-w-0">
+                                    <div class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0 border border-amber-500/30">
+                                        <i data-lucide="utensils" class="w-4 h-4"></i>
+                                    </div>
+                                    <div class="min-w-0">
+                                        <div class="font-bold text-white text-xs sm:text-sm truncate">Meja #04 - Sedang Makan</div>
+                                        <div class="text-[10px] text-slate-400 truncate">Kasir Sudirman • Dine In</div>
+                                    </div>
                                 </div>
                                 <span
-                                    class="text-[11px] font-semibold text-[#00C4D8] bg-[#00C4D8]/15 border border-[#00C4D8]/30 px-2.5 py-0.5 rounded-full shrink-0">
+                                    class="text-[11px] font-semibold text-[#00C4D8] bg-[#00C4D8]/15 border border-[#00C4D8]/30 px-2.5 py-1 rounded-full shrink-0">
                                     4 Menu Aktif
                                 </span>
                             </div>
 
                             {{-- Order Line Items & BOM Recipe Deduction Preview --}}
-                            <div class="space-y-3">
-                                <div class="p-3.5 rounded-[14px] bg-[#060B1E]/60 border border-white/10 space-y-2">
+                            <div class="space-y-2.5 text-xs">
+                                <div class="p-3 rounded-xl bg-[#060B1E]/80 border border-white/10 space-y-2">
                                     <div class="flex justify-between items-start gap-2 text-xs font-semibold text-white">
                                         <div class="min-w-0 flex-1">
                                             <p class="font-bold text-white truncate">2x Iced Caramel Macchiato</p>
                                             <p class="text-[11px] text-slate-300 font-normal truncate">Less ice, oatmilk substitution</p>
                                         </div>
-                                        <span class="font-mono text-slate-200 shrink-0">Rp 76.000</span>
+                                        <span class="font-mono text-slate-200 shrink-0 font-bold">Rp 76.000</span>
                                     </div>
                                     <div
-                                        class="pt-2 border-t border-dashed border-white/10 flex items-center justify-between gap-2 text-[11px] text-emerald-400 font-mono">
+                                        class="pt-1.5 border-t border-dashed border-white/10 flex items-center justify-between gap-2 text-[11px] text-emerald-400 font-mono">
                                         <span class="flex items-center gap-1 min-w-0 flex-1 truncate">
                                             <i data-lucide="layers" class="w-3 h-3 shrink-0" aria-hidden="true"></i>
                                             <span class="truncate">BOM: Kopi 36g, Susu 300ml, Oatmilk</span>
                                         </span>
-                                        <span class="shrink-0">Stok Potong</span>
+                                        <span class="shrink-0 text-[10px] font-bold">Stok Terpotong</span>
                                     </div>
                                 </div>
 
-                                <div class="p-3.5 rounded-[14px] bg-[#060B1E]/60 border border-white/10 space-y-2">
+                                <div class="p-3 rounded-xl bg-[#060B1E]/80 border border-white/10 space-y-2">
                                     <div class="flex justify-between items-start gap-2 text-xs font-semibold text-white">
                                         <div class="min-w-0 flex-1">
                                             <p class="font-bold text-white truncate">1x Beef Truffle Pasta</p>
                                             <p class="text-[11px] text-slate-300 font-normal truncate">Tiket Dapur #KOT-082</p>
                                         </div>
-                                        <span class="font-mono text-slate-200 shrink-0">Rp 68.000</span>
+                                        <span class="font-mono text-slate-200 shrink-0 font-bold">Rp 68.000</span>
                                     </div>
                                     <div
-                                        class="pt-2 border-t border-dashed border-white/10 flex items-center justify-between gap-2 text-[11px] text-amber-400 font-mono">
+                                        class="pt-1.5 border-t border-dashed border-white/10 flex items-center justify-between gap-2 text-[11px] text-amber-400 font-mono">
                                         <span class="flex items-center gap-1 min-w-0 flex-1 truncate">
                                             <i data-lucide="chef-hat" class="w-3 h-3 shrink-0" aria-hidden="true"></i>
                                             <span class="truncate">Status: Sedang Dimasak</span>
                                         </span>
-                                        <span class="shrink-0">Est. 8 Mnt</span>
+                                        <span class="shrink-0 text-[10px] font-bold">Est. 8 Mnt</span>
                                     </div>
                                 </div>
                             </div>
 
                             {{-- Calculation Breakdown --}}
-                            <div class="p-4 rounded-[16px] bg-[#060B1E]/80 border border-white/10 space-y-2 text-xs">
+                            <div class="p-3.5 rounded-xl bg-[#060B1E]/90 border border-white/10 space-y-1.5 text-xs">
                                 <div class="flex justify-between text-slate-300">
                                     <span>Subtotal Pesanan</span>
                                     <span class="font-mono text-slate-200">Rp 144.000</span>
@@ -181,25 +203,36 @@
                                     <span>Pajak Resto (PB1 10%)</span>
                                     <span class="font-mono text-slate-200">Rp 14.400</span>
                                 </div>
-                                <div class="flex justify-between text-white font-bold pt-2 border-t border-white/10">
+                                <div class="flex justify-between text-white font-bold pt-2 border-t border-white/10 text-xs sm:text-sm">
                                     <span>Total Tagihan Meja</span>
-                                    <span class="font-mono text-sm text-[#00C4D8]">Rp 158.400</span>
+                                    <span class="font-mono text-[#00C4D8] font-extrabold">Rp 158.400</span>
                                 </div>
                             </div>
 
                             {{-- Operational Quick Actions --}}
-                            <div class="grid grid-cols-2 gap-3 text-xs">
-                                <div class="p-3 rounded-[12px] bg-white/5 border border-white/10 flex items-center gap-2">
-                                    <i data-lucide="printer" class="w-4 h-4 text-[#00C4D8]" aria-hidden="true"></i>
-                                    <span class="font-medium text-slate-200">KOT Dapur Otomatis</span>
+                            <div class="grid grid-cols-2 gap-2.5 text-xs">
+                                <div class="p-2.5 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center gap-2">
+                                    <i data-lucide="printer" class="w-3.5 h-3.5 text-[#00C4D8]" aria-hidden="true"></i>
+                                    <span class="font-medium text-slate-200 text-[11px]">KOT Dapur Otomatis</span>
                                 </div>
-                                <div class="p-3 rounded-[12px] bg-white/5 border border-white/10 flex items-center gap-2">
-                                    <i data-lucide="split" class="w-4 h-4 text-emerald-400" aria-hidden="true"></i>
-                                    <span class="font-medium text-slate-200">Split Bill Siap</span>
+                                <div class="p-2.5 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center gap-2">
+                                    <i data-lucide="split" class="w-3.5 h-3.5 text-emerald-400" aria-hidden="true"></i>
+                                    <span class="font-medium text-slate-200 text-[11px]">Split Bill Siap</span>
                                 </div>
+                            </div>
+
+                            {{-- Floating Badges --}}
+                            <div class="hidden sm:flex absolute -top-3.5 -right-3.5 items-center gap-2 px-3 py-1.5 rounded-xl bg-[#060B1E]/95 border border-emerald-500/40 shadow-xl backdrop-blur-md text-[11px] font-medium text-white">
+                                <i data-lucide="scale" class="w-3.5 h-3.5 text-emerald-400"></i>
+                                <span>BOM Recipe: <strong class="text-emerald-400">Auto-Deduct</strong></span>
+                            </div>
+                            <div class="hidden sm:flex absolute -bottom-3.5 -left-3.5 items-center gap-2 px-3 py-1.5 rounded-xl bg-[#060B1E]/95 border border-[#00C4D8]/40 shadow-xl backdrop-blur-md text-[11px] font-medium text-white">
+                                <i data-lucide="printer" class="w-3.5 h-3.5 text-[#00C4D8]"></i>
+                                <span>Multi-KOT Kitchen &amp; Bar</span>
                             </div>
                         </div>
                     </div>
+
                 </div>
             </div>
         </section>

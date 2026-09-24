@@ -77,118 +77,112 @@
 @section('content')
     <div class="bg-white dark:bg-[#070A14] text-slate-900 dark:text-white transition-colors duration-300">
 
-        {{-- 1. HERO SECTION (Type A Full Viewport) --}}
+        {{-- 1. HERO SECTION (Unified Bento Cockpit - No Breadcrumb) --}}
         <section
-            class="relative bg-[#060B1E] text-white lg:min-h-[calc(100svh-84px)] lg:flex lg:items-center py-12 lg:py-16 overflow-hidden border-b border-white/10 w-full min-w-full">
-            {{-- Ambient Glows --}}
-            <div class="absolute top-0 right-1/4 w-96 h-96 bg-[#007AFF]/15 rounded-full blur-[140px] pointer-events-none">
+            class="relative bg-[#060B1E] text-white overflow-hidden border-b border-white/10 min-h-[calc(100svh-4rem)] lg:min-h-[calc(100svh-84px)] flex items-center">
+            {{-- Dual Ambient Glowing Blurs --}}
+            <div class="absolute top-1/4 -right-24 w-96 h-96 bg-[#007AFF]/20 rounded-full blur-[120px] pointer-events-none">
             </div>
-            <div class="absolute bottom-0 left-10 w-80 h-80 bg-[#00C4D8]/10 rounded-full blur-[120px] pointer-events-none">
+            <div class="absolute -bottom-24 -left-24 w-96 h-96 bg-[#00C4D8]/15 rounded-full blur-[140px] pointer-events-none">
             </div>
 
-            <div class="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
-                {{-- Breadcrumb --}}
-                <nav class="pb-6" aria-label="Breadcrumb">
-                    <ol class="flex items-center gap-2 text-xs text-slate-400">
-                        <li><a href="{{ route('landing') }}" class="hover:text-white transition-colors">Home</a></li>
-                        <li><i data-lucide="chevron-right" class="w-3 h-3 text-slate-500"></i></li>
-                        <li><span class="text-slate-400">Omnichannel</span></li>
-                        <li><i data-lucide="chevron-right" class="w-3 h-3 text-slate-500"></i></li>
-                        <li class="text-slate-200 font-semibold" aria-current="page">Manajemen Pesanan Terpadu</li>
-                    </ol>
-                </nav>
+            <div
+                class="max-w-[1300px] mx-auto px-3.5 sm:px-6 lg:px-8 relative z-10 w-full pt-6 pb-[calc(5rem+env(safe-area-inset-bottom,0px))] sm:pt-8 sm:pb-20 lg:py-14">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
 
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
-                    {{-- Left Column: Copy & Value Proposition (Mobile Center, Desktop Left ~ 5 Cols) --}}
-                    <div class="lg:col-span-5 space-y-6 text-center mx-auto flex flex-col items-center lg:text-left lg:items-start lg:mx-0">
-                        <div class="space-y-3 w-full">
-                            <!-- Pure Typographic Overline Kicker (Zero Pill Abuse) -->
+                    {{-- Left Column: Copy & Value Proposition (6 Cols) --}}
+                    <div class="lg:col-span-6 space-y-5 text-left">
+                        {{-- Typographic Overline Kicker with Pulse Dot (Zero Pill Abuse) --}}
+                        <div class="flex items-center gap-2.5">
+                            <span class="inline-flex w-2 h-2 rounded-full bg-[#00C4D8] animate-pulse"></span>
                             <p class="text-xs sm:text-[13px] font-bold uppercase tracking-wider text-[#00C4D8]">
                                 Omnichannel Order Lifecycle &amp; Fulfillment
                             </p>
-
-                            <h1
-                                class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.65rem] xl:text-[3rem] font-extrabold tracking-tight text-white leading-[1.15] text-balance break-words max-w-[22rem] sm:max-w-xl lg:max-w-none mx-auto lg:mx-0">
-                                Satukan Seluruh Alur Pesanan Bisnis <span class="text-[#00C4D8]">Dalam Satu Pipeline
-                                    Cepat</span>
-                            </h1>
                         </div>
 
-                        <p class="text-base sm:text-lg text-slate-300 leading-relaxed font-normal text-pretty max-w-[32rem] lg:max-w-xl mx-auto lg:mx-0">
-                            Pesanan datang dari kasir toko, WhatsApp, toko online, hingga marketplace. COOCA
-                            mengonsolidasikan semuanya ke dalam satu pipeline visual yang teratur, merutekan ke cabang
-                            terdekat, dan memastikan setiap pesanan terkirim tepat waktu.
+                        {{-- Main Headline --}}
+                        <h1
+                            class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.85rem] xl:text-[3.25rem] font-extrabold tracking-tight text-white leading-[1.12] text-balance">
+                            Satukan Seluruh Alur Pesanan Bisnis <span
+                                class="bg-gradient-to-r from-[#00C4D8] via-[#60A5FA] to-[#007AFF] bg-clip-text text-transparent">Dalam Satu Pipeline Cepat</span>
+                        </h1>
+
+                        {{-- Subtitle Paragraph --}}
+                        <p class="text-base sm:text-lg text-slate-300 leading-relaxed font-normal text-pretty max-w-2xl">
+                            Pesanan datang dari kasir toko fisik, WhatsApp, toko online mandiri, hingga marketplace. COOCA mengonsolidasikan semuanya ke dalam satu pipeline visual teratur, merutekan ke cabang terdekat, dan memastikan setiap pesanan terkirim tepat waktu.
                         </p>
 
-                        {{-- Action CTAs (Centered on Mobile, Row on Desktop) --}}
-                        <div class="flex flex-col sm:flex-row items-stretch sm:items-center sm:justify-center lg:justify-start gap-3.5 pt-2 w-full sm:w-auto">
+                        {{-- Action CTAs (Left-aligned) --}}
+                        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 pt-2">
                             <a href="{{ route('public.demo') }}"
-                                class="inline-flex justify-center items-center gap-2 px-6 py-3.5 rounded-xl bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-sm shadow-lg shadow-[#007AFF]/25 transition-all duration-200 min-h-[48px]">
+                                class="inline-flex justify-center items-center gap-2.5 px-6 py-3.5 rounded-xl bg-[#007AFF] hover:bg-[#0066DF] text-white font-semibold text-sm shadow-lg shadow-[#007AFF]/25 hover:shadow-xl hover:shadow-[#007AFF]/35 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 min-h-[48px]">
                                 <span>Coba Demo Manajemen Order</span>
                                 <i data-lucide="arrow-right" class="w-4 h-4 shrink-0"></i>
                             </a>
                             <a href="{{ route('public.omnichannel.marketplace') }}"
-                                class="inline-flex justify-center items-center gap-2 px-6 py-3.5 rounded-xl bg-white/10 hover:bg-white/15 text-white font-semibold text-sm border border-white/15 backdrop-blur-sm transition-all min-h-[48px]">
+                                class="inline-flex justify-center items-center gap-2 px-6 py-3.5 rounded-xl bg-white/10 hover:bg-white/15 text-white font-semibold text-sm border border-white/15 backdrop-blur-sm hover:-translate-y-0.5 active:translate-y-0 transition-all min-h-[48px]">
                                 <span>Koneksi ke Marketplace</span>
                             </a>
                         </div>
 
-                        {{-- Key Trust Specs (Centered on Mobile) --}}
-                        <div
-                            class="pt-4 border-t border-white/10 grid grid-cols-2 sm:grid-cols-3 gap-3.5 sm:gap-4 text-center sm:text-left w-full">
-                            <div class="min-w-0">
-                                <div class="text-xs text-slate-400 font-medium truncate">Asal Pesanan</div>
-                                <div class="text-sm font-bold text-white mt-0.5 truncate">POS, WA, & Market</div>
+                        {{-- Reassurance Checkpoints --}}
+                        <div class="pt-3 border-t border-white/10 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-slate-300">
+                            <div class="flex items-center gap-1.5">
+                                <i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0"></i>
+                                <span>Agregasi POS, WA &amp; Marketplace</span>
                             </div>
-                            <div class="min-w-0">
-                                <div class="text-xs text-slate-400 font-medium truncate">Routing Gudang</div>
-                                <div class="text-sm font-bold text-white mt-0.5 truncate">Cabang Terdekat</div>
+                            <div class="flex items-center gap-1.5">
+                                <i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0"></i>
+                                <span>Smart Routing Cabang Terdekat</span>
                             </div>
-                            <div class="min-w-0 col-span-2 sm:col-span-1">
-                                <div class="text-xs text-slate-400 font-medium truncate">Kecepatan Kemas</div>
-                                <div class="text-sm font-bold text-white mt-0.5 truncate">Picking Slip Massal</div>
+                            <div class="flex items-center gap-1.5">
+                                <i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0"></i>
+                                <span>Cetak Resi &amp; Picking Slip Massal</span>
                             </div>
                         </div>
                     </div>
 
-                    {{-- Right Column: Simulated Live Unified Order Pipeline UI (7 Cols ~ 58%) --}}
-                    <div class="lg:col-span-7">
-                        <div
-                            class="relative rounded-2xl bg-[#0E1E45]/80 p-4 sm:p-5 shadow-2xl border border-white/10 ring-1 ring-white/10 backdrop-blur-md text-white">
+                    {{-- Right Column: Apple Bento Order Pipeline Cockpit (6 Cols) --}}
+                    <div class="lg:col-span-6 relative mt-4 lg:mt-0">
+                        {{-- Spotlight glow behind window --}}
+                        <div class="absolute -inset-1.5 bg-gradient-to-r from-[#007AFF]/30 to-[#00C4D8]/30 rounded-[32px] blur-xl opacity-75"></div>
 
-                            {{-- Header Order Pipeline Control --}}
-                            <div class="flex items-center justify-between gap-2 pb-3 border-b border-white/10 text-xs">
-                                <div class="flex items-center gap-2 min-w-0 flex-1">
-                                    <span class="p-1.5 rounded-lg bg-[#007AFF]/20 text-[#00C4D8] shrink-0">
+                        <div
+                            class="relative bg-[#0A122C]/90 border border-white/15 rounded-[18px] sm:rounded-[28px] p-3.5 sm:p-5 lg:p-6 shadow-2xl backdrop-blur-2xl text-white">
+                            {{-- Specular top highlight line --}}
+                            <div class="absolute top-0 inset-x-8 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+
+                            {{-- Control Header --}}
+                            <div class="flex items-center justify-between gap-3 pb-3.5 border-b border-white/10">
+                                <div class="flex items-center gap-2.5 min-w-0">
+                                    <div class="w-8 h-8 rounded-lg bg-[#007AFF]/20 text-[#00C4D8] flex items-center justify-center shrink-0 border border-[#007AFF]/30">
                                         <i data-lucide="kanban" class="w-4 h-4"></i>
-                                    </span>
+                                    </div>
                                     <div class="min-w-0">
-                                        <div class="font-bold text-white truncate">Pipeline Pesanan Hari Ini</div>
-                                        <div class="text-[10px] text-slate-400 truncate">Semua Channel • 84 Selesai</div>
+                                        <div class="font-bold text-white text-xs sm:text-sm truncate">Pipeline Pesanan Hari Ini</div>
+                                        <div class="text-[10px] text-slate-400 truncate">Semua Channel • 84 Terpenuhi</div>
                                     </div>
                                 </div>
-                                <span
-                                    class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-[10px] font-mono font-bold shrink-0">SLA:
-                                    98.4%</span>
+                                <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-[10px] sm:text-xs font-mono font-bold shrink-0">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                                    <span>SLA: 98.4%</span>
+                                </div>
                             </div>
 
-                            {{-- 3 Kanban Pipeline Columns Simulation --}}
-                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 my-3 text-xs">
+                            {{-- 3 Kanban Pipeline Columns --}}
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 my-3.5 text-xs">
 
-                                {{-- Column 1: Order Baru --}}
-                                <div class="p-2.5 rounded-xl bg-[#060B1E]/90 border border-white/10 space-y-2 min-w-0">
-                                    <div
-                                        class="flex items-center justify-between pb-1 border-b border-white/10 text-[10px] font-semibold text-slate-400">
-                                        <span>BARU MASUK</span>
-                                        <span
-                                            class="px-1.5 py-0.2 rounded bg-[#007AFF]/30 text-[#00C4D8] font-mono">3</span>
+                                {{-- Column 1: Baru Masuk --}}
+                                <div class="p-2.5 sm:p-3 rounded-xl bg-[#060B1E]/80 border border-white/10 space-y-2 min-w-0">
+                                    <div class="flex items-center justify-between pb-1.5 border-b border-white/10 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                                        <span>Baru Masuk</span>
+                                        <span class="px-1.5 py-0.5 rounded bg-[#007AFF]/30 text-[#00C4D8] font-mono text-[10px]">3</span>
                                     </div>
 
                                     {{-- Card 1 --}}
-                                    <div class="p-2 rounded-lg bg-white/5 border border-white/10 space-y-1">
+                                    <div class="p-2 rounded-lg bg-white/5 border border-white/10 space-y-1 hover:border-[#00C4D8]/40 transition-colors">
                                         <div class="flex items-center justify-between text-[9px]">
-                                            <span
-                                                class="px-1 rounded bg-orange-500/20 text-orange-400 font-mono font-bold">Shopee</span>
+                                            <span class="px-1.5 py-0.5 rounded bg-orange-500/20 text-orange-400 font-mono font-bold">Shopee</span>
                                             <span class="text-slate-400">2 mnt lalu</span>
                                         </div>
                                         <div class="font-semibold text-white text-[11px] truncate">#SHP-9102</div>
@@ -197,10 +191,9 @@
                                     </div>
 
                                     {{-- Card 2 --}}
-                                    <div class="p-2 rounded-lg bg-white/5 border border-white/10 space-y-1">
+                                    <div class="p-2 rounded-lg bg-white/5 border border-white/10 space-y-1 hover:border-[#00C4D8]/40 transition-colors">
                                         <div class="flex items-center justify-between text-[9px]">
-                                            <span
-                                                class="px-1 rounded bg-emerald-500/20 text-emerald-400 font-mono font-bold">WhatsApp</span>
+                                            <span class="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-mono font-bold">WhatsApp</span>
                                             <span class="text-slate-400">5 mnt lalu</span>
                                         </div>
                                         <div class="font-semibold text-white text-[11px] truncate">#WA-4410</div>
@@ -209,53 +202,47 @@
                                     </div>
                                 </div>
 
-                                {{-- Column 2: Diproses / Packing --}}
-                                <div class="p-2.5 rounded-xl bg-[#060B1E]/90 border border-white/10 space-y-2 min-w-0">
-                                    <div
-                                        class="flex items-center justify-between pb-1 border-b border-white/10 text-[10px] font-semibold text-slate-400">
-                                        <span>DIPACKING</span>
-                                        <span
-                                            class="px-1.5 py-0.2 rounded bg-amber-500/30 text-amber-300 font-mono">2</span>
+                                {{-- Column 2: Dipacking --}}
+                                <div class="p-2.5 sm:p-3 rounded-xl bg-[#060B1E]/80 border border-white/10 space-y-2 min-w-0">
+                                    <div class="flex items-center justify-between pb-1.5 border-b border-white/10 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                                        <span>Dipacking</span>
+                                        <span class="px-1.5 py-0.5 rounded bg-amber-500/30 text-amber-300 font-mono text-[10px]">2</span>
                                     </div>
 
                                     {{-- Card 1 --}}
-                                    <div class="p-2 rounded-lg bg-white/5 border border-white/10 space-y-1">
+                                    <div class="p-2 rounded-lg bg-white/5 border border-white/10 space-y-1 hover:border-amber-400/40 transition-colors">
                                         <div class="flex items-center justify-between text-[9px]">
-                                            <span
-                                                class="px-1 rounded bg-emerald-500/20 text-emerald-300 font-mono font-bold">Tokopedia</span>
-                                            <span class="text-slate-400">Gudang Cakung</span>
+                                            <span class="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono font-bold">Tokopedia</span>
+                                            <span class="text-slate-400">Gdg Cakung</span>
                                         </div>
                                         <div class="font-semibold text-white text-[11px] truncate">#TKP-8842</div>
                                         <div class="text-[10px] text-slate-300 truncate">1x French Press Coffee</div>
-                                        <div class="text-[9px] text-amber-400 font-mono truncate">Resi Siap Ditempel</div>
+                                        <div class="text-[9px] text-amber-400 font-mono truncate">Resi Siap Cetak</div>
                                     </div>
 
                                     {{-- Card 2 --}}
-                                    <div class="p-2 rounded-lg bg-white/5 border border-white/10 space-y-1">
+                                    <div class="p-2 rounded-lg bg-white/5 border border-white/10 space-y-1 hover:border-amber-400/40 transition-colors">
                                         <div class="flex items-center justify-between text-[9px]">
-                                            <span
-                                                class="px-1 rounded bg-blue-500/20 text-blue-400 font-mono font-bold">Website</span>
-                                            <span class="text-slate-400">Outlet Sudirman</span>
+                                            <span class="px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-400 font-mono font-bold">Website</span>
+                                            <span class="text-slate-400">Sudirman</span>
                                         </div>
                                         <div class="font-semibold text-white text-[11px] truncate">#WEB-1092</div>
                                         <div class="text-[10px] text-slate-300 truncate">Box Donat isi 6</div>
-                                        <div class="text-[9px] text-amber-400 font-mono truncate">Kitchen Siapkan</div>
+                                        <div class="text-[9px] text-amber-400 font-mono truncate">Kitchen Prep</div>
                                     </div>
                                 </div>
 
                                 {{-- Column 3: Siap Kirim --}}
-                                <div class="p-2.5 rounded-xl bg-[#060B1E]/90 border border-white/10 space-y-2 min-w-0">
-                                    <div
-                                        class="flex items-center justify-between pb-1 border-b border-white/10 text-[10px] font-semibold text-slate-400">
-                                        <span>SIAP KIRIM</span>
-                                        <span
-                                            class="px-1.5 py-0.2 rounded bg-emerald-500/30 text-emerald-300 font-mono">4</span>
+                                <div class="p-2.5 sm:p-3 rounded-xl bg-[#060B1E]/80 border border-white/10 space-y-2 min-w-0">
+                                    <div class="flex items-center justify-between pb-1.5 border-b border-white/10 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                                        <span>Siap Kirim</span>
+                                        <span class="px-1.5 py-0.5 rounded bg-emerald-500/30 text-emerald-300 font-mono text-[10px]">4</span>
                                     </div>
 
                                     {{-- Card 1 --}}
-                                    <div class="p-2 rounded-lg bg-white/5 border border-white/10 space-y-1">
+                                    <div class="p-2 rounded-lg bg-white/5 border border-white/10 space-y-1 hover:border-emerald-400/40 transition-colors">
                                         <div class="flex items-center justify-between text-[9px]">
-                                            <span class="px-1 rounded bg-white/10 text-slate-300 font-mono">J&T</span>
+                                            <span class="px-1.5 py-0.5 rounded bg-white/10 text-slate-300 font-mono">J&amp;T</span>
                                             <span class="text-emerald-400">Kurir OTW</span>
                                         </div>
                                         <div class="font-semibold text-white text-[11px] truncate">#SHP-9080</div>
@@ -267,18 +254,30 @@
                             </div>
 
                             {{-- Unified Action Bar --}}
-                            <div
-                                class="pt-2 border-t border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[11px] text-slate-400">
+                            <div class="pt-2.5 border-t border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[11px] text-slate-400">
                                 <span class="flex items-center gap-1.5 min-w-0">
                                     <i data-lucide="check-circle" class="w-3.5 h-3.5 text-[#00C4D8] shrink-0"></i>
-                                    <span class="truncate">Stok langsung dialokasikan ke masing-masing order</span>
+                                    <span class="truncate">Stok langsung dialokasikan real-time ke masing-masing order</span>
                                 </span>
                                 <a href="{{ route('public.demo') }}"
-                                    class="text-[#00C4D8] hover:underline font-medium shrink-0">Buka Pipeline Penuh →</a>
+                                    class="text-[#00C4D8] hover:text-white font-semibold transition-colors flex items-center gap-1 shrink-0">
+                                    <span>Buka Pipeline Penuh</span>
+                                    <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                                </a>
                             </div>
 
+                            {{-- Floating Badges --}}
+                            <div class="hidden sm:flex absolute -top-3.5 -right-3.5 items-center gap-2 px-3 py-1.5 rounded-xl bg-[#060B1E]/95 border border-emerald-500/40 shadow-xl backdrop-blur-md text-[11px] font-medium text-white">
+                                <i data-lucide="trending-up" class="w-3.5 h-3.5 text-emerald-400"></i>
+                                <span>SLA On-Time: <strong class="text-emerald-400 font-mono">98.4%</strong></span>
+                            </div>
+                            <div class="hidden sm:flex absolute -bottom-3.5 -left-3.5 items-center gap-2 px-3 py-1.5 rounded-xl bg-[#060B1E]/95 border border-[#00C4D8]/40 shadow-xl backdrop-blur-md text-[11px] font-medium text-white">
+                                <i data-lucide="map-pin" class="w-3.5 h-3.5 text-[#00C4D8]"></i>
+                                <span>Smart Order Routing</span>
+                            </div>
                         </div>
                     </div>
+
                 </div>
             </div>
         </section>
