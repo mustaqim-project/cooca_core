@@ -28,19 +28,56 @@ final class AuthWebRegistrationModuleTest extends TestCase
         $this->seed(BusinessTemplateSeeder::class);
     }
 
-    public function test_register_page_renders_apple_hig_bento_grid_and_module_toggles(): void
+    public function test_register_page_renders_apple_hig_bento_value_and_protects_internal_module_switches(): void
     {
         $response = $this->get(route('register'));
 
         $response->assertStatus(200);
         $response->assertSeeText('Daftarkan Bisnis Anda');
-        $response->assertSeeText('Penataan Modul & Fitur Bisnis');
-        $response->assertSeeText('Kasir POS & Struk Cepat');
-        $response->assertSeeText('Pengadaan PO & Hutang Supplier');
-        $response->assertSeeText('Aktifkan Semua');
-        $response->assertSeeText('Reset Preset');
-        $response->assertSee('enabled_modules[]', false);
-        $response->assertSee('has_module_selection', false);
+        $response->assertSeeText('Semua Kebutuhan Usaha Anda dalam Satu Ekosistem');
+        $response->assertSeeText('Kasir POS & Meja');
+        $response->assertSeeText('Laba Rugi Otomatis');
+        $response->assertSeeText('Jaminan Keamanan & Kerahasiaan Data Bisnis');
+        $response->assertSee('name="business_name"', false);
+        $response->assertSee('name="phone"', false);
+        $response->assertSee('name="template_code"', false);
+        // Public registration should not expose internal technical module switch toggles
+        $response->assertDontSee('name="enabled_modules[]"', false);
+        $response->assertDontSee('Aktifkan Semua', false);
+    }
+
+    public function test_registration_with_standard_template_sets_correct_disabled_modules(): void
+    {
+        $this->mock(AdminWhatsAppService::class, function ($mock) {
+            $mock->shouldReceive('sendOtp')->andReturn([
+                'success' => true,
+            ]);
+        });
+
+        $response = $this->post(route('register'), [
+            'name' => 'Budi Santoso',
+            'email' => 'budi.santoso@tokoberkah.com',
+            'password' => 'rahasia123',
+            'password_confirmation' => 'rahasia123',
+            'business_name' => 'Toko Berkah Kelontong',
+            'business_scale' => 'umkm',
+            'phone' => '081298765432',
+            'template_code' => 'retail_reseller',
+        ]);
+
+        $response->assertRedirect(route('register.verify'));
+        $response->assertSessionHas('pending_registration');
+
+        $pending = session('pending_registration');
+        $this->assertEquals('Budi Santoso', $pending['name']);
+        $this->assertEquals('budi.santoso@tokoberkah.com', $pending['email']);
+        $this->assertEquals('Toko Berkah Kelontong', $pending['business_name']);
+        $this->assertEquals('retail_reseller', $pending['template_code']);
+        $this->assertFalse($pending['custom_modules']);
+
+        // Check disabled modules match template preset
+        $expectedDisabled = ModuleRegistry::getDisabledModulesForTemplate('retail_reseller');
+        $this->assertEquals($expectedDisabled, $pending['disabled_modules']);
     }
 
     public function test_registration_with_custom_module_selection_saves_to_session(): void
