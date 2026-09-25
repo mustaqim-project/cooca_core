@@ -16,6 +16,14 @@ class AdminMarketplaceSettingController extends Controller
     /**
      * Test Marketplace Partner & API credentials.
      */
+    public function testConfig(Request $request): JsonResponse
+    {
+        return $this->testMarketplaceConfig($request);
+    }
+
+    /**
+     * Test Marketplace Partner & API credentials.
+     */
     public function testMarketplaceConfig(Request $request): JsonResponse
     {
         $channel = (string) $request->input('channel', 'shopee');
