@@ -81,6 +81,15 @@ Route::prefix('v1')->middleware('throttle:60,1')->group(function (): void {
     Route::get('/social-media/meta/webhook', [\App\Http\Controllers\Api\V1\SocialMedia\MetaSocialMediaWebhookController::class, 'verify']);
     Route::post('/social-media/meta/webhook', [\App\Http\Controllers\Api\V1\SocialMedia\MetaSocialMediaWebhookController::class, 'handle']);
 
+    // Official TikTok Open API Webhook (Event notification & Verification Ping)
+    Route::match(['GET', 'POST', 'HEAD'], '/social-media/tiktok/webhook', function (\Illuminate\Http\Request $request) {
+        $challenge = $request->input('challenge') ?? $request->input('hub_challenge') ?? 'ok';
+        return response()->json([
+            'status'    => 'success',
+            'challenge' => $challenge,
+        ], 200);
+    });
+
     // TriPay Payment Gateway Incoming Webhook (Model B) - supports GET/HEAD ping and POST callback
     Route::match(['GET', 'POST', 'HEAD'], '/payments/tripay/callback', [\App\Http\Controllers\Api\V1\Payment\TripayCallbackController::class, 'handle']);
     Route::match(['GET', 'POST', 'HEAD'], '/tripay/callback', [\App\Http\Controllers\Api\V1\Payment\TripayCallbackController::class, 'handle']);
