@@ -5,7 +5,7 @@
 ])
 
 @section('content')
-    <div class="max-w-[1360px] mx-auto space-y-6 pb-12" x-data="{
+    <div class="max-w-[1360px] mx-auto space-y-6 pb-28 sm:pb-32 lg:pb-12" x-data="{
         activeTab: '{{ $tab }}', // 'quick' or 'advanced'
     
         // QUICK MODE STATE
@@ -544,7 +544,7 @@
                 </div>
             </div>
 
-            <!-- 1-Click Quick Preset Chips (Apple Pill Style) -->
+            <!-- 1-Click Quick Preset Chips (Apple Pill Style - Zero Emoji, Lucide Icons) -->
             <div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5 whitespace-nowrap text-[12px]">
                 <span
                     class="text-black/40 dark:text-white/40 font-semibold uppercase tracking-wider text-[11px] shrink-0 flex items-center gap-1.5 px-1">
@@ -553,19 +553,23 @@
                 </span>
                 <button type="button" @click="applyPreset('kopi')"
                     class="h-8 px-3 rounded-full text-[12px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all cursor-pointer flex items-center gap-1.5 shrink-0">
-                    <span>☕ Kopi Susu Aren</span>
+                    <i data-lucide="coffee" class="w-3.5 h-3.5 text-[#8E8E93] dark:text-[#98989D]"></i>
+                    <span>Kopi Susu Aren</span>
                 </button>
                 <button type="button" @click="applyPreset('geprek')"
                     class="h-8 px-3 rounded-full text-[12px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all cursor-pointer flex items-center gap-1.5 shrink-0">
-                    <span>🍗 Ayam Geprek Nasi</span>
+                    <i data-lucide="utensils" class="w-3.5 h-3.5 text-[#8E8E93] dark:text-[#98989D]"></i>
+                    <span>Paket Ayam Geprek</span>
                 </button>
                 <button type="button" @click="applyPreset('kaos')"
                     class="h-8 px-3 rounded-full text-[12px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all cursor-pointer flex items-center gap-1.5 shrink-0">
-                    <span>👕 Kaos Sablon Distro</span>
+                    <i data-lucide="shirt" class="w-3.5 h-3.5 text-[#8E8E93] dark:text-[#98989D]"></i>
+                    <span>Kaos Sablon Distro</span>
                 </button>
                 <button type="button" @click="applyPreset('kue')"
                     class="h-8 px-3 rounded-full text-[12px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all cursor-pointer flex items-center gap-1.5 shrink-0">
-                    <span>🍰 Brownies Panggang</span>
+                    <i data-lucide="cookie" class="w-3.5 h-3.5 text-[#8E8E93] dark:text-[#98989D]"></i>
+                    <span>Brownies Panggang</span>
                 </button>
             </div>
 
@@ -584,7 +588,7 @@
                             <span>Nama Produk / Menu Yang Dihitung *</span>
                         </label>
                         <input type="text" x-model="quickName" placeholder="Contoh: Kopi Susu Gula Aren 250ml"
-                            class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[10px] px-3.5 text-[15px] font-semibold text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 transition">
+                            class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[10px] px-3.5 text-[16px] sm:text-[15px] font-semibold text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 transition">
                     </div>
 
                     <!-- The 3 Pillars of HPP Container -->
@@ -776,7 +780,7 @@
                                 step="5"
                                 class="w-full h-2 bg-black/[0.06] dark:bg-white/[0.08] rounded-full appearance-none cursor-pointer accent-[#007AFF]">
 
-                            <!-- Margin Health Indicator (Apple Tinted Callout) -->
+                            <!-- Margin Health Indicator (Apple Tinted Callout - Zero Emoji) -->
                             <div class="p-3 rounded-[10px] text-[12px] flex items-center gap-2"
                                 :class="{
                                     'bg-[#FF9500]/10 text-[#B25E00] dark:text-[#FF9F0A] border border-[#FF9500]/20': quickMargin <
@@ -787,11 +791,11 @@
                                         60
                                 }">
                                 <i data-lucide="info" class="w-4 h-4 shrink-0"></i>
-                                <span x-show="quickMargin < 25">⚠️ <strong>Margin Tipis:</strong> Rawan rugi jika terjadi
+                                <span x-show="quickMargin < 25"><strong>Margin Tipis:</strong> Rawan rugi jika terjadi
                                     kenaikan harga bahan baku supplier.</span>
-                                <span x-show="quickMargin >= 25 && quickMargin <= 60">✨ <strong>Sehat &amp; Ideal:</strong>
+                                <span x-show="quickMargin >= 25 && quickMargin <= 60"><strong>Sehat &amp; Ideal:</strong>
                                     Standar rasio laba kotor UMKM, kuliner &amp; ritel.</span>
-                                <span x-show="quickMargin > 60">💎 <strong>Margin Premium:</strong> Keuntungan tinggi,
+                                <span x-show="quickMargin > 60"><strong>Margin Premium:</strong> Keuntungan tinggi,
                                     pastikan kemasan &amp; kualitas rasa bersaing.</span>
                             </div>
                         </div>
@@ -861,7 +865,7 @@
                                     <p class="text-[11px] text-black/60 dark:text-white/60 leading-tight pt-1">
                                         Pasang Rp <span class="tabular-nums font-semibold"
                                             x-text="quickOnlinePrice.toLocaleString('id-ID')"></span> &rarr; potongan
-                                        komisi 20% (Rp <span class="tabular-nums"
+                                         komisi 20% (Rp <span class="tabular-nums"
                                             x-text="quickOnlineFeeNominal.toLocaleString('id-ID')"></span>) &rarr; omzet
                                         bersih <strong class="text-black dark:text-white tabular-nums">tetap utuh Rp <span
                                                 x-text="quickOfflinePrice.toLocaleString('id-ID')"></span></strong> tanpa
@@ -884,10 +888,10 @@
                             <div class="flex flex-wrap items-center justify-between gap-2">
                                 <span class="text-black/60 dark:text-white/60 text-[11px]">Beban Sewa/Listrik Bln:</span>
                                 <input type="number" x-model.number="quickMonthlyFixedCost" step="100000"
-                                    class="w-full sm:w-36 h-8 bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 rounded-[8px] px-2.5 text-right text-[12px] font-semibold tabular-nums text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 transition">
+                                    class="w-full sm:w-36 h-8 bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 rounded-[8px] px-2.5 text-right text-[16px] sm:text-[12px] font-semibold tabular-nums text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 transition">
                             </div>
                             <div class="pt-1 text-[11px] text-black/60 dark:text-white/60 leading-relaxed">
-                                💡 Jual minimal <strong
+                                Jual minimal <strong
                                     class="text-[#34C759] dark:text-[#30D158] font-semibold tabular-nums"><span
                                         x-text="quickBepUnitsDaily"></span> pcs/hari</strong> (atau <span
                                     class="tabular-nums font-semibold" x-text="quickBepUnitsMonthly"></span> pcs/bulan)

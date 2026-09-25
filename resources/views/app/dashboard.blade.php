@@ -7,7 +7,7 @@
 @section('content')
     <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
 
-    <div class="space-y-6 pb-12" x-data="{
+    <div class="space-y-6 pb-28 sm:pb-32 lg:pb-12" x-data="{
         stats: {{ json_encode($stats ?? []) }},
         // Quick Calc Widget Data
         quickHpp: 15000,
@@ -1131,7 +1131,7 @@
                                 Rp
                             </div>
                             <input type="number" x-model.number="quickHpp" min="0" step="1000"
-                                class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] pl-10 pr-3.5 text-[14px] font-medium tabular-nums text-black dark:text-white placeholder:text-black/30 dark:placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                                class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] pl-10 pr-3.5 text-[16px] sm:text-[14px] font-medium tabular-nums text-black dark:text-white placeholder:text-black/30 dark:placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
                         </div>
                     </div>
 

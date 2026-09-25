@@ -54,6 +54,245 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 
 - Pengetahuan yang dipromosikan ke `docs/system/` dan dampaknya pada `docs/SYSTEM_GUIDE.md`.
 
+### [WORK-2026-09-25-146] Marketplace Integration Hub (Shopee, TikTok Shop, Tokopedia) with Multi-Pricing, Auto Stock Sync, & Secure Multi-Tenant Isolation
+
+- **Date:** 2026-09-25
+- **Status:** COMPLETED
+- **Module:** Commerce & Products / Integrations
+- **Feature:** Marketplace Hub & Multi-Channel Sync (Shopee, TikTok Shop, Tokopedia)
+- **Work Type:** Architecture | Feature | Security | Database | UI/UX
+
+#### 1. Business Context & Objective
+- **Konteks:** UMKM Indonesia membutuhkan integrasi inventori terpadu antara sistem COOCA dengan pasar daring utama (Shopee, TikTok Shop, Tokopedia) agar tidak perlu membuka banyak aplikasi secara manual untuk memperbarui stok dan harga.
+- **Masalah/Target:** Mengatasi kendala overselling karena stok tidak tersinkronisasi secara real-time, memungkinkan pengaturan harga berbeda per channel untuk mengantisipasi potongan biaya admin marketplace (5%-12%), serta mengisolasi akun dan token marketplace per Business Owner (multi-tenant isolation).
+
+#### 2. What Was Done
+- Mengembangkan arsitektur integrasi marketplace berbasis **Adapter/Driver Pattern**:
+  - `MarketplaceAdapterInterface` sebagai kontrak standar sinkronisasi produk, harga, stok, order, dan refresh token.
+  - Driver khusus: `ShopeeAdapter`, `TikTokShopAdapter`, `TokopediaAdapter`.
+- Membangun `MarketplaceManagerService`, `MarketplaceSyncService`, dan `MarketplaceOrderService` untuk mengelola otentikasi OAuth, enkripsi state token multi-tenant, sinkronisasi harga/stok otomatis dengan buffer safety, dan penarikan transaksi pesanan.
+- Menyiapkan background Queue Jobs (`SyncMarketplacePriceJob`, `SyncMarketplaceStockJob`, `ProcessMarketplaceWebhookJob`) untuk pemrosesan asinkron non-blocking.
+- Mengembangkan Public Inbound Webhook controller (`/webhooks/marketplace/{provider}`) dengan verifikasi signature HMAC-SHA256.
+- Menambahkan tab konfigurasi Marketplace Global di Super Admin Settings (`resources/views/admin/settings/tabs/tab-marketplace.blade.php`).
+- Merancang dan mengimplementasikan **Marketplace Hub** untuk Merchant dengan Bento Apple HIG UI ramah UMKM:
+  - Overview status koneksi & toggle penjualan (`resources/views/app/marketplace/index.blade.php`).
+  - Pemetaan produk COOCA ke SKU marketplace beserta multi-pricing & stock buffer (`resources/views/app/marketplace/products.blade.php`).
+  - Pemantauan pesanan masuk marketplace real-time (`resources/views/app/marketplace/orders.blade.php`).
+  - Audit log aktivitas sinkronisasi & webhook payload (`resources/views/app/marketplace/logs.blade.php`).
+- Menambahkan shortcut navigasi Marketplace & Multi-Harga di modul Products (`resources/views/app/products/index.blade.php`).
+- Menulis unit & feature test suite komprehensif (`tests/Feature/Marketplace/MarketplaceIntegrationTest.php`) dengan kelulusan 100% (6/6 passing).
+
+#### 3. Technical Changes
+- **Files Created:**
+  - `database/migrations/2026_09_25_000001_create_marketplace_integrations_tables.php`
+  - `app/Models/MarketplaceAccount.php`
+  - `app/Models/MarketplaceProductMapping.php`
+  - `app/Models/MarketplaceOrder.php`
+  - `app/Models/MarketplaceSyncLog.php`
+  - `app/Domain/Marketplace/Contracts/MarketplaceAdapterInterface.php`
+  - `app/Domain/Marketplace/Drivers/Shopee/ShopeeAdapter.php`
+  - `app/Domain/Marketplace/Drivers/TikTokShop/TikTokShopAdapter.php`
+  - `app/Domain/Marketplace/Drivers/Tokopedia/TokopediaAdapter.php`
+  - `app/Domain/Marketplace/MarketplaceManagerService.php`
+  - `app/Domain/Marketplace/MarketplaceSyncService.php`
+  - `app/Domain/Marketplace/MarketplaceOrderService.php`
+  - `app/Jobs/Marketplace/SyncMarketplacePriceJob.php`
+  - `app/Jobs/Marketplace/SyncMarketplaceStockJob.php`
+  - `app/Jobs/Marketplace/ProcessMarketplaceWebhookJob.php`
+  - `app/Http/Controllers/Web/Marketplace/MarketplaceWebController.php`
+  - `app/Http/Controllers/Web/Marketplace/MarketplaceWebhookController.php`
+  - `app/Http/Controllers/Admin/AdminMarketplaceSettingController.php`
+  - `resources/views/admin/settings/tabs/tab-marketplace.blade.php`
+  - `resources/views/app/marketplace/index.blade.php`
+  - `resources/views/app/marketplace/products.blade.php`
+  - `resources/views/app/marketplace/orders.blade.php`
+  - `resources/views/app/marketplace/logs.blade.php`
+  - `tests/Feature/Marketplace/MarketplaceIntegrationTest.php`
+- **Files Modified:**
+  - `app/Models/Product.php` (tambah relasi `marketplaceMappings()`, `getMarketplacePrice()`, `hasMarketplaceMapping()`)
+  - `config/services.php` (tambah konfigurasi `shopee`, `tiktok_shop`, `tokopedia`)
+  - `app/Http/Controllers/Admin/AdminSettingController.php` (integrasi validasi & persistensi marketplace credentials)
+  - `routes/public.php` (tambah `/integrations/{provider}/callback` & `/webhooks/marketplace/{provider}`)
+  - `routes/admin.php` (tambah testing gateway marketplace)
+  - `routes/owner.php` (tambah resource routes `marketplace-hub.*`)
+  - `resources/views/admin/settings/index.blade.php` (include tab marketplace)
+  - `resources/views/app/products/index.blade.php` (shortcut tab Marketplace & Multi-Harga)
+
+#### 4. System Impacts
+- **Tenant Isolation:** Seluruh akun marketplace, pemetaan produk, log sinkronisasi, dan pesanan masuk terikat kuat dengan `business_id` melalui trait `BelongsToBusiness`.
+- **Security:** Access token & refresh token dienkripsi di level database (`casts => encrypted`). OAuth state ditandatangani menggunakan kunci simetris `Crypt::encryptString` berjangka waktu 30 menit.
+- **Multi-Pricing Flexibility:** Setiap produk dapat memiliki harga independen per channel (misal COOCA: Rp 100.000, Shopee: Rp 110.000, TikTok Shop: Rp 120.000, Tokopedia: Rp 115.000) atau mengikuti formula multiplier margin otomatis.
+- **Stock Protection:** Tersedia `stock_buffer` untuk menyisihkan safety stock di toko fisik COOCA agar tidak terjadi double-booking dari marketplace.
+
+#### 5. Verification & Testing
+- `php artisan test --filter=MarketplaceIntegrationTest` -> 6 passed (23 assertions) [100% GREEN]
+- `php artisan test tests/Feature/Admin/AdminSettingTest.php` -> 15 passed (89 assertions) [100% GREEN]
+
+---
+
+### [WORK-2026-09-25-145] WhatsApp Gateway & Blast Promosi Bento Apple HIG Redesign, Security Hardening, & Multi-Tenant IDOR Shield
+
+- **Date:** 2026-09-25
+- **Status:** COMPLETED
+- **Module:** WhatsApp Gateway & Broadcast Omnichannel (`app/Http/Controllers/Web/WhatsApp/WhatsAppWebController.php`, `app/Http/Controllers/Web/WhatsApp/WhatsAppBroadcastWebController.php`, `resources/views/app/whatsapp/`, `tests/Feature/WhatsApp/MerchantWhatsAppWebFeatureTest.php`)
+- **Feature:** Meta WhatsApp Cloud API Gateway, Promotional Broadcast Campaign Composer & Live WYSIWYG Preview, POS Receipt Auto-Send, Communication Audit Logs, Multi-Tenant IDOR Shield
+- **Work Type:** UI/UX (Bento Apple HIG) | Security (Strix Audit & Tenant Isolation) | Business Automation & Integrity | Automated Testing
+
+#### 1. Business Context & Objective
+
+- **Konteks:** Modul WhatsApp Gateway & Blast Promosi adalah jalur komunikasi utama merchant UMKM Indonesia (usia 40–65 tahun) untuk mengirimkan struk digital kasir POS dan membagikan promosi massal (broadcast) kepada pelanggan secara resmi tanpa risiko blokir nomor.
+- **Masalah/Target:** 
+  1. Redesign antarmuka UI/UX mengikuti standar Bento Apple Human Interface Guidelines (HIG) ramah UMKM: Zero-Emoji, tipografi Inter/system sans-serif dengan keterbacaan tinggi, touch target >= 44px, scaling input minimal 16px pada mobile guna mencegah iOS auto-zoom, dan safe bottom margin (`pb-28 sm:pb-32 lg:pb-12`) agar tombol aksi dan tabel log tidak tertutup floating bottom nav.
+  2. Audit keamanan & perbaikan isolasi data tenant (Strix White-box / OWASP BOLA/IDOR prevention) pada `WhatsAppWebController` dan `WhatsAppBroadcastWebController`.
+  3. Memastikan atomisitas dan integritas transaksi kampanye blast (`DB::transaction`) dan sanitasi input nomor telepon / pesan.
+  4. Pengujian otomatis nyata 100% lulus (unit, multi-tenant IDOR, dan Meta Cloud API tests).
+
+#### 2. What Was Done
+
+1. **Security Hardening & Multi-Tenant Scoping (`WhatsAppBroadcastWebController.php`):**
+   - Mengisolasi pencarian detail kampanye pada `show(WhatsAppBroadcastCampaign $campaign)` dengan `abort(404)` jika kepemilikan `business_id` tidak cocok, mencegah IDOR enumeration attack.
+   - Membungkus pembuatan model kampanye broadcast `WhatsAppBroadcastCampaign::create()` dalam blok `DB::transaction(...)`.
+   - Sanitasi input judul, pesan, dan validasi URL media broadcast.
+
+2. **Security Hardening & IDOR Protection (`WhatsAppWebController.php`):**
+   - Mengisolasi `sendOrderReceipt(Request $request, PosOrder $order)` dengan `abort(404)` jika pesanan bukan milik tenant aktif.
+   - Memperketat validasi format nomor telepon pada `testSend()` (`regex:/^(\+?62|08)[0-9]{7,15}$/`) dan sanitasi string input pesan.
+
+3. **Bento Apple HIG UI/UX Redesign (5 Blade Views):**
+   - `broadcast_detail.blade.php`: Menerapkan safe bottom margin `pb-28 sm:pb-32 lg:pb-12`, Zero-Emoji compliance dengan ikon Lucide monokromatik, dan audit tabel penerima berdensitas tinggi.
+   - `broadcast.blade.php`: Safe-area padding `pb-28 sm:pb-32 lg:pb-12`, segmented sub-tabs navigasi Apple, kartu metrik Bento (KPI), dan tabel riwayat responsif.
+   - `create.blade.php`: Safe-area padding `pb-28 sm:pb-32 lg:pb-12`, font input scaling `text-[16px] sm:text-[14px]` (judul) dan `text-[16px] sm:text-[13px]` (pesan & media) guna mencegah iOS auto-zoom, chips tag personal (`{nama}`, `{poin}`, `{tier}`, `{bisnis}`), dan smartphone mockup WYSIWYG live preview interaktif.
+   - `index.blade.php`: Safe-area padding `pb-28 sm:pb-32 lg:pb-12`, scaling font `text-[16px] sm:text-[13px]` pada console test sender dan footer struk POS, serta cockpit Meta Embedded Signup yang bersih.
+   - `logs.blade.php`: Safe-area padding `pb-28 sm:pb-32 lg:pb-12`, segmented quick filters (Semua, Struk POS, Blast, Uji Coba), dan tabel log pengiriman.
+
+4. **Automated Testing & Multi-Tenant IDOR Verification:**
+   - Menambahkan pengujian IDOR multi-tenant `test_merchant_cannot_view_another_business_broadcast_campaign` pada `tests/Feature/WhatsApp/MerchantWhatsAppWebFeatureTest.php`.
+   - Menjalankan rangkaian test suite:
+     - `MerchantWhatsAppWebFeatureTest.php`: 8 passed, 30 assertions.
+     - `MetaWhatsAppCloudApiTest.php`: 13 passed, 44 assertions.
+     - `WhatsAppTemplateSyncTest.php`: 5 passed, 19 assertions.
+     - PHP Syntax Linting (`php -l`): 100% valid tanpa syntax error.
+
+#### 3. Technical Changes
+
+- **Files Modified:**
+  - `app/Http/Controllers/Web/WhatsApp/WhatsAppBroadcastWebController.php`
+  - `app/Http/Controllers/Web/WhatsApp/WhatsAppWebController.php`
+  - `resources/views/app/whatsapp/broadcast_detail.blade.php`
+  - `resources/views/app/whatsapp/broadcast.blade.php`
+  - `resources/views/app/whatsapp/create.blade.php`
+  - `resources/views/app/whatsapp/index.blade.php`
+  - `resources/views/app/whatsapp/logs.blade.php`
+  - `tests/Feature/WhatsApp/MerchantWhatsAppWebFeatureTest.php`
+  - `docs/AiWorkHistory.md`
+
+#### 4. System Impacts
+
+- **Workflow Impact:** Tidak ada perubahan alur kerja yang mengganggu pengguna; formulir dan antarmuka live preview menjadi jauh lebih responsif dan ramah perangkat seluler.
+- **Business Rule Impact:** Pencatatan kampanye broadcast dan struk kasir terjamin konsistensi dan integritasnya secara atomik.
+- **Security & Multi-Tenancy:** Proteksi penuh terhadap IDOR dan BOLA pada seluruh endpoint pengiriman struk, log, dan kampanye blast antar-merchant.
+
+#### 5. Verification & Testing
+
+- `php artisan test --filter=MerchantWhatsAppWebFeatureTest` -> PASS (8 tests, 30 assertions)
+- `php artisan test --filter=MetaWhatsAppCloudApiTest` -> PASS (13 tests, 44 assertions)
+- `php artisan test --filter=WhatsAppTemplateSyncTest` -> PASS (5 tests, 19 assertions)
+- `php -l` sintaks checking -> PASS (100% clean)
+
+#### 6. Important Decisions & Guardrails
+
+- **Zero-Emoji Compliance:** Menolak emoji mentah di template dan microcopy untuk menjaga konsistensi visual Apple HIG dan mencegah distorsi rendering teks pada browser legacy.
+- **iOS Auto-Zoom Prevention:** Menetapkan `16px` pada input mobile untuk mencegah viewport jumping saat input difokuskan pada perangkat iOS.
+- **Strict 404 on IDOR:** Menggunakan `abort(404)` alih-alih `abort(403)` pada ketidakcocokan `business_id` untuk mencegah enumeration attack.
+
+#### 7. Documentation Promotion
+
+- Riwayat audit dan hardening ini dicatat dalam `docs/AiWorkHistory.md` dan siap dipromosikan ke panduan arsitektur sistem.
+
+### [WORK-2026-09-25-144] Dashboard & HPP Calculator Bento Apple HIG Redesign, Security Hardening, & Multi-Tenant IDOR Shield
+
+- **Date:** 2026-09-25
+- **Status:** COMPLETED
+- **Module:** Core Web Application (`app/Http/Controllers/Web/CalculatorWebController.php`, `app/Http/Controllers/Web/DashboardWebController.php`, `resources/views/app/dashboard.blade.php`, `resources/views/app/calculator.blade.php`, `tests/Feature/SimplifiedHppCalculatorTest.php`)
+- **Feature:** Dashboard Overview & Smart Quick Actions, Simplified HPP Pricing Calculator, Bento Apple HIG UX Redesign, Multi-Tenant Scoping & Atomic Business Transactions
+- **Work Type:** UI/UX (Bento Apple HIG) | Security (Strix Audit & Tenant Isolation) | Business Automation & Integrity | Automated Testing
+
+#### 1. Business Context & Objective
+
+- **Konteks:** Dashboard dan Kalkulator HPP merupakan pusat kendali harian pelaku UMKM Indonesia (usia 40–65 tahun) untuk memantau performa bisnis, mencatat transaksi cepat (pengeluaran, stok masuk, bahan baku), dan menentukan harga jual produk yang menguntungkan tanpa rugi biaya tersembunyi.
+- **Masalah/Target:** 
+  1. Redesign antarmuka UI/UX mengikuti standar Bento Apple Human Interface Guidelines (HIG) ramah UMKM: Zero-Emoji, tipografi Inter/system sans-serif dengan keterbacaan tinggi, touch target >= 44px, scaling input minimal 16px pada mobile guna mencegah iOS auto-zoom, dan safe bottom margin (`pb-28 sm:pb-32 lg:pb-12`) agar konten tidak tertutup floating bottom nav.
+  2. Audit keamanan & perbaikan isolasi data tenant (Strix White-box / OWASP BOLA/IDOR prevention) pada `CalculatorWebController` dan `DashboardWebController`.
+  3. Memastikan atomisitas dan integritas transaksi finansial/stok (`DB::transaction`) pada seluruh aksi mutasi cepat di dashboard dan kalkulator.
+  4. Pengujian otomatis nyata 100% lulus (unit & multi-tenant isolation tests).
+
+#### 2. What Was Done
+
+1. **Security Hardening & Multi-Tenant Scoping (`CalculatorWebController.php`):**
+   - Mengisolasi semua query relasional data (`Product`, `Material`, `Unit::available()`, `Fee`, `PricingRule`) pada metode `index()` secara ketat ke `$business->id`.
+   - Menambahkan verifikasi eksplisit kepemilikan tenant pada `calculate(CostModel $costModel)` (`$costModel->business_id !== $business->id`) dan mencegah kebocoran data multi-tenant.
+   - Mengisolasi pencarian model dan mutasi data pada `saveResult()` dan `applyToProduct()` hanya pada lingkup tenant aktif.
+   - Membungkus pembuatan produk cepat `quickCreateProduct()` dalam `DB::transaction(...)`.
+
+2. **Atomic Mutations & Location Scoping (`DashboardWebController.php`):**
+   - Membungkus seluruh aksi cepat (`quickExpense()`, `quickStockIn()`, `quickMaterial()`) dalam `DB::transaction(...)` guna menjamin atomisitas pencatatan mutasi stok dan jurnal pengeluaran.
+   - Mengisolasi query pencarian bahan baku (`Material`) dan produk (`Product`) pada `quickStockIn()` dengan filter eksplisit `where('business_id', $business->id)`.
+   - Mengisolasi query pencarian lokasi gudang/outlet default per tenant.
+
+3. **Bento Apple HIG UI/UX Redesign (`resources/views/app/dashboard.blade.php`):**
+   - Mengoptimalkan container padding dengan safe bottom margin `pb-28 sm:pb-32 lg:pb-12` agar navigasi bottom bar tidak menutupi kartu aksi bento.
+   - Menerapkan scaling input cepat `text-[16px] sm:text-[14px]` pada mobile untuk mencegah layout jumping dan auto-zoom iOS Safari.
+   - Mempertahankan struktur Bento Grid desktop, integrasi chart interaktif Chart.js, kartu KPI moneter berformat Rupiah, dan status alert stok menipis.
+
+4. **Bento Apple HIG UI/UX Redesign (`resources/views/app/calculator.blade.php`):**
+   - Menghapus 100% Unicode Emoji dan menggantinya dengan ikon monokromatik Lucide yang elegan (`coffee`, `utensils`, `shirt`, `cookie`, `alert-triangle`, `sparkles`, `gem`, `lightbulb`).
+   - Menerapkan safe-area bottom margin `pb-28 sm:pb-32 lg:pb-12`.
+   - Menyesuaikan ukuran input form pada mobile menjadi minimal `16px` (`text-[16px] sm:text-[15px]` dan `text-[16px] sm:text-[12px]`) untuk kenyamanan mata dan jempol pengguna UMKM 40–65 tahun.
+   - Mempertahankan integritas 100% rumus HPP, BEP, simulasi margin target, komisi channel marketplace, dan breakdown biaya.
+
+5. **Automated Testing & Multi-Tenant IDOR Verification:**
+   - Memperluas `tests/Feature/SimplifiedHppCalculatorTest.php` dengan skenario uji IDOR multi-tenant (`test_user_cannot_calculate_or_apply_another_business_cost_model`).
+   - Menjalankan rangkaian test suite:
+     - `tests/Feature/SimplifiedHppCalculatorTest.php`: 5 passed, 25 assertions.
+     - `tests/Feature/DashboardOverviewTest.php`: 8 passed, 49 assertions.
+     - `tests/Feature/ProductCalculatorIntegrationTest.php`: 6 passed, 24 assertions.
+     - `tests/Feature/RolePermissionEnforcementTest.php`: 2 passed, 6 assertions.
+     - PHP Syntax Linting (`php -l`): 100% valid tanpa syntax error.
+
+#### 3. Technical Changes
+
+- **Files Modified:**
+  - `app/Http/Controllers/Web/CalculatorWebController.php`
+  - `app/Http/Controllers/Web/DashboardWebController.php`
+  - `resources/views/app/dashboard.blade.php`
+  - `resources/views/app/calculator.blade.php`
+  - `tests/Feature/SimplifiedHppCalculatorTest.php`
+  - `docs/AiWorkHistory.md`
+
+#### 4. System Impacts
+
+- **Workflow Impact:** Tidak ada interupsi pada alur kerja operasional kasir/owner; pengalaman antarmuka menjadi lebih intuitif, tidak ada auto-zoom mengganggu di perangkat iOS/Android.
+- **Business Rule Impact:** Seluruh mutasi stok dan jurnal pengeluaran instan terjamin integritas datanya (rollback otomatis jika terjadi kegagalan sistem di tengah jalan).
+- **Security & Multi-Tenancy:** Proteksi penuh terhadap potensi eksploitasi IDOR/BOLA pada endpoint kalkulator HPP dan aksi cepat dashboard.
+
+#### 5. Verification & Testing
+
+- `php artisan test --filter=SimplifiedHppCalculatorTest` -> PASS (5 tests, 25 assertions)
+- `php artisan test --filter=DashboardOverviewTest` -> PASS (8 tests, 49 assertions)
+- `php artisan test --filter=ProductCalculatorIntegrationTest` -> PASS (6 tests, 24 assertions)
+- `php artisan test --filter=RolePermissionEnforcementTest` -> PASS (2 tests, 6 assertions)
+- `php -l` sintaks checking -> PASS (100% clean)
+
+#### 6. Important Decisions & Guardrails
+
+- **Zero-Emoji Compliance:** Menolak penggunaan icon emoji mentah di dalam UI demi menjaga profesionalitas standar Apple HIG dan menghindari inkonsistensi rendering lintas sistem operasi.
+- **iOS Zoom Prevention:** Menerapkan CSS text scale 16px pada viewport mobile (`< 640px`) di seluruh elemen `<input>` dan `<select>` agar browser Safari/WebKit tidak melakukan zoom paksa saat input difokuskan.
+- **Tenant Isolation Scoping:** Menggunakan kombinasi Eloquent Global Scope `BelongsToBusiness` dan verifikasi eksplisit `$model->business_id === $business->id` pada controller untuk defense-in-depth.
+
+#### 7. Documentation Promotion
+
+- Riwayat audit dan hardening ini dicatat dalam `docs/AiWorkHistory.md` dan siap dipromosikan ke panduan arsitektur sistem.
+
 ### [WORK-2026-09-25-143] Super Admin Direct Social Media Connect & Management (LinkedIn & TikTok Official Platform Accounts)
 
 - **Date:** 2026-09-25

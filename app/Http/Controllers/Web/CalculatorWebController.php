@@ -18,6 +18,7 @@ use App\Models\Unit;
 use App\Support\Context;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -36,7 +37,8 @@ final class CalculatorWebController extends Controller
     {
         $business = Context::requireBusiness();
 
-        $products = Product::with(['costModels.labors.laborRate', 'costModels.machines.machine', 'costModels.bomHeaders.items.material.prices', 'outputUnit'])
+        $products = Product::where('business_id', $business->id)
+            ->with(['costModels.labors.laborRate', 'costModels.machines.machine', 'costModels.bomHeaders.items.material.prices', 'outputUnit'])
             ->latest()
             ->get();
 
@@ -50,12 +52,13 @@ final class CalculatorWebController extends Controller
             $tab = 'quick';
         }
 
-        $materials = Material::with(['unit', 'prices', 'supplier'])
+        $materials = Material::where('business_id', $business->id)
+            ->with(['unit', 'prices', 'supplier'])
             ->get();
 
-        $units = Unit::all();
-        $fees = Fee::where('is_active', true)->get();
-        $pricingRules = PricingRule::where('is_active', true)->get();
+        $units = Unit::available()->orderBy('name')->get();
+        $fees = Fee::where('business_id', $business->id)->where('is_active', true)->get();
+        $pricingRules = PricingRule::where('business_id', $business->id)->where('is_active', true)->get();
 
         // Recent Saved Costing Runs
         $recentRuns = CostingRun::with(['costModel.product', 'result', 'triggeredByUser'])
@@ -72,6 +75,12 @@ final class CalculatorWebController extends Controller
      */
     public function calculate(CostModel $costModel): JsonResponse
     {
+        $business = Context::requireBusiness();
+
+        if ($costModel->business_id !== $business->id) {
+            abort(403, 'Akses model biaya ditolak: data milik entitas bisnis lain.');
+        }
+
         $result = $this->calculationEngine->calculate($costModel);
 
         return response()->json([
@@ -84,13 +93,15 @@ final class CalculatorWebController extends Controller
      */
     public function saveResult(Request $request): JsonResponse
     {
+        $business = Context::requireBusiness();
+
         $request->validate([
             'cost_model_id' => ['required', 'exists:cost_models,id'],
             'notes' => ['nullable', 'string', 'max:500'],
         ]);
 
         /** @var CostModel $costModel */
-        $costModel = CostModel::findOrFail($request->get('cost_model_id'));
+        $costModel = CostModel::where('business_id', $business->id)->findOrFail($request->get('cost_model_id'));
         $dto = $this->calculationEngine->calculate($costModel);
 
         $run = $this->costingResultService->persist($costModel, $dto, CostingRun::RUN_TYPE_MANUAL);
@@ -118,6 +129,8 @@ final class CalculatorWebController extends Controller
      */
     public function applyToProduct(Request $request): JsonResponse
     {
+        $business = Context::requireBusiness();
+
         $request->validate([
             'cost_model_id' => ['nullable', 'exists:cost_models,id'],
             'product_id' => ['nullable', 'exists:products,id'],
@@ -130,13 +143,13 @@ final class CalculatorWebController extends Controller
 
         if ($request->filled('cost_model_id')) {
             /** @var CostModel $costModel */
-            $costModel = CostModel::with('product')->findOrFail($request->get('cost_model_id'));
+            $costModel = CostModel::where('business_id', $business->id)->with('product')->findOrFail($request->get('cost_model_id'));
             $dto = $this->calculationEngine->calculate($costModel);
             $product = $costModel->product;
             $hppPerUnit = (float) $dto->hppPerUnit;
         } elseif ($request->filled('product_id')) {
             /** @var Product $product */
-            $product = Product::findOrFail($request->get('product_id'));
+            $product = Product::where('business_id', $business->id)->findOrFail($request->get('product_id'));
             $hppPerUnit = (float) ($request->get('base_cost') ?? $product->base_cost);
         }
 
@@ -274,43 +287,47 @@ final class CalculatorWebController extends Controller
         $totalHpp = $materialCost + $laborCost + $overheadCost;
         $sellingPrice = (float) $validated['selling_price'];
 
-        // Get default unit or create PCS
-        $unit = Unit::where('business_id', $business->id)->first()
-            ?? Unit::create([
+        $product = DB::transaction(function () use ($business, $validated, $materialCost, $laborCost, $overheadCost, $totalHpp, $sellingPrice) {
+            // Get default unit or create PCS
+            $unit = Unit::where('business_id', $business->id)->first()
+                ?? Unit::create([
+                    'business_id' => $business->id,
+                    'code' => 'PCS',
+                    'name' => 'Pieces',
+                    'symbol' => 'pcs',
+                    'category' => Unit::CATEGORY_QUANTITY,
+                ]);
+
+            $product = Product::create([
                 'business_id' => $business->id,
-                'code' => 'PCS',
-                'name' => 'Pieces',
-                'symbol' => 'pcs',
-                'category' => Unit::CATEGORY_QUANTITY,
+                'name' => $validated['name'],
+                'sku' => 'PRD-' . strtoupper(Str::random(6)),
+                'output_unit_id' => $unit->id,
+                'base_cost' => $totalHpp,
+                'selling_price' => $sellingPrice,
+                'is_active' => true,
             ]);
 
-        $product = Product::create([
-            'business_id' => $business->id,
-            'name' => $validated['name'],
-            'sku' => 'PRD-' . strtoupper(Str::random(6)),
-            'output_unit_id' => $unit->id,
-            'base_cost' => $totalHpp,
-            'selling_price' => $sellingPrice,
-            'is_active' => true,
-        ]);
+            // Automatically create a Simple Cost Model for this product
+            $marginPct = $sellingPrice > 0 ? round((($sellingPrice - $totalHpp) / $sellingPrice) * 100, 2) : 0.0;
 
-        // Automatically create a Simple Cost Model for this product
-        $marginPct = $sellingPrice > 0 ? round((($sellingPrice - $totalHpp) / $sellingPrice) * 100, 2) : 0.0;
+            CostModel::create([
+                'business_id' => $business->id,
+                'product_id' => $product->id,
+                'name' => 'HPP Sederhana - ' . $product->name,
+                'method' => CostModel::METHOD_SIMPLE,
+                'output_basis' => CostModel::BASIS_SELLABLE,
+                'formula_definition' => [
+                    'material_cost' => $materialCost,
+                    'labor_cost' => $laborCost,
+                    'overhead_cost' => $overheadCost,
+                    'margin_pct' => $marginPct,
+                ],
+                'is_active' => true,
+            ]);
 
-        CostModel::create([
-            'business_id' => $business->id,
-            'product_id' => $product->id,
-            'name' => 'HPP Sederhana - ' . $product->name,
-            'method' => CostModel::METHOD_SIMPLE,
-            'output_basis' => CostModel::BASIS_SELLABLE,
-            'formula_definition' => [
-                'material_cost' => $materialCost,
-                'labor_cost' => $laborCost,
-                'overhead_cost' => $overheadCost,
-                'margin_pct' => $marginPct,
-            ],
-            'is_active' => true,
-        ]);
+            return $product;
+        });
 
         return response()->json([
             'success' => true,

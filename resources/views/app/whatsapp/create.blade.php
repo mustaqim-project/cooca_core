@@ -5,7 +5,7 @@
 ])
 
 @section('content')
-    <div class="max-w-[1360px] mx-auto space-y-6 pb-12" x-data="blastForm()">
+    <div class="max-w-[1360px] mx-auto space-y-6 pb-28 sm:pb-32 lg:pb-12" x-data="blastForm()">
 
         <!-- ========================================== -->
         <!-- 0. BREADCRUMB BAR (APPLE MINIMALIST)       -->
@@ -107,7 +107,7 @@
                                 *</label>
                             <input type="text" name="title" x-model="title" required
                                 placeholder="Contoh: Promo Gajian Weekend, Diskon Menu Baru 20%"
-                                class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[10px] px-3.5 text-[14px] font-medium text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 transition-colors"
+                                class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[10px] px-3.5 text-[16px] sm:text-[14px] font-medium text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 transition-colors"
                                 value="{{ old('title') }}">
                         </div>
                     </div>
@@ -187,7 +187,7 @@
                         <textarea name="message" id="msgTextarea" x-model="message" rows="6" required
                             placeholder="Halo {nama},&#10;Ada promo spesial dari {{ $business->name }} untuk tier {tier}!&#10;&#10;Dapatkan diskon 20% khusus hari ini. Tunjukkan pesan ini ke kasir."
                             @input="updatePreview()"
-                            class="w-full bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[12px] p-3.5 text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 resize-none font-sans placeholder:text-black/35 dark:placeholder:text-white/35 leading-relaxed transition-colors">{{ old('message') }}</textarea>
+                            class="w-full bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[12px] p-3.5 text-[16px] sm:text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 resize-none font-sans placeholder:text-black/35 dark:placeholder:text-white/35 leading-relaxed transition-colors">{{ old('message') }}</textarea>
 
                         <div class="flex items-center justify-between text-[11px] text-black/40 dark:text-white/40">
                             <span>Tip: Gunakan tanda bintang *teks* untuk cetak tebal di WhatsApp</span>
@@ -210,7 +210,7 @@
                         <div class="space-y-1.5">
                             <input type="url" name="media_url" x-model="mediaUrl" @input="updatePreview()"
                                 placeholder="https://example.com/banner-promo.jpg"
-                                class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[10px] px-3.5 text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 placeholder:text-black/35 dark:placeholder:text-white/35 transition-colors"
+                                class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[10px] px-3.5 text-[16px] sm:text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 placeholder:text-black/35 dark:placeholder:text-white/35 transition-colors"
                                 value="{{ old('media_url') }}">
                             <p class="text-[11px] text-black/50 dark:text-white/50 mt-1">Masukkan tautan gambar publik
                                 (.jpg, .png, .webp). Gambar akan dikirimkan bersamaan dengan pesan.</p>

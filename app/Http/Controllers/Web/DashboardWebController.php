@@ -108,29 +108,33 @@ final class DashboardWebController extends Controller
         ]);
 
         $amount = (float) $validated['amount'];
-        $location = \App\Models\Location::where('business_id', $business->id)->first() ?? \App\Models\Location::first();
+        $location = \App\Models\Location::where('business_id', $business->id)->first();
         $locationId = $location?->id;
         $expenseNumber = 'EXP-' . date('Ymd') . '-' . rand(1000, 9999);
 
-        $expense = Expense::create([
-            'business_id' => $business->id,
-            'location_id' => $locationId,
-            'expense_number' => $expenseNumber,
-            'expense_date' => Carbon::today()->toDateString(),
-            'category' => $validated['category'] ?? 'Operasional Toko',
-            'amount' => $amount,
-            'payment_method' => $validated['payment_method'] ?? 'cash',
-            'description' => $validated['name'] ?? 'Biaya Operasional Toko',
-            'recorded_by' => $user?->id,
-        ]);
+        $expense = DB::transaction(function () use ($business, $locationId, $expenseNumber, $validated, $amount, $user) {
+            $createdExpense = Expense::create([
+                'business_id' => $business->id,
+                'location_id' => $locationId,
+                'expense_number' => $expenseNumber,
+                'expense_date' => Carbon::today()->toDateString(),
+                'category' => $validated['category'] ?? 'Operasional Toko',
+                'amount' => $amount,
+                'payment_method' => $validated['payment_method'] ?? 'cash',
+                'description' => $validated['name'] ?? 'Biaya Operasional Toko',
+                'recorded_by' => $user?->id,
+            ]);
 
-        if ($user) {
-            try {
-                app(AutoJournalService::class)->recordExpenseJournal($expense, $user);
-            } catch (\Throwable) {
-                // Keep resilient
+            if ($user) {
+                try {
+                    app(AutoJournalService::class)->recordExpenseJournal($createdExpense, $user);
+                } catch (\Throwable) {
+                    // Resilient fallback
+                }
             }
-        }
+
+            return $createdExpense;
+        });
 
         $overview = $this->getOverviewData($business);
 
@@ -172,82 +176,133 @@ final class DashboardWebController extends Controller
         $targetName = '';
         $unitCode = 'pcs';
 
-        $location = \App\Models\Location::where('business_id', $business->id)->first() ?? \App\Models\Location::first();
+        $location = \App\Models\Location::where('business_id', $business->id)->first();
         $locationId = $location?->id;
 
         if (! empty($validated['material_id'])) {
-            $material = Material::with('unit')->findOrFail($validated['material_id']);
+            $material = Material::where('business_id', $business->id)->with('unit')->findOrFail($validated['material_id']);
             $targetName = $material->name;
             $unitCode = $material->unit?->code ?? 'satuan';
 
-            $product = Product::firstOrCreate(
-                ['business_id' => $business->id, 'name' => $material->name],
-                [
-                    'code' => $material->code ?? ('MAT-' . strtoupper(Str::random(6))),
-                    'output_unit_id' => $material->unit_id,
-                    'base_cost' => $unitCost,
-                    'selling_price' => $unitCost,
-                    'is_active' => true,
-                ]
-            );
+            $result = DB::transaction(function () use ($business, $material, $unitCost, $qty, $totalCost, $locationId, $validated, $targetName, $user) {
+                $product = Product::firstOrCreate(
+                    ['business_id' => $business->id, 'name' => $material->name],
+                    [
+                        'code' => $material->code ?? ('MAT-' . strtoupper(Str::random(6))),
+                        'output_unit_id' => $material->unit_id,
+                        'base_cost' => $unitCost,
+                        'selling_price' => $unitCost,
+                        'is_active' => true,
+                    ]
+                );
 
-            // Record latest price
-            \App\Models\MaterialPrice::create([
-                'business_id' => $business->id,
-                'material_id' => $material->id,
-                'purchase_price' => $unitCost,
-                'purchase_unit_id' => $material->unit_id,
-                'effective_date' => Carbon::today(),
-            ]);
+                // Record latest price
+                \App\Models\MaterialPrice::create([
+                    'business_id' => $business->id,
+                    'material_id' => $material->id,
+                    'purchase_price' => $unitCost,
+                    'purchase_unit_id' => $material->unit_id,
+                    'effective_date' => Carbon::today(),
+                ]);
+
+                $stock = InventoryStock::firstOrCreate(
+                    ['business_id' => $business->id, 'location_id' => $locationId, 'product_id' => $product->id],
+                    ['quantity' => 0, 'last_cost' => $unitCost]
+                );
+
+                $before = (float) $stock->quantity;
+                $after = $before + $qty;
+                $stock->update(['quantity' => $after, 'last_cost' => $unitCost]);
+
+                StockMovement::create([
+                    'business_id' => $business->id,
+                    'location_id' => $locationId,
+                    'product_id' => $product->id,
+                    'movement_type' => 'goods_receipt',
+                    'quantity_change' => $qty,
+                    'balance_after' => $after,
+                    'unit_cost' => $unitCost,
+                    'notes' => $validated['notes'] ?? ('Stok masuk instan: ' . ($validated['supplier_name'] ?? 'Pemasok')),
+                ]);
+
+                // Record cash expense for this purchase
+                if ($totalCost > 0) {
+                    $stockExpNumber = 'EXP-' . date('Ymd') . '-' . rand(1000, 9999);
+                    $expense = Expense::create([
+                        'business_id' => $business->id,
+                        'location_id' => $locationId,
+                        'expense_number' => $stockExpNumber,
+                        'expense_date' => Carbon::today()->toDateString(),
+                        'category' => 'Pembelian Bahan/Stok',
+                        'amount' => $totalCost,
+                        'payment_method' => 'cash',
+                        'description' => 'Pembelian Stok: ' . $targetName,
+                        'recorded_by' => $user?->id,
+                    ]);
+
+                    if ($user) {
+                        try {
+                            app(AutoJournalService::class)->recordExpenseJournal($expense, $user);
+                        } catch (\Throwable) {
+                        }
+                    }
+                }
+
+                return true;
+            });
         } elseif (! empty($validated['product_id'])) {
-            $product = Product::with('outputUnit')->findOrFail($validated['product_id']);
+            $product = Product::where('business_id', $business->id)->with('outputUnit')->findOrFail($validated['product_id']);
             $targetName = $product->name;
             $unitCode = $product->outputUnit?->code ?? 'pcs';
+
+            $result = DB::transaction(function () use ($business, $product, $unitCost, $qty, $totalCost, $locationId, $validated, $targetName, $user) {
+                $stock = InventoryStock::firstOrCreate(
+                    ['business_id' => $business->id, 'location_id' => $locationId, 'product_id' => $product->id],
+                    ['quantity' => 0, 'last_cost' => $unitCost]
+                );
+
+                $before = (float) $stock->quantity;
+                $after = $before + $qty;
+                $stock->update(['quantity' => $after, 'last_cost' => $unitCost]);
+
+                StockMovement::create([
+                    'business_id' => $business->id,
+                    'location_id' => $locationId,
+                    'product_id' => $product->id,
+                    'movement_type' => 'goods_receipt',
+                    'quantity_change' => $qty,
+                    'balance_after' => $after,
+                    'unit_cost' => $unitCost,
+                    'notes' => $validated['notes'] ?? ('Stok masuk instan: ' . ($validated['supplier_name'] ?? 'Pemasok')),
+                ]);
+
+                // Record cash expense for this purchase
+                if ($totalCost > 0) {
+                    $stockExpNumber = 'EXP-' . date('Ymd') . '-' . rand(1000, 9999);
+                    $expense = Expense::create([
+                        'business_id' => $business->id,
+                        'location_id' => $locationId,
+                        'expense_number' => $stockExpNumber,
+                        'expense_date' => Carbon::today()->toDateString(),
+                        'category' => 'Pembelian Bahan/Stok',
+                        'amount' => $totalCost,
+                        'payment_method' => 'cash',
+                        'description' => 'Pembelian Stok: ' . $targetName,
+                        'recorded_by' => $user?->id,
+                    ]);
+
+                    if ($user) {
+                        try {
+                            app(AutoJournalService::class)->recordExpenseJournal($expense, $user);
+                        } catch (\Throwable) {
+                        }
+                    }
+                }
+
+                return true;
+            });
         } else {
             return response()->json(['success' => false, 'message' => 'Pilih bahan baku atau produk yang akan ditambah stoknya.'], 422);
-        }
-
-        $stock = InventoryStock::firstOrCreate(
-            ['business_id' => $business->id, 'location_id' => $locationId, 'product_id' => $product->id],
-            ['quantity' => 0, 'last_cost' => $unitCost]
-        );
-
-        $before = (float) $stock->quantity;
-        $after = $before + $qty;
-        $stock->update(['quantity' => $after, 'last_cost' => $unitCost]);
-
-        StockMovement::create([
-            'business_id' => $business->id,
-            'location_id' => $locationId,
-            'product_id' => $product->id,
-            'movement_type' => 'goods_receipt',
-            'quantity_change' => $qty,
-            'balance_after' => $after,
-            'unit_cost' => $unitCost,
-            'notes' => $validated['notes'] ?? ('Stok masuk instan: ' . ($validated['supplier_name'] ?? 'Pemasok')),
-        ]);
-
-        // Record cash expense for this purchase
-        if ($totalCost > 0) {
-            $stockExpNumber = 'EXP-' . date('Ymd') . '-' . rand(1000, 9999);
-            $expense = Expense::create([
-                'business_id' => $business->id,
-                'location_id' => $locationId,
-                'expense_number' => $stockExpNumber,
-                'expense_date' => Carbon::today()->toDateString(),
-                'category' => 'Pembelian Bahan/Stok',
-                'amount' => $totalCost,
-                'payment_method' => 'cash',
-                'description' => 'Pembelian Stok: ' . $targetName,
-                'recorded_by' => $user?->id,
-            ]);
-
-            if ($user) {
-                try {
-                    app(AutoJournalService::class)->recordExpenseJournal($expense, $user);
-                } catch (\Throwable) {
-                }
-            }
         }
 
         $overview = $this->getOverviewData($business);
@@ -283,22 +338,26 @@ final class DashboardWebController extends Controller
 
         $code = $validated['sku'] ?? $validated['code'] ?? ('MAT-' . strtoupper(Str::random(6)));
 
-        $material = Material::create([
-            'business_id' => $business->id,
-            'name' => $validated['name'],
-            'code' => $code,
-            'unit_id' => $unitId,
-            'category_id' => $validated['category_id'] ?? null,
-        ]);
+        $material = DB::transaction(function () use ($business, $validated, $code, $unitId) {
+            $createdMaterial = Material::create([
+                'business_id' => $business->id,
+                'name' => $validated['name'],
+                'code' => $code,
+                'unit_id' => $unitId,
+                'category_id' => $validated['category_id'] ?? null,
+            ]);
 
-        // Create initial MaterialPrice record
-        \App\Models\MaterialPrice::create([
-            'business_id' => $business->id,
-            'material_id' => $material->id,
-            'purchase_price' => (float) $validated['cost_per_unit'],
-            'purchase_unit_id' => $unitId,
-            'effective_date' => Carbon::today(),
-        ]);
+            // Create initial MaterialPrice record
+            \App\Models\MaterialPrice::create([
+                'business_id' => $business->id,
+                'material_id' => $createdMaterial->id,
+                'purchase_price' => (float) $validated['cost_per_unit'],
+                'purchase_unit_id' => $unitId,
+                'effective_date' => Carbon::today(),
+            ]);
+
+            return $createdMaterial;
+        });
 
         $material->load('unit', 'category');
 

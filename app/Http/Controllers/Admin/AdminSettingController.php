@@ -222,6 +222,27 @@ final class AdminSettingController extends Controller
             'biteshipEnvironment'    => SystemSetting::get('biteship_environment') ?? config('services.biteship.environment', 'production'),
             'biteshipServiceFee'     => (string) (SystemSetting::get('biteship_service_fee') ?? config('services.biteship.service_fee', '1000')),
             'biteshipWebhookUrl'     => (string) (SystemSetting::get('biteship_webhook_url') ?: $canonicalUrl('/api/v1/shipping/biteship/webhook')),
+
+            // Marketplace Hub Configuration (Shopee, TikTok Shop, Tokopedia)
+            'shopeePartnerId'            => SystemSetting::get('shopee_partner_id') ?? config('services.shopee.partner_id', ''),
+            'shopeePartnerKey'           => SystemSetting::get('shopee_partner_key') ?? config('services.shopee.partner_key', ''),
+            'shopeeHasPartnerKey'        => ! empty(SystemSetting::get('shopee_partner_key') ?? config('services.shopee.partner_key', '')),
+            'shopeeIsProduction'         => filter_var(SystemSetting::get('shopee_is_production') ?? config('services.shopee.is_production', false), FILTER_VALIDATE_BOOLEAN),
+            'shopeeRedirectUri'          => (string) (SystemSetting::get('shopee_redirect_uri') ?: $canonicalUrl('/integrations/shopee/callback')),
+
+            'tiktokShopAppKey'           => SystemSetting::get('tiktok_shop_app_key') ?? config('services.tiktok_shop.app_key', ''),
+            'tiktokShopAppSecret'        => SystemSetting::get('tiktok_shop_app_secret') ?? config('services.tiktok_shop.app_secret', ''),
+            'tiktokShopServiceId'        => SystemSetting::get('tiktok_shop_service_id') ?? config('services.tiktok_shop.service_id', '7688937207390750472'),
+            'tiktokShopHasAppSecret'     => ! empty(SystemSetting::get('tiktok_shop_app_secret') ?? config('services.tiktok_shop.app_secret', '')),
+            'tiktokShopRedirectUri'      => (string) (SystemSetting::get('tiktok_shop_redirect_uri') ?: $canonicalUrl('/integrations/tiktok/callback')),
+
+            'tokopediaClientId'          => SystemSetting::get('tokopedia_client_id') ?? config('services.tokopedia.client_id', ''),
+            'tokopediaClientSecret'      => SystemSetting::get('tokopedia_client_secret') ?? config('services.tokopedia.client_secret', ''),
+            'tokopediaHasClientSecret'   => ! empty(SystemSetting::get('tokopedia_client_secret') ?? config('services.tokopedia.client_secret', '')),
+            'tokopediaFsId'              => SystemSetting::get('tokopedia_fs_id') ?? config('services.tokopedia.fs_id', ''),
+            'tokopediaRedirectUri'       => (string) (SystemSetting::get('tokopedia_redirect_uri') ?: $canonicalUrl('/integrations/tokopedia/callback')),
+
+            'tiktokTokopediaRedirectUri' => (string) (SystemSetting::get('tiktok_tokopedia_redirect_uri') ?: $canonicalUrl('/integrations/tiktok-tokopedia/callback')),
         ];
     }
 
@@ -323,6 +344,21 @@ final class AdminSettingController extends Controller
             'biteship_base_url'                 => ['nullable', 'url', 'max:255'],
             'biteship_environment'              => ['nullable', 'string', 'in:sandbox,production'],
             'biteship_service_fee'              => ['nullable', 'numeric', 'min:0'],
+
+            // Marketplace Hub Configuration (Shopee, TikTok Shop, Tokopedia)
+            'shopee_partner_id'                 => ['nullable', 'string', 'max:100'],
+            'shopee_partner_key'                => ['nullable', 'string', 'max:255'],
+            'shopee_is_production'              => ['nullable', 'boolean'],
+            'shopee_redirect_uri'               => ['nullable', 'url', 'max:255'],
+            'tiktok_shop_app_key'               => ['nullable', 'string', 'max:100'],
+            'tiktok_shop_app_secret'            => ['nullable', 'string', 'max:255'],
+            'tiktok_shop_service_id'            => ['nullable', 'string', 'max:100'],
+            'tiktok_shop_redirect_uri'          => ['nullable', 'url', 'max:255'],
+            'tokopedia_client_id'               => ['nullable', 'string', 'max:100'],
+            'tokopedia_client_secret'           => ['nullable', 'string', 'max:255'],
+            'tokopedia_fs_id'                   => ['nullable', 'string', 'max:100'],
+            'tokopedia_redirect_uri'            => ['nullable', 'url', 'max:255'],
+            'tiktok_tokopedia_redirect_uri'     => ['nullable', 'url', 'max:255'],
 
             // Platform Branding & Logos
             'site_logo_light_file'              => ['nullable', 'image', 'mimes:png,jpg,jpeg,svg,webp', 'max:2048'],
@@ -585,6 +621,49 @@ final class AdminSettingController extends Controller
         }
         if (array_key_exists('biteship_service_fee', $validated) && $validated['biteship_service_fee'] !== null) {
             SystemSetting::set('biteship_service_fee', (string) $validated['biteship_service_fee'], 'shipping');
+        }
+
+        // Save Marketplace Hub Settings
+        if (array_key_exists('shopee_partner_id', $validated)) {
+            SystemSetting::set('shopee_partner_id', trim((string) $validated['shopee_partner_id']), 'marketplace');
+        }
+        if (! empty($validated['shopee_partner_key'])) {
+            SystemSetting::set('shopee_partner_key', trim((string) $validated['shopee_partner_key']), 'marketplace', true);
+        }
+        if (array_key_exists('shopee_is_production', $validated) || $request->has('shopee_partner_id')) {
+            SystemSetting::set('shopee_is_production', $request->boolean('shopee_is_production') ? '1' : '0', 'marketplace');
+        }
+        if (array_key_exists('shopee_redirect_uri', $validated)) {
+            SystemSetting::set('shopee_redirect_uri', trim((string) $validated['shopee_redirect_uri']), 'marketplace');
+        }
+
+        if (array_key_exists('tiktok_shop_app_key', $validated)) {
+            SystemSetting::set('tiktok_shop_app_key', trim((string) $validated['tiktok_shop_app_key']), 'marketplace');
+        }
+        if (! empty($validated['tiktok_shop_app_secret'])) {
+            SystemSetting::set('tiktok_shop_app_secret', trim((string) $validated['tiktok_shop_app_secret']), 'marketplace', true);
+        }
+        if (array_key_exists('tiktok_shop_service_id', $validated)) {
+            SystemSetting::set('tiktok_shop_service_id', trim((string) $validated['tiktok_shop_service_id']), 'marketplace');
+        }
+        if (array_key_exists('tiktok_shop_redirect_uri', $validated)) {
+            SystemSetting::set('tiktok_shop_redirect_uri', trim((string) $validated['tiktok_shop_redirect_uri']), 'marketplace');
+        }
+
+        if (array_key_exists('tokopedia_client_id', $validated)) {
+            SystemSetting::set('tokopedia_client_id', trim((string) $validated['tokopedia_client_id']), 'marketplace');
+        }
+        if (! empty($validated['tokopedia_client_secret'])) {
+            SystemSetting::set('tokopedia_client_secret', trim((string) $validated['tokopedia_client_secret']), 'marketplace', true);
+        }
+        if (array_key_exists('tokopedia_fs_id', $validated)) {
+            SystemSetting::set('tokopedia_fs_id', trim((string) $validated['tokopedia_fs_id']), 'marketplace');
+        }
+        if (array_key_exists('tokopedia_redirect_uri', $validated)) {
+            SystemSetting::set('tokopedia_redirect_uri', trim((string) $validated['tokopedia_redirect_uri']), 'marketplace');
+        }
+        if (array_key_exists('tiktok_tokopedia_redirect_uri', $validated)) {
+            SystemSetting::set('tiktok_tokopedia_redirect_uri', trim((string) $validated['tiktok_tokopedia_redirect_uri']), 'marketplace');
         }
 
         // Save Subscription Pricing if provided

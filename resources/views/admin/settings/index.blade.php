@@ -29,6 +29,40 @@
         copiedTripayCallback: false,
         copiedWaWebhook: false,
         copiedBiteshipWebhook: false,
+        showShopeePartnerKey: false,
+        showTikTokAppSecret: false,
+        showTokopediaClientSecret: false,
+        testingMarketplace: false,
+        testMarketplaceResult: null,
+        testMarketplaceConfig(provider) {
+            this.testingMarketplace = true;
+            this.testMarketplaceResult = null;
+            fetch('{{ route('admin.settings.test-marketplace') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')?.content || '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({ provider: provider })
+                })
+                .then(r => r.json())
+                .then(data => {
+                    this.testingMarketplace = false;
+                    this.testMarketplaceResult = data;
+                    if (data.success && window.AppAlert) {
+                        AppAlert.success(data.message);
+                    } else if (!data.success && window.AppAlert) {
+                        AppAlert.error(data.message);
+                    }
+                })
+                .catch(e => {
+                    this.testingMarketplace = false;
+                    if (window.AppAlert) {
+                        AppAlert.error('Gagal menguji Marketplace API: ' + (e.message || e));
+                    }
+                });
+        },
         switchTab(tab) {
             this.activeTab = tab;
             const url = new URL(window.location);
@@ -405,6 +439,25 @@
                     @endif
                 </button>
 
+                <!-- Tab: Marketplace API Hub -->
+                <button type="button" @click="switchTab('marketplace')"
+                    :class="activeTab === 'marketplace'
+                        ?
+                        'bg-white dark:bg-[#1C1C1E] text-black dark:text-white shadow-sm font-bold border border-black/[0.06] dark:border-white/[0.08]' :
+                        'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white font-semibold hover:bg-black/[0.03] dark:hover:bg-white/[0.04]'"
+                    class="h-11 sm:h-10 px-4 sm:px-4 rounded-[14px] text-[13px] sm:text-[13.5px] transition-all flex items-center gap-2 shrink-0 cursor-pointer">
+                    <i data-lucide="shopping-bag" class="w-4 h-4 shrink-0"
+                        :class="activeTab === 'marketplace' ? 'text-[#EE4D2D]' : 'text-black/40 dark:text-white/40'"></i>
+                    <span>Marketplace API Hub</span>
+                    @if (!empty($shopeePartnerId) || !empty($tiktokShopAppKey) || !empty($tokopediaClientId))
+                        <i data-lucide="check" class="w-3.5 h-3.5 text-[#34C759] shrink-0"
+                            title="Marketplace Terkonfigurasi"></i>
+                    @else
+                        <i data-lucide="alert-circle" class="w-3.5 h-3.5 text-[#FF9500] shrink-0"
+                            title="Belum Dikonfigurasi"></i>
+                    @endif
+                </button>
+
                 <!-- Tab 6: Server SMTP Email -->
                 <button type="button" @click="switchTab('smtp')"
                     :class="activeTab === 'smtp'
@@ -444,6 +497,7 @@
         @include('admin.settings.tabs.tab-whatsapp')
         @include('admin.settings.tabs.tab-social')
         @include('admin.settings.tabs.tab-shipping')
+        @include('admin.settings.tabs.tab-marketplace')
         @include('admin.settings.tabs.tab-smtp')
 
     </div>

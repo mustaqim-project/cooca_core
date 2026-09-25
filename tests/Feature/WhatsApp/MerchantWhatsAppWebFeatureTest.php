@@ -184,4 +184,38 @@ class MerchantWhatsAppWebFeatureTest extends TestCase
         $account->refresh();
         $this->assertEquals('disconnected', $account->status);
     }
+
+    public function test_merchant_cannot_view_another_business_broadcast_campaign(): void
+    {
+        [$userA, $businessA] = $this->createMerchant();
+
+        // Create business B and user B
+        $userB = User::factory()->create(['name' => 'Competitor', 'email' => 'other@cooca.id']);
+        $businessB = Business::create([
+            'user_id'  => $userB->id,
+            'name'     => 'Competitor Cafe',
+            'status'   => 'active',
+            'currency' => 'IDR',
+        ]);
+        $businessB->users()->attach($userB->id, [
+            'id'   => (string) Str::uuid(),
+            'role' => 'owner',
+        ]);
+
+        $campaignB = WhatsAppBroadcastCampaign::create([
+            'business_id'      => $businessB->id,
+            'title'            => 'Secret Promo Business B',
+            'message'          => 'Confidential message',
+            'target_filter'    => 'vip',
+            'total_recipients' => 5,
+            'total_sent'       => 5,
+            'status'           => 'completed',
+        ]);
+
+        // User A tries to view Campaign B
+        $response = $this->actingAs($userA)->get(route('whatsapp.broadcast.show', $campaignB));
+
+        // Must return 404 (IDOR shield)
+        $response->assertNotFound();
+    }
 }

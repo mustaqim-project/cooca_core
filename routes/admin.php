@@ -94,6 +94,7 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
         Route::post('/settings/test-whatsapp', [AdminSettingController::class, 'testWhatsAppConfig'])->name('settings.test-whatsapp');
         Route::post('/settings/test-instagram', [AdminSettingController::class, 'testInstagramConfig'])->name('settings.test-instagram');
         Route::post('/settings/test-biteship', [AdminSettingController::class, 'testBiteshipConfig'])->name('settings.test-biteship');
+        Route::post('/settings/test-marketplace', [\App\Http\Controllers\Admin\AdminMarketplaceSettingController::class, 'testConfig'])->name('settings.test-marketplace');
         Route::get('/smtp', [AdminSmtpController::class, 'index'])->name('smtp.index');
         Route::post('/smtp', [AdminSmtpController::class, 'update'])->name('smtp.update');
         Route::post('/smtp/test', [AdminSmtpController::class, 'test'])->name('smtp.test');

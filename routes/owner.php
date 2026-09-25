@@ -27,6 +27,7 @@ use App\Http\Controllers\Web\ImportWebController;
 use App\Http\Controllers\Web\Inventory\InventoryWebController;
 use App\Http\Controllers\Web\InvoiceWebController;
 use App\Http\Controllers\Web\LaborMachineWebController;
+use App\Http\Controllers\Web\Marketplace\MarketplaceWebController;
 use App\Http\Controllers\Web\MasterDataWebController;
 use App\Http\Controllers\Web\MaterialCategoryWebController;
 use App\Http\Controllers\Web\MaterialUnitConversionWebController;
@@ -707,6 +708,28 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
             Route::post('/settings/payment-methods', [MerchantStoreSettingController::class, 'storePaymentMethod'])->name('settings.payment_methods.store');
             Route::post('/settings/payment-methods/{paymentMethod}/toggle', [MerchantStoreSettingController::class, 'togglePaymentMethod'])->name('settings.payment_methods.toggle');
             Route::delete('/settings/payment-methods/{paymentMethod}', [MerchantStoreSettingController::class, 'deletePaymentMethod'])->name('settings.payment_methods.destroy');
+        });
+
+        // Marketplace Integrations (Shopee, TikTok Shop, Tokopedia)
+        Route::prefix('marketplace-hub')->name('marketplace-hub.')->group(function (): void {
+            Route::get('/', [MarketplaceWebController::class, 'index'])->name('index');
+            Route::post('/connect/{provider}', [MarketplaceWebController::class, 'connect'])->name('connect');
+            Route::post('/disconnect/{provider}', [MarketplaceWebController::class, 'disconnect'])->name('disconnect');
+            Route::post('/toggle/{provider}', [MarketplaceWebController::class, 'toggleActive'])->name('toggle');
+
+            // Product Mappings & Per-Channel Pricing
+            Route::get('/products', [MarketplaceWebController::class, 'products'])->name('products');
+            Route::post('/products/map', [MarketplaceWebController::class, 'updateMapping'])->name('products.map');
+            Route::post('/products/{product}/sync-price', [MarketplaceWebController::class, 'syncProductPrice'])->name('products.sync-price');
+            Route::post('/products/{product}/sync-stock', [MarketplaceWebController::class, 'syncProductStock'])->name('products.sync-stock');
+            Route::post('/products/sync-all', [MarketplaceWebController::class, 'syncAll'])->name('products.sync-all');
+
+            // Marketplace Orders
+            Route::get('/orders', [MarketplaceWebController::class, 'orders'])->name('orders');
+            Route::post('/orders/pull', [MarketplaceWebController::class, 'pullOrders'])->name('orders.pull');
+
+            // Sync Logs & Activity
+            Route::get('/logs', [MarketplaceWebController::class, 'logs'])->name('logs');
         });
     });
 });

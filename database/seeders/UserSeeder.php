@@ -41,6 +41,15 @@ class UserSeeder extends Seeder
             ]
         );
 
+        $reviewerUser = User::updateOrCreate(
+            ['email' => 'reviewer@cooca.id'],
+            [
+                'name' => 'COOCA Reviewer & Auditor',
+                'password' => Hash::make('MetaReview2026!'),
+                'email_verified_at' => now(),
+            ]
+        );
+
         $biz1 = Business::updateOrCreate(
             ['slug' => 'restoran-nusantara-rasa'],
             [
@@ -60,10 +69,12 @@ class UserSeeder extends Seeder
 
         // Hubungkan membership
         $biz1->users()->syncWithoutDetaching([
-            $user1->id => ['id' => (string) Str::uuid(), 'role' => 'owner'],
+            $user1->id        => ['id' => (string) Str::uuid(), 'role' => 'owner'],
+            $reviewerUser->id => ['id' => (string) Str::uuid(), 'role' => 'owner'],
         ]);
 
         $user1->update(['active_business_id' => $biz1->id]);
+        $reviewerUser->update(['active_business_id' => $biz1->id]);
 
         // Terapkan Template F&B Resto jika belum ada komponen
         $fnbTemplate = BusinessTypeTemplate::where('code', 'fnb_resto')->first();

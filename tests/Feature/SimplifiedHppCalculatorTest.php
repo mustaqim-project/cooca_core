@@ -123,4 +123,69 @@ class SimplifiedHppCalculatorTest extends TestCase
         $response->assertStatus(422);
         $response->assertJsonValidationErrors(['name', 'selling_price']);
     }
+
+    public function test_calculator_prevents_idor_cross_tenant_calculation(): void
+    {
+        // Create another tenant / business
+        $otherBusiness = Business::create(['name' => 'Bisnis Lain']);
+        $otherProduct = Product::create([
+            'business_id' => $otherBusiness->id,
+            'name' => 'Produk Rahasia Bisnis Lain',
+            'sku' => 'PRD-OTH-01',
+            'output_unit_id' => $this->unit->id,
+            'base_cost' => 20000,
+            'selling_price' => 35000,
+            'is_active' => true,
+        ]);
+        $otherCostModel = CostModel::create([
+            'business_id' => $otherBusiness->id,
+            'product_id' => $otherProduct->id,
+            'name' => 'HPP Rahasia',
+            'method' => CostModel::METHOD_SIMPLE,
+            'output_basis' => CostModel::BASIS_SELLABLE,
+            'formula_definition' => [
+                'material_cost' => 15000,
+                'labor_cost' => 5000,
+                'overhead_cost' => 0,
+                'margin_pct' => 40,
+            ],
+            'is_active' => true,
+        ]);
+
+        // Attempt by our user to calculate the other tenant's cost model
+        $response = $this->actingAs($this->user)
+            ->getJson(route('calculator.calculate', $otherCostModel->id));
+
+        // Eloquent BusinessScope ensures ModelNotFound (404) preventing cross-tenant IDOR and enumeration
+        $this->assertContains($response->status(), [403, 404]);
+    }
+
+    public function test_calculator_prevents_idor_cross_tenant_apply_to_product(): void
+    {
+        $otherBusiness = Business::create(['name' => 'Bisnis Korban']);
+        $otherProduct = Product::create([
+            'business_id' => $otherBusiness->id,
+            'name' => 'Produk Target Pembajakan',
+            'sku' => 'PRD-TGT-01',
+            'output_unit_id' => $this->unit->id,
+            'base_cost' => 50000,
+            'selling_price' => 80000,
+            'is_active' => true,
+        ]);
+
+        // Attempt by our user to alter prices of another tenant's product
+        $response = $this->actingAs($this->user)
+            ->postJson(route('calculator.apply-to-product'), [
+                'product_id' => $otherProduct->id,
+                'base_cost' => 1000,
+                'selling_price' => 2000,
+            ]);
+
+        $response->assertStatus(404);
+
+        // Verify product in database was NOT tampered with
+        $otherProduct->refresh();
+        $this->assertEquals(50000, $otherProduct->base_cost);
+        $this->assertEquals(80000, $otherProduct->selling_price);
+    }
 }

@@ -571,6 +571,13 @@
                     </svg>
                     <span>Varian &amp; Modifiers</span>
                 </a>
+                <a href="{{ route('marketplace-hub.products') }}"
+                    class="px-4 py-2 rounded-[10px] text-[13px] font-medium text-[#EE4D2D] hover:bg-[#EE4D2D]/10 flex items-center gap-2 transition-all whitespace-nowrap">
+                    <svg class="w-4 h-4 text-[#EE4D2D]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 21v-7.5a.75.75 0 01.75-.75h3a.75.75 0 01.75.75V21m-4.5 0H2.25A2.25 2.25 0 010 18.75V10.5m13.5 10.5h7.5A2.25 2.25 0 0023.25 18.75V10.5m-18 0V4.5A2.25 2.25 0 017.5 2.25h9a2.25 2.25 0 012.25 2.25v6m-13.5 0h13.5" />
+                    </svg>
+                    <span>Marketplace &amp; Multi-Harga</span>
+                </a>
             </div>
         </div>
 

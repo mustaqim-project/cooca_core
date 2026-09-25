@@ -260,6 +260,35 @@ class Product extends Model
     }
 
     /**
+     * @return HasMany<MarketplaceProductMapping, $this>
+     */
+    public function marketplaceMappings(): HasMany
+    {
+        return $this->hasMany(MarketplaceProductMapping::class);
+    }
+
+    /**
+     * Get specific price for a marketplace channel, or fallback to standard selling_price.
+     */
+    public function getMarketplacePrice(string $channel): float
+    {
+        $mapping = $this->marketplaceMappings->firstWhere('channel', $channel);
+        if ($mapping) {
+            return $mapping->getEffectivePrice();
+        }
+
+        return (float) ($this->selling_price ?? 0);
+    }
+
+    /**
+     * Check if product is mapped to a marketplace channel.
+     */
+    public function hasMarketplaceMapping(string $channel): bool
+    {
+        return $this->marketplaceMappings->contains('channel', $channel);
+    }
+
+    /**
      * Resolve constituent material deductions for a given product quantity.
      * Follows Rule 02, 03, 13, 14:
      * - Case A: Direct Material (1-to-1)

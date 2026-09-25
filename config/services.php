@@ -92,5 +92,29 @@ return [
         'service_fee' => (float) env('BITESHIP_SERVICE_FEE', 1000.0),
     ],
 
+    'shopee' => [
+        'partner_id'   => (int) env('SHOPEE_PARTNER_ID', 0),
+        'partner_key'  => env('SHOPEE_PARTNER_KEY', ''),
+        'host'         => env('SHOPEE_HOST', 'https://partner.shopeemobile.com'),
+        'redirect_uri' => env('SHOPEE_REDIRECT_URI', 'https://cooca.id/integrations/shopee/callback'),
+    ],
+
+    'tiktok_shop' => [
+        'app_key'      => env('TIKTOK_SHOP_APP_KEY', ''),
+        'app_secret'   => env('TIKTOK_SHOP_APP_SECRET', ''),
+        'service_id'   => env('TIKTOK_SHOP_SERVICE_ID', ''),
+        'host'         => env('TIKTOK_SHOP_HOST', 'https://open-api.tiktokglobalshop.com'),
+        'auth_host'    => env('TIKTOK_SHOP_AUTH_HOST', 'https://services.tiktokshop.com/open/authorize'),
+        'redirect_uri' => env('TIKTOK_SHOP_REDIRECT_URI', 'https://cooca.id/integrations/tiktok/callback'),
+    ],
+
+    'tokopedia' => [
+        'fs_id'         => env('TOKOPEDIA_FS_ID', ''),
+        'client_id'     => env('TOKOPEDIA_CLIENT_ID', ''),
+        'client_secret' => env('TOKOPEDIA_CLIENT_SECRET', ''),
+        'host'          => env('TOKOPEDIA_HOST', 'https://fs.tokopedia.net'),
+        'redirect_uri'  => env('TOKOPEDIA_REDIRECT_URI', 'https://cooca.id/integrations/tokopedia/callback'),
+    ],
+
 ];
 

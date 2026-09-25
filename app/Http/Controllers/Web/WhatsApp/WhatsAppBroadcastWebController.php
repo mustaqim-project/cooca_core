@@ -12,6 +12,7 @@ use App\Models\WhatsAppSession;
 use App\Support\Context;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class WhatsAppBroadcastWebController extends Controller
@@ -93,14 +94,16 @@ class WhatsAppBroadcastWebController extends Controller
             return back()->withErrors(['whatsapp' => 'Akun WhatsApp resmi Meta belum terhubung. Harap hubungkan nomor WhatsApp bisnis Anda di halaman Integrasi WhatsApp.'])->withInput();
         }
 
-        $campaign = WhatsAppBroadcastCampaign::create([
-            'business_id'   => $business->id,
-            'title'         => $validated['title'],
-            'message'       => $validated['message'],
-            'media_url'     => $validated['media_url'] ?? null,
-            'target_filter' => $validated['target_filter'],
-            'status'        => 'processing',
-        ]);
+        $campaign = DB::transaction(function () use ($business, $validated) {
+            return WhatsAppBroadcastCampaign::create([
+                'business_id'   => $business->id,
+                'title'         => trim($validated['title']),
+                'message'       => trim($validated['message']),
+                'media_url'     => !empty($validated['media_url']) ? trim($validated['media_url']) : null,
+                'target_filter' => $validated['target_filter'],
+                'status'        => 'processing',
+            ]);
+        });
 
         // Run broadcast synchronously (for small/medium lists)
         // For production scale, dispatch a queued job instead
@@ -122,8 +125,8 @@ class WhatsAppBroadcastWebController extends Controller
     {
         $business = Context::requireBusiness();
 
-        if ($campaign->business_id !== $business->id) {
-            abort(403);
+        if ((int)$campaign->business_id !== (int)$business->id) {
+            abort(404);
         }
 
         $recipients = $campaign->recipients()->latest()->paginate(30);

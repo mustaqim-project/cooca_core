@@ -5,7 +5,7 @@
 ])
 
 @section('content')
-    <div class="max-w-[1360px] mx-auto space-y-6 pb-12" x-data="waGateway()" x-init="init()">
+    <div class="max-w-[1360px] mx-auto space-y-6 pb-28 sm:pb-32 lg:pb-12" x-data="waGateway()" x-init="init()">
 
         <!-- ========================================== -->
         <!-- 0. BREADCRUMB BAR (APPLE MINIMALIST)       -->
@@ -290,7 +290,7 @@
                             </label>
                             <textarea name="receipt_template" rows="2"
                                 placeholder="Contoh: Terima kasih sudah berbelanja! Follow IG kami @tokoukm"
-                                class="w-full bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[10px] px-3.5 py-2.5 text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 resize-none placeholder:text-black/35 dark:placeholder:text-white/35 transition-colors">{{ $waSession?->receipt_template ?? '' }}</textarea>
+                                class="w-full bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[10px] px-3.5 py-2.5 text-[16px] sm:text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 resize-none placeholder:text-black/35 dark:placeholder:text-white/35 transition-colors">{{ $waSession?->receipt_template ?? '' }}</textarea>
                         </div>
 
                         @if (\App\Support\Context::hasPermission('whatsapp.manage'))
@@ -322,14 +322,14 @@
                             <label class="block text-[12px] font-medium text-black/70 dark:text-white/70">Nomor HP
                                 Tujuan</label>
                             <input x-model="testPhone" type="tel" placeholder="08xxxxxxxxxx / 628xxxxxxxxxx"
-                                class="w-full h-9 bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[10px] px-3.5 text-[13px] font-semibold tabular-nums text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 placeholder:text-black/35 dark:placeholder:text-white/35 transition-colors">
+                                class="w-full h-9 bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[10px] px-3.5 text-[16px] sm:text-[13px] font-semibold tabular-nums text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 placeholder:text-black/35 dark:placeholder:text-white/35 transition-colors">
                         </div>
 
                         <div class="space-y-1.5">
                             <label class="block text-[12px] font-medium text-black/70 dark:text-white/70">Isi Pesan
                                 Tes</label>
                             <input x-model="testMessage" type="text" placeholder="Halo dari COOCA! Terima kasih sudah menghubungi kami."
-                                class="w-full h-9 bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[10px] px-3.5 text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 placeholder:text-black/35 dark:placeholder:text-white/35 transition-colors">
+                                class="w-full h-9 bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[10px] px-3.5 text-[16px] sm:text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 placeholder:text-black/35 dark:placeholder:text-white/35 transition-colors">
                         </div>
 
                         @if (\App\Support\Context::hasPermission('whatsapp.manage'))

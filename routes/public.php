@@ -251,7 +251,11 @@ Route::get('/penghapusan-data', function () {
 // 13. Public Digital Payslip (Token Access)
 Route::get('/payslip/{token}', [\App\Http\Controllers\Web\Hrm\HrmWebController::class, 'publicPayslip'])->name('public.payslip');
 
-// 14. Public business landing pages using business name as direct URL slug (Must be last)
+// 14. Marketplace Integration OAuth Callbacks & Webhooks
+Route::get('/integrations/{provider}/callback', [\App\Http\Controllers\Web\Marketplace\MarketplaceWebController::class, 'callback'])->name('integrations.marketplace.callback');
+Route::post('/webhooks/marketplace/{provider}', [\App\Http\Controllers\Web\Marketplace\MarketplaceWebhookController::class, 'handle'])->name('webhooks.marketplace');
+
+// 15. Public business landing pages using business name as direct URL slug (Must be last)
 Route::get('/{slug}', [PublicStorefrontController::class, 'home'])
     ->where('slug', '[a-z0-9]+(?:-[a-z0-9]+)*')
     ->name('public.business.landing');

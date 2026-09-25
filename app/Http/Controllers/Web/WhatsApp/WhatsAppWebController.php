@@ -229,20 +229,23 @@ class WhatsAppWebController extends Controller
         $business = Context::requireBusiness();
 
         $validated = $request->validate([
-            'phone'   => 'required|string|min:8|max:20',
-            'message' => 'required|string|min:1|max:1000',
+            'phone'   => ['required', 'string', 'min:8', 'max:20', 'regex:/^(\+?62|08)[0-9]{7,15}$/'],
+            'message' => ['required', 'string', 'min:1', 'max:1000'],
         ]);
 
-        $result = $this->gateway->sendMessage($business, $validated['phone'], $validated['message']);
+        $phone   = trim($validated['phone']);
+        $message = trim($validated['message']);
+
+        $result = $this->gateway->sendMessage($business, $phone, $message);
 
         WhatsAppMessageLog::create([
-            'business_id'    => $business->id,
-            'type'           => 'test',
-            'recipient_phone' => $validated['phone'],
-            'recipient_name' => 'Test Send',
-            'message'        => $validated['message'],
-            'status'         => ($result['success'] ?? false) ? 'sent' : 'failed',
-            'error_message'  => $result['error'] ?? null,
+            'business_id'     => $business->id,
+            'type'            => 'test',
+            'recipient_phone' => $phone,
+            'recipient_name'  => 'Test Send',
+            'message'         => $message,
+            'status'          => ($result['success'] ?? false) ? 'sent' : 'failed',
+            'error_message'   => $result['error'] ?? null,
         ]);
 
         return response()->json($result);
@@ -256,9 +259,9 @@ class WhatsAppWebController extends Controller
     {
         $business = Context::requireBusiness();
 
-        // Ensure order belongs to this business
-        if ($order->business_id !== $business->id) {
-            abort(403);
+        // Ensure order belongs to this business (404 to prevent IDOR enumeration)
+        if ((int)$order->business_id !== (int)$business->id) {
+            abort(404);
         }
 
         $phone  = $request->input('phone') ?: $order->customer?->phone;
