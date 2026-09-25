@@ -52,7 +52,479 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 
 #### 7. Documentation Promotion
 
-- Pengetahuan yang dipromosikan ke `docs/system/` dan dampaknya pada `docs/SYSTEM_GUIDE.md`.
+### [WORK-2026-09-25-155] Full-Size Form Modal & Bottom Sheet Mandate Across Desktop and Mobile
+
+- **Date:** 2026-09-25
+- **Status:** COMPLETED
+- **Module:** UI/UX Design System & Skill Directives
+- **Feature:** Full-Size Form Modal Canvas Mandate (Desktop Full Layout XXL `w-full max-w-[95vw] lg:max-w-5xl xl:max-w-6xl 2xl:max-w-[1350px]` and Mobile Full-Width Responsive Bottom Sheet `w-full max-h-[95vh]`), Elimination of Narrow Modals (`max-w-md`/`max-w-lg`) for Data Entry Forms.
+- **Work Type:** UI/UX | Standards | Architecture | Documentation
+
+#### 1. Business Context & Objective
+- **Konteks:** Menjawab kebutuhan kenyamanan visual dan ergonomi input data bagi pengguna UMKM, di mana seluruh formulir pengisian data (Create, Edit, Show/Detail, Input Transaksi POS, Penyesuaian Stok, Approval) di dalam pop-up modal wajib berukuran penuh (*Full Size Canvas*) yang lapang dan bernafas lega, baik pada layar desktop maupun mobile.
+- **Masalah/Target:**
+  1. Menegaskan larangan modal sempit (`max-w-sm`, `max-w-md`, `max-w-lg`, `max-w-xl`) saat memuat form operasional bisnis ERP/POS.
+  2. Menerapkan standar dimensi baku: Desktop menggunakan **Full Layout XXL Centered Bento Dialog** (`w-full max-w-[95vw] lg:max-w-5xl xl:max-w-6xl 2xl:max-w-[1350px] max-h-[92vh]`) dengan struktur multi-kolom Bento, dan Mobile menggunakan **Full-Width Apple Bottom Sheet** (`w-full inset-x-0 bottom-0 h-full max-h-[95vh]`) dengan 100% lebar viewport, input minimal 16px anti-auto-zoom iOS, dan sticky bottom action bar 48px–52px.
+
+#### 2. What Was Done
+- **Pembaruan Direktif & Dokumen Rujukan:**
+  - `references/design-system.md`: Memperbarui Bab 14 dengan judul dan ketentuan tegas: *Mandat Mutlak: Form Pop-Up / Modal Sheet Berukuran Penuh (Full Size) di Desktop & Mobile*.
+  - `SKILL.md`: Memperbarui Section 8 (*Modal-First & Full-Size Form Canvas*).
+  - `references/documentation-and-dod.md`: Memperbarui butir checklist Definition of Done (*Modal-First & Full-Size Form Canvas*).
+  - `docs/agent.md`: Memperbarui Section 17 (*Matriks Responsivitas Modal Pop-Up XXL Lintas Perangkat*).
+  - `docs/SYSTEM_GUIDE.md`: Memperbarui Bab 1 (*Standar Modal Pop-Up & Form Full-Size Lintas Multi-Device*).
+
+#### 3. Technical Changes
+- **Files Affected:**
+  - `c:/laragon/www/cooca_core/.agents/skills/cooca-agent-directive/references/design-system.md`
+  - `c:/laragon/www/cooca_core/.agents/skills/cooca-agent-directive/SKILL.md`
+  - `c:/laragon/www/cooca_core/.agents/skills/cooca-agent-directive/references/documentation-and-dod.md`
+  - `c:/laragon/www/cooca_core/docs/agent.md`
+  - `c:/laragon/www/cooca_core/docs/SYSTEM_GUIDE.md`
+  - `c:/laragon/www/cooca_core/docs/AiWorkHistory.md`
+
+#### 4. System Impacts
+- **UI/UX Consistency:** Menjamin seluruh dialog pop-up yang memuat formulir di repositori COOCA tampil lapang, profesional, tidak berdesakan, dan memberikan ruang gerak penuh bagi tabel transaksi dan input form.
+
+---
+
+### [WORK-2026-09-25-154] POS Multi-Terminal (Registers), Multi-Cashier Shift Denominations, Blind Cash Count & Isolated Stock Deduction
+
+- **Date:** 2026-09-25
+- **Status:** COMPLETED
+- **Module:** POS (Point of Sale), Multi-Tenant & Location Hardware Integration
+- **Feature:** Multi-Terminal (`PosRegister`), Multi-Cashier Shift Denominations (`PosShift`), Blind Cash Count & Variance Tracking, Multi-Location Stock Deduction Isolation, Direct ESC/POS Shift Thermal Printing
+- **Work Type:** Feature | Architecture | Security | Hardware Integration | Testing
+
+#### 1. Business Context & Objective
+- **Konteks:** Menjawab kebutuhan arsitektur POS nyata di lapangan di mana 1 Bisnis memiliki multi-cabang/outlet dan multi-gudang logistik, setiap cabang memiliki multi-terminal POS (`PosRegister`), dilayani oleh multi-kasir secara simultan dengan sesi shift masing-masing (`PosShift`), menggunakan printer struk termal spesifik per terminal, dan mengharuskan pemotongan stok dilakukan secara ketat hanya pada lokasi cabang tempat transaksi berlangsung.
+- **Masalah/Target:**
+  1. Memperluas skema database `pos_registers`, `pos_shifts`, dan `pos_orders` untuk mendukung identifikasi perangkat (`device_identifier`), penetapan default printer kasir/dapur per register, rincian pecahan modal/penutupan kasir (`opening_denominations`, `closing_denominations`), dan foreign key `pos_register_id` pada pesanan.
+  2. Mencegah tabrakan sesi kasir (concurrency guard: 1 terminal hanya dapat membuka 1 shift aktif dalam satu waktu).
+  3. Menerapkan penghitungan fisik uang laci (*Blind Cash Count*) dengan kalkulator pecahan interaktif dan auto-kalkulasi selisih kas (`Seimbang`, `Kurang`, `Lebih`).
+  4. Menyediakan endpoint pencetakan struk penutupan shift berformat binary ESC/POS langsung ke printer kasir register terkait.
+  5. Menjamin pemotongan stok inventori pesanan kasir terisolasi 100% pada lokasi cabang terkait tanpa menyentuh stok cabang lain atau gudang pusat.
+
+#### 2. What Was Done
+- **Database Schema & Migrations:**
+  - Migrasi `database/migrations/2026_09_25_110000_extend_pos_registers_shifts_and_orders_table.php` menambahkan kolom hardware per register (`device_identifier`, `default_receipt_printer_id`, `default_kitchen_printer_id`, `default_cash_drawer_name`, `last_seen_at`), kolom pecahan shift (`opening_denominations`, `closing_denominations`, `cashier_notes`), dan relasi order ke register (`pos_register_id`).
+- **Domain Services:**
+  - `PosShiftService`: Penambahan dukungan kalkulasi pecahan uang (`calculateDenominationTotal`), concurrency guard register pada `openShift()`, rekonsiliasi dan pencatatan selisih kas pada `closeShift()`.
+  - `PosOrderService`: Pengikatan `pos_register_id` pada transaksi pesanan dan pemotongan stok pada lokasi outlet register.
+  - `PrinterManager`: Perutean printer kasir default berbasis terminal register (`resolveCashierPrinter`) dan fallback virtual base64 untuk browser.
+- **Controllers & Routing:**
+  - `PosShiftWebController` & `PosShiftController` (API): Mendukung payload pecahan uang, catatan kasir, dan endpoint `POST /pos/shifts/{shift}/print`.
+  - `PosTerminalWebController` & `PosTerminalController` (API): Validasi dan pengikatan `pos_register_id` saat checkout.
+  - `routes/owner.php` & `routes/api.php`: Registrasi route cetak shift `pos.shifts.print`.
+- **UI / Blade (Bento Apple HIG):**
+  - `resources/views/app/pos/shifts.blade.php`: Modal pembukaan shift dengan kalkulator pecahan uang, selektor register terminal, modal penutupan shift dengan *blind cash count* dan indikator selisih live, serta tombol cetak struk termal ESC/POS dengan Lucide icons.
+- **Automated Testing Suite:**
+  - `tests/Feature/Pos/PosMultiRegisterShiftAndStockFeatureTest.php` (5 test methods, 45 assertions, 100% Passed).
+  - `tests/Feature/Pos/PosPrinterHardwareIntegrationTest.php` (5 test methods, 36 assertions, 100% Passed).
+
+#### 3. Technical Changes
+- **Files Affected:**
+  - `app/Models/PosRegister.php`
+  - `app/Models/PosShift.php`
+  - `app/Models/PosOrder.php`
+  - `app/Domain/Pos/PosShiftService.php`
+  - `app/Domain/Pos/PosOrderService.php`
+  - `app/Domain/Printer/PrinterManager.php`
+  - `app/Http/Controllers/Web/Pos/PosShiftWebController.php`
+  - `app/Http/Controllers/Web/Pos/PosTerminalWebController.php`
+  - `app/Http/Controllers/Api/V1/Pos/PosShiftController.php`
+  - `app/Http/Controllers/Api/V1/Pos/PosTerminalController.php`
+  - `resources/views/app/pos/shifts.blade.php`
+  - `routes/owner.php`
+  - `routes/api.php`
+  - `tests/Feature/Pos/PosMultiRegisterShiftAndStockFeatureTest.php`
+  - `docs/system/modules/pos-hardware-and-printers.md`
+
+#### 4. Verification & Testing
+- `php artisan test --filter=PosMultiRegisterShiftAndStockFeatureTest` (5 tests, 45 assertions, 0 errors, 100% Passed).
+- `php artisan test --filter=PosPrinterHardwareIntegrationTest` (5 tests, 36 assertions, 0 errors, 100% Passed).
+- `php artisan route:list --path=pos` (115 POS routes clean & valid).
+
+---
+
+### [WORK-2026-09-25-152] End-to-End Modular Feature Taxonomy (6 Hubs) & High-Performance Optimization Blueprint
+
+- **Date:** 2026-09-25
+- **Status:** COMPLETED
+- **Module:** Architecture Blueprint, Performance Engineering & Skill Directives
+- **Feature:** End-to-End Modular 6-Hub Architecture (POS, Logistics & BOM, Procurement & AP 3-Way Matching, Commerce & CRM, Finance/Tax/HRM, Ecosystem/Omnichannel), Tag-Based Caching Layer (Redis), Offline-First POS Resilience (IndexedDB/PWA), Database Composite Indexing, Queue Task Offloading, Global Barcode Scanner Listener, and QR Self-Ordering.
+- **Work Type:** Architecture | Performance | Optimization | Skill | Documentation
+
+#### 1. Business Context & Objective
+- **Konteks:** Menjawab kebutuhan penyusunan fitur secara *end-to-end* yang rapi, terhindar dari fragmentasi menu, serta menjamin performa aplikasi tetap cepat (*sub-100ms response time*) dan berdaya tahan tinggi saat volume transaksi kasir dan toko online meningkat pesat.
+- **Masalah/Target:**
+  1. Menata ulang taksonomi fitur COOCA ke dalam 6 Hub Modul Utama terpadu yang saling terintegrasi tanpa navigasi terpecah-pecah.
+  2. Merumuskan cetak biru optimasi performa backend & database (Redis cache tags, composite indexing, zero N+1 queries, asynchronous worker queue).
+  3. Merumuskan strategi *Offline-First POS Resilience* (IndexedDB / PWA) agar kasir tetap bisa melayani antrean offline dan sinkronisasi otomatis saat online.
+  4. Mendokumentasikan fitur otomatisasi cerdas (Global Barcode Scanner listener, Self-Service QR Table Ordering, Smart Auto-Reorder PO ke supplier, dan Interactive Customer WhatsApp Bot).
+
+#### 2. What Was Done
+- **Pembaruan Skill & Referensi Direktif (.agents/skills/cooca-agent-directive/):**
+  - Membuat berkas referensi baru: `references/feature-optimization-and-architecture.md` (Cetak biru lengkap taksonomi 6 Hub modul, caching Redis, offline POS sync, database indexing, asynchronous worker, smart barcode, QR table ordering, dan matriks kontrol akses).
+  - Memperbarui `SKILL.md`: Menambahkan link referensi di header, menambahkan Bab 10 "Penataan Fitur End-to-End & Optimasi Performa", dan menyelaraskan 21 langkah final agent command.
+- **Pembaruan Master Repository Documentation:**
+  - `docs/agent.md`: Menambahkan Sub-bab 8.3 "Saran Fitur, Optimasi Performa, & Penataan Arsitektur End-to-End".
+  - `docs/SYSTEM_GUIDE.md`: Menambahkan Sub-bab 4.16 "Cetak Biru Penataan 6-Hub Modul & Rekomendasi Optimasi Performa End-to-End" dan melengkapi Daftar Isi Cepat.
+
+#### 3. Technical Changes
+- **Files Affected:**
+  - `c:/laragon/www/cooca_core/.agents/skills/cooca-agent-directive/references/feature-optimization-and-architecture.md`
+  - `c:/laragon/www/cooca_core/.agents/skills/cooca-agent-directive/SKILL.md`
+  - `c:/laragon/www/cooca_core/docs/agent.md`
+  - `c:/laragon/www/cooca_core/docs/SYSTEM_GUIDE.md`
+  - `c:/laragon/www/cooca_core/docs/AiWorkHistory.md`
+
+#### 4. System Impacts
+- **Workflow Impact:** Seluruh pengembang dan asisten AI memiliki panduan baku dalam menata modul baru ke dalam 6 Hub terpadu, menerapkan caching Redis pada master data, mengalihkan proses berat ke antrean queue, dan mengamankan laci kas serta audit trail.
+- **Performance Impact:** Arsitektur terarah menjamin response time POS tetap sub-100ms dan server terlindungi dari beban puncak (*load spike*).
+
+#### 5. Verification & Testing
+- Seluruh file markdown tervalidasi sintaks dan referensi link-nya.
+- Sinkronisasi 3-Layer documentation konsisten 100%.
+
+#### 6. Important Decisions & Guardrails
+- **Konsolidasi 6 Hub:** Dilarang membuat modul baru yang berdiri sendiri tanpa menginduk pada salah satu dari 6 Hub utama.
+- **Zero Blocking on UI:** Seluruh integrasi eksternal (WhatsApp, Email, Ekspedisi, PDF) wajib melalui background queue.
+
+---
+
+### [WORK-2026-09-25-151] POS Hardware & ESC/POS Thermal Printer Architecture, Cash Drawer Safety & Local POS Agent Bridge
+
+- **Date:** 2026-09-25
+- **Status:** COMPLETED
+- **Module:** POS (Point of Sale) & Hardware Integration
+- **Feature:** ESC/POS Direct Thermal Printing (`mike42/escpos-php`), RJ-11/RJ-12 Cash Drawer Safety Controller & Anti-Fraud, Multi-Station Kitchen Order Ticket (KOT) Routing, Offline Latency Diagnostics, Local POS Agent (Bluetooth / USB Serial Bridge), and Apple HIG Bento UI Console (`/pos/printers`).
+- **Work Type:** Feature | Architecture | Security | Hardware Integration | Testing | Documentation
+
+#### 1. Business Context & Objective
+- **Konteks:** Sistem kasir COOCA POS sebelumnya hanya mengandalkan dialog cetak browser (`window.print()`) yang lambat, membutuhkan interaksi klik popup driver sistem operasi, dan tidak mampu mengontrol perangkat kasir fisik (pemotong kertas otomatis, pulse pembuka laci uang RJ-11, perutean cetak pesanan dapur/bar terpisah, atau koneksi Bluetooth printer nirkabel).
+- **Masalah/Target:**
+  1. Mengaudit seluruh arsitektur POS existing dan mengintegrasikan library standar industri `mike42/escpos-php: ^5.0` tanpa merusak fitur yang sudah berjalan (*100% backward compatibility*).
+  2. Mendukung berbagai topologi koneksi: LAN / Ethernet (TCP Port 9100), Wi-Fi, Windows Print Spooler Queue, Direct Device File (USB `/dev/usb/lp0` / COM Serial), dan Bluetooth melalui Local POS Agent daemon.
+  3. Menerapkan pengaman laci kas fisik (*Cash Drawer Safety Rules*): Laci kas HANYA boleh terbuka saat pesanan berstatus `COMPLETED` dengan pembayaran `CASH`. Dilarang membuka laci pada transaksi non-tunai atau cetak ulang struk (*reprint*). Pembukaan manual *No-Sale* wajib otorisasi PIN Supervisor dan terekam di `audit_logs`.
+  4. Menyediakan perutean tiket dapur/bar otomatis (*Kitchen Order Ticket - KOT*) berbasis kategori menu (makanan ke dapur, minuman ke bar) dengan layout tiket berhuruf tebal, modifikasi topping, dan catatan khusus.
+  5. Membangun konsol manajemen printer bertema Bento Apple HIG (`/pos/printers`) lengkap dengan kartu KPI, tab outlet, uji koneksi socket latency, uji cetak struk, dan uji kick laci kas.
+
+#### 2. What Was Done
+- **Audit & Instalasi Dependensi:**
+  - Audit skema database, controller, rute, model, dan view POS.
+  - Memasang package `mike42/escpos-php: ^5.0` dan `mike42/gfx-php: ^1.0` yang kompatibel penuh dengan PHP 8.3 & Laravel 13.
+- **Skema Database & Migrasi:**
+  - Membuat tabel `pos_printers` (profil hardware, interface address, port, lebar kertas 58mm/80mm, capabilities JSON, assigned usages JSON, assigned categories JSON, multi-tenant scoped `business_id` & `location_id`).
+  - Membuat tabel `pos_print_jobs` (antrean asinkron untuk local POS agent dan retry buffer).
+- **Model Eloquent & Casting (`App\Models`):**
+  - `PosPrinter.php`: Konstanta tipe koneksi (`TYPE_*`), penggunaan (`USAGE_*`), kapabilitas (`CAP_*`), helper `hasCapability()`, `supportsUsage()`, `supportsCategory()`, dan relasi.
+  - `PosPrintJob.php`: Status antrean (`pending`, `processing`, `printed`, `failed`), helper `markAsPrinted()`, `markAsFailed()`, dan relasi.
+- **Layanan Domain Printer (`App\Domain\Printer`):**
+  - `EscposFormatter.php`: Generator binary stream raw ESC/POS (Struk Kasir 58mm/80mm, Tiket Dapur KOT, Ringkasan Tutup Shift Kasir Blind Cash Count, Struk Diagnostik Uji Mandiri, dan Pulse Solenoid Laci Kas).
+  - `Connectors/`: Abstraksi konektor hardware (`NetworkConnector`, `WindowsConnector`, `FileConnector`, `AgentPayloadConnector`).
+  - `CashDrawerService.php`: Pengontrol keamanan laci kas (verifikasi status bayar, metode tunai, idempotensi anti-reprint, pembukaan manual ber-PIN supervisor).
+  - `KitchenRoutingService.php`: Router cerdas pemilah item pesanan ke stasiun dapur/bar berdasarkan kategori dan heuristik nama minuman.
+  - `PrinterDiagnosticService.php`: Layanan diagnostik konektivitas socket TCP dengan kalkulasi latency milidetik.
+  - `PrintJobService.php`: Pengelola antrean cetak asinkron dan polling agen.
+  - `PrinterManager.php`: Orkestrator terpadu seluruh operasi pencetakan POS.
+- **Controller & Routing:**
+  - `PosPrinterWebController.php`: CRUD profil printer, pengujian diagnostik ping, uji cetak, uji laci kas, direct print receipt, dan kitchen print.
+  - `PosAgentApiController.php`: REST API untuk Local POS Agent (`/api/v1/pos/agent/jobs`, `/status`, `/sync-device`, `/printers`).
+  - `routes/owner.php`: Mendaftarkan rute web `/pos/printers/*`, `/pos/orders/{order}/direct-print`, `/pos/orders/{order}/kitchen-print`, `/pos/cash-drawer/manual-pop`.
+  - `routes/api.php`: Mendaftarkan rute API agen lokal di bawah middleware `require.permission:pos.terminal`.
+- **Antarmuka Pengguna (Apple HIG Bento UI):**
+  - `resources/views/app/pos/printers/index.blade.php`: Halaman manajemen printer dengan 4 KPI summary cards, filter tab outlet, tabel desktop, kartu mobile, modal tambah/edit profil, dan dokumentasi local agent.
+  - `resources/views/app/pos/terminal.blade.php`: Menambahkan shortcut status printer di header, tombol buka laci kas (No-Sale) dengan modal PIN supervisor, dan modal sukses bayar Bento Action Grid 2x2 (Cetak ESC/POS, Cetak Dapur, Browser Print, WhatsApp).
+  - `resources/views/app/pos/receipt.blade.php`: Menambahkan tombol Cetak ESC/POS Hardware dengan floating status toast, mempertahankan tombol Cetak Bill (Browser Print) 100% backward compatible.
+- **Local POS Agent Reference Implementation:**
+  - `hardware-agent/agent.js`, `hardware-agent/package.json`, dan `hardware-agent/README.md`.
+
+#### 3. Technical Changes
+- **Files Affected:**
+  - `composer.json` & `composer.lock`
+  - `database/migrations/2026_09_25_100000_create_pos_printers_and_print_jobs_tables.php`
+  - `app/Models/PosPrinter.php`
+  - `app/Models/PosPrintJob.php`
+  - `app/Domain/Printer/EscposFormatter.php`
+  - `app/Domain/Printer/Connectors/PrinterConnectorInterface.php`
+  - `app/Domain/Printer/Connectors/NetworkConnector.php`
+  - `app/Domain/Printer/Connectors/WindowsConnector.php`
+  - `app/Domain/Printer/Connectors/FileConnector.php`
+  - `app/Domain/Printer/Connectors/AgentPayloadConnector.php`
+  - `app/Domain/Printer/CashDrawerService.php`
+  - `app/Domain/Printer/KitchenRoutingService.php`
+  - `app/Domain/Printer/PrinterDiagnosticService.php`
+  - `app/Domain/Printer/PrintJobService.php`
+  - `app/Domain/Printer/PrinterManager.php`
+  - `app/Http/Controllers/Web/Pos/PosPrinterWebController.php`
+  - `app/Http/Controllers/Api/V1/Pos/PosAgentApiController.php`
+  - `routes/owner.php`
+  - `routes/api.php`
+  - `resources/views/app/pos/printers/index.blade.php`
+  - `resources/views/app/pos/terminal.blade.php`
+  - `resources/views/app/pos/receipt.blade.php`
+  - `hardware-agent/package.json`
+  - `hardware-agent/agent.js`
+  - `hardware-agent/README.md`
+  - `tests/Feature/Pos/PosPrinterHardwareIntegrationTest.php`
+  - `docs/system/modules/pos-hardware-and-printers.md`
+  - `docs/SYSTEM_GUIDE.md`
+  - `docs/AiWorkHistory.md`
+
+#### 4. System Impacts
+- **Workflow Impact:** Kasir dapat mencetak struk secara instan dalam 0.2 detik langsung ke hardware thermal printer, laci kas fisik terbuka otomatis hanya untuk pembayaran tunai yang sah, koki dapur menerima tiket pesanan makanan otomatis terpisah dari tiket pesanan barista, dan pemilik bisnis dapat mengelola multi-printer lintas outlet secara terpusat.
+- **Business Rule Impact:** Menegakkan aturan keamanan kas dan jejak audit: pencegahan buka laci berulang pada reprint, kewajiban PIN supervisor untuk pembukaan laci manual, dan proteksi isolasi tenant multi-cabang.
+- **Backward Compatibility:** Merchant tanpa thermal printer jaringan tetap dapat menggunakan mode cetak standar browser (`window.print()`).
+
+#### 5. Verification & Testing
+- `php artisan test --filter=PosPrinterHardwareIntegrationTest`: **5 passed (36 assertions, 100% green)**.
+- `php artisan test --filter=PosBillReprintTrackingTest`: **7 passed (47 assertions, 100% green)**.
+- `php -l` lint check pada seluruh file PHP yang dibuat/dimodifikasi: Bebas error sintaks.
+
+#### 6. Important Decisions & Guardrails
+- **ESC/POS Stream Retrieval:** Pengambilan buffer data dari `MemoryPrintConnector::getData()` dilakukan sebelum penutupan printer (`$printer->close()`) untuk mencegah `implode(null)` pada siklus rilis memori.
+- **Idempotensi Laci Kas:** Laci kas tidak pernah dihubungkan ke aksi reprint untuk mencegah potensi pencurian uang tunai oleh oknum staf.
+- **Sanctum & Header Tenant Scoping:** Seluruh request dari Local POS Agent divalidasi dengan `Context::requireBusiness()` dan token autentikasi.
+
+#### 7. Documentation Promotion
+- Dipromosikan ke Dokumen Modul Layer 2: `docs/system/modules/pos-hardware-and-printers.md`.
+- Dirangkum dalam Dokumen Master Layer 3: `docs/SYSTEM_GUIDE.md` (Sub-bab 4.15 & Traceability Matrix).
+
+---
+
+### [WORK-2026-09-25-150] Skill Enhancement: Internal Fraud Audit & Protection Blueprint + Tri-Channel System Notifications (UI, Email, WhatsApp)
+
+- **Date:** 2026-09-25
+- **Status:** COMPLETED
+- **Module:** Agent Skill Directive & Architecture Blueprint
+- **Feature:** Internal Fraud Prevention Schemes (POS, Inventory, Finance, Immutable Audit Log) & Multi-Channel Event-Driven Notification Engine (UI In-App Center, HTML Email, Meta Cloud WhatsApp API, Queue Asynchronous, Fail-Safe Manual Fallback)
+- **Work Type:** Architecture | Security | Audit | Skill | Documentation
+
+#### 1. Business Context & Objective
+- **Konteks:** Ekosistem SaaS ERP & POS Cooca mengelola operasional multi-cabang UMKM yang rentan terhadap potensi kecurangan internal (fraud) staf (kasir, gudang, akuntan) dan memerlukan sistem notifikasi real-time terpadu lintas 3 saluran (UI in-app, Email, WhatsApp) untuk komunikasi transaksi, pengingat piutang, dan peringatan dini keamanan.
+- **Masalah/Target:**
+  1. Menambahkan audit komprehensif dan perlindungan skema fraud internal ke dalam skill `cooca-agent-directive` dan dokumentasi master repository (`docs/agent.md`, `docs/SYSTEM_GUIDE.md`).
+  2. Mendefinisikan arsitektur dan standar teknis notifikasi terpadu 3 saluran (UI Bell & Toast, Email HTML responsif, WhatsApp Cloud API) lengkap dengan pemrosesan antrean asinkron (`ShouldQueue`), mitigasi timeout/offline, dan tombol manual 1-klik fallback (`wa.me`).
+
+#### 2. What Was Done
+- **Pembaruan Skill & Referensi Direktif (.agents/skills/cooca-agent-directive/):**
+  - `SKILL.md`: Memperluas deskripsi skill, urutan siklus eksekusi, ringkasan proteksi fraud internal, dan arsitektur notifikasi tri-channel (UI/Email/WhatsApp).
+  - `references/security-and-data.md`: Menambahkan Bab 7 "Audit & Perlindungan Skema Fraud Internal":
+    - Skema Fraud Kasir/POS: Post-Payment Void (`supervisor_pin`), Silent Line Item Deletion, Retur/Refund Fiktif (Auto-Restock & Reversal Entry), Diskon Liar (Approval Threshold), No-Sale Drawer Pop (Audit logging & rate limiting), dan Tutup Kasir (**Blind Cash Count**).
+    - Skema Fraud Gudang & Pengadaan: Stock Write-Off Minus Fiktif (Maker-Checker & Berita Acara), Ghost Vendors & Mark-up PO (**Three-Way Matching**), Penerimaan Kurang (Partially Received & foto surat jalan), Transfer Gelap Antar Cabang (**Two-Step Transfer: In-Transit -> Received**), dan Scrap BOM Phantom.
+    - Skema Fraud Keuangan & Piutang: AR Skimming/Lapping (Auto-Receipt via WA/Email), Backdating/Future-dating (**Accounting Period Lock**), Silent Journal Modification (**Double-Entry Immutability**), dan Ghost Bank Ledger.
+    - Standar Kontrol Internal & Audit Trail Immutable (`user_id`, `business_id`, `branch_id`, `action`, IP, UA, snapshot JSON `payload_before` & `payload_after`, `reason_notes`).
+  - `references/automation-and-testing.md`: Menambahkan Bab 2 "Arsitektur Notifikasi Sistem Terpadu (UI, Email, WhatsApp)":
+    - Saluran UI (Notification Center Bell, Frosted Glass Toast Apple HIG, Action Modal Sheet Maker-Checker).
+    - Saluran Email (HTML responsif Apple HIG, Daily/Weekly Executive Digest, Critical Security Alert, Faktur PDF).
+    - Saluran WhatsApp (Meta Cloud API, format lugas & santun, struk digital, update status pesanan, Auto-Reminder piutang, Urgent Alert Owner).
+    - Prinsip Asinkron (`ShouldQueue`), Fail-Safe Graceful Fallback (Tombol Manual 1-Klik `wa.me`), Preferences Matrix, dan Rate Limiting Throttling.
+  - `references/design-system.md`: Menambahkan Bab 17 spesifikasi UI Notification Center Bell dropdown, Floating Toast Apple HIG, dan In-App Fraud Alert Banner.
+  - `references/documentation-and-dod.md`: Memperbarui checklist Definition of Done dengan guardrail fraud internal dan notifikasi tri-channel.
+- **Pembaruan Master Repository Documentation:**
+  - `docs/agent.md`: Menambahkan Sub-bab 7.2 (Audit & Proteksi Skema Fraud Internal), Sub-bab 8.2 (Arsitektur Notifikasi Tri-Channel), dan pembaruan checklist Bab 23.
+  - `docs/SYSTEM_GUIDE.md`: Menambahkan Sub-bab 4.14 (Arsitektur Audit & Proteksi Fraud Internal serta Notifikasi Sistem Terpadu UI, Email, WhatsApp) dan sinkronisasi Daftar Isi.
+
+#### 3. Technical Changes
+- **Files Affected:**
+  - `c:/laragon/www/cooca_core/.agents/skills/cooca-agent-directive/SKILL.md`
+  - `c:/laragon/www/cooca_core/.agents/skills/cooca-agent-directive/references/security-and-data.md`
+  - `c:/laragon/www/cooca_core/.agents/skills/cooca-agent-directive/references/automation-and-testing.md`
+  - `c:/laragon/www/cooca_core/.agents/skills/cooca-agent-directive/references/design-system.md`
+  - `c:/laragon/www/cooca_core/.agents/skills/cooca-agent-directive/references/documentation-and-dod.md`
+  - `c:/laragon/www/cooca_core/docs/agent.md`
+  - `c:/laragon/www/cooca_core/docs/SYSTEM_GUIDE.md`
+  - `c:/laragon/www/cooca_core/docs/AiWorkHistory.md`
+
+#### 4. System Impacts
+- **Workflow Impact:** Seluruh agen AI dan developer yang mengerjakan modul POS, Gudang, Pengadaan, dan Keuangan wajib mematuhi standar proteksi fraud (PIN supervisor, blind cash count, three-way matching, period lock, audit logging) dan memastikan event modul terintegrasi ke tri-channel notification queue dengan fail-safe fallback manual.
+- **Business Rule Impact:** Penegakan aturan anti-fraud melindungi margin dan kas tenant dari kebocoran internal.
+- **Permission Impact:** Penegakan Maker-Checker dan peran Supervisor/Owner yang jelas.
+
+#### 5. Verification & Testing
+- Seluruh file markdown tervalidasi sintaks dan referensi link-nya.
+- Sinkronisasi 3-Layer documentation konsisten 100%.
+
+#### 6. Important Decisions & Guardrails
+- **Blind Cash Count:** Kasir tidak boleh melihat ekspektasi kas sebelum menginput fisik di laci.
+- **Queue Asynchronous:** Dilarang memblokir response time POS/UI dengan network calls ke WhatsApp/Email gateway.
+- **Fail-Safe Fallback:** Jangan batalkan transaksi jika gateway offline; sediakan tombol manual 1-klik `wa.me`.
+
+---
+
+### [WORK-2026-09-25-149] Tax, Suppliers, & Warehouse Management: Bento Apple HIG Redesign, Defensive Security Hardening, & Multi-Tenant Audit
+
+- **Date:** 2026-09-25
+- **Status:** COMPLETED
+- **Module:** Tax Compliance, Procurement (Suppliers), & Inventory Logistics (Warehouse)
+- **Feature:** Full Tax Compliance & Sales Result Simulator (PPh Laba Bersih UU HPP, PPh Final UMKM 0.5%, PPh 21 TER, Payroll & THR, Sales Tax PPN), Supplier Directory & Banking Details, Multi-Location & Warehouse Cockpit (Stock Adjustment, Goods Receipts, Stock Movements)
+- **Work Type:** UI/UX | Security | Architecture | Testing | Documentation
+
+#### 1. Business Context & Objective
+- **Konteks:** Pelaku UMKM Indonesia (usia 40–65 thn) membutuhkan sistem kepatuhan pajak yang intuitif, direktori vendor terintegrasi nomor rekening perbankan untuk transfer invoice, serta kokpit multi-gudang dan cabang yang mempermudah monitoring stok fisik tanpa kesalahan entri.
+- **Masalah/Target:**
+  1. Redesain 4 halaman kunci (`tax/index.blade.php`, `suppliers/index.blade.php`, `warehouse/index.blade.php`, `warehouse/show.blade.php`) ke Bento Apple HIG (Clarity, Deference, Depth, kontras tinggi, zero-emoji, dual-mode Desktop Table + Mobile Card List, dan safe-area `pb-28 lg:pb-12`).
+  2. Melakukan audit defensif Strix (`find-security-vulnerabilities-in-code`) untuk menutup potensi IDOR pada `SupplierWebController`, memastikan isolasi tenant (`business_id`), dan validasi input perbankan (`bank_name`, `bank_account_number`, `bank_account_holder`).
+  3. Memastikan integritas workflow akuntansi pajak (UU HPP Pasal 31E/17, PP 55/2022) dan workflow pergudangan (Goods Receipt inbound, penyesuaian stok, audit trail mutasi saldo).
+  4. Menjamin 100% test passing pada seluruh suite pengujian terkait.
+
+#### 2. What Was Done
+- **Backend Security & Multi-Tenant Hardening:**
+  - `app/Http/Controllers/Web/SupplierWebController.php`: Menambahkan verifikasi IDOR `abort_unless($supplier->business_id === $business->id, 403)` pada method `update()` dan `destroy()`.
+  - Menambahkan validasi dan penyimpanan informasi rekening bank (`bank_name`, `bank_account_number`, `bank_account_holder`) pada `store()` dan `update()` di `SupplierWebController`.
+- **UI/UX Bento Apple HIG Redesign:**
+  - `resources/views/app/tax/index.blade.php`: Merombak antarmuka kalkulator pajak menjadi Bento Cockpit dengan 4 KPI Cards, Apple Segmented Tabs untuk 5 Simulator (Net Income, UMKM 0.5%, PPh 21 TER, Payroll & THR, Sales Tax PPN), rekapitulasi 12 bulan responsif, zero-emoji Lucide icons, dan mobile safe-area.
+  - `resources/views/app/suppliers/index.blade.php`: Merombak direktori pemasok dengan 4 Bento KPI Cards, Apple Segmented sub-navigation, integrasi nomor rekening bank pada tabel dan card mobile, direct WhatsApp button generator (`62xxx`), modal Add/Edit dengan field perbankan, dan Apple Alert Dialog untuk konfirmasi hapus.
+  - `resources/views/app/warehouse/index.blade.php`: Merombak hub cabang & gudang logistik dengan 4 Bento KPI Cards, Apple Segmented filter tabs (Semua, Cabang/Outlet, Gudang), Inbound SOP Step Guide, log mutasi terkini, modal Geofence GPS Absensi & Omnichannel Fulfillment, serta Apple Alert Dialog.
+  - `resources/views/app/warehouse/show.blade.php`: Merombak detail kokpit gudang dengan 4 Bento KPI Cards, Metadata Inspector Strip, 3 Action Shortcuts, live search stok produk, tabel & kartu mobile riwayat penerimaan barang (Goods Receipts) dan mutasi kartu stok, modal Quick Stock Adjust, dan modal Edit Lokasi.
+
+#### 3. Technical Changes
+- **Files Affected:**
+  - `app/Http/Controllers/Web/SupplierWebController.php`
+  - `resources/views/app/tax/index.blade.php`
+  - `resources/views/app/suppliers/index.blade.php`
+  - `resources/views/app/warehouse/index.blade.php`
+  - `resources/views/app/warehouse/show.blade.php`
+  - `docs/AiWorkHistory.md`
+- **Database / Schema:** Kolom `bank_name`, `bank_account_number`, dan `bank_account_holder` pada model `Supplier` diintegrasikan penuh ke UI Form & Controller.
+- **Route / API:** Menggunakan existing secure web & simulate routes (`tax.simulate.*`, `suppliers.*`, `warehouse.*`, `inventory.stocks.adjust`).
+
+#### 4. System Impacts
+- **Workflow Impact:** Alur pengadaan kini menampilkan informasi rekening bank vendor secara langsung untuk mempermudah transfer pembayaran invoice, alur pajak menghitung estimasi PPh HPP secara real-time, dan alur stok gudang menyediakan penyesuaian fisik 1-klik dengan audit mutasi otomatis.
+- **Business Rule Impact:** IDOR dicegah secara ketat pada level tenant di controller pemasok, dan penghapusan gudang dengan stok aktif atau gudang utama tetap terlindungi (`is_primary` and `quantity > 0` validation).
+- **Permission Impact:** Hak akses `master_data.suppliers.manage`, `inventory.manage`, `inventory.view`, dan `receiving.manage` terverifikasi akurat.
+
+#### 5. Verification & Testing
+- **Automated Tests:** Menjalankan test suite komprehensif:
+  - `TaxAndHRMComplianceTest.php`
+  - `TaxComplianceExportTest.php`
+  - `NetIncomeTaxComplianceTest.php`
+  - `BusinessLocationSetupTest.php`
+  - `SupplierInvoiceAndPaymentTest.php`
+  - `GoodsReceiptFeatureTest.php`
+  - `MaterialMasterStockBusinessRulesTest.php`
+  - **Hasil:** 35 passed, 0 failed (237 assertions).
+- **Blade Compilation:** `php artisan view:clear` dan `php artisan view:cache` berhasil 100% tanpa error sintaks.
+
+#### 6. Important Decisions & Guardrails
+- **Apple HIG & Ergonomics:** Zero-emoji, font minimum 16px pada input form mobile (`text-[16px] sm:text-xs`) untuk mencegah auto-zoom iOS Safari, dan safe area `pb-28 lg:pb-12`.
+- **Tenant Isolation Guard:** Verifikasi `business_id` eksplisit pada seluruh operasi mutasi data vendor dan gudang.
+
+### [WORK-2026-09-25-148] Billing & Subscription Ecosystem: Bento Apple HIG Redesign, Security Hardening, & Multi-Tenant Audit
+
+- **Date:** 2026-09-25
+- **Status:** COMPLETED
+- **Module:** Billing & Subscription / Tenant Quota & Licensing
+- **Feature:** Full Billing Lifecycle (Tier Selector, Checkout, Payment Gateway TriPay & Auto-Polling, Invoice Sheet, History, Limits & Quota Breakdown)
+- **Work Type:** UI/UX | Security | Architecture | Testing | Documentation
+
+#### 1. Business Context & Objective
+- **Konteks:** Pemilik usaha UMKM Indonesia (usia 40–65+ thn) membutuhkan alur perpanjangan langganan, upgrade paket (Standard, Premium, Prestige), dan pemantauan kapasitas pemakaian (Kasir POS, Faktur B2B, Storage, AI Token, Meja Kasir) yang transparan, mudah dipahami, berkeamanan tinggi, dan bebas kebingungan teknis.
+- **Masalah/Target:** 
+  1. Redesain 5 halaman utama Billing (`checkout`, `history`, `invoice`, `limits`, `payment`) ke Bento Apple HIG (Human Interface Guidelines) dengan prinsip Clarity, Deference, Depth, kontras tinggi, zero-emoji, dual-mode responsif (Desktop Table + Mobile Card List), dan safe area `pb-28 lg:pb-10`.
+  2. Audit keamanan Strix (`find-security-vulnerabilities-in-code`) untuk mencegah IDOR, mass assignment, dan kebocoran data antar-tenant (`business_id`).
+  3. Memperketat validasi backend authorization `abort_unless(Context::isOwner() || Context::hasPermission('billing.manage'), 403)` pada `SubscriptionCheckoutWebController::store()`.
+  4. Memvalidasi paket promo trial gratis (`PROMO TRIAL GRATIS`) agar aktif secara otomatis tanpa payment gateway berbayar.
+  5. Menjamin 100% test passing pada seluruh skenario langganan dan payment flow.
+
+#### 2. What Was Done
+- **Backend Security & Multi-Tenant Hardening:**
+  - Menambahkan autorisasi izin berlapis `abort_unless(Context::isOwner() || Context::hasPermission('billing.manage'), 403)` pada pembuatan pesanan subscription dan add-on di `SubscriptionCheckoutWebController`.
+  - Memvalidasi seluruh relasi pembayaran terisolasi ke `business_id` aktif via `Context::requireBusiness()`, serta proteksi IDOR pada payment view dan invoice detail.
+- **UI/UX Bento Apple HIG Redesign (5 Views):**
+  - `checkout.blade.php`: 3-Tier Selector (Standard, Premium, Prestige) + Add-on Selector (AI Token & Storage), Segmented Cycle Toggle (Bulanan/Tahunan `Hemat 2 Bln`), banner promo trial gratis terverifikasi otomatis, dan saluran TriPay terkurasi (QRIS, VA BCA/Mandiri/BNI/BRI, E-Wallet).
+  - `history.blade.php`: Surface `bg-white dark:bg-[#1C1C1E]`, hairline border `border-black/[0.06] dark:border-white/[0.08]`, 4 Kartu Bento KPI Finansial, Apple Segmented Filter Tabs (Semua, Menunggu, Selesai, Kedaluwarsa), dan Dual-Mode responsif (Desktop Table `hidden md:block` + Mobile Card List `block md:hidden`).
+  - `invoice.blade.php`: Standarisasi faktur A4 Print Sheet resmi PT Cooca Teknologi Indonesia, tipografi SF Pro / Plus Jakarta Sans, tabular numerals, dan direct PDF download via `html2pdf.js` bebas watermark.
+  - `payment.blade.php`: Bento Apple HIG surface, 4-phase lifecycle stepper, dynamic QRIS visualizer, TriPay auto-polling, dan banner status semantik Apple.
+  - `limits.blade.php`: 4 Pillar Bento KPI, showcase paket aktif (Core Plan Executive Card), Grid 4 Paket Resmi, Hub Infrastruktur Storage & AI, rincian per-bisnis & per-kategori file, modal sheet Alpine `storageLimitsManager()`, tombol recalculate sinkronisasi disk, kuota transaksi bulanan (POS, Invoices, PO, Social Media, WhatsApp), 9 kartu kapasitas master data, dan matriks perbandingan fitur.
+- **Testing & Quality Assurance:**
+  - Memverifikasi `FreePromoTrialPackageActivationTest` (4/4 tests PASS, 30 assertions).
+  - Memverifikasi `TierLimitsAndQuotasTest`, `SubscriptionPaymentFlowTest`, `PatunganSubscriptionWorkflowTest`, `SaaSPlanAndEntitlementTest`, `SubscriptionLifecycleAndNotificationTest`, dan `TripayPaymentTest` (total 44/44 tests PASS, 237 assertions).
+  - Memverifikasi kompilasi template Blade (`php artisan view:cache`) 100% lolos.
+
+#### 3. Technical Changes
+- **Files Modified:**
+  - `app/Http/Controllers/Web/Billing/SubscriptionCheckoutWebController.php`
+  - `resources/views/app/billing/checkout.blade.php`
+  - `resources/views/app/billing/history.blade.php`
+  - `resources/views/app/billing/invoice.blade.php`
+  - `resources/views/app/billing/limits.blade.php`
+  - `resources/views/app/billing/payment.blade.php`
+
+#### 4. System Impacts
+- **Workflow Impact:** Alur pembelian paket trial gratis langsung mengaktifkan lisensi tanpa diarahkan ke payment gateway; transaksi berbayar memiliki auto-polling dan verifikasi real-time.
+- **Business Rule Impact:** Proteksi kuota storage, token AI, dan kasir POS bekerja konsisten dengan batasan tier (Free, Standard, Premium, Prestige).
+- **Permission Impact:** Hanya pengguna dengan peran Owner atau izin `billing.manage` yang dapat melakukan checkout atau sinkronisasi recalculate storage.
+
+#### 5. Verification & Testing
+- `php artisan test tests/Feature/FreePromoTrialPackageActivationTest.php tests/Feature/TierLimitsAndQuotasTest.php tests/Feature/SubscriptionPaymentFlowTest.php tests/Feature/PatunganSubscriptionWorkflowTest.php tests/Feature/SaaSPlanAndEntitlementTest.php tests/Feature/SubscriptionLifecycleAndNotificationTest.php tests/Feature/TripayPaymentTest.php` (44 tests, 237 assertions, 100% PASS).
+- `php artisan view:cache` (PASS).
+
+#### 6. Important Decisions & Guardrails
+- **Zero-Emoji Compliance:** Seluruh elemen UI menggunakan ikon SVG Lucide standard (`<i data-lucide="...">`).
+- **Ergonomi Boomer (40–65 thn):** Touch targets tombol dan selektor berukuran 44–52px, input form mobile `text-[16px] sm:text-[14px]` untuk mencegah iOS auto-zoom, dan safe area padding bawah `pb-28 lg:pb-10`.
+- **Financial Integrity & Multi-Tenant Isolation:** `business_id` selalu diikat dari context sesi aktif `Context::requireBusiness()`, mencegah segala celah manipulasi lintas tenant.
+
+#### 7. Documentation Promotion
+- Tercatat di `docs/AiWorkHistory.md` [WORK-2026-09-25-148].
+
+### [WORK-2026-09-25-147] Analytics Suite & Document Approvals (MAR) Bento Apple HIG Redesign, Security Hardening, & Multi-Tenant Audit
+
+- **Date:** 2026-09-25
+- **Status:** COMPLETED
+- **Module:** Analytics & Reports / Document Approvals (MAR Engine)
+- **Feature:** Business Analytics Suite & Multi-Level Document Approval Workflow (Inbox, History, Rules)
+- **Work Type:** UI/UX | Security | Architecture | Testing | Documentation
+
+#### 1. Business Context & Objective
+- **Konteks:** Pemilik usaha dan tim manajemen UMKM (usia 40–65+ thn) membutuhkan visibilitas cepat terhadap pertumbuhan omzet dan laba riil usaha, serta sistem otorisasi transaksi bertingkat (Maker - Approver - Releaser) yang aman, lugas, dan bebas hambatan visual.
+- **Masalah/Target:** Memperbaiki antarmuka modul Analitik dan Otorisasi Dokumen agar mematuhi standar Bento Apple HIG (ramah Boomer, zero-emoji, modal-first, mobile safe-area), mengaudit batas isolasi multi-tenant (`business_id`), menyempurnakan fitur edit aturan otorisasi in-place, dan memvalidasi keutuhan alur finansial/akuntansi.
+
+#### 2. What Was Done
+- **UI/UX Bento Apple HIG Redesign:**
+  - `resources/views/app/analytics/index.blade.php`: Merestrukturisasi kartu metrik, chart tren Chart.js adaptif light/dark, visualisasi jam sibuk kasir, dan dual-mode responsif (Desktop Table + Mobile Card List Tiles).
+  - `resources/views/app/approvals/inbox.blade.php`: Bento cards berlayer frosted glass untuk tiket permohonan persetujuan, modal sheet konfirmasi setuju/tolak dengan touch target 48–52px dan safe padding `pb-28`–`pb-32`.
+  - `resources/views/app/approvals/history.blade.php`: Arsip audit trail dengan dual-mode (Desktop Table + Mobile Card List) dan filter jenis dokumen.
+  - `resources/views/app/approvals/rules.blade.php`: Kartu bento visualisasi tingkat otorisasi (Level 1 s/d 3) dan penambahan **Modal Edit Aturan In-Place** (terhubung ke controller `rulesUpdate`).
+- **Security & Multi-Tenant Hardening (Strix Audit):**
+  - Mengaudit seluruh query Eloquent terisolasi ke `business_id` aktif via `Context::requireBusiness()`.
+  - Memperketat validasi `max_amount` (`gte:min_amount`) pada `rulesStore` dan `rulesUpdate` di `ApprovalWebController`.
+  - Memperbaiki kueri rentang tanggal di `AnalyticsWebController` menjadi `whereDate` untuk kompatibilitas multi-database (MySQL, SQLite, PostgreSQL).
+- **Testing & Quality Assurance:**
+  - Menulis test suite komprehensif `tests/Feature/AnalyticsWebTest.php` (100% PASS).
+  - Menjalankan `DocumentApprovalWorkflowTest` (9/9 tests PASS).
+  - Memvalidasi Blade compilation (`php artisan view:cache`) dan route mapping.
+
+#### 3. Technical Changes
+- **Files Modified:**
+  - `resources/views/app/analytics/index.blade.php`
+  - `resources/views/app/approvals/inbox.blade.php`
+  - `resources/views/app/approvals/history.blade.php`
+  - `resources/views/app/approvals/rules.blade.php`
+  - `app/Http/Controllers/Web/Approval/ApprovalWebController.php`
+  - `app/Http/Controllers/Web/AnalyticsWebController.php`
+- **Files Created:**
+  - `tests/Feature/AnalyticsWebTest.php`
+  - `docs/system/modules/analytics-and-approvals.md`
+
+#### 4. System Impacts
+- **Workflow Impact:** Penyetuju dapat mengedit aturan otorisasi langsung dari modal in-place tanpa navigasi pindah halaman; review performa analitik di perangkat mobile menjadi lebih lapang dan bebas scroll horizontal.
+- **Business Rule Impact:** Penegakan batas validasi $min <= $max pada aturan plafon otorisasi dokumen.
+- **Permission Impact:** Tetap terikat `reports.view`, `approvals.view`, dan `approvals.manage`.
+
+#### 5. Verification & Testing
+- `php artisan test tests/Feature/AnalyticsWebTest.php tests/Feature/DocumentApprovalWorkflowTest.php` (12 tests, 67 assertions, 100% PASS).
+- `php artisan view:cache` (PASS).
+- `php artisan route:list` (PASS).
+
+#### 6. Important Decisions & Guardrails
+- Menjaga integritas rumus finansial 100% utuh tanpa alterasi data historis.
+- Zero-emoji diterapkan mutlak di seluruh UI.
+- Input form mobile berukuran minimal 16px anti-auto-zoom iOS.
+
+#### 7. Documentation Promotion
+- Dipromosikan ke `docs/system/modules/analytics-and-approvals.md` dan diselaraskan pada `docs/SYSTEM_GUIDE.md`.
 
 ### [WORK-2026-09-25-146] Marketplace Integration Hub (Shopee, TikTok Shop, Tokopedia) with Multi-Pricing, Auto Stock Sync, & Secure Multi-Tenant Isolation
 

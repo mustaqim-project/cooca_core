@@ -27,8 +27,10 @@ class PosShift extends Model
         'opened_at',
         'closed_at',
         'opening_cash',
+        'opening_denominations',
         'closing_cash_actual',
         'closing_cash_expected',
+        'closing_denominations',
         'cash_difference',
         'total_cash_sales',
         'total_non_cash_sales',
@@ -36,6 +38,7 @@ class PosShift extends Model
         'total_cash_out',
         'status',
         'notes',
+        'cashier_notes',
     ];
 
     /**
@@ -47,8 +50,10 @@ class PosShift extends Model
             'opened_at' => 'datetime',
             'closed_at' => 'datetime',
             'opening_cash' => 'float',
+            'opening_denominations' => 'array',
             'closing_cash_actual' => 'float',
             'closing_cash_expected' => 'float',
+            'closing_denominations' => 'array',
             'cash_difference' => 'float',
             'total_cash_sales' => 'float',
             'total_non_cash_sales' => 'float',
@@ -60,6 +65,33 @@ class PosShift extends Model
     public function isOpen(): bool
     {
         return $this->status === self::STATUS_OPEN;
+    }
+
+    public function isBalanced(): bool
+    {
+        return abs((float) ($this->cash_difference ?? 0.0)) < 0.01;
+    }
+
+    public function isShort(): bool
+    {
+        return (float) ($this->cash_difference ?? 0.0) < -0.01;
+    }
+
+    public function isOver(): bool
+    {
+        return (float) ($this->cash_difference ?? 0.0) > 0.01;
+    }
+
+    public function getVarianceLabel(): string
+    {
+        $diff = (float) ($this->cash_difference ?? 0.0);
+        if (abs($diff) < 0.01) {
+            return 'Pas (Balanced)';
+        }
+        if ($diff > 0) {
+            return '+Rp ' . number_format($diff, 0, ',', '.') . ' (Lebih / Over)';
+        }
+        return '-Rp ' . number_format(abs($diff), 0, ',', '.') . ' (Kurang / Short)';
     }
 
     /**

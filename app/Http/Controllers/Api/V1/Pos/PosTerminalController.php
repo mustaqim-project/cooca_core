@@ -220,6 +220,7 @@ final class PosTerminalController extends Controller
             'notes' => ['nullable', 'string', 'max:500'],
             'points_to_redeem' => ['nullable', 'integer', 'min:0'],
             'location_id' => ['nullable', 'string'],
+            'pos_register_id' => ['nullable', 'string', 'exists:pos_registers,id'],
         ]);
 
         $activeShift = $this->shiftService->getActiveShift($business, $user, $validated['location_id'] ?? null);
@@ -234,6 +235,7 @@ final class PosTerminalController extends Controller
                     'customer_id' => $validated['customer_id'] ?? null,
                     'customer_name_guest' => $validated['customer_name_guest'] ?? null,
                     'order_type' => $validated['order_type'] ?? 'takeaway',
+                    'pos_register_id' => $validated['pos_register_id'] ?? $activeShift?->pos_register_id ?? null,
                     'table_or_reference' => $validated['table_or_reference'] ?? null,
                     'discount_type' => $validated['discount_type'] ?? 'fixed',
                     'discount_value' => (float) ($validated['discount_value'] ?? 0),

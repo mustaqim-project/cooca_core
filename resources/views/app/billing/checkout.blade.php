@@ -157,12 +157,18 @@
         },
     
         get currentPrice() {
+            const selectedPkg = this.packageId ? this.packages.find(item => item.id === this.packageId) : null;
+            if (selectedPkg && Number(selectedPkg.price) <= 0) {
+                return 0;
+            }
             if (this.orderType === 'subscription') {
+                if (selectedPkg && !['standard', 'premium', 'prestige'].includes(this.selectedTier)) {
+                    return Number(selectedPkg.price);
+                }
                 const plan = this.tierPlans[this.selectedTier] || this.tierPlans.standard;
                 return this.cycle === 'annual' ? plan.annual : plan.monthly;
             }
-            const selected = this.packageId ? this.packages.find(item => item.id === this.packageId) : null;
-            if (selected) return Number(selected.price);
+            if (selectedPkg) return Number(selectedPkg.price);
             return this.topupPrice;
         },
     
@@ -310,6 +316,49 @@
                                 </button>
                             </div>
                         </div>
+
+                        @if ($packages->where('price', '<=', 0)->isNotEmpty())
+                            <!-- Promo / Trial Packages Banner -->
+                            <div class="space-y-3">
+                                <div class="text-xs font-bold text-[#FF9500] uppercase tracking-wider font-mono flex items-center gap-1.5">
+                                    <i data-lucide="sparkles" class="w-4 h-4"></i>
+                                    <span>Penawaran Promo Spesial Tersedia</span>
+                                </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                                    @foreach ($packages->where('price', '<=', 0) as $promoPkg)
+                                        <div role="radio" tabindex="0"
+                                            :aria-checked="packageId === '{{ $promoPkg->id }}' ? 'true' : 'false'"
+                                            @click="packageId = '{{ $promoPkg->id }}'; selectedTier = 'promo';"
+                                            @keydown.space.prevent="packageId = '{{ $promoPkg->id }}'; selectedTier = 'promo';"
+                                            @keydown.enter.prevent="packageId = '{{ $promoPkg->id }}'; selectedTier = 'promo';"
+                                            :class="packageId === '{{ $promoPkg->id }}' ?
+                                                'border-[#34C759] bg-green-50/40 dark:bg-green-950/30 ring-2 ring-[#34C759]' :
+                                                'border-black/[0.06] dark:border-white/[0.08] bg-black/[0.01] dark:bg-white/[0.02] hover:border-black/[0.14]'"
+                                            class="cursor-pointer rounded-[18px] border p-4 sm:p-5 transition-all relative flex flex-col justify-between group active:scale-[0.98] focus-visible:outline-none">
+                                            <div class="space-y-2.5">
+                                                <div class="flex items-center justify-between">
+                                                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono tracking-wider border uppercase bg-green-100 text-green-800 dark:bg-green-900/60 dark:text-green-300 border-green-300 dark:border-green-700">
+                                                        PROMO TRIAL GRATIS
+                                                    </span>
+                                                    <div class="w-5 h-5 rounded-full border border-gray-300 dark:border-gray-600 flex items-center justify-center shrink-0 transition"
+                                                        :class="packageId === '{{ $promoPkg->id }}' ? 'border-[#34C759] bg-[#34C759] text-white' : ''">
+                                                        <div x-show="packageId === '{{ $promoPkg->id }}'" class="w-2 h-2 rounded-full bg-white"></div>
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <h4 class="text-base font-bold text-black dark:text-white">{{ $promoPkg->name }}</h4>
+                                                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{{ $promoPkg->description ?: 'Akses seluruh fitur Pro tanpa biaya.' }}</p>
+                                                </div>
+                                                <div class="pt-2 border-t border-black/[0.06] dark:border-white/[0.08] flex items-baseline justify-between">
+                                                    <div class="text-lg font-bold font-mono tabular-nums text-[#34C759]">Rp 0 (Gratis)</div>
+                                                    <span class="text-[11px] font-mono text-gray-500 dark:text-gray-400">{{ $promoPkg->duration_days }} Hari Masa Aktif</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
 
                         <!-- 3-Tier Bento Selection Cards -->
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4" role="radiogroup"
@@ -607,7 +656,7 @@
                                 <h3 id="payment-channels-heading"
                                     class="text-sm sm:text-base font-bold text-black dark:text-white flex items-center gap-2">
                                     <i data-lucide="wallet" class="w-4 h-4 text-[#007AFF]" aria-hidden="true"></i>
-                                    <span>Pilih Metode Pembayaran (TriPay Gateway)</span>
+                                    <span>Pilih Metode Pembayaran</span>
                                 </h3>
                                 <p class="text-[11px] sm:text-xs text-gray-500 dark:text-gray-400 mt-0.5">
                                     Pembayaran terverifikasi otomatis seketika melalui TriPay Indonesia (QRIS Dinamis &amp;
@@ -630,12 +679,9 @@
                             <i data-lucide="sparkles" class="w-5 h-5"></i>
                         </div>
                         <div class="space-y-1 text-xs">
-                            <h4 class="font-bold text-black dark:text-white text-sm">Paket Bebas Biaya - Promo Trial Aktif
-                                Otomatis</h4>
+                            <h4 class="font-bold text-black dark:text-white text-sm">Paket Bebas Biaya - Promo Trial Aktif Otomatis</h4>
                             <p class="text-gray-600 dark:text-gray-300 leading-relaxed">
-                                Anda memilih paket promo khusus (Rp 0). Bisnis Anda <strong>tidak perlu melakukan transfer
-                                    dana</strong> maupun mengunggah bukti bayar. Fitur Cooca akan langsung aktif seketika
-                                setelah menekan tombol konfirmasi.
+                                Anda memilih paket promo khusus (Rp 0). Bisnis Anda <strong>tidak perlu melakukan transfer dana</strong> maupun mengunggah bukti bayar. Fitur Cooca akan langsung aktif seketika setelah menekan tombol konfirmasi.
                             </p>
                         </div>
                     </div>

@@ -77,12 +77,55 @@ final class CommerceShippingService
         // Try Biteship Rates calculation first if destination is given
         if (! empty($destinationPostalCode) || ! empty($destinationCoordinates['latitude'])) {
             try {
+                /** @var \App\Models\Location|null $originLocation */
+                $originLocation = null;
+                if (! empty($destinationCoordinates['latitude']) && ! empty($destinationCoordinates['longitude'])) {
+                    $custLat = (float) $destinationCoordinates['latitude'];
+                    $custLng = (float) $destinationCoordinates['longitude'];
+                    $branches = \App\Models\Location::where('business_id', $business->id)
+                        ->where('is_active', true)
+                        ->where('is_online_fulfillment', true)
+                        ->whereNotNull('latitude')
+                        ->whereNotNull('longitude')
+                        ->get();
+
+                    if ($branches->isNotEmpty()) {
+                        $stockedBranches = $branches->filter(function (\App\Models\Location $b) use ($items) {
+                            return $this->locationHasStock($b->id, $items);
+                        });
+
+                        $candidates = $stockedBranches->isNotEmpty() ? $stockedBranches : $branches;
+
+                        $originLocation = $candidates->sortBy(function (\App\Models\Location $b) use ($custLat, $custLng) {
+                            return $b->distanceTo($custLat, $custLng) ?? PHP_INT_MAX;
+                        })->first();
+                    }
+                }
+
+                if (! $originLocation) {
+                    $onlineBranches = \App\Models\Location::where('business_id', $business->id)
+                        ->where('is_active', true)
+                        ->where('is_online_fulfillment', true)
+                        ->orderBy('is_primary', 'desc')
+                        ->get();
+
+                    if ($onlineBranches->isNotEmpty()) {
+                        $stockedBranch = $onlineBranches->first(function (\App\Models\Location $b) use ($items) {
+                            return $this->locationHasStock($b->id, $items);
+                        });
+
+                        $originLocation = $stockedBranch ?? $onlineBranches->first();
+                    } else {
+                        $originLocation = \App\Models\Location::where('business_id', $business->id)->where('is_primary', true)->first();
+                    }
+                }
+
                 $origin = [
-                    'postal_code' => $storeSetting?->origin_postal_code,
-                    'latitude'    => $storeSetting?->origin_latitude,
-                    'longitude'   => $storeSetting?->origin_longitude,
-                    'area_id'     => $storeSetting?->origin_area_id,
-                    'address'     => $storeSetting?->origin_address,
+                    'postal_code' => $originLocation?->postal_code ?? $storeSetting?->origin_postal_code,
+                    'latitude'    => $originLocation?->latitude ?? $storeSetting?->origin_latitude,
+                    'longitude'   => $originLocation?->longitude ?? $storeSetting?->origin_longitude,
+                    'area_id'     => $originLocation?->biteship_area_id ?? $storeSetting?->origin_area_id,
+                    'address'     => $originLocation?->address ?? $storeSetting?->origin_address,
                 ];
 
                 $destination = [
@@ -154,6 +197,8 @@ final class CommerceShippingService
                             'courier_name'         => $selectedOption['courier_name'] ?? null,
                             'service_name'         => $selectedOption['courier_service_name'] ?? null,
                             'duration'             => $selectedOption['duration'] ?? null,
+                            'origin_location_id'   => $originLocation?->id,
+                            'origin_location_name' => $originLocation?->name,
                             'options'              => $options,
                         ];
                     }
@@ -234,5 +279,43 @@ final class CommerceShippingService
             'is_free'           => true,
             'options'           => [],
         ];
+    }
+
+    /**
+     * Check whether a specific location has sufficient available inventory for the given items.
+     *
+     * @param string $locationId
+     * @param array<int, array{product_id?: string, quantity?: float|int}> $items
+     * @return bool
+     */
+    public function locationHasStock(string $locationId, array $items): bool
+    {
+        if (empty($items)) {
+            return true;
+        }
+
+        foreach ($items as $item) {
+            $productId = (string) ($item['product_id'] ?? '');
+            $qty = (float) ($item['quantity'] ?? 0);
+            if (! $productId || $qty <= 0) {
+                continue;
+            }
+
+            $product = \App\Models\Product::find($productId);
+            if (! $product || ! $product->isGoods()) {
+                continue;
+            }
+
+            $stock = \App\Models\InventoryStock::where('location_id', $locationId)
+                ->where('product_id', $productId)
+                ->first();
+
+            $available = $stock ? (float) ($stock->quantity - ($stock->reserved_quantity ?? 0)) : 0.0;
+            if ($available < $qty) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

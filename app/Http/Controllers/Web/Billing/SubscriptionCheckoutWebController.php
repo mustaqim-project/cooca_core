@@ -65,17 +65,23 @@ final class SubscriptionCheckoutWebController extends Controller
             'storage_bytes' => $package->storage_bytes,
         ])->values()->all();
 
-        // 100% Exclusive TriPay Automatic Payment Gateway Channels (§Blueprint v2.3 §5.D)
-        $paymentAccounts = collect(SubscriptionPayment::PAYMENT_METHODS)->map(function ($method) {
+        // 100% Exclusive TriPay Automatic Payment Gateway Channels - Dynamically Filter Active Channels Only
+        $activeTripayChannels = $this->tripayService->getActiveChannels();
+
+        $paymentAccounts = collect($activeTripayChannels)->map(function ($method) {
+            $code = strtolower((string) ($method['code'] ?? 'qris'));
+            $isQris = str_contains($code, 'qris') || ($method['type'] ?? '') === 'qris';
+
             return (object) [
-                'bank_code' => $method['code'],
-                'bank_name' => $method['name'],
-                'type' => $method['type'],
-                'account_number' => $method['account_number'],
-                'account_name' => $method['account_name'],
-                'icon' => $method['icon'] ?? 'credit-card',
-                'color' => $method['color'] ?? 'blue',
-                'instructions' => $method['instructions'],
+                'bank_code' => $code,
+                'bank_name' => $method['name'] ?? ($isQris ? 'QRIS Dinamis (GoPay, OVO, ShopeePay, BCA, Livin, BRImo)' : strtoupper($code)),
+                'type' => $isQris ? PaymentAccount::TYPE_QRIS : ($method['type'] ?? 'virtual_account'),
+                'account_number' => $isQris ? 'Scan QR Code Cooca Pay' : ($method['code'] ?? 'Nomor VA Otomatis'),
+                'account_name' => 'PT COOCA DIGITAL INDONESIA',
+                'icon' => $isQris ? 'qr-code' : ($method['icon'] ?? 'credit-card'),
+                'icon_url' => $method['icon_url'] ?? null,
+                'color' => $isQris ? 'emerald' : ($method['color'] ?? 'blue'),
+                'instructions' => $method['description'] ?? ($method['instructions'] ?? 'Buka aplikasi m-Banking atau e-Wallet apa pun, scan kode QRIS dinamis di layar.'),
             ];
         });
 
@@ -108,6 +114,7 @@ final class SubscriptionCheckoutWebController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $business = Context::requireBusiness();
+        abort_unless(Context::isOwner() || Context::hasPermission('billing.manage'), 403, 'Hanya Owner atau pengelola billing yang dapat melakukan pemesanan paket langganan.');
         $user = auth()->user();
 
         $orderType = $request->input('order_type', 'subscription');
@@ -118,10 +125,13 @@ final class SubscriptionCheckoutWebController extends Controller
 
         $isFreePackage = $package && (float) $package->price <= 0.0;
 
-        // Allowed payment codes: 100% TriPay Channels + Free Promo (§Blueprint v2.3 §5.D)
+        // Allowed payment codes: active TriPay Channels + defined methods + Free Promo
+        $activeTripayCodes = collect($this->tripayService->getActiveChannels())->pluck('code')->map(fn($c) => strtolower((string) $c))->all();
         $validCodes = array_values(array_unique(array_merge(
+            ['qris', SubscriptionPayment::METHOD_FREE_PROMO],
+            array_keys(SubscriptionPayment::PAYMENT_METHODS),
             array_keys(SubscriptionPayment::TRIPAY_CHANNELS),
-            [SubscriptionPayment::METHOD_FREE_PROMO]
+            $activeTripayCodes
         )));
 
         $validated = $request->validate([

@@ -312,17 +312,103 @@ Setiap modul wajib diaudit batas keamanannya (_security boundary_) dan kesenjang
     - _Risiko_: Server WhatsApp Gateway terputus sehingga struk tidak terkirim otomatis, memicu kepanikan kasir/pelanggan.
     - _Mitigasi_: Wajib memiliki mode fallback ramah Boomer. Jika gateway offline, sediakan tombol instan: `[ 📲 Kirim Manual via WhatsApp Web / Aplikasi HP ]` dengan teks nota yang telah terformat rapi.
 
+### 7.2 Audit & Perlindungan Skema Fraud Internal (Internal Fraud Schemes & Mitigation Matrix)
+
+Setiap pengembang dan asisten AI wajib menerapkan proteksi bawaan (*built-in guardrails*) terhadap celah kecurangan internal pada seluruh modul:
+
+#### A. Skema Fraud Kasir & Front-Desk (POS Cashier Fraud)
+- **Post-Payment Cash Void (Void Pasca Bayar)**: Kasir membatalkan nota di sistem setelah menerima uang tunai dari pelanggan.
+  - *Proteksi*: Void pasca cetak struk **WAJIB butuh `supervisor_pin`** (Bcrypt hash) + pencatatan audit log immutable (`void_reason`, `cashier_id`, `supervisor_id`, snapshot item) + alert instan ke WhatsApp & Email Owner.
+- **Silent Line Item Deletion (Hapus Item Siluman)**: Menghapus item bernilai tinggi dari cart saat pelanggan membayar harga penuh.
+  - *Proteksi*: Tracking log event `order_item_removed` untuk pesanan aktif yang sudah terkirim ke dapur/bengkel.
+- **Fictitious Refund & Returns (Retur & Refund Fiktif)**:
+  - *Proteksi*: Refund tunai wajib nomor faktur asli yang sah + PIN Supervisor + auto-restock fisik + jurnal pembalik kas & HPP + notifikasi instan Owner.
+- **Unauthorized / Fake Discounts (Diskon Liar)**:
+  - *Proteksi*: Diskon manual > threshold (mis. > 10% atau > nominal tertentu) wajib approval Supervisor/Maker-Checker.
+- **No-Sale Drawer Pop (Buka Laci Kas Manual)**:
+  - *Proteksi*: Event `open_cash_drawer` tanpa transaksi wajib mencatat alasan (`reason_text`), rate limiting (`throttle:3,1`), dan counter di dashboard supervisor.
+- **Shift End Cash Tampering (Manipulasi Tutup Kasir)**:
+  - *Proteksi*: **Wajib Blind Cash Count (Tutup Kasir Buta)** — Kasir menginput uang fisik riil tanpa melihat angka ekspektasi sistem terlebih dahulu. Sistem otomatis menghitung selisih kas (*over/short*), mengunci shift, mencatat jurnal selisih kas, dan mengirim laporan tutup shift ke WhatsApp Owner.
+
+#### B. Skema Fraud Gudang & Pengadaan (Inventory & Procurement Fraud)
+- **Phantom Stock Write-off (Penyesuaian Stok Minus Fiktif)**: Menghapus stok dengan dalih barang rusak/hilang untuk menutupi pencurian.
+  - *Proteksi*: Stock adjustment minus bernilai besar (> threshold) wajib persetujuan Supervisor/Owner, upload foto bukti / Berita Acara, dan audit trail mencatat `stock_before` vs `stock_after`.
+- **Ghost Vendors & Purchase Mark-up**:
+  - *Proteksi*: **Three-Way Matching** wajib: Purchase Order (PO) ↔ Bukti Penerimaan Barang (GRN) ↔ Invoice Tagihan Supplier (AP).
+- **Receiving Discrepancies (Penerimaan Barang Kurang)**:
+  - *Proteksi*: Wajib mencatat identitas penerima, foto surat jalan, batch number, dan status *Partially Received*.
+- **Unauthorized Inter-Branch Transfers (Transfer Stok Gelap Antar-Cabang)**:
+  - *Proteksi*: **Two-Step Transfer** (`In-Transit` → `Received`) dengan alert otomatis jika belum dikonfirmasi dalam batas waktu SLA.
+
+#### C. Skema Fraud Keuangan, Akuntansi, & Piutang
+- **Accounts Receivable Skimming / Lapping (Penggelapan Setoran Piutang)**:
+  - *Proteksi*: Pelunasan piutang **otomatis menerbitkan kuitansi/nota lunas via WhatsApp & Email ke pelanggan**, membukukan kas/bank instan, dan auto-reminder piutang berjalan langsung ke nomor pelanggan.
+- **Backdating / Future-dating (Manipulasi Tanggal Transaksi)**:
+  - *Proteksi*: **Accounting Period Lock (Kunci Buku)** — transaksi tidak dapat diinput/diedit pada periode yang telah dikunci. Sistem memisahkan `transaction_date` (bisnis) dan `created_at` (server timestamp).
+- **Silent Journal Modification**:
+  - *Proteksi*: **Double-Entry Immutability** — jurnal terposting dilarang dihapus/diedit; perbaikan wajib menggunakan Jurnal Pembalik (*Adjustment Entry*).
+
+#### D. Standar Kontrol Internal & Audit Trail Immutable
+- Seluruh mutasi data berisiko (Void, Refund, Stock Adj, Manual Discount, Kas Keluar, Role Change) wajib tersimpan di tabel `audit_logs` dengan format: `user_id`, `business_id`, `branch_id`, `action`, `module`, IP address, User Agent, snapshot JSON `payload_before` & `payload_after`, serta `reason_notes`.
+
 ---
 
-# 8. MANDAT OTOMASI SISTEM PENUH (TOTAL SYSTEM AUTOMATION DIRECTIVE)
+# 8. MANDAT OTOMASI SISTEM PENUH & ARSITEKTUR NOTIFIKASI TERPADU
 
 Sistem COOCA dirancang agar **bekerja secara mandiri untuk pengguna**, membebaskan mereka dari rutinitas input data berulang:
 
+### 8.1 Mesin Otomasi Inti
 1. **Auto-Journaling Ganda (Debit = Kredit)**: Transaksi penjualan POS, order online, PO pembelian, kas masuk/keluar, dan pelunasan piutang wajib otomatis menghasilkan jurnal akuntansi seimbang tanpa mengharuskan pengguna memahami bagan akun (_Chart of Accounts_).
 2. **Auto-Stock & Auto-BOM**: Penjualan makanan/minuman racikan atau paket barang langsung memotong stok bahan baku mentah secara otomatis berdasarkan resep (_Bill of Materials_).
 3. **Auto-Invoice & WhatsApp Dispatch**: Invoice digital terbit seketika dan terkirim otomatis via WhatsApp berisi ringkasan nota dan tautan struk resmi tanpa kasir mengetik manual.
 4. **Auto-Reminder Piutang & Hutang**: Pengingat berkala otomatis via WhatsApp dan notifikasi dashboard untuk invoice yang mendekati atau melewati jatuh tempo.
 5. **Auto-Reconciliation & Status Engine**: Transisi status pesanan (_Menunggu Pembayaran ➔ Diproses ➔ Siap Diambil/Dikirim ➔ Selesai_) terotomasi penuh via webhook pembayaran atau aksi kasir 1-klik.
+
+### 8.2 Arsitektur Notifikasi Sistem Terpadu (Tri-Channel Notifications: UI, Email, & WhatsApp)
+
+COOCA mengadopsi mesin notifikasi multi-saluran terpadu berbasis event (*Tri-Channel Event-Driven Notification Engine*):
+
+1. **Saluran UI (In-App Notification Center & Toast)**:
+   - **Header Bell Dropdown**: Ikon Lucide `bell` dengan badge counter `tabular-nums` dan segmentasi kategori (*Transaksi, Keamanan & Fraud, Stok, Otorisasi/Approval, Sistem*).
+   - **Toast Melayang Apple HIG**: Frosted glass non-intrusif, auto-dismiss 3–5 detik, Lucide semantic icons, zero emoji.
+   - **Actionable Approval Cards (Modal Sheet)**: Form persetujuan instan untuk Maker-Checker (Setujui / Tolak 44px+) tanpa navigasi melompat.
+2. **Saluran Email (Responsive HTML Templates)**:
+   - **Ringkasan Eksekutif Harian/Mingguan (Daily Digest)** ke Business Owner (Omzet, margin, rekap kas, alert anomali).
+   - **Critical Fraud & Security Alert**: Dikirim seketika saat anomali terdeteksi (void berulang, selisih kas > limit, login IP baru).
+   - **Faktur & Invoice Resmi B2B**: Dokumen PDF terlampir / signed temporary download URL.
+3. **Saluran WhatsApp (Meta Cloud API & Gateway Dispatch)**:
+   - **Nota & Struk Digital Kasir POS**: Link invoice/struk digital instan ke WhatsApp pelanggan saat transaksi selesai.
+   - **Update Status Pesanan Toko Online**: Konfirmasi pesanan, nomor resi kurir, dan tautan live tracking.
+   - **Pengingat Jatuh Tempo Piutang (Auto-Reminder)**: Format pesan santun berjadwal (H-3, Hari H, H+3) dengan tombol pembayaran.
+   - **Urgent Fraud & Operational Alert ke Nomor WhatsApp Owner**: Peringatan seketika saat kasir void abnormal, selisih shift besar, atau stok kritis.
+4. **Prinsip Operasional & Robustness Notifikasi**:
+   - **Wajib Asinkron (`ShouldQueue`)**: Pengiriman Email dan WhatsApp wajib via Laravel Queue agar response time POS/UI tetap sub-100ms.
+   - **Fail-Safe & Graceful Fallback**: Jika koneksi gateway WhatsApp/Email terputus, transaksi tetap sukses, status dicatat `FAILED` di `notification_logs`, dan UI menyediakan tombol manual 1-klik `[ Kirim via WhatsApp Web / HP ]` (`https://wa.me/...`).
+   - **Granular Preferences Matrix**: Owner bebas menentukan channel aktif per jenis event di menu Pengaturan.
+
+### 8.3 Saran Fitur, Optimasi Performa, & Penataan Arsitektur End-to-End (Architectural Blueprint)
+
+COOCA mengadopsi standar rekayasa terstruktur untuk penataan fitur hulu-ke-hilir dan efisiensi eksekusi:
+
+#### A. Konsolidasi 6-Hub Modul Utama (Modular Taxonomy)
+1. **Hub Operasional Kasir (POS)**: Kasir Cepat (Touch/Barcode/Shortcut), Manajemen Meja & Dine-In, Tiket Dapur/Bar KOT, Laci Kas RJ-11 Safety Controller, Tutup Shift Blind Cash Count.
+2. **Hub Katalog & Logistik**: Katalog Produk & Varian, Resep Bahan Baku BOM (*Auto-BOM Deduction*), Multi-Gudang & Cabang, Mutasi & Penyesuaian Stok (Berita Acara & Approval), Two-Step In-Transit Transfer.
+3. **Hub Pengadaan & Pemasok (AP)**: Direktori Supplier & Rekening Bank Resmi, Purchase Order MAR (*Maker-Approver-Releaser*), Three-Way Matching Penerimaan GRN, Retur Pembelian.
+4. **Hub Pelanggan & Kanal Digital (Commerce & CRM)**: CRM Pelanggan & Plafon Kasbon, Poin Loyalitas & Voucher, Toko Online Storefront Publik, Pre-Order Dinamis, Ekspedisi Otomatis (Biteship).
+5. **Hub Keuangan, Pajak & SDM (Finance, Tax & HRM)**: Kas & Rekening Bank Terpadu, Auto-Journaling Double-Entry, Auto-Reminder Piutang, Pajak UMKM (PP 55/PPh 21 TER/PPh Badan/PPN), Penggajian (Payroll, BPJS, THR, Komisi SPK).
+6. **Hub Ekosistem & Administrasi Platform**: WhatsApp Cloud API Meta Hub, Omnichannel Social Media (Meta/TikTok/LinkedIn UGC API), Landing Page Studio, Billing SaaS Tier (TriPay Gateway).
+
+#### B. Optimasi Kinerja, Caching & Resilience
+- **Tag-Based Caching Layer (Redis)**: Master data aktif (`tenant_{id}:products`) di-cache dengan invalidasi otomatis via Eloquent Model Observers saat mutasi data terjadi.
+- **Offline-First POS Resilience (IndexedDB / PWA)**: Snapshot katalog lokal di browser kasir memungkinkan transaksi tunai dan cetak ESC/POS lokal tetap berjalan saat jaringan internet toko drop, dengan antrean auto-sync saat koneksi pulih.
+- **Database Indexing & Zero N+1 Queries**: Composite Index pada tabel transaksi besar (`business_id, branch_id, status, created_at`) dan kewajiban Eager Loading (`with(['items.product', ...])`).
+- **Asynchronous Task Offloading**: Proses berat (PDF invoice, email digest, WhatsApp API, rekapitulasi data besar) dialirkan ke antrean background worker.
+
+#### C. Smart Workflows & Zero-Manual Automation
+- **Smart Barcode & QR Hardware Scanner**: Global listener untuk pemindaian instan di POS dan audit stok opname.
+- **Self-Service QR Table Ordering**: Scan QR meja langsung dari smartphone pelanggan $\rightarrow$ otomatis masuk ke KOT dapur dan terminal kasir.
+- **Auto-Reorder PO Advisor**: Peringatan otomatis saat stok menyentuh Reorder Point (ROP) + pembuatan draf PO ke supplier dalam 1-klik.
+- **Interactive Customer WhatsApp Bot**: Layanan mandiri pelanggan via WhatsApp webhook untuk cek nota, resi kiriman, dan poin loyalitas.
 
 ---
 
@@ -652,17 +738,18 @@ Dirancang khusus agar dapat dioperasikan secara percaya diri oleh generasi **Boo
 
 - Operasi **Show (Detail)**, **Create (Tambah Baru)**, dan **Edit (Ubah)** pada seluruh halaman index **WAJIB DISEDIAKAN DALAM BENTUK POP-UP / MODAL SHEET LANGSUNG DI HALAMAN INDEX TANPA REDIRECT (_Zero Navigation Jumps_)**.
 - Filter pencarian, filter kategori, sorting, dan posisi pagination tetap utuh saat modal ditutup.
-- **Standar Ukuran: Wajib Full Layout XXL untuk Seluruh Operasi Utama**:
-    - DILARANG menggunakan modal sempit (`max-w-md` atau `max-w-lg`) untuk form ERP, transaksi, dan master-detail karena membuat form berjejal, memicu scroll vertikal berlebihan, dan memotong tabel rincian transaksi.
-    - Seluruh modal operasional (Tambah/Ubah Produk, Pembelian, Penjualan POS, Customer CRM, Kas & Bank, Approval Langganan, Jurnal, dan Laporan) **WAJIB menggunakan Full Layout XXL (`max-w-5xl` hingga `max-w-[1250px]` / `max-w-[95vw]`)** yang lapang, elegan, dan memanfaatkan ruang layar monitor desktop secara optimal.
+- **Mandat Mutlak: Form Pop-Up / Modal Sheet Wajib Berukuran Full Size di Desktop & Mobile**:
+    - DILARANG KERAS menggunakan modal form yang berukuran kecil atau sempit (`max-w-sm`, `max-w-md`, `max-w-lg`, `max-w-xl`) untuk seluruh operasi pengisian data (Form Tambah, Ubah, Input Transaksi, Penyesuaian, Otorisasi, Detail Transaksi) karena membuat input berdesakan dan memotong tampilan tabel rincian item.
+    - **Desktop (>= 1024px)**: Wajib menggunakan **Full Layout XXL Centered Bento Dialog** (`w-full max-w-[95vw] lg:max-w-5xl xl:max-w-6xl 2xl:max-w-[1350px] mx-auto rounded-[24px] max-h-[92vh] flex flex-col`) dengan tata letak multi-kolom Bento yang lapang (8 kolom area form/tabel utama + 4 kolom metrik ringkasan live).
+    - **Mobile (< 640px)**: Wajib menggunakan **Full-Width Apple Responsive Bottom Sheet** (`w-full inset-x-0 bottom-0 rounded-t-[28px] h-full max-h-[95vh] sm:max-h-[96vh] flex flex-col`) dengan 100% lebar layar, input font minimal 16px anti auto-zoom, dan sticky bottom action bar 48px–52px.
 
 ### 17.1.1 Matriks Responsivitas Modal Pop-Up Lintas Perangkat (Desktop, Tablet, Mobile)
 
 | Parameter Desain        | Layar Desktop (>= 1024px)                                                      | Layar Tablet Kasir & iPad (640px – 1023px)                         | Layar Smartphone Mobile (< 640px)                                              |
 | ----------------------- | ------------------------------------------------------------------------------ | ------------------------------------------------------------------ | ------------------------------------------------------------------------------ |
 | **Tipe Kontainer**      | **Full Layout XXL Centered Bento Dialog**                                      | **Centered Responsive Bento Modal**                                | **Apple Full-Responsive Bottom Sheet** meluncur dari bawah layar               |
-| **Dimensi Lebar**       | `w-full max-w-[95vw] lg:max-w-5xl xl:max-w-6xl 2xl:max-w-[1250px] mx-auto`     | `w-full max-w-[92vw] md:max-w-3xl lg:max-w-4xl mx-auto`            | `w-full max-w-full inset-x-0 bottom-0`                                         |
-| **Ketinggian (Height)** | `max-h-[90vh] sm:max-h-[92vh] flex flex-col my-auto`                           | `max-h-[90vh] flex flex-col my-auto`                               | `max-h-[94vh] flex flex-col`                                                   |
+| **Dimensi Lebar**       | `w-full max-w-[95vw] lg:max-w-5xl xl:max-w-6xl 2xl:max-w-[1350px] mx-auto`     | `w-full max-w-[94vw] md:max-w-3xl lg:max-w-4xl mx-auto`            | `w-full max-w-full inset-x-0 bottom-0` (100% Lebar Layar)                     |
+| **Ketinggian (Height)** | `max-h-[90vh] sm:max-h-[92vh] flex flex-col my-auto`                           | `max-h-[90vh] sm:max-h-[92vh] flex flex-col my-auto`               | `h-full max-h-[95vh] flex flex-col`                                            |
 | **Radius Sudut**        | `rounded-[24px]` squircle kontinu Apple                                        | `rounded-[22px]` squircle kontinu Apple                            | `rounded-t-[28px]` membulat di sudut atas                                      |
 | **Pegangan (Grab Bar)** | Tidak ada                                                                      | Tidak ada                                                          | Wajib (`w-10 h-1.5 rounded-full bg-black/20 dark:bg-white/20 mx-auto my-2.5`)  |
 | **Struktur Grid Body**  | **Multi-Kolom Bento 2 s/d 3 Kolom** (`grid grid-cols-1 lg:grid-cols-12 gap-6`) | **2 Kolom Seimbang** (`grid grid-cols-1 md:grid-cols-2 gap-4`)     | **1 Kolom Vertikal Murni** (`grid-cols-1 gap-3.5`)                             |
@@ -1014,8 +1101,9 @@ Panduan induk tingkat tertinggi bagi Business Owner, Developer, QA, dan AI Agent
 Pekerjaan hanya dapat dinyatakan selesai jika seluruh butir checklist ini tercentang:
 
 - [ ] **History & Dokumentasi Terbaca**: Riwayat pekerjaan sebelumnya dan panduan sistem telah dibaca dan dipahami.
-- [ ] **Gap Keamanan 4 Peran Tuntas**: Celah antara Admin, Owner, Customer (anti-IDOR), dan Otomasi (fail-safe) telah terproteksi.
-- [ ] **Otomasi Sistem Terpasang**: Proses repetitif (jurnal akuntansi, potong stok BOM, kirim nota WA, transisi status) telah berjalan otomatis.
+- [ ] **Gap Keamanan 4 Peran & Proteksi Fraud Tuntas**: Celah antara Admin, Owner, Customer (anti-IDOR), dan Otomasi (fail-safe) telah terproteksi. Guardrail anti-fraud aktif: `supervisor_pin` pada Void/Refund POS, Blind Cash Count tutup kasir, Three-Way Matching pengadaan, Two-Step Transfer stok antar-cabang, dan Accounting Period Lock.
+- [ ] **Audit Trail Immutable Aktif**: Setiap mutasi berisiko tercatat lengkap ke tabel `audit_logs` (`user_id`, `business_id`, IP, before/after snapshot, `reason_notes`).
+- [ ] **Otomasi & Notifikasi Tri-Channel Terpasang**: Proses repetitif (jurnal akuntansi, potong stok BOM, transisi status) terotomasi penuh. Notifikasi multi-saluran (UI in-app notification center, Email HTML responsif, dan WhatsApp Meta API) berjalan asinkron via Queue dengan fail-safe tombol manual 1-klik (`wa.me`).
 - [ ] **Bento UI Multi-Device Luwes**: Tata letak modular bento grid adaptif di smartphone, tablet kasir, dan desktop.
 - [ ] **Keseragaman Konsep UI Lintas Perangkat**: 100% mewarisi bahasa desain Bento Apple HIG yang sama persis (squircle, frosted glass, tipografi tabular, warna semantik).
 - [ ] **Full-Style Floating Bottom Navbar**: Tersedia bottom navigation bar mengambang bergaya iOS 18 pada smartphone/tablet (`fixed bottom-3`) dengan elevated center quick-action.

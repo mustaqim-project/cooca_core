@@ -166,13 +166,13 @@
                                             x-text="currentTmpl.category"></span>
                                     </div>
                                     <div class="text-black/70 dark:text-white/70">
-                                        <span class="text-[#34C759] dark:text-[#30D158] font-semibold">Modul Aktif:</span>
+                                        <span class="text-[#34C759] dark:text-[#30D158] font-semibold">Module Active:</span>
                                         <span x-text="currentTmpl.enabled.map(i => i.name).join(', ')"></span>
                                     </div>
                                     <template x-if="currentTmpl.disabled && currentTmpl.disabled.length > 0">
                                         <div
                                             class="text-black/45 dark:text-white/45 text-[11px] pt-1.5 border-t border-black/5 dark:border-white/5">
-                                            <span>Modul Disembunyikan: </span>
+                                            <span>Module Non-Active: </span>
                                             <span class="line-through"
                                                 x-text="currentTmpl.disabled.map(i => i.name).join(', ')"></span>
                                         </div>

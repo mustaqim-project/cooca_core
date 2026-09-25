@@ -64,6 +64,7 @@ class PosOrder extends Model
     protected $fillable = [
         'business_id',
         'location_id',
+        'pos_register_id',
         'pos_shift_id',
         'user_id',
         'customer_id',
@@ -205,6 +206,14 @@ class PosOrder extends Model
     public function location(): BelongsTo
     {
         return $this->belongsTo(Location::class);
+    }
+
+    /**
+     * @return BelongsTo<PosRegister, $this>
+     */
+    public function posRegister(): BelongsTo
+    {
+        return $this->belongsTo(PosRegister::class, 'pos_register_id');
     }
 
     /**

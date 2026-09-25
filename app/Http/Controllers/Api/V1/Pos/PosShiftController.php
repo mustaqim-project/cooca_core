@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\V1\Pos;
 
 use App\Domain\Pos\PosShiftService;
+use App\Domain\Printer\PrinterManager;
 use App\Http\Controllers\Controller;
 use App\Models\Location;
+use App\Models\PosPrinter;
 use App\Models\PosRegister;
 use App\Models\PosShift;
 use App\Support\Context;
@@ -17,7 +19,8 @@ use Symfony\Component\HttpFoundation\Response;
 final class PosShiftController extends Controller
 {
     public function __construct(
-        private readonly PosShiftService $shiftService = new PosShiftService
+        private readonly PosShiftService $shiftService = new PosShiftService,
+        private readonly PrinterManager $printerManager = new PrinterManager
     ) {}
 
     /**
@@ -77,7 +80,7 @@ final class PosShiftController extends Controller
         $summary = $this->shiftService->getShiftSummary($activeShift);
 
         return response()->json([
-            'active_shift' => $activeShift->load(['user:id,name', 'location:id,name']),
+            'active_shift' => $activeShift->load(['user:id,name', 'location:id,name', 'register:id,name']),
             'summary' => $summary,
         ], Response::HTTP_OK);
     }
@@ -91,24 +94,29 @@ final class PosShiftController extends Controller
         $user = $request->user();
 
         $validated = $request->validate([
-            'opening_cash' => ['required', 'numeric', 'min:0'],
+            'opening_cash' => ['nullable', 'numeric', 'min:0'],
             'location_id' => ['nullable', 'string', 'exists:locations,id'],
             'pos_register_id' => ['nullable', 'string', 'exists:pos_registers,id'],
             'notes' => ['nullable', 'string', 'max:255'],
+            'opening_denominations' => ['nullable', 'array'],
         ]);
+
+        $openingCash = (float) ($validated['opening_cash'] ?? 0.0);
+        $openingDenominations = (array) ($validated['opening_denominations'] ?? []);
 
         $shift = $this->shiftService->openShift(
             business: $business,
             user: $user,
-            openingCash: (float) $validated['opening_cash'],
+            openingCash: $openingCash,
             posRegisterId: $validated['pos_register_id'] ?? null,
             locationId: $validated['location_id'] ?? null,
-            notes: $validated['notes'] ?? null
+            notes: $validated['notes'] ?? null,
+            openingDenominations: $openingDenominations
         );
 
         return response()->json([
             'message' => 'Shift kasir berhasil dibuka dengan modal awal Rp ' . number_format((float) $shift->opening_cash, 0, ',', '.'),
-            'shift' => $shift->load(['user:id,name', 'location:id,name']),
+            'shift' => $shift->load(['user:id,name', 'location:id,name', 'register:id,name']),
         ], Response::HTTP_CREATED);
     }
 
@@ -125,7 +133,7 @@ final class PosShiftController extends Controller
         $summary = $this->shiftService->getShiftSummary($posShift);
 
         return response()->json([
-            'shift' => $posShift->load(['user:id,name', 'location:id,name']),
+            'shift' => $posShift->load(['user:id,name', 'location:id,name', 'register:id,name']),
             'summary' => $summary,
         ], Response::HTTP_OK);
     }
@@ -141,19 +149,26 @@ final class PosShiftController extends Controller
         }
 
         $validated = $request->validate([
-            'closing_cash_actual' => ['required', 'numeric', 'min:0'],
+            'closing_cash_actual' => ['nullable', 'numeric', 'min:0'],
             'notes' => ['nullable', 'string', 'max:500'],
+            'cashier_notes' => ['nullable', 'string', 'max:500'],
+            'closing_denominations' => ['nullable', 'array'],
         ]);
+
+        $actualCash = (float) ($validated['closing_cash_actual'] ?? 0.0);
+        $closingDenominations = (array) ($validated['closing_denominations'] ?? []);
 
         $closed = $this->shiftService->closeShift(
             shift: $posShift,
-            actualCash: (float) $validated['closing_cash_actual'],
-            notes: $validated['notes'] ?? null
+            actualCash: $actualCash,
+            notes: $validated['notes'] ?? null,
+            closingDenominations: $closingDenominations,
+            cashierNotes: $validated['cashier_notes'] ?? null
         );
 
         return response()->json([
             'message' => 'Shift kasir berhasil ditutup dan direkonsiliasi.',
-            'shift' => $closed,
+            'shift' => $closed->load(['user:id,name', 'location:id,name', 'register:id,name']),
         ], Response::HTTP_OK);
     }
 
@@ -191,5 +206,23 @@ final class PosShiftController extends Controller
             'message' => "{$label} sebesar Rp " . number_format((float) $movement->amount, 0, ',', '.') . ' berhasil dicatat.',
             'movement' => $movement,
         ], Response::HTTP_CREATED);
+    }
+
+    /**
+     * Direct print shift summary report to ESC/POS thermal printer.
+     */
+    public function printSummary(Request $request, PosShift $posShift): JsonResponse
+    {
+        $business = Context::requireBusiness();
+        if ($posShift->business_id !== $business->id) {
+            return response()->json(['message' => 'Shift tidak ditemukan.'], Response::HTTP_NOT_FOUND);
+        }
+
+        $printerId = $request->input('printer_id');
+        $printer = $printerId ? PosPrinter::where('business_id', $business->id)->find($printerId) : null;
+
+        $result = $this->printerManager->printCashierShift($posShift, $printer);
+
+        return response()->json($result, Response::HTTP_OK);
     }
 }

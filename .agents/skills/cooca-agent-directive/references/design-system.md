@@ -195,13 +195,29 @@ Dilarang `p-6`/`p-8` pada kartu mobile (memotong 48–64px dari layar 360–390p
 - Dark: background `#000000`/`#1C1C1E`, kartu `#1C1C1E`/`#2C2C2E`, teks utama `#FFFFFF`, sekunder `dark:text-white/60`, hairline `border-white/[0.08]`.
 - Dilarang fill solid jenuh di kartu/banner - gunakan tinted badge pill (`bg-{color}/12 text-{color}`) hanya untuk status siklus hidup (lihat §3).
 
-## 14. Modal-First Standar Full Layout XXL & Responsif Multi-Device
+## 14. Mandat Mutlak: Form Pop-Up / Modal Sheet Berukuran Penuh (Full Size) di Desktop & Mobile
 
-- Halaman index: Create/Show/Edit **wajib** modal sheet, zero page-jumps. Filter, pencarian, sorting, posisi pagination tetap tersimpan saat modal ditutup.
-- **Mandat Full Layout XXL**: Dilarang modal sempit (`max-w-md` atau `max-w-lg`) untuk form operasional ERP/transaksi/master-detail.
-- **Desktop (>= 1024px)**: **Full Layout XXL Centered Bento Dialog** (`w-full max-w-[95vw] lg:max-w-5xl xl:max-w-6xl 2xl:max-w-[1250px] mx-auto rounded-[24px] max-h-[90vh] flex flex-col`), frosted glass (`backdrop-blur-2xl bg-white/95 dark:bg-[#1C1C1E]/95 border border-black/[0.06] dark:border-white/[0.08] shadow-2xl`), layout multi-kolom Bento (8 kolom utama + 4 kolom ringkasan), sticky header & sticky footer action bar.
-- **Tablet (640px – 1023px)**: **Centered Responsive Bento Modal** (`w-full max-w-[92vw] md:max-w-3xl lg:max-w-4xl mx-auto rounded-[22px] max-h-[90vh] flex flex-col`), layout 2-kolom seimbang, touch target tombol 44px–48px.
-- **Mobile (< 640px)**: **Apple Full-Responsive Bottom Sheet** dari bawah layar (`w-full inset-x-0 bottom-0 rounded-t-[28px] max-h-[94vh] flex flex-col overflow-hidden`), grab bar (`w-10 h-1.5 bg-black/20 dark:bg-white/20 rounded-full mx-auto my-2.5 shrink-0`), input font minimal 16px (`text-[16px] sm:text-[14px]`) anti auto-zoom, sticky bottom action bar dengan safe area padding (`pb-[max(1rem,env(safe-area-inset-bottom))]`).
+Setiap kali antarmuka memuat **formulir (Form Create, Edit, Input Transaksi, Form Penyesuaian, Show/Detail, maupun Dialog Interaktif)** di dalam pop-up / modal, wajib mengadopsi standar **Full-Size Canvas** lintas perangkat:
+
+> **Aturan Emas**: Dilarang keras membuat modal form berukuran kecil/sempit (`max-w-sm`, `max-w-md`, `max-w-lg`, atau `max-w-xl`) yang menyebabkan isian form terlihat berdesakan, terpotong, atau mengharuskan scrolling sempit. Seluruh form dalam pop-up wajib lapang, membentang penuh, dan bernafas lega.
+
+### A. Desktop (>= 1024px) - Full Layout XXL Centered Bento Dialog
+- **Dimensi Kontainer**: `w-full max-w-[95vw] lg:max-w-5xl xl:max-w-6xl 2xl:max-w-[1350px] mx-auto rounded-[24px] max-h-[92vh] flex flex-col overflow-hidden`.
+- **Struktur Multi-Kolom Bento**: Memanfaatkan lebar layar secara maksimal dengan tata letak multi-kolom yang lapang (misal: 8 kolom untuk field input & tabel item transaksi + 4 kolom untuk kartu ringkasan, metrik kalkulasi live, dan instruksi bantuan).
+- **Elemen Form**: Seluruh kolom input, dropdown, textarea, dan tabel item wajib membentang penuh (`w-full`) di dalam kolom Bento masing-masing.
+- **Sticky Navigation**: Sticky modal header di atas dan sticky footer action bar di bawah (`[ Batal ]` dan `[ Simpan Data ]` 44px–52px).
+
+### B. Tablet (640px – 1023px) - Centered Responsive Bento Modal
+- **Dimensi Kontainer**: `w-full max-w-[94vw] md:max-w-3xl lg:max-w-4xl mx-auto rounded-[22px] max-h-[92vh] flex flex-col overflow-hidden`.
+- **Tata Letak**: Grid 2-kolom seimbang dengan touch target tombol 44px–48px dan input `text-[15px] sm:text-[14px]`.
+
+### C. Mobile (< 640px) - Full-Width Apple Responsive Bottom Sheet
+- **Dimensi Kontainer**: `w-full inset-x-0 bottom-0 rounded-t-[28px] h-full max-h-[95vh] sm:max-h-[96vh] flex flex-col overflow-hidden`.
+- **Pemanfaatan Layar**: Memanfaatkan 100% lebar viewport ponsel (`w-full`), dengan grab bar di puncak (`w-10 h-1.5 bg-black/20 dark:bg-white/20 rounded-full mx-auto my-2.5 shrink-0`).
+- **Skala Input & Anti-Auto-Zoom**: Seluruh `<input>`, `<select>`, dan `<textarea>` berukuran font minimal **16px** (`text-[16px] sm:text-[14px]`) untuk mencegah auto-zoom iOS Safari.
+- **Sticky Bottom Action Bar**: Tombol submit/aksi utama berukuran penuh `w-full` dengan tinggi **48px–52px** dan padding bawah aman (*Safe Area Padding*) `pb-[max(1.25rem,env(safe-area-inset-bottom))]` / `pb-8`.
+
+---
 
 ## 15. Inline Quick-Add `[ + ]`
 
@@ -238,3 +254,42 @@ Perilaku wajib: buka mini modal sheet tanpa menghilangkan isian form utama → s
 | `Master Data Supplier` (`/suppliers`) berdiri sendiri                                            | Pindahkan ke grup navigasi **Pembelian & Vendor** (berdampingan PO, Tagihan, Retur)                                    | Tidak perlu cari menu Supplier di bawah dashboard                   |
 
 Penggabungan wajib disertai rute redirect/alias untuk URL lama dan melewati Interactive Confirmation Gate sebelum eksekusi.
+
+---
+
+## 17. Spesifikasi UI Notification Center, Toast Apple HIG, & In-App Fraud Alert
+
+### A. Bell Dropdown / Notification Center (Header)
+
+- **Trigger Button**: Tombol 40×40px atau 44×44px di Topbar dengan ikon Lucide `bell` (`w-5 h-5`), unread counter pill `bg-[#FF3B30] text-white text-[11px] font-bold px-1.5 py-0.5 rounded-full tabular-nums shadow-sm absolute -top-1 -right-1`.
+- **Dropdown Panel**: Popover centered/right-aligned berukuran `w-[360px] sm:w-[420px] max-w-[95vw] rounded-[20px] backdrop-blur-2xl bg-white/95 dark:bg-[#1C1C1E]/95 border border-black/[0.08] dark:border-white/[0.12] shadow-2xl overflow-hidden`.
+- **Header Dropdown**: Judul "Pemberitahuan", tab filter mini (*Semua · Belum Dibaca · Keamanan/Fraud · Otorisasi*), dan tombol "Tandai Semua Dibaca" (warna `#007AFF`, tanpa emoji).
+- **Item Notifikasi**: Squircle item berjarak lapang, ikon kategori Lucide dengan background pastel lembut (misal: Fraud = `#FF3B30`/10 text-[#FF3B30], Transaksi = `#34C759`/10 text-[#34C759]), timestamp relatif (`2 menit lalu`, `tabular-nums`), dan penanda unread dot biru muda.
+
+### B. Toast Feedback Melayang (Floating Frosted Glass Toast)
+
+- **Posisi**: Melayang di bagian atas tengah (`fixed top-5 left-1/2 -translate-x-1/2 z-[100]`).
+- **Styling**: `inline-flex items-center gap-3 px-4 py-3 rounded-[16px] backdrop-blur-xl bg-white/90 dark:bg-zinc-900/90 border border-black/[0.06] dark:border-white/[0.10] shadow-[0_10px_30px_rgba(0,0,0,0.12)] text-[13px] sm:text-[14px] font-medium text-slate-800 dark:text-zinc-100 animate-slide-down`.
+- **Ikon Semantik**: Lucide `check-circle-2` (hijau), `alert-triangle` (kuning/oranye), `shield-alert` (merah), `info` (biru). **Zero Emoji Unicode**.
+- **Auto-Dismiss**: Hilang otomatis setelah 3–4 detik dengan transisi fade out halus.
+
+### C. In-App Fraud & Security Alert Banner
+
+- **Tampilan**: Banner bento terisolasi di puncak halaman dashboard/POS:
+  ```html
+  <div class="rounded-[18px] bg-red-500/10 border border-red-500/20 p-4 sm:p-5 flex items-start gap-4">
+      <div class="w-10 h-10 rounded-[12px] bg-red-500/15 text-red-600 dark:text-red-400 flex items-center justify-center shrink-0">
+          <i data-lucide="shield-alert" class="w-5 h-5"></i>
+      </div>
+      <div class="flex-1 min-w-0">
+          <h4 class="text-[14px] sm:text-[15px] font-bold text-red-900 dark:text-red-200">Peringatan Integritas Kasir</h4>
+          <p class="text-[12px] sm:text-[13px] text-red-700/90 dark:text-red-300/80 mt-0.5 leading-relaxed">
+              Terdeteksi 3x pembatalan nota (void) berturut-turut pada Shift Pagi Cabang Utama.
+          </p>
+      </div>
+      <button type="button" class="px-3.5 py-2 rounded-[10px] bg-red-600 text-white text-[12px] font-semibold hover:bg-red-700 active:scale-95 transition-all shrink-0">
+          Periksa Audit Log
+      </button>
+  </div>
+  ```
+

@@ -337,6 +337,16 @@ final class PublicOrderTrackingController extends Controller
         $destinationAddress = $request->input('destination_address', $request->input('shipping_address'));
         $items = $request->input('items', []);
 
+        $destinationCoordinates = null;
+        $lat = $request->input('latitude', $request->input('customer_lat'));
+        $lng = $request->input('longitude', $request->input('customer_lng'));
+        if ($lat !== null && $lng !== null && is_numeric($lat) && is_numeric($lng)) {
+            $destinationCoordinates = [
+                'latitude' => (float) $lat,
+                'longitude' => (float) $lng,
+            ];
+        }
+
         $shippingService = new \App\Domain\Commerce\Storefront\CommerceShippingService();
         $result = $shippingService->calculateShipping(
             business: $business,
@@ -344,6 +354,7 @@ final class PublicOrderTrackingController extends Controller
             distanceKm: $distanceKm,
             preferredRuleId: $preferredRuleId,
             destinationPostalCode: $destinationPostalCode ? (string) $destinationPostalCode : null,
+            destinationCoordinates: $destinationCoordinates,
             items: is_array($items) ? $items : [],
             destinationAddress: $destinationAddress ? (string) $destinationAddress : null
         );

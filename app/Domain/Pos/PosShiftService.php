@@ -36,7 +36,9 @@ final class PosShiftService
     }
 
     /**
-     * Open a new shift with starting cash.
+     * Open a new shift with starting cash and optional denominations breakdown.
+     *
+     * @param array<string, int> $openingDenominations
      */
     public function openShift(
         Business $business,
@@ -44,15 +46,34 @@ final class PosShiftService
         float $openingCash = 0.0,
         ?string $posRegisterId = null,
         ?string $locationId = null,
-        ?string $notes = null
+        ?string $notes = null,
+        array $openingDenominations = []
     ): PosShift {
-        $existing = PosShift::where('business_id', $business->id)
+        // 1. If register is specified, check if that register already has an active shift
+        if ($posRegisterId) {
+            $existingRegisterShift = PosShift::where('business_id', $business->id)
+                ->where('pos_register_id', $posRegisterId)
+                ->where('status', PosShift::STATUS_OPEN)
+                ->first();
+
+            if ($existingRegisterShift) {
+                return $existingRegisterShift;
+            }
+        }
+
+        // 2. Check if this cashier already has an active shift
+        $existingUserShift = PosShift::where('business_id', $business->id)
             ->where('user_id', $user->id)
             ->where('status', PosShift::STATUS_OPEN)
             ->first();
 
-        if ($existing) {
-            return $existing;
+        if ($existingUserShift) {
+            return $existingUserShift;
+        }
+
+        // 3. Auto-calculate opening cash if denominations provided
+        if (! empty($openingDenominations) && $openingCash <= 0.0) {
+            $openingCash = $this->calculateDenominationTotal($openingDenominations);
         }
 
         return PosShift::create([
@@ -62,6 +83,7 @@ final class PosShiftService
             'user_id' => $user->id,
             'opened_at' => now(),
             'opening_cash' => $openingCash,
+            'opening_denominations' => ! empty($openingDenominations) ? $openingDenominations : null,
             'status' => PosShift::STATUS_OPEN,
             'notes' => $notes,
         ]);
@@ -110,6 +132,7 @@ final class PosShiftService
      *     opening_cash: float,
      *     cash_sales: float,
      *     non_cash_sales: float,
+     *     gateway_sales: float,
      *     cash_in: float,
      *     cash_out: float,
      *     expected_cash: float,
@@ -170,10 +193,21 @@ final class PosShiftService
     }
 
     /**
-     * Close a shift with actual cash count and calculate reconciliation difference.
+     * Close a shift with actual cash count, optional denominations breakdown, and variance calculation.
+     *
+     * @param array<string, int> $closingDenominations
      */
-    public function closeShift(PosShift $shift, float $actualCash, ?string $notes = null): PosShift
-    {
+    public function closeShift(
+        PosShift $shift,
+        float $actualCash,
+        ?string $notes = null,
+        array $closingDenominations = [],
+        ?string $cashierNotes = null
+    ): PosShift {
+        if (! empty($closingDenominations) && $actualCash <= 0.0) {
+            $actualCash = $this->calculateDenominationTotal($closingDenominations);
+        }
+
         $summary = $this->getShiftSummary($shift);
         $expected = $summary['expected_cash'];
         $diff = $actualCash - $expected;
@@ -182,6 +216,7 @@ final class PosShiftService
             'closed_at' => now(),
             'closing_cash_actual' => $actualCash,
             'closing_cash_expected' => $expected,
+            'closing_denominations' => ! empty($closingDenominations) ? $closingDenominations : null,
             'cash_difference' => $diff,
             'total_cash_sales' => $summary['cash_sales'],
             'total_non_cash_sales' => $summary['non_cash_sales'],
@@ -189,8 +224,31 @@ final class PosShiftService
             'total_cash_out' => $summary['cash_out'],
             'status' => PosShift::STATUS_CLOSED,
             'notes' => $notes ?? $shift->notes,
+            'cashier_notes' => $cashierNotes,
         ]);
 
         return $shift;
+    }
+
+    /**
+     * Calculate total nominal cash from a denominations map.
+     *
+     * @param array<string, int> $denoms Key e.g. "100000", "50000", "20000", "coins" => Quantity or Total
+     */
+    public function calculateDenominationTotal(array $denoms): float
+    {
+        $total = 0.0;
+        foreach ($denoms as $nominal => $qty) {
+            if ($nominal === 'coins') {
+                $total += (float) $qty;
+                continue;
+            }
+            $cleanNominal = (float) preg_replace('/[^0-9]/', '', (string) $nominal);
+            $cleanQty = (int) $qty;
+            if ($cleanNominal > 0 && $cleanQty > 0) {
+                $total += ($cleanNominal * $cleanQty);
+            }
+        }
+        return $total;
     }
 }

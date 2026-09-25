@@ -12,6 +12,7 @@ use App\Models\CommerceOrderItem;
 use App\Models\CommercePaymentMethod;
 use App\Models\CommerceStoreSetting;
 use App\Models\Customer;
+use App\Models\InventoryStock;
 use App\Models\Location;
 use App\Models\Product;
 use Carbon\Carbon;
@@ -143,8 +144,8 @@ final class CommerceOrderService
             }
         }
 
-        // 3. Resolve Location (support self-pickup branch or nearest fulfillment outlet)
-        $locationId = $this->resolveOrderLocation($business, $fulfillmentType, $options);
+        // 3. Resolve Location (support self-pickup branch or nearest fulfillment outlet with stock)
+        $locationId = $this->resolveOrderLocation($business, $fulfillmentType, $options, $itemsData);
 
         // 4. Resolve Payment Method
         $paymentMethod = null;
@@ -882,9 +883,10 @@ final class CommerceOrderService
      * @param Business $business
      * @param string $fulfillmentType
      * @param array<string, mixed> $options
+     * @param array<int, array{product_id?: string, quantity?: float|int}> $itemsData
      * @return string Location UUID
      */
-    protected function resolveOrderLocation(Business $business, string $fulfillmentType, array $options = []): string
+    protected function resolveOrderLocation(Business $business, string $fulfillmentType, array $options = [], array $itemsData = []): string
     {
         // 1. Explicit location requested (e.g. self-pickup branch or explicitly targeted outlet)
         if (! empty($options['location_id'])) {
@@ -916,7 +918,14 @@ final class CommerceOrderService
                 ->get();
 
             if ($onlineFulfillmentBranches->isNotEmpty()) {
-                $nearestBranch = $onlineFulfillmentBranches->sortBy(function (Location $branch) use ($custLat, $custLng) {
+                // Filter branches that have sufficient inventory stock for requested items
+                $stockedBranches = $onlineFulfillmentBranches->filter(function (Location $branch) use ($itemsData) {
+                    return $this->locationHasSufficientStock($branch->id, $itemsData);
+                });
+
+                $candidates = $stockedBranches->isNotEmpty() ? $stockedBranches : $onlineFulfillmentBranches;
+
+                $nearestBranch = $candidates->sortBy(function (Location $branch) use ($custLat, $custLng) {
                     return $branch->distanceTo($custLat, $custLng) ?? PHP_INT_MAX;
                 })->first();
 
@@ -926,13 +935,26 @@ final class CommerceOrderService
             }
         }
 
-        // 3. Fallback: primary online fulfillment location, primary branch, or any active location
-        $locationId = Location::where('business_id', $business->id)
+        // 3. Fallback: check online fulfillment locations with stock, primary online fulfillment location, primary branch, or any active location
+        $onlineBranches = Location::where('business_id', $business->id)
             ->where('is_active', true)
             ->where('is_online_fulfillment', true)
             ->orderBy('is_primary', 'desc')
-            ->value('id')
-            ?? Location::where('business_id', $business->id)->where('is_primary', true)->value('id')
+            ->get();
+
+        if ($onlineBranches->isNotEmpty()) {
+            $stockedBranch = $onlineBranches->first(function (Location $branch) use ($itemsData) {
+                return $this->locationHasSufficientStock($branch->id, $itemsData);
+            });
+
+            if ($stockedBranch) {
+                return $stockedBranch->id;
+            }
+
+            return $onlineBranches->first()->id;
+        }
+
+        $locationId = Location::where('business_id', $business->id)->where('is_primary', true)->value('id')
             ?? Location::where('business_id', $business->id)->where('is_active', true)->value('id')
             ?? Location::where('business_id', $business->id)->value('id');
 
@@ -941,5 +963,43 @@ final class CommerceOrderService
         }
 
         return $locationId;
+    }
+
+    /**
+     * Check whether a specific location has sufficient available inventory for the given items.
+     *
+     * @param string $locationId
+     * @param array<int, array{product_id?: string, quantity?: float|int}> $itemsData
+     * @return bool
+     */
+    public function locationHasSufficientStock(string $locationId, array $itemsData): bool
+    {
+        if (empty($itemsData)) {
+            return true;
+        }
+
+        foreach ($itemsData as $row) {
+            $productId = (string) ($row['product_id'] ?? '');
+            $qty = (float) ($row['quantity'] ?? 0);
+            if (! $productId || $qty <= 0) {
+                continue;
+            }
+
+            $product = Product::find($productId);
+            if (! $product || ! $product->isGoods()) {
+                continue;
+            }
+
+            $stock = InventoryStock::where('location_id', $locationId)
+                ->where('product_id', $productId)
+                ->first();
+
+            $available = $stock ? (float) ($stock->quantity - ($stock->reserved_quantity ?? 0)) : 0.0;
+            if ($available < $qty) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

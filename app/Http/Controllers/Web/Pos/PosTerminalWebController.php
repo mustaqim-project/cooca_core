@@ -245,6 +245,7 @@ final class PosTerminalWebController extends Controller
             'notes' => ['nullable', 'string', 'max:500'],
             'points_to_redeem' => ['nullable', 'integer', 'min:0'],
             'location_id' => ['nullable', 'string'],
+            'pos_register_id' => ['nullable', 'string', 'exists:pos_registers,id'],
             // Industry Specific Fields
             'vehicle_license_plate' => ['nullable', 'string', 'max:30'],
             'vehicle_model' => ['nullable', 'string', 'max:100'],
@@ -278,6 +279,7 @@ final class PosTerminalWebController extends Controller
                     'customer_name_guest' => $validated['customer_name_guest'] ?? null,
                     'order_type' => $validated['order_type'] ?? 'takeaway',
                     'order_source' => PosOrder::SOURCE_POS,
+                    'pos_register_id' => $validated['pos_register_id'] ?? $activeShift?->pos_register_id ?? null,
                     'pos_table_id' => $validated['pos_table_id'] ?? null,
                     'pos_table_session_id' => $validated['pos_table_session_id'] ?? null,
                     'existing_order_id' => $validated['existing_order_id'] ?? null,

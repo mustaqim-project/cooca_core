@@ -73,6 +73,57 @@ final class TripayService
     }
 
     /**
+     * Get active merchant payment channels from TriPay API.
+     * Queries /merchant/payment-channel to return only channels activated on merchant account.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function getActiveChannels(): array
+    {
+        if (! empty($this->apiKey)) {
+            try {
+                $response = Http::withHeaders([
+                    'Authorization' => 'Bearer ' . $this->apiKey,
+                ])->timeout(5)->get($this->baseUrl . 'merchant/payment-channel');
+
+                if ($response->successful() && ($response->json('success') ?? false)) {
+                    $data = (array) $response->json('data', []);
+                    if (! empty($data)) {
+                        $active = [];
+                        foreach ($data as $item) {
+                            $isActive = ! isset($item['active']) || (bool) $item['active'];
+                            if ($isActive) {
+                                $active[] = $item;
+                            }
+                        }
+                        if (! empty($active)) {
+                            return $active;
+                        }
+                    }
+                }
+            } catch (Throwable $e) {
+                Log::warning('[TripayService] Failed to fetch merchant active channels: ' . $e->getMessage());
+            }
+        }
+
+        // Standard Default Active Channel on TriPay Indonesia (QRIS Dinamis)
+        return [
+            [
+                'group' => 'E-Wallet / QRIS',
+                'code' => 'QRIS',
+                'name' => 'QRIS Dinamis (GoPay, OVO, ShopeePay, BCA, Livin, BRImo)',
+                'type' => 'qris',
+                'fee_merchant' => ['flat' => 750, 'percent' => 0.7],
+                'fee_customer' => ['flat' => 0, 'percent' => 0],
+                'total_fee' => ['flat' => 750, 'percent' => 0.7],
+                'icon_url' => 'https://tripay.co.id/images/payment-channel/qris.png',
+                'active' => true,
+                'description' => 'QRIS Standar BI · Terima pembayaran otomatis dari BCA, Mandiri, BRI, BNI, GoPay, OVO, Dana, ShopeePay.',
+            ],
+        ];
+    }
+
+    /**
      * Get available active payment channels with metadata and icons.
      *
      * @return array<int, array<string, mixed>>

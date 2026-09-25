@@ -103,14 +103,25 @@
             @endif
         </div>
 
-        <div class="flex items-center gap-1.5">
-            <button onclick="window.print()"
+        <div class="flex items-center gap-1.5 flex-wrap">
+            <!-- Direct ESC/POS Hardware Print -->
+            <button type="button" id="btn-direct-escpos" onclick="directPrintEscpos()"
+                class="h-8 px-3 rounded-[8px] bg-[#34C759] hover:bg-[#2EB34E] text-white text-[12px] font-sans font-semibold active:scale-[0.97] transition flex items-center gap-1.5 shadow-[0_1px_2px_rgba(0,0,0,0.15)]">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0110.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0l.229 2.523a1.125 1.125 0 01-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0021 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 00-1.913-.247M6.34 18H5.25A2.25 2.25 0 013 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 011.913-.247m10.5 0a48.536 48.536 0 00-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.659M18 10.5h.008v.008H18V10.5zm-3 0h.008v.008H15V10.5z" />
+                </svg>
+                <span id="txt-direct-escpos">Cetak ESC/POS</span>
+            </button>
+
+            <!-- Standard Browser Print Fallback -->
+            <button type="button" onclick="window.print()"
                 class="h-8 px-3 rounded-[8px] {{ $order->print_count > 1 ? 'bg-[#FF9500] hover:bg-[#E08500]' : 'bg-[#007AFF] hover:bg-[#0071E3]' }} text-white text-[12px] font-sans font-semibold active:scale-[0.97] transition flex items-center gap-1.5 shadow-[0_1px_2px_rgba(0,0,0,0.15)]">
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round"
                         d="M6.72 13.829c-.24-1.049-.37-2.14-.37-3.254 0-4.694 3.806-8.5 8.5-8.5s8.5 3.806 8.5 8.5c0 1.114-.13 2.205-.37 3.254M6.72 13.829A8.966 8.966 0 004 19.5h16a8.966 8.966 0 00-2.72-5.671M6.72 13.829l1.83 1.83m6.9-1.83l-1.83 1.83" />
                 </svg>
-                <span>{{ $order->print_count > 1 ? 'Cetak Salinan' : 'Cetak Bill' }}</span>
+                <span>{{ $order->print_count > 1 ? 'Cetak Ulang (Browser)' : 'Cetak Bill' }}</span>
             </button>
 
             <!-- Re-Print Trigger Action -->
@@ -128,7 +139,7 @@
             </form>
 
             <a href="{{ $whatsappUrl }}" target="_blank"
-                class="h-8 px-2 rounded-[8px] bg-[#34C759]/12 hover:bg-[#34C759]/20 text-[#248A3D] dark:text-[#30D158] text-[12px] font-sans font-semibold active:scale-[0.97] transition flex items-center gap-1">
+                class="h-8 px-2 rounded-[8px] bg-[#25D366]/15 hover:bg-[#25D366]/25 text-[#25D366] text-[12px] font-sans font-semibold active:scale-[0.97] transition flex items-center gap-1">
                 <span>WA</span>
             </a>
         </div>
@@ -375,6 +386,107 @@
         </div>
     </div>
 
+    <!-- Floating Direct Print Status Toast (Hidden on Print) -->
+    <div id="escpos-toast" class="no-print fixed bottom-5 left-1/2 -translate-x-1/2 z-50 max-w-sm w-full px-4 transition-all duration-300 transform opacity-0 translate-y-4 pointer-events-none">
+        <div id="escpos-toast-inner" class="p-3.5 rounded-2xl shadow-xl backdrop-blur-xl text-white text-xs font-sans font-medium flex items-center justify-between gap-3 border">
+            <div class="flex items-center gap-2 min-w-0">
+                <span id="escpos-toast-icon">🖨️</span>
+                <span id="escpos-toast-msg" class="truncate">Mengirim ke printer...</span>
+            </div>
+            <button type="button" onclick="hideEscposToast()" class="text-white/60 hover:text-white shrink-0 text-xs">✕</button>
+        </div>
+    </div>
+
+    <script>
+        function showEscposToast(msg, isSuccess = true, icon = null) {
+            const toast = document.getElementById('escpos-toast');
+            const inner = document.getElementById('escpos-toast-inner');
+            const msgEl = document.getElementById('escpos-toast-msg');
+            const iconEl = document.getElementById('escpos-toast-icon');
+
+            msgEl.textContent = msg;
+            iconEl.textContent = icon || (isSuccess ? '✅' : '⚠️');
+
+            if (isSuccess) {
+                inner.className = 'p-3.5 rounded-2xl shadow-xl backdrop-blur-xl text-white text-xs font-sans font-medium flex items-center justify-between gap-3 border bg-[#34C759]/90 border-[#34C759]/50';
+            } else {
+                inner.className = 'p-3.5 rounded-2xl shadow-xl backdrop-blur-xl text-white text-xs font-sans font-medium flex items-center justify-between gap-3 border bg-[#FF3B30]/90 border-[#FF3B30]/50';
+            }
+
+            toast.classList.remove('opacity-0', 'translate-y-4', 'pointer-events-none');
+            toast.classList.add('opacity-100', 'translate-y-0');
+
+            setTimeout(() => {
+                hideEscposToast();
+            }, 5000);
+        }
+
+        function hideEscposToast() {
+            const toast = document.getElementById('escpos-toast');
+            if (toast) {
+                toast.classList.add('opacity-0', 'translate-y-4', 'pointer-events-none');
+                toast.classList.remove('opacity-100', 'translate-y-0');
+            }
+        }
+
+        async function directPrintEscpos() {
+            const btn = document.getElementById('btn-direct-escpos');
+            const txt = document.getElementById('txt-direct-escpos');
+            const originalText = txt.textContent;
+
+            btn.disabled = true;
+            txt.textContent = 'Mencetak...';
+
+            try {
+                const response = await fetch("{{ route('pos.orders.direct-print', $order->id) }}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({
+                        mode: 'direct'
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Check if client-side agent dispatch is needed (e.g., Bluetooth / USB character device via Local Agent)
+                    if (data.mode === 'agent_dispatch' && data.payload_base64) {
+                        try {
+                            const agentRes = await fetch('http://127.0.0.1:9898/print', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    payload_base64: data.payload_base64,
+                                    job_id: data.job_id
+                                })
+                            });
+                            if (agentRes.ok) {
+                                showEscposToast('Terkirim via Local POS Agent (USB/Bluetooth)', true);
+                            } else {
+                                showEscposToast(data.message || 'Job dibuat untuk Local Agent', true);
+                            }
+                        } catch (agentErr) {
+                            showEscposToast(data.message || 'Job antrean printer berhasil dibuat', true);
+                        }
+                    } else {
+                        showEscposToast(data.message || 'Struk berhasil dikirim ke printer hardware (ESC/POS)', true);
+                    }
+                } else {
+                    showEscposToast(data.message || 'Gagal mengirim ke printer hardware', false);
+                }
+            } catch (err) {
+                console.error('Direct print error:', err);
+                showEscposToast('Terjadi gangguan jaringan saat menghubungi printer', false);
+            } finally {
+                btn.disabled = false;
+                txt.textContent = originalText;
+            }
+        }
+    </script>
 </body>
 
 </html>

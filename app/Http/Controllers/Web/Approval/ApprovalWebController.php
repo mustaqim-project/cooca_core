@@ -138,7 +138,7 @@ final class ApprovalWebController extends Controller
             'document_type' => ['required', 'string', 'in:purchase_order,expense,supplier_invoice'],
             'name' => ['nullable', 'string', 'max:100'],
             'min_amount' => ['required', 'numeric', 'gte:0'],
-            'max_amount' => ['nullable', 'numeric'],
+            'max_amount' => ['nullable', 'numeric', 'gte:min_amount'],
             'required_levels' => ['required', 'integer', 'between:1,3'],
             'is_active' => ['nullable', 'boolean'],
         ]);
@@ -148,9 +148,9 @@ final class ApprovalWebController extends Controller
 
         $validated['name'] = $request->input('name') ?: ('Aturan Plafon ' . ucfirst(str_replace('_', ' ', $docType)));
         $validated['business_id'] = $business->id;
-        $validated['approver_role_level_1'] = $request->input('approver_role_level_1') ?? $request->input('level_1_role') ?? 'supervisor';
-        $validated['approver_role_level_2'] = $levels >= 2 ? ($request->input('approver_role_level_2') ?? $request->input('level_2_role') ?? 'manager') : null;
-        $validated['approver_role_level_3'] = $levels >= 3 ? ($request->input('approver_role_level_3') ?? $request->input('level_3_role') ?? 'owner') : null;
+        $validated['approver_role_level_1'] = (string) ($request->input('approver_role_level_1') ?? $request->input('level_1_role') ?? 'supervisor');
+        $validated['approver_role_level_2'] = $levels >= 2 ? (string) ($request->input('approver_role_level_2') ?? $request->input('level_2_role') ?? 'manager') : null;
+        $validated['approver_role_level_3'] = $levels >= 3 ? (string) ($request->input('approver_role_level_3') ?? $request->input('level_3_role') ?? 'owner') : null;
         $validated['is_active'] = $request->boolean('is_active', true);
 
         ApprovalRule::create($validated);
@@ -167,9 +167,10 @@ final class ApprovalWebController extends Controller
         abort_unless($approvalRule->business_id === $business->id, 404);
 
         $validated = $request->validate([
+            'document_type' => ['nullable', 'string', 'in:purchase_order,expense,supplier_invoice'],
             'name' => ['nullable', 'string', 'max:100'],
             'min_amount' => ['required', 'numeric', 'gte:0'],
-            'max_amount' => ['nullable', 'numeric'],
+            'max_amount' => ['nullable', 'numeric', 'gte:min_amount'],
             'required_levels' => ['required', 'integer', 'between:1,3'],
             'is_active' => ['nullable', 'boolean'],
         ]);
@@ -177,9 +178,12 @@ final class ApprovalWebController extends Controller
         $levels = (int) $validated['required_levels'];
 
         $validated['name'] = $request->input('name') ?: $approvalRule->name;
-        $validated['approver_role_level_1'] = $request->input('approver_role_level_1') ?? $request->input('level_1_role') ?? $approvalRule->approver_role_level_1;
-        $validated['approver_role_level_2'] = $levels >= 2 ? ($request->input('approver_role_level_2') ?? $request->input('level_2_role') ?? 'manager') : null;
-        $validated['approver_role_level_3'] = $levels >= 3 ? ($request->input('approver_role_level_3') ?? $request->input('level_3_role') ?? 'owner') : null;
+        if (! empty($validated['document_type'])) {
+            $approvalRule->document_type = (string) $validated['document_type'];
+        }
+        $validated['approver_role_level_1'] = (string) ($request->input('approver_role_level_1') ?? $request->input('level_1_role') ?? $approvalRule->approver_role_level_1);
+        $validated['approver_role_level_2'] = $levels >= 2 ? (string) ($request->input('approver_role_level_2') ?? $request->input('level_2_role') ?? 'manager') : null;
+        $validated['approver_role_level_3'] = $levels >= 3 ? (string) ($request->input('approver_role_level_3') ?? $request->input('level_3_role') ?? 'owner') : null;
         $validated['is_active'] = $request->boolean('is_active', true);
 
         $approvalRule->update($validated);

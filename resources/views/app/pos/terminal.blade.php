@@ -544,6 +544,26 @@
                     </button>
                 @endif
 
+                <!-- Buka Laci Kas Manual -->
+                <button type="button" @click="promptManualDrawerPop()"
+                    class="h-8 sm:h-9 px-2 sm:px-2.5 rounded-[8px] sm:rounded-[10px] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] text-black/80 dark:text-white/80 text-[12px] font-medium transition flex items-center gap-1.5"
+                    title="Buka Laci Kas (Cash Drawer)">
+                    <svg class="w-4 h-4 text-[#34C759] shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 9.776c.57.1 1.155.152 1.75.152 2.378 0 4.57-.847 6.276-2.259 1.706 1.412 3.898 2.259 6.276 2.259.595 0 1.18-.052 1.75-.152m0 0a9.006 9.006 0 00-16.052 0M21 12.75A9 9 0 113 12.75v3.75a2.25 2.25 0 002.25 2.25h13.5A2.25 2.25 0 0021 16.5v-3.75z" />
+                    </svg>
+                    <span class="hidden 2xl:inline">Laci</span>
+                </button>
+
+                <!-- Shortcut Pengaturan Printer & Hardware POS -->
+                <a href="{{ route('pos.printers.index') }}" target="_blank"
+                    class="h-8 sm:h-9 px-2 sm:px-2.5 rounded-[8px] sm:rounded-[10px] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] text-black/80 dark:text-white/80 text-[12px] font-medium transition flex items-center gap-1.5"
+                    title="Pengaturan Printer & Hardware ESC/POS">
+                    <svg class="w-4 h-4 text-[#007AFF] shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0110.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0l.229 2.523a1.125 1.125 0 01-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0021 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 00-1.913-.247M6.34 18H5.25A2.25 2.25 0 013 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 011.913-.247m10.5 0a48.536 48.536 0 00-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.659M18 10.5h.008v.008H18V10.5zm-3 0h.008v.008H15V10.5z" />
+                    </svg>
+                    <span class="hidden 2xl:inline">Printer</span>
+                </a>
+
                 <!-- Fullscreen Toggle -->
                 <div x-data="{
                     isFullscreen: false,
@@ -1650,12 +1670,13 @@
                     Aksi Tagihan &amp; Struk
                 </div>
 
-                <!-- Primary Row: Thermal Print & WhatsApp Bot -->
+                <!-- Primary Row: Thermal Hardware ESC/POS & WhatsApp Bot -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
 
-                    <!-- Bento Tile 1: Cetak Struk Thermal (Hero Blue) -->
-                    <a :href="lastReceiptUrl" target="_blank"
-                        class="group rounded-2xl p-4 bg-gradient-to-br from-[#007AFF] to-[#0058C6] hover:from-[#0071E3] hover:to-[#004EB5] active:scale-[0.98] text-white flex flex-col justify-between shadow-md shadow-[#007AFF]/20 transition relative overflow-hidden min-h-[120px]">
+                    <!-- Bento Tile 1: Cetak Struk ESC/POS Hardware (Hero Green/Blue) -->
+                    <button type="button" @click.stop="!directPrinting && directPrintReceipt(lastCompletedOrder.id)"
+                        :disabled="directPrinting"
+                        class="group rounded-2xl p-4 bg-gradient-to-br from-[#34C759] to-[#248A3D] hover:from-[#30D158] hover:to-[#227D37] active:scale-[0.98] text-white flex flex-col justify-between shadow-md shadow-[#34C759]/20 transition relative overflow-hidden min-h-[120px] text-left disabled:opacity-60">
                         <!-- Top Row: Icon + Badge -->
                         <div class="flex items-start justify-between gap-2">
                             <div
@@ -1667,19 +1688,19 @@
                                 </svg>
                             </div>
                             <span
-                                class="text-[9px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full bg-white/20 text-white backdrop-blur-xs">
-                                58 &amp; 80mm
+                                class="text-[9px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full bg-white/20 text-white backdrop-blur-xs"
+                                x-text="directPrinting ? 'Mencetak...' : 'Hardware ESC/POS'">
                             </span>
                         </div>
                         <!-- Bottom Info & CTA -->
                         <div class="mt-3">
-                            <div class="font-extrabold text-[14px] leading-tight">Cetak Struk Thermal</div>
-                            <div class="text-[11px] text-white/80 mt-0.5 flex items-center justify-between">
-                                <span>Kirim ke printer kasir</span>
-                                <span class="font-bold group-hover:translate-x-0.5 transition">Cetak ↗</span>
+                            <div class="font-extrabold text-[14px] leading-tight">Cetak Struk ESC/POS</div>
+                            <div class="text-[11px] text-white/90 mt-0.5 flex items-center justify-between">
+                                <span>Kirim ke printer thermal</span>
+                                <span class="font-bold group-hover:translate-x-0.5 transition" x-text="directPrinting ? '⏳' : 'Cetak ➔'"></span>
                             </div>
                         </div>
-                    </a>
+                    </button>
 
                     <!-- Bento Tile 2: WhatsApp Bot Otomatis (Hero Emerald) -->
                     <button type="button" @click.stop="!sendingWaBot && sendWhatsAppBotReceipt()"
@@ -1717,10 +1738,29 @@
                     </button>
                 </div>
 
-                <!-- Secondary Row: WhatsApp Manual Web, Gambar Struk PNG & Lihat Struk Web -->
+                <!-- Secondary Row: Cetak Dapur, Pratinjau Browser, & Gambar Struk PNG -->
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                    <!-- Bento Tile 3: Manual WhatsApp Web -->
-                    <a :href="lastWhatsAppUrl" target="_blank"
+                    <!-- Bento Tile 3: Cetak Tiket Dapur / Bar (KOT) -->
+                    <button type="button" @click.stop="!kitchenPrinting && printKitchenTickets(lastCompletedOrder.id)"
+                        :disabled="kitchenPrinting"
+                        class="p-2.5 sm:p-3 rounded-xl bg-[#FF9500]/10 hover:bg-[#FF9500]/18 border border-[#FF9500]/30 active:scale-[0.98] transition flex items-center justify-between group text-left disabled:opacity-50">
+                        <div class="flex items-center gap-2 min-w-0">
+                            <div
+                                class="w-7 h-7 rounded-lg bg-[#FF9500]/20 text-[#FF9500] flex items-center justify-center shrink-0">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.362 5.214A8.252 8.252 0 0112 21 8.25 8.25 0 016.038 7.048 8.287 8.287 0 009 9.6a8.983 8.983 0 013.361-6.867 8.21 8.21 0 003 2.48z" />
+                                </svg>
+                            </div>
+                            <div class="min-w-0">
+                                <div class="text-[11px] font-bold text-black dark:text-white truncate" x-text="kitchenPrinting ? 'Mengirim...' : 'Tiket Dapur'">Tiket Dapur</div>
+                                <div class="text-[9px] text-black/45 dark:text-white/45 truncate">KOT Station</div>
+                            </div>
+                        </div>
+                        <span class="text-[10px] font-bold text-[#FF9500] group-hover:translate-x-0.5 transition shrink-0" x-text="kitchenPrinting ? '⏳' : '➔'"></span>
+                    </button>
+
+                    <!-- Bento Tile 4: Pratinjau & Cetak Browser (Fallback) -->
+                    <a :href="lastReceiptUrl" target="_blank"
                         class="p-2.5 sm:p-3 rounded-xl bg-black/[0.03] dark:bg-white/[0.04] hover:bg-black/[0.06] dark:hover:bg-white/[0.08] border border-black/5 dark:border-white/10 active:scale-[0.98] transition flex items-center justify-between group">
                         <div class="flex items-center gap-2 min-w-0">
                             <div
@@ -1728,17 +1768,19 @@
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2"
                                     viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round"
-                                        d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a.75.75 0 01-.814-.814 6.002 6.002 0 011.057-3.035C4.646 15.688 4 13.928 4 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z" />
+                                        d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
                                 </svg>
                             </div>
                             <div class="min-w-0">
-                                <div class="text-[11px] font-bold text-black dark:text-white truncate">Manual WA</div>
-                                <div class="text-[9px] text-black/45 dark:text-white/45 truncate">Chat browser</div>
+                                <div class="text-[11px] font-bold text-black dark:text-white truncate">Browser Print</div>
+                                <div class="text-[9px] text-black/45 dark:text-white/45 truncate">Pratinjau HTML</div>
                             </div>
                         </div>
+                        <span
+                            class="text-[10px] text-black/30 dark:text-white/30 group-hover:text-black dark:group-hover:text-white group-hover:translate-x-0.5 transition shrink-0">↗</span>
                     </a>
 
-                    <!-- Bento Tile 4: Gambar Struk PNG HD -->
+                    <!-- Bento Tile 5: Gambar Struk PNG HD -->
                     <a :href="lastReceiptImageUrl" target="_blank"
                         class="p-2.5 sm:p-3 rounded-xl bg-[#007AFF]/8 hover:bg-[#007AFF]/15 border border-[#007AFF]/25 active:scale-[0.98] transition flex items-center justify-between group shadow-2xs">
                         <div class="flex items-center gap-2 min-w-0">
@@ -1757,28 +1799,6 @@
                         </div>
                         <span
                             class="text-[10px] font-bold text-[#007AFF] group-hover:translate-x-0.5 transition shrink-0">↗</span>
-                    </a>
-
-                    <!-- Bento Tile 5: Lihat E-Bill Web -->
-                    <a :href="lastReceiptUrl" target="_blank"
-                        class="p-2.5 sm:p-3 rounded-xl bg-black/[0.03] dark:bg-white/[0.04] hover:bg-black/[0.06] dark:hover:bg-white/[0.08] border border-black/5 dark:border-white/10 active:scale-[0.98] transition flex items-center justify-between group">
-                        <div class="flex items-center gap-2 min-w-0">
-                            <div
-                                class="w-7 h-7 rounded-lg bg-black/[0.05] dark:bg-white/[0.08] text-black/70 dark:text-white/70 flex items-center justify-center shrink-0">
-                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                        d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
-                                </svg>
-                            </div>
-                            <div class="min-w-0">
-                                <div class="text-[11px] font-bold text-black dark:text-white truncate">E-Bill Web
-                                </div>
-                                <div class="text-[9px] text-black/45 dark:text-white/45 truncate">Pratinjau HTML</div>
-                            </div>
-                        </div>
-                        <span
-                            class="text-[10px] text-black/30 dark:text-white/30 group-hover:text-black dark:group-hover:text-white group-hover:translate-x-0.5 transition shrink-0">↗</span>
                     </a>
                 </div>
             </div>
@@ -3085,6 +3105,9 @@
                 selectedPayMethod: 'cash',
                 currentTenderAmount: 0,
                 isProcessing: false,
+                directPrinting: false,
+                kitchenPrinting: false,
+                drawerPopping: false,
                 lastCompletedOrder: null,
                 lastReceiptUrl: '#',
                 lastReceiptImageUrl: '#',
@@ -3825,6 +3848,110 @@
                         .finally(() => {
                             this.sendingWaBot = false;
                         });
+                },
+
+                async directPrintReceipt(orderId) {
+                    if (!orderId || this.directPrinting) return;
+                    this.directPrinting = true;
+                    try {
+                        const res = await fetch(`/pos/orders/${orderId}/direct-print`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': this.csrfToken
+                            },
+                            body: JSON.stringify({ mode: 'direct' })
+                        });
+                        const data = await res.json();
+                        if (data.success) {
+                            if (data.mode === 'agent_dispatch' && data.payload_base64) {
+                                try {
+                                    const agentRes = await fetch('http://127.0.0.1:9898/print', {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({
+                                            payload_base64: data.payload_base64,
+                                            job_id: data.job_id
+                                        })
+                                    });
+                                    if (agentRes.ok) {
+                                        AppAlert.success('Struk berhasil dicetak via Local POS Agent (USB/Bluetooth).');
+                                    } else {
+                                        AppAlert.success(data.message || 'Job antrean printer berhasil dibuat.');
+                                    }
+                                } catch (agentErr) {
+                                    AppAlert.success(data.message || 'Job antrean printer berhasil dibuat.');
+                                }
+                            } else {
+                                AppAlert.success(data.message || 'Struk berhasil dikirim ke printer thermal.');
+                            }
+                        } else {
+                            AppAlert.error(data.message || 'Gagal mengirim cetakan ke printer.');
+                        }
+                    } catch (e) {
+                        AppAlert.error('Terjadi gangguan jaringan printer.');
+                    } finally {
+                        this.directPrinting = false;
+                    }
+                },
+
+                async printKitchenTickets(orderId) {
+                    if (!orderId || this.kitchenPrinting) return;
+                    this.kitchenPrinting = true;
+                    try {
+                        const res = await fetch(`/pos/orders/${orderId}/kitchen-print`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': this.csrfToken
+                            }
+                        });
+                        const data = await res.json();
+                        if (data.success) {
+                            AppAlert.success(data.message || 'Tiket pesanan dapur berhasil dikirim.');
+                        } else {
+                            AppAlert.error(data.message || 'Gagal mencetak tiket dapur.');
+                        }
+                    } catch (e) {
+                        AppAlert.error('Terjadi gangguan komunikasi dengan printer dapur.');
+                    } finally {
+                        this.kitchenPrinting = false;
+                    }
+                },
+
+                async promptManualDrawerPop() {
+                    const confirmed = await AppAlert.confirm({
+                        title: 'Buka Laci Kas (Cash Drawer)?',
+                        message: 'Tindakan pembukaan laci kas secara manual (No-Sale Drawer Pop) akan dicatat dalam Log Audit Forensik Sistem.',
+                        type: 'warning',
+                        confirmText: 'Buka Laci Sekarang',
+                        cancelText: 'Batal'
+                    });
+                    if (!confirmed) return;
+
+                    try {
+                        const res = await fetch("{{ route('pos.cash-drawer.manual-pop') }}", {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': this.csrfToken
+                            },
+                            body: JSON.stringify({
+                                reason: 'Manual Pop via Pos Terminal Header'
+                            })
+                        });
+                        const data = await res.json();
+                        if (data.success) {
+                            AppAlert.success(data.message || 'Sinyal buka laci kas berhasil dikirim.');
+                        } else {
+                            AppAlert.error(data.message || 'Gagal membuka laci kas.');
+                        }
+                    } catch (e) {
+                        AppAlert.error('Gagal mengirim sinyal ke laci kas.');
+                    }
                 },
 
                 promptHoldCart() {

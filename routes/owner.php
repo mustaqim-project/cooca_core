@@ -36,6 +36,7 @@ use App\Http\Controllers\Web\OnboardingWebController;
 use App\Http\Controllers\Web\Pos\ModifierWebController;
 use App\Http\Controllers\Web\Pos\PosKitchenWebController;
 use App\Http\Controllers\Web\Pos\PosOrderWebController;
+use App\Http\Controllers\Web\Pos\PosPrinterWebController;
 use App\Http\Controllers\Web\Pos\PosReportWebController;
 use App\Http\Controllers\Web\Pos\PosShiftWebController;
 use App\Http\Controllers\Web\Pos\PosTableWebController;
@@ -458,6 +459,7 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
             Route::get('/pos/shifts/{shift}/summary', [PosShiftWebController::class, 'summary'])->name('pos.shifts.summary');
             Route::post('/pos/shifts/{shift}/close', [PosShiftWebController::class, 'close'])->name('pos.shifts.close');
             Route::post('/pos/shifts/{shift}/cash-movement', [PosShiftWebController::class, 'recordCashMovement'])->name('pos.shifts.cash-movement');
+            Route::post('/pos/shifts/{shift}/print', [PosShiftWebController::class, 'printSummary'])->name('pos.shifts.print');
         });
 
         // POS Orders & Void/Refund
@@ -520,6 +522,23 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
             Route::get('/pos/kitchen/orders', [PosKitchenWebController::class, 'getActiveOrders'])->name('pos.kitchen.orders');
             Route::get('/pos/kitchen/active', [PosKitchenWebController::class, 'getActiveOrders'])->name('pos.kitchen.active');
             Route::post('/pos/kitchen/{order}/status', [PosKitchenWebController::class, 'updateStatus'])->name('pos.kitchen.status');
+        });
+
+        // POS Hardware, Thermal Printers & Cash Drawer Management
+        Route::middleware('require.permission:pos.terminal')->group(function (): void {
+            Route::get('/pos/printers', [PosPrinterWebController::class, 'index'])->name('pos.printers.index');
+            Route::post('/pos/printers', [PosPrinterWebController::class, 'store'])->name('pos.printers.store');
+            Route::put('/pos/printers/{printer}', [PosPrinterWebController::class, 'update'])->name('pos.printers.update');
+            Route::delete('/pos/printers/{printer}', [PosPrinterWebController::class, 'destroy'])->name('pos.printers.destroy');
+            Route::post('/pos/printers/{printer}/test-print', [PosPrinterWebController::class, 'testPrint'])->name('pos.printers.test-print');
+            Route::post('/pos/printers/{printer}/test-drawer', [PosPrinterWebController::class, 'testDrawer'])->name('pos.printers.test-drawer');
+            Route::post('/pos/printers/{printer}/diagnose', [PosPrinterWebController::class, 'diagnose'])->name('pos.printers.diagnose');
+            Route::post('/pos/orders/{order}/direct-print', [PosPrinterWebController::class, 'directPrint'])->name('pos.orders.direct-print');
+            Route::post('/pos/orders/{order}/kitchen-print', [PosPrinterWebController::class, 'printKitchen'])->name('pos.orders.kitchen-print');
+            Route::post('/pos/cash-drawer/manual-pop', [PosPrinterWebController::class, 'manualDrawerPop'])->middleware('throttle:5,1')->name('pos.cash-drawer.manual-pop');
+
+            // Route Aliases under settings for settings navigation
+            Route::get('/settings/pos/printers', [PosPrinterWebController::class, 'index'])->name('settings.pos.printers.index');
         });
 
         // Warehouse Management Hub

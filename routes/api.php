@@ -18,6 +18,7 @@ use App\Http\Controllers\Api\V1\Finance\PaymentSettlementController;
 use App\Http\Controllers\Api\V1\Inventory\InventoryController;
 use App\Http\Controllers\Api\V1\Inventory\StockOpnameController;
 use App\Http\Controllers\Api\V1\Inventory\StockTransferController;
+use App\Http\Controllers\Api\V1\Pos\PosAgentApiController;
 use App\Http\Controllers\Api\V1\Pos\PosOrderController;
 use App\Http\Controllers\Api\V1\Pos\PosReportController;
 use App\Http\Controllers\Api\V1\Pos\PosShiftController;
@@ -422,11 +423,14 @@ Route::prefix('v1')->group(function (): void {
                 Route::post('/verify-pin', [PosTerminalController::class, 'verifySupervisorPin'])->middleware('throttle:5,1');
 
                 // Shift Management
+                Route::get('/shifts', [PosShiftController::class, 'index'])->middleware('require.permission:pos.orders');
                 Route::post('/shifts/open', [PosShiftController::class, 'open'])->middleware('require.permission:pos.orders');
                 Route::post('/shifts/{posShift}/close', [PosShiftController::class, 'close'])->middleware('require.permission:pos.orders');
                 Route::get('/shifts/{posShift}/summary', [PosShiftController::class, 'summary'])->middleware('require.permission:pos.orders');
                 Route::post('/shifts/{posShift}/cash-movement', [PosShiftController::class, 'recordCashMovement'])->middleware('require.permission:pos.orders');
-                Route::get('/shifts/active', [PosShiftController::class, 'activeShift'])->middleware('require.permission:pos.orders');
+                Route::get('/shifts/active', [PosShiftController::class, 'current'])->middleware('require.permission:pos.orders');
+                Route::get('/shifts/current', [PosShiftController::class, 'current'])->middleware('require.permission:pos.orders');
+                Route::post('/shifts/{posShift}/print', [PosShiftController::class, 'printSummary'])->middleware('require.permission:pos.orders');
 
                 // Orders
                 Route::get('/orders', [PosOrderController::class, 'index'])->middleware('require.permission:pos.orders');
@@ -440,6 +444,15 @@ Route::prefix('v1')->group(function (): void {
                 Route::get('/reports/payment-breakdown', [PosReportController::class, 'paymentBreakdown'])->middleware('require.permission:pos.reports');
                 Route::get('/reports/top-products', [PosReportController::class, 'topProducts'])->middleware('require.permission:pos.reports');
                 Route::get('/reports/hourly-heatmap', [PosReportController::class, 'hourlyHeatmap'])->middleware('require.permission:pos.reports');
+
+                // Local POS Agent Bridge
+                Route::prefix('agent')->middleware('require.permission:pos.terminal')->group(function (): void {
+                    Route::get('/jobs', [PosAgentApiController::class, 'getPendingJobs']);
+                    Route::post('/jobs/{job}/status', [PosAgentApiController::class, 'updateJobStatus']);
+                    Route::post('/printers/{printer}/status', [PosAgentApiController::class, 'syncDeviceStatus']);
+                    Route::post('/sync-device', [PosAgentApiController::class, 'syncDevice']);
+                    Route::get('/printers', [PosAgentApiController::class, 'getPrinters']);
+                });
             });
 
             // ──────────────────────────────────────────────────────────────────

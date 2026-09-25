@@ -124,7 +124,8 @@ final class AnalyticsWebController extends Controller
                         ])->where('paid_amount', '>', 0);
                     });
             })
-            ->whereBetween('order_date', [$fromStr, $toStr]);
+            ->whereDate('order_date', '>=', $fromStr)
+            ->whereDate('order_date', '<=', $toStr);
 
         if ($locationId) {
             $posQuery->where('location_id', $locationId);
@@ -140,7 +141,8 @@ final class AnalyticsWebController extends Controller
         // Invoice B2B
         $invQuery = Invoice::where('business_id', $business->id)
             ->whereIn('status', [Invoice::STATUS_PAID, Invoice::STATUS_PARTIALLY_PAID])
-            ->whereBetween('invoice_date', [$fromStr, $toStr]);
+            ->whereDate('invoice_date', '>=', $fromStr)
+            ->whereDate('invoice_date', '<=', $toStr);
 
         if ($locationId) {
             $invQuery->where('location_id', $locationId);
@@ -162,7 +164,8 @@ final class AnalyticsWebController extends Controller
                 CommerceOrder::STATUS_FULFILLED,
                 CommerceOrder::STATUS_COMPLETED,
             ])
-            ->whereBetween('created_at', [$fromStr . ' 00:00:00', $toStr . ' 23:59:59']);
+            ->whereDate('created_at', '>=', $fromStr)
+            ->whereDate('created_at', '<=', $toStr);
 
         $onlineAgg = $onlineQuery->selectRaw('
             COALESCE(SUM(total_amount), 0) as revenue,
@@ -192,7 +195,8 @@ final class AnalyticsWebController extends Controller
 
         // Beban Operasional
         $expenseQuery = Expense::where('business_id', $business->id)
-            ->whereBetween('expense_date', [$fromStr, $toStr]);
+            ->whereDate('expense_date', '>=', $fromStr)
+            ->whereDate('expense_date', '<=', $toStr);
         if ($locationId) {
             $expenseQuery->where('location_id', $locationId);
         }
@@ -310,7 +314,8 @@ final class AnalyticsWebController extends Controller
             $current = $from->copy();
             $posQuery = PosOrder::where('business_id', $business->id)
                 ->where('status', PosOrder::STATUS_COMPLETED)
-                ->whereBetween('order_date', [$from->toDateString(), $to->toDateString()])
+                ->whereDate('order_date', '>=', $from->toDateString())
+                ->whereDate('order_date', '<=', $to->toDateString())
                 ->when($locationId, fn ($q) => $q->where('location_id', $locationId))
                 ->selectRaw('order_date as bucket, SUM(total_amount) as revenue, SUM(total_gross_profit) as profit')
                 ->groupBy('bucket')
@@ -345,7 +350,8 @@ final class AnalyticsWebController extends Controller
 
         $hourly = PosOrder::where('business_id', $business->id)
             ->where('status', PosOrder::STATUS_COMPLETED)
-            ->whereBetween('order_date', [$from->toDateString(), $to->toDateString()])
+            ->whereDate('order_date', '>=', $from->toDateString())
+            ->whereDate('order_date', '<=', $to->toDateString())
             ->when($locationId, fn ($q) => $q->where('location_id', $locationId))
             ->selectRaw("{$hourExpr} as hr, COUNT(*) as cnt, SUM(total_amount) as rev")
             ->groupBy('hr')
@@ -373,7 +379,8 @@ final class AnalyticsWebController extends Controller
         $items = PosOrderItem::whereHas('order', function ($q) use ($business, $from, $to, $locationId) {
             $q->where('business_id', $business->id)
                 ->where('status', PosOrder::STATUS_COMPLETED)
-                ->whereBetween('order_date', [$from->toDateString(), $to->toDateString()])
+                ->whereDate('order_date', '>=', $from->toDateString())
+                ->whereDate('order_date', '<=', $to->toDateString())
                 ->when($locationId, fn ($sub) => $sub->where('location_id', $locationId));
         })
         ->selectRaw('product_name, SUM(quantity) as qty, SUM(subtotal) as total_sales, SUM(subtotal - COALESCE(unit_cost_hpp * quantity, 0)) as gross_profit')
@@ -405,7 +412,8 @@ final class AnalyticsWebController extends Controller
         $methods = PosOrderPayment::whereHas('order', function ($q) use ($business, $from, $to, $locationId) {
             $q->where('business_id', $business->id)
                 ->where('status', PosOrder::STATUS_COMPLETED)
-                ->whereBetween('order_date', [$from->toDateString(), $to->toDateString()])
+                ->whereDate('order_date', '>=', $from->toDateString())
+                ->whereDate('order_date', '<=', $to->toDateString())
                 ->when($locationId, fn ($sub) => $sub->where('location_id', $locationId));
         })
         ->where('status', 'paid')
@@ -447,7 +455,8 @@ final class AnalyticsWebController extends Controller
 
         $perf = PosOrder::where('business_id', $business->id)
             ->where('status', PosOrder::STATUS_COMPLETED)
-            ->whereBetween('order_date', [$from->toDateString(), $to->toDateString()])
+            ->whereDate('order_date', '>=', $from->toDateString())
+            ->whereDate('order_date', '<=', $to->toDateString())
             ->selectRaw('location_id, COUNT(*) as orders_count, SUM(total_amount) as revenue, SUM(total_gross_profit) as gross_profit')
             ->groupBy('location_id')
             ->get()

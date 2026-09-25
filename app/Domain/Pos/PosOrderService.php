@@ -135,7 +135,7 @@ final class PosOrderService
 
                 $productName = $row['product_name'] ?? $product?->name ?? 'Item Custom';
                 $productCode = $product?->code;
-                $baseUnitPrice = (float) ($product?->selling_price ?? $row['unit_price'] ?? 0.0);
+                $baseUnitPrice = (float) (isset($row['unit_price']) ? $row['unit_price'] : ($product?->selling_price ?? 0.0));
 
                 // Modifiers validation and server-side calculation
                 $selectedModifiers = $row['selected_modifiers'] ?? [];
@@ -259,6 +259,7 @@ final class PosOrderService
 
                 $existingOrder->update([
                     'location_id' => $locationId,
+                    'pos_register_id' => $attributes['pos_register_id'] ?? $shift?->pos_register_id ?? $existingOrder->pos_register_id,
                     'pos_shift_id' => $shift?->id,
                     'user_id' => $cashier->id,
                     'customer_id' => $customer?->id,
@@ -303,6 +304,7 @@ final class PosOrderService
                 $order = PosOrder::create([
                     'business_id' => $business->id,
                     'location_id' => $locationId,
+                    'pos_register_id' => $attributes['pos_register_id'] ?? $shift?->pos_register_id,
                     'pos_shift_id' => $shift?->id,
                     'user_id' => $cashier->id,
                     'customer_id' => $customer?->id,

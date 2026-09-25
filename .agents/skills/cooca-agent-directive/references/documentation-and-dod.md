@@ -41,16 +41,21 @@ Pekerjaan hanya dapat dinyatakan selesai - dan status akhir `VERIFIED` - jika **
 - [ ] Risiko perubahan telah diklasifikasikan (Safe/Structural/Business Logic/Destructive).
 - [ ] Persetujuan telah diperoleh jika diperlukan (structural/business logic/destructive) - tidak ada perombakan alur/penggabungan menu tanpa persetujuan eksplisit.
 
-### Keamanan & Data
+### Keamanan, Proteksi Fraud, & Data
 
 - [ ] Gap keamanan 4-kuadran (Admin/Owner/Customer/Otomasi) sudah terproteksi, termasuk IDOR shield pada order customer.
 - [ ] Keamanan multi-tenant terjaga - query terikat `Context::requireBusiness()`/`business_id`.
 - [ ] Integritas kalkulasi finansial 100% utuh - rumus subtotal, pajak, diskon, HPP, margin, jurnal akuntansi tidak berubah tanpa persetujuan.
+- [ ] Guardrail anti-fraud internal aktif: `supervisor_pin` pada Void/Refund POS, Blind Cash Count pada tutup kasir, Three-Way Matching pada pengadaan, Two-Step Transfer stok antar-cabang, dan Accounting Period Lock.
+- [ ] Mutasi sensitif tercatat lengkap ke Audit Trail Immutable (`user_id`, `business_id`, `action`, IP, timestamp, before/after snapshot, `reason_notes`).
 - [ ] Permission frontend dan backend sesuai; UI yang sembunyikan tombol tidak menggantikan validasi backend.
 
-### Otomasi
+### Otomasi & Notifikasi Sistem Terpadu (UI, Email, WhatsApp)
 
 - [ ] Proses manual repetitif (jurnal, potong stok BOM, kirim nota WA, transisi status) telah berjalan otomatis sesuai kebutuhan modul.
+- [ ] Notifikasi Tri-Channel (UI In-App Notification Center, Email HTML responsif, WhatsApp dispatch) berjalan asinkron via Laravel Queue (`ShouldQueue`) tanpa memblokir UI/POS.
+- [ ] Fail-Safe & Manual Fallback tersedia: jika gateway WhatsApp/Email offline/timeout, transaksi tetap sukses dan tersedia tombol manual 1-klik `[ Kirim via WhatsApp ]` (`wa.me`).
+- [ ] Anomali fraud & operasional kritis terhubung ke notifikasi instan WhatsApp/Email Owner.
 
 ### UI/UX (Bento Apple HIG)
 
@@ -62,7 +67,7 @@ Pekerjaan hanya dapat dinyatakan selesai - dan status akhir `VERIFIED` - jika **
 - [ ] Komponen menerapkan estetika Apple HIG (squircle, hairline border, frosted glass, tactile press).
 - [ ] Bento UI konsisten di Smartphone (360–430px), Tablet Kasir (768–1024px), Desktop (1024px+) - konsep sama persis, bukan disunat.
 - [ ] Floating Bottom Navbar iOS 18 tersedia di mobile/tablet dengan center action trigger.
-- [ ] Modal-First berlaku untuk Show/Create/Edit di index (zero navigation jumps, filter/pencarian/pagination utuh).
+- [ ] Modal-First & Full-Size Form Canvas: Seluruh form pop-up (Create/Edit/Show/Input Transaksi/Penyesuaian) wajib berukuran Full Size / Full Layout XXL (`max-w-[95vw] lg:max-w-5xl xl:max-w-6xl 2xl:max-w-[1350px]`) di Desktop dan Full-Width Bottom Sheet (`w-full max-h-[95vh]`) di Mobile tanpa modal sempit (`max-w-md`/`max-w-lg`).
 - [ ] Inline Quick-Add `[ + ]` tersedia di setiap dropdown relasi master data, dengan auto-select tanpa reset form.
 - [ ] Ergonomi ramah Boomer lolos uji: bebas jargon teknis Inggris, format ribuan otomatis aktif.
 - [ ] Responsivitas terverifikasi 360–430px bebas horizontal overflow; tidak ada teks terpotong.

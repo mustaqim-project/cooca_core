@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Web\Warehouse;
 
 use App\Http\Controllers\Controller;
+use App\Models\CommerceStoreSetting;
 use App\Models\GoodsReceipt;
 use App\Models\InventoryStock;
 use App\Models\Location;
@@ -88,10 +89,17 @@ final class WarehouseWebController extends Controller
             'code'                   => ['nullable', 'string', 'max:50'],
             'phone'                  => ['nullable', 'string', 'max:50'],
             'address'                => ['nullable', 'string', 'max:500'],
+            'province'               => ['nullable', 'string', 'max:100'],
+            'city'                   => ['nullable', 'string', 'max:100'],
+            'district'               => ['nullable', 'string', 'max:100'],
+            'village'                => ['nullable', 'string', 'max:100'],
+            'postal_code'            => ['nullable', 'string', 'max:20'],
+            'biteship_area_id'       => ['nullable', 'string', 'max:100'],
             'latitude'               => ['nullable', 'numeric', 'between:-90,90'],
             'longitude'              => ['nullable', 'numeric', 'between:-180,180'],
             'geofence_radius'        => ['nullable', 'integer', 'min:10', 'max:10000'],
             'geofence_radius_meters' => ['nullable', 'integer', 'min:10', 'max:10000'],
+            'is_primary'             => ['nullable', 'boolean'],
         ]);
 
         // Generate unique slug
@@ -102,9 +110,18 @@ final class WarehouseWebController extends Controller
             $slug = $baseSlug . '-' . $counter++;
         }
 
-        $geofenceRadius = $validated['geofence_radius_meters'] ?? $validated['geofence_radius'] ?? 50;
+        $geofenceRadius = $validated['geofence_radius_meters'] ?? $validated['geofence_radius'] ?? 100;
 
-        Location::create([
+        $isPrimary = $request->boolean('is_primary');
+        if (!Location::where('business_id', $business->id)->exists()) {
+            $isPrimary = true;
+        }
+
+        if ($isPrimary) {
+            Location::where('business_id', $business->id)->update(['is_primary' => false]);
+        }
+
+        $location = Location::create([
             'business_id'             => $business->id,
             'name'                    => $validated['name'],
             'slug'                    => $slug,
@@ -112,14 +129,32 @@ final class WarehouseWebController extends Controller
             'code'                    => $validated['code'] ?? null,
             'phone'                   => $validated['phone'] ?? null,
             'address'                 => $validated['address'] ?? null,
+            'province'                => $validated['province'] ?? null,
+            'city'                    => $validated['city'] ?? null,
+            'district'                => $validated['district'] ?? null,
+            'village'                 => $validated['village'] ?? null,
+            'postal_code'             => $validated['postal_code'] ?? null,
+            'biteship_area_id'        => $validated['biteship_area_id'] ?? null,
             'latitude'                => $validated['latitude'] ?? null,
             'longitude'               => $validated['longitude'] ?? null,
             'geofence_radius_meters'  => (int) $geofenceRadius,
             'is_online_fulfillment'   => $request->boolean('is_online_fulfillment', true),
             'allow_storefront_pickup' => $request->boolean('allow_storefront_pickup', true),
-            'is_primary'              => false,
+            'is_primary'              => $isPrimary,
             'is_active'               => true,
         ]);
+
+        if ($isPrimary) {
+            $storeSetting = CommerceStoreSetting::firstOrCreate(['business_id' => $business->id]);
+            $storeSetting->update([
+                'origin_location_id' => $location->id,
+                'origin_area_id'     => $location->biteship_area_id ?? $storeSetting->origin_area_id,
+                'origin_address'     => $location->address ?? $storeSetting->origin_address,
+                'origin_postal_code' => $location->postal_code ?? $storeSetting->origin_postal_code,
+                'origin_latitude'    => $location->latitude ?? $storeSetting->origin_latitude,
+                'origin_longitude'   => $location->longitude ?? $storeSetting->origin_longitude,
+            ]);
+        }
 
         $label = in_array($validated['type'], ['outlet', 'store']) ? 'Cabang / Outlet' : ($validated['type'] === 'central_kitchen' ? 'Dapur Pusat' : 'Gudang');
 
@@ -204,12 +239,24 @@ final class WarehouseWebController extends Controller
             'code'                   => ['nullable', 'string', 'max:50'],
             'phone'                  => ['nullable', 'string', 'max:50'],
             'address'                => ['nullable', 'string', 'max:500'],
+            'province'               => ['nullable', 'string', 'max:100'],
+            'city'                   => ['nullable', 'string', 'max:100'],
+            'district'               => ['nullable', 'string', 'max:100'],
+            'village'                => ['nullable', 'string', 'max:100'],
+            'postal_code'            => ['nullable', 'string', 'max:20'],
+            'biteship_area_id'       => ['nullable', 'string', 'max:100'],
             'latitude'               => ['nullable', 'numeric', 'between:-90,90'],
             'longitude'              => ['nullable', 'numeric', 'between:-180,180'],
             'geofence_radius'        => ['nullable', 'integer', 'min:10', 'max:10000'],
             'geofence_radius_meters' => ['nullable', 'integer', 'min:10', 'max:10000'],
             'is_active'              => ['boolean'],
+            'is_primary'             => ['nullable', 'boolean'],
         ]);
+
+        $isPrimary = $request->boolean('is_primary');
+        if ($isPrimary) {
+            Location::where('business_id', $business->id)->where('id', '!=', $location->id)->update(['is_primary' => false]);
+        }
 
         $updateData = [
             'name'                    => $validated['name'],
@@ -217,9 +264,16 @@ final class WarehouseWebController extends Controller
             'code'                    => $validated['code'] ?? null,
             'phone'                   => $validated['phone'] ?? null,
             'address'                 => $validated['address'] ?? null,
+            'province'                => $validated['province'] ?? $location->province,
+            'city'                    => $validated['city'] ?? $location->city,
+            'district'                => $validated['district'] ?? $location->district,
+            'village'                 => $validated['village'] ?? $location->village,
+            'postal_code'             => $validated['postal_code'] ?? $location->postal_code,
+            'biteship_area_id'        => $validated['biteship_area_id'] ?? $location->biteship_area_id,
             'is_active'               => (bool) ($validated['is_active'] ?? $location->is_active),
             'is_online_fulfillment'   => $request->boolean('is_online_fulfillment'),
             'allow_storefront_pickup' => $request->boolean('allow_storefront_pickup'),
+            'is_primary'              => $isPrimary ?: $location->is_primary,
         ];
 
         if (array_key_exists('latitude', $validated)) {
@@ -235,6 +289,18 @@ final class WarehouseWebController extends Controller
         }
 
         $location->update($updateData);
+
+        if ($location->is_primary) {
+            $storeSetting = CommerceStoreSetting::firstOrCreate(['business_id' => $business->id]);
+            $storeSetting->update([
+                'origin_location_id' => $location->id,
+                'origin_area_id'     => $location->biteship_area_id ?? $storeSetting->origin_area_id,
+                'origin_address'     => $location->address ?? $storeSetting->origin_address,
+                'origin_postal_code' => $location->postal_code ?? $storeSetting->origin_postal_code,
+                'origin_latitude'    => $location->latitude ?? $storeSetting->origin_latitude,
+                'origin_longitude'   => $location->longitude ?? $storeSetting->origin_longitude,
+            ]);
+        }
 
         $label = in_array($validated['type'], ['outlet', 'store']) ? 'Cabang / Outlet' : ($validated['type'] === 'central_kitchen' ? 'Dapur Pusat' : 'Gudang');
 

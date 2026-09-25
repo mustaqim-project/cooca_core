@@ -52,6 +52,9 @@ final class SupplierWebController extends Controller
             'phone' => ['nullable', 'string', 'max:50'],
             'email' => ['nullable', 'email', 'max:150'],
             'address' => ['nullable', 'string', 'max:500'],
+            'bank_name' => ['nullable', 'string', 'max:100'],
+            'bank_account_number' => ['nullable', 'string', 'max:100'],
+            'bank_account_holder' => ['nullable', 'string', 'max:150'],
             'notes' => ['nullable', 'string', 'max:500'],
         ]);
 
@@ -62,6 +65,9 @@ final class SupplierWebController extends Controller
             'phone' => $validated['phone'] ?? null,
             'email' => $validated['email'] ?? null,
             'address' => $validated['address'] ?? null,
+            'bank_name' => $validated['bank_name'] ?? null,
+            'bank_account_number' => $validated['bank_account_number'] ?? null,
+            'bank_account_holder' => $validated['bank_account_holder'] ?? null,
             'notes' => $validated['notes'] ?? null,
         ]);
 
@@ -81,12 +87,18 @@ final class SupplierWebController extends Controller
      */
     public function update(Request $request, Supplier $supplier): RedirectResponse|JsonResponse
     {
+        $business = Context::requireBusiness();
+        abort_unless($supplier->business_id === $business->id, 403);
+
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'contact_person' => ['nullable', 'string', 'max:150'],
             'phone' => ['nullable', 'string', 'max:50'],
             'email' => ['nullable', 'email', 'max:150'],
             'address' => ['nullable', 'string', 'max:500'],
+            'bank_name' => ['nullable', 'string', 'max:100'],
+            'bank_account_number' => ['nullable', 'string', 'max:100'],
+            'bank_account_holder' => ['nullable', 'string', 'max:150'],
             'notes' => ['nullable', 'string', 'max:500'],
         ]);
 
@@ -108,6 +120,9 @@ final class SupplierWebController extends Controller
      */
     public function destroy(Supplier $supplier): RedirectResponse
     {
+        $business = Context::requireBusiness();
+        abort_unless($supplier->business_id === $business->id, 403);
+
         $supplier->delete();
 
         return back()->with('success', 'Supplier berhasil dihapus.');

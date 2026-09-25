@@ -23,6 +23,8 @@
    - [3.9 Saluran WhatsApp Resmi (WhatsApp Cloud API Meta)](#39-saluran-whatsapp-resmi-whatsapp-cloud-api-meta)
    - [3.10 Pengelolaan Media Sosial Terpadu (Meta, TikTok & LinkedIn)](#310-pengelolaan-media-sosial-terpadu-meta-tiktok--linkedin)
    - [3.11 Kepatuhan Pajak UMKM & Penggajian Karyawan (HRM & Tax Compliance)](#311-kepatuhan-pajak-umkm--penggajian-karyawan-hrm--tax-compliance)
+   - [3.12 Analitik Bisnis & Tren Pertumbuhan (Analytics Suite)](#312-analitik-bisnis--tren-pertumbuhan-analytics-suite)
+   - [3.13 Pusat Otorisasi Dokumen (MAR Engine)](#313-pusat-otorisasi-dokumen-mar---maker-approver-releaser)
 4. [Panduan Rekayasa Developer & AI Agent (Engineering Blueprint)](#4-panduan-rekayasa-developer--ai-agent-engineering-blueprint)
    - [4.1 Struktur 33 Domain Packages DDD](#41-struktur-33-domain-packages-ddd)
    - [4.2 Aturan Scoping Tenant & Proteksi Keamanan](#42-aturan-scoping-tenant--proteksi-keamanan)
@@ -37,7 +39,10 @@
    - [4.11 Pusat Pengelolaan CMS Artikel, Taksonomi Kategori, & Cluster Konten (Admin Posts CMS)](#411-pusat-pengelolaan-cms-artikel-taksonomi-kategori--cluster-konten-admin-posts-cms)
    - [4.12 Pusat Pengaturan Platform & Integrasi Layanan Terpusat (Admin Settings & 5-Service Hub)](#412-pusat-pengaturan-platform--integrasi-layanan-terpusat-admin-settings--5-service-hub)
    - [4.13 Arsitektur Blueprint Tier Pricing v2.3, Multi-Branch & Tax Compliance Engine](#413-arsitektur-blueprint-tier-pricing-v23-multi-branch--tax-compliance-engine)
-5. [Matriks Penelusuran Pengetahuan (Traceability Matrix)](#5-matriks-penelusuran-pengetahuan-traceability-matrix)ity-matrix)
+   - [4.14 Arsitektur Audit & Proteksi Fraud Internal serta Notifikasi Sistem Terpadu (UI, Email, WhatsApp)](#414-arsitektur-audit--proteksi-fraud-internal-serta-notifikasi-sistem-terpadu-ui-email-whatsapp)
+   - [4.15 Arsitektur POS Hardware, ESC/POS Thermal Printer, Cash Drawer Safety & Local Agent Bridge](#415-arsitektur-pos-hardware-escpos-thermal-printer-cash-drawer-safety--local-agent-bridge)
+   - [4.16 Cetak Biru Penataan 6-Hub Modul & Rekomendasi Optimasi Performa End-to-End](#416-cetak-biru-penataan-6-hub-modul--rekomendasi-optimasi-performa-end-to-end)
+5. [Matriks Penelusuran Pengetahuan (Traceability Matrix)](#5-matriks-penelusuran-pengetahuan-traceability-matrix)
 
 ---
 
@@ -55,11 +60,11 @@ Aplikasi ini dirancang untuk dapat dioperasikan secara percaya diri oleh **gener
   - Ukuran font kolom input minimal **16px** (`text-[16px] sm:text-[14px]`) untuk mencegah auto-zoom browser iOS Safari yang merusak tampilan.
   - Sudut membulat organik (*squircle* `rounded-[20px]`) dan border hairline lembut yang memanjakan mata.
 * **Format Ribuan Otomatis:** Mengetik nominal uang otomatis menghasilkan tanda pemisah ribuan (`Rp 150.000`), mencegah kekeliruan mengetik nol berlebih.
-* **Standar Modal Pop-Up Full Layout XXL & Responsif Multi-Device:**
-  - Operasi Create, Show (Detail), dan Edit pada seluruh halaman index mengadopsi arsitektur **Modal-First** tanpa berpindah halaman (*Zero Navigation Jumps*), menjaga filter dan posisi pagination tetap utuh.
-  - **Desktop (>= 1024px):** Menggunakan **Full Layout XXL Centered Bento Dialog** (`max-w-5xl` s/d `max-w-[1250px]` / `max-w-[95vw] rounded-[24px] max-h-[90vh]`) yang lapang, mampu menampung grid bento multi-kolom (8 kolom form/tabel utama + 4 kolom metrik ringkasan) tanpa berdesakan.
-  - **Tablet (640px – 1023px):** Centered Responsive Bento Modal (`max-w-3xl` s/d `max-w-4xl rounded-[22px] max-h-[90vh]`) dengan tata letak 2 kolom seimbang dan touch target 44px–48px.
-  - **Mobile (< 640px):** Apple Full-Responsive Bottom Sheet (`w-full inset-x-0 bottom-0 rounded-t-[28px] max-h-[94vh]`) meluncur dari bawah lengkap dengan indikator grab bar Apple, input font minimal 16px anti-auto-zoom iOS, dan sticky bottom action bar menempel jempol.
+* **Standar Modal Pop-Up & Form Full-Size Lintas Multi-Device:**
+  - Operasi Create, Show (Detail), Edit, dan Form Input Transaksi pada seluruh halaman index mengadopsi arsitektur **Modal-First Full-Size Canvas** tanpa berpindah halaman (*Zero Navigation Jumps*), menjaga filter dan posisi pagination tetap utuh. Dilarang modal form sempit (`max-w-md`/`max-w-lg`).
+  - **Desktop (>= 1024px):** Menggunakan **Full Layout XXL Centered Bento Dialog** (`w-full max-w-[95vw] lg:max-w-5xl xl:max-w-6xl 2xl:max-w-[1350px] mx-auto rounded-[24px] max-h-[92vh]`) yang lapang, mampu menampung grid bento multi-kolom (8 kolom form/tabel utama + 4 kolom metrik ringkasan live) tanpa berdesakan.
+  - **Tablet (640px – 1023px):** Centered Responsive Bento Modal (`max-w-3xl` s/d `max-w-4xl rounded-[22px] max-h-[92vh]`) dengan tata letak 2 kolom seimbang dan touch target 44px–48px.
+  - **Mobile (< 640px):** Apple Full-Responsive Bottom Sheet (`w-full inset-x-0 bottom-0 rounded-t-[28px] h-full max-h-[95vh]`) meluncur dari bawah dengan lebar penuh (100% viewport), indikator grab bar Apple, input font minimal 16px anti-auto-zoom iOS, dan sticky bottom action bar menempel jempol (48px–52px).
 * **Pemberitahuan Penenang Jiwa (*No-Panic Microcopy*):** Di setiap aksi penting atau dialog konfirmasi, sistem selalu menyertakan pesan penenang menggunakan font icon Lucide `info` (bebas emoji):  
   *“Tenang: Riwayat nota penjualan dan pembukuan masa lalu Anda tetap aman tersimpan.”*
 
@@ -188,8 +193,22 @@ Aplikasi ini dirancang untuk dapat dioperasikan secara percaya diri oleh **gener
   - **Kalkulator Interaktif 4-in-1:**
     1. *Simulasi PPh Final UMKM:* Menghitung tarif 0.5% berdasarkan omzet bulanan dan status wajib pajak.
     2. *Simulasi PPh 21 TER & Daily Worker:* Menghitung pemotongan bulanan TER Kategori A/B/C (PP 58/2023) dan upah harian lepas.
-    3. *Simulasi Pajak Penjualan (PB1 & PPN):* Menghitung pajak resto 10% atau PPN 11%/12% dengan service charge secara inklusif atau eksklusif.
-    4. *Simulasi Penggajian & THR Terpadu:* Menggabungkan gaji pokok, tunjangan, lembur, komisi, iuran BPJS, THR prorata join date, potongan pinjaman, dan PPh 21 TER menjadi Take Home Pay bersih.
+### 3.12 Analitik Bisnis & Tren Pertumbuhan (Analytics Suite)
+* **Kapan Digunakan?** Saat pemilik usaha atau tim manajemen ingin meninjau performa penjualan, laba kotor riil, perbandingan antar-periode, dan pola belanja pelanggan.
+* **Fitur Utama & Keunggulan Operasional:**
+  - **Konsolidasi Multi-Channel:** Menghitung omzet gabungan dari transaksi kasir POS, faktur B2B, dan toko online secara real-time.
+  - **Laba Kotor & Estimasi Laba Bersih:** Menghitung margin laba kotor terhadap HPP secara otomatis, serta mengestimasi laba bersih setelah dikurangi seluruh beban operasional.
+  - **Grafik Tren & Jam Sibuk Kasir:** Visualisasi pergerakan omzet harian serta peta panas antrean transaksi kasir (07:00–23:00) untuk optimalisasi jadwal shift staf.
+  - **Distribusi Pembayaran:** Komposisi transaksi metode QRIS, Tunai, Transfer Bank, Kartu EDC, dan Kasbon.
+  - **Top 10 Menu/Produk Terlaris:** Menampilkan kontribusi kuantitas dan margin produk terlaris dengan antarmuka dual-mode (Tabel Desktop & Kartu Mobile).
+
+### 3.13 Pusat Otorisasi Dokumen (MAR - Maker, Approver, Releaser)
+* **Kapan Digunakan?** Saat bisnis menerapkan tata kelola bertingkat untuk pengeluaran biaya operasional, tagihan supplier, dan permohonan pengadaan barang (Purchase Order) di atas ambang nominal tertentu.
+* **Fitur Utama & Keunggulan Operasional:**
+  - **Pemisahan Wewenang (Segregation of Duties):** Staf pembuat draf (*Maker*) mengajukan dokumen, sementara penyetujuan diotorisasi berjenjang (*Level 1 Supervisor -> Level 2 Manager -> Level 3 Owner*).
+  - **Audit Trail Permanen:** Seluruh aksi persetujuan, penolakan, dan catatan tertulis direkam abadi untuk kepatuhan tata kelola bisnis.
+  - **Pencegahan Fraud & Auto-Journaling:** Dokumen yang ditolak otomatis diblokir dari pencairan kas; dokumen yang disetujui penuh secara otomatis terhubung ke pemotongan stok bahan baku (BOM) dan jurnal akuntansi berimbang.
+  - **Manajemen Plafon Mandiri:** Pemilik usaha dapat mengatur batas nominal minimal dan tingkatan penyetuju langsung melalui modal sheet in-place.
 
 ---
 
@@ -298,6 +317,48 @@ Berdasarkan dokumen arsitektur `docs/BLUEPRINT_TIER_PRICING_DAN_LIMITASI_COOCA.m
   - `SalesTaxService`: PB1 10%, PPN 11%/12%, Service Charge, mode inklusif vs eksklusif.
 * **Payment Gateway Eksklusif TriPay:** Pembayaran langganan SaaS 100% dialirkan melalui TriPay resmi (Virtual Account, QRIS, E-Wallet, Retail Mart).
 
+### 4.14 Arsitektur Audit & Proteksi Fraud Internal serta Notifikasi Sistem Terpadu (UI, Email, WhatsApp)
+* **Pondasi Anti-Fraud Internal Bawaan (*Built-in Internal Fraud Guardrails*):**
+  - **POS & Kasir:** Aksi pembatalan (*Void*) dan pengembalian uang (*Refund*) pasca cetak struk wajib `supervisor_pin` ter-hash Bcrypt, pencatatan alasan, auto-restock, dan notifikasi instan. Tutup kasir wajib menerapkan **Blind Cash Count (Tutup Kasir Buta)** untuk mencegah manipulasi selisih kas.
+  - **Gudang & Pengadaan:** Stock write-off bernilai besar wajib Maker-Checker / Approval Owner dengan bukti Berita Acara. Pengadaan menerapkan **Three-Way Matching** (PO ↔ GRN ↔ Invoice AP). Transfer antar cabang wajib **Two-Step Transfer** (`In-Transit` → `Received`).
+  - **Keuangan & Piutang:** Pelunasan piutang otomatis menerbitkan kuitansi digital via WhatsApp/Email ke pelanggan untuk mencegah *lapping scheme*. Periode buku terlindungi **Accounting Period Lock** guna mencegah manipulasi tanggal mundur (*anti-backdating*). Jurnal akuntansi terposting bersifat permanen (*Double-Entry Immutability*).
+  - **Audit Trail Immutable:** Tabel `audit_logs` merekam seluruh mutasi berisiko secara terstruktur (`user_id`, `business_id`, `branch_id`, `action`, IP, User Agent, snapshot JSON `payload_before` & `payload_after`, `reason_notes`).
+* **Arsitektur Notifikasi Multi-Saluran (*Tri-Channel Notification Engine*):**
+  - **Saluran UI In-App:** Header Bell Dropdown dengan unread badge counter `tabular-nums`, filter kategori (Transaksi, Fraud, Stok, Otorisasi, Sistem), Floating Frosted Glass Toast (auto-dismiss 3-5 detik), dan Modal Sheet Maker-Checker Action Cards.
+  - **Saluran Email (Apple HIG Responsive HTML):** Daily/Weekly Executive Business Digest untuk Owner, Critical Security & Fraud Alerts seketika, Faktur & Invoice B2B PDF terlampir.
+  - **Saluran WhatsApp (Meta Cloud API & Gateway):** Nota/struk digital instan ke pembeli, update status pesanan, Auto-Reminder piutang jatuh tempo (H-3, Hari H, H+3), dan Peringatan Kritis Langsung ke WhatsApp Owner.
+  - **Prinsip Asinkron & Fail-Safe Fallback:** Seluruh pengiriman Email/WhatsApp berjalan asinkron di antrean (`ShouldQueue`) tanpa membebani response time POS (sub-100ms). Jika gateway eksternal offline, transaksi tetap sukses dan UI menyediakan tombol manual 1-klik `[ Kirim via WhatsApp Web / HP ]` (`wa.me`).
+
+### 4.15 Arsitektur POS Hardware, ESC/POS Thermal Printer, Cash Drawer Safety & Local Agent Bridge
+* **Integrasi Raw Binary ESC/POS Berkecepatan Tinggi:** Menggunakan library `mike42/escpos-php` dan abstraksi domain `App\Domain\Printer` untuk menghasilkan binary stream ESC/POS native yang langsung dikirimkan ke hardware thermal printer (58mm / 80mm) tanpa bergantung pada driver print modal browser.
+* **Topologi Multi-Konektor & Abstraksi Jaringan:**
+  - **LAN / Wi-Fi Ethernet:** Koneksi TCP socket langsung ke port 9100 (`NetworkConnector`) dengan uji diagnostik ping latency terintegrasi.
+  - **Windows Spooler Print Queue:** Koneksi antrean Windows (`WindowsConnector`) untuk printer kasir yang terpasang melalui driver USB Windows.
+  - **Direct Device File:** Koneksi port lokal Linux/macOS `/dev/usb/lp0` atau COM Serial (`FileConnector`).
+  - **Local POS Agent (Bluetooth / USB):** Daemon Node.js ringan (`hardware-agent/agent.js`) untuk bridge browser/cloud server ke printer Bluetooth nirkabel (`AgentPayloadConnector`) dengan polling antrean asinkron (`pos_print_jobs`).
+* **Proteksi Keamanan Laci Kas Fisik (*Cash Drawer Safety & Anti-Fraud*):**
+  - **Pemicu Otomatis:** Laci kas (RJ-11/RJ-12 solenoid pulse) **HANYA** terbuka saat pembayaran pesanan telah berstatus `COMPLETED` dan metode pembayaran mengandung `CASH`.
+  - **Larangan Pembukaan pada Reprint / Non-Tunai:** Cetak ulang struk (*reprint*) dan pembayaran non-tunai (QRIS, Kartu, Transfer) dilarang memicu pembukaan laci kas secara otomatis.
+  - **No-Sale Manual Pop:** Pembukaan laci kas manual tanpa transaksi wajib diverifikasi menggunakan **PIN Supervisor** dan mencatat alasan tertulis ke dalam `audit_logs`.
+* **Perutean Pesanan Dapur & Bar Otomatis (*Kitchen Order Ticket - KOT*):**
+  - `KitchenRoutingService` memilah item pesanan berdasarkan kategori produk dan mengarahkannya ke printer stasiun yang sesuai (Dapur Makanan Panas vs Bar Minuman) dengan tiket khusus berhuruf tebal, modifikasi topping, dan catatan koki.
+* **Kompatibilitas Penuh (100% Backward Compatibility):** Menyediakan tombol cetak ganda di terminal dan struk kasir: tombol utama **Cetak ESC/POS Hardware** berkecepatan tinggi dan tombol cadangan **Cetak Bill (Browser Print)**.
+
+### 4.16 Cetak Biru Penataan 6-Hub Modul & Rekomendasi Optimasi Performa End-to-End
+* **Konsolidasi 6-Hub Modul Terpadu:**
+  1. **Hub Operasional Kasir (POS):** Kasir Cepat (Touch/Barcode/Shortcut), Manajemen Meja & Dine-In, Tiket Dapur/Bar KOT, Laci Kas RJ-11 Safety Controller, Tutup Shift Blind Cash Count.
+  2. **Hub Katalog & Logistik:** Katalog Produk & Varian, Resep Bahan Baku BOM (*Auto-BOM Deduction*), Multi-Gudang & Cabang, Mutasi & Penyesuaian Stok (Berita Acara & Approval), Two-Step In-Transit Transfer.
+  3. **Hub Pengadaan & Pemasok (AP):** Direktori Supplier & Rekening Bank Resmi, Purchase Order MAR (*Maker-Approver-Releaser*), Three-Way Matching Penerimaan GRN, Retur Pembelian.
+  4. **Hub Pelanggan & Kanal Digital (Commerce & CRM):** CRM Pelanggan & Plafon Kasbon, Poin Loyalitas & Voucher, Toko Online Storefront Publik, Pre-Order Dinamis, Ekspedisi Otomatis (Biteship).
+  5. **Hub Keuangan, Pajak & SDM (Finance, Tax & HRM):** Kas & Rekening Bank Terpadu, Auto-Journaling Double-Entry, Auto-Reminder Piutang, Pajak UMKM (PP 55/PPh 21 TER/PPh Badan/PPN), Penggajian (Payroll, BPJS, THR, Komisi SPK).
+  6. **Hub Ekosistem & Administrasi Platform:** WhatsApp Cloud API Meta Hub, Omnichannel Social Media (Meta/TikTok/LinkedIn UGC API), Landing Page Studio, Billing SaaS Tier (TriPay Gateway).
+* **Rekomendasi Optimasi Performa & Ketahanan Sistem:**
+  - **Tag-Based Caching Layer (Redis):** Cache master data aktif (`tenant_{id}:products`) dengan invalidasi otomatis via Eloquent Model Observers.
+  - **Offline-First POS Resilience (IndexedDB / PWA):** Cache katalog lokal di browser kasir memungkinkan checkout tunai dan cetak ESC/POS lokal tetap berjalan saat koneksi internet toko terputus, dilengkapi antrean auto-sync saat online.
+  - **Database Indexing & Zero N+1 Queries:** Indeks komposit pada tabel transaksi besar (`business_id, branch_id, status, created_at`) dan kewajiban Eager Loading (`with(['items.product', ...])`).
+  - **Asynchronous Task Offloading:** Proses berat (PDF invoice, email digest, WhatsApp API, rekapitulasi data besar) dialirkan ke antrean worker latar belakang (*Laravel Queue*).
+  - **Smart Workflows:** Global Barcode Scanner listener, Self-Service QR Table Ordering, Auto-Reorder PO saat stok menyentuh Reorder Point (ROP), dan Interactive Customer WhatsApp Bot.
+
 ---
 
 ## 5. Matriks Penelusuran Pengetahuan (Traceability Matrix)
@@ -312,6 +373,9 @@ Dokumentasi Cooca saling terhubung secara dua arah untuk memudahkan penelusuran 
    │
    ├──► Modul POS Kasir ───────────► docs/system/modules/pos.md ────────► app/Domain/Pos/
    │                                                                        └──► Work History #001
+   │
+   ├──► Modul POS Hardware & Printer► docs/system/modules/pos-hardware-and-printers.md ──► app/Domain/Printer/
+   │                                                                                        └──► WORK-2026-09-25-151
    │
    ├──► Modul Gudang & Inventori ──► docs/system/modules/inventory.md ──► app/Domain/Inventory/
    │                                                                        └──► Work History #001
@@ -368,8 +432,11 @@ Dokumentasi Cooca saling terhubung secara dua arah untuk memudahkan penelusuran 
    ├──► Admin Posts & Cluster CMS ──► docs/system/modules/cms.md ───────────────────► AdminPostController
    │                                                                                    └──► WORK-2026-09-18-081
    │
-   └──► Modul HRM & Tax Engine ────► docs/system/modules/hrm-and-tax.md ────────────► app/Domain/Tax/ & app/Domain/HRM/
-                                                                                        └──► WORK-2026-09-19-085
+   ├──► Modul HRM & Tax Engine ────► docs/system/modules/hrm-and-tax.md ────────────► app/Domain/Tax/ & app/Domain/HRM/
+   │                                                                                    └──► WORK-2026-09-19-085
+   │
+   └──► POS Hardware & Shifts ─────► docs/system/modules/pos-hardware-and-printers.md ──► app/Domain/Printer/ & PosShiftService
+                                                                                        └──► WORK-2026-09-25-154
 ```
 
 ---
