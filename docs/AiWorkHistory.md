@@ -52,6 +52,54 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 
 #### 7. Documentation Promotion
 
+### [WORK-2026-09-25-156] WhatsApp Gateway, Broadcast & Logs Bento Apple HIG Redesign, Async Queue & Strix Security Hardening
+
+- **Date:** 2026-09-25
+- **Status:** COMPLETED
+- **Module:** WhatsApp Gateway, Omnichannel & Communication Engine
+- **Feature:** Full Bento Apple HIG UI Redesign (Zero-Emoji, Modal-First XXL Canvas with Live Smartphone Simulator, Inspector Sheet for Logs), Asynchronous Background Queue Job (`SendWhatsAppBroadcastJob`), Input Validation & First-Time Session Creation Hardening.
+- **Work Type:** UI/UX | Security | Architecture | Feature | Testing
+
+#### 1. Business Context & Objective
+- **Konteks:** Menjawab kebutuhan komunikasi terpadu dan pemasaran UMKM di mana pengiriman pesan broadcast promosi massal dan struk kasir digital WhatsApp harus berjalan mulus tanpa memperlambat sistem, aman dari celah keamanan, dan antarmukanya ramah bagi pengguna usia 40–65 tahun (Zero-Emoji, Bento Apple HIG, Modal-First).
+- **Masalah/Target:**
+  1. Pengiriman blast promosi sebelumnya berjalan secara sinkron di thread HTTP web yang berisiko timeout pada daftar pelanggan menengah/besar.
+  2. Modal-First XXL Canvas: Memungkinkan pembuatan kampanye blast langsung dari halaman index melalui Bento Modal Sheet berukuran penuh (`max-w-[95vw] lg:max-w-5xl xl:max-w-6xl 2xl:max-w-[1350px]`) dengan live smartphone preview side-by-side (*zero navigation jump*).
+  3. Mengamankan validasi parameter filter audiens dan memperbaiki inisialisasi sesi (`firstOrCreate`) saat merchant pertama kali mengonfigurasi struk digital.
+  4. Menyediakan Log Inspector Modal Sheet untuk meninjau isi pesan utuh, status kirim, dan tombol 1-klik fallback `wa.me`.
+
+#### 2. What Was Done
+- **Backend & Antrean Asinkron:**
+  - Membuat `App\Jobs\WhatsApp\SendWhatsAppBroadcastJob` mengimplementasikan `ShouldQueue` untuk mendistribusikan pesan promosi ber-throttle di latar belakang.
+  - Memperbarui `WhatsAppBroadcastWebController::store` untuk men-dispatch job antrean secara asinkron dan mengarahkan pengguna ke halaman detail dengan feedback status real-time.
+  - Memperbarui `WhatsAppBroadcastWebController::show` agar mendukung live polling JSON responsif saat status kampanye masih `processing`.
+  - Memperketat validasi parameter filter audiens di `WhatsAppBroadcastWebController::estimateRecipients`.
+  - Memperbaiki `WhatsAppWebController::updateSettings` menggunakan `firstOrCreate` untuk `WhatsAppSession` agar setting struk tersimpan sempurna bagi merchant baru.
+- **UI/UX Bento Apple HIG Redesign:**
+  - `resources/views/app/whatsapp/index.blade.php`: Redesign antarmuka koneksi Meta Embedded Signup resmi, status layanan toko, pengaturan struk, dan konsol uji coba kirim pesan dengan font input mobile $\ge 16\text{px}$, tap target $\ge 44\text{px}$, dan zero emoji.
+  - `resources/views/app/whatsapp/broadcast.blade.php`: KPI grid Apple HIG, tabel riwayat, dan Full-Size Bento Modal Sheet `createModalOpen` dengan live smartphone simulator.
+  - `resources/views/app/whatsapp/broadcast_detail.blade.php`: Live polling timer otomatis saat status `processing`, KPI metrik, dan tabel audit penerima.
+  - `resources/views/app/whatsapp/create.blade.php`: Standalone XXL Bento Composer untuk kompatibilitas direct route.
+  - `resources/views/app/whatsapp/logs.blade.php`: Filter segmented bar, tabel log keluar, dan Inspector Modal Sheet untuk membaca pesan lengkap tanpa terpotong & 1-klik `wa.me` manual fallback.
+
+#### 3. Technical Changes
+- **Files Affected:**
+  - `app/Jobs/WhatsApp/SendWhatsAppBroadcastJob.php`
+  - `app/Http/Controllers/Web/WhatsApp/WhatsAppBroadcastWebController.php`
+  - `app/Http/Controllers/Web/WhatsApp/WhatsAppWebController.php`
+  - `resources/views/app/whatsapp/index.blade.php`
+  - `resources/views/app/whatsapp/broadcast.blade.php`
+  - `resources/views/app/whatsapp/broadcast_detail.blade.php`
+  - `resources/views/app/whatsapp/create.blade.php`
+  - `resources/views/app/whatsapp/logs.blade.php`
+  - `tests/Feature/WhatsApp/MerchantWhatsAppWebFeatureTest.php`
+
+#### 4. Verification & Testing
+- 12/12 Automated Feature Tests di `MerchantWhatsAppWebFeatureTest` lolos 100% (46 assertions, 0 failure, 0 error).
+- Seluruh berkas PHP lolos pemeriksaan sintaks `php -l`.
+
+---
+
 ### [WORK-2026-09-25-155] Full-Size Form Modal & Bottom Sheet Mandate Across Desktop and Mobile
 
 - **Date:** 2026-09-25

@@ -736,18 +736,16 @@
                                             <span>{{ $account->bank_name }}</span>
                                             @if ($account->type === \App\Models\PaymentAccount::TYPE_QRIS || $account->bank_code === 'qris')
                                                 <span class="text-[11px] font-semibold text-[#34C759]">
-                                                    (QRIS Standar BI · Semua e-Wallet &amp; Mobile Banking)
                                                 </span>
                                             @else
                                                 <span
                                                     class="text-[10px] font-medium text-blue-600 dark:text-blue-400 uppercase tracking-wider font-mono">
-                                                    Virtual Account Otomatis
                                                 </span>
                                             @endif
                                         </div>
                                         <div class="text-xs text-gray-500 dark:text-gray-400 mt-0.5 font-mono truncate">
                                             <span>TriPay Gateway Resmi</span> · a.n. <strong
-                                                class="text-gray-800 dark:text-gray-200 font-semibold">{{ $account->account_name ?: 'PT Cooca Digital Indonesia' }}</strong>
+                                                class="text-gray-800 dark:text-gray-200 font-semibold">{{ $account->account_name ?: 'Cooca ID' }}</strong>
                                         </div>
                                     </div>
                                 </div>

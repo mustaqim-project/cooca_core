@@ -69,7 +69,7 @@ class PatunganSubscriptionWorkflowTest extends TestCase
             'bank_name' => 'Bank BCA',
             'bank_code' => 'bca',
             'account_number' => '1234567890',
-            'account_name' => 'PT Cooca Digital Indonesia',
+            'account_name' => 'Cooca ID',
             'type' => 'bank_transfer',
             'is_active' => true,
             'sort_order' => 1,

@@ -177,7 +177,15 @@ class WhatsAppWebController extends Controller
             $this->gateway->updateSessionProvider($business, $sessionData);
         }
 
-        $session = WhatsAppSession::where('business_id', $business->id)->first();
+        $session = WhatsAppSession::firstOrCreate(
+            ['business_id' => $business->id],
+            [
+                'session_id' => $this->gateway->sessionId($business),
+                'provider'   => 'meta_cloud',
+                'is_active'  => true,
+            ]
+        );
+
         if ($session) {
             if ($request->has('auto_send_receipt')) {
                 $session->auto_send_receipt = $request->boolean('auto_send_receipt');

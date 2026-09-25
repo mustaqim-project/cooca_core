@@ -146,7 +146,7 @@ class AdminPlatformBrandingSeoTest extends TestCase
             'seo_meta_title'          => 'Aplikasi Kasir POS & ERP UMKM Indonesia Terbaik',
             'seo_meta_description'    => 'Tingkatkan profit usaha dengan software kasir POS gratis dan pembukuan real-time.',
             'seo_meta_keywords'       => 'aplikasi kasir, software pos, software pembukuan',
-            'seo_author'              => 'PT Cooca Digital Indonesia',
+            'seo_author'              => 'Cooca ID',
             'seo_robots'              => 'index, follow',
             'seo_canonical_url'       => 'https://cooca.id',
             'seo_og_title'            => 'Cooca POS & ERP UMKM #1',
@@ -165,7 +165,7 @@ class AdminPlatformBrandingSeoTest extends TestCase
         $response->assertRedirect(route('admin.settings.index', ['tab' => 'seo']));
 
         $this->assertSame('Aplikasi Kasir POS & ERP UMKM Indonesia Terbaik', SystemSetting::get('seo_meta_title'));
-        $this->assertSame('PT Cooca Digital Indonesia', SystemSetting::get('seo_author'));
+        $this->assertSame('Cooca ID', SystemSetting::get('seo_author'));
         $this->assertSame('google-test-verification-code-xyz', SystemSetting::get('seo_google_verification'));
         $this->assertSame('G-TESTGA4999', SystemSetting::get('seo_google_analytics_id'));
 

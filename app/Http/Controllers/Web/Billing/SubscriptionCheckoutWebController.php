@@ -77,7 +77,7 @@ final class SubscriptionCheckoutWebController extends Controller
                 'bank_name' => $method['name'] ?? ($isQris ? 'QRIS Dinamis (GoPay, OVO, ShopeePay, BCA, Livin, BRImo)' : strtoupper($code)),
                 'type' => $isQris ? PaymentAccount::TYPE_QRIS : ($method['type'] ?? 'virtual_account'),
                 'account_number' => $isQris ? 'Scan QR Code Cooca Pay' : ($method['code'] ?? 'Nomor VA Otomatis'),
-                'account_name' => 'PT COOCA DIGITAL INDONESIA',
+                'account_name' => 'Cooca ID',
                 'icon' => $isQris ? 'qr-code' : ($method['icon'] ?? 'credit-card'),
                 'icon_url' => $method['icon_url'] ?? null,
                 'color' => $isQris ? 'emerald' : ($method['color'] ?? 'blue'),

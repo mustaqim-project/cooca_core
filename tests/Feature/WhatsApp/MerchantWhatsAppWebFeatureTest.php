@@ -218,4 +218,120 @@ class MerchantWhatsAppWebFeatureTest extends TestCase
         // Must return 404 (IDOR shield)
         $response->assertNotFound();
     }
+
+    public function test_merchant_can_store_broadcast_and_dispatches_async_job(): void
+    {
+        \Illuminate\Support\Facades\Queue::fake();
+
+        [$user, $business] = $this->createMerchant();
+
+        // Connect WhatsApp Account first
+        WhatsAppAccount::create([
+            'business_id'          => $business->id,
+            'waba_id'              => '109876543210',
+            'phone_number_id'      => '100012345678',
+            'phone_number'         => '6281234567890',
+            'display_phone_number' => '+62 812-3456-7890',
+            'access_token'         => 'EAABwzLixnjYBA_test_token',
+            'status'               => 'active',
+        ]);
+
+        $response = $this->actingAs($user)->post(route('whatsapp.broadcast.store'), [
+            'title'         => 'Flash Sale Kopi Susu',
+            'message'       => 'Halo {nama}, nikmati diskon khusus hari ini di {bisnis}!',
+            'target_filter' => 'all',
+        ]);
+
+        $campaign = WhatsAppBroadcastCampaign::where('business_id', $business->id)->first();
+        $this->assertNotNull($campaign);
+        $this->assertSame('Flash Sale Kopi Susu', $campaign->title);
+        $this->assertSame('processing', $campaign->status);
+
+        $response->assertRedirect(route('whatsapp.broadcast.show', $campaign));
+
+        \Illuminate\Support\Facades\Queue::assertPushed(\App\Jobs\WhatsApp\SendWhatsAppBroadcastJob::class, function ($job) use ($business, $campaign) {
+            return $job->businessId === (string) $business->id && $job->campaignId === (string) $campaign->id;
+        });
+    }
+
+    public function test_merchant_can_estimate_recipients_with_valid_and_invalid_filters(): void
+    {
+        [$user, $business] = $this->createMerchant();
+
+        \App\Models\Customer::create([
+            'business_id'     => $business->id,
+            'name'            => 'Customer Gold',
+            'phone'           => '081234567891',
+            'membership_tier' => 'gold',
+            'is_active'       => true,
+        ]);
+
+        \App\Models\Customer::create([
+            'business_id'     => $business->id,
+            'name'            => 'Customer Silver',
+            'phone'           => '081234567892',
+            'membership_tier' => 'silver',
+            'is_active'       => true,
+        ]);
+
+        // 1. Valid filter 'gold'
+        $goldResponse = $this->actingAs($user)->getJson(route('whatsapp.broadcast.estimate', ['filter' => 'gold']));
+        $goldResponse->assertOk();
+        $goldResponse->assertJson(['count' => 1]);
+
+        // 2. Valid filter 'all'
+        $allResponse = $this->actingAs($user)->getJson(route('whatsapp.broadcast.estimate', ['filter' => 'all']));
+        $allResponse->assertOk();
+        $allResponse->assertJson(['count' => 2]);
+
+        // 3. Invalid filter returns 422 Unprocessable Entity
+        $invalidResponse = $this->actingAs($user)->getJson(route('whatsapp.broadcast.estimate', ['filter' => 'hack_tier']));
+        $invalidResponse->assertStatus(422);
+    }
+
+    public function test_merchant_can_update_settings_for_first_time_creates_session(): void
+    {
+        [$user, $business] = $this->createMerchant();
+
+        $this->assertDatabaseMissing('whatsapp_sessions', ['business_id' => $business->id]);
+
+        $response = $this->actingAs($user)->post(route('whatsapp.settings'), [
+            'auto_send_receipt' => 1,
+            'receipt_template'  => 'Terima kasih atas kunjungannya!',
+        ]);
+
+        $response->assertRedirect();
+        $this->assertDatabaseHas('whatsapp_sessions', [
+            'business_id'       => $business->id,
+            'auto_send_receipt' => 1,
+            'receipt_template'  => 'Terima kasih atas kunjungannya!',
+        ]);
+    }
+
+    public function test_merchant_can_fetch_broadcast_json_for_live_polling(): void
+    {
+        [$user, $business] = $this->createMerchant();
+
+        $campaign = WhatsAppBroadcastCampaign::create([
+            'business_id'      => $business->id,
+            'title'            => 'Live Polling Test',
+            'message'          => 'Test message',
+            'target_filter'    => 'all',
+            'total_recipients' => 50,
+            'total_sent'       => 25,
+            'total_failed'     => 1,
+            'status'           => 'processing',
+        ]);
+
+        $response = $this->actingAs($user)->getJson(route('whatsapp.broadcast.show', $campaign));
+
+        $response->assertOk();
+        $response->assertJson([
+            'id'               => $campaign->id,
+            'status'           => 'processing',
+            'total_recipients' => 50,
+            'total_sent'       => 25,
+            'total_failed'     => 1,
+        ]);
+    }
 }

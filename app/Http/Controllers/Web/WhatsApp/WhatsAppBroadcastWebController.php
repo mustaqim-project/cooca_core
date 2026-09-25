@@ -6,10 +6,13 @@ namespace App\Http\Controllers\Web\WhatsApp;
 
 use App\Domain\WhatsApp\WhatsAppGatewayService;
 use App\Http\Controllers\Controller;
+use App\Jobs\WhatsApp\SendWhatsAppBroadcastJob;
 use App\Models\Customer;
+use App\Models\WhatsAppAccount;
 use App\Models\WhatsAppBroadcastCampaign;
 use App\Models\WhatsAppSession;
 use App\Support\Context;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -20,7 +23,7 @@ class WhatsAppBroadcastWebController extends Controller
     public function __construct(protected WhatsAppGatewayService $gateway) {}
 
     /**
-     * List all broadcast campaigns for this business.
+     * List all broadcast campaigns for this business and prepare modal data.
      */
     public function index(): View
     {
@@ -32,16 +35,33 @@ class WhatsAppBroadcastWebController extends Controller
 
         $stats = [
             'total_campaigns'   => WhatsAppBroadcastCampaign::where('business_id', $business->id)->count(),
-            'total_sent'        => WhatsAppBroadcastCampaign::where('business_id', $business->id)->sum('total_sent'),
-            'total_recipients'  => WhatsAppBroadcastCampaign::where('business_id', $business->id)->sum('total_recipients'),
-            'success_rate'      => 0,
+            'total_sent'        => (int) WhatsAppBroadcastCampaign::where('business_id', $business->id)->sum('total_sent'),
+            'total_recipients'  => (int) WhatsAppBroadcastCampaign::where('business_id', $business->id)->sum('total_recipients'),
+            'success_rate'      => 0.0,
         ];
 
         if ($stats['total_recipients'] > 0) {
             $stats['success_rate'] = round(($stats['total_sent'] / $stats['total_recipients']) * 100, 1);
         }
 
-        return view('app.whatsapp.broadcast', compact('business', 'campaigns', 'stats'));
+        $waSession        = WhatsAppSession::where('business_id', $business->id)->first();
+        $whatsAppAccount  = WhatsAppAccount::where('business_id', $business->id)->first();
+        $customerCount    = Customer::where('business_id', $business->id)
+            ->where('is_active', true)
+            ->whereNotNull('phone')
+            ->where('phone', '!=', '')
+            ->count();
+
+        $tierCounts = Customer::where('business_id', $business->id)
+            ->where('is_active', true)
+            ->whereNotNull('phone')
+            ->where('phone', '!=', '')
+            ->selectRaw('LOWER(membership_tier) as tier, COUNT(*) as count')
+            ->groupBy('tier')
+            ->pluck('count', 'tier')
+            ->toArray();
+
+        return view('app.whatsapp.broadcast', compact('business', 'campaigns', 'stats', 'waSession', 'whatsAppAccount', 'customerCount', 'tierCounts'));
     }
 
     /**
@@ -51,7 +71,7 @@ class WhatsAppBroadcastWebController extends Controller
     {
         $business         = Context::requireBusiness();
         $waSession        = WhatsAppSession::where('business_id', $business->id)->first();
-        $whatsAppAccount  = \App\Models\WhatsAppAccount::where('business_id', $business->id)->first();
+        $whatsAppAccount  = WhatsAppAccount::where('business_id', $business->id)->first();
         $customerCount    = Customer::where('business_id', $business->id)
             ->where('is_active', true)
             ->whereNotNull('phone')
@@ -72,7 +92,7 @@ class WhatsAppBroadcastWebController extends Controller
     }
 
     /**
-     * Store and execute a new broadcast campaign.
+     * Store and execute a new broadcast campaign asynchronously via Laravel Queue.
      */
     public function store(Request $request): RedirectResponse
     {
@@ -86,7 +106,7 @@ class WhatsAppBroadcastWebController extends Controller
         ]);
 
         // Ensure WA is connected before creating campaign
-        $whatsAppAccount = \App\Models\WhatsAppAccount::where('business_id', $business->id)->first();
+        $whatsAppAccount = WhatsAppAccount::where('business_id', $business->id)->first();
         $waSession       = WhatsAppSession::where('business_id', $business->id)->first();
         $isConnected     = ($whatsAppAccount && $whatsAppAccount->isConnected()) || ($waSession && $waSession->isConnected());
 
@@ -105,28 +125,32 @@ class WhatsAppBroadcastWebController extends Controller
             ]);
         });
 
-        // Run broadcast synchronously (for small/medium lists)
-        // For production scale, dispatch a queued job instead
-        try {
-            $this->gateway->sendBroadcast($business, $campaign);
-        } catch (\Throwable $e) {
-            $campaign->update(['status' => 'failed']);
-            return back()->withErrors(['broadcast' => 'Terjadi kesalahan saat mengirim blast: ' . $e->getMessage()]);
-        }
+        // Dispatch asynchronous background job
+        SendWhatsAppBroadcastJob::dispatch((string) $business->id, (string) $campaign->id);
 
         return redirect()->route('whatsapp.broadcast.show', $campaign)
-            ->with('success', "Blast promosi \"{$campaign->title}\" berhasil dikirim ke {$campaign->total_sent} pelanggan!");
+            ->with('success', "Blast promosi \"{$campaign->title}\" berhasil dijadwalkan dan sedang diproses di latar belakang.");
     }
 
     /**
-     * Show detail & recipient status for a campaign.
+     * Show detail & recipient status for a campaign (supports live JSON polling).
      */
-    public function show(WhatsAppBroadcastCampaign $campaign): View
+    public function show(Request $request, WhatsAppBroadcastCampaign $campaign): View|JsonResponse
     {
         $business = Context::requireBusiness();
 
         if ((int)$campaign->business_id !== (int)$business->id) {
             abort(404);
+        }
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'id'               => $campaign->id,
+                'status'           => $campaign->status,
+                'total_recipients' => $campaign->total_recipients,
+                'total_sent'       => $campaign->total_sent,
+                'total_failed'     => $campaign->total_failed,
+            ]);
         }
 
         $recipients = $campaign->recipients()->latest()->paginate(30);
@@ -137,10 +161,13 @@ class WhatsAppBroadcastWebController extends Controller
     /**
      * AJAX: Return estimated recipient count for a given filter.
      */
-    public function estimateRecipients(Request $request)
+    public function estimateRecipients(Request $request): JsonResponse
     {
         $business = Context::requireBusiness();
-        $filter   = $request->input('filter', 'all');
+        $validated = $request->validate([
+            'filter' => ['nullable', 'string', 'in:all,bronze,silver,gold,vip,custom'],
+        ]);
+        $filter   = $validated['filter'] ?? 'all';
 
         $query = Customer::where('business_id', $business->id)
             ->where('is_active', true)
@@ -154,3 +181,4 @@ class WhatsAppBroadcastWebController extends Controller
         return response()->json(['count' => $query->count()]);
     }
 }
+
