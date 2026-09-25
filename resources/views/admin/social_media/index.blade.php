@@ -182,67 +182,175 @@
                     </button>
                 </div>
 
-                {{-- Status Channel Grid --}}
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
-                    <div
-                        class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] flex items-center gap-3">
-                        <div
-                            class="w-10 h-10 rounded-[12px] bg-[#E1306C]/10 text-[#E1306C] flex items-center justify-center shrink-0">
-                            <i data-lucide="instagram" class="w-5 h-5"></i>
-                        </div>
-                        <div class="min-w-0">
-                            <span
-                                class="text-[11px] font-bold uppercase tracking-wider text-black/50 dark:text-white/50 block">Instagram</span>
-                            <div class="text-[13px] font-bold text-black dark:text-white truncate">
-                                @<span>{{ $platform['instagram_username'] ?: 'cooca.indonesia' }}</span>
-                            </div>
-                        </div>
+                @php
+                    $igPlatformAcc = $platformAccounts->first(fn($a) => $a->platform === 'instagram');
+                    $fbPlatformAcc = $platformAccounts->first(fn($a) => $a->platform === 'facebook');
+                    $ttPlatformAcc = $platformAccounts->first(fn($a) => $a->platform === 'tiktok');
+                    $liPlatformAcc = $platformAccounts->first(fn($a) => $a->platform === 'linkedin');
+                @endphp
+
+                {{-- Status Channel & 1-Click Connect Grid --}}
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between">
+                        <h4 class="text-[13px] font-bold text-black dark:text-white tracking-tight flex items-center gap-2">
+                            <i data-lucide="radio" class="w-4 h-4 text-[#007AFF]"></i>
+                            <span>Status Koneksi Saluran Resmi Platform</span>
+                        </h4>
+                        <span class="text-[11.5px] text-black/50 dark:text-white/50">Admin dapat menghubungkan akun resmi secara langsung</span>
                     </div>
 
-                    <div
-                        class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] flex items-center gap-3">
-                        <div
-                            class="w-10 h-10 rounded-[12px] bg-[#1877F2]/10 text-[#1877F2] flex items-center justify-center shrink-0">
-                            <i data-lucide="facebook" class="w-5 h-5"></i>
-                        </div>
-                        <div class="min-w-0">
-                            <span
-                                class="text-[11px] font-bold uppercase tracking-wider text-black/50 dark:text-white/50 block">Facebook
-                                Page</span>
-                            <div class="text-[13px] font-bold text-black dark:text-white truncate">
-                                {{ !empty($platform['app_id']) ? 'Meta Platform Active' : 'Belum Konfigurasi' }}
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+                        {{-- 1. Instagram Platform Card --}}
+                        <div class="p-4 rounded-[18px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.08] flex flex-col justify-between gap-3">
+                            <div class="flex items-start justify-between gap-2">
+                                <div class="flex items-center gap-2.5 min-w-0">
+                                    <div class="w-9 h-9 rounded-[11px] bg-[#E1306C]/10 text-[#E1306C] flex items-center justify-center shrink-0">
+                                        <i data-lucide="instagram" class="w-4 h-4"></i>
+                                    </div>
+                                    <div class="min-w-0">
+                                        <span class="text-[11px] font-bold uppercase tracking-wider text-black/50 dark:text-white/50 block">Instagram</span>
+                                        <div class="text-[13px] font-bold text-black dark:text-white truncate">
+                                            @<span>{{ $platform['instagram_username'] ?: 'cooca.indonesia' }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158] shrink-0">
+                                    {{ !empty($platform['instagram_access_token']) ? 'Aktif' : 'Token Off' }}
+                                </span>
+                            </div>
+                            <div class="pt-2 border-t border-black/[0.04] dark:border-white/[0.06] flex items-center justify-between text-[11px]">
+                                <span class="text-black/50 dark:text-white/50">{{ $platform['instagram_account_type'] ?: 'Media Creator' }}</span>
+                                <a href="{{ route('admin.settings.index', ['tab' => 'social']) }}" class="text-[#007AFF] font-bold hover:underline inline-flex items-center gap-0.5">
+                                    <span>Pengaturan</span>
+                                    <i data-lucide="chevron-right" class="w-3 h-3"></i>
+                                </a>
                             </div>
                         </div>
-                    </div>
 
-                    <div
-                        class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] flex items-center gap-3">
-                        <div
-                            class="w-10 h-10 rounded-[12px] bg-black/10 dark:bg-white/10 text-black dark:text-white flex items-center justify-center shrink-0">
-                            <i data-lucide="video" class="w-5 h-5"></i>
-                        </div>
-                        <div class="min-w-0">
-                            <span
-                                class="text-[11px] font-bold uppercase tracking-wider text-black/50 dark:text-white/50 block">TikTok
-                                API</span>
-                            <div class="text-[13px] font-bold text-black dark:text-white truncate">
-                                {{ !empty($platform['tiktok_client_key']) ? 'OAuth 2.0 PKCE Siap' : 'Belum Konfigurasi' }}
+                        {{-- 2. Facebook Page Card --}}
+                        <div class="p-4 rounded-[18px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.08] flex flex-col justify-between gap-3">
+                            <div class="flex items-start justify-between gap-2">
+                                <div class="flex items-center gap-2.5 min-w-0">
+                                    <div class="w-9 h-9 rounded-[11px] bg-[#1877F2]/10 text-[#1877F2] flex items-center justify-center shrink-0">
+                                        <i data-lucide="facebook" class="w-4 h-4"></i>
+                                    </div>
+                                    <div class="min-w-0">
+                                        <span class="text-[11px] font-bold uppercase tracking-wider text-black/50 dark:text-white/50 block">Facebook Page</span>
+                                        <div class="text-[13px] font-bold text-black dark:text-white truncate">
+                                            {{ !empty($platform['app_id']) ? 'Meta Platform Active' : 'Belum Konfigurasi' }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold {{ !empty($platform['app_id']) ? 'bg-[#1877F2]/15 text-[#1877F2]' : 'bg-black/5 text-black/40' }} shrink-0">
+                                    {{ !empty($platform['app_id']) ? 'Siap' : 'Off' }}
+                                </span>
+                            </div>
+                            <div class="pt-2 border-t border-black/[0.04] dark:border-white/[0.06] flex items-center justify-between text-[11px]">
+                                <span class="text-black/50 dark:text-white/50">Graph API {{ $platform['graph_version'] }}</span>
+                                <a href="{{ route('admin.settings.index', ['tab' => 'social']) }}" class="text-[#007AFF] font-bold hover:underline inline-flex items-center gap-0.5">
+                                    <span>Pengaturan</span>
+                                    <i data-lucide="chevron-right" class="w-3 h-3"></i>
+                                </a>
                             </div>
                         </div>
-                    </div>
 
-                    <div
-                        class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] flex items-center gap-3">
-                        <div
-                            class="w-10 h-10 rounded-[12px] bg-[#0A66C2]/10 text-[#0A66C2] flex items-center justify-center shrink-0">
-                            <i data-lucide="linkedin" class="w-5 h-5"></i>
+                        {{-- 3. TikTok Open API Card --}}
+                        <div class="p-4 rounded-[18px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.08] flex flex-col justify-between gap-3">
+                            <div class="flex items-start justify-between gap-2">
+                                <div class="flex items-center gap-2.5 min-w-0">
+                                    <div class="w-9 h-9 rounded-[11px] bg-black/10 dark:bg-white/10 text-black dark:text-white flex items-center justify-center shrink-0">
+                                        <i data-lucide="video" class="w-4 h-4"></i>
+                                    </div>
+                                    <div class="min-w-0">
+                                        <span class="text-[11px] font-bold uppercase tracking-wider text-black/50 dark:text-white/50 block">TikTok Official</span>
+                                        <div class="text-[13px] font-bold text-black dark:text-white truncate">
+                                            @if ($ttPlatformAcc && $ttPlatformAcc->isConnected())
+                                                {{ $ttPlatformAcc->account_name }}
+                                            @else
+                                                {{ !empty($platform['tiktok_client_key']) ? 'OAuth PKCE Siap' : 'Belum Konfigurasi' }}
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                                @if ($ttPlatformAcc && $ttPlatformAcc->isConnected())
+                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158] shrink-0">
+                                        Terhubung
+                                    </span>
+                                @else
+                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-black/5 dark:bg-white/10 text-black/40 dark:text-white/40 shrink-0">
+                                        {{ !empty($platform['tiktok_client_key']) ? 'Tersedia' : 'Off' }}
+                                    </span>
+                                @endif
+                            </div>
+
+                            <div class="pt-2 border-t border-black/[0.04] dark:border-white/[0.06] flex items-center justify-between text-[11px]">
+                                @if ($ttPlatformAcc && $ttPlatformAcc->isConnected())
+                                    <span class="text-black/50 dark:text-white/50 truncate max-w-[100px]">{{ $ttPlatformAcc->username ? '@'.$ttPlatformAcc->username : 'Akun Resmi' }}</span>
+                                    <form method="POST" action="{{ route('admin.social-media.accounts.disconnect', $ttPlatformAcc) }}" onsubmit="return confirm('Putus koneksi akun TikTok platform ini?');">
+                                        @csrf
+                                        <button type="submit" class="text-[#FF3B30] font-bold hover:underline">Putus</button>
+                                    </form>
+                                @elseif (!empty($platform['tiktok_client_key']))
+                                    <a href="{{ route('admin.social-media.tiktok.connect') }}" class="w-full min-h-[30px] rounded-[8px] bg-black dark:bg-white text-white dark:text-black font-bold text-[11.5px] inline-flex items-center justify-center gap-1.5 hover:opacity-90 active:scale-[0.98] transition-all">
+                                        <i data-lucide="link" class="w-3.5 h-3.5"></i>
+                                        <span>Hubungkan TikTok</span>
+                                    </a>
+                                @else
+                                    <a href="{{ route('admin.settings.index', ['tab' => 'social']) }}" class="text-[#007AFF] font-bold hover:underline inline-flex items-center gap-0.5">
+                                        <span>Konfigurasi TikTok</span>
+                                        <i data-lucide="chevron-right" class="w-3 h-3"></i>
+                                    </a>
+                                @endif
+                            </div>
                         </div>
-                        <div class="min-w-0">
-                            <span
-                                class="text-[11px] font-bold uppercase tracking-wider text-black/50 dark:text-white/50 block">LinkedIn
-                                API</span>
-                            <div class="text-[13px] font-bold text-black dark:text-white truncate">
-                                {{ !empty($platform['linkedin_client_id']) ? 'OAuth 2.0 OpenID Siap' : 'Belum Konfigurasi' }}
+
+                        {{-- 4. LinkedIn Official Card --}}
+                        <div class="p-4 rounded-[18px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.08] flex flex-col justify-between gap-3">
+                            <div class="flex items-start justify-between gap-2">
+                                <div class="flex items-center gap-2.5 min-w-0">
+                                    <div class="w-9 h-9 rounded-[11px] bg-[#0A66C2]/10 text-[#0A66C2] flex items-center justify-center shrink-0">
+                                        <i data-lucide="linkedin" class="w-4 h-4"></i>
+                                    </div>
+                                    <div class="min-w-0">
+                                        <span class="text-[11px] font-bold uppercase tracking-wider text-black/50 dark:text-white/50 block">LinkedIn Official</span>
+                                        <div class="text-[13px] font-bold text-black dark:text-white truncate">
+                                            @if ($liPlatformAcc && $liPlatformAcc->isConnected())
+                                                {{ $liPlatformAcc->account_name }}
+                                            @else
+                                                {{ !empty($platform['linkedin_client_id']) ? 'OAuth OpenID Siap' : 'Belum Konfigurasi' }}
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                                @if ($liPlatformAcc && $liPlatformAcc->isConnected())
+                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158] shrink-0">
+                                        Terhubung
+                                    </span>
+                                @else
+                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-black/5 dark:bg-white/10 text-black/40 dark:text-white/40 shrink-0">
+                                        {{ !empty($platform['linkedin_client_id']) ? 'Tersedia' : 'Off' }}
+                                    </span>
+                                @endif
+                            </div>
+
+                            <div class="pt-2 border-t border-black/[0.04] dark:border-white/[0.06] flex items-center justify-between text-[11px]">
+                                @if ($liPlatformAcc && $liPlatformAcc->isConnected())
+                                    <span class="text-black/50 dark:text-white/50 truncate max-w-[100px]">{{ $liPlatformAcc->username ? '@'.$liPlatformAcc->username : 'Member Cooca' }}</span>
+                                    <form method="POST" action="{{ route('admin.social-media.accounts.disconnect', $liPlatformAcc) }}" onsubmit="return confirm('Putus koneksi akun LinkedIn platform ini?');">
+                                        @csrf
+                                        <button type="submit" class="text-[#FF3B30] font-bold hover:underline">Putus</button>
+                                    </form>
+                                @elseif (!empty($platform['linkedin_client_id']))
+                                    <a href="{{ route('admin.social-media.linkedin.connect') }}" class="w-full min-h-[30px] rounded-[8px] bg-[#0A66C2] text-white font-bold text-[11.5px] inline-flex items-center justify-center gap-1.5 hover:bg-[#084e96] active:scale-[0.98] transition-all shadow-xs">
+                                        <i data-lucide="link" class="w-3.5 h-3.5"></i>
+                                        <span>Hubungkan LinkedIn</span>
+                                    </a>
+                                @else
+                                    <a href="{{ route('admin.settings.index', ['tab' => 'social']) }}" class="text-[#007AFF] font-bold hover:underline inline-flex items-center gap-0.5">
+                                        <span>Konfigurasi LinkedIn</span>
+                                        <i data-lucide="chevron-right" class="w-3 h-3"></i>
+                                    </a>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -937,7 +1045,7 @@
                 </div>
 
                 {{-- Status Badges --}}
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                     <div
                         class="p-3.5 rounded-[14px] bg-[#1877F2]/8 border border-[#1877F2]/20 flex items-center justify-between">
                         <span class="text-[12px] font-semibold text-[#1877F2]">Meta App ID</span>
@@ -954,6 +1062,12 @@
                         <span class="text-[12px] font-semibold text-black dark:text-white">TikTok Client Key</span>
                         <span
                             class="text-[12px] font-mono font-bold text-black dark:text-white truncate max-w-[120px]">{{ $platform['tiktok_client_key'] ?: 'Belum Diisi' }}</span>
+                    </div>
+                    <div
+                        class="p-3.5 rounded-[14px] bg-[#0A66C2]/8 border border-[#0A66C2]/20 flex items-center justify-between">
+                        <span class="text-[12px] font-semibold text-[#0A66C2]">LinkedIn Client ID</span>
+                        <span
+                            class="text-[12px] font-mono font-bold text-[#0A66C2] truncate max-w-[120px]">{{ $platform['linkedin_client_id'] ?: 'Belum Diisi' }}</span>
                     </div>
                 </div>
 
@@ -1013,10 +1127,10 @@
                     <div
                         class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] space-y-1">
                         <span
-                            class="text-[10.5px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45 block">Versi
-                            Graph API</span>
+                            class="text-[10.5px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45 block">LinkedIn
+                            Secret</span>
                         <div class="text-[13px] font-mono font-bold text-black dark:text-white truncate">
-                            {{ $platform['graph_version'] ?: 'v26.0' }}
+                            {{ !empty($platform['linkedin_client_secret']) ? '••••••••••••••••' : 'Belum Dikonfigurasi' }}
                         </div>
                     </div>
                 </div>
@@ -1025,12 +1139,74 @@
                 <div class="space-y-3 pt-2">
                     <h4 class="text-[13px] font-bold text-black dark:text-white tracking-tight">Endpoint Callback &amp;
                         Webhook Resmi</h4>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                         <div
                             class="p-3 rounded-[12px] bg-white dark:bg-[#2C2C2E] border border-black/[0.06] dark:border-white/[0.08] space-y-1.5">
                             <div class="flex items-center justify-between">
                                 <span
-                                    class="text-[11px] font-bold uppercase tracking-wider text-black/50 dark:text-white/50">Meta
+                                    class="text-[11px] font-bold uppercase tracking-wider text-[#0A66C2]">LinkedIn
+                                    Admin Callback</span>
+                                <button type="button" @click="copyText('{{ $platform['linkedin_admin_redirect_uri'] }}', 'li_admin_uri')"
+                                    class="text-[11px] font-bold text-[#007AFF] hover:underline">
+                                    <span x-text="copied === 'li_admin_uri' ? 'Tersalin' : 'Salin'"></span>
+                                </button>
+                            </div>
+                            <div class="font-mono text-[11px] text-black/80 dark:text-white/80 truncate">
+                                {{ $platform['linkedin_admin_redirect_uri'] }}</div>
+                        </div>
+
+                        <div
+                            class="p-3 rounded-[12px] bg-white dark:bg-[#2C2C2E] border border-black/[0.06] dark:border-white/[0.08] space-y-1.5">
+                            <div class="flex items-center justify-between">
+                                <span
+                                    class="text-[11px] font-bold uppercase tracking-wider text-[#0A66C2]">LinkedIn
+                                    Merchant Callback</span>
+                                <button type="button" @click="copyText('{{ $platform['linkedin_redirect_uri'] }}', 'li_uri')"
+                                    class="text-[11px] font-bold text-[#007AFF] hover:underline">
+                                    <span x-text="copied === 'li_uri' ? 'Tersalin' : 'Salin'"></span>
+                                </button>
+                            </div>
+                            <div class="font-mono text-[11px] text-black/80 dark:text-white/80 truncate">
+                                {{ $platform['linkedin_redirect_uri'] }}</div>
+                        </div>
+
+                        <div
+                            class="p-3 rounded-[12px] bg-white dark:bg-[#2C2C2E] border border-black/[0.06] dark:border-white/[0.08] space-y-1.5">
+                            <div class="flex items-center justify-between">
+                                <span
+                                    class="text-[11px] font-bold uppercase tracking-wider text-black/50 dark:text-white/50">TikTok
+                                    Admin Callback</span>
+                                <button type="button"
+                                    @click="copyText('{{ $platform['tiktok_admin_redirect_uri'] }}', 'tt_admin_uri')"
+                                    class="text-[11px] font-bold text-[#007AFF] hover:underline">
+                                    <span x-text="copied === 'tt_admin_uri' ? 'Tersalin' : 'Salin'"></span>
+                                </button>
+                            </div>
+                            <div class="font-mono text-[11px] text-black/80 dark:text-white/80 truncate">
+                                {{ $platform['tiktok_admin_redirect_uri'] }}</div>
+                        </div>
+
+                        <div
+                            class="p-3 rounded-[12px] bg-white dark:bg-[#2C2C2E] border border-black/[0.06] dark:border-white/[0.08] space-y-1.5">
+                            <div class="flex items-center justify-between">
+                                <span
+                                    class="text-[11px] font-bold uppercase tracking-wider text-black/50 dark:text-white/50">TikTok
+                                    Merchant Callback</span>
+                                <button type="button"
+                                    @click="copyText('{{ $platform['tiktok_redirect_uri'] }}', 'tt_uri')"
+                                    class="text-[11px] font-bold text-[#007AFF] hover:underline">
+                                    <span x-text="copied === 'tt_uri' ? 'Tersalin' : 'Salin'"></span>
+                                </button>
+                            </div>
+                            <div class="font-mono text-[11px] text-black/80 dark:text-white/80 truncate">
+                                {{ $platform['tiktok_redirect_uri'] }}</div>
+                        </div>
+
+                        <div
+                            class="p-3 rounded-[12px] bg-white dark:bg-[#2C2C2E] border border-black/[0.06] dark:border-white/[0.08] space-y-1.5">
+                            <div class="flex items-center justify-between">
+                                <span
+                                    class="text-[11px] font-bold uppercase tracking-wider text-[#1877F2]">Meta
                                     Webhook URL</span>
                                 <button type="button" @click="copyText('{{ $platform['webhook_url'] }}', 'meta_wh')"
                                     class="text-[11px] font-bold text-[#007AFF] hover:underline">
@@ -1045,7 +1221,7 @@
                             class="p-3 rounded-[12px] bg-white dark:bg-[#2C2C2E] border border-black/[0.06] dark:border-white/[0.08] space-y-1.5">
                             <div class="flex items-center justify-between">
                                 <span
-                                    class="text-[11px] font-bold uppercase tracking-wider text-black/50 dark:text-white/50">Instagram
+                                    class="text-[11px] font-bold uppercase tracking-wider text-[#E1306C]">Instagram
                                     Redirect URI</span>
                                 <button type="button" @click="copyText('{{ $platform['ig_redirect_uri'] }}', 'ig_uri')"
                                     class="text-[11px] font-bold text-[#007AFF] hover:underline">
@@ -1054,22 +1230,6 @@
                             </div>
                             <div class="font-mono text-[11px] text-black/80 dark:text-white/80 truncate">
                                 {{ $platform['ig_redirect_uri'] }}</div>
-                        </div>
-
-                        <div
-                            class="p-3 rounded-[12px] bg-white dark:bg-[#2C2C2E] border border-black/[0.06] dark:border-white/[0.08] space-y-1.5">
-                            <div class="flex items-center justify-between">
-                                <span
-                                    class="text-[11px] font-bold uppercase tracking-wider text-black/50 dark:text-white/50">TikTok
-                                    Redirect URI</span>
-                                <button type="button"
-                                    @click="copyText('{{ $platform['tiktok_redirect_uri'] }}', 'tt_uri')"
-                                    class="text-[11px] font-bold text-[#007AFF] hover:underline">
-                                    <span x-text="copied === 'tt_uri' ? 'Tersalin' : 'Salin'"></span>
-                                </button>
-                            </div>
-                            <div class="font-mono text-[11px] text-black/80 dark:text-white/80 truncate">
-                                {{ $platform['tiktok_redirect_uri'] }}</div>
                         </div>
                     </div>
                 </div>

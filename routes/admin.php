@@ -205,6 +205,11 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
         // Social Media Platform Admin Center (Meta App, Webhook & Tenant Oversight)
         Route::prefix('social-media')->name('social-media.')->group(function (): void {
             Route::get('/', [AdminSocialMediaController::class, 'index'])->name('index');
+            Route::get('/linkedin/connect', [AdminSocialMediaController::class, 'getLinkedInAuthUrl'])->name('linkedin.connect');
+            Route::get('/linkedin/callback', [AdminSocialMediaController::class, 'handleLinkedInCallback'])->name('linkedin.callback');
+            Route::get('/tiktok/connect', [AdminSocialMediaController::class, 'getTikTokAuthUrl'])->name('tiktok.connect');
+            Route::get('/tiktok/callback', [AdminSocialMediaController::class, 'handleTikTokCallback'])->name('tiktok.callback');
+            Route::post('/accounts/{account}/disconnect', [AdminSocialMediaController::class, 'disconnectAccount'])->name('accounts.disconnect');
             Route::post('/config', [AdminSocialMediaController::class, 'updateConfig'])->name('config');
             Route::post('/posts', [AdminSocialMediaController::class, 'storePost'])->name('posts.store');
             Route::post('/posts/{post}/retry', [AdminSocialMediaController::class, 'retryPost'])->name('posts.retry');

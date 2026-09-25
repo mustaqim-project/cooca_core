@@ -42,6 +42,7 @@ class SocialMediaAccount extends Model
 
     protected $fillable = [
         'business_id',
+        'is_platform',
         'provider',
         'platform',
         'account_id',
@@ -70,6 +71,7 @@ class SocialMediaAccount extends Model
     protected function casts(): array
     {
         return [
+            'is_platform'              => 'boolean',
             'access_token'             => 'encrypted',
             'refresh_token'            => 'encrypted',
             'token_expires_at'         => 'datetime',

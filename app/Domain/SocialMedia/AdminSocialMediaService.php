@@ -34,14 +34,16 @@ class AdminSocialMediaService
             'webhook_url'          => url('/api/v1/social-media/meta/webhook'),
 
             // TikTok Settings
-            'tiktok_client_key'    => (string) SystemSetting::get('tiktok_client_key', ''),
-            'tiktok_client_secret' => (string) SystemSetting::get('tiktok_client_secret', ''),
-            'tiktok_redirect_uri'  => route('social-media.tiktok.callback'),
+            'tiktok_client_key'          => (string) SystemSetting::get('tiktok_client_key', ''),
+            'tiktok_client_secret'       => (string) SystemSetting::get('tiktok_client_secret', ''),
+            'tiktok_redirect_uri'        => route('social-media.tiktok.callback'),
+            'tiktok_admin_redirect_uri'  => route('admin.social-media.tiktok.callback'),
 
             // LinkedIn Settings
-            'linkedin_client_id'     => (string) (SystemSetting::get('linkedin_client_id') ?: config('services.linkedin.client_id', '')),
-            'linkedin_client_secret' => (string) (SystemSetting::get('linkedin_client_secret') ?: config('services.linkedin.client_secret', '')),
-            'linkedin_redirect_uri'  => route('social-media.linkedin.callback'),
+            'linkedin_client_id'          => (string) (SystemSetting::get('linkedin_client_id') ?: config('services.linkedin.client_id', '')),
+            'linkedin_client_secret'      => (string) (SystemSetting::get('linkedin_client_secret') ?: config('services.linkedin.client_secret', '')),
+            'linkedin_redirect_uri'       => route('social-media.linkedin.callback'),
+            'linkedin_admin_redirect_uri' => route('admin.social-media.linkedin.callback'),
 
             // Instagram Platform Dedicated Settings
             'instagram_app_id'              => (string) (SystemSetting::get('instagram_app_id') ?: SystemSetting::get('social_media_app_id', '')),
@@ -197,6 +199,29 @@ class AdminSocialMediaService
             'tiktok_accounts_count'     => $accounts->where('platform', 'tiktok')->count(),
             'total_posts'               => SocialMediaPost::where('status', 'published')->count(),
         ];
+    }
+
+    /**
+     * Get all official platform connected social media accounts (is_platform = true or business_id = null).
+     *
+     * @return \Illuminate\Database\Eloquent\Collection<int, SocialMediaAccount>
+     */
+    public function getPlatformAccounts(): \Illuminate\Database\Eloquent\Collection
+    {
+        return SocialMediaAccount::query()
+            ->where(function ($q) {
+                $q->where('is_platform', true)->orWhereNull('business_id');
+            })
+            ->latest()
+            ->get();
+    }
+
+    /**
+     * Disconnect a platform official social media account.
+     */
+    public function disconnectPlatformAccount(SocialMediaAccount $account): bool
+    {
+        return (bool) $account->delete();
     }
 
 
@@ -374,21 +399,38 @@ class AdminSocialMediaService
                 $res = $this->metaClient->publishThreadsPost($threadsUserId, $threadsToken, $content, $firstMediaUrl, $threadsType);
                 $platformPostId = (string) ($res['id'] ?? '');
             } elseif ($target->channel === 'linkedin') {
-                $linkedInProvider = app(\App\Domain\SocialMedia\Providers\LinkedInProvider::class);
-                $account = $target->account;
+                $linkedInProvider = app(\App\Domain\SocialMedia\SocialMediaManager::class)->getProvider('linkedin');
+                $account = $target->account ?: SocialMediaAccount::query()
+                    ->where(function ($q) {
+                        $q->where('is_platform', true)->orWhereNull('business_id');
+                    })
+                    ->where('platform', 'linkedin')
+                    ->where('status', 'active')
+                    ->first();
+
                 if ($account && $account->isConnected()) {
-                    $res = $linkedInProvider->publish($account, [
-                        'content'      => $content,
-                        'content_type' => $target->content_type,
-                        'media_urls'   => $mediaUrls,
-                    ]);
+                    $res = $linkedInProvider->publish($account, $target, $mediaUrls);
                     $platformPostId = (string) ($res['id'] ?? '');
                 } else {
                     $platformPostId = 'li_plat_' . (string) \Illuminate\Support\Str::uuid();
                 }
             } else {
                 // TikTok
-                $platformPostId = 'tt_plat_' . (string) \Illuminate\Support\Str::uuid();
+                $tikTokProvider = app(\App\Domain\SocialMedia\SocialMediaManager::class)->getProvider('tiktok');
+                $account = $target->account ?: SocialMediaAccount::query()
+                    ->where(function ($q) {
+                        $q->where('is_platform', true)->orWhereNull('business_id');
+                    })
+                    ->where('platform', 'tiktok')
+                    ->where('status', 'active')
+                    ->first();
+
+                if ($account && $account->isConnected()) {
+                    $res = $tikTokProvider->publish($account, $target, $mediaUrls);
+                    $platformPostId = (string) ($res['id'] ?? '');
+                } else {
+                    $platformPostId = 'tt_plat_' . (string) \Illuminate\Support\Str::uuid();
+                }
             }
 
             $target->update([

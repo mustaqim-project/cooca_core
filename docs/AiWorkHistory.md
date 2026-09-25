@@ -54,6 +54,62 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 
 - Pengetahuan yang dipromosikan ke `docs/system/` dan dampaknya pada `docs/SYSTEM_GUIDE.md`.
 
+### [WORK-2026-09-25-143] Super Admin Direct Social Media Connect & Management (LinkedIn & TikTok Official Platform Accounts)
+
+- **Date:** 2026-09-25
+- **Status:** COMPLETED
+- **Module:** Social Media Admin Center (`routes/admin.php`, `app/Http/Controllers/Admin/AdminSocialMediaController.php`, `app/Domain/SocialMedia/AdminSocialMediaService.php`, `app/Models/SocialMediaAccount.php`, `resources/views/admin/social_media/`, `tests/Feature/Admin/`)
+- **Feature:** Admin 1-Click OAuth Connect (LinkedIn & TikTok), Official Platform Account Cockpit, Disconnect Flow, Omnichannel Publishing from Admin, Separate Authorized Redirect URIs
+- **Work Type:** Feature | Security & Access Control | UI/UX (Apple Bento HIG) | Automated Testing
+
+#### 1. Business Context & Objective
+
+- **Konteks:** Super Admin platform Cooca memerlukan kemampuan untuk menghubungkan akun media sosial resmi platform (LinkedIn Official & TikTok Official) langsung dari panel Superadmin (`/admin/social-media`), mengelola status koneksi token, memutuskan koneksi (disconnect), dan mempublikasikan pos resmi platform ke akun resmi yang terhubung tanpa harus melalui dashboard merchant/tenant.
+- **Masalah/Target:** Mengimplementasikan alur otorisasi OAuth 2.0 khusus Super Admin dengan rute dan callback independen (`/admin/social-media/linkedin/callback` & `/admin/social-media/tiktok/callback`), menyimpan akun resmi dengan flag `is_platform = true` (`business_id = null`), menampilkan status live pada Bento Grid Apple HIG di Admin Social Media Center, serta menyediakan pengujian unit & integrasi otomatis (100% test passing).
+
+#### 2. What Was Done
+
+1. **Routing & Autentikasi Admin:**
+   - Mendaftarkan rute OAuth admin terproteksi middleware `auth:admin`: `admin.social-media.linkedin.connect`, `admin.social-media.linkedin.callback`, `admin.social-media.tiktok.connect`, `admin.social-media.tiktok.callback`, dan `admin.social-media.accounts.disconnect`.
+   - Mengisolasi session state OAuth admin (`admin_linkedin_oauth_state`, `admin_tiktok_oauth_state`) agar tidak bertabrakan dengan session merchant.
+2. **Domain Service & Controller:**
+   - Memperbarui `SocialMediaAccount` model dengan `$fillable` dan `$casts` untuk kolom `is_platform` (boolean).
+   - Menambahkan metode `getPlatformAccounts()` dan `disconnectPlatformAccount()` pada `AdminSocialMediaService`.
+   - Memperbarui `executePlatformPublishTarget()` untuk memprioritaskan akun resmi platform (`is_platform = true`) pada publikasi LinkedIn dan TikTok resmi.
+   - Menambahkan handler controller lengkap pada `AdminSocialMediaController`: `getLinkedInAuthUrl()`, `handleLinkedInCallback()`, `getTikTokAuthUrl()`, `handleTikTokCallback()`, dan `disconnectAccount()`.
+3. **Penyempurnaan UI Apple Bento HIG (`resources/views/admin/social_media/index.blade.php`):**
+   - Menggantikan tile statis dengan **Bento Platform Accounts & 1-Click Connect Grid** interaktif pada Tab 1 (Pos & Saluran Resmi).
+   - Menampilkan status koneksi real-time, nama akun terhubung, handle/email, tanggal kedaluwarsa token, tombol 1-Click Connect (`Hubungkan LinkedIn`), serta tombol konfirmasi Pemutusan Akun (`Putuskan`).
+   - Memperbarui Tab 3 (Pengaturan Platform) dengan informasi Authorized Redirect URIs lengkap untuk Merchant dan Super Admin.
+4. **Automated Feature Testing:**
+   - Membangun `tests/Feature/Admin/AdminSocialMediaConnectTest.php` (6 tests, 40 assertions) mencakup proteksi guest auth, rendering cockpit, inisiasi OAuth URL, penanganan callback & persistensi token terenkripsi, publikasi postingan platform ke LinkedIn resmi, dan pemutusan akun (disconnect).
+
+#### 3. Technical Changes
+
+- **Files Added:**
+  - `tests/Feature/Admin/AdminSocialMediaConnectTest.php`
+- **Files Modified:**
+  - `routes/admin.php`
+  - `app/Models/SocialMediaAccount.php`
+  - `app/Domain/SocialMedia/AdminSocialMediaService.php`
+  - `app/Http/Controllers/Admin/AdminSocialMediaController.php`
+  - `resources/views/admin/social_media/index.blade.php`
+  - `docs/system/modules/social-media.md`
+
+#### 4. System Impacts
+
+- **Workflow Impact:** Super Admin kini dapat menghubungkan akun resmi platform Cooca secara mandiri dan langsung mempublikasikan konten resmi ke saluran LinkedIn dan TikTok.
+- **Tenant Isolation Impact:** Akun platform resmi tersimpan dengan `business_id = null` dan `is_platform = true`, sehingga terisolasi sempurna dari data tenant UMKM.
+- **Security Impact:** Callback OAuth Super Admin terproteksi guard `auth:admin` dan verifikasi CSRF state terenkripsi.
+
+#### 5. Verification & Testing
+
+- `php artisan test tests/Feature/Admin/AdminSocialMediaConnectTest.php`: **Passed** (6 tests, 40 assertions).
+- `php artisan test tests/Feature/SocialMedia/`: **Passed** (52 tests, 322 assertions).
+- PHP Syntax Lint (`php -l`): **Clean, 0 errors**.
+
+---
+
 ### [WORK-2026-09-25-142] Integrasi LinkedIn Developer Platform (OAuth 2.0 OpenID Connect & UGC Post Publishing API v2) dengan Penjadwalan Konten Multi-Saluran
 
 - **Date:** 2026-09-25

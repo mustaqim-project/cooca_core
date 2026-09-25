@@ -32,9 +32,10 @@ class AdminSocialMediaController extends Controller
         $merchants = $this->adminService->getConnectedMerchantsList(20);
         $platformPosts = $this->adminService->getPlatformPosts(12);
         $platformComments = $this->adminService->getPlatformComments(20);
+        $platformAccounts = $this->adminService->getPlatformAccounts();
         $analytics = $this->adminService->getPlatformAnalytics($request->boolean('refresh_analytics', false));
 
-        return view('admin.social_media.index', compact('tab', 'platform', 'summary', 'merchants', 'platformPosts', 'platformComments', 'analytics'));
+        return view('admin.social_media.index', compact('tab', 'platform', 'summary', 'merchants', 'platformPosts', 'platformComments', 'platformAccounts', 'analytics'));
     }
 
     /**
@@ -43,15 +44,15 @@ class AdminSocialMediaController extends Controller
     public function storePost(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'platform'              => ['nullable', 'string', 'in:instagram,facebook,threads,tiktok'],
+            'platform'              => ['nullable', 'string', 'in:instagram,facebook,threads,tiktok,linkedin'],
             'platforms'             => ['nullable', 'array'],
-            'platforms.*'           => ['string', 'in:instagram,facebook,threads,tiktok'],
+            'platforms.*'           => ['string', 'in:instagram,facebook,threads,tiktok,linkedin'],
             'timing_mode'           => ['nullable', 'string', 'in:now,schedule_all,per_channel'],
             'platform_timing'       => ['nullable', 'array'],
             'platform_timing.*'     => ['nullable', 'string', 'in:now,schedule'],
             'platform_scheduled_at' => ['nullable', 'array'],
             'platform_scheduled_at.*' => ['nullable', 'date'],
-            'content'               => ['nullable', 'string', 'max:2200'],
+            'content'               => ['nullable', 'string', 'max:5000'],
             'media_type'            => ['nullable', 'string', 'in:image,video,reels,story,carousel,text'],
             'media_url'             => ['nullable', 'url', 'max:1000'],
             'media_file'            => ['nullable', 'file', 'mimes:jpg,jpeg,png,mp4,mov', 'max:102400'],
@@ -174,6 +175,206 @@ class AdminSocialMediaController extends Controller
             return redirect()->route('admin.social-media.index', ['tab' => 'inbox'])
                 ->with('error', 'Gagal membalas komentar: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Redirect admin to LinkedIn OAuth 2.0 Authorization Screen.
+     */
+    public function getLinkedInAuthUrl(Request $request): RedirectResponse
+    {
+        $provider = app(\App\Domain\SocialMedia\SocialMediaManager::class)->getProvider('linkedin');
+        if (! $provider->isConfigured()) {
+            return redirect()->route('admin.social-media.index', ['tab' => 'settings'])
+                ->with('error', 'Kredensial LinkedIn Developer (Client ID & Client Secret) belum dikonfigurasi di Pengaturan Platform.');
+        }
+
+        $state = \Illuminate\Support\Str::random(40);
+        $request->session()->put('admin_linkedin_oauth_state', $state);
+
+        try {
+            $redirectUri = route('admin.social-media.linkedin.callback');
+            $authUrl = $provider->getAuthUrl($redirectUri, $state);
+
+            return redirect()->away($authUrl);
+        } catch (\Throwable $e) {
+            return redirect()->route('admin.social-media.index', ['tab' => 'settings'])
+                ->with('error', 'Gagal memulai otorisasi LinkedIn: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Handle LinkedIn OAuth 2.0 callback and persist official platform connection.
+     */
+    public function handleLinkedInCallback(Request $request): RedirectResponse
+    {
+        $state = (string) $request->query('state', '');
+        $savedState = (string) $request->session()->pull('admin_linkedin_oauth_state', '');
+
+        if (empty($state) || empty($savedState) || ! hash_equals($savedState, $state)) {
+            return redirect()->route('admin.social-media.index', ['tab' => 'settings'])
+                ->with('error', 'Validasi keamanan OAuth LinkedIn gagal (state tidak valid). Silakan coba lagi.');
+        }
+
+        $code = (string) $request->query('code', '');
+        $error = (string) $request->query('error', '');
+        $errorDesc = (string) $request->query('error_description', '');
+
+        if (! empty($error)) {
+            return redirect()->route('admin.social-media.index', ['tab' => 'settings'])
+                ->with('error', "Otorisasi LinkedIn ditolak atau dibatalkan: {$errorDesc}");
+        }
+
+        if (empty($code)) {
+            return redirect()->route('admin.social-media.index', ['tab' => 'settings'])
+                ->with('error', 'Otorisasi LinkedIn gagal: Authorization code tidak ditemukan.');
+        }
+
+        try {
+            $redirectUri = route('admin.social-media.linkedin.callback');
+            $authData = app(\App\Domain\SocialMedia\SocialMediaManager::class)->getProvider('linkedin')->handleAuthCallback($code, $redirectUri);
+
+            $memberId = (string) ($authData['open_id'] ?? '');
+            if (empty($memberId)) {
+                throw new \RuntimeException('LinkedIn Member ID (URN) tidak ditemukan dalam respons otorisasi.');
+            }
+
+            // Persist or update platform LinkedIn account (is_platform = true, business_id = null)
+            $account = \App\Models\SocialMediaAccount::updateOrCreate(
+                [
+                    'is_platform' => true,
+                    'platform'    => 'linkedin',
+                    'account_id'  => $memberId,
+                ],
+                [
+                    'business_id'              => null,
+                    'is_platform'              => true,
+                    'provider'                 => 'linkedin',
+                    'account_name'             => $authData['account_name'] ?? 'Cooca Official (LinkedIn)',
+                    'username'                 => $authData['username'] ?? ($authData['creator_info']['email'] ?? null),
+                    'profile_picture_url'      => $authData['avatar_url'] ?? null,
+                    'access_token'             => $authData['access_token'],
+                    'refresh_token'            => $authData['refresh_token'] ?? null,
+                    'token_expires_at'         => $authData['expires_at'] ?? now()->addDays(60),
+                    'refresh_token_expires_at' => $authData['refresh_token_expires_at'] ?? now()->addYear(),
+                    'token_type'               => 'bearer',
+                    'status'                   => 'active',
+                    'metadata'                 => $authData['creator_info'] ?? [],
+                    'scopes'                   => $authData['scopes'] ?? ['openid', 'profile', 'email', 'w_member_social'],
+                ]
+            );
+
+            return redirect()->route('admin.social-media.index', ['tab' => 'posts'])
+                ->with('success', "Akun LinkedIn Resmi Cooca [{$account->account_name}] berhasil terhubung ke Platform!");
+        } catch (\Throwable $e) {
+            return redirect()->route('admin.social-media.index', ['tab' => 'settings'])
+                ->with('error', 'Gagal menghubungkan akun LinkedIn platform: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Redirect admin to TikTok OAuth 2.0 Authorization Screen.
+     */
+    public function getTikTokAuthUrl(Request $request): RedirectResponse
+    {
+        $provider = app(\App\Domain\SocialMedia\SocialMediaManager::class)->getProvider('tiktok');
+        if (! $provider->isConfigured()) {
+            return redirect()->route('admin.social-media.index', ['tab' => 'settings'])
+                ->with('error', 'Kredensial TikTok Developer belum dikonfigurasi di Pengaturan Platform.');
+        }
+
+        $state = \Illuminate\Support\Str::random(40);
+        $request->session()->put('admin_tiktok_oauth_state', $state);
+
+        try {
+            $redirectUri = route('admin.social-media.tiktok.callback');
+            $authUrl = $provider->getAuthUrl($redirectUri, $state);
+
+            return redirect()->away($authUrl);
+        } catch (\Throwable $e) {
+            return redirect()->route('admin.social-media.index', ['tab' => 'settings'])
+                ->with('error', 'Gagal memulai otorisasi TikTok: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Handle TikTok OAuth 2.0 callback and persist official platform connection.
+     */
+    public function handleTikTokCallback(Request $request): RedirectResponse
+    {
+        $state = (string) $request->query('state', '');
+        $savedState = (string) $request->session()->pull('admin_tiktok_oauth_state', '');
+
+        if (empty($state) || empty($savedState) || ! hash_equals($savedState, $state)) {
+            return redirect()->route('admin.social-media.index', ['tab' => 'settings'])
+                ->with('error', 'Validasi keamanan OAuth TikTok gagal (state tidak valid). Silakan coba lagi.');
+        }
+
+        $code = (string) $request->query('code', '');
+        $error = (string) $request->query('error', '');
+        $errorDesc = (string) $request->query('error_description', '');
+
+        if (! empty($error)) {
+            return redirect()->route('admin.social-media.index', ['tab' => 'settings'])
+                ->with('error', "Otorisasi TikTok ditolak: {$errorDesc}");
+        }
+
+        if (empty($code)) {
+            return redirect()->route('admin.social-media.index', ['tab' => 'settings'])
+                ->with('error', 'Otorisasi TikTok gagal: Authorization code tidak ditemukan.');
+        }
+
+        try {
+            $redirectUri = route('admin.social-media.tiktok.callback');
+            $authData = app(\App\Domain\SocialMedia\SocialMediaManager::class)->getProvider('tiktok')->handleAuthCallback($code, $redirectUri);
+
+            $openId = (string) ($authData['open_id'] ?? '');
+            if (empty($openId)) {
+                throw new \RuntimeException('TikTok OpenID tidak ditemukan dalam respons otorisasi.');
+            }
+
+            $account = \App\Models\SocialMediaAccount::updateOrCreate(
+                [
+                    'is_platform' => true,
+                    'platform'    => 'tiktok',
+                    'account_id'  => $openId,
+                ],
+                [
+                    'business_id'              => null,
+                    'is_platform'              => true,
+                    'provider'                 => 'tiktok',
+                    'account_name'             => $authData['account_name'] ?? 'Cooca Official (TikTok)',
+                    'username'                 => $authData['username'] ?? null,
+                    'profile_picture_url'      => $authData['avatar_url'] ?? null,
+                    'access_token'             => $authData['access_token'],
+                    'refresh_token'            => $authData['refresh_token'] ?? null,
+                    'token_expires_at'         => $authData['expires_at'] ?? now()->addDay(),
+                    'refresh_token_expires_at' => now()->addDays(365),
+                    'token_type'               => 'bearer',
+                    'status'                   => 'active',
+                    'metadata'                 => $authData['creator_info'] ?? [],
+                ]
+            );
+
+            return redirect()->route('admin.social-media.index', ['tab' => 'posts'])
+                ->with('success', "Akun TikTok Resmi Cooca [{$account->account_name}] berhasil terhubung ke Platform!");
+        } catch (\Throwable $e) {
+            return redirect()->route('admin.social-media.index', ['tab' => 'settings'])
+                ->with('error', 'Gagal menghubungkan akun TikTok platform: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Disconnect an official platform social media account.
+     */
+    public function disconnectAccount(Request $request, \App\Models\SocialMediaAccount $account): RedirectResponse
+    {
+        $accountName = $account->account_name;
+        $platform = ucfirst($account->platform);
+
+        $this->adminService->disconnectPlatformAccount($account);
+
+        return redirect()->route('admin.social-media.index', ['tab' => 'posts'])
+            ->with('success', "Koneksi akun {$platform} [{$accountName}] berhasil diputus.");
     }
 
     /**

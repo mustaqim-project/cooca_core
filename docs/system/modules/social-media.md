@@ -32,13 +32,23 @@ Modul Media Sosial melayani dua domain utama:
 - **Primary Client Secret:** `WPL_AP1.T6CrhB0PHBB6XA3T.ddwN2A==`
 - **Penyimpanan:** `system_settings` (Terenkripsi AES-256 via Laravel APP_KEY) dengan fallback ke `config('services.linkedin')` & `.env`.
 
-### Authorized Redirect URLs (LinkedIn Developer Portal -> Auth Tab)
-1. **Produksi (Live HTTPS):** `https://cooca.id/social-media/linkedin/callback`
-2. **Pengembangan Lokal (Development):** `http://127.0.0.1:9871/social-media/linkedin/callback`
+### Authorized Redirect URLs (LinkedIn & TikTok Developer Portals)
+1. **Merchant Callback (Produksi):** `https://cooca.id/social-media/linkedin/callback`
+2. **Merchant Callback (Pengembangan Lokal):** `http://127.0.0.1:9871/social-media/linkedin/callback`
+3. **Super Admin Callback (Produksi):** `https://cooca.id/admin/social-media/linkedin/callback`
+4. **Super Admin Callback (Pengembangan Lokal):** `http://127.0.0.1:9871/admin/social-media/linkedin/callback`
 
 ---
 
-## 4. Engine Penjadwalan Konten Multi-Saluran (Omnichannel)
+## 4. Platform Official Accounts vs Merchant Accounts
+
+Tabel `social_media_accounts` mengelola akun dengan pembagian hak akses dan isolasi yang ketat:
+- **Merchant Account (`is_platform = false`, `business_id = <UUID>`)**: Terikat pada satu tenant UMKM dan hanya dapat diakses/dikelola oleh merchant yang bersangkutan.
+- **Platform Official Account (`is_platform = true`, `business_id = null`)**: Akun resmi platform Cooca Indonesia yang dihubungkan langsung oleh Super Admin melalui Admin Social Media Center (`/admin/social-media?tab=posts`). Akun ini digunakan untuk mempublikasikan pengumuman resmi platform Cooca ke LinkedIn, TikTok, Instagram, dan Facebook. Super Admin dapat menghubungkan akun via 1-Click Connect (`admin.social-media.linkedin.connect`, `admin.social-media.tiktok.connect`) dan memutuskan koneksi kapan saja.
+
+---
+
+## 5. Engine Penjadwalan Konten Multi-Saluran (Omnichannel)
 
 1. **Alur Kerja Pembuatan Konten:**
    - Merchant memilih satu atau lebih target akun (`target_accounts[]`).
