@@ -18,9 +18,7 @@
         <div class="w-full max-w-xl mx-auto space-y-6">
             <!-- Official COOCA Branding & Header -->
             <div class="text-center space-y-2 mb-2">
-                <a href="{{ route('landing') }}" class="inline-block transition-transform hover:scale-105 mb-3 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 rounded-xl" aria-label="COOCA Beranda">
-                    <img src="{{ asset('assets/image/cooca-logo-landscape.png') }}" alt="COOCA" class="h-9 sm:h-10 w-auto object-contain mx-auto">
-                </a>
+                @include('auth.partials.brand-logo', ['class' => 'mb-3'])
                 <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">Status Pemulihan Akun</h1>
                 <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400">Pantau perkembangan verifikasi berkas
                     permohonan pemulihan akses Anda</p>

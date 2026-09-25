@@ -6,9 +6,7 @@
         <div class="sm:mx-auto sm:w-full sm:max-w-xl">
             <!-- Official COOCA Branding & Header -->
             <div class="text-center mb-8">
-                <a href="{{ route('landing') }}" class="inline-block transition-transform hover:scale-105 mb-5 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 rounded-xl" aria-label="COOCA Beranda">
-                    <img src="{{ asset('assets/image/cooca-logo-landscape.png') }}" alt="COOCA" class="h-9 sm:h-10 w-auto object-contain mx-auto">
-                </a>
+                @include('auth.partials.brand-logo', ['class' => 'mb-5'])
                 <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">Pilih Workspace Bisnis</h1>
                 <p class="mt-2 text-xs sm:text-sm text-slate-600 dark:text-slate-400">Pilih entitas toko yang ingin Anda operasikan atau buka cabang bisnis baru</p>
             </div>

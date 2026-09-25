@@ -10,9 +10,7 @@
 
             <!-- Official COOCA Branding & Header -->
             <div class="text-center space-y-3">
-                <a href="{{ route('landing') }}" class="inline-block transition-transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 rounded-xl" aria-label="COOCA Beranda">
-                    <img src="{{ asset('assets/image/cooca-logo-landscape.png') }}" alt="COOCA" class="h-9 sm:h-10 w-auto object-contain mx-auto">
-                </a>
+                @include('auth.partials.brand-logo', ['class' => ''])
                 <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
                     Lengkapi Pendaftaran Bisnis
                 </h1>
