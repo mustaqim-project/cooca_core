@@ -42,6 +42,7 @@
    - [4.14 Arsitektur Audit & Proteksi Fraud Internal serta Notifikasi Sistem Terpadu (UI, Email, WhatsApp)](#414-arsitektur-audit--proteksi-fraud-internal-serta-notifikasi-sistem-terpadu-ui-email-whatsapp)
    - [4.15 Arsitektur POS Hardware, ESC/POS Thermal Printer, Cash Drawer Safety & Local Agent Bridge](#415-arsitektur-pos-hardware-escpos-thermal-printer-cash-drawer-safety--local-agent-bridge)
    - [4.16 Cetak Biru Penataan 6-Hub Modul & Rekomendasi Optimasi Performa End-to-End](#416-cetak-biru-penataan-6-hub-modul--rekomendasi-optimasi-performa-end-to-end)
+   - [4.17 Arsitektur Limitasi Subscription, Downgrade Auto-Gating, Pelacakan Storage & Data Pruning Previewer](#417-arsitektur-limitasi-subscription-downgrade-auto-gating-pelacakan-storage--data-pruning-previewer)
 5. [Matriks Penelusuran Pengetahuan (Traceability Matrix)](#5-matriks-penelusuran-pengetahuan-traceability-matrix)
 
 ---
@@ -53,6 +54,16 @@ Cooca adalah sistem operasi bisnis terpadu (*All-in-One Business OS*) yang diran
 ### Filosofi Desain "Apple Human Interface Guidelines & Bento Grid UI"
 Aplikasi ini dirancang untuk dapat dioperasikan secara percaya diri oleh **generasi Boomers (usia 50–65+ tahun) dan milenial akhir yang gaptek (tidak paham teknis)**:
 * **Antarmuka Tanpa Panduan (*Zero-Manual UI*):** Saat pengguna membuka aplikasi, mereka langsung paham apa yang harus dilakukan tanpa perlu membaca buku manual panjang.
+* **Penyajian Sederhana, Padat, dan Jelas (*Anti-Clutter & Extreme Simplicity*):**
+  - **Prinsip 3-Detik (*3-Second Glanceability*):** Maksud halaman, metrik utama, dan aksi prioritas langsung dipahami tanpa membebani pikiran pengguna.
+  - **Bebas Dinding Teks (*Zero Wall-of-Text*):** Menghilangkan paragraf bertele-tele, helper text berulang, atau kartu penuh teks panduan yang tidak esensial.
+  - **Progressive Disclosure:** Rincian teknis kompleks disimpan rapi di dalam modal sheet / drawer rincian (*Master-Detail*), menjaga layar operasional utama tetap bersih, lapang, dan menenangkan.
+* **Integritas Faktual & Anti-Hiperbola (*Anti-Hyperbole Data Integrity*):**
+  - Dilarang keras menyajikan teks, label, metrik, atau slogan yang dilebih-lebihkan yang tidak sesuai dengan spesifikasi teknis atau data riil sistem (larangan klaim fiktif seperti *"AI Quantum 99.999%"*, *"Algoritma Kecepatan Cahaya"*, atau metrik estimasi palsu).
+  - Seluruh angka penjualan, sisa stok, status perangkat keras, dan waktu proses mencerminkan kalkulasi database aktual dengan format angka presisi (`tabular-nums`).
+* **Perlindungan Kredensial Sensitif di Antarmuka (*Zero Plaintext Credential Exposure*):**
+  - Seluruh kredensial rahasia (API Keys, Secret Tokens, Private Keys, Password, PIN Kasir, Webhook Secrets) dilarang tampil polos (*plain text*) di antarmuka publik/operasional.
+  - Form pengaturan integrasi wajib menerapkan masking keamanan (`••••••••••••••••` atau `sk-live-••••••••1234`) dan properti model Eloquent wajib menyertakan `$hidden`.
 * **Ergonomi Jempol, Tata Letak Anti-Pecah & Aksesibilitas Visual:**
   - **Zero Horizontal Overflow:** Arsitektur fluid container (`w-full max-w-full min-w-0 truncate`) yang menjamin tidak ada pergeseran layar ke samping pada smartphone 360px–430px.
   - **Matriks Tipografi Dinamis Lintas Perangkat:** Skala font terkalibrasi presisi untuk Mobile, Tablet, dan Desktop (acuan resmi di `docs/prompt.md` dan `AGENTS.md`).
@@ -220,10 +231,11 @@ Logika bisnis utama tidak ditempatkan di Controller, melainkan pada domain packa
 * Domain Service mengeksekusi logika bisnis inti dalam transaksi database atomik (*DB::transaction*).
 * Model Eloquent menangani relasi data, mutator, casting, dan event lifecycle.
 
-### 4.2 Aturan Scoping Tenant & Proteksi Keamanan
+### 4.2 Aturan Scoping Tenant, Proteksi Keamanan, & Zero Plaintext Credential Exposure
 * **Aturan Scoping Mutlak:** Setiap query entitas tenant WAJIB terikat pada `$business->id` atau `Context::requireBusiness()`. Dilarang melakukan query un-scoped seperti `Product::all()`.
 * **Proteksi IDOR Portal Pelanggan:** Akses `/customer/orders/{id}` WAJIB memverifikasi bahwa ID customer pada pesanan identik dengan identitas yang diautentikasi oleh guard `auth:customer`.
 * **Proteksi PIN Kasir:** Verifikasi PIN supervisor menggunakan hash Bcrypt dan dibatasi rate limit (*throttle: 5, 1 menit*).
+* **Perlindungan Kredensial Sensitif di UI/API:** Seluruh API keys, secret tokens, private keys, password akun, PIN kasir, dan secrets dilarang diekspos dalam teks terbuka (*plain text*). Wajib menerapkan masking (`••••••••`) pada form integrasi dan menyembunyikan atribut rahasia via `$hidden` pada model Eloquent agar tidak bocor via respons JSON/AJAX.
 
 ### 4.3 Mesin Otomasi Latar Belakang (Auto-Journal & Auto-Stock)
 * **AutoJournalService:** Mengkonversi transaksi kasir, pelunasan AP/AR, dan mutasi kas menjadi jurnal memorial berimbang ($\sum \text{Debit} = \sum \text{Kredit}$).
@@ -358,6 +370,20 @@ Berdasarkan dokumen arsitektur `docs/BLUEPRINT_TIER_PRICING_DAN_LIMITASI_COOCA.m
   - **Database Indexing & Zero N+1 Queries:** Indeks komposit pada tabel transaksi besar (`business_id, branch_id, status, created_at`) dan kewajiban Eager Loading (`with(['items.product', ...])`).
   - **Asynchronous Task Offloading:** Proses berat (PDF invoice, email digest, WhatsApp API, rekapitulasi data besar) dialirkan ke antrean worker latar belakang (*Laravel Queue*).
   - **Smart Workflows:** Global Barcode Scanner listener, Self-Service QR Table Ordering, Auto-Reorder PO saat stok menyentuh Reorder Point (ROP), dan Interactive Customer WhatsApp Bot.
+
+### 4.17 Arsitektur Limitasi Subscription, Downgrade Auto-Gating, Pelacakan Storage & Data Pruning Previewer
+* **Transparansi Limitasi Paket pada UI:** Setiap batas kuota fitur (produk, staf, cabang, storage, transaksi bulanan, kuota WhatsApp) disajikan secara jelas dan transparan melalui meter progress bar dan badge status berwarna semantik.
+* **Mitigasi Downgrade Non-Destruktif (*No Data Punishment*):**
+  - Jika masa aktif langganan habis atau pengguna downgrade paket (misal: memiliki 1.000 produk saat di plan Prestige, lalu beralih ke plan Standard dengan kuota 50 produk), sistem **TIDAK PERNAH menghapus data produk ke-51 s/d 1.000**.
+  - Produk over-quota secara otomatis di-suspend dari katalog penjualan (POS & Toko Online), sementara 50 produk pertama tetap aktif normal.
+  - Pada dashboard produk merchant (`/products`), produk yang terkunci ditandai dengan badge gembok Lucide `lock` bertuliskan *"Terkunci (Limitasi Plan)"*.
+* **Auto-Reactivation Instan:** Begitu pembayaran perpanjangan paket berhasil diproses (misal via Webhook TriPay status `'PAID'`), sistem secara otomatis membuka kunci (*auto-unlock*) seluruh produk yang tersuspend tanpa perlu pengaturan ulang satu per satu.
+* **Pelacakan Kapasitas Storage & Database:** Melacak konsumsi penyimpanan media upload (foto produk, bukti transfer), log aktivitas (`audit_logs`), dan log komunikasi (`whatsapp_logs`, `notification_logs`) per akun Owner secara real-time.
+* **Pusat Pembersihan Data Mandiri (*Data Pruning Hub*) dengan Preview Transparan:**
+  - Owner dapat membersihkan log lama (> 90 hari) dan file media yatim (*orphan media*) secara mandiri.
+  - **Wajib Dialog Preview (Modal Sheet Full-Size XXL):** Menampilkan rincian jumlah baris data yang akan dihapus, rentang tanggal data, sampel data teratas, dan estimasi megabyte (MB) yang berhasil dihemat.
+  - **No-Panic Microcopy:** *"Tenang: Pembersihan log aktivitas lama tidak akan pernah menghapus data transaksi penjualan, nota kasir, faktur invoice, atau laporan keuangan pembukuan Anda."*
+  - Eksekusi pembersihan dijalankan aman di latar belakang via *Chunked Queue Job* setelah konfirmasi dua langkah Owner.
 
 ---
 

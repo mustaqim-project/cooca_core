@@ -264,7 +264,24 @@ Agen **DILARANG KERAS** melakukan hal-hal berikut di bawah kondisi apa pun:
     - Dilarang memasukkan input mentah ke `DB::raw()` tanpa parameter binding.
     - Dilarang merender output HTML bebas yang belum di-escape (hindari `{!! $var !!}` kecuali HTML yang telah disanitasi).
 
-### 6.4 Larangan Penghapusan Sepihak (Zero Silent Deletions)
+### 6.4 Perlindungan Kredensial Sensitif di UI (Zero Plaintext Credential Exposure)
+
+- ❌ **DILARANG MENAMPILKAN KREDENSIAL DALAM TEKS TERBUKA (PLAIN TEXT)**:
+    - API Keys, Secret Tokens, Private Keys, Passwords, PIN Kasir, Supervisor PIN, Webhook Secrets, dan SMTP Passwords dilarang keras tampil polos di antarmuka publik, dashboard, maupun atribut DOM JavaScript.
+    - Wajib menerapkan masking keamanan (`••••••••••••••••` atau `sk-live-••••••••1234`) pada field konfigurasi dan properti `$hidden = [...]` pada Eloquent model.
+    - Struk kasir fisik maupun digital dilarang mencantumkan nomor kartu atau PIN perbankan pelanggan.
+
+### 6.5 Prinsip No Data Punishment pada Downgrade & Guardrail Data Pruning
+
+- ❌ **DILARANG MENGHAPUS DATA TENANT SAAT DOWNGRADE PAKET (*No Data Punishment*)**:
+    - Jika masa langganan habis atau tenant beralih ke plan dengan kuota lebih kecil (misal Prestige $\rightarrow$ Standard), sistem **DILARANG KERAS** menghapus produk, resep, atau data master yang melebihi kuota.
+    - Data yang melebihi kuota hanya di-suspend sementara dari kanal penjualan (POS & Toko Online) dan wajib di-unlock otomatis saat langganan diperpanjang kembali (*Auto-Reactivation*).
+- ❌ **DILARANG HARD DELETE DATA TRANSAKSI FINANSIAL SAAT DATA PRUNING**:
+    - Fitur pembersihan storage / database mandiri HANYA diizinkan untuk data log lawas (`audit_logs`, `whatsapp_logs`, `notification_logs`), file gambar yatim (*orphan media*), dan keranjang draf kedaluwarsa.
+    - Dilarang keras mem-prune data transaksi penjualan POS, nota kasir, faktur B2B, atau jurnal akuntansi.
+    - Seluruh aksi pembersihan wajib didahului dialog **Preview Rincian Data (Jumlah baris & Estimasi MB dihemat)** dan konfirmasi dua langkah Owner.
+
+### 6.6 Larangan Penghapusan Sepihak (Zero Silent Deletions)
 
 - ❌ **DILARANG DIAM-DIAM MENGHAPUS FITUR, MENU, ATAU ROUTE**:
     - Penghapusan atau penggabungan rute lama WAJIB menyediakan _redirect_ atau alias rute guna menjamin _backward-compatibility_ dan mencegah _broken links_ pada bookmark pengguna.
@@ -410,6 +427,22 @@ COOCA mengadopsi standar rekayasa terstruktur untuk penataan fitur hulu-ke-hilir
 - **Auto-Reorder PO Advisor**: Peringatan otomatis saat stok menyentuh Reorder Point (ROP) + pembuatan draf PO ke supplier dalam 1-klik.
 - **Interactive Customer WhatsApp Bot**: Layanan mandiri pelanggan via WhatsApp webhook untuk cek nota, resi kiriman, dan poin loyalitas.
 
+### 8.4 Sistem Limitasi Langganan, Mitigasi Downgrade (Auto-Gating), & Auto-Reactivation
+- **Transparansi Limitasi pada UI**: Setiap limitasi kuota ditampilkan transparan via progress bar dan meter persentase warna semantik.
+- **Mitigasi Downgrade Non-Destruktif (*No Data Punishment*)**:
+  - Saat masa aktif langganan berakhir atau tenant berpindah ke plan dengan kuota lebih rendah (misal: memiliki 1.000 produk lalu downgrade ke Standard 50 produk), data produk ke-51 s/d 1.000 **TIDAK PERNAH DIHAPUS**.
+  - Produk over-quota otomatis berstatus `suspended_by_plan` dan disembunyikan dari kanal penjualan (POS & Toko Online), sementara 50 produk pertama tetap aktif normal.
+  - Pada dashboard produk `/products`, produk yang terkunci ditandai dengan badge gembok Lucide `lock` bertuliskan *"Terkunci (Limitasi Plan)"*.
+- **Auto-Reactivation Instan**: Begitu perpanjangan/upgrade pembayaran berhasil terkonfirmasi via webhook TriPay (`status = 'PAID'`), seluruh produk yang terkunci langsung ter-unlock otomatis seketika tanpa konfigurasi manual.
+
+### 8.5 Pusat Pelacakan Storage & Database Footprint, Data Pruning & Preview Sebelum Hapus
+- **Pelacakan Komprehensif**: Melacak kapasitas penyimpanan media upload, log audit (`audit_logs`), log komunikasi (`whatsapp_logs`, `notification_logs`), dan riwayat draf usang.
+- **Pruning Hub Mandiri dengan Preview Transparan**:
+  - Owner dapat membersihkan log audit/notifikasi lama (> 90 hari) dan gambar orphan untuk membebaskan ruang penyimpanan.
+  - **Wajib Dialog Preview (Full-Size XXL)** sebelum eksekusi: Menyajikan total baris data yang akan dihapus, estimasi MB yang dihemat, rentang tanggal data, dan sampel data teratas.
+  - **No-Panic Microcopy**: *"Tenang: Pembersihan log aktivitas lama tidak akan pernah menghapus data transaksi penjualan, nota kasir, atau pembukuan keuangan Anda."*
+  - Eksekusi berjalan aman via Background Queue Job (Chunking 500 rows) setelah konfirmasi dua langkah Owner.
+
 ---
 
 # 9. MASTER DIREKTIF UI/UX APPLE DESIGN (HUMAN INTERFACE GUIDELINES v2.0)
@@ -508,13 +541,24 @@ Badge kapsul (`rounded-full`) **HANYA** boleh digunakan untuk **Status Siklus Hi
 - ❌ **DILARANG KERAS:** Menggunakan emoticon atau emoji karakter Unicode (seperti 🚀, ✨, 💡, 👥, 🏆, 🎟️, 📦, ⚡, 🔥, 🟢, 📈, 💬, 🏢, dsb.) pada seluruh antarmuka pengguna (Buttons, H1/H2, Bento Cards, Tabs, Dialog Konfirmasi, Alert Banner, Status Badges, Tabel).
 - ✅ **Solusi Wajib:** **HANYA GUNAKAN FONT ICON RESMI SISTEM (Lucide Icons)!** Gunakan `<i data-lucide="..." class="..."></i>` atau SVG inline presisi.
 
+## 10.7 Mandat Anti-Hyperbole & Integritas Faktual Sistem (Larangan Klaim Dilebih-lebihkan)
+
+- ❌ **DILARANG KERAS MENAMPILKAN INFORMASI YANG DILEBIH-LEBIHKAN (*OVERSTATED / FAKE CLAIMS*)**:
+    - Dilarang membuat klaim fiktif atau bombastis yang tidak sesuai dengan spesifikasi teknis nyata sistem (misal: *"Mesin AI Quantum 99.999% Akurasi"*, *"Algoritma Otomatis Berkecepatan Cahaya"*, *"Super AI Engine Terintegrasi"*, *"Zero Error Guaranteed"*).
+    - Dilarang menampilkan angka klaim fiktif atau estimasi palsu pada antarmuka operasional (misal: *"Meningkatkan Penjualan 300%"*, *"Dipercaya 100.000 Bisnis"*, *"Penghematan Biaya 100%"*).
+- ✅ **Wajib Data & Spesifikasi Riil**: Seluruh angka penjualan, nominal moneter, persentase pertumbuhan, sisa stok, status perangkat keras, dan waktu proses wajib bersumber dari kalkulasi database aktual dengan format angka presisi (`tabular-nums`).
+
 ---
 
-# 11. MANDAT ANTI-EXCESSIVE-TEXT & BAHASA LUGAS RAMAH PENGGUNA
+# 11. MANDAT PENYAJIAN SEDERHANA, PADAT, DAN JELAS (ANTI-CLUTTER & ANTI-EXCESSIVE-TEXT)
 
-## 11.1 Dilarang Memenuhi UI dengan Teks yang Tidak Perlu
+## 11.1 Larangan Informasi Berlebih & Prinsip Kesederhanaan Ekstrem (Simple, Dense & Clear)
 
-AI Agent **DILARANG** menambahkan paragraf penjelasan panjang, deskripsi berulang yang sudah jelas dari judulnya, subtitle pada setiap kartu, atau jargon teknis (_SKU, BOM, COGS, Void, Tenant Context_).
+UI COOCA dirancang agar **sederhana, padat, dan jelas** (*clarity & high glanceability*):
+- ❌ **DILARANG:** Menampilkan informasi yang terlalu banyak, rumit, kompleks, atau berbelit-belit yang membebani kognitif pengguna.
+- ❌ **DILARANG DINDING TEKS (ZERO WALL-OF-TEXT):** Dilarang paragraf penjelasan panjang tanpa kebutuhan operasional, deskripsi berulang yang sudah jelas dari judulnya, subtitle pada setiap kartu tanpa fungsi pembeda status, helper text yang tidak membantu keputusan, teks promosi di halaman transaksi/operasional, atau jargon teknis (_SKU, BOM, COGS, Void, Tenant Context_).
+- ✅ **Prinsip Essential-First & 3-Second Glanceability:** Pengguna wajib memahami status kunci dan aksi prioritas dalam 3 detik pertama.
+- ✅ **Progressive Disclosure:** Sembunyikan rincian teknis yang kompleks atau data pendukung yang jarang diakses ke dalam modal sheet / drawer detail (*Master-Detail*), sehingga layar utama tetap bersih, lapang, dan bernafas lega.
 
 ## 11.2 Kamus Standar Label Tombol Aksi Utama (Maksimal 1 Kata Kerja Murni di Dalam Form)
 
@@ -1103,12 +1147,15 @@ Pekerjaan hanya dapat dinyatakan selesai jika seluruh butir checklist ini tercen
 - [ ] **History & Dokumentasi Terbaca**: Riwayat pekerjaan sebelumnya dan panduan sistem telah dibaca dan dipahami.
 - [ ] **Gap Keamanan 4 Peran & Proteksi Fraud Tuntas**: Celah antara Admin, Owner, Customer (anti-IDOR), dan Otomasi (fail-safe) telah terproteksi. Guardrail anti-fraud aktif: `supervisor_pin` pada Void/Refund POS, Blind Cash Count tutup kasir, Three-Way Matching pengadaan, Two-Step Transfer stok antar-cabang, dan Accounting Period Lock.
 - [ ] **Audit Trail Immutable Aktif**: Setiap mutasi berisiko tercatat lengkap ke tabel `audit_logs` (`user_id`, `business_id`, IP, before/after snapshot, `reason_notes`).
+- [ ] **Zero Plaintext Credential Exposure**: Seluruh API Keys, token rahasia, password, PIN kasir, dan secrets terlindungi masking (`••••••••`) di UI, disembunyikan via `$hidden` pada model Eloquent, dan tidak bocor ke publik atau struk POS.
 - [ ] **Otomasi & Notifikasi Tri-Channel Terpasang**: Proses repetitif (jurnal akuntansi, potong stok BOM, transisi status) terotomasi penuh. Notifikasi multi-saluran (UI in-app notification center, Email HTML responsif, dan WhatsApp Meta API) berjalan asinkron via Queue dengan fail-safe tombol manual 1-klik (`wa.me`).
 - [ ] **Bento UI Multi-Device Luwes**: Tata letak modular bento grid adaptif di smartphone, tablet kasir, dan desktop.
 - [ ] **Keseragaman Konsep UI Lintas Perangkat**: 100% mewarisi bahasa desain Bento Apple HIG yang sama persis (squircle, frosted glass, tipografi tabular, warna semantik).
 - [ ] **Full-Style Floating Bottom Navbar**: Tersedia bottom navigation bar mengambang bergaya iOS 18 pada smartphone/tablet (`fixed bottom-3`) dengan elevated center quick-action.
-- [ ] **Modal-First pada Index (Full Layout XXL & Responsif)**: Seluruh aksi Show, Create, dan Edit disajikan via pop-up modal sheet Full Layout XXL (`max-w-5xl` s/d `max-w-[1250px]`) langsung di halaman index tanpa redirect (_zero navigation jumps_), responsif sempurna di Desktop, Tablet, dan Mobile.
+- [ ] **Modal-First pada Index (Full Layout XXL & Responsif)**: Seluruh aksi Show, Create, dan Edit disajikan via pop-up modal sheet Full Layout XXL (`max-w-5xl` s/d `max-w-[1350px]`) langsung di halaman index tanpa redirect (_zero navigation jumps_), responsif sempurna di Desktop, Tablet, dan Mobile.
 - [ ] **Inline Quick-Add `[ + ]` pada Dropdown**: Dropdown relasi master memiliki tombol `[ + ]` inline dengan pop-up AJAX auto-select.
+- [ ] **Mandat Anti-Hyperbole & Integritas Faktual Terpenuhi**: Bebas dari klaim teknologi fiktif ("AI Quantum 99.999%"), metrik palsu, atau estimasi tidak berdasar. Seluruh data & status sesuai keadaan sistem dan database riil (`tabular-nums`).
+- [ ] **Mandat Penyajian Sederhana, Padat, dan Jelas**: Informasi tidak berbelit-belit/berlebihan (*Zero Clutter*), bebas dinding teks (*Zero Wall-of-Text*), dan rincian kompleks tersimpan rapi via progressive disclosure / modal sheet.
 - [ ] **Mandat Anti-AI-Template & Anti-Pill Terpenuhi**: Bebas eyebrow pills (gunakan Pure Typographic Overline), bebas metric cluttering, bebas fake pulse dots, pill status maksimal 1 per baris, dan seluruh teks fluff telah dihapus total.
 - [ ] **Mandat No-Emoji Terpenuhi**: 100% bebas dari emoji Unicode dan murni menggunakan Lucide Icons.
 - [ ] **Tombol Aksi Lugas & Ringkas**: Tombol form menggunakan 1 kata kerja murni (_Simpan, Hapus, Edit, Lihat, Batal, Kirim, Salin_).
@@ -1191,9 +1238,9 @@ Sebelum dan selama melakukan pekerjaan apa pun:
 4. **Periksa source code aktual** secara mendalam.
 5. **Petakan workflow hulu-ke-hilir** secara utuh.
 6. **Audit potensi duplikasi** (Reuse first).
-7. **Audit keamanan multi-tenant, permission, & IDOR**.
-8. **Audit peluang otomasi sistem penuh**.
-9. **Audit UI/UX Apple HIG**: Bento grid, squircle, 8pt spacing, anti-pill-abuse, anti-excessive-text, strict no-emoji (Lucide icons only).
+7. **Audit keamanan multi-tenant, permission, IDOR, & proteksi kredensial sensitif di UI/API**.
+8. **Audit peluang otomasi sistem penuh & notifikasi tri-channel**.
+9. **Audit UI/UX Apple HIG**: Bento grid, squircle, 8pt spacing, anti-hyperbole (data riil), anti-clutter (sederhana, padat, jelas), anti-pill-abuse, anti-excessive-text, strict no-emoji (Lucide icons only).
 10. **Klasifikasikan risiko perubahan**.
 11. **Sajikan proposal rencana implementasi**.
 12. **Minta persetujuan eksplisit** jika perubahan berisiko.

@@ -160,8 +160,127 @@ Untuk menjamin sistem tetap cepat (*sub-100ms response time*), stabil saat lonja
 
 ---
 
-## 5. Ringkasan Prinsip Implementasi Rekayasa
+## 5. Sistem Limitasi Langganan, Mitigasi Downgrade (Auto-Gating), & Auto-Reactivation
+
+### 5.1 Transparansi Limitasi & Indikator Kuota pada UI
+Setiap batasan kuota fitur dan kapasitas (produk, bahan baku, resep BOM, cabang outlet, staf, storage, kuota transaksi bulanan, kuota WhatsApp, medsos blast) wajib ditampilkan secara jelas, transparan, dan tidak ambigu pada antarmuka terkait:
+- **Visual Progress Bar & Meter Kuota**: Menampilkan perbandingan pemakaian riil vs kuota paket aktif (misal: `10 / 50 Produk Digunakan (20%)`).
+- **Color-Coded Status**: Hijau (0–74%), Amber/Warning (75–89%), Merah/Alert (90–100%) dengan tombol pemicu cepat `[ Upgrade Paket ]`.
+- **Informasi Sederhana & Bernas**: Teks status kuota disajikan ringkas tanpa basa-basi (*glanceable*).
+
+### 5.2 Mitigasi Downgrade Plan & Masa Langganan Berakhir (Exceeded Quota Graceful Degradation)
+Skenario operasional yang sering terjadi: Pengguna saat berlangganan plan **Prestige** (*Unlimited Products*) mengimpor 1.000 produk. Pada bulan berikutnya, pengguna tidak memperpanjang langganan atau beralih ke plan **Standard** (kuota maks. 50 produk) atau **Free** (kuota maks. 10 produk).
+
+Sistem menerapkan arsitektur mitigasi non-destruktif:
+
+```
+┌─────────────────────────────────────────────────────────────────────────────────────────────┐
+│                             SIKLUS MITIGASI DOWNGRADE PRODUK                                │
+├─────────────────────────────────────────────────────────────────────────────────────────────┤
+│ 1. PRINSIP NO DATA PUNISHMENT                                                               │
+│    • Data produk ke-11 s/d 1.000 TIDAK PERNAH DIHAPUS oleh database.                       │
+│    • HPP, resep BOM, harga modal, histori penjualan, dan barcode tetap utuh 100%.          │
+├─────────────────────────────────────────────────────────────────────────────────────────────┤
+│ 2. AUTO-GATING AKSES PENJUALAN (POS & STOREFRONT)                                           │
+│    • Hanya N produk terawal (sesuai kuota plan aktif, misal 50 produk pertama / prioritas)  │
+│      yang berstatus AKTIF dan dapat dijual di Terminal Kasir POS & Toko Online Storefront.  │
+│    • Produk selebihnya (produk ke-51 s/d 1.000) otomatis berstatus SUSPENDED BY PLAN        │
+│      (Terkunci Limitasi Paket) dan disembunyikan otomatis dari katalog POS & Toko Online.   │
+├─────────────────────────────────────────────────────────────────────────────────────────────┤
+│ 3. PENGALAMAN PENGGUNA PADA UI DASHBOARD PRODUK (/products)                                 │
+│    • Produk terkunci tetap muncul di tabel produk merchant dengan tanda gembok Lucide lock  │
+│      dan badge abu-abu/amber: "Terkunci (Limitasi Plan Standar)".                           │
+│    • Tombol Tambah Produk Baru di-disable dengan tooltip/banner penjelasan lugas.           │
+│    • Merchant dapat mengatur prioritas produk aktif (menukar produk aktif dalam batas kuota)│
+├─────────────────────────────────────────────────────────────────────────────────────────────┤
+│ 4. AUTO-REACTIVATION SAAT BERLANGGANAN KEMBALI                                              │
+│    • Begitu merchant memperpanjang/upgrade langganan (Webhook TriPay status = 'PAID'),       │
+│      sistem otomatis mengeksekusi Auto-Unlock: seluruh produk yang suspended seketika       │
+│      aktif kembali di POS & Toko Online tanpa perlu konfigurasi manual satu per satu.       │
+└─────────────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+### 5.3 Implementasi Teknis Auto-Gating & Reactivation
+1. **Query Scoping di POS & Storefront Service**:
+   ```php
+   // Katalog POS & Storefront hanya mengambil produk yang aktif dan dalam batas kuota paket
+   $activeLimit = EntitlementService::getProductLimit($business);
+   $products = Product::where('business_id', $business->id)
+       ->where('is_active', true)
+       ->orderBy('priority_order', 'asc')
+       ->orderBy('created_at', 'asc')
+       ->limit($activeLimit === -1 ? null : $activeLimit)
+       ->get();
+   ```
+2. **Event-Driven Auto-Unlock**:
+   - Event `SubscriptionUpgraded` / `SubscriptionRenewed` memicu `UnlockSuspendedResourcesJob` untuk membersihkan flag pembatasan dan me-refresh cache katalog POS di Redis.
+
+---
+
+## 6. Pusat Pelacakan Storage & Database Footprint, Data Pruning & Preview Sebelum Hapus
+
+Untuk menjaga performa basis data tetap kencang dan memberikan transparansi kuota penyimpanan per akun Owner:
+
+### 6.1 Pelacakan Komprehensif (Storage & DB Footprint Tracking)
+Sistem melacak penggunaan ruang penyimpanan secara real-time yang bersumber dari:
+1. **File & Media Penyimpanan Cloud**:
+   - Foto katalog produk dan gambar varian.
+   - Lampiran bukti pembayaran transfer bank & kuitansi supplier.
+   - Foto identitas/KTP karyawan, foto Berita Acara opname stok, dan logo bisnis.
+   - File dokumen laporan bulanan PDF / cetak struk tersimpan.
+2. **Log Audit & Aktivitas Pengguna**:
+   - Tabel `audit_logs` (rekaman kronologis mutasi, void kasir, login, perubahan role).
+3. **Log Komunikasi & Webhook**:
+   - Tabel `whatsapp_logs`, `notification_logs`, log dispatch media sosial.
+4. **Data Riwayat Transaksi Lama**:
+   - Rekam jejak draf transaksi kedaluwarsa dan keranjang belanja usang.
+
+### 6.2 Antarmuka Dasbor Manajemen Penyimpanan (`/settings/storage`)
+- **Bento Meter Kapasitas**: Menampilkan visual kuota per Owner (misal: `1.2 GB / 10 GB terpakai`).
+- **Breakdown Kategori Interaktif**:
+  - *Media & Foto:* 850 MB (70%)
+  - *Log Audit & Keamanan:* 210 MB (17%)
+  - *Log Notifikasi & WhatsApp:* 95 MB (8%)
+  - *Data Histori Usang:* 45 MB (5%)
+
+### 6.3 Pusat Pembersihan Data Mandiri (*Data Pruning Hub*) dengan Preview Transparan
+Pemilik bisnis (Owner) dapat membersihkan data log lama dan file media yatim (*orphan media*) untuk menghemat kuota penyimpanan:
+
+```
+┌─────────────────────────────────────────────────────────────────────────────────────────────┐
+│                           ALUR DATA PRUNING & PREVIEW SEBELUM HAPUS                         │
+├─────────────────────────────────────────────────────────────────────────────────────────────┤
+│ 1. FILTER PILIHAN PRUNING                                                                   │
+│    Owner memilih jenis pembersihan:                                                         │
+│    • Log Audit Aktivitas > 90 hari                                                          │
+│    • Log Pengiriman WhatsApp / Notifikasi > 60 hari                                         │
+│    • File Gambar Produk yang tidak lagi terhubung ke katalog (Orphan Images)                │
+│    • Draf keranjang belanja kedaluwarsa > 30 hari                                           │
+├─────────────────────────────────────────────────────────────────────────────────────────────┤
+│ 2. MODAL SHEET PREVIEW SEBELUM EKSEKUSI (DATA PRUNING PREVIEWER)                            │
+│    Sistem menampilkan Modal Sheet Full-Size XXL berisi:                                     │
+│    • Total baris data / file yang akan dihapus (misal: 14.250 record & 120 file).           │
+│    • Estimasi ruang penyimpanan yang berhasil dihemat (misal: 145 MB dibebaskan).           │
+│    • Rentang tanggal data yang masuk cakupan pembersihan (misal: 01 Jan 2025 - 31 Des 2025).│
+│    • Tabel sampel 10 data teratas yang akan dibersihkan untuk verifikasi visual.            │
+│    • Pesan Penenang Jiwa (No-Panic Microcopy):                                              │
+│      "Tenang: Pembersihan log lama tidak akan pernah menghapus data transaksi penjualan,    │
+│       nota kasir, faktur invoice, atau laporan keuangan pembukuan Anda."                    │
+├─────────────────────────────────────────────────────────────────────────────────────────────┤
+│ 3. KONFIRMASI DUA LANGKAH & EKSEKUSI AMAN                                                   │
+│    • Tombol konfirmasi [ Bersihkan Data Sekarang ] dengan otorisasi PIN/Password Owner.     │
+│    • Eksekusi pembersihan berjalan via Background Queue Job (Chunking 500 rows/batch)       │
+│      agar tidak mengunci tabel operasional database.                                        │
+│    • Kapasitas storage ter-refresh otomatis seketika setelah job selesai.                   │
+└─────────────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 7. Ringkasan Prinsip Implementasi Rekayasa
 1. **Konsolidasi, Bukan Fragmentasi:** Gabungkan halaman yang mengelola entitas sama ke dalam antarmuka berbasis Tab / Segmented Control.
 2. **Asinkron untuk Layanan Eksternal:** Seluruh integrasi WhatsApp, Email, Ekspedisi, dan PDF wajib melalui antrean latar belakang (*Queue*).
 3. **Aman Secara Bawaan (*Secure by Default*):** Terapkan proteksi fraud internal di level domain logic, bukan hanya menyembunyikan tombol di antarmuka pengguna.
 4. **Resilience & Fallback:** Sediakan tombol manual 1-klik ramah pengguna setiap kali otomasi jaringan eksternal mengalami kendala.
+5. **No Data Punishment & Graceful Degradation:** Jangan pernah menghapus data tenant saat masa langganan berakhir; terapkan auto-gating pada kanal penjualan dan auto-reactivation saat pembayaran diperpanjang.
+6. **Transparansi Storage & Pruning Preview:** Sediakan tracking penyimpanan menyeluruh dan wajibkan dialog preview transparan sebelum eksekusi pembersihan data log/media.

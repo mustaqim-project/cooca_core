@@ -52,6 +52,107 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 
 #### 7. Documentation Promotion
 
+### [WORK-2026-09-25-158] Standar Arsitektur: Limitasi Subscription & Downgrade Auto-Gating, Auto-Reactivation, Storage Tracking & Data Pruning Previewer
+
+- **Date:** 2026-09-25
+- **Status:** COMPLETED
+- **Module:** SaaS Billing, Subscription Lifecycle, Storage Management & Data Governance
+- **Feature:** Standar UI/UX & Arsitektur: Transparansi Limitasi Paket, Graceful Degradation / Auto-Gating saat Downgrade (*No Data Punishment*), Auto-Reactivation via Webhook TriPay, Pelacakan Storage & Log Footprint, serta Pusat Pembersihan Data Mandiri (*Data Pruning Hub*) dengan Dialog Previewer (Full-Size XXL).
+- **Work Type:** Architecture | Policy | UI/UX | Security | Documentation
+
+#### 1. Business Context & Objective
+- **Konteks:** Menjawab kebutuhan siklus hidup langganan SaaS multi-tenant di mana pengguna sering berganti paket (upgrade/downgrade), sistem wajib memiliki aturan baku yang adil, transparan, dan tidak merugikan data bisnis pengguna (*No Data Punishment*). Selain itu, pertumbuhan data log dan media file perlu dipantau secara transparan dan dapat dibersihkan secara mandiri oleh Owner tanpa risiko merusak integritas finansial.
+- **Masalah/Target:**
+  1. Menetapkan mekanisme saat tenant downgrade paket (misal: memiliki 1.000 produk saat di plan Prestige, lalu beralih ke plan Standard dengan kuota 50 produk): sistem dilarang menghapus data produk, melainkan meng-suspend produk over-quota (ke-51 s/d 1.000) dari POS & Toko Online, dan membuka kunci otomatis (*auto-reactivate*) saat langganan diperpanjang kembali.
+  2. Menyajikan indikator batas kuota yang jelas, transparan, dan tidak ambigu pada antarmuka (progress meter kuota, badge gembok Lucide `lock` bertuliskan *"Terkunci (Limitasi Plan)"*).
+  3. Melacak konsumsi kapasitas penyimpanan menyeluruh (media gambar, log audit `audit_logs`, log notifikasi/WhatsApp).
+  4. Menyediakan fitur pembersihan data mandiri dengan kewajiban **Dialog Previewer (Full-Size XXL)** yang menampilkan rincian jumlah baris, rentang tanggal, sampel data, dan estimasi MB yang dihemat sebelum eksekusi pembersihan.
+
+#### 2. What Was Done
+- **Pembaruan Dokumen Direktif & Referensi Arsitektur (Layer 2 & Master Manuals):**
+  - Memperbarui `.agents/skills/cooca-agent-directive/references/feature-optimization-and-architecture.md` (Bab 5 & 6) dengan arsitektur lengkap Subscription Limit Lifecycle, Downgrade Auto-Gating, Auto-Reactivation, Storage Tracking & Data Pruning Hub.
+  - Memperbarui `.agents/skills/cooca-agent-directive/references/design-system.md` (Bab 18) dengan spesifikasi UI Banner Kuota, Badge Gembok Entitas Terkunci, dan Data Pruning Modal Sheet Previewer XXL.
+  - Memperbarui `.agents/skills/cooca-agent-directive/references/security-and-data.md` (Bab 1) dengan klausul *No Data Punishment* dan *Data Pruning Safety Guardrails* (proteksi mutlak transaksi & jurnal akuntansi).
+  - Memperbarui `.agents/skills/cooca-agent-directive/references/documentation-and-dod.md` pada Definition of Done checklist.
+  - Memperbarui `.agents/skills/cooca-agent-directive/SKILL.md` (Section 10).
+  - Memperbarui `docs/agent.md` (Bab 6.5, Bab 8.4, Bab 8.5, Bab 23 DoD, Bab 25 Final Agent Command).
+  - Memperbarui `docs/SYSTEM_GUIDE.md` (Daftar Isi dan Bab 4.17).
+
+#### 3. Technical Changes
+- **Files Affected:**
+  - [`.agents/skills/cooca-agent-directive/references/feature-optimization-and-architecture.md`](file:///c:/laragon/www/cooca_core/.agents/skills/cooca-agent-directive/references/feature-optimization-and-architecture.md)
+  - [`.agents/skills/cooca-agent-directive/references/design-system.md`](file:///c:/laragon/www/cooca_core/.agents/skills/cooca-agent-directive/references/design-system.md)
+  - [`.agents/skills/cooca-agent-directive/references/security-and-data.md`](file:///c:/laragon/www/cooca_core/.agents/skills/cooca-agent-directive/references/security-and-data.md)
+  - [`.agents/skills/cooca-agent-directive/references/documentation-and-dod.md`](file:///c:/laragon/www/cooca_core/.agents/skills/cooca-agent-directive/references/documentation-and-dod.md)
+  - [`.agents/skills/cooca-agent-directive/SKILL.md`](file:///c:/laragon/www/cooca_core/.agents/skills/cooca-agent-directive/SKILL.md)
+  - [`docs/agent.md`](file:///c:/laragon/www/cooca_core/docs/agent.md)
+  - [`docs/SYSTEM_GUIDE.md`](file:///c:/laragon/www/cooca_core/docs/SYSTEM_GUIDE.md)
+  - [`docs/AiWorkHistory.md`](file:///c:/laragon/www/cooca_core/docs/AiWorkHistory.md)
+
+#### 4. System Impacts
+- **Subscription Lifecycle Impact:** Perlindungan aset data merchant saat transisi paket tanpa risiko penghapusan data, didukung auto-reactivation instan saat perpanjangan pembayaran.
+- **Storage Governance Impact:** Owner memiliki kendali penuh dan transparan terhadap pemakaian storage/database dengan jaminan keamanan finansial saat melakukan pruning data log.
+
+#### 5. Verification & Testing
+- Seluruh dokumen disinkronisasi 100% konsisten lintas Layer 1 (`AiWorkHistory.md`), Layer 2 (`references/`), dan Layer 3 (`SYSTEM_GUIDE.md` & `agent.md`).
+
+#### 6. Important Decisions & Guardrails
+- **No Data Punishment:** Data over-quota hanya di-gate dari kanal penjualan, tidak pernah di-delete.
+- **Auto-Reactivation:** Webhook status `'PAID'` langsung membuka seluruh resource suspended tanpa manual handling.
+- **Data Pruning Safety:** Hanya log lama dan orphan files yang boleh diprune; transaksi penjualan dan pembukuan dilindungi secara mutlak.
+
+#### 7. Documentation Promotion
+- Tersinkronisasi penuh ke `docs/SYSTEM_GUIDE.md` (Bab 4.17) dan `docs/agent.md`.
+
+### [WORK-2026-09-25-157] Standardisasi UI: Anti-Hyperbole Integritas Data, Zero Plaintext Credential Exposure & Penyajian Sederhana Padat Jelas
+
+- **Date:** 2026-09-25
+- **Status:** COMPLETED
+- **Module:** Design System, Security & Standards Policy
+- **Feature:** Standar UI Baku: Anti-Hyperbole & Factual System Integrity, Zero Plaintext Credential Exposure (Masking Keamanan), Anti-Clutter & Extreme Simplicity (Sederhana, Padat, Jelas).
+- **Work Type:** Policy | UI/UX | Security | Architecture | Documentation
+
+#### 1. Business Context & Objective
+- **Konteks:** Menjawab kebutuhan platform SaaS ERP multi-tenant yang berintegritas tinggi, jujur, tenang, dan dapat dipercaya oleh pemilik UMKM (usia 40–65+ tahun), antarmuka COOCA dilarang menggunakan bahasa hiperbola (overstated marketing fluff / klaim AI fiktif) dan dilarang menampilkan informasi bertele-tele/rumit yang membebani kognisi pengguna.
+- **Masalah/Target:**
+  1. Menegakkan larangan mutlak atas klaim teknologi/fitur fiktif (misal: "AI Quantum 99.999%", estimasi penjualan palsu) agar seluruh metrik yang ditampilkan di antarmuka 100% faktual dari data sistem dan database riil.
+  2. Menegakkan proteksi zero plaintext credential exposure pada UI: seluruh API key, secret token, password, PIN kasir, dan secrets wajib dimasking (`••••••••`) di form konfigurasi dan disembunyikan via properti model `$hidden`.
+  3. Menstandarisasi penyajian informasi sederhana, padat, dan jelas (*3-Second Glanceability*, *Zero Wall-of-Text*, dan *Progressive Disclosure*).
+
+#### 2. What Was Done
+- **Pembaruan Dokumen Direktif & Panduan Desain (Layer 2 & Master System Manuals):**
+  - Memperbarui `.agents/skills/cooca-agent-directive/references/design-system.md` (Bab 6) dengan sub-bab baku: Anti-Hyperbole & Integritas Faktual Sistem, Zero Plaintext Credential Exposure, dan Prinsip Sederhana Padat Jelas.
+  - Memperbarui `.agents/skills/cooca-agent-directive/references/security-and-data.md` (Bab 3 & 5) dengan klausul proteksi kredensial sensitif di frontend & respons API.
+  - Memperbarui `.agents/skills/cooca-agent-directive/references/documentation-and-dod.md` pada Definition of Done checklist.
+  - Memperbarui `.agents/skills/cooca-agent-directive/SKILL.md` (Section 7 & Section 8).
+  - Memperbarui `docs/agent.md` (Bab 6.4, Bab 10.7, Bab 11.1, Bab 23 DoD, dan Bab 25 Final Agent Command).
+  - Memperbarui `docs/SYSTEM_GUIDE.md` (Bab 1 dan Bab 4.2).
+
+#### 3. Technical Changes
+- **Files Affected:**
+  - [`.agents/skills/cooca-agent-directive/references/design-system.md`](file:///c:/laragon/www/cooca_core/.agents/skills/cooca-agent-directive/references/design-system.md)
+  - [`.agents/skills/cooca-agent-directive/references/security-and-data.md`](file:///c:/laragon/www/cooca_core/.agents/skills/cooca-agent-directive/references/security-and-data.md)
+  - [`.agents/skills/cooca-agent-directive/references/documentation-and-dod.md`](file:///c:/laragon/www/cooca_core/.agents/skills/cooca-agent-directive/references/documentation-and-dod.md)
+  - [`.agents/skills/cooca-agent-directive/SKILL.md`](file:///c:/laragon/www/cooca_core/.agents/skills/cooca-agent-directive/SKILL.md)
+  - [`docs/agent.md`](file:///c:/laragon/www/cooca_core/docs/agent.md)
+  - [`docs/SYSTEM_GUIDE.md`](file:///c:/laragon/www/cooca_core/docs/SYSTEM_GUIDE.md)
+  - [`docs/AiWorkHistory.md`](file:///c:/laragon/www/cooca_core/docs/AiWorkHistory.md)
+
+#### 4. System Impacts
+- **UI/UX Impact:** UI menjadi lebih tenang, bersih, faktual, tanpa teks berlebih atau klaim hiperbola, serta aman dari kebocoran kredensial.
+- **Security Impact:** Menjamin token dan rahasia integrasi (Meta, TriPay, Biteship, SMTP, Google OAuth) tidak terekspos dalam teks terbuka di view ataupun serialisasi JSON.
+
+#### 5. Verification & Testing
+- Seluruh dokumen disinkronisasi 100% konsisten lintas Layer 1 (`AiWorkHistory.md`), Layer 2 (`references/`), dan Layer 3 (`SYSTEM_GUIDE.md` & `agent.md`).
+
+#### 6. Important Decisions & Guardrails
+- **Anti-Hyperbole:** Seluruh angka di layar wajib bersumber dari data database riil (`tabular-nums`).
+- **Zero Credential Exposure:** Kredensial wajib masked default (`••••••••`) dan `$hidden` di model.
+- **Simplicity & Density:** Larangan teks basa-basi; microcopy lugas 1-2 baris.
+
+#### 7. Documentation Promotion
+- Tersinkronisasi penuh ke `docs/SYSTEM_GUIDE.md` (Bab 1 & 4.2) dan `docs/agent.md`.
+
 ### [WORK-2026-09-25-156] WhatsApp Gateway, Broadcast & Logs Bento Apple HIG Redesign, Async Queue & Strix Security Hardening
 
 - **Date:** 2026-09-25

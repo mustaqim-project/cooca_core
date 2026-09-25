@@ -147,6 +147,7 @@ Hard guardrails yang **tidak boleh dilanggar dalam kondisi apa pun**, walau user
 - Dilarang mengubah rumus finansial (subtotal, diskon, pajak, HPP/COGS, margin, jurnal akuntansi, saldo kas) atau data transaksi historis berstatus selesai, tanpa persetujuan eksplisit.
 - Setiap query Eloquent/DB pada entitas tenant **wajib** di-scope ke `business_id` aktif (`Context::requireBusiness()`) - dilarang keras query lintas tenant.
 - Dilarang membypass middleware keamanan (`auth:*`, `wa.otp`, `business.active`, `verified`, `require.permission:*`, `entitlement:*`), menghapus `@csrf`/`@method`, melemahkan validasi request, memakai `DB::raw` tanpa binding aman, atau merender `{!! !!}` tanpa sanitasi.
+- **Zero Plaintext Credential Exposure**: Dilarang keras menampilkan API keys, secret tokens, private keys, password, PIN kasir, atau webhook secrets secara terbuka di UI/frontend; wajib menggunakan masking (`••••••••`) dan properti `$hidden` pada Eloquent model.
 - Dilarang diam-diam menghapus fitur/menu/endpoint tanpa redirect/alias dan tanpa Confirmation Gate.
 - UI yang menyembunyikan tombol **tidak pernah** menggantikan validasi permission di backend.
 
@@ -175,6 +176,9 @@ Seluruh antarmuka COOCA mengadopsi **COOCA Apple HIG Design System** (Clarity, D
 
 Poin yang paling sering dilanggar dan **wajib dicek setiap kali menyentuh Blade/view**:
 
+- **Mandat Anti-Hyperbole & Integritas Faktual**: Dilarang keras menampilkan informasi yang dilebih-lebihkan yang tidak sesuai dengan spesifikasi teknis atau data database aktual (misal: klaim fiktif "AI Quantum 99.999%", metrik estimasi palsu). Data wajib riil dan matematis (`tabular-nums`).
+- **Penyajian Sederhana, Padat, dan Jelas (Anti-Clutter)**: Dilarang menyajikan informasi yang terlalu banyak, rumit, atau berbelit-belit. Terapkan prinsip *Essential-First* (paham dalam 3 detik), tanpa dinding teks, dan sembunyikan rincian teknis kompleks di dalam modal sheet (*progressive disclosure*).
+- **Zero Plaintext Credential Exposure di UI**: Kredensial sensitif pada form integrasi wajib dimasking (`••••••••`) dan tidak boleh terekspos di tabel atau struk.
 - **Anti-Pill-Abuse & Anti-AI-Template Mandate**: dilarang keras eyebrow pill di atas judul, badge tempel di samping angka KPI, fake pulse dot pada teks biasa, dan slogan klise AI (_AI-Powered, Next-Gen, Ultimate Solution_). Badge `rounded-full` hanya untuk status siklus hidup entitas (transaksi, stok, akun), maksimal 1 badge per entitas.
 - **Zero Emoji di UI** - hanya Lucide icon (`<i data-lucide="...">`), tidak ada emoji Unicode di tombol, judul, badge, atau tabel.
 - **Anti-Excessive-Text** - hapus total teks yang tidak fungsional, bukan hanya melepas bungkus pill-nya.
@@ -232,6 +236,8 @@ Sebelum menyatakan tugas selesai, testing wajib dijalankan nyata (`php -l`, `php
 - **Database Indexing & Zero N+1**: Composite indexing pada tabel transaksi besar (`business_id`, `created_at`, `status`, `branch_id`) dan eager loading terukur (`with(...)`).
 - **Asynchronous Task Offloading**: Pemrosesan berat (PDF invoice, email, WhatsApp, medsos, rekapitulasi analitik) wajib melalui Laravel Queue & Worker.
 - **Smart Workflows**: Global Barcode Scanner listener, Self-Service QR Table Ordering, Smart Auto-Reorder PO saat stok mencapai Reorder Point (ROP), dan Interactive Customer WhatsApp Bot.
+- **Subscription Entitlement Lifecycle & Auto-Gating**: Batasan kuota disajikan transparan; saat downgrade paket (*No Data Punishment*), data over-quota di-suspend sementara dari POS/Storefront dan otomatis ter-unlock (*Auto-Reactivation*) seketika saat langganan diperpanjang kembali.
+- **Storage & Log Footprint Tracking + Data Pruning Previewer**: Melacak penggunaan storage dan log audit; menyediakan modal preview rincian baris data & estimasi MB dihemat sebelum eksekusi pembersihan data log lama.
 
 ---
 

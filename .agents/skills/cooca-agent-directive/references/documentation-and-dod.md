@@ -47,7 +47,9 @@ Pekerjaan hanya dapat dinyatakan selesai - dan status akhir `VERIFIED` - jika **
 - [ ] Keamanan multi-tenant terjaga - query terikat `Context::requireBusiness()`/`business_id`.
 - [ ] Integritas kalkulasi finansial 100% utuh - rumus subtotal, pajak, diskon, HPP, margin, jurnal akuntansi tidak berubah tanpa persetujuan.
 - [ ] Guardrail anti-fraud internal aktif: `supervisor_pin` pada Void/Refund POS, Blind Cash Count pada tutup kasir, Three-Way Matching pada pengadaan, Two-Step Transfer stok antar-cabang, dan Accounting Period Lock.
-- [ ] Mutasi sensitif tercatat lengkap ke Audit Trail Immutable (`user_id`, `business_id`, `action`, IP, timestamp, before/after snapshot, `reason_notes`).
+- [ ] Zero Plaintext Credential Exposure: Kredensial sensitif (API key, token, secret, password, PIN) terlindungi masking (`••••••••`) di UI, disembunyikan via `$hidden` pada model, dan tidak bocor ke output publik/struk POS.
+- [ ] No Data Punishment & Subscription Limit Auto-Gating: Saat downgrade atau masa aktif berakhir, data produk/master tidak dihapus dari basis data. Produk over-quota di-suspend secara otomatis dari POS & Toko Online, dan ter-unlock otomatis saat pembayaran diperpanjang (*Auto-Reactivation*).
+- [ ] Storage Tracking & Data Pruning Previewer: Seluruh konsumsi storage/database ditracking transparan. Fitur pembersihan log/media wajib menyertakan modal dialog preview (rincian jumlah data, rentang tanggal, estimasi MB dihemat) dan konfirmasi dua langkah tanpa menyentuh transaksi finansial.
 - [ ] Permission frontend dan backend sesuai; UI yang sembunyikan tombol tidak menggantikan validasi backend.
 
 ### Otomasi & Notifikasi Sistem Terpadu (UI, Email, WhatsApp)
@@ -59,6 +61,9 @@ Pekerjaan hanya dapat dinyatakan selesai - dan status akhir `VERIFIED` - jika **
 
 ### UI/UX (Bento Apple HIG)
 
+- [ ] UI Bebas Hiperbola & Sesuai Spesifikasi Riil: Bebas dari klaim teknologi fiktif ("Mesin AI Quantum 99.999%"), metrik palsu, atau estimasi tidak berdasar. Seluruh data & status sesuai keadaan sistem dan database riil (`tabular-nums`).
+- [ ] Penyajian Sederhana, Padat, dan Jelas: Informasi tidak berbelit-belit/berlebihan (*Zero Clutter*), bebas dinding teks (*Zero Wall-of-Text*), dan rincian kompleks tersimpan rapi via progressive disclosure / modal sheet.
+- [ ] Indikator Kuota & Gembok Entitas Jelas: Batas kuota paket ditampilkan jelas (meter progress bar), entitas yang melebihi kuota ditandai dengan badge gembok Lucide `lock` bertuliskan *"Terkunci (Limitasi Plan)"* dengan banner upgrade yang tidak mengganggu alur kerja.
 - [ ] UI tidak memiliki teks berlebihan; anti-pill-abuse & anti-emoji ditegakkan.
 - [ ] Spacing cukup, tidak padat (Spacing Adaptif 8pt); font size sesuai Matriks Tipografi Apple HIG.
 - [ ] Input form mobile minimal 16px; touch target tombol utama minimal 44–52px.

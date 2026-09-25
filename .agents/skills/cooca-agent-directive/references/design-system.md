@@ -53,18 +53,35 @@ hover:opacity-95"
 - Touch target minimum **44×44px**, wajib **48–52px** untuk tombol aksi utama di layar sentuh mobile kasir.
 - Jarak antar tombol penting minimal **12–16px** (`gap-2.5`–`gap-3`).
 
-## 6. Mandat Anti-Excessive-Text & Microcopy
+## 6. Mandat Anti-Excessive-Text, Anti-Hyperbole & Penyajian Sederhana, Padat, dan Jelas
 
-**Dilarang** menambahkan: paragraf penjelasan panjang tanpa kebutuhan operasional, deskripsi berulang yang menjelaskan hal yang sudah jelas dari judul, subtitle pada tiap kartu tanpa fungsi pembeda status, helper text yang tidak membantu keputusan, teks promosi di halaman transaksi/operasional, jargon teknis (_SKU, BOM, COGS, Void, Tenant Context_), judul panjang yang bisa diringkas 2–3 kata, empty state berkalimat panjang (cukup: _"Belum ada produk"_ + tombol aksi).
+### A. Larangan Keras Informasi Berlebih, Rumit, & Kompleks (Anti-Clutter & Extreme Simplicity)
+UI COOCA dirancang agar **sederhana, padat, dan jelas** (*clarity & high glanceability*). Dilarang menyajikan informasi yang berlebihan, terlalu banyak data sekunder yang tidak relevan, atau tata letak berbelit-belit yang membingungkan pengguna:
+- **Dilarang**: Paragraf penjelasan panjang tanpa kebutuhan operasional, deskripsi berulang yang menjelaskan hal yang sudah jelas dari judulnya, subtitle pada tiap kartu tanpa fungsi pembeda status, helper text yang tidak membantu keputusan, teks promosi di halaman transaksi/operasional, jargon teknis (_SKU, BOM, COGS, Void, Tenant Context_), judul panjang yang bisa diringkas 2–3 kata, empty state berkalimat panjang (cukup: _"Belum ada produk"_ + tombol aksi).
+- **Prinsip Essential-First & 3-Second Glanceability**: Pengguna wajib dapat memahami status kunci dan aksi prioritas dalam 3 detik pertama.
+- **Progressive Disclosure**: Sembunyikan rincian teknis yang kompleks atau jarang diakses ke dalam modal sheet / drawer detail (*Master-Detail*), sehingga antarmuka utama tetap bersih, lapang, dan bernafas.
+
+### B. Mandat Anti-Hyperbole & Integritas Faktual Sistem (Larangan Klaim Dilebih-lebihkan)
+Dilarang keras menyajikan teks, label, metrik, atau slogan yang **dilebih-lebihkan (*overstated / marketing slop / fake claims*)** yang tidak sesuai dengan spesifikasi teknis riil sistem atau data aktual di database:
+- **Dilarang Klaim Teknologi/Fitur Fiktif**: Dilarang menggunakan istilah bombastis seperti *"Mesin AI Quantum 99.999% Akurasi"*, *"Algoritma Otomatis Berkecepatan Cahaya"*, *"Super AI Engine Terintegrasi"*, *"Zero Error Guaranteed"*, atau sebutan fiktif lain yang tidak mencerminkan kapabilitas sistem nyata.
+- **Dilarang Metrik / Estimasi Palsu**: Dilarang menampilkan angka klaim fiktif pada UI operasional (misal: *"Meningkatkan Penjualan 300%"*, *"Dipercaya oleh 100.000 Bisnis"*, *"Penghematan Biaya 100%"*).
+- **Wajib Data Riil & Matematis**: Seluruh angka KPI, nominal moneter, persentase pertumbuhan, sisa stok, status perangkat keras, dan waktu proses wajib bersumber dari kalkulasi database aktual dengan format angka presisi (`tabular-nums`).
+
+### C. Mandat Perlindungan Kredensial di UI (Zero Plaintext Credential Exposure)
+Dilarang keras menampilkan informasi kredensial sensitif atau rahasia sistem secara terbuka (*plain text*) di antarmuka publik maupun dashboard operasional:
+- **Kredensial yang Wajib Dilindungi**: API Keys, Secret Tokens, Private Keys, Password akun/staf, PIN Kasir, Supervisor PIN, Webhook Secrets, SMTP Password, dan detail kartu perbankan pelanggan.
+- **Standar Masking Keamanan**: Kredensial pada form pengaturan integrasi wajib tertutup secara default menggunakan masking titik tebal (`••••••••••••••••` atau `sk-live-••••••••1234`).
+- **Toggle Visibility Terkontrol**: Tombol intip (*eye icon* / Show-Hide) hanya boleh tersedia pada form konfigurasi untuk peran berotorisasi tinggi (Superadmin/Owner), dan tidak boleh merender token rahasia ke HTML publik atau atribut dataset JavaScript tanpa enkripsi/masking. Struk POS dan log publik dilarang memuat data sensitif.
 
 Prioritas konten UI: **Wajib** (agar user paham data/selesaikan tugas) → **Membantu** (konteks penting/cegah kesalahan) → **Opsional** (hanya di modal sheet saat diminta) → **Tidak perlu** (hapus seketika).
 
-Contoh microcopy lugas:
-| Kurang baik | Lebih baik |
+Contoh microcopy lugas & padat:
+| Kurang baik (Bertele-tele / Hiperbola) | Lebih baik (Sederhana, Padat, Jelas) |
 |---|---|
-| "Silakan melakukan proses penyimpanan data produk yang telah Anda masukkan." | **"Simpan Produk"** |
-| "Anda belum memiliki data produk yang dapat ditampilkan pada halaman ini." | **"Belum ada produk."** |
-| "Apakah Anda benar-benar yakin ingin melanjutkan proses penghapusan data ini?" | **"Hapus produk ini?"** |
+| "Silakan melakukan proses penyimpanan data produk canggih yang telah Anda masukkan ke dalam sistem kami." | **"Simpan Produk"** |
+| "Anda saat ini belum memiliki data produk yang dapat ditampilkan pada tabel ringkasan halaman ini." | **"Belum ada produk."** |
+| "Apakah Anda benar-benar yakin 100% ingin melanjutkan proses penghapusan permanen data ini dari server?" | **"Hapus produk ini?"** |
+| "Mesin Otomasi AI Mutakhir memproses sinkronisasi data secara instan tanpa batas." | **"Sinkronisasi Data Otomatis"** |
 
 **Tombol Aksi Lugas**: tombol adalah pemicu aksi, bukan tempat mengulang judul kartu/halaman.
 
@@ -292,4 +309,49 @@ Penggabungan wajib disertai rute redirect/alias untuk URL lama dan melewati Inte
       </button>
   </div>
   ```
+
+---
+
+## 18. Spesifikasi UI Indikator Kuota Subscription, Entitas Terkunci (Gembok), & Storage Pruning Previewer
+
+### A. Indikator Kuota & Badge Entitas Terkunci Limitasi Plan (*Resource Gating UI*)
+Ketika kuota plan tercapai atau merchant melakukan downgrade (misal: produk ke-51 s/d 1.000 pada plan Standard):
+1. **Banner Peringatan Kuota Lapang**:
+   - Di atas tabel katalog produk/karyawan/cabang:
+     ```html
+     <div class="rounded-[18px] bg-amber-500/10 border border-amber-500/20 p-4 flex items-center justify-between gap-4">
+         <div class="flex items-center gap-3 min-w-0">
+             <div class="w-9 h-9 rounded-[10px] bg-amber-500/15 text-amber-600 flex items-center justify-center shrink-0">
+                 <i data-lucide="lock" class="w-4 h-4"></i>
+             </div>
+             <div class="min-w-0">
+                 <p class="text-[13px] sm:text-[14px] font-semibold text-amber-950 dark:text-amber-200">
+                     Batas Kuota Paket Standar: 50 Produk Aktif
+                 </p>
+                 <p class="text-[12px] text-amber-800/80 dark:text-amber-300/70 truncate">
+                     950 produk lainnya sementara dinonaktifkan dari POS & Toko Online. Data Anda tetap aman.
+                 </p>
+             </div>
+         </div>
+         <a href="/billing/packages" class="px-3.5 py-2 rounded-[10px] bg-[#007AFF] text-white text-[12px] font-semibold hover:brightness-105 active:scale-95 transition-all shrink-0">
+             Upgrade Paket
+         </a>
+     </div>
+     ```
+2. **Badge Status Entitas Terkunci (Tabel Produk/Master)**:
+   - Produk yang melebihi kuota ditandai dengan badge: `inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-zinc-500/10 text-zinc-600 dark:text-zinc-300 border border-zinc-500/20`.
+   - Menggunakan ikon Lucide `lock` (`w-3 h-3`) + label *"Terkunci (Limitasi Plan)"*.
+
+### B. Modal Sheet Full-Size Data Pruning Previewer (`/settings/storage`)
+Ketika Owner ingin memangkas penggunaan storage dan menghapus log audit/komunikasi lama:
+1. **Ukuran Modal**: Full-Size XXL (`max-w-[95vw] lg:max-w-5xl xl:max-w-6xl mx-auto rounded-[24px] max-h-[92vh]`).
+2. **Komponen Header**: Judul "Pratinjau Pembersihan Data Penyimpanan", deskripsi jenis data yang dipilih.
+3. **Bento Stat Grid**:
+   - Kartu 1: *Total Baris Data Dihapus* (`14.250 Record`, `tabular-nums font-bold text-2xl`).
+   - Kartu 2: *Estimasi Ruang Penyimpanan Dihemat* (`145 MB Dibebaskan`, warna hijau emerald `text-emerald-600`).
+   - Kartu 3: *Cakupan Tanggal* (`01 Jan 2025 – 31 Des 2025`).
+4. **Tabel Sampel Data Teratas**: Menampilkan 10 record teratas yang akan dibersihkan agar user yakin data yang dihapus memang log lawas.
+5. **Pemberitahuan Penenang Jiwa (*No-Panic Microcopy*)**:
+   - `info` Lucide box: *"Tenang: Pembersihan log aktivitas lama tidak akan pernah menghapus data transaksi penjualan, nota kasir, faktur invoice, atau laporan keuangan pembukuan Anda."*
+6. **Sticky Action Footer**: Tombol `[ Batal ]` dan tombol destruktif konfirmasi berotorisasi `[ Bersihkan 145 MB Sekarang ]` (merah taktil, 48px).
 

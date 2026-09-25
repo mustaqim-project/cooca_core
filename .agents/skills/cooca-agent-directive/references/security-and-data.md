@@ -1,6 +1,6 @@
 # COOCA - Keamanan, Data, & Matriks Audit Kesenjangan (Referensi Lengkap)
 
-## 1. Jaminan Integritas Finansial (Non-Destruktif)
+## 1. Jaminan Integritas Finansial, Keamanan Data, & No Data Punishment
 
 **Dilarang tanpa persetujuan eksplisit**:
 
@@ -11,6 +11,13 @@
 - Memodifikasi nilai transaksi pada nota/invoice/PO/penerimaan barang yang berstatus **selesai/paid**.
 - Menghapus data produksi atau mengubah status transaksi selesai.
 - Mengubah struktur database yang berisiko.
+- **DILARANG MENGHAPUS DATA TENANT SAAT DOWNGRADE PAKET (*No Data Punishment*)**:
+  - Jika masa langganan habis atau tenant beralih ke plan dengan kuota lebih kecil (misal Prestige $\rightarrow$ Standard), sistem **DILARANG KERAS** menghapus produk, resep, atau data master yang melebihi kuota.
+  - Data yang melebihi kuota hanya di-suspend sementara dari kanal penjualan (POS & Toko Online) dan wajib di-unlock otomatis saat langganan diperpanjang kembali.
+- **GUARDRAILS KEAMANAN PEMBERSIHAN DATA (*Data Pruning Safety Guardrails*)**:
+  - Fitur pembersihan storage / database mandiri HANYA diizinkan untuk data log lawas (`audit_logs`, `whatsapp_logs`, `notification_logs`), file gambar yatim (*orphan media*), dan keranjang draf kedaluwarsa.
+  - Dilarang keras mem-prune atau menghapus data transaksi penjualan POS, nota kasir, faktur B2B, mutasi jurnal akuntansi, atau buku besar keuangan.
+  - Seluruh eksekusi pruning wajib didahului **Preview Rincian Data (Jumlah baris & Estimasi MB dihemat)** dan konfirmasi dua langkah Owner.
 
 Semua perubahan finansial wajib dianalisis dan diuji secara khusus sebelum implementasi.
 
@@ -29,12 +36,17 @@ $products = Product::all();
 
 **Dilarang** membypass middleware keamanan inti: `auth:web`, `auth:admin`, `auth:customer`, `wa.otp`, `business.active`, `verified`, `require.permission:*`, `require.role:*`, `entitlement:*`.
 
-## 3. Integritas Formulir & Proteksi Eksploitasi
+## 3. Integritas Formulir, Proteksi Eksploitasi & Zero Credential Exposure
 
 - Setiap `<form>` wajib mempertahankan `@csrf`. Form `PUT`/`PATCH`/`DELETE` wajib `@method('PUT')` dst.
 - Dilarang melemahkan validasi input (`required`, `numeric`, `min`, `max`, `exists`, `unique`).
 - Dilarang memasukkan input mentah ke `DB::raw` tanpa parameter binding aman (cegah SQL Injection).
 - Dilarang merender output HTML belum di-escape - gunakan `{{ $var }}` default Blade, hindari `{!! !!}` kecuali HTML yang sudah tersanitasi.
+- **Zero Plaintext Credential Exposure di UI & Frontend**:
+  - Dilarang keras menampilkan API Keys, Secret Tokens, Private Keys, Passwords, PIN Kasir / Supervisor PIN, atau Webhook Signature Secrets secara terbuka (*plain text*) di tampilan web publik, dashboard, tabel data, ataupun inspektor DOM JavaScript.
+  - Nilai rahasia pada halaman konfigurasi wajib di-mask secara default (`••••••••••••••••` atau format terpotong aman `sk-live-••••••••1234`).
+  - Properti rahasia pada Eloquent Model WAJIB dimasukkan ke properti `protected $hidden = [...]` agar tidak bocor via serialisasi JSON/AJAX API response.
+  - Struk kasir fisik maupun digital dilarang memuat informasi kartu kredit/debit lengkap atau data autentikasi sensitif pelanggan.
 
 ## 4. Larangan Penghapusan Sepihak (Zero Silent Deletions)
 
@@ -42,7 +54,7 @@ Penghapusan/penggabungan route lama **wajib** menyediakan redirect atau alias ru
 
 ## 5. Checklist Audit Keamanan Umum
 
-Setiap perubahan wajib diperiksa terhadap: Authentication, Authorization, Role & permission, IDOR, CSRF, Mass assignment, Validasi request, SQL Injection, XSS, Upload berbahaya, Route exposure, Privilege escalation, Webhook security, API security, Rate limiting, Audit log, Isolasi perusahaan & cabang, Kebocoran data antar pengguna/cabang.
+Setiap perubahan wajib diperiksa terhadap: Authentication, Authorization, Role & permission, IDOR, CSRF, Mass assignment, Validasi request, SQL Injection, XSS, Upload berbahaya, Route exposure, Privilege escalation, Webhook security, API security, Rate limiting, Audit log, Isolasi perusahaan & cabang, Kebocoran data antar pengguna/cabang, dan **Perlindungan Kredensial Sensitif di UI/API Response**.
 
 > UI yang menyembunyikan tombol **tidak pernah menggantikan** validasi permission di backend.
 
