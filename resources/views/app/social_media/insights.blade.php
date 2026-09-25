@@ -194,7 +194,7 @@
                                     </td>
                                     <td class="py-3.5 px-3 whitespace-nowrap">
                                         <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-bold
-                                            {{ $post->platform === 'facebook' ? 'bg-[#1877F2]/10 text-[#1877F2]' : ($post->platform === 'instagram' ? 'bg-[#E1306C]/10 text-[#E1306C]' : 'bg-black/10 dark:bg-white/10 text-black dark:text-white') }}">
+                                            {{ $post->platform === 'facebook' ? 'bg-[#1877F2]/10 text-[#1877F2]' : ($post->platform === 'instagram' ? 'bg-[#E1306C]/10 text-[#E1306C]' : ($post->platform === 'linkedin' ? 'bg-[#0A66C2]/10 text-[#0A66C2]' : 'bg-black/10 dark:bg-white/10 text-black dark:text-white')) }}">
                                             <span>{{ ucfirst($post->platform) }}</span>
                                         </span>
                                     </td>

@@ -54,6 +54,105 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 
 - Pengetahuan yang dipromosikan ke `docs/system/` dan dampaknya pada `docs/SYSTEM_GUIDE.md`.
 
+### [WORK-2026-09-25-142] Integrasi LinkedIn Developer Platform (OAuth 2.0 OpenID Connect & UGC Post Publishing API v2) dengan Penjadwalan Konten Multi-Saluran
+
+- **Date:** 2026-09-25
+- **Status:** COMPLETED
+- **Module:** Social Media & Marketing (`app/Domain/SocialMedia/`, `resources/views/admin/settings/`, `resources/views/admin/social_media/`, `resources/views/app/social_media/`, `tests/Feature/SocialMedia/`)
+- **Feature:** LinkedIn 1-Click Connect, UGC Post Publishing (Text & Images), Auto-Refresh Token, Multi-Channel Scheduling, Zero-Env Dynamic Configuration
+- **Work Type:** Feature | API Integration | Security & Encryption | UI/UX | Automated Testing
+
+#### 1. Business Context & Objective
+
+- **Konteks:** Pedagang/merchant COOCA membutuhkan kemampuan memperluas jangkauan promosi, employer branding, kemitraan B2B, dan publikasi materi bisnis ke LinkedIn selain ekosistem Meta (Facebook, Instagram, Threads) dan TikTok.
+- **Masalah/Target:** Mengintegrasikan LinkedIn Developer App dengan kredensial resmi (Client ID: `868wurbnxke9xg`, Primary Client Secret: `WPL_AP1.T6CrhB0PHBB6XA3T.ddwN2A==`), menyediakan Authorized Redirect URLs yang aman untuk portal LinkedIn Developer (`https://cooca.id/social-media/linkedin/callback` & lokal `http://127.0.0.1:9871/social-media/linkedin/callback`), serta mengaktifkan penjadwalan konten otomatis (cron-driven & immediate publishing) dengan isolasi multi-tenant yang ketat.
+
+#### 2. What Was Done
+
+1. **Domain Client & Provider:**
+   - Membangun `LinkedInClient` dengan dukungan OAuth 2.0 Auth Code flow (`openid profile email w_member_social`), OpenID UserInfo (`/v2/userinfo`), Digital Media Asset upload (`/v2/assets?action=registerUpload`), upload biner gambar, dan UGC Post creation (`/v2/ugcPosts`).
+   - Membangun `LinkedInProvider` mengimplementasikan `SocialMediaProviderInterface` lengkap dengan metode `getAuthUrl`, `handleAuthCallback`, `refreshToken`, `publish`, `getCreatorInfo`, dan `syncMetrics`.
+   - Menghubungkan `LinkedInProvider` ke `SocialMediaManager` dengan mapping channel `'linkedin'`.
+2. **Kredensial & Konfigurasi Superadmin:**
+   - Menyediakan persistensi terenkripsi (AES-256) pada `system_settings` (`linkedin_client_id`, `linkedin_client_secret`, `linkedin_api_url`, `linkedin_auth_url`) dengan fallback konfigurasi `config/services.php` dan `.env`.
+   - Menambahkan Bento Card 4 (LinkedIn Developer Platform) pada Admin Settings (`tab-social.blade.php`) lengkap dengan live testing diagnostics dan kotak salin Authorized Redirect URI.
+   - Menambahkan status koneksi LinkedIn dan filter 5-channel pada Admin Social Media Center (`resources/views/admin/social_media/index.blade.php`).
+3. **Merchant Onboarding & Omnichannel Composer:**
+   - Menambahkan kartu 1-Click Onboarding LinkedIn resmi pada `resources/views/app/social_media/index.blade.php` via `route('social-media.linkedin.connect')`.
+   - Memperbarui `resources/views/app/social_media/posts.blade.php` dengan checkbox saluran LinkedIn, badge platform, filter dropdown, override caption khusus LinkedIn, dan penentuan jadwal independen per saluran.
+   - Mendukung badge ikon LinkedIn pada Kalender Konten (`calendar.blade.php`) dan Insight Analitik (`insights.blade.php`).
+4. **Automated Testing & Security:**
+   - Menulis test suite lengkap `LinkedInOAuthAndPublishingTest.php` (8 tests, 48 assertions) mencakup proteksi CSRF state session, penanganan user denial, persistensi token terenkripsi, direct post publishing, cron job execution, dan pengujian isolasi tenant lintas bisnis.
+
+#### 3. Technical Changes
+
+- **Files Added:**
+  - `app/Domain/SocialMedia/Clients/LinkedInClient.php`
+  - `app/Domain/SocialMedia/Providers/LinkedInProvider.php`
+  - `tests/Feature/SocialMedia/LinkedInOAuthAndPublishingTest.php`
+- **Files Modified:**
+  - `config/services.php`
+  - `.env` & `.env.example`
+  - `app/Models/SocialMediaAccount.php`
+  - `routes/owner.php`
+  - `app/Domain/SocialMedia/SocialMediaManager.php`
+  - `app/Domain/SocialMedia/Validation/SocialMediaContentValidator.php`
+  - `app/Domain/SocialMedia/SocialMediaService.php`
+  - `app/Domain/SocialMedia/AdminSocialMediaService.php`
+  - `app/Http/Controllers/Admin/AdminSettingController.php`
+  - `app/Http/Controllers/Web/SocialMedia/SocialMediaWebController.php`
+  - `resources/views/admin/settings/index.blade.php`
+  - `resources/views/admin/settings/tabs/tab-social.blade.php`
+  - `resources/views/admin/social_media/index.blade.php`
+  - `resources/views/app/social_media/index.blade.php`
+  - `resources/views/app/social_media/posts.blade.php`
+  - `resources/views/app/social_media/calendar.blade.php`
+  - `resources/views/app/social_media/insights.blade.php`
+
+#### 4. System Impacts
+
+- **Omnichannel Coverage:** Menjadikan COOCA mendukung 5 kanal sosial resmi: Facebook Page, Instagram Business, Threads, TikTok Content Posting, dan LinkedIn UGC Post.
+- **Background Publishing Engine:** Engine `social_post_targets` dan `social-media:publish-scheduled` cron secara otomatis mengeksekusi posting LinkedIn terjadwal tanpa jeda manual.
+
+#### 5. Verification & Testing
+
+- `php artisan test --filter=LinkedIn`: 8/8 passed (48 assertions).
+- `php artisan test tests/Feature/SocialMedia`: 52/52 passed (322 assertions).
+- `php artisan test tests/Feature/RouteAuditTest.php`: 3/3 passed (3 assertions).
+
+---
+
+### [WORK-2026-09-25-141] Audit & Perbaikan Komprehensif Seluruh Route Aplikasi (Resolusi 500 Error pada POS Terminal, Analytics Query, dan Perapihan Sesi Lokal)
+
+- **Date:** 2026-09-25
+- **Status:** COMPLETED
+- **Module:** Core Architecture & Routing (`app/Http/Controllers/Web/Pos/PosTerminalWebController.php`, `app/Http/Controllers/Web/AnalyticsWebController.php`, `tests/Feature/RouteAuditTest.php`, `.env`)
+- **Feature:** Pengujian dan Pemulihan Aksesibilitas 100% Seluruh Route Web, Sidebar, Admin, dan Publik
+- **Work Type:** Bug Fix | Routing Audit | Database Compatibility | Automated Testing
+
+#### 1. Business Context & Objective
+- **Konteks:** Menjawab keluhan pengguna bahwa saat rute diakses melalui browser/server lokal (`http://127.0.0.1:9871`) terjadi error. Dilakukan audit menyeluruh terhadap 1.031 rute aplikasi untuk mengidentifikasi dan membereskan akar penyebab error secara tuntas.
+- **Masalah/Target:**
+  1. Mengaudit seluruh rute di sidebar (74 route names unik), rute publik/marketing, dan rute panel admin superadmin.
+  2. Memperbaiki `Fatal Error / 500` pada rute `pos.terminal` akibat hilangnya import model `User` dan variabel `$posShowProductImages`.
+  3. Memperbaiki query analitik pada rute `analytics.index` akibat kolom `payment_method` dan `unit_hpp_cost` yang salah referensi (dialihkan ke relasi `PosOrderPayment` dan kolom `unit_cost_hpp`), serta kompatibilitas fungsi SQL lintas driver database (`HOUR` / `DATE_FORMAT`).
+  4. Menjamin ketersediaan akun superadmin & demo bisnis (`AdminSeeder`, `UserSeeder`, `RbacSeeder`, `DefaultUnitSeeder`) dan merapikan konfigurasi `SESSION_DOMAIN` untuk lingkungan lokal.
+
+#### 2. What Was Done
+1. **Perbaikan POS Cashier Terminal (`app/Http/Controllers/Web/Pos/PosTerminalWebController.php`):**
+   - Menambahkan import model `use App\Models\User;`.
+   - Menginisialisasi variabel `$posShowProductImages = (bool) ($business->pos_show_product_images ?? true);` dan mempertahankan `$hideCostFromCashier`.
+2. **Perbaikan Analytics Controller (`app/Http/Controllers/Web/AnalyticsWebController.php`):**
+   - Mengganti referensi kolom `pos_order_items.unit_hpp_cost` menjadi `pos_order_items.unit_cost_hpp`.
+   - Memperbaiki distribusi metode pembayaran pada `buildPaymentMethods` dengan melakukan query ke model `PosOrderPayment` (relasi pembayaran aktual pada `pos_order_payments`), bukan ke kolom `payment_method` pada tabel `pos_orders`.
+   - Menambahkan fungsi SQL driver-aware untuk agregasi jam (`HOUR` / `strftime`).
+3. **Pembersihan Konfigurasi Sesi Lokal (`.env`):**
+   - Menonaktifkan duplikat `SESSION_DOMAIN=.cooca.id` pada `.env` agar sesi dan proteksi CSRF di lingkungan lokal `127.0.0.1` / `localhost` berjalan normal.
+4. **Pembuatan Automated Test Suite Komprehensif (`tests/Feature/RouteAuditTest.php`):**
+   - Menguji seluruh 74 rute sidebar, rute publik, dan rute admin dengan hasil `3/3 passed (100%)`.
+
+---
+
 ### [WORK-2026-09-25-140] Redesain Halaman Registrasi Terpusat (Single Centered Card, Eliminasi Right Column & 2-Column Grid Skala Bisnis Mobile/Desktop)
 
 - **Date:** 2026-09-25

@@ -1,37 +1,64 @@
-# Modul Media Sosial & Integrasi Platform Meta / TikTok
+# Modul Media Sosial & Integrasi Platform Meta / TikTok / LinkedIn
 
 > **Layer 2: System Knowledge Document**  
-> **Ruang Lingkup:** Integrasi Meta Graph API (Instagram Professional & Facebook Pages), Threads API, dan TikTok Open API untuk Superadmin Platform Cooca dan Tenant UMKM.
+> **Ruang Lingkup:** Integrasi Meta Graph API (Instagram Professional, Facebook Pages, Threads), TikTok Content Posting API, dan LinkedIn Developer Platform (OAuth 2.0 OpenID Connect & UGC Post Publishing) untuk Superadmin Platform Cooca dan Tenant UMKM.
 
 ---
 
 ## 1. Arsitektur & Peran Modul
 
 Modul Media Sosial melayani dua domain utama:
-1. **Platform Center (Superadmin Cockpit)**: Publikasi konten resmi Cooca Indonesia (`@cooca.indonesia` dan Facebook Page `Cooca Indonesia`), manajemen kotak masuk interaksi/komentar, serta dasbor analitik & pertumbuhan organik.
-2. **Merchant Hub (Tenant UMKM)**: Penautan akun bisnis merchant, penerbitan katalog produk & promo, serta moderasi komentar.
+1. **Platform Center (Superadmin Cockpit)**: Publikasi konten resmi Cooca Indonesia (`@cooca.indonesia`, Facebook Page `Cooca Indonesia`, TikTok, dan LinkedIn), manajemen kotak masuk interaksi/komentar, konfigurasi kredensial platform dinamis, serta dasbor analitik & pertumbuhan organik.
+2. **Merchant Hub (Tenant UMKM)**: Penautan akun bisnis merchant (Meta 1-Klik, TikTok 1-Klik, LinkedIn 1-Klik), Unified Omnichannel Composer, penjadwalan konten multi-saluran, auto-refresh token, dan moderasi komentar.
 
 ---
 
-## 2. Format Konten yang Didukung
+## 2. Platform & Provider Matrix
 
-Sistem mendukung tiga format utama penerbitan konten ke Meta Graph API v26.0:
-1. **Postingan Feed (`IMAGE` / `CAROUSEL` / `TEXT`)**:
-   - Foto tunggal atau album carousel (2 hingga 10 berkas).
-   - Teks caption lengkap (hingga 2.200 karakter) dan tagar.
-2. **Reels Video (`REELS`)**:
-   - Video vertikal aspek rasio 9:16 (format `.mp4` atau `.mov`).
-   - Parameter Meta: `media_type=REELS`, `share_to_feed=true`, dan `caption`.
-   - Waktu pemrosesan kontainer asynchronous transkoding otomatis dipantau (`waitForMediaContainerReady`) hingga status `FINISHED`.
-   - Pada Facebook Page, video vertikal otomatis terintegrasi ke ekosistem video/reels halaman.
-3. **Instagram Story (`STORIES`)**:
-   - Konten tayang 24 jam berupa foto atau video pendek.
-   - Parameter Meta: `media_type=STORIES`, `image_url` atau `video_url`.
-   - **Catatan Spesifikasi API:** Meta Graph API melarang pengiriman parameter `caption` untuk format Story. Sistem secara otomatis mensterilkan caption saat mempublikasikan ke Stories.
+| Platform | Provider Key | Protokol Autentikasi | Scopes / Izin Resmi | Fitur yang Didukung |
+| :--- | :--- | :--- | :--- | :--- |
+| **Facebook Pages** | `meta` | OAuth 2.0 (Long-lived Page Token) | `pages_show_list`, `pages_read_engagement`, `pages_manage_posts` | Feed text, image, video, auto-purge storage |
+| **Instagram Business** | `meta` | Meta Graph API (Instagram Login) | `instagram_basic`, `instagram_content_publish`, `instagram_manage_comments`, `instagram_manage_insights` | Feed photo, carousel (2-10 items), Reels (9:16), live analytics |
+| **Threads** | `meta` | Threads API (`graph.threads.net`) | `threads_basic`, `threads_content_publish` | Text, image, video |
+| **TikTok** | `tiktok` | Open API v2 Auth Code (PKCE/State) | `user.info.basic`, `video.publish`, `video.upload` | Direct video posting, photo carousel, auto token refresh |
+| **LinkedIn** | `linkedin` | OAuth 2.0 OpenID Connect | `openid`, `profile`, `email`, `w_member_social` | UGC Post feed text, image attachment via Digital Media Asset API (`/v2/assets?action=registerUpload`), OpenID UserInfo (`/v2/userinfo`) |
 
 ---
 
-## 3. Kebijakan Privasi & Pengecualian Meta Ads
+## 3. Konfigurasi LinkedIn Developer Portal
+
+### Kredensial Resmi
+- **Client ID:** `868wurbnxke9xg`
+- **Primary Client Secret:** `WPL_AP1.T6CrhB0PHBB6XA3T.ddwN2A==`
+- **Penyimpanan:** `system_settings` (Terenkripsi AES-256 via Laravel APP_KEY) dengan fallback ke `config('services.linkedin')` & `.env`.
+
+### Authorized Redirect URLs (LinkedIn Developer Portal -> Auth Tab)
+1. **Produksi (Live HTTPS):** `https://cooca.id/social-media/linkedin/callback`
+2. **Pengembangan Lokal (Development):** `http://127.0.0.1:9871/social-media/linkedin/callback`
+
+---
+
+## 4. Engine Penjadwalan Konten Multi-Saluran (Omnichannel)
+
+1. **Alur Kerja Pembuatan Konten:**
+   - Merchant memilih satu atau lebih target akun (`target_accounts[]`).
+   - Format: `photo`, `carousel`, `video`, `reels`, atau `text`.
+   - Waktu Publikasi:
+     - `all_now`: Eksekusi serentak saat tombol submit ditekan.
+     - `all_same`: Seluruh saluran terpilih dijadwalkan pada waktu global yang sama (`scheduled_at`).
+     - `per_channel`: Setiap saluran memiliki waktu dan mode independen (`channel_schedule_modes`, `channel_scheduled_at`).
+2. **Eksekusi Penjadwalan Otomatis:**
+   - Entri dibuat pada tabel `social_post_targets` dengan `status = 'scheduled'` dan timestamp `scheduled_at`.
+   - Scheduler Laravel mengeksekusi `social-media:publish-scheduled` setiap menit:
+     ```php
+     Schedule::command('social-media:publish-scheduled')->everyMinute()->withoutOverlapping();
+     ```
+   - Perintah ini mencari target berstatus `scheduled` dengan `scheduled_at <= now()`, mengubah status ke `processing`, dan mendispatch `PublishSocialMediaTargetJob::dispatch($target->id)`.
+   - Job mengeksekusi API provider spesifik (`MetaProvider`, `TikTokProvider`, `LinkedInProvider`), menyimpan ID eksternal pada `platform_post_id`, mengisi `published_at`, dan menyinkronkan status pos induk via `post->syncStatusFromTargets()`.
+
+---
+
+## 5. Kebijakan Privasi & Nol Meta Ads
 
 > [!IMPORTANT]
 > **Kebijakan Nol Meta Ads:**  
@@ -40,20 +67,10 @@ Sistem mendukung tiga format utama penerbitan konten ke Meta Graph API v26.0:
 
 ---
 
-## 4. Analitik & Metrik Live
+## 6. Analitik & Metrik Live
 
-Dasbor Analitik Platform Admin Center (`tab=analytics`) menyediakan metrik real-time:
-- **Profil Instagram**: Followers count, follows count, total media count, dan info profil terverifikasi.
+Dasbor Analitik Platform Admin Center (`tab=analytics`) dan Merchant Insights menyediakan metrik real-time:
+- **Profil & Pengikut**: Followers count, follows count, total media count, dan info profil terverifikasi.
 - **Batas Kuota Publikasi API**: Pemantauan kuota harian dari endpoint Meta `/content_publishing_limit` (maksimum 25 pos per 24 jam).
-- **Interaksi & Engagement Rate**: Kalkulasi otomatis persentase interaksi dari total likes dan komentar pada 15 postingan/reels terbaru terhadap basis pengikut.
-- **Halaman Facebook**: Kategori halaman, jumlah fans/pengikut, serta talking about count.
-- **Caching Cerdas**: Hasil analitik dicache selama 10 menit dengan tombol **"Segarkan Data Live"** (`?refresh_analytics=1`) untuk update instan tanpa menunggu kedaluwarsa cache.
-
----
-
-## 5. Kredensial & Autentikasi Meta
-
-- `social_media_app_token`: User access token berjangka panjang.
-- `social_media_page_token`: Page access token permanen Halaman Facebook `Cooca Indonesia` (`1340316975827711`).
-- `instagram_access_token`: Token akses Instagram yang ditautkan ke akun profesional `@cooca.indonesia` (`17841439846162016`).
-- Command utilitas penyegaran konfigurasi: `php artisan instagram:configure`.
+- **Interaksi & Engagement Rate**: Kalkulasi otomatis persentase interaksi dari total likes dan komentar terhadap basis pengikut.
+- **Caching Cerdas**: Hasil analitik dicache selama 10 menit dengan tombol **"Segarkan Data Live"** (`?refresh_analytics=1`).

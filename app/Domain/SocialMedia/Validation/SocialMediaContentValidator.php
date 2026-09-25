@@ -19,6 +19,7 @@ class SocialMediaContentValidator
         'instagram' => 2200,
         'threads'   => 500,
         'tiktok'    => 2200,
+        'linkedin'  => 3000,
     ];
 
     /**
@@ -65,6 +66,7 @@ class SocialMediaContentValidator
         'instagram' => ['photo', 'carousel', 'reel', 'story'],
         'threads'   => ['text', 'image', 'video'],
         'tiktok'    => ['video', 'photo'],
+        'linkedin'  => ['feed', 'photo', 'video', 'text'],
     ];
 
     /**

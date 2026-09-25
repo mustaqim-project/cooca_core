@@ -641,6 +641,10 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
             Route::get('/tiktok/connect', [SocialMediaWebController::class, 'getTikTokAuthUrl'])->name('tiktok.connect');
             Route::get('/tiktok/callback', [SocialMediaWebController::class, 'handleTikTokCallback'])->name('tiktok.callback');
 
+            // LinkedIn OAuth 2.0 Connect & Callback
+            Route::get('/linkedin/connect', [SocialMediaWebController::class, 'getLinkedInAuthUrl'])->name('linkedin.connect');
+            Route::get('/linkedin/callback', [SocialMediaWebController::class, 'handleLinkedInCallback'])->name('linkedin.callback');
+
             // Posts, Targets & Publishing
             Route::get('/posts', [SocialMediaWebController::class, 'posts'])->name('posts.index');
             Route::post('/posts', [SocialMediaWebController::class, 'storePost'])->middleware('entitlement:social_post')->name('posts.store');

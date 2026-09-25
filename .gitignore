@@ -75,6 +75,7 @@ whatsapp-web.js/
 
 /storage/framework/views/*
 !/storage/framework/views/.gitignore
+/storage/framework/*.php
 
 /storage/logs/*
 !/storage/logs/.gitignore

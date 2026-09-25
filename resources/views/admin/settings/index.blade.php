@@ -11,6 +11,7 @@
         showPassword: false,
         showMetaSecret: false,
         showTikTokSecret: false,
+        showLinkedInSecret: false,
         showIgSecret: false,
         showIgToken: false,
         showFbPageToken: false,
@@ -24,6 +25,7 @@
         copiedCustomer: false,
         copiedWebhook: false,
         copiedTikTokRedirect: false,
+        copiedLinkedInRedirect: false,
         copiedTripayCallback: false,
         copiedWaWebhook: false,
         copiedBiteshipWebhook: false,
@@ -47,6 +49,9 @@
                 } else if (type === 'tiktok') {
                     this.copiedTikTokRedirect = true;
                     setTimeout(() => this.copiedTikTokRedirect = false, 2000);
+                } else if (type === 'linkedin') {
+                    this.copiedLinkedInRedirect = true;
+                    setTimeout(() => this.copiedLinkedInRedirect = false, 2000);
                 } else if (type === 'tripay') {
                     this.copiedTripayCallback = true;
                     setTimeout(() => this.copiedTripayCallback = false, 2000);

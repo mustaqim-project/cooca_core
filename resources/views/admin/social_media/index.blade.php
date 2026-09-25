@@ -13,10 +13,8 @@
                     <i data-lucide="share-2" class="w-6 h-6"></i>
                 </div>
                 <div class="min-w-0 flex-1">
-                    <h1 class="text-[20px] sm:text-[24px] font-bold text-black dark:text-white tracking-tight truncate">Media
-                        Sosial Platform Admin Center</h1>
-                    <p class="text-[12.5px] sm:text-[13px] text-black/55 dark:text-white/55 mt-0.5 truncate">Pusat publikasi
-                        konten resmi Cooca, kotak masuk interaksi, integrasi provider, dan pengawasan merchant</p>
+                    <h1 class="text-[20px] sm:text-[24px] font-bold text-black dark:text-white tracking-tight truncate">Media Sosial Platform Admin Center</h1>
+                    <p class="text-[12.5px] sm:text-[13px] text-black/55 dark:text-white/55 mt-0.5 truncate">Pusat publikasi konten resmi Cooca, kotak masuk interaksi, integrasi provider, dan pengawasan merchant</p>
                 </div>
             </div>
 
@@ -185,7 +183,7 @@
                 </div>
 
                 {{-- Status Channel Grid --}}
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
                     <div
                         class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] flex items-center gap-3">
                         <div
@@ -229,6 +227,22 @@
                                 API</span>
                             <div class="text-[13px] font-bold text-black dark:text-white truncate">
                                 {{ !empty($platform['tiktok_client_key']) ? 'OAuth 2.0 PKCE Siap' : 'Belum Konfigurasi' }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div
+                        class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06] flex items-center gap-3">
+                        <div
+                            class="w-10 h-10 rounded-[12px] bg-[#0A66C2]/10 text-[#0A66C2] flex items-center justify-center shrink-0">
+                            <i data-lucide="linkedin" class="w-5 h-5"></i>
+                        </div>
+                        <div class="min-w-0">
+                            <span
+                                class="text-[11px] font-bold uppercase tracking-wider text-black/50 dark:text-white/50 block">LinkedIn
+                                API</span>
+                            <div class="text-[13px] font-bold text-black dark:text-white truncate">
+                                {{ !empty($platform['linkedin_client_id']) ? 'OAuth 2.0 OpenID Siap' : 'Belum Konfigurasi' }}
                             </div>
                         </div>
                     </div>
@@ -324,6 +338,12 @@
                                                                 <i data-lucide="video" class="w-3.5 h-3.5"></i>
                                                                 <span>TikTok</span>
                                                             </span>
+                                                        @elseif($ch === 'linkedin')
+                                                            <span
+                                                                class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[#0A66C2]/10 text-[#0A66C2]">
+                                                                <i data-lucide="linkedin" class="w-3.5 h-3.5"></i>
+                                                                <span>LinkedIn</span>
+                                                            </span>
                                                         @else
                                                             <span
                                                                 class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-black/5 text-black dark:text-white">
@@ -356,6 +376,12 @@
                                                         class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-black/10 dark:bg-white/10 text-black dark:text-white">
                                                         <i data-lucide="video" class="w-3.5 h-3.5"></i>
                                                         <span>TikTok</span>
+                                                    </span>
+                                                @elseif($p->platform === 'linkedin')
+                                                    <span
+                                                        class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[#0A66C2]/10 text-[#0A66C2]">
+                                                        <i data-lucide="linkedin" class="w-3.5 h-3.5"></i>
+                                                        <span>LinkedIn</span>
                                                     </span>
                                                 @else
                                                     <span
@@ -1247,7 +1273,7 @@
                                     x-text="selectedPlatforms.length === allPlatforms.length ? 'Pilih Instagram Saja' : 'Pilih Semua Saluran'"></span>
                             </button>
                         </div>
-                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                        <div class="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
                             {{-- Instagram --}}
                             <label class="flex items-center gap-2 p-3 rounded-[14px] border cursor-pointer transition-all"
                                 :class="selectedPlatforms.includes('instagram') ?
@@ -1313,6 +1339,23 @@
                                 <div class="min-w-0">
                                     <div class="text-[12px] leading-tight">TikTok</div>
                                     <div class="text-[10px] opacity-70">Open API</div>
+                                </div>
+                            </label>
+
+                            {{-- LinkedIn --}}
+                            <label class="flex items-center gap-2 p-3 rounded-[14px] border cursor-pointer transition-all"
+                                :class="selectedPlatforms.includes('linkedin') ?
+                                    'bg-[#0A66C2]/10 border-[#0A66C2] text-[#0A66C2] font-bold shadow-xs' :
+                                    'bg-black/[0.02] dark:bg-white/[0.02] border-black/10 dark:border-white/10 text-black/70 dark:text-white/70'">
+                                <input type="checkbox" name="platforms[]" value="linkedin" x-model="selectedPlatforms"
+                                    class="sr-only">
+                                <div
+                                    class="w-7 h-7 rounded-[8px] bg-[#0A66C2]/15 text-[#0A66C2] flex items-center justify-center shrink-0">
+                                    <i data-lucide="linkedin" class="w-4 h-4"></i>
+                                </div>
+                                <div class="min-w-0">
+                                    <div class="text-[12px] leading-tight">LinkedIn</div>
+                                    <div class="text-[10px] opacity-70">Community</div>
                                 </div>
                             </label>
                         </div>
@@ -1528,8 +1571,9 @@
                                             <div class="flex items-center gap-2">
                                                 <div class="w-6 h-6 rounded-[6px] flex items-center justify-center"
                                                     :class="ch === 'instagram' ? 'bg-[#E1306C]/15 text-[#E1306C]' : (
-                                                        ch === 'facebook' ? 'bg-[#1877F2]/15 text-[#1877F2]' :
-                                                        'bg-black/10 dark:bg-white/15 text-black dark:text-white')">
+                                                        ch === 'facebook' ? 'bg-[#1877F2]/15 text-[#1877F2]' : (
+                                                        ch === 'linkedin' ? 'bg-[#0A66C2]/15 text-[#0A66C2]' :
+                                                        'bg-black/10 dark:bg-white/15 text-black dark:text-white'))">
                                                     <template x-if="ch === 'instagram'"><i data-lucide="instagram"
                                                             class="w-3.5 h-3.5"></i></template>
                                                     <template x-if="ch === 'facebook'"><i data-lucide="facebook"
@@ -1537,6 +1581,8 @@
                                                     <template x-if="ch === 'threads'"><i data-lucide="at-sign"
                                                             class="w-3.5 h-3.5"></i></template>
                                                     <template x-if="ch === 'tiktok'"><i data-lucide="video"
+                                                            class="w-3.5 h-3.5"></i></template>
+                                                    <template x-if="ch === 'linkedin'"><i data-lucide="linkedin"
                                                             class="w-3.5 h-3.5"></i></template>
                                                 </div>
                                                 <span class="text-[12.5px] font-bold capitalize text-black dark:text-white"
@@ -1671,18 +1717,20 @@
                 activeCommentText: '',
                 replyActionUrl: '',
                 selectedPlatforms: ['instagram'],
-                allPlatforms: ['instagram', 'facebook', 'threads', 'tiktok'],
+                allPlatforms: ['instagram', 'facebook', 'threads', 'tiktok', 'linkedin'],
                 channelTiming: {
                     instagram: 'now',
                     facebook: 'now',
                     threads: 'now',
-                    tiktok: 'now'
+                    tiktok: 'now',
+                    linkedin: 'now'
                 },
                 channelScheduledAt: {
                     instagram: '',
                     facebook: '',
                     threads: '',
-                    tiktok: ''
+                    tiktok: '',
+                    linkedin: ''
                 },
                 postCaption: '',
                 postFormat: 'image',

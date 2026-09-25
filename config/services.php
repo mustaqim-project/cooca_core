@@ -68,6 +68,14 @@ return [
         'auth_url'      => env('TIKTOK_AUTH_URL', 'https://www.tiktok.com/v2/auth/authorize/'),
     ],
 
+    'linkedin' => [
+        'client_id'     => env('LINKEDIN_CLIENT_ID', ''),
+        'client_secret' => env('LINKEDIN_CLIENT_SECRET', ''),
+        'redirect_uri'  => env('LINKEDIN_REDIRECT_URI', 'https://cooca.id/social-media/linkedin/callback'),
+        'api_url'       => env('LINKEDIN_API_URL', 'https://api.linkedin.com'),
+        'auth_url'      => env('LINKEDIN_AUTH_URL', 'https://www.linkedin.com/oauth/v2/authorization'),
+    ],
+
     'tripay' => [
         'merchant_code' => env('TRIPAY_MERCHANT_CODE', ''),
         'api_key'       => env('TRIPAY_API_KEY', ''),

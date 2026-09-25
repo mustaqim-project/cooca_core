@@ -223,6 +223,100 @@ class SocialMediaWebController extends Controller
     }
 
     /**
+     * Redirect merchant to LinkedIn OAuth 2.0 Authorization Screen.
+     */
+    public function getLinkedInAuthUrl(Request $request): RedirectResponse
+    {
+        $provider = $this->socialMediaManager->getProvider('linkedin');
+        if (! $provider->isConfigured()) {
+            return redirect()->route('social-media.index')
+                ->with('error', 'Kredensial LinkedIn Developer (Client ID & Client Secret) belum dikonfigurasi oleh Superadmin di Pengaturan Platform.');
+        }
+
+        $state = Str::random(40);
+        $request->session()->put('linkedin_oauth_state', $state);
+
+        try {
+            $redirectUri = route('social-media.linkedin.callback');
+            $authUrl = $provider->getAuthUrl($redirectUri, $state);
+
+            return redirect()->away($authUrl);
+        } catch (\Throwable $e) {
+            return redirect()->route('social-media.index')
+                ->with('error', 'Gagal memulai koneksi LinkedIn: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Handle LinkedIn OAuth 2.0 callback and persist merchant connection.
+     */
+    public function handleLinkedInCallback(Request $request): RedirectResponse
+    {
+        $business = Context::requireBusiness();
+
+        $state = (string) $request->query('state', '');
+        $savedState = (string) $request->session()->pull('linkedin_oauth_state', '');
+
+        if (empty($state) || empty($savedState) || ! hash_equals($savedState, $state)) {
+            return redirect()->route('social-media.index')
+                ->with('error', 'Validasi keamanan OAuth LinkedIn gagal (state tidak valid). Silakan coba lagi.');
+        }
+
+        $code = (string) $request->query('code', '');
+        $error = (string) $request->query('error', '');
+        $errorDesc = (string) $request->query('error_description', '');
+
+        if (! empty($error)) {
+            return redirect()->route('social-media.index')
+                ->with('error', "Otorisasi LinkedIn ditolak atau dibatalkan: {$errorDesc}");
+        }
+
+        if (empty($code)) {
+            return redirect()->route('social-media.index')
+                ->with('error', 'Otorisasi LinkedIn gagal: Authorization code tidak ditemukan.');
+        }
+
+        try {
+            $redirectUri = route('social-media.linkedin.callback');
+            $authData = $this->socialMediaManager->getProvider('linkedin')->handleAuthCallback($code, $redirectUri);
+
+            $memberId = (string) ($authData['open_id'] ?? '');
+            if (empty($memberId)) {
+                throw new \RuntimeException('LinkedIn Member ID (URN) tidak ditemukan dalam respons otorisasi.');
+            }
+
+            // Persist or update LinkedIn account with tenant isolation
+            $account = SocialMediaAccount::updateOrCreate(
+                [
+                    'business_id' => $business->id,
+                    'platform'    => 'linkedin',
+                    'account_id'  => $memberId,
+                ],
+                [
+                    'provider'                 => 'linkedin',
+                    'account_name'             => $authData['account_name'] ?? 'LinkedIn Member',
+                    'username'                 => $authData['username'] ?? ($authData['creator_info']['email'] ?? null),
+                    'profile_picture_url'      => $authData['avatar_url'] ?? null,
+                    'access_token'             => $authData['access_token'],
+                    'refresh_token'            => $authData['refresh_token'] ?? null,
+                    'token_expires_at'         => $authData['expires_at'] ?? now()->addDays(60),
+                    'refresh_token_expires_at' => $authData['refresh_token_expires_at'] ?? now()->addYear(),
+                    'token_type'               => 'bearer',
+                    'status'                   => 'active',
+                    'metadata'                 => $authData['creator_info'] ?? [],
+                    'scopes'                   => $authData['scopes'] ?? ['openid', 'profile', 'email', 'w_member_social'],
+                ]
+            );
+
+            return redirect()->route('social-media.index')
+                ->with('success', "Akun LinkedIn [{$account->account_name}] berhasil dihubungkan ke toko Anda!");
+        } catch (\Throwable $e) {
+            return redirect()->route('social-media.index')
+                ->with('error', 'Gagal menghubungkan akun LinkedIn: ' . $e->getMessage());
+        }
+    }
+
+    /**
      * Content Publishing Feed & Scheduler.
      */
     public function posts(Request $request): View
@@ -452,7 +546,7 @@ class SocialMediaWebController extends Controller
         $hasScheduledTargets = false;
 
         foreach ($accounts as $account) {
-            $provider = $account->provider ?: ($account->platform === 'tiktok' ? 'tiktok' : 'meta');
+            $provider = $account->provider ?: ($account->platform === 'tiktok' ? 'tiktok' : ($account->platform === 'linkedin' ? 'linkedin' : 'meta'));
             $channel = $account->platform;
 
             // Resolve content type for channel
@@ -464,6 +558,8 @@ class SocialMediaWebController extends Controller
                     $contentType = $primaryMediaType === 'video' ? 'video' : 'photo';
                 } elseif ($channel === 'facebook') {
                     $contentType = $primaryMediaType === 'video' ? 'video' : 'feed';
+                } elseif ($channel === 'linkedin') {
+                    $contentType = $primaryMediaType === 'video' ? 'video' : ($primaryMediaType === 'image' || $primaryMediaType === 'photo' ? 'photo' : 'text');
                 } else {
                     $contentType = $primaryMediaType;
                 }
@@ -508,8 +604,8 @@ class SocialMediaWebController extends Controller
         }
 
         // 7. Dispatch or Execute Immediate Targets
-        if (count($immediateTargets) === 1 && $accounts->count() === 1) {
-            // Single target immediate execution
+        if (count($immediateTargets) === 1 && $accounts->count() === 1 && in_array($firstAccount->platform, ['facebook', 'instagram', 'threads'])) {
+            // Single target immediate execution for Meta
             $this->socialService->publishPost($business, $post);
             $immediateTargets[0]->update([
                 'status'           => $post->status,
@@ -518,7 +614,7 @@ class SocialMediaWebController extends Controller
                 'error_message'    => $post->error_message,
             ]);
         } elseif (! empty($immediateTargets)) {
-            // Multi-target immediate dispatch
+            // Multi-target or standalone omnichannel (TikTok, LinkedIn) immediate dispatch
             foreach ($immediateTargets as $immTarget) {
                 \App\Jobs\SocialMedia\PublishSocialMediaTargetJob::dispatch($immTarget->id);
             }

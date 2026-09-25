@@ -1,7 +1,7 @@
 @extends('layouts.app', [
     'title' => 'Posting Konten Media Sosial - ' . $business->name,
     'headerTitle' => 'Posting Konten & Penjadwalan',
-    'headerSubtitle' => 'Publikasikan dan jadwalkan konten ke Facebook Page, Instagram, dan Threads',
+    'headerSubtitle' => 'Publikasikan dan jadwalkan konten ke Facebook Page, Instagram, Threads, TikTok, dan LinkedIn',
 ])
 
 @section('content')
@@ -33,7 +33,7 @@
                     Publikasi Konten &amp; Jadwal Otomatis
                 </h1>
                 <p class="text-[13px] text-black/60 dark:text-white/60 leading-relaxed">
-                    Tulis materi promosi sekali dan sebarkan langsung ke Facebook Page, feed Instagram, Threads, atau TikTok pelanggan toko Anda. Berkas lokal dan postingan yang terpublikasi akan otomatis dibersihkan dari server setelah 1x24 jam untuk menjaga kapasitas storage server.
+                    Tulis materi promosi sekali dan sebarkan langsung ke Facebook Page, feed Instagram, Threads, TikTok, atau LinkedIn pelanggan toko Anda. Berkas lokal dan postingan yang terpublikasi akan otomatis dibersihkan dari server setelah 1x24 jam untuk menjaga kapasitas storage server.
                 </p>
             </div>
 
@@ -177,6 +177,7 @@
                     <option value="{{ route('social-media.posts.index', ['status' => $status, 'platform' => 'instagram']) }}" {{ $platform === 'instagram' ? 'selected' : '' }}>Instagram</option>
                     <option value="{{ route('social-media.posts.index', ['status' => $status, 'platform' => 'threads']) }}" {{ $platform === 'threads' ? 'selected' : '' }}>Threads</option>
                     <option value="{{ route('social-media.posts.index', ['status' => $status, 'platform' => 'tiktok']) }}" {{ $platform === 'tiktok' ? 'selected' : '' }}>TikTok</option>
+                    <option value="{{ route('social-media.posts.index', ['status' => $status, 'platform' => 'linkedin']) }}" {{ $platform === 'linkedin' ? 'selected' : '' }}>LinkedIn</option>
                 </select>
             </div>
         </div>
@@ -210,13 +211,15 @@
                             <div class="flex items-center justify-between gap-2">
                                 <div class="flex items-center gap-2.5">
                                     <div class="w-8 h-8 rounded-full flex items-center justify-center text-white text-[12px] font-bold shadow-sm
-                                        {{ $post->platform === 'facebook' ? 'bg-[#1877F2]' : ($post->platform === 'instagram' ? 'bg-gradient-to-tr from-[#F58529] via-[#DD2A7B] to-[#8134AF]' : ($post->platform === 'tiktok' ? 'bg-black dark:bg-white dark:text-black' : 'bg-black/10 text-black dark:text-white')) }}">
+                                        {{ $post->platform === 'facebook' ? 'bg-[#1877F2]' : ($post->platform === 'instagram' ? 'bg-gradient-to-tr from-[#F58529] via-[#DD2A7B] to-[#8134AF]' : ($post->platform === 'tiktok' ? 'bg-black dark:bg-white dark:text-black' : ($post->platform === 'linkedin' ? 'bg-[#0A66C2]' : 'bg-black/10 text-black dark:text-white'))) }}">
                                         @if($post->platform === 'facebook')
                                             <i data-lucide="facebook" class="w-4 h-4"></i>
                                         @elseif($post->platform === 'instagram')
                                             <i data-lucide="instagram" class="w-4 h-4"></i>
                                         @elseif($post->platform === 'tiktok')
                                             <i data-lucide="video" class="w-4 h-4"></i>
+                                        @elseif($post->platform === 'linkedin')
+                                            <i data-lucide="linkedin" class="w-4 h-4"></i>
                                         @else
                                             <i data-lucide="at-sign" class="w-4 h-4"></i>
                                         @endif
@@ -407,7 +410,7 @@
                         </div>
                         <div>
                             <h3 class="text-[17px] font-bold text-black dark:text-white">Unified Social Media Composer</h3>
-                            <p class="text-[12.5px] text-black/55 dark:text-white/55">Buat satu materi dan sebarkan ke Facebook, Instagram, Threads, dan TikTok</p>
+                            <p class="text-[12.5px] text-black/55 dark:text-white/55">Buat satu materi dan sebarkan ke Facebook, Instagram, Threads, TikTok, dan LinkedIn</p>
                         </div>
                     </div>
                     <button type="button" @click="openComposerModal = false" class="text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white p-1 rounded-full hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
@@ -450,13 +453,15 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="w-7 h-7 rounded-[9px] flex items-center justify-center shrink-0 {{ $acc->platform === 'facebook' ? 'bg-[#1877F2]/15 text-[#1877F2]' : ($acc->platform === 'instagram' ? 'bg-[#E1306C]/15 text-[#E1306C]' : ($acc->platform === 'tiktok' ? 'bg-black/10 dark:bg-white/15 text-black dark:text-white' : 'bg-black/10 text-black dark:text-white')) }}">
+                                    <div class="w-7 h-7 rounded-[9px] flex items-center justify-center shrink-0 {{ $acc->platform === 'facebook' ? 'bg-[#1877F2]/15 text-[#1877F2]' : ($acc->platform === 'instagram' ? 'bg-[#E1306C]/15 text-[#E1306C]' : ($acc->platform === 'tiktok' ? 'bg-black/10 dark:bg-white/15 text-black dark:text-white' : ($acc->platform === 'linkedin' ? 'bg-[#0A66C2]/15 text-[#0A66C2]' : 'bg-black/10 text-black dark:text-white'))) }}">
                                         @if($acc->platform === 'facebook')
                                             <i data-lucide="facebook" class="w-4 h-4"></i>
                                         @elseif($acc->platform === 'instagram')
                                             <i data-lucide="instagram" class="w-4 h-4"></i>
                                         @elseif($acc->platform === 'tiktok')
                                             <i data-lucide="video" class="w-4 h-4"></i>
+                                        @elseif($acc->platform === 'linkedin')
+                                            <i data-lucide="linkedin" class="w-4 h-4"></i>
                                         @else
                                             <i data-lucide="at-sign" class="w-4 h-4"></i>
                                         @endif
@@ -468,7 +473,7 @@
                         @if($accounts->isEmpty())
                             <div class="p-3 rounded-[12px] bg-[#FF9500]/10 border border-[#FF9500]/25 text-[12px] text-[#FF9500] flex items-center gap-2">
                                 <i data-lucide="alert-circle" class="w-4 h-4 shrink-0"></i>
-                                <span>Belum ada akun media sosial aktif. <a href="{{ route('social-media.index') }}" class="underline font-bold">Hubungkan akun Meta atau TikTok terlebih dahulu</a>.</span>
+                                <span>Belum ada akun media sosial aktif. <a href="{{ route('social-media.index') }}" class="underline font-bold">Hubungkan akun Meta, TikTok, atau LinkedIn terlebih dahulu</a>.</span>
                             </div>
                         @endif
                     </div>
@@ -810,13 +815,15 @@
                                         class="p-3 rounded-[12px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 space-y-2">
                                         <div class="flex items-center justify-between">
                                             <div class="flex items-center gap-2 min-w-0">
-                                                <div class="w-6 h-6 rounded-[7px] flex items-center justify-center shrink-0 {{ $acc->platform === 'facebook' ? 'bg-[#1877F2]/15 text-[#1877F2]' : ($acc->platform === 'instagram' ? 'bg-[#E1306C]/15 text-[#E1306C]' : ($acc->platform === 'tiktok' ? 'bg-black/10 dark:bg-white/15 text-black dark:text-white' : 'bg-black/10 text-black dark:text-white')) }}">
+                                                <div class="w-6 h-6 rounded-[7px] flex items-center justify-center shrink-0 {{ $acc->platform === 'facebook' ? 'bg-[#1877F2]/15 text-[#1877F2]' : ($acc->platform === 'instagram' ? 'bg-[#E1306C]/15 text-[#E1306C]' : ($acc->platform === 'tiktok' ? 'bg-black/10 dark:bg-white/15 text-black dark:text-white' : ($acc->platform === 'linkedin' ? 'bg-[#0A66C2]/15 text-[#0A66C2]' : 'bg-black/10 text-black dark:text-white'))) }}">
                                                     @if($acc->platform === 'facebook')
                                                         <i data-lucide="facebook" class="w-3.5 h-3.5"></i>
                                                     @elseif($acc->platform === 'instagram')
                                                         <i data-lucide="instagram" class="w-3.5 h-3.5"></i>
                                                     @elseif($acc->platform === 'tiktok')
                                                         <i data-lucide="video" class="w-3.5 h-3.5"></i>
+                                                    @elseif($acc->platform === 'linkedin')
+                                                        <i data-lucide="linkedin" class="w-3.5 h-3.5"></i>
                                                     @else
                                                         <i data-lucide="at-sign" class="w-3.5 h-3.5"></i>
                                                     @endif

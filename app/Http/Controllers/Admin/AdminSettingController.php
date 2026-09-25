@@ -152,6 +152,13 @@ final class AdminSettingController extends Controller
             'tiktokApiUrl'           => SystemSetting::get('tiktok_api_url', 'https://open.tiktokapis.com/v2/'),
             'tiktokAuthUrl'          => SystemSetting::get('tiktok_auth_url', 'https://www.tiktok.com/v2/auth/authorize/'),
 
+            'linkedinClientId'        => SystemSetting::get('linkedin_client_id') ?? config('services.linkedin.client_id', ''),
+            'linkedinClientSecret'    => SystemSetting::get('linkedin_client_secret') ?? config('services.linkedin.client_secret', ''),
+            'linkedinHasClientSecret' => ! empty(SystemSetting::get('linkedin_client_secret') ?? config('services.linkedin.client_secret', '')),
+            'linkedinRedirectUri'     => (string) (SystemSetting::get('linkedin_redirect_uri') ?: $canonicalUrl('/social-media/linkedin/callback')),
+            'linkedinApiUrl'          => SystemSetting::get('linkedin_api_url') ?? config('services.linkedin.api_url', 'https://api.linkedin.com'),
+            'linkedinAuthUrl'         => SystemSetting::get('linkedin_auth_url') ?? config('services.linkedin.auth_url', 'https://www.linkedin.com/oauth/v2/authorization'),
+
             // Instagram Platform Dedicated Configuration (Cooca-IG)
             'instagramAppId'              => (string) (SystemSetting::get('instagram_app_id') ?: SystemSetting::get('social_media_app_id', '')),
             'instagramAppName'            => (string) SystemSetting::get('instagram_app_name', 'Cooca-IG'),
@@ -264,6 +271,12 @@ final class AdminSettingController extends Controller
             'tiktok_client_secret'              => ['nullable', 'string', 'max:150'],
             'tiktok_api_url'                    => ['nullable', 'url', 'max:200'],
             'tiktok_auth_url'                   => ['nullable', 'url', 'max:200'],
+
+            'linkedin_client_id'                => ['nullable', 'string', 'max:100'],
+            'linkedin_client_secret'            => ['nullable', 'string', 'max:150'],
+            'linkedin_redirect_uri'             => ['nullable', 'url', 'max:255'],
+            'linkedin_api_url'                  => ['nullable', 'url', 'max:200'],
+            'linkedin_auth_url'                 => ['nullable', 'url', 'max:200'],
 
             // TriPay Payment Gateway Settings
             'tripay_merchant_code'              => ['nullable', 'string', 'max:100'],
@@ -439,6 +452,23 @@ final class AdminSettingController extends Controller
         }
         if (array_key_exists('tiktok_auth_url', $validated)) {
             SystemSetting::set('tiktok_auth_url', trim((string) $validated['tiktok_auth_url']), 'social_media');
+        }
+
+        // Save Social Media LinkedIn Settings
+        if (array_key_exists('linkedin_client_id', $validated)) {
+            SystemSetting::set('linkedin_client_id', trim((string) $validated['linkedin_client_id']), 'social_media');
+        }
+        if (! empty($validated['linkedin_client_secret'])) {
+            SystemSetting::set('linkedin_client_secret', trim((string) $validated['linkedin_client_secret']), 'social_media', true);
+        }
+        if (array_key_exists('linkedin_redirect_uri', $validated)) {
+            SystemSetting::set('linkedin_redirect_uri', trim((string) $validated['linkedin_redirect_uri']), 'social_media');
+        }
+        if (array_key_exists('linkedin_api_url', $validated)) {
+            SystemSetting::set('linkedin_api_url', trim((string) $validated['linkedin_api_url']), 'social_media');
+        }
+        if (array_key_exists('linkedin_auth_url', $validated)) {
+            SystemSetting::set('linkedin_auth_url', trim((string) $validated['linkedin_auth_url']), 'social_media');
         }
 
         // Save TriPay Gateway Settings
@@ -742,6 +772,9 @@ final class AdminSettingController extends Controller
         $tiktokKey = (string) SystemSetting::get('tiktok_client_key', '');
         $tiktokSecret = (string) SystemSetting::get('tiktok_client_secret', '');
 
+        $linkedinId = (string) (SystemSetting::get('linkedin_client_id') ?: config('services.linkedin.client_id', ''));
+        $linkedinSecret = (string) (SystemSetting::get('linkedin_client_secret') ?: config('services.linkedin.client_secret', ''));
+
         $results = [
             'meta' => [
                 'configured' => ! empty($metaAppId) && ! empty($metaAppSecret),
@@ -754,6 +787,12 @@ final class AdminSettingController extends Controller
                 'client_key' => $tiktokKey ?: null,
                 'status'     => 'unconfigured',
                 'message'    => 'TikTok Client Key atau Secret belum diisi.',
+            ],
+            'linkedin' => [
+                'configured' => ! empty($linkedinId) && ! empty($linkedinSecret),
+                'client_id'  => $linkedinId ?: null,
+                'status'     => 'unconfigured',
+                'message'    => 'LinkedIn Client ID atau Secret belum diisi.',
             ],
         ];
 
@@ -788,6 +827,17 @@ final class AdminSettingController extends Controller
             } else {
                 $results['tiktok']['status'] = 'invalid';
                 $results['tiktok']['message'] = 'Format TikTok Client Key atau Secret tidak sesuai standar TikTok Developer.';
+            }
+        }
+
+        // Validate LinkedIn Credentials format
+        if ($results['linkedin']['configured']) {
+            if (strlen($linkedinId) >= 5 && strlen($linkedinSecret) >= 8) {
+                $results['linkedin']['status'] = 'valid';
+                $results['linkedin']['message'] = 'Format kredensial LinkedIn Developer valid dan siap digunakan untuk OAuth 2.0 (OpenID & Member Social Post).';
+            } else {
+                $results['linkedin']['status'] = 'invalid';
+                $results['linkedin']['message'] = 'Format LinkedIn Client ID atau Secret tidak sesuai standar LinkedIn Developer.';
             }
         }
 

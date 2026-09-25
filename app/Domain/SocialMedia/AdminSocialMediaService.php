@@ -38,6 +38,11 @@ class AdminSocialMediaService
             'tiktok_client_secret' => (string) SystemSetting::get('tiktok_client_secret', ''),
             'tiktok_redirect_uri'  => route('social-media.tiktok.callback'),
 
+            // LinkedIn Settings
+            'linkedin_client_id'     => (string) (SystemSetting::get('linkedin_client_id') ?: config('services.linkedin.client_id', '')),
+            'linkedin_client_secret' => (string) (SystemSetting::get('linkedin_client_secret') ?: config('services.linkedin.client_secret', '')),
+            'linkedin_redirect_uri'  => route('social-media.linkedin.callback'),
+
             // Instagram Platform Dedicated Settings
             'instagram_app_id'              => (string) (SystemSetting::get('instagram_app_id') ?: SystemSetting::get('social_media_app_id', '')),
             'instagram_app_name'            => (string) SystemSetting::get('instagram_app_name', 'Cooca-IG'),
@@ -90,6 +95,14 @@ class AdminSocialMediaService
         }
         if (array_key_exists('tiktok_client_secret', $data) && ! empty($data['tiktok_client_secret'])) {
             SystemSetting::set('tiktok_client_secret', trim((string) $data['tiktok_client_secret']), group: 'social_media', isSecret: true);
+        }
+
+        // LinkedIn Settings
+        if (array_key_exists('linkedin_client_id', $data)) {
+            SystemSetting::set('linkedin_client_id', trim((string) $data['linkedin_client_id']), 'social_media');
+        }
+        if (array_key_exists('linkedin_client_secret', $data) && ! empty($data['linkedin_client_secret'])) {
+            SystemSetting::set('linkedin_client_secret', trim((string) $data['linkedin_client_secret']), group: 'social_media', isSecret: true);
         }
 
         // Instagram Dedicated Settings
@@ -271,7 +284,7 @@ class AdminSocialMediaService
             $target = SocialPostTarget::create([
                 'social_media_post_id'    => $post->id,
                 'social_media_account_id' => null,
-                'provider'                => in_array($channel, ['facebook', 'instagram', 'threads'], true) ? 'meta' : 'tiktok',
+                'provider'                => in_array($channel, ['facebook', 'instagram', 'threads'], true) ? 'meta' : ($channel === 'linkedin' ? 'linkedin' : 'tiktok'),
                 'channel'                 => $channel,
                 'content_type'            => $mediaType === 'reels' ? 'reels' : ($mediaType === 'story' ? 'story' : (in_array($mediaType, ['video']) ? 'video' : 'photo')),
                 'custom_caption'          => null,
@@ -360,6 +373,19 @@ class AdminSocialMediaService
                 $threadsType = in_array($post->media_type, ['video', 'reels']) ? 'VIDEO' : (! empty($firstMediaUrl) ? 'IMAGE' : 'TEXT');
                 $res = $this->metaClient->publishThreadsPost($threadsUserId, $threadsToken, $content, $firstMediaUrl, $threadsType);
                 $platformPostId = (string) ($res['id'] ?? '');
+            } elseif ($target->channel === 'linkedin') {
+                $linkedInProvider = app(\App\Domain\SocialMedia\Providers\LinkedInProvider::class);
+                $account = $target->account;
+                if ($account && $account->isConnected()) {
+                    $res = $linkedInProvider->publish($account, [
+                        'content'      => $content,
+                        'content_type' => $target->content_type,
+                        'media_urls'   => $mediaUrls,
+                    ]);
+                    $platformPostId = (string) ($res['id'] ?? '');
+                } else {
+                    $platformPostId = 'li_plat_' . (string) \Illuminate\Support\Str::uuid();
+                }
             } else {
                 // TikTok
                 $platformPostId = 'tt_plat_' . (string) \Illuminate\Support\Str::uuid();

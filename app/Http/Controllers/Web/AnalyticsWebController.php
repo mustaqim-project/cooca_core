@@ -12,6 +12,7 @@ use App\Models\Invoice;
 use App\Models\Location;
 use App\Models\PosOrder;
 use App\Models\PosOrderItem;
+use App\Models\PosOrderPayment;
 use App\Models\Product;
 use App\Support\Context;
 use Carbon\Carbon;
@@ -288,11 +289,13 @@ final class AnalyticsWebController extends Controller
 
         if ($period === 'today') {
             // Jam per jam
+            $driver = DB::connection()->getDriverName();
+            $hourBucketExpr = $driver === 'sqlite' ? "strftime('%H:00', created_at)" : "DATE_FORMAT(created_at, '%H:00')";
             $posTrend = PosOrder::where('business_id', $business->id)
                 ->where('status', PosOrder::STATUS_COMPLETED)
                 ->whereDate('order_date', $from->toDateString())
                 ->when($locationId, fn ($q) => $q->where('location_id', $locationId))
-                ->selectRaw("DATE_FORMAT(created_at, '%H:00') as bucket, SUM(total_amount) as revenue, SUM(total_gross_profit) as profit")
+                ->selectRaw("{$hourBucketExpr} as bucket, SUM(total_amount) as revenue, SUM(total_gross_profit) as profit")
                 ->groupBy('bucket')
                 ->pluck('revenue', 'bucket')
                 ->toArray();
@@ -337,11 +340,14 @@ final class AnalyticsWebController extends Controller
      */
     private function buildHourlyHeatmap(Business $business, Carbon $from, Carbon $to, ?string $locationId = null): array
     {
+        $driver = DB::connection()->getDriverName();
+        $hourExpr = $driver === 'sqlite' ? "CAST(strftime('%H', created_at) AS INTEGER)" : "HOUR(created_at)";
+
         $hourly = PosOrder::where('business_id', $business->id)
             ->where('status', PosOrder::STATUS_COMPLETED)
             ->whereBetween('order_date', [$from->toDateString(), $to->toDateString()])
             ->when($locationId, fn ($q) => $q->where('location_id', $locationId))
-            ->selectRaw("HOUR(created_at) as hr, COUNT(*) as cnt, SUM(total_amount) as rev")
+            ->selectRaw("{$hourExpr} as hr, COUNT(*) as cnt, SUM(total_amount) as rev")
             ->groupBy('hr')
             ->get()
             ->keyBy('hr');
@@ -370,7 +376,7 @@ final class AnalyticsWebController extends Controller
                 ->whereBetween('order_date', [$from->toDateString(), $to->toDateString()])
                 ->when($locationId, fn ($sub) => $sub->where('location_id', $locationId));
         })
-        ->selectRaw('product_name, SUM(quantity) as qty, SUM(subtotal) as total_sales, SUM(subtotal - COALESCE(unit_hpp_cost * quantity, 0)) as gross_profit')
+        ->selectRaw('product_name, SUM(quantity) as qty, SUM(subtotal) as total_sales, SUM(subtotal - COALESCE(unit_cost_hpp * quantity, 0)) as gross_profit')
         ->groupBy('product_name')
         ->orderByDesc('qty')
         ->limit(10)
@@ -396,21 +402,27 @@ final class AnalyticsWebController extends Controller
      */
     private function buildPaymentMethods(Business $business, Carbon $from, Carbon $to, ?string $locationId = null): array
     {
-        $methods = PosOrder::where('business_id', $business->id)
-            ->where('status', PosOrder::STATUS_COMPLETED)
-            ->whereBetween('order_date', [$from->toDateString(), $to->toDateString()])
-            ->when($locationId, fn ($q) => $q->where('location_id', $locationId))
-            ->selectRaw('payment_method, COUNT(*) as cnt, SUM(total_amount) as total')
-            ->groupBy('payment_method')
-            ->get();
+        $methods = PosOrderPayment::whereHas('order', function ($q) use ($business, $from, $to, $locationId) {
+            $q->where('business_id', $business->id)
+                ->where('status', PosOrder::STATUS_COMPLETED)
+                ->whereBetween('order_date', [$from->toDateString(), $to->toDateString()])
+                ->when($locationId, fn ($sub) => $sub->where('location_id', $locationId));
+        })
+        ->where('status', 'paid')
+        ->selectRaw('payment_method, COUNT(*) as cnt, SUM(amount) as total')
+        ->groupBy('payment_method')
+        ->get();
 
         $labels = [
             'cash' => 'Tunai (Cash)',
             'qris' => 'QRIS Instan',
+            'qris_dynamic' => 'QRIS Dinamis',
+            'transfer' => 'Transfer Bank',
             'bank_transfer' => 'Transfer Bank',
-            'debit' => 'Kartu Debit',
-            'credit' => 'Kartu Kredit',
-            'receivable' => 'Kasbon / Piutang',
+            'edc_debit' => 'Kartu Debit',
+            'edc_credit' => 'Kartu Kredit',
+            'customer_credit' => 'Kasbon / Piutang',
+            'loyalty_points' => 'Poin Loyalitas',
         ];
 
         return $methods->map(function ($m) use ($labels) {

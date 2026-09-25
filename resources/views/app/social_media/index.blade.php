@@ -1,7 +1,7 @@
 @extends('layouts.app', [
     'title' => 'Media Sosial - ' . $business->name,
     'headerTitle' => 'Media Sosial & Pemasaran',
-    'headerSubtitle' => 'Kelola Facebook Page, Instagram Bisnis, dan Threads untuk toko Anda',
+    'headerSubtitle' => 'Kelola Facebook Page, Instagram Bisnis, Threads, TikTok, dan LinkedIn untuk toko Anda',
 ])
 
 @section('content')
@@ -28,12 +28,16 @@
                         <span class="w-1.5 h-1.5 rounded-full bg-[#000000] dark:bg-[#ffffff]"></span>
                         <span>TikTok Official API</span>
                     </span>
+                    <span class="rounded-full px-2.5 py-0.5 text-[11px] font-semibold inline-flex items-center gap-1.5 bg-[#0A66C2]/10 text-[#0A66C2]">
+                        <span class="w-1.5 h-1.5 rounded-full bg-[#0A66C2]"></span>
+                        <span>LinkedIn Official API</span>
+                    </span>
                 </div>
                 <h1 class="text-[20px] sm:text-[24px] font-bold text-black dark:text-white tracking-tight">
                     Pengelolaan Media Sosial &amp; Konten Terpadu
                 </h1>
                 <p class="text-[13px] text-black/60 dark:text-white/60 leading-relaxed">
-                    Kelola seluruh media sosial toko <strong class="text-black dark:text-white font-medium">{{ $business->name }}</strong> dari satu dashboard: Facebook, Instagram, Threads, dan TikTok.
+                    Kelola seluruh media sosial toko <strong class="text-black dark:text-white font-medium">{{ $business->name }}</strong> dari satu dashboard: Facebook, Instagram, Threads, TikTok, dan LinkedIn.
                 </p>
             </div>
 
@@ -89,12 +93,12 @@
                 <div class="rounded-[22px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 shadow-sm p-5 sm:p-7 space-y-5 transition-colors">
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-black/5 dark:border-white/10">
                         <div class="flex items-center gap-3.5">
-                            <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-[16px] bg-gradient-to-br from-[#1877F2] via-[#E1306C] to-[#000000] text-white flex items-center justify-center shrink-0 shadow-md shadow-[#1877F2]/25">
+                            <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-[16px] bg-gradient-to-br from-[#1877F2] via-[#E1306C] to-[#0A66C2] text-white flex items-center justify-center shrink-0 shadow-md shadow-[#1877F2]/25">
                                 <i data-lucide="share-2" class="w-6 h-6"></i>
                             </div>
                             <div>
                                 <h2 class="text-[17px] font-bold text-black dark:text-white tracking-tight">Akun Media Sosial Toko</h2>
-                                <p class="text-[12.5px] text-black/55 dark:text-white/55 mt-0.5">Facebook Page, Instagram Bisnis, Threads &amp; TikTok</p>
+                                <p class="text-[12.5px] text-black/55 dark:text-white/55 mt-0.5">Facebook Page, Instagram Bisnis, Threads, TikTok &amp; LinkedIn</p>
                             </div>
                         </div>
 
@@ -114,13 +118,15 @@
                                 @foreach($accounts->where('status', 'active') as $acc)
                                     <div class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/10 flex items-center justify-between gap-3">
                                         <div class="flex items-center gap-3 min-w-0">
-                                            <div class="w-10 h-10 rounded-[12px] flex items-center justify-center shrink-0 {{ $acc->platform === 'facebook' ? 'bg-[#1877F2]/12 text-[#1877F2]' : ($acc->platform === 'instagram' ? 'bg-[#E1306C]/12 text-[#E1306C]' : ($acc->platform === 'tiktok' ? 'bg-black/10 dark:bg-white/15 text-black dark:text-white' : 'bg-black/10 text-black dark:text-white')) }}">
+                                            <div class="w-10 h-10 rounded-[12px] flex items-center justify-center shrink-0 {{ $acc->platform === 'facebook' ? 'bg-[#1877F2]/12 text-[#1877F2]' : ($acc->platform === 'instagram' ? 'bg-[#E1306C]/12 text-[#E1306C]' : ($acc->platform === 'tiktok' ? 'bg-black/10 dark:bg-white/15 text-black dark:text-white' : ($acc->platform === 'linkedin' ? 'bg-[#0A66C2]/12 text-[#0A66C2]' : 'bg-black/10 text-black dark:text-white'))) }}">
                                                 @if($acc->platform === 'facebook')
                                                     <i data-lucide="facebook" class="w-5 h-5"></i>
                                                 @elseif($acc->platform === 'instagram')
                                                     <i data-lucide="instagram" class="w-5 h-5"></i>
                                                 @elseif($acc->platform === 'tiktok')
                                                     <i data-lucide="video" class="w-5 h-5"></i>
+                                                @elseif($acc->platform === 'linkedin')
+                                                    <i data-lucide="linkedin" class="w-5 h-5"></i>
                                                 @else
                                                     <i data-lucide="at-sign" class="w-5 h-5"></i>
                                                 @endif
@@ -133,7 +139,7 @@
                                                         <span>•</span>
                                                         <span class="font-mono text-[#007AFF]">{{ $acc->username }}</span>
                                                     @endif
-                                                    @if($acc->platform === 'tiktok' && $acc->token_expires_at)
+                                                    @if(in_array($acc->platform, ['tiktok', 'linkedin']) && $acc->token_expires_at)
                                                         <span>•</span>
                                                         <span class="text-[10.5px] text-[#34C759]">Auto-Refresh Active</span>
                                                     @endif
@@ -153,13 +159,13 @@
                         </div>
                     @endif
 
-                    {{-- 1-Click Onboarding Banners: META & TIKTOK --}}
+                    {{-- 1-Click Onboarding Banners: META, TIKTOK & LINKEDIN --}}
                     <div class="space-y-4">
                         <div class="flex items-center justify-between">
                             <h3 class="text-[14px] font-bold text-black dark:text-white">
                                 Hubungkan Akun Media Sosial (Metode 1-Klik)
                             </h3>
-                            <span class="text-[11px] text-black/45 dark:text-white/45">Meta Graph &amp; TikTok API</span>
+                            <span class="text-[11px] text-black/45 dark:text-white/45">Meta, TikTok &amp; LinkedIn API</span>
                         </div>
 
                         {{-- Meta Connection Card --}}
@@ -196,6 +202,24 @@
                                 class="w-full min-h-[46px] rounded-[14px] bg-black dark:bg-white text-white dark:text-black hover:bg-black/90 dark:hover:bg-white/90 font-bold text-[13.5px] flex items-center justify-center gap-2 shadow-md active:scale-[0.98] transition-all">
                                 <i data-lucide="video" class="w-4 h-4"></i>
                                 <span>Hubungkan Akun TikTok Resmi</span>
+                            </a>
+                        </div>
+
+                        {{-- LinkedIn Connection Card --}}
+                        <div class="p-5 sm:p-6 rounded-[18px] bg-gradient-to-br from-[#0A66C2]/10 via-white dark:via-[#1C1C1E] to-[#004182]/5 border border-[#0A66C2]/20 space-y-4">
+                            <div class="space-y-0.5">
+                                <h3 class="text-[15px] font-bold text-black dark:text-white">
+                                    {{ $accounts->where('platform', 'linkedin')->where('status', 'active')->isNotEmpty() ? 'Perbarui Akun LinkedIn' : 'Hubungkan Akun LinkedIn (Share on LinkedIn & Profile)' }}
+                                </h3>
+                                <p class="text-[12px] text-black/55 dark:text-white/55">
+                                    Otorisasi akun LinkedIn profesional untuk membagikan artikel, postingan gambar, dan materi bisnis langsung dari COOCA.
+                                </p>
+                            </div>
+
+                            <a href="{{ route('social-media.linkedin.connect') }}"
+                                class="w-full min-h-[46px] rounded-[14px] bg-[#0A66C2] hover:bg-[#004182] text-white font-bold text-[13.5px] flex items-center justify-center gap-2 shadow-md shadow-[#0A66C2]/25 active:scale-[0.98] transition-all">
+                                <i data-lucide="linkedin" class="w-4 h-4"></i>
+                                <span>Hubungkan Akun LinkedIn Resmi</span>
                             </a>
                         </div>
 

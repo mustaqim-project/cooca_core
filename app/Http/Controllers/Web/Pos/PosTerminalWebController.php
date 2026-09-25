@@ -17,6 +17,7 @@ use App\Models\PosTable;
 use App\Models\PosTableSession;
 use App\Models\Product;
 use App\Models\ProductCategory;
+use App\Models\User;
 use App\Models\Voucher;
 use App\Support\Context;
 use Illuminate\Http\JsonResponse;
@@ -132,6 +133,8 @@ final class PosTerminalWebController extends Controller
         $operatingMode = $operatingModeService->getOperatingModeProfile($business);
         $canBypassSupervisor = $operatingModeService->canBypassSupervisor($business, $user);
         $hideCostFromCashier = $operatingModeService->shouldHideCostFromCashier($business, $user);
+        $posShowProductImages = (bool) ($business->pos_show_product_images ?? true);
+
         // 10. Staff / Technicians for Service & Workshop SPK Assignment
         $technicians = User::whereHas('businesses', function ($q) use ($business) {
             $q->where('businesses.id', $business->id);

@@ -120,6 +120,11 @@ class SocialMediaAccount extends Model
         return strtolower($this->provider ?? '') === 'tiktok' || strtolower($this->platform ?? '') === 'tiktok';
     }
 
+    public function isLinkedIn(): bool
+    {
+        return strtolower($this->provider ?? '') === 'linkedin' || strtolower($this->platform ?? '') === 'linkedin';
+    }
+
     public function isConnected(): bool
     {
         $status = strtolower($this->status ?? '');

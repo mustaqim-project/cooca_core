@@ -1,10 +1,10 @@
     <!-- ========================================================================= -->
-    <!-- TAB 3: MEDIA SOSIAL TERPADU (META & TIKTOK)                               -->
+    <!-- TAB 3: MEDIA SOSIAL TERPADU (META, TIKTOK & LINKEDIN)                     -->
     <!-- ========================================================================= -->
     <div x-show="activeTab === 'social'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-1" x-transition:enter-end="opacity-100 translate-y-0" class="space-y-6">
 
         <!-- Bento Banner: Omnichannel Hub Info -->
-        <div class="rounded-[22px] p-5 sm:p-6 bg-gradient-to-br from-[#1877F2]/10 via-[#007AFF]/5 to-black/5 dark:to-white/5 border border-[#1877F2]/20 backdrop-blur-md shadow-sm space-y-4">
+        <div class="rounded-[22px] p-5 sm:p-6 bg-gradient-to-br from-[#1877F2]/10 via-[#0077B5]/5 to-black/5 dark:to-white/5 border border-[#1877F2]/20 backdrop-blur-md shadow-sm space-y-4">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-[14px] bg-[#1877F2]/15 text-[#1877F2] flex items-center justify-center shrink-0">
@@ -12,13 +12,13 @@
                     </div>
                     <div>
                         <div class="flex items-center gap-2 flex-wrap">
-                            <h2 class="text-[15px] sm:text-[16px] font-bold text-black dark:text-white">Pusat Konfigurasi Media Sosial Terpadu (Meta &amp; TikTok)</h2>
-                            @if(!empty($metaSocialAppId) && !empty($tiktokClientKey))
+                            <h2 class="text-[15px] sm:text-[16px] font-bold text-black dark:text-white">Pusat Konfigurasi Media Sosial Terpadu (Meta, TikTok &amp; LinkedIn)</h2>
+                            @if(!empty($metaSocialAppId) && !empty($tiktokClientKey) && !empty($linkedinClientId))
                                 <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158] border border-[#34C759]/25">
                                     <i data-lucide="check-circle-2" class="w-3 h-3" stroke-width="2"></i>
                                     <span>Semua Platform Aktif</span>
                                 </span>
-                            @elseif(!empty($metaSocialAppId) || !empty($tiktokClientKey))
+                            @elseif(!empty($metaSocialAppId) || !empty($tiktokClientKey) || !empty($linkedinClientId))
                                 <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#007AFF]/15 text-[#007AFF] border border-[#007AFF]/25">
                                     <i data-lucide="info" class="w-3 h-3" stroke-width="2"></i>
                                     <span>Sebagian Dikonfigurasi</span>
@@ -643,6 +643,90 @@
                         </div>
                     </div>
 
+                    <!-- BENTO CARD 4: LINKEDIN DEVELOPER PLATFORM (SHARE & OPENID OAUTH 2.0) -->
+                    <div class="rounded-[24px] bg-white/80 dark:bg-[#1C1C1E]/80 border border-black/[0.06] dark:border-white/[0.08] backdrop-blur-md p-6 sm:p-7 space-y-5 shadow-sm">
+                        <div class="flex items-center justify-between border-b border-black/[0.04] dark:border-white/[0.06] pb-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-[12px] bg-[#0A66C2]/15 text-[#0A66C2] flex items-center justify-center shrink-0">
+                                    <i data-lucide="linkedin" class="w-4.5 h-4.5"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-[16px] font-bold text-black dark:text-white">LinkedIn Developer Platform (Community &amp; Post API)</h3>
+                                    <p class="text-[12px] text-black/50 dark:text-white/50">OAuth 2.0 (OpenID Connect) &amp; UGC Post Publishing API v2</p>
+                                </div>
+                            </div>
+                            @if(!empty($linkedinClientId))
+                                <span class="text-[11px] font-bold text-[#34C759] flex items-center gap-1">
+                                    <i data-lucide="check-circle" class="w-3.5 h-3.5"></i>
+                                    <span>Aktif</span>
+                                </span>
+                            @endif
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <!-- LinkedIn Client ID -->
+                            <div>
+                                <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">
+                                    LinkedIn Client ID <span class="text-[#FF3B30]">*</span>
+                                </label>
+                                <input type="text" name="linkedin_client_id" value="{{ old('linkedin_client_id', $linkedinClientId ?? '') }}"
+                                    placeholder="Contoh: 868wurbnxke9xg"
+                                    class="w-full h-11 px-3.5 bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.06] dark:border-white/[0.08] rounded-[12px] text-[16px] sm:text-[13px] text-black dark:text-white font-mono placeholder:text-black/30 dark:placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#0A66C2]/50 transition">
+                            </div>
+
+                            <!-- LinkedIn Client Secret -->
+                            <div>
+                                <div class="flex items-center justify-between mb-1.5">
+                                    <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70">
+                                        Primary Client Secret <span class="text-[#FF3B30]">*</span>
+                                    </label>
+                                    <button type="button" @click="showLinkedInSecret = !showLinkedInSecret" class="text-[11px] font-medium text-[#007AFF] hover:underline cursor-pointer">
+                                        <span x-text="showLinkedInSecret ? 'Sembunyikan' : 'Tampilkan'"></span>
+                                    </button>
+                                </div>
+                                <input :type="showLinkedInSecret ? 'text' : 'password'" name="linkedin_client_secret" value="{{ old('linkedin_client_secret', $linkedinClientSecret ?? '') }}"
+                                    placeholder="••••••••••••••••••••••••"
+                                    class="w-full h-11 px-3.5 bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.06] dark:border-white/[0.08] rounded-[12px] text-[16px] sm:text-[13px] text-black dark:text-white font-mono placeholder:text-black/30 dark:placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#0A66C2]/50 transition">
+                            </div>
+
+                            <!-- LinkedIn API Base URL -->
+                            <div>
+                                <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">
+                                    LinkedIn API Base URL
+                                </label>
+                                <input type="url" name="linkedin_api_url" value="{{ old('linkedin_api_url', $linkedinApiUrl ?? 'https://api.linkedin.com') }}"
+                                    placeholder="https://api.linkedin.com"
+                                    class="w-full h-11 px-3.5 bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.06] dark:border-white/[0.08] rounded-[12px] text-[16px] sm:text-[13px] text-black dark:text-white font-mono placeholder:text-black/30 dark:placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#0A66C2]/50 transition">
+                            </div>
+
+                            <!-- LinkedIn Auth URL -->
+                            <div>
+                                <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">
+                                    LinkedIn OAuth Authorize URL
+                                </label>
+                                <input type="url" name="linkedin_auth_url" value="{{ old('linkedin_auth_url', $linkedinAuthUrl ?? 'https://www.linkedin.com/oauth/v2/authorization') }}"
+                                    placeholder="https://www.linkedin.com/oauth/v2/authorization"
+                                    class="w-full h-11 px-3.5 bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.06] dark:border-white/[0.08] rounded-[12px] text-[16px] sm:text-[13px] text-black dark:text-white font-mono placeholder:text-black/30 dark:placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#0A66C2]/50 transition">
+                            </div>
+                        </div>
+
+                        <!-- Readonly LinkedIn OAuth Redirect URI Box -->
+                        <div class="p-3.5 rounded-[14px] bg-[#0A66C2]/5 border border-[#0A66C2]/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5">
+                            <div class="space-y-0.5">
+                                <div class="flex items-center gap-1.5">
+                                    <span class="text-[11px] font-bold text-[#0A66C2]">Authorized Redirect URLs for your app:</span>
+                                    <span class="px-1.5 py-0.2 rounded text-[10px] font-bold bg-[#0A66C2]/15 text-[#0A66C2]">Wajib diisi di LinkedIn Developer</span>
+                                </div>
+                                <div class="font-mono text-[12px] text-black dark:text-white select-all break-all">{{ $linkedinRedirectUri ?? 'https://cooca.id/social-media/linkedin/callback' }}</div>
+                            </div>
+                            <button type="button" @click="copyToClipboard('{{ $linkedinRedirectUri ?? 'https://cooca.id/social-media/linkedin/callback' }}', 'linkedin')"
+                                class="h-8 px-3 rounded-[9px] bg-[#0A66C2] hover:bg-[#004182] text-[11px] font-bold text-white flex items-center gap-1.5 shrink-0 transition-colors shadow-sm cursor-pointer">
+                                <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                                <span x-text="copiedLinkedInRedirect ? 'Tersalin!' : 'Salin Redirect URL'"></span>
+                            </button>
+                        </div>
+                    </div>
+
                     <!-- Action Buttons -->
                     <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
                         <button type="button" @click="testSocialMediaConfig()" :disabled="testingSocial"
@@ -665,13 +749,13 @@
                             <i data-lucide="activity" class="w-4 h-4 text-[#007AFF]"></i>
                             <span>Hasil Uji Koneksi Kredensial Platform</span>
                         </div>
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-[12px]">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-[12px]">
                             <!-- Meta Result -->
                             <div class="p-3 rounded-[12px] border"
                                 :class="testSocialResult?.meta?.status === 'valid' ? 'bg-[#34C759]/10 border-[#34C759]/30 text-[#248A3D] dark:text-[#30D158]' : (testSocialResult?.meta?.status === 'unconfigured' ? 'bg-[#FF9500]/10 border-[#FF9500]/30 text-[#B25E00] dark:text-[#FF9F0A]' : 'bg-[#FF3B30]/10 border-[#FF3B30]/30 text-[#FF3B30]')">
                                 <div class="font-bold flex items-center gap-1.5 mb-1">
                                     <i data-lucide="facebook" class="w-4 h-4"></i>
-                                    <span>Meta Platform (FB/IG/Threads)</span>
+                                    <span>Meta (FB/Threads)</span>
                                 </div>
                                 <p class="text-[11.5px]" x-text="testSocialResult?.meta?.message"></p>
                             </div>
@@ -691,9 +775,19 @@
                                 :class="testSocialResult?.tiktok?.status === 'valid' ? 'bg-[#34C759]/10 border-[#34C759]/30 text-[#248A3D] dark:text-[#30D158]' : (testSocialResult?.tiktok?.status === 'unconfigured' ? 'bg-[#FF9500]/10 border-[#FF9500]/30 text-[#B25E00] dark:text-[#FF9F0A]' : 'bg-[#FF3B30]/10 border-[#FF3B30]/30 text-[#FF3B30]')">
                                 <div class="font-bold flex items-center gap-1.5 mb-1">
                                     <i data-lucide="video" class="w-4 h-4"></i>
-                                    <span>TikTok Developer Platform</span>
+                                    <span>TikTok Platform</span>
                                 </div>
                                 <p class="text-[11.5px]" x-text="testSocialResult?.tiktok?.message"></p>
+                            </div>
+
+                            <!-- LinkedIn Result -->
+                            <div class="p-3 rounded-[12px] border"
+                                :class="testSocialResult?.linkedin?.status === 'valid' ? 'bg-[#34C759]/10 border-[#34C759]/30 text-[#248A3D] dark:text-[#30D158]' : (testSocialResult?.linkedin?.status === 'unconfigured' ? 'bg-[#FF9500]/10 border-[#FF9500]/30 text-[#B25E00] dark:text-[#FF9F0A]' : 'bg-[#FF3B30]/10 border-[#FF3B30]/30 text-[#FF3B30]')">
+                                <div class="font-bold flex items-center gap-1.5 mb-1">
+                                    <i data-lucide="linkedin" class="w-4 h-4"></i>
+                                    <span>LinkedIn Platform</span>
+                                </div>
+                                <p class="text-[11.5px]" x-text="testSocialResult?.linkedin?.message"></p>
                             </div>
                         </div>
                     </div>
@@ -719,8 +813,28 @@
                         </div>
                         <div class="flex items-center gap-1.5 text-[#34C759]">
                             <i data-lucide="check" class="w-3.5 h-3.5"></i>
-                            <span>Auto-Refresh TikTok Token Aktif</span>
+                            <span>Auto-Refresh OAuth Token Aktif</span>
                         </div>
+                    </div>
+                </div>
+
+                <!-- LinkedIn Developer Guide Card -->
+                <div class="rounded-[22px] bg-white/80 dark:bg-[#1C1C1E]/80 border border-[#0A66C2]/20 dark:border-[#0A66C2]/30 backdrop-blur-md p-5 text-[12px] text-black/60 dark:text-white/60 space-y-2.5 shadow-sm">
+                    <div class="flex items-center gap-2 text-[13px] font-bold text-[#0A66C2]">
+                        <i data-lucide="help-circle" class="w-4 h-4"></i>
+                        <span>Konfigurasi LinkedIn Developer Portal:</span>
+                    </div>
+                    <p class="text-[11.5px] leading-relaxed">
+                        Pada menu <strong>Auth</strong> &gt; <strong>OAuth 2.0 settings</strong> di portal <a href="https://www.linkedin.com/developers/apps" target="_blank" class="text-[#007AFF] underline font-semibold">LinkedIn Developers</a>:
+                    </p>
+                    <div class="space-y-1 text-[11px]">
+                        <p class="font-semibold text-black dark:text-white">1. Authorized redirect URLs for your app:</p>
+                        <code class="block p-1.5 rounded bg-black/5 dark:bg-white/10 font-mono text-[10.5px] text-[#0A66C2] break-all select-all">https://cooca.id/social-media/linkedin/callback</code>
+                        <p class="font-semibold text-black dark:text-white mt-2">2. Products yang harus diaktifkan:</p>
+                        <ul class="list-disc list-inside space-y-0.5 text-black/70 dark:text-white/70 pl-1 font-mono">
+                            <li>Share on LinkedIn</li>
+                            <li>Sign In with LinkedIn using OpenID Connect</li>
+                        </ul>
                     </div>
                 </div>
 

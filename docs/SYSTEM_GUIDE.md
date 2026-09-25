@@ -20,7 +20,8 @@
    - [3.6 Manajemen Katalog Produk, Resep (BOM), & Modifiers (Varian)](#36-manajemen-katalog-produk-resep-bom--modifiers-varian)
    - [3.7 Manajemen Bahan Baku, Pemasok, & Layanan Jasa Bebas Stok](#37-manajemen-bahan-baku-pemasok--layanan-jasa-bebas-stok)
    - [3.8 Toko Online (Storefront Hub) & Website Landing Page Studio](#38-toko-online-storefront-hub--website-landing-page-studio)
-   - [3.9 Saluran WhatsApp Resmi (WhatsApp Cloud API Meta)](#39-saluran-whatsapp-resmi-whatsapp-cloud    - [3.10 Pengelolaan Media Sosial Terpadu (Meta & TikTok)](#310-pengelolaan-media-sosial-terpadu-meta--tiktok)
+   - [3.9 Saluran WhatsApp Resmi (WhatsApp Cloud API Meta)](#39-saluran-whatsapp-resmi-whatsapp-cloud-api-meta)
+   - [3.10 Pengelolaan Media Sosial Terpadu (Meta, TikTok & LinkedIn)](#310-pengelolaan-media-sosial-terpadu-meta-tiktok--linkedin)
    - [3.11 Kepatuhan Pajak UMKM & Penggajian Karyawan (HRM & Tax Compliance)](#311-kepatuhan-pajak-umkm--penggajian-karyawan-hrm--tax-compliance)
 4. [Panduan Rekayasa Developer & AI Agent (Engineering Blueprint)](#4-panduan-rekayasa-developer--ai-agent-engineering-blueprint)
    - [4.1 Struktur 33 Domain Packages DDD](#41-struktur-33-domain-packages-ddd)
@@ -29,7 +30,7 @@
    - [4.4 Protokol Verifikasi & Kesiapan Produksi (100% Zero-Error Mandate)](#44-protokol-verifikasi--kesiapan-produksi-100-zero-error-mandate)
    - [4.5 Protokol Dokumentasi Berkelanjutan Simultan (AiWorkHistory.md + SYSTEM_GUIDE.md)](#45-protokol-dokumentasi-berkelanjutan-simultan-aiworkhistorymd--system_guidemd)
    - [4.6 Arsitektur Multi-Tenant WhatsApp Cloud API](#46-arsitektur-multi-tenant-whatsapp-cloud-api)
-   - [4.7 Arsitektur Media Sosial Omnichannel (Meta & TikTok Open API v2)](#47-arsitektur-media-sosial-omnichannel-meta--tiktok-open-api-v2)
+   - [4.7 Arsitektur Media Sosial Omnichannel (Meta, TikTok & LinkedIn UGC Post API)](#47-arsitektur-media-sosial-omnichannel-meta-tiktok--linkedin-ugc-post-api)
    - [4.8 Arsitektur Pre-Order & Batch Scheduling Dinamis Terparameterisasi](#48-arsitektur-pre-order--batch-scheduling-dinamis-terparameterisasi)
    - [4.9 Pusat Verifikasi Pemulihan Akun Administrator (Account Recovery Desk)](#49-pusat-verifikasi-pemulihan-akun-administrator-account-recovery-desk)
    - [4.10 Pusat Pengelolaan Katalog Paket Billing Platform (Billing Packages CMS)](#410-pusat-pengelolaan-katalog-paket-billing-platform-billing-packages-cms)
@@ -232,13 +233,14 @@ Sebelum pekerjaan rekayasa dianggap selesai:
 * **Isolasi Pemrosesan Event:** `WhatsAppWebhookService` memetakan `phone_number_id` yang tertera pada metadata webhook ke `business_id` tenant merchant secara presisi, menjamin pesan masuk dan pembaruan status tidak pernah tertukar lintas tenant.
 * **Client HTTP Andal dengan Retry Logic:** `WhatsAppClient` membungkus pemanggilan Graph API v26.0 dengan retry otomatis (hingga 3 kali percobaan) pada galat jaringan transien (HTTP 429 Rate Limit dan HTTP 5xx Server Error Meta) dan audit logging terstruktur per-tenant.
 
-### 4.7 Arsitektur Media Sosial Omnichannel (Meta & TikTok Open API v2)
-* **Zero .env Architecture & Database-Driven Settings:** Seluruh konfigurasi platform (`social_media_app_id`, `social_media_app_secret`, `instagram_app_id`, `instagram_app_name`, `instagram_app_secret`, `instagram_access_token`, `tiktok_client_key`, `tiktok_client_secret`) dikelola eksklusif melalui antarmuka Superadmin `resources/views/admin/settings` (Tab "Media Sosial") dan tersimpan di tabel `system_settings` dengan flag rahasia `is_secret = true`, tanpa menyentuh file `.env`.
+### 4.7 Arsitektur Media Sosial Omnichannel (Meta, TikTok & LinkedIn UGC Post API)
+* **Zero .env Architecture & Database-Driven Settings:** Seluruh konfigurasi platform (`social_media_app_id`, `social_media_app_secret`, `instagram_app_id`, `instagram_app_name`, `instagram_app_secret`, `instagram_access_token`, `tiktok_client_key`, `tiktok_client_secret`, `linkedin_client_id`, `linkedin_client_secret`) dikelola eksklusif melalui antarmuka Superadmin `resources/views/admin/settings` (Tab "Media Sosial") dan tersimpan di tabel `system_settings` dengan flag rahasia `is_secret = true`, tanpa menyentuh file `.env`.
 * **Official Instagram Platform API & Cerdas Dual-Host Routing:** Integrasi resmi Instagram Graph API v26.0 (`Cooca-IG`) mendukung akun Bisnis/Kreator (`@cooca.indonesia`). `MetaSocialMediaClient` mengimplementasikan deteksi prefiks token (`IGAA...`) untuk otomatis mengalihkan host ke `https://graph.instagram.com/{version}/...` alih-alih `https://graph.facebook.com/{version}/...`, mencegah kegagalan OAuth 190 sambil tetap memelihara kompatibilitas dengan Facebook Page token.
-* **Enkripsi Kredensial & Auto-Refresh Token:** `access_token` dan `refresh_token` pada `social_media_accounts` dienkripsi simetris menggunakan Eloquent encrypted cast. Token TikTok (berlaku 24 jam) diperiksa secara berkala dan di-refresh otomatis sebelum eksekusi postingan.
-* **Pola Desain Strategy & Kontrak Provider:** `SocialMediaProviderInterface` diimplementasikan oleh `MetaProvider` (Facebook, Instagram, Threads) dan `TikTokProvider` (Direct Post Video & Photo Mode). Resolusi provider bersifat decoupled melalui `SocialMediaManager`.
-* **Validasi Konten Sentral & Aturan 5 Tagar:** `SocialMediaContentValidator` memvalidasi batas karakter per platform (FB 63.206, IG 2.200, Threads 500, TikTok 2.200), aturan korsel Instagram (2–10 media), serta aturan wajib COOCA maksimal 5 unique hashtags dengan normalisasi case-insensitive.
-* **Queue-First Distributed Publishing:** Publikasi multi-target didelegasikan ke antrean `PublishSocialMediaTargetJob` dengan retry berjenjang (*exponential backoff* 10s, 30s, 60s). Kegagalan satu target (mis. TikTok) tidak membatalkan keberhasilan target lain (mis. Instagram), dan target gagal dapat di-retry secara independen.
+* **LinkedIn Developer Platform (OAuth 2.0 OpenID Connect & UGC Posts v2):** `LinkedInClient` dan `LinkedInProvider` mengintegrasikan alur otorisasi OpenID (`openid profile email w_member_social`), Digital Media Asset upload (`/v2/assets?action=registerUpload`), dan publikasi konten teks / gambar publik (`/v2/ugcPosts`) dengan URN person author (`urn:li:person:...`).
+* **Enkripsi Kredensial & Auto-Refresh Token:** `access_token` dan `refresh_token` pada `social_media_accounts` dienkripsi simetris menggunakan Eloquent encrypted cast (AES-256 via APP_KEY). Token TikTok dan LinkedIn diperiksa dan dikelola secara aman.
+* **Pola Desain Strategy & Kontrak Provider:** `SocialMediaProviderInterface` diimplementasikan oleh `MetaProvider` (Facebook, Instagram, Threads), `TikTokProvider` (Direct Post Video & Photo Mode), dan `LinkedInProvider` (UGC Post API). Resolusi provider bersifat decoupled melalui `SocialMediaManager`.
+* **Validasi Konten Sentral & Aturan 5 Tagar:** `SocialMediaContentValidator` memvalidasi batas karakter per platform (FB 63.206, IG 2.200, Threads 500, TikTok 2.200, LinkedIn 3.000), aturan korsel Instagram (2–10 media), serta aturan wajib COOCA maksimal 5 unique hashtags dengan normalisasi case-insensitive.
+* **Queue-First Distributed Publishing & Multi-Channel Scheduling:** Publikasi multi-target didelegasikan ke antrean `PublishSocialMediaTargetJob` dengan retry berjenjang (*exponential backoff* 10s, 30s, 60s). Engine scheduler cron `social-media:publish-scheduled` berjalan setiap menit mengeksekusi target terjadwal (`scheduled_at <= now()`) secara otonom per-saluran tanpa memblokir antarmuka pengguna.
 
 ### 4.8 Arsitektur Pre-Order & Batch Scheduling Dinamis Terparameterisasi
 * **Strict Batch vs Flexible Scheduling:** Parameter `allow_custom_date` (boolean) pada `commerce_store_settings` memungkinkan merchant mengunci pemesanan hanya pada tanggal batch yang ditentukan (menyembunyikan datepicker bebas pada checkout modal dan memvalidasi pesanan di server-side). Jika aktif, pembeli tetap diberikan keleluasaan memilih tanggal kalender mandiri.

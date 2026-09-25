@@ -328,6 +328,8 @@ class SocialMediaService
             'has_facebook'    => $accounts->where('platform', 'facebook')->isNotEmpty(),
             'has_instagram'   => $accounts->where('platform', 'instagram')->isNotEmpty(),
             'has_threads'     => $accounts->where('platform', 'threads')->isNotEmpty(),
+            'has_tiktok'      => $accounts->where('platform', 'tiktok')->isNotEmpty(),
+            'has_linkedin'    => $accounts->where('platform', 'linkedin')->isNotEmpty(),
             'total_posts'     => $postsCount,
             'unread_comments' => $unreadComments,
         ];

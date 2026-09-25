@@ -53,7 +53,7 @@
                     Kalender Jadwal Konten
                 </h1>
                 <p class="text-[13px] text-black/60 dark:text-white/60 leading-relaxed">
-                    Pantau alur kampanye postingan Anda di Facebook, Instagram, Threads, dan TikTok dalam satu kalender terpadu.
+                    Pantau alur kampanye postingan Anda di Facebook, Instagram, Threads, TikTok, dan LinkedIn dalam satu kalender terpadu.
                 </p>
             </div>
 
@@ -199,6 +199,8 @@
                                                         <i data-lucide="instagram" class="w-3.5 h-3.5 text-[#E4405F]"></i>
                                                     @elseif ($target->channel === 'threads')
                                                         <i data-lucide="at-sign" class="w-3.5 h-3.5 text-black dark:text-white"></i>
+                                                    @elseif ($target->channel === 'linkedin')
+                                                        <i data-lucide="linkedin" class="w-3.5 h-3.5 text-[#0A66C2]"></i>
                                                     @endif
                                                 @endforeach
                                             @else
