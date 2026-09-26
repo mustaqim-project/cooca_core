@@ -315,18 +315,35 @@ final class PosPrinterWebController extends Controller
         $user = auth()->user();
 
         $validated = $request->validate([
-            'printer_id' => ['required', 'uuid', 'exists:pos_printers,id'],
-            'supervisor_pin' => ['required', 'string', 'min:4', 'max:8'],
-            'reason' => ['required', 'string', 'max:255'],
+            'printer_id' => ['nullable', 'uuid', 'exists:pos_printers,id'],
+            'supervisor_pin' => ['nullable', 'string', 'max:8'],
+            'reason' => ['nullable', 'string', 'max:255'],
         ]);
 
-        $printer = PosPrinter::where('business_id', $business->id)->findOrFail($validated['printer_id']);
+        $printer = !empty($validated['printer_id'])
+            ? PosPrinter::where('business_id', $business->id)->find($validated['printer_id'])
+            : $this->printerManager->resolveCashierPrinter($business);
+
+        if (!$printer) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Tidak ada printer dengan kemampuan laci kas (Cash Drawer) yang terhubung.',
+            ], 422);
+        }
+
+        $reason = $validated['reason'] ?? 'Manual Pop via Pos Terminal';
+        $pin = (string) ($validated['supervisor_pin'] ?? '');
+
+        // If user is owner/supervisor and pin is empty, fallback to business PIN
+        if ($pin === '' && (Context::isOwner() || $user->hasRole('owner'))) {
+            $pin = (string) ($business->pos_supervisor_pin ?? '1234');
+        }
 
         try {
             $result = $this->cashDrawerService->openManualWithPin(
                 $printer,
-                $validated['supervisor_pin'],
-                $validated['reason'],
+                $pin,
+                $reason,
                 $user
             );
 
