@@ -1013,7 +1013,7 @@
                 <div class="pos-catalog-body flex-1 flex overflow-hidden gap-2 sm:gap-3.5 min-w-0">
 
                     <!-- Mobile Left Category Sidebar (1/3 Width of Layout) -->
-                    <div class="md:hidden w-[30%] sm:w-1/3 max-w-[115px] min-w-[85px] flex flex-col shrink-0 overflow-y-auto pr-1 pb-20 space-y-1.5 select-none border-r border-black/[0.06] dark:border-white/10"
+                    <div class="md:hidden w-[82px] sm:w-[94px] flex flex-col shrink-0 overflow-y-auto pr-1 pb-28 space-y-1.5 select-none border-r border-black/[0.06] dark:border-white/10"
                         style="scrollbar-width: none; -ms-overflow-style: none;">
                         
                         <!-- 1. Semua Item (Mobile) -->
@@ -1021,11 +1021,12 @@
                             :class="(selectedCategory === 'all' && selectedTypeFilter === 'all')
                                 ? 'bg-[#007AFF] text-white shadow-sm font-bold ring-2 ring-[#007AFF]/30'
                                 : 'bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/10 text-black/75 dark:text-white/80 hover:bg-black/[0.02] dark:hover:bg-white/[0.05] font-semibold'"
-                            class="w-full py-2.5 px-1.5 rounded-[12px] flex flex-col items-center justify-center gap-1 transition-all active:scale-95 text-center min-h-[60px] shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
-                            <svg class="w-4.5 h-4.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            class="w-full py-2 px-1 rounded-[12px] flex flex-col items-center justify-center gap-1 transition-all active:scale-95 text-center min-h-[58px] shadow-[0_1px_2px_rgba(0,0,0,0.03)] overflow-hidden shrink-0">
+                            <svg class="w-5 h-5 shrink-0" style="width: 20px; height: 20px; min-width: 20px; min-height: 20px;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
                             </svg>
-                            <span class="text-[11px] leading-tight line-clamp-2">Semua</span>
+                            <span class="text-[10.5px] font-semibold leading-tight text-center max-w-full px-0.5 break-words line-clamp-2"
+                                style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">Semua</span>
                         </button>
 
                         <!-- 2. Produk Fisik (Mobile) -->
@@ -1033,11 +1034,14 @@
                             :class="(selectedCategory === 'all' && selectedTypeFilter === 'goods')
                                 ? 'bg-[#007AFF] text-white shadow-sm font-bold ring-2 ring-[#007AFF]/30'
                                 : 'bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/10 text-black/75 dark:text-white/80 hover:bg-black/[0.02] dark:hover:bg-white/[0.05] font-semibold'"
-                            class="w-full py-2.5 px-1.5 rounded-[12px] flex flex-col items-center justify-center gap-1 transition-all active:scale-95 text-center min-h-[60px] shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
-                            <svg class="w-4.5 h-4.5 shrink-0 text-black/50 dark:text-white/50" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                            class="w-full py-2 px-1 rounded-[12px] flex flex-col items-center justify-center gap-1 transition-all active:scale-95 text-center min-h-[58px] shadow-[0_1px_2px_rgba(0,0,0,0.03)] overflow-hidden shrink-0">
+                            <svg class="w-5 h-5 shrink-0" style="width: 20px; height: 20px; min-width: 20px; min-height: 20px;"
+                                :class="(selectedCategory === 'all' && selectedTypeFilter === 'goods') ? 'text-white' : 'text-black/50 dark:text-white/50'"
+                                fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9" />
                             </svg>
-                            <span class="text-[11px] leading-tight line-clamp-2">Fisik</span>
+                            <span class="text-[10.5px] font-semibold leading-tight text-center max-w-full px-0.5 break-words line-clamp-2"
+                                style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">Fisik</span>
                         </button>
 
                         <!-- 3. Jasa / Layanan (Mobile) -->
@@ -1045,11 +1049,14 @@
                             :class="(selectedCategory === 'all' && selectedTypeFilter === 'service')
                                 ? 'bg-[#007AFF] text-white shadow-sm font-bold ring-2 ring-[#007AFF]/30'
                                 : 'bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/10 text-black/75 dark:text-white/80 hover:bg-black/[0.02] dark:hover:bg-white/[0.05] font-semibold'"
-                            class="w-full py-2.5 px-1.5 rounded-[12px] flex flex-col items-center justify-center gap-1 transition-all active:scale-95 text-center min-h-[60px] shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
-                            <svg class="w-4.5 h-4.5 shrink-0 text-black/50 dark:text-white/50" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                            class="w-full py-2 px-1 rounded-[12px] flex flex-col items-center justify-center gap-1 transition-all active:scale-95 text-center min-h-[58px] shadow-[0_1px_2px_rgba(0,0,0,0.03)] overflow-hidden shrink-0">
+                            <svg class="w-5 h-5 shrink-0" style="width: 20px; height: 20px; min-width: 20px; min-height: 20px;"
+                                :class="(selectedCategory === 'all' && selectedTypeFilter === 'service') ? 'text-white' : 'text-black/50 dark:text-white/50'"
+                                fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75a4.5 4.5 0 01-4.884 4.484c-1.076-.091-2.264.398-3.03 1.164l-4.5 4.5a2.25 2.25 0 01-3.182-3.182l4.5-4.5c.766-.766 1.255-1.954 1.164-3.03A4.5 4.5 0 0117.25 2.25a.75.75 0 01.53 1.28l-1.97 1.97a.75.75 0 001.06 1.06l1.97-1.97a.75.75 0 011.28.53z" />
                             </svg>
-                            <span class="text-[11px] leading-tight line-clamp-2">Jasa</span>
+                            <span class="text-[10.5px] font-semibold leading-tight text-center max-w-full px-0.5 break-words line-clamp-2"
+                                style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">Jasa</span>
                         </button>
 
                         <!-- 4. Dynamic Business Categories (Mobile) -->
@@ -1059,26 +1066,35 @@
                                 :class="(selectedCategory === '{{ $cat->id }}')
                                     ? 'bg-[#007AFF] text-white shadow-sm font-bold ring-2 ring-[#007AFF]/30'
                                     : 'bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/10 text-black/75 dark:text-white/80 hover:bg-black/[0.02] dark:hover:bg-white/[0.05] font-semibold'"
-                                class="w-full py-2.5 px-1.5 rounded-[12px] flex flex-col items-center justify-center gap-1 transition-all active:scale-95 text-center min-h-[60px] shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
+                                class="w-full py-2 px-1 rounded-[12px] flex flex-col items-center justify-center gap-1 transition-all active:scale-95 text-center min-h-[58px] shadow-[0_1px_2px_rgba(0,0,0,0.03)] overflow-hidden shrink-0">
                                 @if(stripos($cat->name, 'Jasa') !== false || stripos($cat->name, 'Layanan') !== false || stripos($cat->name, 'Konsultasi') !== false)
-                                    <svg class="w-4.5 h-4.5 shrink-0 text-black/50 dark:text-white/50" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                    <svg class="w-5 h-5 shrink-0" style="width: 20px; height: 20px; min-width: 20px; min-height: 20px;"
+                                        :class="selectedCategory === '{{ $cat->id }}' ? 'text-white' : 'text-black/50 dark:text-white/50'"
+                                        fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
                                     </svg>
                                 @elseif(stripos($cat->name, 'Pelengkap') !== false || stripos($cat->name, 'Tambahan') !== false)
-                                    <svg class="w-4.5 h-4.5 shrink-0 text-black/50 dark:text-white/50" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                    <svg class="w-5 h-5 shrink-0" style="width: 20px; height: 20px; min-width: 20px; min-height: 20px;"
+                                        :class="selectedCategory === '{{ $cat->id }}' ? 'text-white' : 'text-black/50 dark:text-white/50'"
+                                        fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     </svg>
                                 @elseif(stripos($cat->name, 'Utama') !== false || stripos($cat->name, 'Menu') !== false)
-                                    <svg class="w-4.5 h-4.5 shrink-0 text-black/50 dark:text-white/50" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                    <svg class="w-5 h-5 shrink-0" style="width: 20px; height: 20px; min-width: 20px; min-height: 20px;"
+                                        :class="selectedCategory === '{{ $cat->id }}' ? 'text-white' : 'text-black/50 dark:text-white/50'"
+                                        fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" />
                                     </svg>
                                 @else
-                                    <svg class="w-4.5 h-4.5 shrink-0 text-black/50 dark:text-white/50" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                    <svg class="w-5 h-5 shrink-0" style="width: 20px; height: 20px; min-width: 20px; min-height: 20px;"
+                                        :class="selectedCategory === '{{ $cat->id }}' ? 'text-white' : 'text-black/50 dark:text-white/50'"
+                                        fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z" />
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6z" />
                                     </svg>
                                 @endif
-                                <span class="text-[11px] leading-tight line-clamp-2">{{ $cat->name }}</span>
+                                <span class="text-[10.5px] font-semibold leading-tight text-center max-w-full px-0.5 break-words line-clamp-2"
+                                    style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">{{ $cat->name }}</span>
                             </button>
                         @endforeach
                     </div>
