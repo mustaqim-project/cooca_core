@@ -936,19 +936,19 @@
         <div class="pos-main flex-1 flex overflow-hidden">
 
             <!-- Left Area: Catalog & Products Touch Grid -->
-            <div class="pos-catalog flex-1 flex flex-col overflow-hidden p-3 sm:p-4 gap-3">
+            <div class="pos-catalog flex-1 flex flex-col overflow-hidden p-2 sm:p-4 gap-2 sm:gap-3">
 
-                <!-- Single Horizontal Category & Type Filter Strip (Exact match to screenshot) -->
-                <div class="category-bar flex items-center gap-2 overflow-x-auto pb-1 max-w-full scroll-smooth select-none shrink-0"
+                <!-- 1. DESKTOP TOP HORIZONTAL CATEGORY STRIP (ENLARGED) -->
+                <div class="category-bar hidden md:flex items-center gap-2.5 overflow-x-auto pb-1.5 max-w-full scroll-smooth select-none shrink-0"
                     style="scrollbar-width: none; -ms-overflow-style: none;">
                     
                     <!-- 1. Semua Item (Active Blue when default) -->
                     <button type="button" @click="selectedCategory = 'all'; selectedTypeFilter = 'all'; filterProducts()"
                         :class="(selectedCategory === 'all' && selectedTypeFilter === 'all')
-                            ? 'bg-[#007AFF] text-white shadow-xs font-semibold'
-                            : 'bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/10 text-black/75 dark:text-white/80 hover:bg-black/[0.02] dark:hover:bg-white/[0.05] shadow-[0_1px_2px_rgba(0,0,0,0.03)] font-medium'"
-                        class="h-10 px-4 rounded-[12px] text-[13px] whitespace-nowrap transition-all shrink-0 flex items-center gap-2 active:scale-[0.97]">
-                        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            ? 'bg-[#007AFF] text-white shadow-sm font-bold ring-2 ring-[#007AFF]/25'
+                            : 'bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/10 text-black/75 dark:text-white/80 hover:bg-black/[0.02] dark:hover:bg-white/[0.05] shadow-[0_1px_2px_rgba(0,0,0,0.03)] font-semibold'"
+                        class="h-12 px-5 rounded-[14px] text-[14px] whitespace-nowrap transition-all shrink-0 flex items-center gap-2.5 active:scale-[0.97]">
+                        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
                         </svg>
                         <span>Semua Item</span>
@@ -957,10 +957,10 @@
                     <!-- 2. Produk Fisik -->
                     <button type="button" @click="selectedCategory = 'all'; selectedTypeFilter = 'goods'; filterProducts()"
                         :class="(selectedCategory === 'all' && selectedTypeFilter === 'goods')
-                            ? 'bg-[#007AFF] text-white shadow-xs font-semibold'
-                            : 'bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/10 text-black/75 dark:text-white/80 hover:bg-black/[0.02] dark:hover:bg-white/[0.05] shadow-[0_1px_2px_rgba(0,0,0,0.03)] font-medium'"
-                        class="h-10 px-4 rounded-[12px] text-[13px] whitespace-nowrap transition-all shrink-0 flex items-center gap-2 active:scale-[0.97]">
-                        <svg class="w-4 h-4 shrink-0 text-black/50 dark:text-white/50" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                            ? 'bg-[#007AFF] text-white shadow-sm font-bold ring-2 ring-[#007AFF]/25'
+                            : 'bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/10 text-black/75 dark:text-white/80 hover:bg-black/[0.02] dark:hover:bg-white/[0.05] shadow-[0_1px_2px_rgba(0,0,0,0.03)] font-semibold'"
+                        class="h-12 px-5 rounded-[14px] text-[14px] whitespace-nowrap transition-all shrink-0 flex items-center gap-2.5 active:scale-[0.97]">
+                        <svg class="w-5 h-5 shrink-0 text-black/50 dark:text-white/50" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9" />
                         </svg>
                         <span>Produk Fisik</span>
@@ -969,10 +969,10 @@
                     <!-- 3. Jasa / Layanan -->
                     <button type="button" @click="selectedCategory = 'all'; selectedTypeFilter = 'service'; filterProducts()"
                         :class="(selectedCategory === 'all' && selectedTypeFilter === 'service')
-                            ? 'bg-[#007AFF] text-white shadow-xs font-semibold'
-                            : 'bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/10 text-black/75 dark:text-white/80 hover:bg-black/[0.02] dark:hover:bg-white/[0.05] shadow-[0_1px_2px_rgba(0,0,0,0.03)] font-medium'"
-                        class="h-10 px-4 rounded-[12px] text-[13px] whitespace-nowrap transition-all shrink-0 flex items-center gap-2 active:scale-[0.97]">
-                        <svg class="w-4 h-4 shrink-0 text-black/50 dark:text-white/50" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                            ? 'bg-[#007AFF] text-white shadow-sm font-bold ring-2 ring-[#007AFF]/25'
+                            : 'bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/10 text-black/75 dark:text-white/80 hover:bg-black/[0.02] dark:hover:bg-white/[0.05] shadow-[0_1px_2px_rgba(0,0,0,0.03)] font-semibold'"
+                        class="h-12 px-5 rounded-[14px] text-[14px] whitespace-nowrap transition-all shrink-0 flex items-center gap-2.5 active:scale-[0.97]">
+                        <svg class="w-5 h-5 shrink-0 text-black/50 dark:text-white/50" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75a4.5 4.5 0 01-4.884 4.484c-1.076-.091-2.264.398-3.03 1.164l-4.5 4.5a2.25 2.25 0 01-3.182-3.182l4.5-4.5c.766-.766 1.255-1.954 1.164-3.03A4.5 4.5 0 0117.25 2.25a.75.75 0 01.53 1.28l-1.97 1.97a.75.75 0 001.06 1.06l1.97-1.97a.75.75 0 011.28.53z" />
                         </svg>
                         <span>Jasa / Layanan</span>
@@ -983,23 +983,23 @@
                         <button type="button"
                             @click="selectedCategory = '{{ $cat->id }}'; selectedTypeFilter = 'all'; filterProducts()"
                             :class="(selectedCategory === '{{ $cat->id }}')
-                                ? 'bg-[#007AFF] text-white shadow-xs font-semibold'
-                                : 'bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/10 text-black/75 dark:text-white/80 hover:bg-black/[0.02] dark:hover:bg-white/[0.05] shadow-[0_1px_2px_rgba(0,0,0,0.03)] font-medium'"
-                            class="h-10 px-4 rounded-[12px] text-[13px] whitespace-nowrap transition-all shrink-0 flex items-center gap-2 active:scale-[0.97]">
+                                ? 'bg-[#007AFF] text-white shadow-sm font-bold ring-2 ring-[#007AFF]/25'
+                                : 'bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/10 text-black/75 dark:text-white/80 hover:bg-black/[0.02] dark:hover:bg-white/[0.05] shadow-[0_1px_2px_rgba(0,0,0,0.03)] font-semibold'"
+                            class="h-12 px-5 rounded-[14px] text-[14px] whitespace-nowrap transition-all shrink-0 flex items-center gap-2.5 active:scale-[0.97]">
                             @if(stripos($cat->name, 'Jasa') !== false || stripos($cat->name, 'Layanan') !== false || stripos($cat->name, 'Konsultasi') !== false)
-                                <svg class="w-4 h-4 shrink-0 text-black/50 dark:text-white/50" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                <svg class="w-5 h-5 shrink-0 text-black/50 dark:text-white/50" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
                                 </svg>
                             @elseif(stripos($cat->name, 'Pelengkap') !== false || stripos($cat->name, 'Tambahan') !== false)
-                                <svg class="w-4 h-4 shrink-0 text-black/50 dark:text-white/50" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                <svg class="w-5 h-5 shrink-0 text-black/50 dark:text-white/50" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
                             @elseif(stripos($cat->name, 'Utama') !== false || stripos($cat->name, 'Menu') !== false)
-                                <svg class="w-4 h-4 shrink-0 text-black/50 dark:text-white/50" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                <svg class="w-5 h-5 shrink-0 text-black/50 dark:text-white/50" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" />
                                 </svg>
                             @else
-                                <svg class="w-4 h-4 shrink-0 text-black/50 dark:text-white/50" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                <svg class="w-5 h-5 shrink-0 text-black/50 dark:text-white/50" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z" />
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6z" />
                                 </svg>
@@ -1009,127 +1009,205 @@
                     @endforeach
                 </div>
 
-                <!-- Products Touch Cards Grid (4 Columns Exact to Screenshot) -->
-                <div class="pos-products flex-1 overflow-y-auto pr-1">
-                    <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5">
-                        <template x-for="product in paginatedProducts" :key="product.id">
-                            <div @click="handleProductClick(product)"
-                                class="rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/10 hover:border-[#007AFF]/40 hover:shadow-md active:scale-[0.98] transition-all p-3 cursor-pointer flex flex-col justify-between group select-none min-w-0">
-                                <div>
-                                    @if ($posShowProductImages)
-                                        <!-- Thumbnail Image with 16/10 Aspect Ratio -->
-                                        <div
-                                            class="relative w-full aspect-[16/10] rounded-[12px] bg-black/[0.03] dark:bg-black/40 border border-black/[0.04] dark:border-white/5 mb-2.5 overflow-hidden items-center justify-center flex shrink-0">
-                                            <template x-if="product.image_url">
-                                                <img :src="product.image_url" :alt="product.name" loading="lazy"
-                                                    class="w-full h-full object-cover group-hover:scale-105 transition duration-300"
-                                                    x-on:error="product.image_url = null">
-                                            </template>
-                                            <template x-if="!product.image_url">
-                                                <div
-                                                    class="w-full h-full flex flex-col items-center justify-center text-black/20 dark:text-white/20">
-                                                    <svg class="w-8 h-8" fill="none" stroke="currentColor"
-                                                        stroke-width="1.5" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
-                                                    </svg>
-                                                </div>
-                                            </template>
+                <!-- 2. MAIN CATALOG WORKSPACE (SPLIT 1/3 SIDEBAR + 2/3 MENU ON MOBILE, FULL WIDTH ON DESKTOP) -->
+                <div class="pos-catalog-body flex-1 flex overflow-hidden gap-2 sm:gap-3.5 min-w-0">
 
-                                            <!-- Stock Badge Pill (Top-Right) -->
-                                            <template x-if="product.type === 'service'">
-                                                <span
-                                                    class="absolute top-2 right-2 text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#AF52DE] text-white shadow-xs">
-                                                    Layanan
-                                                </span>
-                                            </template>
-                                            <template x-if="product.type !== 'service'">
-                                                <span
-                                                    class="absolute top-2 right-2 text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/95 dark:bg-black/90 shadow-xs tabular-nums"
-                                                    :class="product.current_stock > 0 ?
-                                                        'text-[#34C759] border border-[#34C759]' :
-                                                        'text-[#FF3B30] border border-[#FF3B30]'"
-                                                    x-text="'Stok: ' + (product.current_stock ?? 0)">
-                                                </span>
-                                            </template>
-                                        </div>
-                                    @endif
-
-                                    <!-- Product Name (2 lines clamped) -->
-                                    <h4 class="font-bold text-[13.5px] sm:text-[14px] text-black dark:text-white line-clamp-2 leading-snug group-hover:text-[#007AFF] transition-colors"
-                                        x-text="product.name"></h4>
-                                    
-                                    <!-- SKU / Code & Badges -->
-                                    <div class="flex items-center gap-1.5 flex-wrap mt-1">
-                                        <span class="text-[11px] font-medium text-black/45 dark:text-white/45 tabular-nums truncate"
-                                            x-text="product.code || '-'"></span>
-                                        <template x-if="product.type === 'service'">
-                                            <span class="inline-flex items-center px-1.5 py-0.2 rounded text-[9px] font-bold bg-[#AF52DE]/15 text-[#AF52DE]">
-                                                Jasa
-                                            </span>
-                                        </template>
-                                        <template x-if="product.modifier_groups && product.modifier_groups.length > 0">
-                                            <span class="inline-flex items-center px-1.5 py-0.2 rounded text-[9px] font-bold bg-[#007AFF]/10 text-[#007AFF]">
-                                                + Varian
-                                            </span>
-                                        </template>
-                                    </div>
-                                </div>
-
-                                <!-- Price and Add Button (Exact to screenshot) -->
-                                <div class="mt-3 pt-2.5 flex items-center justify-between gap-1">
-                                    <span class="font-bold text-[14px] sm:text-[15px] text-black dark:text-white tabular-nums truncate"
-                                        x-text="formatRupiah(product.selling_price)"></span>
-                                    <button type="button" @click.stop="handleProductClick(product)"
-                                        class="w-8 h-8 rounded-full bg-[#007AFF] hover:bg-[#0062CC] text-white flex items-center justify-center font-bold text-base shadow-sm shrink-0 active:scale-90 transition-all"
-                                        title="Tambah ke Keranjang">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                                        </svg>
-                                    </button>
-                                </div>
-                            </div>
-                        </template>
-                    </div>
-
-                    <!-- Empty Catalog State -->
-                    <div x-show="filteredProducts.length === 0"
-                        class="h-64 flex flex-col items-center justify-center text-center text-black/40 dark:text-white/40">
-                        <svg class="w-12 h-12 text-black/20 dark:text-white/20 mb-2" fill="none"
-                            stroke="currentColor" stroke-width="1.2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
-                        </svg>
-                        <div class="text-[14px] font-semibold text-black/60 dark:text-white/60">Tidak ada produk ditemukan</div>
-                        <div class="text-[12px] text-black/40 dark:text-white/40 mt-0.5">Coba ubah kata kunci pencarian atau kategori filter</div>
-                    </div>
-                </div>
-
-                <!-- Catalog Bottom Footer (Exact to Screenshot: Total Produk X item & Pagination) -->
-                <div class="mt-auto pt-2.5 border-t border-black/[0.06] dark:border-white/10 flex items-center justify-between shrink-0">
-                    <div class="flex items-center gap-1.5 text-xs text-black/60 dark:text-white/60">
-                        <svg class="w-4 h-4 text-black/40 dark:text-white/40" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
-                        </svg>
-                        <span>Total Produk <strong class="text-black dark:text-white font-bold" x-text="filteredProducts.length"></strong> item</span>
-                    </div>
-
-                    <div class="flex items-center gap-1 select-none" x-show="filteredProducts.length > 0">
-                        <button type="button" @click="prevPage()" :disabled="currentPage <= 1"
-                            class="w-7 h-7 sm:w-8 sm:h-8 rounded-[8px] border border-black/10 dark:border-white/15 bg-white dark:bg-[#1C1C1E] text-black/70 dark:text-white/80 hover:bg-black/[0.03] dark:hover:bg-white/[0.05] disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center transition text-xs font-semibold">
-                            ‹
+                    <!-- Mobile Left Category Sidebar (1/3 Width of Layout) -->
+                    <div class="md:hidden w-[30%] sm:w-1/3 max-w-[115px] min-w-[85px] flex flex-col shrink-0 overflow-y-auto pr-1 pb-20 space-y-1.5 select-none border-r border-black/[0.06] dark:border-white/10"
+                        style="scrollbar-width: none; -ms-overflow-style: none;">
+                        
+                        <!-- 1. Semua Item (Mobile) -->
+                        <button type="button" @click="selectedCategory = 'all'; selectedTypeFilter = 'all'; filterProducts()"
+                            :class="(selectedCategory === 'all' && selectedTypeFilter === 'all')
+                                ? 'bg-[#007AFF] text-white shadow-sm font-bold ring-2 ring-[#007AFF]/30'
+                                : 'bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/10 text-black/75 dark:text-white/80 hover:bg-black/[0.02] dark:hover:bg-white/[0.05] font-semibold'"
+                            class="w-full py-2.5 px-1.5 rounded-[12px] flex flex-col items-center justify-center gap-1 transition-all active:scale-95 text-center min-h-[60px] shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
+                            <svg class="w-4.5 h-4.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
+                            </svg>
+                            <span class="text-[11px] leading-tight line-clamp-2">Semua</span>
                         </button>
-                        <template x-for="p in totalPages" :key="p">
-                            <button type="button" @click="goToPage(p)"
-                                :class="currentPage === p ? 'bg-[#007AFF] text-white shadow-xs font-bold' : 'border border-black/10 dark:border-white/15 bg-white dark:bg-[#1C1C1E] text-black/70 dark:text-white/80 hover:bg-black/[0.03]'"
-                                class="w-7 h-7 sm:w-8 sm:h-8 rounded-[8px] flex items-center justify-center transition text-xs font-semibold"
-                                x-text="p">
+
+                        <!-- 2. Produk Fisik (Mobile) -->
+                        <button type="button" @click="selectedCategory = 'all'; selectedTypeFilter = 'goods'; filterProducts()"
+                            :class="(selectedCategory === 'all' && selectedTypeFilter === 'goods')
+                                ? 'bg-[#007AFF] text-white shadow-sm font-bold ring-2 ring-[#007AFF]/30'
+                                : 'bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/10 text-black/75 dark:text-white/80 hover:bg-black/[0.02] dark:hover:bg-white/[0.05] font-semibold'"
+                            class="w-full py-2.5 px-1.5 rounded-[12px] flex flex-col items-center justify-center gap-1 transition-all active:scale-95 text-center min-h-[60px] shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
+                            <svg class="w-4.5 h-4.5 shrink-0 text-black/50 dark:text-white/50" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9" />
+                            </svg>
+                            <span class="text-[11px] leading-tight line-clamp-2">Fisik</span>
+                        </button>
+
+                        <!-- 3. Jasa / Layanan (Mobile) -->
+                        <button type="button" @click="selectedCategory = 'all'; selectedTypeFilter = 'service'; filterProducts()"
+                            :class="(selectedCategory === 'all' && selectedTypeFilter === 'service')
+                                ? 'bg-[#007AFF] text-white shadow-sm font-bold ring-2 ring-[#007AFF]/30'
+                                : 'bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/10 text-black/75 dark:text-white/80 hover:bg-black/[0.02] dark:hover:bg-white/[0.05] font-semibold'"
+                            class="w-full py-2.5 px-1.5 rounded-[12px] flex flex-col items-center justify-center gap-1 transition-all active:scale-95 text-center min-h-[60px] shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
+                            <svg class="w-4.5 h-4.5 shrink-0 text-black/50 dark:text-white/50" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75a4.5 4.5 0 01-4.884 4.484c-1.076-.091-2.264.398-3.03 1.164l-4.5 4.5a2.25 2.25 0 01-3.182-3.182l4.5-4.5c.766-.766 1.255-1.954 1.164-3.03A4.5 4.5 0 0117.25 2.25a.75.75 0 01.53 1.28l-1.97 1.97a.75.75 0 001.06 1.06l1.97-1.97a.75.75 0 011.28.53z" />
+                            </svg>
+                            <span class="text-[11px] leading-tight line-clamp-2">Jasa</span>
+                        </button>
+
+                        <!-- 4. Dynamic Business Categories (Mobile) -->
+                        @foreach ($categories as $cat)
+                            <button type="button"
+                                @click="selectedCategory = '{{ $cat->id }}'; selectedTypeFilter = 'all'; filterProducts()"
+                                :class="(selectedCategory === '{{ $cat->id }}')
+                                    ? 'bg-[#007AFF] text-white shadow-sm font-bold ring-2 ring-[#007AFF]/30'
+                                    : 'bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/10 text-black/75 dark:text-white/80 hover:bg-black/[0.02] dark:hover:bg-white/[0.05] font-semibold'"
+                                class="w-full py-2.5 px-1.5 rounded-[12px] flex flex-col items-center justify-center gap-1 transition-all active:scale-95 text-center min-h-[60px] shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
+                                @if(stripos($cat->name, 'Jasa') !== false || stripos($cat->name, 'Layanan') !== false || stripos($cat->name, 'Konsultasi') !== false)
+                                    <svg class="w-4.5 h-4.5 shrink-0 text-black/50 dark:text-white/50" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                                    </svg>
+                                @elseif(stripos($cat->name, 'Pelengkap') !== false || stripos($cat->name, 'Tambahan') !== false)
+                                    <svg class="w-4.5 h-4.5 shrink-0 text-black/50 dark:text-white/50" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                @elseif(stripos($cat->name, 'Utama') !== false || stripos($cat->name, 'Menu') !== false)
+                                    <svg class="w-4.5 h-4.5 shrink-0 text-black/50 dark:text-white/50" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" />
+                                    </svg>
+                                @else
+                                    <svg class="w-4.5 h-4.5 shrink-0 text-black/50 dark:text-white/50" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6z" />
+                                    </svg>
+                                @endif
+                                <span class="text-[11px] leading-tight line-clamp-2">{{ $cat->name }}</span>
                             </button>
-                        </template>
-                        <button type="button" @click="nextPage()" :disabled="currentPage >= totalPages"
-                            class="w-7 h-7 sm:w-8 sm:h-8 rounded-[8px] border border-black/10 dark:border-white/15 bg-white dark:bg-[#1C1C1E] text-black/70 dark:text-white/80 hover:bg-black/[0.03] dark:hover:bg-white/[0.05] disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center transition text-xs font-semibold">
-                            ›
-                        </button>
+                        @endforeach
+                    </div>
+
+                    <!-- 3. PRODUCTS & MENU AREA (2/3 Width on Mobile, Full Width on Desktop) -->
+                    <div class="flex-1 flex flex-col overflow-hidden min-w-0">
+                        <!-- Products Touch Cards Grid -->
+                        <div class="pos-products flex-1 overflow-y-auto pr-1 pb-16 md:pb-2">
+                            <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3.5">
+                                <template x-for="product in paginatedProducts" :key="product.id">
+                                    <div @click="handleProductClick(product)"
+                                        class="rounded-[14px] sm:rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/10 hover:border-[#007AFF]/40 hover:shadow-md active:scale-[0.98] transition-all p-2.5 sm:p-3 cursor-pointer flex flex-col justify-between group select-none min-w-0">
+                                        <div>
+                                            @if ($posShowProductImages)
+                                                <!-- Thumbnail Image with 16/10 Aspect Ratio -->
+                                                <div
+                                                    class="relative w-full aspect-[16/10] rounded-[10px] sm:rounded-[12px] bg-black/[0.03] dark:bg-black/40 border border-black/[0.04] dark:border-white/5 mb-2 overflow-hidden items-center justify-center flex shrink-0">
+                                                    <template x-if="product.image_url">
+                                                        <img :src="product.image_url" :alt="product.name" loading="lazy"
+                                                            class="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                                                            x-on:error="product.image_url = null">
+                                                    </template>
+                                                    <template x-if="!product.image_url">
+                                                        <div
+                                                            class="w-full h-full flex flex-col items-center justify-center text-black/20 dark:text-white/20">
+                                                            <svg class="w-6 h-6 sm:w-8 sm:h-8" fill="none" stroke="currentColor"
+                                                                stroke-width="1.5" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                                    d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+                                                            </svg>
+                                                        </div>
+                                                    </template>
+
+                                                    <!-- Stock Badge Pill (Top-Right) -->
+                                                    <template x-if="product.type === 'service'">
+                                                        <span
+                                                            class="absolute top-1.5 right-1.5 text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#AF52DE] text-white shadow-xs">
+                                                            Jasa
+                                                        </span>
+                                                    </template>
+                                                    <template x-if="product.type !== 'service'">
+                                                        <span
+                                                            class="absolute top-1.5 right-1.5 text-[9px] sm:text-[10px] font-bold px-1.5 sm:px-2 py-0.5 rounded-full bg-white/95 dark:bg-black/90 shadow-xs tabular-nums"
+                                                            :class="product.current_stock > 0 ?
+                                                                'text-[#34C759] border border-[#34C759]' :
+                                                                'text-[#FF3B30] border border-[#FF3B30]'"
+                                                            x-text="'Stok: ' + (product.current_stock ?? 0)">
+                                                        </span>
+                                                    </template>
+                                                </div>
+                                            @endif
+
+                                            <!-- Product Name (2 lines clamped) -->
+                                            <h4 class="font-bold text-[12px] sm:text-[14px] text-black dark:text-white line-clamp-2 leading-snug group-hover:text-[#007AFF] transition-colors"
+                                                x-text="product.name"></h4>
+                                            
+                                            <!-- SKU / Code & Badges -->
+                                            <div class="flex items-center gap-1 flex-wrap mt-0.5 sm:mt-1">
+                                                <span class="text-[10px] sm:text-[11px] font-medium text-black/45 dark:text-white/45 tabular-nums truncate"
+                                                    x-text="product.code || '-'"></span>
+                                                <template x-if="product.type === 'service'">
+                                                    <span class="inline-flex items-center px-1.5 py-0.2 rounded text-[8.5px] sm:text-[9px] font-bold bg-[#AF52DE]/15 text-[#AF52DE]">
+                                                        Jasa
+                                                    </span>
+                                                </template>
+                                                <template x-if="product.modifier_groups && product.modifier_groups.length > 0">
+                                                    <span class="inline-flex items-center px-1.5 py-0.2 rounded text-[8.5px] sm:text-[9px] font-bold bg-[#007AFF]/10 text-[#007AFF]">
+                                                        + Varian
+                                                    </span>
+                                                </template>
+                                            </div>
+                                        </div>
+
+                                        <!-- Price and Add Button -->
+                                        <div class="mt-2 sm:mt-3 pt-2 sm:pt-2.5 flex items-center justify-between gap-1">
+                                            <span class="font-bold text-[12.5px] sm:text-[15px] text-black dark:text-white tabular-nums truncate"
+                                                x-text="formatRupiah(product.selling_price)"></span>
+                                            <button type="button" @click.stop="handleProductClick(product)"
+                                                class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#007AFF] hover:bg-[#0062CC] text-white flex items-center justify-center font-bold text-sm sm:text-base shadow-sm shrink-0 active:scale-90 transition-all"
+                                                title="Tambah ke Keranjang">
+                                                <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+
+                            <!-- Empty Catalog State -->
+                            <div x-show="filteredProducts.length === 0"
+                                class="h-64 flex flex-col items-center justify-center text-center text-black/40 dark:text-white/40">
+                                <svg class="w-12 h-12 text-black/20 dark:text-white/20 mb-2" fill="none"
+                                    stroke="currentColor" stroke-width="1.2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
+                                </svg>
+                                <div class="text-[13px] sm:text-[14px] font-semibold text-black/60 dark:text-white/60">Tidak ada produk ditemukan</div>
+                                <div class="text-[11px] sm:text-[12px] text-black/40 dark:text-white/40 mt-0.5">Coba ubah kata kunci pencarian atau kategori filter</div>
+                            </div>
+                        </div>
+
+                        <!-- Catalog Bottom Footer (Total Produk & Pagination) -->
+                        <div class="mt-auto pt-2 sm:pt-2.5 border-t border-black/[0.06] dark:border-white/10 flex items-center justify-between shrink-0 gap-2">
+                            <div class="flex items-center gap-1.5 text-[11px] sm:text-xs text-black/60 dark:text-white/60 truncate">
+                                <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-black/40 dark:text-white/40 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                                </svg>
+                                <span class="truncate">Total <strong class="text-black dark:text-white font-bold" x-text="filteredProducts.length"></strong> item</span>
+                            </div>
+
+                            <div class="flex items-center gap-1 select-none shrink-0" x-show="filteredProducts.length > 0">
+                                <button type="button" @click="prevPage()" :disabled="currentPage <= 1"
+                                    class="w-6.5 h-6.5 sm:w-8 sm:h-8 rounded-[8px] border border-black/10 dark:border-white/15 bg-white dark:bg-[#1C1C1E] text-black/70 dark:text-white/80 hover:bg-black/[0.03] dark:hover:bg-white/[0.05] disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center transition text-xs font-semibold">
+                                    ‹
+                                </button>
+                                <template x-for="p in totalPages" :key="p">
+                                    <button type="button" @click="goToPage(p)"
+                                        :class="currentPage === p ? 'bg-[#007AFF] text-white shadow-xs font-bold' : 'border border-black/10 dark:border-white/15 bg-white dark:bg-[#1C1C1E] text-black/70 dark:text-white/80 hover:bg-black/[0.03]'"
+                                        class="w-6.5 h-6.5 sm:w-8 sm:h-8 rounded-[8px] flex items-center justify-center transition text-xs font-semibold"
+                                        x-text="p">
+                                    </button>
+                                </template>
+                                <button type="button" @click="nextPage()" :disabled="currentPage >= totalPages"
+                                    class="w-6.5 h-6.5 sm:w-8 sm:h-8 rounded-[8px] border border-black/10 dark:border-white/15 bg-white dark:bg-[#1C1C1E] text-black/70 dark:text-white/80 hover:bg-black/[0.03] dark:hover:bg-white/[0.05] disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center transition text-xs font-semibold">
+                                    ›
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
