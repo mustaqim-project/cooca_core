@@ -1345,11 +1345,11 @@
                             <span>Hold</span>
                         </button>
                         <button @click="openPaymentModal()" :disabled="cart.length === 0"
-                            class="col-span-2 h-12 rounded-[14px] bg-[#007AFF] hover:bg-[#0062CC] active:scale-[0.98] text-white font-bold text-[14px] sm:text-[15px] shadow-[0_4px_16px_rgba(0,122,255,0.3)] flex items-center justify-between px-3.5 sm:px-4 transition disabled:opacity-35 disabled:cursor-not-allowed">
-                            <div class="flex items-center gap-2">
-                                <svg class="w-4.5 h-4.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                        d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z" />
+                            class="col-span-2 h-12 rounded-[14px] bg-[#007AFF] hover:bg-[#0062CC] active:scale-[0.98] text-white font-bold text-[14px] sm:text-[15px] shadow-[0_4px_16px_rgba(0,122,255,0.3)] flex items-center justify-between px-3.5 sm:px-4 transition disabled:opacity-35 disabled:cursor-not-allowed overflow-hidden">
+                            <div class="flex items-center gap-2 min-w-0">
+                                <svg class="w-4 h-4 shrink-0" width="16" height="16" style="width: 16px; height: 16px; min-width: 16px; min-height: 16px;" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                                    <rect width="20" height="14" x="2" y="5" rx="2" />
+                                    <line x1="2" x2="22" y1="10" y2="10" />
                                 </svg>
                                 <span>Bayar</span>
                                 <span class="hidden sm:inline-block px-1.5 py-0.5 rounded text-[10px] font-bold bg-white/20 uppercase tracking-wider">F9</span>
