@@ -56,34 +56,34 @@
 <body class="min-h-screen flex flex-col items-center justify-start p-4 sm:p-8">
 
     <!-- Top Action Bar (Hidden on Print) -->
-    <div class="no-print w-full max-w-[760px] mb-6 flex flex-wrap items-center justify-between gap-3 bg-white/90 backdrop-blur-md p-3.5 rounded-[18px] border border-black/10 shadow-sm sticky top-4 z-20">
-        <div class="flex items-center gap-2">
+    <div class="no-print w-full max-w-[760px] mb-6 flex flex-wrap items-center justify-between gap-3 bg-white/90 dark:bg-[#1C1C1E]/90 backdrop-blur-md p-4 rounded-[20px] border border-black/10 dark:border-white/10 shadow-sm sticky top-4 z-20">
+        <div class="flex items-center gap-2.5">
             <a href="{{ route('pos.tables.index') }}"
-                class="min-h-[40px] h-10 px-3.5 rounded-[12px] bg-black/[0.05] hover:bg-black/[0.09] text-[13px] font-semibold text-black/80 hover:text-black flex items-center gap-2 transition active:scale-[0.98]">
+                class="min-h-[44px] h-11 px-4 rounded-[12px] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.09] dark:hover:bg-white/[0.12] text-[13px] font-semibold text-black/80 dark:text-white/80 hover:text-black dark:hover:text-white flex items-center gap-2 transition active:scale-[0.98]">
                 <i data-lucide="arrow-left" class="w-4 h-4"></i>
                 <span>Daftar Meja</span>
             </a>
 
             @if ($isMultiple)
-                <span class="text-[12px] font-bold text-black/60 bg-black/[0.05] px-3 py-1.5 rounded-full">
+                <span class="text-[12px] font-bold text-black/60 dark:text-white/60 bg-black/[0.05] dark:bg-white/[0.08] px-3.5 py-1.5 rounded-full">
                     Total: {{ count($cardList) }} Meja
                 </span>
             @endif
         </div>
 
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2.5">
             @if (!$isMultiple)
                 <a href="{{ route('pos.tables.qr-svg', $cardList[0]['table']->id) }}"
-                    class="min-h-[40px] h-10 px-3.5 rounded-[12px] bg-black/[0.05] hover:bg-black/[0.09] text-[13px] font-semibold text-[#007AFF] flex items-center gap-2 transition active:scale-[0.98]">
+                    class="min-h-[44px] h-11 px-4 rounded-[12px] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.09] dark:hover:bg-white/[0.12] text-[13px] font-semibold text-[#007AFF] flex items-center gap-2 transition active:scale-[0.98]">
                     <i data-lucide="download" class="w-4 h-4"></i>
                     <span>Unduh SVG</span>
                 </a>
             @endif
 
             <button type="button" onclick="window.print()"
-                class="min-h-[40px] h-10 px-4 rounded-[12px] bg-[#007AFF] hover:bg-[#0071E3] text-white text-[13px] font-semibold flex items-center gap-2 shadow-sm transition active:scale-[0.98]">
+                class="min-h-[44px] h-11 px-5 rounded-[12px] bg-[#007AFF] hover:bg-[#0071E3] text-white text-[13px] font-semibold flex items-center gap-2 shadow-sm transition active:scale-[0.98]">
                 <i data-lucide="printer" class="w-4 h-4"></i>
-                <span>{{ $isMultiple ? 'Cetak Semua Standee (Print All)' : 'Cetak Standee (Print)' }}</span>
+                <span>{{ $isMultiple ? 'Cetak Semua Standee' : 'Cetak Standee' }}</span>
             </button>
         </div>
     </div>

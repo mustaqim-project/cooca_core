@@ -83,46 +83,117 @@ Jika sumber-sumber ini saling bertentangan: identifikasi konflik, tampilkan sumb
 
 ---
 
-## 4. Siklus Kerja Wajib (Execution Lifecycle)
+## 4. Siklus Kerja Wajib 6-Tahap (6-Stage Mandatory Operating Lifecycle)
+
+Setiap pekerjaan rekayasa sistem oleh AI Agent **WAJIB** mengikuti urutan 6 tahap terstruktur berikut secara disiplin:
 
 ```
-READ HISTORY → READ CURRENT DOCUMENTATION → INSPECT ACTUAL SOURCE CODE & DATABASE/ROUTES
-   ↓
-MAP END-TO-END WORKFLOW  (User → UI → JS/AJAX → Route → Middleware → Auth → Authorization
-                           → Controller → Request Validation → Service/Action → Model → DB
-                           → Event/Job → Notification/Integration → Final UI Response)
-   ↓
-AUDIT DUPLIKASI, UI/UX, SECURITY & FRAUD SCHEMES, GAP KESENJANGAN PERAN & OTOMASI
-   ↓
-KLASIFIKASIKAN RISIKO PERUBAHAN (bagian 5)
-   ↓
-SAJIKAN RENCANA IMPLEMENTASI  → INTERACTIVE CONFIRMATION GATE (tunggu persetujuan jika berisiko)
-   ↓
-IMPLEMENTASI SECARA SURGICAL (minimal & terarah, Bento UI + anti-fraud + otomasi terpasang)
-   ↓
-JALANKAN TESTING NYATA (references/automation-and-testing.md §Testing) → PERBAIKI & RETEST
-   ↓
-PRODUCTION HARDENING & TEST DATA PURGE (references/automation-and-testing.md §Hardening)
-   ↓
-PERBARUI DOKUMENTASI 3-LAYER (references/documentation-and-dod.md)
-   ↓
-FINAL AUDIT → LAPORKAN DENGAN FORMAT DI BAGIAN 11, BERDASARKAN BUKTI BUKAN ASUMSI
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 1. AUDIT SISTEM & ANALISIS END-TO-END                                       │
+│    (Pahami konteks, telusuri hulu-ke-hilir User→UI→Controller→DB→Notifikasi)│
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                      ↓                                      │
+│ 2. BUAT DOKUMEN RENCANA PERBAIKAN                                           │
+│    (Temuan, Penyebab, Dampak, Solusi, File Terdampak, Risiko, Prioritas)   │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                      ↓                                      │
+│ 3. MINTA PERSETUJUAN (INTERACTIVE CONFIRMATION GATE)                        │
+│    (Tampilkan rencana & tunggu persetujuan eksplisit pengguna)              │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                      ↓                                      │
+│ 4. IMPLEMENTASIKAN PERBAIKAN & TESTING NYATA                                │
+│    (Eksekusi surgical tepat sasaran, verifikasi 100% tes lolos)             │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                      ↓                                      │
+│ 5. CATAT HISTORY PEKERJAAN AI (`docs/AiWorkHistory.md`)                     │
+│    (Waktu, Tujuan, Hasil Audit, Perbaikan, File Diubah, Pengujian, Risiko)  │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                      ↓                                      │
+│ 6. UPDATE DOKUMENTASI SISTEM (`docs/system/` & `docs/SYSTEM_GUIDE.md`)      │
+│    (Perbarui 10 aspek terdampak agar dokumentasi selalu akurat)             │
+└─────────────────────────────────────────────────────────────────────────────┘
 ```
 
-**Jangan pernah** menyatakan fitur selesai hanya karena tampilan UI sudah tersedia - telusuri traceability end-to-end di atas sampai tuntas.
-
-Setiap workflow yang menyentuh **route, business logic, atau destructive change** wajib melewati Interactive Confirmation Gate sebelum implementasi - lihat klasifikasi risiko di bawah.
+> **Aturan Utama:**  
+> **Audit & Analisa End-to-End → Rencana Perbaikan → Persetujuan → Implementasi → Testing → Catat History → Update Dokumentasi**  
+> **JANGAN PERNAH** melakukan perubahan langsung tanpa audit dan tanpa persetujuan terhadap rencana perbaikan, kecuali pengguna secara eksplisit meminta perubahan langsung.
 
 ---
 
-## 5. Klasifikasi Risiko Perubahan
+### Rincian 6 Tahapan Operasional
 
-| Kelas                     | Contoh                                                                                                       | Butuh Persetujuan Eksplisit? |
+#### Tahap 1: Audit Sistem & Analisis End-to-End
+* Sebelum melakukan perubahan apa pun, lakukan analisa sistem mendalam dan audit menyeluruh hulu-ke-hilir (*end-to-end*).
+* Periksa apakah implementasi saat ini sudah sesuai dengan kebutuhan, arsitektur, standar, alur bisnis, dan praktik pengembangan yang seharusnya.
+* Pahami konteks sistem, fitur yang diperbaiki, dan petakan rantai keterhubungan penuh:
+  ```
+  User → UI/Blade → Alpine.js/AJAX → Route → Middleware (Auth/Tenant/Role/Throttle)
+       → Controller → Request Validation → Service/Action/Domain → Eloquent Model
+       → Database Schema & Indexing → Event/Job/Queue → Notification Tri-Channel
+       → Final UI Response
+  ```
+* Identifikasi bug, inkonsistensi, duplikasi, potensi masalah, technical debt, gap keamanan 4-kuadran, skema fraud internal, serta bagian yang masih dapat dioptimalkan.
+* **Jangan langsung melakukan perubahan sebelum proses audit dan analisa konteks selesai.**
+
+#### Tahap 2: Buat Dokumen Rencana Perbaikan
+Berdasarkan hasil audit & analisa end-to-end, susun dokumen rencana perbaikan yang memuat struktur standar:
+1. **Temuan Masalah**: Deskripsi konkret dan faktual mengenai issue atau technical debt yang ditemukan.
+2. **Penyebab Masalah (Root Cause Analysis)**: Akar permasalahan pada kode, query, arsitektur, atau alur data.
+3. **Dampak Masalah**: Dampak terhadap pengguna, operasional kasir, integritas data, keamanan, atau kinerja sistem.
+4. **Solusi yang Direkomendasikan**: Rencana perbaikan hulu-ke-hilir yang tepat sasaran, minimal, dan elegan.
+5. **File / Modul yang Terdampak**: Daftar spesifik berkas controller, model, view, migration, service, atau route yang akan disentuh.
+6. **Risiko Perubahan**: Evaluasi potensi efek samping, risiko regresi, atau kompatibilitas mundur.
+7. **Prioritas Perbaikan**: Klasifikasi prioritas (`P1 - Kritis/Tinggi`, `P2 - Sedang`, `P3 - Rendah/Penyempurnaan`).
+8. **Urutan Implementasi**: Langkah-langkah teknis bertahap yang akan dieksekusi.
+
+Rencana harus disajikan secara jelas, transparan, dan mudah dipahami agar dapat direview secara menyeluruh sebelum implementasi dimulai.
+
+#### Tahap 3: Minta Persetujuan (Interactive Confirmation Gate)
+* Setelah dokumen rencana perbaikan selesai disusun, **JANGAN LANGSUNG MELAKUKAN PERUBAHAN KODE APA PUN**.
+* Tampilkan dokumen rencana tersebut kepada pengguna dan minta persetujuan terlebih dahulu.
+* Hanya lakukan implementasi setelah pengguna memberikan persetujuan yang jelas (*explicit confirmation*).
+
+#### Tahap 4: Implementasikan Perbaikan & Testing
+* Setelah disetujui, lakukan perbaikan sesuai rencana secara *surgical*, terarah, dan tepat sasaran.
+* Hindari perubahan di luar scope yang telah disetujui (*anti-scope creep*).
+* Pastikan perubahan tidak merusak fitur, modul, relasi, atau workflow yang sudah berjalan.
+* Jalankan pengujian nyata (`php -l`, `php artisan test`, `php artisan route:list`, `npm run build`) dan pastikan lolos 100% (0 error, 0 failure).
+
+#### Tahap 5: Catat History Pekerjaan AI (`docs/AiWorkHistory.md`)
+Setelah perbaikan selesai dan teruji, catat seluruh pekerjaan yang dilakukan pada [docs/AiWorkHistory.md](file:///c:/laragon/www/cooca_core/docs/AiWorkHistory.md). Catatan wajib memuat 7 komponen minimal:
+1. **Tanggal/waktu**: Tanggal eksekusi pekerjaan (format YYYY-MM-DD).
+2. **Tujuan pekerjaan**: Konteks bisnis dan target yang ingin dicapai.
+3. **Hasil audit**: Ringkasan temuan audit dan analisa end-to-end.
+4. **Perbaikan yang dilakukan**: Rincian perubahan teknis hulu-ke-hilir yang telah diimplementasikan.
+5. **File/module yang diubah**: Daftar lengkap path berkas yang dimodifikasi.
+6. **Hasil pengujian**: Bukti konkret verifikasi pengujian otomatis dan fungsional.
+7. **Catatan atau risiko yang masih tersisa**: Catatan teknis lanjutan atau area yang perlu diperhatikan.
+
+#### Tahap 6: Update Dokumentasi Sistem (`docs/system/` & `docs/SYSTEM_GUIDE.md`)
+Setelah perubahan selesai, periksa dan perbarui dokumentasi pada [docs/system/](file:///c:/laragon/www/cooca_core/docs/system) dan [docs/SYSTEM_GUIDE.md](file:///c:/laragon/www/cooca_core/docs/SYSTEM_GUIDE.md). Pembaruan dokumentasi wajib dilakukan jika pekerjaan memengaruhi salah satu dari **10 Aspek Sistem**:
+1. Arsitektur sistem
+2. Struktur database (tabel, kolom, relasi, indeks)
+3. Modul atau fitur
+4. Business flow / alur bisnis
+5. Integrasi (ekspedisi, gateway pembayaran, WhatsApp Meta API, dll.)
+6. Konfigurasi
+7. API / Endpoint HTTP
+8. Permission / role
+9. Workflow operasional
+10. Struktur file atau komponen penting lainnya.
+
+---
+
+## 5. Klasifikasi Risiko Perubahan & Confirmation Gate
+
+Seluruh perubahan wajib disajikan dalam Dokumen Rencana Perbaikan dan dikonfirmasikan kepada pengguna sebelum eksekusi:
+
+| Kelas                     | Contoh                                                                                                       | Butuh Rencana & Persetujuan? |
 | ------------------------- | ------------------------------------------------------------------------------------------------------------ | ---------------------------- |
-| **Safe Change**           | Spacing, font size, alignment, warna, copywriting UI, responsive layout tanpa ubah workflow                  | Tidak                        |
-| **Structural Change**     | Perubahan route, pemindahan menu, penggabungan halaman, perubahan struktur komponen/service, relasi database | **Ya**                       |
-| **Business Logic Change** | Rumus, status transaksi, alur approval, kalkulasi HPP, aturan stok/pembayaran                                | **Ya**                       |
-| **Destructive Change**    | Hapus tabel/kolom/route/fitur/data, ubah data historis                                                       | **Ya, wajib eksplisit**      |
+| **Safe Change**           | Spacing, tipografi, warna, copy UI, layout bento tanpa ubah alur kerja                                       | **Ya (Rencana + Approval)**  |
+| **Structural Change**     | Perubahan route, migrasi/pemindahan menu, penggabungan view, perubahan struktur komponen/service, relasi DB  | **Ya (Wajib Rinci)**         |
+| **Business Logic Change** | Rumus finansial, status transaksi, alur approval, kalkulasi HPP/BOM, aturan stok/kas/pembayaran             | **Ya (Wajib Rinci)**         |
+| **Destructive Change**    | Hapus tabel/kolom/route/fitur/data, ubah data historis selesai, pruning log                                   | **Ya (Wajib Eksplisit & Preview)** |
 
 ---
 
@@ -281,6 +352,18 @@ Setiap pekerjaan dilaporkan dengan struktur berikut, diakhiri status berbasis bu
 
 ## 13. Final Agent Command
 
-1. Baca history → 2. Baca dokumentasi sistem → 3. Pahami keputusan sebelumnya → 4. Periksa source code aktual → 5. Petakan workflow end-to-end → 6. Audit duplikasi & penataan 6-Hub modul → 7. Audit keamanan, permission, gap 4-kuadran & skema fraud internal → 8. Audit otomasi & notifikasi tri-channel (UI/Email/WA) → 9. Audit optimasi performa (cache, index, queue) → 10. Audit UI/UX (teks, spacing, font, anti-pill-abuse) → 11. Klasifikasikan risiko perubahan → 12. Sajikan rencana → 13. Minta persetujuan jika berisiko → 14. Implementasikan secara minimal & terarah → 15. Jalankan testing nyata → 16. Perbaiki seluruh error → 17. Periksa tampilan lintas perangkat → 18. Bersihkan debug & data testing → 19. Perbarui dokumentasi 3-layer → 20. Lakukan final audit → 21. Laporkan status berdasarkan bukti, bukan asumsi.
+**Audit & Analisa End-to-End → Rencana Perbaikan → Persetujuan → Implementasi → Testing → Catat History → Update Dokumentasi**
+
+1. **Baca History & Docs** (`docs/AiWorkHistory.md`, `docs/system/`, `docs/SYSTEM_GUIDE.md`).
+2. **Audit Sistem & Analisis End-to-End**: Periksa source code aktual, database schema, dan petakan rantai hulu-ke-hilir penuh (`User → UI → Route → Controller → Validation → Service → Model → DB → Event/Job → Notification Tri-Channel → Response`) untuk memahami konteks dan fiturnya secara mendalam agar perbaikan tepat sasaran.
+3. **Audit Spesifik**: Cek duplikasi, kepatuhan Bento Apple HIG, celah keamanan 4-kuadran, skema fraud internal, performa (cache/queue/index), dan otomasi.
+4. **Susun Dokumen Rencana Perbaikan**: Tuliskan temuan masalah, akar penyebab, dampak, solusi rekomendasi, file/modul terdampak, risiko, prioritas, dan urutan implementasi.
+5. **Minta Persetujuan (Confirmation Gate)**: Sajikan dokumen rencana dan tunggu persetujuan eksplisit pengguna sebelum menyentuh kode.
+6. **Implementasikan Secara Terarah**: Lakukan perubahan secara *surgical*, terarah, dan hindari perubahan di luar cakupan yang disetujui.
+7. **Jalankan Testing Nyata**: Eksekusi pengujian nyata (`php -l`, `php artisan test`, `php artisan route:list`, `npm run build`), pastikan lolos 100% (0 error, 0 failure).
+8. **Bersihkan Residue & Hardening**: Bersihkan seluruh kode debug (`dd()`, `dump()`, `console.log()`) dan data dummy testing.
+9. **Catat History Pekerjaan AI**: Catat entri lengkap dengan 7 komponen wajib di [docs/AiWorkHistory.md](file:///c:/laragon/www/cooca_core/docs/AiWorkHistory.md).
+10. **Update Dokumentasi Sistem**: Periksa dan perbarui [docs/system/](file:///c:/laragon/www/cooca_core/docs/system) dan [docs/SYSTEM_GUIDE.md](file:///c:/laragon/www/cooca_core/docs/SYSTEM_GUIDE.md) pada 10 aspek sistem yang terdampak.
+11. **Laporkan Hasil**: Sajikan laporan akhir berbasis bukti nyata, bukan asumsi.
 
 

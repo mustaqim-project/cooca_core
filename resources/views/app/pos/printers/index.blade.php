@@ -564,7 +564,9 @@
 
             <div class="flex items-center justify-between border-b border-black/[0.06] dark:border-white/[0.08] pb-3">
                 <h3 class="font-bold text-[16px]">Tambah Printer Baru</h3>
-                <button type="button" @click="showAddModal = false" class="text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white text-sm">✕</button>
+                <button type="button" @click="showAddModal = false" class="w-8 h-8 rounded-full bg-black/[0.05] dark:bg-white/[0.08] flex items-center justify-center text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white transition">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
             </div>
 
             <form method="POST" action="{{ route('pos.printers.store') }}" class="space-y-4" x-data="{ connType: 'lan' }">
@@ -710,7 +712,9 @@
 
             <div class="flex items-center justify-between border-b border-black/[0.06] dark:border-white/[0.08] pb-3">
                 <h3 class="font-bold text-[16px]">Edit Profil Printer</h3>
-                <button type="button" @click="showEditModal = false" class="text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white text-sm">✕</button>
+                <button type="button" @click="showEditModal = false" class="w-8 h-8 rounded-full bg-black/[0.05] dark:bg-white/[0.08] flex items-center justify-center text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white transition">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
             </div>
 
             <form method="POST" :action="`{{ url('/pos/printers') }}/${editPrinter.id}`" class="space-y-4">

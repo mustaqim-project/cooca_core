@@ -1661,7 +1661,9 @@
                     <span x-text="waBotFeedback"></span>
                 </div>
                 <button type="button" @click="waBotFeedback = ''"
-                    class="text-xs opacity-60 hover:opacity-100">✕</button>
+                    class="w-6 h-6 rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white transition">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
             </div>
 
             <!-- BENTO ACTIONS GRID -->
@@ -1697,7 +1699,7 @@
                             <div class="font-extrabold text-[14px] leading-tight">Cetak Struk ESC/POS</div>
                             <div class="text-[11px] text-white/90 mt-0.5 flex items-center justify-between">
                                 <span>Kirim ke printer thermal</span>
-                                <span class="font-bold group-hover:translate-x-0.5 transition" x-text="directPrinting ? '⏳' : 'Cetak ➔'"></span>
+                                <span class="font-bold group-hover:translate-x-0.5 transition" x-text="directPrinting ? 'Mencetak...' : 'Cetak'"></span>
                             </div>
                         </div>
                     </button>
@@ -1720,7 +1722,7 @@
                                 :class="waBotSent ? 'bg-[#34C759]/20 text-[#248A3D] dark:text-[#30D158]' : (sendingWaBot ?
                                     'bg-[#FF9500]/20 text-[#FF9500]' : 'bg-[#25D366]/20 text-[#25D366]')">
                                 <span
-                                    x-text="sendingWaBot ? 'Mengirim...' : (waBotSent ? '✓ Terkirim' : 'Bot Otomatis')"></span>
+                                    x-text="sendingWaBot ? 'Mengirim...' : (waBotSent ? 'Terkirim' : 'Bot Otomatis')"></span>
                             </span>
                         </div>
                         <!-- Bottom Info & CTA -->
@@ -1731,7 +1733,7 @@
                                 class="text-[11px] text-black/60 dark:text-white/60 mt-0.5 flex items-center justify-between">
                                 <span>Kirim e-struk ke pelanggan</span>
                                 <span class="font-bold text-[#25D366] group-hover:translate-x-0.5 transition">
-                                    <span x-text="waBotSent ? 'Kirim Ulang ➔' : 'Kirim ➔'"></span>
+                                    <span x-text="waBotSent ? 'Kirim Ulang' : 'Kirim'"></span>
                                 </span>
                             </div>
                         </div>
@@ -1756,7 +1758,7 @@
                                 <div class="text-[9px] text-black/45 dark:text-white/45 truncate">KOT Station</div>
                             </div>
                         </div>
-                        <span class="text-[10px] font-bold text-[#FF9500] group-hover:translate-x-0.5 transition shrink-0" x-text="kitchenPrinting ? '⏳' : '➔'"></span>
+                        <span class="text-[10px] font-bold text-[#FF9500] group-hover:translate-x-0.5 transition shrink-0" x-text="kitchenPrinting ? 'Mengirim...' : 'Kirim'"></span>
                     </button>
 
                     <!-- Bento Tile 4: Pratinjau & Cetak Browser (Fallback) -->
@@ -3745,7 +3747,7 @@
                                 '/image');
                             this.lastWhatsAppUrl = data.whatsapp_url;
                             this.waBotSent = data.whatsapp_bot_sent || false;
-                            this.waBotFeedback = this.waBotSent ? '✓ Struk otomatis terkirim ke WhatsApp!' : '';
+                            this.waBotFeedback = this.waBotSent ? 'Struk otomatis terkirim ke WhatsApp!' : '';
                             this.waBotFeedbackSuccess = this.waBotSent;
                             this.showPaymentModal = false;
                             this.showSuccessModal = true;

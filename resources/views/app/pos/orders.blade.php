@@ -589,8 +589,8 @@
                         Batal
                     </button>
                     <button type="submit"
-                        class="min-h-[44px] h-11 px-5 rounded-[12px] bg-[#FF3B30] hover:bg-[#E0352B] text-white font-semibold text-[13px] active:scale-[0.97] transition shadow-sm">
-                        Eksekusi Void
+                        class="min-h-[44px] h-11 px-6 rounded-[12px] bg-[#FF3B30] hover:bg-[#E0352B] text-white font-semibold text-[13px] active:scale-[0.97] transition shadow-sm">
+                        Void
                     </button>
                 </div>
             </form>
@@ -646,8 +646,8 @@
                         Batal
                     </button>
                     <button type="submit"
-                        class="min-h-[44px] h-11 px-5 rounded-[12px] bg-[#FF9500] hover:bg-[#E08600] text-white font-semibold text-[13px] active:scale-[0.97] transition shadow-sm">
-                        Proses Retur
+                        class="min-h-[44px] h-11 px-6 rounded-[12px] bg-[#FF9500] hover:bg-[#E08600] text-white font-semibold text-[13px] active:scale-[0.97] transition shadow-sm">
+                        Retur
                     </button>
                 </div>
             </form>

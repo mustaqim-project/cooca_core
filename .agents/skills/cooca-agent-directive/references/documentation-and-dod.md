@@ -6,16 +6,31 @@ Setiap pekerjaan yang mengubah sistem wajib menghasilkan dua hal: perubahan pada
 
 ### Layer 1 - `docs/AiWorkHistory.md`
 
-Rekam jejak historis terstruktur. Catat:
-
-- Work ID · Tanggal · Tujuan · Masalah
-- File yang diubah · Workflow yang terdampak
-- Keputusan teknis · Testing yang dijalankan · Risiko
-- Status verifikasi
+Rekam jejak historis terstruktur. Setiap entri wajib memuat **7 komponen minimal**:
+1. **Tanggal/waktu**: Tanggal eksekusi pekerjaan (YYYY-MM-DD).
+2. **Tujuan pekerjaan**: Konteks bisnis dan target hulu-ke-hilir yang ingin dicapai.
+3. **Hasil audit**: Ringkasan temuan audit sistem & analisis end-to-end sebelum perbaikan.
+4. **Perbaikan yang dilakukan**: Rincian teknis perubahan surgical yang telah diimplementasikan.
+5. **File/module yang diubah**: Daftar lengkap path berkas controller, model, view, route, migration, dll.
+6. **Hasil pengujian**: Bukti konkret verifikasi pengujian otomatis (`php artisan test`, `php -l`, `php artisan route:list`, `npm run build`) dengan status 100% lolos.
+7. **Catatan atau risiko yang masih tersisa**: Catatan teknis lanjutan, mitigasi, atau rekomendasi perbaikan tahap berikutnya.
 
 ### Layer 2 - `docs/system/`
 
-Pengetahuan kondisi sistem terkini (_Current State Knowledge_), diekstrak ke direktori sesuai: `modules/`, `features/`, `workflows/`, `business-rules/`, `permissions/`, `architecture/`. Mencakup: Modul, Fitur, Workflow, Business rules, Permission, Arsitektur, Integrasi, Current state.
+Pengetahuan kondisi sistem terkini (_Current State Knowledge_), diekstrak ke direktori sesuai: `modules/`, `features/`, `workflows/`, `business-rules/`, `permissions/`, `architecture/`.
+
+**Pemicu Wajib Pembaruan `docs/system/` (10 Aspek Sistem)**:
+Pembaruan dokumentasi pada Layer 2 ini **WAJIB** dilakukan apabila pekerjaan memengaruhi salah satu dari 10 aspek berikut:
+1. **Arsitektur Sistem**: Perubahan pola service, event/job, queue worker, caching layer, middleware.
+2. **Struktur Database**: Migrasi tabel baru, penambahan kolom, foreign key, composite index, enum status.
+3. **Modul atau Fitur**: Penambahan, refactoring, atau pembaruan fungsionalitas modul.
+4. **Business Flow / Alur Bisnis**: Perubahan tahapan checkout, alur approval, pemotongan stok, siklus piutang.
+5. **Integrasi**: Konektor WhatsApp Meta Cloud API, gateway pembayaran TriPay/Midtrans, kurir Biteship, printer hardware.
+6. **Konfigurasi**: Penambahan atau penyesuaian file config Laravel, runtime settings, environment variable.
+7. **API / Endpoint**: Signature endpoint HTTP, payload request/response JSON, rate limiting.
+8. **Permission / Role**: Hak akses baru pada Superadmin, Business Owner, Kasir, Staff Gudang, Customer.
+9. **Workflow Operasional**: Prosedur kasir, KDS dapur, blind cash count, approval MAR, stock opname.
+10. **Struktur File / Komponen Penting**: Pembuatan Blade component baru, Alpine store, layout shell.
 
 ### Layer 3 - `docs/SYSTEM_GUIDE.md`
 
@@ -33,13 +48,15 @@ Actual Code > Database Schema > Tests > Existing Docs > AiWorkHistory > AI Assum
 
 Pekerjaan hanya dapat dinyatakan selesai - dan status akhir `VERIFIED` - jika **seluruh** item berikut tercentang dengan bukti nyata (bukan asumsi):
 
-### Proses & Riwayat
+### Siklus Kerja Wajib (Mandatory Lifecycle)
 
-- [ ] History telah dibaca dan dokumentasi relevan telah dibaca.
-- [ ] Source code aktual telah diperiksa; workflow end-to-end telah dipetakan (Route → Controller → Service → Model → View, dan rantai penuh User→...→UI Response).
-- [ ] Duplikasi telah diperiksa (Reuse → Refactor → Consolidate → Create New).
-- [ ] Risiko perubahan telah diklasifikasikan (Safe/Structural/Business Logic/Destructive).
-- [ ] Persetujuan telah diperoleh jika diperlukan (structural/business logic/destructive) - tidak ada perombakan alur/penggabungan menu tanpa persetujuan eksplisit.
+- [ ] **Audit Sistem & Analisis End-to-End**: History & dokumen sistem telah dibaca; source code aktual diperiksa; rantai alur dipetakan penuh (`User → UI → Route → Controller → Validation → Service → Model → DB → Event/Job → Notifikasi → Response`) agar memahami konteks secara mendalam dan tepat sasaran.
+- [ ] **Dokumen Rencana Perbaikan**: Rencana lengkap telah disusun memuat 8 elemen standar (Temuan, Penyebab/Root Cause, Dampak, Solusi, File Terdampak, Risiko, Prioritas, Urutan Implementasi).
+- [ ] **Persetujuan (Confirmation Gate)**: Persetujuan eksplisit pengguna telah diperoleh sebelum modifikasi kode dilakukan.
+- [ ] **Implementasi Surgical**: Perbaikan dilakukan sesuai rencana, tepat sasaran, bebas dari scope creep, dan tidak merusak fitur yang sudah ada.
+- [ ] **Testing Nyata 100% Lolos**: Pengujian nyata dieksekusi dengan hasil 0 error dan 0 failure.
+- [ ] **Catat History**: Entri lengkap dengan 7 komponen wajib dicatat di `docs/AiWorkHistory.md`.
+- [ ] **Update Dokumentasi Sistem**: Seluruh perubahan yang menyentuh 10 aspek sistem telah disinkronkan ke `docs/system/` dan `docs/SYSTEM_GUIDE.md`.
 
 ### Keamanan, Proteksi Fraud, & Data
 
@@ -89,7 +106,7 @@ Pekerjaan hanya dapat dinyatakan selesai - dan status akhir `VERIFIED` - jika **
 
 ### Dokumentasi
 
-- [ ] `docs/AiWorkHistory.md` telah mencatat entri riwayat lengkap & terstruktur (Layer 1).
-- [ ] `docs/system/` telah diperbarui merefleksikan kondisi sistem berjalan (Layer 2).
+- [ ] `docs/AiWorkHistory.md` telah mencatat entri riwayat lengkap & terstruktur dengan 7 komponen wajib (Layer 1).
+- [ ] `docs/system/` telah diperbarui merefleksikan kondisi sistem berjalan sesuai 10 aspek pemicu (Layer 2).
 - [ ] `docs/SYSTEM_GUIDE.md` WAJIB telah diperbarui secara simultan bersama `AiWorkHistory.md` (Layer 3).
 - [ ] Final audit telah dilakukan dan seluruh layer dokumentasi konsisten 100%.

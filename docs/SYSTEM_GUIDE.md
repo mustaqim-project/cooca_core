@@ -241,21 +241,20 @@ Logika bisnis utama tidak ditempatkan di Controller, melainkan pada domain packa
 * **AutoJournalService:** Mengkonversi transaksi kasir, pelunasan AP/AR, dan mutasi kas menjadi jurnal memorial berimbang ($\sum \text{Debit} = \sum \text{Kredit}$).
 * **Auto-BOM Engine:** Mengurangi saldo stok bahan baku mentah secara atomik (`decrement`) saat pesanan kasir berstatus `paid`.
 
-### 4.4 Protokol Verifikasi & Kesiapan Produksi (100% Zero-Error Mandate)
-Sebelum pekerjaan rekayasa dianggap selesai:
-1. **Uji Sintaks:** `php -l <file>` wajib bebas error di seluruh file PHP yang dimodifikasi.
-2. **Uji Rute:** `php artisan route:list` wajib terdaftar tanpa route collision.
-3. **Pengujian Otomatis:** `php artisan test` wajib lolos 100% (0 failure, 0 error).
-4. **Kesiapan Source Code Produksi:**
-   - Bebas mock data, stub dummy, atau bypass OTP sementara.
-   - Bersih dari fungsi debugging mentah (`dd()`, `dump()`, `ray()`, `var_dump()`, `console.log()`).
-   - Aset frontend terkompilasi produksi (`npm run build`) dan cache teroptimasi.
-   - Pembersihan data testing: record dummy dan file sampah uji coba dibersihkan tuntas dari database operasional.
+### 4.4 Protokol Rekayasa 6-Tahap & Kesiapan Produksi (The 6-Stage Engineering Lifecycle)
+Seluruh aktivitas pengembangan dan perbaikan sistem oleh AI Agent atau Engineer **WAJIB** mematuhi siklus kerja terstruktur:
+1. **Audit Sistem & Analisis End-to-End:** Analisa hulu-ke-hilir (`User → UI → Route → Controller → Validation → Service → Model → DB → Event/Job → Notification Tri-Channel → Response`) untuk memahami konteks dan fiturnya secara mendalam sebelum menyentuh kode.
+2. **Dokumen Rencana Perbaikan:** Menyusun rencana memuat 8 elemen standar (Temuan, Akar Penyebab, Dampak, Solusi, File Terdampak, Risiko, Prioritas, Urutan Implementasi).
+3. **Minta Persetujuan (Confirmation Gate):** Menyajikan rencana perbaikan dan menunggu persetujuan pengguna sebelum melakukan perubahan apa pun.
+4. **Implementasi Surgical & Pengujian Nyata:** Eksekusi terarah tepat sasaran tanpa scope creep; pengujian sintaks (`php -l`), routing (`php artisan route:list`), unit/feature test (`php artisan test`) wajib 100% lolos (0 error, 0 failure).
+5. **Pembersihan Residue & Hardening:** Bebas mock data, bebas debug console (`dd()`, `dump()`, `console.log()`), kompilasi aset produksi (`npm run build`), dan pembersihan data testing dari database operasional.
+6. **Pencatatan & Pembaruan Pengetahuan:** Catat history di `docs/AiWorkHistory.md` dan mutakhirkan `docs/system/` serta `docs/SYSTEM_GUIDE.md`.
 
-### 4.5 Protokol Dokumentasi Berkelanjutan Simultan (AiWorkHistory.md + SYSTEM_GUIDE.md)
-* **Mandat Mutlak Pembaruan Bersamaan:** Setiap kali AI Agent atau engineer menyelesaikan tugas rekayasa dan mencatatkan riwayat di `docs/AiWorkHistory.md`, **WAJIB secara simultan memperbarui `docs/SYSTEM_GUIDE.md` (dan dokumen terkait di `docs/system/`)**.
-* **Alasan & Filosofi:** `AiWorkHistory.md` adalah catatan kronologis masa lalu (audit trail & historical context), sedangkan `SYSTEM_GUIDE.md` adalah pedoman hidup (*Living Master Guide*) bagi Business Owner, Developer, QA, dan AI Agent. Dilarang keras hanya memperbarui history tanpa menyelaraskan System Guide.
-* **Status Penyelesaian:** Tugas yang hanya mencatatkan history di `AiWorkHistory.md` tanpa menyelaraskan `SYSTEM_GUIDE.md` diklasifikasikan sebagai **BELUM SELESAI (INCOMPLETE / PARTIAL)** dan tidak dapat dinyatakan `VERIFIED` atau `COMPLETED`.
+### 4.5 Protokol Dokumentasi Berkelanjutan Simultan (AiWorkHistory.md + docs/system/ + SYSTEM_GUIDE.md)
+* **Mandat Mutlak Pembaruan Bersamaan:** Setiap kali AI Agent atau engineer menyelesaikan tugas rekayasa dan mencatatkan riwayat di `docs/AiWorkHistory.md`, **WAJIB secara simultan memperbarui `docs/SYSTEM_GUIDE.md` dan direktori relevan di `docs/system/`**.
+* **7 Komponen Wajib `docs/AiWorkHistory.md`:** (1) Tanggal/waktu, (2) Tujuan pekerjaan, (3) Hasil audit, (4) Perbaikan yang dilakukan, (5) File/module yang diubah, (6) Hasil pengujian, (7) Catatan/risiko tersisa.
+* **10 Aspek Pemicu Pembaruan `docs/system/`:** Pembaruan Layer 2 `docs/system/` wajib dilakukan jika perubahan menyentuh salah satu dari: (1) Arsitektur sistem, (2) Struktur database, (3) Modul/fitur, (4) Alur bisnis, (5) Integrasi, (6) Konfigurasi, (7) API/Endpoint, (8) Permission/role, (9) Workflow operasional, (10) Struktur file/komponen.
+* **Status Penyelesaian:** Tugas yang hanya mencatatkan history di `AiWorkHistory.md` tanpa menyelaraskan `SYSTEM_GUIDE.md` dan `docs/system/` diklasifikasikan sebagai **BELUM SELESAI (INCOMPLETE / PARTIAL)** dan tidak dapat dinyatakan `VERIFIED` atau `COMPLETED`.
 
 ### 4.6 Arsitektur Multi-Tenant WhatsApp Cloud API
 * **Pemisahan Kredensial Multi-Tenant:** Setiap merchant memiliki satu rekaman data pada tabel `whatsapp_accounts` yang menyimpan `waba_id`, `phone_number_id`, `phone_number`, dan `access_token`.

@@ -10,9 +10,9 @@
                 <i data-lucide="clipboard-list" class="w-6 h-6"></i>
             </div>
             <div>
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-2.5">
                     <h1 class="text-[20px] font-bold tracking-tight text-neutral-900 dark:text-white">Lembar Prep Dapur &amp; Katering</h1>
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/25">
+                    <span class="text-[11px] font-bold tracking-[0.14em] uppercase text-emerald-600 dark:text-emerald-400">
                         BOM AGGREGATION
                     </span>
                 </div>
