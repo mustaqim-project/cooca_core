@@ -6,8 +6,8 @@
 
     $activeModuleKey = \App\Support\Navigation\NavigationRegistry::getActiveModuleKey();
 
-    $isPosRoute = request()->routeIs('pos.*') && !request()->routeIs('pos.modifiers.*');
-    $isB2bSalesRoute = request()->routeIs('sales.*') || request()->routeIs('invoices.*');
+    $isPosRoute = (request()->routeIs('pos.*') && !request()->routeIs('pos.modifiers.*')) || $activeModuleKey === 'pos';
+    $isB2bSalesRoute = request()->routeIs('sales.*') || request()->routeIs('invoices.*') || in_array($activeModuleKey, ['sales'], true);
     $isSalesRoute = $isPosRoute || $isB2bSalesRoute || request()->routeIs('customers.*') || request()->routeIs('crm.*') || in_array($activeModuleKey, ['sales', 'crm'], true);
     $isPurchasingRoute =
         request()->routeIs('purchasing.*') ||
@@ -807,6 +807,8 @@
         <nav aria-label="Navigasi utama"
         class="sidebar-nav flex-1 overflow-y-auto px-2.5 py-3 space-y-3 min-h-0 overscroll-contain text-xs"
         x-data="{
+            posOpen: {{ $isPosRoute ? 'true' : 'false' }},
+            b2bSalesOpen: {{ $isB2bSalesRoute ? 'true' : 'false' }},
             salesOpen: {{ $isSalesRoute ? 'true' : 'false' }},
             inventoryOpen: {{ $isInventoryRoute ? 'true' : 'false' }},
             purchasingOpen: {{ $isPurchasingRoute ? 'true' : 'false' }},

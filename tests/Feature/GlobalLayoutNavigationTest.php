@@ -105,4 +105,21 @@ final class GlobalLayoutNavigationTest extends TestCase
         $response->assertOk();
         $response->assertSee('marketingOpen: true', false);
     }
+
+    public function test_sidebar_defines_pos_open_and_b2b_sales_open_in_alpine_state(): void
+    {
+        $response = $this->actingAs($this->owner, 'web')->get(route('dashboard'));
+
+        $response->assertOk();
+        $response->assertSee('posOpen:', false);
+        $response->assertSee('b2bSalesOpen:', false);
+    }
+
+    public function test_sidebar_opens_b2b_sales_group_when_visiting_sales_order(): void
+    {
+        $response = $this->actingAs($this->owner, 'web')->get(route('sales.orders.index'));
+
+        $response->assertOk();
+        $response->assertSee('b2bSalesOpen: true', false);
+    }
 }

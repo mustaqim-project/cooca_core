@@ -118,8 +118,9 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
     - **AC-3:** Kontainer tab memiliki kelas scroll horizontal mobile (`overflow-x-auto`, `flex-nowrap`, `whitespace-nowrap`, `no-scrollbar`).
     - **AC-4:** Akses URL langsung ke modul yang dinonaktifkan terblokir oleh middleware dan diredirect dengan alert flash session.
     - **AC-5:** RBAC gating pada level tab: tab fitur yang tidak diizinkan untuk peran tertentu (misal: Retur Penjualan untuk Kasir) dihilangkan sepenuhnya dari DOM.
-    - **AC-6:** Sidebar otomatis melakukan sinkronisasi state expand group sesuai modul aktif.
-  - Menjalankan 10 test suite regresi navigasi lengkap: 64 tests, 735 assertions, 100% PASSED (0 failure, 0 error).
+    - **AC-6:** Sidebar otomatis melakukan sinkronisasi state expand group sesuai modul aktif (`posOpen`, `b2bSalesOpen`, `salesOpen`, `marketingOpen`, `financeOpen`).
+  - Menangani error reaktif Alpine.js pada sidebar dengan mendefinisikan variabel `posOpen` dan `b2bSalesOpen` di `x-data` nav utama, menghilangkan `Uncaught ReferenceError: posOpen is not defined` dan `b2bSalesOpen is not defined`.
+  - Menjalankan 10 test suite regresi navigasi lengkap: 66 tests, 739 assertions, 100% PASSED (0 failure, 0 error).
 
 #### 3. Technical Changes
 - **Files Affected:**
@@ -130,16 +131,16 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
   - `resources/views/components/module-header.blade.php` (Baru - Komponen Header Modul Terstandarisasi)
   - `resources/views/components/module-tabs.blade.php` (Baru - Komponen Tab Modul Terstandarisasi)
   - `resources/views/layouts/app.blade.php` (Pembersihan layout global & integrasi `$activeModuleKey`)
-  - `resources/views/layouts/partials/sidebar.blade.php` (Sinkronisasi Alpine.js grup & pengetatan RBAC sidebar)
+  - `resources/views/layouts/partials/sidebar.blade.php` (Definisi `posOpen` & `b2bSalesOpen` di x-data, sinkronisasi Alpine.js grup & pengetatan RBAC)
   - 30+ Blade views di `resources/views/app/*` (Refactor header & tab ke shared components)
-  - 10 File Pengujian di `tests/Unit/*` dan `tests/Feature/*` (64 automated tests).
+  - 10 File Pengujian di `tests/Unit/*` dan `tests/Feature/*` (66 automated tests).
 - **Database Changes:** Tidak ada perubahan skema database (menggunakan kolom `disabled_modules` pada tabel `businesses` dan relasi RBAC yang telah ada).
 - **API / Route Changes:**
   - Pemasangan middleware `module.enabled` pada seluruh rute fitur yang bersifat opsional/dapat dinonaktifkan di `routes/owner.php` dan `routes/api.php`.
   - Standarisasi query parameter `from=materials` vs `from=products` pada controller `UnitWebController` dan `ProductCategoryWebController`.
 
 #### 4. System Impacts
-- **Workflow Impact:** Orientasi navigasi pengguna meningkat secara signifikan. Pengguna tidak lagi kehilangan tab modul saat menavigasi ke sub-halaman konfigurasi master data. Pengguna mobile mendapatkan navigasi tab yang nyaman di-scroll secara horizontal tanpa memakan ruang vertikal layar.
+- **Workflow Impact:** Orientasi navigasi pengguna meningkat secara signifikan. Pengguna tidak lagi kehilangan tab modul saat menavigasi ke sub-halaman konfigurasi master data. Pengguna mobile mendapatkan navigasi tab yang nyaman di-scroll secara horizontal tanpa memakan ruang vertikal layar. Interaksi klik dropdown menu sidebar (`Kasir & POS Resto` dan `Penjualan B2B & Faktur`) berjalan mulus tanpa error Alpine.js pada konsol browser.
 - **Business Rule Impact:** Penonaktifan modul di tingkat tenant kini memiliki penegakan lapis ganda: tidak hanya disembunyikan dari sidebar, tetapi juga secara aktif diblokir pada layer HTTP middleware jika pengguna mencoba mengakses via bookmark atau direct URL.
 - **Permission Impact:** Hak akses peran ditegakkan secara presisi di level tab DOM. Kasir atau staf tanpa izin `sales.returns` atau `purchasing.bills` tidak akan melihat tab tersebut sama sekali di dalam view, mencegah kebingungan dan upaya akses ilegal.
 
@@ -155,9 +156,9 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
   - `tests/Feature/PurchasingAndInventoryNavigationTest.php` (7 tests, 84 assertions, PASSED)
   - `tests/Feature/SalesAndCrmNavigationTest.php` (9 tests, 131 assertions, PASSED)
   - `tests/Feature/CommunicationNavigationTest.php` (4 tests, 48 assertions, PASSED)
-  - `tests/Feature/GlobalLayoutNavigationTest.php` (6 tests, 194 assertions, PASSED)
+  - `tests/Feature/GlobalLayoutNavigationTest.php` (8 tests, 198 assertions, PASSED)
   - `tests/Feature/NavigationRemediationAcceptanceTest.php` (6 tests, 35 assertions, PASSED)
-  - **Total:** 64 tests, 735 assertions, 0 failures, 0 errors, durasi 34.5 detik.
+  - **Total:** 66 tests, 739 assertions, 0 failures, 0 errors.
 
 #### 6. Important Decisions & Guardrails
 - **Zero-Regresi Policy:** Seluruh route name, query parameter default, dan izin otorisasi yang sudah ada dipertahankan tanpa mengubah kontrak API atau logika bisnis controller inti.
