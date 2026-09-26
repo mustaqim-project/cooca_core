@@ -232,6 +232,37 @@ final class PosTerminalWebController extends Controller
             $technicians = collect();
         }
 
+        // 8.5. Today's Storefront Reservations
+        try {
+            $todayReservations = \App\Models\CommerceReservation::where('business_id', $business->id)
+                ->whereDate('reservation_date', \Carbon\Carbon::today()->toDateString())
+                ->whereIn('status', [
+                    \App\Models\CommerceReservation::STATUS_PENDING_CONFIRMATION,
+                    \App\Models\CommerceReservation::STATUS_CONFIRMED,
+                    \App\Models\CommerceReservation::STATUS_SEATED,
+                ])
+                ->with(['posTable', 'product'])
+                ->orderBy('time_slot')
+                ->get()
+                ->map(fn ($r) => [
+                    'id'               => $r->id,
+                    'reservation_code' => $r->reservation_code,
+                    'customer_name'    => $r->customer_name,
+                    'customer_phone'   => $r->customer_phone,
+                    'customer_email'   => $r->customer_email,
+                    'guest_count'      => $r->guest_count,
+                    'time_slot'        => $r->time_slot,
+                    'status'           => $r->status,
+                    'pos_table_id'     => $r->pos_table_id,
+                    'pos_table_name'   => $r->posTable ? ('Meja #' . $r->posTable->table_number . ($r->posTable->name ? ' (' . $r->posTable->name . ')' : '')) : null,
+                    'notes'            => $r->notes,
+                ]);
+            $todayReservationsCount = $todayReservations->count();
+        } catch (\Throwable) {
+            $todayReservations = collect();
+            $todayReservationsCount = 0;
+        }
+
         return view('app.pos.terminal', compact(
             'business',
             'user',
@@ -244,6 +275,8 @@ final class PosTerminalWebController extends Controller
             'heldOrders',
             'vouchers',
             'tables',
+            'todayReservations',
+            'todayReservationsCount',
             'pendingQrOrdersCount',
             'operatingMode',
             'canBypassSupervisor',
@@ -251,6 +284,67 @@ final class PosTerminalWebController extends Controller
             'posShowProductImages',
             'technicians'
         ));
+    }
+
+    /**
+     * Check in / Seat a customer reservation directly from POS terminal.
+     */
+    public function seatReservation(Request $request, \App\Models\CommerceReservation $reservation): JsonResponse
+    {
+        $business = Context::requireBusiness();
+        abort_unless($reservation->business_id === $business->id, 403);
+        abort_unless(Context::hasPermission('pos.terminal'), 403);
+
+        $tableId = $request->input('pos_table_id', $reservation->pos_table_id);
+        if (! $tableId) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Silakan pilih meja terlebih dahulu untuk tamu reservasi ini.',
+            ], 422);
+        }
+
+        try {
+            $table = PosTable::where('business_id', $business->id)->findOrFail($tableId);
+
+            // Assign table if not assigned yet or changed
+            if ($reservation->pos_table_id !== $table->id) {
+                $reservationService = new \App\Domain\Commerce\Storefront\ReservationBookingService();
+                $reservationService->assignTable($reservation, $table);
+            }
+
+            // Mark as seated
+            $reservation->markAsSeated();
+
+            // Create or get active table session
+            $tableService = new \App\Domain\Pos\PosTableService();
+            $session = $tableService->getOrCreateActiveSession(
+                $table,
+                $reservation->customer_name,
+                $reservation->customer_phone
+            );
+
+            return response()->json([
+                'success' => true,
+                'message' => "Tamu #{$reservation->reservation_code} ({$reservation->customer_name}) berhasil duduk di Meja #{$table->table_number}.",
+                'table' => [
+                    'id' => $table->id,
+                    'table_number' => $table->table_number,
+                    'name' => $table->name,
+                    'status' => $table->status,
+                ],
+                'session' => [
+                    'id' => $session->id,
+                    'session_number' => $session->session_number,
+                    'customer_name' => $session->customer_name,
+                    'customer_phone' => $session->customer_phone,
+                ],
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 400);
+        }
     }
 
     /**

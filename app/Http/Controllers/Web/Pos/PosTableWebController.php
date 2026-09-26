@@ -95,6 +95,18 @@ final class PosTableWebController extends Controller
                         ])->values()->all(),
                     ] : null,
                 ])->values()->all(),
+                'today_reservations' => $todayReservations->map(fn ($r) => [
+                    'id'               => $r->id,
+                    'reservation_code' => $r->reservation_code,
+                    'customer_name'    => $r->customer_name,
+                    'customer_phone'   => $r->customer_phone,
+                    'guest_count'      => $r->guest_count,
+                    'time_slot'        => $r->time_slot,
+                    'status'           => $r->status,
+                    'pos_table_id'     => $r->pos_table_id,
+                    'pos_table_name'   => $r->posTable ? ('Meja #' . $r->posTable->table_number . ($r->posTable->name ? ' (' . $r->posTable->name . ')' : '')) : null,
+                    'notes'            => $r->notes,
+                ])->values()->all(),
             ]);
         }
 

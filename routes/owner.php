@@ -451,6 +451,7 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
         Route::post('/pos/receipt/{order}/reprint', [PosTerminalWebController::class, 'reprintReceipt'])->name('pos.receipt.reprint');
         Route::get('/pos/receipt/{order}/image', [PosTerminalWebController::class, 'receiptImage'])->name('pos.receipt.image');
         Route::post('/pos/verify-pin', [PosTerminalWebController::class, 'verifySupervisorPin'])->middleware('throttle:5,1')->name('pos.verify-pin');
+        Route::post('/pos/reservations/{reservation}/seat', [PosTerminalWebController::class, 'seatReservation'])->middleware('require.permission:pos.terminal')->name('pos.reservations.seat');
 
         // POS Shifts
         Route::middleware('require.permission:pos.orders')->group(function (): void {

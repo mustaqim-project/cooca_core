@@ -31,6 +31,31 @@
             </div>
         @endif
 
+        <!-- POS & Table Floor Plan Quick Action Strip -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-[18px] bg-[#007AFF]/[0.06] border border-[#007AFF]/15">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-[10px] bg-[#007AFF] text-white flex items-center justify-center shrink-0 shadow-sm">
+                    <i data-lucide="monitor" class="w-4.5 h-4.5"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-[13.5px] text-black dark:text-white">Terhubung Langsung dengan POS Kasir</h3>
+                    <p class="text-[11.5px] text-black/60 dark:text-white/60">Kelola meja dine-in, check-in tamu reservasi, dan input pesanan di kasir secara real-time.</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2 self-start sm:self-auto shrink-0">
+                <a href="{{ route('pos.tables.index') }}"
+                    class="h-9 px-3.5 rounded-[10px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/5 text-black dark:text-white text-[12px] font-semibold flex items-center gap-1.5 transition shadow-xs">
+                    <i data-lucide="layout-grid" class="w-3.5 h-3.5 text-[#5856D6]"></i>
+                    <span>Denah Meja POS</span>
+                </a>
+                <a href="{{ route('pos.terminal') }}"
+                    class="h-9 px-3.5 rounded-[10px] bg-[#007AFF] hover:bg-[#0071E3] text-white text-[12px] font-semibold flex items-center gap-1.5 transition shadow-xs active:scale-95">
+                    <i data-lucide="calculator" class="w-3.5 h-3.5"></i>
+                    <span>Buka Terminal Kasir</span>
+                </a>
+            </div>
+        </div>
+
         <!-- Apple Bento Summary Cards -->
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
             <div
@@ -266,6 +291,15 @@
                                                 </form>
                                             @endif
 
+                                            @if ($rsv->pos_table_id)
+                                                <a href="{{ route('pos.terminal', ['table_id' => $rsv->pos_table_id, 'reservation_id' => $rsv->id]) }}"
+                                                    class="px-2.5 py-1 rounded-[8px] bg-[#007AFF]/10 hover:bg-[#007AFF]/20 text-[#007AFF] font-bold text-[11px] transition flex items-center gap-1"
+                                                    title="Buka Meja ini di Terminal POS Kasir">
+                                                    <i data-lucide="calculator" class="w-3 h-3"></i>
+                                                    <span>POS</span>
+                                                </a>
+                                            @endif
+
                                             {{-- Dropdown for other actions --}}
                                             <div class="relative">
                                                 <button type="button" @click="openMenu = !openMenu"
@@ -274,6 +308,13 @@
                                                 </button>
                                                 <div x-show="openMenu" @click.away="openMenu = false" x-transition
                                                     class="absolute right-0 mt-1 w-36 bg-white dark:bg-[#2C2C2E] rounded-[14px] shadow-lg border border-black/10 dark:border-white/10 p-1.5 z-20 text-left text-[11.5px] space-y-0.5">
+                                                    @if ($rsv->pos_table_id)
+                                                        <a href="{{ route('pos.terminal', ['table_id' => $rsv->pos_table_id, 'reservation_id' => $rsv->id]) }}"
+                                                            class="w-full px-2.5 py-1.5 rounded-[8px] hover:bg-black/5 flex items-center gap-2 text-[#007AFF] font-semibold">
+                                                            <i data-lucide="calculator" class="w-3.5 h-3.5"></i>
+                                                            <span>Buka di POS</span>
+                                                        </a>
+                                                    @endif
                                                     <button type="button"
                                                         @click="openMenu = false; openAssign({{ Js::from($rsv) }})"
                                                         class="w-full px-2.5 py-1.5 rounded-[8px] hover:bg-black/5 flex items-center gap-2 text-black dark:text-white">
@@ -442,6 +483,13 @@
                                     </button>
                                     <div x-show="openMenu" @click.away="openMenu = false" x-transition
                                         class="absolute right-0 bottom-full mb-1 w-40 bg-white dark:bg-[#2C2C2E] rounded-[14px] shadow-lg border border-black/10 dark:border-white/10 p-1.5 z-20 text-left text-xs space-y-0.5">
+                                        @if ($rsv->pos_table_id)
+                                            <a href="{{ route('pos.terminal', ['table_id' => $rsv->pos_table_id, 'reservation_id' => $rsv->id]) }}"
+                                                class="w-full px-2.5 py-1.5 rounded-[8px] hover:bg-black/5 flex items-center gap-2 text-[#007AFF] font-semibold">
+                                                <i data-lucide="calculator" class="w-3.5 h-3.5"></i>
+                                                <span>Buka di POS</span>
+                                            </a>
+                                        @endif
                                         <button type="button"
                                             @click="openMenu = false; openAssign({{ Js::from($rsv) }})"
                                             class="w-full px-2.5 py-1.5 rounded-[8px] hover:bg-black/5 flex items-center gap-2 text-black dark:text-white">
