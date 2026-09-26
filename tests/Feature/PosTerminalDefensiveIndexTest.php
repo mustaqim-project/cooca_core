@@ -79,4 +79,11 @@ final class PosTerminalDefensiveIndexTest extends TestCase
 
         $response->assertRedirect(route('businesses.select'));
     }
+
+    public function test_route_matched_for_pos_checkout(): void
+    {
+        $request = \Illuminate\Http\Request::create('/pos/checkout', 'POST');
+        $route = app('router')->getRoutes()->match($request);
+        $this->assertSame('pos.checkout', $route->getName());
+    }
 }

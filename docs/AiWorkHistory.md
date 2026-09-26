@@ -11780,6 +11780,43 @@ Business Owner / Merchant UMKM COOCA memerlukan satu pusat pengelolaan (_Single 
 - `php artisan view:cache`: **Blade templates cached successfully**.
 - Git commit & push: `fa0c2e1` pushed cleanly to GitHub `origin/main`.
 
+---
+
+### [WORK-2026-09-26-176] POS Checkout 401 Unauthorized Interception & Dynamic Storefront Slug Isolation
+
+- **Date:** 2026-09-26
+- **Status:** COMPLETED
+- **Module:** Route Architecture (`routes/web.php`, `routes/customer.php`, `routes/public.php`), Automated Test Suites (`tests/Feature/PosTerminalDefensiveIndexTest.php`, `tests/Feature/PosTerminalFeatureTest.php`)
+- **Feature:** Eliminasi Tabrakan Rute POS Checkout 401 (Wildcard Storefront Slug vs Static Core Route)
+- **Work Type:** Bug Fix | Security Architecture | Routing Refactor | Automated Verification
+
+#### 1. Root Cause Analysis
+- **Insiden 401 pada `POST /pos/checkout`:**
+  - Di `routes/web.php`, rute `customer.php` di-require sebelum `owner.php`.
+  - Di `routes/customer.php`, terdapat grup rute ber-prefix `{slug}` untuk storefront checkout publik (`Route::prefix('{slug}')->post('/checkout', ...)`).
+  - Ketika browser kasir mengirim request `POST /pos/checkout`, Laravel mencocokkan segmen URL pertama (`pos`) dengan parameter dinamis `{slug}` pada `customer.php` alih-alih rute statis di `owner.php`.
+  - Rute storefront di `customer.php` diproteksi oleh middleware `auth:customer`. Karena pengguna (kasir/owner) terautentikasi melalui guard `web` (bukan guard `customer`), guard `customer` menolak request dan menghasilkan status **401 Unauthorized (`Unauthenticated`)**.
+- **Insiden 422 pada `POST /pos/cash-drawer/manual-pop`:**
+  - Terjadi karena form request validation mewajibkan field `printer_id` bertipe UUID dan PIN supervisor valid ketika tombol drawer pop ditekan tanpa printer fisik terhubung.
+
+#### 2. What Was Done
+1. **Prioritas Rute Statis vs Dinamis (`routes/web.php`):**
+   - Mengubah urutan registrasi rute: `require __DIR__ . '/owner.php';` dipindahkan sebelum `require __DIR__ . '/customer.php';`.
+   - Memastikan seluruh endpoint statis owner workspace (ERP, POS, Billing) selalu dicocokkan lebih awal daripada wildcard storefront.
+2. **Double Bulletproof Protection pada Parameter `{slug}` (`routes/customer.php` & `routes/public.php`):**
+   - Menambahkan regex negative lookahead pada seluruh parameter `{slug}` di `routes/customer.php` dan `routes/public.php`:
+     `^(?!(pos|admin|api|dashboard|auth|login|register|profile|calculator|settings|billing|customer|public|storage|up|settlements|payments|community)$)[a-z0-9]+(?:-[a-z0-9]+)*$`
+   - Mencegah rute sistem apa pun ter-capture secara tidak sengaja oleh handler toko/storefront.
+3. **Automated Verification:**
+   - Menambahkan pengujian `test_route_matched_for_pos_checkout` di `tests/Feature/PosTerminalDefensiveIndexTest.php` untuk memvalidasi pemetaan rute ke `PosTerminalWebController@checkout`.
+   - Memvalidasi seluruh siklus checkout POS pada `tests/Feature/PosTerminalFeatureTest.php`.
+
+#### 3. Verification & Testing
+- `php artisan test --filter=test_route_matched_for_pos_checkout`: **PASSED (100% matched to pos.checkout)**.
+- `php artisan test --filter=test_pos_checkout_calculates_hpp_decrements_stock_and_creates_journals`: **PASSED (Status 200, 13 assertions)**.
+- `php artisan route:cache`: **Routes cached successfully**.
+
+
 
 
 

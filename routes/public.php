@@ -160,7 +160,7 @@ Route::prefix('resources')->name('public.resources.')->group(function (): void {
 });
 
 // 7. Canonical Public Storefront Tracking, Multipage Pages, Table QR & Calculation (cooca.id/{slug-bisnis})
-Route::prefix('{slug}')->where(['slug' => '[a-z0-9]+(?:-[a-z0-9]+)*'])->group(function (): void {
+Route::prefix('{slug}')->where(['slug' => '^(?!(pos|admin|api|dashboard|auth|login|register|profile|calculator|settings|billing|customer|public|storage|up|settlements|payments|community)$)[a-z0-9]+(?:-[a-z0-9]+)*$'])->group(function (): void {
     // Dedicated Multipage Storefront Pages (§PRD-07)
     Route::get('/katalog', [PublicStorefrontController::class, 'catalog'])->name('public.storefront.catalog');
     Route::get('/produk/{product}', [PublicStorefrontController::class, 'productDetail'])->name('public.storefront.product.detail');
@@ -257,5 +257,5 @@ Route::post('/webhooks/marketplace/{provider}', [\App\Http\Controllers\Web\Marke
 
 // 15. Public business landing pages using business name as direct URL slug (Must be last)
 Route::get('/{slug}', [PublicStorefrontController::class, 'home'])
-    ->where('slug', '[a-z0-9]+(?:-[a-z0-9]+)*')
+    ->where('slug', '^(?!(pos|admin|api|dashboard|auth|login|register|profile|calculator|settings|billing|customer|public|storage|up|settlements|payments|community)$)[a-z0-9]+(?:-[a-z0-9]+)*$')
     ->name('public.business.landing');

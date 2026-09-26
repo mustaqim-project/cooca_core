@@ -23,20 +23,20 @@ use Illuminate\Support\Facades\Route;
 
 // Storefront convenience: direct Google login entry from store landing page (cooca.id/{slug}/login)
 Route::get('/{slug}/login', [CustomerAuthController::class, 'showLoginForm'])
-    ->where('slug', '[a-z0-9]+(?:-[a-z0-9]+)*')
+    ->where('slug', '^(?!(pos|admin|api|dashboard|auth|login|register|profile|calculator|settings|billing|customer|public|storage|up|settlements|payments|community)$)[a-z0-9]+(?:-[a-z0-9]+)*$')
     ->name('public.storefront.customer.login');
 Route::get('/b/{slug}/login', [CustomerAuthController::class, 'showLoginForm']);
 
 // Group Order: Live status & shared cart polling (cooca.id/{slug}/group-order/{token}/data)
 Route::get('/{slug}/group-order/{token}/data', [CommerceGroupOrderWebController::class, 'show'])
-    ->where('slug', '[a-z0-9]+(?:-[a-z0-9]+)*')
+    ->where('slug', '^(?!(pos|admin|api|dashboard|auth|login|register|profile|calculator|settings|billing|customer|public|storage|up|settlements|payments|community)$)[a-z0-9]+(?:-[a-z0-9]+)*$')
     ->name('public.storefront.group_order.data');
 Route::get('/b/{slug}/group-order/{token}/data', [CommerceGroupOrderWebController::class, 'show']);
 
 // Storefront Gated Actions (Requires GlobalCustomer Google Auth + Profile + Lifetime WhatsApp OTP)
 Route::middleware(['auth:customer', 'customer.profile', 'customer.otp', 'throttle:30,1'])->group(function (): void {
     // Canonical /{slug} endpoints
-    Route::prefix('{slug}')->where(['slug' => '[a-z0-9]+(?:-[a-z0-9]+)*'])->group(function (): void {
+    Route::prefix('{slug}')->where(['slug' => '^(?!(pos|admin|api|dashboard|auth|login|register|profile|calculator|settings|billing|customer|public|storage|up|settlements|payments|community)$)[a-z0-9]+(?:-[a-z0-9]+)*$'])->group(function (): void {
         Route::post('/checkout', [PublicOrderTrackingController::class, 'submitCheckout'])
             ->name('public.storefront.checkout');
         Route::post('/request-order', [PublicOrderTrackingController::class, 'submitRequestOrder'])

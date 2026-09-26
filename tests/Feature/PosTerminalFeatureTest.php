@@ -153,7 +153,8 @@ final class PosTerminalFeatureTest extends TestCase
 
     public function test_pos_checkout_calculates_hpp_decrements_stock_and_creates_journals(): void
     {
-        $this->actingAs($this->user);
+        $this->actingAs($this->user, 'web');
+        session(['active_business_id' => $this->business->id]);
 
         // Buka shift terlebih dahulu
         $this->postJson(route('pos.shifts.open'), [
@@ -295,6 +296,7 @@ final class PosTerminalFeatureTest extends TestCase
     public function test_inter_location_stock_transfer(): void
     {
         $this->actingAs($this->user);
+        session(['active_business_id' => $this->business->id]);
 
         $destLocation = Location::create([
             'business_id' => $this->business->id,
