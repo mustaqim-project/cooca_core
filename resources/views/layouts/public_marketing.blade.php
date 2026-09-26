@@ -297,6 +297,54 @@
         }
     </style>
 
+    <script>
+        function marketingLayout() {
+            return {
+                mobileMenu: false,
+                mobileSection: null,
+                toggleMobileSection(sec) {
+                    this.mobileSection = this.mobileSection === sec ? null : sec;
+                    this.$nextTick(() => { if (typeof lucide !== 'undefined' && lucide.createIcons) lucide.createIcons(); });
+                },
+                platformDropdown: false,
+                solutionDropdown: false,
+                omniDropdown: false,
+                resourceDropdown: false,
+                marketplaceDropdown: false,
+                isDark: typeof document !== 'undefined' && document.documentElement ? document.documentElement.classList.contains('dark') : false,
+                toggleTheme() {
+                    this.isDark = !this.isDark;
+                    if (this.isDark) {
+                        document.documentElement.classList.add('dark');
+                        document.documentElement.setAttribute('data-theme', 'dark');
+                        localStorage.setItem('cooca-theme', 'dark');
+                    } else {
+                        document.documentElement.classList.remove('dark');
+                        document.documentElement.setAttribute('data-theme', 'light');
+                        localStorage.setItem('cooca-theme', 'light');
+                    }
+                },
+                init() {
+                    if (typeof lucide !== 'undefined' && typeof lucide.createIcons === 'function') {
+                        lucide.createIcons();
+                    }
+                    this.$watch('mobileMenu', value => {
+                        if (value) {
+                            document.body.classList.add('overflow-hidden', 'lg:overflow-auto');
+                        } else {
+                            document.body.classList.remove('overflow-hidden', 'lg:overflow-auto');
+                        }
+                    });
+                }
+            };
+        }
+        document.addEventListener('alpine:init', () => {
+            if (typeof Alpine !== 'undefined' && Alpine.data) {
+                Alpine.data('marketingLayout', marketingLayout);
+            }
+        });
+    </script>
+
     {{-- Universal Typography Hierarchy (H1 - H6 & Typographic Roles) --}}
     @include('layouts.partials.typography')
 
@@ -305,32 +353,7 @@
 
 <body
     class="min-h-screen flex flex-col justify-between bg-[#F5F5F7] dark:bg-[#000000] text-[#1D1D1F] dark:text-[#F5F5F7] antialiased transition-colors duration-200 overflow-x-hidden w-full max-w-full"
-    x-data="{
-        mobileMenu: false,
-        mobileSection: null,
-        toggleMobileSection(sec) {
-            this.mobileSection = this.mobileSection === sec ? null : sec;
-            this.$nextTick(() => { if (typeof lucide !== 'undefined' && lucide.createIcons) lucide.createIcons(); });
-        },
-        platformDropdown: false,
-        solutionDropdown: false,
-        omniDropdown: false,
-        resourceDropdown: false,
-        marketplaceDropdown: false,
-        isDark: document.documentElement.classList.contains('dark'),
-        toggleTheme() {
-            this.isDark = !this.isDark;
-            if (this.isDark) {
-                document.documentElement.classList.add('dark');
-                document.documentElement.setAttribute('data-theme', 'dark');
-                localStorage.setItem('cooca-theme', 'dark');
-            } else {
-                document.documentElement.classList.remove('dark');
-                document.documentElement.setAttribute('data-theme', 'light');
-                localStorage.setItem('cooca-theme', 'light');
-            }
-        }
-    }" x-init="if (typeof lucide !== 'undefined' && typeof lucide.createIcons === 'function') { lucide.createIcons(); } $watch('mobileMenu', value => { if (value) { document.body.classList.add('overflow-hidden', 'lg:overflow-auto'); } else { document.body.classList.remove('overflow-hidden', 'lg:overflow-auto'); } })">
+    x-data="marketingLayout()">
 
     @php
         $isLandingPage = request()->routeIs('landing') || request()->is('/');

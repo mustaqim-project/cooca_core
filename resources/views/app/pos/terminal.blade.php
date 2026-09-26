@@ -915,7 +915,7 @@
                         </div>
                         <div class="min-w-0 flex-1">
                             <div class="font-bold text-[13px] text-white truncate">{{ $user->name }}</div>
-                            <div class="text-[11px] text-white/50 truncate">{{ $user->roles->first()?->name ?? 'Kasir Bertugas' }}</div>
+                            <div class="text-[11px] text-white/50 truncate">Kasir Bertugas</div>
                         </div>
                     </div>
 
