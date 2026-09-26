@@ -244,8 +244,9 @@
                                 </td>
                                 <td class="py-3 px-4 text-right whitespace-nowrap">
                                     <a href="{{ route('sales.orders.show', $so) }}"
-                                        class="h-7 px-2.5 rounded-[6px] text-[12px] font-medium text-[#007AFF] hover:bg-[#007AFF]/8 transition-colors inline-flex items-center">
-                                        Detail ›
+                                        class="h-7 px-2.5 rounded-[6px] text-[12px] font-medium text-[#007AFF] hover:bg-[#007AFF]/8 transition-colors inline-flex items-center gap-1">
+                                        <span>Detail</span>
+                                        <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
                                     </a>
                                 </td>
                             </tr>
@@ -303,7 +304,7 @@
                     </div>
                     <div class="flex items-center gap-1 shrink-0 text-black/30 dark:text-white/30">
                         <span class="text-[12px] font-medium text-[#007AFF]">Detail</span>
-                        <span class="text-[14px]">›</span>
+                        <i data-lucide="chevron-right" class="w-4 h-4 text-black/30 dark:text-white/30"></i>
                     </div>
                 </a>
             @empty

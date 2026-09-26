@@ -5,7 +5,7 @@
 ])
 
 @section('content')
-<div class="max-w-[1400px] mx-auto space-y-6 pb-14" x-data="auditLogExplorer()">
+<div class="max-w-[1400px] mx-auto space-y-6 pb-28 lg:pb-12" x-data="auditLogExplorer()">
 
     <!-- Top Bento Header -->
     <header class="rounded-[22px] backdrop-blur-md bg-white/85 dark:bg-[#1C1C1E]/85 border border-black/5 dark:border-white/10 px-6 py-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
@@ -14,8 +14,15 @@
                 <i data-lucide="shield-alert" class="w-6 h-6"></i>
             </div>
             <div>
+                <nav class="flex items-center gap-1.5 text-[12px] text-black/50 dark:text-white/50 mb-1" aria-label="Breadcrumb">
+                    <a href="{{ route('dashboard') }}" class="hover:text-[#007AFF] transition-colors">Dashboard</a>
+                    <i data-lucide="chevron-right" class="w-3.5 h-3.5 opacity-40"></i>
+                    <span class="text-black/70 dark:text-white/70 font-medium">Pengaturan &amp; Keamanan</span>
+                    <i data-lucide="chevron-right" class="w-3.5 h-3.5 opacity-40"></i>
+                    <span class="text-black dark:text-white font-medium">Jejak Audit &amp; Anti-Fraud</span>
+                </nav>
                 <h1 class="text-xl sm:text-2xl font-bold text-black dark:text-white tracking-tight">
-                    Jejak Audit & Anti-Fraud (Explorer)
+                    Jejak Audit &amp; Anti-Fraud (Explorer)
                 </h1>
                 <p class="text-[13.5px] text-black/60 dark:text-white/60 mt-0.5">
                     Tabel log kepatuhan mutlak (*append-only*). Rekam jejak forensik digital perubahan data operasional.
@@ -25,7 +32,7 @@
 
         <div class="flex items-center gap-3 w-full sm:w-auto">
             <a href="{{ route('settings.audit-logs.export', request()->query()) }}"
-               class="min-h-[40px] px-4 rounded-[12px] bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] dark:hover:bg-white/[0.10] text-black/75 dark:text-white/75 font-semibold text-[13px] flex items-center gap-1.5 active:scale-95 transition-all">
+               class="min-h-[44px] sm:min-h-0 h-11 sm:h-9 px-4 rounded-[12px] bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] dark:hover:bg-white/[0.10] text-black/75 dark:text-white/75 font-semibold text-[13px] flex items-center gap-1.5 active:scale-95 transition-all">
                 <i data-lucide="download" class="w-4 h-4"></i>
                 <span>Ekspor CSV</span>
             </a>

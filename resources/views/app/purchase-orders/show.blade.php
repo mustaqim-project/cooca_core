@@ -5,7 +5,7 @@
 ])
 
 @section('content')
-<div class="max-w-[1360px] mx-auto space-y-6 pb-12">
+<div class="max-w-[1360px] mx-auto space-y-6 pb-28 lg:pb-12">
 
     <!-- ===================================================== -->
     <!-- 1. TOOLBAR / PAGE HEADER (macOS Sonoma Toolbar Style)  -->
@@ -15,9 +15,9 @@
             <!-- Breadcrumb minimal -->
             <nav class="flex items-center gap-1.5 text-[12px] text-black/50 dark:text-white/50 mb-1">
                 <a href="{{ route('dashboard') }}" class="hover:text-[#007AFF] transition-colors">Dashboard</a>
-                <span>›</span>
+                <i data-lucide="chevron-right" class="w-3.5 h-3.5 opacity-40"></i>
                 <a href="{{ route('purchase-orders.index') }}" class="hover:text-[#007AFF] transition-colors">Purchase Order</a>
-                <span>›</span>
+                <i data-lucide="chevron-right" class="w-3.5 h-3.5 opacity-40"></i>
                 <span class="text-black dark:text-white font-medium tabular-nums">{{ $purchaseOrder->po_number }}</span>
             </nav>
             <div class="flex items-center gap-2.5">
@@ -50,20 +50,16 @@
 
         <!-- Toolbar Actions -->
         <div class="flex items-center flex-wrap gap-2 w-full sm:w-auto">
-            <a href="{{ route('purchase-orders.index') }}" class="h-9 px-3.5 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5">
-                <svg class="w-4 h-4 text-black/60 dark:text-white/60" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
-                </svg>
+            <a href="{{ route('purchase-orders.index') }}" class="min-h-[44px] sm:min-h-0 h-11 sm:h-9 px-3.5 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5">
+                <i data-lucide="arrow-left" class="w-4 h-4 text-black/60 dark:text-white/60"></i>
                 <span>Daftar PO</span>
             </a>
 
             @if(\App\Support\Context::hasPermission('purchasing.manage') && $purchaseOrder->status === 'draft')
             <form method="POST" action="{{ route('purchase-orders.confirm', $purchaseOrder->id) }}">
                 @csrf
-                <button type="submit" class="h-9 px-4 rounded-[10px] text-[13px] font-semibold text-[#007AFF] bg-[#007AFF]/10 hover:bg-[#007AFF]/15 active:scale-[0.97] active:opacity-80 transition-all flex items-center gap-1.5">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                    </svg>
+                <button type="submit" class="min-h-[44px] sm:min-h-0 h-11 sm:h-9 px-4 rounded-[10px] text-[13px] font-semibold text-[#007AFF] bg-[#007AFF]/10 hover:bg-[#007AFF]/15 active:scale-[0.97] active:opacity-80 transition-all flex items-center gap-1.5">
+                    <i data-lucide="check" class="w-4 h-4"></i>
                     <span>Konfirmasi PO</span>
                 </button>
             </form>
@@ -72,37 +68,27 @@
             @if(\App\Support\Context::hasPermission('invoices.create') && $purchaseOrder->po_type === 'customer' && $purchaseOrder->status !== 'fully_invoiced' && $purchaseOrder->status !== 'cancelled')
             <form method="POST" action="{{ route('purchase-orders.generate-invoice', $purchaseOrder->id) }}">
                 @csrf
-                <button type="submit" class="h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] active:opacity-80 transition-all flex items-center gap-1.5 shadow-[0_1px_2px_rgba(0,122,255,0.25)]">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25zM6.75 12h.008v.008H6.75V12zm0 3h.008v.008H6.75V15zm0 3h.008v.008H6.75V18z" />
-                    </svg>
+                <button type="submit" class="min-h-[44px] sm:min-h-0 h-11 sm:h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] active:opacity-80 transition-all flex items-center gap-1.5 shadow-[0_1px_2px_rgba(0,122,255,0.25)]">
+                    <i data-lucide="file-text" class="w-4 h-4"></i>
                     <span>Generate Faktur Penjualan</span>
                 </button>
             </form>
             @endif
 
             @if((\App\Support\Context::hasPermission('receiving.manage') || \App\Support\Context::hasPermission('purchasing.manage')) && $purchaseOrder->po_type === 'supplier' && in_array($purchaseOrder->status, ['confirmed', 'partially_invoiced'], true))
-            <a href="{{ route('purchasing.receipts.create', $purchaseOrder->id) }}" class="h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#FF9500] hover:bg-[#E08500] active:scale-[0.97] active:opacity-80 transition-all flex items-center gap-1.5 shadow-[0_1px_2px_rgba(255,149,0,0.25)]">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
-                </svg>
+            <a href="{{ route('purchasing.receipts.create', $purchaseOrder->id) }}" class="min-h-[44px] sm:min-h-0 h-11 sm:h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#FF9500] hover:bg-[#E08500] active:scale-[0.97] active:opacity-80 transition-all flex items-center gap-1.5 shadow-[0_1px_2px_rgba(255,149,0,0.25)]">
+                <i data-lucide="package-check" class="w-4 h-4"></i>
                 <span>Terima Barang Fisik</span>
             </a>
             @endif
 
-            <a href="{{ route('purchase-orders.print', $purchaseOrder->id) }}?download=1" target="_blank" class="h-9 px-3.5 rounded-[10px] text-[13px] font-semibold text-[#007AFF] bg-[#007AFF]/10 hover:bg-[#007AFF]/15 active:scale-[0.97] active:opacity-80 transition-all flex items-center gap-1.5">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
-                </svg>
+            <a href="{{ route('purchase-orders.print', $purchaseOrder->id) }}?download=1" target="_blank" class="min-h-[44px] sm:min-h-0 h-11 sm:h-9 px-3.5 rounded-[10px] text-[13px] font-semibold text-[#007AFF] bg-[#007AFF]/10 hover:bg-[#007AFF]/15 active:scale-[0.97] active:opacity-80 transition-all flex items-center gap-1.5">
+                <i data-lucide="download" class="w-4 h-4"></i>
                 <span>Download PDF</span>
             </a>
 
-            <a href="{{ route('purchase-orders.print', $purchaseOrder->id) }}" target="_blank" class="h-9 px-3.5 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all flex items-center gap-1.5">
-                <svg class="w-4 h-4 text-black/60 dark:text-white/60" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6.72 13.829c-.24-1.076-.673-2.072-1.263-2.95m0 0A9.97 9.97 0 012.25 9.75c0 .34.02.673.06 1m3.665.079a9.97 9.97 0 001.263 2.95m0 0c.24 1.076.673 2.072 1.263 2.95M6.72 13.829a9.97 9.97 0 011.263-2.95m0 0c.24-1.076.673-2.072 1.263-2.95m0 0A9.97 9.97 0 0112 7.5c.34 0 .673.02 1 .06m-1 0a9.97 9.97 0 00-1 0m1 0a9.97 9.97 0 012.95 1.263m0 0c1.076.24 2.072.673 2.95 1.263m-5.9-2.526a9.97 9.97 0 00-2.95-1.263" />
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM18.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 6.75h10.5a2.25 2.25 0 012.25 2.25v7.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 16.5v-7.5a2.25 2.25 0 012.25-2.25z" />
-                </svg>
+            <a href="{{ route('purchase-orders.print', $purchaseOrder->id) }}" target="_blank" class="min-h-[44px] sm:min-h-0 h-11 sm:h-9 px-3.5 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all flex items-center gap-1.5">
+                <i data-lucide="printer" class="w-4 h-4 text-black/60 dark:text-white/60"></i>
                 <span>Cetak (A4)</span>
             </a>
         </div>
@@ -296,9 +282,7 @@
         @if($purchaseOrder->invoices->isNotEmpty())
         <div class="rounded-[12px] bg-[#34C759]/10 border border-[#34C759]/20 p-4 space-y-2.5">
             <div class="text-[13px] font-semibold text-[#248A3D] dark:text-[#30D158] flex items-center gap-1.5">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+                <i data-lucide="check-circle-2" class="w-4 h-4 text-[#34C759]"></i>
                 <span>Faktur Penjualan yang Telah Diterbitkan:</span>
             </div>
             <div class="flex flex-wrap gap-2">

@@ -250,8 +250,8 @@
                                     <div class="flex items-center gap-2 min-w-0">
                                         <span class="truncate" x-text="tab.label"></span>
                                     </div>
-                                    <span x-show="activeTab === tab.id"
-                                        class="text-white/70 hidden lg:inline text-[11px]">›</span>
+                                    <i x-show="activeTab === tab.id" data-lucide="chevron-right"
+                                        class="w-3.5 h-3.5 text-white/70 hidden lg:inline"></i>
                                 </button>
                             </template>
                         </div>
@@ -1289,18 +1289,18 @@
                                                         <button type="button" @click="moveGalleryItem(idx, -1)"
                                                             :disabled="idx === 0" title="Geser ke kiri"
                                                             class="w-6 h-6 rounded-[4px] bg-white/90 dark:bg-[#2C2C2E]/90 text-black/80 dark:text-white/80 flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed transition">
-                                                            ‹
+                                                            <i data-lucide="chevron-left" class="w-3.5 h-3.5"></i>
                                                         </button>
                                                         <button type="button" @click="moveGalleryItem(idx, 1)"
                                                             :disabled="idx === galleryItems.length - 1"
                                                             title="Geser ke kanan"
                                                             class="w-6 h-6 rounded-[4px] bg-white/90 dark:bg-[#2C2C2E]/90 text-black/80 dark:text-white/80 flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed transition">
-                                                            ›
+                                                            <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
                                                         </button>
                                                         <button type="button" @click="removeGalleryItem(idx)"
                                                             title="Hapus foto ini"
                                                             class="w-6 h-6 rounded-[4px] bg-[#FF3B30] text-white flex items-center justify-center shadow-xs transition">
-                                                            ×
+                                                            <i data-lucide="x" class="w-3.5 h-3.5"></i>
                                                         </button>
                                                     </div>
                                                 </div>

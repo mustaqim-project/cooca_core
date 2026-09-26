@@ -5,14 +5,14 @@
 ])
 
 @section('content')
-    <div class="max-w-[1360px] mx-auto space-y-6 pb-12" x-data="socialMediaGateway()" x-init="init()">
+    <div class="max-w-[1360px] mx-auto space-y-6 pb-28 lg:pb-12" x-data="socialMediaGateway()" x-init="init()">
 
         {{-- 0. BREADCRUMB --}}
         <nav class="flex items-center gap-1.5 text-[12px] text-black/50 dark:text-white/50 py-0.5 whitespace-nowrap print:hidden">
             <a href="{{ route('dashboard') }}" class="hover:text-[#007AFF] transition-colors font-medium">Dashboard</a>
-            <span>›</span>
+            <i data-lucide="chevron-right" class="w-3.5 h-3.5 opacity-40"></i>
             <span class="text-black/60 dark:text-white/60 font-medium">Komunikasi &amp; Pemasaran</span>
-            <span>›</span>
+            <i data-lucide="chevron-right" class="w-3.5 h-3.5 opacity-40"></i>
             <span class="text-black/80 dark:text-white/80 font-medium">Media Sosial</span>
         </nav>
 

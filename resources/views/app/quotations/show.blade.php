@@ -5,7 +5,7 @@
 ])
 
 @section('content')
-<div class="max-w-[1080px] mx-auto space-y-6 pb-12" x-data="{
+<div class="max-w-[1080px] mx-auto space-y-6 pb-28 lg:pb-12" x-data="{
     convertModalOpen: false,
     openConvert() {
         this.convertModalOpen = true;
@@ -23,11 +23,11 @@
     <header class="rounded-[14px] backdrop-blur-md bg-white/75 dark:bg-[#1C1C1E]/75 border border-black/5 dark:border-white/10 px-4 sm:px-6 py-3.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 print:hidden">
         <div>
             <!-- Breadcrumb minimal -->
-            <nav class="flex items-center gap-1.5 text-[12px] text-black/50 dark:text-white/50 mb-1">
+            <nav class="flex items-center gap-1.5 text-[12px] text-black/50 dark:text-white/50 mb-1" aria-label="Breadcrumb">
                 <a href="{{ route('dashboard') }}" class="hover:text-[#007AFF] transition-colors">Dashboard</a>
-                <span>›</span>
+                <i data-lucide="chevron-right" class="w-3.5 h-3.5 opacity-40"></i>
                 <a href="{{ route('sales.quotations.index') }}" class="hover:text-[#007AFF] transition-colors">Penawaran Harga</a>
-                <span>›</span>
+                <i data-lucide="chevron-right" class="w-3.5 h-3.5 opacity-40"></i>
                 <span class="text-black dark:text-white font-medium">{{ $quotation->quotation_number }}</span>
             </nav>
             <div class="flex items-center gap-2.5">
@@ -61,27 +61,21 @@
             @if(!$quotation->salesOrder && $quotation->status !== 'rejected' && \App\Support\Context::hasPermission('sales.pipeline'))
             <form id="form-convert-so" action="{{ route('sales.quotations.convert', $quotation) }}" method="POST" class="inline">
                 @csrf
-                <button type="button" @click="openConvert()" class="h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5 shadow-[0_1px_2px_rgba(0,122,255,0.25)]">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12.75 15l3-3m0 0l-3-3m3 3h-7.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
+                <button type="button" @click="openConvert()" class="min-h-[44px] sm:min-h-0 h-11 sm:h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5 shadow-[0_1px_2px_rgba(0,122,255,0.25)]">
+                    <i data-lucide="arrow-right-circle" class="w-4 h-4"></i>
                     <span>Ubah ke Sales Order</span>
                 </button>
             </form>
             @elseif($quotation->salesOrder)
-            <a href="{{ route('sales.orders.show', $quotation->salesOrder) }}" class="h-9 px-4 rounded-[10px] text-[13px] font-medium text-[#007AFF] bg-[#007AFF]/10 hover:bg-[#007AFF]/15 active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+            <a href="{{ route('sales.orders.show', $quotation->salesOrder) }}" class="min-h-[44px] sm:min-h-0 h-11 sm:h-9 px-4 rounded-[10px] text-[13px] font-medium text-[#007AFF] bg-[#007AFF]/10 hover:bg-[#0071E3]/15 active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5">
+                <i data-lucide="eye" class="w-4 h-4"></i>
                 <span>Lihat SO ({{ $quotation->salesOrder->so_number }})</span>
             </a>
             @endif
 
             <!-- Print / Cetak -->
-            <button onclick="window.print()" type="button" class="h-9 px-3.5 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5">
-                <svg class="w-4 h-4 text-black/60 dark:text-white/60" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6.72 13.829c-.24-1.077-.37-2.2-.37-3.329 0-6.075 4.925-11 11-11s11 4.925 11 11c0 1.129-.13 2.252-.37 3.329M3.75 14.25h16.5M6 18h12m-9 3h6" />
-                </svg>
+            <button onclick="window.print()" type="button" class="min-h-[44px] sm:min-h-0 h-11 sm:h-9 px-3.5 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5">
+                <i data-lucide="printer" class="w-4 h-4 text-black/60 dark:text-white/60"></i>
                 <span>Cetak</span>
             </button>
 
@@ -91,15 +85,13 @@
             @endphp
             @if($quotation->customer->phone)
             <a href="https://api.whatsapp.com/send?phone={{ preg_replace('/[^0-9]/', '', $quotation->customer->phone) }}&text={{ $waText }}" target="_blank"
-               class="h-9 px-3.5 rounded-[10px] text-[13px] font-medium text-[#248A3D] dark:text-[#30D158] bg-[#34C759]/10 hover:bg-[#34C759]/15 active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z" />
-                </svg>
+               class="min-h-[44px] sm:min-h-0 h-11 sm:h-9 px-3.5 rounded-[10px] text-[13px] font-medium text-[#248A3D] dark:text-[#30D158] bg-[#34C759]/10 hover:bg-[#34C759]/15 active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5">
+                <i data-lucide="message-circle" class="w-4 h-4"></i>
                 <span>WhatsApp</span>
             </a>
             @endif
 
-            <a href="{{ route('sales.quotations.index') }}" class="h-9 px-3 rounded-[10px] text-[13px] font-medium text-black/70 dark:text-white/70 hover:bg-black/5 dark:hover:bg-white/5 active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center">
+            <a href="{{ route('sales.quotations.index') }}" class="min-h-[44px] sm:min-h-0 h-11 sm:h-9 px-3.5 rounded-[10px] text-[13px] font-medium text-black/70 dark:text-white/70 hover:bg-black/5 dark:hover:bg-white/5 active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center">
                 Tutup
             </a>
         </div>

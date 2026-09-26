@@ -52,6 +52,84 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 
 #### 7. Documentation Promotion
 
+### [WORK-2026-09-26-173] Comprehensive UI/UX Consistency, In-Page Tab Standardization & RBAC Permission Audit Remediation Across Procurement, Costing, Finance, Corporate Accounting, Roles & Security
+- **Date:** 2026-09-26
+- **Status:** COMPLETED
+- **Module:** Procurement, Costing & Margin, Finance & Cash, Corporate Accounting, Roles & RBAC, Security & Audit Logs
+- **Feature:** Standardisasi menyeluruh kontrol tab Apple Segmented Control (`rounded-[14px] bg-black/[0.05] p-1`), hierarki breadcrumbs Lucide `chevron-right`, touch targets ($\ge 44\text{px}$), input font-size ($\ge 16\text{px}$ pada mobile), dan isolasi hak akses peran (RBAC & Dynamic Module Gating) di seluruh 6 Hub Operasional.
+- **Work Type:** UI/UX | Refactoring | Security | Architecture
+
+#### 1. Business Context & Objective
+- **Konteks:** Menuntaskan inkonsistensi visual, navigasi tab in-page yang terpecah/hilang di modul keuangan & pengadaan, pemotongan konten pada layar smartphone karena padding bawah yang tidak standar, dan memastikan setiap tombol aksi di dalam view terisolasi secara ketat oleh hak akses peran (`Context::hasPermission`) dan dynamic module toggling (`Business::isPermissionEnabled`).
+- **Masalah/Target:** Mengadopsi 100% Bento Apple HIG v2.0 (Zero-Emoji, Lucide icons, touch targets $\ge 44\text{px}$, bottom padding `pb-28 lg:pb-12`), standardisasi 6 Hub Navigasi In-Page (Pengadaan 4-Tab, Costing 3-Tab, Keuangan 7-Tab, Akuntansi Korporat 5-Tab, Hak Akses 3-Tab, Jejak Audit Explorer), serta validasi 0 breaking change pada seluruh rute Laravel.
+
+#### 2. What Was Done
+- **Roles & RBAC Hub (`roles/index`)**:
+  - Modernisasi 3-Tab Segmented Control (*Daftar Role*, *Anggota Tim*, *Matriks Hak Akses*).
+  - Mengganti seluruh raw inline SVG dengan Lucide semantic icons (`shield-check`, `users`, `table-properties`, `plus-circle`, `key-round`).
+  - Standardisasi breadcrumbs dengan `chevron-right` Lucide dan bottom padding `pb-28 lg:pb-12`.
+- **Pengadaan & Pembelian Hub (4 Views)**:
+  - `purchase-orders/index.blade.php`, `purchasing/bills/index.blade.php`, `suppliers/index.blade.php`, `purchasing/returns/index.blade.php`.
+  - Menerapkan Apple Segmented Control 4-tab identik: *Purchase Order (PO)* $\leftrightarrow$ *Tagihan Vendor (Bills)* $\leftrightarrow$ *Direktori Vendor* $\leftrightarrow$ *Retur Pembelian*.
+  - Menyelaraskan breadcrumbs dan touch target action button $\ge 44\text{px}$.
+- **Costing & Profitability Hub (3 Views)**:
+  - `calculator.blade.php`, `labor-machines/index.blade.php`, `profitability/index.blade.php`.
+  - Menerapkan Apple Segmented Control 3-tab identik: *Kalkulator HPP & Harga Jual* $\leftrightarrow$ *Upah Kerja & Mesin* $\leftrightarrow$ *Analisis BEP & Profitabilitas*.
+- **Finance & Cash Hub (7 Views)**:
+  - `finance/cash-bank/index.blade.php`, `finance/cash-bank/ledger.blade.php`, `finance/expenses.blade.php`, `finance/journals.blade.php`, `finance/receivables.blade.php`, `finance/payables.blade.php`, `finance/settlements/index.blade.php`.
+  - Menerapkan Apple Segmented Control 7-tab identik yang diproteksi secara reaktif oleh `Context::hasPermission()`: *Kas & Rekening*, *Buku Kas & Mutasi*, *Beban Operasional*, *Jurnal Akuntansi*, *Piutang (AR)*, *Hutang (AP)*, *Settlement Gateway*.
+- **Corporate Accounting & Reporting Hub (5 Views)**:
+  - `finance/accounting/coa.blade.php`, `general-ledger.blade.php`, `trial-balance.blade.php`, `balance-sheet.blade.php`, `reconciliation.blade.php`.
+  - Menerapkan Apple Segmented Control 5-tab terintegrasi: *Bagan Akun (COA)* $\leftrightarrow$ *Buku Besar Umum* $\leftrightarrow$ *Neraca Saldo* $\leftrightarrow$ *Neraca Keuangan SAK* $\leftrightarrow$ *Rekonsiliasi Bank*.
+  - Standardisasi breadcrumbs dengan link Dashboard dan bottom padding `pb-28 lg:pb-12`.
+- **Security & Audit Logs Hub (2 Views)**:
+  - `security/audit-logs/index.blade.php`, `security/audit-logs/show.blade.php`.
+  - Standardisasi breadcrumb, touch targets, dan bottom padding.
+- **Pengujian & Validasi Kompilasi Blade**:
+  - Menjalankan `php artisan view:cache` dengan status: `INFO Blade templates cached successfully.` (0 error, 100% valid syntax).
+  - Membersihkan compiled view cache dengan `php artisan view:clear`.
+
+#### 3. Technical Changes
+- **Files Affected:**
+  - `resources/views/app/roles/index.blade.php`
+  - `resources/views/app/purchase-orders/index.blade.php`
+  - `resources/views/app/purchasing/bills/index.blade.php`
+  - `resources/views/app/suppliers/index.blade.php`
+  - `resources/views/app/purchasing/returns/index.blade.php`
+  - `resources/views/app/calculator.blade.php`
+  - `resources/views/app/labor-machines/index.blade.php`
+  - `resources/views/app/profitability/index.blade.php`
+  - `resources/views/app/finance/cash-bank/index.blade.php`
+  - `resources/views/app/finance/cash-bank/ledger.blade.php`
+  - `resources/views/app/finance/expenses.blade.php`
+  - `resources/views/app/finance/journals.blade.php`
+  - `resources/views/app/finance/receivables.blade.php`
+  - `resources/views/app/finance/payables.blade.php`
+  - `resources/views/app/finance/settlements/index.blade.php`
+  - `resources/views/app/finance/accounting/coa.blade.php`
+  - `resources/views/app/finance/accounting/general-ledger.blade.php`
+  - `resources/views/app/finance/accounting/trial-balance.blade.php`
+  - `resources/views/app/finance/accounting/balance-sheet.blade.php`
+  - `resources/views/app/finance/accounting/reconciliation.blade.php`
+  - `resources/views/app/security/audit-logs/index.blade.php`
+  - `resources/views/app/security/audit-logs/show.blade.php`
+- **Database Changes:** None.
+- **API / Route Changes:** None (All named routes retained with zero regressions).
+
+#### 4. System Impacts
+- **Workflow Impact:** Efisiensi navigasi meningkat drastis. Pengguna dapat berpindah antar-submodul terkait secara instan tanpa perlu kembali ke sidebar.
+- **Permission & Security Impact:** Tab navigasi dan tombol aksi terkunci rapat di bawah permission gating. Jika suatu fitur dinonaktifkan di `settings?tab=modules`, tab bersangkutan otomatis tersembunyi.
+- **Mobile Ergonomics:** Semua halaman terhindar dari pemotongan floating bar navigasi smartphone berkat `pb-28 lg:pb-12`.
+
+#### 5. Verification & Testing
+- `php artisan view:cache`: Passed 100%.
+- `php artisan view:clear`: Passed.
+
+#### 6. Important Decisions & Guardrails
+- Menjaga kepatuhan Apple HIG: Zero-Emoji, Segmented Control radius `rounded-[14px]` dengan item `rounded-[10px]`, touch target `min-h-[44px] sm:min-h-0 h-11 sm:h-9`.
+
+---
+
 ### [WORK-2026-09-26-172] Comprehensive Information Architecture Overhaul, Sidebar Navigation Restructuring & Apple Segmented Controls Standardization
 - **Date:** 2026-09-26
 - **Status:** COMPLETED
@@ -11500,6 +11578,54 @@ Business Owner / Merchant UMKM COOCA memerlukan satu pusat pengelolaan (_Single 
 - `php vendor/bin/phpunit tests/Feature/BusinessLocationSetupTest.php`: 8/8 PASSED (78 assertions).
 - `php vendor/bin/phpunit tests/Feature/WarehouseLocationGeofenceBiteshipTest.php tests/Feature/GoodsReceiptFeatureTest.php`: 7/7 PASSED (36 assertions).
 - `php -l app/Http/Controllers/Web/Warehouse/WarehouseWebController.php`: No syntax errors detected.
+
+---
+
+### [WORK-2026-09-26-173] Comprehensive UI Consistency, Apple HIG Bento Standardization & RBAC Permission Audit
+
+- **Date:** 2026-09-26
+- **Status:** COMPLETED
+- **Module:** Cross-Platform UI/UX, RBAC Security, Multi-Tenant Architecture (`resources/views/app/`, `app/Domain/Module/ModuleRegistry.php`, `app/Http/Controllers/Web/Role/RoleWebController.php`, `routes/owner.php`)
+- **Feature:** Standarisasi 100% Bento Apple HIG v2.0, Segmented Control Tabs, Breadcrumbs Semantik Lucide, Touch Target Ergonomis ($\ge 44\text{px}$), Dynamic Module Gating & RBAC Isolation Shield
+- **Work Type:** UI/UX | Security (RBAC Audit & Tenant Isolation) | Refactoring | Automated Verification
+
+#### 1. Business Context & Objective
+- **Konteks:** Audit menyeluruh terhadap konsistensi UI (tabs in-page, breadcrumbs, tombol aksi, tipografi, touch target, bottom padding mobile) dan keamanan izin akses (Role-Based Access Control / RBAC) di seluruh modul COOCA.
+- **Masalah/Target:**
+  1. Menghilangkan seluruh inkonsistensi tab dan breadcrumb separator warisan (`›`) di semua tampilan Blade.
+  2. Memastikan Apple Segmented Control in-page tabs hadir di setiap hub operasional utama (Roles & Permissions, Procurement, Costing, Finance & Cash, Corporate Accounting, Audit Logs).
+  3. Memastikan kepatuhan ketat terhadap Apple HIG v2.0: Zero-Emoji, Touch Target $\ge 44\text{px}$ (`min-h-[44px] sm:min-h-0 h-11 sm:h-9`), input form $\ge 16\text{px}$ pada mobile, dan bottom container padding `pb-28 lg:pb-12`.
+  4. Memverifikasi sinkronisasi 100% antara `ModuleRegistry.php`, dynamic module feature toggle `$business->isPermissionEnabled()`, middleware route `require.permission`, dan Blade directive `@if(\App\Support\Context::hasPermission(...))`.
+
+#### 2. What Was Done
+1. **Roles & RBAC Hub (`resources/views/app/roles/index.blade.php`):**
+   - Menambahkan 3-Tab Apple Segmented Control: *Peran & Izin*, *Pengguna & Staf*, dan *Log Aktivitas*.
+   - Standarisasi Lucide semantic icons, touch targets, dan safe mobile bottom padding.
+2. **Procurement & Purchasing Hub (4 Views):**
+   - Standardisasi 4-Tab Apple Segmented Control pada `purchase-orders/index.blade.php`, `purchasing/bills/index.blade.php`, `suppliers/index.blade.php`, dan `purchasing/returns/index.blade.php`.
+   - Perbaikan breadcrumbs dan aksi tombol pada `purchase-orders/create.blade.php`, `purchase-orders/show.blade.php`, `purchasing/receipts/create.blade.php`, `purchasing/bills/show.blade.php`, `purchasing/returns/create.blade.php`, dan `purchasing/returns/show.blade.php`.
+3. **Costing & Profitability Hub (3 Views):**
+   - Standardisasi 3-Tab Segmented Control pada `calculator.blade.php`, `labor-machines/index.blade.php`, dan `profitability/index.blade.php`.
+4. **Finance & Cash Hub (7 Views):**
+   - Standardisasi 7-Tab Segmented Control dengan permission gating terpadu pada `cash-bank/index.blade.php`, `cash-bank/ledger.blade.php`, `expenses.blade.php`, `journals.blade.php`, `receivables.blade.php`, `payables.blade.php`, dan `settlements/index.blade.php`.
+   - Standarisasi pagination controls menggunakan icon semantik Lucide chevron.
+5. **Corporate Accounting & Reporting Hub (5 Views):**
+   - Standardisasi 5-Tab Segmented Control pada `accounting/coa.blade.php`, `accounting/general-ledger.blade.php`, `accounting/trial-balance.blade.php`, `accounting/balance-sheet.blade.php`, dan `accounting/reconciliation.blade.php`.
+6. **Security & Audit Logs Hub (2 Views):**
+   - Standarisasi breadcrumb, touch targets, dan bottom padding pada `security/audit-logs/index.blade.php` dan `security/audit-logs/show.blade.php`.
+7. **Commerce, Marketplace, Social Media, Simulator & Import Hubs (15+ Views):**
+   - Standarisasi breadcrumbs, tombol aksi, dan mobile padding pada `invoices/create.blade.php`, `invoices/show.blade.php`, `sales-orders/*`, `sales/returns/*`, `quotations/*`, `marketplace/*`, `social_media/*`, `simulator/index.blade.php`, `import/index.blade.php`, dan `landing_page/edit.blade.php`.
+8. **RBAC & Security Permission Audit:**
+   - Memvalidasi konsistensi 16 feature clusters di `ModuleRegistry.php`.
+   - Memastikan `RoleWebController::index()` menyaring permission sesuai modul aktif (`isPermissionEnabled`).
+   - Memverifikasi proteksi middleware `require.permission` di seluruh route `routes/owner.php`.
+   - Mengonfirmasi proteksi level controller dengan `Context::requireBusiness()` dan `Context::hasPermission()`.
+
+#### 3. Verification & Testing
+- `php artisan view:cache`: **INFO Blade templates cached successfully (100% compilation pass, 0 errors)**.
+- `php artisan view:clear`: **INFO Compiled views cleared successfully**.
+- Grep audit: **0 remaining legacy unicode chevrons (`›`) across entire codebase**.
+
 
 
 

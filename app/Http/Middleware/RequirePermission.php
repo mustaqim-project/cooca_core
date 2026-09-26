@@ -18,7 +18,34 @@ final class RequirePermission
      */
     public function handle(Request $request, Closure $next, string ...$permissions): Response
     {
-        // Owner and Admin (internal superuser) automatically have all permissions
+        $business = Context::business();
+
+        // 1. Check if the module for requested permissions is disabled for this business
+        if ($business) {
+            $hasAnyModuleEnabled = false;
+            foreach ($permissions as $permission) {
+                if ($business->isPermissionEnabled($permission)) {
+                    $hasAnyModuleEnabled = true;
+                    break;
+                }
+            }
+
+            if (! $hasAnyModuleEnabled) {
+                if ($request->expectsJson() || $request->is('api/*')) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Modul fitur ini sedang dinonaktifkan untuk bisnis Anda.',
+                        'error_code' => 'MODULE_DISABLED',
+                        'required_permissions' => $permissions,
+                    ], Response::HTTP_FORBIDDEN);
+                }
+
+                return redirect()->route('dashboard')
+                    ->with('error', 'Modul fitur ini sedang dinonaktifkan di pengaturan bisnis Anda.');
+            }
+        }
+
+        // Owner and Admin (internal superuser) automatically have all permissions for enabled modules
         if (Context::isAdminOrOwner()) {
             return $next($request);
         }

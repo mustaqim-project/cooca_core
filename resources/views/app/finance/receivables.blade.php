@@ -306,15 +306,15 @@
             <span>{{ $invoices->total() }} faktur</span>
             <div class="flex items-center gap-2">
                 @if($invoices->onFirstPage())
-                    <span class="h-8 px-3 rounded-[8px] text-[13px] font-medium text-black/30 dark:text-white/30 cursor-not-allowed">‹ Sebelumnya</span>
+                    <span class="h-8 px-3 rounded-[8px] text-[13px] font-medium text-black/30 dark:text-white/30 cursor-not-allowed flex items-center"><i data-lucide="chevron-left" class="w-3.5 h-3.5 mr-1"></i> Sebelumnya</span>
                 @else
-                    <a href="{{ $invoices->previousPageUrl() }}" class="h-8 px-3 rounded-[8px] text-[13px] font-medium text-[#007AFF] hover:bg-[#007AFF]/8 transition-colors flex items-center">‹ Sebelumnya</a>
+                    <a href="{{ $invoices->previousPageUrl() }}" class="h-8 px-3 rounded-[8px] text-[13px] font-medium text-[#007AFF] hover:bg-[#007AFF]/8 transition-colors flex items-center"><i data-lucide="chevron-left" class="w-3.5 h-3.5 mr-1"></i> Sebelumnya</a>
                 @endif
                 <span class="h-8 px-2.5 rounded-[8px] bg-black/[0.06] dark:bg-white/[0.08] text-black dark:text-white font-bold flex items-center tabular-nums">{{ $invoices->currentPage() }}</span>
                 @if($invoices->hasMorePages())
-                    <a href="{{ $invoices->nextPageUrl() }}" class="h-8 px-3 rounded-[8px] text-[13px] font-medium text-[#007AFF] hover:bg-[#007AFF]/8 transition-colors flex items-center">Selanjutnya ›</a>
+                    <a href="{{ $invoices->nextPageUrl() }}" class="h-8 px-3 rounded-[8px] text-[13px] font-medium text-[#007AFF] hover:bg-[#007AFF]/8 transition-colors flex items-center">Selanjutnya <i data-lucide="chevron-right" class="w-3.5 h-3.5 ml-1"></i></a>
                 @else
-                    <span class="h-8 px-3 rounded-[8px] text-[13px] font-medium text-black/30 dark:text-white/30 cursor-not-allowed">Selanjutnya ›</span>
+                    <span class="h-8 px-3 rounded-[8px] text-[13px] font-medium text-black/30 dark:text-white/30 cursor-not-allowed flex items-center">Selanjutnya <i data-lucide="chevron-right" class="w-3.5 h-3.5 ml-1"></i></span>
                 @endif
             </div>
         </div>
@@ -419,15 +419,15 @@
             <span class="text-black/50 dark:text-white/50">{{ $invoices->total() }} faktur</span>
             <div class="flex items-center gap-1.5">
                 @if($invoices->onFirstPage())
-                    <span class="h-8 px-2.5 rounded-[8px] bg-black/[0.04] dark:bg-white/[0.06] text-black/30 dark:text-white/30 cursor-not-allowed flex items-center text-[12px]">‹ Prev</span>
+                    <span class="h-8 px-2.5 rounded-[8px] bg-black/[0.04] dark:bg-white/[0.06] text-black/30 dark:text-white/30 cursor-not-allowed flex items-center text-[12px]"><i data-lucide="chevron-left" class="w-3.5 h-3.5 mr-0.5"></i> Prev</span>
                 @else
-                    <a href="{{ $invoices->previousPageUrl() }}" class="h-8 px-2.5 rounded-[8px] bg-[#007AFF]/10 text-[#007AFF] font-medium flex items-center text-[12px]">‹ Prev</a>
+                    <a href="{{ $invoices->previousPageUrl() }}" class="h-8 px-2.5 rounded-[8px] bg-[#007AFF]/10 text-[#007AFF] font-medium flex items-center text-[12px]"><i data-lucide="chevron-left" class="w-3.5 h-3.5 mr-0.5"></i> Prev</a>
                 @endif
                 <span class="h-8 px-2.5 rounded-[8px] bg-black/[0.06] dark:bg-white/[0.08] text-black dark:text-white font-bold flex items-center tabular-nums text-[12px]">{{ $invoices->currentPage() }}</span>
                 @if($invoices->hasMorePages())
-                    <a href="{{ $invoices->nextPageUrl() }}" class="h-8 px-2.5 rounded-[8px] bg-[#007AFF]/10 text-[#007AFF] font-medium flex items-center text-[12px]">Next ›</a>
+                    <a href="{{ $invoices->nextPageUrl() }}" class="h-8 px-2.5 rounded-[8px] bg-[#007AFF]/10 text-[#007AFF] font-medium flex items-center text-[12px]">Next <i data-lucide="chevron-right" class="w-3.5 h-3.5 ml-0.5"></i></a>
                 @else
-                    <span class="h-8 px-2.5 rounded-[8px] bg-black/[0.04] dark:bg-white/[0.06] text-black/30 dark:text-white/30 cursor-not-allowed flex items-center text-[12px]">Next ›</span>
+                    <span class="h-8 px-2.5 rounded-[8px] bg-black/[0.04] dark:bg-white/[0.06] text-black/30 dark:text-white/30 cursor-not-allowed flex items-center text-[12px]">Next <i data-lucide="chevron-right" class="w-3.5 h-3.5 ml-0.5"></i></span>
                 @endif
             </div>
         </div>

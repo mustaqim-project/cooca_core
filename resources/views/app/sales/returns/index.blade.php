@@ -233,11 +233,12 @@
                                     @endif
                                 </td>
                                 <td class="py-3 px-4 text-right whitespace-nowrap">
-                                    <a href="{{ route('sales.returns.show', $return) }}"
-                                        class="h-7 px-2.5 rounded-[6px] text-[12px] font-medium text-[#007AFF] hover:bg-[#007AFF]/8 transition-colors inline-flex items-center">
-                                        Detail ›
-                                    </a>
-                                </td>
+                                     <a href="{{ route('sales.returns.show', $return) }}"
+                                         class="h-7 px-2.5 rounded-[6px] text-[12px] font-medium text-[#007AFF] hover:bg-[#007AFF]/8 transition-colors inline-flex items-center gap-1">
+                                         <span>Detail</span>
+                                         <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+                                     </a>
+                                 </td>
                             </tr>
                         @empty
                             <tr>
@@ -249,16 +250,16 @@
                                                 d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
                                         </svg>
                                         <h4 class="text-[15px] font-medium text-black dark:text-white">Belum Ada Transaksi
-                                            Retur</h4>
+                                             Retur</h4>
                                         <p class="text-[13px] text-black/50 dark:text-white/50 max-w-sm">Pengembalian barang
-                                            dari kasir POS atau faktur B2B akan tercatat rapi di sini untuk pemulihan stok.
-                                        </p>
-                                        <a href="{{ route('sales.returns.create') }}"
-                                            class="mt-2 h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] transition flex items-center gap-1.5">
-                                            <span>Buat Retur Pertama</span>
-                                        </a>
-                                    </div>
-                                </td>
+                                             dari kasir POS atau faktur B2B akan tercatat rapi di sini untuk pemulihan stok.
+                                         </p>
+                                         <a href="{{ route('sales.returns.create') }}"
+                                             class="mt-2 h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] transition flex items-center gap-1.5">
+                                             <span>Buat Retur Pertama</span>
+                                         </a>
+                                     </div>
+                                 </td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -302,7 +303,7 @@
                     </div>
                     <div class="flex items-center gap-1 shrink-0 text-black/30 dark:text-white/30">
                         <span class="text-[12px] font-medium text-[#007AFF]">Detail</span>
-                        <span class="text-[14px]">›</span>
+                        <i data-lucide="chevron-right" class="w-4 h-4 text-black/30 dark:text-white/30"></i>
                     </div>
                 </a>
             @empty

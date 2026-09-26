@@ -5,7 +5,7 @@
 ])
 
 @section('content')
-    <div class="max-w-[1360px] mx-auto space-y-6 pb-12" x-data="{
+    <div class="max-w-[1360px] mx-auto space-y-6 pb-28 lg:pb-12" x-data="{
         showAddModal: false,
         showEditModal: false,
         activeTab: 'units',
@@ -62,13 +62,13 @@
             class="rounded-[14px] backdrop-blur-md bg-white/75 dark:bg-[#1C1C1E]/75 border border-black/5 dark:border-white/10 px-4 sm:px-6 py-3.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
                 <!-- Breadcrumb minimal -->
-                <nav class="flex items-center gap-1.5 text-[12px] text-black/50 dark:text-white/50 mb-1">
+                <nav class="flex items-center gap-1.5 text-[12px] text-black/50 dark:text-white/50 mb-1" aria-label="Breadcrumb">
                     <a href="{{ route('dashboard') }}" class="hover:text-[#007AFF] transition-colors">Dashboard</a>
-                    <span>›</span>
+                    <i data-lucide="chevron-right" class="w-3.5 h-3.5 opacity-40"></i>
                     <span class="text-black/70 dark:text-white/70 font-medium">Pengaturan</span>
-                    <span>›</span>
+                    <i data-lucide="chevron-right" class="w-3.5 h-3.5 opacity-40"></i>
                     <span class="text-black/70 dark:text-white/70 font-medium">Master Data</span>
-                    <span>›</span>
+                    <i data-lucide="chevron-right" class="w-3.5 h-3.5 opacity-40"></i>
                     <span class="text-black dark:text-white font-medium">{{ $title }}</span>
                 </nav>
                 <div class="flex items-center gap-3">

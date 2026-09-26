@@ -5,18 +5,18 @@
 ])
 
 @section('content')
-<div class="max-w-[1080px] mx-auto space-y-6 pb-12" x-data="quotationForm()">
+<div class="max-w-[1080px] mx-auto space-y-6 pb-28 lg:pb-12" x-data="quotationForm()">
     <!-- ===================================================== -->
     <!-- 1. TOOLBAR / HEADER (macOS Sonoma Style)              -->
     <!-- ===================================================== -->
     <header class="rounded-[14px] backdrop-blur-md bg-white/75 dark:bg-[#1C1C1E]/75 border border-black/5 dark:border-white/10 px-4 sm:px-6 py-3.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
             <!-- Breadcrumb minimal -->
-            <nav class="flex items-center gap-1.5 text-[12px] text-black/50 dark:text-white/50 mb-1">
+            <nav class="flex items-center gap-1.5 text-[12px] text-black/50 dark:text-white/50 mb-1" aria-label="Breadcrumb">
                 <a href="{{ route('dashboard') }}" class="hover:text-[#007AFF] transition-colors">Dashboard</a>
-                <span>›</span>
+                <i data-lucide="chevron-right" class="w-3.5 h-3.5 opacity-40"></i>
                 <a href="{{ route('sales.quotations.index') }}" class="hover:text-[#007AFF] transition-colors">Penawaran Harga</a>
-                <span>›</span>
+                <i data-lucide="chevron-right" class="w-3.5 h-3.5 opacity-40"></i>
                 <span class="text-black dark:text-white font-medium">Buat Baru</span>
             </nav>
             <h1 class="text-[20px] font-semibold text-black dark:text-white tracking-tight">Buat Penawaran Harga Baru</h1>
@@ -24,10 +24,8 @@
         </div>
 
         <div class="flex items-center gap-2">
-            <a href="{{ route('sales.quotations.index') }}" class="h-9 px-4 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5">
-                <svg class="w-4 h-4 text-black/60 dark:text-white/60" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
-                </svg>
+            <a href="{{ route('sales.quotations.index') }}" class="min-h-[44px] sm:min-h-0 h-11 sm:h-9 px-4 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5">
+                <i data-lucide="arrow-left" class="w-4 h-4 text-black/60 dark:text-white/60"></i>
                 <span>Kembali ke Daftar</span>
             </a>
         </div>

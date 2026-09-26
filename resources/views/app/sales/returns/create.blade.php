@@ -5,7 +5,7 @@
 ])
 
 @section('content')
-    <div class="max-w-[1100px] mx-auto space-y-6 pb-12" x-data="salesReturnForm()">
+    <div class="max-w-[1100px] mx-auto space-y-6 pb-28 lg:pb-12" x-data="salesReturnForm()">
 
         <!-- ===================================================== -->
         <!-- 1. TOOLBAR / PAGE HEADER (macOS Sonoma Toolbar Style)  -->
@@ -16,10 +16,10 @@
                 <nav class="flex items-center gap-1.5 text-[12px] text-black/50 dark:text-white/50 mb-1"
                     aria-label="Breadcrumb">
                     <a href="{{ route('dashboard') }}" class="hover:text-[#007AFF] transition-colors">Dashboard</a>
-                    <span>›</span>
+                    <i data-lucide="chevron-right" class="w-3.5 h-3.5 opacity-40"></i>
                     <a href="{{ route('sales.returns.index') }}" class="hover:text-[#007AFF] transition-colors">Retur
                         Penjualan</a>
-                    <span>›</span>
+                    <i data-lucide="chevron-right" class="w-3.5 h-3.5 opacity-40"></i>
                     <span class="text-black dark:text-white font-medium">Buat Retur Baru</span>
                 </nav>
                 <h1 class="text-[20px] font-semibold text-black dark:text-white tracking-tight">Formulir Retur Penjualan
@@ -30,16 +30,14 @@
 
             <div class="flex items-center gap-2">
                 <a href="{{ route('sales.returns.index') }}"
-                    class="h-9 px-3.5 rounded-[10px] text-[13px] font-medium text-black/70 dark:text-white/70 hover:bg-black/5 dark:hover:bg-white/5 transition flex items-center">
+                    class="min-h-[44px] sm:min-h-0 h-11 sm:h-9 px-3.5 rounded-[10px] text-[13px] font-medium text-black/70 dark:text-white/70 hover:bg-black/5 dark:hover:bg-white/5 transition flex items-center">
                     <span>Batal</span>
                 </a>
                 @if (\App\Support\Context::hasPermission('sales.returns') || \App\Support\Context::hasPermission('sales.pipeline'))
                     <button type="button" @click="promptSaveReturn()"
                         :disabled="!hasSelectedSource() || getSelectedCount() === 0"
-                        class="h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.97] active:opacity-80 transition-all flex items-center gap-1.5 shadow-[0_1px_2px_rgba(0,122,255,0.25)]">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                        </svg>
+                        class="min-h-[44px] sm:min-h-0 h-11 sm:h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.97] active:opacity-80 transition-all flex items-center gap-1.5 shadow-[0_1px_2px_rgba(0,122,255,0.25)]">
+                        <i data-lucide="check" class="w-4 h-4"></i>
                         <span>Simpan Draft Retur</span>
                     </button>
                 @endif

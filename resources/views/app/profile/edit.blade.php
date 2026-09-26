@@ -5,7 +5,7 @@
 ])
 
 @section('content')
-<div class="max-w-[1360px] mx-auto space-y-6 pb-12">
+<div class="max-w-[1360px] mx-auto space-y-6 pb-28 lg:pb-12">
 
     <!-- ===================================================== -->
     <!-- 1. TOOLBAR / PAGE HEADER (macOS Sonoma Toolbar Style)  -->
@@ -15,9 +15,9 @@
             <!-- Breadcrumb minimal -->
             <nav class="flex items-center gap-1.5 text-[12px] text-black/50 dark:text-white/50 mb-1">
                 <a href="{{ route('dashboard') }}" class="hover:text-[#007AFF] transition-colors">Dashboard</a>
-                <span>›</span>
+                <i data-lucide="chevron-right" class="w-3.5 h-3.5 opacity-40"></i>
                 <span class="text-black/70 dark:text-white/70 font-medium">Pengaturan</span>
-                <span>›</span>
+                <i data-lucide="chevron-right" class="w-3.5 h-3.5 opacity-40"></i>
                 <span class="text-black dark:text-white font-medium">Akun &amp; Profil</span>
             </nav>
             <h1 class="text-[20px] font-semibold text-black dark:text-white tracking-tight">Akun Pengguna &amp; Keamanan</h1>

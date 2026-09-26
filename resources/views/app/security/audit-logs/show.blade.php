@@ -5,12 +5,12 @@
 ])
 
 @section('content')
-<div class="max-w-[1000px] mx-auto space-y-6 pb-14">
+<div class="max-w-[1000px] mx-auto space-y-6 pb-28 lg:pb-12">
 
     <!-- Top Navigation -->
     <div class="flex items-center justify-between">
         <a href="{{ route('settings.audit-logs.index') }}"
-           class="min-h-[40px] px-4 rounded-[12px] bg-black/[0.04] dark:bg-white/[0.06] text-black/75 dark:text-white/75 font-semibold text-[13px] hover:bg-black/[0.08] active:scale-95 transition-all inline-flex items-center gap-1.5">
+           class="min-h-[44px] sm:min-h-0 h-11 sm:h-9 px-4 rounded-[12px] bg-black/[0.04] dark:bg-white/[0.06] text-black/75 dark:text-white/75 font-semibold text-[13px] hover:bg-black/[0.08] active:scale-95 transition-all inline-flex items-center gap-1.5">
             <i data-lucide="arrow-left" class="w-4 h-4"></i>
             <span>Kembali ke Explorer</span>
         </a>

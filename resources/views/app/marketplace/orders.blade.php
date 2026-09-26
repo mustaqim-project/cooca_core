@@ -15,9 +15,9 @@
     <!-- ========================================== -->
     <nav class="flex items-center gap-1.5 text-[12px] text-black/50 dark:text-white/50 py-0.5 whitespace-nowrap print:hidden" aria-label="Breadcrumb">
         <a href="{{ route('dashboard') }}" class="hover:text-[#007AFF] transition-colors font-medium">Dashboard</a>
-        <span>›</span>
+        <i data-lucide="chevron-right" class="w-3.5 h-3.5 opacity-40"></i>
         <a href="{{ route('marketplace-hub.index') }}" class="hover:text-[#007AFF] transition-colors font-medium">Marketplace Hub</a>
-        <span>›</span>
+        <i data-lucide="chevron-right" class="w-3.5 h-3.5 opacity-40"></i>
         <span class="text-black/80 dark:text-white/80 font-medium">Pesanan Masuk</span>
     </nav>
 
