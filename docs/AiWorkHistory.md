@@ -52,6 +52,37 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 
 #### 7. Documentation Promotion
 
+### [WORK-2026-09-26-177] POS Terminal Redesign: Header Declutter (Removal of Printer, Drawer, KDS), Apple HIG Ergonomics & Segmented Controls
+- **Date:** 2026-09-26
+- **Status:** COMPLETED
+- **Module:** POS / Cashier Terminal
+- **Feature:** Redesain antarmuka terminal POS kasir agar lebih elegan, fungsional, dan simpel. Menghapus pintasan printer, tombol manual cash drawer, dan pintasan layar dapur (KDS) dari bilah header utama; menyederhanakan tombol aksi operasional dengan styling kaca Apple HIG yang seragam; memperbarui selektor tipe pesanan (Bungkus, Dine In, Kirim) menjadi segmented controls ramah sentuhan tablet; serta mempercantik tombol bayar dan hold cart.
+- **Work Type:** UI/UX | Ergonomics | Clean Architecture
+
+#### 1. Business Context & Objective
+- **Konteks:** Kasir dan pemilik usaha membutuhkan antarmuka kasir yang fokus, bersih, cepat, dan tidak terdistraksi oleh tombol-tombol konfigurasi hardware (printer, laci uang manual, layar dapur) di bilah atas (header).
+- **Target:**
+  1. Menghilangkan elemen pengaturan printer, pop drawer manual, dan tautan KDS dari header terminal POS sesuai direktif pengguna.
+  2. Menyederhanakan dan menyelaraskan tombol aksi yang tersisa di header (Order QR, Meja, Hold, Kas Masuk/Keluar, Fullscreen, Mode Gelap/Terang, Profil Kasir).
+  3. Mengganti dropdown bawaan `<select>` untuk tipe pesanan (Bungkus / Dine In / Kirim) menjadi tombol segmented control iOS yang responsif dan nyaman disentuh pada layar tablet/touchscreen.
+  4. Meningkatkan estetika visual tombol checkout dan hold dengan total tagihan real-time dan shortcut F9.
+
+#### 2. What Was Done
+- **Header Decluttering & Refinement:**
+  - Menghapus tautan `route('pos.kitchen.index')` (KDS) dari header POS.
+  - Menghapus tombol `promptManualDrawerPop()` (Laci Kas) dari header POS.
+  - Menghapus tautan `route('pos.printers.index')` (Pengaturan Printer) dari header POS.
+  - Memperbarui gaya tombol yang tersisa dengan token Apple HIG: `h-8.5 sm:h-9 px-2.5 sm:px-3 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.04] dark:border-white/[0.08] active:scale-[0.97]`.
+- **Cart Ergonomics & Touch Controls:**
+  - Mengonversi `orderType` menjadi segmented button pills (`Bungkus`, `Dine In`, `Kirim`) yang cepat diakses jari tanpa membuka menu dropdown.
+  - Memperbaiki penutupan tag pembungkus HTML pada kartu loyalty member kasir.
+  - Mempercantik tombol **Bayar Sekarang** dengan gradien Apple blue `bg-gradient-to-r from-[#007AFF] to-[#0A84FF]`, preview nominal total tagihan real-time, dan indikator shortcut keyboard `F9`.
+- **Verifikasi & Build:**
+  - `php artisan view:cache` berhasil tanpa kesalahan sintaks.
+  - View cache dibersihkan (`php artisan view:clear`) dan perubahan telah di-push ke branch `main`.
+
+---
+
 ### [WORK-2026-09-26-174] Implementation & Acceptance Verification of Persistent Tabs, Breadcrumbs, Navigation Registry SSOT, Dynamic Module Enforcement & RBAC Across All Core Hubs (Phases 1-10)
 - **Date:** 2026-09-26
 - **Status:** COMPLETED
