@@ -382,6 +382,7 @@ final class AuthWebController extends Controller
                     \App\Domain\Template\ModuleRegistry::MODULE_LABOR_MACHINES,
                     \App\Domain\Template\ModuleRegistry::MODULE_INVENTORY_WAREHOUSE,
                     \App\Domain\Template\ModuleRegistry::MODULE_CUSTOMER_PO,
+                    \App\Domain\Template\ModuleRegistry::MODULE_ACCOUNTING_CORPORATE,
                 ];
                 $disabledModules = array_values(array_unique(array_merge($disabledModules, $corporateModules)));
             }
@@ -586,6 +587,7 @@ final class AuthWebController extends Controller
                     \App\Domain\Template\ModuleRegistry::MODULE_LABOR_MACHINES,
                     \App\Domain\Template\ModuleRegistry::MODULE_INVENTORY_WAREHOUSE,
                     \App\Domain\Template\ModuleRegistry::MODULE_CUSTOMER_PO,
+                    \App\Domain\Template\ModuleRegistry::MODULE_ACCOUNTING_CORPORATE,
                 ];
                 $disabledModules = array_values(array_unique(array_merge($disabledModules, $corporateModules)));
             }

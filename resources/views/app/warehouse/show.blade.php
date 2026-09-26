@@ -820,94 +820,136 @@
         @endif
 
         {{-- ===================================================== --}}
-        {{-- 9. APPLE SHEET: EDIT GUDANG                           --}}
+        {{-- 9. APPLE BENTO XXL SHEET: EDIT GUDANG / LOKASI        --}}
         {{-- ===================================================== --}}
         <div x-show="showEditModal" x-cloak
-            class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4"
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-md p-3 sm:p-6"
             x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0"
             x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150"
             x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
 
-            <div class="w-full max-w-lg rounded-[22px] bg-white dark:bg-[#2C2C2E] border border-black/[0.08] dark:border-white/[0.12] shadow-2xl p-6 space-y-5 max-h-[90vh] overflow-y-auto"
+            <div class="w-full max-w-[94vw] md:max-w-2xl lg:max-w-3xl xl:max-w-4xl max-h-[88vh] rounded-[22px] bg-white/98 dark:bg-[#1C1C1E]/98 backdrop-blur-2xl border border-black/[0.08] dark:border-white/[0.12] shadow-[0_25px_60px_rgba(0,0,0,0.35)] flex flex-col overflow-hidden"
                 @click.outside="showEditModal = false" x-transition:enter="transition ease-out duration-200"
                 x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
                 x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 scale-100"
                 x-transition:leave-end="opacity-0 scale-95">
 
-                <div class="flex items-center justify-between border-b border-black/[0.06] dark:border-white/[0.08] pb-3.5">
-                    <div>
-                        <h3 class="text-base font-bold text-slate-900 dark:text-white">Edit Gudang: {{ $location->name }}</h3>
-                        <p class="text-xs text-slate-500 dark:text-slate-400">Perbarui informasi dan status operasional lokasi</p>
+                {{-- Modal Header --}}
+                <div class="px-5 py-4 sm:px-6 sm:py-4.5 border-b border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between gap-3 shrink-0 bg-slate-50/50 dark:bg-white/[0.02]">
+                    <div class="flex items-center gap-3.5">
+                        <div class="w-11 h-11 rounded-[14px] bg-[#007AFF]/12 text-[#007AFF] flex items-center justify-center shrink-0 border border-[#007AFF]/20">
+                            <i data-lucide="pencil-line" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
+                                <span>Edit Gudang / Lokasi: {{ $location->name }}</span>
+                                <span class="text-[11px] font-semibold text-[#007AFF] bg-[#007AFF]/12 px-2.5 py-0.5 rounded-full">Perbarui Data</span>
+                            </h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">Perbarui informasi alamat fisik, tipe lokasi, dan status operasional</p>
+                        </div>
                     </div>
                     <button type="button" @click="showEditModal = false"
-                        class="p-1 rounded-[8px] text-slate-400 hover:text-slate-900 dark:hover:text-white transition cursor-pointer">
-                        <i data-lucide="x" class="w-5 h-5"></i>
+                        class="w-9 h-9 rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition cursor-pointer">
+                        <i data-lucide="x" class="w-4 h-4"></i>
                     </button>
                 </div>
 
-                <form action="{{ route('warehouse.update', $location->id) }}" method="POST" class="space-y-4 text-xs">
+                <form action="{{ route('warehouse.update', $location->id) }}" method="POST" class="flex flex-col flex-1 overflow-hidden">
                     @csrf
                     @method('PUT')
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                        <div class="col-span-1 sm:col-span-2">
-                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                                Nama Gudang / Lokasi <span class="text-[#FF3B30]">*</span>
-                            </label>
-                            <input type="text" name="name" value="{{ $location->name }}" required
-                                class="w-full h-10 bg-slate-50 dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3.5 text-[16px] sm:text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                                Tipe Lokasi
-                            </label>
-                            <select name="type"
-                                class="w-full h-10 bg-slate-50 dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3 text-[16px] sm:text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
-                                <option value="warehouse" {{ $location->type === 'warehouse' ? 'selected' : '' }}>Gudang (Warehouse)</option>
-                                <option value="outlet" {{ $location->type === 'outlet' ? 'selected' : '' }}>Outlet / Toko</option>
-                                <option value="central_kitchen" {{ $location->type === 'central_kitchen' ? 'selected' : '' }}>Dapur Pusat (Central Kitchen)</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                                Kode Lokasi
-                            </label>
-                            <input type="text" name="code" value="{{ $location->code }}"
-                                class="w-full h-10 bg-slate-50 dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3.5 text-[16px] sm:text-xs text-slate-900 dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                                Nomor Telepon
-                            </label>
-                            <input type="text" name="phone" value="{{ $location->phone }}"
-                                class="w-full h-10 bg-slate-50 dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3.5 text-[16px] sm:text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                                Status Operasional
-                            </label>
-                            <select name="is_active"
-                                class="w-full h-10 bg-slate-50 dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3 text-[16px] sm:text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
-                                <option value="1" {{ $location->is_active ? 'selected' : '' }}>Aktif Beroperasi</option>
-                                <option value="0" {{ !$location->is_active ? 'selected' : '' }}>Nonaktif</option>
-                            </select>
-                        </div>
-                        <div class="col-span-1 sm:col-span-2">
-                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                                Alamat Lengkap
-                            </label>
-                            <textarea name="address" rows="2"
-                                class="w-full bg-slate-50 dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] p-3 text-[16px] sm:text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition resize-none">{{ $location->address }}</textarea>
+                    
+                    <div class="p-5 sm:p-6 overflow-y-auto space-y-4 flex-1 text-xs">
+                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                            
+                            {{-- Kolom Kiri (6 Kolom) --}}
+                            <div class="lg:col-span-6 space-y-4">
+                                <div class="rounded-[18px] bg-slate-50/80 dark:bg-[#2C2C2E]/60 border border-black/[0.06] dark:border-white/[0.08] p-5 space-y-4">
+                                    <div class="flex items-center gap-2">
+                                        <i data-lucide="info" class="w-4 h-4 text-[#007AFF]"></i>
+                                        <span class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Identitas Lokasi</span>
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                                            Nama Gudang / Lokasi <span class="text-[#FF3B30]">*</span>
+                                        </label>
+                                        <input type="text" name="name" value="{{ $location->name }}" required
+                                            class="w-full h-11 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3.5 text-[16px] sm:text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
+                                    </div>
+
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                        <div>
+                                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                                                Tipe Lokasi
+                                            </label>
+                                            <select name="type"
+                                                class="w-full h-10 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3 text-[16px] sm:text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
+                                                <option value="warehouse" {{ $location->type === 'warehouse' ? 'selected' : '' }}>Gudang (Warehouse)</option>
+                                                <option value="outlet" {{ $location->type === 'outlet' ? 'selected' : '' }}>Outlet / Toko</option>
+                                                <option value="central_kitchen" {{ $location->type === 'central_kitchen' ? 'selected' : '' }}>Dapur Pusat (Central Kitchen)</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                                                Kode Lokasi
+                                            </label>
+                                            <input type="text" name="code" value="{{ $location->code }}"
+                                                class="w-full h-10 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3.5 text-[16px] sm:text-xs text-slate-900 dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                                            Nomor Telepon
+                                        </label>
+                                        <input type="text" name="phone" value="{{ $location->phone }}"
+                                            class="w-full h-10 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3.5 text-[16px] sm:text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- Kolom Kanan (6 Kolom) --}}
+                            <div class="lg:col-span-6 space-y-4">
+                                <div class="rounded-[18px] bg-slate-50/80 dark:bg-[#2C2C2E]/60 border border-black/[0.06] dark:border-white/[0.08] p-5 space-y-4">
+                                    <div class="flex items-center gap-2">
+                                        <i data-lucide="map-pin" class="w-4 h-4 text-[#007AFF]"></i>
+                                        <span class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Alamat &amp; Status Operasional</span>
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                                            Alamat Lengkap
+                                        </label>
+                                        <textarea name="address" rows="3"
+                                            class="w-full bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] p-3 text-[16px] sm:text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition resize-none">{{ $location->address }}</textarea>
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                                            Status Operasional
+                                        </label>
+                                        <select name="is_active"
+                                            class="w-full h-10 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3 text-[16px] sm:text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
+                                            <option value="1" {{ $location->is_active ? 'selected' : '' }}>Aktif Beroperasi (Menerima Transaksi)</option>
+                                            <option value="0" {{ !$location->is_active ? 'selected' : '' }}>Nonaktif (Ditutup Sementara)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
 
-                    <div class="flex items-center justify-end gap-2 pt-3.5 border-t border-black/[0.06] dark:border-white/[0.08]">
+                    {{-- Modal Footer --}}
+                    <div class="px-5 py-3.5 sm:px-6 sm:py-4 border-t border-black/[0.06] dark:border-white/[0.08] flex items-center justify-end gap-3 shrink-0 bg-slate-50/50 dark:bg-white/[0.02]">
                         <button type="button" @click="showEditModal = false"
-                            class="h-9 px-4 rounded-[10px] text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer">
+                            class="min-h-[44px] h-11 px-5 rounded-[12px] text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer">
                             Batal
                         </button>
                         <button type="submit"
-                            class="h-9 px-4 rounded-[10px] text-xs font-bold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] transition-all shadow-[0_1px_2px_rgba(0,122,255,0.25)] cursor-pointer">
-                            Simpan Perubahan
+                            class="min-h-[44px] h-11 px-6 rounded-[12px] text-xs font-bold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] transition-all shadow-[0_2px_4px_rgba(0,122,255,0.25)] cursor-pointer flex items-center gap-2">
+                            <i data-lucide="check" class="w-4 h-4"></i>
+                            <span>Simpan Perubahan</span>
                         </button>
                     </div>
                 </form>
@@ -915,80 +957,148 @@
         </div>
 
         {{-- ===================================================== --}}
-        {{-- 10. APPLE SHEET: PENYESUAIAN STOK (ADJUSTMENT)        --}}
+        {{-- 10. APPLE BENTO XXL SHEET: PENYESUAIAN STOK (ADJUST)  --}}
         {{-- ===================================================== --}}
         @if (\App\Support\Context::hasPermission('inventory.manage'))
             <div x-show="showAdjustModal" x-cloak
-                class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4"
+                class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-md p-3 sm:p-6"
                 x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0"
                 x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150"
                 x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
 
-                <div class="w-full max-w-md rounded-[22px] bg-white dark:bg-[#2C2C2E] border border-black/[0.08] dark:border-white/[0.12] shadow-2xl p-6 space-y-4"
+                <div class="w-full max-w-[94vw] md:max-w-2xl lg:max-w-3xl xl:max-w-4xl max-h-[88vh] rounded-[22px] bg-white/98 dark:bg-[#1C1C1E]/98 backdrop-blur-2xl border border-black/[0.08] dark:border-white/[0.12] shadow-[0_25px_60px_rgba(0,0,0,0.35)] flex flex-col overflow-hidden"
                     @click.outside="showAdjustModal = false" x-transition:enter="transition ease-out duration-200"
                     x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
                     x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 scale-100"
                     x-transition:leave-end="opacity-0 scale-95">
 
-                    <div class="flex items-center justify-between border-b border-black/[0.06] dark:border-white/[0.08] pb-3">
-                        <div>
-                            <h3 class="text-base font-bold text-slate-900 dark:text-white">Sesuaikan Stok Fisik</h3>
-                            <p class="text-xs text-slate-500 dark:text-slate-400" x-text="selectedStock ? selectedStock.product_name : ''"></p>
+                    {{-- Modal Header --}}
+                    <div class="px-5 py-4 sm:px-6 sm:py-4.5 border-b border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between gap-3 shrink-0 bg-slate-50/50 dark:bg-white/[0.02]">
+                        <div class="flex items-center gap-3.5">
+                            <div class="w-11 h-11 rounded-[14px] bg-[#007AFF]/12 text-[#007AFF] flex items-center justify-center shrink-0 border border-[#007AFF]/20">
+                                <i data-lucide="sliders" class="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
+                                    <span>Penyesuaian Stok Fisik (Stock Adjustment)</span>
+                                    <span class="text-[11px] font-semibold text-[#007AFF] bg-[#007AFF]/12 px-2.5 py-0.5 rounded-full" x-text="selectedStock ? selectedStock.product_name : ''"></span>
+                                </h3>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">Sinkronkan saldo stok sistem dengan hasil penghitungan fisik riil di gudang ini</p>
+                            </div>
                         </div>
                         <button type="button" @click="showAdjustModal = false"
-                            class="p-1 rounded-[8px] text-slate-400 hover:text-slate-900 dark:hover:text-white transition cursor-pointer">
-                            <i data-lucide="x" class="w-5 h-5"></i>
+                            class="w-9 h-9 rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition cursor-pointer">
+                            <i data-lucide="x" class="w-4 h-4"></i>
                         </button>
                     </div>
 
-                    <form action="{{ route('inventory.stocks.adjust') }}" method="POST" class="space-y-3.5 text-xs">
+                    <form action="{{ route('inventory.stocks.adjust') }}" method="POST" class="flex flex-col flex-1 overflow-hidden">
                         @csrf
                         <input type="hidden" name="product_id" x-bind:value="selectedStock?.product_id">
                         <input type="hidden" name="location_id" value="{{ $location->id }}">
 
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                                Stok Tercatat Saat Ini (Sistem)
-                            </label>
-                            <div class="h-10 px-3.5 rounded-[10px] bg-slate-50 dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] text-slate-900 dark:text-white font-mono tabular-nums font-bold text-sm flex items-center justify-between">
-                                <span x-text="selectedStock?.quantity ?? 0"></span>
-                                <span class="text-xs text-slate-400 dark:text-slate-500 font-sans">Unit</span>
+                        <div class="p-5 sm:p-6 overflow-y-auto space-y-4 flex-1 text-xs">
+                            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                                
+                                {{-- Kolom Kiri: Input Parameter Penyesuaian (6 Kolom) --}}
+                                <div class="lg:col-span-6 space-y-4">
+                                    <div class="rounded-[18px] bg-slate-50/80 dark:bg-[#2C2C2E]/60 border border-black/[0.06] dark:border-white/[0.08] p-5 space-y-4">
+                                        <div class="flex items-center gap-2">
+                                            <i data-lucide="package" class="w-4 h-4 text-[#007AFF]"></i>
+                                            <span class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Input Kuantitas Fisik</span>
+                                        </div>
+
+                                        <div>
+                                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                                                Kuantitas Baru Riil (Hasil Fisik) <span class="text-[#FF3B30]">*</span>
+                                            </label>
+                                            <input type="number" name="new_quantity" step="any" x-model="newQuantity" min="0" required
+                                                class="w-full h-11 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3.5 text-[16px] sm:text-xs text-slate-900 dark:text-white font-mono tabular-nums font-bold text-sm focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
+                                        </div>
+
+                                        <div>
+                                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                                                HPP / Biaya Satuan Terakhir (Opsional)
+                                            </label>
+                                            <input type="number" name="unit_cost" step="any" x-model="unitCost" min="0"
+                                                class="w-full h-10 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3.5 text-[16px] sm:text-xs text-slate-900 dark:text-white font-mono tabular-nums focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
+                                        </div>
+
+                                        <div>
+                                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                                                Keterangan / Alasan Penyesuaian
+                                            </label>
+                                            <input type="text" name="notes"
+                                                placeholder="Contoh: Selisih fisik stock opname, barang rusak/kadaluarsa..."
+                                                class="w-full h-10 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3.5 text-[16px] sm:text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {{-- Kolom Kanan: Bento Live Comparison & Impact Calculation (6 Kolom) --}}
+                                <div class="lg:col-span-6 space-y-4">
+                                    <div class="rounded-[18px] bg-slate-50 dark:bg-[#2C2C2E] border border-black/[0.06] dark:border-white/[0.08] p-5 space-y-4">
+                                        <div class="flex items-center gap-2">
+                                            <i data-lucide="calculator" class="w-4 h-4 text-[#007AFF]"></i>
+                                            <span class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Analisis Dampak Mutasi</span>
+                                        </div>
+
+                                        <div class="grid grid-cols-2 gap-3">
+                                            <div class="p-3 rounded-[12px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08]">
+                                                <span class="text-[10px] uppercase font-bold text-slate-400 block mb-0.5">Stok Sistem</span>
+                                                <span class="text-sm font-bold text-slate-900 dark:text-white tabular-nums font-mono">
+                                                    <span x-text="Number(selectedStock?.quantity || 0).toLocaleString('id-ID')"></span>
+                                                </span>
+                                            </div>
+                                            <div class="p-3 rounded-[12px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08]">
+                                                <span class="text-[10px] uppercase font-bold text-slate-400 block mb-0.5">Kuantitas Baru</span>
+                                                <span class="text-sm font-bold text-[#007AFF] tabular-nums font-mono">
+                                                    <span x-text="Number(newQuantity || 0).toLocaleString('id-ID')"></span>
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        {{-- Selisih Perubahan (Delta) Card --}}
+                                        <div class="p-4 rounded-[14px] border"
+                                            :class="(Number(newQuantity) - Number(selectedStock?.quantity || 0)) > 0 
+                                                ? 'bg-[#34C759]/10 border-[#34C759]/30 text-[#248A3D] dark:text-[#30D158]' 
+                                                : ((Number(newQuantity) - Number(selectedStock?.quantity || 0)) < 0 
+                                                    ? 'bg-[#FF3B30]/10 border-[#FF3B30]/30 text-[#C41E17] dark:text-[#FF453A]' 
+                                                    : 'bg-black/5 dark:bg-white/5 border-black/10 dark:border-white/10 text-slate-600 dark:text-slate-400')">
+                                            <div class="flex items-center justify-between">
+                                                <span class="font-semibold text-xs">Selisih Mutasi Stok:</span>
+                                                <span class="font-bold text-sm font-mono tabular-nums">
+                                                    <span x-text="(Number(newQuantity) - Number(selectedStock?.quantity || 0)) > 0 ? '+' : ''"></span>
+                                                    <span x-text="(Number(newQuantity) - Number(selectedStock?.quantity || 0)).toLocaleString('id-ID')"></span> Unit
+                                                </span>
+                                            </div>
+                                            <div class="flex items-center justify-between pt-2 mt-2 border-t border-black/10 dark:border-white/10 text-[11px]">
+                                                <span>Estimasi Perubahan Valuasi:</span>
+                                                <span class="font-bold font-mono tabular-nums">
+                                                    Rp <span x-text="Math.abs((Number(newQuantity) - Number(selectedStock?.quantity || 0)) * Number(unitCost || 0)).toLocaleString('id-ID')"></span>
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <p class="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                                            Penyesuaian stok akan dicatat otomatis ke dalam <strong>Audit Trail Kartu Stok (StockMovement)</strong> untuk akuntabilitas internal dan pencegahan fraud.
+                                        </p>
+                                    </div>
+                                </div>
+
                             </div>
                         </div>
 
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                                Kuantitas Baru Riil (Hasil Fisik) <span class="text-[#FF3B30]">*</span>
-                            </label>
-                            <input type="number" name="new_quantity" step="any" x-model="newQuantity" min="0" required
-                                class="w-full h-10 bg-slate-50 dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3.5 text-[16px] sm:text-xs text-slate-900 dark:text-white font-mono tabular-nums font-bold text-sm focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                                HPP / Biaya Satuan Terakhir (Opsional)
-                            </label>
-                            <input type="number" name="unit_cost" step="any" x-model="unitCost" min="0"
-                                class="w-full h-10 bg-slate-50 dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3.5 text-[16px] sm:text-xs text-slate-900 dark:text-white font-mono tabular-nums focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                                Keterangan Penyesuaian
-                            </label>
-                            <input type="text" name="notes"
-                                placeholder="Contoh: Selisih fisik stock opname, barang rusak..."
-                                class="w-full h-10 bg-slate-50 dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3.5 text-[16px] sm:text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
-                        </div>
-
-                        <div class="flex items-center justify-end gap-2 pt-3 border-t border-black/[0.06] dark:border-white/[0.08]">
+                        {{-- Modal Footer --}}
+                        <div class="px-5 py-3.5 sm:px-6 sm:py-4 border-t border-black/[0.06] dark:border-white/[0.08] flex items-center justify-end gap-3 shrink-0 bg-slate-50/50 dark:bg-white/[0.02]">
                             <button type="button" @click="showAdjustModal = false"
-                                class="h-9 px-4 rounded-[10px] text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer">
+                                class="min-h-[44px] h-11 px-5 rounded-[12px] text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer">
                                 Batal
                             </button>
                             <button type="submit"
-                                class="h-9 px-4 rounded-[10px] text-xs font-bold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] transition-all shadow-[0_1px_2px_rgba(0,122,255,0.25)] cursor-pointer">
-                                Simpan Penyesuaian
+                                class="min-h-[44px] h-11 px-6 rounded-[12px] text-xs font-bold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] transition-all shadow-[0_2px_4px_rgba(0,122,255,0.25)] cursor-pointer flex items-center gap-2">
+                                <i data-lucide="check" class="w-4 h-4"></i>
+                                <span>Simpan Penyesuaian Stok</span>
                             </button>
                         </div>
                     </form>

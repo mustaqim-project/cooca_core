@@ -411,6 +411,9 @@ final class PosTerminalWebController extends Controller
      */
     public function resumeOrder(PosOrder $order): JsonResponse
     {
+        $business = Context::requireBusiness();
+        abort_unless($order->business_id === $business->id, 403, 'Akses tidak sah.');
+
         if ($order->status !== PosOrder::STATUS_DRAFT_HELD) {
             return response()->json(['success' => false, 'message' => 'Pesanan ini tidak dalam status hold.'], 400);
         }

@@ -15,6 +15,7 @@
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
 
     <style>
         body {
@@ -76,28 +77,27 @@
 
     <!-- Flash Message Notification (Hidden on Print) -->
     @if (session('success'))
-        <div class="no-print max-w-sm mx-auto mb-3 p-2.5 rounded-[10px] bg-[#34C759]/12 border border-[#34C759]/25 text-[#248A3D] dark:text-[#30D158] text-[12px] font-sans font-medium text-center flex items-center justify-center gap-1.5 shadow-sm">
-            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
+        <div class="no-print max-w-sm mx-auto mb-3 p-3 rounded-[12px] bg-[#34C759]/12 border border-[#34C759]/25 text-[#248A3D] dark:text-[#30D158] text-[13px] font-sans font-semibold text-center flex items-center justify-center gap-2 shadow-sm">
+            <i data-lucide="check-circle-2" class="w-4 h-4 shrink-0"></i>
             <span>{{ session('success') }}</span>
         </div>
     @endif
 
     <!-- Screen Action Bar (macOS Sonoma Floating Toolbar, Hidden on Print) -->
     <div
-        class="no-print max-w-md mx-auto mb-4 p-2 rounded-[12px] backdrop-blur-md bg-white/80 dark:bg-[#2C2C2E]/80 border border-black/5 dark:border-white/10 shadow-[0_4px_20px_rgba(0,0,0,0.06)] flex flex-wrap items-center justify-between gap-2">
+        class="no-print max-w-md mx-auto mb-4 p-2.5 rounded-[16px] backdrop-blur-md bg-white/80 dark:bg-[#2C2C2E]/80 border border-black/5 dark:border-white/10 shadow-sm flex flex-wrap items-center justify-between gap-2">
         <div class="flex items-center gap-1.5">
             <a href="{{ route('pos.terminal') }}"
-                class="h-8 px-2.5 rounded-[8px] bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] text-black/80 dark:text-white/80 text-[12px] font-sans font-medium transition flex items-center gap-1">
-                <span>‹ Terminal</span>
+                class="min-h-[36px] h-9 px-3 rounded-[10px] bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] text-black/80 dark:text-white/80 text-[13px] font-sans font-medium transition flex items-center gap-1.5 active:scale-[0.98]">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                <span>Terminal</span>
             </a>
             @if ($order->print_count > 1)
-                <span class="px-2 py-1 rounded-[6px] text-[11px] font-sans font-bold bg-[#FF9500]/15 text-[#B25E00] dark:text-[#FF9F0A] border border-[#FF9500]/30 shrink-0">
+                <span class="px-2.5 py-1 rounded-[8px] text-[11px] font-sans font-bold bg-[#FF9500]/15 text-[#B25E00] dark:text-[#FF9F0A] border border-[#FF9500]/30 shrink-0">
                     Salinan (Ke-{{ $order->print_count }})
                 </span>
             @else
-                <span class="px-2 py-1 rounded-[6px] text-[11px] font-sans font-bold bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158] border border-[#34C759]/30 shrink-0">
+                <span class="px-2.5 py-1 rounded-[8px] text-[11px] font-sans font-bold bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158] border border-[#34C759]/30 shrink-0">
                     Cetakan Asli
                 </span>
             @endif
@@ -106,22 +106,16 @@
         <div class="flex items-center gap-1.5 flex-wrap">
             <!-- Direct ESC/POS Hardware Print -->
             <button type="button" id="btn-direct-escpos" onclick="directPrintEscpos()"
-                class="h-8 px-3 rounded-[8px] bg-[#34C759] hover:bg-[#2EB34E] text-white text-[12px] font-sans font-semibold active:scale-[0.97] transition flex items-center gap-1.5 shadow-[0_1px_2px_rgba(0,0,0,0.15)]">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0110.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0l.229 2.523a1.125 1.125 0 01-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0021 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 00-1.913-.247M6.34 18H5.25A2.25 2.25 0 013 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 011.913-.247m10.5 0a48.536 48.536 0 00-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.659M18 10.5h.008v.008H18V10.5zm-3 0h.008v.008H15V10.5z" />
-                </svg>
+                class="min-h-[36px] h-9 px-3 rounded-[10px] bg-[#34C759] hover:bg-[#2EB34E] text-white text-[12px] font-sans font-semibold active:scale-[0.97] transition flex items-center gap-1.5 shadow-sm">
+                <i data-lucide="printer" class="w-3.5 h-3.5"></i>
                 <span id="txt-direct-escpos">Cetak ESC/POS</span>
             </button>
 
             <!-- Standard Browser Print Fallback -->
             <button type="button" onclick="window.print()"
-                class="h-8 px-3 rounded-[8px] {{ $order->print_count > 1 ? 'bg-[#FF9500] hover:bg-[#E08500]' : 'bg-[#007AFF] hover:bg-[#0071E3]' }} text-white text-[12px] font-sans font-semibold active:scale-[0.97] transition flex items-center gap-1.5 shadow-[0_1px_2px_rgba(0,0,0,0.15)]">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M6.72 13.829c-.24-1.049-.37-2.14-.37-3.254 0-4.694 3.806-8.5 8.5-8.5s8.5 3.806 8.5 8.5c0 1.114-.13 2.205-.37 3.254M6.72 13.829A8.966 8.966 0 004 19.5h16a8.966 8.966 0 00-2.72-5.671M6.72 13.829l1.83 1.83m6.9-1.83l-1.83 1.83" />
-                </svg>
-                <span>{{ $order->print_count > 1 ? 'Cetak Ulang (Browser)' : 'Cetak Bill' }}</span>
+                class="min-h-[36px] h-9 px-3 rounded-[10px] {{ $order->print_count > 1 ? 'bg-[#FF9500] hover:bg-[#E08500]' : 'bg-[#007AFF] hover:bg-[#0071E3]' }} text-white text-[12px] font-sans font-semibold active:scale-[0.97] transition flex items-center gap-1.5 shadow-sm">
+                <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
+                <span>{{ $order->print_count > 1 ? 'Cetak Ulang' : 'Cetak Bill' }}</span>
             </button>
 
             <!-- Re-Print Trigger Action -->
@@ -129,17 +123,16 @@
                 onsubmit="return confirm('Cetak Ulang (Re-Print) Bill ini?\n\nTindakan ini akan dicatat dalam Jejak Audit & Anti-Fraud sebagai Salinan / Cetakan ke-{{ $order->print_count + 1 }}.');">
                 @csrf
                 <button type="submit"
-                    class="h-8 px-2.5 rounded-[8px] bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.1] dark:hover:bg-white/[0.12] text-black/85 dark:text-white/85 text-[12px] font-sans font-medium active:scale-[0.97] transition flex items-center gap-1"
+                    class="min-h-[36px] h-9 px-2.5 rounded-[10px] bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.1] dark:hover:bg-white/[0.12] text-black/85 dark:text-white/85 text-[12px] font-sans font-medium active:scale-[0.97] transition flex items-center gap-1"
                     title="Cetak Salinan Tambahan & Catat Log Forensik">
-                    <svg class="w-3.5 h-3.5 text-[#FF9500]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
-                    </svg>
+                    <i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-[#FF9500]"></i>
                     <span>Re-Print</span>
                 </button>
             </form>
 
             <a href="{{ $whatsappUrl }}" target="_blank"
-                class="h-8 px-2 rounded-[8px] bg-[#25D366]/15 hover:bg-[#25D366]/25 text-[#25D366] text-[12px] font-sans font-semibold active:scale-[0.97] transition flex items-center gap-1">
+                class="min-h-[36px] h-9 px-2.5 rounded-[10px] bg-[#25D366]/15 hover:bg-[#25D366]/25 text-[#25D366] text-[12px] font-sans font-semibold active:scale-[0.97] transition flex items-center gap-1">
+                <i data-lucide="send" class="w-3.5 h-3.5"></i>
                 <span>WA</span>
             </a>
         </div>
@@ -388,29 +381,45 @@
 
     <!-- Floating Direct Print Status Toast (Hidden on Print) -->
     <div id="escpos-toast" class="no-print fixed bottom-5 left-1/2 -translate-x-1/2 z-50 max-w-sm w-full px-4 transition-all duration-300 transform opacity-0 translate-y-4 pointer-events-none">
-        <div id="escpos-toast-inner" class="p-3.5 rounded-2xl shadow-xl backdrop-blur-xl text-white text-xs font-sans font-medium flex items-center justify-between gap-3 border">
+        <div id="escpos-toast-inner" class="p-3.5 rounded-2xl shadow-xl backdrop-blur-xl text-white text-[13px] font-sans font-medium flex items-center justify-between gap-3 border">
             <div class="flex items-center gap-2 min-w-0">
-                <span id="escpos-toast-icon">🖨️</span>
-                <span id="escpos-toast-msg" class="truncate">Mengirim ke printer...</span>
+                <span id="escpos-toast-icon" class="flex items-center justify-center">
+                    <i data-lucide="printer" class="w-4 h-4"></i>
+                </span>
+                <span id="escpos-toast-msg" class="truncate font-medium">Mengirim ke printer...</span>
             </div>
-            <button type="button" onclick="hideEscposToast()" class="text-white/60 hover:text-white shrink-0 text-xs">✕</button>
+            <button type="button" onclick="hideEscposToast()" class="p-1 rounded-md text-white/70 hover:text-white hover:bg-white/10 shrink-0">
+                <i data-lucide="x" class="w-3.5 h-3.5"></i>
+            </button>
         </div>
     </div>
 
     <script>
-        function showEscposToast(msg, isSuccess = true, icon = null) {
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.lucide) {
+                lucide.createIcons();
+            }
+        });
+
+        function showEscposToast(msg, isSuccess = true) {
             const toast = document.getElementById('escpos-toast');
             const inner = document.getElementById('escpos-toast-inner');
             const msgEl = document.getElementById('escpos-toast-msg');
             const iconEl = document.getElementById('escpos-toast-icon');
 
             msgEl.textContent = msg;
-            iconEl.textContent = icon || (isSuccess ? '✅' : '⚠️');
+            iconEl.innerHTML = isSuccess 
+                ? '<i data-lucide="check-circle-2" class="w-4 h-4 text-white"></i>' 
+                : '<i data-lucide="alert-triangle" class="w-4 h-4 text-white"></i>';
 
             if (isSuccess) {
-                inner.className = 'p-3.5 rounded-2xl shadow-xl backdrop-blur-xl text-white text-xs font-sans font-medium flex items-center justify-between gap-3 border bg-[#34C759]/90 border-[#34C759]/50';
+                inner.className = 'p-3.5 rounded-2xl shadow-xl backdrop-blur-xl text-white text-[13px] font-sans font-medium flex items-center justify-between gap-3 border bg-[#34C759]/90 border-[#34C759]/50';
             } else {
-                inner.className = 'p-3.5 rounded-2xl shadow-xl backdrop-blur-xl text-white text-xs font-sans font-medium flex items-center justify-between gap-3 border bg-[#FF3B30]/90 border-[#FF3B30]/50';
+                inner.className = 'p-3.5 rounded-2xl shadow-xl backdrop-blur-xl text-white text-[13px] font-sans font-medium flex items-center justify-between gap-3 border bg-[#FF3B30]/90 border-[#FF3B30]/50';
+            }
+
+            if (window.lucide) {
+                lucide.createIcons();
             }
 
             toast.classList.remove('opacity-0', 'translate-y-4', 'pointer-events-none');

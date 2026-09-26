@@ -1723,10 +1723,11 @@
                         x-transition:enter="transition-all ease-out duration-150"
                         class="pl-3 pr-1 py-0.5 space-y-0.5 border-l border-black/5 dark:border-white/10 ml-4">
                         @if ($canAccessFinance)
+                            {{-- 1. Keuangan Sederhana (UMKM Default) --}}
                             <a href="{{ route('finance.cash-bank.index') }}" id="tour-nav-cash-bank"
-                                {{ request()->routeIs('finance.cash-bank.index') ? 'aria-current="page"' : '' }}
-                                class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-all active:scale-[0.98] {{ request()->routeIs('finance.cash-bank.index') ? 'bg-[#007AFF] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
-                                <i data-lucide="landmark" class="w-3.5 h-3.5 {{ request()->routeIs('finance.cash-bank.index') ? 'text-white' : 'text-black/40 dark:text-white/40' }} shrink-0"></i>
+                                {{ request()->routeIs('finance.cash-bank.*') ? 'aria-current="page"' : '' }}
+                                class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-all active:scale-[0.98] {{ request()->routeIs('finance.cash-bank.*') ? 'bg-[#007AFF] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
+                                <i data-lucide="landmark" class="w-3.5 h-3.5 {{ request()->routeIs('finance.cash-bank.*') ? 'text-white' : 'text-black/40 dark:text-white/40' }} shrink-0"></i>
                                 <span class="truncate">Kas &amp; Rekening Bank</span>
                             </a>
 
@@ -1736,49 +1737,6 @@
                                 <i data-lucide="arrow-up-right" class="w-3.5 h-3.5 {{ request()->routeIs('finance.expenses.*') ? 'text-white' : 'text-black/40 dark:text-white/40' }} shrink-0"></i>
                                 <span class="truncate">Pengeluaran Operasional</span>
                             </a>
-
-                            <a href="{{ route('finance.coa.index') }}"
-                                {{ request()->routeIs('finance.coa.*') ? 'aria-current="page"' : '' }}
-                                class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-all active:scale-[0.98] {{ request()->routeIs('finance.coa.*') ? 'bg-[#007AFF] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
-                                <i data-lucide="list-tree" class="w-3.5 h-3.5 {{ request()->routeIs('finance.coa.*') ? 'text-white' : 'text-black/40 dark:text-white/40' }} shrink-0"></i>
-                                <span class="truncate">Bagan Akun (COA)</span>
-                            </a>
-
-                            <a href="{{ route('finance.journals.index') }}"
-                                {{ request()->routeIs('finance.journals.*') ? 'aria-current="page"' : '' }}
-                                class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-all active:scale-[0.98] {{ request()->routeIs('finance.journals.*') ? 'bg-[#007AFF] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
-                                <i data-lucide="file-text" class="w-3.5 h-3.5 {{ request()->routeIs('finance.journals.*') ? 'text-white' : 'text-black/40 dark:text-white/40' }} shrink-0"></i>
-                                <span class="truncate">Buku Jurnal Keuangan</span>
-                            </a>
-
-                            <a href="{{ route('finance.general-ledger') }}"
-                                {{ request()->routeIs('finance.general-ledger') ? 'aria-current="page"' : '' }}
-                                class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-all active:scale-[0.98] {{ request()->routeIs('finance.general-ledger') ? 'bg-[#007AFF] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
-                                <i data-lucide="book-open" class="w-3.5 h-3.5 {{ request()->routeIs('finance.general-ledger') ? 'text-white' : 'text-black/40 dark:text-white/40' }} shrink-0"></i>
-                                <span class="truncate">Buku Besar Akun</span>
-                            </a>
-
-                            <a href="{{ route('finance.balance-sheet') }}"
-                                {{ request()->routeIs('finance.balance-sheet') ? 'aria-current="page"' : '' }}
-                                class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-all active:scale-[0.98] {{ request()->routeIs('finance.balance-sheet') ? 'bg-[#007AFF] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
-                                <i data-lucide="scale" class="w-3.5 h-3.5 {{ request()->routeIs('finance.balance-sheet') ? 'text-white' : 'text-black/40 dark:text-white/40' }} shrink-0"></i>
-                                <span class="truncate">Neraca Keuangan SAK EMKM</span>
-                            </a>
-
-                            <a href="{{ route('finance.trial-balance') }}"
-                                {{ request()->routeIs('finance.trial-balance') ? 'aria-current="page"' : '' }}
-                                class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-all active:scale-[0.98] {{ request()->routeIs('finance.trial-balance') ? 'bg-[#007AFF] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
-                                <i data-lucide="table-properties" class="w-3.5 h-3.5 {{ request()->routeIs('finance.trial-balance') ? 'text-white' : 'text-black/40 dark:text-white/40' }} shrink-0"></i>
-                                <span class="truncate">Neraca Saldo</span>
-                            </a>
-
-                            <a href="{{ route('finance.reconciliations.index') }}"
-                                {{ request()->routeIs('finance.reconciliations.*') ? 'aria-current="page"' : '' }}
-                                class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-all active:scale-[0.98] {{ request()->routeIs('finance.reconciliations.*') ? 'bg-[#007AFF] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
-                                <i data-lucide="git-compare" class="w-3.5 h-3.5 {{ request()->routeIs('finance.reconciliations.*') ? 'text-white' : 'text-black/40 dark:text-white/40' }} shrink-0"></i>
-                                <span class="truncate">Rekonsiliasi Bank</span>
-                            </a>
-
 
                             <a href="{{ route('finance.receivables') }}"
                                 {{ request()->routeIs('finance.receivables') ? 'aria-current="page"' : '' }}
@@ -1800,6 +1758,59 @@
                                 <i data-lucide="badge-check" class="w-3.5 h-3.5 {{ request()->routeIs('finance.settlements.*') ? 'text-white' : 'text-black/40 dark:text-white/40' }} shrink-0"></i>
                                 <span class="truncate">Pencairan Dana Penjualan</span>
                             </a>
+
+                            {{-- 2. Akuntansi Lengkap Korporasi (Dapat diaktifkan di Tab Kelola Modul) --}}
+                            @php
+                                $showCorporateAccounting = $sidebarBiz ? $sidebarBiz->isModuleEnabled(\App\Domain\Template\ModuleRegistry::MODULE_ACCOUNTING_CORPORATE) : true;
+                            @endphp
+
+                            @if ($showCorporateAccounting && \App\Support\Context::hasPermission('accounting.view'))
+                                <div class="pt-2 pb-0.5 px-2 text-[10px] font-semibold uppercase tracking-wider text-black/40 dark:text-white/40">
+                                    Akuntansi Korporasi
+                                </div>
+
+                                <a href="{{ route('finance.coa.index') }}"
+                                    {{ request()->routeIs('finance.coa.*') ? 'aria-current="page"' : '' }}
+                                    class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-all active:scale-[0.98] {{ request()->routeIs('finance.coa.*') ? 'bg-[#007AFF] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
+                                    <i data-lucide="list-tree" class="w-3.5 h-3.5 {{ request()->routeIs('finance.coa.*') ? 'text-white' : 'text-black/40 dark:text-white/40' }} shrink-0"></i>
+                                    <span class="truncate">Bagan Akun (COA)</span>
+                                </a>
+
+                                <a href="{{ route('finance.journals.index') }}"
+                                    {{ request()->routeIs('finance.journals.*') ? 'aria-current="page"' : '' }}
+                                    class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-all active:scale-[0.98] {{ request()->routeIs('finance.journals.*') ? 'bg-[#007AFF] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
+                                    <i data-lucide="file-text" class="w-3.5 h-3.5 {{ request()->routeIs('finance.journals.*') ? 'text-white' : 'text-black/40 dark:text-white/40' }} shrink-0"></i>
+                                    <span class="truncate">Buku Jurnal Keuangan</span>
+                                </a>
+
+                                <a href="{{ route('finance.general-ledger') }}"
+                                    {{ request()->routeIs('finance.general-ledger') ? 'aria-current="page"' : '' }}
+                                    class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-all active:scale-[0.98] {{ request()->routeIs('finance.general-ledger') ? 'bg-[#007AFF] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
+                                    <i data-lucide="book-open" class="w-3.5 h-3.5 {{ request()->routeIs('finance.general-ledger') ? 'text-white' : 'text-black/40 dark:text-white/40' }} shrink-0"></i>
+                                    <span class="truncate">Buku Besar Akun</span>
+                                </a>
+
+                                <a href="{{ route('finance.balance-sheet') }}"
+                                    {{ request()->routeIs('finance.balance-sheet') ? 'aria-current="page"' : '' }}
+                                    class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-all active:scale-[0.98] {{ request()->routeIs('finance.balance-sheet') ? 'bg-[#007AFF] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
+                                    <i data-lucide="scale" class="w-3.5 h-3.5 {{ request()->routeIs('finance.balance-sheet') ? 'text-white' : 'text-black/40 dark:text-white/40' }} shrink-0"></i>
+                                    <span class="truncate">Neraca Keuangan SAK EMKM</span>
+                                </a>
+
+                                <a href="{{ route('finance.trial-balance') }}"
+                                    {{ request()->routeIs('finance.trial-balance') ? 'aria-current="page"' : '' }}
+                                    class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-all active:scale-[0.98] {{ request()->routeIs('finance.trial-balance') ? 'bg-[#007AFF] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
+                                    <i data-lucide="table-properties" class="w-3.5 h-3.5 {{ request()->routeIs('finance.trial-balance') ? 'text-white' : 'text-black/40 dark:text-white/40' }} shrink-0"></i>
+                                    <span class="truncate">Neraca Saldo</span>
+                                </a>
+
+                                <a href="{{ route('finance.reconciliations.index') }}"
+                                    {{ request()->routeIs('finance.reconciliations.*') ? 'aria-current="page"' : '' }}
+                                    class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-all active:scale-[0.98] {{ request()->routeIs('finance.reconciliations.*') ? 'bg-[#007AFF] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
+                                    <i data-lucide="git-compare" class="w-3.5 h-3.5 {{ request()->routeIs('finance.reconciliations.*') ? 'text-white' : 'text-black/40 dark:text-white/40' }} shrink-0"></i>
+                                    <span class="truncate">Rekonsiliasi Bank</span>
+                                </a>
+                            @endif
                         @endif
 
                         @if ($canAccessCosting)
@@ -1882,37 +1893,57 @@
                                 <i data-lucide="arrow-up-right" class="w-3.5 h-3.5 text-[#FF3B30]"></i>
                                 <span>Pengeluaran Operasional</span>
                             </a>
-                            <a href="{{ route('finance.coa.index') }}"
+                            <a href="{{ route('finance.receivables') }}"
                                 class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
-                                <i data-lucide="list-tree" class="w-3.5 h-3.5 text-[#007AFF]"></i>
-                                <span>Bagan Akun (COA)</span>
+                                <i data-lucide="arrow-down-left" class="w-3.5 h-3.5 text-[#007AFF]"></i>
+                                <span>Daftar Piutang Usaha</span>
                             </a>
-                            <a href="{{ route('finance.journals.index') }}"
+                            <a href="{{ route('finance.payables') }}"
                                 class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
-                                <i data-lucide="file-text" class="w-3.5 h-3.5 text-[#5856D6]"></i>
-                                <span>Buku Jurnal Keuangan</span>
+                                <i data-lucide="arrow-up-right" class="w-3.5 h-3.5 text-[#FF9500]"></i>
+                                <span>Daftar Utang Usaha</span>
                             </a>
-                            <a href="{{ route('finance.general-ledger') }}"
+                            <a href="{{ route('finance.settlements.index') }}"
                                 class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
-                                <i data-lucide="book-open" class="w-3.5 h-3.5 text-[#34C759]"></i>
-                                <span>Buku Besar Akun</span>
-                            </a>
-                            <a href="{{ route('finance.balance-sheet') }}"
-                                class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
-                                <i data-lucide="scale" class="w-3.5 h-3.5 text-[#007AFF]"></i>
-                                <span>Neraca Keuangan</span>
-                            </a>
-                            <a href="{{ route('finance.trial-balance') }}"
-                                class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
-                                <i data-lucide="table-properties" class="w-3.5 h-3.5 text-[#FF9500]"></i>
-                                <span>Neraca Saldo</span>
-                            </a>
-                            <a href="{{ route('finance.reconciliations.index') }}"
-                                class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
-                                <i data-lucide="git-compare" class="w-3.5 h-3.5 text-[#AF52DE]"></i>
-                                <span>Rekonsiliasi Bank</span>
+                                <i data-lucide="badge-check" class="w-3.5 h-3.5 text-[#34C759]"></i>
+                                <span>Pencairan Dana (Settlement)</span>
                             </a>
 
+                            @if ($showCorporateAccounting && \App\Support\Context::hasPermission('accounting.view'))
+                                <div class="px-2.5 pt-1.5 pb-0.5 text-[10px] font-semibold uppercase tracking-wider text-black/40 dark:text-white/40 border-t border-black/5 dark:border-white/10 mt-1">
+                                    Akuntansi Korporasi
+                                </div>
+                                <a href="{{ route('finance.coa.index') }}"
+                                    class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
+                                    <i data-lucide="list-tree" class="w-3.5 h-3.5 text-[#007AFF]"></i>
+                                    <span>Bagan Akun (COA)</span>
+                                </a>
+                                <a href="{{ route('finance.journals.index') }}"
+                                    class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
+                                    <i data-lucide="file-text" class="w-3.5 h-3.5 text-[#5856D6]"></i>
+                                    <span>Buku Jurnal Keuangan</span>
+                                </a>
+                                <a href="{{ route('finance.general-ledger') }}"
+                                    class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
+                                    <i data-lucide="book-open" class="w-3.5 h-3.5 text-[#34C759]"></i>
+                                    <span>Buku Besar Akun</span>
+                                </a>
+                                <a href="{{ route('finance.balance-sheet') }}"
+                                    class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
+                                    <i data-lucide="scale" class="w-3.5 h-3.5 text-[#007AFF]"></i>
+                                    <span>Neraca Keuangan</span>
+                                </a>
+                                <a href="{{ route('finance.trial-balance') }}"
+                                    class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
+                                    <i data-lucide="table-properties" class="w-3.5 h-3.5 text-[#FF9500]"></i>
+                                    <span>Neraca Saldo</span>
+                                </a>
+                                <a href="{{ route('finance.reconciliations.index') }}"
+                                    class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
+                                    <i data-lucide="git-compare" class="w-3.5 h-3.5 text-[#AF52DE]"></i>
+                                    <span>Rekonsiliasi Bank</span>
+                                </a>
+                            @endif
                         @endif
                         @if ($canAccessCosting)
                             <a href="{{ route('calculator.index') }}"

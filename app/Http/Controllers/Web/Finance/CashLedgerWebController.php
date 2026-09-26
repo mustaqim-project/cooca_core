@@ -292,4 +292,88 @@ final class CashLedgerWebController extends Controller
 
         return back()->with('success', 'Mutasi kas berhasil dicatat.');
     }
+
+    /**
+     * Tambah Akun Rekening Bank / Kas Baru.
+     */
+    public function storeAccount(Request $request): RedirectResponse
+    {
+        $business = Context::requireBusiness();
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:100'],
+            'type' => ['required', 'string', 'in:cash,bank,ewallet'],
+            'opening_balance' => ['nullable', 'numeric', 'min:0'],
+            'is_active' => ['nullable', 'boolean'],
+        ]);
+
+        $openingBalance = (float) ($validated['opening_balance'] ?? 0);
+
+        DB::transaction(function () use ($business, $validated, $openingBalance): void {
+            $account = CashAccount::create([
+                'business_id' => $business->id,
+                'name' => trim($validated['name']),
+                'type' => $validated['type'],
+                'current_balance' => 0,
+                'is_active' => $request->boolean('is_active', true),
+            ]);
+
+            if ($openingBalance > 0) {
+                $referenceId = (string) str()->uuid();
+                $method = $account->type === CashAccount::TYPE_CASH ? 'cash' : 'bank_transfer';
+                $this->service->recordInflow(
+                    $business,
+                    $openingBalance,
+                    'opening_balance',
+                    $referenceId,
+                    "Saldo Awal Pembukaan Akun: {$account->name}",
+                    $method,
+                    auth()->id(),
+                    $account
+                );
+            }
+        });
+
+        return back()->with('success', "Akun Rekening/Kas '{$validated['name']}' berhasil ditambahkan.");
+    }
+
+    /**
+     * Perbarui Data Akun Rekening Bank / Kas.
+     */
+    public function updateAccount(Request $request, CashAccount $account): RedirectResponse
+    {
+        $business = Context::requireBusiness();
+        if ($account->business_id !== $business->id) {
+            abort(403, 'Akses tidak sah.');
+        }
+
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:100'],
+            'type' => ['required', 'string', 'in:cash,bank,ewallet'],
+            'is_active' => ['nullable', 'boolean'],
+        ]);
+
+        $account->update([
+            'name' => trim($validated['name']),
+            'type' => $validated['type'],
+            'is_active' => $request->boolean('is_active', true),
+        ]);
+
+        return back()->with('success', "Akun Rekening/Kas '{$account->name}' berhasil diperbarui.");
+    }
+
+    /**
+     * Toggle Aktif / Non-Aktif Akun Kas / Bank.
+     */
+    public function toggleAccount(CashAccount $account): RedirectResponse
+    {
+        $business = Context::requireBusiness();
+        if ($account->business_id !== $business->id) {
+            abort(403, 'Akses tidak sah.');
+        }
+
+        $account->update(['is_active' => ! $account->is_active]);
+        $status = $account->is_active ? 'diaktifkan' : 'dinonaktifkan';
+
+        return back()->with('success', "Akun Rekening/Kas '{$account->name}' berhasil {$status}.");
+    }
 }

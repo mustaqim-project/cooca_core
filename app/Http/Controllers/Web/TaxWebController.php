@@ -80,12 +80,12 @@ final class TaxWebController extends Controller
     public function simulatePPh21(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'gross_wage' => 'required|numeric|min:0',
+            'gross_wage' => 'required|numeric|min:0|max:1000000000000',
             'ptkp_status' => 'required|string|in:TK/0,TK/1,TK/2,TK/3,K/0,K/1,K/2,K/3',
             'calc_type' => 'required|string|in:monthly_ter,december,daily_worker',
-            'cumulative_wage' => 'nullable|numeric|min:0',
-            'annual_deductions' => 'nullable|numeric|min:0',
-            'tax_paid_before' => 'nullable|numeric|min:0',
+            'cumulative_wage' => 'nullable|numeric|min:0|max:1000000000000',
+            'annual_deductions' => 'nullable|numeric|min:0|max:1000000000000',
+            'tax_paid_before' => 'nullable|numeric|min:0|max:1000000000000',
         ]);
 
         $gross = (float) $validated['gross_wage'];
@@ -115,8 +115,8 @@ final class TaxWebController extends Controller
     public function simulateUmkm(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'monthly_revenue' => 'required|numeric|min:0',
-            'prior_cumulative' => 'required|numeric|min:0',
+            'monthly_revenue' => 'required|numeric|min:0|max:1000000000000',
+            'prior_cumulative' => 'required|numeric|min:0|max:1000000000000',
             'is_individual' => 'required|boolean',
         ]);
 
@@ -135,8 +135,8 @@ final class TaxWebController extends Controller
     public function simulateSales(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'subtotal' => 'required|numeric|min:0',
-            'discount' => 'nullable|numeric|min:0',
+            'subtotal' => 'required|numeric|min:0|max:1000000000000',
+            'discount' => 'nullable|numeric|min:0|max:1000000000000',
             'service_charge_rate' => 'nullable|numeric|min:0|max:1',
             'tax_type' => 'required|string|in:none,pb1,ppn_11,ppn_12',
             'is_inclusive' => 'required|boolean',
@@ -160,21 +160,21 @@ final class TaxWebController extends Controller
     {
         $validated = $request->validate([
             'employment_type' => 'required|string|in:permanent,contract,daily_worker',
-            'base_salary' => 'nullable|numeric|min:0',
-            'daily_rate' => 'nullable|numeric|min:0',
-            'days_worked' => 'nullable|integer|min:1',
-            'fixed_allowances' => 'nullable|numeric|min:0',
-            'variable_allowances' => 'nullable|numeric|min:0',
-            'overtime_pay' => 'nullable|numeric|min:0',
-            'commissions' => 'nullable|numeric|min:0',
-            'loan_deduction' => 'nullable|numeric|min:0',
-            'other_deductions' => 'nullable|numeric|min:0',
+            'base_salary' => 'nullable|numeric|min:0|max:1000000000000',
+            'daily_rate' => 'nullable|numeric|min:0|max:1000000000000',
+            'days_worked' => 'nullable|integer|min:1|max:31',
+            'fixed_allowances' => 'nullable|numeric|min:0|max:1000000000000',
+            'variable_allowances' => 'nullable|numeric|min:0|max:1000000000000',
+            'overtime_pay' => 'nullable|numeric|min:0|max:1000000000000',
+            'commissions' => 'nullable|numeric|min:0|max:1000000000000',
+            'loan_deduction' => 'nullable|numeric|min:0|max:1000000000000',
+            'other_deductions' => 'nullable|numeric|min:0|max:1000000000000',
             'ptkp_status' => 'nullable|string|in:TK/0,TK/1,TK/2,TK/3,K/0,K/1,K/2,K/3',
             'bpjs_tk_enabled' => 'nullable|boolean',
             'bpjs_kes_enabled' => 'nullable|boolean',
             'include_thr' => 'nullable|boolean',
             'join_date' => 'nullable|date',
-            'prior_cumulative' => 'nullable|numeric|min:0',
+            'prior_cumulative' => 'nullable|numeric|min:0|max:1000000000000',
         ]);
 
         if ($validated['employment_type'] === 'daily_worker') {
@@ -216,6 +216,12 @@ final class TaxWebController extends Controller
         $business = Context::requireBusiness();
         $year = (int) $request->query('year', date('Y'));
         $month = (int) $request->query('month', date('n'));
+        if ($year < 2000 || $year > 2100) {
+            $year = (int) date('Y');
+        }
+        if ($month < 1 || $month > 12) {
+            $month = (int) date('n');
+        }
 
         $payrollItems = PayrollItem::where('business_id', $business->id)
             ->whereHas('payroll', function ($q) use ($year, $month) {
@@ -225,7 +231,8 @@ final class TaxWebController extends Controller
             ->with(['user'])
             ->get();
 
-        $filename = "ebupot_pph21_{$business->slug}_{$year}_{$month}.csv";
+        $safeSlug = preg_replace('/[^A-Za-z0-9_-]/', '', (string) $business->slug) ?: 'bisnis';
+        $filename = "ebupot_pph21_{$safeSlug}_{$year}_{$month}.csv";
 
         return response()->streamDownload(function () use ($payrollItems, $business, $year, $month) {
             $handle = fopen('php://output', 'w');
@@ -295,10 +302,14 @@ final class TaxWebController extends Controller
     {
         $business = Context::requireBusiness();
         $year = (int) $request->query('year', date('Y'));
+        if ($year < 2000 || $year > 2100) {
+            $year = (int) date('Y');
+        }
         $isIndividual = $request->query('taxpayer_type', 'individual') === 'individual';
 
         $summary = $this->pphFinalService->getYearlySummary($business, $year, $isIndividual);
-        $filename = "rekap_pph_final_umkm_{$business->slug}_{$year}.csv";
+        $safeSlug = preg_replace('/[^A-Za-z0-9_-]/', '', (string) $business->slug) ?: 'bisnis';
+        $filename = "rekap_pph_final_umkm_{$safeSlug}_{$year}.csv";
 
         return response()->streamDownload(function () use ($summary, $business, $year, $isIndividual) {
             $handle = fopen('php://output', 'w');
@@ -372,9 +383,9 @@ final class TaxWebController extends Controller
     public function simulateNetIncome(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'gross_revenue' => 'required|numeric|min:0',
-            'cogs' => 'required|numeric|min:0',
-            'operating_expenses' => 'required|numeric|min:0',
+            'gross_revenue' => 'required|numeric|min:0|max:1000000000000',
+            'cogs' => 'required|numeric|min:0|max:1000000000000',
+            'operating_expenses' => 'required|numeric|min:0|max:1000000000000',
             'is_corporate' => 'required|boolean',
             'ptkp_status' => 'nullable|string|in:TK/0,TK/1,TK/2,TK/3,K/0,K/1,K/2,K/3',
             'nppn_rate' => 'nullable|numeric|min:0|max:1',
@@ -399,8 +410,14 @@ final class TaxWebController extends Controller
     {
         $business = Context::requireBusiness();
         $year = (int) $request->query('year', date('Y'));
+        if ($year < 2000 || $year > 2100) {
+            $year = (int) date('Y');
+        }
         $isIndividual = $request->query('taxpayer_type', 'individual') === 'individual';
         $ptkpStatus = (string) $request->query('ptkp_status', 'TK/0');
+        if (!in_array($ptkpStatus, ['TK/0', 'TK/1', 'TK/2', 'TK/3', 'K/0', 'K/1', 'K/2', 'K/3'], true)) {
+            $ptkpStatus = 'TK/0';
+        }
 
         $summary = $this->netIncomeTaxService->getYearlyNetIncomeTaxSummary(
             $business,
@@ -409,8 +426,10 @@ final class TaxWebController extends Controller
             $ptkpStatus
         );
 
-        $taxpayerLabel = $isIndividual ? "orang_pribadi_{$ptkpStatus}" : 'badan_usaha_pt_cv';
-        $filename = "rekap_pajak_laba_bersih_{$business->slug}_{$year}_{$taxpayerLabel}.csv";
+        $safeSlug = preg_replace('/[^A-Za-z0-9_-]/', '', (string) $business->slug) ?: 'bisnis';
+        $safePtkp = preg_replace('/[^A-Za-z0-9_-]/', '', $ptkpStatus);
+        $taxpayerLabel = $isIndividual ? "orang_pribadi_{$safePtkp}" : 'badan_usaha_pt_cv';
+        $filename = "rekap_pajak_laba_bersih_{$safeSlug}_{$year}_{$taxpayerLabel}.csv";
 
         return response()->streamDownload(function () use ($summary, $business, $year, $isIndividual, $ptkpStatus) {
             $handle = fopen('php://output', 'w');

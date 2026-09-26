@@ -75,6 +75,7 @@ final class BusinessScaleRegistrationTest extends TestCase
         $this->assertContains(ModuleRegistry::MODULE_LABOR_MACHINES, $disabled);
         $this->assertContains(ModuleRegistry::MODULE_INVENTORY_WAREHOUSE, $disabled);
         $this->assertContains(ModuleRegistry::MODULE_CUSTOMER_PO, $disabled);
+        $this->assertContains(ModuleRegistry::MODULE_ACCOUNTING_CORPORATE, $disabled);
     }
 
     public function test_registration_as_corporate_persists_scale_and_keeps_corporate_modules_active(): void
@@ -112,6 +113,7 @@ final class BusinessScaleRegistrationTest extends TestCase
         $this->assertNotContains(ModuleRegistry::MODULE_LABOR_MACHINES, $disabled);
         $this->assertNotContains(ModuleRegistry::MODULE_INVENTORY_WAREHOUSE, $disabled);
         $this->assertNotContains(ModuleRegistry::MODULE_CUSTOMER_PO, $disabled);
+        $this->assertNotContains(ModuleRegistry::MODULE_ACCOUNTING_CORPORATE, $disabled);
     }
 
     public function test_registration_defaults_to_umkm_when_business_scale_is_not_provided(): void

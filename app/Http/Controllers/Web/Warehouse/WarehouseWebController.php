@@ -57,6 +57,8 @@ final class WarehouseWebController extends Controller
         $totalLowStock   = $locations->sum('low_stock_count');
         $totalWarehouses = $locations->count();
         $activeWarehouses = $locations->where('is_active', true)->count();
+        $totalSkuCount = InventoryStock::where('business_id', $business->id)->where('quantity', '>', 0)->distinct('product_id')->count('product_id');
+        $totalStockUnits = (float) (InventoryStock::where('business_id', $business->id)->sum('quantity') ?? 0);
 
         // Recent movements (last 10, all warehouses)
         $recentMovements = StockMovement::where('business_id', $business->id)
@@ -65,13 +67,18 @@ final class WarehouseWebController extends Controller
             ->limit(8)
             ->get();
 
+        $storeSetting = $business->commerceStoreSetting ?? $business->storeSetting;
+
         return view('app.warehouse.index', compact(
             'business',
             'locations',
+            'storeSetting',
             'totalValuation',
             'totalLowStock',
             'totalWarehouses',
             'activeWarehouses',
+            'totalSkuCount',
+            'totalStockUnits',
             'recentMovements'
         ));
     }
@@ -290,8 +297,11 @@ final class WarehouseWebController extends Controller
 
         $location->update($updateData);
 
-        if ($location->is_primary) {
-            $storeSetting = CommerceStoreSetting::firstOrCreate(['business_id' => $business->id]);
+        $storeSetting = CommerceStoreSetting::where('business_id', $business->id)->first();
+        if ($location->is_primary || ($storeSetting && $storeSetting->origin_location_id === $location->id)) {
+            if (! $storeSetting) {
+                $storeSetting = CommerceStoreSetting::create(['business_id' => $business->id]);
+            }
             $storeSetting->update([
                 'origin_location_id' => $location->id,
                 'origin_area_id'     => $location->biteship_area_id ?? $storeSetting->origin_area_id,

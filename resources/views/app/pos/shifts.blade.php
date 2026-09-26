@@ -126,9 +126,9 @@
             <!-- Breadcrumb minimal -->
             <nav class="flex items-center gap-1.5 text-[12px] text-black/50 dark:text-white/50 mb-1">
                 <a href="{{ route('dashboard') }}" class="hover:text-[#007AFF] transition-colors">Dashboard</a>
-                <span>›</span>
+                <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-black/30 dark:text-white/30"></i>
                 <span class="text-black/70 dark:text-white/70 font-medium">POS</span>
-                <span>›</span>
+                <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-black/30 dark:text-white/30"></i>
                 <span class="text-black dark:text-white font-medium">Sesi Shift</span>
             </nav>
             <h1 class="text-[20px] font-semibold text-black dark:text-white tracking-tight">Sesi Shift Kasir</h1>
@@ -138,14 +138,14 @@
         <!-- Toolbar Actions -->
         <div class="flex items-center gap-2 w-full sm:w-auto">
             @if(\App\Support\Context::hasPermission('pos.terminal'))
-            <a href="{{ route('pos.terminal') }}" class="h-9 px-4 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5">
+            <a href="{{ route('pos.terminal') }}" class="min-h-[44px] sm:min-h-0 sm:h-9 px-4 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5">
                 <i data-lucide="layout-grid" class="w-4 h-4 text-black/60 dark:text-white/60"></i>
                 <span>Terminal POS</span>
             </a>
             @endif
 
             @if(\App\Support\Context::hasPermission('pos.terminal') || \App\Support\Context::hasPermission('pos.orders'))
-            <button type="button" @click="showOpenModal = true" class="h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5 shadow-[0_1px_2px_rgba(0,122,255,0.25)]">
+            <button type="button" @click="showOpenModal = true" class="min-h-[44px] sm:min-h-0 sm:h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5 shadow-[0_1px_2px_rgba(0,122,255,0.25)]">
                 <i data-lucide="plus" class="w-4 h-4"></i>
                 <span>Buka Shift Baru</span>
             </button>
@@ -197,19 +197,19 @@
             </div>
         </div>
 
-        <div class="flex items-center gap-2 self-end sm:self-auto flex-wrap">
-            <button type="button" @click="printShiftReport('{{ $activeShift->id }}')" :disabled="isPrinting" class="h-9 px-3.5 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] dark:hover:bg-white/[0.12] active:scale-[0.97] transition-all flex items-center gap-1.5">
+        <div class="flex items-center gap-2 self-stretch sm:self-auto flex-wrap">
+            <button type="button" @click="printShiftReport('{{ $activeShift->id }}')" :disabled="isPrinting" class="flex-1 sm:flex-none min-h-[44px] sm:min-h-0 sm:h-9 px-3.5 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] dark:hover:bg-white/[0.12] active:scale-[0.97] transition-all flex items-center justify-center gap-1.5">
                 <i data-lucide="printer" class="w-4 h-4 text-black/60 dark:text-white/60"></i>
                 <span>Cetak Sementara</span>
             </button>
             @if(\App\Support\Context::hasPermission('finance.cash_bank') || \App\Support\Context::hasPermission('pos.orders'))
-            <button type="button" @click="openMovement('{{ $activeShift->id }}')" class="h-9 px-3.5 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all flex items-center gap-1.5">
+            <button type="button" @click="openMovement('{{ $activeShift->id }}')" class="flex-1 sm:flex-none min-h-[44px] sm:min-h-0 sm:h-9 px-3.5 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5">
                 <i data-lucide="arrow-left-right" class="w-4 h-4 text-black/60 dark:text-white/60"></i>
                 <span>Kas Masuk/Keluar</span>
             </button>
             @endif
             @if(\App\Support\Context::hasPermission('pos.orders') || \App\Support\Context::hasPermission('pos.supervisor_pin'))
-            <button type="button" @click="openCloseModal('{{ $activeShift->id }}', {{ (float) ($activeShift->opening_cash + $activeShift->total_cash_sales + $activeShift->total_cash_in - $activeShift->total_cash_out) }})" class="h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#FF3B30] hover:bg-[#E0352B] active:scale-[0.97] active:opacity-80 transition-all flex items-center gap-1.5">
+            <button type="button" @click="openCloseModal('{{ $activeShift->id }}', {{ (float) ($activeShift->opening_cash + $activeShift->total_cash_sales + $activeShift->total_cash_in - $activeShift->total_cash_out) }})" class="w-full sm:w-auto min-h-[44px] sm:min-h-0 sm:h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#FF3B30] hover:bg-[#E0352B] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5">
                 <i data-lucide="check-circle" class="w-4 h-4"></i>
                 <span>Tutup Shift &amp; Rekonsiliasi</span>
             </button>
@@ -504,14 +504,14 @@
 
                 <div>
                     <label class="block text-[12px] font-medium text-black/60 dark:text-white/60 mb-1.5">Catatan (Opsional)</label>
-                    <input type="text" name="notes" placeholder="Catatan pembukaan shift..." class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 text-[14px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                    <input type="text" name="notes" placeholder="Catatan pembukaan shift..." class="w-full h-11 sm:h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 text-[16px] sm:text-[14px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
                 </div>
 
                 <div class="flex items-center justify-end gap-2 pt-3 border-t border-black/5 dark:border-white/10">
-                    <button type="button" @click="showOpenModal = false" class="h-9 px-4 rounded-[10px] text-[13px] font-medium text-black/70 dark:text-white/70 hover:bg-black/[0.06] dark:hover:bg-white/[0.08] transition-colors">
+                    <button type="button" @click="showOpenModal = false" class="min-h-[44px] sm:min-h-0 sm:h-9 px-4 rounded-[10px] text-[13px] font-medium text-black/70 dark:text-white/70 hover:bg-black/[0.06] dark:hover:bg-white/[0.08] transition-colors">
                         Batal
                     </button>
-                    <button type="submit" class="h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] active:opacity-80 transition-all shadow-[0_1px_2px_rgba(0,122,255,0.25)]">
+                    <button type="submit" class="min-h-[44px] sm:min-h-0 sm:h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] active:opacity-80 transition-all shadow-[0_1px_2px_rgba(0,122,255,0.25)]">
                         Buka Shift
                     </button>
                 </div>
@@ -619,14 +619,14 @@
 
                 <div>
                     <label class="block text-[12px] font-medium text-black/60 dark:text-white/60 mb-1.5">Penjelasan / Catatan Kasir</label>
-                    <input type="text" name="cashier_notes" x-model="cashierNotes" placeholder="Catatan jika ada selisih uang atau kondisi shift..." class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 text-[14px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                    <input type="text" name="cashier_notes" x-model="cashierNotes" placeholder="Catatan jika ada selisih uang atau kondisi shift..." class="w-full h-11 sm:h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 text-[16px] sm:text-[14px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
                 </div>
 
                 <div class="flex items-center justify-end gap-2 pt-3 border-t border-black/5 dark:border-white/10">
-                    <button type="button" @click="showCloseModal = false" class="h-9 px-4 rounded-[10px] text-[13px] font-medium text-black/70 dark:text-white/70 hover:bg-black/[0.06] dark:hover:bg-white/[0.08] transition-colors">
+                    <button type="button" @click="showCloseModal = false" class="min-h-[44px] sm:min-h-0 sm:h-9 px-4 rounded-[10px] text-[13px] font-medium text-black/70 dark:text-white/70 hover:bg-black/[0.06] dark:hover:bg-white/[0.08] transition-colors">
                         Batal
                     </button>
-                    <button type="submit" class="h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#FF3B30] hover:bg-[#E0352B] active:scale-[0.97] active:opacity-80 transition-all">
+                    <button type="submit" class="min-h-[44px] sm:min-h-0 sm:h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#FF3B30] hover:bg-[#E0352B] active:scale-[0.97] active:opacity-80 transition-all">
                         Tutup &amp; Rekonsiliasi
                     </button>
                 </div>
@@ -669,7 +669,7 @@
                 @csrf
                 <div>
                     <label class="block text-[12px] font-medium text-black/60 dark:text-white/60 mb-1.5">Tipe Mutasi</label>
-                    <select name="type" class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                    <select name="type" class="w-full h-11 sm:h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 text-[16px] sm:text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
                         <option value="cash_in">Kas Masuk (Tambah Modal/Uang Pecahan)</option>
                         <option value="cash_out">Kas Keluar (Operasional/Beli Barang/Setor)</option>
                     </select>
@@ -680,14 +680,14 @@
                 </div>
                 <div>
                     <label class="block text-[12px] font-medium text-black/60 dark:text-white/60 mb-1.5">Alasan / Keterangan</label>
-                    <input type="text" name="reason" placeholder="Alasan kas masuk/keluar..." required class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 text-[14px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                    <input type="text" name="reason" placeholder="Alasan kas masuk/keluar..." required class="w-full h-11 sm:h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 text-[16px] sm:text-[14px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
                 </div>
 
                 <div class="flex items-center justify-end gap-2 pt-3 border-t border-black/5 dark:border-white/10">
-                    <button type="button" @click="showMovementModal = false" class="h-9 px-4 rounded-[10px] text-[13px] font-medium text-black/70 dark:text-white/70 hover:bg-black/[0.06] dark:hover:bg-white/[0.08] transition-colors">
+                    <button type="button" @click="showMovementModal = false" class="min-h-[44px] sm:min-h-0 sm:h-9 px-4 rounded-[10px] text-[13px] font-medium text-black/70 dark:text-white/70 hover:bg-black/[0.06] dark:hover:bg-white/[0.08] transition-colors">
                         Batal
                     </button>
-                    <button type="submit" class="h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] active:opacity-80 transition-all shadow-[0_1px_2px_rgba(0,122,255,0.25)]">
+                    <button type="submit" class="min-h-[44px] sm:min-h-0 sm:h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] active:opacity-80 transition-all shadow-[0_1px_2px_rgba(0,122,255,0.25)]">
                         Simpan Mutasi
                     </button>
                 </div>

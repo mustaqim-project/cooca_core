@@ -30,32 +30,31 @@
     }
 }">
 
-    <!-- Top Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <!-- Top Header / Toolbar -->
+    <div class="rounded-[14px] backdrop-blur-md bg-white/75 dark:bg-[#1C1C1E]/75 border border-black/5 dark:border-white/10 px-4 sm:px-6 py-3.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-            <div class="flex items-center gap-2">
-                <a href="{{ route('pos.terminal') }}" class="text-xs font-semibold text-[#007AFF] hover:underline flex items-center gap-1">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/></svg>
-                    Terminal Kasir POS
-                </a>
-                <span class="text-xs text-black/30 dark:text-white/30">•</span>
-                <span class="text-xs text-black/50 dark:text-white/50">F&amp;B Management</span>
-            </div>
-            <h1 class="text-2xl font-bold tracking-tight text-black dark:text-white mt-1">Manajemen Meja &amp; QR Restoran</h1>
-            <p class="text-xs text-black/60 dark:text-white/60 mt-0.5">Kelola tata letak meja, cetak kartu QR akrilik meja, dan pantau sesi pesanan pelanggan aktif.</p>
+            <nav class="flex items-center gap-1.5 text-[12px] text-black/50 dark:text-white/50 mb-1">
+                <a href="{{ route('dashboard') }}" class="hover:text-[#007AFF] transition-colors">Dashboard</a>
+                <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-black/30 dark:text-white/30"></i>
+                <a href="{{ route('pos.terminal') }}" class="hover:text-[#007AFF] transition-colors">POS</a>
+                <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-black/30 dark:text-white/30"></i>
+                <span class="text-black dark:text-white font-medium">Manajemen Meja</span>
+            </nav>
+            <h1 class="text-[20px] font-semibold tracking-tight text-black dark:text-white">Manajemen Meja &amp; QR Restoran</h1>
+            <p class="text-[13px] text-black/50 dark:text-white/50">Kelola tata letak meja, cetak kartu QR akrilik meja, dan pantau sesi pesanan tamu aktif</p>
         </div>
 
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2 flex-wrap w-full sm:w-auto">
             @if(\App\Support\Context::hasPermission('pos.kitchen'))
-            <a href="{{ route('pos.kitchen.index') }}" class="h-9 px-3.5 rounded-[10px] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] text-black dark:text-white text-xs font-semibold flex items-center gap-2 transition">
-                <svg class="w-4 h-4 text-[#FF9500]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <a href="{{ route('pos.kitchen.index') }}" class="min-h-[44px] sm:min-h-0 sm:h-9 px-3.5 rounded-[10px] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] text-black dark:text-white text-[13px] font-semibold flex items-center justify-center gap-1.5 transition">
+                <i data-lucide="utensils-crossed" class="w-4 h-4 text-[#FF9500]"></i>
                 <span>Kitchen Display</span>
             </a>
             @endif
 
             @if(\App\Support\Context::hasPermission('storefront.reservations.manage') || \App\Support\Context::isOwner())
-            <a href="{{ route('storefront.reservations.index') }}" class="h-9 px-3.5 rounded-[10px] bg-[#34C759]/10 hover:bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158] text-xs font-semibold flex items-center gap-2 transition active:scale-[0.98]">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"/></svg>
+            <a href="{{ route('storefront.reservations.index') }}" class="min-h-[44px] sm:min-h-0 sm:h-9 px-3.5 rounded-[10px] bg-[#34C759]/10 hover:bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158] text-[13px] font-semibold flex items-center justify-center gap-1.5 transition active:scale-[0.97]">
+                <i data-lucide="calendar" class="w-4 h-4"></i>
                 <span>Buku Reservasi</span>
                 @if(($stats['today_reservations'] ?? 0) > 0)
                 <span class="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-[#34C759] text-white tabular-nums">
@@ -66,13 +65,13 @@
             @endif
 
             @if(\App\Support\Context::hasPermission('pos.tables'))
-            <a href="{{ route('pos.tables.qr-cards') }}" target="_blank" class="h-9 px-3.5 rounded-[10px] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] text-black dark:text-white text-xs font-semibold flex items-center gap-2 transition">
-                <svg class="w-4 h-4 text-[#007AFF]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5zM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5zM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0113.5 9.375v-4.5z"/></svg>
+            <a href="{{ route('pos.tables.qr-cards') }}" target="_blank" class="min-h-[44px] sm:min-h-0 sm:h-9 px-3.5 rounded-[10px] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] text-black dark:text-white text-[13px] font-semibold flex items-center justify-center gap-1.5 transition">
+                <i data-lucide="qr-code" class="w-4 h-4 text-[#007AFF]"></i>
                 <span>Cetak Kartu QR</span>
             </a>
 
-            <button type="button" @click="showAddModal = true" class="h-9 px-4 rounded-[10px] bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] text-white text-xs font-semibold flex items-center gap-2 transition shadow-sm">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+            <button type="button" @click="showAddModal = true" class="min-h-[44px] sm:min-h-0 sm:h-9 px-4 rounded-[10px] bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] text-white text-[13px] font-semibold flex items-center justify-center gap-1.5 transition shadow-[0_1px_2px_rgba(0,122,255,0.25)]">
+                <i data-lucide="plus" class="w-4 h-4"></i>
                 <span>Tambah Meja Baru</span>
             </button>
             @endif
@@ -80,15 +79,15 @@
     </div>
 
     <!-- Stats Overview Cards (Apple HIG Bento) -->
-    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5">
-        <div class="p-4 rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 shadow-sm">
-            <div class="text-[11px] font-medium text-black/50 dark:text-white/50 uppercase tracking-wider">Total Meja</div>
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-3.5">
+        <div class="p-4 rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 shadow-xs">
+            <div class="text-[11px] font-semibold text-black/50 dark:text-white/50 uppercase tracking-wider">Total Meja</div>
             <div class="text-2xl font-bold tracking-tight text-black dark:text-white mt-1 tabular-nums">{{ $stats['total_tables'] }}</div>
             <div class="text-[11px] text-black/40 dark:text-white/40 mt-0.5">Seluruh unit terdaftar</div>
         </div>
 
-        <div class="p-4 rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 shadow-sm">
-            <div class="text-[11px] font-medium text-[#34C759] uppercase tracking-wider flex items-center gap-1.5">
+        <div class="p-4 rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 shadow-xs">
+            <div class="text-[11px] font-semibold text-[#34C759] uppercase tracking-wider flex items-center gap-1.5">
                 <span class="w-2 h-2 rounded-full bg-[#34C759]"></span>
                 Meja Tersedia
             </div>
@@ -96,8 +95,8 @@
             <div class="text-[11px] text-black/40 dark:text-white/40 mt-0.5">Siap menerima tamu</div>
         </div>
 
-        <div class="p-4 rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 shadow-sm">
-            <div class="text-[11px] font-medium text-[#007AFF] uppercase tracking-wider flex items-center gap-1.5">
+        <div class="p-4 rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 shadow-xs">
+            <div class="text-[11px] font-semibold text-[#007AFF] uppercase tracking-wider flex items-center gap-1.5">
                 <span class="w-2 h-2 rounded-full bg-[#007AFF] animate-pulse"></span>
                 Meja Terisi
             </div>
@@ -105,8 +104,8 @@
             <div class="text-[11px] text-black/40 dark:text-white/40 mt-0.5">Tamu aktif bersantap</div>
         </div>
 
-        <div class="p-4 rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 shadow-sm">
-            <div class="text-[11px] font-medium text-[#248A3D] dark:text-[#30D158] uppercase tracking-wider flex items-center gap-1.5">
+        <div class="p-4 rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 shadow-xs">
+            <div class="text-[11px] font-semibold text-[#248A3D] dark:text-[#30D158] uppercase tracking-wider flex items-center gap-1.5">
                 <span class="w-2 h-2 rounded-full bg-[#34C759]"></span>
                 Reservasi Hari Ini
             </div>
@@ -114,8 +113,8 @@
             <div class="text-[11px] text-black/40 dark:text-white/40 mt-0.5">Jadwal booking aktif</div>
         </div>
 
-        <div class="p-4 rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 shadow-sm col-span-2 sm:col-span-1">
-            <div class="text-[11px] font-medium text-black/50 dark:text-white/50 uppercase tracking-wider">Kapasitas</div>
+        <div class="p-4 rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 shadow-xs col-span-2 sm:col-span-1">
+            <div class="text-[11px] font-semibold text-black/50 dark:text-white/50 uppercase tracking-wider">Kapasitas</div>
             <div class="text-2xl font-bold tracking-tight text-black dark:text-white mt-1 tabular-nums">{{ $stats['total_capacity'] }} <span class="text-xs font-normal text-black/40 dark:text-white/40">kursi</span></div>
             <div class="text-[11px] text-black/40 dark:text-white/40 mt-0.5">Daya tampung simultan</div>
         </div>
@@ -123,11 +122,11 @@
 
     {{-- Today's Reservations Bento Strip --}}
     @if(isset($todayReservations) && $todayReservations->isNotEmpty())
-    <div class="p-4 sm:p-5 rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 shadow-xs space-y-3">
+    <div class="p-4 sm:p-5 rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 shadow-xs space-y-3">
         <div class="flex items-center justify-between">
             <div class="flex items-center gap-2.5">
                 <div class="w-8 h-8 rounded-[10px] bg-[#34C759]/10 text-[#248A3D] dark:text-[#30D158] flex items-center justify-center font-bold">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"/></svg>
+                    <i data-lucide="calendar" class="w-4 h-4"></i>
                 </div>
                 <div>
                     <h3 class="text-[14px] font-bold text-black dark:text-white">Jadwal Reservasi Hari Ini ({{ $todayReservations->count() }})</h3>
@@ -136,12 +135,12 @@
             </div>
             <a href="{{ route('storefront.reservations.index') }}" class="text-[12px] text-[#007AFF] hover:underline font-semibold flex items-center gap-1">
                 <span>Buka Modul Reservasi</span>
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
+                <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
             </a>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
             @foreach($todayReservations as $rsv)
-            <div class="p-3 rounded-[14px] bg-black/[0.02] dark:bg-white/[0.02] border border-black/5 dark:border-white/5 flex items-center justify-between text-xs gap-2">
+            <div class="p-3 rounded-[12px] bg-black/[0.02] dark:bg-white/[0.02] border border-black/5 dark:border-white/5 flex items-center justify-between text-xs gap-2">
                 <div class="min-w-0">
                     <div class="font-bold text-black dark:text-white truncate">{{ $rsv->customer_name }}</div>
                     <div class="text-[11px] text-black/50 dark:text-white/50 flex items-center gap-1.5 mt-0.5">
@@ -170,9 +169,9 @@
     <!-- Filter Bar -->
     @if($locations->count() > 1)
     <div class="flex items-center gap-3">
-        <label class="text-xs font-medium text-black/60 dark:text-white/60">Filter Lokasi / Outlet:</label>
+        <label class="text-[12px] font-medium text-black/60 dark:text-white/60">Filter Lokasi / Outlet:</label>
         <form method="GET" action="{{ route('pos.tables.index') }}" class="flex items-center gap-2">
-            <select name="location_id" onchange="this.form.submit()" class="h-8 text-xs rounded-[8px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 px-3 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50">
+            <select name="location_id" onchange="this.form.submit()" class="h-9 text-[13px] rounded-[10px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 px-3 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50">
                 <option value="">Semua Lokasi / Outlet</option>
                 @foreach($locations as $loc)
                     <option value="{{ $loc->id }}" {{ $selectedLocationId === $loc->id ? 'selected' : '' }}>{{ $loc->name }}</option>
@@ -184,14 +183,15 @@
 
     <!-- Tables Grid -->
     @if($tables->isEmpty())
-    <div class="p-12 text-center rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-dashed border-black/15 dark:border-white/15 space-y-3">
+    <div class="p-12 text-center rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-dashed border-black/15 dark:border-white/15 space-y-3">
         <div class="w-14 h-14 rounded-full bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center mx-auto">
-            <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z"/></svg>
+            <i data-lucide="layout-grid" class="w-7 h-7"></i>
         </div>
-        <div class="font-semibold text-base text-black dark:text-white">Belum Ada Meja Terdaftar</div>
-        <p class="text-xs text-black/50 dark:text-white/50 max-w-sm mx-auto">Tambahkan unit meja restoran Anda untuk mulai mencetak kartu QR meja dan melayani pemesanan mandiri oleh pelanggan.</p>
+        <div class="font-semibold text-[16px] text-black dark:text-white">Belum Ada Meja Terdaftar</div>
+        <p class="text-[13px] text-black/50 dark:text-white/50 max-w-sm mx-auto">Tambahkan unit meja restoran Anda untuk mulai mencetak kartu QR meja dan melayani pemesanan mandiri oleh pelanggan.</p>
         @if(\App\Support\Context::hasPermission('pos.tables'))
-        <button type="button" @click="showAddModal = true" class="h-9 px-4 rounded-[10px] bg-[#007AFF] text-white text-xs font-semibold inline-flex items-center gap-2">
+        <button type="button" @click="showAddModal = true" class="min-h-[44px] sm:min-h-0 sm:h-9 px-4 rounded-[10px] bg-[#007AFF] text-white text-[13px] font-semibold inline-flex items-center justify-center gap-2">
+            <i data-lucide="plus" class="w-4 h-4"></i>
             <span>Tambah Meja Pertama</span>
         </button>
         @endif
@@ -209,13 +209,13 @@
             ]);
             $session = $table->activeSession;
         @endphp
-        <div class="p-4 rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 shadow-sm flex flex-col justify-between transition hover:border-[#007AFF]/40">
+        <div class="p-4 rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 shadow-xs flex flex-col justify-between transition hover:border-[#007AFF]/40">
             <div>
                 <!-- Card Header -->
                 <div class="flex items-start justify-between gap-2">
                     <div>
                         <div class="text-[11px] font-medium text-black/40 dark:text-white/40 flex items-center gap-1.5">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg>
+                            <i data-lucide="users" class="w-3.5 h-3.5"></i>
                             <span>{{ $table->capacity }} Kursi</span>
                             @if($table->location)
                                 <span>• {{ $table->location->name }}</span>
@@ -223,7 +223,7 @@
                         </div>
                         <h3 class="text-[17px] font-bold text-black dark:text-white mt-0.5">{{ $table->table_number }}</h3>
                         @if($table->name)
-                            <div class="text-xs text-black/60 dark:text-white/60 truncate">{{ $table->name }}</div>
+                            <div class="text-[12px] text-black/60 dark:text-white/60 truncate">{{ $table->name }}</div>
                         @endif
                     </div>
 
@@ -271,15 +271,15 @@
                 <div class="mt-3.5 pt-3 border-t border-black/5 dark:border-white/5">
                     @if($session)
                     <div class="space-y-1.5">
-                        <div class="flex items-center justify-between text-xs">
+                        <div class="flex items-center justify-between text-[12px]">
                             <span class="text-black/50 dark:text-white/50">Pelanggan:</span>
                             <span class="font-semibold text-black dark:text-white truncate max-w-[130px]">{{ $session->customer_name }}</span>
                         </div>
-                        <div class="flex items-center justify-between text-xs">
+                        <div class="flex items-center justify-between text-[12px]">
                             <span class="text-black/50 dark:text-white/50">WhatsApp:</span>
                             <span class="font-medium text-black/70 dark:text-white/70 tabular-nums">{{ $session->customer_phone }}</span>
                         </div>
-                        <div class="flex items-center justify-between text-xs">
+                        <div class="flex items-center justify-between text-[12px]">
                             <span class="text-black/50 dark:text-white/50">Pesanan / Total:</span>
                             <span class="font-bold text-[#34C759] tabular-nums">
                                 {{ $session->orders->count() }} pesanan • Rp {{ number_format($session->total_amount, 0, ',', '.') }}
@@ -287,7 +287,7 @@
                         </div>
                     </div>
                     @else
-                    <div class="py-2 text-center text-xs text-black/40 dark:text-white/40">
+                    <div class="py-2 text-center text-[12px] text-black/40 dark:text-white/40">
                         Meja kosong. Siap menerima tamu.
                     </div>
                     @endif
@@ -313,31 +313,31 @@
             <!-- Card Actions -->
             <div class="mt-4 pt-3 border-t border-black/5 dark:border-white/5 space-y-2">
                 <div class="grid grid-cols-2 gap-2">
-                    <a href="{{ route('pos.tables.qr-card', $table->id) }}" target="_blank" class="h-8 px-2 rounded-[8px] bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] dark:hover:bg-white/[0.1] text-black/80 dark:text-white/80 text-[11px] font-semibold flex items-center justify-center gap-1.5 transition">
-                        <svg class="w-3.5 h-3.5 text-[#007AFF]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5zM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5zM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0113.5 9.375v-4.5z"/></svg>
+                    <a href="{{ route('pos.tables.qr-card', $table->id) }}" target="_blank" class="min-h-[36px] px-2 rounded-[8px] bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] dark:hover:bg-white/[0.1] text-black/80 dark:text-white/80 text-[12px] font-semibold flex items-center justify-center gap-1.5 transition">
+                        <i data-lucide="qr-code" class="w-3.5 h-3.5 text-[#007AFF]"></i>
                         <span>Lihat QR Card</span>
                     </a>
 
-                    <a href="{{ route('pos.tables.qr-svg', $table->id) }}" class="h-8 px-2 rounded-[8px] bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] dark:hover:bg-white/[0.1] text-black/80 dark:text-white/80 text-[11px] font-semibold flex items-center justify-center gap-1.5 transition">
-                        <svg class="w-3.5 h-3.5 text-[#34C759]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
+                    <a href="{{ route('pos.tables.qr-svg', $table->id) }}" class="min-h-[36px] px-2 rounded-[8px] bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] dark:hover:bg-white/[0.1] text-black/80 dark:text-white/80 text-[12px] font-semibold flex items-center justify-center gap-1.5 transition">
+                        <i data-lucide="download" class="w-3.5 h-3.5 text-[#34C759]"></i>
                         <span>Unduh SVG</span>
                     </a>
                 </div>
 
                 @if(\App\Support\Context::hasPermission('pos.tables'))
                 <div class="flex items-center justify-between gap-1 pt-1">
-                    <button type="button" @click="openEdit({{ json_encode($table) }})" class="text-[11px] text-[#007AFF] hover:underline font-medium">
+                    <button type="button" @click="openEdit({{ json_encode($table) }})" class="text-[12px] text-[#007AFF] hover:underline font-medium p-1">
                         Edit Meja
                     </button>
 
-                    <button type="button" @click="confirmRegen({{ json_encode($table) }})" class="text-[11px] text-[#FF9500] hover:underline font-medium">
+                    <button type="button" @click="confirmRegen({{ json_encode($table) }})" class="text-[12px] text-[#FF9500] hover:underline font-medium p-1">
                         Regenerate QR
                     </button>
 
                     @if($session && $session->canBeClosed())
                     <form method="POST" action="{{ route('pos.sessions.close', $session->id) }}" onsubmit="return confirm('Tutup sesi meja ini dan jadikan meja kembali tersedia?')">
                         @csrf
-                        <button type="submit" class="text-[11px] text-[#34C759] hover:underline font-bold">
+                        <button type="submit" class="text-[12px] text-[#34C759] hover:underline font-bold p-1">
                             Tutup Sesi
                         </button>
                     </form>
@@ -351,36 +351,56 @@
     @endif
 
     <!-- ========================================================= -->
-    <!-- MODAL: TAMBAH MEJA BARU                                   -->
+    <!-- MODAL: TAMBAH MEJA BARU (Apple Modal Sheet)               -->
     <!-- ========================================================= -->
     @if(\App\Support\Context::hasPermission('pos.tables'))
-    <div x-show="showAddModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-[2px] p-4" style="display: none;">
-        <div class="w-full max-w-md bg-white dark:bg-[#1C1C1E] rounded-[18px] border border-black/10 dark:border-white/10 p-6 shadow-2xl space-y-4 text-black dark:text-white" @click.outside="showAddModal = false">
-            <div class="flex items-center justify-between pb-2 border-b border-black/10 dark:border-white/10">
-                <h3 class="font-bold text-base">Tambah Meja Baru</h3>
-                <button type="button" @click="showAddModal = false" class="w-7 h-7 rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white">✕</button>
+    <div x-show="showAddModal" 
+        x-cloak
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-[2px] p-4 overflow-y-auto"
+        x-transition:enter="transition ease-out duration-200"
+        x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100"
+        x-transition:leave="transition ease-in duration-150"
+        x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0">
+        <div class="w-full max-w-md bg-white/95 dark:bg-[#1C1C1E]/95 backdrop-blur-xl rounded-[16px] border border-black/5 dark:border-white/10 p-5 sm:p-6 shadow-[0_20px_50px_rgba(0,0,0,0.25)] space-y-4 text-black dark:text-white my-8" 
+            @click.outside="showAddModal = false"
+            x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0 scale-95"
+            x-transition:enter-end="opacity-100 scale-100"
+            x-transition:leave="transition ease-in duration-150"
+            x-transition:leave-start="opacity-100 scale-100"
+            x-transition:leave-end="opacity-0 scale-95">
+            <div class="flex items-center justify-between pb-3 border-b border-black/5 dark:border-white/10">
+                <div>
+                    <h3 class="font-bold text-[17px]">Tambah Meja Baru</h3>
+                    <p class="text-[12px] text-black/50 dark:text-white/50">Daftarkan nomor meja dan kapasitas kursi</p>
+                </div>
+                <button type="button" @click="showAddModal = false" class="w-7 h-7 rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
             </div>
 
-            <form method="POST" action="{{ route('pos.tables.store') }}" class="space-y-3.5">
+            <form method="POST" action="{{ route('pos.tables.store') }}" class="space-y-4">
                 @csrf
                 <div>
-                    <label class="block text-xs font-semibold mb-1 text-black/70 dark:text-white/70">Nomor / Kode Meja *</label>
-                    <input type="text" name="table_number" required placeholder="Contoh: Meja 01, VIP-A" class="w-full h-10 px-3 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 text-xs text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50">
+                    <label class="block text-[12px] font-semibold mb-1 text-black/70 dark:text-white/70">Nomor / Kode Meja *</label>
+                    <input type="text" name="table_number" required placeholder="Contoh: Meja 01, VIP-A" class="w-full h-11 sm:h-10 px-3.5 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 text-[16px] sm:text-[14px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50">
                 </div>
 
                 <div>
-                    <label class="block text-xs font-semibold mb-1 text-black/70 dark:text-white/70">Keterangan / Nama Area (Opsional)</label>
-                    <input type="text" name="name" placeholder="Contoh: Area Outdoor Lantai 2" class="w-full h-10 px-3 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 text-xs text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50">
+                    <label class="block text-[12px] font-semibold mb-1 text-black/70 dark:text-white/70">Keterangan / Nama Area (Opsional)</label>
+                    <input type="text" name="name" placeholder="Contoh: Area Outdoor Lantai 2" class="w-full h-11 sm:h-10 px-3.5 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 text-[16px] sm:text-[14px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50">
                 </div>
 
-                <div class="grid grid-cols-2 gap-3">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-xs font-semibold mb-1 text-black/70 dark:text-white/70">Kapasitas Kursi *</label>
-                        <input type="number" name="capacity" min="1" max="100" value="4" required class="w-full h-10 px-3 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 text-xs font-semibold tabular-nums text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50">
+                        <label class="block text-[12px] font-semibold mb-1 text-black/70 dark:text-white/70">Kapasitas Kursi *</label>
+                        <input type="number" name="capacity" min="1" max="100" value="4" required class="w-full h-11 sm:h-10 px-3.5 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 text-[16px] sm:text-[14px] font-semibold tabular-nums text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold mb-1 text-black/70 dark:text-white/70">Outlet / Lokasi</label>
-                        <select name="location_id" class="w-full h-10 px-2.5 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 text-xs text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50">
+                        <label class="block text-[12px] font-semibold mb-1 text-black/70 dark:text-white/70">Outlet / Lokasi</label>
+                        <select name="location_id" class="w-full h-11 sm:h-10 px-3 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 text-[16px] sm:text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50">
                             <option value="">Semua Lokasi</option>
                             @foreach($locations as $loc)
                                 <option value="{{ $loc->id }}">{{ $loc->name }}</option>
@@ -390,13 +410,13 @@
                 </div>
 
                 <div>
-                    <label class="block text-xs font-semibold mb-1 text-black/70 dark:text-white/70">Catatan Khusus</label>
-                    <textarea name="notes" rows="2" placeholder="Catatan internal meja..." class="w-full p-2.5 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 text-xs text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50"></textarea>
+                    <label class="block text-[12px] font-semibold mb-1 text-black/70 dark:text-white/70">Catatan Khusus</label>
+                    <textarea name="notes" rows="2" placeholder="Catatan internal meja..." class="w-full p-3 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 text-[16px] sm:text-[14px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50"></textarea>
                 </div>
 
-                <div class="flex justify-end gap-2 pt-2 border-t border-black/10 dark:border-white/10">
-                    <button type="button" @click="showAddModal = false" class="h-9 px-4 rounded-[10px] text-xs font-medium text-black/60 dark:text-white/60 hover:bg-black/5 dark:hover:bg-white/5">Batal</button>
-                    <button type="submit" class="h-9 px-5 rounded-[10px] bg-[#007AFF] text-white text-xs font-semibold shadow-sm">Simpan Meja</button>
+                <div class="flex justify-end gap-2 pt-3 border-t border-black/5 dark:border-white/10">
+                    <button type="button" @click="showAddModal = false" class="min-h-[44px] sm:min-h-0 sm:h-9 px-4 rounded-[10px] text-[13px] font-medium text-black/70 dark:text-white/70 hover:bg-black/5 dark:hover:bg-white/5 transition-colors">Batal</button>
+                    <button type="submit" class="min-h-[44px] sm:min-h-0 sm:h-9 px-5 rounded-[10px] bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] text-white text-[13px] font-semibold shadow-[0_1px_2px_rgba(0,122,255,0.25)] transition-all">Simpan Meja</button>
                 </div>
             </form>
         </div>
@@ -404,37 +424,57 @@
     @endif
 
     <!-- ========================================================= -->
-    <!-- MODAL: EDIT MEJA                                          -->
+    <!-- MODAL: EDIT MEJA (Apple Modal Sheet)                      -->
     <!-- ========================================================= -->
     @if(\App\Support\Context::hasPermission('pos.tables'))
-    <div x-show="showEditModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-[2px] p-4" style="display: none;">
-        <div class="w-full max-w-md bg-white dark:bg-[#1C1C1E] rounded-[18px] border border-black/10 dark:border-white/10 p-6 shadow-2xl space-y-4 text-black dark:text-white" @click.outside="showEditModal = false">
-            <div class="flex items-center justify-between pb-2 border-b border-black/10 dark:border-white/10">
-                <h3 class="font-bold text-base">Edit Meja</h3>
-                <button type="button" @click="showEditModal = false" class="w-7 h-7 rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white">✕</button>
+    <div x-show="showEditModal" 
+        x-cloak
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-[2px] p-4 overflow-y-auto"
+        x-transition:enter="transition ease-out duration-200"
+        x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100"
+        x-transition:leave="transition ease-in duration-150"
+        x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0">
+        <div class="w-full max-w-md bg-white/95 dark:bg-[#1C1C1E]/95 backdrop-blur-xl rounded-[16px] border border-black/5 dark:border-white/10 p-5 sm:p-6 shadow-[0_20px_50px_rgba(0,0,0,0.25)] space-y-4 text-black dark:text-white my-8" 
+            @click.outside="showEditModal = false"
+            x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0 scale-95"
+            x-transition:enter-end="opacity-100 scale-100"
+            x-transition:leave="transition ease-in duration-150"
+            x-transition:leave-start="opacity-100 scale-100"
+            x-transition:leave-end="opacity-0 scale-95">
+            <div class="flex items-center justify-between pb-3 border-b border-black/5 dark:border-white/10">
+                <div>
+                    <h3 class="font-bold text-[17px]">Edit Meja</h3>
+                    <p class="text-[12px] text-black/50 dark:text-white/50">Perbarui konfigurasi atau status unit meja</p>
+                </div>
+                <button type="button" @click="showEditModal = false" class="w-7 h-7 rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
             </div>
 
-            <form method="POST" :action="'{{ url('pos/tables') }}/' + editForm.id" class="space-y-3.5">
+            <form method="POST" :action="'{{ url('pos/tables') }}/' + editForm.id" class="space-y-4">
                 @csrf
                 @method('PUT')
                 <div>
-                    <label class="block text-xs font-semibold mb-1 text-black/70 dark:text-white/70">Nomor / Kode Meja *</label>
-                    <input type="text" name="table_number" x-model="editForm.table_number" required class="w-full h-10 px-3 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 text-xs text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50">
+                    <label class="block text-[12px] font-semibold mb-1 text-black/70 dark:text-white/70">Nomor / Kode Meja *</label>
+                    <input type="text" name="table_number" x-model="editForm.table_number" required class="w-full h-11 sm:h-10 px-3.5 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 text-[16px] sm:text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50">
                 </div>
 
                 <div>
-                    <label class="block text-xs font-semibold mb-1 text-black/70 dark:text-white/70">Keterangan / Area</label>
-                    <input type="text" name="name" x-model="editForm.name" class="w-full h-10 px-3 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 text-xs text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50">
+                    <label class="block text-[12px] font-semibold mb-1 text-black/70 dark:text-white/70">Keterangan / Area</label>
+                    <input type="text" name="name" x-model="editForm.name" class="w-full h-11 sm:h-10 px-3.5 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 text-[16px] sm:text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50">
                 </div>
 
-                <div class="grid grid-cols-2 gap-3">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-xs font-semibold mb-1 text-black/70 dark:text-white/70">Kapasitas Kursi *</label>
-                        <input type="number" name="capacity" x-model.number="editForm.capacity" min="1" max="100" required class="w-full h-10 px-3 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 text-xs font-semibold tabular-nums text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50">
+                        <label class="block text-[12px] font-semibold mb-1 text-black/70 dark:text-white/70">Kapasitas Kursi *</label>
+                        <input type="number" name="capacity" x-model.number="editForm.capacity" min="1" max="100" required class="w-full h-11 sm:h-10 px-3.5 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 text-[16px] sm:text-[14px] font-semibold tabular-nums text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold mb-1 text-black/70 dark:text-white/70">Status Meja</label>
-                        <select name="is_active" x-model="editForm.is_active" class="w-full h-10 px-2.5 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 text-xs text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50">
+                        <label class="block text-[12px] font-semibold mb-1 text-black/70 dark:text-white/70">Status Meja</label>
+                        <select name="is_active" x-model="editForm.is_active" class="w-full h-11 sm:h-10 px-3 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 text-[16px] sm:text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50">
                             <option :value="true">Aktif</option>
                             <option :value="false">Nonaktif</option>
                         </select>
@@ -442,11 +482,11 @@
                 </div>
 
                 <div>
-                    <label class="block text-xs font-semibold mb-1 text-black/70 dark:text-white/70">Catatan</label>
-                    <textarea name="notes" x-model="editForm.notes" rows="2" class="w-full p-2.5 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 text-xs text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50"></textarea>
+                    <label class="block text-[12px] font-semibold mb-1 text-black/70 dark:text-white/70">Catatan</label>
+                    <textarea name="notes" x-model="editForm.notes" rows="2" class="w-full p-3 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 text-[16px] sm:text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50"></textarea>
                 </div>
 
-                <div class="flex justify-between items-center pt-2 border-t border-black/10 dark:border-white/10">
+                <div class="flex justify-between items-center pt-3 border-t border-black/5 dark:border-white/10">
                     <button type="button" @click="
                         if(confirm('Yakin ingin menghapus meja ini?')) {
                             const f = document.createElement('form');
@@ -456,13 +496,14 @@
                             document.body.appendChild(f);
                             f.submit();
                         }
-                    " class="text-xs text-[#FF3B30] hover:underline font-semibold">
-                        Hapus Meja
+                    " class="min-h-[44px] sm:min-h-0 text-[13px] text-[#FF3B30] hover:underline font-semibold flex items-center gap-1">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        <span>Hapus</span>
                     </button>
 
                     <div class="flex gap-2">
-                        <button type="button" @click="showEditModal = false" class="h-9 px-4 rounded-[10px] text-xs font-medium text-black/60 dark:text-white/60 hover:bg-black/5 dark:hover:bg-white/5">Batal</button>
-                        <button type="submit" class="h-9 px-5 rounded-[10px] bg-[#007AFF] text-white text-xs font-semibold shadow-sm">Simpan Perubahan</button>
+                        <button type="button" @click="showEditModal = false" class="min-h-[44px] sm:min-h-0 sm:h-9 px-4 rounded-[10px] text-[13px] font-medium text-black/70 dark:text-white/70 hover:bg-black/5 dark:hover:bg-white/5 transition-colors">Batal</button>
+                        <button type="submit" class="min-h-[44px] sm:min-h-0 sm:h-9 px-5 rounded-[10px] bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] text-white text-[13px] font-semibold shadow-[0_1px_2px_rgba(0,122,255,0.25)] transition-all">Simpan Perubahan</button>
                     </div>
                 </div>
             </form>
@@ -474,25 +515,48 @@
     <!-- MODAL: REGENERATE QR CONFIRMATION                         -->
     <!-- ========================================================= -->
     @if(\App\Support\Context::hasPermission('pos.tables'))
-    <div x-show="showRegenModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-[2px] p-4" style="display: none;">
-        <div class="w-full max-w-sm bg-white dark:bg-[#1C1C1E] rounded-[18px] border border-black/10 dark:border-white/10 p-6 shadow-2xl text-center space-y-4 text-black dark:text-white" @click.outside="showRegenModal = false">
+    <div x-show="showRegenModal" 
+        x-cloak
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-[2px] p-4" 
+        x-transition:enter="transition ease-out duration-200"
+        x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100"
+        x-transition:leave="transition ease-in duration-150"
+        x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0">
+        <div class="w-full max-w-sm bg-white/95 dark:bg-[#1C1C1E]/95 backdrop-blur-xl rounded-[16px] border border-black/5 dark:border-white/10 p-6 shadow-[0_20px_50px_rgba(0,0,0,0.25)] text-center space-y-4 text-black dark:text-white" 
+            @click.outside="showRegenModal = false"
+            x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0 scale-95"
+            x-transition:enter-end="opacity-100 scale-100"
+            x-transition:leave="transition ease-in duration-150"
+            x-transition:leave-start="opacity-100 scale-100"
+            x-transition:leave-end="opacity-0 scale-95">
             <div class="w-12 h-12 rounded-full bg-[#FF9500]/15 text-[#FF9500] flex items-center justify-center mx-auto">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"/></svg>
+                <i data-lucide="refresh-cw" class="w-6 h-6"></i>
             </div>
             <div>
-                <h3 class="font-bold text-base">Regenerate QR Code?</h3>
-                <p class="text-xs text-black/60 dark:text-white/60 mt-1">
+                <h3 class="font-bold text-[17px]">Regenerate QR Code?</h3>
+                <p class="text-[13px] text-black/60 dark:text-white/60 mt-1">
                     Token QR Meja <strong x-text="regenTable ? regenTable.table_number : ''"></strong> akan diperbarui. Stiker atau kartu QR fisik yang lama tidak akan bisa digunakan lagi.
                 </p>
             </div>
 
             <form method="POST" :action="'{{ url('pos/tables') }}/' + (regenTable ? regenTable.id : '') + '/regenerate-qr'" class="flex justify-center gap-2 pt-2">
                 @csrf
-                <button type="button" @click="showRegenModal = false" class="h-9 px-4 rounded-[10px] text-xs font-medium text-black/60 dark:text-white/60 hover:bg-black/5 dark:hover:bg-white/5">Batal</button>
-                <button type="submit" class="h-9 px-5 rounded-[10px] bg-[#FF9500] hover:bg-[#E08500] text-white text-xs font-semibold shadow-sm">Ya, Perbarui QR</button>
+                <button type="button" @click="showRegenModal = false" class="min-h-[44px] sm:min-h-0 sm:h-9 px-4 rounded-[10px] text-[13px] font-medium text-black/70 dark:text-white/70 hover:bg-black/5 dark:hover:bg-white/5 transition-colors">Batal</button>
+                <button type="submit" class="min-h-[44px] sm:min-h-0 sm:h-9 px-5 rounded-[10px] bg-[#FF9500] hover:bg-[#E08500] text-white text-[13px] font-semibold shadow-[0_1px_2px_rgba(255,149,0,0.25)] transition-all">Ya, Perbarui QR</button>
             </form>
         </div>
     </div>
     @endif
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        if (window.lucide) {
+            window.lucide.createIcons();
+        }
+    });
+</script>
 @endsection

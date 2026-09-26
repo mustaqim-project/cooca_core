@@ -11,14 +11,17 @@
     viewDetail(id) {
         this.selectedOrder = (window.COOCA_POS_ORDERS || []).find(o => o.id === id) || null;
         this.showDetailModal = true;
+        this.$nextTick(() => { if (window.lucide) window.lucide.createIcons(); });
     },
     openVoid(id) {
         this.selectedOrderId = id;
         this.showVoidModal = true;
+        this.$nextTick(() => { if (window.lucide) window.lucide.createIcons(); });
     },
     openRefund(id) {
         this.selectedOrderId = id;
         this.showRefundModal = true;
+        this.$nextTick(() => { if (window.lucide) window.lucide.createIcons(); });
     },
     filterByStatus(st) {
         this.statusFilter = st;
@@ -33,27 +36,25 @@
     <!-- ===================================================== -->
     <!-- 0. BREADCRUMB & TOOLBAR HEADER (macOS Sonoma Style)   -->
     <!-- ===================================================== -->
-    <header class="rounded-[14px] backdrop-blur-md bg-white/75 dark:bg-[#1C1C1E]/75 border border-black/5 dark:border-white/10 px-4 sm:px-6 py-3.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-colors">
+    <header class="rounded-[16px] backdrop-blur-md bg-white/80 dark:bg-[#1C1C1E]/80 border border-black/5 dark:border-white/10 px-4 sm:px-6 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm transition-colors">
         <div>
             <nav class="flex items-center gap-1.5 text-[12px] text-black/50 dark:text-white/50 mb-1" aria-label="Breadcrumb">
                 <a href="{{ route('dashboard') }}" class="hover:text-[#007AFF] transition-colors">Dashboard</a>
-                <span>›</span>
+                <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-black/30 dark:text-white/30"></i>
                 <span class="text-black/70 dark:text-white/70 font-medium">Penjualan</span>
-                <span>›</span>
+                <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-black/30 dark:text-white/30"></i>
                 <a href="{{ route('pos.terminal') }}" class="hover:text-[#007AFF] transition-colors">Kasir POS</a>
-                <span>›</span>
+                <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-black/30 dark:text-white/30"></i>
                 <span class="text-black dark:text-white font-medium">Riwayat Transaksi</span>
             </nav>
-            <h1 class="text-[20px] font-semibold text-black dark:text-white tracking-tight">Riwayat Transaksi POS</h1>
-            <p class="text-[13px] text-black/50 dark:text-white/50">Daftar transaksi kasir, margin HPP terintegrasi, cetak ulang struk, void, dan retur.</p>
+            <h1 class="text-[20px] font-bold text-black dark:text-white tracking-tight">Riwayat Transaksi POS</h1>
+            <p class="text-[13px] text-black/50 dark:text-white/50 mt-0.5">Daftar transaksi kasir, margin HPP terintegrasi, cetak ulang struk, void, dan retur.</p>
         </div>
 
         <div class="flex items-center gap-2 w-full sm:w-auto">
             @if(\App\Support\Context::hasPermission('pos.terminal'))
-            <a href="{{ route('pos.terminal') }}" class="h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5 shadow-[0_1px_2px_rgba(0,122,255,0.25)] w-full sm:w-auto">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
-                </svg>
+            <a href="{{ route('pos.terminal') }}" class="min-h-[44px] h-11 px-4 rounded-[12px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-2 shadow-sm w-full sm:w-auto">
+                <i data-lucide="layout-grid" class="w-4 h-4"></i>
                 <span>Buka Terminal Kasir</span>
             </a>
             @endif
@@ -399,18 +400,25 @@
     <!-- 5. MODAL: DETAIL ORDER (Apple Sheet Style)            -->
     <!-- ===================================================== -->
     <div x-show="showDetailModal" x-cloak
-        class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm p-4"
-        style="display: none;">
-        <div class="w-full max-w-lg bg-white/95 dark:bg-[#1C1C1E]/95 backdrop-blur-xl rounded-[16px] border border-black/5 dark:border-white/10 p-5 sm:p-6 space-y-4 max-h-[90vh] overflow-y-auto shadow-[0_20px_50px_rgba(0,0,0,0.25)]"
+        class="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-sm p-0 sm:p-4"
+        @keydown.escape.window="showDetailModal = false">
+        <div class="w-full sm:max-w-2xl bg-white dark:bg-[#1C1C1E] rounded-t-[28px] sm:rounded-[24px] border border-black/5 dark:border-white/10 p-5 sm:p-6 space-y-4 max-h-[90vh] overflow-y-auto shadow-2xl"
             @click.away="showDetailModal = false">
-            <div class="flex items-center justify-between pb-3 border-b border-black/5 dark:border-white/10">
-                <div>
-                    <h3 class="text-[17px] font-semibold text-black dark:text-white"
-                        x-text="'Detail Order #' + (selectedOrder ? selectedOrder.order_number : '')"></h3>
-                    <div class="text-[12px] text-black/50 dark:text-white/50 mt-0.5"
-                        x-text="selectedOrder ? (selectedOrder.order_date + ' • Status: ' + selectedOrder.status) : ''"></div>
+            <div class="flex items-center justify-between pb-3 border-b border-black/[0.06] dark:border-white/[0.08]">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-xl bg-[#007AFF]/15 flex items-center justify-center text-[#007AFF]">
+                        <i data-lucide="receipt" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-[17px] font-bold text-black dark:text-white"
+                            x-text="'Detail Transaksi #' + (selectedOrder ? selectedOrder.order_number : '')"></h3>
+                        <div class="text-[12px] text-black/50 dark:text-white/50 mt-0.5"
+                            x-text="selectedOrder ? (selectedOrder.order_date + ' • Status: ' + selectedOrder.status) : ''"></div>
+                    </div>
                 </div>
-                <button type="button" @click="showDetailModal = false" class="text-black/40 hover:text-black dark:text-white/40 dark:hover:text-white">✕</button>
+                <button type="button" @click="showDetailModal = false" class="w-8 h-8 rounded-full bg-black/[0.05] dark:bg-white/[0.08] flex items-center justify-center text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
             </div>
 
             <!-- Industry Specific Attributes (Bengkel / Laundry) -->
@@ -418,18 +426,21 @@
                 <div class="space-y-2">
                     <!-- Bengkel SPK Card -->
                     <template x-if="selectedOrder.vehicle_license_plate">
-                        <div class="p-3 rounded-[12px] bg-[#007AFF]/5 dark:bg-[#007AFF]/10 border border-[#007AFF]/15 space-y-1.5 text-[12px]">
+                        <div class="p-3.5 rounded-[14px] bg-[#007AFF]/10 border border-[#007AFF]/20 space-y-2 text-[13px]">
                             <div class="flex items-center justify-between">
-                                <span class="font-bold text-[#007AFF] uppercase text-[11px] tracking-wider">Layanan Bengkel &amp; SPK</span>
-                                <span class="px-2 py-0.5 rounded font-mono font-bold bg-[#007AFF] text-white text-[11px]" x-text="selectedOrder.vehicle_license_plate"></span>
+                                <span class="font-bold text-[#007AFF] uppercase text-[11px] tracking-wider flex items-center gap-1.5">
+                                    <i data-lucide="wrench" class="w-3.5 h-3.5"></i>
+                                    <span>Layanan Bengkel &amp; SPK</span>
+                                </span>
+                                <span class="px-2.5 py-0.5 rounded-md font-mono font-bold bg-[#007AFF] text-white text-[12px]" x-text="selectedOrder.vehicle_license_plate"></span>
                             </div>
-                            <div class="grid grid-cols-2 gap-2 text-black/70 dark:text-white/70">
-                                <div><span class="text-black/45 dark:text-white/45">Model:</span> <span class="font-medium text-black dark:text-white" x-text="selectedOrder.vehicle_model || '-'"></span></div>
-                                <div><span class="text-black/45 dark:text-white/45">KM:</span> <span class="font-medium font-mono text-black dark:text-white" x-text="selectedOrder.vehicle_mileage ? Number(selectedOrder.vehicle_mileage).toLocaleString('id-ID') : '-'"></span></div>
-                                <div class="col-span-2"><span class="text-black/45 dark:text-white/45">Teknisi / Mekanik:</span> <span class="font-medium text-black dark:text-white" x-text="selectedOrder.technician ? selectedOrder.technician.name : '-'"></span></div>
+                            <div class="grid grid-cols-2 gap-2 text-black/80 dark:text-white/80">
+                                <div><span class="text-black/50 dark:text-white/50">Model:</span> <span class="font-semibold text-black dark:text-white" x-text="selectedOrder.vehicle_model || '-'"></span></div>
+                                <div><span class="text-black/50 dark:text-white/50">KM:</span> <span class="font-bold font-mono text-black dark:text-white" x-text="selectedOrder.vehicle_mileage ? Number(selectedOrder.vehicle_mileage).toLocaleString('id-ID') : '-'"></span></div>
+                                <div class="col-span-2"><span class="text-black/50 dark:text-white/50">Teknisi / Mekanik:</span> <span class="font-semibold text-black dark:text-white" x-text="selectedOrder.technician ? selectedOrder.technician.name : '-'"></span></div>
                                 <template x-if="selectedOrder.service_notes">
-                                    <div class="col-span-2 pt-1 border-t border-[#007AFF]/10">
-                                        <span class="text-black/45 dark:text-white/45">Keluhan / Catatan:</span>
+                                    <div class="col-span-2 pt-1 border-t border-[#007AFF]/15">
+                                        <span class="text-black/50 dark:text-white/50">Keluhan / Catatan:</span>
                                         <p class="font-medium text-black dark:text-white mt-0.5" x-text="selectedOrder.service_notes"></p>
                                     </div>
                                 </template>
@@ -439,16 +450,19 @@
 
                     <!-- Laundry Card -->
                     <template x-if="selectedOrder.laundry_weight_kg">
-                        <div class="p-3 rounded-[12px] bg-[#34C759]/5 dark:bg-[#34C759]/10 border border-[#34C759]/15 space-y-1.5 text-[12px]">
+                        <div class="p-3.5 rounded-[14px] bg-[#34C759]/10 border border-[#34C759]/20 space-y-2 text-[13px]">
                             <div class="flex items-center justify-between">
-                                <span class="font-bold text-[#34C759] uppercase text-[11px] tracking-wider">Layanan Laundry Kiloan</span>
-                                <span class="px-2 py-0.5 rounded font-bold bg-[#34C759] text-white text-[11px]" x-text="selectedOrder.laundry_weight_kg + ' Kg'"></span>
+                                <span class="font-bold text-[#34C759] uppercase text-[11px] tracking-wider flex items-center gap-1.5">
+                                    <i data-lucide="shirt" class="w-3.5 h-3.5"></i>
+                                    <span>Layanan Laundry Kiloan</span>
+                                </span>
+                                <span class="px-2.5 py-0.5 rounded-md font-bold bg-[#34C759] text-white text-[12px]" x-text="selectedOrder.laundry_weight_kg + ' Kg'"></span>
                             </div>
-                            <div class="grid grid-cols-2 gap-2 text-black/70 dark:text-white/70">
-                                <div><span class="text-black/45 dark:text-white/45">Rak / Loker:</span> <span class="font-medium text-black dark:text-white" x-text="selectedOrder.rack_location || '-'"></span></div>
-                                <div><span class="text-black/45 dark:text-white/45">Status:</span> <span class="font-semibold uppercase text-[#34C759]" x-text="selectedOrder.laundry_status || 'received'"></span></div>
+                            <div class="grid grid-cols-2 gap-2 text-black/80 dark:text-white/80">
+                                <div><span class="text-black/50 dark:text-white/50">Rak / Loker:</span> <span class="font-semibold text-black dark:text-white" x-text="selectedOrder.rack_location || '-'"></span></div>
+                                <div><span class="text-black/50 dark:text-white/50">Status:</span> <span class="font-bold uppercase text-[#34C759]" x-text="selectedOrder.laundry_status || 'received'"></span></div>
                                 <template x-if="selectedOrder.estimated_completion_at">
-                                    <div class="col-span-2"><span class="text-black/45 dark:text-white/45">Estimasi Selesai:</span> <span class="font-medium text-black dark:text-white" x-text="selectedOrder.estimated_completion_at"></span></div>
+                                    <div class="col-span-2"><span class="text-black/50 dark:text-white/50">Estimasi Selesai:</span> <span class="font-semibold text-black dark:text-white" x-text="selectedOrder.estimated_completion_at"></span></div>
                                 </template>
                             </div>
                         </div>
@@ -458,17 +472,17 @@
 
             <!-- Items List -->
             <div class="space-y-2 text-[13px]">
-                <div class="text-[11px] font-semibold uppercase tracking-wider text-black/40 dark:text-white/40">Item Terjual:</div>
+                <div class="text-[11px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45">Item Terjual:</div>
                 <template x-for="it in (selectedOrder ? selectedOrder.items : [])" :key="it.id">
-                    <div class="p-2.5 rounded-[10px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5 space-y-1">
+                    <div class="p-3 rounded-[12px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5 space-y-1">
                         <div class="flex justify-between items-start">
                             <div>
-                                <div class="font-medium text-black dark:text-white" x-text="it.product_name"></div>
-                                <div class="text-[11px] text-black/50 dark:text-white/50 tabular-nums"
+                                <div class="font-bold text-black dark:text-white" x-text="it.product_name"></div>
+                                <div class="text-[12px] text-black/55 dark:text-white/55 tabular-nums"
                                     x-text="it.quantity + ' x Rp ' + Number(it.unit_price).toLocaleString('id-ID')"></div>
                             </div>
                             <div class="text-right">
-                                <div class="font-semibold tabular-nums text-black dark:text-white"
+                                <div class="font-bold tabular-nums text-black dark:text-white"
                                     x-text="'Rp ' + Number(it.total_price).toLocaleString('id-ID')"></div>
                                 <div class="text-[11px] text-black/45 dark:text-white/45 tabular-nums"
                                     x-text="'HPP: Rp ' + Number(it.total_hpp).toLocaleString('id-ID')"></div>
@@ -476,15 +490,15 @@
                         </div>
                         <!-- Pharmacy attributes if present -->
                         <template x-if="it.batch_number || it.expired_date || it.dosage_instructions">
-                            <div class="pt-1 border-t border-black/5 dark:border-white/5 text-[11px] text-black/60 dark:text-white/60 space-y-0.5">
+                            <div class="pt-1.5 border-t border-black/5 dark:border-white/5 text-[11px] text-black/60 dark:text-white/60 space-y-0.5">
                                 <div class="flex items-center gap-2 flex-wrap">
                                     <template x-if="it.batch_number">
-                                        <span class="inline-flex items-center px-1.5 py-0.2 rounded bg-black/5 dark:bg-white/10 font-mono text-[10px]">
+                                        <span class="inline-flex items-center px-1.5 py-0.5 rounded bg-black/5 dark:bg-white/10 font-mono text-[10px]">
                                             Batch: <span class="font-bold ml-1" x-text="it.batch_number"></span>
                                         </span>
                                     </template>
                                     <template x-if="it.expired_date">
-                                        <span class="inline-flex items-center px-1.5 py-0.2 rounded bg-red-500/10 text-red-600 dark:text-red-400 font-mono text-[10px]">
+                                        <span class="inline-flex items-center px-1.5 py-0.5 rounded bg-red-500/10 text-red-600 dark:text-red-400 font-mono text-[10px]">
                                             ED: <span class="font-bold ml-1" x-text="it.expired_date"></span>
                                         </span>
                                     </template>
@@ -499,16 +513,16 @@
             </div>
 
             <!-- Financial Summary -->
-            <div class="p-3.5 rounded-[12px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5 space-y-1.5 text-[13px] tabular-nums">
+            <div class="p-4 rounded-[14px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5 space-y-2 text-[13px] tabular-nums">
                 <div class="flex justify-between text-black/60 dark:text-white/60">
                     <span>Subtotal:</span>
-                    <span class="font-medium text-black dark:text-white" x-text="'Rp ' + Number(selectedOrder ? selectedOrder.subtotal : 0).toLocaleString('id-ID')"></span>
+                    <span class="font-bold text-black dark:text-white" x-text="'Rp ' + Number(selectedOrder ? selectedOrder.subtotal : 0).toLocaleString('id-ID')"></span>
                 </div>
                 <div class="flex justify-between text-black/60 dark:text-white/60">
                     <span>Total HPP / Modal:</span>
-                    <span class="font-medium text-black dark:text-white" x-text="'Rp ' + Number(selectedOrder ? selectedOrder.total_hpp_cost : 0).toLocaleString('id-ID')"></span>
+                    <span class="font-bold text-black dark:text-white" x-text="'Rp ' + Number(selectedOrder ? selectedOrder.total_hpp_cost : 0).toLocaleString('id-ID')"></span>
                 </div>
-                <div class="flex justify-between text-[#34C759] dark:text-[#30D158] font-semibold border-t border-black/5 dark:border-white/5 pt-1.5">
+                <div class="flex justify-between text-[#34C759] dark:text-[#30D158] font-bold text-[14px] border-t border-black/5 dark:border-white/5 pt-2">
                     <span>Laba Kotor (Gross Profit):</span>
                     <span x-text="'Rp ' + Number(selectedOrder ? selectedOrder.total_gross_profit : 0).toLocaleString('id-ID')"></span>
                 </div>
@@ -518,10 +532,8 @@
                 <form :action="'{{ url('/pos/orders') }}/' + selectedOrder.id + '/sync-gateway'" method="POST" class="pt-1">
                     @csrf
                     <button type="submit"
-                        class="w-full h-9 rounded-[8px] bg-[#007AFF]/10 hover:bg-[#007AFF]/20 text-[#007AFF] text-[12px] font-semibold flex items-center justify-center gap-1.5 transition active:scale-[0.98]">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
-                        </svg>
+                        class="w-full min-h-[44px] h-11 rounded-[12px] bg-[#007AFF]/10 hover:bg-[#007AFF]/20 text-[#007AFF] text-[13px] font-semibold flex items-center justify-center gap-2 transition active:scale-[0.98]">
+                        <i data-lucide="refresh-cw" class="w-4 h-4"></i>
                         <span>Cek &amp; Sinkronkan Status TriPay</span>
                     </button>
                 </form>
@@ -529,7 +541,7 @@
 
             <div class="flex justify-end pt-2">
                 <button type="button" @click="showDetailModal = false"
-                    class="h-8 px-4 rounded-[8px] bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] text-black/80 dark:text-white/80 font-medium text-[12px] transition">
+                    class="min-h-[44px] h-11 px-5 rounded-[12px] bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] text-black/80 dark:text-white/80 font-medium text-[13px] transition">
                     Tutup
                 </button>
             </div>
@@ -541,38 +553,43 @@
     <!-- ===================================================== -->
     @if(\App\Support\Context::hasPermission('pos.supervisor_pin') || \App\Support\Context::hasPermission('pos.orders'))
     <div x-show="showVoidModal" x-cloak
-        class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm p-4"
-        style="display: none;">
-        <div class="w-full max-w-sm bg-white/95 dark:bg-[#1C1C1E]/95 backdrop-blur-xl rounded-[14px] border border-black/5 dark:border-white/10 p-5 space-y-3 shadow-[0_20px_50px_rgba(0,0,0,0.25)]"
+        class="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-sm p-0 sm:p-4"
+        @keydown.escape.window="showVoidModal = false">
+        <div class="w-full sm:max-w-md bg-white dark:bg-[#1C1C1E] rounded-t-[28px] sm:rounded-[24px] border border-black/5 dark:border-white/10 p-6 space-y-4 shadow-2xl"
             @click.away="showVoidModal = false">
-            <h3 class="text-[17px] font-semibold text-[#FF3B30]">Batalkan Transaksi (Void)</h3>
-            <p class="text-[12px] text-black/60 dark:text-white/60 leading-normal">
-                Void akan membatalkan transaksi dan otomatis mengembalikan kuantitas produk ke stok inventori.
+            <div class="flex items-center gap-2.5 text-[#FF3B30]">
+                <div class="w-9 h-9 rounded-xl bg-[#FF3B30]/15 flex items-center justify-center">
+                    <i data-lucide="alert-octagon" class="w-5 h-5"></i>
+                </div>
+                <h3 class="text-[17px] font-bold">Batalkan Transaksi (Void)</h3>
+            </div>
+            <p class="text-[13px] text-black/60 dark:text-white/60 leading-relaxed">
+                Void akan membatalkan transaksi dan otomatis mengembalikan kuantitas produk ke stok inventori secara akurat.
             </p>
-            <form :action="'{{ url('/pos/orders') }}/' + selectedOrderId + '/void'" method="POST" class="space-y-3 text-[13px]">
+            <form :action="'{{ url('/pos/orders') }}/' + selectedOrderId + '/void'" method="POST" class="space-y-3.5 text-[13px]">
                 @csrf
                 <div>
-                    <label class="block text-[11px] font-semibold uppercase tracking-wider text-black/50 dark:text-white/50 mb-1">Alasan Pembatalan</label>
+                    <label class="block text-[12px] font-bold uppercase tracking-wider text-black/60 dark:text-white/60 mb-1">Alasan Pembatalan <span class="text-red-500">*</span></label>
                     <input type="text" name="reason" required placeholder="Misal: Salah input kasir, pelanggan batal..."
-                        class="w-full h-9 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[8px] px-3 text-[13px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#FF3B30]/50">
+                        class="w-full min-h-[44px] h-11 bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 rounded-[12px] px-3.5 text-[16px] sm:text-[13px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#FF3B30]">
                 </div>
                 @if($business->pos_require_pin_for_void && !($canBypassSupervisor ?? false))
                 <div>
-                    <label class="block text-[11px] font-semibold uppercase tracking-wider text-[#FF3B30] mb-1 flex items-center justify-between">
+                    <label class="block text-[12px] font-bold uppercase tracking-wider text-[#FF3B30] mb-1 flex items-center justify-between">
                         <span>PIN Otorisasi Supervisor</span>
-                        <span class="text-[10px] text-black/40 dark:text-white/40 font-normal">Wajib</span>
+                        <span class="text-[11px] text-black/40 dark:text-white/40 font-normal">Wajib</span>
                     </label>
                     <input type="password" name="pin" required inputmode="numeric" maxlength="8" placeholder="Masukkan 4-8 digit PIN..."
-                        class="w-full h-9 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[8px] px-3 text-[14px] font-mono tracking-widest text-black dark:text-white placeholder:font-sans placeholder:tracking-normal placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#FF3B30]/50">
+                        class="w-full min-h-[44px] h-11 bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 rounded-[12px] px-3.5 text-[16px] font-mono tracking-widest text-black dark:text-white placeholder:font-sans placeholder:tracking-normal placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#FF3B30]">
                 </div>
                 @endif
-                <div class="flex justify-end gap-2 pt-2 border-t border-black/5 dark:border-white/10">
+                <div class="flex justify-end gap-2.5 pt-3 border-t border-black/[0.06] dark:border-white/[0.08]">
                     <button type="button" @click="showVoidModal = false"
-                        class="h-8 px-3.5 rounded-[8px] text-[12px] font-medium text-black/70 dark:text-white/70 hover:bg-black/5 dark:hover:bg-white/5 transition">
+                        class="min-h-[44px] h-11 px-4 rounded-[12px] text-[13px] font-medium text-black/70 dark:text-white/70 hover:bg-black/5 dark:hover:bg-white/5 transition">
                         Batal
                     </button>
                     <button type="submit"
-                        class="h-8 px-4 rounded-[8px] bg-[#FF3B30] hover:bg-[#E0352B] text-white font-semibold text-[12px] active:scale-[0.97] transition">
+                        class="min-h-[44px] h-11 px-5 rounded-[12px] bg-[#FF3B30] hover:bg-[#E0352B] text-white font-semibold text-[13px] active:scale-[0.97] transition shadow-sm">
                         Eksekusi Void
                     </button>
                 </div>
@@ -586,45 +603,50 @@
     <!-- ===================================================== -->
     @if(\App\Support\Context::hasPermission('sales.returns') || \App\Support\Context::hasPermission('pos.orders'))
     <div x-show="showRefundModal" x-cloak
-        class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm p-4"
-        style="display: none;">
-        <div class="w-full max-w-sm bg-white/95 dark:bg-[#1C1C1E]/95 backdrop-blur-xl rounded-[14px] border border-black/5 dark:border-white/10 p-5 space-y-3 shadow-[0_20px_50px_rgba(0,0,0,0.25)]"
+        class="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-sm p-0 sm:p-4"
+        @keydown.escape.window="showRefundModal = false">
+        <div class="w-full sm:max-w-md bg-white dark:bg-[#1C1C1E] rounded-t-[28px] sm:rounded-[24px] border border-black/5 dark:border-white/10 p-6 space-y-4 shadow-2xl"
             @click.away="showRefundModal = false">
-            <h3 class="text-[17px] font-semibold text-[#FF9500]">Pengembalian / Retur (Refund)</h3>
-            <p class="text-[12px] text-black/60 dark:text-white/60 leading-normal">
-                Catat pengembalian barang transaksi pelanggan ke sistem penjualan.
+            <div class="flex items-center gap-2.5 text-[#FF9500]">
+                <div class="w-9 h-9 rounded-xl bg-[#FF9500]/15 flex items-center justify-center">
+                    <i data-lucide="rotate-ccw" class="w-5 h-5"></i>
+                </div>
+                <h3 class="text-[17px] font-bold">Pengembalian / Retur (Refund)</h3>
+            </div>
+            <p class="text-[13px] text-black/60 dark:text-white/60 leading-relaxed">
+                Catat pengembalian barang transaksi pelanggan ke sistem penjualan secara resmi.
             </p>
-            <form :action="'{{ url('/pos/orders') }}/' + selectedOrderId + '/refund'" method="POST" class="space-y-3 text-[13px]">
+            <form :action="'{{ url('/pos/orders') }}/' + selectedOrderId + '/refund'" method="POST" class="space-y-3.5 text-[13px]">
                 @csrf
                 <div>
-                    <label class="block text-[11px] font-semibold uppercase tracking-wider text-black/50 dark:text-white/50 mb-1">Alasan Retur</label>
+                    <label class="block text-[12px] font-bold uppercase tracking-wider text-black/60 dark:text-white/60 mb-1">Alasan Retur <span class="text-red-500">*</span></label>
                     <input type="text" name="reason" required placeholder="Misal: Barang cacat, komplain rasa..."
-                        class="w-full h-9 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[8px] px-3 text-[13px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#FF9500]/50">
+                        class="w-full min-h-[44px] h-11 bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 rounded-[12px] px-3.5 text-[16px] sm:text-[13px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#FF9500]">
                 </div>
                 @if($business->pos_require_pin_for_refund && !($canBypassSupervisor ?? false))
                 <div>
-                    <label class="block text-[11px] font-semibold uppercase tracking-wider text-[#FF9500] mb-1 flex items-center justify-between">
+                    <label class="block text-[12px] font-bold uppercase tracking-wider text-[#FF9500] mb-1 flex items-center justify-between">
                         <span>PIN Otorisasi Supervisor</span>
-                        <span class="text-[10px] text-black/40 dark:text-white/40 font-normal">Wajib</span>
+                        <span class="text-[11px] text-black/40 dark:text-white/40 font-normal">Wajib</span>
                     </label>
                     <input type="password" name="pin" required inputmode="numeric" maxlength="8" placeholder="Masukkan 4-8 digit PIN..."
-                        class="w-full h-9 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[8px] px-3 text-[14px] font-mono tracking-widest text-black dark:text-white placeholder:font-sans placeholder:tracking-normal placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#FF9500]/50">
+                        class="w-full min-h-[44px] h-11 bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 rounded-[12px] px-3.5 text-[16px] font-mono tracking-widest text-black dark:text-white placeholder:font-sans placeholder:tracking-normal placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#FF9500]">
                 </div>
                 @endif
                 <div class="flex items-center gap-2 pt-1">
                     <input type="checkbox" name="restore_stock" value="1" checked id="restore_stock"
-                        class="rounded-[4px] border-black/20 text-[#007AFF] focus:ring-[#007AFF]">
-                    <label for="restore_stock" class="text-[12px] text-black/70 dark:text-white/70">
+                        class="w-4 h-4 rounded-[4px] border-black/20 text-[#007AFF] focus:ring-[#007AFF]">
+                    <label for="restore_stock" class="text-[13px] text-black/80 dark:text-white/80 cursor-pointer">
                         Kembalikan produk ke stok inventori (jika masih layak)
                     </label>
                 </div>
-                <div class="flex justify-end gap-2 pt-2 border-t border-black/5 dark:border-white/10">
+                <div class="flex justify-end gap-2.5 pt-3 border-t border-black/[0.06] dark:border-white/[0.08]">
                     <button type="button" @click="showRefundModal = false"
-                        class="h-8 px-3.5 rounded-[8px] text-[12px] font-medium text-black/70 dark:text-white/70 hover:bg-black/5 dark:hover:bg-white/5 transition">
+                        class="min-h-[44px] h-11 px-4 rounded-[12px] text-[13px] font-medium text-black/70 dark:text-white/70 hover:bg-black/5 dark:hover:bg-white/5 transition">
                         Batal
                     </button>
                     <button type="submit"
-                        class="h-8 px-4 rounded-[8px] bg-[#FF9500] hover:bg-[#E08600] text-white font-semibold text-[12px] active:scale-[0.97] transition">
+                        class="min-h-[44px] h-11 px-5 rounded-[12px] bg-[#FF9500] hover:bg-[#E08600] text-white font-semibold text-[13px] active:scale-[0.97] transition shadow-sm">
                         Proses Retur
                     </button>
                 </div>

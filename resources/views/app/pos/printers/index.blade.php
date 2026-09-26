@@ -162,9 +162,9 @@
         <div>
             <nav class="flex items-center gap-1.5 text-[12px] text-black/50 dark:text-white/50 mb-1">
                 <a href="{{ route('dashboard') }}" class="hover:text-[#007AFF] transition-colors">Dashboard</a>
-                <span>›</span>
+                <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-black/30 dark:text-white/30"></i>
                 <a href="{{ route('pos.terminal') }}" class="hover:text-[#007AFF] transition-colors">POS</a>
-                <span>›</span>
+                <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-black/30 dark:text-white/30"></i>
                 <span class="text-black dark:text-white font-medium">Printer &amp; Hardware</span>
             </nav>
             <h1 class="text-[20px] font-bold text-black dark:text-white tracking-tight">Printer &amp; Perangkat Keras</h1>
@@ -172,12 +172,12 @@
         </div>
 
         <div class="flex items-center gap-2 w-full sm:w-auto">
-            <a href="{{ route('pos.terminal') }}" class="h-9 px-4 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] dark:hover:bg-white/[0.12] active:scale-[0.97] transition-all flex items-center justify-center gap-1.5">
+            <a href="{{ route('pos.terminal') }}" class="min-h-[44px] h-11 px-4 rounded-[12px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] dark:hover:bg-white/[0.12] active:scale-[0.97] transition-all flex items-center justify-center gap-2">
                 <i data-lucide="layout-grid" class="w-4 h-4 text-black/60 dark:text-white/60"></i>
                 <span>Terminal POS</span>
             </a>
 
-            <button type="button" @click="showAddModal = true" class="h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] transition-all flex items-center justify-center gap-1.5 shadow-sm">
+            <button type="button" @click="showAddModal = true" class="min-h-[44px] h-11 px-4 rounded-[12px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] transition-all flex items-center justify-center gap-2 shadow-sm">
                 <i data-lucide="plus" class="w-4 h-4"></i>
                 <span>Tambah Printer</span>
             </button>
@@ -192,7 +192,9 @@
             <i :data-lucide="testFeedbackSuccess ? 'check-circle-2' : 'alert-triangle'" class="w-4 h-4 shrink-0"></i>
             <span x-text="testFeedback"></span>
         </div>
-        <button type="button" @click="testFeedback = ''" class="opacity-60 hover:opacity-100 text-xs">✕</button>
+        <button type="button" @click="testFeedback = ''" class="p-1 rounded-md opacity-60 hover:opacity-100 hover:bg-black/5 dark:hover:bg-white/10 transition">
+            <i data-lucide="x" class="w-3.5 h-3.5"></i>
+        </button>
     </div>
 
     <!-- Flash message -->
@@ -398,6 +400,12 @@
                                     <i data-lucide="inbox" class="w-3.5 h-3.5 text-[#34C759]"></i>
                                     <span>Tes Laci</span>
                                 </button>
+                                <button type="button" @click="openManualDrawer({{ json_encode($p) }})"
+                                    class="h-8 px-2.5 rounded-[8px] text-[12px] font-medium bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.09] dark:hover:bg-white/[0.12] text-black/80 dark:text-white/80 active:scale-[0.97] transition flex items-center gap-1"
+                                    title="Buka Laci Kas Manual (Wajib PIN Supervisor)">
+                                    <i data-lucide="key" class="w-3.5 h-3.5 text-[#FF9500]"></i>
+                                    <span>Buka Manual</span>
+                                </button>
                                 @endif
 
                                 <!-- Ping Diagnostic -->
@@ -477,9 +485,13 @@
                             <span>Tes</span>
                         </button>
                         @if($p->hasCapability('cash_drawer'))
-                        <button type="button" @click="runTestDrawer('{{ $p->id }}')" class="h-8 px-2.5 rounded-lg text-[12px] font-medium bg-black/[0.05] dark:bg-white/[0.08] text-black/80 dark:text-white/80 flex items-center gap-1">
+                        <button type="button" @click="runTestDrawer('{{ $p->id }}')" class="min-h-[36px] px-2.5 rounded-lg text-[12px] font-medium bg-black/[0.05] dark:bg-white/[0.08] text-black/80 dark:text-white/80 flex items-center gap-1">
                             <i data-lucide="inbox" class="w-3.5 h-3.5 text-[#34C759]"></i>
                             <span>Laci</span>
+                        </button>
+                        <button type="button" @click="openManualDrawer({{ json_encode($p) }})" class="min-h-[36px] px-2.5 rounded-lg text-[12px] font-medium bg-black/[0.05] dark:bg-white/[0.08] text-black/80 dark:text-white/80 flex items-center gap-1">
+                            <i data-lucide="key" class="w-3.5 h-3.5 text-[#FF9500]"></i>
+                            <span>Buka</span>
                         </button>
                         @endif
                     </div>
@@ -821,8 +833,62 @@
                 </div>
 
                 <div class="flex items-center justify-end gap-2 pt-3 border-t border-black/[0.06] dark:border-white/[0.08]">
-                    <button type="button" @click="showEditModal = false" class="h-9 px-4 rounded-[10px] text-[13px] font-medium bg-black/[0.05] dark:bg-white/[0.08] text-black/80 dark:text-white/80 hover:bg-black/[0.1] transition">Batal</button>
-                    <button type="submit" class="h-9 px-5 rounded-[10px] text-[13px] font-semibold bg-[#007AFF] hover:bg-[#0071E3] text-white transition shadow-sm">Simpan Perubahan</button>
+                    <button type="button" @click="showEditModal = false" class="min-h-[44px] h-11 px-4 rounded-[12px] text-[13px] font-medium bg-black/[0.05] dark:bg-white/[0.08] text-black/80 dark:text-white/80 hover:bg-black/[0.1] transition">Batal</button>
+                    <button type="submit" class="min-h-[44px] h-11 px-5 rounded-[12px] text-[13px] font-semibold bg-[#007AFF] hover:bg-[#0071E3] text-white transition shadow-sm">Simpan Perubahan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===================================================== -->
+    <!-- 6. MANUAL CASH DRAWER POP MODAL (Supervisor PIN Sheet) -->
+    <!-- ===================================================== -->
+    <div x-show="showManualDrawerModal" x-cloak
+        class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/40 backdrop-blur-sm transition-opacity"
+        @keydown.escape.window="showManualDrawerModal = false">
+        <div class="w-full sm:max-w-md bg-white dark:bg-[#1C1C1E] rounded-t-[28px] sm:rounded-[24px] p-6 space-y-5 shadow-2xl border border-black/5 dark:border-white/10"
+            @click.away="showManualDrawerModal = false">
+            <div class="flex items-center justify-between pb-3 border-b border-black/[0.06] dark:border-white/[0.08]">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-xl bg-[#FF9500]/15 flex items-center justify-center text-[#FF9500]">
+                        <i data-lucide="shield-alert" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-[16px] font-bold text-black dark:text-white">Buka Laci Kas Manual</h3>
+                        <p class="text-[12px] text-black/50 dark:text-white/50">Otorisasi Supervisor &amp; Audit Log Anti-Fraud</p>
+                    </div>
+                </div>
+                <button type="button" @click="showManualDrawerModal = false" class="w-8 h-8 rounded-full bg-black/[0.05] dark:bg-white/[0.08] flex items-center justify-center text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+
+            <div class="p-3.5 rounded-[14px] bg-[#FF9500]/10 border border-[#FF9500]/25 text-[#995B00] dark:text-[#FFB340] text-[12px] leading-relaxed flex items-start gap-2.5">
+                <i data-lucide="info" class="w-4 h-4 shrink-0 mt-0.5"></i>
+                <span>Setiap pembukaan laci kas tanpa penjualan dicatat permanen dalam audit log sistem demi mencegah selisih kas fisik.</span>
+            </div>
+
+            <form @submit.prevent="submitManualDrawer" class="space-y-4">
+                <div>
+                    <label class="block text-[13px] font-semibold text-black/80 dark:text-white/80 mb-1">PIN Supervisor / Owner <span class="text-red-500">*</span></label>
+                    <input type="password" x-model="manualDrawer.supervisor_pin" required maxlength="8" placeholder="Masukkan 4-8 digit PIN"
+                        class="w-full h-11 px-3.5 rounded-[12px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 text-[16px] text-black dark:text-white tracking-widest font-mono focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                </div>
+
+                <div>
+                    <label class="block text-[13px] font-semibold text-black/80 dark:text-white/80 mb-1">Alasan Pembukaan Laci <span class="text-red-500">*</span></label>
+                    <textarea x-model="manualDrawer.reason" required rows="2" placeholder="Contoh: Penukaran uang kembalian pecahan kecil..."
+                        class="w-full p-3 rounded-[12px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 text-[16px] sm:text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] resize-none"></textarea>
+                </div>
+
+                <div class="flex items-center justify-end gap-2.5 pt-3 border-t border-black/[0.06] dark:border-white/[0.08]">
+                    <button type="button" @click="showManualDrawerModal = false" class="min-h-[44px] h-11 px-4 rounded-[12px] text-[13px] font-medium bg-black/[0.05] dark:bg-white/[0.08] text-black/80 dark:text-white/80 hover:bg-black/[0.1] transition">
+                        Batal
+                    </button>
+                    <button type="submit" :disabled="isTesting" class="min-h-[44px] h-11 px-5 rounded-[12px] text-[13px] font-semibold bg-[#FF9500] hover:bg-[#E08500] text-white transition shadow-sm flex items-center justify-center gap-2">
+                        <i data-lucide="unlock" class="w-4 h-4"></i>
+                        <span x-text="isTesting ? 'Mengirim Sinyal...' : 'Otorisasi & Buka Laci'"></span>
+                    </button>
                 </div>
             </form>
         </div>

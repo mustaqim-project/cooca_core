@@ -579,6 +579,9 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
         Route::middleware('require.permission:finance.cash_bank')->group(function (): void {
             Route::get('/finance/cash-bank', [CashLedgerWebController::class, 'index'])->name('finance.cash-bank.index');
             Route::get('/finance/cash-bank/ledger', [CashLedgerWebController::class, 'ledger'])->name('finance.cash-bank.ledger');
+            Route::post('/finance/cash-bank/accounts', [CashLedgerWebController::class, 'storeAccount'])->name('finance.cash-bank.accounts.store');
+            Route::put('/finance/cash-bank/accounts/{account}', [CashLedgerWebController::class, 'updateAccount'])->name('finance.cash-bank.accounts.update');
+            Route::post('/finance/cash-bank/accounts/{account}/toggle', [CashLedgerWebController::class, 'toggleAccount'])->name('finance.cash-bank.accounts.toggle');
             Route::post('/finance/cash-bank/inflow', [CashLedgerWebController::class, 'storeInflow'])->name('finance.cash-bank.inflow');
             Route::post('/finance/cash-bank/outflow', [CashLedgerWebController::class, 'storeOutflow'])->name('finance.cash-bank.outflow');
             Route::post('/finance/cash-bank/transfer', [CashLedgerWebController::class, 'transfer'])->name('finance.cash-bank.transfer');

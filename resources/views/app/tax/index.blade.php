@@ -1,7 +1,7 @@
 @extends('layouts.app', [
     'title' => 'Pajak & Kepatuhan Usaha',
     'headerTitle' => 'Kepatuhan Pajak & Hasil Penjualan',
-    'headerSubtitle' => 'Kalkulasi PPh Laba Bersih Usaha (UU HPP / Pasal 31E & 17), PPh Final UMKM 0.5% (PP 55/2022), PPh 21 TER, BPJS, dan THR'
+    'headerSubtitle' => 'Tax Compliance Engine: Kalkulasi PPh Laba Bersih Usaha (UU HPP / Pasal 31E & 17), PPh Final UMKM 0.5% (PP 55/2022), PPh 21 TER, BPJS, dan THR'
 ])
 
 @section('content')
@@ -10,6 +10,12 @@
     taxpayerType: '{{ $isIndividual ? 'individual' : 'corporate' }}',
     ptkpStatus: '{{ $ptkpStatus }}',
     currentYear: {{ $currentYear }},
+
+    // Modal Control States
+    showExportModal: false,
+    showBracketModal: false,
+    showBpjsModal: false,
+    showNormaModal: false,
 
     // Simulator PPh Laba Bersih & Hasil Penjualan State
     netIncomeInput: {
@@ -190,925 +196,1039 @@
     }
 }">
 
-    <!-- 0. Standard Breadcrumb Bar -->
-    <nav class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 print:hidden" aria-label="Breadcrumb">
-        <a href="{{ route('dashboard') }}" class="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors flex items-center gap-1.5 font-bold text-slate-900 dark:text-white">
-            <i data-lucide="layout-dashboard" class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400"></i>
-            <span>Dashboard</span>
-        </a>
-        <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-slate-400 dark:text-slate-600"></i>
-        <span class="text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
-            <i data-lucide="calculator" class="w-3.5 h-3.5"></i>
-            <span>Keuangan &amp; Laporan</span>
-        </span>
-        <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-slate-400 dark:text-slate-600"></i>
-        <span class="text-slate-900 dark:text-white font-bold flex items-center gap-1.5">
-            <span>Pajak &amp; Kepatuhan Usaha</span>
-        </span>
-    </nav>
-
-    <!-- 1. Header Toolbar & Export Actions -->
-    <div class="bg-white dark:bg-[#1C1C1E] p-4 sm:p-5 rounded-[20px] border border-black/[0.06] dark:border-white/[0.08] shadow-xs flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 transition-colors">
-        <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-[12px] bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200/80 dark:border-emerald-800/80 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
-                <i data-lucide="scale" class="w-5 h-5"></i>
-            </div>
-            <div>
-                <h1 class="text-base sm:text-lg font-black text-slate-900 dark:text-white tracking-tight">
-                    Tax Compliance Engine &amp; Hasil Penjualan
-                </h1>
-                <p class="text-xs text-slate-500 dark:text-slate-400">
-                    Tahun Pajak {{ $currentYear }} &bull; {{ $business->name }}
-                </p>
-            </div>
-        </div>
-
-        <div class="flex flex-wrap items-center gap-2.5 w-full lg:w-auto">
-            <form method="GET" action="{{ route('tax.index') }}" class="flex flex-wrap items-center gap-2 text-xs w-full sm:w-auto">
-                <select name="taxpayer_type" onchange="this.form.submit()" class="px-3 py-2 rounded-[12px] border border-black/[0.08] dark:border-white/[0.12] bg-slate-50 dark:bg-[#2C2C2E] text-slate-900 dark:text-white font-semibold focus:outline-none focus:ring-2 focus:ring-[#007AFF] text-[16px] sm:text-xs">
-                    <option value="individual" {{ $isIndividual ? 'selected' : '' }}>Wajib Pajak Orang Pribadi</option>
-                    <option value="corporate" {{ ! $isIndividual ? 'selected' : '' }}>Badan Usaha PT/CV (Pasal 31E)</option>
-                </select>
-
-                @if ($isIndividual)
-                    <select name="ptkp_status" onchange="this.form.submit()" class="px-3 py-2 rounded-[12px] border border-black/[0.08] dark:border-white/[0.12] bg-slate-50 dark:bg-[#2C2C2E] text-slate-900 dark:text-white font-semibold focus:outline-none focus:ring-2 focus:ring-[#007AFF] text-[16px] sm:text-xs">
-                        <option value="TK/0" {{ $ptkpStatus === 'TK/0' ? 'selected' : '' }}>PTKP: TK/0 (Rp 54 Juta)</option>
-                        <option value="TK/1" {{ $ptkpStatus === 'TK/1' ? 'selected' : '' }}>PTKP: TK/1 (Rp 58.5 Juta)</option>
-                        <option value="TK/2" {{ $ptkpStatus === 'TK/2' ? 'selected' : '' }}>PTKP: TK/2 (Rp 63 Juta)</option>
-                        <option value="TK/3" {{ $ptkpStatus === 'TK/3' ? 'selected' : '' }}>PTKP: TK/3 (Rp 67.5 Juta)</option>
-                        <option value="K/0" {{ $ptkpStatus === 'K/0' ? 'selected' : '' }}>PTKP: K/0 (Rp 58.5 Juta)</option>
-                        <option value="K/1" {{ $ptkpStatus === 'K/1' ? 'selected' : '' }}>PTKP: K/1 (Rp 63 Juta)</option>
-                        <option value="K/2" {{ $ptkpStatus === 'K/2' ? 'selected' : '' }}>PTKP: K/2 (Rp 67.5 Juta)</option>
-                        <option value="K/3" {{ $ptkpStatus === 'K/3' ? 'selected' : '' }}>PTKP: K/3 (Rp 72 Juta)</option>
-                    </select>
-                @endif
-
-                <select name="year" onchange="this.form.submit()" class="px-3 py-2 rounded-[12px] border border-black/[0.08] dark:border-white/[0.12] bg-slate-50 dark:bg-[#2C2C2E] text-slate-900 dark:text-white font-semibold focus:outline-none focus:ring-2 focus:ring-[#007AFF] text-[16px] sm:text-xs">
-                    @for ($y = date('Y') - 1; $y <= date('Y') + 1; $y++)
-                        <option value="{{ $y }}" {{ $currentYear == $y ? 'selected' : '' }}>Tahun {{ $y }}</option>
-                    @endfor
-                </select>
-            </form>
-
-            <div class="flex flex-wrap items-center gap-2">
-                <a href="{{ route('tax.export.net_income', ['year' => $currentYear, 'taxpayer_type' => $isIndividual ? 'individual' : 'corporate', 'ptkp_status' => $ptkpStatus]) }}"
-                   class="px-3 py-2 rounded-[12px] text-xs font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200/80 dark:border-emerald-800/80 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 active:scale-[0.98] transition cursor-pointer flex items-center gap-1.5 shrink-0"
-                   title="Export CSV Laporan Pajak Hasil Penjualan & Laba Bersih">
-                    <i data-lucide="download" class="w-3.5 h-3.5"></i>
-                    <span>Export Laba Bersih (CSV)</span>
-                </a>
-
-                <a href="{{ route('tax.export.pph_final', ['year' => $currentYear, 'taxpayer_type' => $isIndividual ? 'individual' : 'corporate']) }}"
-                   class="px-3 py-2 rounded-[12px] text-xs font-bold text-[#007AFF] bg-blue-50 dark:bg-blue-950/50 border border-blue-200/80 dark:border-blue-800/80 hover:bg-blue-100 dark:hover:bg-blue-900/60 active:scale-[0.98] transition cursor-pointer flex items-center gap-1.5 shrink-0"
-                   title="Export CSV Rekapitulasi PPh Final UMKM 0.5%">
-                    <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
-                    <span>Export PPh Final (CSV)</span>
-                </a>
-
-                <a href="{{ route('tax.export.ebupot', ['year' => $currentYear, 'month' => date('n')]) }}"
-                   class="px-3 py-2 rounded-[12px] text-xs font-bold text-[#5856D6] bg-indigo-50 dark:bg-indigo-950/50 border border-indigo-200/80 dark:border-indigo-800/80 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 active:scale-[0.98] transition cursor-pointer flex items-center gap-1.5 shrink-0"
-                   title="Export CSV DJP e-Bupot 21/26">
-                    <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5"></i>
-                    <span>Export e-Bupot 21/26</span>
-                </a>
-            </div>
-        </div>
-    </div>
-
-    <!-- 2. Bento Grid: 4 KPI Cards (Ringkasan Hasil Penjualan & Laba Rugi Fiskal) -->
+    {{-- BENTO EXECUTIVE SUMMARY HEADER (Apple HIG Bento Grid) --}}
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <!-- Card 1: Total Pendapatan Bersih (Net Sales Revenue) -->
-        <div class="bg-white dark:bg-[#1C1C1E] p-5 rounded-[20px] border border-black/[0.06] dark:border-white/[0.08] shadow-xs flex flex-col justify-between group hover:border-emerald-500/40 transition-all">
-            <div class="flex items-center justify-between mb-3">
-                <span class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Pendapatan Bersih Penjualan</span>
-                <div class="w-9 h-9 rounded-[12px] bg-blue-50 dark:bg-blue-950/60 border border-blue-200/80 dark:border-blue-800/80 flex items-center justify-center text-blue-600 dark:text-blue-400">
+        {{-- Card 1: Peredaran Bruto / Omzet Riil --}}
+        <div class="bg-white dark:bg-slate-900 rounded-3xl p-5 border border-slate-200/80 dark:border-slate-800 shadow-sm relative overflow-hidden flex flex-col justify-between">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Omzet Riil ({{ $currentYear }})</span>
+                <span class="w-8 h-8 rounded-2xl bg-blue-50 dark:bg-blue-950/60 text-[#007AFF] flex items-center justify-center">
                     <i data-lucide="trending-up" class="w-4 h-4"></i>
-                </div>
-            </div>
-            <div>
-                <div class="text-xl sm:text-2xl font-black tracking-tight text-slate-900 dark:text-white font-mono tabular-nums">
-                    Rp {{ number_format($netIncomeSummary['total_revenue_year'], 0, ',', '.') }}
-                </div>
-                <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
-                    Total transaksi POS, Invoice &amp; Toko Online {{ $currentYear }}
-                </p>
-            </div>
-        </div>
-
-        <!-- Card 2: Biaya Modal (HPP) & Biaya Operasional -->
-        <div class="bg-white dark:bg-[#1C1C1E] p-5 rounded-[20px] border border-black/[0.06] dark:border-white/[0.08] shadow-xs flex flex-col justify-between group hover:border-emerald-500/40 transition-all">
-            <div class="flex items-center justify-between mb-3">
-                <span class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Modal &amp; Beban Operasional</span>
-                <div class="w-9 h-9 rounded-[12px] bg-amber-50 dark:bg-amber-950/60 border border-amber-200/80 dark:border-amber-800/80 flex items-center justify-center text-amber-600 dark:text-amber-400">
-                    <i data-lucide="shopping-bag" class="w-4 h-4"></i>
-                </div>
-            </div>
-            <div>
-                @php
-                    $totalCosts = $netIncomeSummary['total_cogs_year'] + $netIncomeSummary['total_expenses_year'];
-                @endphp
-                <div class="text-xl sm:text-2xl font-black tracking-tight text-slate-900 dark:text-white font-mono tabular-nums">
-                    Rp {{ number_format($totalCosts, 0, ',', '.') }}
-                </div>
-                <div class="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 font-mono mt-1">
-                    <span>HPP: Rp {{ number_format($netIncomeSummary['total_cogs_year'], 0, ',', '.') }}</span>
-                    <span>Beban: Rp {{ number_format($netIncomeSummary['total_expenses_year'], 0, ',', '.') }}</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Card 3: Laba Bersih Usaha Sebelum Pajak -->
-        <div class="bg-white dark:bg-[#1C1C1E] p-5 rounded-[20px] border border-black/[0.06] dark:border-white/[0.08] shadow-xs flex flex-col justify-between group hover:border-emerald-500/40 transition-all">
-            <div class="flex items-center justify-between mb-3">
-                <span class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Laba Bersih Operasional</span>
-                <div class="w-9 h-9 rounded-[12px] {{ $netIncomeSummary['total_net_income_year'] >= 0 ? 'bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200/80 dark:border-emerald-800/80 text-emerald-600 dark:text-emerald-400' : 'bg-rose-50 dark:bg-rose-950/60 border border-rose-200/80 dark:border-rose-800/80 text-rose-600 dark:text-rose-400' }} flex items-center justify-center">
-                    <i data-lucide="{{ $netIncomeSummary['total_net_income_year'] >= 0 ? 'badge-percent' : 'alert-circle' }}" class="w-4 h-4"></i>
-                </div>
-            </div>
-            <div>
-                <div class="text-xl sm:text-2xl font-black tracking-tight {{ $netIncomeSummary['total_net_income_year'] >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400' }} font-mono tabular-nums">
-                    Rp {{ number_format($netIncomeSummary['total_net_income_year'], 0, ',', '.') }}
-                </div>
-                <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
-                    {{ $netIncomeSummary['total_net_income_year'] >= 0 ? 'Laba Bersih = Pendapatan - HPP - Beban' : 'Rugi Usaha (Pajak Laba Bersih Rp 0)' }}
-                </p>
-            </div>
-        </div>
-
-        <!-- Card 4: PPh Laba Bersih Terutang & Optimasi Pajak -->
-        <div class="bg-white dark:bg-[#1C1C1E] p-5 rounded-[20px] border border-black/[0.06] dark:border-white/[0.08] shadow-xs flex flex-col justify-between group hover:border-emerald-500/40 transition-all">
-            <div class="flex items-center justify-between mb-3">
-                <span class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">PPh Terutang Laba Bersih</span>
-                @php
-                    $annualCalc = $netIncomeSummary['annual_calculation'];
-                    $recommendedScheme = $annualCalc['comparison']['recommended_scheme'] ?? 'equal';
-                @endphp
-                <span class="px-2 py-0.5 rounded-[8px] text-[10px] font-bold border font-mono uppercase {{ $recommendedScheme === 'net_income' ? 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800' : 'bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-800' }}">
-                    {{ $annualCalc['comparison']['recommendation_label'] ?? 'Optimal' }}
                 </span>
             </div>
-            <div>
-                <div class="text-xl sm:text-2xl font-black tracking-tight text-slate-900 dark:text-white font-mono tabular-nums">
-                    Rp {{ number_format($netIncomeSummary['total_net_tax_year'], 0, ',', '.') }}
+            <div class="mt-4">
+                <div class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+                    {{ 'Rp ' . number_format($netIncomeSummary['total_revenue_year'], 0, ',', '.') }}
                 </div>
-                <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
-                    {{ ! $isIndividual ? 'Fasilitas Pasal 31E UU PPh (Tarif 11%)' : "Tarif Progresif UU HPP (PTKP {$ptkpStatus})" }}
+                <div class="mt-1 flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
+                    <i data-lucide="calculator" class="w-3.5 h-3.5 text-slate-400"></i>
+                    <span>Tersinkron POS, Faktur & Toko Online</span>
+                </div>
+            </div>
+            <div class="mt-3 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs">
+                <span class="text-slate-500 dark:text-slate-400">HPP Aktual Terjual</span>
+                <span class="font-semibold text-slate-700 dark:text-slate-300">
+                    {{ 'Rp ' . number_format($netIncomeSummary['total_cogs_year'], 0, ',', '.') }}
+                </span>
+            </div>
+        </div>
+
+        {{-- Card 2: Laba Operasional Riil --}}
+        <div class="bg-white dark:bg-slate-900 rounded-3xl p-5 border border-slate-200/80 dark:border-slate-800 shadow-sm relative overflow-hidden flex flex-col justify-between">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Laba Bersih Usaha</span>
+                <span class="w-8 h-8 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 text-[#34C759] flex items-center justify-center">
+                    <i data-lucide="pie-chart" class="w-4 h-4"></i>
+                </span>
+            </div>
+            <div class="mt-4">
+                <div class="text-2xl font-bold {{ $netIncomeSummary['total_net_income_year'] < 0 ? 'text-[#FF3B30]' : 'text-slate-900 dark:text-white' }} tracking-tight">
+                    {{ 'Rp ' . number_format($netIncomeSummary['total_net_income_year'], 0, ',', '.') }}
+                </div>
+                <div class="mt-1 flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
+                    <i data-lucide="wallet" class="w-3.5 h-3.5 text-slate-400"></i>
+                    <span>Beban Kas: Rp {{ number_format($netIncomeSummary['total_expenses_year'], 0, ',', '.') }}</span>
+                </div>
+            </div>
+            <div class="mt-3 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs">
+                <span class="text-slate-500 dark:text-slate-400">Status Fiskal</span>
+                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold {{ $netIncomeSummary['total_net_income_year'] <= 0 ? 'bg-amber-100 text-amber-800 dark:bg-amber-950/80 dark:text-amber-300' : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300' }}">
+                    {{ $netIncomeSummary['total_net_income_year'] <= 0 ? 'Rugi Operasional' : 'Laba Positif' }}
+                </span>
+            </div>
+        </div>
+
+        {{-- Card 3: Estimasi PPh Terutang Tahunan --}}
+        <div class="bg-white dark:bg-slate-900 rounded-3xl p-5 border border-slate-200/80 dark:border-slate-800 shadow-sm relative overflow-hidden flex flex-col justify-between">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Estimasi PPh Terutang</span>
+                <span class="w-8 h-8 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 text-[#5856D6] flex items-center justify-center">
+                    <i data-lucide="receipt" class="w-4 h-4"></i>
+                </span>
+            </div>
+            <div class="mt-4">
+                <div class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+                    {{ 'Rp ' . number_format($netIncomeSummary['total_net_tax_year'], 0, ',', '.') }}
+                </div>
+                <div class="mt-1 flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
+                    <i data-lucide="landmark" class="w-3.5 h-3.5 text-slate-400"></i>
+                    <span>{{ $isIndividual ? 'Wajib Pajak Orang Pribadi (' . $ptkpStatus . ')' : 'Wajib Pajak Badan (Pasal 31E)' }}</span>
+                </div>
+            </div>
+            <div class="mt-3 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs">
+                <span class="text-slate-500 dark:text-slate-400">PPh Final 0.5% (PP 55)</span>
+                <span class="font-semibold text-slate-700 dark:text-slate-300">
+                    {{ 'Rp ' . number_format($netIncomeSummary['total_umkm_final_year'], 0, ',', '.') }}
+                </span>
+            </div>
+        </div>
+
+        {{-- Card 4: Tax Optimization Engine (Apple Highlight Bento) --}}
+        <div class="bg-slate-900 dark:bg-slate-800 rounded-3xl p-5 text-white shadow-sm relative overflow-hidden flex flex-col justify-between border border-slate-800 dark:border-slate-700">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-[#34C759] animate-pulse"></span>
+                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-300">Tax Optimization Engine</span>
+                </div>
+                <span class="w-8 h-8 rounded-2xl bg-white/10 text-amber-300 flex items-center justify-center">
+                    <i data-lucide="sparkles" class="w-4 h-4"></i>
+                </span>
+            </div>
+            <div class="mt-3">
+                <div class="text-base font-bold text-white tracking-tight line-clamp-1">
+                    {{ $netIncomeSummary['annual_calculation']['comparison']['recommendation_label'] ?? 'Analisis Skema Fiskal' }}
+                </div>
+                <p class="mt-1 text-xs text-slate-300 line-clamp-2 leading-relaxed">
+                    {{ $netIncomeSummary['annual_calculation']['comparison']['rationale'] ?? 'Perbandingan otomatis antara skema pembukuan laba bersih dengan PPh Final 0.5%.' }}
                 </p>
+            </div>
+            <div class="mt-3 pt-3 border-t border-white/10 flex items-center justify-between text-xs">
+                <span class="text-slate-300">Potensi Efisiensi</span>
+                <span class="font-bold text-[#34C759]">
+                    {{ 'Rp ' . number_format((float) ($netIncomeSummary['annual_calculation']['comparison']['tax_savings'] ?? 0), 0, ',', '.') }}
+                </span>
             </div>
         </div>
     </div>
 
-    <!-- 3. Rekapitulasi 12 Bulan Laba Rugi Fiskal & Pajak Hasil Penjualan -->
-    <div class="bg-white dark:bg-[#1C1C1E] rounded-[20px] border border-black/[0.06] dark:border-white/[0.08] shadow-xs p-5 sm:p-6 space-y-4">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-black/[0.04] dark:border-white/[0.06] pb-4">
-            <div>
-                <h2 class="text-sm sm:text-base font-black text-slate-900 dark:text-white tracking-tight">
-                    Rekapitulasi 12 Bulan Laba Rugi &amp; Pajak Hasil Penjualan
-                </h2>
-                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                    Kalkulasi akurat berdasarkan omzet riil, modal bahan (HPP), pengeluaran operasional, dan komparasi skema fiskal
-                </p>
+    {{-- FILTER CONTROLS & EXPORT ACTION BAR (Apple Segmented Bar) --}}
+    <div class="bg-white dark:bg-slate-900 rounded-3xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
+        <form method="GET" action="{{ route('tax.index') }}" class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+            {{-- Tahun Pajak --}}
+            <div class="flex items-center gap-2">
+                <label for="year-select" class="text-xs font-semibold text-slate-600 dark:text-slate-400">Tahun:</label>
+                <select id="year-select" name="year" onchange="this.form.submit()" class="h-10 text-sm font-medium rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white px-3 focus:ring-2 focus:ring-[#007AFF] focus:border-transparent outline-none">
+                    @for($y = (int) date('Y'); $y >= (int) date('Y') - 4; $y--)
+                        <option value="{{ $y }}" {{ $currentYear === $y ? 'selected' : '' }}>{{ $y }}</option>
+                    @endfor
+                </select>
             </div>
 
-            <!-- Tax Law Indicator Badge -->
-            <div class="flex items-center gap-2 px-3 py-1.5 rounded-[10px] bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 text-xs text-slate-700 dark:text-slate-300 self-start sm:self-auto">
-                <i data-lucide="shield-check" class="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0"></i>
-                <span>Dasar Hukum: <strong class="text-slate-900 dark:text-white font-semibold">{{ ! $isIndividual ? 'Pasal 31E UU PPh (Diskon 50%)' : 'Pasal 17 UU HPP No. 7/2021' }}</strong></span>
+            {{-- Jenis Wajib Pajak --}}
+            <div class="flex items-center gap-2">
+                <label for="taxpayer-select" class="text-xs font-semibold text-slate-600 dark:text-slate-400">Subjek Pajak:</label>
+                <select id="taxpayer-select" name="taxpayer_type" onchange="this.form.submit()" class="h-10 text-sm font-medium rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white px-3 focus:ring-2 focus:ring-[#007AFF] focus:border-transparent outline-none">
+                    <option value="individual" {{ $isIndividual ? 'selected' : '' }}>Orang Pribadi (Usaha)</option>
+                    <option value="corporate" {{ ! $isIndividual ? 'selected' : '' }}>Badan Usaha (PT / CV)</option>
+                </select>
+            </div>
+
+            {{-- Status PTKP jika Orang Pribadi --}}
+            @if($isIndividual)
+                <div class="flex items-center gap-2">
+                    <label for="ptkp-select" class="text-xs font-semibold text-slate-600 dark:text-slate-400">PTKP:</label>
+                    <select id="ptkp-select" name="ptkp_status" onchange="this.form.submit()" class="h-10 text-sm font-medium rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white px-3 focus:ring-2 focus:ring-[#007AFF] focus:border-transparent outline-none">
+                        @foreach(['TK/0', 'TK/1', 'TK/2', 'TK/3', 'K/0', 'K/1', 'K/2', 'K/3'] as $status)
+                            <option value="{{ $status }}" {{ $ptkpStatus === $status ? 'selected' : '' }}>{{ $status }} (Rp {{ number_format(\App\Domain\Tax\NetIncomeTaxService::PTKP_VALUES[$status] ?? 54000000, 0, ',', '.') }})</option>
+                        @endforeach
+                    </select>
+                </div>
+            @endif
+        </form>
+
+        {{-- Export Action Trigger --}}
+        <div class="flex items-center gap-2 w-full md:w-auto justify-end">
+            <button type="button" @click="showExportModal = true" class="h-11 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 text-sm font-semibold flex items-center justify-center gap-2 transition-colors shadow-sm w-full sm:w-auto">
+                <i data-lucide="download" class="w-4 h-4"></i>
+                <span>Pusat Ekspor e-Bupot & CSV</span>
+            </button>
+        </div>
+    </div>
+
+    {{-- INTERACTIVE SIMULATOR BENTO (Segmented Control & 5 Simulation Panels) --}}
+    <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-sm overflow-hidden">
+        {{-- Apple HIG Segmented Bar --}}
+        <div class="p-3 bg-slate-50/80 dark:bg-slate-900/80 border-b border-slate-200/80 dark:border-slate-800">
+            <div class="flex overflow-x-auto gap-1.5 p-1 bg-slate-200/60 dark:bg-slate-800/80 rounded-2xl no-scrollbar">
+                <button type="button" @click="activeSimTab = 'net_income'" :class="activeSimTab === 'net_income' ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-sm font-semibold' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 font-medium'" class="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm whitespace-nowrap transition-all min-h-[44px]">
+                    <i data-lucide="building-2" class="w-4 h-4 text-[#007AFF]"></i>
+                    <span>PPh Laba Bersih (UU HPP / 31E)</span>
+                </button>
+                <button type="button" @click="activeSimTab = 'umkm'" :class="activeSimTab === 'umkm' ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-sm font-semibold' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 font-medium'" class="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm whitespace-nowrap transition-all min-h-[44px]">
+                    <i data-lucide="store" class="w-4 h-4 text-[#34C759]"></i>
+                    <span>PPh Final UMKM 0.5% (PP 55)</span>
+                </button>
+                <button type="button" @click="activeSimTab = 'pph21'" :class="activeSimTab === 'pph21' ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-sm font-semibold' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 font-medium'" class="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm whitespace-nowrap transition-all min-h-[44px]">
+                    <i data-lucide="users" class="w-4 h-4 text-[#5856D6]"></i>
+                    <span>PPh 21 TER Karyawan (PP 58)</span>
+                </button>
+                <button type="button" @click="activeSimTab = 'payroll'" :class="activeSimTab === 'payroll' ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-sm font-semibold' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 font-medium'" class="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm whitespace-nowrap transition-all min-h-[44px]">
+                    <i data-lucide="badge-dollar-sign" class="w-4 h-4 text-[#FF9500]"></i>
+                    <span>Gaji, BPJS & THR Terpadu</span>
+                </button>
+                <button type="button" @click="activeSimTab = 'sales'" :class="activeSimTab === 'sales' ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-sm font-semibold' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 font-medium'" class="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm whitespace-nowrap transition-all min-h-[44px]">
+                    <i data-lucide="shopping-cart" class="w-4 h-4 text-[#007AFF]"></i>
+                    <span>Pajak Transaksi (PB1 / PPN)</span>
+                </button>
             </div>
         </div>
 
-        <!-- Desktop Table View -->
-        <div class="hidden md:block overflow-x-auto -mx-5 sm:mx-0 px-5 sm:px-0">
-            <table class="w-full text-left text-xs min-w-[780px] border-collapse" aria-label="Tabel Rekapitulasi 12 Bulan">
+        {{-- TAB 1: PPH LABA BERSIH & HASIL PENJUALAN --}}
+        <div x-show="activeSimTab === 'net_income'" class="p-6">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                {{-- Form Input (Left Column) --}}
+                <div class="lg:col-span-5 space-y-4">
+                    <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+                        <h3 class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                            <i data-lucide="sliders-horizontal" class="w-4 h-4 text-[#007AFF]"></i>
+                            <span>Parameter Laba Bersih Usaha</span>
+                        </h3>
+                        <button type="button" @click="showNormaModal = true" class="text-xs font-semibold text-[#007AFF] hover:underline flex items-center gap-1">
+                            <i data-lucide="help-circle" class="w-3.5 h-3.5"></i>
+                            <span>Panduan Norma (NPPN)</span>
+                        </button>
+                    </div>
+
+                    {{-- Form Inputs --}}
+                    <div>
+                        <label for="net-gross-revenue" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                            Peredaran Bruto / Penjualan Bersih (Rp):
+                        </label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-xs font-semibold text-slate-400">Rp</span>
+                            <input id="net-gross-revenue" type="number" x-model.number="netIncomeInput.gross_revenue" @input.debounce.300ms="runNetIncomeSim()" class="w-full pl-10 pr-4 h-11 text-base sm:text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-[#007AFF] focus:border-transparent outline-none">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="net-cogs" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                            Harga Pokok Penjualan / HPP Biaya Modal (Rp):
+                        </label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-xs font-semibold text-slate-400">Rp</span>
+                            <input id="net-cogs" type="number" x-model.number="netIncomeInput.cogs" @input.debounce.300ms="runNetIncomeSim()" class="w-full pl-10 pr-4 h-11 text-base sm:text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-[#007AFF] focus:border-transparent outline-none">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="net-expenses" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                            Beban Operasional Usaha / Biaya Kas (Rp):
+                        </label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-xs font-semibold text-slate-400">Rp</span>
+                            <input id="net-expenses" type="number" x-model.number="netIncomeInput.operating_expenses" @input.debounce.300ms="runNetIncomeSim()" class="w-full pl-10 pr-4 h-11 text-base sm:text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-[#007AFF] focus:border-transparent outline-none">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3 pt-2">
+                        <div>
+                            <label for="net-is-corporate" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Subjek Pajak:</label>
+                            <select id="net-is-corporate" x-model="netIncomeInput.is_corporate" @change="runNetIncomeSim()" class="w-full h-11 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white px-3 font-medium focus:ring-2 focus:ring-[#007AFF] focus:border-transparent outline-none">
+                                <option :value="false">Orang Pribadi</option>
+                                <option :value="true">Badan Usaha (PT/CV)</option>
+                            </select>
+                        </div>
+                        <div x-show="!netIncomeInput.is_corporate">
+                            <label for="net-ptkp-status" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Status PTKP:</label>
+                            <select id="net-ptkp-status" x-model="netIncomeInput.ptkp_status" @change="runNetIncomeSim()" class="w-full h-11 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white px-3 font-medium focus:ring-2 focus:ring-[#007AFF] focus:border-transparent outline-none">
+                                @foreach(['TK/0', 'TK/1', 'TK/2', 'TK/3', 'K/0', 'K/1', 'K/2', 'K/3'] as $status)
+                                    <option value="{{ $status }}">{{ $status }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div x-show="netIncomeInput.is_corporate" class="flex items-end">
+                            <div class="text-[11px] text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 p-2.5 rounded-xl w-full">
+                                Fasilitas Pasal 31E UU PPh (Tarif Efektif 11% s/d 4.8M)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Live Results & Breakdown (Right Column) --}}
+                <div class="lg:col-span-7 bg-slate-50/70 dark:bg-slate-800/40 rounded-3xl p-6 border border-slate-200/80 dark:border-slate-800 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between pb-4 border-b border-slate-200/80 dark:border-slate-700">
+                            <div>
+                                <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Hasil Simulasi Fiskal Riil</span>
+                                <h4 class="text-lg font-bold text-slate-900 dark:text-white" x-text="netIncomeResult ? netIncomeResult.tax_scheme : 'Kalkulasi Fiskal...'"></h4>
+                            </div>
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800 dark:bg-blue-950/80 dark:text-blue-300">
+                                <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
+                                <span>UU Harmonisasi Perpajakan</span>
+                            </span>
+                        </div>
+
+                        {{-- Calculation Breakdown Bento --}}
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-4">
+                            <div class="bg-white dark:bg-slate-900 p-3.5 rounded-2xl border border-slate-200/60 dark:border-slate-800 shadow-2xs">
+                                <div class="text-[11px] text-slate-500 dark:text-slate-400">Laba Kotor (Gross)</div>
+                                <div class="text-base font-bold text-slate-900 dark:text-white mt-0.5" x-text="formatRupiah(netIncomeResult?.gross_profit)"></div>
+                                <div class="text-[10px] text-slate-400 mt-0.5" x-text="'Margin: ' + (netIncomeResult?.gross_margin_percent || 0) + '%'"></div>
+                            </div>
+                            <div class="bg-white dark:bg-slate-900 p-3.5 rounded-2xl border border-slate-200/60 dark:border-slate-800 shadow-2xs">
+                                <div class="text-[11px] text-slate-500 dark:text-slate-400">Laba Bersih Usaha</div>
+                                <div class="text-base font-bold text-slate-900 dark:text-white mt-0.5" x-text="formatRupiah(netIncomeResult?.net_operating_income)"></div>
+                                <div class="text-[10px] text-slate-400 mt-0.5" x-text="'Net Margin: ' + (netIncomeResult?.net_margin_percent || 0) + '%'"></div>
+                            </div>
+                            <div class="bg-white dark:bg-slate-900 p-3.5 rounded-2xl border border-slate-200/60 dark:border-slate-800 shadow-2xs col-span-2 sm:col-span-1">
+                                <div class="text-[11px] text-slate-500 dark:text-slate-400">Penghasilan Kena Pajak (PKP)</div>
+                                <div class="text-base font-bold text-slate-900 dark:text-white mt-0.5" x-text="formatRupiah(netIncomeResult?.taxable_income)"></div>
+                                <div class="text-[10px] text-slate-400 mt-0.5" x-show="!netIncomeInput.is_corporate" x-text="'PTKP: ' + formatRupiah(netIncomeResult?.ptkp_amount)"></div>
+                                <div class="text-[10px] text-slate-400 mt-0.5" x-show="netIncomeInput.is_corporate">Fasilitas Badan 31E</div>
+                            </div>
+                        </div>
+
+                        {{-- Total Tax Payable Highlight --}}
+                        <div class="mt-4 p-4 rounded-2xl bg-[#007AFF]/10 border border-[#007AFF]/20 flex items-center justify-between">
+                            <div>
+                                <span class="text-xs font-semibold text-[#007AFF] uppercase tracking-wider">Beban Pajak Penghasilan (PPh) Terutang</span>
+                                <div class="text-2xl font-black text-slate-900 dark:text-white mt-0.5" x-text="formatRupiah(netIncomeResult?.tax_amount)"></div>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Tarif Efektif Riil</span>
+                                <div class="text-lg font-bold text-[#007AFF]" x-text="(netIncomeResult?.effective_tax_rate_percent || 0) + '%'"></div>
+                            </div>
+                        </div>
+
+                        {{-- Action Button to view 5-bracket details if Individual --}}
+                        <div x-show="!netIncomeInput.is_corporate && netIncomeResult?.tax_details?.brackets?.length" class="mt-3">
+                            <button type="button" @click="showBracketModal = true" class="w-full py-2.5 px-3 rounded-xl bg-slate-200/80 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors">
+                                <i data-lucide="layers" class="w-3.5 h-3.5"></i>
+                                <span>Lihat Rincian 5 Lapisan Tarif Progresif Pasal 17</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    {{-- Comparison with PPh Final 0.5% --}}
+                    <div class="mt-4 pt-4 border-t border-slate-200/80 dark:border-slate-700 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-[#34C759]"></span>
+                            <span class="text-slate-600 dark:text-slate-400">Bandingkan PPh Final 0.5%: <strong class="text-slate-900 dark:text-white" x-text="formatRupiah(netIncomeResult?.comparison?.umkm_final_amount)"></strong></span>
+                        </div>
+                        <div class="font-semibold text-emerald-600 dark:text-emerald-400" x-text="netIncomeResult?.comparison?.recommendation_label"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- TAB 2: PPH FINAL UMKM 0.5% (PP 55/2022) --}}
+        <div x-show="activeSimTab === 'umkm'" class="p-6">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                {{-- Form Input --}}
+                <div class="lg:col-span-5 space-y-4">
+                    <div class="border-b border-slate-100 dark:border-slate-800 pb-3">
+                        <h3 class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                            <i data-lucide="store" class="w-4 h-4 text-[#34C759]"></i>
+                            <span>Parameter PPh Final PP 55/2022</span>
+                        </h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Fasilitas bebas pajak omzet s.d Rp 500 Juta untuk Orang Pribadi.</p>
+                    </div>
+
+                    <div>
+                        <label for="umkm-monthly-rev" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                            Peredaran Bruto / Omzet Bulan Ini (Rp):
+                        </label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-xs font-semibold text-slate-400">Rp</span>
+                            <input id="umkm-monthly-rev" type="number" x-model.number="umkmInput.monthly_revenue" @input.debounce.300ms="runUmkmSim()" class="w-full pl-10 pr-4 h-11 text-base sm:text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-[#34C759] focus:border-transparent outline-none">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="umkm-prior-cum" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                            Akumulasi Omzet Bulan-Bulan Sebelumnya (Rp):
+                        </label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-xs font-semibold text-slate-400">Rp</span>
+                            <input id="umkm-prior-cum" type="number" x-model.number="umkmInput.prior_cumulative" @input.debounce.300ms="runUmkmSim()" class="w-full pl-10 pr-4 h-11 text-base sm:text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-[#34C759] focus:border-transparent outline-none">
+                        </div>
+                    </div>
+
+                    <div class="pt-2">
+                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">Jenis Wajib Pajak:</label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <button type="button" @click="umkmInput.is_individual = true; runUmkmSim()" :class="umkmInput.is_individual ? 'border-[#34C759] bg-emerald-50 dark:bg-emerald-950/40 text-emerald-900 dark:text-emerald-300 font-semibold' : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400'" class="p-3 rounded-2xl border text-left text-xs transition-all min-h-[44px]">
+                                <div class="font-bold">Orang Pribadi</div>
+                                <div class="text-[10px] mt-0.5 opacity-80">Threshold Bebas Pajak 500 Jt</div>
+                            </button>
+                            <button type="button" @click="umkmInput.is_individual = false; runUmkmSim()" :class="!umkmInput.is_individual ? 'border-[#34C759] bg-emerald-50 dark:bg-emerald-950/40 text-emerald-900 dark:text-emerald-300 font-semibold' : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400'" class="p-3 rounded-2xl border text-left text-xs transition-all min-h-[44px]">
+                                <div class="font-bold">Badan (PT/CV)</div>
+                                <div class="text-[10px] mt-0.5 opacity-80">Langsung 0.5% sejak Rp 1</div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Live Results --}}
+                <div class="lg:col-span-7 bg-slate-50/70 dark:bg-slate-800/40 rounded-3xl p-6 border border-slate-200/80 dark:border-slate-800 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between pb-4 border-b border-slate-200/80 dark:border-slate-700">
+                            <div>
+                                <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">PPh Final UMKM 0.5%</span>
+                                <h4 class="text-lg font-bold text-slate-900 dark:text-white">Perhitungan Billing Pajak Bulanan</h4>
+                            </div>
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300">
+                                <i data-lucide="check-circle" class="w-3.5 h-3.5"></i>
+                                <span>PP No. 55 / 2022</span>
+                            </span>
+                        </div>
+
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-4">
+                            <div class="bg-white dark:bg-slate-900 p-3.5 rounded-2xl border border-slate-200/60 dark:border-slate-800 shadow-2xs">
+                                <div class="text-[11px] text-slate-500 dark:text-slate-400">Akumulasi Omzet Baru</div>
+                                <div class="text-base font-bold text-slate-900 dark:text-white mt-0.5" x-text="formatRupiah(umkmResult?.current_cumulative)"></div>
+                            </div>
+                            <div class="bg-white dark:bg-slate-900 p-3.5 rounded-2xl border border-slate-200/60 dark:border-slate-800 shadow-2xs">
+                                <div class="text-[11px] text-slate-500 dark:text-slate-400">Dasar Pengenaan Pajak (DPP)</div>
+                                <div class="text-base font-bold text-slate-900 dark:text-white mt-0.5" x-text="formatRupiah(umkmResult?.taxable_revenue)"></div>
+                            </div>
+                            <div class="bg-white dark:bg-slate-900 p-3.5 rounded-2xl border border-slate-200/60 dark:border-slate-800 shadow-2xs col-span-2 sm:col-span-1">
+                                <div class="text-[11px] text-slate-500 dark:text-slate-400">Fasilitas Bebas Pajak</div>
+                                <div class="text-xs font-bold text-emerald-600 dark:text-emerald-400 mt-1" x-text="umkmResult?.is_under_threshold ? 'Bebas PPh (< 500 Juta)' : 'Dikenakan PPh 0.5%'"></div>
+                            </div>
+                        </div>
+
+                        {{-- Tax Amount Box --}}
+                        <div class="mt-4 p-4 rounded-2xl bg-[#34C759]/10 border border-[#34C759]/20 flex items-center justify-between">
+                            <div>
+                                <span class="text-xs font-semibold text-[#34C759] uppercase tracking-wider">PPh Final Terutang (Setor Sendiri)</span>
+                                <div class="text-2xl font-black text-slate-900 dark:text-white mt-0.5" x-text="formatRupiah(umkmResult?.tax_amount)"></div>
+                            </div>
+                            <div class="text-right text-xs text-slate-500 dark:text-slate-400">
+                                <div>KAP: <strong class="text-slate-900 dark:text-white">411128</strong></div>
+                                <div>KJS: <strong class="text-slate-900 dark:text-white">420</strong></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 pt-4 border-t border-slate-200/80 dark:border-slate-700 text-xs text-slate-500 dark:text-slate-400">
+                        Batas waktu penyetoran PPh Final UMKM adalah tanggal 15 bulan berikutnya melalui Kode Billing DJP Online.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- TAB 3: PPH 21 TER KARYAWAN (PP 58/2023) --}}
+        <div x-show="activeSimTab === 'pph21'" class="p-6">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                {{-- Form Input --}}
+                <div class="lg:col-span-5 space-y-4">
+                    <div class="border-b border-slate-100 dark:border-slate-800 pb-3">
+                        <h3 class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                            <i data-lucide="users" class="w-4 h-4 text-[#5856D6]"></i>
+                            <span>Parameter PPh 21 TER & Rekonsiliasi</span>
+                        </h3>
+                    </div>
+
+                    <div>
+                        <label for="pph21-calc-type" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Skema Masa Pajak:</label>
+                        <select id="pph21-calc-type" x-model="pph21Input.calc_type" @change="runPph21Sim()" class="w-full h-11 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white px-3 font-medium focus:ring-2 focus:ring-[#5856D6] focus:border-transparent outline-none">
+                            <option value="monthly_ter">Bulanan Pegawai Tetap (TER A / B / C - Jan s.d Nov)</option>
+                            <option value="december">Rekonsiliasi Masa Desember (Pasal 17 Tahunan)</option>
+                            <option value="daily_worker">Pegawai Harian Lepas (Tarif Efektif Harian)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="pph21-gross-wage" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1" x-text="pph21Input.calc_type === 'daily_worker' ? 'Upah Harian (Rp):' : (pph21Input.calc_type === 'december' ? 'Total Penghasilan Bruto 1 Tahun (Rp):' : 'Penghasilan Bruto Sebulan (Rp):')"></label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-xs font-semibold text-slate-400">Rp</span>
+                            <input id="pph21-gross-wage" type="number" x-model.number="pph21Input.gross_wage" @input.debounce.300ms="runPph21Sim()" class="w-full pl-10 pr-4 h-11 text-base sm:text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-[#5856D6] focus:border-transparent outline-none">
+                        </div>
+                    </div>
+
+                    <div x-show="pph21Input.calc_type !== 'daily_worker'">
+                        <label for="pph21-ptkp-status" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Status PTKP Karyawan:</label>
+                        <select id="pph21-ptkp-status" x-model="pph21Input.ptkp_status" @change="runPph21Sim()" class="w-full h-11 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white px-3 font-medium focus:ring-2 focus:ring-[#5856D6] focus:border-transparent outline-none">
+                            <option value="TK/0">TK/0 (TER A)</option>
+                            <option value="TK/1">TK/1 (TER A)</option>
+                            <option value="K/0">K/0 (TER A)</option>
+                            <option value="TK/2">TK/2 (TER B)</option>
+                            <option value="TK/3">TK/3 (TER B)</option>
+                            <option value="K/1">K/1 (TER B)</option>
+                            <option value="K/2">K/2 (TER B)</option>
+                            <option value="K/3">K/3 (TER C)</option>
+                        </select>
+                    </div>
+
+                    {{-- Extra inputs for December Reconciliation --}}
+                    <div x-show="pph21Input.calc_type === 'december'" class="space-y-3 pt-1">
+                        <div>
+                            <label for="pph21-deductions" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Pengurang Tahunan (Biaya Jabatan + JHT/JP Pekerja) (Rp):</label>
+                            <input id="pph21-deductions" type="number" x-model.number="pph21Input.annual_deductions" @input.debounce.300ms="runPph21Sim()" class="w-full px-3.5 h-10 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-[#5856D6] outline-none">
+                        </div>
+                        <div>
+                            <label for="pph21-tax-paid" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">PPh 21 Telah Dipotong Masa Jan-Nov (Rp):</label>
+                            <input id="pph21-tax-paid" type="number" x-model.number="pph21Input.tax_paid_before" @input.debounce.300ms="runPph21Sim()" class="w-full px-3.5 h-10 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-[#5856D6] outline-none">
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Live Results --}}
+                <div class="lg:col-span-7 bg-slate-50/70 dark:bg-slate-800/40 rounded-3xl p-6 border border-slate-200/80 dark:border-slate-800 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between pb-4 border-b border-slate-200/80 dark:border-slate-700">
+                            <div>
+                                <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Hasil Pemotongan PPh 21</span>
+                                <h4 class="text-lg font-bold text-slate-900 dark:text-white" x-text="pph21Input.calc_type === 'december' ? 'Rekonsiliasi Masa Desember' : 'PPh 21 Masa Bulanan'"></h4>
+                            </div>
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-purple-100 text-purple-800 dark:bg-purple-950/80 dark:text-purple-300">
+                                <i data-lucide="calculator" class="w-3.5 h-3.5"></i>
+                                <span>PP No. 58 / 2023</span>
+                            </span>
+                        </div>
+
+                        {{-- TER Results --}}
+                        <div x-show="pph21Input.calc_type === 'monthly_ter'" class="space-y-4 mt-4">
+                            <div class="grid grid-cols-2 gap-3">
+                                <div class="bg-white dark:bg-slate-900 p-3.5 rounded-2xl border border-slate-200/60 dark:border-slate-800 shadow-2xs">
+                                    <div class="text-[11px] text-slate-500 dark:text-slate-400">Kategori TER</div>
+                                    <div class="text-base font-bold text-slate-900 dark:text-white mt-0.5" x-text="pph21Result?.ter_category || '-'"></div>
+                                </div>
+                                <div class="bg-white dark:bg-slate-900 p-3.5 rounded-2xl border border-slate-200/60 dark:border-slate-800 shadow-2xs">
+                                    <div class="text-[11px] text-slate-500 dark:text-slate-400">Tarif Efektif (TER)</div>
+                                    <div class="text-base font-bold text-[#5856D6] mt-0.5" x-text="(pph21Result?.ter_rate_percent || 0) + '%'"></div>
+                                </div>
+                            </div>
+
+                            <div class="p-4 rounded-2xl bg-[#5856D6]/10 border border-[#5856D6]/20 flex items-center justify-between">
+                                <div>
+                                    <span class="text-xs font-semibold text-[#5856D6] uppercase tracking-wider">Potongan PPh 21 Bulan Ini</span>
+                                    <div class="text-2xl font-black text-slate-900 dark:text-white mt-0.5" x-text="formatRupiah(pph21Result?.pph21_monthly_amount)"></div>
+                                </div>
+                                <div class="text-right">
+                                    <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Gaji Bersih Diterima</span>
+                                    <div class="text-lg font-bold text-slate-900 dark:text-white" x-text="formatRupiah(pph21Result?.take_home_pay)"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- December Results --}}
+                        <div x-show="pph21Input.calc_type === 'december'" class="space-y-4 mt-4">
+                            <div class="grid grid-cols-2 gap-3">
+                                <div class="bg-white dark:bg-slate-900 p-3.5 rounded-2xl border border-slate-200/60 dark:border-slate-800 shadow-2xs">
+                                    <div class="text-[11px] text-slate-500 dark:text-slate-400">PPh 21 Terutang 1 Tahun</div>
+                                    <div class="text-base font-bold text-slate-900 dark:text-white mt-0.5" x-text="formatRupiah(pph21Result?.annual_tax_payable)"></div>
+                                </div>
+                                <div class="bg-white dark:bg-slate-900 p-3.5 rounded-2xl border border-slate-200/60 dark:border-slate-800 shadow-2xs">
+                                    <div class="text-[11px] text-slate-500 dark:text-slate-400">Telah Dipotong Jan-Nov</div>
+                                    <div class="text-base font-bold text-slate-900 dark:text-white mt-0.5" x-text="formatRupiah(pph21Result?.tax_already_paid)"></div>
+                                </div>
+                            </div>
+
+                            <div class="p-4 rounded-2xl bg-[#5856D6]/10 border border-[#5856D6]/20 flex items-center justify-between">
+                                <div>
+                                    <span class="text-xs font-semibold text-[#5856D6] uppercase tracking-wider">Potongan PPh 21 Masa Desember</span>
+                                    <div class="text-2xl font-black text-slate-900 dark:text-white mt-0.5" x-text="formatRupiah(pph21Result?.december_tax_payable)"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Daily Worker Results --}}
+                        <div x-show="pph21Input.calc_type === 'daily_worker'" class="space-y-4 mt-4">
+                            <div class="p-4 rounded-2xl bg-[#5856D6]/10 border border-[#5856D6]/20 flex items-center justify-between">
+                                <div>
+                                    <span class="text-xs font-semibold text-[#5856D6] uppercase tracking-wider">Potongan PPh 21 Harian</span>
+                                    <div class="text-2xl font-black text-slate-900 dark:text-white mt-0.5" x-text="formatRupiah(pph21Result?.pph21_daily_amount)"></div>
+                                </div>
+                                <div class="text-right">
+                                    <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Upah Harian Bersih</span>
+                                    <div class="text-lg font-bold text-slate-900 dark:text-white" x-text="formatRupiah(pph21Result?.net_daily_wage)"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 pt-4 border-t border-slate-200/80 dark:border-slate-700 text-xs text-slate-500 dark:text-slate-400">
+                        Hasil kalkulasi PPh 21 dapat diekspor langsung dalam format DJP e-Bupot 21/26 resmi.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- TAB 4: GAJI, BPJS & THR TERPADU --}}
+        <div x-show="activeSimTab === 'payroll'" class="p-6">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                {{-- Form Input --}}
+                <div class="lg:col-span-5 space-y-4">
+                    <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+                        <h3 class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                            <i data-lucide="badge-dollar-sign" class="w-4 h-4 text-[#FF9500]"></i>
+                            <span>Komponen Penggajian & THR</span>
+                        </h3>
+                        <button type="button" @click="showBpjsModal = true" class="text-xs font-semibold text-[#007AFF] hover:underline flex items-center gap-1">
+                            <i data-lucide="info" class="w-3.5 h-3.5"></i>
+                            <span>Rincian BPJS</span>
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label for="payroll-base-salary" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Gaji Pokok (Rp):</label>
+                            <input id="payroll-base-salary" type="number" x-model.number="payrollInput.base_salary" @input.debounce.300ms="runPayrollSim()" class="w-full px-3 h-11 text-base sm:text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-[#FF9500] outline-none">
+                        </div>
+                        <div>
+                            <label for="payroll-fixed-allowance" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Tunjangan Tetap (Rp):</label>
+                            <input id="payroll-fixed-allowance" type="number" x-model.number="payrollInput.fixed_allowances" @input.debounce.300ms="runPayrollSim()" class="w-full px-3 h-11 text-base sm:text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-[#FF9500] outline-none">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label for="payroll-var-allowance" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Tunjangan Tidak Tetap (Rp):</label>
+                            <input id="payroll-var-allowance" type="number" x-model.number="payrollInput.variable_allowances" @input.debounce.300ms="runPayrollSim()" class="w-full px-3 h-11 text-base sm:text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-[#FF9500] outline-none">
+                        </div>
+                        <div>
+                            <label for="payroll-loan-deduction" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Potongan Kasbon / Pinjaman (Rp):</label>
+                            <input id="payroll-loan-deduction" type="number" x-model.number="payrollInput.loan_deduction" @input.debounce.300ms="runPayrollSim()" class="w-full px-3 h-11 text-base sm:text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-[#FF9500] outline-none">
+                        </div>
+                    </div>
+
+                    {{-- Checkboxes for BPJS & THR --}}
+                    <div class="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2 text-xs">
+                        <label class="flex items-center gap-2 cursor-pointer font-semibold text-slate-800 dark:text-slate-200">
+                            <input type="checkbox" x-model="payrollInput.bpjs_tk_enabled" @change="runPayrollSim()" class="rounded text-[#FF9500] focus:ring-[#FF9500] w-4 h-4">
+                            <span>Sertakan BPJS Ketenagakerjaan (JKK, JKM, JHT, JP)</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer font-semibold text-slate-800 dark:text-slate-200">
+                            <input type="checkbox" x-model="payrollInput.bpjs_kes_enabled" @change="runPayrollSim()" class="rounded text-[#FF9500] focus:ring-[#FF9500] w-4 h-4">
+                            <span>Sertakan BPJS Kesehatan (4% Perusahaan, 1% Karyawan)</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer font-semibold text-slate-800 dark:text-slate-200">
+                            <input type="checkbox" x-model="payrollInput.include_thr" @change="runPayrollSim()" class="rounded text-[#FF9500] focus:ring-[#FF9500] w-4 h-4">
+                            <span>Hitung THR Keagamaan Pro-Rata</span>
+                        </label>
+                    </div>
+                </div>
+
+                {{-- Live Results --}}
+                <div class="lg:col-span-7 bg-slate-50/70 dark:bg-slate-800/40 rounded-3xl p-6 border border-slate-200/80 dark:border-slate-800 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between pb-4 border-b border-slate-200/80 dark:border-slate-700">
+                            <div>
+                                <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Ringkasan Payroll & Ketenagakerjaan</span>
+                                <h4 class="text-lg font-bold text-slate-900 dark:text-white">Take Home Pay & Beban Perusahaan</h4>
+                            </div>
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 dark:bg-amber-950/80 dark:text-amber-300">
+                                <i data-lucide="wallet" class="w-3.5 h-3.5"></i>
+                                <span>Permenaker & UU Ketenagakerjaan</span>
+                            </span>
+                        </div>
+
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-4">
+                            <div class="bg-white dark:bg-slate-900 p-3.5 rounded-2xl border border-slate-200/60 dark:border-slate-800 shadow-2xs">
+                                <div class="text-[11px] text-slate-500 dark:text-slate-400">Total Upah Bruto</div>
+                                <div class="text-base font-bold text-slate-900 dark:text-white mt-0.5" x-text="formatRupiah(payrollResult?.gross_pay)"></div>
+                            </div>
+                            <div class="bg-white dark:bg-slate-900 p-3.5 rounded-2xl border border-slate-200/60 dark:border-slate-800 shadow-2xs">
+                                <div class="text-[11px] text-slate-500 dark:text-slate-400">Potongan Karyawan</div>
+                                <div class="text-base font-bold text-[#FF3B30] mt-0.5" x-text="formatRupiah(payrollResult?.total_employee_deductions)"></div>
+                                <div class="text-[10px] text-slate-400 mt-0.5">PPh 21 + BPJS + Kasbon</div>
+                            </div>
+                            <div class="bg-white dark:bg-slate-900 p-3.5 rounded-2xl border border-slate-200/60 dark:border-slate-800 shadow-2xs col-span-2 sm:col-span-1">
+                                <div class="text-[11px] text-slate-500 dark:text-slate-400">THR Pro-Rata</div>
+                                <div class="text-base font-bold text-[#FF9500] mt-0.5" x-text="formatRupiah(payrollResult?.thr_amount)"></div>
+                                <div class="text-[10px] text-slate-400 mt-0.5" x-text="'Masa Kerja: ' + (payrollResult?.thr_details?.service_months || 12) + ' Bulan'"></div>
+                            </div>
+                        </div>
+
+                        {{-- Total Take Home Pay Highlight --}}
+                        <div class="mt-4 p-4 rounded-2xl bg-[#FF9500]/10 border border-[#FF9500]/20 flex items-center justify-between">
+                            <div>
+                                <span class="text-xs font-semibold text-[#FF9500] uppercase tracking-wider">Take Home Pay (Gaji Bersih Diterima Karyawan)</span>
+                                <div class="text-2xl font-black text-slate-900 dark:text-white mt-0.5" x-text="formatRupiah(payrollResult?.take_home_pay)"></div>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Total Biaya Perusahaan</span>
+                                <div class="text-base font-bold text-slate-900 dark:text-white" x-text="formatRupiah(payrollResult?.total_company_cost)"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 pt-4 border-t border-slate-200/80 dark:border-slate-700 flex items-center justify-between text-xs">
+                        <span class="text-slate-500 dark:text-slate-400">BPJS Tanggungan Perusahaan:</span>
+                        <span class="font-bold text-slate-800 dark:text-slate-200" x-text="formatRupiah((payrollResult?.company_bpjs_tk || 0) + (payrollResult?.company_bpjs_kes || 0))"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- TAB 5: PAJAK TRANSAKSI (PB1 / PPN) --}}
+        <div x-show="activeSimTab === 'sales'" class="p-6">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                {{-- Form Input --}}
+                <div class="lg:col-span-5 space-y-4">
+                    <div class="border-b border-slate-100 dark:border-slate-800 pb-3">
+                        <h3 class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                            <i data-lucide="shopping-cart" class="w-4 h-4 text-[#007AFF]"></i>
+                            <span>Parameter Pajak Transaksi Penjualan</span>
+                        </h3>
+                    </div>
+
+                    <div>
+                        <label for="sales-subtotal" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Subtotal Penjualan (Rp):</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-xs font-semibold text-slate-400">Rp</span>
+                            <input id="sales-subtotal" type="number" x-model.number="salesTaxInput.subtotal" @input.debounce.300ms="runSalesTaxSim()" class="w-full pl-10 pr-4 h-11 text-base sm:text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-[#007AFF] outline-none">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label for="sales-discount" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Diskon Transaksi (Rp):</label>
+                            <input id="sales-discount" type="number" x-model.number="salesTaxInput.discount" @input.debounce.300ms="runSalesTaxSim()" class="w-full px-3 h-11 text-base sm:text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-[#007AFF] outline-none">
+                        </div>
+                        <div>
+                            <label for="sales-service-charge" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Service Charge (%):</label>
+                            <input id="sales-service-charge" type="number" step="0.01" :value="salesTaxInput.service_charge_rate * 100" @input.debounce.300ms="salesTaxInput.service_charge_rate = $event.target.value / 100; runSalesTaxSim()" class="w-full px-3 h-11 text-base sm:text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-[#007AFF] outline-none">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="sales-tax-type" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Jenis Pajak Transaksi:</label>
+                        <select id="sales-tax-type" x-model="salesTaxInput.tax_type" @change="runSalesTaxSim()" class="w-full h-11 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white px-3 font-medium focus:ring-2 focus:ring-[#007AFF] outline-none">
+                            <option value="pb1">PB1 Restoran / Kafe (10% Pajak Daerah)</option>
+                            <option value="ppn_11">PPN Standar (11%)</option>
+                            <option value="ppn_12">PPN Regulasi Baru (12%)</option>
+                            <option value="none">Tanpa Pajak Transaksi (0%)</option>
+                        </select>
+                    </div>
+
+                    <div class="pt-1">
+                        <label class="flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-800 dark:text-slate-200">
+                            <input type="checkbox" x-model="salesTaxInput.is_inclusive" @change="runSalesTaxSim()" class="rounded text-[#007AFF] focus:ring-[#007AFF] w-4 h-4">
+                            <span>Harga Sudah Termasuk Pajak (Tax Inclusive)</span>
+                        </label>
+                    </div>
+                </div>
+
+                {{-- Live Results --}}
+                <div class="lg:col-span-7 bg-slate-50/70 dark:bg-slate-800/40 rounded-3xl p-6 border border-slate-200/80 dark:border-slate-800 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between pb-4 border-b border-slate-200/80 dark:border-slate-700">
+                            <div>
+                                <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Perhitungan Struk & Invoice</span>
+                                <h4 class="text-lg font-bold text-slate-900 dark:text-white">Simulasi Pajak Konsumen POS</h4>
+                            </div>
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800 dark:bg-blue-950/80 dark:text-blue-300">
+                                <i data-lucide="receipt" class="w-3.5 h-3.5"></i>
+                                <span>Sinkron Kasir POS</span>
+                            </span>
+                        </div>
+
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-4">
+                            <div class="bg-white dark:bg-slate-900 p-3.5 rounded-2xl border border-slate-200/60 dark:border-slate-800 shadow-2xs">
+                                <div class="text-[11px] text-slate-500 dark:text-slate-400">Net Sales / DPP</div>
+                                <div class="text-base font-bold text-slate-900 dark:text-white mt-0.5" x-text="formatRupiah(salesTaxResult?.net_sales)"></div>
+                            </div>
+                            <div class="bg-white dark:bg-slate-900 p-3.5 rounded-2xl border border-slate-200/60 dark:border-slate-800 shadow-2xs">
+                                <div class="text-[11px] text-slate-500 dark:text-slate-400">Service Charge</div>
+                                <div class="text-base font-bold text-slate-900 dark:text-white mt-0.5" x-text="formatRupiah(salesTaxResult?.service_charge)"></div>
+                            </div>
+                            <div class="bg-white dark:bg-slate-900 p-3.5 rounded-2xl border border-slate-200/60 dark:border-slate-800 shadow-2xs col-span-2 sm:col-span-1">
+                                <div class="text-[11px] text-slate-500 dark:text-slate-400">Pajak (PB1 / PPN)</div>
+                                <div class="text-base font-bold text-[#007AFF] mt-0.5" x-text="formatRupiah(salesTaxResult?.tax_amount)"></div>
+                            </div>
+                        </div>
+
+                        {{-- Total Grand Total --}}
+                        <div class="mt-4 p-4 rounded-2xl bg-[#007AFF]/10 border border-[#007AFF]/20 flex items-center justify-between">
+                            <div>
+                                <span class="text-xs font-semibold text-[#007AFF] uppercase tracking-wider">Total Tagihan Konsumen (Grand Total)</span>
+                                <div class="text-2xl font-black text-slate-900 dark:text-white mt-0.5" x-text="formatRupiah(salesTaxResult?.grand_total)"></div>
+                            </div>
+                            <div class="text-right text-xs text-slate-500 dark:text-slate-400">
+                                <div>Status: <strong class="text-slate-900 dark:text-white" x-text="salesTaxInput.is_inclusive ? 'Harga Inclusive' : 'Harga Exclusive'"></strong></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 pt-4 border-t border-slate-200/80 dark:border-slate-700 text-xs text-slate-500 dark:text-slate-400">
+                        Pajak PB1/PPN yang tercatat pada sistem POS dapat dipisahkan secara otomatis dari omzet riil saat menyusun Laporan Laba Rugi.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- 12-MONTH FISCAL BREAKDOWN TABLE (Senior-Friendly Bento Table) --}}
+    <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-sm overflow-hidden">
+        <div class="p-5 border-b border-slate-200/80 dark:border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div>
+                <h3 class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                    <i data-lucide="calendar-range" class="w-4 h-4 text-[#007AFF]"></i>
+                    <span>Rekapitulasi Fiskal 12 Bulan (Tahun {{ $currentYear }})</span>
+                </h3>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Dihitung otomatis dari rekonsiliasi data Laporan Laba Rugi, Transaksi POS, dan Pengeluaran Kas.</p>
+            </div>
+            <div class="flex items-center gap-2">
+                <a href="{{ route('tax.export.net_income', ['year' => $currentYear, 'taxpayer_type' => $taxpayerType, 'ptkp_status' => $ptkpStatus]) }}" class="h-9 px-3.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-xs font-semibold flex items-center gap-1.5 transition-colors">
+                    <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5 text-emerald-600"></i>
+                    <span>Unduh CSV Laporan Fiskal</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm">
                 <thead>
-                    <tr class="text-[10px] uppercase tracking-wider font-bold text-slate-500 dark:text-slate-400 border-b border-black/[0.06] dark:border-white/[0.08]">
-                        <th scope="col" class="py-3 px-3">Masa Pajak</th>
-                        <th scope="col" class="py-3 px-3 text-right">Pendapatan Bersih</th>
-                        <th scope="col" class="py-3 px-3 text-right">Biaya Modal (HPP)</th>
-                        <th scope="col" class="py-3 px-3 text-right">Laba Kotor</th>
-                        <th scope="col" class="py-3 px-3 text-right">Beban Operasional</th>
-                        <th scope="col" class="py-3 px-3 text-right">Laba Bersih</th>
-                        <th scope="col" class="py-3 px-3 text-right">PPh Laba Bersih</th>
-                        <th scope="col" class="py-3 px-3 text-right">PPh Final 0.5%</th>
-                        <th scope="col" class="py-3 px-3 text-center">Skema Rekomendasi</th>
+                    <tr class="bg-slate-50/80 dark:bg-slate-800/60 border-b border-slate-200/80 dark:border-slate-800 text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                        <th class="py-3 px-4">Masa Pajak</th>
+                        <th class="py-3 px-4 text-right">Omzet Riil (Rp)</th>
+                        <th class="py-3 px-4 text-right">HPP Biaya Modal (Rp)</th>
+                        <th class="py-3 px-4 text-right">Beban Operasional (Rp)</th>
+                        <th class="py-3 px-4 text-right">Laba Bersih (Rp)</th>
+                        <th class="py-3 px-4 text-right">PPh Laba Bersih (Rp)</th>
+                        <th class="py-3 px-4 text-right">PPh Final 0.5% (Rp)</th>
+                        <th class="py-3 px-4 text-center">Rekomendasi Skema</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-black/[0.04] dark:divide-white/[0.06] font-mono">
-                    @foreach ($netIncomeSummary['monthly_breakdown'] as $row)
-                        <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors">
-                            <td class="py-2.5 px-3 font-sans font-semibold text-slate-900 dark:text-white">
-                                {{ $row['month_name'] }}
+                <tbody class="divide-y divide-slate-100 dark:divide-slate-800 text-xs font-medium">
+                    @foreach($netIncomeSummary['monthly_breakdown'] as $m => $item)
+                        <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition-colors">
+                            <td class="py-3 px-4 font-bold text-slate-900 dark:text-white">
+                                {{ $item['month_name'] }}
                             </td>
-                            <td class="py-2.5 px-3 text-right text-slate-800 dark:text-slate-200 tabular-nums">
-                                Rp {{ number_format($row['revenue'], 0, ',', '.') }}
+                            <td class="py-3 px-4 text-right text-slate-700 dark:text-slate-300">
+                                {{ number_format($item['revenue'], 0, ',', '.') }}
                             </td>
-                            <td class="py-2.5 px-3 text-right text-slate-500 dark:text-slate-400 tabular-nums">
-                                Rp {{ number_format($row['cogs'], 0, ',', '.') }}
+                            <td class="py-3 px-4 text-right text-slate-600 dark:text-slate-400">
+                                {{ number_format($item['cogs'], 0, ',', '.') }}
                             </td>
-                            <td class="py-2.5 px-3 text-right font-medium text-slate-900 dark:text-white tabular-nums">
-                                Rp {{ number_format($row['gross_profit'], 0, ',', '.') }}
+                            <td class="py-3 px-4 text-right text-slate-600 dark:text-slate-400">
+                                {{ number_format($item['expenses'], 0, ',', '.') }}
                             </td>
-                            <td class="py-2.5 px-3 text-right text-slate-500 dark:text-slate-400 tabular-nums">
-                                Rp {{ number_format($row['expenses'], 0, ',', '.') }}
+                            <td class="py-3 px-4 text-right font-bold {{ $item['net_income'] < 0 ? 'text-[#FF3B30]' : 'text-slate-900 dark:text-white' }}">
+                                {{ number_format($item['net_income'], 0, ',', '.') }}
                             </td>
-                            <td class="py-2.5 px-3 text-right font-bold {{ $row['net_income'] >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-500' }} tabular-nums">
-                                Rp {{ number_format($row['net_income'], 0, ',', '.') }}
+                            <td class="py-3 px-4 text-right font-bold text-[#007AFF]">
+                                {{ number_format($item['tax_amount'], 0, ',', '.') }}
                             </td>
-                            <td class="py-2.5 px-3 text-right font-bold text-slate-900 dark:text-white tabular-nums">
-                                Rp {{ number_format($row['tax_amount'], 0, ',', '.') }}
+                            <td class="py-3 px-4 text-right font-semibold text-slate-700 dark:text-slate-300">
+                                {{ number_format($item['umkm_final_amount'], 0, ',', '.') }}
                             </td>
-                            <td class="py-2.5 px-3 text-right text-slate-500 dark:text-slate-400 tabular-nums">
-                                Rp {{ number_format($row['umkm_final_amount'], 0, ',', '.') }}
-                            </td>
-                            <td class="py-2.5 px-3 text-center font-sans">
-                                @if ($row['recommendation'] === 'net_income')
-                                    <span class="px-2 py-0.5 rounded-[6px] text-[10px] font-bold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 font-mono">
-                                        Laba Bersih
+                            <td class="py-3 px-4 text-center">
+                                @if($item['recommendation'] === 'net_income')
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800 dark:bg-blue-950/80 dark:text-blue-300">
+                                        Laba Bersih (Lebih Hemat)
                                     </span>
-                                @elseif ($row['recommendation'] === 'umkm_final')
-                                    <span class="px-2 py-0.5 rounded-[6px] text-[10px] font-bold bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-800 font-mono">
+                                @elseif($item['recommendation'] === 'umkm_final')
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300">
                                         PPh Final 0.5%
                                     </span>
                                 @else
-                                    <span class="px-2 py-0.5 rounded-[6px] text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-mono">
-                                        Setara
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                                        Beban Setara
                                     </span>
                                 @endif
                             </td>
                         </tr>
                     @endforeach
                 </tbody>
-                <tfoot class="border-t-2 border-black/[0.08] dark:border-white/[0.12] font-mono font-bold bg-slate-50/70 dark:bg-[#2C2C2E]/60">
-                    <tr>
-                        <td class="py-3 px-3 font-sans text-slate-900 dark:text-white font-extrabold">TOTAL TAHUNAN</td>
-                        <td class="py-3 px-3 text-right text-slate-900 dark:text-white tabular-nums">Rp {{ number_format($netIncomeSummary['total_revenue_year'], 0, ',', '.') }}</td>
-                        <td class="py-3 px-3 text-right text-slate-600 dark:text-slate-400 tabular-nums">Rp {{ number_format($netIncomeSummary['total_cogs_year'], 0, ',', '.') }}</td>
-                        <td class="py-3 px-3 text-right text-slate-900 dark:text-white tabular-nums">Rp {{ number_format($netIncomeSummary['total_gross_profit_year'], 0, ',', '.') }}</td>
-                        <td class="py-3 px-3 text-right text-slate-600 dark:text-slate-400 tabular-nums">Rp {{ number_format($netIncomeSummary['total_expenses_year'], 0, ',', '.') }}</td>
-                        <td class="py-3 px-3 text-right {{ $netIncomeSummary['total_net_income_year'] >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-500' }} tabular-nums">Rp {{ number_format($netIncomeSummary['total_net_income_year'], 0, ',', '.') }}</td>
-                        <td class="py-3 px-3 text-right text-emerald-600 dark:text-emerald-400 tabular-nums">Rp {{ number_format($netIncomeSummary['total_net_tax_year'], 0, ',', '.') }}</td>
-                        <td class="py-3 px-3 text-right text-blue-600 dark:text-blue-400 tabular-nums">Rp {{ number_format($netIncomeSummary['total_umkm_final_year'], 0, ',', '.') }}</td>
-                        <td class="py-3 px-3 text-center font-sans text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
-                            {{ $annualCalc['comparison']['recommendation_label'] ?? '-' }}
+                <tfoot>
+                    <tr class="bg-slate-100/80 dark:bg-slate-800/80 border-t-2 border-slate-300 dark:border-slate-700 text-xs font-bold text-slate-900 dark:text-white">
+                        <td class="py-3.5 px-4 uppercase">KONSOLIDASI TAHUNAN</td>
+                        <td class="py-3.5 px-4 text-right">{{ number_format($netIncomeSummary['total_revenue_year'], 0, ',', '.') }}</td>
+                        <td class="py-3.5 px-4 text-right">{{ number_format($netIncomeSummary['total_cogs_year'], 0, ',', '.') }}</td>
+                        <td class="py-3.5 px-4 text-right">{{ number_format($netIncomeSummary['total_expenses_year'], 0, ',', '.') }}</td>
+                        <td class="py-3.5 px-4 text-right text-emerald-600 dark:text-emerald-400">{{ number_format($netIncomeSummary['total_net_income_year'], 0, ',', '.') }}</td>
+                        <td class="py-3.5 px-4 text-right text-[#007AFF]">{{ number_format($netIncomeSummary['total_net_tax_year'], 0, ',', '.') }}</td>
+                        <td class="py-3.5 px-4 text-right text-slate-700 dark:text-slate-300">{{ number_format($netIncomeSummary['total_umkm_final_year'], 0, ',', '.') }}</td>
+                        <td class="py-3.5 px-4 text-center">
+                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-black bg-[#34C759] text-white">
+                                Rekomendasi Terpilih
+                            </span>
                         </td>
                     </tr>
                 </tfoot>
             </table>
         </div>
+    </div>
 
-        <!-- Mobile Card List View -->
-        <div class="block md:hidden divide-y divide-black/[0.06] dark:divide-white/[0.08] -mx-4">
-            @foreach ($netIncomeSummary['monthly_breakdown'] as $row)
-                <div class="p-4 space-y-2">
-                    <div class="flex items-center justify-between">
-                        <span class="font-bold text-sm text-slate-900 dark:text-white">{{ $row['month_name'] }}</span>
-                        @if ($row['recommendation'] === 'net_income')
-                            <span class="px-2 py-0.5 rounded-[6px] text-[10px] font-bold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 font-mono">
-                                Laba Bersih
-                            </span>
-                        @elseif ($row['recommendation'] === 'umkm_final')
-                            <span class="px-2 py-0.5 rounded-[6px] text-[10px] font-bold bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-800 font-mono">
-                                PPh Final 0.5%
-                            </span>
-                        @endif
-                    </div>
-                    <div class="grid grid-cols-2 gap-2 text-xs font-mono">
-                        <div>
-                            <span class="text-slate-500 dark:text-slate-400 text-[10px] block">Pendapatan:</span>
-                            <span class="font-bold text-slate-900 dark:text-white">Rp {{ number_format($row['revenue'], 0, ',', '.') }}</span>
-                        </div>
-                        <div>
-                            <span class="text-slate-500 dark:text-slate-400 text-[10px] block">Laba Bersih:</span>
-                            <span class="font-bold {{ $row['net_income'] >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-500' }}">Rp {{ number_format($row['net_income'], 0, ',', '.') }}</span>
-                        </div>
-                        <div>
-                            <span class="text-slate-500 dark:text-slate-400 text-[10px] block">PPh Laba Bersih:</span>
-                            <span class="font-bold text-slate-900 dark:text-white">Rp {{ number_format($row['tax_amount'], 0, ',', '.') }}</span>
-                        </div>
-                        <div>
-                            <span class="text-slate-500 dark:text-slate-400 text-[10px] block">PPh Final 0.5%:</span>
-                            <span class="font-bold text-slate-600 dark:text-slate-400">Rp {{ number_format($row['umkm_final_amount'], 0, ',', '.') }}</span>
-                        </div>
+    {{-- MODAL SHEET 1: DETAIL 5 LAPISAN TARIF PROGRESIF PASAL 17 --}}
+    <div x-show="showBracketModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs" x-cloak>
+        <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-xl w-full p-6 border border-slate-200 dark:border-slate-800 shadow-2xl relative" @click.outside="showBracketModal = false">
+            <div class="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
+                <div class="flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-2xl bg-blue-50 dark:bg-blue-950/60 text-[#007AFF] flex items-center justify-center">
+                        <i data-lucide="layers" class="w-4 h-4"></i>
+                    </span>
+                    <div>
+                        <h3 class="text-base font-bold text-slate-900 dark:text-white">Rincian 5 Lapisan Tarif Progresif</h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Pasal 17 ayat (1) huruf a UU HPP No. 7 Tahun 2021</p>
                     </div>
                 </div>
-            @endforeach
+                <button type="button" @click="showBracketModal = false" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-900 flex items-center justify-center">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+
+            <div class="mt-4 space-y-3">
+                <template x-for="(b, idx) in (netIncomeResult?.tax_details?.brackets || [])" :key="idx">
+                    <div class="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700 flex items-center justify-between">
+                        <div>
+                            <div class="text-xs font-bold text-slate-900 dark:text-white" x-text="b.bracket"></div>
+                            <div class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5" x-text="'PKP Dikenakan: ' + formatRupiah(b.amount) + ' @ Tarif ' + b.rate_percent"></div>
+                        </div>
+                        <div class="text-right font-black text-sm text-[#007AFF]" x-text="formatRupiah(b.tax)"></div>
+                    </div>
+                </template>
+            </div>
+
+            <div class="mt-5 pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Total PPh Pasal 17 Terutang:</span>
+                <span class="text-lg font-black text-slate-900 dark:text-white" x-text="formatRupiah(netIncomeResult?.tax_amount)"></span>
+            </div>
         </div>
     </div>
 
-    <!-- 4. Rekapitulasi PPh Final UMKM 0.5% (PP 55/2022) -->
-    <div class="bg-white dark:bg-[#1C1C1E] rounded-[20px] border border-black/[0.06] dark:border-white/[0.08] shadow-xs p-5 sm:p-6 space-y-4" x-data="{ showFinalTable: true }">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-black/[0.04] dark:border-white/[0.06] pb-4">
-            <div>
-                <h2 class="text-sm sm:text-base font-black text-slate-900 dark:text-white tracking-tight">
-                    Rekapitulasi Bulanan PPh Final UMKM 0.5% (PP 55/2022)
-                </h2>
-                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                    Pantauan omzet peredaran bruto dan kewajiban setor per masa pajak
+    {{-- MODAL SHEET 2: RINCIAN KOMPREHENSIF BPJS --}}
+    <div x-show="showBpjsModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs" x-cloak>
+        <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-lg w-full p-6 border border-slate-200 dark:border-slate-800 shadow-2xl relative" @click.outside="showBpjsModal = false">
+            <div class="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
+                <div class="flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-2xl bg-amber-50 dark:bg-amber-950/60 text-[#FF9500] flex items-center justify-center">
+                        <i data-lucide="shield" class="w-4 h-4"></i>
+                    </span>
+                    <div>
+                        <h3 class="text-base font-bold text-slate-900 dark:text-white">Rincian Komponen Iuran BPJS</h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Tanggungan Perusahaan vs Potongan Karyawan</p>
+                    </div>
+                </div>
+                <button type="button" @click="showBpjsModal = false" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-900 flex items-center justify-center">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+
+            <div class="mt-4 space-y-2.5 text-xs">
+                <div class="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700">
+                    <div class="font-bold text-slate-900 dark:text-white mb-1">1. BPJS Ketenagakerjaan</div>
+                    <ul class="space-y-1 text-slate-600 dark:text-slate-400">
+                        <li>- JKK (Kecelakaan Kerja): Perusahaan 0.24% - 1.74% (Karyawan 0%)</li>
+                        <li>- JKM (Kematian): Perusahaan 0.30% (Karyawan 0%)</li>
+                        <li>- JHT (Hari Tua): Perusahaan 3.70%, Karyawan 2.00%</li>
+                        <li>- JP (Pensiun): Perusahaan 2.00%, Karyawan 1.00% (Cap Upah Rp 10.042.300)</li>
+                    </ul>
+                </div>
+
+                <div class="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700">
+                    <div class="font-bold text-slate-900 dark:text-white mb-1">2. BPJS Kesehatan</div>
+                    <ul class="space-y-1 text-slate-600 dark:text-slate-400">
+                        <li>- Tanggungan Perusahaan: 4.00% (Cap Upah Rp 12.000.000)</li>
+                        <li>- Potongan Gaji Karyawan: 1.00%</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="mt-5 pt-4 border-t border-slate-100 dark:border-slate-800">
+                <button type="button" @click="showBpjsModal = false" class="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 text-xs font-semibold">
+                    Tutup Panduan
+                </button>
+            </div>
+        </div>
+    </div>
+
+    {{-- MODAL SHEET 3: PANDUAN NORMA PENCATATAN (NPPN PASAL 14) --}}
+    <div x-show="showNormaModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs" x-cloak>
+        <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-lg w-full p-6 border border-slate-200 dark:border-slate-800 shadow-2xl relative" @click.outside="showNormaModal = false">
+            <div class="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
+                <div class="flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-2xl bg-blue-50 dark:bg-blue-950/60 text-[#007AFF] flex items-center justify-center">
+                        <i data-lucide="book-open" class="w-4 h-4"></i>
+                    </span>
+                    <div>
+                        <h3 class="text-base font-bold text-slate-900 dark:text-white">Norma Penghitungan (NPPN)</h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Pasal 14 UU Pajak Penghasilan</p>
+                    </div>
+                </div>
+                <button type="button" @click="showNormaModal = false" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-900 flex items-center justify-center">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+
+            <div class="mt-4 space-y-3 text-xs leading-relaxed text-slate-600 dark:text-slate-300">
+                <p>
+                    Wajib Pajak Orang Pribadi yang melakukan kegiatan usaha atau pekerjaan bebas dengan peredaran bruto kurang dari <strong>Rp 4.800.000.000 per tahun</strong> diperbolehkan menghitung penghasilan neto menggunakan <strong>Norma Penghitungan Penghasilan Neto (NPPN)</strong>.
                 </p>
+                <div class="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700 space-y-1">
+                    <div class="font-bold text-slate-900 dark:text-white">Contoh Persentase Norma KLU Umum:</div>
+                    <div>- Perdagangan Eceran / Toko Kelontong: 25% - 30%</div>
+                    <div>- Jasa Bengkel & Reparasi: 30% - 35%</div>
+                    <div>- Restoran / Rumah Makan: 20% - 25%</div>
+                </div>
             </div>
 
-            <div class="flex items-center gap-2.5">
-                <div class="flex items-center gap-2 px-3 py-1.5 rounded-[10px] bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 text-xs text-slate-700 dark:text-slate-300">
-                    <i data-lucide="info" class="w-4 h-4 text-[#007AFF] shrink-0"></i>
-                    <span>Kode Billing DJP: <strong class="text-slate-900 dark:text-white font-mono">KAP 411128</strong> &bull; <strong class="text-slate-900 dark:text-white font-mono">KJS 420</strong></span>
-                </div>
-
-                <button type="button" @click="showFinalTable = !showFinalTable" class="px-3 py-1.5 rounded-[10px] border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition cursor-pointer">
-                    <span x-text="showFinalTable ? 'Sembunyikan' : 'Tampilkan'"></span>
+            <div class="mt-5 pt-4 border-t border-slate-100 dark:border-slate-800">
+                <button type="button" @click="showNormaModal = false" class="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 text-xs font-semibold">
+                    Tutup Panduan
                 </button>
             </div>
-        </div>
-
-        <div x-show="showFinalTable" class="overflow-x-auto -mx-5 sm:mx-0 px-5 sm:px-0">
-            <table class="w-full text-left text-xs min-w-[700px] border-collapse" aria-label="Tabel Rekapitulasi PPh Final UMKM">
-                <thead>
-                    <tr class="text-[10px] uppercase tracking-wider font-bold text-slate-500 dark:text-slate-400 border-b border-black/[0.06] dark:border-white/[0.08]">
-                        <th scope="col" class="py-3 px-3">Masa Pajak</th>
-                        <th scope="col" class="py-3 px-3 text-right">Omzet Invoice</th>
-                        <th scope="col" class="py-3 px-3 text-right">Omzet POS</th>
-                        <th scope="col" class="py-3 px-3 text-right">Total Omzet</th>
-                        <th scope="col" class="py-3 px-3 text-right">Kumulatif Omzet</th>
-                        <th scope="col" class="py-3 px-3 text-right">DPP Kena Pajak</th>
-                        <th scope="col" class="py-3 px-3 text-right">PPh Final (0.5%)</th>
-                        <th scope="col" class="py-3 px-3 text-center">Status Ketetapan</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-black/[0.04] dark:divide-white/[0.06] font-mono">
-                    @foreach ($umkmSummary['monthly_breakdown'] as $row)
-                        <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors">
-                            <td class="py-2.5 px-3 font-sans font-semibold text-slate-900 dark:text-white">
-                                {{ $row['month_name'] }}
-                            </td>
-                            <td class="py-2.5 px-3 text-right text-slate-600 dark:text-slate-400 tabular-nums">
-                                Rp {{ number_format($row['invoice_revenue'], 0, ',', '.') }}
-                            </td>
-                            <td class="py-2.5 px-3 text-right text-slate-600 dark:text-slate-400 tabular-nums">
-                                Rp {{ number_format($row['pos_revenue'], 0, ',', '.') }}
-                            </td>
-                            <td class="py-2.5 px-3 text-right font-semibold text-slate-900 dark:text-white tabular-nums">
-                                Rp {{ number_format($row['gross_revenue'], 0, ',', '.') }}
-                            </td>
-                            <td class="py-2.5 px-3 text-right text-slate-500 dark:text-slate-400 tabular-nums">
-                                Rp {{ number_format($row['cumulative_revenue'], 0, ',', '.') }}
-                            </td>
-                            <td class="py-2.5 px-3 text-right text-slate-600 dark:text-slate-400 tabular-nums">
-                                Rp {{ number_format($row['taxable_revenue'], 0, ',', '.') }}
-                            </td>
-                            <td class="py-2.5 px-3 text-right font-bold text-emerald-600 dark:text-emerald-400 tabular-nums">
-                                Rp {{ number_format($row['tax_amount'], 0, ',', '.') }}
-                            </td>
-                            <td class="py-2.5 px-3 text-center font-sans">
-                                @if ($row['tax_amount'] <= 0)
-                                    <span class="px-2 py-0.5 rounded-[6px] text-[10px] font-bold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 font-mono">
-                                        Bebas Pajak (0%)
-                                    </span>
-                                @else
-                                    <span class="px-2 py-0.5 rounded-[6px] text-[10px] font-bold bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800 font-mono">
-                                        Terutang 0.5%
-                                    </span>
-                                @endif
-                            </td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
         </div>
     </div>
 
-    <!-- 5. Interactive Simulators Suite (Apple Segmented Interface) -->
-    <div class="bg-white dark:bg-[#1C1C1E] rounded-[20px] border border-black/[0.06] dark:border-white/[0.08] shadow-xs p-5 sm:p-6 space-y-6">
-        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-black/[0.04] dark:border-white/[0.06] pb-5">
-            <div>
-                <h2 class="text-sm sm:text-base font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
-                    <i data-lucide="calculator" class="w-4 h-4 text-emerald-600 dark:text-emerald-400" aria-hidden="true"></i>
-                    <span>Kalkulator Pajak &amp; Payroll Interaktif</span>
-                </h2>
-                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                    Simulasikan perhitungan real-time sesuai regulasi ketenagakerjaan dan perpajakan Indonesia
-                </p>
-            </div>
-
-            <!-- Apple Segmented Tab Picker -->
-            <div class="inline-flex p-1 rounded-[12px] bg-slate-100 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 text-xs font-semibold self-start lg:self-auto overflow-x-auto max-w-full">
-                <button type="button" @click="activeSimTab = 'net_income'"
-                    :class="activeSimTab === 'net_income' ? 'bg-white dark:bg-[#3A3A3C] text-slate-900 dark:text-white shadow-2xs font-bold' : 'text-slate-500 hover:text-slate-900 dark:hover:text-white font-medium'"
-                    class="px-3 py-1.5 rounded-[9px] transition-all cursor-pointer whitespace-nowrap">
-                    PPh Laba Bersih
-                </button>
-                <button type="button" @click="activeSimTab = 'umkm'"
-                    :class="activeSimTab === 'umkm' ? 'bg-white dark:bg-[#3A3A3C] text-slate-900 dark:text-white shadow-2xs font-bold' : 'text-slate-500 hover:text-slate-900 dark:hover:text-white font-medium'"
-                    class="px-3 py-1.5 rounded-[9px] transition-all cursor-pointer whitespace-nowrap">
-                    PPh Final UMKM (0.5%)
-                </button>
-                <button type="button" @click="activeSimTab = 'pph21'"
-                    :class="activeSimTab === 'pph21' ? 'bg-white dark:bg-[#3A3A3C] text-slate-900 dark:text-white shadow-2xs font-bold' : 'text-slate-500 hover:text-slate-900 dark:hover:text-white font-medium'"
-                    class="px-3 py-1.5 rounded-[9px] transition-all cursor-pointer whitespace-nowrap">
-                    PPh 21 TER
-                </button>
-                <button type="button" @click="activeSimTab = 'payroll'"
-                    :class="activeSimTab === 'payroll' ? 'bg-white dark:bg-[#3A3A3C] text-slate-900 dark:text-white shadow-2xs font-bold' : 'text-slate-500 hover:text-slate-900 dark:hover:text-white font-medium'"
-                    class="px-3 py-1.5 rounded-[9px] transition-all cursor-pointer whitespace-nowrap">
-                    Payroll, BPJS &amp; THR
-                </button>
-                <button type="button" @click="activeSimTab = 'sales'"
-                    :class="activeSimTab === 'sales' ? 'bg-white dark:bg-[#3A3A3C] text-slate-900 dark:text-white shadow-2xs font-bold' : 'text-slate-500 hover:text-slate-900 dark:hover:text-white font-medium'"
-                    class="px-3 py-1.5 rounded-[9px] transition-all cursor-pointer whitespace-nowrap">
-                    PB1 &amp; PPN Penjualan
+    {{-- MODAL SHEET 4: PUSAT EKSPOR E-BUPOT & REKAP CSV --}}
+    <div x-show="showExportModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs" x-cloak>
+        <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-lg w-full p-6 border border-slate-200 dark:border-slate-800 shadow-2xl relative" @click.outside="showExportModal = false">
+            <div class="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
+                <div class="flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white flex items-center justify-center">
+                        <i data-lucide="download-cloud" class="w-4 h-4"></i>
+                    </span>
+                    <div>
+                        <h3 class="text-base font-bold text-slate-900 dark:text-white">Pusat Ekspor Dokumen Fiskal</h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Format Resmi DJP Online & Laporan CSV</p>
+                    </div>
+                </div>
+                <button type="button" @click="showExportModal = false" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-900 flex items-center justify-center">
+                    <i data-lucide="x" class="w-4 h-4"></i>
                 </button>
             </div>
-        </div>
 
-        <!-- TAB 1: SIMULATOR PPH LABA BERSIH & HASIL PENJUALAN -->
-        <div x-show="activeSimTab === 'net_income'" class="space-y-6">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                <!-- Input Column (5 cols) -->
-                <div class="lg:col-span-5 space-y-4">
+            <div class="mt-4 space-y-3">
+                {{-- Export Option 1: e-Bupot 21/26 --}}
+                <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700 flex items-center justify-between">
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Peredaran Bruto / Penjualan Bersih (Rp)</label>
-                        <input type="number" x-model.number="netIncomeInput.gross_revenue" @input.debounce.300ms="runNetIncomeSim()" class="w-full px-3.5 py-2.5 rounded-[12px] border border-black/[0.08] dark:border-white/[0.12] bg-slate-50 dark:bg-[#2C2C2E] text-slate-900 dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-[#007AFF] text-[16px] sm:text-xs">
-                        <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">Total seluruh pendapatan penjualan produk dan jasa</p>
+                        <div class="text-xs font-bold text-slate-900 dark:text-white">DJP e-Bupot 21/26 (CSV)</div>
+                        <div class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Format impor resmi pemotongan PPh 21 karyawan</div>
                     </div>
-
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Biaya Modal / HPP (Rp)</label>
-                            <input type="number" x-model.number="netIncomeInput.cogs" @input.debounce.300ms="runNetIncomeSim()" class="w-full px-3.5 py-2.5 rounded-[12px] border border-black/[0.08] dark:border-white/[0.12] bg-slate-50 dark:bg-[#2C2C2E] text-slate-900 dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-[#007AFF] text-[16px] sm:text-xs">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Beban Operasional (Rp)</label>
-                            <input type="number" x-model.number="netIncomeInput.operating_expenses" @input.debounce.300ms="runNetIncomeSim()" class="w-full px-3.5 py-2.5 rounded-[12px] border border-black/[0.08] dark:border-white/[0.12] bg-slate-50 dark:bg-[#2C2C2E] text-slate-900 dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-[#007AFF] text-[16px] sm:text-xs">
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Bentuk Badan Hukum / Wajib Pajak</label>
-                        <select x-model="netIncomeInput.is_corporate" @change="runNetIncomeSim()" class="w-full px-3.5 py-2.5 rounded-[12px] border border-black/[0.08] dark:border-white/[0.12] bg-slate-50 dark:bg-[#2C2C2E] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] text-[16px] sm:text-xs font-semibold">
-                            <option :value="false">Orang Pribadi (Tarif Progresif 5 Layer UU HPP)</option>
-                            <option :value="true">Badan Usaha PT/CV (Pasal 31E UU PPh - Diskon 50% / Tarif 11%)</option>
-                        </select>
-                    </div>
-
-                    <template x-if="!netIncomeInput.is_corporate">
-                        <div class="space-y-3 pt-1">
-                            <div>
-                                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Status Tanggungan PTKP</label>
-                                <select x-model="netIncomeInput.ptkp_status" @change="runNetIncomeSim()" class="w-full px-3.5 py-2.5 rounded-[12px] border border-black/[0.08] dark:border-white/[0.12] bg-slate-50 dark:bg-[#2C2C2E] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] text-[16px] sm:text-xs font-semibold">
-                                    <option value="TK/0">TK/0 - Belum Menikah, Tanpa Tanggungan (Rp 54 Juta)</option>
-                                    <option value="TK/1">TK/1 - Belum Menikah, 1 Tanggungan (Rp 58.5 Juta)</option>
-                                    <option value="TK/2">TK/2 - Belum Menikah, 2 Tanggungan (Rp 63 Juta)</option>
-                                    <option value="TK/3">TK/3 - Belum Menikah, 3 Tanggungan (Rp 67.5 Juta)</option>
-                                    <option value="K/0">K/0 - Menikah, Tanpa Tanggungan (Rp 58.5 Juta)</option>
-                                    <option value="K/1">K/1 - Menikah, 1 Tanggungan (Rp 63 Juta)</option>
-                                    <option value="K/2">K/2 - Menikah, 2 Tanggungan (Rp 67.5 Juta)</option>
-                                    <option value="K/3">K/3 - Menikah, 3 Tanggungan (Rp 72 Juta)</option>
-                                </select>
-                            </div>
-
-                            <div>
-                                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Metode Penghitungan</label>
-                                <select x-model.number="netIncomeInput.nppn_rate" @change="runNetIncomeSim()" class="w-full px-3.5 py-2.5 rounded-[12px] border border-black/[0.08] dark:border-white/[0.12] bg-slate-50 dark:bg-[#2C2C2E] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] text-[16px] sm:text-xs font-semibold">
-                                    <option :value="0">Pembukuan Riil (Pendapatan - HPP - Beban Operasional)</option>
-                                    <option :value="0.20">NPPN Norma 20% (Perdagangan Eceran / Toko)</option>
-                                    <option :value="0.25">NPPN Norma 25% (Jasa Konsultasi / Servis)</option>
-                                    <option :value="0.30">NPPN Norma 30% (Jasa Profesional / Restoran)</option>
-                                    <option :value="0.50">NPPN Norma 50% (Pekerjaan Bebas / Ahli)</option>
-                                </select>
-                            </div>
-                        </div>
-                    </template>
+                    <a href="{{ route('tax.export.ebupot', ['year' => $currentYear, 'month' => (int) date('n')]) }}" class="h-9 px-3 rounded-xl bg-[#007AFF] hover:bg-[#007AFF]/90 text-white text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-sm">
+                        <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                        <span>Unduh</span>
+                    </a>
                 </div>
 
-                <!-- Output Column (7 cols) -->
-                <div class="lg:col-span-7 p-5 rounded-[16px] bg-slate-50 dark:bg-[#2C2C2E]/50 border border-black/[0.06] dark:border-white/[0.08] space-y-4">
-                    <div class="flex items-center justify-between">
-                        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">Hasil Analisis Laba Rugi &amp; Beban Pajak:</h3>
-                        <template x-if="netIncomeResult">
-                            <span class="text-xs font-bold text-[#007AFF] font-mono" x-text="netIncomeResult.tax_scheme"></span>
-                        </template>
+                {{-- Export Option 2: Rekap PPh Final UMKM --}}
+                <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700 flex items-center justify-between">
+                    <div>
+                        <div class="text-xs font-bold text-slate-900 dark:text-white">Rekap PPh Final UMKM 0.5% (CSV)</div>
+                        <div class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Rekapitulasi 12 bulan & Kode Billing (KAP 411128 / KJS 420)</div>
                     </div>
+                    <a href="{{ route('tax.export.pph_final', ['year' => $currentYear, 'taxpayer_type' => $taxpayerType]) }}" class="h-9 px-3 rounded-xl bg-[#34C759] hover:bg-[#34C759]/90 text-white text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-sm">
+                        <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                        <span>Unduh</span>
+                    </a>
+                </div>
 
-                    <template x-if="netIncomeResult">
-                        <div class="space-y-3 text-xs font-mono">
-                            <!-- Baris Laba Rugi -->
-                            <div class="grid grid-cols-2 gap-3 p-3.5 rounded-[12px] bg-white dark:bg-[#1C1C1E] border border-black/[0.04] dark:border-white/[0.06]">
-                                <div>
-                                    <span class="text-slate-500 dark:text-slate-400 block text-[11px]">Laba Kotor (Gross Profit):</span>
-                                    <span class="font-black text-slate-900 dark:text-white text-base" x-text="formatRupiah(netIncomeResult.gross_profit)"></span>
-                                    <span class="text-[10px] text-slate-400 block mt-0.5" x-text="'Margin: ' + netIncomeResult.gross_margin_percent + '%'"></span>
-                                </div>
-                                <div>
-                                    <span class="text-slate-500 dark:text-slate-400 block text-[11px]">Laba Bersih Operasional:</span>
-                                    <span class="font-black text-base" :class="netIncomeResult.net_operating_income >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-500'" x-text="formatRupiah(netIncomeResult.net_operating_income)"></span>
-                                    <span class="text-[10px] text-slate-400 block mt-0.5" x-text="'Net Margin: ' + netIncomeResult.net_margin_percent + '%'"></span>
-                                </div>
-                            </div>
-
-                            <!-- Rincian Penghitungan Pajak -->
-                            <div class="space-y-2 pt-1">
-                                <div class="flex justify-between">
-                                    <span class="text-slate-600 dark:text-slate-400">Penghasilan Kena Pajak (PKP):</span>
-                                    <span class="font-bold text-slate-900 dark:text-white" x-text="formatRupiah(netIncomeResult.taxable_income)"></span>
-                                </div>
-
-                                <template x-if="netIncomeResult.ptkp_amount > 0">
-                                    <div class="flex justify-between text-[11px]">
-                                        <span class="text-slate-600 dark:text-slate-400">Pengurang PTKP (<span x-text="netIncomeResult.ptkp_status"></span>):</span>
-                                        <span class="font-medium text-emerald-600 dark:text-emerald-400" x-text="'- ' + formatRupiah(netIncomeResult.ptkp_amount)"></span>
-                                    </div>
-                                </template>
-
-                                <div class="flex justify-between">
-                                    <span class="text-slate-600 dark:text-slate-400">PPh Terutang Laba Bersih:</span>
-                                    <span class="font-bold text-emerald-600 dark:text-emerald-400" x-text="formatRupiah(netIncomeResult.tax_amount)"></span>
-                                </div>
-
-                                <div class="flex justify-between">
-                                    <span class="text-slate-600 dark:text-slate-400">Pembanding PPh Final UMKM 0.5%:</span>
-                                    <span class="font-bold text-blue-600 dark:text-blue-400" x-text="formatRupiah(netIncomeResult.comparison.umkm_final_amount)"></span>
-                                </div>
-                            </div>
-
-                            <!-- Tax Optimization Advisor Box -->
-                            <div class="p-4 rounded-[14px] border font-sans" :class="netIncomeResult.comparison.recommended_scheme === 'net_income' ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800 text-emerald-900 dark:text-emerald-100' : 'bg-blue-50 dark:bg-blue-950/40 border-blue-200 dark:border-blue-800 text-blue-900 dark:text-blue-100'">
-                                <div class="flex items-center justify-between font-extrabold text-xs">
-                                    <span class="flex items-center gap-1.5">
-                                        <i data-lucide="sparkles" class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400"></i>
-                                        <span x-text="netIncomeResult.comparison.recommendation_label"></span>
-                                    </span>
-                                    <template x-if="netIncomeResult.comparison.tax_savings > 0">
-                                        <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400 font-mono" x-text="'Hemat ' + formatRupiah(netIncomeResult.comparison.tax_savings)"></span>
-                                    </template>
-                                </div>
-                                <p class="text-xs mt-1.5 text-slate-700 dark:text-slate-300 leading-relaxed" x-text="netIncomeResult.comparison.rationale"></p>
-                            </div>
-
-                            <!-- Net Profit after Tax -->
-                            <div class="pt-3 border-t border-black/[0.06] dark:border-white/[0.08] flex justify-between items-center text-sm font-bold">
-                                <span class="text-slate-900 dark:text-white font-sans">Laba Bersih Setelah Pajak (EAT):</span>
-                                <span class="text-emerald-600 dark:text-emerald-400 font-black text-base" x-text="formatRupiah(netIncomeResult.net_profit_after_tax)"></span>
-                            </div>
-                        </div>
-                    </template>
+                {{-- Export Option 3: Rekap PPh Laba Bersih Tahunan --}}
+                <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700 flex items-center justify-between">
+                    <div>
+                        <div class="text-xs font-bold text-slate-900 dark:text-white">Laporan Fiskal Laba Bersih (CSV)</div>
+                        <div class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Konsolidasi SPT Tahunan (Pasal 31E / Pasal 17)</div>
+                    </div>
+                    <a href="{{ route('tax.export.net_income', ['year' => $currentYear, 'taxpayer_type' => $taxpayerType, 'ptkp_status' => $ptkpStatus]) }}" class="h-9 px-3 rounded-xl bg-[#5856D6] hover:bg-[#5856D6]/90 text-white text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-sm">
+                        <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                        <span>Unduh</span>
+                    </a>
                 </div>
             </div>
-        </div>
 
-        <!-- TAB 2: SIMULATOR PPH FINAL UMKM -->
-        <div x-show="activeSimTab === 'umkm'" class="space-y-6" style="display: none;">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Omzet Bulan Berjalan (Rp)</label>
-                        <input type="number" x-model.number="umkmInput.monthly_revenue" @input.debounce.300ms="runUmkmSim()" class="w-full px-3.5 py-2.5 rounded-[12px] border border-black/[0.08] dark:border-white/[0.12] bg-slate-50 dark:bg-[#2C2C2E] text-slate-900 dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-[#007AFF] text-[16px] sm:text-xs">
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Akumulasi Omzet Bulan-Bulan Sebelumnya (Tahun yang Sama)</label>
-                        <input type="number" x-model.number="umkmInput.prior_cumulative" @input.debounce.300ms="runUmkmSim()" class="w-full px-3.5 py-2.5 rounded-[12px] border border-black/[0.08] dark:border-white/[0.12] bg-slate-50 dark:bg-[#2C2C2E] text-slate-900 dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-[#007AFF] text-[16px] sm:text-xs">
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Status Wajib Pajak</label>
-                        <select x-model="umkmInput.is_individual" @change="runUmkmSim()" class="w-full px-3.5 py-2.5 rounded-[12px] border border-black/[0.08] dark:border-white/[0.12] bg-slate-50 dark:bg-[#2C2C2E] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] text-[16px] sm:text-xs font-semibold">
-                            <option :value="true">Orang Pribadi (Mendapat Hak Bebas Pajak s/d Rp 500 Juta)</option>
-                            <option :value="false">Badan Usaha PT/CV (Tarif 0.5% sejak Rupiah pertama)</option>
-                        </select>
-                    </div>
-                </div>
-
-                <!-- Hasil Perhitungan UMKM -->
-                <div class="p-5 rounded-[16px] bg-slate-50 dark:bg-[#2C2C2E]/50 border border-black/[0.06] dark:border-white/[0.08] space-y-3">
-                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">Hasil Kalkulasi PP 55/2022:</h3>
-                    <template x-if="umkmResult">
-                        <div class="space-y-2.5 text-xs font-mono">
-                            <div class="flex justify-between">
-                                <span class="text-slate-600 dark:text-slate-400">Kumulatif Omzet Baru:</span>
-                                <span class="font-bold text-slate-900 dark:text-white" x-text="formatRupiah(umkmResult.new_cumulative)"></span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span class="text-slate-600 dark:text-slate-400">DPP Dikenakan Pajak:</span>
-                                <span class="font-bold text-slate-900 dark:text-white" x-text="formatRupiah(umkmResult.taxable_revenue)"></span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span class="text-slate-600 dark:text-slate-400">Tarif Pajak:</span>
-                                <span class="font-bold text-[#007AFF]" x-text="umkmResult.tax_rate_percent"></span>
-                            </div>
-                            <div class="pt-3 border-t border-black/[0.06] dark:border-white/[0.08] flex justify-between items-center text-sm font-bold">
-                                <span class="text-slate-900 dark:text-white font-sans">PPh Final Disetor:</span>
-                                <span class="text-emerald-600 dark:text-emerald-400 font-black text-base" x-text="formatRupiah(umkmResult.tax_amount)"></span>
-                            </div>
-                            <p class="text-xs font-sans text-slate-600 dark:text-slate-300 mt-2 p-3 rounded-[10px] bg-white dark:bg-[#1C1C1E] border border-black/[0.04] dark:border-white/[0.06]" x-text="umkmResult.status"></p>
-                        </div>
-                    </template>
-                </div>
-            </div>
-        </div>
-
-        <!-- TAB 3: SIMULATOR PPH 21 TER -->
-        <div x-show="activeSimTab === 'pph21'" class="space-y-6" style="display: none;">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Skema Perhitungan</label>
-                        <select x-model="pph21Input.calc_type" @change="runPph21Sim()" class="w-full px-3.5 py-2.5 rounded-[12px] border border-black/[0.08] dark:border-white/[0.12] bg-slate-50 dark:bg-[#2C2C2E] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] text-[16px] sm:text-xs font-semibold">
-                            <option value="monthly_ter">Bulanan Reguler (TER PP 58/2023)</option>
-                            <option value="december">Masa Desember (Rekonsiliasi Pasal 17 UU HPP)</option>
-                            <option value="daily_worker">Pekerja Harian Lepas (Daily Worker)</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                            <span x-text="pph21Input.calc_type === 'december' ? 'Total Bruto Setahun (Rp)' : (pph21Input.calc_type === 'daily_worker' ? 'Upah Harian (Rp)' : 'Penghasilan Bruto Bulan Ini (Rp)')"></span>
-                        </label>
-                        <input type="number" x-model.number="pph21Input.gross_wage" @input.debounce.300ms="runPph21Sim()" class="w-full px-3.5 py-2.5 rounded-[12px] border border-black/[0.08] dark:border-white/[0.12] bg-slate-50 dark:bg-[#2C2C2E] text-slate-900 dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-[#007AFF] text-[16px] sm:text-xs">
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Status PTKP Karyawan</label>
-                        <select x-model="pph21Input.ptkp_status" @change="runPph21Sim()" class="w-full px-3.5 py-2.5 rounded-[12px] border border-black/[0.08] dark:border-white/[0.12] bg-slate-50 dark:bg-[#2C2C2E] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] text-[16px] sm:text-xs font-semibold">
-                            <option value="TK/0">TK/0 (Lajang, Tanpa Tanggungan - TER A)</option>
-                            <option value="TK/1">TK/1 (Lajang, 1 Tanggungan - TER A)</option>
-                            <option value="K/0">K/0 (Menikah, Tanpa Tanggungan - TER A)</option>
-                            <option value="TK/2">TK/2 (Lajang, 2 Tanggungan - TER B)</option>
-                            <option value="TK/3">TK/3 (Lajang, 3 Tanggungan - TER B)</option>
-                            <option value="K/1">K/1 (Menikah, 1 Tanggungan - TER B)</option>
-                            <option value="K/2">K/2 (Menikah, 2 Tanggungan - TER B)</option>
-                            <option value="K/3">K/3 (Menikah, 3 Tanggungan - TER C)</option>
-                        </select>
-                    </div>
-
-                    <template x-if="pph21Input.calc_type === 'december'">
-                        <div class="space-y-3 pt-2">
-                            <div>
-                                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Total Iuran JHT &amp; JP Karyawan Setahun (Rp)</label>
-                                <input type="number" x-model.number="pph21Input.annual_deductions" @input.debounce.300ms="runPph21Sim()" class="w-full px-3.5 py-2.5 rounded-[12px] border border-black/[0.08] dark:border-white/[0.12] bg-slate-50 dark:bg-[#2C2C2E] text-slate-900 dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-[#007AFF] text-[16px] sm:text-xs">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Total PPh 21 Telah Dipotong (Jan - Nov)</label>
-                                <input type="number" x-model.number="pph21Input.tax_paid_before" @input.debounce.300ms="runPph21Sim()" class="w-full px-3.5 py-2.5 rounded-[12px] border border-black/[0.08] dark:border-white/[0.12] bg-slate-50 dark:bg-[#2C2C2E] text-slate-900 dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-[#007AFF] text-[16px] sm:text-xs">
-                            </div>
-                        </div>
-                    </template>
-                </div>
-
-                <!-- Output PPh 21 -->
-                <div class="p-5 rounded-[16px] bg-slate-50 dark:bg-[#2C2C2E]/50 border border-black/[0.06] dark:border-white/[0.08] space-y-3">
-                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">Hasil Perhitungan PPh 21:</h3>
-                    <template x-if="pph21Result">
-                        <div class="space-y-2.5 text-xs font-mono">
-                            <template x-if="pph21Input.calc_type === 'monthly_ter'">
-                                <div class="space-y-2">
-                                    <div class="flex justify-between">
-                                        <span class="text-slate-600 dark:text-slate-400">Kategori TER:</span>
-                                        <span class="font-bold text-[#007AFF]">Kategori <span x-text="pph21Result.ter_category"></span></span>
-                                    </div>
-                                    <div class="flex justify-between">
-                                        <span class="text-slate-600 dark:text-slate-400">Tarif Efektif:</span>
-                                        <span class="font-bold text-slate-900 dark:text-white" x-text="pph21Result.ter_rate_percent"></span>
-                                    </div>
-                                    <div class="pt-3 border-t border-black/[0.06] dark:border-white/[0.08] flex justify-between items-center text-sm font-bold">
-                                        <span class="text-slate-900 dark:text-white font-sans">Potongan PPh 21:</span>
-                                        <span class="text-rose-600 dark:text-rose-400 font-black text-base" x-text="formatRupiah(pph21Result.pph21_amount)"></span>
-                                    </div>
-                                </div>
-                            </template>
-
-                            <template x-if="pph21Input.calc_type === 'december'">
-                                <div class="space-y-2">
-                                    <div class="flex justify-between">
-                                        <span class="text-slate-600 dark:text-slate-400">Biaya Jabatan (5% max 6jt):</span>
-                                        <span class="font-bold text-slate-900 dark:text-white" x-text="formatRupiah(pph21Result.biaya_jabatan)"></span>
-                                    </div>
-                                    <div class="flex justify-between">
-                                        <span class="text-slate-600 dark:text-slate-400">Penghasilan Kena Pajak (PKP):</span>
-                                        <span class="font-bold text-slate-900 dark:text-white" x-text="formatRupiah(pph21Result.pkp)"></span>
-                                    </div>
-                                    <div class="flex justify-between">
-                                        <span class="text-slate-600 dark:text-slate-400">PPh 21 Setahun Penuh:</span>
-                                        <span class="font-bold text-slate-900 dark:text-white" x-text="formatRupiah(pph21Result.annual_pph21_total)"></span>
-                                    </div>
-                                    <div class="pt-3 border-t border-black/[0.06] dark:border-white/[0.08] flex justify-between items-center text-sm font-bold">
-                                        <span class="text-slate-900 dark:text-white font-sans">PPh 21 Masa Desember:</span>
-                                        <span class="text-rose-600 dark:text-rose-400 font-black text-base" x-text="formatRupiah(pph21Result.pph21_december)"></span>
-                                    </div>
-                                </div>
-                            </template>
-
-                            <template x-if="pph21Input.calc_type === 'daily_worker'">
-                                <div class="space-y-2">
-                                    <div class="flex justify-between">
-                                        <span class="text-slate-600 dark:text-slate-400">Kategori Pekerja:</span>
-                                        <span class="font-medium text-slate-900 dark:text-white" x-text="pph21Result.category"></span>
-                                    </div>
-                                    <div class="flex justify-between">
-                                        <span class="text-slate-600 dark:text-slate-400">Tarif:</span>
-                                        <span class="font-bold text-[#007AFF]" x-text="pph21Result.tax_rate_percent"></span>
-                                    </div>
-                                    <div class="pt-3 border-t border-black/[0.06] dark:border-white/[0.08] flex justify-between items-center text-sm font-bold">
-                                        <span class="text-slate-900 dark:text-white font-sans">Potongan PPh 21 Harian:</span>
-                                        <span class="text-rose-600 dark:text-rose-400 font-black text-base" x-text="formatRupiah(pph21Result.pph21_daily_amount)"></span>
-                                    </div>
-                                </div>
-                            </template>
-                        </div>
-                    </template>
-                </div>
-            </div>
-        </div>
-
-        <!-- TAB 4: SIMULATOR PAYROLL, BPJS & THR BERDASARKAN JOIN DATE -->
-        <div x-show="activeSimTab === 'payroll'" class="space-y-6" style="display: none;">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="space-y-4">
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Tipe Pekerja</label>
-                            <select x-model="payrollInput.employment_type" @change="runPayrollSim()" class="w-full px-3 py-2.5 rounded-[12px] border border-black/[0.08] dark:border-white/[0.12] bg-slate-50 dark:bg-[#2C2C2E] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] text-[16px] sm:text-xs font-semibold">
-                                <option value="permanent">Karyawan Tetap / Kontrak</option>
-                                <option value="daily_worker">Pekerja Harian Lepas</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Tanggal Bergabung (Join Date)</label>
-                            <input type="date" x-model="payrollInput.join_date" @change="runPayrollSim()" class="w-full px-3 py-2.5 rounded-[12px] border border-black/[0.08] dark:border-white/[0.12] bg-slate-50 dark:bg-[#2C2C2E] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] text-[16px] sm:text-xs font-semibold">
-                        </div>
-                    </div>
-
-                    <template x-if="payrollInput.employment_type === 'permanent'">
-                        <div class="space-y-3">
-                            <div class="grid grid-cols-2 gap-3">
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Gaji Pokok (Rp)</label>
-                                    <input type="number" x-model.number="payrollInput.base_salary" @input.debounce.300ms="runPayrollSim()" class="w-full px-3.5 py-2.5 rounded-[12px] border border-black/[0.08] dark:border-white/[0.12] bg-slate-50 dark:bg-[#2C2C2E] text-slate-900 dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-[#007AFF] text-[16px] sm:text-xs">
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Tunjangan Tetap (Rp)</label>
-                                    <input type="number" x-model.number="payrollInput.fixed_allowances" @input.debounce.300ms="runPayrollSim()" class="w-full px-3.5 py-2.5 rounded-[12px] border border-black/[0.08] dark:border-white/[0.12] bg-slate-50 dark:bg-[#2C2C2E] text-slate-900 dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-[#007AFF] text-[16px] sm:text-xs">
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-2 gap-3">
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Potongan Cicilan Kasbon (Rp)</label>
-                                    <input type="number" x-model.number="payrollInput.loan_deduction" @input.debounce.300ms="runPayrollSim()" class="w-full px-3.5 py-2.5 rounded-[12px] border border-black/[0.08] dark:border-white/[0.12] bg-slate-50 dark:bg-[#2C2C2E] text-slate-900 dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-[#007AFF] text-[16px] sm:text-xs">
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Cairkan THR Bulan Ini?</label>
-                                    <select x-model="payrollInput.include_thr" @change="runPayrollSim()" class="w-full px-3.5 py-2.5 rounded-[12px] border border-black/[0.08] dark:border-white/[0.12] bg-slate-50 dark:bg-[#2C2C2E] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] text-[16px] sm:text-xs font-semibold">
-                                        <option :value="true">Ya, Hitung Prorata THR</option>
-                                        <option :value="false">Tidak (Bulan Biasa)</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                    </template>
-
-                    <template x-if="payrollInput.employment_type === 'daily_worker'">
-                        <div class="space-y-3">
-                            <div class="grid grid-cols-2 gap-3">
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Upah Harian (Rp)</label>
-                                    <input type="number" x-model.number="payrollInput.daily_rate" @input.debounce.300ms="runPayrollSim()" class="w-full px-3.5 py-2.5 rounded-[12px] border border-black/[0.08] dark:border-white/[0.12] bg-slate-50 dark:bg-[#2C2C2E] text-slate-900 dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-[#007AFF] text-[16px] sm:text-xs">
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Jumlah Hari Kerja</label>
-                                    <input type="number" x-model.number="payrollInput.days_worked" @input.debounce.300ms="runPayrollSim()" class="w-full px-3.5 py-2.5 rounded-[12px] border border-black/[0.08] dark:border-white/[0.12] bg-slate-50 dark:bg-[#2C2C2E] text-slate-900 dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-[#007AFF] text-[16px] sm:text-xs">
-                                </div>
-                            </div>
-                        </div>
-                    </template>
-                </div>
-
-                <!-- Output Payroll & THR -->
-                <div class="p-5 rounded-[16px] bg-slate-50 dark:bg-[#2C2C2E]/50 border border-black/[0.06] dark:border-white/[0.08] space-y-3">
-                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">Rincian Slip Gaji &amp; Beban Perusahaan:</h3>
-                    <template x-if="payrollResult">
-                        <div class="space-y-2 text-xs font-mono">
-                            <div class="flex justify-between">
-                                <span class="text-slate-600 dark:text-slate-400">Total Bruto Penghasilan:</span>
-                                <span class="font-bold text-slate-900 dark:text-white" x-text="formatRupiah(payrollResult.earnings.employee_gross_pay || payrollResult.earnings.gross_pay)"></span>
-                            </div>
-
-                            <template x-if="payrollResult.earnings.thr_amount > 0">
-                                <div class="p-3 rounded-[10px] bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-800 text-purple-700 dark:text-purple-300 font-sans text-xs space-y-0.5">
-                                    <div class="flex justify-between font-bold">
-                                        <span>THR Keagamaan Prorata:</span>
-                                        <span x-text="formatRupiah(payrollResult.earnings.thr_amount)"></span>
-                                    </div>
-                                    <p class="text-[10px]" x-text="payrollResult.earnings.thr_details?.calculation_formula"></p>
-                                </div>
-                            </template>
-
-                            <template x-if="payrollResult.bpjs">
-                                <div class="pt-2 border-t border-black/[0.06] dark:border-white/[0.08] space-y-1.5 text-xs">
-                                    <div class="flex justify-between">
-                                        <span class="text-slate-600 dark:text-slate-400">Iuran BPJS Karyawan:</span>
-                                        <span class="text-rose-600 dark:text-rose-400 font-bold" x-text="'- ' + formatRupiah(payrollResult.deductions.bpjs_employee)"></span>
-                                    </div>
-                                    <div class="flex justify-between">
-                                        <span class="text-slate-600 dark:text-slate-400">Potongan PPh 21 TER:</span>
-                                        <span class="text-rose-600 dark:text-rose-400 font-bold" x-text="'- ' + formatRupiah(payrollResult.deductions.pph21)"></span>
-                                    </div>
-                                    <div class="flex justify-between">
-                                        <span class="text-slate-600 dark:text-slate-400">Potongan Cicilan Kasbon:</span>
-                                        <span class="text-rose-600 dark:text-rose-400 font-bold" x-text="'- ' + formatRupiah(payrollResult.deductions.loan_installment)"></span>
-                                    </div>
-                                </div>
-                            </template>
-
-                            <div class="pt-3 border-t border-black/[0.06] dark:border-white/[0.08] flex justify-between items-center text-sm font-bold">
-                                <span class="text-slate-900 dark:text-white font-sans">Take Home Pay Karyawan:</span>
-                                <span class="text-emerald-600 dark:text-emerald-400 font-black text-base" x-text="formatRupiah(payrollResult.take_home_pay)"></span>
-                            </div>
-
-                            <div class="flex justify-between items-center text-xs pt-1 text-slate-500 dark:text-slate-400">
-                                <span>Total Beban Biaya Perusahaan:</span>
-                                <span class="font-bold text-slate-700 dark:text-slate-300" x-text="formatRupiah(payrollResult.company_total_cost)"></span>
-                            </div>
-                        </div>
-                    </template>
-                </div>
-            </div>
-        </div>
-
-        <!-- TAB 5: SIMULATOR PAJAK PENJUALAN (PB1 & PPN) -->
-        <div x-show="activeSimTab === 'sales'" class="space-y-6" style="display: none;">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Nilai Belanja Subtotal (Rp)</label>
-                        <input type="number" x-model.number="salesTaxInput.subtotal" @input.debounce.300ms="runSalesTaxSim()" class="w-full px-3.5 py-2.5 rounded-[12px] border border-black/[0.08] dark:border-white/[0.12] bg-slate-50 dark:bg-[#2C2C2E] text-slate-900 dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-[#007AFF] text-[16px] sm:text-xs">
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Diskon (Rp)</label>
-                            <input type="number" x-model.number="salesTaxInput.discount" @input.debounce.300ms="runSalesTaxSim()" class="w-full px-3.5 py-2.5 rounded-[12px] border border-black/[0.08] dark:border-white/[0.12] bg-slate-50 dark:bg-[#2C2C2E] text-slate-900 dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-[#007AFF] text-[16px] sm:text-xs">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Service Charge (%)</label>
-                            <select x-model.number="salesTaxInput.service_charge_rate" @change="runSalesTaxSim()" class="w-full px-3.5 py-2.5 rounded-[12px] border border-black/[0.08] dark:border-white/[0.12] bg-slate-50 dark:bg-[#2C2C2E] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] text-[16px] sm:text-xs font-semibold">
-                                <option :value="0">0% (Tanpa Layanan)</option>
-                                <option :value="0.05">5% (Restoran Standard)</option>
-                                <option :value="0.07">7% (Hotel / Lounge)</option>
-                                <option :value="0.10">10% (Fine Dining)</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Tipe Pajak</label>
-                            <select x-model="salesTaxInput.tax_type" @change="runSalesTaxSim()" class="w-full px-3.5 py-2.5 rounded-[12px] border border-black/[0.08] dark:border-white/[0.12] bg-slate-50 dark:bg-[#2C2C2E] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] text-[16px] sm:text-xs font-semibold">
-                                <option value="pb1">PB1 Restoran / Kafe (10%)</option>
-                                <option value="ppn_11">PPN Standar (11%)</option>
-                                <option value="ppn_12">PPN Standar (12%)</option>
-                                <option value="none">Bebas Pajak (0%)</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Metode Harga</label>
-                            <select x-model="salesTaxInput.is_inclusive" @change="runSalesTaxSim()" class="w-full px-3.5 py-2.5 rounded-[12px] border border-black/[0.08] dark:border-white/[0.12] bg-slate-50 dark:bg-[#2C2C2E] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] text-[16px] sm:text-xs font-semibold">
-                                <option :value="false">Harga Eksklusif Pajak</option>
-                                <option :value="true">Harga Inklusif Pajak</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Output Sales Tax -->
-                <div class="p-5 rounded-[16px] bg-slate-50 dark:bg-[#2C2C2E]/50 border border-black/[0.06] dark:border-white/[0.08] space-y-3">
-                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">Struktur Struk Kasir / Invoice:</h3>
-                    <template x-if="salesTaxResult">
-                        <div class="space-y-2 text-xs font-mono">
-                            <div class="flex justify-between">
-                                <span class="text-slate-600 dark:text-slate-400">Subtotal Netto:</span>
-                                <span class="font-bold text-slate-900 dark:text-white" x-text="formatRupiah(salesTaxResult.net_subtotal)"></span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span class="text-slate-600 dark:text-slate-400">Biaya Layanan:</span>
-                                <span class="font-bold text-slate-900 dark:text-white" x-text="formatRupiah(salesTaxResult.service_charge)"></span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span class="text-slate-600 dark:text-slate-400">Dasar Pengenaan Pajak (DPP):</span>
-                                <span class="font-bold text-slate-900 dark:text-white" x-text="formatRupiah(salesTaxResult.dpp)"></span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span class="text-slate-600 dark:text-slate-400">Pajak (<span x-text="salesTaxResult.tax_rate_percent"></span>):</span>
-                                <span class="font-bold text-blue-600 dark:text-blue-400" x-text="formatRupiah(salesTaxResult.tax_amount)"></span>
-                            </div>
-                            <div class="pt-3 border-t border-black/[0.06] dark:border-white/[0.08] flex justify-between items-center text-sm font-bold">
-                                <span class="text-slate-900 dark:text-white font-sans">Grand Total Transaksi:</span>
-                                <span class="text-emerald-600 dark:text-emerald-400 font-black text-base" x-text="formatRupiah(salesTaxResult.grand_total)"></span>
-                            </div>
-                        </div>
-                    </template>
-                </div>
+            <div class="mt-5 pt-4 border-t border-slate-100 dark:border-slate-800">
+                <button type="button" @click="showExportModal = false" class="w-full py-2.5 rounded-xl bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-xs font-semibold">
+                    Tutup
+                </button>
             </div>
         </div>
     </div>
+
 </div>
 @endsection

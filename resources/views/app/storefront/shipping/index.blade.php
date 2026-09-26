@@ -10,14 +10,81 @@
             testResult: null,
             testError: null,
             detectingGps: false,
-            originLat: '{{ $storeSetting?->origin_latitude ?? '' }}',
-            originLng: '{{ $storeSetting?->origin_longitude ?? '' }}',
-            originPostalCode: '{{ $storeSetting?->origin_postal_code ?? '' }}',
-            originAreaId: '{{ $storeSetting?->origin_area_id ?? '' }}',
+            locations: {{ Js::from($locations->map(fn($loc) => [
+                'id' => (string) $loc->id,
+                'name' => (string) $loc->name,
+                'type' => (string) ($loc->type ?? 'store'),
+                'type_label' => match($loc->type ?? 'store') {
+                    'warehouse' => 'Gudang',
+                    'branch' => 'Cabang',
+                    default => 'Toko / Outlet',
+                },
+                'is_primary' => (bool) $loc->is_primary,
+                'phone' => (string) ($loc->phone ?: ($business->phone ?: '')),
+                'address' => (string) ($loc->formatted_full_address ?: ($loc->address ?: ($business->address ?: ''))),
+                'postal_code' => (string) ($loc->postal_code ?: ''),
+                'latitude' => $loc->latitude ? (string) $loc->latitude : '',
+                'longitude' => $loc->longitude ? (string) $loc->longitude : '',
+                'biteship_area_id' => (string) ($loc->biteship_area_id ?: ''),
+            ])) }},
+            selectedLocationId: '{{ $activeLocation?->id ?? ($primaryLocation?->id ?? '') }}',
+            selectedLocationName: '{{ $activeLocation?->name ?? ($primaryLocation?->name ?? 'Toko Utama') }}',
+            selectedLocationType: '{{ $activeLocation?->type ?? ($primaryLocation?->type ?? 'store') }}',
+            selectedLocationIsPrimary: {{ ($activeLocation?->is_primary || ($primaryLocation && $activeLocation && $primaryLocation->id === $activeLocation->id)) ? 'true' : 'false' }},
+            businessRegisteredAddress: '{{ addslashes($business->address ?? '') }}',
+            businessRegisteredPhone: '{{ addslashes($business->phone ?? '') }}',
+            businessName: '{{ addslashes($business->name ?? '') }}',
+            originContactName: '{{ addslashes($defaultOriginContactName ?? ($business->name ?? '')) }}',
+            originContactPhone: '{{ addslashes($defaultOriginContactPhone ?? ($business->phone ?? '')) }}',
+            originAddress: '{{ addslashes($defaultOriginAddress ?? ($business->address ?? '')) }}',
+            originLat: '{{ $defaultOriginLat ?? '' }}',
+            originLng: '{{ $defaultOriginLng ?? '' }}',
+            originPostalCode: '{{ $defaultOriginPostalCode ?? '' }}',
+            originAreaId: '{{ $defaultOriginAreaId ?? '' }}',
             areaQuery: '',
             areaResults: [],
             isSearchingArea: false,
-            selectedAreaLabel: '{{ $storeSetting?->origin_area_id ? 'ID: ' . $storeSetting->origin_area_id : '' }}',
+            selectedAreaLabel: '{{ $defaultOriginAreaId ? 'ID: ' . $defaultOriginAreaId : '' }}',
+
+            selectBranch(locId) {
+                this.selectedLocationId = locId;
+                const found = this.locations.find(l => l.id === locId);
+                if (found) {
+                    this.selectedLocationName = found.name;
+                    this.selectedLocationType = found.type;
+                    this.selectedLocationIsPrimary = found.is_primary;
+                    this.originContactName = this.businessName + ' (' + found.name + ')';
+                    this.originContactPhone = found.phone || this.businessRegisteredPhone;
+                    this.originAddress = found.address || this.businessRegisteredAddress;
+                    this.originPostalCode = found.postal_code || '';
+                    this.originLat = found.latitude || '';
+                    this.originLng = found.longitude || '';
+                    this.originAreaId = found.biteship_area_id || '';
+                    this.selectedAreaLabel = found.biteship_area_id ? ('ID: ' + found.biteship_area_id) : '';
+                }
+            },
+
+            resetToStoreRegistration() {
+                this.originContactName = this.businessName;
+                this.originContactPhone = this.businessRegisteredPhone;
+                this.originAddress = this.businessRegisteredAddress;
+                if (this.locations.length > 0) {
+                    const prim = this.locations.find(l => l.is_primary) || this.locations[0];
+                    if (prim) {
+                        this.selectedLocationId = prim.id;
+                        this.selectedLocationName = prim.name;
+                        this.selectedLocationType = prim.type;
+                        this.selectedLocationIsPrimary = prim.is_primary;
+                        if (prim.postal_code) this.originPostalCode = prim.postal_code;
+                        if (prim.latitude) this.originLat = prim.latitude;
+                        if (prim.longitude) this.originLng = prim.longitude;
+                        if (prim.biteship_area_id) {
+                            this.originAreaId = prim.biteship_area_id;
+                            this.selectedAreaLabel = 'ID: ' + prim.biteship_area_id;
+                        }
+                    }
+                }
+            },
         
             async searchArea() {
                 if (!this.areaQuery || this.areaQuery.trim().length < 2) {
@@ -106,6 +173,22 @@
         {{-- UNIFIED STOREFRONT HUB NAVIGATION --}}
         @include('app.storefront.partials.navigation', ['title' => 'Pengiriman & Logistik Biteship'])
 
+        {{-- Feedback Notifications --}}
+        @if (session('success'))
+            <div
+                class="p-4 rounded-[18px] bg-[#34C759]/10 border border-[#34C759]/20 text-[#248A3D] dark:text-[#30D158] text-sm flex items-center gap-3 font-medium">
+                <i data-lucide="check-circle" class="w-5 h-5 shrink-0"></i>
+                <span>{{ session('success') }}</span>
+            </div>
+        @endif
+        @if (session('error'))
+            <div
+                class="p-4 rounded-[18px] bg-[#FF3B30]/10 border border-[#FF3B30]/20 text-[#FF3B30] text-sm flex items-center gap-3 font-medium">
+                <i data-lucide="alert-circle" class="w-5 h-5 shrink-0"></i>
+                <span>{{ session('error') }}</span>
+            </div>
+        @endif
+
         {{-- Action & Overview Header --}}
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
             <div>
@@ -145,22 +228,27 @@
                 </div>
             </div>
 
-            <!-- Origin Store Status -->
+            <!-- Origin Store Status with Branch Info -->
             <div
                 class="bg-white/80 dark:bg-[#1C1C1E]/80 backdrop-blur-xl border border-black/5 dark:border-white/10 rounded-[20px] p-5 shadow-xs">
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-medium text-black/50 dark:text-white/50">Lokasi Asal Penjemputan</span>
+                    <div class="flex items-center gap-1.5">
+                        <span class="text-xs font-medium text-black/50 dark:text-white/50">Asal Penjemputan:</span>
+                        <span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-[#007AFF]/10 text-[#007AFF]">
+                            {{ $activeLocation?->name ?? ($primaryLocation?->name ?? 'Cabang Utama') }}
+                        </span>
+                    </div>
                     <span
-                        class="p-2 rounded-xl {{ !empty($storeSetting?->origin_postal_code) ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400' : 'bg-amber-500/10 text-amber-600 dark:text-amber-400' }}">
+                        class="p-2 rounded-xl {{ !empty($defaultOriginPostalCode) ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400' : 'bg-amber-500/10 text-amber-600 dark:text-amber-400' }}">
                         <i data-lucide="map-pin" class="w-4 h-4"></i>
                     </span>
                 </div>
                 <div class="mt-3">
                     <div class="text-lg font-bold text-black dark:text-white">
-                        {{ !empty($storeSetting?->origin_postal_code) ? 'Kode Pos ' . $storeSetting->origin_postal_code : 'Belum Dikonfigurasi' }}
+                        {{ !empty($defaultOriginPostalCode) ? 'Kode Pos ' . $defaultOriginPostalCode : 'Belum Dikonfigurasi' }}
                     </div>
                     <p class="text-xs text-black/50 dark:text-white/50 mt-1 truncate">
-                        {{ $storeSetting?->origin_address ?? 'Wajib diisi agar tarif pengiriman dapat dihitung akurat.' }}
+                        {{ $defaultOriginAddress ?? ($business->address ?? 'Wajib diisi agar tarif pengiriman dapat dihitung akurat.') }}
                     </p>
                 </div>
             </div>
@@ -198,13 +286,77 @@
                     <div>
                         <div class="flex items-center gap-2 mb-1">
                             <i data-lucide="building" class="w-5 h-5 text-[#007AFF]"></i>
-                            <h2 class="text-base font-bold text-black dark:text-white">Alamat Asal Penjemputan Toko (Origin)
-                            </h2>
+                            <h2 class="text-base font-bold text-black dark:text-white">Alamat Asal Penjemputan Toko &amp; Cabang (Origin)</h2>
                         </div>
                         <p class="text-xs text-black/60 dark:text-white/60">
-                            Lokasi fisik toko tempat kurir logistik (JNE, SiCepat, GoSend, dll.) akan mengambil paket
-                            pesanan pelanggan.
+                            Terintegrasi otomatis dengan data registrasi toko dan lokasi cabang/outlet fisik tempat kurir ekspedisi mengambil paket pesanan online.
                         </p>
+                    </div>
+
+                    {{-- BENTO CARD: KETERANGAN CABANG & INTEGRASI ALAMAT REGISTRASI --}}
+                    <div class="p-4.5 rounded-[18px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/10 space-y-3.5">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                            <div class="flex items-center gap-2">
+                                <div class="w-7 h-7 rounded-[10px] bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center font-bold">
+                                    <i data-lucide="store" class="w-3.5 h-3.5"></i>
+                                </div>
+                                <div>
+                                    <span class="text-xs font-bold text-black dark:text-white block">Pilih Titik Cabang / Gudang Pemenuhan:</span>
+                                    <p class="text-[11px] text-black/50 dark:text-white/50">Pilih cabang toko tempat barang dikemas dan dikirim</p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center gap-2 flex-wrap self-start sm:self-auto">
+                                <a href="{{ route('warehouse.index', ['add' => 'outlet']) }}"
+                                    class="h-8 px-3 rounded-[10px] bg-[#34C759]/12 hover:bg-[#34C759]/20 text-[#248A3D] dark:text-[#30D158] text-[11.5px] font-bold flex items-center gap-1.5 transition active:scale-[0.98]"
+                                    title="Daftarkan Cabang / Outlet Baru di Hub Gudang & Cabang">
+                                    <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                                    <span>+ Tambah Cabang</span>
+                                </a>
+
+                                <button type="button" @click="resetToStoreRegistration()"
+                                    class="h-8 px-3 rounded-[10px] bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/15 text-black dark:text-white text-[11.5px] font-semibold flex items-center gap-1.5 transition cursor-pointer active:scale-[0.98]">
+                                    <i data-lucide="refresh-cw" class="w-3 h-3 text-[#007AFF]"></i>
+                                    <span>Gunakan Alamat Registrasi</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        {{-- BRANCH SELECTOR PILLS / DROPDOWN --}}
+                        @if ($locations->isNotEmpty())
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+                                <template x-for="loc in locations" :key="loc.id">
+                                    <div @click="selectBranch(loc.id)"
+                                        class="p-3 rounded-[14px] border transition cursor-pointer flex items-start justify-between gap-2.5"
+                                        :class="selectedLocationId === loc.id ? 'bg-[#007AFF]/8 border-[#007AFF] text-black dark:text-white' : 'bg-white dark:bg-[#2C2C2E] border-black/5 dark:border-white/10 hover:border-black/20'">
+                                        <div class="min-w-0 space-y-0.5">
+                                            <div class="flex items-center gap-1.5 flex-wrap">
+                                                <span class="font-bold text-[12.5px]" x-text="loc.name"></span>
+                                                <span class="text-[9.5px] px-1.5 py-0.5 rounded font-bold uppercase"
+                                                    :class="loc.is_primary ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400' : 'bg-black/5 dark:bg-white/10 text-black/60 dark:text-white/60'"
+                                                    x-text="loc.is_primary ? 'Cabang Utama' : loc.type_label"></span>
+                                            </div>
+                                            <p class="text-[11px] text-black/55 dark:text-white/55 truncate" x-text="loc.address || 'Alamat cabang belum lengkap'"></p>
+                                            <p class="text-[10.5px] text-black/40 dark:text-white/40 font-mono" x-show="loc.postal_code" x-text="'Kode Pos: ' + loc.postal_code"></p>
+                                        </div>
+
+                                        <div class="shrink-0 mt-0.5">
+                                            <div class="w-4 h-4 rounded-full border flex items-center justify-center"
+                                                :class="selectedLocationId === loc.id ? 'border-[#007AFF] bg-[#007AFF] text-white' : 'border-black/20 dark:border-white/20'">
+                                                <i data-lucide="check" class="w-2.5 h-2.5" x-show="selectedLocationId === loc.id"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                        @else
+                            <div class="p-3 rounded-[12px] bg-amber-500/10 text-amber-700 dark:text-amber-400 text-xs flex items-center gap-2">
+                                <i data-lucide="info" class="w-4 h-4 shrink-0"></i>
+                                <span>Alamat otomatis menggunakan data registrasi toko: <strong>{{ $business->name }}</strong> ({{ $business->address ?: 'Alamat belum diatur' }}).</span>
+                            </div>
+                        @endif
+
+                        <input type="hidden" name="selected_location_id" :value="selectedLocationId">
                     </div>
 
                     {{-- Biteship Locations API Status Badge --}}
@@ -213,7 +365,7 @@
                             class="flex items-center justify-between p-3.5 rounded-[16px] bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-emerald-400 text-xs">
                             <div class="flex items-center gap-2.5 min-w-0">
                                 <i data-lucide="check-circle" class="w-4 h-4 text-emerald-500 shrink-0"></i>
-                                <span class="truncate">Tersimpan di <strong>Biteship Locations API</strong></span>
+                                <span class="truncate">Tersinkronisasi resmi di <strong>Biteship Locations API</strong></span>
                             </div>
                             <span
                                 class="font-mono text-[11px] px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 font-semibold">{{ $storeSetting->origin_location_id }}</span>
@@ -222,28 +374,27 @@
                         <div
                             class="flex items-center gap-2.5 p-3.5 rounded-[16px] bg-blue-500/10 border border-blue-500/20 text-blue-700 dark:text-blue-400 text-xs">
                             <i data-lucide="info" class="w-4 h-4 text-blue-500 shrink-0"></i>
-                            <span>Alamat ini akan otomatis didaftarkan dan mendapatkan <strong>Biteship Location ID</strong>
-                                saat Anda menyimpan formulir.</span>
+                            <span>Alamat penjemputan ini akan otomatis didaftarkan dan mendapatkan <strong>Biteship Location ID</strong> saat Anda menyimpan formulir.</span>
                         </div>
                     @endif
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-semibold text-black/70 dark:text-white/70 mb-1">Nama PIC
-                                Pengirim Toko <span class="text-rose-500">*</span></label>
+                                Pengirim Toko / Cabang <span class="text-rose-500">*</span></label>
                             <input type="text" name="origin_contact_name" required
-                                value="{{ old('origin_contact_name', $storeSetting?->origin_contact_name ?? $business->name) }}"
+                                x-model="originContactName"
                                 placeholder="Contoh: Admin Pengiriman Cooca"
-                                class="w-full h-11 px-3.5 rounded-[12px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-sm text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                                class="w-full h-11 px-3.5 rounded-[12px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-sm text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
                         </div>
 
                         <div>
                             <label class="block text-xs font-semibold text-black/70 dark:text-white/70 mb-1">Nomor WhatsApp
-                                / Telepon Toko <span class="text-rose-500">*</span></label>
+                                / Telepon Pengirim <span class="text-rose-500">*</span></label>
                             <input type="tel" name="origin_contact_phone" required
-                                value="{{ old('origin_contact_phone', $storeSetting?->origin_contact_phone ?? $business->phone) }}"
+                                x-model="originContactPhone"
                                 placeholder="081234567890"
-                                class="w-full h-11 px-3.5 rounded-[12px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-sm text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                                class="w-full h-11 px-3.5 rounded-[12px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-sm text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
                         </div>
                     </div>
 
@@ -261,7 +412,7 @@
                                     class="w-4 h-4 text-black/40 dark:text-white/40 absolute left-3.5 pointer-events-none"></i>
                                 <input type="text" x-model="areaQuery" @input.debounce.300ms="searchArea()"
                                     placeholder="Ketik untuk mencari area: misal Cilandak, Kebayoran, Sukajadi, Wonokromo..."
-                                    class="w-full h-11 pl-9 pr-24 rounded-[12px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-sm text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                                    class="w-full h-11 pl-9 pr-24 rounded-[12px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-sm text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
                                 <button type="button" @click="searchArea()" :disabled="isSearchingArea"
                                     class="absolute right-1.5 px-3 py-1.5 rounded-[8px] bg-black/10 dark:bg-white/10 hover:bg-black/15 text-xs font-medium text-black dark:text-white cursor-pointer transition-colors">
                                     <span x-text="isSearchingArea ? 'Mencari...' : 'Cari Area'"></span>
@@ -279,7 +430,7 @@
                                         <span class="text-[11px] text-black/50 dark:text-white/50 flex items-center gap-2">
                                             <span>Area ID: <code class="font-mono text-[10px]"
                                                     x-text="item.id"></code></span>
-                                            <span x-show="item.postal_code" class="text-black/40">• Kode Pos: <span
+                                            <span x-show="item.postal_code" class="text-black/40">&bull; Kode Pos: <span
                                                     x-text="item.postal_code"></span></span>
                                         </span>
                                     </button>
@@ -299,26 +450,27 @@
 
                     <div>
                         <label class="block text-xs font-semibold text-black/70 dark:text-white/70 mb-1">Alamat Lengkap
-                            Toko / Gudang <span class="text-rose-500">*</span></label>
+                            Toko / Cabang Pengiriman <span class="text-rose-500">*</span></label>
                         <textarea name="origin_address" rows="3" required
+                            x-model="originAddress"
                             placeholder="Jalan, Nomor Bangunan, RT/RW, Kelurahan, Kecamatan, Kota"
-                            class="w-full p-3.5 rounded-[12px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-sm text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">{{ old('origin_address', $storeSetting?->origin_address ?? $business->address) }}</textarea>
+                            class="w-full p-3.5 rounded-[12px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-sm text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] leading-relaxed"></textarea>
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div>
-                            <label class="block text-xs font-semibold text-black/70 dark:text-white/70 mb-1">Kode Pos Toko
+                            <label class="block text-xs font-semibold text-black/70 dark:text-white/70 mb-1">Kode Pos Lokasi
                                 <span class="text-rose-500">*</span></label>
                             <input type="text" name="origin_postal_code" required maxlength="10"
                                 x-model="originPostalCode" placeholder="Contoh: 12440"
-                                class="w-full h-11 px-3.5 rounded-[12px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-sm text-black dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                                class="w-full h-11 px-3.5 rounded-[12px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-sm text-black dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
                         </div>
 
                         <div>
                             <label class="block text-xs font-semibold text-black/70 dark:text-white/70 mb-1">Latitude
                                 GPS</label>
                             <input type="text" name="origin_latitude" x-model="originLat" placeholder="-6.2253114"
-                                class="w-full h-11 px-3.5 rounded-[12px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-sm text-black dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                                class="w-full h-11 px-3.5 rounded-[12px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-sm text-black dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
                         </div>
 
                         <div>
@@ -332,7 +484,7 @@
                                 </button>
                             </div>
                             <input type="text" name="origin_longitude" x-model="originLng" placeholder="106.7993735"
-                                class="w-full h-11 px-3.5 rounded-[12px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-sm text-black dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                                class="w-full h-11 px-3.5 rounded-[12px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-sm text-black dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
                         </div>
                     </div>
 
@@ -378,7 +530,7 @@
 
                     <div class="pt-2 flex justify-end">
                         <button type="submit"
-                            class="h-11 px-6 rounded-[12px] bg-[#007AFF] hover:bg-[#0071E3] text-white text-[13px] font-bold tracking-wide transition-all shadow-sm flex items-center gap-2 cursor-pointer">
+                            class="min-h-[44px] px-6 rounded-[12px] bg-[#007AFF] hover:bg-[#0071E3] text-white text-[13px] font-bold tracking-wide transition-all shadow-sm flex items-center gap-2 cursor-pointer active:scale-[0.98]">
                             <i data-lucide="check" class="w-4 h-4"></i>
                             <span>Simpan Konfigurasi Biteship</span>
                         </button>
@@ -403,7 +555,7 @@
                             <label class="block text-xs font-semibold text-black/70 dark:text-white/70 mb-1">Kode Pos
                                 Tujuan Uji Coba</label>
                             <input type="text" x-model="testPostalCode" placeholder="Contoh: 12310 (Jakarta Selatan)"
-                                class="w-full h-10 px-3 rounded-[10px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-xs text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                                class="w-full h-11 px-3.5 rounded-[12px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-xs text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
                         </div>
 
                         <div class="grid grid-cols-2 gap-2">
@@ -411,18 +563,18 @@
                                 <label class="block text-xs font-semibold text-black/70 dark:text-white/70 mb-1">Berat
                                     (Gram)</label>
                                 <input type="number" x-model="testWeight" min="10" step="50"
-                                    class="w-full h-10 px-3 rounded-[10px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-xs text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                                    class="w-full h-11 px-3.5 rounded-[12px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-xs text-black dark:text-white tabular-nums focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
                             </div>
                             <div>
                                 <label class="block text-xs font-semibold text-black/70 dark:text-white/70 mb-1">Nilai
                                     Barang</label>
                                 <input type="number" x-model="testValue" min="1000" step="10000"
-                                    class="w-full h-10 px-3 rounded-[10px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-xs text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                                    class="w-full h-11 px-3.5 rounded-[12px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[16px] sm:text-xs text-black dark:text-white tabular-nums focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
                             </div>
                         </div>
 
                         <button type="button" @click="runRateTest()" :disabled="isTestingRate"
-                            class="w-full h-10 rounded-[12px] bg-black dark:bg-white text-white dark:text-black hover:bg-black/80 dark:hover:bg-white/90 text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50">
+                            class="w-full min-h-[44px] rounded-[12px] bg-black dark:bg-white text-white dark:text-black hover:bg-black/80 dark:hover:bg-white/90 text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98] disabled:opacity-50">
                             <i data-lucide="search" class="w-3.5 h-3.5" x-show="!isTestingRate"></i>
                             <span x-show="!isTestingRate">Hitung Tarif Kurir</span>
                             <span x-show="isTestingRate" class="flex items-center gap-1.5">

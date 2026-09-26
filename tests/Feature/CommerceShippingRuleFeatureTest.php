@@ -247,4 +247,58 @@ class CommerceShippingRuleFeatureTest extends TestCase
         $acting->from('/storefront/shipping')->delete("/storefront/shipping/{$rule->id}")->assertRedirect('/storefront/shipping');
         $this->assertDatabaseMissing('commerce_shipping_rules', ['id' => $rule->id]);
     }
+
+    public function test_merchant_can_save_origin_and_integrate_with_selected_branch(): void
+    {
+        $branchLocation = Location::create([
+            'business_id' => $this->business->id,
+            'name' => 'Cabang Tebet',
+            'address' => 'Jl. Tebet Raya No. 10',
+            'postal_code' => '12810',
+            'phone' => '08123456789',
+            'is_primary' => false,
+            'is_active' => true,
+        ]);
+
+        $acting = $this->actingAs($this->merchantUser)->withSession([
+            'active_business_id' => $this->business->id,
+            'auth_wa_otp_verified_user_id' => $this->merchantUser->id,
+        ]);
+
+        // Access shipping view and verify branch information is rendered
+        $response = $acting->get('/storefront/shipping');
+        $response->assertOk();
+        $response->assertSee('Cabang Tebet');
+        $response->assertSee('Gudang Utama');
+
+        // Save origin location selecting the branch
+        $saveResponse = $acting->from('/storefront/shipping')->post('/storefront/shipping/origin', [
+            'selected_location_id' => $branchLocation->id,
+            'origin_contact_name' => 'Admin Cabang Tebet',
+            'origin_contact_phone' => '08123456789',
+            'origin_address' => 'Jl. Tebet Raya No. 10, Jakarta Selatan',
+            'origin_postal_code' => '12810',
+            'origin_latitude' => -6.2297,
+            'origin_longitude' => 106.8559,
+            'origin_area_id' => 'IDNP6IDJB12810',
+            'biteship_enabled_couriers' => ['jne', 'sicepat', 'gosend'],
+        ]);
+
+        $saveResponse->assertRedirect('/storefront/shipping');
+        $saveResponse->assertSessionHas('success');
+
+        // Check store settings updated
+        $storeSetting = CommerceStoreSetting::where('business_id', $this->business->id)->first();
+        $this->assertNotNull($storeSetting);
+        $this->assertEquals($branchLocation->id, $storeSetting->origin_location_id);
+        $this->assertEquals('Admin Cabang Tebet', $storeSetting->origin_contact_name);
+        $this->assertEquals('12810', $storeSetting->origin_postal_code);
+        $this->assertEquals(['jne', 'sicepat', 'gosend'], $storeSetting->biteship_enabled_couriers);
+
+        // Check branch location was updated and marked as fulfillment
+        $branchLocation->refresh();
+        $this->assertTrue((bool) $branchLocation->is_online_fulfillment);
+        $this->assertEquals('Jl. Tebet Raya No. 10, Jakarta Selatan', $branchLocation->address);
+        $this->assertEquals('IDNP6IDJB12810', $branchLocation->biteship_area_id);
+    }
 }

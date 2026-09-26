@@ -4,19 +4,19 @@
 <div class="max-w-[1600px] mx-auto space-y-6 pb-16">
 
     <!-- Top Action & Filter Header -->
-    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white dark:bg-[#1C1C1E] p-4 sm:p-5 rounded-[20px] border border-black/[0.06] dark:border-white/[0.08] shadow-sm print:hidden">
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white/80 dark:bg-[#1C1C1E]/80 backdrop-blur-md p-4 sm:p-5 rounded-[20px] border border-black/[0.06] dark:border-white/[0.08] shadow-sm print:hidden">
         <div class="flex items-center gap-3.5">
-            <div class="w-11 h-11 rounded-2xl bg-emerald-500/10 dark:bg-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+            <div class="w-11 h-11 rounded-[14px] bg-emerald-500/15 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
                 <i data-lucide="clipboard-list" class="w-6 h-6"></i>
             </div>
             <div>
                 <div class="flex items-center gap-2">
-                    <h1 class="text-xl font-bold tracking-tight text-neutral-900 dark:text-white">Lembar Prep Dapur &amp; Katering</h1>
-                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                    <h1 class="text-[20px] font-bold tracking-tight text-neutral-900 dark:text-white">Lembar Prep Dapur &amp; Katering</h1>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/25">
                         BOM AGGREGATION
                     </span>
                 </div>
-                <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
+                <p class="text-[13px] text-neutral-500 dark:text-neutral-400 mt-0.5">
                     Agregasi porsi menu &amp; kalkulasi kebutuhan bahan baku otomatis berdasarkan resep BOM untuk produksi harian.
                 </p>
             </div>
@@ -25,27 +25,27 @@
         <!-- Filter Controls & Actions -->
         <form method="GET" action="{{ route('pos.kitchen.prep_sheet') }}" class="flex flex-wrap items-center gap-2.5">
             <!-- Date Filter -->
-            <div class="flex items-center gap-1.5 bg-neutral-100 dark:bg-neutral-800/80 p-1 rounded-xl border border-black/5 dark:border-white/5">
+            <div class="flex items-center gap-1.5 bg-neutral-100 dark:bg-neutral-800/80 p-1 rounded-[14px] border border-black/5 dark:border-white/5">
                 <a href="{{ route('pos.kitchen.prep_sheet', ['date' => now()->toDateString(), 'location_id' => $locationId]) }}"
-                   class="px-2.5 py-1 text-xs font-semibold rounded-lg transition {{ $targetDate === now()->toDateString() ? 'bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white shadow-xs' : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900' }}">
+                   class="min-h-[38px] px-3 py-1.5 text-[12px] font-semibold rounded-[10px] flex items-center transition {{ $targetDate === now()->toDateString() ? 'bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white shadow-xs' : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900' }}">
                     Hari Ini
                 </a>
                 <a href="{{ route('pos.kitchen.prep_sheet', ['date' => now()->addDay()->toDateString(), 'location_id' => $locationId]) }}"
-                   class="px-2.5 py-1 text-xs font-semibold rounded-lg transition {{ $targetDate === now()->addDay()->toDateString() ? 'bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white shadow-xs' : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900' }}">
+                   class="min-h-[38px] px-3 py-1.5 text-[12px] font-semibold rounded-[10px] flex items-center transition {{ $targetDate === now()->addDay()->toDateString() ? 'bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white shadow-xs' : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900' }}">
                     Besok
                 </a>
                 <a href="{{ route('pos.kitchen.prep_sheet', ['date' => now()->addDays(2)->toDateString(), 'location_id' => $locationId]) }}"
-                   class="px-2.5 py-1 text-xs font-semibold rounded-lg transition {{ $targetDate === now()->addDays(2)->toDateString() ? 'bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white shadow-xs' : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900' }}">
+                   class="min-h-[38px] px-3 py-1.5 text-[12px] font-semibold rounded-[10px] flex items-center transition {{ $targetDate === now()->addDays(2)->toDateString() ? 'bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white shadow-xs' : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900' }}">
                     Lusa
                 </a>
                 <input type="date" name="date" value="{{ $targetDate }}" onchange="this.form.submit()"
-                       class="px-2 py-1 text-xs bg-white dark:bg-neutral-700 rounded-lg border-none text-neutral-800 dark:text-neutral-200 focus:ring-1 focus:ring-emerald-500 font-medium">
+                       class="min-h-[38px] px-2.5 py-1 text-[13px] bg-white dark:bg-neutral-700 rounded-[10px] border-none text-neutral-800 dark:text-neutral-200 focus:ring-2 focus:ring-emerald-500 font-medium">
             </div>
 
             <!-- Location Selector -->
             @if($locations->count() > 1)
                 <select name="location_id" onchange="this.form.submit()"
-                        class="h-9 px-3 rounded-xl bg-neutral-100 dark:bg-neutral-800 text-xs font-semibold border-black/5 dark:border-white/10 text-neutral-800 dark:text-neutral-200 focus:ring-emerald-500">
+                        class="min-h-[44px] h-11 px-3.5 rounded-[12px] bg-neutral-100 dark:bg-neutral-800 text-[13px] font-semibold border border-black/5 dark:border-white/10 text-neutral-800 dark:text-neutral-200 focus:ring-2 focus:ring-emerald-500">
                     <option value="">Semua Lokasi / Dapur</option>
                     @foreach($locations as $loc)
                         <option value="{{ $loc->id }}" {{ $locationId === $loc->id ? 'selected' : '' }}>
@@ -57,14 +57,14 @@
 
             <!-- Print Button -->
             <button type="button" onclick="window.print()"
-                    class="h-9 px-3.5 rounded-xl bg-neutral-900 hover:bg-neutral-800 dark:bg-white dark:hover:bg-neutral-100 text-white dark:text-neutral-900 text-xs font-semibold flex items-center gap-1.5 transition shadow-sm">
+                    class="min-h-[44px] h-11 px-4 rounded-[12px] bg-neutral-900 hover:bg-neutral-800 dark:bg-white dark:hover:bg-neutral-100 text-white dark:text-neutral-900 text-[13px] font-semibold flex items-center gap-2 transition shadow-sm active:scale-[0.98]">
                 <i data-lucide="printer" class="w-4 h-4"></i>
                 <span>Cetak Lembar Prep</span>
             </button>
 
             <!-- Back to KDS Link -->
             <a href="{{ route('pos.kitchen.index') }}"
-               class="h-9 px-3 rounded-xl bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 text-xs font-semibold text-neutral-700 dark:text-neutral-300 flex items-center gap-1.5 transition">
+               class="min-h-[44px] h-11 px-4 rounded-[12px] bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 text-[13px] font-semibold text-neutral-700 dark:text-neutral-300 flex items-center gap-2 transition active:scale-[0.98]">
                 <i data-lucide="tv" class="w-4 h-4"></i>
                 <span>Monitor KDS</span>
             </a>

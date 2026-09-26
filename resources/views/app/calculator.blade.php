@@ -1255,145 +1255,297 @@
         </div>
 
         <!-- ===================================================== -->
-        <!-- MODAL 1: SIMPAN JADI PRODUK BARU (Apple Sheet Style)  -->
+        <!-- MODAL 1: SIMPAN JADI PRODUK BARU (Apple Bento XXL Sheet) -->
         <!-- ===================================================== -->
         @if (\App\Support\Context::hasPermission('products.create'))
             <div x-show="showQuickSaveModal" x-cloak
-                class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/25 backdrop-blur-[2px]"
+                class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/50 backdrop-blur-md"
+                x-transition:enter="transition ease-out duration-200"
+                x-transition:enter-start="opacity-0"
+                x-transition:enter-end="opacity-100"
+                x-transition:leave="transition ease-in duration-150"
+                x-transition:leave-start="opacity-100"
+                x-transition:leave-end="opacity-0"
                 style="display: none;">
                 <div @click.away="showQuickSaveModal = false"
-                    class="w-full max-w-md rounded-[18px] bg-white/95 dark:bg-[#2C2C2E]/95 backdrop-blur-xl border border-black/5 dark:border-white/10 p-6 space-y-4 shadow-[0_20px_50px_rgba(0,0,0,0.25)]">
-                    <div class="flex items-center justify-between border-b border-black/5 dark:border-white/10 pb-3">
-                        <h3 class="text-[15px] font-semibold text-black dark:text-white flex items-center gap-2">
-                            <i data-lucide="sparkles" class="w-4 h-4 text-[#007AFF]"></i>
-                            <span>Simpan Jadi Produk Baru</span>
-                        </h3>
+                    class="w-full max-w-[95vw] lg:max-w-5xl xl:max-w-6xl 2xl:max-w-[1350px] max-h-[92vh] rounded-[24px] bg-white/98 dark:bg-[#1C1C1E]/98 backdrop-blur-2xl border border-black/[0.08] dark:border-white/[0.12] flex flex-col shadow-[0_25px_60px_rgba(0,0,0,0.35)] overflow-hidden"
+                    x-transition:enter="transition ease-out duration-200"
+                    x-transition:enter-start="opacity-0 scale-95"
+                    x-transition:enter-end="opacity-100 scale-100"
+                    x-transition:leave="transition ease-in duration-150"
+                    x-transition:leave-start="opacity-100 scale-100"
+                    x-transition:leave-end="opacity-0 scale-95">
+                    
+                    {{-- Modal Header Bar --}}
+                    <div class="px-6 py-4.5 sm:px-8 sm:py-5 border-b border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between gap-4 shrink-0 bg-slate-50/50 dark:bg-white/[0.02]">
+                        <div class="flex items-center gap-3.5">
+                            <div class="w-11 h-11 rounded-[14px] bg-[#007AFF]/12 text-[#007AFF] flex items-center justify-center shrink-0 border border-[#007AFF]/20">
+                                <i data-lucide="sparkles" class="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
+                                    <span>Simpan Jadi Produk Baru di Master Katalog</span>
+                                    <span class="text-[11px] font-semibold text-[#34C759] bg-[#34C759]/12 px-2.5 py-0.5 rounded-full">Siap Dijual</span>
+                                </h3>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">
+                                    Daftarkan formula HPP dan harga jual ini langsung ke master data produk untuk digunakan di Kasir POS.
+                                </p>
+                            </div>
+                        </div>
                         <button type="button" @click="showQuickSaveModal = false"
-                            class="w-7 h-7 rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white transition">
-                            <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                            class="w-9 h-9 rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition cursor-pointer">
+                            <i data-lucide="x" class="w-4 h-4"></i>
                         </button>
                     </div>
 
-                    <p class="text-[13px] text-black/60 dark:text-white/60 leading-relaxed">
-                        Produk ini akan langsung didaftarkan ke katalog master produk dan siap digunakan di terminal kasir
-                        POS.
-                    </p>
+                    {{-- Modal Scrollable Body (2-Column Bento on Desktop) --}}
+                    <div class="p-6 sm:p-8 overflow-y-auto space-y-6 flex-1">
+                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                            
+                            {{-- Kolom Kiri: Form & Konfirmasi Parameter (7 Kolom) --}}
+                            <div class="lg:col-span-7 space-y-5">
+                                <div class="rounded-[18px] bg-slate-50/80 dark:bg-[#2C2C2E]/60 border border-black/[0.06] dark:border-white/[0.08] p-5 space-y-4">
+                                    <div class="flex items-center gap-2">
+                                        <i data-lucide="tag" class="w-4 h-4 text-[#007AFF]"></i>
+                                        <span class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Identitas Produk Baru</span>
+                                    </div>
 
-                    <div
-                        class="p-4 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.04] border border-black/5 dark:border-white/5 space-y-2 text-[13px]">
-                        <div class="flex justify-between items-center">
-                            <span class="text-black/50 dark:text-white/50">Nama Produk:</span>
-                            <span class="font-semibold text-black dark:text-white truncate max-w-[200px]"
-                                x-text="quickName"></span>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-black/50 dark:text-white/50">Modal Bersih (HPP):</span>
-                            <span class="tabular-nums font-semibold text-black dark:text-white">Rp <span
-                                    x-text="quickTotalHpp.toLocaleString('id-ID')"></span></span>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-black/50 dark:text-white/50">Harga Jual Kasir:</span>
-                            <span class="tabular-nums font-bold text-[#007AFF] dark:text-[#0A84FF]">Rp <span
-                                    x-text="quickOfflinePrice.toLocaleString('id-ID')"></span></span>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-black/50 dark:text-white/50">Estimasi Untung:</span>
-                            <span class="tabular-nums font-bold text-[#34C759] dark:text-[#30D158]">+ Rp <span
-                                    x-text="quickOfflineProfit.toLocaleString('id-ID')"></span> (<span
-                                    x-text="quickMargin"></span>%)</span>
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                                            Nama Produk <span class="text-[#FF3B30]">*</span>
+                                        </label>
+                                        <input type="text" x-model="quickName" placeholder="Contoh: Kopi Susu Aren 500ml..."
+                                            class="w-full h-12 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[12px] px-4 text-[16px] sm:text-sm font-semibold text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
+                                        <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
+                                            SKU dan Barcode produk akan digenerate otomatis secara unik oleh sistem Cooca.
+                                        </p>
+                                    </div>
+
+                                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+                                        <div class="p-3.5 rounded-[12px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08]">
+                                            <span class="text-[11px] text-slate-500 dark:text-slate-400 block mb-0.5">Bahan Baku (Modal)</span>
+                                            <span class="text-xs font-bold text-slate-900 dark:text-white tabular-nums">Rp <span x-text="Number(quickMaterial || 0).toLocaleString('id-ID')"></span></span>
+                                        </div>
+                                        <div class="p-3.5 rounded-[12px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08]">
+                                            <span class="text-[11px] text-slate-500 dark:text-slate-400 block mb-0.5">Tenaga Kerja</span>
+                                            <span class="text-xs font-bold text-slate-900 dark:text-white tabular-nums">Rp <span x-text="Number(quickLabor || 0).toLocaleString('id-ID')"></span></span>
+                                        </div>
+                                        <div class="p-3.5 rounded-[12px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08]">
+                                            <span class="text-[11px] text-slate-500 dark:text-slate-400 block mb-0.5">Overhead Pabrik</span>
+                                            <span class="text-xs font-bold text-slate-900 dark:text-white tabular-nums">Rp <span x-text="Number(quickOverhead || 0).toLocaleString('id-ID')"></span></span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {{-- Feedback Alert Messages --}}
+                                <template x-if="quickSaveSuccessMsg">
+                                    <div class="p-4 rounded-[14px] bg-[#34C759]/12 border border-[#34C759]/30 text-[#248A3D] dark:text-[#30D158] text-xs font-semibold flex items-center gap-3">
+                                        <i data-lucide="check-circle" class="w-5 h-5 shrink-0"></i>
+                                        <span x-text="quickSaveSuccessMsg"></span>
+                                    </div>
+                                </template>
+
+                                <template x-if="quickSaveErrorMsg">
+                                    <div class="p-4 rounded-[14px] bg-[#FF3B30]/12 border border-[#FF3B30]/30 text-[#C41E17] dark:text-[#FF453A] text-xs font-semibold flex items-center gap-3">
+                                        <i data-lucide="alert-circle" class="w-5 h-5 shrink-0"></i>
+                                        <span x-text="quickSaveErrorMsg"></span>
+                                    </div>
+                                </template>
+
+                                <div class="rounded-[16px] bg-[#007AFF]/5 dark:bg-[#007AFF]/10 border border-[#007AFF]/20 p-4 flex items-start gap-3">
+                                    <i data-lucide="info" class="w-4 h-4 text-[#007AFF] shrink-0 mt-0.5"></i>
+                                    <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                                        Setelah disimpan, produk langsung aktif di <strong>Terminal Kasir POS</strong> dengan harga jual Rp <strong class="text-slate-900 dark:text-white tabular-nums" x-text="quickOfflinePrice.toLocaleString('id-ID')"></strong> dan formula HPP sederhana tercatat di master data.
+                                    </p>
+                                </div>
+                            </div>
+
+                            {{-- Kolom Kanan: Bento Live Preview Card (5 Kolom) --}}
+                            <div class="lg:col-span-5 space-y-4">
+                                <div class="rounded-[20px] bg-linear-to-br from-slate-900 to-slate-800 text-white p-6 shadow-xl space-y-4 relative overflow-hidden">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Preview Kartu Kasir POS</span>
+                                        <span class="w-2 h-2 rounded-full bg-[#34C759] animate-pulse"></span>
+                                    </div>
+
+                                    <div>
+                                        <h4 class="text-lg font-black tracking-tight text-white line-clamp-1" x-text="quickName || 'Nama Produk'"></h4>
+                                        <span class="text-xs text-slate-300">Satuan: Pieces (Pcs)</span>
+                                    </div>
+
+                                    <div class="pt-2 border-t border-white/10 flex items-baseline justify-between">
+                                        <div>
+                                            <span class="text-[10px] uppercase font-bold text-slate-400 block">Harga Jual Kasir</span>
+                                            <span class="text-2xl font-black text-white tabular-nums">
+                                                Rp <span x-text="quickOfflinePrice.toLocaleString('id-ID')"></span>
+                                            </span>
+                                        </div>
+                                        <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-[#34C759]/20 text-[#30D158] border border-[#34C759]/30 tabular-nums">
+                                            Margin <span x-text="quickMargin"></span>%
+                                        </span>
+                                    </div>
+
+                                    <div class="grid grid-cols-2 gap-2 pt-2 border-t border-white/10 text-xs">
+                                        <div class="p-2.5 rounded-[10px] bg-white/5">
+                                            <span class="text-[10px] text-slate-400 block">Modal HPP Bersih</span>
+                                            <span class="font-bold text-white tabular-nums">Rp <span x-text="quickTotalHpp.toLocaleString('id-ID')"></span></span>
+                                        </div>
+                                        <div class="p-2.5 rounded-[10px] bg-white/5">
+                                            <span class="text-[10px] text-slate-400 block">Laba Kotor/Porsi</span>
+                                            <span class="font-bold text-[#30D158] tabular-nums">+Rp <span x-text="quickOfflineProfit.toLocaleString('id-ID')"></span></span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="rounded-[16px] bg-slate-50 dark:bg-[#2C2C2E] border border-black/[0.06] dark:border-white/[0.08] p-4 text-xs space-y-2">
+                                    <div class="flex justify-between items-center text-slate-600 dark:text-slate-400">
+                                        <span>Target BEP Balik Modal:</span>
+                                        <span class="font-bold text-slate-900 dark:text-white tabular-nums"><span x-text="quickBepUnitsMonthly"></span> porsi / bulan</span>
+                                    </div>
+                                    <div class="flex justify-between items-center text-slate-600 dark:text-slate-400">
+                                        <span>Rata-rata Penjualan Harian:</span>
+                                        <span class="font-bold text-[#007AFF] tabular-nums"><span x-text="quickBepUnitsDaily"></span> porsi / hari</span>
+                                    </div>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
 
-                    <template x-if="quickSaveSuccessMsg">
-                        <div
-                            class="p-3 rounded-[10px] bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158] text-[12px] font-medium flex items-center gap-2">
-                            <i data-lucide="check-circle" class="w-4 h-4 shrink-0"></i>
-                            <span x-text="quickSaveSuccessMsg"></span>
-                        </div>
-                    </template>
-
-                    <template x-if="quickSaveErrorMsg">
-                        <div
-                            class="p-3 rounded-[10px] bg-[#FF3B30]/12 text-[#C41E17] dark:text-[#FF453A] text-[12px] font-medium flex items-center gap-2">
-                            <i data-lucide="alert-circle" class="w-4 h-4 shrink-0"></i>
-                            <span x-text="quickSaveErrorMsg"></span>
-                        </div>
-                    </template>
-
-                    <div class="flex items-center justify-end gap-2 pt-2">
+                    {{-- Modal Footer Actions --}}
+                    <div class="px-6 py-4 sm:px-8 sm:py-4.5 border-t border-black/[0.06] dark:border-white/[0.08] flex items-center justify-end gap-3 shrink-0 bg-slate-50/50 dark:bg-white/[0.02]">
                         <button type="button" @click="showQuickSaveModal = false"
-                            class="h-9 px-4 rounded-[10px] text-[13px] font-medium text-black/70 dark:text-white/70 hover:bg-black/5 dark:hover:bg-white/5 transition">
+                            class="min-h-[44px] h-11 px-5 rounded-[12px] text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer">
                             Batal
                         </button>
                         <button type="button" @click="saveQuickProduct()" :disabled="quickSaveLoading"
-                            class="h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] active:opacity-80 transition shadow-[0_1px_2px_rgba(0,122,255,0.25)] flex items-center gap-1.5 disabled:opacity-50">
-                            <span x-text="quickSaveLoading ? 'Menyimpan...' : 'Ya, Daftarkan Produk'"></span>
+                            class="min-h-[44px] h-11 px-6 rounded-[12px] text-xs font-bold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] transition-all shadow-[0_2px_4px_rgba(0,122,255,0.3)] flex items-center gap-2 cursor-pointer disabled:opacity-50">
+                            <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                            <span x-text="quickSaveLoading ? 'Mendaftarkan Produk...' : 'Ya, Daftarkan Produk Sekarang'"></span>
                         </button>
                     </div>
+
                 </div>
             </div>
         @endif
 
         <!-- ===================================================== -->
-        <!-- MODAL 2: SIMPAN RIWAYAT KALKULASI BOM (Apple Sheet)   -->
+        <!-- MODAL 2: SIMPAN RIWAYAT KALKULASI BOM (Apple Bento XXL)-->
         <!-- ===================================================== -->
         @if (\App\Support\Context::hasPermission('costing.manage'))
             <div x-show="showSaveModal" x-cloak
-                class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/25 backdrop-blur-[2px]"
+                class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/50 backdrop-blur-md"
+                x-transition:enter="transition ease-out duration-200"
+                x-transition:enter-start="opacity-0"
+                x-transition:enter-end="opacity-100"
+                x-transition:leave="transition ease-in duration-150"
+                x-transition:leave-start="opacity-100"
+                x-transition:leave-end="opacity-0"
                 style="display: none;">
                 <div @click.away="showSaveModal = false"
-                    class="w-full max-w-md rounded-[18px] bg-white/95 dark:bg-[#2C2C2E]/95 backdrop-blur-xl border border-black/5 dark:border-white/10 p-6 space-y-4 shadow-[0_20px_50px_rgba(0,0,0,0.25)]">
-                    <div class="flex items-center justify-between border-b border-black/5 dark:border-white/10 pb-3">
-                        <h3 class="text-[15px] font-semibold text-black dark:text-white flex items-center gap-2">
-                            <i data-lucide="bookmark" class="w-4 h-4 text-[#007AFF]"></i>
-                            <span>Simpan Riwayat Kalkulasi</span>
-                        </h3>
+                    class="w-full max-w-[95vw] lg:max-w-4xl xl:max-w-5xl max-h-[92vh] rounded-[24px] bg-white/98 dark:bg-[#1C1C1E]/98 backdrop-blur-2xl border border-black/[0.08] dark:border-white/[0.12] flex flex-col shadow-[0_25px_60px_rgba(0,0,0,0.35)] overflow-hidden"
+                    x-transition:enter="transition ease-out duration-200"
+                    x-transition:enter-start="opacity-0 scale-95"
+                    x-transition:enter-end="opacity-100 scale-100"
+                    x-transition:leave="transition ease-in duration-150"
+                    x-transition:leave-start="opacity-100 scale-100"
+                    x-transition:leave-end="opacity-0 scale-95">
+                    
+                    {{-- Modal Header Bar --}}
+                    <div class="px-6 py-4.5 sm:px-8 sm:py-5 border-b border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between gap-4 shrink-0 bg-slate-50/50 dark:bg-white/[0.02]">
+                        <div class="flex items-center gap-3.5">
+                            <div class="w-11 h-11 rounded-[14px] bg-[#007AFF]/12 text-[#007AFF] flex items-center justify-center shrink-0 border border-[#007AFF]/20">
+                                <i data-lucide="bookmark" class="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
+                                    <span>Simpan Riwayat Kalkulasi HPP &amp; Pricing</span>
+                                    <span class="text-[11px] font-semibold text-[#007AFF] bg-[#007AFF]/12 px-2.5 py-0.5 rounded-full">Arsip Resmi</span>
+                                </h3>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">
+                                    Simpan hasil kalkulasi ini sebagai arsip periodik untuk membandingkan kenaikan harga bahan baku dan biaya operasional.
+                                </p>
+                            </div>
+                        </div>
                         <button type="button" @click="showSaveModal = false"
-                            class="w-7 h-7 rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white transition">
-                            <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                            class="w-9 h-9 rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition cursor-pointer">
+                            <i data-lucide="x" class="w-4 h-4"></i>
                         </button>
                     </div>
 
-                    <p class="text-[13px] text-black/60 dark:text-white/60 leading-relaxed">
-                        Simpan hasil kalkulasi HPP ini sebagai arsip resmi untuk melacak perubahan struktur biaya dan harga
-                        antar periode.
-                    </p>
+                    {{-- Modal Body --}}
+                    <div class="p-6 sm:p-8 overflow-y-auto space-y-5 flex-1">
+                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                            
+                            <div class="lg:col-span-7 space-y-4">
+                                <div class="rounded-[18px] bg-slate-50/80 dark:bg-[#2C2C2E]/60 border border-black/[0.06] dark:border-white/[0.08] p-5 space-y-3.5">
+                                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300">
+                                        Catatan / Keterangan Kalkulasi (Opsional)
+                                    </label>
+                                    <textarea x-model="saveNotes" rows="4"
+                                        placeholder="Contoh: Penyesuaian tarif listrik &amp; kenaikan harga bahan baku triwulan 1 2026..."
+                                        class="w-full bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[12px] p-3.5 text-[16px] sm:text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition resize-none"></textarea>
+                                    <p class="text-[11px] text-slate-500 dark:text-slate-400">
+                                        Catatan ini akan tersimpan permanen dalam audit trail riwayat biaya dan laporan ekspor CSV.
+                                    </p>
+                                </div>
 
-                    <div class="space-y-1.5">
-                        <label class="block text-[12px] font-medium text-black/70 dark:text-white/70">
-                            Catatan Kalkulasi (Opsional)
-                        </label>
-                        <textarea x-model="saveNotes" rows="3"
-                            placeholder="Contoh: Penyesuaian tarif listrik &amp; harga gula triwulan 1"
-                            class="w-full bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[10px] px-3.5 py-2.5 text-[13px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 transition resize-none"></textarea>
+                                <template x-if="saveSuccessMsg">
+                                    <div class="p-4 rounded-[14px] bg-[#34C759]/12 border border-[#34C759]/30 text-[#248A3D] dark:text-[#30D158] text-xs font-semibold flex items-center gap-3">
+                                        <i data-lucide="check-circle" class="w-5 h-5 shrink-0"></i>
+                                        <span x-text="saveSuccessMsg"></span>
+                                    </div>
+                                </template>
+
+                                <template x-if="saveErrorMsg">
+                                    <div class="p-4 rounded-[14px] bg-[#FF3B30]/12 border border-[#FF3B30]/30 text-[#C41E17] dark:text-[#FF453A] text-xs font-semibold flex items-center gap-3">
+                                        <i data-lucide="alert-circle" class="w-5 h-5 shrink-0"></i>
+                                        <span x-text="saveErrorMsg"></span>
+                                    </div>
+                                </template>
+                            </div>
+
+                            <div class="lg:col-span-5 space-y-3.5">
+                                <div class="rounded-[18px] bg-slate-50 dark:bg-[#2C2C2E] border border-black/[0.06] dark:border-white/[0.08] p-5 space-y-3 text-xs">
+                                    <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block">Ringkasan Kalkulasi yang Disimpan</span>
+                                    
+                                    <div class="space-y-2 divide-y divide-black/[0.04] dark:divide-white/[0.04]">
+                                        <div class="flex justify-between items-center pt-1.5">
+                                            <span class="text-slate-600 dark:text-slate-400">Model Biaya:</span>
+                                            <span class="font-bold text-slate-900 dark:text-white" x-text="selectedModel ? selectedModel.name : 'Model Terpilih'"></span>
+                                        </div>
+                                        <div class="flex justify-between items-center pt-1.5">
+                                            <span class="text-slate-600 dark:text-slate-400">Total HPP Batch:</span>
+                                            <span class="font-bold text-slate-900 dark:text-white tabular-nums" x-text="costResult ? formatRupiah(costResult.totalHpp) : 'Rp 0'"></span>
+                                        </div>
+                                        <div class="flex justify-between items-center pt-1.5">
+                                            <span class="text-slate-600 dark:text-slate-400">HPP Bersih / Unit:</span>
+                                            <span class="font-bold text-[#007AFF] dark:text-[#0A84FF] tabular-nums" x-text="costResult ? formatRupiah(costResult.hppPerUnit) : 'Rp 0'"></span>
+                                        </div>
+                                        <div class="flex justify-between items-center pt-1.5">
+                                            <span class="text-slate-600 dark:text-slate-400">Waktu Simpan:</span>
+                                            <span class="font-medium text-slate-900 dark:text-white">{{ date('d M Y H:i') }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
                     </div>
 
-                    <template x-if="saveSuccessMsg">
-                        <div
-                            class="p-3 rounded-[10px] bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158] text-[12px] font-medium flex items-center gap-2">
-                            <i data-lucide="check-circle" class="w-4 h-4 shrink-0"></i>
-                            <span x-text="saveSuccessMsg"></span>
-                        </div>
-                    </template>
-
-                    <template x-if="saveErrorMsg">
-                        <div
-                            class="p-3 rounded-[10px] bg-[#FF3B30]/12 text-[#C41E17] dark:text-[#FF453A] text-[12px] font-medium flex items-center gap-2">
-                            <i data-lucide="alert-circle" class="w-4 h-4 shrink-0"></i>
-                            <span x-text="saveErrorMsg"></span>
-                        </div>
-                    </template>
-
-                    <div class="flex items-center justify-end gap-2 pt-2">
+                    {{-- Modal Footer --}}
+                    <div class="px-6 py-4 sm:px-8 sm:py-4.5 border-t border-black/[0.06] dark:border-white/[0.08] flex items-center justify-end gap-3 shrink-0 bg-slate-50/50 dark:bg-white/[0.02]">
                         <button type="button" @click="showSaveModal = false"
-                            class="h-9 px-4 rounded-[10px] text-[13px] font-medium text-black/70 dark:text-white/70 hover:bg-black/5 dark:hover:bg-white/5 transition">
+                            class="min-h-[44px] h-11 px-5 rounded-[12px] text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer">
                             Batal
                         </button>
                         <button type="button" @click="saveResult()" :disabled="isSaving"
-                            class="h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] active:opacity-80 transition shadow-[0_1px_2px_rgba(0,122,255,0.25)] flex items-center gap-1.5 disabled:opacity-50">
-                            <span x-text="isSaving ? 'Menyimpan...' : 'Simpan Riwayat'"></span>
+                            class="min-h-[44px] h-11 px-6 rounded-[12px] text-xs font-bold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] transition-all shadow-[0_2px_4px_rgba(0,122,255,0.3)] flex items-center gap-2 cursor-pointer disabled:opacity-50">
+                            <i data-lucide="bookmark-check" class="w-4 h-4"></i>
+                            <span x-text="isSaving ? 'Menyimpan Riwayat...' : 'Simpan Riwayat Sekarang'"></span>
                         </button>
                     </div>
+
                 </div>
             </div>
         @endif

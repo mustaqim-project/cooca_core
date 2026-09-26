@@ -13,21 +13,21 @@
                 <i data-lucide="chevron-right" class="w-3 h-3 opacity-40"></i>
                 <span class="text-black dark:text-white font-medium">Detail Settlement</span>
             </nav>
-            <h1 class="text-[20px] font-bold text-black dark:text-white tracking-tight flex items-center gap-2.5">
+            <h1 class="text-[20px] sm:text-[22px] font-bold text-black dark:text-white tracking-tight flex flex-wrap items-center gap-2.5">
                 <span>Settlement #{{ $settlement->settlement_number }}</span>
                 @if($settlement->isCompleted())
                     <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158] inline-flex items-center gap-1">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+                        <i data-lucide="check" class="w-3.5 h-3.5"></i>
                         <span>Ditransfer &amp; Selesai</span>
                     </span>
                 @elseif($settlement->isPending())
                     <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#FF9500]/15 text-[#D97706] dark:text-[#F59E0B] inline-flex items-center gap-1">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <i data-lucide="clock" class="w-3.5 h-3.5"></i>
                         <span>Menunggu Transfer Admin</span>
                     </span>
                 @elseif($settlement->isRejected())
                     <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#FF3B30]/15 text-[#FF3B30] inline-flex items-center gap-1">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                        <i data-lucide="x" class="w-3.5 h-3.5"></i>
                         <span>Ditolak</span>
                     </span>
                 @else
@@ -45,10 +45,8 @@
         </div>
         <div>
             <a href="{{ route('finance.settlements.index') }}"
-                class="h-9 px-4 rounded-[12px] text-[13px] font-semibold text-black/70 dark:text-white/70 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] transition flex items-center gap-1.5 active:scale-[0.98]">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
-                </svg>
+                class="min-h-[44px] sm:min-h-0 h-11 sm:h-9 px-4 rounded-[12px] text-[13px] font-semibold text-black/70 dark:text-white/70 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] transition flex items-center justify-center gap-1.5 active:scale-[0.98]">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i>
                 <span>Kembali ke Daftar</span>
             </a>
         </div>
@@ -63,9 +61,7 @@
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-black/5 dark:border-white/10">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-[14px] bg-[#34C759]/15 text-[#34C759] flex items-center justify-center font-bold">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
+                        <i data-lucide="shield-check" class="w-5 h-5"></i>
                     </div>
                     <div>
                         <h3 class="text-[16px] font-bold text-black dark:text-white tracking-tight">Bukti Transfer Resmi dari Admin COOCA</h3>
@@ -75,18 +71,13 @@
 
                 <div class="flex items-center gap-2">
                     <button type="button" @click="showProofModal = true"
-                        class="h-9 px-3.5 rounded-[12px] bg-[#007AFF] hover:bg-[#0071E3] text-white text-[12.5px] font-semibold flex items-center gap-1.5 transition active:scale-[0.98] shadow-xs">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
+                        class="min-h-[44px] sm:min-h-0 h-10 sm:h-9 px-3.5 rounded-[12px] bg-[#007AFF] hover:bg-[#0071E3] text-white text-[12.5px] font-semibold flex items-center gap-1.5 transition active:scale-[0.98] shadow-xs">
+                        <i data-lucide="eye" class="w-4 h-4"></i>
                         <span>Lihat Bukti Foto</span>
                     </button>
                     <a href="{{ $settlement->proof_image_url }}" download="bukti-transfer-{{ $settlement->settlement_number }}.jpg" target="_blank"
-                        class="h-9 px-3.5 rounded-[12px] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] text-black dark:text-white text-[12.5px] font-semibold flex items-center gap-1.5 transition active:scale-[0.98]">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
-                        </svg>
+                        class="min-h-[44px] sm:min-h-0 h-10 sm:h-9 px-3.5 rounded-[12px] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] text-black dark:text-white text-[12.5px] font-semibold flex items-center gap-1.5 transition active:scale-[0.98]">
+                        <i data-lucide="download" class="w-4 h-4"></i>
                         <span>Unduh Struk</span>
                     </a>
                 </div>
@@ -98,7 +89,7 @@
                     <div class="relative rounded-[16px] overflow-hidden border border-black/10 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.02] aspect-4/3 flex items-center justify-center">
                         <img src="{{ $settlement->proof_image_url }}" alt="Bukti Transfer Settlement" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
                         <div class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold gap-1.5">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607zM10.5 7.5v6m3-3h-6"/></svg>
+                            <i data-lucide="maximize-2" class="w-4 h-4"></i>
                             <span>Klik untuk Memperbesar</span>
                         </div>
                     </div>
@@ -147,9 +138,7 @@
         <div class="rounded-[20px] bg-[#FF9500]/5 border border-[#FF9500]/20 p-5 sm:p-6 space-y-3">
             <div class="flex items-start gap-3.5">
                 <div class="w-9 h-9 rounded-[12px] bg-[#FF9500]/15 text-[#D97706] dark:text-[#F59E0B] flex items-center justify-center shrink-0 mt-0.5">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
+                    <i data-lucide="clock" class="w-5 h-5"></i>
                 </div>
                 <div class="space-y-1">
                     <h3 class="text-[15px] font-bold text-black dark:text-white">Menunggu Proses Transfer &amp; Unggah Bukti Bayar</h3>
@@ -164,9 +153,7 @@
         <div class="rounded-[20px] bg-[#FF3B30]/5 border border-[#FF3B30]/20 p-5 sm:p-6 space-y-3">
             <div class="flex items-start gap-3.5">
                 <div class="w-9 h-9 rounded-[12px] bg-[#FF3B30]/15 text-[#FF3B30] flex items-center justify-center shrink-0 mt-0.5">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
-                    </svg>
+                    <i data-lucide="alert-octagon" class="w-5 h-5"></i>
                 </div>
                 <div class="space-y-1">
                     <h3 class="text-[15px] font-bold text-[#FF3B30]">Pengajuan Pencairan Ditolak</h3>
@@ -277,7 +264,7 @@
                         <p class="text-xs text-black/50 dark:text-white/50">Settlement #{{ $settlement->settlement_number }}</p>
                     </div>
                     <button @click="showProofModal = false" class="w-8 h-8 rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center text-black/60 dark:text-white/60 hover:bg-black/10 transition">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                        <i data-lucide="x" class="w-4 h-4"></i>
                     </button>
                 </div>
                 <div class="flex-1 overflow-auto flex items-center justify-center bg-black/[0.03] dark:bg-white/[0.03] rounded-[16px] p-2">
@@ -288,7 +275,7 @@
                     <div class="flex gap-2">
                         <a href="{{ $settlement->proof_image_url }}" download="bukti-transfer-{{ $settlement->settlement_number }}.jpg" target="_blank"
                             class="h-9 px-4 rounded-[12px] bg-[#007AFF] text-white text-xs font-semibold flex items-center gap-1.5 hover:bg-[#0071E3] transition">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
+                            <i data-lucide="download" class="w-3.5 h-3.5"></i>
                             <span>Unduh File</span>
                         </a>
                         <button type="button" @click="showProofModal = false" class="h-9 px-4 rounded-[12px] bg-black/5 dark:bg-white/10 text-black dark:text-white text-xs font-semibold hover:bg-black/10 transition">

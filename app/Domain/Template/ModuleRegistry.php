@@ -21,6 +21,7 @@ final class ModuleRegistry
     public const MODULE_CUSTOMER_PO = 'customer_po';
     public const MODULE_RESERVATION = 'reservation';
     public const MODULE_MERCHANT_SHIPPING = 'merchant_shipping';
+    public const MODULE_ACCOUNTING_CORPORATE = 'accounting_corporate';
 
     /**
      * Complete definition of all modular features in Cooca.
@@ -207,6 +208,16 @@ final class ModuleRegistry
                 'category' => 'Toko Online',
                 'permissions' => [
                     'storefront.shipping.manage',
+                ],
+            ],
+            self::MODULE_ACCOUNTING_CORPORATE => [
+                'name' => 'Akuntansi Lengkap Korporasi (Buku Besar & Jurnal)',
+                'description' => 'Bagan akun (COA) standar SAK EMKM, buku jurnal berpasangan, buku besar, neraca saldo, neraca posisi keuangan, dan rekonsiliasi bank.',
+                'icon' => 'book-open',
+                'category' => 'Keuangan & Akuntansi',
+                'permissions' => [
+                    'accounting.view',
+                    'accounting.manage',
                 ],
             ],
         ];

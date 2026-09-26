@@ -6,26 +6,26 @@
         {{-- ========================================================== --}}
         {{-- TOOLBAR / PAGE HEADER                                      --}}
         {{-- ========================================================== --}}
-        <header class="rounded-[14px] backdrop-blur-md bg-white/75 dark:bg-[#1C1C1E]/75 border border-black/5 dark:border-white/10 px-4 sm:px-6 py-3.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <header class="rounded-[16px] backdrop-blur-md bg-white/75 dark:bg-[#1C1C1E]/75 border border-black/5 dark:border-white/10 px-4 sm:px-6 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
             <div>
                 <nav class="flex items-center gap-1.5 text-[12px] text-black/50 dark:text-white/50 mb-1">
                     <span class="text-black/70 dark:text-white/70">Keuangan &amp; Akuntansi</span>
                     <i data-lucide="chevron-right" class="w-3 h-3 opacity-40"></i>
                     <span class="text-black dark:text-white font-medium">Neraca Keuangan</span>
                 </nav>
-                <h1 class="text-[20px] font-semibold text-black dark:text-white tracking-tight">Laporan Posisi Keuangan (Neraca)</h1>
+                <h1 class="text-[20px] sm:text-[22px] font-bold text-black dark:text-white tracking-tight">Laporan Posisi Keuangan (Neraca)</h1>
                 <p class="text-[13px] text-black/50 dark:text-white/50">Standar SAK EMKM resmi: Aktiva (Aset) = Pasiva (Kewajiban + Ekuitas)</p>
             </div>
-            <div class="flex items-center gap-2 w-full sm:w-auto">
+            <div class="flex items-center gap-2.5 w-full sm:w-auto">
                 <form method="GET" action="{{ route('finance.balance-sheet') }}" class="flex items-center gap-2">
                     <div class="relative">
                         <input type="date" name="as_of_date" value="{{ $asOfDate->toDateString() }}"
                             onchange="this.form.submit()"
-                            class="h-9 px-3 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] text-[13px] text-black dark:text-white focus:outline-none focus:ring-1 focus:ring-[#007AFF]">
+                            class="h-11 sm:h-9 px-3 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] text-[16px] sm:text-[13px] text-black dark:text-white focus:outline-none focus:ring-1 focus:ring-[#007AFF]">
                     </div>
                 </form>
                 <button type="button" onclick="window.print()"
-                    class="h-9 px-3.5 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] transition-colors flex items-center gap-1.5">
+                    class="min-h-[44px] sm:min-h-0 h-11 sm:h-9 px-3.5 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] transition-colors flex items-center justify-center gap-1.5">
                     <i data-lucide="printer" class="w-4 h-4"></i>
                     <span>Cetak</span>
                 </button>
@@ -35,10 +35,10 @@
         {{-- ========================================================== --}}
         {{-- BALANCE STATUS HIGHLIGHT CARD (APPLE HIG BENTO)            --}}
         {{-- ========================================================== --}}
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-4 flex items-center justify-between">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+            <div class="rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-5 flex items-center justify-between shadow-xs">
                 <div>
-                    <p class="text-[11px] font-medium text-black/45 dark:text-white/45 uppercase tracking-wide">Total Aktiva (Aset)</p>
+                    <p class="text-[11px] font-semibold text-black/45 dark:text-white/45 uppercase tracking-wider">Total Aktiva (Aset)</p>
                     <p class="text-[22px] font-bold tabular-nums text-[#007AFF] dark:text-[#0A84FF] mt-1">
                         Rp {{ number_format($sheet['summary']['total_assets'], 0, ',', '.') }}
                     </p>
@@ -49,9 +49,9 @@
                 </div>
             </div>
 
-            <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-4 flex items-center justify-between">
+            <div class="rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-5 flex items-center justify-between shadow-xs">
                 <div>
-                    <p class="text-[11px] font-medium text-black/45 dark:text-white/45 uppercase tracking-wide">Total Pasiva (Kewajiban + Modal)</p>
+                    <p class="text-[11px] font-semibold text-black/45 dark:text-white/45 uppercase tracking-wider">Total Pasiva (Kewajiban + Modal)</p>
                     <p class="text-[22px] font-bold tabular-nums text-[#5856D6] dark:text-[#5E5CE6] mt-1">
                         Rp {{ number_format($sheet['summary']['total_liabilities_and_equity'], 0, ',', '.') }}
                     </p>
@@ -62,9 +62,9 @@
                 </div>
             </div>
 
-            <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-4 flex items-center justify-between">
+            <div class="rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-5 flex items-center justify-between shadow-xs">
                 <div>
-                    <p class="text-[11px] font-medium text-black/45 dark:text-white/45 uppercase tracking-wide">Status Keseimbangan</p>
+                    <p class="text-[11px] font-semibold text-black/45 dark:text-white/45 uppercase tracking-wider">Status Keseimbangan</p>
                     <div class="mt-1.5 flex items-center gap-1.5">
                         @if($sheet['summary']['is_balanced'])
                             <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[12px] font-semibold bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158]">
@@ -96,12 +96,12 @@
             {{-- ------------------------------------------------------ --}}
             {{-- KOLOM KIRI: AKTIVA (ASET)                              --}}
             {{-- ------------------------------------------------------ --}}
-            <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 overflow-hidden flex flex-col justify-between">
+            <div class="rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 overflow-hidden flex flex-col justify-between shadow-xs">
                 <div>
                     <div class="px-5 py-4 border-b border-black/5 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.02] flex items-center justify-between">
                         <div class="flex items-center gap-2">
                             <span class="w-2.5 h-2.5 rounded-full bg-[#007AFF]"></span>
-                            <h2 class="text-[15px] font-semibold text-black dark:text-white">ASET / AKTIVA</h2>
+                            <h2 class="text-[15px] font-bold text-black dark:text-white">ASET / AKTIVA</h2>
                         </div>
                         <span class="text-[12px] text-black/40 dark:text-white/40">Sisi Kiri Neraca</span>
                     </div>
@@ -115,10 +115,10 @@
 
                         <div class="divide-y divide-black/[0.03] dark:divide-white/[0.04]">
                             @forelse($sheet['assets']['current'] as $item)
-                                <div class="py-2 flex items-center justify-between text-[13px]">
+                                <div class="py-2.5 flex items-center justify-between text-[13px]">
                                     <div class="flex items-center gap-2 min-w-0 pr-2">
-                                        <span class="tabular-nums font-mono text-[11px] text-black/40 dark:text-white/40 shrink-0">{{ $item['code'] }}</span>
-                                        <span class="text-black/80 dark:text-white/80 truncate">{{ $item['name'] }}</span>
+                                        <span class="tabular-nums font-mono text-[11px] text-black/45 dark:text-white/45 shrink-0">{{ $item['code'] }}</span>
+                                        <span class="text-black/85 dark:text-white/85 truncate font-medium">{{ $item['name'] }}</span>
                                     </div>
                                     <span class="tabular-nums font-semibold text-black dark:text-white shrink-0">
                                         Rp {{ number_format($item['balance'], 0, ',', '.') }}
@@ -129,8 +129,8 @@
                             @endforelse
                         </div>
 
-                        <div class="pt-2 flex items-center justify-between text-[13px] font-semibold border-t border-dashed border-black/10 dark:border-white/10">
-                            <span class="text-black/60 dark:text-white/60">Subtotal Aset Lancar</span>
+                        <div class="pt-2.5 flex items-center justify-between text-[13px] font-bold border-t border-dashed border-black/10 dark:border-white/10">
+                            <span class="text-black/65 dark:text-white/65">Subtotal Aset Lancar</span>
                             <span class="tabular-nums text-black dark:text-white">
                                 Rp {{ number_format($sheet['assets']['total_current'], 0, ',', '.') }}
                             </span>
@@ -146,10 +146,10 @@
 
                         <div class="divide-y divide-black/[0.03] dark:divide-white/[0.04]">
                             @forelse($sheet['assets']['non_current'] as $item)
-                                <div class="py-2 flex items-center justify-between text-[13px]">
+                                <div class="py-2.5 flex items-center justify-between text-[13px]">
                                     <div class="flex items-center gap-2 min-w-0 pr-2">
-                                        <span class="tabular-nums font-mono text-[11px] text-black/40 dark:text-white/40 shrink-0">{{ $item['code'] }}</span>
-                                        <span class="text-black/80 dark:text-white/80 truncate">{{ $item['name'] }}</span>
+                                        <span class="tabular-nums font-mono text-[11px] text-black/45 dark:text-white/45 shrink-0">{{ $item['code'] }}</span>
+                                        <span class="text-black/85 dark:text-white/85 truncate font-medium">{{ $item['name'] }}</span>
                                     </div>
                                     <span class="tabular-nums font-semibold text-black dark:text-white shrink-0">
                                         Rp {{ number_format($item['balance'], 0, ',', '.') }}
@@ -160,8 +160,8 @@
                             @endforelse
                         </div>
 
-                        <div class="pt-2 flex items-center justify-between text-[13px] font-semibold border-t border-dashed border-black/10 dark:border-white/10">
-                            <span class="text-black/60 dark:text-white/60">Subtotal Aset Tetap</span>
+                        <div class="pt-2.5 flex items-center justify-between text-[13px] font-bold border-t border-dashed border-black/10 dark:border-white/10">
+                            <span class="text-black/65 dark:text-white/65">Subtotal Aset Tetap</span>
                             <span class="tabular-nums text-black dark:text-white">
                                 Rp {{ number_format($sheet['assets']['total_non_current'], 0, ',', '.') }}
                             </span>
@@ -181,12 +181,12 @@
             {{-- ------------------------------------------------------ --}}
             {{-- KOLOM KANAN: PASIVA (KEWAJIBAN & EKUITAS)              --}}
             {{-- ------------------------------------------------------ --}}
-            <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 overflow-hidden flex flex-col justify-between">
+            <div class="rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 overflow-hidden flex flex-col justify-between shadow-xs">
                 <div>
                     <div class="px-5 py-4 border-b border-black/5 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.02] flex items-center justify-between">
                         <div class="flex items-center gap-2">
                             <span class="w-2.5 h-2.5 rounded-full bg-[#5856D6]"></span>
-                            <h2 class="text-[15px] font-semibold text-black dark:text-white">KEWAJIBAN &amp; EKUITAS (PASIVA)</h2>
+                            <h2 class="text-[15px] font-bold text-black dark:text-white">KEWAJIBAN &amp; EKUITAS (PASIVA)</h2>
                         </div>
                         <span class="text-[12px] text-black/40 dark:text-white/40">Sisi Kanan Neraca</span>
                     </div>
@@ -200,10 +200,10 @@
 
                         <div class="divide-y divide-black/[0.03] dark:divide-white/[0.04]">
                             @forelse($sheet['liabilities']['current'] as $item)
-                                <div class="py-2 flex items-center justify-between text-[13px]">
+                                <div class="py-2.5 flex items-center justify-between text-[13px]">
                                     <div class="flex items-center gap-2 min-w-0 pr-2">
-                                        <span class="tabular-nums font-mono text-[11px] text-black/40 dark:text-white/40 shrink-0">{{ $item['code'] }}</span>
-                                        <span class="text-black/80 dark:text-white/80 truncate">{{ $item['name'] }}</span>
+                                        <span class="tabular-nums font-mono text-[11px] text-black/45 dark:text-white/45 shrink-0">{{ $item['code'] }}</span>
+                                        <span class="text-black/85 dark:text-white/85 truncate font-medium">{{ $item['name'] }}</span>
                                     </div>
                                     <span class="tabular-nums font-semibold text-black dark:text-white shrink-0">
                                         Rp {{ number_format($item['balance'], 0, ',', '.') }}
@@ -214,8 +214,8 @@
                             @endforelse
                         </div>
 
-                        <div class="pt-2 flex items-center justify-between text-[13px] font-semibold border-t border-dashed border-black/10 dark:border-white/10">
-                            <span class="text-black/60 dark:text-white/60">Subtotal Kewajiban</span>
+                        <div class="pt-2.5 flex items-center justify-between text-[13px] font-bold border-t border-dashed border-black/10 dark:border-white/10">
+                            <span class="text-black/65 dark:text-white/65">Subtotal Kewajiban</span>
                             <span class="tabular-nums text-black dark:text-white">
                                 Rp {{ number_format($sheet['liabilities']['total'], 0, ',', '.') }}
                             </span>
@@ -231,10 +231,10 @@
 
                         <div class="divide-y divide-black/[0.03] dark:divide-white/[0.04]">
                             @foreach($sheet['equity']['accounts'] as $item)
-                                <div class="py-2 flex items-center justify-between text-[13px]">
+                                <div class="py-2.5 flex items-center justify-between text-[13px]">
                                     <div class="flex items-center gap-2 min-w-0 pr-2">
-                                        <span class="tabular-nums font-mono text-[11px] text-black/40 dark:text-white/40 shrink-0">{{ $item['code'] }}</span>
-                                        <span class="text-black/80 dark:text-white/80 truncate">{{ $item['name'] }}</span>
+                                        <span class="tabular-nums font-mono text-[11px] text-black/45 dark:text-white/45 shrink-0">{{ $item['code'] }}</span>
+                                        <span class="text-black/85 dark:text-white/85 truncate font-medium">{{ $item['name'] }}</span>
                                     </div>
                                     <span class="tabular-nums font-semibold text-black dark:text-white shrink-0">
                                         Rp {{ number_format($item['balance'], 0, ',', '.') }}
@@ -243,10 +243,10 @@
                             @endforeach
 
                             {{-- Laba Bersih Periode Berjalan --}}
-                            <div class="py-2 flex items-center justify-between text-[13px] bg-[#34C759]/5 px-2.5 rounded-[8px]">
+                            <div class="py-2.5 flex items-center justify-between text-[13px] bg-[#34C759]/5 px-3 rounded-[10px] my-1">
                                 <div class="flex items-center gap-2 min-w-0 pr-2">
                                     <span class="w-1.5 h-1.5 rounded-full bg-[#34C759] shrink-0"></span>
-                                    <span class="font-medium text-[#248A3D] dark:text-[#30D158]">Laba Bersih Periode Berjalan (P&amp;L)</span>
+                                    <span class="font-semibold text-[#248A3D] dark:text-[#30D158]">Laba Bersih Periode Berjalan (P&amp;L)</span>
                                 </div>
                                 <span class="tabular-nums font-bold text-[#248A3D] dark:text-[#30D158] shrink-0">
                                     Rp {{ number_format($sheet['equity']['current_earnings'], 0, ',', '.') }}
@@ -254,8 +254,8 @@
                             </div>
                         </div>
 
-                        <div class="pt-2 flex items-center justify-between text-[13px] font-semibold border-t border-dashed border-black/10 dark:border-white/10">
-                            <span class="text-black/60 dark:text-white/60">Subtotal Ekuitas</span>
+                        <div class="pt-2.5 flex items-center justify-between text-[13px] font-bold border-t border-dashed border-black/10 dark:border-white/10">
+                            <span class="text-black/65 dark:text-white/65">Subtotal Ekuitas</span>
                             <span class="tabular-nums text-black dark:text-white">
                                 Rp {{ number_format($sheet['equity']['total'], 0, ',', '.') }}
                             </span>

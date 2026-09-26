@@ -6,8 +6,8 @@
 
 @section('content')
 <div class="max-w-[1360px] mx-auto space-y-6 pb-28 lg:pb-12" x-data="{
-    showCreateModal: false,
-    showCreateOutletModal: false,
+    showCreateModal: new URLSearchParams(window.location.search).get('add') === 'warehouse',
+    showCreateOutletModal: new URLSearchParams(window.location.search).get('add') === 'outlet' || new URLSearchParams(window.location.search).get('add') === 'branch',
     showEditModal: false,
     filterTab: 'all',
     gpsLoading: false,
@@ -373,6 +373,15 @@
             </a>
             @endif
 
+            @if(\App\Support\Context::hasPermission('storefront.shipping.manage') || \App\Support\Context::isAdminOrOwner())
+            <a href="{{ route('storefront.shipping.index') }}"
+               class="h-9 px-3.5 rounded-[10px] text-xs font-semibold text-[#5856D6] dark:text-[#A78BFA] bg-[#5856D6]/10 hover:bg-[#5856D6]/15 active:scale-[0.98] transition-all flex items-center justify-center gap-1.5"
+               title="Pengaturan Ongkir & Kurir Toko Online">
+                <i data-lucide="truck" class="w-4 h-4 text-[#5856D6] dark:text-[#A78BFA]"></i>
+                <span>Pengiriman Storefront</span>
+            </a>
+            @endif
+
             @if(\App\Support\Context::hasPermission('inventory.manage') || \App\Support\Context::isAdminOrOwner() || \App\Support\Context::hasPermission('warehouse.manage'))
             <button type="button" @click="showCreateOutletModal = true; gpsError = ''; gpsSuccess = false;"
                     class="h-9 px-4 rounded-[10px] text-xs font-bold text-white bg-[#34C759] hover:bg-[#28A745] active:scale-[0.98] transition-all flex items-center justify-center gap-1.5 shadow-[0_1px_2px_rgba(52,199,89,0.25)] cursor-pointer">
@@ -417,7 +426,7 @@
                 </div>
             </div>
             <div class="mt-3 flex items-baseline justify-between">
-                <span class="text-2xl font-black tabular-nums text-slate-900 dark:text-white">{{ $stats['total_locations'] ?? 0 }}</span>
+                <span class="text-2xl font-black tabular-nums text-slate-900 dark:text-white">{{ $totalWarehouses ?? $locations->count() }}</span>
                 <span class="text-[11px] text-slate-400 dark:text-slate-500 font-medium">Cabang &amp; Gudang</span>
             </div>
         </div>
@@ -431,36 +440,38 @@
                 </div>
             </div>
             <div class="mt-3 flex items-baseline justify-between">
-                <span class="text-2xl font-black tabular-nums text-[#34C759] dark:text-[#30D158]">{{ $stats['active_locations'] ?? 0 }}</span>
+                <span class="text-2xl font-black tabular-nums text-[#34C759] dark:text-[#30D158]">{{ $activeWarehouses ?? $locations->where('is_active', true)->count() }}</span>
                 <span class="text-[11px] font-semibold text-[#34C759] dark:text-[#30D158]">Siap Operasi</span>
             </div>
         </div>
 
-        {{-- Tile 3: Total SKU Terdaftar --}}
+        {{-- Tile 3: Total Nilai Aset Stok --}}
         <div class="rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] p-4 sm:p-5 flex flex-col justify-between shadow-xs">
             <div class="flex items-center justify-between">
-                <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">SKU Terdaftar</span>
+                <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Nilai Aset Stok</span>
                 <div class="w-7 h-7 rounded-[8px] bg-[#5856D6]/10 flex items-center justify-center text-[#5856D6]">
-                    <i data-lucide="layers" class="w-3.5 h-3.5"></i>
+                    <i data-lucide="badge-dollar-sign" class="w-3.5 h-3.5"></i>
                 </div>
             </div>
             <div class="mt-3 flex items-baseline justify-between">
-                <span class="text-2xl font-black tabular-nums text-[#5856D6] dark:text-[#5E5CE6]">{{ number_format($stats['total_sku'] ?? 0, 0, ',', '.') }}</span>
-                <span class="text-[11px] text-slate-400 dark:text-slate-500 font-medium">Item Fisik</span>
+                <span class="text-xl sm:text-2xl font-black tabular-nums text-[#5856D6] dark:text-[#5E5CE6] truncate">
+                    Rp {{ number_format($totalValuation ?? 0, 0, ',', '.') }}
+                </span>
+                <span class="text-[11px] text-slate-400 dark:text-slate-500 font-medium">HPP</span>
             </div>
         </div>
 
-        {{-- Tile 4: Total Unit Stok Fisik --}}
+        {{-- Tile 4: Stok Perlu Restock / Total Unit --}}
         <div class="rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] p-4 sm:p-5 flex flex-col justify-between shadow-xs">
             <div class="flex items-center justify-between">
-                <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Total Unit Fisik</span>
-                <div class="w-7 h-7 rounded-[8px] bg-[#007AFF]/10 flex items-center justify-center text-[#007AFF]">
-                    <i data-lucide="box" class="w-3.5 h-3.5"></i>
+                <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Stok Menipis</span>
+                <div class="w-7 h-7 rounded-[8px] {{ ($totalLowStock ?? 0) > 0 ? 'bg-[#FF9500]/10 text-[#FF9500]' : 'bg-slate-100 dark:bg-slate-800 text-slate-400' }} flex items-center justify-center">
+                    <i data-lucide="alert-circle" class="w-3.5 h-3.5"></i>
                 </div>
             </div>
             <div class="mt-3 flex items-baseline justify-between">
-                <span class="text-2xl font-black tabular-nums text-[#007AFF] dark:text-[#0A84FF]">{{ number_format($stats['total_stock_units'] ?? 0, 0, ',', '.') }}</span>
-                <span class="text-[11px] text-slate-400 dark:text-slate-500 font-medium">Seluruh Lokasi</span>
+                <span class="text-2xl font-black tabular-nums {{ ($totalLowStock ?? 0) > 0 ? 'text-[#FF9500] dark:text-[#FF9F0A]' : 'text-slate-900 dark:text-white' }}">{{ $totalLowStock ?? 0 }}</span>
+                <span class="text-[11px] {{ ($totalLowStock ?? 0) > 0 ? 'text-[#FF9500] dark:text-[#FF9F0A] font-bold' : 'text-slate-400 dark:text-slate-500 font-medium' }}">{{ ($totalLowStock ?? 0) > 0 ? 'Perlu Restock' : 'Batas Aman' }}</span>
             </div>
         </div>
     </div>
@@ -530,10 +541,19 @@
                                     <h3 class="text-sm sm:text-base font-bold text-slate-900 dark:text-white truncate">
                                         {{ $loc->name }}
                                     </h3>
-                                    @if($loc->is_primary)
-                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#FF9500]/15 text-[#D97706] dark:text-[#FBBF24] border border-[#FF9500]/30" title="Titik Pengiriman & Pickup Utama Toko Online Biteship">
-                                            <i data-lucide="truck" class="w-3 h-3"></i>
-                                            <span>Pickup Utama Toko Online</span>
+                                    @php
+                                        $isActiveStorefrontOrigin = ($storeSetting && $storeSetting->origin_location_id === $loc->id)
+                                            || ($loc->is_primary && empty($storeSetting?->origin_location_id));
+                                    @endphp
+                                    @if($isActiveStorefrontOrigin)
+                                        <a href="{{ route('storefront.shipping.index') }}" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/25 transition-colors" title="Titik Asal Penjemputan Storefront Online Aktif">
+                                            <i data-lucide="truck" class="w-3 h-3 text-emerald-600 dark:text-emerald-400"></i>
+                                            <span>Asal Kirim Storefront</span>
+                                        </a>
+                                    @elseif($loc->is_primary)
+                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#FF9500]/15 text-[#D97706] dark:text-[#FBBF24] border border-[#FF9500]/30" title="Cabang Utama Toko">
+                                            <i data-lucide="building" class="w-3 h-3"></i>
+                                            <span>Cabang Utama</span>
                                         </span>
                                     @endif
                                 </div>
@@ -571,8 +591,22 @@
                         </div>
                     </div>
 
-                    {{-- Badges: GPS Geofence & Biteship Logistics --}}
+                    {{-- Badges: GPS Geofence, Biteship Logistics, Online Fulfillment, & Store Pickup --}}
                     <div class="mt-3 flex flex-wrap gap-1.5">
+                        @if($loc->is_online_fulfillment)
+                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-[6px] text-[11px] font-semibold bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20" title="Cabang ini melayani pengiriman pesanan kurir online">
+                                <i data-lucide="truck" class="w-3 h-3"></i>
+                                <span>Fulfillment Online</span>
+                            </span>
+                        @endif
+
+                        @if($loc->allow_storefront_pickup)
+                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-[6px] text-[11px] font-semibold bg-[#007AFF]/10 text-[#007AFF] border border-[#007AFF]/20" title="Pelanggan dapat mengambil pesanan langsung di cabang ini">
+                                <i data-lucide="shopping-bag" class="w-3 h-3"></i>
+                                <span>Ambil di Toko</span>
+                            </span>
+                        @endif
+
                         @if($loc->latitude && $loc->longitude)
                             <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-[6px] text-[11px] font-semibold bg-[#007AFF]/10 text-[#007AFF] border border-[#007AFF]/20 font-mono">
                                 <i data-lucide="crosshair" class="w-3 h-3"></i>
@@ -743,7 +777,9 @@
             {{-- Step 4 --}}
             <div class="rounded-[12px] bg-slate-50 dark:bg-[#2C2C2E] p-3.5 border border-black/[0.04] dark:border-white/[0.04]">
                 <div class="flex items-center gap-2 mb-1.5">
-                    <span class="w-5 h-5 rounded-full bg-[#34C759] text-white text-[11px] font-bold flex items-center justify-center tabular-nums">✓</span>
+                    <span class="w-5 h-5 rounded-full bg-[#34C759] text-white flex items-center justify-center shrink-0">
+                        <i data-lucide="check" class="w-3 h-3"></i>
+                    </span>
                     <span class="text-xs font-bold text-slate-900 dark:text-white">Stok Terdistribusi</span>
                 </div>
                 <p class="text-xs text-slate-600 dark:text-slate-400 leading-snug">
@@ -865,14 +901,12 @@
             @endforeach
         </div>
     </div>
-    @endif
-
-    {{-- ===================================================== --}}
-    {{-- 7a. APPLE SHEET: TAMBAH GUDANG LOGISTIK               --}}
+    @endif    {{-- ===================================================== --}}
+    {{-- 7a. APPLE BENTO XXL SHEET: TAMBAH GUDANG LOGISTIK     --}}
     {{-- ===================================================== --}}
     <div x-show="showCreateModal"
          x-cloak
-         class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4"
+         class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-md p-3 sm:p-6"
          x-transition:enter="transition ease-out duration-200"
          x-transition:enter-start="opacity-0"
          x-transition:enter-end="opacity-100"
@@ -880,7 +914,7 @@
          x-transition:leave-start="opacity-100"
          x-transition:leave-end="opacity-0">
 
-        <div class="w-full max-w-xl rounded-[22px] bg-white dark:bg-[#2C2C2E] border border-black/[0.08] dark:border-white/[0.12] shadow-2xl p-6 space-y-5 max-h-[90vh] overflow-y-auto"
+        <div class="w-full max-w-[94vw] md:max-w-2xl lg:max-w-3xl xl:max-w-4xl max-h-[88vh] rounded-[22px] bg-white/98 dark:bg-[#1C1C1E]/98 backdrop-blur-2xl border border-black/[0.08] dark:border-white/[0.12] shadow-[0_25px_60px_rgba(0,0,0,0.35)] flex flex-col overflow-hidden"
              @click.outside="showCreateModal = false"
              x-transition:enter="transition ease-out duration-200"
              x-transition:enter-start="opacity-0 scale-95"
@@ -889,20 +923,26 @@
              x-transition:leave-start="opacity-100 scale-100"
              x-transition:leave-end="opacity-0 scale-95">
 
-            <div class="flex items-center justify-between border-b border-black/[0.06] dark:border-white/[0.08] pb-3.5">
-                <div>
-                    <h3 class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                        <i data-lucide="warehouse" class="w-5 h-5 text-[#007AFF]"></i>
-                        <span>Tambah Gudang Logistik</span>
-                    </h3>
-                    <p class="text-xs text-slate-500 dark:text-slate-400">Titik penyimpanan stok fisik, pengiriman Biteship, dan absensi geofence</p>
+            {{-- Modal Header --}}
+            <div class="px-5 py-4 sm:px-6 sm:py-4.5 border-b border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between gap-3 shrink-0 bg-slate-50/50 dark:bg-white/[0.02]">
+                <div class="flex items-center gap-3.5">
+                    <div class="w-11 h-11 rounded-[14px] bg-[#007AFF]/12 text-[#007AFF] flex items-center justify-center shrink-0 border border-[#007AFF]/20">
+                        <i data-lucide="warehouse" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
+                            <span>Tambah Gudang Logistik &amp; Penyimpanan</span>
+                            <span class="text-[11px] font-semibold text-[#007AFF] bg-[#007AFF]/12 px-2.5 py-0.5 rounded-full">Warehouse Fisik</span>
+                        </h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Titik penyimpanan stok fisik bahan/produk, pengiriman kurir Biteship, dan absensi radius geofence</p>
+                    </div>
                 </div>
-                <button type="button" @click="showCreateModal = false" class="p-1 rounded-[8px] text-slate-400 hover:text-slate-900 dark:hover:text-white transition cursor-pointer">
-                    <i data-lucide="x" class="w-5 h-5"></i>
+                <button type="button" @click="showCreateModal = false" class="w-9 h-9 rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition cursor-pointer">
+                    <i data-lucide="x" class="w-4 h-4"></i>
                 </button>
             </div>
 
-            <form action="{{ route('warehouse.store') }}" method="POST" class="space-y-4 text-xs">
+            <form action="{{ route('warehouse.store') }}" method="POST" class="flex flex-col flex-1 overflow-hidden">
                 @csrf
                 <input type="hidden" name="type" value="warehouse">
                 <input type="hidden" name="province" :value="warehouseForm.province">
@@ -912,204 +952,227 @@
                 <input type="hidden" name="postal_code" :value="warehouseForm.postal_code">
                 <input type="hidden" name="biteship_area_id" :value="warehouseForm.biteship_area_id">
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                    <div class="col-span-1 sm:col-span-2">
-                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                            Nama Gudang <span class="text-[#FF3B30]">*</span>
-                        </label>
-                        <input type="text" name="name" x-model="warehouseForm.name" required placeholder="Contoh: Gudang Utama, Gudang Transit Jakarta, Gudang Bahan..."
-                               class="w-full h-10 bg-slate-50 dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3.5 text-[16px] sm:text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                            Kode Gudang
-                        </label>
-                        <input type="text" name="code" x-model="warehouseForm.code" placeholder="Misal: WH-01, GDG-JKT..."
-                               class="w-full h-10 bg-slate-50 dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3.5 text-[16px] sm:text-xs text-slate-900 dark:text-white font-mono placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                            Nomor Telepon
-                        </label>
-                        <input type="text" name="phone" x-model="warehouseForm.phone" placeholder="08xxxxxxxxxx / +62..."
-                               class="w-full h-10 bg-slate-50 dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3.5 text-[16px] sm:text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
-                    </div>
-                    <div class="col-span-1 sm:col-span-2">
-                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                            Alamat Lengkap Gudang <span class="text-[#FF3B30]">*</span>
-                        </label>
-                        <textarea name="address" x-model="warehouseForm.address" rows="2" required placeholder="Alamat fisik gudang: nomor jalan, blok, RT/RW, kelurahan, kecamatan, kota..."
-                                  class="w-full bg-slate-50 dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] p-3 text-[16px] sm:text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition resize-none"></textarea>
-                    </div>
-
-                    {{-- 🧭 SECTION GEOFENCE & DETEKSI GPS --}}
-                    <div class="col-span-1 sm:col-span-2 rounded-[16px] bg-[#007AFF]/5 dark:bg-[#007AFF]/10 border border-[#007AFF]/20 p-4 space-y-3.5">
-                        <div class="flex items-center justify-between gap-2 flex-wrap">
-                            <div class="flex items-center gap-2">
-                                <div class="w-6 h-6 rounded-[6px] bg-[#007AFF]/15 text-[#007AFF] flex items-center justify-center">
-                                    <i data-lucide="map-pin" class="w-3.5 h-3.5"></i>
+                {{-- Modal Body: 2-Kolom Bento --}}
+                <div class="p-5 sm:p-6 overflow-y-auto space-y-4 flex-1 text-xs">
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                        
+                        {{-- Kolom Kiri: Detail Informasi Gudang (6 Kolom) --}}
+                        <div class="lg:col-span-6 space-y-4">
+                            <div class="rounded-[18px] bg-slate-50/80 dark:bg-[#2C2C2E]/60 border border-black/[0.06] dark:border-white/[0.08] p-5 space-y-4">
+                                <div class="flex items-center gap-2">
+                                    <i data-lucide="info" class="w-4 h-4 text-[#007AFF]"></i>
+                                    <span class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Identitas Gudang</span>
                                 </div>
-                                <span class="text-xs font-bold text-slate-900 dark:text-white">Geofence Absensi Karyawan</span>
-                                <span class="text-[10px] font-semibold text-[#007AFF] bg-[#007AFF]/10 px-2 py-0.5 rounded-full">Opsional</span>
-                            </div>
 
-                            {{-- Tombol Live Detect GPS --}}
-                            <button type="button" @click="detectGps('warehouse')" :disabled="gpsLoading"
-                                    class="h-8 px-3 rounded-[8px] text-xs font-bold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] transition-all flex items-center gap-1.5 shadow-[0_1px_2px_rgba(0,122,255,0.25)] cursor-pointer disabled:opacity-50">
-                                <template x-if="gpsLoading && activeGpsTarget === 'warehouse'">
-                                    <svg class="animate-spin -ml-0.5 mr-1 h-3.5 w-3.5 text-white" fill="none" viewBox="0 0 24 24">
-                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                    </svg>
-                                </template>
-                                <template x-if="!(gpsLoading && activeGpsTarget === 'warehouse')">
-                                    <i data-lucide="crosshair" class="w-3.5 h-3.5"></i>
-                                </template>
-                                <span x-text="(gpsLoading && activeGpsTarget === 'warehouse') ? 'Mencari Titik GPS...' : '🧭 Deteksi GPS Saya'"></span>
-                            </button>
-                        </div>
-
-                        {{-- Alert GPS Messages --}}
-                        <template x-if="gpsSuccess && activeGpsTarget === 'warehouse'">
-                            <div class="rounded-[10px] bg-[#34C759]/15 border border-[#34C759]/30 px-3 py-2 text-[11px] text-[#248A3D] dark:text-[#30D158] flex items-center gap-2 font-medium">
-                                <i data-lucide="check-circle-2" class="w-4 h-4 text-[#34C759]"></i>
-                                <span>Titik koordinat GPS berhasil dideteksi dan alamat wilayah otomatis disinkronkan.</span>
-                            </div>
-                        </template>
-
-                        <template x-if="gpsError && activeGpsTarget === 'warehouse'">
-                            <div class="rounded-[10px] bg-[#FF3B30]/15 border border-[#FF3B30]/30 px-3 py-2 text-[11px] text-[#C41E17] dark:text-[#FF453A] flex items-center gap-2 font-medium">
-                                <i data-lucide="alert-circle" class="w-4 h-4 text-[#FF3B30]"></i>
-                                <span x-text="gpsError"></span>
-                            </div>
-                        </template>
-
-                        <div class="grid grid-cols-2 gap-3">
-                            <div>
-                                <label class="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">Latitude</label>
-                                <input type="text" name="latitude" x-model="warehouseForm.latitude" placeholder="-6.2088"
-                                       class="w-full h-9 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[8px] px-2.5 text-[16px] sm:text-xs text-slate-900 dark:text-white font-mono placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#007AFF] transition">
-                            </div>
-                            <div>
-                                <label class="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">Longitude</label>
-                                <input type="text" name="longitude" x-model="warehouseForm.longitude" placeholder="106.8456"
-                                       class="w-full h-9 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[8px] px-2.5 text-[16px] sm:text-xs text-slate-900 dark:text-white font-mono placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#007AFF] transition">
-                            </div>
-                        </div>
-
-                        <div>
-                            <div class="flex items-center justify-between mb-1">
-                                <label class="block text-[11px] font-semibold text-slate-700 dark:text-slate-300">Radius Geofence (meter)</label>
-                                <span class="text-[11px] font-bold text-[#007AFF] font-mono" x-text="warehouseForm.geofence_radius_meters + ' m'"></span>
-                            </div>
-                            <input type="number" name="geofence_radius_meters" x-model="warehouseForm.geofence_radius_meters" placeholder="100" min="10" max="5000"
-                                   class="w-full h-9 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[8px] px-2.5 text-[16px] sm:text-xs text-slate-900 dark:text-white font-mono placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#007AFF] transition">
-                            
-                            {{-- Quick Presets --}}
-                            <div class="flex items-center gap-1.5 mt-2 flex-wrap">
-                                <span class="text-[10px] text-slate-400">Pilihan Cepat:</span>
-                                <button type="button" @click="warehouseForm.geofence_radius_meters = 50" class="px-2 py-0.5 rounded-[6px] text-[10px] font-semibold bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 hover:border-[#007AFF] text-slate-700 dark:text-slate-300">50m</button>
-                                <button type="button" @click="warehouseForm.geofence_radius_meters = 100" class="px-2 py-0.5 rounded-[6px] text-[10px] font-semibold bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 hover:border-[#007AFF] text-slate-700 dark:text-slate-300">100m (Default)</button>
-                                <button type="button" @click="warehouseForm.geofence_radius_meters = 200" class="px-2 py-0.5 rounded-[6px] text-[10px] font-semibold bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 hover:border-[#007AFF] text-slate-700 dark:text-slate-300">200m</button>
-                                <button type="button" @click="warehouseForm.geofence_radius_meters = 500" class="px-2 py-0.5 rounded-[6px] text-[10px] font-semibold bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 hover:border-[#007AFF] text-slate-700 dark:text-slate-300">500m</button>
-                            </div>
-                            <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1.5">Radius area valid absensi GPS. Default: 100 meter dari titik pusat cabang.</p>
-                        </div>
-                    </div>
-
-                    {{-- 📦 SECTION INTEGRASI BITESHIP & TOKO ONLINE PICKUP --}}
-                    <div class="col-span-1 sm:col-span-2 rounded-[16px] bg-[#5856D6]/5 dark:bg-[#5856D6]/10 border border-[#5856D6]/20 p-4 space-y-3.5">
-                        <div class="flex items-center justify-between gap-2">
-                            <div class="flex items-center gap-2">
-                                <div class="w-6 h-6 rounded-[6px] bg-[#5856D6]/15 text-[#5856D6] flex items-center justify-center">
-                                    <i data-lucide="truck" class="w-3.5 h-3.5"></i>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                                        Nama Gudang <span class="text-[#FF3B30]">*</span>
+                                    </label>
+                                    <input type="text" name="name" x-model="warehouseForm.name" required placeholder="Contoh: Gudang Utama, Gudang Transit Jakarta, Gudang Bahan..."
+                                           class="w-full h-11 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3.5 text-[16px] sm:text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
                                 </div>
-                                <span class="text-xs font-bold text-slate-900 dark:text-white">Integrasi Biteship &amp; Pickup Toko Online</span>
-                            </div>
-                            <span class="text-[10px] font-bold text-[#5856D6] bg-[#5856D6]/10 px-2 py-0.5 rounded-full">Biteship Logistics</span>
-                        </div>
 
-                        {{-- Area Search Box for Biteship --}}
-                        <div class="relative">
-                            <label class="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                                Hubungkan Wilayah Biteship (Kelurahan / Kecamatan / Kode Pos)
-                            </label>
-
-                            <template x-if="!warehouseForm.biteship_area_id">
-                                <div class="relative">
-                                    <input type="text"
-                                           placeholder="Ketik min. 2 huruf (contoh: Tebet, Senayan, 12810)..."
-                                           @input.debounce.300ms="searchBiteship('warehouse', $event.target.value)"
-                                           class="w-full h-9 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[8px] pl-8 pr-3 text-[16px] sm:text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#5856D6] transition">
-                                    <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5"></i>
-                                </div>
-                            </template>
-
-                            {{-- Selected Biteship Area Card --}}
-                            <template x-if="warehouseForm.biteship_area_id">
-                                <div class="flex items-center justify-between p-2.5 rounded-[10px] bg-white dark:bg-[#1C1C1E] border border-[#5856D6]/30">
-                                    <div class="flex items-center gap-2 min-w-0">
-                                        <i data-lucide="check-circle" class="w-4 h-4 text-[#34C759] shrink-0"></i>
-                                        <div class="min-w-0">
-                                            <span class="text-xs font-bold text-slate-900 dark:text-white block truncate" x-text="warehouseForm.biteship_area_label || warehouseForm.biteship_area_id"></span>
-                                            <span class="text-[10px] text-slate-500 dark:text-slate-400 font-mono">Biteship ID: <span x-text="warehouseForm.biteship_area_id"></span></span>
-                                        </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                                            Kode Gudang
+                                        </label>
+                                        <input type="text" name="code" x-model="warehouseForm.code" placeholder="Misal: WH-01, GDG-JKT..."
+                                               class="w-full h-10 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3.5 text-[16px] sm:text-xs text-slate-900 dark:text-white font-mono placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
                                     </div>
-                                    <button type="button" @click="clearBiteshipArea('warehouse')" class="text-xs text-[#FF3B30] hover:underline font-semibold shrink-0 ml-2">
-                                        Ganti
-                                    </button>
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                                            Nomor Telepon
+                                        </label>
+                                        <input type="text" name="phone" x-model="warehouseForm.phone" placeholder="08xxxxxxxxxx / +62..."
+                                               class="w-full h-10 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3.5 text-[16px] sm:text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
+                                    </div>
                                 </div>
-                            </template>
 
-                            {{-- Dropdown Autocomplete Results --}}
-                            <div x-show="biteshipTarget === 'warehouse' && biteshipResults.length > 0"
-                                 @click.outside="biteshipResults = []"
-                                 class="absolute left-0 right-0 top-full mt-1 z-30 max-h-48 overflow-y-auto rounded-[12px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 shadow-xl divide-y divide-black/5 dark:divide-white/5">
-                                <template x-for="item in biteshipResults" :key="item.id">
-                                    <button type="button" @click="selectBiteshipArea('warehouse', item)"
-                                            class="w-full text-left p-2.5 hover:bg-[#5856D6]/10 transition flex items-center justify-between gap-2 cursor-pointer">
-                                        <div>
-                                            <span class="text-xs font-bold text-slate-900 dark:text-white block" x-text="item.label || (item.village + ', ' + item.district + ', ' + item.city)"></span>
-                                            <span class="text-[10px] text-slate-500 dark:text-slate-400" x-text="(item.province || '') + (item.postal_code ? ' • Kode Pos: ' + item.postal_code : '')"></span>
-                                        </div>
-                                        <span class="text-[10px] font-mono text-[#5856D6] font-bold shrink-0 bg-[#5856D6]/10 px-1.5 py-0.5 rounded">Pilih</span>
-                                    </button>
-                                </template>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                                        Alamat Lengkap Gudang <span class="text-[#FF3B30]">*</span>
+                                    </label>
+                                    <textarea name="address" x-model="warehouseForm.address" rows="3" required placeholder="Alamat fisik gudang: nomor jalan, blok, RT/RW, kelurahan, kecamatan, kota..."
+                                              class="w-full bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] p-3 text-[16px] sm:text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition resize-none"></textarea>
+                                </div>
                             </div>
                         </div>
 
-                        {{-- Checkbox Primary Pickup Storefront --}}
-                        <div class="space-y-2 pt-1">
-                            <label class="flex items-start gap-2.5 p-3 rounded-[12px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] cursor-pointer hover:border-[#5856D6]/40 transition">
-                                <input type="checkbox" name="is_primary" value="1" x-model="warehouseForm.is_primary" class="mt-0.5 w-4 h-4 rounded text-[#5856D6] focus:ring-[#5856D6]">
-                                <div class="text-xs">
-                                    <span class="font-bold text-slate-900 dark:text-white block">Jadikan Titik Pickup Utama Toko Online</span>
-                                    <span class="text-[11px] text-slate-500 dark:text-slate-400 block">Pesanan online pengiriman kurir (JNE, SiCepat, J&T, GoSend, GrabExpress via Biteship) akan dipickup kurir dari lokasi ini.</span>
-                                </div>
-                            </label>
+                        {{-- Kolom Kanan: Geofence GPS & Biteship Integration (6 Kolom) --}}
+                        <div class="lg:col-span-6 space-y-4">
+                            
+                            {{-- SECTION GEOFENCE & DETEKSI GPS --}}
+                            <div class="rounded-[18px] bg-[#007AFF]/5 dark:bg-[#007AFF]/10 border border-[#007AFF]/20 p-5 space-y-3.5">
+                                <div class="flex items-center justify-between gap-2 flex-wrap">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-6 h-6 rounded-[6px] bg-[#007AFF]/15 text-[#007AFF] flex items-center justify-center">
+                                            <i data-lucide="map-pin" class="w-3.5 h-3.5"></i>
+                                        </div>
+                                        <span class="text-xs font-bold text-slate-900 dark:text-white">Geofence Absensi Karyawan</span>
+                                        <span class="text-[10px] font-semibold text-[#007AFF] bg-[#007AFF]/10 px-2 py-0.5 rounded-full">Opsional</span>
+                                    </div>
 
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                <label class="flex items-start gap-2 p-2.5 rounded-[10px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] cursor-pointer">
-                                    <input type="checkbox" name="is_online_fulfillment" value="1" x-model="warehouseForm.is_online_fulfillment" class="mt-0.5 w-3.5 h-3.5 rounded text-[#007AFF] focus:ring-[#007AFF]">
-                                    <span class="text-[11px] font-medium text-slate-800 dark:text-slate-200">Titik Kirim Kurir Online</span>
-                                </label>
-                                <label class="flex items-start gap-2 p-2.5 rounded-[10px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] cursor-pointer">
-                                    <input type="checkbox" name="allow_storefront_pickup" value="1" x-model="warehouseForm.allow_storefront_pickup" class="mt-0.5 w-3.5 h-3.5 rounded text-[#007AFF] focus:ring-[#007AFF]">
-                                    <span class="text-[11px] font-medium text-slate-800 dark:text-slate-200">Izinkan Ambil di Toko</span>
-                                </label>
+                                    {{-- Tombol Live Detect GPS (Zero-Emoji) --}}
+                                    <button type="button" @click="detectGps('warehouse')" :disabled="gpsLoading"
+                                            class="min-h-[36px] h-9 px-3.5 rounded-[8px] text-xs font-bold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] transition-all flex items-center gap-1.5 shadow-[0_1px_2px_rgba(0,122,255,0.25)] cursor-pointer disabled:opacity-50">
+                                        <template x-if="gpsLoading && activeGpsTarget === 'warehouse'">
+                                            <svg class="animate-spin -ml-0.5 mr-1 h-3.5 w-3.5 text-white" fill="none" viewBox="0 0 24 24">
+                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                            </svg>
+                                        </template>
+                                        <template x-if="!(gpsLoading && activeGpsTarget === 'warehouse')">
+                                            <i data-lucide="crosshair" class="w-3.5 h-3.5"></i>
+                                        </template>
+                                        <span x-text="(gpsLoading && activeGpsTarget === 'warehouse') ? 'Mencari Titik GPS...' : 'Deteksi GPS Otomatis'"></span>
+                                    </button>
+                                </div>
+
+                                {{-- Alert GPS Messages --}}
+                                <template x-if="gpsSuccess && activeGpsTarget === 'warehouse'">
+                                    <div class="rounded-[10px] bg-[#34C759]/15 border border-[#34C759]/30 px-3 py-2 text-[11px] text-[#248A3D] dark:text-[#30D158] flex items-center gap-2 font-medium">
+                                        <i data-lucide="check-circle-2" class="w-4 h-4 text-[#34C759]"></i>
+                                        <span>Titik koordinat GPS berhasil dideteksi dan alamat wilayah otomatis disinkronkan.</span>
+                                    </div>
+                                </template>
+
+                                <template x-if="gpsError && activeGpsTarget === 'warehouse'">
+                                    <div class="rounded-[10px] bg-[#FF3B30]/15 border border-[#FF3B30]/30 px-3 py-2 text-[11px] text-[#C41E17] dark:text-[#FF453A] flex items-center gap-2 font-medium">
+                                        <i data-lucide="alert-circle" class="w-4 h-4 text-[#FF3B30]"></i>
+                                        <span x-text="gpsError"></span>
+                                    </div>
+                                </template>
+
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">Latitude</label>
+                                        <input type="text" name="latitude" x-model="warehouseForm.latitude" placeholder="-6.2088"
+                                               class="w-full h-9 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[8px] px-2.5 text-[16px] sm:text-xs text-slate-900 dark:text-white font-mono placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#007AFF] transition">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">Longitude</label>
+                                        <input type="text" name="longitude" x-model="warehouseForm.longitude" placeholder="106.8456"
+                                               class="w-full h-9 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[8px] px-2.5 text-[16px] sm:text-xs text-slate-900 dark:text-white font-mono placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#007AFF] transition">
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <div class="flex items-center justify-between mb-1">
+                                        <label class="block text-[11px] font-semibold text-slate-700 dark:text-slate-300">Radius Geofence (meter)</label>
+                                        <span class="text-[11px] font-bold text-[#007AFF] font-mono" x-text="warehouseForm.geofence_radius_meters + ' m'"></span>
+                                    </div>
+                                    <input type="number" name="geofence_radius_meters" x-model="warehouseForm.geofence_radius_meters" placeholder="100" min="10" max="5000"
+                                           class="w-full h-9 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[8px] px-2.5 text-[16px] sm:text-xs text-slate-900 dark:text-white font-mono placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#007AFF] transition">
+                                    
+                                    {{-- Quick Presets --}}
+                                    <div class="flex items-center gap-1.5 mt-2 flex-wrap">
+                                        <span class="text-[10px] text-slate-400">Pilihan Cepat:</span>
+                                        <button type="button" @click="warehouseForm.geofence_radius_meters = 50" class="px-2 py-0.5 rounded-[6px] text-[10px] font-semibold bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 hover:border-[#007AFF] text-slate-700 dark:text-slate-300 cursor-pointer">50m</button>
+                                        <button type="button" @click="warehouseForm.geofence_radius_meters = 100" class="px-2 py-0.5 rounded-[6px] text-[10px] font-semibold bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 hover:border-[#007AFF] text-slate-700 dark:text-slate-300 cursor-pointer">100m (Default)</button>
+                                        <button type="button" @click="warehouseForm.geofence_radius_meters = 200" class="px-2 py-0.5 rounded-[6px] text-[10px] font-semibold bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 hover:border-[#007AFF] text-slate-700 dark:text-slate-300 cursor-pointer">200m</button>
+                                        <button type="button" @click="warehouseForm.geofence_radius_meters = 500" class="px-2 py-0.5 rounded-[6px] text-[10px] font-semibold bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 hover:border-[#007AFF] text-slate-700 dark:text-slate-300 cursor-pointer">500m</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- SECTION INTEGRASI BITESHIP & TOKO ONLINE PICKUP --}}
+                            <div class="rounded-[18px] bg-[#5856D6]/5 dark:bg-[#5856D6]/10 border border-[#5856D6]/20 p-5 space-y-3.5">
+                                <div class="flex items-center justify-between gap-2">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-6 h-6 rounded-[6px] bg-[#5856D6]/15 text-[#5856D6] flex items-center justify-center">
+                                            <i data-lucide="truck" class="w-3.5 h-3.5"></i>
+                                        </div>
+                                        <span class="text-xs font-bold text-slate-900 dark:text-white">Integrasi Biteship &amp; Pickup Toko Online</span>
+                                    </div>
+                                    <span class="text-[10px] font-bold text-[#5856D6] bg-[#5856D6]/10 px-2 py-0.5 rounded-full">Logistics</span>
+                                </div>
+
+                                {{-- Area Search Box for Biteship --}}
+                                <div class="relative">
+                                    <label class="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                                        Hubungkan Wilayah Biteship (Kelurahan / Kecamatan / Kode Pos)
+                                    </label>
+
+                                    <template x-if="!warehouseForm.biteship_area_id">
+                                        <div class="relative">
+                                            <input type="text"
+                                                   placeholder="Ketik min. 2 huruf (contoh: Tebet, Senayan, 12810)..."
+                                                   @input.debounce.300ms="searchBiteship('warehouse', $event.target.value)"
+                                                   class="w-full h-9 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[8px] pl-8 pr-3 text-[16px] sm:text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#5856D6] transition">
+                                            <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5"></i>
+                                        </div>
+                                    </template>
+
+                                    {{-- Selected Biteship Area Card --}}
+                                    <template x-if="warehouseForm.biteship_area_id">
+                                        <div class="flex items-center justify-between p-2.5 rounded-[10px] bg-white dark:bg-[#1C1C1E] border border-[#5856D6]/30">
+                                            <div class="flex items-center gap-2 min-w-0">
+                                                <i data-lucide="check-circle" class="w-4 h-4 text-[#34C759] shrink-0"></i>
+                                                <div class="min-w-0">
+                                                    <span class="text-xs font-bold text-slate-900 dark:text-white block truncate" x-text="warehouseForm.biteship_area_label || warehouseForm.biteship_area_id"></span>
+                                                    <span class="text-[10px] text-slate-500 dark:text-slate-400 font-mono">Biteship ID: <span x-text="warehouseForm.biteship_area_id"></span></span>
+                                                </div>
+                                            </div>
+                                            <button type="button" @click="clearBiteshipArea('warehouse')" class="text-xs text-[#FF3B30] hover:underline font-semibold shrink-0 ml-2 cursor-pointer">
+                                                Ganti
+                                            </button>
+                                        </div>
+                                    </template>
+
+                                    {{-- Dropdown Autocomplete Results --}}
+                                    <div x-show="biteshipTarget === 'warehouse' && biteshipResults.length > 0"
+                                         @click.outside="biteshipResults = []"
+                                         class="absolute left-0 right-0 top-full mt-1 z-30 max-h-48 overflow-y-auto rounded-[12px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 shadow-xl divide-y divide-black/5 dark:divide-white/5">
+                                        <template x-for="item in biteshipResults" :key="item.id">
+                                            <button type="button" @click="selectBiteshipArea('warehouse', item)"
+                                                    class="w-full text-left p-2.5 hover:bg-[#5856D6]/10 transition flex items-center justify-between gap-2 cursor-pointer">
+                                                <div>
+                                                    <span class="text-xs font-bold text-slate-900 dark:text-white block" x-text="item.label || (item.village + ', ' + item.district + ', ' + item.city)"></span>
+                                                    <span class="text-[10px] text-slate-500 dark:text-slate-400" x-text="(item.province || '') + (item.postal_code ? ' • Kode Pos: ' + item.postal_code : '')"></span>
+                                                </div>
+                                                <span class="text-[10px] font-mono text-[#5856D6] font-bold shrink-0 bg-[#5856D6]/10 px-1.5 py-0.5 rounded">Pilih</span>
+                                            </button>
+                                        </template>
+                                    </div>
+                                </div>
+
+                                {{-- Checkbox Primary Pickup Storefront --}}
+                                <div class="space-y-2 pt-1">
+                                    <label class="flex items-start gap-2.5 p-3 rounded-[12px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] cursor-pointer hover:border-[#5856D6]/40 transition">
+                                        <input type="checkbox" name="is_primary" value="1" x-model="warehouseForm.is_primary" class="mt-0.5 w-4 h-4 rounded text-[#5856D6] focus:ring-[#5856D6]">
+                                        <div class="text-xs">
+                                            <span class="font-bold text-slate-900 dark:text-white block">Jadikan Titik Pickup Utama Toko Online</span>
+                                            <span class="text-[11px] text-slate-500 dark:text-slate-400 block">Pesanan online pengiriman kurir (JNE, SiCepat, J&T, GoSend, GrabExpress via Biteship) akan dipickup kurir dari lokasi ini.</span>
+                                        </div>
+                                    </label>
+
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                        <label class="flex items-start gap-2 p-2.5 rounded-[10px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] cursor-pointer">
+                                            <input type="checkbox" name="is_online_fulfillment" value="1" x-model="warehouseForm.is_online_fulfillment" class="mt-0.5 w-3.5 h-3.5 rounded text-[#007AFF] focus:ring-[#007AFF]">
+                                            <span class="text-[11px] font-medium text-slate-800 dark:text-slate-200">Titik Kirim Kurir Online</span>
+                                        </label>
+                                        <label class="flex items-start gap-2 p-2.5 rounded-[10px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] cursor-pointer">
+                                            <input type="checkbox" name="allow_storefront_pickup" value="1" x-model="warehouseForm.allow_storefront_pickup" class="mt-0.5 w-3.5 h-3.5 rounded text-[#007AFF] focus:ring-[#007AFF]">
+                                            <span class="text-[11px] font-medium text-slate-800 dark:text-slate-200">Izinkan Ambil di Toko</span>
+                                        </label>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="flex items-center justify-end gap-2 pt-3.5 border-t border-black/[0.06] dark:border-white/[0.08]">
+                {{-- Modal Footer --}}
+                <div class="px-5 py-3.5 sm:px-6 sm:py-4 border-t border-black/[0.06] dark:border-white/[0.08] flex items-center justify-end gap-3 shrink-0 bg-slate-50/50 dark:bg-white/[0.02]">
                     <button type="button" @click="showCreateModal = false"
-                            class="h-9 px-4 rounded-[10px] text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer">
+                            class="min-h-[44px] h-11 px-5 rounded-[12px] text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer">
                         Batal
                     </button>
                     <button type="submit"
-                            class="h-9 px-4 rounded-[10px] text-xs font-bold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] transition-all shadow-[0_1px_2px_rgba(0,122,255,0.25)] cursor-pointer">
-                        Simpan Gudang
+                            class="min-h-[44px] h-11 px-6 rounded-[12px] text-xs font-bold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] transition-all shadow-[0_2px_4px_rgba(0,122,255,0.25)] cursor-pointer flex items-center gap-2">
+                        <i data-lucide="plus" class="w-4 h-4"></i>
+                        <span>Simpan Gudang Logistik</span>
                     </button>
                 </div>
             </form>
@@ -1117,11 +1180,11 @@
     </div>
 
     {{-- ===================================================== --}}
-    {{-- 7b. APPLE SHEET: TAMBAH CABANG / OUTLET               --}}
+    {{-- 7b. APPLE BENTO XXL SHEET: TAMBAH CABANG / OUTLET     --}}
     {{-- ===================================================== --}}
     <div x-show="showCreateOutletModal"
          x-cloak
-         class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4"
+         class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-md p-3 sm:p-6"
          x-transition:enter="transition ease-out duration-200"
          x-transition:enter-start="opacity-0"
          x-transition:enter-end="opacity-100"
@@ -1129,7 +1192,7 @@
          x-transition:leave-start="opacity-100"
          x-transition:leave-end="opacity-0">
 
-        <div class="w-full max-w-xl rounded-[22px] bg-white dark:bg-[#2C2C2E] border border-black/[0.08] dark:border-white/[0.12] shadow-2xl p-6 space-y-5 max-h-[90vh] overflow-y-auto"
+        <div class="w-full max-w-[94vw] md:max-w-2xl lg:max-w-3xl xl:max-w-4xl max-h-[88vh] rounded-[22px] bg-white/98 dark:bg-[#1C1C1E]/98 backdrop-blur-2xl border border-black/[0.08] dark:border-white/[0.12] shadow-[0_25px_60px_rgba(0,0,0,0.35)] flex flex-col overflow-hidden"
              @click.outside="showCreateOutletModal = false"
              x-transition:enter="transition ease-out duration-200"
              x-transition:enter-start="opacity-0 scale-95"
@@ -1138,20 +1201,26 @@
              x-transition:leave-start="opacity-100 scale-100"
              x-transition:leave-end="opacity-0 scale-95">
 
-            <div class="flex items-center justify-between border-b border-black/[0.06] dark:border-white/[0.08] pb-3.5">
-                <div>
-                    <h3 class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                        <i data-lucide="store" class="w-5 h-5 text-[#34C759]"></i>
-                        <span>Tambah Cabang / Outlet</span>
-                    </h3>
-                    <p class="text-xs text-slate-500 dark:text-slate-400">Daftarkan cabang toko, outlet retail, titik pickup kurir, dan absensi geofence</p>
+            {{-- Modal Header --}}
+            <div class="px-5 py-4 sm:px-6 sm:py-4.5 border-b border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between gap-3 shrink-0 bg-slate-50/50 dark:bg-white/[0.02]">
+                <div class="flex items-center gap-3.5">
+                    <div class="w-11 h-11 rounded-[14px] bg-[#34C759]/12 text-[#34C759] flex items-center justify-center shrink-0 border border-[#34C759]/20">
+                        <i data-lucide="store" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
+                            <span>Tambah Cabang / Outlet Retail</span>
+                            <span class="text-[11px] font-semibold text-[#34C759] bg-[#34C759]/12 px-2.5 py-0.5 rounded-full">Toko Aktif</span>
+                        </h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Daftarkan cabang toko, outlet retail, titik pickup kurir, dan absensi geofence karyawan</p>
+                    </div>
                 </div>
-                <button type="button" @click="showCreateOutletModal = false" class="p-1 rounded-[8px] text-slate-400 hover:text-slate-900 dark:hover:text-white transition cursor-pointer">
-                    <i data-lucide="x" class="w-5 h-5"></i>
+                <button type="button" @click="showCreateOutletModal = false" class="w-9 h-9 rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition cursor-pointer">
+                    <i data-lucide="x" class="w-4 h-4"></i>
                 </button>
             </div>
 
-            <form action="{{ route('warehouse.store') }}" method="POST" class="space-y-4 text-xs">
+            <form action="{{ route('warehouse.store') }}" method="POST" class="flex flex-col flex-1 overflow-hidden">
                 @csrf
                 <input type="hidden" name="type" value="outlet">
                 <input type="hidden" name="province" :value="outletForm.province">
@@ -1161,204 +1230,227 @@
                 <input type="hidden" name="postal_code" :value="outletForm.postal_code">
                 <input type="hidden" name="biteship_area_id" :value="outletForm.biteship_area_id">
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                    <div class="col-span-1 sm:col-span-2">
-                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                            Nama Cabang / Outlet <span class="text-[#FF3B30]">*</span>
-                        </label>
-                        <input type="text" name="name" x-model="outletForm.name" required placeholder="Contoh: Outlet Senopati, Cabang Bandung, Toko Pondok Indah..."
-                               class="w-full h-10 bg-slate-50 dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3.5 text-[16px] sm:text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#34C759] transition">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                            Kode Cabang
-                        </label>
-                        <input type="text" name="code" x-model="outletForm.code" placeholder="Misal: OTL-01, CBG-BDG..."
-                               class="w-full h-10 bg-slate-50 dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3.5 text-[16px] sm:text-xs text-slate-900 dark:text-white font-mono placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#34C759] transition">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                            Nomor Telepon Cabang
-                        </label>
-                        <input type="text" name="phone" x-model="outletForm.phone" placeholder="08xxxxxxxxxx / +62..."
-                               class="w-full h-10 bg-slate-50 dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3.5 text-[16px] sm:text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#34C759] transition">
-                    </div>
-                    <div class="col-span-1 sm:col-span-2">
-                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                            Alamat Lengkap Cabang <span class="text-[#FF3B30]">*</span>
-                        </label>
-                        <textarea name="address" x-model="outletForm.address" rows="2" required placeholder="Alamat fisik cabang: jalan, nomor, RT/RW, kelurahan, kecamatan, kota..."
-                                  class="w-full bg-slate-50 dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] p-3 text-[16px] sm:text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#34C759] transition resize-none"></textarea>
-                    </div>
-
-                    {{-- 🧭 SECTION GEOFENCE & DETEKSI GPS --}}
-                    <div class="col-span-1 sm:col-span-2 rounded-[16px] bg-[#34C759]/5 dark:bg-[#34C759]/10 border border-[#34C759]/20 p-4 space-y-3.5">
-                        <div class="flex items-center justify-between gap-2 flex-wrap">
-                            <div class="flex items-center gap-2">
-                                <div class="w-6 h-6 rounded-[6px] bg-[#34C759]/15 text-[#34C759] flex items-center justify-center">
-                                    <i data-lucide="map-pin" class="w-3.5 h-3.5"></i>
+                {{-- Modal Body: 2-Kolom Bento --}}
+                <div class="p-5 sm:p-6 overflow-y-auto space-y-4 flex-1 text-xs">
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                        
+                        {{-- Kolom Kiri: Detail Informasi Cabang (6 Kolom) --}}
+                        <div class="lg:col-span-6 space-y-4">
+                            <div class="rounded-[18px] bg-slate-50/80 dark:bg-[#2C2C2E]/60 border border-black/[0.06] dark:border-white/[0.08] p-5 space-y-4">
+                                <div class="flex items-center gap-2">
+                                    <i data-lucide="store" class="w-4 h-4 text-[#34C759]"></i>
+                                    <span class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Identitas Cabang / Outlet</span>
                                 </div>
-                                <span class="text-xs font-bold text-slate-900 dark:text-white">Geofence Absensi Karyawan</span>
-                                <span class="text-[10px] font-semibold text-[#34C759] bg-[#34C759]/10 px-2 py-0.5 rounded-full">Opsional</span>
-                            </div>
 
-                            {{-- Tombol Live Detect GPS --}}
-                            <button type="button" @click="detectGps('outlet')" :disabled="gpsLoading"
-                                    class="h-8 px-3 rounded-[8px] text-xs font-bold text-white bg-[#34C759] hover:bg-[#28A745] active:scale-[0.98] transition-all flex items-center gap-1.5 shadow-[0_1px_2px_rgba(52,199,89,0.25)] cursor-pointer disabled:opacity-50">
-                                <template x-if="gpsLoading && activeGpsTarget === 'outlet'">
-                                    <svg class="animate-spin -ml-0.5 mr-1 h-3.5 w-3.5 text-white" fill="none" viewBox="0 0 24 24">
-                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                    </svg>
-                                </template>
-                                <template x-if="!(gpsLoading && activeGpsTarget === 'outlet')">
-                                    <i data-lucide="crosshair" class="w-3.5 h-3.5"></i>
-                                </template>
-                                <span x-text="(gpsLoading && activeGpsTarget === 'outlet') ? 'Mencari Titik GPS...' : '🧭 Deteksi GPS Saya'"></span>
-                            </button>
-                        </div>
-
-                        {{-- Alert GPS Messages --}}
-                        <template x-if="gpsSuccess && activeGpsTarget === 'outlet'">
-                            <div class="rounded-[10px] bg-[#34C759]/15 border border-[#34C759]/30 px-3 py-2 text-[11px] text-[#248A3D] dark:text-[#30D158] flex items-center gap-2 font-medium">
-                                <i data-lucide="check-circle-2" class="w-4 h-4 text-[#34C759]"></i>
-                                <span>Titik koordinat GPS berhasil dideteksi dan alamat wilayah otomatis disinkronkan.</span>
-                            </div>
-                        </template>
-
-                        <template x-if="gpsError && activeGpsTarget === 'outlet'">
-                            <div class="rounded-[10px] bg-[#FF3B30]/15 border border-[#FF3B30]/30 px-3 py-2 text-[11px] text-[#C41E17] dark:text-[#FF453A] flex items-center gap-2 font-medium">
-                                <i data-lucide="alert-circle" class="w-4 h-4 text-[#FF3B30]"></i>
-                                <span x-text="gpsError"></span>
-                            </div>
-                        </template>
-
-                        <div class="grid grid-cols-2 gap-3">
-                            <div>
-                                <label class="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">Latitude</label>
-                                <input type="text" name="latitude" x-model="outletForm.latitude" placeholder="-6.2088"
-                                       class="w-full h-9 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[8px] px-2.5 text-[16px] sm:text-xs text-slate-900 dark:text-white font-mono placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#34C759] transition">
-                            </div>
-                            <div>
-                                <label class="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">Longitude</label>
-                                <input type="text" name="longitude" x-model="outletForm.longitude" placeholder="106.8456"
-                                       class="w-full h-9 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[8px] px-2.5 text-[16px] sm:text-xs text-slate-900 dark:text-white font-mono placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#34C759] transition">
-                            </div>
-                        </div>
-
-                        <div>
-                            <div class="flex items-center justify-between mb-1">
-                                <label class="block text-[11px] font-semibold text-slate-700 dark:text-slate-300">Radius Geofence (meter)</label>
-                                <span class="text-[11px] font-bold text-[#34C759] font-mono" x-text="outletForm.geofence_radius_meters + ' m'"></span>
-                            </div>
-                            <input type="number" name="geofence_radius_meters" x-model="outletForm.geofence_radius_meters" placeholder="100" min="10" max="5000"
-                                   class="w-full h-9 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[8px] px-2.5 text-[16px] sm:text-xs text-slate-900 dark:text-white font-mono placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#34C759] transition">
-                            
-                            {{-- Quick Presets --}}
-                            <div class="flex items-center gap-1.5 mt-2 flex-wrap">
-                                <span class="text-[10px] text-slate-400">Pilihan Cepat:</span>
-                                <button type="button" @click="outletForm.geofence_radius_meters = 50" class="px-2 py-0.5 rounded-[6px] text-[10px] font-semibold bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 hover:border-[#34C759] text-slate-700 dark:text-slate-300">50m</button>
-                                <button type="button" @click="outletForm.geofence_radius_meters = 100" class="px-2 py-0.5 rounded-[6px] text-[10px] font-semibold bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 hover:border-[#34C759] text-slate-700 dark:text-slate-300">100m (Default)</button>
-                                <button type="button" @click="outletForm.geofence_radius_meters = 200" class="px-2 py-0.5 rounded-[6px] text-[10px] font-semibold bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 hover:border-[#34C759] text-slate-700 dark:text-slate-300">200m</button>
-                                <button type="button" @click="outletForm.geofence_radius_meters = 500" class="px-2 py-0.5 rounded-[6px] text-[10px] font-semibold bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 hover:border-[#34C759] text-slate-700 dark:text-slate-300">500m</button>
-                            </div>
-                            <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1.5">Radius area valid absensi GPS. Default: 100 meter dari titik pusat cabang.</p>
-                        </div>
-                    </div>
-
-                    {{-- 📦 SECTION INTEGRASI BITESHIP & TOKO ONLINE PICKUP --}}
-                    <div class="col-span-1 sm:col-span-2 rounded-[16px] bg-[#5856D6]/5 dark:bg-[#5856D6]/10 border border-[#5856D6]/20 p-4 space-y-3.5">
-                        <div class="flex items-center justify-between gap-2">
-                            <div class="flex items-center gap-2">
-                                <div class="w-6 h-6 rounded-[6px] bg-[#5856D6]/15 text-[#5856D6] flex items-center justify-center">
-                                    <i data-lucide="truck" class="w-3.5 h-3.5"></i>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                                        Nama Cabang / Outlet <span class="text-[#FF3B30]">*</span>
+                                    </label>
+                                    <input type="text" name="name" x-model="outletForm.name" required placeholder="Contoh: Outlet Senopati, Cabang Bandung, Toko Pondok Indah..."
+                                           class="w-full h-11 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3.5 text-[16px] sm:text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#34C759] transition">
                                 </div>
-                                <span class="text-xs font-bold text-slate-900 dark:text-white">Integrasi Biteship &amp; Pickup Toko Online</span>
-                            </div>
-                            <span class="text-[10px] font-bold text-[#5856D6] bg-[#5856D6]/10 px-2 py-0.5 rounded-full">Biteship Logistics</span>
-                        </div>
 
-                        {{-- Area Search Box for Biteship --}}
-                        <div class="relative">
-                            <label class="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                                Hubungkan Wilayah Biteship (Kelurahan / Kecamatan / Kode Pos)
-                            </label>
-
-                            <template x-if="!outletForm.biteship_area_id">
-                                <div class="relative">
-                                    <input type="text"
-                                           placeholder="Ketik min. 2 huruf (contoh: Tebet, Senayan, 12810)..."
-                                           @input.debounce.300ms="searchBiteship('outlet', $event.target.value)"
-                                           class="w-full h-9 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[8px] pl-8 pr-3 text-[16px] sm:text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#5856D6] transition">
-                                    <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5"></i>
-                                </div>
-                            </template>
-
-                            {{-- Selected Biteship Area Card --}}
-                            <template x-if="outletForm.biteship_area_id">
-                                <div class="flex items-center justify-between p-2.5 rounded-[10px] bg-white dark:bg-[#1C1C1E] border border-[#5856D6]/30">
-                                    <div class="flex items-center gap-2 min-w-0">
-                                        <i data-lucide="check-circle" class="w-4 h-4 text-[#34C759] shrink-0"></i>
-                                        <div class="min-w-0">
-                                            <span class="text-xs font-bold text-slate-900 dark:text-white block truncate" x-text="outletForm.biteship_area_label || outletForm.biteship_area_id"></span>
-                                            <span class="text-[10px] text-slate-500 dark:text-slate-400 font-mono">Biteship ID: <span x-text="outletForm.biteship_area_id"></span></span>
-                                        </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                                            Kode Cabang
+                                        </label>
+                                        <input type="text" name="code" x-model="outletForm.code" placeholder="Misal: OTL-01, CBG-BDG..."
+                                               class="w-full h-10 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3.5 text-[16px] sm:text-xs text-slate-900 dark:text-white font-mono placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#34C759] transition">
                                     </div>
-                                    <button type="button" @click="clearBiteshipArea('outlet')" class="text-xs text-[#FF3B30] hover:underline font-semibold shrink-0 ml-2">
-                                        Ganti
-                                    </button>
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                                            Nomor Telepon Cabang
+                                        </label>
+                                        <input type="text" name="phone" x-model="outletForm.phone" placeholder="08xxxxxxxxxx / +62..."
+                                               class="w-full h-10 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3.5 text-[16px] sm:text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#34C759] transition">
+                                    </div>
                                 </div>
-                            </template>
 
-                            {{-- Dropdown Autocomplete Results --}}
-                            <div x-show="biteshipTarget === 'outlet' && biteshipResults.length > 0"
-                                 @click.outside="biteshipResults = []"
-                                 class="absolute left-0 right-0 top-full mt-1 z-30 max-h-48 overflow-y-auto rounded-[12px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 shadow-xl divide-y divide-black/5 dark:divide-white/5">
-                                <template x-for="item in biteshipResults" :key="item.id">
-                                    <button type="button" @click="selectBiteshipArea('outlet', item)"
-                                            class="w-full text-left p-2.5 hover:bg-[#5856D6]/10 transition flex items-center justify-between gap-2 cursor-pointer">
-                                        <div>
-                                            <span class="text-xs font-bold text-slate-900 dark:text-white block" x-text="item.label || (item.village + ', ' + item.district + ', ' + item.city)"></span>
-                                            <span class="text-[10px] text-slate-500 dark:text-slate-400" x-text="(item.province || '') + (item.postal_code ? ' • Kode Pos: ' + item.postal_code : '')"></span>
-                                        </div>
-                                        <span class="text-[10px] font-mono text-[#5856D6] font-bold shrink-0 bg-[#5856D6]/10 px-1.5 py-0.5 rounded">Pilih</span>
-                                    </button>
-                                </template>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                                        Alamat Lengkap Cabang <span class="text-[#FF3B30]">*</span>
+                                    </label>
+                                    <textarea name="address" x-model="outletForm.address" rows="3" required placeholder="Alamat fisik cabang: jalan, nomor, RT/RW, kelurahan, kecamatan, kota..."
+                                              class="w-full bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] p-3 text-[16px] sm:text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#34C759] transition resize-none"></textarea>
+                                </div>
                             </div>
                         </div>
 
-                        {{-- Checkbox Primary Pickup Storefront --}}
-                        <div class="space-y-2 pt-1">
-                            <label class="flex items-start gap-2.5 p-3 rounded-[12px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] cursor-pointer hover:border-[#5856D6]/40 transition">
-                                <input type="checkbox" name="is_primary" value="1" x-model="outletForm.is_primary" class="mt-0.5 w-4 h-4 rounded text-[#5856D6] focus:ring-[#5856D6]">
-                                <div class="text-xs">
-                                    <span class="font-bold text-slate-900 dark:text-white block">Jadikan Titik Pickup Utama Toko Online</span>
-                                    <span class="text-[11px] text-slate-500 dark:text-slate-400 block">Pesanan online pengiriman kurir (JNE, SiCepat, J&T, GoSend, GrabExpress via Biteship) akan dipickup kurir dari lokasi ini.</span>
-                                </div>
-                            </label>
+                        {{-- Kolom Kanan: Geofence & Biteship Logistics (6 Kolom) --}}
+                        <div class="lg:col-span-6 space-y-4">
+                            
+                            {{-- SECTION GEOFENCE & DETEKSI GPS --}}
+                            <div class="rounded-[18px] bg-[#34C759]/5 dark:bg-[#34C759]/10 border border-[#34C759]/20 p-5 space-y-3.5">
+                                <div class="flex items-center justify-between gap-2 flex-wrap">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-6 h-6 rounded-[6px] bg-[#34C759]/15 text-[#34C759] flex items-center justify-center">
+                                            <i data-lucide="map-pin" class="w-3.5 h-3.5"></i>
+                                        </div>
+                                        <span class="text-xs font-bold text-slate-900 dark:text-white">Geofence Absensi Karyawan</span>
+                                        <span class="text-[10px] font-semibold text-[#34C759] bg-[#34C759]/10 px-2 py-0.5 rounded-full">Opsional</span>
+                                    </div>
 
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                <label class="flex items-start gap-2 p-2.5 rounded-[10px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] cursor-pointer">
-                                    <input type="checkbox" name="is_online_fulfillment" value="1" x-model="outletForm.is_online_fulfillment" class="mt-0.5 w-3.5 h-3.5 rounded text-[#34C759] focus:ring-[#34C759]">
-                                    <span class="text-[11px] font-medium text-slate-800 dark:text-slate-200">Titik Kirim Kurir Online</span>
-                                </label>
-                                <label class="flex items-start gap-2 p-2.5 rounded-[10px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] cursor-pointer">
-                                    <input type="checkbox" name="allow_storefront_pickup" value="1" x-model="outletForm.allow_storefront_pickup" class="mt-0.5 w-3.5 h-3.5 rounded text-[#34C759] focus:ring-[#34C759]">
-                                    <span class="text-[11px] font-medium text-slate-800 dark:text-slate-200">Izinkan Ambil di Toko</span>
-                                </label>
+                                    {{-- Tombol Live Detect GPS (Zero-Emoji) --}}
+                                    <button type="button" @click="detectGps('outlet')" :disabled="gpsLoading"
+                                            class="min-h-[36px] h-9 px-3.5 rounded-[8px] text-xs font-bold text-white bg-[#34C759] hover:bg-[#28A745] active:scale-[0.98] transition-all flex items-center gap-1.5 shadow-[0_1px_2px_rgba(52,199,89,0.25)] cursor-pointer disabled:opacity-50">
+                                        <template x-if="gpsLoading && activeGpsTarget === 'outlet'">
+                                            <svg class="animate-spin -ml-0.5 mr-1 h-3.5 w-3.5 text-white" fill="none" viewBox="0 0 24 24">
+                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                            </svg>
+                                        </template>
+                                        <template x-if="!(gpsLoading && activeGpsTarget === 'outlet')">
+                                            <i data-lucide="crosshair" class="w-3.5 h-3.5"></i>
+                                        </template>
+                                        <span x-text="(gpsLoading && activeGpsTarget === 'outlet') ? 'Mencari Titik GPS...' : 'Deteksi GPS Otomatis'"></span>
+                                    </button>
+                                </div>
+
+                                {{-- Alert GPS Messages --}}
+                                <template x-if="gpsSuccess && activeGpsTarget === 'outlet'">
+                                    <div class="rounded-[10px] bg-[#34C759]/15 border border-[#34C759]/30 px-3 py-2 text-[11px] text-[#248A3D] dark:text-[#30D158] flex items-center gap-2 font-medium">
+                                        <i data-lucide="check-circle-2" class="w-4 h-4 text-[#34C759]"></i>
+                                        <span>Titik koordinat GPS berhasil dideteksi dan alamat wilayah otomatis disinkronkan.</span>
+                                    </div>
+                                </template>
+
+                                <template x-if="gpsError && activeGpsTarget === 'outlet'">
+                                    <div class="rounded-[10px] bg-[#FF3B30]/15 border border-[#FF3B30]/30 px-3 py-2 text-[11px] text-[#C41E17] dark:text-[#FF453A] flex items-center gap-2 font-medium">
+                                        <i data-lucide="alert-circle" class="w-4 h-4 text-[#FF3B30]"></i>
+                                        <span x-text="gpsError"></span>
+                                    </div>
+                                </template>
+
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">Latitude</label>
+                                        <input type="text" name="latitude" x-model="outletForm.latitude" placeholder="-6.2088"
+                                               class="w-full h-9 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[8px] px-2.5 text-[16px] sm:text-xs text-slate-900 dark:text-white font-mono placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#34C759] transition">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">Longitude</label>
+                                        <input type="text" name="longitude" x-model="outletForm.longitude" placeholder="106.8456"
+                                               class="w-full h-9 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[8px] px-2.5 text-[16px] sm:text-xs text-slate-900 dark:text-white font-mono placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#34C759] transition">
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <div class="flex items-center justify-between mb-1">
+                                        <label class="block text-[11px] font-semibold text-slate-700 dark:text-slate-300">Radius Geofence (meter)</label>
+                                        <span class="text-[11px] font-bold text-[#34C759] font-mono" x-text="outletForm.geofence_radius_meters + ' m'"></span>
+                                    </div>
+                                    <input type="number" name="geofence_radius_meters" x-model="outletForm.geofence_radius_meters" placeholder="100" min="10" max="5000"
+                                           class="w-full h-9 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[8px] px-2.5 text-[16px] sm:text-xs text-slate-900 dark:text-white font-mono placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#34C759] transition">
+                                    
+                                    {{-- Quick Presets --}}
+                                    <div class="flex items-center gap-1.5 mt-2 flex-wrap">
+                                        <span class="text-[10px] text-slate-400">Pilihan Cepat:</span>
+                                        <button type="button" @click="outletForm.geofence_radius_meters = 50" class="px-2 py-0.5 rounded-[6px] text-[10px] font-semibold bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 hover:border-[#34C759] text-slate-700 dark:text-slate-300 cursor-pointer">50m</button>
+                                        <button type="button" @click="outletForm.geofence_radius_meters = 100" class="px-2 py-0.5 rounded-[6px] text-[10px] font-semibold bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 hover:border-[#34C759] text-slate-700 dark:text-slate-300 cursor-pointer">100m (Default)</button>
+                                        <button type="button" @click="outletForm.geofence_radius_meters = 200" class="px-2 py-0.5 rounded-[6px] text-[10px] font-semibold bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 hover:border-[#34C759] text-slate-700 dark:text-slate-300 cursor-pointer">200m</button>
+                                        <button type="button" @click="outletForm.geofence_radius_meters = 500" class="px-2 py-0.5 rounded-[6px] text-[10px] font-semibold bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 hover:border-[#34C759] text-slate-700 dark:text-slate-300 cursor-pointer">500m</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- SECTION INTEGRASI BITESHIP & TOKO ONLINE PICKUP --}}
+                            <div class="rounded-[18px] bg-[#5856D6]/5 dark:bg-[#5856D6]/10 border border-[#5856D6]/20 p-5 space-y-3.5">
+                                <div class="flex items-center justify-between gap-2">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-6 h-6 rounded-[6px] bg-[#5856D6]/15 text-[#5856D6] flex items-center justify-center">
+                                            <i data-lucide="truck" class="w-3.5 h-3.5"></i>
+                                        </div>
+                                        <span class="text-xs font-bold text-slate-900 dark:text-white">Integrasi Biteship &amp; Pickup Toko Online</span>
+                                    </div>
+                                    <span class="text-[10px] font-bold text-[#5856D6] bg-[#5856D6]/10 px-2 py-0.5 rounded-full">Logistics</span>
+                                </div>
+
+                                {{-- Area Search Box for Biteship --}}
+                                <div class="relative">
+                                    <label class="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                                        Hubungkan Wilayah Biteship (Kelurahan / Kecamatan / Kode Pos)
+                                    </label>
+
+                                    <template x-if="!outletForm.biteship_area_id">
+                                        <div class="relative">
+                                            <input type="text"
+                                                   placeholder="Ketik min. 2 huruf (contoh: Tebet, Senayan, 12810)..."
+                                                   @input.debounce.300ms="searchBiteship('outlet', $event.target.value)"
+                                                   class="w-full h-9 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[8px] pl-8 pr-3 text-[16px] sm:text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#5856D6] transition">
+                                            <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5"></i>
+                                        </div>
+                                    </template>
+
+                                    {{-- Selected Biteship Area Card --}}
+                                    <template x-if="outletForm.biteship_area_id">
+                                        <div class="flex items-center justify-between p-2.5 rounded-[10px] bg-white dark:bg-[#1C1C1E] border border-[#5856D6]/30">
+                                            <div class="flex items-center gap-2 min-w-0">
+                                                <i data-lucide="check-circle" class="w-4 h-4 text-[#34C759] shrink-0"></i>
+                                                <div class="min-w-0">
+                                                    <span class="text-xs font-bold text-slate-900 dark:text-white block truncate" x-text="outletForm.biteship_area_label || outletForm.biteship_area_id"></span>
+                                                    <span class="text-[10px] text-slate-500 dark:text-slate-400 font-mono">Biteship ID: <span x-text="outletForm.biteship_area_id"></span></span>
+                                                </div>
+                                            </div>
+                                            <button type="button" @click="clearBiteshipArea('outlet')" class="text-xs text-[#FF3B30] hover:underline font-semibold shrink-0 ml-2 cursor-pointer">
+                                                Ganti
+                                            </button>
+                                        </div>
+                                    </template>
+
+                                    {{-- Dropdown Autocomplete Results --}}
+                                    <div x-show="biteshipTarget === 'outlet' && biteshipResults.length > 0"
+                                         @click.outside="biteshipResults = []"
+                                         class="absolute left-0 right-0 top-full mt-1 z-30 max-h-48 overflow-y-auto rounded-[12px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 shadow-xl divide-y divide-black/5 dark:divide-white/5">
+                                        <template x-for="item in biteshipResults" :key="item.id">
+                                            <button type="button" @click="selectBiteshipArea('outlet', item)"
+                                                    class="w-full text-left p-2.5 hover:bg-[#5856D6]/10 transition flex items-center justify-between gap-2 cursor-pointer">
+                                                <div>
+                                                    <span class="text-xs font-bold text-slate-900 dark:text-white block" x-text="item.label || (item.village + ', ' + item.district + ', ' + item.city)"></span>
+                                                    <span class="text-[10px] text-slate-500 dark:text-slate-400" x-text="(item.province || '') + (item.postal_code ? ' • Kode Pos: ' + item.postal_code : '')"></span>
+                                                </div>
+                                                <span class="text-[10px] font-mono text-[#5856D6] font-bold shrink-0 bg-[#5856D6]/10 px-1.5 py-0.5 rounded">Pilih</span>
+                                            </button>
+                                        </template>
+                                    </div>
+                                </div>
+
+                                {{-- Checkbox Primary Pickup Storefront --}}
+                                <div class="space-y-2 pt-1">
+                                    <label class="flex items-start gap-2.5 p-3 rounded-[12px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] cursor-pointer hover:border-[#5856D6]/40 transition">
+                                        <input type="checkbox" name="is_primary" value="1" x-model="outletForm.is_primary" class="mt-0.5 w-4 h-4 rounded text-[#5856D6] focus:ring-[#5856D6]">
+                                        <div class="text-xs">
+                                            <span class="font-bold text-slate-900 dark:text-white block">Jadikan Titik Pickup Utama Toko Online</span>
+                                            <span class="text-[11px] text-slate-500 dark:text-slate-400 block">Pesanan online pengiriman kurir (JNE, SiCepat, J&T, GoSend, GrabExpress via Biteship) akan dipickup kurir dari lokasi ini.</span>
+                                        </div>
+                                    </label>
+
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                        <label class="flex items-start gap-2 p-2.5 rounded-[10px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] cursor-pointer">
+                                            <input type="checkbox" name="is_online_fulfillment" value="1" x-model="outletForm.is_online_fulfillment" class="mt-0.5 w-3.5 h-3.5 rounded text-[#34C759] focus:ring-[#34C759]">
+                                            <span class="text-[11px] font-medium text-slate-800 dark:text-slate-200">Titik Kirim Kurir Online</span>
+                                        </label>
+                                        <label class="flex items-start gap-2 p-2.5 rounded-[10px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] cursor-pointer">
+                                            <input type="checkbox" name="allow_storefront_pickup" value="1" x-model="outletForm.allow_storefront_pickup" class="mt-0.5 w-3.5 h-3.5 rounded text-[#34C759] focus:ring-[#34C759]">
+                                            <span class="text-[11px] font-medium text-slate-800 dark:text-slate-200">Izinkan Ambil di Toko</span>
+                                        </label>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="flex items-center justify-end gap-2 pt-3.5 border-t border-black/[0.06] dark:border-white/[0.08]">
+                {{-- Modal Footer --}}
+                <div class="px-5 py-3.5 sm:px-6 sm:py-4 border-t border-black/[0.06] dark:border-white/[0.08] flex items-center justify-end gap-3 shrink-0 bg-slate-50/50 dark:bg-white/[0.02]">
                     <button type="button" @click="showCreateOutletModal = false"
-                            class="h-9 px-4 rounded-[10px] text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer">
+                            class="min-h-[44px] h-11 px-5 rounded-[12px] text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer">
                         Batal
                     </button>
                     <button type="submit"
-                            class="h-9 px-4 rounded-[10px] text-xs font-bold text-white bg-[#34C759] hover:bg-[#28A745] active:scale-[0.98] transition-all shadow-[0_1px_2px_rgba(52,199,89,0.25)] cursor-pointer">
-                        Simpan Cabang
+                            class="min-h-[44px] h-11 px-6 rounded-[12px] text-xs font-bold text-white bg-[#34C759] hover:bg-[#28A745] active:scale-[0.98] transition-all shadow-[0_2px_4px_rgba(52,199,89,0.25)] cursor-pointer flex items-center gap-2">
+                        <i data-lucide="plus" class="w-4 h-4"></i>
+                        <span>Simpan Cabang / Outlet</span>
                     </button>
                 </div>
             </form>
@@ -1366,11 +1458,11 @@
     </div>
 
     {{-- ===================================================== --}}
-    {{-- 8. APPLE SHEET: EDIT INFORMASI LOKASI                 --}}
+    {{-- 8. APPLE BENTO XXL SHEET: EDIT INFORMASI LOKASI       --}}
     {{-- ===================================================== --}}
     <div x-show="showEditModal"
          x-cloak
-         class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4"
+         class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-md p-3 sm:p-6"
          x-transition:enter="transition ease-out duration-200"
          x-transition:enter-start="opacity-0"
          x-transition:enter-end="opacity-100"
@@ -1378,7 +1470,7 @@
          x-transition:leave-start="opacity-100"
          x-transition:leave-end="opacity-0">
 
-        <div class="w-full max-w-xl rounded-[22px] bg-white dark:bg-[#2C2C2E] border border-black/[0.08] dark:border-white/[0.12] shadow-2xl p-6 space-y-5 max-h-[90vh] overflow-y-auto"
+        <div class="w-full max-w-[94vw] md:max-w-2xl lg:max-w-3xl xl:max-w-4xl max-h-[88vh] rounded-[22px] bg-white/98 dark:bg-[#1C1C1E]/98 backdrop-blur-2xl border border-black/[0.08] dark:border-white/[0.12] shadow-[0_25px_60px_rgba(0,0,0,0.35)] flex flex-col overflow-hidden"
              @click.outside="showEditModal = false"
              x-transition:enter="transition ease-out duration-200"
              x-transition:enter-start="opacity-0 scale-95"
@@ -1387,20 +1479,26 @@
              x-transition:leave-start="opacity-100 scale-100"
              x-transition:leave-end="opacity-0 scale-95">
 
-            <div class="flex items-center justify-between border-b border-black/[0.06] dark:border-white/[0.08] pb-3.5">
-                <div>
-                    <h3 class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                        <i data-lucide="pencil-line" class="w-5 h-5 text-[#007AFF]"></i>
-                        <span>Edit Informasi Lokasi</span>
-                    </h3>
-                    <p class="text-xs text-slate-500 dark:text-slate-400" x-text="'Memperbarui: ' + editData.name"></p>
+            {{-- Modal Header --}}
+            <div class="px-5 py-4 sm:px-6 sm:py-4.5 border-b border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between gap-3 shrink-0 bg-slate-50/50 dark:bg-white/[0.02]">
+                <div class="flex items-center gap-3.5">
+                    <div class="w-11 h-11 rounded-[14px] bg-[#007AFF]/12 text-[#007AFF] flex items-center justify-center shrink-0 border border-[#007AFF]/20">
+                        <i data-lucide="pencil-line" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
+                            <span>Edit Informasi Gudang / Cabang</span>
+                            <span class="text-[11px] font-semibold text-[#007AFF] bg-[#007AFF]/12 px-2.5 py-0.5 rounded-full" x-text="editData.name"></span>
+                        </h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Perbarui alamat fisik, geofence absensi, status aktif, dan integrasi kurir</p>
+                    </div>
                 </div>
-                <button type="button" @click="showEditModal = false" class="p-1 rounded-[8px] text-slate-400 hover:text-slate-900 dark:hover:text-white transition cursor-pointer">
-                    <i data-lucide="x" class="w-5 h-5"></i>
+                <button type="button" @click="showEditModal = false" class="w-9 h-9 rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition cursor-pointer">
+                    <i data-lucide="x" class="w-4 h-4"></i>
                 </button>
             </div>
 
-            <form :action="'{{ url('/warehouse') }}/' + editData.id" method="POST" class="space-y-4 text-xs">
+            <form :action="'{{ url('/warehouse') }}/' + editData.id" method="POST" class="flex flex-col flex-1 overflow-hidden">
                 @csrf
                 @method('PUT')
                 <input type="hidden" name="province" :value="editData.province">
@@ -1410,222 +1508,246 @@
                 <input type="hidden" name="postal_code" :value="editData.postal_code">
                 <input type="hidden" name="biteship_area_id" :value="editData.biteship_area_id">
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                    <div class="col-span-1 sm:col-span-2">
-                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                            Nama Gudang / Lokasi <span class="text-[#FF3B30]">*</span>
-                        </label>
-                        <input type="text" name="name" x-model="editData.name" required
-                               class="w-full h-10 bg-slate-50 dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3.5 text-[16px] sm:text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                            Tipe Lokasi
-                        </label>
-                        <select name="type" x-model="editData.type" class="w-full h-10 bg-slate-50 dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3 text-[16px] sm:text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
-                            <option value="warehouse">Gudang (Warehouse)</option>
-                            <option value="outlet">Outlet / Toko</option>
-                            <option value="central_kitchen">Dapur Pusat (Central Kitchen)</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                            Kode Lokasi
-                        </label>
-                        <input type="text" name="code" x-model="editData.code"
-                               class="w-full h-10 bg-slate-50 dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3.5 text-[16px] sm:text-xs text-slate-900 dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                            Nomor Telepon
-                        </label>
-                        <input type="text" name="phone" x-model="editData.phone"
-                               class="w-full h-10 bg-slate-50 dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3.5 text-[16px] sm:text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
-                    </div>
-                    <div class="col-span-1 sm:col-span-2">
-                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                            Alamat Lengkap
-                        </label>
-                        <textarea name="address" rows="2" x-model="editData.address"
-                                  class="w-full bg-slate-50 dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] p-3 text-[16px] sm:text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition resize-none"></textarea>
-                    </div>
-
-                    {{-- 🧭 SECTION GEOFENCE & DETEKSI GPS --}}
-                    <div class="col-span-1 sm:col-span-2 rounded-[16px] bg-[#007AFF]/5 dark:bg-[#007AFF]/10 border border-[#007AFF]/20 p-4 space-y-3.5">
-                        <div class="flex items-center justify-between gap-2 flex-wrap">
-                            <div class="flex items-center gap-2">
-                                <div class="w-6 h-6 rounded-[6px] bg-[#007AFF]/15 text-[#007AFF] flex items-center justify-center">
-                                    <i data-lucide="map-pin" class="w-3.5 h-3.5"></i>
+                {{-- Modal Body: 2-Kolom Bento --}}
+                <div class="p-5 sm:p-6 overflow-y-auto space-y-4 flex-1 text-xs">
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                        
+                        {{-- Kolom Kiri: Detail Informasi (6 Kolom) --}}
+                        <div class="lg:col-span-6 space-y-4">
+                            <div class="rounded-[18px] bg-slate-50/80 dark:bg-[#2C2C2E]/60 border border-black/[0.06] dark:border-white/[0.08] p-5 space-y-4">
+                                <div class="flex items-center gap-2">
+                                    <i data-lucide="info" class="w-4 h-4 text-[#007AFF]"></i>
+                                    <span class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Identitas Lokasi</span>
                                 </div>
-                                <span class="text-xs font-bold text-[#007AFF]">Koordinat GPS &amp; Geofence Absensi</span>
-                                <span class="text-[10px] font-semibold text-slate-500 dark:text-slate-400">(Opsional)</span>
-                            </div>
 
-                            {{-- Tombol Live Detect GPS --}}
-                            <button type="button" @click="detectGps('edit')" :disabled="gpsLoading"
-                                    class="h-8 px-3 rounded-[8px] text-xs font-bold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] transition-all flex items-center gap-1.5 shadow-[0_1px_2px_rgba(0,122,255,0.25)] cursor-pointer disabled:opacity-50">
-                                <template x-if="gpsLoading && activeGpsTarget === 'edit'">
-                                    <svg class="animate-spin -ml-0.5 mr-1 h-3.5 w-3.5 text-white" fill="none" viewBox="0 0 24 24">
-                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                    </svg>
-                                </template>
-                                <template x-if="!(gpsLoading && activeGpsTarget === 'edit')">
-                                    <i data-lucide="crosshair" class="w-3.5 h-3.5"></i>
-                                </template>
-                                <span x-text="(gpsLoading && activeGpsTarget === 'edit') ? 'Mencari Titik GPS...' : '🧭 Deteksi GPS Saya'"></span>
-                            </button>
-                        </div>
-
-                        {{-- Alert GPS Messages --}}
-                        <template x-if="gpsSuccess && activeGpsTarget === 'edit'">
-                            <div class="rounded-[10px] bg-[#34C759]/15 border border-[#34C759]/30 px-3 py-2 text-[11px] text-[#248A3D] dark:text-[#30D158] flex items-center gap-2 font-medium">
-                                <i data-lucide="check-circle-2" class="w-4 h-4 text-[#34C759]"></i>
-                                <span>Titik koordinat GPS berhasil dideteksi dan alamat wilayah otomatis disinkronkan.</span>
-                            </div>
-                        </template>
-
-                        <template x-if="gpsError && activeGpsTarget === 'edit'">
-                            <div class="rounded-[10px] bg-[#FF3B30]/15 border border-[#FF3B30]/30 px-3 py-2 text-[11px] text-[#C41E17] dark:text-[#FF453A] flex items-center gap-2 font-medium">
-                                <i data-lucide="alert-circle" class="w-4 h-4 text-[#FF3B30]"></i>
-                                <span x-text="gpsError"></span>
-                            </div>
-                        </template>
-
-                        <div class="grid grid-cols-2 gap-3">
-                            <div>
-                                <label class="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">Latitude</label>
-                                <input type="text" name="latitude" x-model="editData.latitude" placeholder="-6.2088"
-                                       class="w-full h-9 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[8px] px-2.5 text-[16px] sm:text-xs text-slate-900 dark:text-white font-mono placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#007AFF] transition">
-                            </div>
-                            <div>
-                                <label class="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">Longitude</label>
-                                <input type="text" name="longitude" x-model="editData.longitude" placeholder="106.8456"
-                                       class="w-full h-9 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[8px] px-2.5 text-[16px] sm:text-xs text-slate-900 dark:text-white font-mono placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#007AFF] transition">
-                            </div>
-                        </div>
-
-                        <div>
-                            <div class="flex items-center justify-between mb-1">
-                                <label class="block text-[11px] font-semibold text-slate-700 dark:text-slate-300">Radius Geofence (meter)</label>
-                                <span class="text-[11px] font-bold text-[#007AFF] font-mono" x-text="editData.geofence_radius_meters + ' m'"></span>
-                            </div>
-                            <input type="number" name="geofence_radius_meters" x-model="editData.geofence_radius_meters" placeholder="100" min="10" max="5000"
-                                   class="w-full h-9 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[8px] px-2.5 text-[16px] sm:text-xs text-slate-900 dark:text-white font-mono placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#007AFF] transition">
-                            
-                            {{-- Quick Presets --}}
-                            <div class="flex items-center gap-1.5 mt-2 flex-wrap">
-                                <span class="text-[10px] text-slate-400">Pilihan Cepat:</span>
-                                <button type="button" @click="editData.geofence_radius_meters = 50" class="px-2 py-0.5 rounded-[6px] text-[10px] font-semibold bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 hover:border-[#007AFF] text-slate-700 dark:text-slate-300">50m</button>
-                                <button type="button" @click="editData.geofence_radius_meters = 100" class="px-2 py-0.5 rounded-[6px] text-[10px] font-semibold bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 hover:border-[#007AFF] text-slate-700 dark:text-slate-300">100m (Default)</button>
-                                <button type="button" @click="editData.geofence_radius_meters = 200" class="px-2 py-0.5 rounded-[6px] text-[10px] font-semibold bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 hover:border-[#007AFF] text-slate-700 dark:text-slate-300">200m</button>
-                                <button type="button" @click="editData.geofence_radius_meters = 500" class="px-2 py-0.5 rounded-[6px] text-[10px] font-semibold bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 hover:border-[#007AFF] text-slate-700 dark:text-slate-300">500m</button>
-                            </div>
-                            <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1.5">Radius area valid absensi GPS. Default: 100 meter dari titik pusat cabang.</p>
-                        </div>
-                    </div>
-
-                    {{-- 📦 SECTION INTEGRASI BITESHIP & TOKO ONLINE PICKUP --}}
-                    <div class="col-span-1 sm:col-span-2 rounded-[16px] bg-[#5856D6]/5 dark:bg-[#5856D6]/10 border border-[#5856D6]/20 p-4 space-y-3.5">
-                        <div class="flex items-center justify-between gap-2">
-                            <div class="flex items-center gap-2">
-                                <div class="w-6 h-6 rounded-[6px] bg-[#5856D6]/15 text-[#5856D6] flex items-center justify-center">
-                                    <i data-lucide="truck" class="w-3.5 h-3.5"></i>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                                        Nama Gudang / Cabang <span class="text-[#FF3B30]">*</span>
+                                    </label>
+                                    <input type="text" name="name" x-model="editData.name" required
+                                           class="w-full h-11 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3.5 text-[16px] sm:text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
                                 </div>
-                                <span class="text-xs font-bold text-slate-900 dark:text-white">Integrasi Biteship &amp; Pickup Toko Online</span>
-                            </div>
-                            <span class="text-[10px] font-bold text-[#5856D6] bg-[#5856D6]/10 px-2 py-0.5 rounded-full">Biteship Logistics</span>
-                        </div>
 
-                        {{-- Area Search Box for Biteship --}}
-                        <div class="relative">
-                            <label class="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                                Hubungkan Wilayah Biteship (Kelurahan / Kecamatan / Kode Pos)
-                            </label>
-
-                            <template x-if="!editData.biteship_area_id">
-                                <div class="relative">
-                                    <input type="text"
-                                           placeholder="Ketik min. 2 huruf (contoh: Tebet, Senayan, 12810)..."
-                                           @input.debounce.300ms="searchBiteship('edit', $event.target.value)"
-                                           class="w-full h-9 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[8px] pl-8 pr-3 text-[16px] sm:text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#5856D6] transition">
-                                    <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5"></i>
-                                </div>
-                            </template>
-
-                            {{-- Selected Biteship Area Card --}}
-                            <template x-if="editData.biteship_area_id">
-                                <div class="flex items-center justify-between p-2.5 rounded-[10px] bg-white dark:bg-[#1C1C1E] border border-[#5856D6]/30">
-                                    <div class="flex items-center gap-2 min-w-0">
-                                        <i data-lucide="check-circle" class="w-4 h-4 text-[#34C759] shrink-0"></i>
-                                        <div class="min-w-0">
-                                            <span class="text-xs font-bold text-slate-900 dark:text-white block truncate" x-text="editData.biteship_area_label || editData.biteship_area_id"></span>
-                                            <span class="text-[10px] text-slate-500 dark:text-slate-400 font-mono">Biteship ID: <span x-text="editData.biteship_area_id"></span></span>
-                                        </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                                            Tipe Lokasi
+                                        </label>
+                                        <select name="type" x-model="editData.type" class="w-full h-10 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3 text-[16px] sm:text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
+                                            <option value="warehouse">Gudang (Warehouse)</option>
+                                            <option value="outlet">Outlet / Toko</option>
+                                            <option value="central_kitchen">Dapur Pusat (Central Kitchen)</option>
+                                        </select>
                                     </div>
-                                    <button type="button" @click="clearBiteshipArea('edit')" class="text-xs text-[#FF3B30] hover:underline font-semibold shrink-0 ml-2">
-                                        Ganti
-                                    </button>
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                                            Kode Lokasi
+                                        </label>
+                                        <input type="text" name="code" x-model="editData.code"
+                                               class="w-full h-10 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3.5 text-[16px] sm:text-xs text-slate-900 dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
+                                    </div>
                                 </div>
-                            </template>
 
-                            {{-- Dropdown Autocomplete Results --}}
-                            <div x-show="biteshipTarget === 'edit' && biteshipResults.length > 0"
-                                 @click.outside="biteshipResults = []"
-                                 class="absolute left-0 right-0 top-full mt-1 z-30 max-h-48 overflow-y-auto rounded-[12px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 shadow-xl divide-y divide-black/5 dark:divide-white/5">
-                                <template x-for="item in biteshipResults" :key="item.id">
-                                    <button type="button" @click="selectBiteshipArea('edit', item)"
-                                            class="w-full text-left p-2.5 hover:bg-[#5856D6]/10 transition flex items-center justify-between gap-2 cursor-pointer">
-                                        <div>
-                                            <span class="text-xs font-bold text-slate-900 dark:text-white block" x-text="item.label || (item.village + ', ' + item.district + ', ' + item.city)"></span>
-                                            <span class="text-[10px] text-slate-500 dark:text-slate-400" x-text="(item.province || '') + (item.postal_code ? ' • Kode Pos: ' + item.postal_code : '')"></span>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                                        Nomor Telepon
+                                    </label>
+                                    <input type="text" name="phone" x-model="editData.phone"
+                                           class="w-full h-10 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3.5 text-[16px] sm:text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
+                                </div>
+
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                                        Alamat Lengkap
+                                    </label>
+                                    <textarea name="address" rows="3" x-model="editData.address"
+                                              class="w-full bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] p-3 text-[16px] sm:text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition resize-none"></textarea>
+                                </div>
+
+                                <div class="flex items-center gap-3 p-3.5 rounded-[12px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08]">
+                                    <input type="checkbox" name="is_active" id="edit_is_active" value="1"
+                                           x-model="editData.is_active" class="w-4 h-4 rounded text-[#007AFF] focus:ring-[#007AFF]">
+                                    <label for="edit_is_active" class="text-xs text-slate-800 dark:text-slate-200 font-semibold cursor-pointer">
+                                        Lokasi beroperasi aktif (dapat menerima PO, kasir, transfer stok, dan alokasi produk)
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Kolom Kanan: Geofence & Biteship Logistics (6 Kolom) --}}
+                        <div class="lg:col-span-6 space-y-4">
+                            
+                            {{-- SECTION GEOFENCE & DETEKSI GPS --}}
+                            <div class="rounded-[18px] bg-[#007AFF]/5 dark:bg-[#007AFF]/10 border border-[#007AFF]/20 p-5 space-y-3.5">
+                                <div class="flex items-center justify-between gap-2 flex-wrap">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-6 h-6 rounded-[6px] bg-[#007AFF]/15 text-[#007AFF] flex items-center justify-center">
+                                            <i data-lucide="map-pin" class="w-3.5 h-3.5"></i>
                                         </div>
-                                        <span class="text-[10px] font-mono text-[#5856D6] font-bold shrink-0 bg-[#5856D6]/10 px-1.5 py-0.5 rounded">Pilih</span>
+                                        <span class="text-xs font-bold text-[#007AFF]">Koordinat GPS &amp; Geofence Absensi</span>
+                                        <span class="text-[10px] font-semibold text-slate-500 dark:text-slate-400">(Opsional)</span>
+                                    </div>
+
+                                    {{-- Tombol Live Detect GPS (Zero-Emoji) --}}
+                                    <button type="button" @click="detectGps('edit')" :disabled="gpsLoading"
+                                            class="min-h-[36px] h-9 px-3.5 rounded-[8px] text-xs font-bold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] transition-all flex items-center gap-1.5 shadow-[0_1px_2px_rgba(0,122,255,0.25)] cursor-pointer disabled:opacity-50">
+                                        <template x-if="gpsLoading && activeGpsTarget === 'edit'">
+                                            <svg class="animate-spin -ml-0.5 mr-1 h-3.5 w-3.5 text-white" fill="none" viewBox="0 0 24 24">
+                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                            </svg>
+                                        </template>
+                                        <template x-if="!(gpsLoading && activeGpsTarget === 'edit')">
+                                            <i data-lucide="crosshair" class="w-3.5 h-3.5"></i>
+                                        </template>
+                                        <span x-text="(gpsLoading && activeGpsTarget === 'edit') ? 'Mencari Titik GPS...' : 'Deteksi GPS Otomatis'"></span>
                                     </button>
-                                </template>
-                            </div>
-                        </div>
-
-                        {{-- Checkbox Primary Pickup Storefront --}}
-                        <div class="space-y-2 pt-1">
-                            <label class="flex items-start gap-2.5 p-3 rounded-[12px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] cursor-pointer hover:border-[#5856D6]/40 transition">
-                                <input type="checkbox" name="is_primary" value="1" x-model="editData.is_primary" class="mt-0.5 w-4 h-4 rounded text-[#5856D6] focus:ring-[#5856D6]">
-                                <div class="text-xs">
-                                    <span class="font-bold text-slate-900 dark:text-white block">Jadikan Titik Pickup Utama Toko Online</span>
-                                    <span class="text-[11px] text-slate-500 dark:text-slate-400 block">Pesanan online pengiriman kurir (JNE, SiCepat, J&T, GoSend, GrabExpress via Biteship) akan dipickup kurir dari lokasi ini.</span>
                                 </div>
-                            </label>
 
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                <label class="flex items-start gap-2 p-2.5 rounded-[10px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] cursor-pointer">
-                                    <input type="checkbox" name="is_online_fulfillment" value="1" x-model="editData.is_online_fulfillment" class="mt-0.5 w-3.5 h-3.5 rounded text-[#007AFF] focus:ring-[#007AFF]">
-                                    <span class="text-[11px] font-medium text-slate-800 dark:text-slate-200">Titik Kirim Kurir Online</span>
-                                </label>
-                                <label class="flex items-start gap-2 p-2.5 rounded-[10px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] cursor-pointer">
-                                    <input type="checkbox" name="allow_storefront_pickup" value="1" x-model="editData.allow_storefront_pickup" class="mt-0.5 w-3.5 h-3.5 rounded text-[#007AFF] focus:ring-[#007AFF]">
-                                    <span class="text-[11px] font-medium text-slate-800 dark:text-slate-200">Izinkan Ambil di Toko</span>
-                                </label>
+                                {{-- Alert GPS Messages --}}
+                                <template x-if="gpsSuccess && activeGpsTarget === 'edit'">
+                                    <div class="rounded-[10px] bg-[#34C759]/15 border border-[#34C759]/30 px-3 py-2 text-[11px] text-[#248A3D] dark:text-[#30D158] flex items-center gap-2 font-medium">
+                                        <i data-lucide="check-circle-2" class="w-4 h-4 text-[#34C759]"></i>
+                                        <span>Titik koordinat GPS berhasil dideteksi dan alamat wilayah otomatis disinkronkan.</span>
+                                    </div>
+                                </template>
+
+                                <template x-if="gpsError && activeGpsTarget === 'edit'">
+                                    <div class="rounded-[10px] bg-[#FF3B30]/15 border border-[#FF3B30]/30 px-3 py-2 text-[11px] text-[#C41E17] dark:text-[#FF453A] flex items-center gap-2 font-medium">
+                                        <i data-lucide="alert-circle" class="w-4 h-4 text-[#FF3B30]"></i>
+                                        <span x-text="gpsError"></span>
+                                    </div>
+                                </template>
+
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">Latitude</label>
+                                        <input type="text" name="latitude" x-model="editData.latitude" placeholder="-6.2088"
+                                               class="w-full h-9 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[8px] px-2.5 text-[16px] sm:text-xs text-slate-900 dark:text-white font-mono placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#007AFF] transition">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">Longitude</label>
+                                        <input type="text" name="longitude" x-model="editData.longitude" placeholder="106.8456"
+                                               class="w-full h-9 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[8px] px-2.5 text-[16px] sm:text-xs text-slate-900 dark:text-white font-mono placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#007AFF] transition">
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <div class="flex items-center justify-between mb-1">
+                                        <label class="block text-[11px] font-semibold text-slate-700 dark:text-slate-300">Radius Geofence (meter)</label>
+                                        <span class="text-[11px] font-bold text-[#007AFF] font-mono" x-text="editData.geofence_radius_meters + ' m'"></span>
+                                    </div>
+                                    <input type="number" name="geofence_radius_meters" x-model="editData.geofence_radius_meters" placeholder="100" min="10" max="5000"
+                                           class="w-full h-9 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[8px] px-2.5 text-[16px] sm:text-xs text-slate-900 dark:text-white font-mono placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#007AFF] transition">
+                                    
+                                    {{-- Quick Presets --}}
+                                    <div class="flex items-center gap-1.5 mt-2 flex-wrap">
+                                        <span class="text-[10px] text-slate-400">Pilihan Cepat:</span>
+                                        <button type="button" @click="editData.geofence_radius_meters = 50" class="px-2 py-0.5 rounded-[6px] text-[10px] font-semibold bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 hover:border-[#007AFF] text-slate-700 dark:text-slate-300 cursor-pointer">50m</button>
+                                        <button type="button" @click="editData.geofence_radius_meters = 100" class="px-2 py-0.5 rounded-[6px] text-[10px] font-semibold bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 hover:border-[#007AFF] text-slate-700 dark:text-slate-300 cursor-pointer">100m (Default)</button>
+                                        <button type="button" @click="editData.geofence_radius_meters = 200" class="px-2 py-0.5 rounded-[6px] text-[10px] font-semibold bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 hover:border-[#007AFF] text-slate-700 dark:text-slate-300 cursor-pointer">200m</button>
+                                        <button type="button" @click="editData.geofence_radius_meters = 500" class="px-2 py-0.5 rounded-[6px] text-[10px] font-semibold bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 hover:border-[#007AFF] text-slate-700 dark:text-slate-300 cursor-pointer">500m</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- SECTION INTEGRASI BITESHIP & TOKO ONLINE PICKUP --}}
+                            <div class="rounded-[18px] bg-[#5856D6]/5 dark:bg-[#5856D6]/10 border border-[#5856D6]/20 p-5 space-y-3.5">
+                                <div class="flex items-center justify-between gap-2">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-6 h-6 rounded-[6px] bg-[#5856D6]/15 text-[#5856D6] flex items-center justify-center">
+                                            <i data-lucide="truck" class="w-3.5 h-3.5"></i>
+                                        </div>
+                                        <span class="text-xs font-bold text-slate-900 dark:text-white">Integrasi Biteship &amp; Pickup Toko Online</span>
+                                    </div>
+                                    <span class="text-[10px] font-bold text-[#5856D6] bg-[#5856D6]/10 px-2 py-0.5 rounded-full">Logistics</span>
+                                </div>
+
+                                {{-- Area Search Box for Biteship --}}
+                                <div class="relative">
+                                    <label class="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                                        Hubungkan Wilayah Biteship (Kelurahan / Kecamatan / Kode Pos)
+                                    </label>
+
+                                    <template x-if="!editData.biteship_area_id">
+                                        <div class="relative">
+                                            <input type="text"
+                                                   placeholder="Ketik min. 2 huruf (contoh: Tebet, Senayan, 12810)..."
+                                                   @input.debounce.300ms="searchBiteship('edit', $event.target.value)"
+                                                   class="w-full h-9 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[8px] pl-8 pr-3 text-[16px] sm:text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#5856D6] transition">
+                                            <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5"></i>
+                                        </div>
+                                    </template>
+
+                                    {{-- Selected Biteship Area Card --}}
+                                    <template x-if="editData.biteship_area_id">
+                                        <div class="flex items-center justify-between p-2.5 rounded-[10px] bg-white dark:bg-[#1C1C1E] border border-[#5856D6]/30">
+                                            <div class="flex items-center gap-2 min-w-0">
+                                                <i data-lucide="check-circle" class="w-4 h-4 text-[#34C759] shrink-0"></i>
+                                                <div class="min-w-0">
+                                                    <span class="text-xs font-bold text-slate-900 dark:text-white block truncate" x-text="editData.biteship_area_label || editData.biteship_area_id"></span>
+                                                    <span class="text-[10px] text-slate-500 dark:text-slate-400 font-mono">Biteship ID: <span x-text="editData.biteship_area_id"></span></span>
+                                                </div>
+                                            </div>
+                                            <button type="button" @click="clearBiteshipArea('edit')" class="text-xs text-[#FF3B30] hover:underline font-semibold shrink-0 ml-2 cursor-pointer">
+                                                Ganti
+                                            </button>
+                                        </div>
+                                    </template>
+
+                                    {{-- Dropdown Autocomplete Results --}}
+                                    <div x-show="biteshipTarget === 'edit' && biteshipResults.length > 0"
+                                         @click.outside="biteshipResults = []"
+                                         class="absolute left-0 right-0 top-full mt-1 z-30 max-h-48 overflow-y-auto rounded-[12px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 shadow-xl divide-y divide-black/5 dark:divide-white/5">
+                                        <template x-for="item in biteshipResults" :key="item.id">
+                                            <button type="button" @click="selectBiteshipArea('edit', item)"
+                                                    class="w-full text-left p-2.5 hover:bg-[#5856D6]/10 transition flex items-center justify-between gap-2 cursor-pointer">
+                                                <div>
+                                                    <span class="text-xs font-bold text-slate-900 dark:text-white block" x-text="item.label || (item.village + ', ' + item.district + ', ' + item.city)"></span>
+                                                    <span class="text-[10px] text-slate-500 dark:text-slate-400" x-text="(item.province || '') + (item.postal_code ? ' • Kode Pos: ' + item.postal_code : '')"></span>
+                                                </div>
+                                                <span class="text-[10px] font-mono text-[#5856D6] font-bold shrink-0 bg-[#5856D6]/10 px-1.5 py-0.5 rounded">Pilih</span>
+                                            </button>
+                                        </template>
+                                    </div>
+                                </div>
+
+                                {{-- Checkbox Primary Pickup Storefront --}}
+                                <div class="space-y-2 pt-1">
+                                    <label class="flex items-start gap-2.5 p-3 rounded-[12px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] cursor-pointer hover:border-[#5856D6]/40 transition">
+                                        <input type="checkbox" name="is_primary" value="1" x-model="editData.is_primary" class="mt-0.5 w-4 h-4 rounded text-[#5856D6] focus:ring-[#5856D6]">
+                                        <div class="text-xs">
+                                            <span class="font-bold text-slate-900 dark:text-white block">Jadikan Titik Pickup Utama Toko Online</span>
+                                            <span class="text-[11px] text-slate-500 dark:text-slate-400 block">Pesanan online pengiriman kurir (JNE, SiCepat, J&T, GoSend, GrabExpress via Biteship) akan dipickup kurir dari lokasi ini.</span>
+                                        </div>
+                                    </label>
+
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                        <label class="flex items-start gap-2 p-2.5 rounded-[10px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] cursor-pointer">
+                                            <input type="checkbox" name="is_online_fulfillment" value="1" x-model="editData.is_online_fulfillment" class="mt-0.5 w-3.5 h-3.5 rounded text-[#007AFF] focus:ring-[#007AFF]">
+                                            <span class="text-[11px] font-medium text-slate-800 dark:text-slate-200">Titik Kirim Kurir Online</span>
+                                        </label>
+                                        <label class="flex items-start gap-2 p-2.5 rounded-[10px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] cursor-pointer">
+                                            <input type="checkbox" name="allow_storefront_pickup" value="1" x-model="editData.allow_storefront_pickup" class="mt-0.5 w-3.5 h-3.5 rounded text-[#007AFF] focus:ring-[#007AFF]">
+                                            <span class="text-[11px] font-medium text-slate-800 dark:text-slate-200">Izinkan Ambil di Toko</span>
+                                        </label>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-
-                    <div class="col-span-1 sm:col-span-2 flex items-center gap-3 p-3.5 rounded-[12px] bg-slate-50 dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08]">
-                        <input type="checkbox" name="is_active" id="edit_is_active" value="1"
-                               x-model="editData.is_active" class="w-4 h-4 rounded text-[#007AFF] focus:ring-[#007AFF]">
-                        <label for="edit_is_active" class="text-xs text-slate-800 dark:text-slate-200 font-semibold cursor-pointer">
-                            Lokasi beroperasi aktif (dapat menerima PO, transaksi kasir, transfer stok, dan alokasi produk)
-                        </label>
                     </div>
                 </div>
 
-                <div class="flex items-center justify-end gap-2 pt-3.5 border-t border-black/[0.06] dark:border-white/[0.08]">
+                {{-- Modal Footer --}}
+                <div class="px-5 py-3.5 sm:px-6 sm:py-4 border-t border-black/[0.06] dark:border-white/[0.08] flex items-center justify-end gap-3 shrink-0 bg-slate-50/50 dark:bg-white/[0.02]">
                     <button type="button" @click="showEditModal = false"
-                            class="h-9 px-4 rounded-[10px] text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer">
+                            class="min-h-[44px] h-11 px-5 rounded-[12px] text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer">
                         Batal
                     </button>
                     <button type="submit"
-                            class="h-9 px-4 rounded-[10px] text-xs font-bold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] transition-all shadow-[0_1px_2px_rgba(0,122,255,0.25)] cursor-pointer">
-                        Simpan Perubahan
+                            class="min-h-[44px] h-11 px-6 rounded-[12px] text-xs font-bold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] transition-all shadow-[0_2px_4px_rgba(0,122,255,0.25)] cursor-pointer flex items-center gap-2">
+                        <i data-lucide="check" class="w-4 h-4"></i>
+                        <span>Simpan Perubahan Lokasi</span>
                     </button>
                 </div>
             </form>
@@ -1645,7 +1767,7 @@
          x-transition:leave-start="opacity-100"
          x-transition:leave-end="opacity-0">
 
-        <div class="w-[300px] rounded-[18px] bg-white/95 dark:bg-[#2C2C2E]/95 backdrop-blur-xl overflow-hidden text-center shadow-2xl border border-black/[0.08] dark:border-white/[0.12]"
+        <div class="w-full max-w-[340px] rounded-[20px] bg-white/95 dark:bg-[#2C2C2E]/95 backdrop-blur-xl overflow-hidden text-center shadow-2xl border border-black/[0.08] dark:border-white/[0.12]"
              @click.away="closeDelete()"
              x-transition:enter="transition ease-out duration-200"
              x-transition:enter-start="opacity-0 scale-95"
@@ -1654,23 +1776,23 @@
              x-transition:leave-start="opacity-100 scale-100"
              x-transition:leave-end="opacity-0 scale-95">
 
-            <div class="px-5 pt-5 pb-4">
-                <div class="w-10 h-10 rounded-full bg-[#FF3B30]/10 text-[#FF3B30] flex items-center justify-center mx-auto mb-3">
-                    <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+            <div class="px-6 pt-6 pb-5">
+                <div class="w-12 h-12 rounded-full bg-[#FF3B30]/10 text-[#FF3B30] flex items-center justify-center mx-auto mb-3.5">
+                    <i data-lucide="alert-triangle" class="w-6 h-6"></i>
                 </div>
                 <p class="text-base font-bold text-slate-900 dark:text-white">Hapus Lokasi?</p>
-                <p class="text-xs text-slate-600 dark:text-slate-400 mt-1 leading-snug">
-                    <span x-text="deleteTarget.name" class="font-semibold text-slate-900 dark:text-white"></span> akan dihapus dari sistem. Pastikan tidak ada saldo stok atau mutasi aktif.
+                <p class="text-xs text-slate-600 dark:text-slate-400 mt-1.5 leading-relaxed">
+                    <span x-text="deleteTarget.name" class="font-bold text-slate-900 dark:text-white"></span> akan dihapus dari sistem. Pastikan tidak ada saldo stok atau mutasi aktif.
                 </p>
             </div>
 
-            <div class="grid grid-cols-2 border-t border-black/[0.08] dark:border-white/[0.12] text-sm font-semibold">
+            <div class="grid grid-cols-2 border-t border-black/[0.08] dark:border-white/[0.12] text-xs font-semibold">
                 <button type="button" @click="closeDelete()"
-                        class="py-3 text-[#007AFF] border-r border-black/[0.08] dark:border-white/[0.12] active:bg-black/5 dark:active:bg-white/5 transition-colors cursor-pointer">
+                        class="py-3.5 text-slate-600 dark:text-slate-300 border-r border-black/[0.08] dark:border-white/[0.12] active:bg-black/5 dark:active:bg-white/5 transition-colors cursor-pointer">
                     Batal
                 </button>
                 <button type="button" @click="submitDelete()"
-                        class="py-3 text-[#FF3B30] font-bold active:bg-black/5 dark:active:bg-white/5 transition-colors cursor-pointer">
+                        class="py-3.5 text-[#FF3B30] font-bold active:bg-black/5 dark:active:bg-white/5 transition-colors cursor-pointer">
                     Hapus
                 </button>
             </div>

@@ -38,6 +38,40 @@ final class MerchantShippingRuleController extends Controller
 
         $storeSetting = $business->commerceStoreSetting ?? $business->storeSetting;
 
+        // Fetch all active branch / warehouse locations for this business
+        $locations = \App\Models\Location::where('business_id', $business->id)
+            ->where('is_active', true)
+            ->orderByDesc('is_primary')
+            ->orderBy('name')
+            ->get();
+
+        $primaryLocation = $locations->firstWhere('is_primary', true) ?? $locations->first();
+
+        // Resolve active location linked to storefront shipping
+        $activeLocation = null;
+        if ($storeSetting && $storeSetting->origin_location_id) {
+            $activeLocation = $locations->firstWhere('id', $storeSetting->origin_location_id);
+        }
+        if (! $activeLocation) {
+            $activeLocation = $primaryLocation;
+        }
+
+        // Auto-fill fallback default values from registration / active location
+        $defaultOriginContactName = $storeSetting?->origin_contact_name
+            ?: ($activeLocation?->name ? ($business->name . ' (' . $activeLocation->name . ')') : $business->name);
+        $defaultOriginContactPhone = $storeSetting?->origin_contact_phone
+            ?: ($activeLocation?->phone ?: $business->phone);
+        $defaultOriginAddress = $storeSetting?->origin_address
+            ?: ($activeLocation?->formatted_full_address ?: ($activeLocation?->address ?: $business->address));
+        $defaultOriginPostalCode = $storeSetting?->origin_postal_code
+            ?: ($activeLocation?->postal_code ?: '');
+        $defaultOriginLat = $storeSetting?->origin_latitude
+            ?: ($activeLocation?->latitude ?? null);
+        $defaultOriginLng = $storeSetting?->origin_longitude
+            ?: ($activeLocation?->longitude ?? null);
+        $defaultOriginAreaId = $storeSetting?->origin_area_id
+            ?: ($activeLocation?->biteship_area_id ?? null);
+
         $isBiteshipConfigured = $this->biteshipService->isConfigured();
         $biteshipApiKey = $this->biteshipService->getApiKey();
         $availableCouriers = $this->biteshipService->getDefaultCouriers();
@@ -47,6 +81,16 @@ final class MerchantShippingRuleController extends Controller
             'business',
             'rules',
             'storeSetting',
+            'locations',
+            'primaryLocation',
+            'activeLocation',
+            'defaultOriginContactName',
+            'defaultOriginContactPhone',
+            'defaultOriginAddress',
+            'defaultOriginPostalCode',
+            'defaultOriginLat',
+            'defaultOriginLng',
+            'defaultOriginAreaId',
             'isBiteshipConfigured',
             'biteshipApiKey',
             'availableCouriers',
@@ -71,6 +115,7 @@ final class MerchantShippingRuleController extends Controller
             'origin_latitude'           => ['nullable', 'numeric', 'between:-90,90'],
             'origin_longitude'          => ['nullable', 'numeric', 'between:-180,180'],
             'origin_area_id'            => ['nullable', 'string', 'max:100'],
+            'selected_location_id'      => ['nullable', 'string', 'max:64'],
             'biteship_enabled_couriers' => ['nullable', 'array'],
             'biteship_enabled_couriers.*' => ['string'],
         ], [
@@ -89,27 +134,51 @@ final class MerchantShippingRuleController extends Controller
 
         $couriers = $validated['biteship_enabled_couriers'] ?? ['jne', 'jnt', 'sicepat', 'anteraja', 'gosend', 'grab'];
 
-        // Synchronize store origin with Biteship Locations API (POST /v1/locations)
+        // If a specific branch location was selected, sync and use branch name
+        $selectedLocation = null;
+        if (! empty($validated['selected_location_id'])) {
+            $selectedLocation = \App\Models\Location::where('business_id', $business->id)
+                ->where('id', $validated['selected_location_id'])
+                ->first();
+
+            if ($selectedLocation) {
+                $selectedLocation->update([
+                    'is_online_fulfillment' => true,
+                    'address' => $validated['origin_address'],
+                    'postal_code' => $validated['origin_postal_code'],
+                    'latitude' => isset($validated['origin_latitude']) ? (float) $validated['origin_latitude'] : $selectedLocation->latitude,
+                    'longitude' => isset($validated['origin_longitude']) ? (float) $validated['origin_longitude'] : $selectedLocation->longitude,
+                    'biteship_area_id' => $validated['origin_area_id'] ?? $selectedLocation->biteship_area_id,
+                ]);
+            }
+        }
+
+        $locationLabel = $selectedLocation ? ($business->name . ' - ' . $selectedLocation->name) : ($business->name . ' - Toko Utama');
+
+        // Target internal branch location ID
+        $originLocationId = $selectedLocation?->id
+            ?: ($storeSetting->origin_location_id
+                ?: \App\Models\Location::where('business_id', $business->id)->where('is_primary', true)->value('id'));
+
+        // Synchronize store origin with Biteship Locations API (POST /v1/locations) if configured
         $locationPayload = [
-            'name'          => $business->name . ' - Toko Utama',
+            'name'          => $locationLabel,
             'contact_name'  => $validated['origin_contact_name'],
             'contact_phone' => $validated['origin_contact_phone'],
             'address'       => $validated['origin_address'],
-            'note'          => 'Lokasi asal penjemputan paket toko ' . $business->name,
+            'note'          => 'Lokasi asal penjemputan paket ' . $locationLabel,
             'postal_code'   => (int) $validated['origin_postal_code'],
             'latitude'      => isset($validated['origin_latitude']) ? (float) $validated['origin_latitude'] : null,
             'longitude'     => isset($validated['origin_longitude']) ? (float) $validated['origin_longitude'] : null,
             'type'          => 'origin',
         ];
 
-        $originLocationId = $storeSetting->origin_location_id;
-        if (! empty($originLocationId)) {
-            $locResult = $this->biteshipService->updateLocation($originLocationId, $locationPayload);
-        } else {
-            $locResult = $this->biteshipService->createLocation($locationPayload);
-            if (! empty($locResult['id'])) {
-                $originLocationId = $locResult['id'];
+        try {
+            if (method_exists($this->biteshipService, 'createLocation')) {
+                $this->biteshipService->createLocation($locationPayload);
             }
+        } catch (Throwable) {
+            // Logged internally by BiteshipService
         }
 
         $storeSetting->update([
@@ -124,7 +193,9 @@ final class MerchantShippingRuleController extends Controller
             'biteship_enabled_couriers' => $couriers,
         ]);
 
-        return redirect()->route('storefront.shipping.index')->with('success', 'Konfigurasi alamat asal toko dan lokasi resmi Biteship (' . ($originLocationId ?: 'Tersinkronisasi') . ') berhasil disimpan.');
+        $branchNotice = $selectedLocation ? " terhubung ke cabang {$selectedLocation->name}" : '';
+
+        return redirect()->route('storefront.shipping.index')->with('success', 'Konfigurasi alamat asal toko' . $branchNotice . ' berhasil disimpan.');
     }
 
     /**

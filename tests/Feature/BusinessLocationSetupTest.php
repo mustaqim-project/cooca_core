@@ -303,5 +303,73 @@ final class BusinessLocationSetupTest extends TestCase
         $this->assertSame('11470', $result['postal_code']);
         $this->assertSame('Jl. Tomang Raya', $result['road']);
     }
+
+    public function test_merchant_can_create_branch_in_warehouse_and_it_syncs_with_storefront(): void
+    {
+        $user = User::create([
+            'name' => 'Owner Cabang Test',
+            'email' => 'branch_owner@test.com',
+            'password' => 'secret123',
+        ]);
+        $business = Business::create(['name' => 'Bisnis Multi Cabang']);
+        $business->users()->attach($user->id, ['id' => (string) Str::uuid(), 'role' => 'owner']);
+        $user->update(['active_business_id' => $business->id]);
+
+        $acting = $this->actingAs($user)->withSession([
+            'active_business_id' => $business->id,
+            'auth_wa_otp_verified_user_id' => $user->id,
+        ]);
+
+        // 1. Create a new branch via warehouse store
+        $payload = [
+            'name' => 'Cabang Tebet Baru',
+            'type' => 'outlet',
+            'code' => 'OTL-TBT',
+            'phone' => '08123456789',
+            'address' => 'Jl. Tebet Barat Dalam Raya No. 20',
+            'province' => 'DKI Jakarta',
+            'city' => 'Kota Jakarta Selatan',
+            'district' => 'Tebet',
+            'village' => 'Tebet Barat',
+            'postal_code' => '12810',
+            'biteship_area_id' => 'IDNP6IDJB12810',
+            'latitude' => -6.2301,
+            'longitude' => 106.8560,
+            'is_primary' => 1,
+            'is_online_fulfillment' => 1,
+            'allow_storefront_pickup' => 1,
+        ];
+
+        $response = $acting->post(route('warehouse.store'), $payload);
+        $response->assertRedirect(route('warehouse.index'));
+        $response->assertSessionHas('success');
+
+        $location = Location::where('business_id', $business->id)->where('name', 'Cabang Tebet Baru')->first();
+        $this->assertNotNull($location);
+        $this->assertTrue((bool) $location->is_primary);
+        $this->assertTrue((bool) $location->is_online_fulfillment);
+        $this->assertTrue((bool) $location->allow_storefront_pickup);
+
+        // Verify CommerceStoreSetting was automatically synced with this primary branch
+        $storeSetting = CommerceStoreSetting::where('business_id', $business->id)->first();
+        $this->assertNotNull($storeSetting);
+        $this->assertSame($location->id, $storeSetting->origin_location_id);
+        $this->assertSame('Jl. Tebet Barat Dalam Raya No. 20', $storeSetting->origin_address);
+        $this->assertSame('12810', $storeSetting->origin_postal_code);
+
+        // 2. View warehouse index and assert badges and links are present
+        $indexResponse = $acting->get(route('warehouse.index'));
+        $indexResponse->assertOk();
+        $indexResponse->assertSee('Asal Kirim Storefront');
+        $indexResponse->assertSee('Fulfillment Online');
+        $indexResponse->assertSee('Ambil di Toko');
+        $indexResponse->assertSee('Pengiriman Storefront');
+
+        // 3. View storefront shipping index and assert branch is present
+        $shippingResponse = $acting->get(route('storefront.shipping.index'));
+        $shippingResponse->assertOk();
+        $shippingResponse->assertSee('Cabang Tebet Baru');
+        $shippingResponse->assertSee('+ Tambah Cabang');
+    }
 }
 

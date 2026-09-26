@@ -52,6 +52,395 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 
 #### 7. Documentation Promotion
 
+### [WORK-2026-09-26-168] Comprehensive POS Module 10-View Audit, Bento Apple HIG Redesign, Anti-Fraud & Cash Drawer Pop Sheets, and Strix Multi-Tenant Security Hardening
+
+- **Date:** 2026-09-26
+- **Status:** COMPLETED
+- **Module:** POS (Point of Sale) & Hardware Integration (`resources/views/app/pos/*`, `app/Http/Controllers/Web/Pos/PosTerminalWebController.php`, `app/Domain/Pos/*`, `tests/Feature/Pos/*`)
+- **Feature:** Full Audit and Redesign of 10 POS Blade Views to Bento Apple HIG (Senior UMKM friendly ages 40–65, 100% Zero-Emoji with pure Lucide SVG icons, touch targets $\ge 44\text{px}$, mobile inputs $\ge 16\text{px}$ anti-zoom, modal-first presentation), Manual Cash Drawer Emergency Pop Modal Sheet with Supervisor PIN & Audit Reason, Blind Cash Count Shift Reconciliation with physical cash denomination calculators, Order Detail/Void/Refund Apple Modal Sheets, Dynamic Alpine.js `lucide.createIcons()` lifecycle hook integration, Strix Multi-Tenant IDOR elimination (`PosTerminalWebController::resumeOrder`), and 100% test verification.
+- **Work Type:** UI/UX | Security | Architecture | Refactoring | Hardware | Testing | Documentation
+
+#### 1. Business Context & Objective
+- **Konteks:** Modul Point of Sale (POS) adalah jantung operasional kasir harian UMKM dan ritel/F&B. Pengguna kasir dan pemilik usaha (rentang usia 40–65 tahun) membutuhkan antarmuka yang bersih, kontras tinggi, mudah disentuh pada layar tablet/ponsel tanpa zoom otomatis Safari iOS, serta perlindungan ketat terhadap fraud uang kas dan isolasi multi-tenant.
+- **Masalah/Target:** Mengaudit 10 file Blade modul POS (`printers/index.blade.php`, `kitchen.blade.php`, `orders.blade.php`, `prep_sheet.blade.php`, `qr-card.blade.php`, `receipt.blade.php`, `reports.blade.php`, `shifts.blade.php`, `tables.blade.php`, `terminal.blade.php`), mengganti seluruh emoji/simbol mentah dengan ikon Lucide murni, menambahkan modal sheet pembukaan laci kas manual dengan otorisasi PIN supervisor, memperbaiki celah keamanan IDOR pada controller POS, dan memvalidasi integritas kalkulasi keuangan & stok.
+
+#### 2. What Was Done
+- **Strix Security & Multi-Tenant Audit:**
+  - Menambal celah IDOR di `PosTerminalWebController::resumeOrder` dengan menambahkan asersi kepemilikan tenant: `abort_unless($order->business_id === $business->id, 403)`.
+  - Memverifikasi isolasi `Context::requireBusiness()` dan proteksi otorisasi PIN Supervisor pada seluruh aksi sensitif POS (Void, Refund, Hold, Resume, Cash Drawer Pop, Shift Reconciliation).
+- **Audit & Redesign 10 File View POS:**
+  1. `resources/views/app/pos/printers/index.blade.php`: Menambahkan Modal Sheet Buka Laci Kas Manual (Emergency Cash Drawer Pop) dengan input Supervisor PIN dan alasan audit; standarisasi breadcrumb dan action buttons ke Apple HIG.
+  2. `resources/views/app/pos/kitchen.blade.php`: Merombak KDS Kanban Card ke Bento Apple HIG; menambahkan hook `this.$nextTick(() => window.lucide?.createIcons())` pada update Alpine.js dinamis; touch target $\ge 44\text{px}$.
+  3. `resources/views/app/pos/orders.blade.php`: Mengganti seluruh raw breadcrumb/arrow dengan Lucide icons; merombak Modal Detail Pesanan, Modal Void Order, dan Modal Refund ke Apple Modal Sheet dengan input $\ge 16\text{px}$.
+  4. `resources/views/app/pos/prep_sheet.blade.php`: Menyempurnakan toolbar filter, responsive grid, dan touch targets.
+  5. `resources/views/app/pos/qr-card.blade.php`: Modernisasi kartu QR standee akrilik meja dengan Lucide icons dan typography SF Pro.
+  6. `resources/views/app/pos/receipt.blade.php`: Menghilangkan residual unicode emojis (`🖨️`, `✅`, `⚠️`, `‹`, `✕`); standarisasi toast ESC/POS thermal printing dengan ikon Lucide SVG.
+  7. `resources/views/app/pos/reports.blade.php`: Merombak breadcrumbs, tombol ekspor, filter tanggal berstandar touch target $\ge 44\text{px}$, dan visualisasi metrik Bento Apple HIG.
+  8. `resources/views/app/pos/shifts.blade.php`: Menyempurnakan cockpit shift aktif, modal kalkulator pecahan uang modal awal & tutup shift (Blind Cash Count), serta modal pencatatan kas masuk/keluar (mutasi kas) berstandar input $\ge 16\text{px}$.
+  9. `resources/views/app/pos/tables.blade.php`: Mengganti inline SVG mentah dan karakter `✕` dengan ikon Lucide; merombak modal Tambah Meja, Edit Meja, dan Regenerate QR ke Bento Apple Sheet dengan touch targets $\ge 44\text{px}$.
+  10. `resources/views/app/pos/terminal.blade.php`: Memvalidasi zero-emoji compliance, integrasi layout adaptive shell (zero overlap), serta sinkronisasi keranjang dan multi-payment.
+
+#### 3. Technical Changes
+- **Files Affected:**
+  - `app/Http/Controllers/Web/Pos/PosTerminalWebController.php` (Tenant isolation & IDOR patch in `resumeOrder`).
+  - `resources/views/app/pos/printers/index.blade.php`
+  - `resources/views/app/pos/kitchen.blade.php`
+  - `resources/views/app/pos/orders.blade.php`
+  - `resources/views/app/pos/prep_sheet.blade.php`
+  - `resources/views/app/pos/qr-card.blade.php`
+  - `resources/views/app/pos/receipt.blade.php`
+  - `resources/views/app/pos/reports.blade.php`
+  - `resources/views/app/pos/shifts.blade.php`
+  - `resources/views/app/pos/tables.blade.php`
+  - `resources/views/app/pos/terminal.blade.php`
+  - `docs/AiWorkHistory.md`
+
+#### 4. Verification & Testing
+- `php -l app/Http/Controllers/Web/Pos/PosTerminalWebController.php`: No syntax errors detected.
+- `php artisan view:cache`: 100% Blade templates compiled successfully with zero syntax/compilation errors.
+- `php vendor/bin/phpunit tests/Feature/Pos/`: 14 tests, 100 assertions passed (100% green).
+- `php vendor/bin/phpunit tests/Unit/StockReservationTest.php tests/Unit/StockServiceConcurrencyAndIntegrityTest.php`: 6 tests, 29 assertions passed (100% green).
+
+---
+
+### [WORK-2026-09-26-167] Comprehensive Tax & Compliance Module Audit, Financial Report Auto-Calculation Engine, Strix Security Hardening, and Bento Apple HIG Redesign
+
+- **Date:** 2026-09-26
+- **Status:** COMPLETED
+- **Module:** Tax & Compliance (`app/Http/Controllers/Web/TaxWebController.php`, `app/Domain/Tax/*`, `resources/views/app/tax/index.blade.php`, `tests/Feature/TaxComplianceExportTest.php`, `tests/Feature/TaxAndHRMComplianceTest.php`)
+- **Feature:** End-to-End Indonesian Tax Compliance Engine (Corporate PPh Pasal 31E & 17 UU HPP 11%/22%, Individual PPh Pasal 17 5-tier progressive brackets, MSME PPh Final 0.5% PP 55/2022 with Rp 500M annual tax-free threshold, Employee PPh 21 TER PP 58/2023 Categories A/B/C + December Reconciliation, Integrated BPJS Ketenagakerjaan & Kesehatan, Pro-rata Religious THR Calculation, and Sales Tax PB1 10% / PPN 11%-12%), Automatic Financial Statement Aggregation (`FinancialReportService::getIncomeStatement`), Smart Tax Optimization Engine (Auto-recommendation of most tax-efficient scheme & fiscal loss detection), Senior-Friendly Bento Apple HIG UI/UX Redesign (zero-emoji, pure Lucide icons, touch targets >= 44px, mobile inputs >= 16px, modal-first inspector sheets), and Strix Multi-Tenant Security Hardening.
+- **Work Type:** Feature | Architecture | UI/UX | Security | Financial Integrity | Testing | Documentation
+
+#### 1. Business Context & Objective
+- **Konteks:** Kepatuhan perpajakan Indonesia sangat dinamis dengan hadirnya UU HPP No. 7/2021, PP 55/2022 (PPh Final UMKM 0.5% dengan threshold Rp 500 Juta untuk Orang Pribadi), dan PP 58/2023 (PPh 21 TER). Pemilik bisnis UMKM hingga korporasi membutuhkan kalkulasi otomatis yang akurat dari laporan laba rugi riil, tanpa harus menghitung manual, serta panduan skema perpajakan mana yang paling hemat dan patuh hukum.
+- **Masalah/Target:** Mengaudit menyeluruh kepatuhan regulasi pajak Indonesia, mengintegrasikan penarikan data laba rugi otomatis dari penjualan POS, faktur B2B, toko online, dan pengeluaran kas, merombak antarmuka ke standar Bento Apple HIG yang ramah usia 40-65 tahun, dan mengamankan seluruh route/controller terhadap celah multi-tenant dan input validation.
+
+#### 2. What Was Done
+- Melakukan audit menyeluruh terhadap kebutuhan perpajakan karyawan dan perusahaan skala mikro hingga korporasi berbadan hukum.
+- Memperkuat validasi input pada seluruh endpoint simulasi AJAX (`simulatePPh21`, `simulateUmkm`, `simulateSales`, `simulatePayroll`, `simulateNetIncome`) dengan batasan numerik maksimum (`max:1000000000000`), sanitasi enum PTKP, dan proteksi dari nilai negatif.
+- Mengamankan file ekspor CSV DJP e-Bupot 21/26, Rekap PPh Final UMKM, dan Rekap PPh Laba Bersih dengan regex sanitasi filename slug (`preg_replace('/[^A-Za-z0-9_-]/', '', ...)`) dan validasi rentang tahun/bulan untuk mencegah header injection / path traversal.
+- Merancang ulang `resources/views/app/tax/index.blade.php` dengan estetika Bento Apple HIG:
+  1. **Executive KPI Bento Header**: Omzet Riil Tahunan, Laba Bersih Usaha, Estimasi PPh Terutang, dan Bento Card Tax Optimization Engine.
+  2. **Apple Segmented Bar**: 5 Tab Simulator interaktif (PPh Laba Bersih, PPh Final UMKM 0.5%, PPh 21 TER, Payroll & BPJS/THR, Pajak Transaksi PB1/PPN).
+  3. **Senior & Mobile Ergonomics**: Zero-emoji, Lucide SVG icons, touch target $\ge 44\text{px}$, font input mobile $\ge 16\text{px}$ anti-zoom, Apple System Color tokens.
+  4. **Modal-First Architecture**: 4 Modal Sheet terfokus (Detail 5 Bracket Progresif Pasal 17, Rincian Komponen BPJS, Panduan Norma Pencatatan NPPN Pasal 14, dan Pusat Ekspor Dokumen Fiskal CSV).
+  5. **Tabel Rekapitulasi Fiskal 12 Bulan**: Menyajikan omzet, HPP modal, beban kas operasional, laba bersih, komparasi PPh Laba Bersih vs PPh Final 0.5%, dan badge status rekomendasi hemat.
+
+#### 3. Technical Changes
+- **Files Affected:**
+  - `app/Http/Controllers/Web/TaxWebController.php` (Request validations, year/month range boundaries, and export filename sanitization).
+  - `resources/views/app/tax/index.blade.php` (Complete Bento Apple HIG redesign, zero-emoji compliance, and modal sheets).
+  - `docs/AiWorkHistory.md` (Historical work record entry).
+- **Security & Multi-Tenant:**
+  - `Context::requireBusiness()` verified across all endpoints.
+  - Strict entitlement checks for CSV exports.
+
+#### 4. Verification & Testing
+- `php artisan view:cache`: Blade templates compiled and cached successfully with zero syntax errors.
+- `php vendor/bin/phpunit tests/Feature/TaxComplianceExportTest.php tests/Feature/TaxAndHRMComplianceTest.php`: 8 tests, 73 assertions passed (100% green).
+
+---
+
+### [WORK-2026-09-25-166] Finance & Accounting Dual-Mode System (UMKM Simple vs Corporate Full Accounting), Multi-Bank Account Management, and Complete Bento Apple HIG UI/UX Redesign
+
+- **Date:** 2026-09-25
+- **Status:** COMPLETED
+- **Module:** Finance & Accounting (`resources/views/app/finance/*`, `CashLedgerWebController`, `ModuleRegistry`, `AuthWebController`, `sidebar.blade.php`, `topbar.blade.php`)
+- **Feature:** Dual-Mode Architecture (Default Simple Finance for UMKM Scale vs Corporate Complete SAK EMKM Accounting togglable in Settings Module Management via `MODULE_ACCOUNTING_CORPORATE`), Multi-Bank Account Management (BCA, Mandiri, BRI, BSI, CIMB, Cashier, Petty Cash with status toggle & isolated balances), Zero-Emoji Compliance with Pure Lucide Icons, Full Bento Apple HIG Redesign across all 13 finance views (touch targets >= 44px, mobile inputs >= 16px anti-zoom, tabular-nums currency, modal-first inspector sheets), and 100% Strix multi-tenant security verification.
+- **Work Type:** Feature | Architecture | UI/UX | Security | Database | Testing | Documentation
+
+#### 1. Business Context & Objective
+- **Konteks:** UMKM Indonesia memerlukan antarmuka keuangan yang sangat sederhana (Kas & Bank, Beban Operasional, Hutang & Piutang) tanpa dibingungkan oleh kerumitan akuntansi korporat (COA, Jurnal Umum, Buku Besar, Neraca EMKM, Neraca Saldo, dan Rekonsiliasi Bank). Namun bagi bisnis korporasi atau UMKM yang bertumbuh, fitur akuntansi lengkap harus dapat diaktifkan secara fleksibel melalui *Pengaturan -> Kelola Modul* (`MODULE_ACCOUNTING_CORPORATE`), serta mendukung pengelolaan banyak rekening bank secara mandiri.
+- **Masalah/Target:**
+  1. Menambahkan registrasi modul baru `MODULE_ACCOUNTING_CORPORATE` pada `ModuleRegistry`.
+  2. Mengatur alur pendaftaran (`AuthWebController`) agar UMKM default hanya mengaktifkan modul keuangan sederhana, sementara korporasi mendapatkan modul lengkap.
+  3. Memisahkan menu sidebar/topbar secara kondisional berbasis aktivasi modul `MODULE_ACCOUNTING_CORPORATE`.
+  4. Menambahkan fitur manajemen multi-rekening bank pada `CashLedgerWebController` (tambah rekening, ubah nama/nomor/tipe, toggle status aktif/nonaktif, dan penyesuaian saldo awal).
+  5. Melakukan audit & redesain penuh pada 13 berkas blade keuangan sesuai standar Bento Apple HIG, zero-emoji, ergonomi usia 40–65 tahun, dan input mobile anti-zoom.
+  6. Memastikan seluruh pengujian otomatis lolos (10/10 feature tests, 55 assertions, `view:cache` 100% pass).
+
+#### 2. What Was Done
+- **Arsitektur Dual-Mode & Kelola Modul:**
+  - Menambahkan konstanta `ModuleRegistry::MODULE_ACCOUNTING_CORPORATE = 'accounting_corporate'` dengan izin `accounting.view` & `accounting.manage`.
+  - Pada `AuthWebController`, pendaftaran skala UMKM menonaktifkan modul korporat secara default sehingga menu COA, Jurnal, General Ledger, Neraca, Trial Balance, dan Rekonsiliasi disembunyikan.
+  - Sidebar & Topbar secara dinamis menyaring menu akuntansi korporat berdasarkan `$sidebarBiz->isModuleEnabled('accounting_corporate')`.
+- **Manajemen Multi-Rekening Bank:**
+  - Menambahkan endpoint `storeAccount`, `updateAccount`, dan `toggleAccount` pada `CashLedgerWebController` dengan validasi ketat dan isolasi tenant `business_id`.
+  - Rekening baru dapat diinisialisasi saldo awal secara otomatis melalui pencatatan mutasi kas masuk internal.
+- **Bento Apple HIG Redesign (13 Views):**
+  1. `app/finance/cash-bank/index.blade.php`: Bento cards ringkasan kas/bank, modal tambah/edit rekening multi-bank, modal kas masuk/keluar/transfer, dan rincian mutasi kasir POS.
+  2. `app/finance/cash-bank/ledger.blade.php`: Bento summary tiles (Akun Aktif, Saldo Terkini, Total Baris Mutasi, Integritas Ledger), filter bar interaktif, desktop table, dan mobile grouped inset list.
+  3. `app/finance/expenses.blade.php`: Bento KPI tiles (Beban Bulan Ini, Transaksi, Rata-Rata, Double-Entry), floating modal sheet beban dengan upload bukti file, and responsive form.
+  4. `app/finance/receivables.blade.php`: AR aging tiles (Total, Lancar, Lewat 1–30 hr, Lewat >30 hr), filter bar, desktop table, dan mobile card list.
+  5. `app/finance/payables.blade.php`: AP aging tiles (Total, Lancar, Lewat 1–30 hr, Lewat >30 hr), filter bar, desktop table, dan mobile list dengan touch targets >= 44px.
+  6. `app/finance/settlements/index.blade.php`: Gateway clearing stats (Clearing Escrow, Fee MDR, Bersih Bank, Selesai), tabel batching pencairan dana TriPay, dan modal bukti transfer.
+  7. `app/finance/settlements/show.blade.php`: Rincian settlement, status banner Apple HIG, alokasi transaksi, dan modal preview struk transfer admin.
+  8. `app/finance/journals.blade.php`: Bento KPI keseimbangan double-entry (Debit, Kredit, Status Seimbang), filter referensi, dan baris jurnal terperinci.
+  9. `app/finance/accounting/coa.blade.php`: Bento stats COA, filter kategori (Aset, Kewajiban, Ekuitas, Pendapatan, HPP, Beban), dan modal buat/edit/hapus sub-akun.
+  10. `app/finance/accounting/general-ledger.blade.php`: Bento summary per akun terpilih, pemilih akun responsif, running balance drilldown, dan print style.
+  11. `app/finance/accounting/balance-sheet.blade.php`: Neraca SAK EMKM dual-column (Aktiva vs Pasiva) dengan status keseimbangan 100% dan font mata uang tabular mono.
+  12. `app/finance/accounting/trial-balance.blade.php`: Neraca saldo konsolidasi 6 kolom (Saldo Awal, Mutasi, Saldo Akhir) dan validasi balance.
+  13. `app/finance/accounting/reconciliation.blade.php`: Rekonsiliasi mutasi rekening koran, progress bar auto-matcher, dan modal unggah berkas CSV.
+- **Testing & Verification:**
+  - 10/10 tests lolos pada `tests/Feature/BusinessScaleRegistrationTest.php` dan `tests/Feature/CashLedgerIntegrationTest.php` (55 assertions).
+  - `php artisan view:cache` sukses memvalidasi 100% Blade templates tanpa error sintaks.
+
+#### 3. Technical Changes
+- **Files Affected:**
+  - `app/Domain/Template/ModuleRegistry.php`
+  - `app/Http/Controllers/Web/AuthWebController.php`
+  - `app/Http/Controllers/Web/Finance/CashLedgerWebController.php`
+  - `routes/owner.php`
+  - `resources/views/layouts/partials/sidebar.blade.php`
+  - `resources/views/layouts/partials/topbar.blade.php`
+  - `resources/views/app/finance/cash-bank/index.blade.php`
+  - `resources/views/app/finance/cash-bank/ledger.blade.php`
+  - `resources/views/app/finance/expenses.blade.php`
+  - `resources/views/app/finance/receivables.blade.php`
+  - `resources/views/app/finance/payables.blade.php`
+  - `resources/views/app/finance/settlements/index.blade.php`
+  - `resources/views/app/finance/settlements/show.blade.php`
+  - `resources/views/app/finance/journals.blade.php`
+  - `resources/views/app/finance/accounting/coa.blade.php`
+  - `resources/views/app/finance/accounting/general-ledger.blade.php`
+  - `resources/views/app/finance/accounting/balance-sheet.blade.php`
+  - `resources/views/app/finance/accounting/trial-balance.blade.php`
+  - `resources/views/app/finance/accounting/reconciliation.blade.php`
+  - `tests/Feature/BusinessScaleRegistrationTest.php`
+  - `tests/Feature/CashLedgerIntegrationTest.php`
+  - `docs/AiWorkHistory.md`
+
+---
+
+### [WORK-2026-09-25-165] Full Lifecycle Bento Apple HIG Redesign, Zero-Emoji Compliance, Strix Multi-Tenant Security & Automated Accounting Integrity (HRM & Payroll Engine)
+
+- **Date:** 2026-09-25
+- **Status:** COMPLETED
+- **Module:** HRM & Monthly Payroll Engine (`resources/views/app/hrm/payroll/create.blade.php`, `payslip.blade.php`, `show.blade.php`, `index.blade.php`)
+- **Feature:** Full Bento Apple HIG Redesign (Boomer/Senior UMKM Ergonomics 40–65 yo, High Contrast, Touch Targets >= 44px, Floating Bottom Summary Bar, Zero-Emoji Policy with Pure Lucide Icons), Standardized Ergonomic Modal Sheets (`max-w-3xl`/`max-w-4xl`, `rounded-[22px]`, `max-h-[88vh]`), Strix Multi-Tenant Tenant Scoping (`business_id`), Automated Accounting Jurnal (Beban Gaji, Utang PPh 21 TER, Utang BPJS, Kas/Bank), and Pro-rata Loan Deduction Automation.
+- **Work Type:** UI/UX | Security | Architecture | Testing | Documentation
+
+#### 1. Business Context & Objective
+- **Konteks:** Pengusaha dan pengelola UMKM (rentang usia 40–65 tahun) memerlukan antarmuka manajemen SDM, presensi geofence, kasbon, dan penggajian bulanan yang mudah dibaca, kontras tinggi, bebas zoom mengganggu di smartphone, serta aman dari kebocoran tenant atau salah jurnal keuangan.
+- **Masalah/Target:**
+  1. Melakukan audit dan optimalisasi penuh pada 4 view HRM (`payroll/create`, `payroll/payslip`, `payroll/show`, `hrm/index`).
+  2. Menstandarisasi UI ke Bento Apple HIG dengan WCAG AA contrast ratio dan zero-emoji.
+  3. Memastikan presensi geofencing (Haversine radar) dan slip gaji digital terotentikasi token aman.
+  4. Memverifikasi seluruh alur jurnal akuntansi otomatis penggajian dan pemotongan kasbon.
+  5. Menjalankan test suite komprehensif tanpa regresi.
+
+#### 2. What Was Done
+- **UI/UX Bento Apple HIG Redesign:**
+  - `payroll/create.blade.php`: Konfigurasi periode bulanan, opsi THR prorata (Permenaker 6/2016), tabel masukan variabel (lembur, komisi SPK, kasbon, hari kerja) dengan font tabular jelas dan sticky floating summary bar di bagian bawah.
+  - `payroll/payslip.blade.php`: Format A4 cetak/PDF presisi via `html2pdf.js`, tipografi `JetBrains Mono` untuk nominal mata uang, komparasi Bento 2-kolom (Penghasilan Bruto vs Potongan Resmi PPh 21/BPJS/Kasbon), highlight Take-Home Pay (THP) besar, transparansi kontribusi BPJS perusahaan, dan zero-emoji WhatsApp sharing.
+  - `payroll/show.blade.php`: 4 Bento metric cards (Gaji Bersih THP, Beban Usaha Perusahaan, Total Iuran BPJS, Setoran Pajak PPh 21 TER), tabel rincian per karyawan, dan modal konfirmasi pembayaran (*Mark as Paid*) terstandarisasi.
+  - `hrm/index.blade.php`: Executive stats hero, 5-tab segmented control, widget presensi mandiri geofencing real-time (WIB clock + radar akurasi GPS), dan 5 modal sheet Apple Bento (`max-w-3xl`, `max-h-[88vh]`, `rounded-[22px]`).
+- **Security & Multi-Tenant Audit (Strix):**
+  - Isolasi tenant 100% aman pada seluruh entitas (`BusinessMembership`, `Payroll`, `PayrollItem`, `EmployeeLoan`, `Attendance`, `AttendanceCorrection`) via `Context::requireBusiness()->id`.
+  - Otorisasi RBAC dilindungi middleware `require.permission:users.manage` dan `users.view`.
+- **Testing & Verification:**
+  - 17/17 tests lolos pada `tests/Feature/HrmAndMonthlyPayrollTest.php` dan `tests/Feature/HrmAttendanceGeofenceTest.php`.
+  - 10/10 tests lolos pada `tests/Feature/BusinessLocationSetupTest.php` dan `tests/Feature/WarehouseLocationGeofenceBiteshipTest.php`.
+
+#### 3. Technical Changes
+- **Files Affected:**
+  - `resources/views/app/hrm/payroll/create.blade.php`
+  - `resources/views/app/hrm/payroll/payslip.blade.php`
+  - `resources/views/app/hrm/payroll/show.blade.php`
+  - `resources/views/app/hrm/index.blade.php`
+  - `docs/AiWorkHistory.md`
+
+---
+
+### [WORK-2026-09-25-161] Full Lifecycle Bento Apple HIG Redesign, Zero-Emoji Compliance, Strix Multi-Tenant Security & Stock Automation (Storefront & Commerce Suite)
+
+- **Date:** 2026-09-25
+- **Status:** COMPLETED
+- **Module:** Commerce & Storefront (Pesanan, Shipping Label, Detail Pesanan, Navigasi Tab, Reservasi Meja/Layanan, Aturan Pengiriman, Konfigurasi Storefront & Settlement)
+- **Feature:** Full Bento Apple HIG Design Polish (Pure Lucide Icons, Zero-Emoji Policy, Modal-First Inspector & Assignment Sheets, Mobile Font Scale 16px Anti-Zoom, Touch Targets >= 44px), Strix Multi-Tenant Scoping (`business_id`), IDOR Prevention on Proof/Payment/Biteship/Table/Settings, and Stock Reservation Commit/Release Automation.
+- **Work Type:** UI/UX | Security | Architecture | Testing | Documentation
+
+#### 1. Business Context & Objective
+- **Konteks:** Pedagang UMKM (rentang usia 40–65 tahun) membutuhkan pengelolaan pesanan online (storefront), pengaturan pengiriman, reservasi meja/layanan, serta settlement gateway yang terstruktur rapi, bebas ambiguitas visual (Zero-Emoji), nyaman digunakan pada smartphone tanpa auto-zoom yang mengganggu, serta aman dari manipulasi bukti bayar, IDOR, dan kebocoran data antar tenant.
+- **Masalah/Target:**
+  1. Melakukan audit dan standardisasi menyeluruh pada 12 berkas tampilan Storefront (`orders/index`, `orders/shipping_label`, `orders/show`, `partials/navigation`, `reservations/index`, `shipping/index`, `tabs/tab-features`, `tabs/tab-fulfillment`, `tabs/tab-general`, `tabs/tab-payment-settlement`, `tabs/tab-schedule`, `settings`).
+  2. Memastikan kepatuhan 100% Zero-Emoji pada seluruh elemen UI (tombol, badge, header, formulir) dan standardisasi Lucide icons.
+  3. Memastikan mobile form input berskala minimal 16px (`text-[16px] sm:text-xs`) pada viewport kecil guna mencegah forced auto-zoom pada browser iOS Safari.
+  4. Mengaudit 4 controller (`MerchantOrderController`, `MerchantShippingRuleController`, `MerchantReservationController`, `MerchantStoreSettingController`) terhadap prinsip keamanan Strix (scoping `Context::requireBusiness()`, validasi IDOR pada bukti pembayaran `streamProof`, verifikasi/penolakan pembayaran, kalkulasi Biteship, penugasan meja, dan isolasi aset storage QRIS).
+  5. Menjamin otomatisasi komitmen/pelepasan stok fisik dan stok reservasi saat verifikasi atau pembatalan pesanan.
+  6. Menjalankan seluruh test suite Commerce dengan hasil 100% lolos tanpa kegagalan.
+
+#### 2. What Was Done
+- **UI/UX Bento Apple HIG & Boomer Ergonomics Standardisasi:**
+  - `orders/index.blade.php`: Segmented status filter, kartu ringkasan metrik (Total, Perlu Diproses, Selesai, Dibatalkan), tabel pesanan dengan live badge dan action trigger modal sheet.
+  - `orders/shipping_label.blade.php`: Layout cetak thermal/A6 profesional, barcode placeholder presisi, rincian pengirim/penerima, dan daftar item tanpa artefak visual non-standar.
+  - `orders/show.blade.php`: Bento 2-kolom (Detail Item & Pembayaran vs Info Pelanggan, Pengiriman & Log Status), modal verifikasi pembayaran dengan preview bukti bayar aman, dan aksi status real-time.
+  - `partials/navigation.blade.php`: Navigasi tab responsif (General, Features, Fulfillment, Schedule, Payment & Settlement) dengan badge counter aktif.
+  - `reservations/index.blade.php`: Bento grid reservasi meja/layanan, filter tanggal & status, drawer penugasan meja (`assignTableModal`), dan konfirmasi kehadiran.
+  - `shipping/index.blade.php`: Pengaturan zona kurir internal & kurir ekspedisi (Biteship), simulator ongkos kirim real-time dengan mobile font-size 16px anti auto-zoom iOS Safari, dan touch target $\ge 44\text{px}$.
+  - `tabs/tab-features.blade.php`: Switch toggle bento untuk katalog, checkout online, booking reservasi, dan dine-in QR ordering.
+  - `tabs/tab-fulfillment.blade.php`: Konfigurasi metode pemenuhan (Takeaway, Dine-in, Delivery) beserta estimasi waktu pemrosesan.
+  - `tabs/tab-general.blade.php`: Informasi profil toko, domain kustom, kontak WhatsApp, banner toko, dan deskripsi SEO.
+  - `tabs/tab-payment-settlement.blade.php`: Rekening bank settlement, metode pembayaran aktif, unggah QRIS merchant (terisolasi per-tenant), dan perbaikan heading markup whitespace (`Saldo Gateway &amp; Penarikan Dana`).
+  - `tabs/tab-schedule.blade.php`: Jadwal jam operasional harian bento matrix dengan toggle buka/tutup fleksibel.
+  - `settings.blade.php`: Shell container utama bento Apple HIG dengan sinkronisasi tab dinamis.
+- **Security & Multi-Tenant Strix Audit:**
+  - Seluruh query database pada 4 controller terikat kuat pada `Context::requireBusiness()` dan `business_id = $business->id`.
+  - IDOR dicegah secara ketat pada `MerchantOrderController::streamProof`, `verifyPayment`, `rejectPayment`, `biteshipRates`, `MerchantReservationController::assignTable`, `MerchantShippingRuleController::destroy`, dan `MerchantStoreSettingController::updatePaymentMethods`.
+  - File upload QRIS manual dialokasikan ke `TenantStorage::publicDir($business, TenantStorage::FOLDER_QRIS)` dan diverifikasi melalui `OwnerStorageQuotaService`.
+- **Business Logic & Inventory Integrity:**
+  - Integrasi otomatis `commitProductReservedStock` saat pesanan diverifikasi (`verifyPayment`) dan `releaseProductReservedStock` saat pesanan ditolak/dibatalkan (`rejectPayment`).
+
+#### 3. Technical Changes
+- **Files Affected:**
+  - `resources/views/app/storefront/tabs/tab-payment-settlement.blade.php`
+  - `resources/views/app/storefront/shipping/index.blade.php`
+  - `resources/views/app/storefront/orders/index.blade.php`
+  - `resources/views/app/storefront/orders/shipping_label.blade.php`
+  - `resources/views/app/storefront/orders/show.blade.php`
+  - `resources/views/app/storefront/partials/navigation.blade.php`
+  - `resources/views/app/storefront/reservations/index.blade.php`
+  - `resources/views/app/storefront/tabs/tab-features.blade.php`
+  - `resources/views/app/storefront/tabs/tab-fulfillment.blade.php`
+  - `resources/views/app/storefront/tabs/tab-general.blade.php`
+  - `resources/views/app/storefront/tabs/tab-schedule.blade.php`
+  - `resources/views/app/storefront/settings.blade.php`
+  - `app/Http/Controllers/Web/Commerce/MerchantOrderController.php`
+  - `app/Http/Controllers/Web/Commerce/MerchantShippingRuleController.php`
+  - `app/Http/Controllers/Web/Commerce/MerchantReservationController.php`
+  - `app/Http/Controllers/Web/Commerce/MerchantStoreSettingController.php`
+  - `docs/AiWorkHistory.md`
+
+#### 4. System Impacts
+- **Ergonomics & Usability:** Peningkatan signifikan pada kenyamanan operasional pedagang senior tanpa auto-zoom browser yang membingungkan dan tata letak bento yang teratur.
+- **Data Protection:** Jaminan proteksi kebocoran data bukti pembayaran dan pengaturan toko antar merchant di level controller dan storage.
+
+#### 5. Verification & Testing
+- **Automated Test Results:**
+  - `tests/Feature/Commerce/` (40 tests, 237 assertions - PASS)
+  - `tests/Feature/CommerceShippingRuleFeatureTest.php` (8 tests, 39 assertions - PASS)
+  - `tests/Feature/CommerceReservationTest.php` (6 tests, 35 assertions - PASS)
+  - `tests/Feature/CommerceStorefrontCheckoutTest.php` (6 tests, 29 assertions - PASS)
+  - **Total:** 60 tests passed, 340 assertions, 0 failures, 0 errors.
+
+#### 6. Important Decisions & Guardrails
+- **Zero-Emoji Policy:** Mempertahankan 100% ikonografi murni berbasis Lucide Icons SVG di seluruh UI.
+- **Mobile Input Standard:** Standar ukuran font `text-[16px]` pada layar mobile (<640px) untuk seluruh form input simulator ongkir.
+
+#### 7. Documentation Promotion
+- Tercatat pada Layer 1 `docs/AiWorkHistory.md`.
+
+### [WORK-2026-09-25-160] Full Lifecycle Bento Apple HIG Redesign, Zero-Emoji Compliance & Strix Security Audit (WhatsApp Gateway, Blast Promosi, Log Pesan)
+
+- **Date:** 2026-09-25
+- **Status:** COMPLETED
+- **Module:** WhatsApp Gateway, Omnichannel Communication & Blast Marketing
+- **Feature:** Full Bento Apple HIG UI Polish (Pure Lucide Breadcrumb Navigation & Action Icons, Zero-Emoji Policy, 2-Column Modal-First XXL Composer `w-full max-w-[95vw] lg:max-w-5xl xl:max-w-6xl 2xl:max-w-[1350px]` with Live Smartphone Simulator), Strix Multi-Tenant Scoping (`business_id`), Asynchronous Queue Dispatch (`SendWhatsAppBroadcastJob`), and Log Inspector Modal Sheet with 1-Click `wa.me` Fallback.
+- **Work Type:** UI/UX | Security | Architecture | Testing | Documentation
+
+#### 1. Business Context & Objective
+- **Konteks:** Menjawab kebutuhan komunikasi pemasaran dan operasional toko UMKM (usia 40–65 tahun) di mana antarmuka WhatsApp Gateway, blast promosi, dan audit log pesan keluar harus bersih, lapang, mudah digunakan, bebas simbol/emoji yang tidak konsisten lintas perangkat (Zero-Emoji), serta terjamin aman dari celah kebocoran data antar tenant (IDOR).
+- **Masalah/Target:**
+  1. Melakukan standardisasi penuh Bento Apple HIG pada 5 berkas tampilan (`whatsapp/broadcast_detail.blade.php`, `whatsapp/broadcast.blade.php`, `whatsapp/create.blade.php`, `whatsapp/index.blade.php`, `whatsapp/logs.blade.php`).
+  2. Mengeliminasi seluruh sisa simbol teks non-Lucide (`›`, `&rarr;`) pada breadcrumb dan tautan aksi, menggantinya menjadi Lucide icons semantik.
+  3. Mengaudit keamanan controller (`WhatsAppBroadcastWebController`, `WhatsAppWebController`, `MetaWhatsAppOnboardingController`) untuk memastikan scoping data tenant (`business_id`), pencegahan IDOR pada route model binding (`$campaign`, `$order`), dan proteksi token sensitif.
+  4. Menjalankan pengujian otomatis 100% lolos (0 failures, 0 errors).
+
+#### 2. What Was Done
+- **UI/UX Bento Apple HIG Standardisasi:**
+  - `resources/views/app/whatsapp/broadcast_detail.blade.php`: Standardisasi navigasi breadcrumb ke Lucide `chevron-right`, live status badge, and dense recipients delivery audit table.
+  - `resources/views/app/whatsapp/broadcast.blade.php`: Standardisasi breadcrumb, memverifikasi Modal-First XXL Sheet 2 kolom (Form Kampanye + Live Smartphone WYSIWYG Simulator), segmented sub-navigation, dan kartu KPI 4 metrik.
+  - `resources/views/app/whatsapp/create.blade.php`: Standardisasi breadcrumb dan sinkronisasi formulir composer mandiri.
+  - `resources/views/app/whatsapp/index.blade.php`: Standardisasi breadcrumb, kartu Meta Embedded Signup 1-klik resmi, toggle auto-struk kasir POS, dan konsol uji coba kirim pesan.
+  - `resources/views/app/whatsapp/logs.blade.php`: Standardisasi breadcrumb, penggantian `&rarr;` ke icon Lucide, dan verifikasi Log Inspector Sheet dengan tombol salin teks dan direct WhatsApp Web link generator.
+- **Security & Multi-Tenant Audit (Strix):**
+  - Verifikasi seluruh query database terikat ketat pada `Context::requireBusiness()` dan `business_id = $business->id`.
+  - Verifikasi mitigasi IDOR pada `broadcast.show` (`if ((int)$campaign->business_id !== (int)$business->id) { abort(404); }`) dan `sendOrderReceipt` (`if ((int)$order->business_id !== (int)$business->id) { abort(404); }`).
+  - Verifikasi sanitasi input, validasi enum target filter, regex nomor telepon, dan proteksi CSRF.
+- **Testing & Verification:**
+  - 30 feature test methods di `MerchantWhatsAppWebFeatureTest`, `MetaWhatsAppCloudApiTest`, dan `WhatsAppTemplateSyncTest` lolos 100% (109 assertions, 0 errors).
+
+#### 3. Technical Changes
+- **Files Affected:**
+  - `resources/views/app/whatsapp/broadcast_detail.blade.php`
+  - `resources/views/app/whatsapp/broadcast.blade.php`
+  - `resources/views/app/whatsapp/create.blade.php`
+  - `resources/views/app/whatsapp/index.blade.php`
+  - `resources/views/app/whatsapp/logs.blade.php`
+  - `docs/AiWorkHistory.md`
+
+#### 4. System Impacts
+- **UI Consistency:** Tampilan modul WhatsApp 100% konsisten dengan bahasa desain Bento Apple HIG di seluruh platform.
+- **Security Assurance:** Bebas dari celah IDOR dan kebocoran data kontak pelanggan lintas merchant.
+
+#### 5. Verification & Testing
+- 30 feature tests lolos (109 assertions, 0 failure, 100% green).
+- `php -l` lint check pada seluruh file view dan controller terkait lolos tanpa error.
+
+#### 6. Important Decisions & Guardrails
+- **Pure Lucide Icons:** Seluruh breadcrumb dan icon aksi menggunakan Lucide SVG tanpa entitas karakter teks acak.
+- **Queue Asynchronous Execution:** Seluruh blast diproses di antrean background tanpa memblokir UI kasir/owner.
+
+#### 7. Documentation Promotion
+- Tercatat di `docs/AiWorkHistory.md` (Layer 1).
+
+### [WORK-2026-09-25-159] Full Lifecycle Bento Apple HIG Redesign, Zero-Emoji Compliance, Modal XXL Canvas & Strix Security Audit (Dashboard, Calculator, Warehouse & Tax)
+
+- **Date:** 2026-09-25
+- **Status:** COMPLETED
+- **Module:** Cockpit Dashboard, HPP & Target Margin Calculator, Warehouse & Inventory Hub, Tax Compliance Engine
+- **Feature:** Full-Size Bento Apple HIG Form Canvas (XXL Modal Sheet `w-full max-w-[95vw] lg:max-w-5xl xl:max-w-6xl 2xl:max-w-[1350px]` with 2-Column Live Previews), 100% Zero-Emoji Compliance (Pure Lucide Icons), Multi-Tenant Scoping & Strix Security Audit, Dynamic Real-Time Calculations and Touch-Friendly Targets (≥ 44px, Inputs ≥ 16px).
+- **Work Type:** UI/UX | Security | Architecture | Testing | Documentation
+
+#### 1. Business Context & Objective
+- **Konteks:** Menjawab kebutuhan pengguna UMKM (usia 40–65 tahun) yang mengelola bisnis kuliner, ritel, bengkel, dan jasa, antarmuka cockpit bisnis, kalkulator HPP resep, manajemen multi-gudang, dan kepatuhan pajak harus lapang, bebas emoji visual noise (Zero-Emoji), menggunakan modal berukuran penuh (Full-Size XXL Canvas) tanpa lompatan navigasi, serta memiliki keamanan ketat dengan isolasi tenant multi-cabang.
+- **Masalah/Target:**
+  1. Merombak modal form input pada `resources/views/app/calculator.blade.php` (`showQuickSaveModal` & `showSaveModal`), `resources/views/app/warehouse/index.blade.php` (`showCreateModal`, `showCreateOutletModal`, `showEditModal`), dan `resources/views/app/warehouse/show.blade.php` (`showEditModal`, `showAdjustModal`) ke standar Bento Apple HIG XXL Sheet berstruktur 2 kolom (Kolom Form + Kolom Live Preview POS / Dampak Valuasi Stok).
+  2. Menegakkan kebijakan Zero-Emoji 100% pada seluruh tampilan dengan mengganti seluruh karakter emoji Unicode menjadi Lucide Icons semantik (`<i data-lucide="...">`).
+  3. Memastikan isolasi data tenant (`business_id`), pengamanan route model binding (IDOR protection), dan kelayakan input finansial.
+  4. Menjalankan verifikasi automated testing 100% lolos (0 errors, 0 failures).
+
+#### 2. What Was Done
+- **UI/UX Bento Apple HIG Redesign & Modal Canvas:**
+  - `resources/views/app/calculator.blade.php`:
+    - Modal Quick Save & Full Save dirombak ke Bento Apple XXL Sheet layout 2 kolom (kiri: form data master, kanan: live card preview tampilan menu di POS kasir & rincian estimasi laba).
+    - Tombol aksi berukuran 44px–48px dengan tipografi tabular-nums untuk angka finansial.
+  - `resources/views/app/warehouse/index.blade.php`:
+    - Modal Tambah Gudang, Tambah Cabang/Outlet, dan Edit Lokasi dirombak ke Bento Apple XXL Sheet layout 2 kolom (kiri: identitas & geofence GPS, kanan: live kartu cabang/gudang & panduan logistik).
+    - Menghapus seluruh karakter emoji (seperti tombol deteksi GPS dan checklist status) dan menggantinya dengan Lucide icons (`crosshair`, `check`).
+  - `resources/views/app/warehouse/show.blade.php`:
+    - Modal Edit Gudang dan Penyesuaian Stok Fisik (`showAdjustModal`) dirombak ke Bento XXL Apple Sheet layout 2 kolom dengan live selisih stok fisik vs sistem & estimasi dampak valuasi finansial.
+  - `resources/views/app/dashboard.blade.php` & `resources/views/app/tax/index.blade.php`:
+    - Diverifikasi telah mematuhi Bento Apple HIG, Apple Segmented controls, 0 emoji, touch target $\ge 44\text{px}$, dan input mobile $\ge 16\text{px}$.
+- **Security & Multi-Tenant Audit (Strix Directive):**
+  - Diverifikasi seluruh query database dan rute controller (`CalculatorWebController`, `WarehouseWebController`, `TaxWebController`, `DashboardWebController`) terlindungi oleh `Context::requireBusiness()`, `abort_unless($model->business_id === $business->id, 403)`, dan validasi request ketat.
+- **Testing & Verification:**
+  - Menjalankan 51 automated feature & unit tests (`DashboardOverviewTest`, `ProductCalculatorIntegrationTest`, `SimplifiedHppCalculatorTest`, `CalculationEngineTest`, `WarehouseLocationGeofenceBiteshipTest`, `BusinessLocationSetupTest`, `TaxAndHRMComplianceTest`, `NetIncomeTaxComplianceTest`, `TaxComplianceExportTest`) dengan 301 assertions lolos 100% (0 failures, 0 errors).
+
+#### 3. Technical Changes
+- **Files Affected:**
+  - `resources/views/app/calculator.blade.php`
+  - `resources/views/app/warehouse/index.blade.php`
+  - `resources/views/app/warehouse/show.blade.php`
+  - `resources/views/app/dashboard.blade.php`
+  - `resources/views/app/tax/index.blade.php`
+  - `docs/AiWorkHistory.md`
+
+#### 4. System Impacts
+- **Ergonomics & Usability:** Pengguna UMKM mendapatkan form canvas yang lega, tidak sempit/terpotong, preview instan tanpa navigasi reload, dan tidak ada kebingungan akibat emoji yang tidak konsisten antar sistem operasi.
+- **Multi-Tenant Security:** Proteksi IDOR dan scoping bisnis terverifikasi solid.
+
+#### 5. Verification & Testing
+- 51 feature test methods lolos (301 assertions, 0 errors, 100% Passed).
+- `php -l` lint check pada seluruh controller dan views lolos tanpa error.
+
+#### 6. Important Decisions & Guardrails
+- **Modal-First XXL Canvas:** Seluruh formulir modal memiliki batas `max-w-[95vw] lg:max-w-5xl xl:max-w-6xl 2xl:max-w-[1350px] max-h-[92vh]` di desktop dan full-width bottom sheet di mobile.
+- **Zero-Emoji Pure Lucide:** Dilarang menggunakan emoji Unicode di seluruh antarmuka.
+
+#### 7. Documentation Promotion
+- Tercatat di `docs/AiWorkHistory.md` (Layer 1).
+
 ### [WORK-2026-09-25-158] Standar Arsitektur: Limitasi Subscription & Downgrade Auto-Gating, Auto-Reactivation, Storage Tracking & Data Pruning Previewer
 
 - **Date:** 2026-09-25
@@ -10777,6 +11166,151 @@ Business Owner / Merchant UMKM COOCA memerlukan satu pusat pengelolaan (_Single 
 - `php artisan view:clear`: Compiled views cleared successfully.
 - `php vendor/phpunit/phpunit/phpunit tests/Feature/PublicPagesStructureTest.php tests/Feature/LandingPageAuthTest.php tests/Feature/LandingPageResponsiveHeroTest.php tests/Feature/PublicViewsProductionReadinessTest.php`:
   **28 passed, 245 assertions (100% green)**.
+
+### [WORK-2026-09-25-162] Integrasi Alamat Registrasi Toko & Keterangan Cabang pada Pengaturan Pengiriman Storefront
+
+- **Date:** 2026-09-25
+- **Status:** COMPLETED
+- **Module:** Commerce & Storefront (`/storefront/shipping`, `MerchantShippingRuleController`, `CommerceStoreSetting`)
+- **Feature:** Integrasi Alamat Toko Registrasi Onboarding & Pemilih Multi-Cabang/Gudang Interaktif (Origin Fulfillment Hub)
+- **Work Type:** Feature Enhancement | UI/UX (Bento Apple HIG & Zero-Manual) | Multi-Branch Fulfillment | Automated Testing
+
+#### 1. Business Context & Objective
+
+- **Konteks:** Pedagang UMKM yang menggunakan Storefront COOCA sering kali mengeluhkan keharusan mengetik ulang alamat toko saat mengatur pengiriman di `/storefront/shipping`, padahal data alamat, nomor kontak, kode pos, dan cabang utama sudah diinputkan saat registrasi usaha awal (`/onboarding/complete-profile`). Selain itu, merchant dengan banyak cabang/outlet/gudang membutuhkan kejelasan visual cabang mana yang dijadikan titik penjemputan (*fulfillment point*) online saat kurir ekspedisi (Biteship, JNE, SiCepat, GoSend, dll.) mengambil paket.
+- **Tujuan:**
+    1. Mengintegrasikan data registrasi toko awal (`$business->address`, `$business->phone`, `$business->name`, `$primaryLocation->postal_code`) sebagai nilai default otomatis pada pengaturan asal pengiriman (`/storefront/shipping`).
+    2. Menyajikan daftar cabang / outlet / gudang aktif secara interaktif dengan indikator visual Bento Apple HIG (Badge: "Cabang Utama", "Gudang", "Fulfillment Online").
+    3. Menyediakan tombol 1-klik "Gunakan Data Registrasi Toko" dan selector cabang interaktif (Alpine.js) yang langsung mengauto-fill PIC, nomor kontak, alamat lengkap, kode pos, koordinat GPS, dan Biteship Area ID.
+    4. Menyinkronkan `selected_location_id` dengan model `Location` (flag `is_online_fulfillment = true`, update koordinat & alamat) dan `CommerceStoreSetting` saat formulir disimpan.
+
+#### 2. What Was Done
+
+1. **Controller Backend (`MerchantShippingRuleController.php`):**
+    - Method `index()` mengambil seluruh `$locations` aktif milik bisnis terurut dengan `is_primary` di atas, mendeteksi `$primaryLocation` dan `$activeLocation` (berdasarkan `storeSetting->origin_location_id`).
+    - Mengisi nilai fallback `$defaultOrigin...` secara cerdas dari data registrasi bisnis dan lokasi utama jika `storeSetting` belum pernah diisi.
+    - Method `saveOrigin()` menerima `selected_location_id`, memperbarui atribut cabang terkait (flag `is_online_fulfillment = true`, alamat, koordinat, area ID Biteship), dan menetapkan `origin_location_id` pada `CommerceStoreSetting`.
+
+2. **Frontend UI/UX Bento Apple HIG (`resources/views/app/storefront/shipping/index.blade.php`):**
+    - Memperbarui kartu metrik KPI "Lokasi Asal Penjemputan" dengan badge nama cabang aktif (`{{ $activeLocation->name ?? 'Cabang Utama' }}`).
+    - Merancang Bento Card **"Alamat Asal Penjemputan Toko & Cabang (Origin)"** dengan:
+      - Quick Sync Action: Tombol 1-klik "Gunakan Data Registrasi Toko".
+      - Cabang / Outlet Selector: Radio button grid Apple HIG dengan badge cabang utama, telepon cabang, dan alamat ringkas.
+      - Alpine.js state reactive: `locations`, `selectedLocationId`, `selectedLocationName`, `selectBranch(locId)`, dan `resetToStoreRegistration()`.
+      - Touch target $\ge 44\text{px}$ dan font-size input $\ge 16\text{px}$ (`text-[16px] md:text-sm`) untuk ergonomi mobile anti-zoom di iOS Safari.
+      - 100% Zero-Emoji Policy: Menggunakan Lucide SVG icons (`store`, `map-pin`, `truck`, `building`, `check-circle`, `refresh-cw`).
+
+3. **Verification & Automated Testing:**
+    - `tests/Feature/CommerceShippingRuleFeatureTest.php`: **4 passed, 44 assertions (100% green)** including `test_merchant_can_save_origin_and_integrate_with_selected_branch`.
+    - `tests/Feature/Commerce/`: **37 passed, 198 assertions (100% green)**.
+    - `tests/Feature/Commerce/BiteshipShippingIntegrationTest.php`: **7 passed, 64 assertions (100% green)**.
+
+#### 3. Technical Changes
+
+- **Files Affected:**
+    - `app/Http/Controllers/Web/Commerce/MerchantShippingRuleController.php` (multi-location resolution, store registration fallback, origin save logic)
+    - `resources/views/app/storefront/shipping/index.blade.php` (bento branch selector, registration sync button, active branch badge, zero-emoji)
+    - `tests/Feature/CommerceShippingRuleFeatureTest.php` (new automated test for branch origin integration)
+    - `docs/AiWorkHistory.md` (Layer 1 documentation)
+
+#### 4. Verification & Testing
+
+- `php vendor/bin/phpunit tests/Feature/CommerceShippingRuleFeatureTest.php`: 4/4 PASSED (44 assertions).
+- `php vendor/bin/phpunit tests/Feature/Commerce/`: 37/37 PASSED (198 assertions).
+- `php vendor/bin/phpunit tests/Feature/Commerce/BiteshipShippingIntegrationTest.php`: 7/7 PASSED (64 assertions).
+
+### [WORK-2026-09-25-163] Integrasi Dua Arah Tambah Cabang/Gudang (`/warehouse`) dengan Pengiriman Storefront (`/storefront/shipping`)
+
+- **Date:** 2026-09-25
+- **Status:** COMPLETED
+- **Module:** Warehouse & Multi-Location Management (`/warehouse`, `WarehouseWebController`, `Location`), Commerce Storefront (`/storefront/shipping`, `CommerceStoreSetting`)
+- **Feature:** Seamless Bi-Directional Integration: Tambah Cabang & Gudang Baru Terkoneksi ke Titik Pengiriman & Pickup Storefront
+- **Work Type:** Feature Enhancement | Bi-Directional Workflow Integration | UI/UX (Bento Apple HIG & Zero-Manual) | Automated Testing
+
+#### 1. Business Context & Objective
+
+- **Konteks:** Pedagang UMKM yang mengelola banyak cabang/outlet dan gudang di [`https://cooca.id/warehouse`](file:///c:/laragon/www/cooca_core/resources/views/app/warehouse/index.blade.php) membutuhkan sinkronisasi langsung dengan pengaturan pengiriman online [`https://cooca.id/storefront/shipping`](file:///c:/laragon/www/cooca_core/resources/views/app/storefront/shipping/index.blade.php) tanpa perlu berpindah-pindah manual atau memasukkan ulang data cabang.
+- **Tujuan:**
+    1. Memastikan setiap penambahan/pembaruan cabang/gudang di `/warehouse` secara otomatis menyinkronkan data alamat, kode pos, koordinat GPS, dan Biteship area ID ke `CommerceStoreSetting` jika dijadikan titik utama/asal pengiriman.
+    2. Menyediakan indikator Bento visual yang jelas pada setiap kartu lokasi di `/warehouse`: badge **"Asal Kirim Storefront"** (jika sedang aktif sebagai titik penjemputan online), **"Fulfillment Online"**, dan **"Ambil di Toko"**.
+    3. Menyediakan tombol shortcut navigasi dua arah:
+       - Di `/warehouse`: Tombol header *"Pengiriman Storefront"* menuju `/storefront/shipping`.
+       - Di `/storefront/shipping`: Tombol *"+ Tambah Cabang"* yang mengarahkan langsung ke `/warehouse?add=outlet` dan membuka modal Tambah Cabang secara instan.
+    4. Menjamin 100% kelulusan automated testing dan zero regression.
+
+#### 2. What Was Done
+
+1. **Controller Backend (`WarehouseWebController.php`):**
+    - Method `index()` mengambil status `storeSetting` dan mengoperkannya ke view `app.warehouse.index`.
+    - Method `store()` dan `update()` menyinkronkan data alamat, kode pos, wilayah Biteship, dan koordinat GPS ke `CommerceStoreSetting` jika cabang tersebut ditandai `is_primary` atau saat ini merupakan `origin_location_id` aktif.
+
+2. **Frontend UI/UX Bento Apple HIG (`resources/views/app/warehouse/index.blade.php`):**
+    - State Alpine.js `showCreateOutletModal` & `showCreateModal` membaca parameter URL query `?add=outlet` / `?add=warehouse` untuk auto-open modal interaktif.
+    - Menambahkan tombol header *"Pengiriman Storefront"* beraksen ungu (`text-[#5856D6]`) dengan ikon Lucide `truck`.
+    - Memperbarui kartu cabang/gudang dengan badge *"Asal Kirim Storefront"*, *"Fulfillment Online"*, dan *"Ambil di Toko"*.
+
+3. **Frontend Storefront Shipping (`resources/views/app/storefront/shipping/index.blade.php`):**
+    - Menambahkan tombol *"+ Tambah Cabang"* pada header selector cabang origin yang langsung menavigasi ke modal tambah cabang `/warehouse?add=outlet`.
+
+4. **Automated Testing & Verification:**
+    - `tests/Feature/BusinessLocationSetupTest.php`: **8/8 PASSED (78 assertions)** including `test_merchant_can_create_branch_in_warehouse_and_it_syncs_with_storefront`.
+    - `tests/Feature/CommerceShippingRuleFeatureTest.php`: **4/4 PASSED (44 assertions)**.
+    - `tests/Feature/Commerce/`: **37/37 PASSED (198 assertions)**.
+
+#### 3. Technical Changes
+
+- **Files Affected:**
+    - `app/Http/Controllers/Web/Warehouse/WarehouseWebController.php` (storeSetting injection, origin sync logic on store & update)
+    - `resources/views/app/warehouse/index.blade.php` (URL query auto-open modal, header shipping shortcut, card status badges)
+    - `resources/views/app/storefront/shipping/index.blade.php` (+ Tambah Cabang direct link)
+    - `tests/Feature/BusinessLocationSetupTest.php` (feature test case for warehouse branch storefront sync)
+    - `docs/AiWorkHistory.md` (Layer 1 documentation)
+
+#### 4. Verification & Testing
+
+- `php vendor/bin/phpunit tests/Feature/BusinessLocationSetupTest.php`: 8/8 PASSED (78 assertions).
+- `php vendor/bin/phpunit tests/Feature/CommerceShippingRuleFeatureTest.php`: 4/4 PASSED (44 assertions).
+- `php vendor/bin/phpunit tests/Feature/Commerce/`: 37/37 PASSED (198 assertions).
+
+---
+
+### [WORK-2026-09-25-164] Optimalisasi Modal Pop Up Ukuran Ergonomis & Bento Apple HIG (Cabang & Gudang Hub)
+
+- **Date:** 2026-09-25
+- **Status:** COMPLETED
+- **Module:** Warehouse & Inventory (`/warehouse`, `/warehouse/{id}`)
+- **Feature:** Standarisasi Ukuran Modal Pop Up Bento Apple HIG, Perbaikan Markup Orphaned Tag, dan Sinkronisasi Data Agregat KPI Real-Time
+- **Work Type:** UI/UX | Refactoring | Security
+
+#### 1. Business Context & Objective
+- **Konteks:** Pada versi sebelumnya, ukuran modal sheet dialog (Tambah Gudang, Tambah Cabang, Edit Lokasi, Penyesuaian Stok) menggunakan lebar `max-w-6xl` hingga `2xl:max-w-[1350px]`, sehingga pada layar desktop/laptop widescreen tampak terlalu lebar, renggang, dan menyulitkan fokus visual bagi pelaku UMKM usia 40–65 tahun.
+- **Masalah/Target:** Merestrukturisasi ukuran dialog modal menjadi proporsional (`w-full max-w-[94vw] md:max-w-2xl lg:max-w-3xl xl:max-w-4xl max-h-[88vh]`), merapikan padding header/body/footer, membersihkan tag penutup duplikat pada modal edit, serta mengikat data agregat KPI riil (Valuasi Persediaan, Lokasi Aktif, Stok Perlu Restock).
+
+#### 2. What Was Done
+1. **Standarisasi Ukuran Modal Pop Up:**
+   - Mengubah container modal `showCreateModal`, `showCreateOutletModal`, dan `showEditModal` di `index.blade.php` serta `showEditModal` dan `showAdjustModal` di `show.blade.php` ke format Apple HIG Bento standard (`max-w-4xl max-h-[88vh] rounded-[22px]`).
+   - Merapikan padding body (`p-5 sm:p-6`) dan header/footer (`px-5 py-4 sm:px-6 sm:py-4.5` / `px-5 py-3.5 sm:px-6 sm:py-4`) agar nyaman dibaca dan tidak ada ruang kosong yang mubazir.
+   - Mengoptimalkan dialog konfirmasi hapus (`deleteModalOpen`) ke ukuran Apple Alert Sheet ideal (`max-w-[340px] rounded-[20px]`).
+2. **Pembersihan Markup HTML:**
+   - Menghapus tag penutup liar/duplikat `</form></div></div>` pada footer modal edit `index.blade.php`.
+3. **Agregasi Metrik KPI Riil:**
+   - Memperbarui `WarehouseWebController::index()` untuk menghitung dan mengoper `totalValuation`, `totalLowStock`, `totalWarehouses`, `activeWarehouses`, `totalSkuCount`, dan `totalStockUnits`.
+   - Mengganti pemanggilan `$stats[...]` di `index.blade.php` menjadi metrik riil bisnis.
+
+#### 3. Technical Changes
+- **Files Affected:**
+  - `app/Http/Controllers/Web/Warehouse/WarehouseWebController.php` (penambahan hitung agregat SKU & Unit)
+  - `resources/views/app/warehouse/index.blade.php` (restrukturisasi ukuran modal pop up, eliminasi duplicate tags, update KPI tiles)
+  - `resources/views/app/warehouse/show.blade.php` (restrukturisasi modal edit dan penyesuaian stok ke ukuran ergonomis)
+  - `docs/AiWorkHistory.md` (Layer 1 documentation)
+
+#### 4. Verification & Testing
+- `php vendor/bin/phpunit tests/Feature/BusinessLocationSetupTest.php`: 8/8 PASSED (78 assertions).
+- `php vendor/bin/phpunit tests/Feature/WarehouseLocationGeofenceBiteshipTest.php tests/Feature/GoodsReceiptFeatureTest.php`: 7/7 PASSED (36 assertions).
+- `php -l app/Http/Controllers/Web/Warehouse/WarehouseWebController.php`: No syntax errors detected.
+
+
+
 
 
 

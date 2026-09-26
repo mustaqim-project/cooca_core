@@ -13,8 +13,7 @@
                 </div>
                 <div>
                     <div class="flex items-center gap-2">
-                        <h3 class="text-[16px] font-bold text-black dark:text-white tracking-tight">Saldo Gateway &amp;
-                            Penarikan Dana</h3>
+                        <h3 class="text-[16px] font-bold text-black dark:text-white tracking-tight">Saldo Gateway &amp; Penarikan Dana</h3>
                         <span
                             class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider {{ $isGatewayConfigured ? 'bg-[#34C759]/10 text-[#248A3D] dark:text-[#30D158]' : 'bg-[#FF9500]/10 text-[#D97706]' }}">
                             {{ $isGatewayConfigured ? 'Gateway Aktif' : 'Gateway Siap Konfigurasi' }}
@@ -201,7 +200,7 @@
                             method="POST">
                             @csrf
                             <button type="submit" title="{{ $method->is_active ? 'Nonaktifkan' : 'Aktifkan' }}"
-                                class="w-8 h-8 rounded-full flex items-center justify-center transition cursor-pointer {{ $method->is_active ? 'bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158] hover:bg-[#34C759]/25' : 'bg-black/10 text-black/40 hover:bg-black/20' }}">
+                                class="w-9 h-9 sm:w-8 sm:h-8 rounded-full flex items-center justify-center transition cursor-pointer {{ $method->is_active ? 'bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158] hover:bg-[#34C759]/25' : 'bg-black/10 text-black/40 hover:bg-black/20' }}">
                                 <i data-lucide="{{ $method->is_active ? 'check' : 'power' }}" class="w-4 h-4"></i>
                             </button>
                         </form>
@@ -210,7 +209,7 @@
                         <button type="button"
                             @click="methodToDelete = {{ json_encode(['id' => $method->id, 'bank_name' => $method->bank_name, 'type' => $method->type, 'account_number' => $method->account_number]) }}; deleteModalOpen = true;"
                             title="Hapus Rekening"
-                            class="w-8 h-8 rounded-full bg-[#FF3B30]/10 hover:bg-[#FF3B30]/20 text-[#FF3B30] flex items-center justify-center transition cursor-pointer">
+                            class="w-9 h-9 sm:w-8 sm:h-8 rounded-full bg-[#FF3B30]/10 hover:bg-[#FF3B30]/20 text-[#FF3B30] flex items-center justify-center transition cursor-pointer">
                             <i data-lucide="trash-2" class="w-4 h-4"></i>
                         </button>
                     </div>

@@ -13,22 +13,18 @@
                 <i data-lucide="chevron-right" class="w-3 h-3 opacity-40"></i>
                 <span class="text-black dark:text-white font-medium">Rekonsiliasi Gateway</span>
             </nav>
-            <h1 class="text-[22px] font-bold text-black dark:text-white tracking-tight">Rekonsiliasi &amp; Settlement Gateway</h1>
+            <h1 class="text-[20px] sm:text-[22px] font-bold text-black dark:text-white tracking-tight">Rekonsiliasi &amp; Settlement Gateway</h1>
             <p class="text-[13px] text-black/50 dark:text-white/50">Kelola dan rekonsiliasi pencairan dana non-tunai TriPay (QRIS &amp; Online) ke rekening bank operasional</p>
         </div>
         <div class="flex items-center gap-2.5 w-full sm:w-auto">
             <a href="{{ route('finance.cash-bank.ledger') }}"
-                class="h-9 px-4 rounded-[10px] text-[13px] font-medium text-[#007AFF] bg-[#007AFF]/10 hover:bg-[#007AFF]/15 active:scale-[0.97] transition-all flex items-center gap-1.5">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
-                </svg>
+                class="min-h-[44px] sm:min-h-0 h-11 sm:h-9 px-4 rounded-[10px] text-[13px] font-medium text-[#007AFF] bg-[#007AFF]/10 hover:bg-[#007AFF]/15 active:scale-[0.97] transition-all flex items-center justify-center gap-1.5">
+                <i data-lucide="book-open" class="w-4 h-4"></i>
                 <span>Buku Kas &amp; Ledger</span>
             </a>
             <a href="{{ route('finance.journals.index') }}"
-                class="h-9 px-4 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] transition-all flex items-center gap-1.5">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 010 3.75H5.625a1.875 1.875 0 010-3.75z" />
-                </svg>
+                class="min-h-[44px] sm:min-h-0 h-11 sm:h-9 px-4 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] transition-all flex items-center justify-center gap-1.5">
+                <i data-lucide="split" class="w-4 h-4"></i>
                 <span>Jurnal Otomatis</span>
             </a>
         </div>
@@ -39,9 +35,9 @@
     {{-- ========================================================== --}}
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {{-- Card 1: Unsettled Gross --}}
-        <div class="rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 p-4.5 space-y-2 shadow-sm">
+        <div class="rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 p-5 space-y-2 shadow-sm">
             <div class="flex items-center justify-between text-xs text-black/50 dark:text-white/50">
-                <span class="font-medium">Dana Gateway Mengendap</span>
+                <span class="font-medium text-[11px] uppercase tracking-wider">Dana Mengendap</span>
                 <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#FF9500]/10 text-[#D97706] dark:text-[#FBBF24]">Clearing (1-1005)</span>
             </div>
             <div class="text-[22px] font-extrabold text-black dark:text-white tabular-nums tracking-tight">
@@ -54,9 +50,9 @@
         </div>
 
         {{-- Card 2: Estimated Gateway Fee --}}
-        <div class="rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 p-4.5 space-y-2 shadow-sm">
+        <div class="rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 p-5 space-y-2 shadow-sm">
             <div class="flex items-center justify-between text-xs text-black/50 dark:text-white/50">
-                <span class="font-medium">Total Fee MDR Gateway</span>
+                <span class="font-medium text-[11px] uppercase tracking-wider">Total Fee MDR Gateway</span>
                 <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#FF3B30]/10 text-[#FF3B30]">Beban (6-6003)</span>
             </div>
             <div class="text-[22px] font-extrabold text-[#FF3B30] tabular-nums tracking-tight">
@@ -68,9 +64,9 @@
         </div>
 
         {{-- Card 3: Net Payout Estimate --}}
-        <div class="rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 p-4.5 space-y-2 shadow-sm">
+        <div class="rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 p-5 space-y-2 shadow-sm">
             <div class="flex items-center justify-between text-xs text-black/50 dark:text-white/50">
-                <span class="font-medium">Estimasi Bersih Masuk Bank</span>
+                <span class="font-medium text-[11px] uppercase tracking-wider">Estimasi Bersih Bank</span>
                 <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#34C759]/10 text-[#248A3D] dark:text-[#30D158]">Bank (1-1002)</span>
             </div>
             <div class="text-[22px] font-extrabold text-[#34C759] dark:text-[#30D158] tabular-nums tracking-tight">
@@ -82,9 +78,9 @@
         </div>
 
         {{-- Card 4: Historical Completed Payouts --}}
-        <div class="rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 p-4.5 space-y-2 shadow-sm">
+        <div class="rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 p-5 space-y-2 shadow-sm">
             <div class="flex items-center justify-between text-xs text-black/50 dark:text-white/50">
-                <span class="font-medium">Total Settlement Selesai</span>
+                <span class="font-medium text-[11px] uppercase tracking-wider">Settlement Selesai</span>
                 <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#007AFF]/10 text-[#007AFF]">Terekonsiliasi</span>
             </div>
             <div class="text-[22px] font-extrabold text-[#007AFF] tabular-nums tracking-tight">
@@ -160,10 +156,11 @@
                     <tr x-show="unsettledItems.length === 0">
                         <td colspan="8" class="py-12 text-center text-black/40 dark:text-white/40">
                             <div class="flex flex-col items-center justify-center gap-2">
-                                <svg class="w-8 h-8 opacity-40 text-[#34C759]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                                <span>Seluruh pembayaran gateway telah selesai direkonsiliasi. Tidak ada dana mengendap.</span>
+                                <div class="w-10 h-10 rounded-full bg-[#34C759]/10 text-[#34C759] flex items-center justify-center">
+                                    <i data-lucide="check-circle" class="w-5 h-5"></i>
+                                </div>
+                                <span class="text-[13px] font-medium text-black/70 dark:text-white/70">Seluruh pembayaran gateway telah selesai direkonsiliasi</span>
+                                <span class="text-[11px] text-black/40 dark:text-white/40">Tidak ada dana mengendap yang tertunda</span>
                             </div>
                         </td>
                     </tr>
@@ -178,7 +175,7 @@
                     <div>
                         <label class="block text-xs font-semibold text-black dark:text-white mb-1.5">Rekening Bank Tujuan Pencairan *</label>
                         <select x-model="destinationBank" required
-                            class="w-full h-10 rounded-[10px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 px-3 text-xs text-black dark:text-white font-medium focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                            class="w-full h-11 sm:h-10 rounded-[10px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 px-3 text-[16px] sm:text-xs text-black dark:text-white font-medium focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
                             <option value="">-- Pilih Rekening Bank Operasional --</option>
                             @foreach($bankAccounts as $bank)
                                 <option value="{{ $bank->name }} ({{ $bank->account_number ?? '-' }})">
@@ -191,19 +188,19 @@
                     <div>
                         <label class="block text-xs font-semibold text-black dark:text-white mb-1.5">Tanggal Pencairan / Settlement</label>
                         <input type="date" x-model="settlementDate"
-                            class="w-full h-10 rounded-[10px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 px-3 text-xs text-black dark:text-white font-medium focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                            class="w-full h-11 sm:h-10 rounded-[10px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 px-3 text-[16px] sm:text-xs text-black dark:text-white font-medium focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
                     </div>
 
                     <div>
                         <label class="block text-xs font-semibold text-black dark:text-white mb-1.5">Catatan Rekonsiliasi (Opsional)</label>
                         <input type="text" x-model="settlementNotes" placeholder="Contoh: Pencairan batch mingguan TriPay"
-                            class="w-full h-10 rounded-[10px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 px-3 text-xs text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                            class="w-full h-11 sm:h-10 rounded-[10px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 px-3 text-[16px] sm:text-xs text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
                     </div>
                 </div>
 
                 {{-- Summary & Submit Button --}}
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-3 border-t border-black/5 dark:border-white/10">
-                    <div class="flex items-center gap-4 text-xs">
+                    <div class="flex flex-wrap items-center gap-4 text-xs">
                         <div>
                             <span class="text-black/50 dark:text-white/50">Dipilih:</span>
                             <span class="font-bold text-black dark:text-white" x-text="selectedItems.length + ' transaksi'"></span>
@@ -224,10 +221,8 @@
 
                     <button type="submit"
                         :disabled="selectedItems.length === 0 || !destinationBank || isProcessing"
-                        class="h-10 px-6 rounded-[10px] bg-[#34C759] hover:bg-[#28A745] active:scale-[0.98] text-white text-xs font-bold transition shadow-sm disabled:opacity-40 flex items-center justify-center gap-2 shrink-0">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                        </svg>
+                        class="min-h-[44px] h-11 sm:h-10 px-6 rounded-[10px] bg-[#34C759] hover:bg-[#28A745] active:scale-[0.98] text-white text-xs font-bold transition shadow-sm disabled:opacity-40 flex items-center justify-center gap-2 shrink-0">
+                        <i data-lucide="send" class="w-4 h-4"></i>
                         <span x-text="isProcessing ? 'Mengirim Pengajuan...' : 'Ajukan Pencairan Saldo ke COOCA'"></span>
                     </button>
                 </div>
@@ -310,9 +305,7 @@
                                         <button type="button"
                                             @click="openProofModal('{{ $settlement->proof_image_url }}', '{{ $settlement->settlement_number }}', '{{ number_format($settlement->net_amount, 0, ',', '.') }}', '{{ $settlement->destination_bank }}', '{{ $settlement->transferred_at ? $settlement->transferred_at->format('d M Y H:i') : '-' }}', '{{ addslashes($settlement->admin_notes ?? '') }}')"
                                             class="h-8 px-2.5 rounded-[8px] text-[11px] font-semibold text-[#34C759] bg-[#34C759]/10 hover:bg-[#34C759]/20 transition flex items-center gap-1 shadow-xs">
-                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
-                                            </svg>
+                                            <i data-lucide="image" class="w-3.5 h-3.5"></i>
                                             <span>Bukti Bayar</span>
                                         </button>
                                     @elseif($settlement->status === 'pending')
@@ -324,9 +317,7 @@
                                     <a href="{{ route('finance.settlements.show', $settlement) }}"
                                         class="h-8 px-2.5 rounded-[8px] text-[11px] font-semibold text-[#007AFF] bg-[#007AFF]/10 hover:bg-[#007AFF]/15 transition inline-flex items-center gap-1">
                                         <span>Detail</span>
-                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-                                        </svg>
+                                        <i data-lucide="chevron-right" class="w-3 h-3"></i>
                                     </a>
                                 </div>
                             </td>
@@ -350,12 +341,12 @@
     </div>
 
     {{-- ========================================================== --}}
-    {{-- MODAL PREVIEW BUKTI TRANSFER UNTUK MERCHANT               --}}
+    {{-- MODAL PREVIEW BUKTI TRANSFER UNTUK MERCHANT (APPLE HIG)    --}}
     {{-- ========================================================== --}}
     <div x-show="showProofModal" x-cloak
-        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md"
+        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md"
         @keydown.escape.window="showProofModal = false">
-        <div class="w-full max-w-lg rounded-[24px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 shadow-2xl overflow-hidden"
+        <div class="w-full max-w-lg rounded-[22px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 shadow-2xl overflow-hidden"
             @click.outside="showProofModal = false">
             
             <div class="px-6 py-4 border-b border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between">
@@ -365,25 +356,21 @@
                 </div>
                 <div class="flex items-center gap-2">
                     <a :href="proofImageUrl" target="_blank" download title="Unduh Bukti"
-                        class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-black/60 dark:text-white/60">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
-                        </svg>
+                        class="p-2 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-black/60 dark:text-white/60">
+                        <i data-lucide="download" class="w-4 h-4"></i>
                     </a>
-                    <button type="button" @click="showProofModal = false" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-black/40 dark:text-white/40">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
+                    <button type="button" @click="showProofModal = false" class="p-2 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-black/40 dark:text-white/40">
+                        <i data-lucide="x" class="w-4 h-4"></i>
                     </button>
                 </div>
             </div>
 
             <div class="p-6 space-y-4">
                 <div class="rounded-[18px] bg-black/[0.03] dark:bg-black/40 border border-black/[0.05] dark:border-white/5 p-2 flex items-center justify-center overflow-hidden">
-                    <img :src="proofImageUrl" alt="Bukti Transfer Bank" class="max-h-[380px] w-auto rounded-[12px] object-contain shadow-xs">
+                    <img :src="proofImageUrl" alt="Bukti Transfer Bank" class="max-h-[360px] w-auto rounded-[12px] object-contain shadow-xs">
                 </div>
 
-                <div class="grid grid-cols-2 gap-3 text-xs p-3.5 rounded-[14px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5">
+                <div class="grid grid-cols-2 gap-3 text-xs p-4 rounded-[14px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5">
                     <div>
                         <span class="text-black/45 dark:text-white/45 block text-[11px]">Nominal Cair Masuk Bank:</span>
                         <span class="font-extrabold text-[#34C759] text-[13px] tabular-nums" x-text="'Rp ' + proofNetAmount"></span>

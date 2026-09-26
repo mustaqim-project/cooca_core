@@ -13,9 +13,9 @@
         <nav class="flex items-center gap-1.5 text-[12px] text-black/50 dark:text-white/50 py-0.5 whitespace-nowrap print:hidden"
             aria-label="Breadcrumb">
             <a href="{{ route('dashboard') }}" class="hover:text-[#007AFF] transition-colors font-medium">Dashboard</a>
-            <span>›</span>
+            <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-black/30 dark:text-white/30"></i>
             <a href="{{ route('whatsapp.index') }}" class="hover:text-[#007AFF] transition-colors font-medium">WhatsApp Gateway</a>
-            <span>›</span>
+            <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-black/30 dark:text-white/30"></i>
             <span class="text-black/80 dark:text-white/80 font-medium">Log Pesan</span>
         </nav>
 
@@ -122,7 +122,8 @@
                     </div>
                     <a href="{{ route('whatsapp.index') }}"
                         class="inline-flex items-center gap-1.5 mt-2 text-[13px] font-bold text-[#007AFF] hover:underline">
-                        <span>Lihat Status Gateway &rarr;</span>
+                        <span>Lihat Status Gateway</span>
+                        <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
                     </a>
                 </div>
             @else
