@@ -825,23 +825,26 @@
                     <div class="w-10 h-1 rounded-full bg-black/20 dark:bg-white/20"></div>
                 </div>
 
-                <!-- Cart Header -->
+                <!-- Cart Header (Exact 1:1 Reference Layout) -->
                 <div class="p-3.5 sm:p-4 border-b border-black/[0.06] dark:border-white/10 space-y-2.5 shrink-0">
                     <div class="flex items-center justify-between">
                         <div class="font-bold text-[15px] text-black dark:text-white flex items-center gap-2">
-                            <svg class="w-5 h-5 text-[#007AFF] shrink-0" style="width: 20px; height: 20px;"
-                                fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <svg class="w-5 h-5 text-[#007AFF] shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
+                                    d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
                             </svg>
-                            <span>Keranjang Pesanan</span>
+                            <span>Keranjang Kasir</span>
                         </div>
                         <div class="flex items-center gap-2">
-                            <span class="px-2.5 py-0.5 rounded-full bg-[#007AFF]/10 text-[#007AFF] font-bold text-xs tabular-nums"
+                            <span class="px-2.5 py-0.5 rounded-full bg-black/[0.05] dark:bg-white/[0.08] text-black/70 dark:text-white/80 font-bold text-xs tabular-nums"
                                 x-text="cart.length + ' item'">0 item</span>
-                            <button @click="clearCart()" x-show="cart.length > 0"
-                                class="text-[12px] text-[#FF3B30] hover:underline font-medium transition">
-                                Kosongkan
+                            <button type="button" @click="clearCart()"
+                                class="text-[12px] text-[#FF3B30] hover:text-[#D70015] flex items-center gap-1 font-semibold transition"
+                                title="Reset Keranjang">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                                </svg>
+                                <span>Reset</span>
                             </button>
                             <button @click="closeMobileCart()"
                                 class="pos-cart-btn-close lg:hidden p-1 rounded-md text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white"
@@ -854,21 +857,21 @@
                         </div>
                     </div>
 
-                    <!-- Customer Selector & Order Type -->
-                    <div class="flex items-center gap-2">
+                    <!-- Single Inline Row: Customer Combobox, [+], [Bungkus], [Dine In v] (Exact Reference Layout) -->
+                    <div class="flex items-center gap-1.5">
                         <!-- Searchable Customer Combobox -->
-                        <div class="relative flex-1" @click.outside="customerDropdownOpen = false">
+                        <div class="relative flex-1 min-w-0" @click.outside="customerDropdownOpen = false">
                             <button type="button"
                                 @click="customerDropdownOpen = !customerDropdownOpen; if(customerDropdownOpen) $nextTick(() => $refs.customerSearchInput?.focus())"
-                                class="w-full h-9 bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.07] dark:hover:bg-white/[0.1] border border-black/5 dark:border-white/10 rounded-[10px] pl-8 pr-7 text-[12px] text-left text-black dark:text-white flex items-center justify-between transition focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 cursor-pointer">
-                                <svg class="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-black/40 dark:text-white/40 pointer-events-none shrink-0"
-                                    fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                                class="w-full h-9 bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.07] dark:hover:bg-white/[0.1] border border-black/5 dark:border-white/10 rounded-[10px] pl-7.5 pr-7 text-[12px] text-left text-black dark:text-white flex items-center justify-between transition focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 cursor-pointer">
+                                <svg class="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-black/40 dark:text-white/40 pointer-events-none shrink-0"
+                                    fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round"
                                         d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
                                 </svg>
                                 <span class="truncate font-medium pr-1"
                                     x-text="activeCustomer ? activeCustomer.name : 'Pelanggan Umum (Guest)'"></span>
-                                <svg class="w-3.5 h-3.5 text-black/40 dark:text-white/40 shrink-0 transition-transform duration-200"
+                                <svg class="w-3 h-3 text-black/40 dark:text-white/40 shrink-0 transition-transform duration-200"
                                     :class="customerDropdownOpen ? 'rotate-180' : ''" fill="none"
                                     stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round"
@@ -878,7 +881,7 @@
 
                             <!-- Clear Customer selection button (Reset to Guest) -->
                             <button x-show="activeCustomer" @click.stop="selectCustomer(null)" type="button"
-                                class="absolute right-7 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-black/10 dark:bg-white/20 text-black/60 dark:text-white/60 hover:bg-black/20 dark:hover:bg-white/30 flex items-center justify-center transition"
+                                class="absolute right-6 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-black/10 dark:bg-white/20 text-black/60 dark:text-white/60 hover:bg-black/20 dark:hover:bg-white/30 flex items-center justify-center transition"
                                 title="Reset ke Pelanggan Umum">
                                 <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" stroke-width="2.5"
                                     viewBox="0 0 24 24">
@@ -993,42 +996,56 @@
                             </div>
                         </div>
 
+                        <!-- Quick Add Customer Button -->
                         <button type="button" @click="openCustomerModal()"
-                            class="shrink-0 h-9 w-9 rounded-[10px] bg-[#007AFF]/10 border border-[#007AFF]/25 text-[#007AFF] hover:bg-[#007AFF] hover:text-white transition flex items-center justify-center active:scale-[0.97]"
-                            title="Tambah pelanggan cepat" aria-label="Tambah pelanggan cepat">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
+                            class="shrink-0 h-9 w-9 rounded-[10px] bg-[#007AFF] text-white hover:bg-[#0062CC] transition flex items-center justify-center active:scale-[0.97] shadow-xs"
+                            title="Tambah Pelanggan Baru" aria-label="Tambah Pelanggan Baru">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5"
                                 viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                             </svg>
                         </button>
-                    </div>
 
-                    <!-- Order Type Segmented Control (Full Width, Touch-Friendly Apple HIG) -->
-                    <div class="grid grid-cols-3 p-1 rounded-[12px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.05] dark:border-white/10 gap-1">
-                        <button type="button" @click="orderType = 'takeaway'"
-                            :class="orderType === 'takeaway' ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white font-semibold shadow-xs' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white'"
-                            class="h-8 text-[12px] rounded-[8px] transition active:scale-[0.98] flex items-center justify-center gap-1.5" title="Bungkus / Takeaway">
-                            <svg class="w-3.5 h-3.5 opacity-70" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <!-- Bungkus Button -->
+                        <button type="button" @click="orderType = 'takeaway'; detachTableFromCart()"
+                            :class="orderType === 'takeaway' ? 'bg-[#007AFF] text-white shadow-xs font-semibold' : 'bg-black/[0.04] dark:bg-white/[0.06] text-black/70 dark:text-white/70 hover:bg-black/[0.07] dark:hover:bg-white/[0.1]'"
+                            class="shrink-0 h-9 px-3 rounded-[10px] border border-black/5 dark:border-white/10 text-[12px] transition flex items-center gap-1.5 active:scale-[0.97]"
+                            title="Bungkus / Takeaway">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25c-.669 0-1.189-.578-1.119-1.243l1.263-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
                             </svg>
                             <span>Bungkus</span>
                         </button>
-                        <button type="button" @click="orderType = 'dine_in'"
-                            :class="orderType === 'dine_in' ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white font-semibold shadow-xs' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white'"
-                            class="h-8 text-[12px] rounded-[8px] transition active:scale-[0.98] flex items-center justify-center gap-1.5" title="Makan di Tempat / Dine In">
-                            <svg class="w-3.5 h-3.5 opacity-70" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6z" />
-                            </svg>
-                            <span>Dine In</span>
-                        </button>
-                        <button type="button" @click="orderType = 'delivery'"
-                            :class="orderType === 'delivery' ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white font-semibold shadow-xs' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white'"
-                            class="h-8 text-[12px] rounded-[8px] transition active:scale-[0.98] flex items-center justify-center gap-1.5" title="Kirim / Delivery">
-                            <svg class="w-3.5 h-3.5 opacity-70" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.25V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V14.25m11.25-6.75h4.125c.621 0 1.125.504 1.125 1.125v5.25" />
-                            </svg>
-                            <span>Kirim</span>
-                        </button>
+
+                        <!-- Dine In Dropdown / Toggle Button -->
+                        <div class="relative shrink-0" x-data="{ dineDropdown: false }" @click.outside="dineDropdown = false">
+                            <button type="button" @click="orderType = 'dine_in'; dineDropdown = !dineDropdown"
+                                :class="orderType === 'dine_in' ? 'bg-[#007AFF] text-white shadow-xs font-semibold' : 'bg-black/[0.04] dark:bg-white/[0.06] text-black/70 dark:text-white/70 hover:bg-black/[0.07] dark:hover:bg-white/[0.1]'"
+                                class="h-9 px-3 rounded-[10px] border border-black/5 dark:border-white/10 text-[12px] transition flex items-center gap-1.5 active:scale-[0.97]"
+                                title="Makan di Tempat / Dine In">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6z" />
+                                </svg>
+                                <span x-text="selectedTable ? ('Meja ' + selectedTable.table_number) : 'Dine In'"></span>
+                                <svg class="w-3 h-3 transition-transform" :class="dineDropdown ? 'rotate-180' : ''" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                                </svg>
+                            </button>
+
+                            <div x-show="dineDropdown" x-cloak
+                                class="absolute right-0 top-full mt-1.5 z-40 bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 rounded-[12px] p-1.5 shadow-[0_10px_30px_rgba(0,0,0,0.25)] text-black dark:text-white min-w-[160px]">
+                                <button type="button" @click="orderType = 'dine_in'; dineDropdown = false; openTablesModal()"
+                                    class="w-full text-left px-2.5 py-1.5 rounded-[8px] hover:bg-black/[0.04] dark:hover:bg-white/[0.06] text-xs font-medium flex items-center justify-between transition">
+                                    <span>Pilih / Ganti Meja</span>
+                                    <span class="text-[10px] text-[#007AFF] font-bold">F&B</span>
+                                </button>
+                                <button type="button" @click="orderType = 'delivery'; dineDropdown = false"
+                                    class="w-full text-left px-2.5 py-1.5 rounded-[8px] hover:bg-black/[0.04] dark:hover:bg-white/[0.06] text-xs font-medium flex items-center justify-between transition">
+                                    <span>Kirim (Delivery)</span>
+                                    <span class="text-[10px] opacity-60">Kurir</span>
+                                </button>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Active Restaurant Table Card (Apple HIG Styled) -->
@@ -1214,93 +1231,110 @@
                         </div>
                     </template>
 
+                    <!-- Empty Cart State (Exact to screenshot) -->
                     <div x-show="cart.length === 0"
-                        class="h-full flex flex-col items-center justify-center text-center text-black/30 dark:text-white/30 py-8">
-                        <svg class="w-10 h-10 text-black/20 dark:text-white/20 mb-2" fill="none"
-                            stroke="currentColor" stroke-width="1.2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
-                        </svg>
-                        <div class="text-[13px] font-medium text-black/50 dark:text-white/50">Keranjang Kosong</div>
-                        <div class="text-[11px] text-black/35 dark:text-white/35 mt-0.5">Pilih produk di katalog atau
-                            scan barcode</div>
+                        class="h-full flex flex-col items-center justify-center text-center text-black/30 dark:text-white/30 py-10">
+                        <div class="w-14 h-14 rounded-2xl bg-black/[0.03] dark:bg-white/[0.04] border border-black/5 dark:border-white/10 flex items-center justify-center mb-3">
+                            <svg class="w-7 h-7 text-black/30 dark:text-white/30" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+                            </svg>
+                        </div>
+                        <div class="text-[13.5px] font-semibold text-black/60 dark:text-white/60">Keranjang Kosong</div>
+                        <div class="text-[11.5px] text-black/40 dark:text-white/40 mt-1">Pilih produk di katalog atau scan barcode</div>
                     </div>
                 </div>
 
-                <!-- Sticky Cart Footer -->
+                <!-- Sticky Cart Footer (Exact 1:1 Reference Layout) -->
                 <div
                     class="p-3.5 sm:p-4 border-t border-black/[0.06] dark:border-white/10 bg-white dark:bg-[#1C1C1E] space-y-2 shrink-0">
-                    <div class="space-y-1 text-xs">
-                        <div class="flex justify-between text-black/60 dark:text-white/60">
+                    <div class="space-y-1.5 text-xs">
+                        <!-- Subtotal -->
+                        <div class="flex justify-between text-black/60 dark:text-white/60 font-medium">
                             <span>Subtotal</span>
                             <span class="tabular-nums font-semibold text-black dark:text-white"
                                 x-text="formatRupiah(subtotal)"></span>
                         </div>
 
-                        <!-- Order Discount -->
-                        <div class="flex items-center gap-1.5 pt-1">
-                            <select x-model="discountType"
-                                class="w-24 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[8px] px-2 py-1 text-[11px] text-black dark:text-white focus:outline-none">
-                                <option value="fixed" class="bg-white dark:bg-[#1C1C1E]">Diskon Rp</option>
-                                <option value="percentage" class="bg-white dark:bg-[#1C1C1E]">Diskon %</option>
-                            </select>
+                        <!-- Order Discount Row with Terapkan button -->
+                        <div class="flex items-center gap-1.5 pt-0.5">
+                            <div class="relative shrink-0">
+                                <select x-model="discountType"
+                                    class="h-8 bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[8px] pl-2 pr-6 text-[11px] font-semibold text-black dark:text-white focus:outline-none appearance-none cursor-pointer">
+                                    <option value="fixed" class="bg-white dark:bg-[#1C1C1E]">Diskon Rp</option>
+                                    <option value="percentage" class="bg-white dark:bg-[#1C1C1E]">Diskon %</option>
+                                </select>
+                                <svg class="w-3 h-3 text-black/40 dark:text-white/40 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                                </svg>
+                            </div>
                             <input type="number" x-model.number="discountValue" min="0"
                                 :max="discountType === 'percentage' ? 100 : subtotal" step="any"
-                                :placeholder="discountType === 'percentage' ? '10' : '10000'"
-                                class="min-w-0 flex-1 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[8px] px-2.5 py-1 text-[12px] tabular-nums text-black dark:text-white focus:outline-none focus:ring-1 focus:ring-[#007AFF]">
+                                placeholder="0"
+                                class="h-8 min-w-0 flex-1 bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[8px] px-2.5 text-[12px] tabular-nums text-black dark:text-white focus:outline-none focus:ring-1 focus:ring-[#007AFF]">
+                            <button type="button" @click="$refs.barcodeInput?.focus()"
+                                class="h-8 px-3 rounded-[8px] bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.1] dark:hover:bg-white/[0.12] text-black dark:text-white text-[11px] font-semibold transition active:scale-[0.97]">
+                                Terapkan
+                            </button>
                         </div>
-                        <div x-show="orderDiscountAmount > 0" class="flex justify-between text-[#FF3B30]">
+                        <div x-show="orderDiscountAmount > 0" class="flex justify-between text-[#FF3B30] text-[11px]">
                             <span>Diskon Transaksi</span>
-                            <span class="tabular-nums font-medium"
+                            <span class="tabular-nums font-semibold"
                                 x-text="'-' + formatRupiah(orderDiscountAmount)"></span>
                         </div>
 
-                        <!-- Voucher Code -->
+                        <!-- Voucher Code Row with ticket icon and Terapkan button -->
                         <div class="flex items-center gap-1.5 pt-0.5">
-                            <input type="text" x-model="voucherCode" placeholder="Kode Voucher..."
-                                class="flex-1 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[8px] px-2.5 py-1 text-[11px] text-black dark:text-white uppercase tracking-wider focus:outline-none focus:ring-1 focus:ring-[#007AFF]">
-                            <button @click="applyVoucher()"
-                                class="px-2.5 py-1 rounded-[8px] bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.1] dark:hover:bg-white/[0.12] text-black dark:text-white text-[11px] font-medium transition active:scale-[0.97]">Terapkan</button>
+                            <div class="relative flex-1">
+                                <svg class="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-black/40 dark:text-white/40 pointer-events-none" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 6v.75m0 3v.75m0 3v.75m0 3V18m-9-5.25h5.25M7.5 15h3M3.375 5.25c-.621 0-1.125.504-1.125 1.125v3.026a2.999 2.999 0 010 5.198v3.026c0 .621.504 1.125 1.125 1.125h17.25c.621 0 1.125-.504 1.125-1.125v-3.026a2.999 2.999 0 010-5.198V6.375c0-.621-.504-1.125-1.125-1.125H3.375z" />
+                                </svg>
+                                <input type="text" x-model="voucherCode" placeholder="KODE VOUCHER..."
+                                    class="h-8 w-full bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[8px] pl-8 pr-2.5 text-[11px] text-black dark:text-white uppercase tracking-wider focus:outline-none focus:ring-1 focus:ring-[#007AFF]">
+                            </div>
+                            <button @click="applyVoucher()" type="button"
+                                class="h-8 px-3 rounded-[8px] bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.1] dark:hover:bg-white/[0.12] text-black dark:text-white text-[11px] font-semibold transition active:scale-[0.97]">
+                                Terapkan
+                            </button>
                         </div>
 
-                        <div x-show="voucherDiscount > 0" class="flex justify-between text-[#34C759]">
+                        <div x-show="voucherDiscount > 0" class="flex justify-between text-[#34C759] text-[11px]">
                             <span>Diskon Voucher</span>
-                            <span class="tabular-nums font-medium"
+                            <span class="tabular-nums font-semibold"
                                 x-text="'-' + formatRupiah(voucherDiscount)"></span>
                         </div>
 
-                        <div x-show="pointsDiscount > 0" class="flex justify-between text-[#30B0C7]">
+                        <div x-show="pointsDiscount > 0" class="flex justify-between text-[#30B0C7] text-[11px]">
                             <span>Tukar Poin</span>
-                            <span class="tabular-nums font-medium" x-text="'-' + formatRupiah(pointsDiscount)"></span>
+                            <span class="tabular-nums font-semibold" x-text="'-' + formatRupiah(pointsDiscount)"></span>
                         </div>
 
-                        <div x-show="taxAmount > 0" class="flex justify-between text-black/50 dark:text-white/50">
+                        <div x-show="taxAmount > 0" class="flex justify-between text-black/50 dark:text-white/50 text-[11px]">
                             <span>PPN ({{ $business->pos_tax_percent }}%)</span>
-                            <span class="tabular-nums text-black/80 dark:text-white/80"
+                            <span class="tabular-nums font-semibold text-black/80 dark:text-white/80"
                                 x-text="formatRupiah(taxAmount)"></span>
                         </div>
 
                         <div x-show="serviceChargeAmount > 0"
-                            class="flex justify-between text-black/50 dark:text-white/50">
+                            class="flex justify-between text-black/50 dark:text-white/50 text-[11px]">
                             <span>Service ({{ $business->pos_service_charge_percent }}%)</span>
-                            <span class="tabular-nums text-black/80 dark:text-white/80"
+                            <span class="tabular-nums font-semibold text-black/80 dark:text-white/80"
                                 x-text="formatRupiah(serviceChargeAmount)"></span>
                         </div>
                     </div>
 
-                    <!-- Grand Total Line -->
+                    <!-- Grand Total Line (Exact to screenshot) -->
                     <div
-                        class="pt-2 border-t border-black/[0.06] dark:border-white/10 flex items-baseline justify-between">
+                        class="pt-2.5 border-t border-black/[0.06] dark:border-white/10 flex items-baseline justify-between">
                         <div>
-                            <div class="text-[11px] font-medium text-black/45 dark:text-white/45">Total Tagihan</div>
-                            <div class="text-[12px] text-black/60 dark:text-white/60 tabular-nums"
+                            <div class="text-[12px] font-bold text-black/70 dark:text-white/70">Total Tagihan</div>
+                            <div class="text-[11px] text-black/45 dark:text-white/45 tabular-nums"
                                 x-text="cart.length + ' item'"></div>
                         </div>
-                        <div class="text-[22px] sm:text-[24px] font-bold text-black dark:text-white tabular-nums tracking-tight"
+                        <div class="text-[24px] sm:text-[26px] font-black text-black dark:text-white tabular-nums tracking-tight"
                             x-text="formatRupiah(grandTotal)"></div>
                     </div>
 
-                    <!-- Action Buttons: Hold & Bayar -->
+                    <!-- Action Buttons: Hold & Bayar (Exact to screenshot) -->
                     <div class="grid grid-cols-3 gap-2 pt-1.5">
                         <button @click="promptHoldCart()" :disabled="cart.length === 0"
                             class="col-span-1 h-12 rounded-[14px] bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.07] dark:hover:bg-white/[0.1] active:scale-[0.97] text-black/80 dark:text-white/90 font-semibold text-[13px] flex items-center justify-center gap-1.5 transition disabled:opacity-35 disabled:cursor-not-allowed border border-black/[0.06] dark:border-white/[0.08]"
@@ -1311,16 +1345,16 @@
                             <span>Hold</span>
                         </button>
                         <button @click="openPaymentModal()" :disabled="cart.length === 0"
-                            class="col-span-2 h-12 rounded-[14px] bg-gradient-to-r from-[#007AFF] to-[#0A84FF] hover:from-[#0071E3] hover:to-[#0077ED] active:scale-[0.98] text-white font-bold text-[14px] sm:text-[15px] shadow-[0_4px_16px_rgba(0,122,255,0.25)] flex items-center justify-between px-3.5 sm:px-4 transition disabled:opacity-35 disabled:cursor-not-allowed">
+                            class="col-span-2 h-12 rounded-[14px] bg-[#007AFF] hover:bg-[#0062CC] active:scale-[0.98] text-white font-bold text-[14px] sm:text-[15px] shadow-[0_4px_16px_rgba(0,122,255,0.3)] flex items-center justify-between px-3.5 sm:px-4 transition disabled:opacity-35 disabled:cursor-not-allowed">
                             <div class="flex items-center gap-2">
-                                <svg class="w-4 h-4 sm:w-4.5 sm:h-4.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <svg class="w-4.5 h-4.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round"
                                         d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z" />
                                 </svg>
                                 <span>Bayar</span>
                                 <span class="hidden sm:inline-block px-1.5 py-0.5 rounded text-[10px] font-bold bg-white/20 uppercase tracking-wider">F9</span>
                             </div>
-                            <span class="font-bold tabular-nums text-[14px] sm:text-[15px]" x-text="formatRupiah(grandTotal)"></span>
+                            <span class="font-black tabular-nums text-[15px] sm:text-[16px]" x-text="formatRupiah(grandTotal)"></span>
                         </button>
                     </div>
                 </div>
@@ -3178,6 +3212,33 @@
                 activeShift: @json($activeShift),
                 allProducts: @json($products),
                 filteredProducts: [],
+                currentPage: 1,
+                perPage: 8,
+                get totalPages() {
+                    return Math.max(1, Math.ceil(this.filteredProducts.length / this.perPage));
+                },
+                get paginatedProducts() {
+                    const start = (this.currentPage - 1) * this.perPage;
+                    return this.filteredProducts.slice(start, start + this.perPage);
+                },
+                prevPage() {
+                    if (this.currentPage > 1) {
+                        this.currentPage--;
+                        this.$nextTick(() => { if (typeof lucide !== 'undefined') lucide.createIcons(); });
+                    }
+                },
+                nextPage() {
+                    if (this.currentPage < this.totalPages) {
+                        this.currentPage++;
+                        this.$nextTick(() => { if (typeof lucide !== 'undefined') lucide.createIcons(); });
+                    }
+                },
+                goToPage(p) {
+                    if (p >= 1 && p <= this.totalPages) {
+                        this.currentPage = p;
+                        this.$nextTick(() => { if (typeof lucide !== 'undefined') lucide.createIcons(); });
+                    }
+                },
                 customers: @json($customers),
                 heldOrders: @json($heldOrders),
                 selectedCategory: 'all',
@@ -3394,6 +3455,7 @@
                         .toLowerCase().includes(q)));
                     }
                     this.filteredProducts = res;
+                    this.currentPage = 1;
                     this.$nextTick(() => {
                         if (typeof lucide !== 'undefined') lucide.createIcons();
                     });
