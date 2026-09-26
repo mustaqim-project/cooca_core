@@ -1099,10 +1099,21 @@
                                 'merchant_shipping' => 'Logistik: Pengaturan Ongkos Kirim & Kurir Toko',
                             ],
                         ],
+                        'keuangan_akuntansi' => [
+                            'title' => '6. Keuangan & Akuntansi Lengkap Korporasi',
+                            'desc' => 'Modul bagan akun (COA) standar SAK EMKM, buku jurnal berpasangan, buku besar, neraca saldo, neraca posisi keuangan, dan rekonsiliasi bank.',
+                            'icon' => 'book-open',
+                            'color' => 'text-[#007AFF]',
+                            'bg' => 'bg-[#007AFF]/10',
+                            'keys' => ['accounting_corporate'],
+                            'impacts' => [
+                                'accounting_corporate' => 'Akuntansi Korporasi: Bagan Akun (COA), Buku Jurnal Keuangan, Buku Besar Akun, Neraca Keuangan SAK EMKM, Neraca Saldo, Rekonsiliasi Bank',
+                            ],
+                        ],
                     ];
                 @endphp
 
-                <!-- 5 Thematic Bento Clusters -->
+                <!-- 6 Thematic Bento Clusters -->
                 @foreach ($clusterMap as $clusterId => $cluster)
                     <div class="rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-5 sm:p-6 space-y-4 shadow-sm">
                         <!-- Cluster Header -->
