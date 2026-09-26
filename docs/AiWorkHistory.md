@@ -11742,6 +11742,45 @@ Business Owner / Merchant UMKM COOCA memerlukan satu pusat pengelolaan (_Single 
 - `php artisan view:clear`: **INFO Compiled views cleared successfully**.
 - Grep audit: **0 remaining legacy unicode chevrons (`›`) across entire codebase**.
 
+---
+
+### [WORK-2026-09-26-175] Production POS Terminal 500 & Public Marketing Alpine Dropdown Crash Remediation
+
+- **Date:** 2026-09-26
+- **Status:** COMPLETED
+- **Module:** POS Terminal (`app/Http/Controllers/Web/Pos/PosTerminalWebController.php`), Public Marketing Layout (`resources/views/layouts/public_marketing.blade.php`), Automated Test Suite (`tests/Feature/PosTerminalDefensiveIndexTest.php`)
+- **Feature:** Resolusi Bug 500 POS Terminal, Fallback Lokasi & Konteks Bisnis Otomatis, serta Guarding Alpine.js x-init pada Layout Publik
+- **Work Type:** Bug Fix | Defensive Architecture | Frontend Stability | Automated Verification
+
+#### 1. Root Cause Analysis
+1. **Alpine Expression Error Cascade (`platformDropdown`, `solutionDropdown`, `omniDropdown`, `resourceDropdown`, `mobileSection` is not defined):**
+   - Halaman error 500 (`errors.500`) meng-extend `errors.layout`, yang meng-extend `layouts.public_marketing`.
+   - Pada `layouts.public_marketing`, `x-init` pada elemen `<body>` memanggil `lucide.createIcons()` secara langsung tanpa memeriksa apakah library Lucide telah selesai di-load oleh browser (`unpkg.com`).
+   - Ketika Lucide belum terdefinisi, pemanggilan tersebut memicu `ReferenceError: lucide is not defined`, yang menggagalkan inisialisasi komponen Alpine pada `<body>`. Akibatnya, seluruh child directives di header/navbar (`platformDropdown`, dll.) mengalami evaluasi gagal dan membanjiri console dengan error `is not defined`.
+2. **GET /pos 500 (Internal Server Error):**
+   - Pada `PosTerminalWebController@index`, pemanggilan `Context::requireBusiness()` melempar `RuntimeException` jika session bisnis aktif belum terikat sempurna.
+   - Query lokasi hanya memfilter tipe `['outlet', 'store', 'central_kitchen']`. Tenant baru atau tenant yang belum memiliki outlet tipe tersebut menghasilkan koleksi kosong, menyebabkan downstream queries dan rendering view mengalami kegagalan.
+
+#### 2. What Was Done
+1. **Guarding Alpine.js `x-init` (`resources/views/layouts/public_marketing.blade.php`):**
+   - Membungkus pemanggilan `lucide.createIcons()` dengan pengecekan aman: `if (typeof lucide !== 'undefined' && typeof lucide.createIcons === 'function') { lucide.createIcons(); }`.
+   - Mengeliminasi potensi kegagalan inisialisasi Alpine component pada `<body>`, memastikan seluruh state dropdown (`platformDropdown`, `solutionDropdown`, `omniDropdown`, `resourceDropdown`, `mobileSection`) selalu terdefinisi dengan andal.
+2. **Defensive Hardening pada `PosTerminalWebController@index`:**
+   - Mengganti `Context::requireBusiness()` dengan resolusi aman: jika tidak ada bisnis aktif, lakukan redirect ke `route('businesses.select')` alih-alih melempar exception 500.
+   - Menambahkan dual fallback untuk lokasi: jika tidak ditemukan lokasi outlet, sistem mengambil lokasi aktif apa pun; jika masih kosong, sistem otomatis membuat lokasi default `Outlet Utama` (`OUT-01`).
+   - Membungkus seluruh query opsional (`activeShift`, `branchPrices`, `products`, `customers`, `heldOrders`, `vouchers`, `tables`, `technicians`, dan `operatingModeProfile`) dalam blok try-catch dengan fallback koleksi kosong atau default yang aman.
+3. **Automated Testing (`tests/Feature/PosTerminalDefensiveIndexTest.php`):**
+   - Menguji skenario tenant tanpa lokasi (sukses render 200).
+   - Menguji skenario guest/unauthenticated (redirect 302 ke `login`).
+   - Menguji skenario user tanpa bisnis aktif (redirect 302 ke `businesses.select`).
+
+#### 3. Verification & Testing
+- `php artisan test tests/Feature/PosTerminalDefensiveIndexTest.php`: **3 passed, 5 assertions (100% pass)**.
+- `php artisan test tests/Feature/PosEffectiveStockTest.php`: **3 passed, 6 assertions (100% pass)**.
+- `php artisan view:cache`: **Blade templates cached successfully**.
+- Git commit & push: `fa0c2e1` pushed cleanly to GitHub `origin/main`.
+
+
 
 
 
