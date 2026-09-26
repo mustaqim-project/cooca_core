@@ -28,7 +28,7 @@
                 : 0;
     @endphp
 
-    <div class="max-w-[1360px] mx-auto space-y-6 pb-12" x-data="{
+    <div class="max-w-[1360px] mx-auto space-y-6 pb-28 lg:pb-12" x-data="{
         activeSection: 'all',
         searchQuery: '',
         showLaborModal: false,
@@ -110,29 +110,24 @@
         <!-- 1. TOOLBAR / PAGE HEADER (macOS Sonoma Toolbar Style)  -->
         <!-- ===================================================== -->
         <header
-            class="rounded-[14px] backdrop-blur-md bg-white/75 dark:bg-[#1C1C1E]/75 border border-black/5 dark:border-white/10 px-4 sm:px-6 py-3.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            class="rounded-[16px] backdrop-blur-md bg-white/75 dark:bg-[#1C1C1E]/75 border border-black/5 dark:border-white/10 px-4 sm:px-6 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
             <div>
                 <!-- Breadcrumb minimal -->
-                <nav class="flex items-center gap-1.5 text-[12px] text-black/50 dark:text-white/50 mb-1">
+                <nav class="flex items-center gap-1.5 text-[12px] text-black/50 dark:text-white/50 mb-1" aria-label="Breadcrumb">
                     <a href="{{ route('dashboard') }}" class="hover:text-[#007AFF] transition-colors">Dashboard</a>
-                    <span>›</span>
+                    <i data-lucide="chevron-right" class="w-3.5 h-3.5 opacity-40"></i>
                     <span class="text-black/70 dark:text-white/70 font-medium">Biaya Produksi</span>
-                    <span>›</span>
+                    <i data-lucide="chevron-right" class="w-3.5 h-3.5 opacity-40"></i>
                     <span class="text-black dark:text-white font-medium">Tenaga Kerja &amp; Mesin</span>
                 </nav>
                 <div class="flex items-center gap-3">
                     <div
-                        class="w-10 h-10 rounded-[10px] bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center shrink-0">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M11.42 15.17 17.25 21A2.652 2.652 0 0 0 21 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 1 1-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 0 0 4.486-6.336l-3.276 3.277a3.004 3.004 0 0 1-2.25-2.25l3.276-3.276a4.5 4.5 0 0 0-6.336 4.486c.091.704.297 1.385.607 2.008" />
-                        </svg>
+                        class="w-10 h-10 rounded-[12px] bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center shrink-0">
+                        <i data-lucide="cog" class="w-5 h-5"></i>
                     </div>
                     <div>
-                        <h1 class="text-[20px] font-semibold text-black dark:text-white tracking-tight">Tenaga Kerja &amp;
-                            Mesin</h1>
-                        <p class="text-[13px] text-black/50 dark:text-white/50">Konversi tarif upah ke tarif per jam efektif
-                            dan kalkulasi biaya mesin per jam operasi</p>
+                        <h1 class="text-[20px] font-semibold text-black dark:text-white tracking-tight">Tenaga Kerja &amp; Mesin</h1>
+                        <p class="text-[13px] text-black/50 dark:text-white/50">Konversi tarif upah ke tarif per jam efektif dan kalkulasi biaya mesin per jam operasi</p>
                     </div>
                 </div>
             </div>
@@ -140,23 +135,48 @@
             @if (\App\Support\Context::hasPermission('costing.manage'))
                 <div class="flex items-center gap-2 w-full sm:w-auto flex-wrap">
                     <button type="button" @click="showLaborModal = true"
-                        class="h-9 px-3.5 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5">
-                        <svg class="w-4 h-4 text-black/60 dark:text-white/60" fill="none" stroke="currentColor"
-                            stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                        </svg>
+                        class="min-h-[44px] sm:min-h-0 h-11 sm:h-9 px-3.5 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5">
+                        <i data-lucide="user-plus" class="w-4 h-4 text-black/60 dark:text-white/60"></i>
                         <span>Tambah Tarif Upah</span>
                     </button>
                     <button type="button" @click="showMachineModal = true"
-                        class="h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5 shadow-[0_1px_2px_rgba(0,122,255,0.25)]">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                        </svg>
+                        class="min-h-[44px] sm:min-h-0 h-11 sm:h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5 shadow-[0_1px_2px_rgba(0,122,255,0.25)]">
+                        <i data-lucide="plus" class="w-4 h-4"></i>
                         <span>Tambah Mesin Baru</span>
                     </button>
                 </div>
             @endif
         </header>
+
+        {{-- ===================================================== --}}
+        {{-- SUB-NAVIGATION TABS (Apple Segmented Control)         --}}
+        {{-- ===================================================== --}}
+        <div class="overflow-x-auto pb-1 scrollbar-none">
+            <div class="inline-flex p-1 rounded-[14px] bg-black/[0.05] dark:bg-white/[0.07] border border-black/5 dark:border-white/10 text-[13px] font-medium whitespace-nowrap">
+                <a href="{{ route('calculator') }}"
+                    class="px-3.5 py-1.5 rounded-[10px] {{ request()->routeIs('calculator*') ? 'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] font-semibold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white' }} flex items-center gap-2 transition-all">
+                    <i data-lucide="calculator" class="w-4 h-4 {{ request()->routeIs('calculator*') ? 'text-[#007AFF]' : 'text-black/40 dark:text-white/40' }}"></i>
+                    <span>Kalkulator HPP &amp; Harga</span>
+                </a>
+
+                @if(\App\Support\Context::hasPermission('labor_machines.view') || \App\Support\Context::hasPermission('costing.manage'))
+                <a href="{{ route('labor-machines.index') }}"
+                    class="px-3.5 py-1.5 rounded-[10px] {{ request()->routeIs('labor-machines.*') ? 'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] font-semibold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white' }} flex items-center gap-2 transition-all">
+                    <i data-lucide="cog" class="w-4 h-4 {{ request()->routeIs('labor-machines.*') ? 'text-[#FF9500]' : 'text-black/40 dark:text-white/40' }}"></i>
+                    <span>Upah Kerja &amp; Mesin</span>
+                    <span class="px-1.5 py-0.2 rounded-full text-[11px] tabular-nums font-semibold {{ request()->routeIs('labor-machines.*') ? 'bg-[#FF9500]/12 text-[#FF9500]' : 'bg-black/10 dark:bg-white/10 text-black/60 dark:text-white/60' }}">{{ $totalLaborCount + $totalMachineCount }}</span>
+                </a>
+                @endif
+
+                @if(\App\Support\Context::hasPermission('costing.view_margin') || \App\Support\Context::hasPermission('reports.costing') || \App\Support\Context::hasPermission('costing.manage'))
+                <a href="{{ route('profitability.index') }}"
+                    class="px-3.5 py-1.5 rounded-[10px] {{ request()->routeIs('profitability.*') ? 'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] font-semibold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white' }} flex items-center gap-2 transition-all">
+                    <i data-lucide="trending-up" class="w-4 h-4 {{ request()->routeIs('profitability.*') ? 'text-[#34C759]' : 'text-black/40 dark:text-white/40' }}"></i>
+                    <span>Analisis BEP &amp; Margin</span>
+                </a>
+                @endif
+            </div>
+        </div>
 
         <!-- ===================================================== -->
         <!-- FLASH MESSAGES (Apple HIG Banner Style)                -->

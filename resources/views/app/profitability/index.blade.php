@@ -5,7 +5,7 @@
 ])
 
 @section('content')
-<div class="max-w-[1360px] mx-auto space-y-6 pb-12" x-data="{
+<div class="max-w-[1360px] mx-auto space-y-6 pb-28 lg:pb-12" x-data="{
     fixedCost: {{ $totalFixedOverhead ?: 10000000 }},
     sellingPrice: 50000,
     variableCost: 25000,
@@ -53,14 +53,14 @@
     <!-- ===================================================== -->
     <!-- 1. TOOLBAR / PAGE HEADER (macOS Sonoma Toolbar Style)  -->
     <!-- ===================================================== -->
-    <header class="rounded-[14px] backdrop-blur-md bg-white/75 dark:bg-[#1C1C1E]/75 border border-black/5 dark:border-white/10 px-4 sm:px-6 py-3.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+    <header class="rounded-[16px] backdrop-blur-md bg-white/75 dark:bg-[#1C1C1E]/75 border border-black/5 dark:border-white/10 px-4 sm:px-6 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
         <div>
             <!-- Breadcrumb minimal -->
-            <nav class="flex items-center gap-1.5 text-[12px] text-black/50 dark:text-white/50 mb-1">
+            <nav class="flex items-center gap-1.5 text-[12px] text-black/50 dark:text-white/50 mb-1" aria-label="Breadcrumb">
                 <a href="{{ route('dashboard') }}" class="hover:text-[#007AFF] transition-colors">Dashboard</a>
-                <span>›</span>
-                <span class="text-black/70 dark:text-white/70 font-medium">Keuangan &amp; Biaya</span>
-                <span>›</span>
+                <i data-lucide="chevron-right" class="w-3.5 h-3.5 opacity-40"></i>
+                <span class="text-black/70 dark:text-white/70 font-medium">Biaya &amp; Penetapan Harga</span>
+                <i data-lucide="chevron-right" class="w-3.5 h-3.5 opacity-40"></i>
                 <span class="text-black dark:text-white font-medium">BEP &amp; Margin</span>
             </nav>
             <h1 class="text-[20px] font-semibold text-black dark:text-white tracking-tight">Kalkulator BEP &amp; Profitabilitas</h1>
@@ -69,13 +69,40 @@
 
         <div class="flex items-center gap-2">
             <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[12px] font-semibold bg-[#AF52DE]/10 text-[#AF52DE] dark:text-[#BF5AF2]">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
-                </svg>
+                <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
                 <span>Simulasi Real-Time</span>
             </span>
         </div>
     </header>
+
+    {{-- ===================================================== --}}
+    {{-- SUB-NAVIGATION TABS (Apple Segmented Control)         --}}
+    {{-- ===================================================== --}}
+    <div class="overflow-x-auto pb-1 scrollbar-none">
+        <div class="inline-flex p-1 rounded-[14px] bg-black/[0.05] dark:bg-white/[0.07] border border-black/5 dark:border-white/10 text-[13px] font-medium whitespace-nowrap">
+            <a href="{{ route('calculator') }}"
+                class="px-3.5 py-1.5 rounded-[10px] {{ request()->routeIs('calculator*') ? 'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] font-semibold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white' }} flex items-center gap-2 transition-all">
+                <i data-lucide="calculator" class="w-4 h-4 {{ request()->routeIs('calculator*') ? 'text-[#007AFF]' : 'text-black/40 dark:text-white/40' }}"></i>
+                <span>Kalkulator HPP &amp; Harga</span>
+            </a>
+
+            @if(\App\Support\Context::hasPermission('labor_machines.view') || \App\Support\Context::hasPermission('costing.manage'))
+            <a href="{{ route('labor-machines.index') }}"
+                class="px-3.5 py-1.5 rounded-[10px] {{ request()->routeIs('labor-machines.*') ? 'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] font-semibold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white' }} flex items-center gap-2 transition-all">
+                <i data-lucide="cog" class="w-4 h-4 {{ request()->routeIs('labor-machines.*') ? 'text-[#FF9500]' : 'text-black/40 dark:text-white/40' }}"></i>
+                <span>Upah Kerja &amp; Mesin</span>
+            </a>
+            @endif
+
+            @if(\App\Support\Context::hasPermission('costing.view_margin') || \App\Support\Context::hasPermission('reports.costing') || \App\Support\Context::hasPermission('costing.manage'))
+            <a href="{{ route('profitability.index') }}"
+                class="px-3.5 py-1.5 rounded-[10px] {{ request()->routeIs('profitability.*') ? 'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] font-semibold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white' }} flex items-center gap-2 transition-all">
+                <i data-lucide="trending-up" class="w-4 h-4 {{ request()->routeIs('profitability.*') ? 'text-[#34C759]' : 'text-black/40 dark:text-white/40' }}"></i>
+                <span>Analisis BEP &amp; Margin</span>
+            </a>
+            @endif
+        </div>
+    </div>
 
     <!-- ===================================================== -->
     <!-- 2. PARAMETERS & OUTPUT RESULTS GRID                   -->

@@ -139,32 +139,45 @@
     }">
 
         <!-- ===================================================== -->
-        <!-- 1. UNIFIED APPLE SEGMENTED CONTROL (Section 16 Mandate) -->
+        <!-- 1. UNIFIED APPLE SEGMENTED CONTROL                    -->
         <!-- ===================================================== -->
-        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div
-                class="rounded-[16px] bg-black/[0.04] dark:bg-white/[0.04] p-1.5 flex items-center gap-1.5 w-fit border border-black/[0.04] dark:border-white/[0.06]">
-                <a href="{{ route('products.index') }}"
-                    class="px-4 py-2 rounded-[12px] text-[13px] font-medium text-[#8E8E93] dark:text-[#98989D] hover:text-[#1C1C1E] dark:hover:text-[#F2F2F7] transition-all">
-                    Barang Fisik (Katalog)
-                </a>
-                <a href="{{ route('services.index') }}"
-                    class="px-4 py-2 rounded-[12px] text-[13px] font-semibold bg-white dark:bg-[#2C2C2E] text-[#1C1C1E] dark:text-[#F2F2F7] shadow-sm transition-all">
-                    Jasa &amp; Layanan
-                </a>
-                <a href="{{ route('pos.modifiers.index') }}"
-                    class="px-4 py-2 rounded-[12px] text-[13px] font-medium text-[#8E8E93] dark:text-[#98989D] hover:text-[#1C1C1E] dark:hover:text-[#F2F2F7] transition-all">
-                    Varian &amp; Modifiers
-                </a>
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+            <div class="overflow-x-auto pb-1 scrollbar-none">
+                <div class="inline-flex p-1 bg-black/[0.05] dark:bg-white/[0.08] rounded-[14px] border border-black/[0.04] dark:border-white/[0.06] shrink-0">
+                    <a href="{{ route('products.index') }}"
+                        class="h-10 px-4 rounded-[10px] text-[13px] font-medium text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white flex items-center gap-2 transition-all whitespace-nowrap">
+                        <i data-lucide="package" class="w-4 h-4 text-black/40 dark:text-white/40"></i>
+                        <span>Barang Fisik (Katalog)</span>
+                    </a>
+                    <a href="{{ route('services.index') }}"
+                        class="h-10 px-4 rounded-[10px] text-[13px] font-semibold bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-sm flex items-center gap-2 whitespace-nowrap transition-all">
+                        <i data-lucide="wrench" class="w-4 h-4 text-[#007AFF]"></i>
+                        <span>Jasa &amp; Layanan</span>
+                    </a>
+                    @if(\App\Support\Context::hasPermission('pos.modifiers') || \App\Support\Context::hasPermission('pos.terminal'))
+                    <a href="{{ route('pos.modifiers.index') }}"
+                        class="h-10 px-4 rounded-[10px] text-[13px] font-medium text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white flex items-center gap-2 transition-all whitespace-nowrap">
+                        <i data-lucide="sliders" class="w-4 h-4 text-black/40 dark:text-white/40"></i>
+                        <span>Varian &amp; Modifiers</span>
+                    </a>
+                    @endif
+                    @if(Route::has('marketplace-hub.products') && \App\Support\Context::hasPermission('products.view'))
+                    <a href="{{ route('marketplace-hub.products') }}"
+                        class="h-10 px-4 rounded-[10px] text-[13px] font-medium text-[#EE4D2D] hover:bg-[#EE4D2D]/10 flex items-center gap-2 transition-all whitespace-nowrap">
+                        <i data-lucide="store" class="w-4 h-4 text-[#EE4D2D]"></i>
+                        <span>Marketplace &amp; Multi-Harga</span>
+                    </a>
+                    @endif
+                </div>
             </div>
 
+            @if(\App\Support\Context::hasPermission('products.manage') || \App\Support\Context::hasPermission('products.create'))
             <button type="button" @click="openAdd()"
-                class="h-10 px-4 rounded-[12px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] transition-all flex items-center justify-center gap-2 shadow-sm shadow-[#007AFF]/25">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                </svg>
+                class="h-10 px-4 rounded-[12px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] transition-all flex items-center justify-center gap-2 shadow-sm shadow-[#007AFF]/25 shrink-0">
+                <i data-lucide="plus" class="w-4 h-4"></i>
                 <span>Tambah Layanan Baru</span>
             </button>
+            @endif
         </div>
 
         <!-- ===================================================== -->

@@ -15,16 +15,18 @@
             this.deleteAccountData = { id: account.id, code: account.code, name: account.name, url: deleteUrl };
             this.deleteModalOpen = true;
         }
-    }" class="max-w-[1360px] mx-auto space-y-5 pb-16">
+    }" class="max-w-[1360px] mx-auto space-y-5 pb-28 lg:pb-12">
 
         {{-- ========================================================== --}}
         {{-- TOOLBAR / PAGE HEADER                                      --}}
         {{-- ========================================================== --}}
         <header class="rounded-[16px] backdrop-blur-md bg-white/75 dark:bg-[#1C1C1E]/75 border border-black/5 dark:border-white/10 px-4 sm:px-6 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
             <div>
-                <nav class="flex items-center gap-1.5 text-[12px] text-black/50 dark:text-white/50 mb-1">
-                    <span class="text-black/70 dark:text-white/70">Keuangan &amp; Akuntansi</span>
-                    <i data-lucide="chevron-right" class="w-3 h-3 opacity-40"></i>
+                <nav class="flex items-center gap-1.5 text-[12px] text-black/50 dark:text-white/50 mb-1" aria-label="Breadcrumb">
+                    <a href="{{ route('dashboard') }}" class="hover:text-[#007AFF] transition-colors">Dashboard</a>
+                    <i data-lucide="chevron-right" class="w-3.5 h-3.5 opacity-40"></i>
+                    <span class="text-black/70 dark:text-white/70 font-medium">Keuangan &amp; Akuntansi</span>
+                    <i data-lucide="chevron-right" class="w-3.5 h-3.5 opacity-40"></i>
                     <span class="text-black dark:text-white font-medium">Bagan Akun (COA)</span>
                 </nav>
                 <h1 class="text-[20px] sm:text-[22px] font-bold text-black dark:text-white tracking-tight">Pohon Bagan Akun (Chart of Accounts)</h1>
@@ -43,6 +45,43 @@
                 </button>
             </div>
         </header>
+
+        {{-- ========================================================== --}}
+        {{-- ACCOUNTING HUB NAVIGATION TABS (Apple Segmented Control)   --}}
+        {{-- ========================================================== --}}
+        <div class="overflow-x-auto pb-1 scrollbar-none">
+            <div class="inline-flex p-1 rounded-[14px] bg-black/[0.05] dark:bg-white/[0.07] border border-black/5 dark:border-white/10 text-[13px] font-medium whitespace-nowrap">
+                <a href="{{ route('finance.coa.index') }}"
+                    class="px-3.5 py-1.5 rounded-[10px] {{ request()->routeIs('finance.coa.*') ? 'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] font-semibold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white' }} flex items-center gap-2 transition-all">
+                    <i data-lucide="list-tree" class="w-4 h-4 {{ request()->routeIs('finance.coa.*') ? 'text-[#007AFF]' : 'text-black/40 dark:text-white/40' }}"></i>
+                    <span>Bagan Akun (COA)</span>
+                </a>
+
+                <a href="{{ route('finance.general-ledger') }}"
+                    class="px-3.5 py-1.5 rounded-[10px] {{ request()->routeIs('finance.general-ledger') ? 'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] font-semibold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white' }} flex items-center gap-2 transition-all">
+                    <i data-lucide="book-open" class="w-4 h-4 {{ request()->routeIs('finance.general-ledger') ? 'text-[#FF9500]' : 'text-black/40 dark:text-white/40' }}"></i>
+                    <span>Buku Besar Umum</span>
+                </a>
+
+                <a href="{{ route('finance.trial-balance') }}"
+                    class="px-3.5 py-1.5 rounded-[10px] {{ request()->routeIs('finance.trial-balance') ? 'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] font-semibold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white' }} flex items-center gap-2 transition-all">
+                    <i data-lucide="scale" class="w-4 h-4 {{ request()->routeIs('finance.trial-balance') ? 'text-[#34C759]' : 'text-black/40 dark:text-white/40' }}"></i>
+                    <span>Neraca Saldo</span>
+                </a>
+
+                <a href="{{ route('finance.balance-sheet') }}"
+                    class="px-3.5 py-1.5 rounded-[10px] {{ request()->routeIs('finance.balance-sheet') ? 'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] font-semibold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white' }} flex items-center gap-2 transition-all">
+                    <i data-lucide="file-spreadsheet" class="w-4 h-4 {{ request()->routeIs('finance.balance-sheet') ? 'text-[#5856D6]' : 'text-black/40 dark:text-white/40' }}"></i>
+                    <span>Neraca Keuangan SAK</span>
+                </a>
+
+                <a href="{{ route('finance.reconciliations.index') }}"
+                    class="px-3.5 py-1.5 rounded-[10px] {{ request()->routeIs('finance.reconciliations.*') ? 'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] font-semibold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white' }} flex items-center gap-2 transition-all">
+                    <i data-lucide="refresh-cw" class="w-4 h-4 {{ request()->routeIs('finance.reconciliations.*') ? 'text-[#AF52DE]' : 'text-black/40 dark:text-white/40' }}"></i>
+                    <span>Rekonsiliasi Bank</span>
+                </a>
+            </div>
+        </div>
 
         {{-- ========================================================== --}}
         {{-- KPI STATS CARDS (BENTO)                                    --}}

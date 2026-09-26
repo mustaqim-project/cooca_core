@@ -78,27 +78,38 @@
         {{-- ===================================================== --}}
         <div class="overflow-x-auto pb-1 scrollbar-none">
             <div class="inline-flex p-1 rounded-[14px] bg-black/[0.05] dark:bg-white/[0.07] border border-black/5 dark:border-white/10 text-[13px] font-medium whitespace-nowrap">
-                <a href="{{ route('suppliers.index') }}"
-                    class="px-3.5 py-1.5 rounded-[10px] bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] font-semibold flex items-center gap-2 transition-all">
-                    <i data-lucide="truck" class="w-4 h-4 text-[#007AFF]"></i>
-                    <span>Daftar Pemasok</span>
-                    <span class="px-1.5 py-0.2 rounded-full text-[11px] tabular-nums font-semibold bg-[#007AFF]/12 text-[#007AFF]">{{ $suppliers->total() }}</span>
-                </a>
-                <a href="{{ route('materials.index') }}"
-                    class="px-3.5 py-1.5 rounded-[10px] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white transition-all flex items-center gap-2">
-                    <i data-lucide="boxes" class="w-4 h-4 text-black/40 dark:text-white/40"></i>
-                    <span>Katalog Bahan Baku</span>
-                </a>
                 <a href="{{ route('purchase-orders.index') }}"
-                    class="px-3.5 py-1.5 rounded-[10px] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white transition-all flex items-center gap-2">
-                    <i data-lucide="file-text" class="w-4 h-4 text-black/40 dark:text-white/40"></i>
+                    class="px-3.5 py-1.5 rounded-[10px] {{ request()->routeIs('purchase-orders.*') ? 'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] font-semibold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white' }} flex items-center gap-2 transition-all">
+                    <i data-lucide="file-text" class="w-4 h-4 {{ request()->routeIs('purchase-orders.*') ? 'text-[#007AFF]' : 'text-black/40 dark:text-white/40' }}"></i>
                     <span>Purchase Order (PO)</span>
                 </a>
+
+                @if(\App\Support\Context::hasPermission('purchasing.bills') || \App\Support\Context::hasPermission('purchasing.manage'))
                 <a href="{{ route('purchasing.bills.index') }}"
-                    class="px-3.5 py-1.5 rounded-[10px] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white transition-all flex items-center gap-2">
-                    <i data-lucide="receipt" class="w-4 h-4 text-black/40 dark:text-white/40"></i>
-                    <span>Tagihan Pembelian (Bills)</span>
+                    class="px-3.5 py-1.5 rounded-[10px] {{ request()->routeIs('purchasing.bills.*') ? 'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] font-semibold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white' }} flex items-center gap-2 transition-all">
+                    <i data-lucide="receipt" class="w-4 h-4 {{ request()->routeIs('purchasing.bills.*') ? 'text-[#FF9500]' : 'text-black/40 dark:text-white/40' }}"></i>
+                    <span>Tagihan Vendor (Bills)</span>
                 </a>
+                @endif
+
+                @if(\App\Support\Context::hasPermission('master_data.suppliers.view') || \App\Support\Context::hasPermission('purchasing.view') || \App\Support\Context::hasPermission('purchasing.manage'))
+                <a href="{{ route('suppliers.index') }}"
+                    class="px-3.5 py-1.5 rounded-[10px] {{ request()->routeIs('suppliers.*') ? 'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] font-semibold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white' }} flex items-center gap-2 transition-all">
+                    <i data-lucide="truck" class="w-4 h-4 {{ request()->routeIs('suppliers.*') ? 'text-[#34C759]' : 'text-black/40 dark:text-white/40' }}"></i>
+                    <span>Direktori Vendor</span>
+                    @if(isset($suppliers) && method_exists($suppliers, 'total'))
+                        <span class="px-1.5 py-0.2 rounded-full text-[11px] tabular-nums font-semibold {{ request()->routeIs('suppliers.*') ? 'bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158]' : 'bg-black/10 dark:bg-white/10 text-black/60 dark:text-white/60' }}">{{ $suppliers->total() }}</span>
+                    @endif
+                </a>
+                @endif
+
+                @if(\App\Support\Context::hasPermission('purchase.returns') || \App\Support\Context::hasPermission('purchasing.manage'))
+                <a href="{{ route('purchase.returns.index') }}"
+                    class="px-3.5 py-1.5 rounded-[10px] {{ request()->routeIs('purchase.returns.*') ? 'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] font-semibold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white' }} flex items-center gap-2 transition-all">
+                    <i data-lucide="undo-2" class="w-4 h-4 {{ request()->routeIs('purchase.returns.*') ? 'text-[#AF52DE]' : 'text-black/40 dark:text-white/40' }}"></i>
+                    <span>Retur Pembelian</span>
+                </a>
+                @endif
             </div>
         </div>
 

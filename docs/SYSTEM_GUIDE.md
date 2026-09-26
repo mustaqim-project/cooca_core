@@ -460,6 +460,12 @@ Dokumentasi Cooca saling terhubung secara dua arah untuk memudahkan penelusuran 
    ├──► Modul HRM & Tax Engine ────► docs/system/modules/hrm-and-tax.md ────────────► app/Domain/Tax/ & app/Domain/HRM/
    │                                                                                    └──► WORK-2026-09-19-085
    │
+   ├──► Modul Gudang & Cabang ─────► docs/system/modules/inventory.md ──────────────► resources/views/app/warehouse/
+   │                                                                                    └──► WORK-2026-09-26-171
+   │
+   ├──► Modul Produk & BOM ────────► docs/system/modules/costing.md ────────────────► resources/views/app/products/
+   │                                                                                    └──► WORK-2026-09-26-171
+   │
    └──► POS Hardware & Shifts ─────► docs/system/modules/pos-hardware-and-printers.md ──► app/Domain/Printer/ & PosShiftService
                                                                                         └──► WORK-2026-09-25-154
 ```

@@ -5,18 +5,18 @@
 ])
 
 @section('content')
-<div class="max-w-[1360px] mx-auto space-y-6 pb-12">
+<div class="max-w-[1360px] mx-auto space-y-6 pb-28 lg:pb-12">
     <!-- ===================================================== -->
     <!-- 1. TOOLBAR / PAGE HEADER (macOS Sonoma Style)          -->
     <!-- ===================================================== -->
-    <header class="rounded-[14px] backdrop-blur-md bg-white/75 dark:bg-[#1C1C1E]/75 border border-black/5 dark:border-white/10 px-4 sm:px-6 py-3.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+    <header class="rounded-[16px] backdrop-blur-md bg-white/75 dark:bg-[#1C1C1E]/75 border border-black/5 dark:border-white/10 px-4 sm:px-6 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
         <div>
             <!-- Breadcrumb minimal -->
-            <nav class="flex items-center gap-1.5 text-[12px] text-black/50 dark:text-white/50 mb-1">
+            <nav class="flex items-center gap-1.5 text-[12px] text-black/50 dark:text-white/50 mb-1" aria-label="Breadcrumb">
                 <a href="{{ route('dashboard') }}" class="hover:text-[#007AFF] transition-colors">Dashboard</a>
-                <span>›</span>
+                <i data-lucide="chevron-right" class="w-3.5 h-3.5 opacity-40"></i>
                 <span class="text-black/70 dark:text-white/70 font-medium">Pembelian &amp; Vendor</span>
-                <span>›</span>
+                <i data-lucide="chevron-right" class="w-3.5 h-3.5 opacity-40"></i>
                 <span class="text-black dark:text-white font-medium">Tagihan &amp; Hutang</span>
             </nav>
             <h1 class="text-[20px] font-semibold text-black dark:text-white tracking-tight">Tagihan &amp; Hutang Supplier</h1>
@@ -26,24 +26,60 @@
         <!-- Toolbar Actions -->
         <div class="flex items-center gap-2 w-full sm:w-auto">
             @if(\App\Support\Context::hasPermission('finance.payables') || \App\Support\Context::hasPermission('accounting.view'))
-            <a href="{{ route('finance.payables') }}" class="h-9 px-4 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5">
-                <svg class="w-4 h-4 text-[#FF9500] dark:text-[#FF9F0A]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+            <a href="{{ route('finance.payables') }}" class="min-h-[44px] sm:min-h-0 h-11 sm:h-9 px-4 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5">
+                <i data-lucide="clock" class="w-4 h-4 text-[#FF9500] dark:text-[#FF9F0A]"></i>
                 <span>Analisis AP Aging</span>
             </a>
             @endif
 
             @if(\App\Support\Context::hasPermission('purchasing.view') || \App\Support\Context::hasPermission('purchasing.manage'))
-            <a href="{{ route('purchase-orders.index') }}" class="h-9 px-4 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5">
-                <svg class="w-4 h-4 text-black/60 dark:text-white/60" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
-                </svg>
+            <a href="{{ route('purchase-orders.index') }}" class="min-h-[44px] sm:min-h-0 h-11 sm:h-9 px-4 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5">
+                <i data-lucide="file-text" class="w-4 h-4 text-black/60 dark:text-white/60"></i>
                 <span>Daftar PO</span>
             </a>
             @endif
         </div>
     </header>
+
+    {{-- ===================================================== --}}
+    {{-- SUB-NAVIGATION TABS (Apple Segmented Control)         --}}
+    {{-- ===================================================== --}}
+    <div class="overflow-x-auto pb-1 scrollbar-none">
+        <div class="inline-flex p-1 rounded-[14px] bg-black/[0.05] dark:bg-white/[0.07] border border-black/5 dark:border-white/10 text-[13px] font-medium whitespace-nowrap">
+            <a href="{{ route('purchase-orders.index') }}"
+                class="px-3.5 py-1.5 rounded-[10px] {{ request()->routeIs('purchase-orders.*') ? 'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] font-semibold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white' }} flex items-center gap-2 transition-all">
+                <i data-lucide="file-text" class="w-4 h-4 {{ request()->routeIs('purchase-orders.*') ? 'text-[#007AFF]' : 'text-black/40 dark:text-white/40' }}"></i>
+                <span>Purchase Order (PO)</span>
+            </a>
+
+            @if(\App\Support\Context::hasPermission('purchasing.bills') || \App\Support\Context::hasPermission('purchasing.manage'))
+            <a href="{{ route('purchasing.bills.index') }}"
+                class="px-3.5 py-1.5 rounded-[10px] {{ request()->routeIs('purchasing.bills.*') ? 'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] font-semibold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white' }} flex items-center gap-2 transition-all">
+                <i data-lucide="receipt" class="w-4 h-4 {{ request()->routeIs('purchasing.bills.*') ? 'text-[#FF9500]' : 'text-black/40 dark:text-white/40' }}"></i>
+                <span>Tagihan Vendor (Bills)</span>
+                @if(isset($invoices) && method_exists($invoices, 'total'))
+                    <span class="px-1.5 py-0.2 rounded-full text-[11px] tabular-nums font-semibold {{ request()->routeIs('purchasing.bills.*') ? 'bg-[#FF9500]/12 text-[#FF9500]' : 'bg-black/10 dark:bg-white/10 text-black/60 dark:text-white/60' }}">{{ $invoices->total() }}</span>
+                @endif
+            </a>
+            @endif
+
+            @if(\App\Support\Context::hasPermission('master_data.suppliers.view') || \App\Support\Context::hasPermission('purchasing.view') || \App\Support\Context::hasPermission('purchasing.manage'))
+            <a href="{{ route('suppliers.index') }}"
+                class="px-3.5 py-1.5 rounded-[10px] {{ request()->routeIs('suppliers.*') ? 'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] font-semibold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white' }} flex items-center gap-2 transition-all">
+                <i data-lucide="truck" class="w-4 h-4 {{ request()->routeIs('suppliers.*') ? 'text-[#34C759]' : 'text-black/40 dark:text-white/40' }}"></i>
+                <span>Direktori Vendor</span>
+            </a>
+            @endif
+
+            @if(\App\Support\Context::hasPermission('purchase.returns') || \App\Support\Context::hasPermission('purchasing.manage'))
+            <a href="{{ route('purchase.returns.index') }}"
+                class="px-3.5 py-1.5 rounded-[10px] {{ request()->routeIs('purchase.returns.*') ? 'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] font-semibold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white' }} flex items-center gap-2 transition-all">
+                <i data-lucide="undo-2" class="w-4 h-4 {{ request()->routeIs('purchase.returns.*') ? 'text-[#AF52DE]' : 'text-black/40 dark:text-white/40' }}"></i>
+                <span>Retur Pembelian</span>
+            </a>
+            @endif
+        </div>
+    </div>
 
     @if(session('success'))
     <div class="rounded-[12px] bg-[#34C759]/12 border border-[#34C759]/20 px-4 py-3 text-[13px] text-[#248A3D] dark:text-[#30D158] flex items-center gap-2">

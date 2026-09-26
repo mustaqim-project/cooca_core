@@ -1042,8 +1042,8 @@
                             'bg' => 'bg-[#007AFF]/10',
                             'keys' => ['pos_retail', 'pos_dinein'],
                             'impacts' => [
-                                'pos_retail' => 'Buka Kasir POS, Transaksi Kasir & Shift, Laporan Kasir',
-                                'pos_dinein' => 'KDS Layar Dapur, Pengaturan Meja QR',
+                                'pos_retail' => 'Kasir & POS Resto: Buka Kasir POS, Transaksi Kasir & Shift, Laporan Kasir',
+                                'pos_dinein' => 'Kasir & POS Resto: KDS Layar Dapur, Pengaturan Meja QR',
                             ],
                         ],
                         'b2b' => [
@@ -1054,7 +1054,7 @@
                             'bg' => 'bg-[#34C759]/10',
                             'keys' => ['b2b_sales'],
                             'impacts' => [
-                                'b2b_sales' => 'Pesanan Penjualan (SO), Penawaran Harga, Faktur Tagihan (Invoice), Retur Penjualan',
+                                'b2b_sales' => 'Penjualan B2B & Faktur: Pesanan Penjualan (SO), Surat Penawaran, Faktur Tagihan (Invoice), Retur Penjualan',
                             ],
                         ],
                         'produksi_gudang' => [
@@ -1065,10 +1065,10 @@
                             'bg' => 'bg-[#AF52DE]/10',
                             'keys' => ['recipe_bom', 'labor_machines', 'inventory_warehouse', 'procurement'],
                             'impacts' => [
-                                'recipe_bom' => 'Bahan Baku & Resep (BOM), Kategori Bahan Baku',
-                                'labor_machines' => 'Upah Kerja & Mesin, Alokasi Biaya HPP',
-                                'inventory_warehouse' => 'Stok Gudang, Lokasi Gudang, Transfer Gudang, Opname Stok Fisik, Mutasi Stok',
-                                'procurement' => 'Pesanan Pembelian (PO), Tagihan Supplier (Bills), Supplier, Retur Pembelian',
+                                'recipe_bom' => 'Produk & Logistik: Bahan Baku & Resep (BOM), Kategori Bahan, Satuan Ukur',
+                                'labor_machines' => 'Produksi HPP: Upah Kerja & Mesin, Alokasi Biaya HPP',
+                                'inventory_warehouse' => 'Produk & Logistik: Saldo Stok Real-Time, Cabang & Gudang, Transfer Stok, Stock Opname, Mutasi Stok',
+                                'procurement' => 'Pembelian & Pengadaan: Pesanan Pembelian (PO), Tagihan Supplier (Bills), Supplier, Retur Pembelian',
                             ],
                         ],
                         'crm_marketing' => [
@@ -1079,8 +1079,8 @@
                             'bg' => 'bg-[#FF9500]/10',
                             'keys' => ['crm_loyalty', 'channels_marketing'],
                             'impacts' => [
-                                'crm_loyalty' => 'Data Pelanggan, Poin Loyalitas Member, Kupon Voucher Diskon',
-                                'channels_marketing' => 'WhatsApp Gateway Struk & Promo, Landing Page CMS',
+                                'crm_loyalty' => 'Pelanggan & Loyalitas: Data Pelanggan, Poin Loyalitas Member, Kupon Voucher Diskon',
+                                'channels_marketing' => 'Marketing & Pesan: WhatsApp Gateway Struk & Promo, Landing Page CMS',
                             ],
                         ],
                         'toko_online' => [
@@ -1091,12 +1091,12 @@
                             'bg' => 'bg-[#5856D6]/10',
                             'keys' => ['storefront_checkout', 'order_request', 'scheduled_order', 'customer_po', 'reservation', 'merchant_shipping'],
                             'impacts' => [
-                                'storefront_checkout' => 'Pengaturan Toko Online, Pesanan Masuk Toko',
-                                'order_request' => 'Pengajuan Request Order Khusus',
-                                'scheduled_order' => 'Slot Tanggal Pemesanan & Lead Time',
-                                'customer_po' => 'PO Batch Klien & Multi-Drop',
-                                'reservation' => 'Reservasi Meja & Booking Jadwal',
-                                'merchant_shipping' => 'Pengaturan Ongkos Kirim & Kurir Toko',
+                                'storefront_checkout' => 'Toko Online: Pengaturan Toko Online, Pesanan Masuk Toko',
+                                'order_request' => 'Toko Online: Pengajuan Request Order Khusus',
+                                'scheduled_order' => 'Toko Online: Slot Tanggal Pemesanan & Lead Time',
+                                'customer_po' => 'B2B Portal: PO Batch Klien & Multi-Drop',
+                                'reservation' => 'Kasir & POS: Reservasi Meja & Booking Jadwal',
+                                'merchant_shipping' => 'Logistik: Pengaturan Ongkos Kirim & Kurir Toko',
                             ],
                         ],
                     ];

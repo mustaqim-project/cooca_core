@@ -132,29 +132,32 @@
     <!-- ===================================================== -->
     <!-- 0. UNIFIED SEGMENTED NAVIGATION (UI Unification)      -->
     <!-- ===================================================== -->
-    <div class="flex items-center justify-between gap-4 overflow-x-auto no-scrollbar pb-1">
+    <div class="overflow-x-auto pb-1 scrollbar-none">
         <div class="inline-flex p-1 bg-black/[0.05] dark:bg-white/[0.08] rounded-[14px] border border-black/[0.04] dark:border-white/[0.06] shrink-0">
             <a href="{{ route('products.index') }}"
-               class="px-4 py-2 rounded-[10px] text-[13px] font-medium text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white flex items-center gap-2 transition-all whitespace-nowrap">
-                <svg class="w-4 h-4 text-black/40 dark:text-white/40" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
-                </svg>
+               class="h-10 px-4 rounded-[10px] text-[13px] font-medium text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white flex items-center gap-2 transition-all whitespace-nowrap">
+                <i data-lucide="package" class="w-4 h-4 text-black/40 dark:text-white/40"></i>
                 <span>Barang Fisik (Katalog)</span>
             </a>
+            @if(\App\Support\Context::hasPermission('products.view'))
             <a href="{{ route('services.index') }}"
-               class="px-4 py-2 rounded-[10px] text-[13px] font-medium text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white flex items-center gap-2 transition-all whitespace-nowrap">
-                <svg class="w-4 h-4 text-black/40 dark:text-white/40" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17L17.25 21A2.652 2.652 0 0021 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 11-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 004.486-6.32l-3.276 3.277a3.004 3.004 0 01-2.25-2.25l3.276-3.276a4.5 4.5 0 00-6.32 4.486c.049.58.025 1.193-.139 1.743" />
-                </svg>
+               class="h-10 px-4 rounded-[10px] text-[13px] font-medium text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white flex items-center gap-2 transition-all whitespace-nowrap">
+                <i data-lucide="wrench" class="w-4 h-4 text-black/40 dark:text-white/40"></i>
                 <span>Jasa &amp; Layanan</span>
             </a>
+            @endif
             <a href="{{ route('pos.modifiers.index') }}"
-               class="px-4 py-2 rounded-[10px] text-[13px] font-semibold bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-sm flex items-center gap-2 whitespace-nowrap transition-all">
-                <svg class="w-4 h-4 text-[#007AFF]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                </svg>
+               class="h-10 px-4 rounded-[10px] text-[13px] font-semibold bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-sm flex items-center gap-2 whitespace-nowrap transition-all">
+                <i data-lucide="sliders" class="w-4 h-4 text-[#007AFF]"></i>
                 <span>Varian &amp; Modifiers</span>
             </a>
+            @if(Route::has('marketplace-hub.products') && \App\Support\Context::hasPermission('products.view'))
+            <a href="{{ route('marketplace-hub.products') }}"
+               class="h-10 px-4 rounded-[10px] text-[13px] font-medium text-[#EE4D2D] hover:bg-[#EE4D2D]/10 flex items-center gap-2 transition-all whitespace-nowrap">
+                <i data-lucide="store" class="w-4 h-4 text-[#EE4D2D]"></i>
+                <span>Marketplace &amp; Multi-Harga</span>
+            </a>
+            @endif
         </div>
     </div>
 
@@ -166,9 +169,9 @@
             <!-- Breadcrumb minimal -->
             <nav class="flex items-center gap-1.5 text-[12px] text-black/50 dark:text-white/50 mb-1">
                 <a href="{{ route('dashboard') }}" class="hover:text-[#007AFF] transition-colors">Dashboard</a>
-                <span>›</span>
+                <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-black/30 dark:text-white/30 shrink-0"></i>
                 <a href="{{ route('products.index') }}" class="hover:text-[#007AFF] transition-colors">Katalog Produk</a>
-                <span>›</span>
+                <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-black/30 dark:text-white/30 shrink-0"></i>
                 <span class="text-black dark:text-white font-medium">Varian &amp; Modifiers</span>
             </nav>
             <h1 class="text-xl sm:text-2xl font-bold text-[#1C1C1E] dark:text-[#F2F2F7] tracking-tight leading-snug truncate">
@@ -183,9 +186,7 @@
         <div class="flex items-center gap-2.5 w-full sm:w-auto">
             <button type="button" @click="showAddGroupModal = true"
                 class="h-10 px-4 rounded-[12px] bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] text-white text-[13px] font-semibold flex items-center justify-center gap-2 transition shadow-sm shadow-[#007AFF]/25">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
-                </svg>
+                <i data-lucide="plus" class="w-4 h-4"></i>
                 <span>Buat Grup Modifier</span>
             </button>
         </div>

@@ -26,49 +26,73 @@
 }">
 
     <!-- ===================================================== -->
+    <!-- 0. UNIFIED APPLE SEGMENTED CONTROL (Penjualan B2B)    -->
+    <!-- ===================================================== -->
+    <div class="overflow-x-auto pb-1 scrollbar-none">
+        <div class="inline-flex p-1 rounded-[14px] bg-black/[0.05] dark:bg-white/[0.08] border border-black/[0.04] dark:border-white/[0.06] text-[13px] font-medium whitespace-nowrap">
+            <a href="{{ route('sales.orders.index') }}"
+               class="h-10 px-4 rounded-[10px] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white flex items-center gap-2 transition-all">
+                <i data-lucide="file-check" class="w-4 h-4 text-black/40 dark:text-white/40"></i>
+                <span>Pesanan Penjualan (SO)</span>
+            </a>
+            <a href="{{ route('sales.quotations.index') }}"
+               class="h-10 px-4 rounded-[10px] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white flex items-center gap-2 transition-all">
+                <i data-lucide="file-text" class="w-4 h-4 text-black/40 dark:text-white/40"></i>
+                <span>Surat Penawaran</span>
+            </a>
+            <a href="{{ route('invoices.index') }}"
+               class="h-10 px-4 rounded-[10px] bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-sm font-semibold flex items-center gap-2 transition-all">
+                <i data-lucide="receipt" class="w-4 h-4 text-[#007AFF]"></i>
+                <span>Faktur Tagihan</span>
+            </a>
+            @if(\App\Support\Context::hasPermission('sales.returns') || \App\Support\Context::hasPermission('sales.pipeline'))
+            <a href="{{ route('sales.returns.index') }}"
+               class="h-10 px-4 rounded-[10px] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white flex items-center gap-2 transition-all">
+                <i data-lucide="rotate-ccw" class="w-4 h-4 text-black/40 dark:text-white/40"></i>
+                <span>Retur Penjualan</span>
+            </a>
+            @endif
+        </div>
+    </div>
+
+    <!-- ===================================================== -->
     <!-- 1. TOOLBAR / PAGE HEADER (macOS Sonoma Toolbar Style)  -->
     <!-- ===================================================== -->
-    <header class="rounded-[14px] backdrop-blur-md bg-white/75 dark:bg-[#1C1C1E]/75 border border-black/5 dark:border-white/10 px-4 sm:px-6 py-3.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+    <header class="rounded-[20px] backdrop-blur-xl bg-white/80 dark:bg-[#1C1C1E]/80 border border-black/[0.06] dark:border-white/[0.08] px-5 sm:px-7 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
         <div>
             <!-- Breadcrumb minimal -->
             <nav class="flex items-center gap-1.5 text-[12px] text-black/50 dark:text-white/50 mb-1">
                 <a href="{{ route('dashboard') }}" class="hover:text-[#007AFF] transition-colors">Dashboard</a>
-                <span>›</span>
-                <span class="text-black/70 dark:text-white/70 font-medium">Penjualan</span>
-                <span>›</span>
+                <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-black/30 dark:text-white/30 shrink-0"></i>
+                <span class="text-black/70 dark:text-white/70 font-medium">Penjualan B2B &amp; Faktur</span>
+                <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-black/30 dark:text-white/30 shrink-0"></i>
                 <span class="text-black dark:text-white font-medium">Faktur Penjualan</span>
             </nav>
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-[10px] bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center shrink-0">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
-                    </svg>
+                    <i data-lucide="receipt" class="w-5 h-5"></i>
                 </div>
                 <div>
-                    <h1 class="text-[20px] font-semibold text-black dark:text-white tracking-tight">Faktur Penjualan</h1>
-                    <p class="text-[13px] text-black/50 dark:text-white/50">Kelola faktur komersial, pelacakan piutang, dan pencatatan pembayaran</p>
+                    <h1 class="text-xl sm:text-2xl font-bold text-[#1C1C1E] dark:text-[#F2F2F7] tracking-tight leading-snug truncate">Faktur Penjualan</h1>
+                    <p class="text-[13px] text-black/50 dark:text-white/50 mt-0.5">Kelola faktur komersial, pelacakan piutang, dan pencatatan pembayaran</p>
                 </div>
             </div>
         </div>
 
         <!-- Toolbar Actions -->
-        <div class="flex items-center gap-2 w-full sm:w-auto flex-wrap">
+        <div class="flex items-center gap-2.5 w-full sm:w-auto flex-wrap">
             @if(\App\Support\Context::hasPermission('invoices.export'))
             <a href="{{ route('invoices.export-excel') }}"
-               class="h-9 px-3.5 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5">
-                <svg class="w-4 h-4 text-black/60 dark:text-white/60" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
-                </svg>
+               class="h-10 px-4 rounded-[12px] text-[13px] font-semibold text-[#1C1C1E] dark:text-[#F2F2F7] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] transition-all flex items-center justify-center gap-2">
+                <i data-lucide="file-spreadsheet" class="w-4 h-4 text-black/60 dark:text-white/60"></i>
                 <span>Export CSV</span>
             </a>
             @endif
 
             @if(\App\Support\Context::hasPermission('invoices.create'))
             <a href="{{ route('invoices.create') }}"
-               class="h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5 shadow-[0_1px_2px_rgba(0,122,255,0.25)]">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                </svg>
+               class="h-10 px-4 rounded-[12px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] transition-all flex items-center justify-center gap-2 shadow-sm shadow-[#007AFF]/25">
+                <i data-lucide="plus" class="w-4 h-4"></i>
                 <span>Buat Faktur Baru</span>
             </a>
             @endif

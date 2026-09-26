@@ -75,3 +75,12 @@ $$\text{HPP Total} = \text{Biaya Bahan Baku} + \text{Biaya Tenaga Kerja} + \text
 * **Ke Modul Material:** Mengambil harga acuan bahan baku dan faktor konversi satuan.
 * **Ke Modul Product:** Menerapkan harga pokok dan harga jual ke master katalog.
 * **Ke Modul POS & Inventory:** Resep BOM digunakan oleh mesin POS untuk memotong stok bahan baku mentah secara otomatis saat produk terjual.
+
+---
+
+## 6. Standar Antarmuka Resep (BOM) & Bento Apple HIG v2.0
+
+* **Struktur Bento KPI:** Halaman detail Resep & BOM (`products.bom`) menampilkan ringkasan biaya terakumulasi (*Total Biaya Bahan Resep / Rolled-up Cost*, *Jumlah Komponen Bahan Baku*, dan *Output Batch Standar*) dalam bentuk kartu Bento bergradien halus dan tipografi SF Pro yang elegan.
+* **Apple Alert Dialog:** Konfirmasi penghapusan bahan baku dari formula resep disajikan dalam bentuk Apple Alert Dialog modal (`rounded-[20px] backdrop-blur-2xl`) dengan feedback visual non-destruktif (data master bahan tetap terlindungi).
+* **Zero-Emoji & Lucide SVG:** Seluruh breadcrumb navigasi dan kontrol aksi form menggunakan ikon Lucide murni tanpa karakter unicode atau emoji mentah.
+* **Touch Ergonomics & Multi-Tenant:** Touch targets modal $\ge 44\text{px}$, input mobile $\ge 16\text{px}$ anti auto-zoom Safari, dan isolasi tenant ketat melalui `Context::requireBusiness()`.

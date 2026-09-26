@@ -1,17 +1,19 @@
 @extends('layouts.app', ['title' => 'Rekonsiliasi & Settlement Gateway'])
 
 @section('content')
-<div class="max-w-[1360px] mx-auto space-y-6 pb-16" x-data="settlementApp()">
+<div class="max-w-[1360px] mx-auto space-y-6 pb-28 lg:pb-12" x-data="settlementApp()">
 
     {{-- ========================================================== --}}
     {{-- TOOLBAR / PAGE HEADER                                      --}}
     {{-- ========================================================== --}}
     <header class="rounded-[16px] backdrop-blur-md bg-white/75 dark:bg-[#1C1C1E]/75 border border-black/5 dark:border-white/10 px-5 sm:px-6 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
         <div>
-            <nav class="flex items-center gap-1.5 text-[12px] text-black/50 dark:text-white/50 mb-1">
-                <span>Keuangan &amp; Kas</span>
-                <i data-lucide="chevron-right" class="w-3 h-3 opacity-40"></i>
-                <span class="text-black dark:text-white font-medium">Rekonsiliasi Gateway</span>
+            <nav class="flex items-center gap-1.5 text-[12px] text-black/50 dark:text-white/50 mb-1" aria-label="Breadcrumb">
+                <a href="{{ route('dashboard') }}" class="hover:text-[#007AFF] transition-colors">Dashboard</a>
+                <i data-lucide="chevron-right" class="w-3.5 h-3.5 opacity-40"></i>
+                <span class="text-black/70 dark:text-white/70 font-medium">Keuangan &amp; Kas</span>
+                <i data-lucide="chevron-right" class="w-3.5 h-3.5 opacity-40"></i>
+                <span class="text-black dark:text-white font-medium">Settlement Gateway</span>
             </nav>
             <h1 class="text-[20px] sm:text-[22px] font-bold text-black dark:text-white tracking-tight">Rekonsiliasi &amp; Settlement Gateway</h1>
             <p class="text-[13px] text-black/50 dark:text-white/50">Kelola dan rekonsiliasi pencairan dana non-tunai TriPay (QRIS &amp; Online) ke rekening bank operasional</p>
@@ -29,6 +31,67 @@
             </a>
         </div>
     </header>
+
+    {{-- ===================================================== --}}
+    {{-- FINANCE HUB NAVIGATION TABS (Apple Segmented Control) --}}
+    {{-- ===================================================== --}}
+    <div class="overflow-x-auto pb-1 scrollbar-none">
+        <div class="inline-flex p-1 rounded-[14px] bg-black/[0.05] dark:bg-white/[0.07] border border-black/5 dark:border-white/10 text-[13px] font-medium whitespace-nowrap">
+            @if(\App\Support\Context::hasPermission('finance.cash_bank'))
+            <a href="{{ route('finance.cash-bank.index') }}"
+                class="px-3.5 py-1.5 rounded-[10px] {{ request()->routeIs('finance.cash-bank.index') ? 'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] font-semibold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white' }} flex items-center gap-2 transition-all">
+                <i data-lucide="wallet-cards" class="w-4 h-4 {{ request()->routeIs('finance.cash-bank.index') ? 'text-[#007AFF]' : 'text-black/40 dark:text-white/40' }}"></i>
+                <span>Kas &amp; Rekening</span>
+            </a>
+
+            <a href="{{ route('finance.cash-bank.ledger') }}"
+                class="px-3.5 py-1.5 rounded-[10px] {{ request()->routeIs('finance.cash-bank.ledger') ? 'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] font-semibold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white' }} flex items-center gap-2 transition-all">
+                <i data-lucide="book-open" class="w-4 h-4 {{ request()->routeIs('finance.cash-bank.ledger') ? 'text-[#FF9500]' : 'text-black/40 dark:text-white/40' }}"></i>
+                <span>Buku Kas &amp; Mutasi</span>
+            </a>
+            @endif
+
+            @if(\App\Support\Context::hasPermission('expenses.view') || \App\Support\Context::hasPermission('expenses.manage'))
+            <a href="{{ route('finance.expenses.index') }}"
+                class="px-3.5 py-1.5 rounded-[10px] {{ request()->routeIs('finance.expenses.*') ? 'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] font-semibold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white' }} flex items-center gap-2 transition-all">
+                <i data-lucide="receipt" class="w-4 h-4 {{ request()->routeIs('finance.expenses.*') ? 'text-[#FF3B30]' : 'text-black/40 dark:text-white/40' }}"></i>
+                <span>Beban Operasional</span>
+            </a>
+            @endif
+
+            @if(\App\Support\Context::hasPermission('accounting.view'))
+            <a href="{{ route('finance.journals.index') }}"
+                class="px-3.5 py-1.5 rounded-[10px] {{ request()->routeIs('finance.journals.*') ? 'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] font-semibold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white' }} flex items-center gap-2 transition-all">
+                <i data-lucide="file-spreadsheet" class="w-4 h-4 {{ request()->routeIs('finance.journals.*') ? 'text-[#5856D6]' : 'text-black/40 dark:text-white/40' }}"></i>
+                <span>Jurnal Akuntansi</span>
+            </a>
+            @endif
+
+            @if(\App\Support\Context::hasPermission('finance.receivables') || \App\Support\Context::hasPermission('invoices.view'))
+            <a href="{{ route('finance.receivables') }}"
+                class="px-3.5 py-1.5 rounded-[10px] {{ request()->routeIs('finance.receivables*') ? 'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] font-semibold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white' }} flex items-center gap-2 transition-all">
+                <i data-lucide="clock" class="w-4 h-4 {{ request()->routeIs('finance.receivables*') ? 'text-[#34C759]' : 'text-black/40 dark:text-white/40' }}"></i>
+                <span>Piutang (AR)</span>
+            </a>
+            @endif
+
+            @if(\App\Support\Context::hasPermission('finance.payables') || \App\Support\Context::hasPermission('purchasing.bills'))
+            <a href="{{ route('finance.payables') }}"
+                class="px-3.5 py-1.5 rounded-[10px] {{ request()->routeIs('finance.payables*') ? 'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] font-semibold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white' }} flex items-center gap-2 transition-all">
+                <i data-lucide="arrow-up-right" class="w-4 h-4 {{ request()->routeIs('finance.payables*') ? 'text-[#FF9500]' : 'text-black/40 dark:text-white/40' }}"></i>
+                <span>Hutang (AP)</span>
+            </a>
+            @endif
+
+            @if(\App\Support\Context::hasPermission('finance.cash_bank') || \App\Support\Context::hasPermission('accounting.view'))
+            <a href="{{ route('finance.settlements.index') }}"
+                class="px-3.5 py-1.5 rounded-[10px] {{ request()->routeIs('finance.settlements.*') ? 'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] font-semibold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white' }} flex items-center gap-2 transition-all">
+                <i data-lucide="arrow-down-to-dot" class="w-4 h-4 {{ request()->routeIs('finance.settlements.*') ? 'text-[#AF52DE]' : 'text-black/40 dark:text-white/40' }}"></i>
+                <span>Settlement Gateway</span>
+            </a>
+            @endif
+        </div>
+    </div>
 
     {{-- ========================================================== --}}
     {{-- BENTO KPI CARDS: GATEWAY CLEARING STATS                   --}}

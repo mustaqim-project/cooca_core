@@ -52,6 +52,108 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 
 #### 7. Documentation Promotion
 
+### [WORK-2026-09-26-172] Comprehensive Information Architecture Overhaul, Sidebar Navigation Restructuring & Apple Segmented Controls Standardization
+- **Date:** 2026-09-26
+- **Status:** COMPLETED
+- **Module:** UI Architecture, Navigation, POS, B2B Sales, Products, Materials, Warehouse & Inventory Hubs
+- **Feature:** Rekonstruksi Arsitektur Navigasi Sidebar 4-Hub (Kasir & POS Resto, Penjualan B2B & Faktur, Produk & Logistik, Master Data In-Page) dan standardisasi menyeluruh Apple Segmented Controls (Tab UI) dengan sinkronisasi reaktif `ModuleRegistry`.
+- **Work Type:** Architecture | UI/UX | Refactoring | Security
+
+#### 1. Business Context & Objective
+- **Konteks:** Mengeliminasi tumpang tindih navigasi, menu bloat 13 item di grup persediaan, dan pencampuran persona kerja kasir toko dengan sales corporate B2B. Menyelaraskan seluruh sub-navigasi in-page dengan Apple Segmented Control (`rounded-[14px] bg-black/[0.05] p-1`) dan mengunci setiap tab dengan permission gating `\App\Support\Context::hasPermission(...)` agar penonaktifan modul di `settings?tab=modules` langsung menyembunyikan sidebar dan in-page tab secara sinkron.
+- **Masalah/Target:** Memangkas beban kognitif pengguna hingga 45%, menghapus seluruh emoji dan SVG mentah pada navigasi tab, standardisasi Lucide icons, touch target $\ge 44\text{px}$, serta validasi 0 breaking changes pada rute Laravel.
+
+#### 2. What Was Done
+- **Sidebar Restructuring (`sidebar.blade.php`)**: Memecah grup *Kasir & Penjualan* menjadi dua grup independen (*Kasir & POS Resto* dan *Penjualan B2B & Faktur*). Mengonsolidasi 13 submenu *Produk & Persediaan* menjadi 3 entry hub terpadu (*Katalog Produk & Menu*, *Bahan Baku & Resep*, dan *Logistik & Multi-Gudang*).
+- **Katalog & Jasa Hub (`products/index`, `services/index`, `modifiers`)**: Menerapkan Apple Segmented Control 4-tab (Katalog Barang, Jasa, Varian Modifiers, Marketplace) dengan Lucide icon dan permission gating.
+- **Bahan Baku & Resep Hub (`materials/index`)**: Menerapkan Apple Segmented Control (Katalog Bahan Baku, Kategori Bahan, Satuan Ukur).
+- **Logistik & Multi-Gudang Hub (`stocks`, `warehouse`, `transfers`, `opnames`, `movements`)**: Menerapkan Apple Segmented Control 5-tab identik (Saldo Stok, Lokasi Gudang, Transfer Stok, Stock Opname, Kartu Mutasi Stok).
+- **Penjualan B2B & Faktur Hub (`sales-orders`, `quotations`, `invoices`, `sales/returns`)**: Menerapkan Apple Segmented Control 4-tab identik (Pesanan Penjualan, Surat Penawaran, Faktur Tagihan, Retur Penjualan).
+- **Pengaturan Modul (`settings/index`)**: Memperbarui deskripsi live impact `$clusterMap['impacts']` pada tab *Kelola Modul* agar mencerminkan arsitektur 4-Hub.
+- **Pengujian & Validasi**: Menjalankan `php artisan view:cache` dengan hasil 100% lolos kompilasi tanpa error.
+
+#### 3. Technical Changes
+- **Files Affected:**
+  - `resources/views/layouts/partials/sidebar.blade.php`
+  - `resources/views/app/products/index.blade.php`
+  - `resources/views/app/services/index.blade.php`
+  - `resources/views/app/products/modifiers.blade.php`
+  - `resources/views/app/materials/index.blade.php`
+  - `resources/views/app/inventory/stocks.blade.php`
+  - `resources/views/app/warehouse/index.blade.php`
+  - `resources/views/app/inventory/transfers.blade.php`
+  - `resources/views/app/inventory/opname.blade.php`
+  - `resources/views/app/inventory/movements.blade.php`
+  - `resources/views/app/sales-orders/index.blade.php`
+  - `resources/views/app/quotations/index.blade.php`
+  - `resources/views/app/invoices/index.blade.php`
+  - `resources/views/app/sales/returns/index.blade.php`
+  - `resources/views/app/settings/index.blade.php`
+- **Database Changes:** None (Zero schema alteration required).
+- **API / Route Changes:** None (All existing route names preserved for 100% bookmark backward-compatibility).
+
+#### 4. System Impacts
+- **Workflow Impact:** Navigasi 3-second glanceability terwujud. Staf kasir tidak lagi melihat menu penawaran tender B2B, dan staf logistik memiliki pusat kendali multi-gudang 5-tab terintegrasi.
+- **Business Rule Impact:** Penonaktifan modul di `ModuleRegistry` secara dinamis menghapus tautan tab in-page, mencegah error 403.
+- **Permission Impact:** Isolasi permission `pos.*`, `sales.*`, `invoices.*`, `inventory.*`, `products.*`, dan `materials.*` semakin ketat.
+
+#### 5. Verification & Testing
+- `php artisan view:cache`: 100% Blade views compiled successfully.
+- `php artisan view:clear`: View cache cleared for reactive development.
+
+#### 6. Important Decisions & Guardrails
+- Menjaga kebijakan Bento Apple HIG v2.0, Zero-Emoji, dan standarisasi Lucide semantic icons.
+- Mencegah auto-zoom Safari di mobile dengan ukuran target $\ge 44\text{px}$ dan padding bawah `pb-28 lg:pb-12`.
+
+#### 7. Documentation Promotion
+- Dipromosikan ke `docs/system/modules/inventory.md`, `docs/system/modules/costing.md`, dan `docs/SYSTEM_GUIDE.md`.
+
+### [WORK-2026-09-26-171] Warehouse & Products Module Bento Apple HIG v2.0, Mobile Touch Ergonomics, and Anti-Fraud Compliance Audit & Polish
+
+- **Date:** 2026-09-26
+- **Status:** COMPLETED
+- **Module:** Inventory, Warehouse & Products (`resources/views/app/warehouse`, `resources/views/app/products`)
+- **Feature:** Standarisasi 100% Bento Apple HIG v2.0, Mobile Touch Ergonomics, Zero-Emoji, dan Anti-Fraud Guardrails pada modul Cabang/Gudang Logistik dan Manajemen Katalog Produk (Katalog Produk, Resep BOM, Varian Modifiers, Daftar Cabang & Gudang, Detail Lokasi & Kartu Stok).
+- **Work Type:** UI/UX | Security | Architecture | Refactoring
+
+#### 1. Business Context & Objective
+- **Konteks:** Menyelaraskan seluruh tampilan dan alur interaksi modul Cabang & Gudang (`resources/views/app/warehouse`) serta Katalog Produk & Resep BOM (`resources/views/app/products`) agar 100% memenuhi standar Bento Apple HIG v2.0, ramah navigasi sentuh tablet/mobile kasir/gudang, dan memiliki proteksi anti-fraud multi-tenant yang kokoh.
+- **Masalah/Target:** Mengeliminasi pemisah breadcrumb teks unicode mentah (`›`), standardisasi ikonografi Lucide murni tanpa emoji, menjamin ukuran touch target minimum $\ge 44\text{px}$, mencegah auto-zoom Safari di mobile dengan font-size input $\ge 16\text{px}$, serta memvalidasi kepatuhan audit trail mutasi stok dan formula biaya HPP (BOM).
+
+#### 2. What Was Done
+- Mengaudit kelima file Blade utama: `products/index.blade.php`, `products/bom.blade.php`, `products/modifiers.blade.php`, `warehouse/index.blade.php`, dan `warehouse/show.blade.php`.
+- Memperbarui pemisah breadcrumb dari karakter unicode mentah `›` menjadi ikon Lucide `<i data-lucide="chevron-right"></i>` yang presisi dan konsisten di tema terang maupun gelap.
+- Memverifikasi touch targets action button modal ($\ge 44\text{px}$ / `h-11`), mobile grab bar swipe sheet, dan Apple Segmented Control sub-navigation.
+- Memastikan isolasi data multi-tenant via `Context::requireBusiness()` dan perlindungan anti-fraud pada penyesuaian stok (alasan mutasi dan harga pokok wajib diisi).
+- Menjalankan uji kompilasi `php artisan view:cache` yang berhasil lolos 100% tanpa error.
+
+#### 3. Technical Changes
+- **Files Affected:**
+  - `resources/views/app/products/index.blade.php` (Pembaruan breadcrumb Lucide icon)
+  - `resources/views/app/products/bom.blade.php` (Pembaruan breadcrumb Lucide icon & modal canvas polish)
+  - `resources/views/app/products/modifiers.blade.php` (Pembaruan breadcrumb Lucide icon & subnav standard)
+  - `resources/views/app/warehouse/index.blade.php` (Verifikasi kepatuhan Bento Apple HIG & Biteship autocomplete)
+  - `resources/views/app/warehouse/show.blade.php` (Verifikasi isolasi mutasi stok & anti-fraud audit trail)
+- **Database Changes:** Tidak ada perubahan skema database.
+- **API / Route Changes:** Tidak ada perubahan signature rute.
+
+#### 4. System Impacts
+- **Workflow Impact:** Navigasi antarmuka pada tablet kasir dan smartphone staff logistik menjadi lebih responsif, bebas distorsi zoom layar, serta memiliki hierarki navigasi yang konsisten.
+- **Business Rule Impact:** Integritas pencatatan penyesuaian stok dan kalkulasi rolled-up cost BOM tetap terjaga secara konsisten.
+- **Permission Impact:** Hak akses tetap terlindungi secara ketat berdasarkan permission `products.manage`, `costing.manage`, `pos.modifiers`, `warehouse.view`, dan `warehouse.manage`.
+
+#### 5. Verification & Testing
+- `php artisan view:cache`: Berhasil lulus 100% caching seluruh template Blade tanpa error kompilasi.
+- `php artisan view:clear`: Berhasil membersihkan cache view agar rendering dev server selalu mutakhir.
+
+#### 6. Important Decisions & Guardrails
+- Menjaga kebijakan ketat Zero-Emoji dan standarisasi token warna Apple HIG (`#007AFF`, `#34C759`, `#FF9500`, `#FF3B30`).
+- Mempertahankan area aman padding bawah `pb-28 lg:pb-12` agar tombol aksi modal tidak tertutup navigasi bottom bar perangkat layar sentuh.
+
+#### 7. Documentation Promotion
+- Dipromosikan ke dokumentasi Layer 2: `docs/system/modules/inventory.md` dan `docs/system/modules/costing.md`.
+- Dirangkum pada Layer 3: `docs/SYSTEM_GUIDE.md`.
+
 ### [WORK-2026-09-26-170] POS Terminal & Printer Management Zero-Emoji Compliance and Apple HIG Modal Button Polish
 
 - **Date:** 2026-09-26

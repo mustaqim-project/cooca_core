@@ -211,6 +211,31 @@
     }">
 
         <!-- ===================================================== -->
+        <!-- 0. UNIFIED SEGMENTED NAVIGATION (Bahan Baku & Master) -->
+        <!-- ===================================================== -->
+        <div class="overflow-x-auto pb-1 scrollbar-none">
+            <div class="inline-flex p-1 bg-black/[0.05] dark:bg-white/[0.08] rounded-[14px] border border-black/[0.04] dark:border-white/[0.06] shrink-0">
+                <a href="{{ route('materials.index') }}"
+                    class="h-10 px-4 rounded-[10px] text-[13px] font-semibold bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-sm flex items-center gap-2 whitespace-nowrap transition-all">
+                    <i data-lucide="layers" class="w-4 h-4 text-[#007AFF]"></i>
+                    <span>Katalog Bahan Baku</span>
+                </a>
+                @if(\App\Support\Context::hasPermission('products.view') || \App\Support\Context::hasPermission('materials.view'))
+                <a href="{{ route('material-categories.index') }}"
+                    class="h-10 px-4 rounded-[10px] text-[13px] font-medium text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white flex items-center gap-2 transition-all whitespace-nowrap">
+                    <i data-lucide="tags" class="w-4 h-4 text-black/40 dark:text-white/40"></i>
+                    <span>Kategori Bahan</span>
+                </a>
+                <a href="{{ route('units.index') }}"
+                    class="h-10 px-4 rounded-[10px] text-[13px] font-medium text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white flex items-center gap-2 transition-all whitespace-nowrap">
+                    <i data-lucide="scale" class="w-4 h-4 text-black/40 dark:text-white/40"></i>
+                    <span>Satuan Ukur &amp; Konversi</span>
+                </a>
+                @endif
+            </div>
+        </div>
+
+        <!-- ===================================================== -->
         <!-- 1. TOOLBAR / PAGE HEADER (macOS Sonoma Toolbar Style)  -->
         <!-- ===================================================== -->
         <header
@@ -220,15 +245,9 @@
                 <nav
                     class="flex items-center gap-1.5 text-[11px] font-medium text-[#8E8E93] dark:text-[#98989D] mb-1 uppercase tracking-wider">
                     <a href="{{ route('dashboard') }}" class="hover:text-[#007AFF] transition-colors">Dashboard</a>
-                    <svg class="w-3 h-3 text-black/30 dark:text-white/30" fill="none" stroke="currentColor" stroke-width="2"
-                        viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
-                    </svg>
-                    <span>Inventori</span>
-                    <svg class="w-3 h-3 text-black/30 dark:text-white/30" fill="none" stroke="currentColor"
-                        stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
-                    </svg>
+                    <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-black/30 dark:text-white/30 shrink-0"></i>
+                    <span>Produk &amp; Logistik</span>
+                    <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-black/30 dark:text-white/30 shrink-0"></i>
                     <span class="text-[#1C1C1E] dark:text-[#F2F2F7] font-semibold">Bahan Baku &amp; Pemasok</span>
                 </nav>
                 <h1 class="text-[20px] sm:text-[24px] font-bold text-[#1C1C1E] dark:text-[#F2F2F7] tracking-tight">Katalog
@@ -243,19 +262,13 @@
                     <a href="{{ route('import.index', ['tab' => 'materials']) }}"
                         class="h-10 px-4 rounded-[12px] text-[13px] font-semibold text-[#1C1C1E] dark:text-[#F2F2F7] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] transition-all flex items-center justify-center gap-2"
                         title="Import data bahan baku massal dari file Excel / CSV">
-                        <svg class="w-4 h-4 text-black/60 dark:text-white/60" fill="none" stroke="currentColor"
-                            stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
-                        </svg>
+                        <i data-lucide="file-spreadsheet" class="w-4 h-4 text-black/60 dark:text-white/60"></i>
                         <span>Import Excel</span>
                     </a>
 
                     <button type="button" @click="showAddModal = true"
                         class="h-10 px-4 rounded-[12px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] transition-all flex items-center justify-center gap-2 shadow-sm shadow-[#007AFF]/25">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                        </svg>
+                        <i data-lucide="plus" class="w-4 h-4"></i>
                         <span>Tambah Bahan Baku</span>
                     </button>
                 @endif

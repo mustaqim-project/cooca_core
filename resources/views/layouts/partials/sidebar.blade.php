@@ -4,12 +4,9 @@
     $navUsage = $activeBiz ? $navEntitlement->getUsageSummary($activeBiz) : null;
     $isCorePlan = $navUsage['is_core'] ?? false;
 
-    $isSalesRoute =
-        request()->routeIs('sales.*') ||
-        request()->routeIs('invoices.*') ||
-        request()->routeIs('customers.*') ||
-        request()->routeIs('crm.*');
-    $isPosRoute = request()->routeIs('pos.*');
+    $isPosRoute = request()->routeIs('pos.*') && !request()->routeIs('pos.modifiers.*');
+    $isB2bSalesRoute = request()->routeIs('sales.*') || request()->routeIs('invoices.*');
+    $isSalesRoute = $isPosRoute || $isB2bSalesRoute || request()->routeIs('customers.*') || request()->routeIs('crm.*');
     $isPurchasingRoute =
         request()->routeIs('purchasing.*') ||
         request()->routeIs('purchase-orders.*') ||
@@ -941,38 +938,38 @@
         </div>
 
         {{-- ======================================================== --}}
-        {{-- GRUP 2: KASIR & PENJUALAN (POS & SALES)                 --}}
+        {{-- GRUP 2A: KASIR & POS RESTORAN (POS OPERATIONS)           --}}
         {{-- ======================================================== --}}
-        @if ($canAccessPos || $canAccessB2bSales)
+        @if ($canAccessPos)
             <div class="space-y-1 pt-1">
                 <div x-show="!sidebarCollapsed"
                     class="px-2.5 pt-1 pb-1 text-[11px] font-bold tracking-wider uppercase text-black/50 dark:text-white/50 select-none">
-                    Kasir &amp; Penjualan
+                    Kasir &amp; POS Resto
                 </div>
                 <div x-show="sidebarCollapsed"
                     class="sidebar-separator w-8 mx-auto my-1 border-t border-black/5 dark:border-white/10">
                 </div>
 
                 <div class="relative group"
-                    @mouseenter="if(sidebarCollapsed) activeFlyout = 'sales'"
+                    @mouseenter="if(sidebarCollapsed) activeFlyout = 'pos'"
                     @mouseleave="activeFlyout = null">
-                    <button type="button" id="tour-group-sales" data-tour-group="sales"
-                        @click="salesOpen = !salesOpen" role="button"
-                        :aria-expanded="salesOpen ? 'true' : 'false'"
-                        :title="sidebarCollapsed ? 'Kasir & Penjualan' : ''"
-                        class="sidebar-item w-full flex items-center justify-between px-2.5 py-1.5 rounded-[8px] text-left text-[13px] font-medium transition-all active:scale-[0.98] {{ $isSalesRoute || $isPosRoute ? 'bg-black/[0.05] dark:bg-white/[0.06] text-black dark:text-white font-semibold' : 'text-black/75 dark:text-white/75 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
+                    <button type="button" id="tour-group-pos" data-tour-group="pos"
+                        @click="posOpen = !posOpen" role="button"
+                        :aria-expanded="posOpen ? 'true' : 'false'"
+                        :title="sidebarCollapsed ? 'Kasir & POS Resto' : ''"
+                        class="sidebar-item w-full flex items-center justify-between px-2.5 py-1.5 rounded-[8px] text-left text-[13px] font-medium transition-all active:scale-[0.98] {{ $isPosRoute ? 'bg-black/[0.05] dark:bg-white/[0.06] text-black dark:text-white font-semibold' : 'text-black/75 dark:text-white/75 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
                         <div class="sidebar-item-inner flex items-center gap-2.5 min-w-0">
-                            <i data-lucide="shopping-cart"
-                                class="w-4 h-4 {{ $isSalesRoute || $isPosRoute ? 'text-[#007AFF]' : 'text-black/50 dark:text-white/50' }} shrink-0"></i>
-                            <span class="truncate" x-show="!sidebarCollapsed" x-transition.opacity>Kasir &amp; Penjualan</span>
+                            <i data-lucide="calculator"
+                                class="w-4 h-4 {{ $isPosRoute ? 'text-[#007AFF]' : 'text-black/50 dark:text-white/50' }} shrink-0"></i>
+                            <span class="truncate" x-show="!sidebarCollapsed" x-transition.opacity>Kasir &amp; POS Resto</span>
                         </div>
                         <i data-lucide="chevron-down" x-show="!sidebarCollapsed"
                             class="w-3.5 h-3.5 text-black/40 dark:text-white/40 transition-transform duration-200 shrink-0"
-                            :class="salesOpen ? 'rotate-180 text-black/70 dark:text-white/70' : ''"></i>
+                            :class="posOpen ? 'rotate-180 text-black/70 dark:text-white/70' : ''"></i>
                     </button>
 
                     {{-- Submenu Terbuka (Expanded) --}}
-                    <div x-show="salesOpen && !sidebarCollapsed"
+                    <div x-show="posOpen && !sidebarCollapsed"
                         x-transition:enter="transition-all ease-out duration-150"
                         class="pl-3 pr-1 py-0.5 space-y-0.5 border-l border-black/5 dark:border-white/10 ml-4">
                         {{-- Buka Kasir POS --}}
@@ -1014,49 +1011,14 @@
                                 <span class="truncate">Meja &amp; QR Resto</span>
                             </a>
                         @endif
-
-                        {{-- B2B Sales & Orders --}}
-                        @if (\App\Support\Context::hasPermission('sales.view'))
-                            <a href="{{ route('sales.orders.index') }}" id="tour-nav-sales-orders"
-                                {{ request()->routeIs('sales.*') && !request()->routeIs('sales.returns.*') && !request()->routeIs('sales.quotations.*') ? 'aria-current="page"' : '' }}
-                                class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-all active:scale-[0.98] {{ request()->routeIs('sales.*') && !request()->routeIs('sales.returns.*') && !request()->routeIs('sales.quotations.*') ? 'bg-[#007AFF] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
-                                <i data-lucide="check-square" class="w-3.5 h-3.5 {{ request()->routeIs('sales.*') && !request()->routeIs('sales.returns.*') && !request()->routeIs('sales.quotations.*') ? 'text-white' : 'text-black/40 dark:text-white/40' }} shrink-0"></i>
-                                <span class="truncate">Pesanan Penjualan</span>
-                            </a>
-
-                            <a href="{{ route('sales.quotations.index') }}" id="tour-nav-sales-quotations"
-                                {{ request()->routeIs('sales.quotations.*') ? 'aria-current="page"' : '' }}
-                                class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-all active:scale-[0.98] {{ request()->routeIs('sales.quotations.*') ? 'bg-[#007AFF] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
-                                <i data-lucide="file-signature" class="w-3.5 h-3.5 {{ request()->routeIs('sales.quotations.*') ? 'text-white' : 'text-black/40 dark:text-white/40' }} shrink-0"></i>
-                                <span class="truncate">Surat Penawaran</span>
-                            </a>
-                        @endif
-
-                        @if (\App\Support\Context::hasPermission('invoices.view'))
-                            <a href="{{ route('invoices.index') }}" id="tour-nav-invoices"
-                                {{ request()->routeIs('invoices.*') ? 'aria-current="page"' : '' }}
-                                class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-all active:scale-[0.98] {{ request()->routeIs('invoices.*') ? 'bg-[#007AFF] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
-                                <i data-lucide="receipt" class="w-3.5 h-3.5 {{ request()->routeIs('invoices.*') ? 'text-white' : 'text-black/40 dark:text-white/40' }} shrink-0"></i>
-                                <span class="truncate">Faktur Penjualan</span>
-                            </a>
-                        @endif
-
-                        @if (\App\Support\Context::hasPermission('sales.view') || \App\Support\Context::hasPermission('sales.returns'))
-                            <a href="{{ route('sales.returns.index') }}" id="tour-nav-sales-returns"
-                                {{ request()->routeIs('sales.returns.*') ? 'aria-current="page"' : '' }}
-                                class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-all active:scale-[0.98] {{ request()->routeIs('sales.returns.*') ? 'bg-[#007AFF] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
-                                <i data-lucide="undo-2" class="w-3.5 h-3.5 {{ request()->routeIs('sales.returns.*') ? 'text-white' : 'text-black/40 dark:text-white/40' }} shrink-0"></i>
-                                <span class="truncate">Retur Penjualan</span>
-                            </a>
-                        @endif
                     </div>
 
                     {{-- Submenu Melayang (Collapsed Flyout) --}}
-                    <div x-show="sidebarCollapsed && activeFlyout === 'sales'" x-transition.opacity
+                    <div x-show="sidebarCollapsed && activeFlyout === 'pos'" x-transition.opacity
                         class="fixed left-[84px] -mt-8 w-60 p-2 rounded-[14px] bg-white/95 dark:bg-[#1C1C1E]/95 backdrop-blur-xl border border-black/5 dark:border-white/10 shadow-[0_16px_36px_rgba(0,0,0,0.18)] z-50 space-y-1 pointer-events-auto max-h-[85vh] overflow-y-auto overscroll-contain"
                         style="display: none;">
                         <div class="px-2.5 py-1 font-semibold text-xs text-black dark:text-white border-b border-black/5 dark:border-white/10 pb-1.5 mb-1">
-                            Kasir &amp; Penjualan
+                            Kasir &amp; POS Resto
                         </div>
                         @if (\App\Support\Context::hasPermission('pos.terminal'))
                             <a href="{{ route('pos.terminal') }}"
@@ -1086,11 +1048,93 @@
                                 <span>Meja &amp; QR Resto</span>
                             </a>
                         @endif
+                    </div>
+                </div>
+            </div>
+        @endif
+
+        {{-- ======================================================== --}}
+        {{-- GRUP 2B: PENJUALAN B2B & FAKTUR (B2B SALES & INVOICES)   --}}
+        {{-- ======================================================== --}}
+        @if ($canAccessB2bSales)
+            <div class="space-y-1 pt-1">
+                <div x-show="!sidebarCollapsed"
+                    class="px-2.5 pt-1 pb-1 text-[11px] font-bold tracking-wider uppercase text-black/50 dark:text-white/50 select-none">
+                    Penjualan B2B &amp; Faktur
+                </div>
+                <div x-show="sidebarCollapsed"
+                    class="sidebar-separator w-8 mx-auto my-1 border-t border-black/5 dark:border-white/10">
+                </div>
+
+                <div class="relative group"
+                    @mouseenter="if(sidebarCollapsed) activeFlyout = 'b2bSales'"
+                    @mouseleave="activeFlyout = null">
+                    <button type="button" id="tour-group-b2b" data-tour-group="b2b"
+                        @click="b2bSalesOpen = !b2bSalesOpen" role="button"
+                        :aria-expanded="b2bSalesOpen ? 'true' : 'false'"
+                        :title="sidebarCollapsed ? 'Penjualan B2B & Faktur' : ''"
+                        class="sidebar-item w-full flex items-center justify-between px-2.5 py-1.5 rounded-[8px] text-left text-[13px] font-medium transition-all active:scale-[0.98] {{ $isB2bSalesRoute ? 'bg-black/[0.05] dark:bg-white/[0.06] text-black dark:text-white font-semibold' : 'text-black/75 dark:text-white/75 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
+                        <div class="sidebar-item-inner flex items-center gap-2.5 min-w-0">
+                            <i data-lucide="file-text"
+                                class="w-4 h-4 {{ $isB2bSalesRoute ? 'text-[#007AFF]' : 'text-black/50 dark:text-white/50' }} shrink-0"></i>
+                            <span class="truncate" x-show="!sidebarCollapsed" x-transition.opacity>Penjualan B2B &amp; Faktur</span>
+                        </div>
+                        <i data-lucide="chevron-down" x-show="!sidebarCollapsed"
+                            class="w-3.5 h-3.5 text-black/40 dark:text-white/40 transition-transform duration-200 shrink-0"
+                            :class="b2bSalesOpen ? 'rotate-180 text-black/70 dark:text-white/70' : ''"></i>
+                    </button>
+
+                    {{-- Submenu Terbuka (Expanded) --}}
+                    <div x-show="b2bSalesOpen && !sidebarCollapsed"
+                        x-transition:enter="transition-all ease-out duration-150"
+                        class="pl-3 pr-1 py-0.5 space-y-0.5 border-l border-black/5 dark:border-white/10 ml-4">
+                        @if (\App\Support\Context::hasPermission('sales.view'))
+                            <a href="{{ route('sales.orders.index') }}" id="tour-nav-sales-orders"
+                                {{ request()->routeIs('sales.*') && !request()->routeIs('sales.returns.*') && !request()->routeIs('sales.quotations.*') ? 'aria-current="page"' : '' }}
+                                class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-all active:scale-[0.98] {{ request()->routeIs('sales.*') && !request()->routeIs('sales.returns.*') && !request()->routeIs('sales.quotations.*') ? 'bg-[#007AFF] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
+                                <i data-lucide="check-square" class="w-3.5 h-3.5 {{ request()->routeIs('sales.*') && !request()->routeIs('sales.returns.*') && !request()->routeIs('sales.quotations.*') ? 'text-white' : 'text-black/40 dark:text-white/40' }} shrink-0"></i>
+                                <span class="truncate">Pesanan Penjualan (SO)</span>
+                            </a>
+
+                            <a href="{{ route('sales.quotations.index') }}" id="tour-nav-sales-quotations"
+                                {{ request()->routeIs('sales.quotations.*') ? 'aria-current="page"' : '' }}
+                                class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-all active:scale-[0.98] {{ request()->routeIs('sales.quotations.*') ? 'bg-[#007AFF] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
+                                <i data-lucide="file-signature" class="w-3.5 h-3.5 {{ request()->routeIs('sales.quotations.*') ? 'text-white' : 'text-black/40 dark:text-white/40' }} shrink-0"></i>
+                                <span class="truncate">Surat Penawaran</span>
+                            </a>
+                        @endif
+
+                        @if (\App\Support\Context::hasPermission('invoices.view'))
+                            <a href="{{ route('invoices.index') }}" id="tour-nav-invoices"
+                                {{ request()->routeIs('invoices.*') ? 'aria-current="page"' : '' }}
+                                class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-all active:scale-[0.98] {{ request()->routeIs('invoices.*') ? 'bg-[#007AFF] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
+                                <i data-lucide="receipt" class="w-3.5 h-3.5 {{ request()->routeIs('invoices.*') ? 'text-white' : 'text-black/40 dark:text-white/40' }} shrink-0"></i>
+                                <span class="truncate">Faktur Penjualan (Invoice)</span>
+                            </a>
+                        @endif
+
+                        @if (\App\Support\Context::hasPermission('sales.view') || \App\Support\Context::hasPermission('sales.returns'))
+                            <a href="{{ route('sales.returns.index') }}" id="tour-nav-sales-returns"
+                                {{ request()->routeIs('sales.returns.*') ? 'aria-current="page"' : '' }}
+                                class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-all active:scale-[0.98] {{ request()->routeIs('sales.returns.*') ? 'bg-[#007AFF] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
+                                <i data-lucide="undo-2" class="w-3.5 h-3.5 {{ request()->routeIs('sales.returns.*') ? 'text-white' : 'text-black/40 dark:text-white/40' }} shrink-0"></i>
+                                <span class="truncate">Retur Penjualan</span>
+                            </a>
+                        @endif
+                    </div>
+
+                    {{-- Submenu Melayang (Collapsed Flyout) --}}
+                    <div x-show="sidebarCollapsed && activeFlyout === 'b2bSales'" x-transition.opacity
+                        class="fixed left-[84px] -mt-8 w-60 p-2 rounded-[14px] bg-white/95 dark:bg-[#1C1C1E]/95 backdrop-blur-xl border border-black/5 dark:border-white/10 shadow-[0_16px_36px_rgba(0,0,0,0.18)] z-50 space-y-1 pointer-events-auto max-h-[85vh] overflow-y-auto overscroll-contain"
+                        style="display: none;">
+                        <div class="px-2.5 py-1 font-semibold text-xs text-black dark:text-white border-b border-black/5 dark:border-white/10 pb-1.5 mb-1">
+                            Penjualan B2B &amp; Faktur
+                        </div>
                         @if (\App\Support\Context::hasPermission('sales.view'))
                             <a href="{{ route('sales.orders.index') }}"
                                 class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
                                 <i data-lucide="check-square" class="w-3.5 h-3.5 text-[#007AFF]"></i>
-                                <span>Pesanan Penjualan</span>
+                                <span>Pesanan Penjualan (SO)</span>
                             </a>
                             <a href="{{ route('sales.quotations.index') }}"
                                 class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
@@ -1118,13 +1162,13 @@
         @endif
 
         {{-- ======================================================== --}}
-        {{-- GRUP 3: PRODUK & PERSEDIAAN                              --}}
+        {{-- GRUP 3: PRODUK & LOGISTIK (PRODUCTS, BOM & WAREHOUSE)    --}}
         {{-- ======================================================== --}}
         @if ($canAccessInventory)
             <div class="space-y-1 pt-1">
                 <div x-show="!sidebarCollapsed"
                     class="px-2.5 pt-1 pb-1 text-[11px] font-bold tracking-wider uppercase text-black/50 dark:text-white/50 select-none">
-                    Produk &amp; Persediaan
+                    Produk &amp; Logistik
                 </div>
                 <div x-show="sidebarCollapsed"
                     class="sidebar-separator w-8 mx-auto my-1 border-t border-black/5 dark:border-white/10">
@@ -1136,12 +1180,12 @@
                     <button type="button" id="tour-group-inventory" data-tour-group="inventory"
                         @click="inventoryOpen = !inventoryOpen" role="button"
                         :aria-expanded="inventoryOpen ? 'true' : 'false'"
-                        :title="sidebarCollapsed ? 'Produk & Persediaan' : ''"
+                        :title="sidebarCollapsed ? 'Produk & Logistik' : ''"
                         class="sidebar-item w-full flex items-center justify-between px-2.5 py-1.5 rounded-[8px] text-left text-[13px] font-medium transition-all active:scale-[0.98] {{ $isInventoryRoute ? 'bg-black/[0.05] dark:bg-white/[0.06] text-black dark:text-white font-semibold' : 'text-black/75 dark:text-white/75 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
                         <div class="sidebar-item-inner flex items-center gap-2.5 min-w-0">
                             <i data-lucide="box"
                                 class="w-4 h-4 {{ $isInventoryRoute ? 'text-[#007AFF]' : 'text-black/50 dark:text-white/50' }} shrink-0"></i>
-                            <span class="truncate" x-show="!sidebarCollapsed" x-transition.opacity>Produk &amp; Persediaan</span>
+                            <span class="truncate" x-show="!sidebarCollapsed" x-transition.opacity>Produk &amp; Logistik</span>
                         </div>
                         <i data-lucide="chevron-down" x-show="!sidebarCollapsed"
                             class="w-3.5 h-3.5 text-black/40 dark:text-white/40 transition-transform duration-200 shrink-0"
@@ -1154,17 +1198,10 @@
                         class="pl-3 pr-1 py-0.5 space-y-0.5 border-l border-black/5 dark:border-white/10 ml-4">
                         @if (\App\Support\Context::hasPermission('products.view'))
                             <a href="{{ route('products.index') }}" id="tour-nav-products"
-                                {{ request()->routeIs('products.*') ? 'aria-current="page"' : '' }}
-                                class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-all active:scale-[0.98] {{ request()->routeIs('products.*') ? 'bg-[#007AFF] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
-                                <i data-lucide="package" class="w-3.5 h-3.5 {{ request()->routeIs('products.*') ? 'text-white' : 'text-black/40 dark:text-white/40' }} shrink-0"></i>
-                                <span class="truncate">Katalog Produk &amp; Menu</span>
-                            </a>
-
-                            <a href="{{ route('services.index') }}" id="tour-nav-services"
-                                {{ request()->routeIs('services.*') ? 'aria-current="page"' : '' }}
-                                class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-all active:scale-[0.98] {{ request()->routeIs('services.*') ? 'bg-[#007AFF] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
-                                <i data-lucide="wrench" class="w-3.5 h-3.5 {{ request()->routeIs('services.*') ? 'text-white' : 'text-black/40 dark:text-white/40' }} shrink-0"></i>
-                                <span class="truncate">Jasa &amp; Layanan</span>
+                                {{ request()->routeIs('products.*') || request()->routeIs('services.*') || request()->routeIs('pos.modifiers.*') ? 'aria-current="page"' : '' }}
+                                class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-all active:scale-[0.98] {{ request()->routeIs('products.*') || request()->routeIs('services.*') || request()->routeIs('pos.modifiers.*') ? 'bg-[#007AFF] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
+                                <i data-lucide="package" class="w-3.5 h-3.5 {{ request()->routeIs('products.*') || request()->routeIs('services.*') || request()->routeIs('pos.modifiers.*') ? 'text-white' : 'text-black/40 dark:text-white/40' }} shrink-0"></i>
+                                <span class="truncate font-semibold">Katalog Produk &amp; Menu</span>
                             </a>
                         @endif
 
@@ -1177,44 +1214,28 @@
                             </a>
                         @endif
 
-                        @if (\App\Support\Context::hasPermission('pos.modifiers'))
-                            <a href="{{ route('pos.modifiers.index') }}" id="tour-nav-product-modifiers"
-                                {{ request()->routeIs('pos.modifiers.*') ? 'aria-current="page"' : '' }}
-                                class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-all active:scale-[0.98] {{ request()->routeIs('pos.modifiers.*') ? 'bg-[#007AFF] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
-                                <i data-lucide="sliders" class="w-3.5 h-3.5 {{ request()->routeIs('pos.modifiers.*') ? 'text-white' : 'text-black/40 dark:text-white/40' }} shrink-0"></i>
-                                <span class="truncate">Varian &amp; Opsi Tambahan</span>
-                            </a>
-                        @endif
-
                         @if (\App\Support\Context::hasPermission('inventory.view'))
                             <a href="{{ route('inventory.stocks') }}" id="tour-nav-inventory-stocks"
-                                {{ request()->routeIs('inventory.stocks') ? 'aria-current="page"' : '' }}
-                                class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-all active:scale-[0.98] {{ request()->routeIs('inventory.stocks') ? 'bg-[#007AFF] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
-                                <i data-lucide="bar-chart-2" class="w-3.5 h-3.5 {{ request()->routeIs('inventory.stocks') ? 'text-white' : 'text-black/40 dark:text-white/40' }} shrink-0"></i>
-                                <span class="truncate">Stok Gudang</span>
-                            </a>
-
-                            <a href="{{ route('warehouse.index') }}" id="tour-nav-warehouse"
-                                {{ request()->routeIs('warehouse.*') ? 'aria-current="page"' : '' }}
-                                class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-all active:scale-[0.98] {{ request()->routeIs('warehouse.*') ? 'bg-[#007AFF] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
-                                <i data-lucide="warehouse" class="w-3.5 h-3.5 {{ request()->routeIs('warehouse.*') ? 'text-white' : 'text-black/40 dark:text-white/40' }} shrink-0"></i>
-                                <span class="truncate">Lokasi Gudang</span>
+                                {{ request()->routeIs('inventory.stocks') || request()->routeIs('warehouse.*') ? 'aria-current="page"' : '' }}
+                                class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-all active:scale-[0.98] {{ request()->routeIs('inventory.stocks') || request()->routeIs('warehouse.*') ? 'bg-[#007AFF] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
+                                <i data-lucide="boxes" class="w-3.5 h-3.5 {{ request()->routeIs('inventory.stocks') || request()->routeIs('warehouse.*') ? 'text-white' : 'text-black/40 dark:text-white/40' }} shrink-0"></i>
+                                <span class="truncate">Stok &amp; Multi-Gudang</span>
                             </a>
                         @endif
 
                         @if (\App\Support\Context::hasPermission('inventory.manage'))
-                            <a href="{{ route('inventory.opnames.index') }}" id="tour-nav-inventory-opnames"
-                                {{ request()->routeIs('inventory.opnames.*') ? 'aria-current="page"' : '' }}
-                                class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-all active:scale-[0.98] {{ request()->routeIs('inventory.opnames.*') ? 'bg-[#007AFF] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
-                                <i data-lucide="clipboard-check" class="w-3.5 h-3.5 {{ request()->routeIs('inventory.opnames.*') ? 'text-white' : 'text-black/40 dark:text-white/40' }} shrink-0"></i>
-                                <span class="truncate">Opname Stok Fisik</span>
-                            </a>
-
                             <a href="{{ route('inventory.transfers.index') }}" id="tour-nav-inventory-transfers"
                                 {{ request()->routeIs('inventory.transfers.*') ? 'aria-current="page"' : '' }}
                                 class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-all active:scale-[0.98] {{ request()->routeIs('inventory.transfers.*') ? 'bg-[#007AFF] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
                                 <i data-lucide="arrow-left-right" class="w-3.5 h-3.5 {{ request()->routeIs('inventory.transfers.*') ? 'text-white' : 'text-black/40 dark:text-white/40' }} shrink-0"></i>
                                 <span class="truncate">Transfer Stok Gudang</span>
+                            </a>
+
+                            <a href="{{ route('inventory.opnames.index') }}" id="tour-nav-inventory-opnames"
+                                {{ request()->routeIs('inventory.opnames.*') ? 'aria-current="page"' : '' }}
+                                class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-all active:scale-[0.98] {{ request()->routeIs('inventory.opnames.*') ? 'bg-[#007AFF] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
+                                <i data-lucide="clipboard-check" class="w-3.5 h-3.5 {{ request()->routeIs('inventory.opnames.*') ? 'text-white' : 'text-black/40 dark:text-white/40' }} shrink-0"></i>
+                                <span class="truncate">Stock Opname Fisik</span>
                             </a>
 
                             <a href="{{ route('inventory.movements') }}" id="tour-nav-inventory-movements"
@@ -1273,18 +1294,13 @@
                         class="fixed left-[84px] -mt-8 w-60 p-2 rounded-[14px] bg-white/95 dark:bg-[#1C1C1E]/95 backdrop-blur-xl border border-black/5 dark:border-white/10 shadow-[0_16px_36px_rgba(0,0,0,0.18)] z-50 space-y-1 pointer-events-auto max-h-[85vh] overflow-y-auto overscroll-contain"
                         style="display: none;">
                         <div class="px-2.5 py-1 font-semibold text-xs text-black dark:text-white border-b border-black/5 dark:border-white/10 pb-1.5 mb-1">
-                            Produk &amp; Persediaan
+                            Produk &amp; Logistik
                         </div>
                         @if (\App\Support\Context::hasPermission('products.view'))
                             <a href="{{ route('products.index') }}"
                                 class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
                                 <i data-lucide="package" class="w-3.5 h-3.5 text-[#007AFF]"></i>
                                 <span>Katalog Produk &amp; Menu</span>
-                            </a>
-                            <a href="{{ route('services.index') }}"
-                                class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
-                                <i data-lucide="wrench" class="w-3.5 h-3.5 text-[#5856D6]"></i>
-                                <span>Jasa &amp; Layanan</span>
                             </a>
                         @endif
                         @if (\App\Support\Context::hasPermission('materials.view'))
@@ -1297,25 +1313,20 @@
                         @if (\App\Support\Context::hasPermission('inventory.view'))
                             <a href="{{ route('inventory.stocks') }}"
                                 class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
-                                <i data-lucide="bar-chart-2" class="w-3.5 h-3.5 text-[#FF9500]"></i>
-                                <span>Stok Gudang</span>
-                            </a>
-                            <a href="{{ route('warehouse.index') }}"
-                                class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
-                                <i data-lucide="warehouse" class="w-3.5 h-3.5 text-[#007AFF]"></i>
-                                <span>Lokasi Gudang</span>
+                                <i data-lucide="boxes" class="w-3.5 h-3.5 text-[#FF9500]"></i>
+                                <span>Stok &amp; Multi-Gudang</span>
                             </a>
                         @endif
                         @if (\App\Support\Context::hasPermission('inventory.manage'))
-                            <a href="{{ route('inventory.opnames.index') }}"
-                                class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
-                                <i data-lucide="clipboard-check" class="w-3.5 h-3.5 text-[#34C759]"></i>
-                                <span>Opname Stok Fisik</span>
-                            </a>
                             <a href="{{ route('inventory.transfers.index') }}"
                                 class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
                                 <i data-lucide="arrow-left-right" class="w-3.5 h-3.5 text-[#AF52DE]"></i>
                                 <span>Transfer Stok Gudang</span>
+                            </a>
+                            <a href="{{ route('inventory.opnames.index') }}"
+                                class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
+                                <i data-lucide="clipboard-check" class="w-3.5 h-3.5 text-[#34C759]"></i>
+                                <span>Opname Stok Fisik</span>
                             </a>
                             <a href="{{ route('inventory.movements') }}"
                                 class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">

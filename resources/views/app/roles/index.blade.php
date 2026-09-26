@@ -5,7 +5,7 @@
 ])
 
 @section('content')
-    <div class="max-w-[1360px] mx-auto space-y-6 pb-12" x-data="{
+    <div class="max-w-[1360px] mx-auto space-y-6 pb-28 lg:pb-12" x-data="{
         activeTab: '{{ \App\Support\Context::hasPermission('roles.view') || \App\Support\Context::hasPermission('roles.manage') ? 'roles' : (\App\Support\Context::hasPermission('users.view') || \App\Support\Context::hasPermission('users.manage') ? 'members' : 'matrix') }}',
         showGuide: true,
         showCreateModal: false,
@@ -104,30 +104,26 @@
         <!-- 1. TOOLBAR / PAGE HEADER (macOS Sonoma Toolbar Style)  -->
         <!-- ===================================================== -->
         <header
-            class="rounded-[14px] backdrop-blur-md bg-white/75 dark:bg-[#1C1C1E]/75 border border-black/5 dark:border-white/10 px-4 sm:px-6 py-3.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            class="rounded-[16px] backdrop-blur-md bg-white/75 dark:bg-[#1C1C1E]/75 border border-black/5 dark:border-white/10 px-4 sm:px-6 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
             <div>
                 <nav class="flex items-center gap-1.5 text-[12px] text-black/50 dark:text-white/50 mb-1"
                     aria-label="Breadcrumb">
                     <a href="{{ route('dashboard') }}" class="hover:text-[#007AFF] transition-colors">Dashboard</a>
-                    <span>›</span>
+                    <i data-lucide="chevron-right" class="w-3.5 h-3.5 opacity-40"></i>
                     <span class="text-black/70 dark:text-white/70 font-medium">Pengaturan</span>
-                    <span>›</span>
+                    <i data-lucide="chevron-right" class="w-3.5 h-3.5 opacity-40"></i>
                     <span class="text-black dark:text-white font-medium">Kontrol Akses (RBAC)</span>
                 </nav>
-                <h1 class="text-[20px] font-semibold text-black dark:text-white tracking-tight">Kontrol Akses &amp; Role Tim
-                </h1>
-                <p class="text-[13px] text-black/50 dark:text-white/50">Wewenang staf operasional, pemisahan hak kasir &amp;
-                    gudang, serta proteksi margin laba.</p>
+                <h1 class="text-[20px] font-semibold text-black dark:text-white tracking-tight">Kontrol Akses &amp; Role Tim</h1>
+                <p class="text-[13px] text-black/50 dark:text-white/50">Wewenang staf operasional, pemisahan hak kasir &amp; gudang, serta proteksi margin laba.</p>
             </div>
 
             <!-- Toolbar Actions & Primary Button -->
             <div class="flex items-center gap-2.5 w-full sm:w-auto">
                 @if (\App\Support\Context::hasPermission('roles.create') || \App\Support\Context::hasPermission('roles.manage'))
                     <button type="button" @click="openCreateModal()"
-                        class="h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5 shadow-[0_1px_2px_rgba(0,122,255,0.25)] w-full sm:w-auto">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                        </svg>
+                        class="min-h-[44px] sm:min-h-0 h-11 sm:h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5 shadow-[0_1px_2px_rgba(0,122,255,0.25)] w-full sm:w-auto">
+                        <i data-lucide="plus" class="w-4 h-4"></i>
                         <span>Buat Role Custom</span>
                     </button>
                 @endif
@@ -201,44 +197,50 @@
         <!-- 3. SEGMENTED NAVIGATION & VIEW SWITCHER               -->
         <!-- ===================================================== -->
         <div class="flex items-center justify-between gap-3 border-b border-black/5 dark:border-white/5 pb-3">
-            <div class="inline-flex p-0.5 rounded-[9px] bg-black/[0.06] dark:bg-white/[0.08] text-[13px] font-medium">
-                @if (\App\Support\Context::hasPermission('roles.view') || \App\Support\Context::hasPermission('roles.manage'))
-                    <button type="button" @click="activeTab = 'roles'"
-                        :class="activeTab === 'roles' ?
-                            'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)]' :
-                            'text-black/55 dark:text-white/55'"
-                        class="px-3.5 py-1.5 rounded-[7px] transition-all flex items-center gap-1.5">
-                        <span>Daftar Role</span>
-                        <span
-                            class="px-1.5 py-0.2 rounded-full text-[10px] font-semibold bg-black/10 dark:bg-white/10 tabular-nums">{{ $roles->count() }}</span>
-                    </button>
-                @endif
+            <div class="overflow-x-auto pb-1 scrollbar-none">
+                <div class="inline-flex p-1 rounded-[14px] bg-black/[0.05] dark:bg-white/[0.07] border border-black/5 dark:border-white/10 text-[13px] font-medium whitespace-nowrap">
+                    @if (\App\Support\Context::hasPermission('roles.view') || \App\Support\Context::hasPermission('roles.manage'))
+                        <button type="button" @click="activeTab = 'roles'; $nextTick(() => { if (window.lucide) lucide.createIcons(); })"
+                            :class="activeTab === 'roles' ?
+                                'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] font-semibold' :
+                                'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white'"
+                            class="px-3.5 py-1.5 rounded-[10px] transition-all flex items-center gap-2 cursor-pointer">
+                            <i data-lucide="shield-check" class="w-4 h-4 text-[#007AFF]"></i>
+                            <span>Daftar Role</span>
+                            <span
+                                class="px-1.5 py-0.2 rounded-full text-[11px] font-semibold bg-[#007AFF]/12 text-[#007AFF] tabular-nums">{{ $roles->count() }}</span>
+                        </button>
+                    @endif
 
-                @if (\App\Support\Context::hasPermission('users.view') || \App\Support\Context::hasPermission('users.manage'))
-                    <button type="button" @click="activeTab = 'members'"
-                        :class="activeTab === 'members' ?
-                            'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)]' :
-                            'text-black/55 dark:text-white/55'"
-                        class="px-3.5 py-1.5 rounded-[7px] transition-all flex items-center gap-1.5">
-                        <span>Anggota Tim</span>
-                        <span
-                            class="px-1.5 py-0.2 rounded-full text-[10px] font-semibold bg-black/10 dark:bg-white/10 tabular-nums">{{ $members->count() }}</span>
-                    </button>
-                @endif
+                    @if (\App\Support\Context::hasPermission('users.view') || \App\Support\Context::hasPermission('users.manage'))
+                        <button type="button" @click="activeTab = 'members'; $nextTick(() => { if (window.lucide) lucide.createIcons(); })"
+                            :class="activeTab === 'members' ?
+                                'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] font-semibold' :
+                                'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white'"
+                            class="px-3.5 py-1.5 rounded-[10px] transition-all flex items-center gap-2 cursor-pointer">
+                            <i data-lucide="users" class="w-4 h-4 text-[#34C759]"></i>
+                            <span>Anggota Tim</span>
+                            <span
+                                class="px-1.5 py-0.2 rounded-full text-[11px] font-semibold bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158] tabular-nums">{{ $members->count() }}</span>
+                        </button>
+                    @endif
 
-                @if (\App\Support\Context::hasPermission('roles.view') || \App\Support\Context::hasPermission('roles.manage'))
-                    <button type="button" @click="activeTab = 'matrix'"
-                        :class="activeTab === 'matrix' ?
-                            'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)]' :
-                            'text-black/55 dark:text-white/55'"
-                        class="px-3.5 py-1.5 rounded-[7px] transition-all flex items-center gap-1.5">
-                        <span>Matriks Hak Akses</span>
-                    </button>
-                @endif
+                    @if (\App\Support\Context::hasPermission('roles.view') || \App\Support\Context::hasPermission('roles.manage'))
+                        <button type="button" @click="activeTab = 'matrix'; $nextTick(() => { if (window.lucide) lucide.createIcons(); })"
+                            :class="activeTab === 'matrix' ?
+                                'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] font-semibold' :
+                                'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white'"
+                            class="px-3.5 py-1.5 rounded-[10px] transition-all flex items-center gap-2 cursor-pointer">
+                            <i data-lucide="table-properties" class="w-4 h-4 text-[#AF52DE]"></i>
+                            <span>Matriks Hak Akses</span>
+                        </button>
+                    @endif
+                </div>
             </div>
 
             <button type="button" @click="showGuide = !showGuide"
-                class="text-[12px] text-[#007AFF] hover:underline font-medium flex items-center gap-1">
+                class="text-[12px] text-[#007AFF] hover:underline font-medium flex items-center gap-1 shrink-0">
+                <i data-lucide="info" class="w-3.5 h-3.5"></i>
                 <span x-text="showGuide ? 'Sembunyikan Panduan' : 'Lihat Panduan RBAC'"></span>
             </button>
         </div>

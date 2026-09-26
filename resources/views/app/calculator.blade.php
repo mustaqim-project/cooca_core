@@ -345,9 +345,9 @@
         <nav class="flex items-center gap-1.5 text-[12px] text-black/50 dark:text-white/50 py-0.5 whitespace-nowrap print:hidden"
             aria-label="Breadcrumb">
             <a href="{{ route('dashboard') }}" class="hover:text-[#007AFF] transition-colors font-medium">Dashboard</a>
-            <span>›</span>
-            <span class="text-black/60 dark:text-white/60 font-medium">Kalkulator Bisnis</span>
-            <span>›</span>
+            <i data-lucide="chevron-right" class="w-3.5 h-3.5 opacity-40"></i>
+            <span class="text-black/60 dark:text-white/60 font-medium">Biaya &amp; Penetapan Harga</span>
+            <i data-lucide="chevron-right" class="w-3.5 h-3.5 opacity-40"></i>
             <span class="text-black/80 dark:text-white/80 font-medium">Kalkulator HPP &amp; Penetapan Harga</span>
         </nav>
 
@@ -396,6 +396,35 @@
                 @endif
             </div>
         </header>
+
+        {{-- ===================================================== --}}
+        {{-- COSTING HUB NAVIGATION TABS (Apple Segmented Control) --}}
+        {{-- ===================================================== --}}
+        <div class="overflow-x-auto pb-1 scrollbar-none">
+            <div class="inline-flex p-1 rounded-[14px] bg-black/[0.05] dark:bg-white/[0.07] border border-black/5 dark:border-white/10 text-[13px] font-medium whitespace-nowrap">
+                <a href="{{ route('calculator') }}"
+                    class="px-3.5 py-1.5 rounded-[10px] {{ request()->routeIs('calculator*') ? 'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] font-semibold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white' }} flex items-center gap-2 transition-all">
+                    <i data-lucide="calculator" class="w-4 h-4 {{ request()->routeIs('calculator*') ? 'text-[#007AFF]' : 'text-black/40 dark:text-white/40' }}"></i>
+                    <span>Kalkulator HPP &amp; Harga</span>
+                </a>
+
+                @if(\App\Support\Context::hasPermission('labor_machines.view') || \App\Support\Context::hasPermission('costing.manage'))
+                <a href="{{ route('labor-machines.index') }}"
+                    class="px-3.5 py-1.5 rounded-[10px] {{ request()->routeIs('labor-machines.*') ? 'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] font-semibold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white' }} flex items-center gap-2 transition-all">
+                    <i data-lucide="cog" class="w-4 h-4 {{ request()->routeIs('labor-machines.*') ? 'text-[#FF9500]' : 'text-black/40 dark:text-white/40' }}"></i>
+                    <span>Upah Kerja &amp; Mesin</span>
+                </a>
+                @endif
+
+                @if(\App\Support\Context::hasPermission('costing.view_margin') || \App\Support\Context::hasPermission('reports.costing') || \App\Support\Context::hasPermission('costing.manage'))
+                <a href="{{ route('profitability.index') }}"
+                    class="px-3.5 py-1.5 rounded-[10px] {{ request()->routeIs('profitability.*') ? 'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] font-semibold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white' }} flex items-center gap-2 transition-all">
+                    <i data-lucide="trending-up" class="w-4 h-4 {{ request()->routeIs('profitability.*') ? 'text-[#34C759]' : 'text-black/40 dark:text-white/40' }}"></i>
+                    <span>Analisis BEP &amp; Margin</span>
+                </a>
+                @endif
+            </div>
+        </div>
 
         <!-- ===================================================== -->
         <!-- 2. SEGMENTED MODE SWITCHER (Apple Segmented Control)  -->

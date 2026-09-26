@@ -79,3 +79,12 @@ Cooca memisahkan data inventori menjadi dua entitas spesifik:
 * **Ke Modul Purchasing:** Menerima barang fisik dari Surat Pesanan (PO) dan memperbarui saldo stok.
 * **Ke Modul POS & Sales:** Mengurangi stok saat transaksi berhasil dibayar.
 * **Ke Modul Finance & Accounting:** Nilai persediaan dihitung otomatis dan tercermin pada Akun Persediaan di Laporan Neraca (*Balance Sheet*).
+
+---
+
+## 6. Standar Antarmuka (Bento Apple HIG v2.0) & Ergonomi Mobile/Tablet
+
+* **Bento Grid & Segmented Controls:** Seluruh antarmuka manajemen cabang, gudang logistik (`warehouse.index`, `warehouse.show`), katalog produk (`products.index`), resep BOM (`products.bom`), dan varian modifiers (`pos.modifiers.index`) menggunakan Bento Apple HIG v2.0 dengan toolbar macOS Sonoma (`backdrop-blur-xl bg-white/80 dark:bg-[#1C1C1E]/80`).
+* **Zero-Emoji & Semantic Lucide Icons:** Seluruh breadcrumb navigasi dan tombol aksi menggunakan ikon Lucide SVG murni (`chevron-right`, `warehouse`, `package`, `plus`, dll.) tanpa simbol unicode/emoji mentah.
+* **Touch-Friendly & Anti Auto-Zoom:** Touch targets tombol modal disetel $\ge 44\text{px}$ (`min-h-[44px]` / `h-11`), form input mobile menggunakan font-size $\ge 16\text{px}$ (`text-[16px] sm:text-[14px]`) untuk mencegah auto-zoom Safari, dan navigasi bawah dilengkapi safe-padding `pb-28 lg:pb-12`.
+* **Proteksi Anti-Fraud Multi-Tenant:** Isolasi data tenant dijamin melalui `Context::requireBusiness()`, penyesuaian stok wajib mencantumkan alasan mutasi (*reason required*) dan validasi unit cost untuk integritas audit trail.
