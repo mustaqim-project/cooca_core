@@ -31,10 +31,10 @@ class RolePermissionEnforcementTest extends TestCase
         $employee->update(['active_business_id' => $business->id]);
         Context::flush();
 
-        $this->actingAs($employee)->get('/calculator')->assertRedirect(route('dashboard'));
+        $this->actingAs($employee)->get('/calculator')->assertRedirect(route('portal'));
         $this->actingAs($employee)->post('/settings/members', [
             'email' => 'new@test.local', 'role_id' => $role->id,
-        ])->assertRedirect(route('dashboard'));
+        ])->assertRedirect(route('portal'));
     }
 
     public function test_custom_role_can_be_assigned_only_from_active_business(): void

@@ -39,20 +39,9 @@ final class DashboardWebController extends Controller
     {
         $business = Context::requireBusiness();
 
-        // Smart redirect: non-dashboard users land on their workstation
+        // Smart redirect: non-dashboard users land directly on their personal staff portal
         if (! Context::isOwner() && ! Context::hasPermission('dashboard.view')) {
-            if (Context::hasPermission('pos.terminal')) {
-                return redirect()->route('pos.terminal');
-            }
-            if (Context::hasPermission('pos.kitchen')) {
-                return redirect()->route('pos.kitchen.index');
-            }
-            if (Context::hasPermission('inventory.view')) {
-                return redirect()->route('warehouse.index');
-            }
-            if (Context::hasPermission('finance.cash_bank')) {
-                return redirect()->route('finance.cash-bank.index');
-            }
+            return redirect()->route('portal');
         }
 
         $data = $this->getOverviewData($business);

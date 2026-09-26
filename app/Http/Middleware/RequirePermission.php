@@ -72,7 +72,11 @@ final class RequirePermission
                 ], Response::HTTP_FORBIDDEN);
             }
 
-            return redirect()->route('dashboard')
+            if ($request->routeIs('portal')) {
+                abort(Response::HTTP_FORBIDDEN, 'Akses ditolak.');
+            }
+
+            return redirect()->route('portal')
                 ->with('error', 'Anda tidak memiliki izin akses untuk halaman tersebut.');
         }
 

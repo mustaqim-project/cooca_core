@@ -1416,12 +1416,17 @@
             <div
                 class="fixed inset-x-0 bottom-0 z-40 bg-white/80 dark:bg-[#1C1C1E]/80 backdrop-blur-xl border-t border-black/5 dark:border-white/10 lg:hidden px-4 py-1.5 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
                 <div class="flex items-center justify-around">
-                    <!-- 1. Home / Dashboard -->
-                    <a href="{{ route('dashboard') }}"
-                        {{ request()->routeIs('dashboard') ? 'aria-current="page"' : '' }}
-                        class="flex flex-col items-center gap-0.5 py-1 px-2.5 rounded-[8px] transition active:scale-[0.97] {{ request()->routeIs('dashboard') ? 'text-[#007AFF] font-semibold' : 'text-black/45 dark:text-white/45 hover:text-black/70 dark:hover:text-white/70' }}">
-                        <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
-                        <span class="text-[10px]">Home</span>
+                    <!-- 1. Home / Dashboard / Portal -->
+                    @php
+                        $canSeeDashboard = \App\Support\Context::isOwner() || \App\Support\Context::hasPermission('dashboard.view');
+                        $homeRoute = $canSeeDashboard ? route('dashboard') : route('portal');
+                        $isHomeActive = $canSeeDashboard ? request()->routeIs('dashboard') : request()->routeIs('portal');
+                    @endphp
+                    <a href="{{ $homeRoute }}"
+                        {{ $isHomeActive ? 'aria-current="page"' : '' }}
+                        class="flex flex-col items-center gap-0.5 py-1 px-2.5 rounded-[8px] transition active:scale-[0.97] {{ $isHomeActive ? 'text-[#007AFF] font-semibold' : 'text-black/45 dark:text-white/45 hover:text-black/70 dark:hover:text-white/70' }}">
+                        <i data-lucide="{{ $canSeeDashboard ? 'layout-dashboard' : 'clock' }}" class="w-5 h-5"></i>
+                        <span class="text-[10px]">{{ $canSeeDashboard ? 'Home' : 'Portal' }}</span>
                     </a>
 
                     <!-- 2. Kasir POS -->

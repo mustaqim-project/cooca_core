@@ -836,6 +836,7 @@
                 @mouseleave="activeFlyout = null">
 
                 {{-- Primary Main Button: Dashboard (Visual Apple HIG Active Pill / Prominent Hero) --}}
+                @if (\App\Support\Context::isOwner() || \App\Support\Context::hasPermission('dashboard.view'))
                 <a href="{{ route('dashboard') }}" id="tour-nav-dashboard"
                     {{ request()->routeIs('dashboard') ? 'aria-current="page"' : '' }}
                     :title="sidebarCollapsed ? 'Dashboard Utama' : ''"
@@ -844,6 +845,18 @@
                         <i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i>
                     </span>
                     <span class="truncate tracking-tight" x-show="!sidebarCollapsed" x-transition.opacity>Dashboard Utama</span>
+                </a>
+                @endif
+
+                {{-- Standalone Hub: Portal & Presensi (Accessible to all members) --}}
+                <a href="{{ route('portal') }}" id="tour-nav-portal"
+                    {{ request()->routeIs('portal') ? 'aria-current="page"' : '' }}
+                    :title="sidebarCollapsed ? 'Portal & Presensi' : ''"
+                    class="sidebar-item w-full flex items-center gap-2.5 px-3 py-2 mt-1 rounded-[10px] text-[13px] font-semibold transition-all active:scale-[0.98] {{ request()->routeIs('portal') ? 'bg-[#34C759] text-white shadow-[0_2px_8px_rgba(52,199,89,0.35)]' : 'text-black/80 dark:text-white/80 hover:bg-[#34C759]/8 dark:hover:bg-[#34C759]/15 hover:text-[#34C759] dark:hover:text-[#30D158]' }}">
+                    <span class="w-6 h-6 rounded-[7px] {{ request()->routeIs('portal') ? 'bg-white/20 text-white' : 'bg-[#34C759]/12 text-[#34C759] dark:bg-[#30D158]/20 dark:text-[#30D158]' }} flex items-center justify-center shrink-0">
+                        <i data-lucide="clock" class="w-3.5 h-3.5"></i>
+                    </span>
+                    <span class="truncate tracking-tight" x-show="!sidebarCollapsed" x-transition.opacity>Portal &amp; Presensi</span>
                 </a>
 
                 {{-- Standalone Top-Level: Asisten Cerdas AI --}}
@@ -907,10 +920,17 @@
                     <div class="px-2.5 py-1 font-semibold text-xs text-black dark:text-white border-b border-black/5 dark:border-white/10 pb-1.5 mb-1">
                         Ringkasan &amp; Dashboard
                     </div>
+                    @if (\App\Support\Context::isOwner() || \App\Support\Context::hasPermission('dashboard.view'))
                     <a href="{{ route('dashboard') }}"
                         class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/75 dark:text-white/75 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
                         <i data-lucide="layout-dashboard" class="w-3.5 h-3.5 text-[#007AFF]"></i>
                         <span class="font-medium">Dashboard Utama</span>
+                    </a>
+                    @endif
+                    <a href="{{ route('portal') }}"
+                        class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/75 dark:text-white/75 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
+                        <i data-lucide="clock" class="w-3.5 h-3.5 text-[#34C759]"></i>
+                        <span class="font-medium">Portal &amp; Presensi</span>
                     </a>
                     @if (\App\Support\Context::hasPermission('ai.access'))
                         <a href="{{ route('pos.ai.index') }}"

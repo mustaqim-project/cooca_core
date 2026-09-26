@@ -22,6 +22,8 @@
 
 | Modul / Fitur | Superadmin | Business Owner | Store Manager | Kasir POS | Staf Gudang | Pelanggan | Otomasi |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **Dashboard Eksekutif (`dashboard.view`)** | ❌ | ✅ Penuh | ✅ Ringkasan | ❌ Dialihkan ke Portal | ❌ Dialihkan ke Portal | ❌ | ❌ |
+| **Portal Karyawan & Presensi (`/portal`)** | ❌ | ✅ Akses | ✅ Akses | ✅ Presensi Mandiri | ✅ Presensi Mandiri | ❌ | ❌ |
 | **Kalkulator HPP & Costing** | ❌ | ✅ Penuh | ✅ Lihat/Hitung | ❌ | ❌ | ❌ | ❌ |
 | **Master Produk & Bahan** | ❌ | ✅ Penuh | ✅ Edit/Kelola | 👁️ Lihat Saja | 👁️ Lihat Saja | 👁️ Katalog Publik | ❌ |
 | **Terminal Kasir POS** | ❌ | ✅ Penuh | ✅ Penuh | ✅ Transaksi | ❌ | ❌ | ❌ |

@@ -41,6 +41,7 @@ use App\Http\Controllers\Web\Pos\PosReportWebController;
 use App\Http\Controllers\Web\Pos\PosShiftWebController;
 use App\Http\Controllers\Web\Pos\PosTableWebController;
 use App\Http\Controllers\Web\Pos\PosTerminalWebController;
+use App\Http\Controllers\Web\PortalWebController;
 use App\Http\Controllers\Web\ProductCategoryWebController;
 use App\Http\Controllers\Web\ProductWebController;
 use App\Http\Controllers\Web\ProfileWebController;
@@ -114,12 +115,15 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
 
     // 3. Tenant Protected Core Web Panel
     Route::middleware(['business.active', 'profile.complete', 'verified'])->group(function (): void {
+        // Staff Personal Portal & Attendance Hub (Accessible to all authenticated members)
+        Route::get('/portal', [PortalWebController::class, 'index'])->name('portal');
+
         // Executive Dashboard & Quick Actions
-        Route::get('/dashboard', [DashboardWebController::class, 'index'])->name('dashboard');
-        Route::get('/dashboard/quick-stats', [DashboardWebController::class, 'quickStats'])->name('dashboard.quick-stats');
-        Route::post('/dashboard/quick-expense', [DashboardWebController::class, 'quickExpense'])->name('dashboard.quick-expense');
-        Route::post('/dashboard/quick-stock-in', [DashboardWebController::class, 'quickStockIn'])->name('dashboard.quick-stock-in');
-        Route::post('/dashboard/quick-material', [DashboardWebController::class, 'quickMaterial'])->name('dashboard.quick-material');
+        Route::get('/dashboard', [DashboardWebController::class, 'index'])->middleware('require.permission:dashboard.view')->name('dashboard');
+        Route::get('/dashboard/quick-stats', [DashboardWebController::class, 'quickStats'])->middleware('require.permission:dashboard.view')->name('dashboard.quick-stats');
+        Route::post('/dashboard/quick-expense', [DashboardWebController::class, 'quickExpense'])->middleware('require.permission:expenses.manage')->name('dashboard.quick-expense');
+        Route::post('/dashboard/quick-stock-in', [DashboardWebController::class, 'quickStockIn'])->middleware('require.permission:inventory.manage')->name('dashboard.quick-stock-in');
+        Route::post('/dashboard/quick-material', [DashboardWebController::class, 'quickMaterial'])->middleware('require.permission:materials.create')->name('dashboard.quick-material');
 
         // Interactive Live HPP Calculator
         Route::get('/calculator', [CalculatorWebController::class, 'index'])->middleware('require.permission:costing.view_margin')->name('calculator.index');

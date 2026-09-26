@@ -87,9 +87,19 @@ class BusinessMembership extends Pivot
         return $this->belongsTo(Role::class, 'role_id');
     }
 
+    public function roleModel(): BelongsTo
+    {
+        return $this->customRole();
+    }
+
     public function primaryLocation(): BelongsTo
     {
         return $this->belongsTo(Location::class, 'primary_location_id');
+    }
+
+    public function location(): BelongsTo
+    {
+        return $this->primaryLocation();
     }
 
     public function isFreeLocation(): bool

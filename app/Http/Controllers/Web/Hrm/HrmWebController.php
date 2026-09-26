@@ -638,6 +638,11 @@ final class HrmWebController extends Controller
                 ]);
             }
 
+            if ($request->headers->get('referer') && str_contains($request->headers->get('referer'), '/portal')) {
+                return redirect()->route('portal')
+                    ->with('success', 'Presensi masuk (Clock-In) berhasil dicatat pada jam ' . $attendance->clock_in_at?->format('H:i') . ' WIB.');
+            }
+
             return redirect()->route('hrm.index', ['tab' => 'attendance'])
                 ->with('success', 'Presensi masuk (Clock-In) berhasil dicatat pada jam ' . $attendance->clock_in_at?->format('H:i') . ' WIB.');
         } catch (ValidationException $e) {
@@ -686,6 +691,11 @@ final class HrmWebController extends Controller
                     'message' => 'Presensi pulang (Clock-Out) berhasil dicatat pada jam ' . $attendance->clock_out_at?->format('H:i') . ' WIB. Durasi kerja: ' . $attendance->formatted_work_duration,
                     'attendance' => $attendance,
                 ]);
+            }
+
+            if ($request->headers->get('referer') && str_contains($request->headers->get('referer'), '/portal')) {
+                return redirect()->route('portal')
+                    ->with('success', 'Presensi pulang (Clock-Out) berhasil dicatat pada jam ' . $attendance->clock_out_at?->format('H:i') . ' WIB. Durasi kerja: ' . $attendance->formatted_work_duration);
             }
 
             return redirect()->route('hrm.index', ['tab' => 'attendance'])
