@@ -451,165 +451,484 @@
                 </div>
             </div>
 
-            <!-- Right: Status / Theme / Fullscreen / Actions -->
+            <!-- Right: Actions Toolbar (Responsive: Desktop full toolbar, Mobile Hamburger + Scan + Fullscreen) -->
             <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
-                <!-- Shift Indicator Pill -->
-                <template x-if="activeShift">
-                    <div
-                        class="flex items-center gap-1.5 px-2.5 py-1 rounded-[10px] bg-[#34C759]/20 border border-[#34C759]/30 text-[#30D158] text-[11px]">
-                        <span class="w-2 h-2 shrink-0 rounded-full bg-[#34C759] animate-pulse"></span>
-                        <span class="hidden md:inline font-semibold">Shift Aktif</span>
-                        <button @click="openShiftCloseModal()"
-                            class="px-2 py-0.5 rounded-[6px] bg-[#0B1528] hover:bg-black/50 text-white text-[10px] font-bold transition ml-0.5">Tutup</button>
-                    </div>
-                </template>
-                <template x-if="!activeShift">
-                    <div
-                        class="flex items-center gap-1.5 px-2.5 py-1 rounded-[10px] bg-[#FF9500]/20 border border-[#FF9500]/30 text-[#FF9F0A] text-[11px]">
-                        <span class="w-2 h-2 shrink-0 rounded-full bg-[#FF9500]"></span>
-                        <span class="hidden md:inline font-semibold">Shift Tutup</span>
-                        <button @click="showOpenShiftModal = true"
-                            class="px-2 py-0.5 rounded-[6px] bg-[#0B1528] hover:bg-black/50 text-white text-[10px] font-bold transition ml-0.5">Buka</button>
-                    </div>
-                </template>
 
-                <!-- QR Table Orders Button -->
-                <button @click="openIncomingOrdersModal()"
-                    :class="pendingQrCount > 0 ?
-                        'bg-[#007AFF] text-white ring-2 ring-white/30' :
-                        'bg-white/10 hover:bg-white/15 text-white border border-white/10'"
-                    class="h-8.5 sm:h-9 px-2.5 sm:px-3 rounded-[10px] active:scale-[0.97] text-[12px] font-medium transition flex items-center gap-1.5 relative"
-                    title="Pesanan Masuk dari Meja QR">
-                    <div class="relative flex items-center justify-center">
-                        <svg class="w-4 h-4 text-[#007AFF] shrink-0" fill="none" stroke="currentColor"
-                            stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5zM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5zM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0113.5 9.375v-4.5zM6.75 6.75h.75v.75h-.75v-.75zM6.75 16.5h.75v.75h-.75v-.75zM16.5 6.75h.75v.75h-.75v-.75z" />
+                <!-- 1. MOBILE ONLY ACTION GROUP (< md): SCAN + FULLSCREEN + ENLARGED HAMBURGER -->
+                <div class="flex md:hidden items-center gap-2 shrink-0">
+                    <!-- Scan Barcode Kamera Button (Besar & Mudah Ditekan) -->
+                    <button type="button" @click="requestBarcodeScannerAccess()"
+                        class="h-10 w-10 sm:h-11 sm:w-11 rounded-[12px] bg-white/10 hover:bg-white/15 active:scale-95 text-white flex items-center justify-center border border-white/15 shadow-sm transition shrink-0"
+                        title="Scan Barcode Kamera">
+                        <svg class="w-5 h-5 sm:w-5.5 sm:h-5.5 text-white" fill="none" stroke="currentColor" stroke-width="1.9" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5zM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5zM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0113.5 9.375v-4.5zM6.75 6.75h.75v.75h-.75v-.75zM6.75 16.5h.75v.75h-.75v-.75zM16.5 6.75h.75v.75h-.75v-.75z" />
                         </svg>
-                        <span x-show="pendingQrCount > 0" class="absolute -top-1 -right-1 flex h-2 w-2">
-                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#007AFF] opacity-75"></span>
-                            <span class="relative inline-flex rounded-full h-2 w-2 bg-[#007AFF]"></span>
-                        </span>
-                    </div>
-                    <span class="hidden md:inline">Order QR</span>
-                    <span x-show="pendingQrCount > 0" x-text="pendingQrCount"
-                        class="px-1.5 py-0.5 rounded-full bg-[#007AFF] text-white font-bold text-[9px] flex items-center justify-center tabular-nums"></span>
-                </button>
+                    </button>
 
-                @if (\App\Support\Context::hasPermission('pos.tables'))
-                    <!-- Resto Meja Selector Button -->
-                    <button @click="openTablesModal()"
-                        class="h-8.5 sm:h-9 px-2.5 sm:px-3 rounded-[10px] bg-white/10 hover:bg-white/15 active:scale-[0.97] text-white text-[12px] font-medium transition flex items-center gap-1.5 border border-white/10"
-                        title="Daftar Meja & Sesi Tagihan Meja">
-                        <svg class="w-4 h-4 text-[#34C759] shrink-0" fill="none" stroke="currentColor"
-                            stroke-width="1.8" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
-                        </svg>
-                        <span class="hidden md:inline">Meja</span>
-                        <template x-if="selectedTable">
-                            <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#34C759]/30 text-[#34C759]"
-                                x-text="'M-' + selectedTable.table_number"></span>
+                    <!-- Fullscreen Toggle Button (Besar & Mudah Ditekan) -->
+                    <button type="button" @click="toggleFullscreen()"
+                        class="h-10 w-10 sm:h-11 sm:w-11 rounded-[12px] bg-white/10 hover:bg-white/15 active:scale-95 text-white flex items-center justify-center border border-white/15 shadow-sm transition shrink-0"
+                        :title="isFullscreen ? 'Keluar Fullscreen' : 'Mode Layar Penuh'">
+                        <template x-if="!isFullscreen">
+                            <svg class="w-5 h-5 sm:w-5.5 sm:h-5.5 text-white" fill="none" stroke="currentColor" stroke-width="1.9" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" />
+                            </svg>
+                        </template>
+                        <template x-if="isFullscreen">
+                            <svg class="w-5 h-5 sm:w-5.5 sm:h-5.5 text-white" fill="none" stroke="currentColor" stroke-width="1.9" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 9V4.5M9 9H4.5M9 9L3.75 3.75M9 15v4.5M9 15H4.5M9 15l-5.25 5.25M15 9h4.5M15 9V4.5M15 9l5.25-5.25M15 15h4.5M15 15v4.5m0-4.5l5.25 5.25" />
+                            </svg>
                         </template>
                     </button>
-                @endif
 
-                <!-- Antrean Hold Button -->
-                <button @click="showHeldOrdersModal = true"
-                    class="h-8.5 sm:h-9 px-2.5 sm:px-3 rounded-[10px] bg-white/10 hover:bg-white/15 active:scale-[0.97] text-white text-[12px] font-medium transition flex items-center gap-1.5 border border-white/10"
-                    title="Antrean Transaksi (Hold)">
-                    <svg class="w-4 h-4 text-[#FF9500] shrink-0" fill="none" stroke="currentColor"
-                        stroke-width="1.8" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <span class="hidden md:inline">Hold</span>
-                    <span x-show="heldOrders.length > 0" x-text="heldOrders.length"
-                        class="w-4 h-4 rounded-full bg-[#FF9500] text-black font-bold text-[9px] flex items-center justify-center tabular-nums"></span>
-                </button>
-
-                @if (\App\Support\Context::hasPermission('finance.cash_bank'))
-                    <!-- Kas Masuk / Keluar Button -->
-                    <button @click="showCashMovementModal = true"
-                        class="h-8.5 sm:h-9 px-2.5 sm:px-3 rounded-[10px] bg-white/10 hover:bg-white/15 active:scale-[0.97] text-white text-[12px] font-medium transition flex items-center gap-1.5 border border-white/10"
-                        title="Kas Masuk / Kas Keluar">
-                        <svg class="w-4 h-4 text-white/70 shrink-0" fill="none"
-                            stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
+                    <!-- Hamburger Drawer Toggle Button (Besar & Menonjol) -->
+                    <button type="button" @click="mobileMenuOpen = true"
+                        class="h-10 w-10 sm:h-11 sm:w-11 rounded-[12px] bg-[#007AFF] hover:bg-[#0071EB] active:scale-95 text-white flex items-center justify-center border border-white/20 shadow-md transition shrink-0 relative"
+                        title="Buka Menu Kasir POS">
+                        <svg class="w-5.5 h-5.5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
                         </svg>
-                        <span class="hidden md:inline">Kas</span>
+                        <!-- Notif badge on hamburger -->
+                        <span x-show="pendingQrCount > 0 || (heldOrders && heldOrders.length > 0)"
+                            class="absolute -top-1 -right-1 flex h-3 w-3">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#FF3B30] opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-3 w-3 bg-[#FF3B30] border-2 border-[#0B1528]"></span>
+                        </span>
                     </button>
-                @endif
+                </div>
 
-                <!-- Dedicated Setting POS & Hardware Hub Button -->
-                <button type="button" @click="showPosSettingsModal = true"
-                    class="h-8.5 sm:h-9 px-2.5 sm:px-3 rounded-[10px] bg-white/10 hover:bg-white/15 active:scale-[0.97] text-white text-[12px] font-medium transition flex items-center gap-1.5 border border-white/10"
-                    title="Pusat Pengaturan POS & Hardware">
-                    <svg class="w-4 h-4 text-white/80 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                    <span class="hidden md:inline">Setting POS</span>
-                </button>
+                <!-- 2. DESKTOP TOOLBAR (md:flex) -->
+                <div class="hidden md:flex items-center gap-1.5 sm:gap-2 shrink-0">
+                    <!-- Shift Indicator Pill -->
+                    <template x-if="activeShift">
+                        <div
+                            class="flex items-center gap-1.5 px-2.5 py-1 rounded-[10px] bg-[#34C759]/20 border border-[#34C759]/30 text-[#30D158] text-[11px]">
+                            <span class="w-2 h-2 shrink-0 rounded-full bg-[#34C759] animate-pulse"></span>
+                            <span class="hidden md:inline font-semibold">Shift Aktif</span>
+                            <button @click="openShiftCloseModal()"
+                                class="px-2 py-0.5 rounded-[6px] bg-[#0B1528] hover:bg-black/50 text-white text-[10px] font-bold transition ml-0.5">Tutup</button>
+                        </div>
+                    </template>
+                    <template x-if="!activeShift">
+                        <div
+                            class="flex items-center gap-1.5 px-2.5 py-1 rounded-[10px] bg-[#FF9500]/20 border border-[#FF9500]/30 text-[#FF9F0A] text-[11px]">
+                            <span class="w-2 h-2 shrink-0 rounded-full bg-[#FF9500]"></span>
+                            <span class="hidden md:inline font-semibold">Shift Tutup</span>
+                            <button @click="showOpenShiftModal = true"
+                                class="px-2 py-0.5 rounded-[6px] bg-[#0B1528] hover:bg-black/50 text-white text-[10px] font-bold transition ml-0.5">Buka</button>
+                        </div>
+                    </template>
 
-                <!-- Fullscreen Toggle -->
-                <div x-data="{
-                    isFullscreen: false,
-                    init() {
-                        const handleFs = () => this.updateState();
-                        document.addEventListener('fullscreenchange', handleFs);
-                        document.addEventListener('webkitfullscreenchange', handleFs);
-                    },
-                    toggleFullscreen() {
-                        if (!document.fullscreenElement) {
-                            document.documentElement.requestFullscreen?.().catch(() => {});
-                        } else {
-                            document.exitFullscreen?.().catch(() => {});
-                        }
-                    },
-                    updateState() {
-                        this.isFullscreen = !!document.fullscreenElement;
-                    }
-                }" class="hidden sm:block">
+                    <!-- QR Table Orders Button -->
+                    <button @click="openIncomingOrdersModal()"
+                        :class="pendingQrCount > 0 ?
+                            'bg-[#007AFF] text-white ring-2 ring-white/30' :
+                            'bg-white/10 hover:bg-white/15 text-white border border-white/10'"
+                        class="h-8.5 sm:h-9 px-2.5 sm:px-3 rounded-[10px] active:scale-[0.97] text-[12px] font-medium transition flex items-center gap-1.5 relative"
+                        title="Pesanan Masuk dari Meja QR">
+                        <div class="relative flex items-center justify-center">
+                            <svg class="w-4 h-4 text-[#007AFF] shrink-0" fill="none" stroke="currentColor"
+                                stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5zM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5zM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0113.5 9.375v-4.5zM6.75 6.75h.75v.75h-.75v-.75zM6.75 16.5h.75v.75h-.75v-.75zM16.5 6.75h.75v.75h-.75v-.75z" />
+                            </svg>
+                            <span x-show="pendingQrCount > 0" class="absolute -top-1 -right-1 flex h-2 w-2">
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#007AFF] opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-2 w-2 bg-[#007AFF]"></span>
+                            </span>
+                        </div>
+                        <span class="hidden md:inline">Order QR</span>
+                        <span x-show="pendingQrCount > 0" x-text="pendingQrCount"
+                            class="px-1.5 py-0.5 rounded-full bg-[#007AFF] text-white font-bold text-[9px] flex items-center justify-center tabular-nums"></span>
+                    </button>
+
+                    @if (\App\Support\Context::hasPermission('pos.tables'))
+                        <!-- Resto Meja Selector Button -->
+                        <button @click="openTablesModal()"
+                            class="h-8.5 sm:h-9 px-2.5 sm:px-3 rounded-[10px] bg-white/10 hover:bg-white/15 active:scale-[0.97] text-white text-[12px] font-medium transition flex items-center gap-1.5 border border-white/10"
+                            title="Daftar Meja & Sesi Tagihan Meja">
+                            <svg class="w-4 h-4 text-[#34C759] shrink-0" fill="none" stroke="currentColor"
+                                stroke-width="1.8" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
+                            </svg>
+                            <span class="hidden md:inline">Meja</span>
+                            <template x-if="selectedTable">
+                                <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#34C759]/30 text-[#34C759]"
+                                    x-text="'M-' + selectedTable.table_number"></span>
+                            </template>
+                        </button>
+                    @endif
+
+                    <!-- Antrean Hold Button -->
+                    <button @click="showHeldOrdersModal = true"
+                        class="h-8.5 sm:h-9 px-2.5 sm:px-3 rounded-[10px] bg-white/10 hover:bg-white/15 active:scale-[0.97] text-white text-[12px] font-medium transition flex items-center gap-1.5 border border-white/10"
+                        title="Antrean Transaksi (Hold)">
+                        <svg class="w-4 h-4 text-[#FF9500] shrink-0" fill="none" stroke="currentColor"
+                            stroke-width="1.8" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span class="hidden md:inline">Hold</span>
+                        <span x-show="heldOrders.length > 0" x-text="heldOrders.length"
+                            class="w-4 h-4 rounded-full bg-[#FF9500] text-black font-bold text-[9px] flex items-center justify-center tabular-nums"></span>
+                    </button>
+
+                    @if (\App\Support\Context::hasPermission('finance.cash_bank'))
+                        <!-- Kas Masuk / Keluar Button -->
+                        <button @click="showCashMovementModal = true"
+                            class="h-8.5 sm:h-9 px-2.5 sm:px-3 rounded-[10px] bg-white/10 hover:bg-white/15 active:scale-[0.97] text-white text-[12px] font-medium transition flex items-center gap-1.5 border border-white/10"
+                            title="Kas Masuk / Kas Keluar">
+                            <svg class="w-4 h-4 text-white/70 shrink-0" fill="none"
+                                stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
+                            </svg>
+                            <span class="hidden md:inline">Kas</span>
+                        </button>
+                    @endif
+
+                    <!-- Dedicated Setting POS & Hardware Hub Button -->
+                    <button type="button" @click="showPosSettingsModal = true"
+                        class="h-8.5 sm:h-9 px-2.5 sm:px-3 rounded-[10px] bg-white/10 hover:bg-white/15 active:scale-[0.97] text-white text-[12px] font-medium transition flex items-center gap-1.5 border border-white/10"
+                        title="Pusat Pengaturan POS & Hardware">
+                        <svg class="w-4 h-4 text-white/80 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        <span class="hidden md:inline">Setting POS</span>
+                    </button>
+
+                    <!-- Fullscreen Toggle (Desktop) -->
                     <button type="button" @click="toggleFullscreen()"
                         class="h-8.5 w-8.5 sm:h-9 sm:w-9 rounded-[10px] bg-white/10 hover:bg-white/15 active:scale-[0.97] text-white flex items-center justify-center transition"
                         :title="isFullscreen ? 'Keluar Fullscreen' : 'Mode Layar Penuh'">
-                        <svg class="w-4 h-4 text-white/80" fill="none" stroke="currentColor"
-                            stroke-width="1.8" viewBox="0 0 24 24">
+                        <template x-if="!isFullscreen">
+                            <svg class="w-4 h-4 text-white/80" fill="none" stroke="currentColor"
+                                stroke-width="1.8" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" />
+                            </svg>
+                        </template>
+                        <template x-if="isFullscreen">
+                            <svg class="w-4 h-4 text-white/80" fill="none" stroke="currentColor"
+                                stroke-width="1.8" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M9 9V4.5M9 9H4.5M9 9L3.75 3.75M9 15v4.5M9 15H4.5M9 15l-5.25 5.25M15 9h4.5M15 9V4.5M15 9l5.25-5.25M15 15h4.5M15 15v4.5m0-4.5l5.25 5.25" />
+                            </svg>
+                        </template>
+                    </button>
+
+                    <!-- Theme Toggle Button (Light / Dark Mode) -->
+                    <button type="button" @click="toggleTheme()"
+                        class="h-8.5 w-8.5 sm:h-9 sm:w-9 rounded-[10px] bg-white/10 hover:bg-white/15 active:scale-[0.97] text-white transition flex items-center justify-center shrink-0"
+                        :title="isDarkMode ? 'Beralih ke Mode Terang' : 'Beralih ke Mode Gelap'">
+                        <!-- Sun when Dark -->
+                        <svg x-show="isDarkMode" class="w-4 h-4 text-[#FFD60A]" fill="none" stroke="currentColor"
+                            stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" />
+                                d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
+                        </svg>
+                        <!-- Moon when Light -->
+                        <svg x-show="!isDarkMode" class="w-4 h-4 text-white" fill="none" stroke="currentColor"
+                            stroke-width="2" viewBox="0 0 24 24" style="display: none;">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+                        </svg>
+                    </button>
+
+                    <!-- Cashier Avatar Circle (Blue with Initial) -->
+                    <div class="flex items-center pl-1 text-xs">
+                        <div class="w-8 h-8 rounded-full bg-[#007AFF] text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-sm"
+                            title="{{ $user->name }}">
+                            {{ strtoupper(substr($user->name, 0, 1)) }}
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </header>
+
+        <!-- ===================================================== -->
+        <!-- MOBILE HAMBURGER SLIDE-OVER DRAWER (APPLE HIG DESIGN) -->
+        <!-- ===================================================== -->
+        <div x-show="mobileMenuOpen" x-cloak
+            class="fixed inset-0 z-[60] md:hidden"
+            @keydown.escape.window="mobileMenuOpen = false">
+
+            <!-- Backdrop Blur Overlay -->
+            <div x-show="mobileMenuOpen"
+                x-transition:enter="ease-out duration-300"
+                x-transition:enter-start="opacity-0"
+                x-transition:enter-end="opacity-100"
+                x-transition:leave="ease-in duration-200"
+                x-transition:leave-start="opacity-100"
+                x-transition:leave-end="opacity-0"
+                @click="mobileMenuOpen = false"
+                class="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity"></div>
+
+            <!-- Slide-Over Drawer Panel -->
+            <div x-show="mobileMenuOpen"
+                x-transition:enter="transform transition ease-out duration-300"
+                x-transition:enter-start="translate-x-full"
+                x-transition:enter-end="translate-x-0"
+                x-transition:leave="transform transition ease-in duration-200"
+                x-transition:leave-start="translate-x-0"
+                x-transition:leave-end="translate-x-full"
+                class="fixed inset-y-0 right-0 w-full max-w-[320px] sm:max-w-xs bg-[#0B1528] text-white flex flex-col shadow-2xl border-l border-white/10 z-10 overflow-hidden">
+
+                <!-- Drawer Header -->
+                <div class="p-4 border-b border-white/10 flex items-center justify-between bg-black/20">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-[10px] bg-[#007AFF] text-white flex items-center justify-center font-bold text-xs shadow-sm">
+                            <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-[14px] text-white leading-tight">Menu Kasir POS</h3>
+                            <p class="text-[10px] text-white/50">Navigasi & Operasional</p>
+                        </div>
+                    </div>
+                    <button type="button" @click="mobileMenuOpen = false"
+                        class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/15 text-white/70 hover:text-white flex items-center justify-center transition active:scale-95"
+                        title="Tutup Menu">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </button>
                 </div>
 
-                <!-- Theme Toggle Button (Light / Dark Mode) -->
-                <button type="button" @click="toggleTheme()"
-                    class="h-8.5 w-8.5 sm:h-9 sm:w-9 rounded-[10px] bg-white/10 hover:bg-white/15 active:scale-[0.97] text-white transition flex items-center justify-center shrink-0"
-                    :title="isDarkMode ? 'Beralih ke Mode Terang' : 'Beralih ke Mode Gelap'">
-                    <!-- Sun when Dark -->
-                    <svg x-show="isDarkMode" class="w-4 h-4 text-[#FFD60A]" fill="none" stroke="currentColor"
-                        stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
-                    </svg>
-                    <!-- Moon when Light -->
-                    <svg x-show="!isDarkMode" class="w-4 h-4 text-white" fill="none" stroke="currentColor"
-                        stroke-width="2" viewBox="0 0 24 24" style="display: none;">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
-                    </svg>
-                </button>
+                <!-- Drawer Scrollable Content -->
+                <div class="flex-1 overflow-y-auto p-4 space-y-4" style="scrollbar-width: thin;">
 
-                <!-- Cashier Avatar Circle (Blue with Initial) -->
-                <div class="flex items-center pl-1 text-xs">
-                    <div class="w-8 h-8 rounded-full bg-[#007AFF] text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-sm"
-                        title="{{ $user->name }}">
-                        {{ strtoupper(substr($user->name, 0, 1)) }}
+                    <!-- 1. Shift Status Bento Card -->
+                    <div class="p-3.5 rounded-[16px] bg-white/[0.04] border border-white/10 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[11px] font-semibold uppercase tracking-wider text-white/50">Status Shift</span>
+                            <template x-if="activeShift">
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#34C759]/20 border border-[#34C759]/30 text-[#30D158] text-[11px] font-bold">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-[#34C759] animate-pulse"></span>
+                                    Aktif
+                                </span>
+                            </template>
+                            <template x-if="!activeShift">
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#FF9500]/20 border border-[#FF9500]/30 text-[#FF9F0A] text-[11px] font-bold">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-[#FF9500]"></span>
+                                    Tutup
+                                </span>
+                            </template>
+                        </div>
+
+                        <template x-if="activeShift">
+                            <div class="space-y-2">
+                                <div class="text-[12px] text-white/70">
+                                    Shift dibuka oleh <strong class="text-white">{{ $user->name }}</strong>
+                                </div>
+                                <button type="button" @click="mobileMenuOpen = false; openShiftCloseModal()"
+                                    class="w-full h-9 rounded-[10px] bg-[#FF3B30] hover:bg-[#FF453A] text-white text-[12px] font-bold transition flex items-center justify-center gap-2 active:scale-95 shadow-sm">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
+                                    </svg>
+                                    Tutup Shift Sekarang
+                                </button>
+                            </div>
+                        </template>
+
+                        <template x-if="!activeShift">
+                            <div class="space-y-2">
+                                <p class="text-[11px] text-white/60">Shift belum dibuka. Buka shift kasir untuk mulai transaksi.</p>
+                                <button type="button" @click="mobileMenuOpen = false; showOpenShiftModal = true"
+                                    class="w-full h-9 rounded-[10px] bg-[#34C759] hover:bg-[#30D158] text-black font-bold text-[12px] transition flex items-center justify-center gap-2 active:scale-95 shadow-sm">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                                    </svg>
+                                    Buka Shift Kasir
+                                </button>
+                            </div>
+                        </template>
+                    </div>
+
+                    <!-- 2. Outlet Selector (for multi-location) -->
+                    <div class="p-3 rounded-[16px] bg-white/[0.04] border border-white/10 space-y-2">
+                        <label class="text-[11px] font-semibold uppercase tracking-wider text-white/50 block">Lokasi Outlet</label>
+                        <div class="relative">
+                            <select x-model="selectedLocationId" @change="changeLocation()"
+                                class="w-full h-10 rounded-[10px] bg-white/10 border border-white/15 px-3 pr-8 text-white text-[12px] font-medium focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                                @foreach ($locations as $loc)
+                                    <option value="{{ $loc->id }}" class="bg-[#0B1528] text-white" {{ $loc->id === $selectedLocationId ? 'selected' : '' }}>
+                                        {{ $loc->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- 3. Operational Navigation Menu Items -->
+                    <div class="space-y-1.5">
+                        <span class="text-[11px] font-semibold uppercase tracking-wider text-white/50 px-1 block">Fitur Kasir</span>
+
+                        <!-- Pesanan Meja QR -->
+                        <button type="button" @click="mobileMenuOpen = false; openIncomingOrdersModal()"
+                            class="w-full p-3 rounded-[12px] bg-white/[0.04] hover:bg-white/[0.08] active:scale-[0.98] border border-white/10 text-left transition flex items-center justify-between group">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-[10px] bg-[#007AFF]/20 text-[#007AFF] flex items-center justify-center shrink-0">
+                                    <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5zM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5zM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0113.5 9.375v-4.5zM6.75 6.75h.75v.75h-.75v-.75zM6.75 16.5h.75v.75h-.75v-.75zM16.5 6.75h.75v.75h-.75v-.75z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="font-bold text-[13px] text-white">Pesanan Meja QR</div>
+                                    <div class="text-[11px] text-white/50">Order langsung via QR resto</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <span x-show="pendingQrCount > 0" x-text="pendingQrCount + ' baru'"
+                                    class="px-2 py-0.5 rounded-full bg-[#007AFF] text-white font-bold text-[10px] animate-pulse"></span>
+                                <svg class="w-4 h-4 text-white/40 group-hover:text-white transition" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                                </svg>
+                            </div>
+                        </button>
+
+                        @if (\App\Support\Context::hasPermission('pos.tables'))
+                            <!-- Resto Meja -->
+                            <button type="button" @click="mobileMenuOpen = false; openTablesModal()"
+                                class="w-full p-3 rounded-[12px] bg-white/[0.04] hover:bg-white/[0.08] active:scale-[0.98] border border-white/10 text-left transition flex items-center justify-between group">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-9 h-9 rounded-[10px] bg-[#34C759]/20 text-[#34C759] flex items-center justify-center shrink-0">
+                                        <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <div class="font-bold text-[13px] text-white">Daftar Meja Resto</div>
+                                        <div class="text-[11px] text-white/50">Status & sesi tagihan meja</div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-1.5">
+                                    <template x-if="selectedTable">
+                                        <span class="px-2 py-0.5 rounded-full bg-[#34C759]/20 text-[#34C759] font-bold text-[10px]" x-text="'M-' + selectedTable.table_number"></span>
+                                    </template>
+                                    <svg class="w-4 h-4 text-white/40 group-hover:text-white transition" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                                    </svg>
+                                </div>
+                            </button>
+                        @endif
+
+                        <!-- Antrean Transaksi (Hold) -->
+                        <button type="button" @click="mobileMenuOpen = false; showHeldOrdersModal = true"
+                            class="w-full p-3 rounded-[12px] bg-white/[0.04] hover:bg-white/[0.08] active:scale-[0.98] border border-white/10 text-left transition flex items-center justify-between group">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-[10px] bg-[#FF9500]/20 text-[#FF9500] flex items-center justify-center shrink-0">
+                                    <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="font-bold text-[13px] text-white">Antrean Hold</div>
+                                    <div class="text-[11px] text-white/50">Pesanan yang ditahan sementara</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <span x-show="heldOrders.length > 0" x-text="heldOrders.length + ' hold'"
+                                    class="px-2 py-0.5 rounded-full bg-[#FF9500] text-black font-bold text-[10px]"></span>
+                                <svg class="w-4 h-4 text-white/40 group-hover:text-white transition" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                                </svg>
+                            </div>
+                        </button>
+
+                        @if (\App\Support\Context::hasPermission('finance.cash_bank'))
+                            <!-- Kas Masuk / Keluar -->
+                            <button type="button" @click="mobileMenuOpen = false; showCashMovementModal = true"
+                                class="w-full p-3 rounded-[12px] bg-white/[0.04] hover:bg-white/[0.08] active:scale-[0.98] border border-white/10 text-left transition flex items-center justify-between group">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-9 h-9 rounded-[10px] bg-white/10 text-white flex items-center justify-center shrink-0">
+                                        <svg class="w-4.5 h-4.5 text-white/80" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <div class="font-bold text-[13px] text-white">Kas Masuk / Kas Keluar</div>
+                                        <div class="text-[11px] text-white/50">Petty cash & mutasi kasir</div>
+                                    </div>
+                                </div>
+                                <svg class="w-4 h-4 text-white/40 group-hover:text-white transition" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                                </svg>
+                            </button>
+                        @endif
+
+                        <!-- Setting POS & Hardware Hub -->
+                        <button type="button" @click="mobileMenuOpen = false; showPosSettingsModal = true"
+                            class="w-full p-3 rounded-[12px] bg-white/[0.04] hover:bg-white/[0.08] active:scale-[0.98] border border-white/10 text-left transition flex items-center justify-between group">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-[10px] bg-white/10 text-white flex items-center justify-center shrink-0">
+                                    <svg class="w-4.5 h-4.5 text-white/80" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="font-bold text-[13px] text-white">Setting POS & Hardware</div>
+                                    <div class="text-[11px] text-white/50">Printer Thermal, Mode POS, Kitchen</div>
+                                </div>
+                            </div>
+                            <svg class="w-4 h-4 text-white/40 group-hover:text-white transition" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                            </svg>
+                        </button>
+
+                        <!-- Mode Tampilan (Dark / Light) -->
+                        <div class="p-3 rounded-[12px] bg-white/[0.04] border border-white/10 flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-[10px] bg-white/10 text-white flex items-center justify-center shrink-0">
+                                    <!-- Sun when Dark -->
+                                    <svg x-show="isDarkMode" class="w-4.5 h-4.5 text-[#FFD60A]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
+                                    </svg>
+                                    <!-- Moon when Light -->
+                                    <svg x-show="!isDarkMode" class="w-4.5 h-4.5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="display: none;">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="font-bold text-[13px] text-white">Mode Tampilan</div>
+                                    <div class="text-[11px] text-white/50" x-text="isDarkMode ? 'Tema Gelap (Dark)' : 'Tema Terang (Light)'"></div>
+                                </div>
+                            </div>
+                            <button type="button" @click="toggleTheme()"
+                                class="px-3 py-1.5 rounded-[8px] bg-white/10 hover:bg-white/20 active:scale-95 text-white text-[11px] font-bold transition">
+                                Ganti
+                            </button>
+                        </div>
                     </div>
                 </div>
+
+                <!-- Drawer Footer (Cashier profile & Return to Dashboard) -->
+                <div class="p-4 border-t border-white/10 bg-black/20 space-y-3">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-[#007AFF] text-white flex items-center justify-center font-bold text-sm shrink-0 shadow-sm">
+                            {{ strtoupper(substr($user->name, 0, 1)) }}
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <div class="font-bold text-[13px] text-white truncate">{{ $user->name }}</div>
+                            <div class="text-[11px] text-white/50 truncate">{{ $user->roles->first()?->name ?? 'Kasir Bertugas' }}</div>
+                        </div>
+                    </div>
+
+                    <a href="{{ route('dashboard') }}"
+                        class="w-full h-10 rounded-[10px] bg-white/10 hover:bg-white/15 active:scale-98 border border-white/15 text-white text-[12px] font-semibold transition flex items-center justify-center gap-2">
+                        <svg class="w-4 h-4 text-white/70" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
+                        </svg>
+                        Kembali ke Dashboard
+                    </a>
+                </div>
             </div>
-        </header>
+        </div>
 
         <!-- ===================================================== -->
         <!-- 2. MAIN WORKSPACE (CATALOG & CART)                    -->
@@ -3245,6 +3564,8 @@
                 selectedTypeFilter: 'all',
                 searchQuery: '',
                 isDarkMode: true,
+                mobileMenuOpen: false,
+                isFullscreen: false,
 
                 // Cart state
                 cart: [],
@@ -3409,6 +3730,9 @@
                     this.incomingPollInterval = setInterval(() => {
                         this.fetchIncomingOrders();
                     }, 5000);
+
+                    // Initialize fullscreen listeners
+                    this.initFullscreen();
                 },
 
                 initTheme() {
@@ -3432,6 +3756,31 @@
                         document.documentElement.classList.add('dark');
                     } else {
                         document.documentElement.classList.remove('dark');
+                    }
+                },
+
+                initFullscreen() {
+                    const handleFs = () => {
+                        this.isFullscreen = !!(document.fullscreenElement || document.webkitFullscreenElement);
+                    };
+                    document.addEventListener('fullscreenchange', handleFs);
+                    document.addEventListener('webkitfullscreenchange', handleFs);
+                },
+
+                toggleFullscreen() {
+                    if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+                        const elem = document.documentElement;
+                        if (elem.requestFullscreen) {
+                            elem.requestFullscreen().catch(() => {});
+                        } else if (elem.webkitRequestFullscreen) {
+                            elem.webkitRequestFullscreen();
+                        }
+                    } else {
+                        if (document.exitFullscreen) {
+                            document.exitFullscreen().catch(() => {});
+                        } else if (document.webkitExitFullscreen) {
+                            document.webkitExitFullscreen();
+                        }
                     }
                 },
 
