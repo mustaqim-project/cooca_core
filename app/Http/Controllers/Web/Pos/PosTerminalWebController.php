@@ -37,16 +37,46 @@ final class PosTerminalWebController extends Controller
     /**
      * Display the full-screen interactive POS cashier terminal.
      */
-    public function index(Request $request): View
+    public function index(Request $request): View|RedirectResponse
     {
-        $business = Context::requireBusiness();
-        $user = auth()->user();
+        $business = Context::business() ?? ($request->user()?->active_business_id ? \App\Models\Business::find($request->user()->active_business_id) : null);
+        if (! $business) {
+            return redirect()->route('businesses.select');
+        }
 
-        // 1. Locations / Outlets - only show outlet-type locations (not warehouse/logistics)
+        if (! Context::hasBusiness()) {
+            Context::setBusiness($business);
+        }
+
+        $user = auth()->user();
+        if (! $user) {
+            return redirect()->route('login');
+        }
+
+        // 1. Locations / Outlets - prioritize outlet-type locations
         $locations = Location::where('business_id', $business->id)
             ->where('is_active', true)
             ->whereIn('type', ['outlet', 'store', 'central_kitchen'])
             ->get();
+
+        if ($locations->isEmpty()) {
+            $locations = Location::where('business_id', $business->id)
+                ->where('is_active', true)
+                ->get();
+        }
+
+        if ($locations->isEmpty()) {
+            $defaultLocation = Location::firstOrCreate(
+                ['business_id' => $business->id, 'is_primary' => true],
+                [
+                    'name' => 'Outlet Utama',
+                    'type' => 'outlet',
+                    'is_active' => true,
+                    'code' => 'OUT-01',
+                ]
+            );
+            $locations = collect([$defaultLocation]);
+        }
 
         // Auto-bind cashier to their assigned primary location
         $membership = \App\Models\BusinessMembership::where('user_id', $user->id)
@@ -65,80 +95,142 @@ final class PosTerminalWebController extends Controller
         }
 
         // 2. Active Shift for Cashier
-        $activeShift = $this->shiftService->getActiveShift($business, $user, $selectedLocationId);
+        try {
+            $activeShift = $this->shiftService->getActiveShift($business, $user, $selectedLocationId);
+        } catch (\Throwable) {
+            $activeShift = null;
+        }
 
         // 3. Product Categories
-        $categories = ProductCategory::where('business_id', $business->id)->get();
+        try {
+            $categories = ProductCategory::where('business_id', $business->id)->get();
+        } catch (\Throwable) {
+            $categories = collect();
+        }
 
         // 4. Products with Selling Price and Effective Stock (Material Master)
         $branchPrices = [];
         if ($selectedLocationId) {
-            $branchPrices = \App\Models\BranchProductPrice::where('business_id', $business->id)
-                ->where('location_id', $selectedLocationId)
-                ->where('is_available', true)
-                ->pluck('price', 'product_id')
-                ->toArray();
+            try {
+                $branchPrices = \App\Models\BranchProductPrice::where('business_id', $business->id)
+                    ->where('location_id', $selectedLocationId)
+                    ->where('is_available', true)
+                    ->pluck('price', 'product_id')
+                    ->toArray();
+            } catch (\Throwable) {
+                $branchPrices = [];
+            }
         }
 
-        $products = Product::where('business_id', $business->id)
-            ->forPos()
-            ->with(['category', 'outputUnit', 'costModels.costingRuns.result'])
-            ->get()
-            ->map(function ($p) use ($selectedLocationId, $branchPrices) {
-                if (isset($branchPrices[$p->id])) {
-                    $p->price = (float) $branchPrices[$p->id];
-                    $p->selling_price = (float) $branchPrices[$p->id];
-                }
-                // Effective stock dihitung dari Material master stock (via BOM/direct material).
-                $p->current_stock = $p->calculateEffectiveStock($selectedLocationId);
-                $p->modifier_groups = $p->getAvailableModifierGroupsWithStock($selectedLocationId);
-                return $p;
-            })
-            ->each(function ($p): void {
-                $p->setAttribute('image_url', $p->image_url);
-            });
+        try {
+            $products = Product::where('business_id', $business->id)
+                ->forPos()
+                ->with(['category', 'outputUnit', 'costModels.costingRuns.result'])
+                ->get()
+                ->map(function ($p) use ($selectedLocationId, $branchPrices) {
+                    if (isset($branchPrices[$p->id])) {
+                        $p->price = (float) $branchPrices[$p->id];
+                        $p->selling_price = (float) $branchPrices[$p->id];
+                    }
+                    try {
+                        $p->current_stock = $p->calculateEffectiveStock($selectedLocationId);
+                    } catch (\Throwable) {
+                        $p->current_stock = null;
+                    }
+                    try {
+                        $p->modifier_groups = $p->getAvailableModifierGroupsWithStock($selectedLocationId);
+                    } catch (\Throwable) {
+                        $p->modifier_groups = [];
+                    }
+                    return $p;
+                })
+                ->each(function ($p): void {
+                    try {
+                        $p->setAttribute('image_url', $p->image_url);
+                    } catch (\Throwable) {
+                        $p->setAttribute('image_url', null);
+                    }
+                });
+        } catch (\Throwable) {
+            $products = collect();
+        }
 
         // 5. Customers for CRM dropdown
-        $customers = Customer::where('business_id', $business->id)
-            ->where('is_active', true)
-            ->select('id', 'name', 'phone', 'membership_tier', 'points_balance', 'credit_limit', 'current_credit_balance')
-            ->get();
+        try {
+            $customers = Customer::where('business_id', $business->id)
+                ->where('is_active', true)
+                ->select('id', 'name', 'phone', 'membership_tier', 'points_balance', 'credit_limit', 'current_credit_balance')
+                ->get();
+        } catch (\Throwable) {
+            $customers = collect();
+        }
 
         // 6. Active Held Orders for this location
-        $heldOrders = PosOrder::where('business_id', $business->id)
-            ->where('status', PosOrder::STATUS_DRAFT_HELD)
-            ->with('items')
-            ->latest('held_at')
-            ->get();
+        try {
+            $heldOrders = PosOrder::where('business_id', $business->id)
+                ->where('status', PosOrder::STATUS_DRAFT_HELD)
+                ->with('items')
+                ->latest('held_at')
+                ->get();
+        } catch (\Throwable) {
+            $heldOrders = collect();
+        }
 
         // 7. Active Vouchers
-        $vouchers = Voucher::where('business_id', $business->id)
-            ->where('is_active', true)
-            ->get();
+        try {
+            $vouchers = Voucher::where('business_id', $business->id)
+                ->where('is_active', true)
+                ->get();
+        } catch (\Throwable) {
+            $vouchers = collect();
+        }
 
         // 8. F&B Tables & Incoming QR Orders
-        $tables = PosTable::where('business_id', $business->id)
-            ->where('is_active', true)
-            ->with(['activeSession.orders.items.modifiers'])
-            ->orderBy('table_number')
-            ->get();
+        try {
+            $tables = PosTable::where('business_id', $business->id)
+                ->where('is_active', true)
+                ->with(['activeSession.orders.items.modifiers'])
+                ->orderBy('table_number')
+                ->get();
+        } catch (\Throwable) {
+            $tables = collect();
+        }
 
-        $pendingQrOrdersCount = PosOrder::where('business_id', $business->id)
-            ->where('order_source', PosOrder::SOURCE_QR_TABLE)
-            ->whereIn('status', [PosOrder::STATUS_PENDING, PosOrder::STATUS_CONFIRMED])
-            ->count();
+        try {
+            $pendingQrOrdersCount = PosOrder::where('business_id', $business->id)
+                ->where('order_source', PosOrder::SOURCE_QR_TABLE)
+                ->whereIn('status', [PosOrder::STATUS_PENDING, PosOrder::STATUS_CONFIRMED])
+                ->count();
+        } catch (\Throwable) {
+            $pendingQrOrdersCount = 0;
+        }
 
         // 9. Adaptive Operating Mode (Solo Owner vs. Team)
-        $operatingModeService = new \App\Domain\System\OperatingModeService;
-        $operatingMode = $operatingModeService->getOperatingModeProfile($business);
-        $canBypassSupervisor = $operatingModeService->canBypassSupervisor($business, $user);
-        $hideCostFromCashier = $operatingModeService->shouldHideCostFromCashier($business, $user);
+        try {
+            $operatingModeService = new \App\Domain\System\OperatingModeService;
+            $operatingMode = $operatingModeService->getOperatingModeProfile($business);
+            $canBypassSupervisor = $operatingModeService->canBypassSupervisor($business, $user);
+            $hideCostFromCashier = $operatingModeService->shouldHideCostFromCashier($business, $user);
+        } catch (\Throwable) {
+            $operatingMode = [
+                'mode' => 'solo',
+                'label' => 'Solo-Owner Mode (Operasional Mandiri)',
+                'description' => 'Operasional 1 orang: Tanpa birokrasi, bypass PIN supervisor.',
+                'active_users_count' => 1,
+                'bypass_supervisor_pin' => true,
+                'instant_stock_in_enabled' => true,
+            ];
+            $canBypassSupervisor = true;
+            $hideCostFromCashier = false;
+        }
         $posShowProductImages = (bool) ($business->pos_show_product_images ?? true);
 
         // 10. Staff / Technicians for Service & Workshop SPK Assignment
-        $technicians = User::whereHas('businesses', function ($q) use ($business) {
-            $q->where('businesses.id', $business->id);
-        })->select('users.id', 'users.name')->orderBy('users.name')->get();
+        try {
+            $technicians = $business->users()->select('users.id', 'users.name')->orderBy('users.name')->get();
+        } catch (\Throwable) {
+            $technicians = collect();
+        }
 
         return view('app.pos.terminal', compact(
             'business',

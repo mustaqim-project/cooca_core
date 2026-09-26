@@ -330,7 +330,7 @@
                 localStorage.setItem('cooca-theme', 'light');
             }
         }
-    }" x-init="lucide.createIcons(); $watch('mobileMenu', value => { if (value) { document.body.classList.add('overflow-hidden', 'lg:overflow-auto'); } else { document.body.classList.remove('overflow-hidden', 'lg:overflow-auto'); } })">
+    }" x-init="if (typeof lucide !== 'undefined' && typeof lucide.createIcons === 'function') { lucide.createIcons(); } $watch('mobileMenu', value => { if (value) { document.body.classList.add('overflow-hidden', 'lg:overflow-auto'); } else { document.body.classList.remove('overflow-hidden', 'lg:overflow-auto'); } })">
 
     @php
         $isLandingPage = request()->routeIs('landing') || request()->is('/');
