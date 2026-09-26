@@ -385,51 +385,41 @@
         <!-- 1. POS TOP TOOLBAR / NAVBAR (macOS Sonoma Style)       -->
         <!-- ===================================================== -->
         <header
-            class="pos-header h-14 sm:h-16 backdrop-blur-xl bg-white/80 dark:bg-[#1C1C1E]/80 border-b border-black/[0.06] dark:border-white/10 flex items-center justify-between px-3 sm:px-6 shrink-0 z-20 transition-colors">
+            class="pos-header h-14 sm:h-16 bg-[#0B1528] text-white border-b border-white/10 flex items-center justify-between px-3 sm:px-6 shrink-0 z-20 transition-colors">
             <!-- Left: Brand / Navigation / Location -->
             <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
-                <!-- Back to Dashboard -->
+                <!-- Back to Dashboard / Brand Logo -->
                 <a href="{{ route('dashboard') }}"
-                    class="h-8.5 w-8.5 sm:h-9 sm:w-9 rounded-[10px] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] text-black/70 dark:text-white/80 flex items-center justify-center transition shrink-0"
-                    title="Kembali ke Dashboard" aria-label="Kembali ke Dashboard">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
-                    </svg>
-                </a>
-
-                <!-- Terminal Brand Tile -->
-                <div class="flex items-center gap-2 min-w-0">
-                    <div
-                        class="w-8.5 h-8.5 sm:w-9 sm:h-9 shrink-0 rounded-[10px] bg-[#007AFF]/12 dark:bg-[#007AFF]/20 text-[#007AFF] flex items-center justify-center">
-                        <svg class="w-5 h-5 shrink-0" style="width: 20px; height: 20px;" fill="none"
-                            stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M9 14.25l6-6m4.5-3.493V21.75l-3.75-1.5-3.75 1.5-3.75-1.5-3.75 1.5V4.757c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0c1.1.128 1.907 1.077 1.907 2.185z" />
+                    class="flex items-center gap-2 text-white hover:opacity-90 transition shrink-0"
+                    title="Kembali ke Dashboard">
+                    <div class="w-8.5 h-8.5 sm:w-9 sm:h-9 shrink-0 rounded-[10px] bg-[#007AFF] text-white flex items-center justify-center font-black text-sm shadow-sm">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 21v-7.5a.75.75 0 01.75-.75h3a.75.75 0 01.75.75V21m-4.5 0H2.36m11.14 0H18m0 0h3.64m-1.39 0V9.349m-16.5 11.65V9.35m0 0a3.001 3.001 0 003.75-.615A2.993 2.993 0 009 9.35c.667 0 1.3-.217 1.815-.584a3 3 0 004.37 0c.515.367 1.148.584 1.815.584a3 3 0 002.25-.966 3 3 0 003.75.615m-16.5 0L12 3l7.5 6.35" />
                         </svg>
                     </div>
-                    <div class="min-w-0">
-                        <div
-                            class="font-bold text-[13px] sm:text-[15px] text-black dark:text-white tracking-tight leading-none truncate max-w-[120px] sm:max-w-[200px] md:max-w-[260px]">
-                            {{ $business->name }}</div>
-                        <div class="text-[10px] sm:text-[11px] font-medium text-[#007AFF] mt-0.5 sm:mt-1">Terminal
-                            Kasir POS</div>
-                    </div>
+                    <span class="font-extrabold text-[16px] tracking-tight text-white hidden sm:inline">COOCA</span>
+                </a>
+
+                <div class="h-6 w-px bg-white/20 hidden sm:block"></div>
+
+                <!-- Store Info Tile -->
+                <div class="min-w-0">
+                    <div
+                        class="font-bold text-[13px] sm:text-[14px] text-white tracking-tight leading-none truncate max-w-[120px] sm:max-w-[200px] md:max-w-[260px]">
+                        {{ $business->name }}</div>
+                    <div class="text-[10px] sm:text-[11px] font-medium text-white/50 mt-0.5 sm:mt-1">Terminal
+                        Kasir POS</div>
                 </div>
 
-                <!-- Outlet Location Selector (Visible on sm+) -->
+                <!-- Outlet Location Selector Pill -->
                 <div
-                    class="hidden sm:flex items-center gap-1.5 ml-1 sm:ml-2 px-2.5 py-1 rounded-[8px] bg-black/[0.04] dark:bg-white/[0.06] text-xs shrink-0">
-                    <svg class="w-3.5 h-3.5 text-black/45 dark:text-white/45" fill="none" stroke="currentColor"
-                        stroke-width="1.5" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
-                    </svg>
+                    class="hidden sm:flex items-center gap-1.5 ml-1 sm:ml-2 px-3 py-1 rounded-full bg-white/10 border border-white/15 text-xs shrink-0">
+                    <span class="w-2 h-2 rounded-full bg-[#34C759]"></span>
                     <select x-model="selectedLocationId" @change="changeLocation()"
-                        class="bg-transparent text-black/80 dark:text-white/90 text-[11px] font-medium focus:outline-none cursor-pointer max-w-[140px] truncate">
+                        class="bg-transparent text-white text-[11px] font-semibold focus:outline-none cursor-pointer max-w-[140px] truncate">
                         @foreach ($locations as $loc)
                             <option value="{{ $loc->id }}"
-                                class="bg-white dark:bg-[#1C1C1E] text-black dark:text-white"
+                                class="bg-[#0B1528] text-white"
                                 {{ $loc->id === $selectedLocationId ? 'selected' : '' }}>
                                 {{ $loc->name }}
                             </option>
@@ -438,34 +428,57 @@
                 </div>
             </div>
 
+            <!-- Center: Search Input Bar with Barcode Scanner (Exact match to screenshot) -->
+            <div class="flex-1 max-w-md xl:max-w-xl mx-3 min-w-0 hidden md:block">
+                <div class="relative flex items-center">
+                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-black/40 z-10">
+                        <svg class="w-4 h-4 text-black/40" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                        </svg>
+                    </div>
+                    <input type="text" x-ref="barcodeSearchInput" x-model="searchQuery"
+                        @input="filterProducts()"
+                        @keydown.enter="handleBarcodeOrSearch()"
+                        placeholder="Cari nama produk, SKU, atau scan barcode..."
+                        class="w-full h-10 bg-white border border-transparent rounded-[12px] pl-10 pr-11 text-[13px] text-black placeholder:text-black/40 focus:outline-none focus:ring-2 focus:ring-[#007AFF] shadow-sm transition">
+                    <button type="button" @click="requestBarcodeScannerAccess()"
+                        class="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-black/50 hover:text-[#007AFF] transition"
+                        title="Scan Barcode Kamera">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5zM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5zM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0113.5 9.375v-4.5zM6.75 6.75h.75v.75h-.75v-.75zM6.75 16.5h.75v.75h-.75v-.75zM16.5 6.75h.75v.75h-.75v-.75z" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
             <!-- Right: Status / Theme / Fullscreen / Actions -->
             <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
                 <!-- Shift Indicator Pill -->
                 <template x-if="activeShift">
                     <div
-                        class="flex items-center gap-1.5 px-2 sm:px-2.5 py-1 rounded-[8px] bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158] text-[11px]">
-                        <span class="w-1.5 h-1.5 shrink-0 rounded-full bg-[#34C759] animate-pulse"></span>
-                        <span class="hidden md:inline font-medium">Shift Aktif</span>
+                        class="flex items-center gap-1.5 px-2.5 py-1 rounded-[10px] bg-[#34C759]/20 border border-[#34C759]/30 text-[#30D158] text-[11px]">
+                        <span class="w-2 h-2 shrink-0 rounded-full bg-[#34C759] animate-pulse"></span>
+                        <span class="hidden md:inline font-semibold">Shift Aktif</span>
                         <button @click="openShiftCloseModal()"
-                            class="px-1.5 py-0.5 rounded-[5px] bg-[#34C759]/20 hover:bg-[#34C759]/30 text-[10px] font-semibold transition">Tutup</button>
+                            class="px-2 py-0.5 rounded-[6px] bg-[#0B1528] hover:bg-black/50 text-white text-[10px] font-bold transition ml-0.5">Tutup</button>
                     </div>
                 </template>
                 <template x-if="!activeShift">
                     <div
-                        class="flex items-center gap-1.5 px-2 sm:px-2.5 py-1 rounded-[8px] bg-[#FF9500]/12 text-[#B25E00] dark:text-[#FF9F0A] text-[11px]">
-                        <span class="w-1.5 h-1.5 shrink-0 rounded-full bg-[#FF9500]"></span>
-                        <span class="hidden md:inline font-medium">Shift Belum Buka</span>
+                        class="flex items-center gap-1.5 px-2.5 py-1 rounded-[10px] bg-[#FF9500]/20 border border-[#FF9500]/30 text-[#FF9F0A] text-[11px]">
+                        <span class="w-2 h-2 shrink-0 rounded-full bg-[#FF9500]"></span>
+                        <span class="hidden md:inline font-semibold">Shift Tutup</span>
                         <button @click="showOpenShiftModal = true"
-                            class="px-1.5 py-0.5 rounded-[5px] bg-[#FF9500]/20 hover:bg-[#FF9500]/30 text-[10px] font-semibold transition">Buka</button>
+                            class="px-2 py-0.5 rounded-[6px] bg-[#0B1528] hover:bg-black/50 text-white text-[10px] font-bold transition ml-0.5">Buka</button>
                     </div>
                 </template>
 
-                <!-- QR Table Orders Button with Live Pulse Indicator -->
+                <!-- QR Table Orders Button -->
                 <button @click="openIncomingOrdersModal()"
                     :class="pendingQrCount > 0 ?
-                        'bg-[#007AFF]/15 dark:bg-[#007AFF]/25 text-[#007AFF] dark:text-[#0A84FF] ring-2 ring-[#007AFF]/50' :
-                        'bg-black/[0.04] dark:bg-white/[0.06] text-black/80 dark:text-white/80 hover:bg-black/[0.07] dark:hover:bg-white/[0.1]'"
-                    class="h-8.5 sm:h-9 px-2.5 sm:px-3 rounded-[10px] active:scale-[0.97] text-[12px] font-medium transition flex items-center gap-1.5 relative border border-black/[0.04] dark:border-white/[0.08]"
+                        'bg-[#007AFF] text-white ring-2 ring-white/30' :
+                        'bg-white/10 hover:bg-white/15 text-white border border-white/10'"
+                    class="h-8.5 sm:h-9 px-2.5 sm:px-3 rounded-[10px] active:scale-[0.97] text-[12px] font-medium transition flex items-center gap-1.5 relative"
                     title="Pesanan Masuk dari Meja QR">
                     <div class="relative flex items-center justify-center">
                         <svg class="w-4 h-4 text-[#007AFF] shrink-0" fill="none" stroke="currentColor"
@@ -474,12 +487,11 @@
                                 d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5zM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5zM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0113.5 9.375v-4.5zM6.75 6.75h.75v.75h-.75v-.75zM6.75 16.5h.75v.75h-.75v-.75zM16.5 6.75h.75v.75h-.75v-.75z" />
                         </svg>
                         <span x-show="pendingQrCount > 0" class="absolute -top-1 -right-1 flex h-2 w-2">
-                            <span
-                                class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#007AFF] opacity-75"></span>
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#007AFF] opacity-75"></span>
                             <span class="relative inline-flex rounded-full h-2 w-2 bg-[#007AFF]"></span>
                         </span>
                     </div>
-                    <span class="hidden xl:inline">Order QR</span>
+                    <span class="hidden md:inline">Order QR</span>
                     <span x-show="pendingQrCount > 0" x-text="pendingQrCount"
                         class="px-1.5 py-0.5 rounded-full bg-[#007AFF] text-white font-bold text-[9px] flex items-center justify-center tabular-nums"></span>
                 </button>
@@ -487,16 +499,16 @@
                 @if (\App\Support\Context::hasPermission('pos.tables'))
                     <!-- Resto Meja Selector Button -->
                     <button @click="openTablesModal()"
-                        class="h-8.5 sm:h-9 px-2.5 sm:px-3 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.07] dark:hover:bg-white/[0.1] active:scale-[0.97] text-black/80 dark:text-white/80 text-[12px] font-medium transition flex items-center gap-1.5 border border-black/[0.04] dark:border-white/[0.08]"
+                        class="h-8.5 sm:h-9 px-2.5 sm:px-3 rounded-[10px] bg-white/10 hover:bg-white/15 active:scale-[0.97] text-white text-[12px] font-medium transition flex items-center gap-1.5 border border-white/10"
                         title="Daftar Meja & Sesi Tagihan Meja">
                         <svg class="w-4 h-4 text-[#34C759] shrink-0" fill="none" stroke="currentColor"
                             stroke-width="1.8" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
                         </svg>
-                        <span class="hidden xl:inline">Meja</span>
+                        <span class="hidden md:inline">Meja</span>
                         <template x-if="selectedTable">
-                            <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#34C759]/20 text-[#34C759]"
+                            <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#34C759]/30 text-[#34C759]"
                                 x-text="'M-' + selectedTable.table_number"></span>
                         </template>
                     </button>
@@ -504,14 +516,14 @@
 
                 <!-- Antrean Hold Button -->
                 <button @click="showHeldOrdersModal = true"
-                    class="h-8.5 sm:h-9 px-2.5 sm:px-3 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.07] dark:hover:bg-white/[0.1] active:scale-[0.97] text-black/80 dark:text-white/80 text-[12px] font-medium transition flex items-center gap-1.5 border border-black/[0.04] dark:border-white/[0.08]"
+                    class="h-8.5 sm:h-9 px-2.5 sm:px-3 rounded-[10px] bg-white/10 hover:bg-white/15 active:scale-[0.97] text-white text-[12px] font-medium transition flex items-center gap-1.5 border border-white/10"
                     title="Antrean Transaksi (Hold)">
                     <svg class="w-4 h-4 text-[#FF9500] shrink-0" fill="none" stroke="currentColor"
                         stroke-width="1.8" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round"
                             d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    <span class="hidden xl:inline">Hold</span>
+                    <span class="hidden md:inline">Hold</span>
                     <span x-show="heldOrders.length > 0" x-text="heldOrders.length"
                         class="w-4 h-4 rounded-full bg-[#FF9500] text-black font-bold text-[9px] flex items-center justify-center tabular-nums"></span>
                 </button>
@@ -519,26 +531,26 @@
                 @if (\App\Support\Context::hasPermission('finance.cash_bank'))
                     <!-- Kas Masuk / Keluar Button -->
                     <button @click="showCashMovementModal = true"
-                        class="h-8.5 sm:h-9 px-2.5 sm:px-3 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.07] dark:hover:bg-white/[0.1] active:scale-[0.97] text-black/80 dark:text-white/80 text-[12px] font-medium transition flex items-center gap-1.5 border border-black/[0.04] dark:border-white/[0.08]"
+                        class="h-8.5 sm:h-9 px-2.5 sm:px-3 rounded-[10px] bg-white/10 hover:bg-white/15 active:scale-[0.97] text-white text-[12px] font-medium transition flex items-center gap-1.5 border border-white/10"
                         title="Kas Masuk / Kas Keluar">
-                        <svg class="w-4 h-4 text-black/50 dark:text-white/60 shrink-0" fill="none"
+                        <svg class="w-4 h-4 text-white/70 shrink-0" fill="none"
                             stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
                         </svg>
-                        <span class="hidden xl:inline">Kas</span>
+                        <span class="hidden md:inline">Kas</span>
                     </button>
                 @endif
 
                 <!-- Dedicated Setting POS & Hardware Hub Button -->
                 <button type="button" @click="showPosSettingsModal = true"
-                    class="h-8.5 sm:h-9 px-2.5 sm:px-3 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.07] dark:hover:bg-white/[0.1] active:scale-[0.97] text-black/80 dark:text-white/80 text-[12px] font-medium transition flex items-center gap-1.5 border border-black/[0.04] dark:border-white/[0.08]"
+                    class="h-8.5 sm:h-9 px-2.5 sm:px-3 rounded-[10px] bg-white/10 hover:bg-white/15 active:scale-[0.97] text-white text-[12px] font-medium transition flex items-center gap-1.5 border border-white/10"
                     title="Pusat Pengaturan POS & Hardware">
-                    <svg class="w-4 h-4 text-black/60 dark:text-white/60 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                    <svg class="w-4 h-4 text-white/80 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" />
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
-                    <span class="hidden sm:inline">Setting POS</span>
+                    <span class="hidden md:inline">Setting POS</span>
                 </button>
 
                 <!-- Fullscreen Toggle -->
@@ -561,9 +573,9 @@
                     }
                 }" class="hidden sm:block">
                     <button type="button" @click="toggleFullscreen()"
-                        class="h-9 px-2.5 rounded-[10px] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] text-black/80 dark:text-white/80 text-[12px] font-medium transition flex items-center gap-1"
+                        class="h-8.5 w-8.5 sm:h-9 sm:w-9 rounded-[10px] bg-white/10 hover:bg-white/15 active:scale-[0.97] text-white flex items-center justify-center transition"
                         :title="isFullscreen ? 'Keluar Fullscreen' : 'Mode Layar Penuh'">
-                        <svg class="w-4 h-4 text-black/50 dark:text-white/60" fill="none" stroke="currentColor"
+                        <svg class="w-4 h-4 text-white/80" fill="none" stroke="currentColor"
                             stroke-width="1.8" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" />
@@ -573,7 +585,7 @@
 
                 <!-- Theme Toggle Button (Light / Dark Mode) -->
                 <button type="button" @click="toggleTheme()"
-                    class="h-8 w-8 sm:h-9 sm:w-9 rounded-[8px] sm:rounded-[10px] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] text-black/70 dark:text-white/80 transition flex items-center justify-center shrink-0"
+                    class="h-8.5 w-8.5 sm:h-9 sm:w-9 rounded-[10px] bg-white/10 hover:bg-white/15 active:scale-[0.97] text-white transition flex items-center justify-center shrink-0"
                     :title="isDarkMode ? 'Beralih ke Mode Terang' : 'Beralih ke Mode Gelap'">
                     <!-- Sun when Dark -->
                     <svg x-show="isDarkMode" class="w-4 h-4 text-[#FFD60A]" fill="none" stroke="currentColor"
@@ -582,16 +594,16 @@
                             d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
                     </svg>
                     <!-- Moon when Light -->
-                    <svg x-show="!isDarkMode" class="w-4 h-4 text-[#5856D6]" fill="none" stroke="currentColor"
+                    <svg x-show="!isDarkMode" class="w-4 h-4 text-white" fill="none" stroke="currentColor"
                         stroke-width="2" viewBox="0 0 24 24" style="display: none;">
                         <path stroke-linecap="round" stroke-linejoin="round"
                             d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
                     </svg>
                 </button>
 
-                <!-- Cashier Avatar -->
-                <div class="flex items-center gap-1.5 pl-1.5 border-l border-black/10 dark:border-white/10 text-xs">
-                    <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-[8px] bg-[#007AFF]/15 text-[#007AFF] flex items-center justify-center font-bold text-[12px] shrink-0"
+                <!-- Cashier Avatar Circle (Blue with Initial) -->
+                <div class="flex items-center pl-1 text-xs">
+                    <div class="w-8 h-8 rounded-full bg-[#007AFF] text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-sm"
                         title="{{ $user->name }}">
                         {{ strtoupper(substr($user->name, 0, 1)) }}
                     </div>
@@ -607,134 +619,88 @@
             <!-- Left Area: Catalog & Products Touch Grid -->
             <div class="pos-catalog flex-1 flex flex-col overflow-hidden p-3 sm:p-4 gap-3">
 
-                <!-- Search & Category Rows (Cleanly separated to eliminate any overlap) -->
-                <div class="space-y-2.5 shrink-0">
-                    <!-- Search Bar & Dedicated Camera Scanner Button (Apple HIG Pro Toolbar) -->
-                    <div class="flex items-center gap-2.5 shrink-0">
-                        <!-- Search Field with Focus State & Shortcut Hint -->
-                        <div class="relative flex-1 min-w-0 group">
-                            <div
-                                class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-black/40 dark:text-white/40 group-focus-within:text-[#007AFF] transition-colors z-10">
-                                <svg class="w-4 h-4 sm:w-[18px] sm:h-[18px] text-black/40 dark:text-white/40 group-focus-within:text-[#007AFF] shrink-0"
-                                    style="width: 18px; height: 18px;" fill="none" stroke="currentColor"
-                                    stroke-width="2" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                        d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                <!-- Single Horizontal Category & Type Filter Strip (Exact match to screenshot) -->
+                <div class="category-bar flex items-center gap-2 overflow-x-auto pb-1 max-w-full scroll-smooth select-none shrink-0"
+                    style="scrollbar-width: none; -ms-overflow-style: none;">
+                    
+                    <!-- 1. Semua Item (Active Blue when default) -->
+                    <button type="button" @click="selectedCategory = 'all'; selectedTypeFilter = 'all'; filterProducts()"
+                        :class="(selectedCategory === 'all' && selectedTypeFilter === 'all')
+                            ? 'bg-[#007AFF] text-white shadow-xs font-semibold'
+                            : 'bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/10 text-black/75 dark:text-white/80 hover:bg-black/[0.02] dark:hover:bg-white/[0.05] shadow-[0_1px_2px_rgba(0,0,0,0.03)] font-medium'"
+                        class="h-10 px-4 rounded-[12px] text-[13px] whitespace-nowrap transition-all shrink-0 flex items-center gap-2 active:scale-[0.97]">
+                        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
+                        </svg>
+                        <span>Semua Item</span>
+                    </button>
+
+                    <!-- 2. Produk Fisik -->
+                    <button type="button" @click="selectedCategory = 'all'; selectedTypeFilter = 'goods'; filterProducts()"
+                        :class="(selectedCategory === 'all' && selectedTypeFilter === 'goods')
+                            ? 'bg-[#007AFF] text-white shadow-xs font-semibold'
+                            : 'bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/10 text-black/75 dark:text-white/80 hover:bg-black/[0.02] dark:hover:bg-white/[0.05] shadow-[0_1px_2px_rgba(0,0,0,0.03)] font-medium'"
+                        class="h-10 px-4 rounded-[12px] text-[13px] whitespace-nowrap transition-all shrink-0 flex items-center gap-2 active:scale-[0.97]">
+                        <svg class="w-4 h-4 shrink-0 text-black/50 dark:text-white/50" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9" />
+                        </svg>
+                        <span>Produk Fisik</span>
+                    </button>
+
+                    <!-- 3. Jasa / Layanan -->
+                    <button type="button" @click="selectedCategory = 'all'; selectedTypeFilter = 'service'; filterProducts()"
+                        :class="(selectedCategory === 'all' && selectedTypeFilter === 'service')
+                            ? 'bg-[#007AFF] text-white shadow-xs font-semibold'
+                            : 'bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/10 text-black/75 dark:text-white/80 hover:bg-black/[0.02] dark:hover:bg-white/[0.05] shadow-[0_1px_2px_rgba(0,0,0,0.03)] font-medium'"
+                        class="h-10 px-4 rounded-[12px] text-[13px] whitespace-nowrap transition-all shrink-0 flex items-center gap-2 active:scale-[0.97]">
+                        <svg class="w-4 h-4 shrink-0 text-black/50 dark:text-white/50" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75a4.5 4.5 0 01-4.884 4.484c-1.076-.091-2.264.398-3.03 1.164l-4.5 4.5a2.25 2.25 0 01-3.182-3.182l4.5-4.5c.766-.766 1.255-1.954 1.164-3.03A4.5 4.5 0 0117.25 2.25a.75.75 0 01.53 1.28l-1.97 1.97a.75.75 0 001.06 1.06l1.97-1.97a.75.75 0 011.28.53z" />
+                        </svg>
+                        <span>Jasa / Layanan</span>
+                    </button>
+
+                    <!-- 4. Dynamic Business Categories -->
+                    @foreach ($categories as $cat)
+                        <button type="button"
+                            @click="selectedCategory = '{{ $cat->id }}'; selectedTypeFilter = 'all'; filterProducts()"
+                            :class="(selectedCategory === '{{ $cat->id }}')
+                                ? 'bg-[#007AFF] text-white shadow-xs font-semibold'
+                                : 'bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/10 text-black/75 dark:text-white/80 hover:bg-black/[0.02] dark:hover:bg-white/[0.05] shadow-[0_1px_2px_rgba(0,0,0,0.03)] font-medium'"
+                            class="h-10 px-4 rounded-[12px] text-[13px] whitespace-nowrap transition-all shrink-0 flex items-center gap-2 active:scale-[0.97]">
+                            @if(stripos($cat->name, 'Jasa') !== false || stripos($cat->name, 'Layanan') !== false || stripos($cat->name, 'Konsultasi') !== false)
+                                <svg class="w-4 h-4 shrink-0 text-black/50 dark:text-white/50" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
                                 </svg>
-                            </div>
-                            <input type="text" x-ref="barcodeSearchInput" x-model="searchQuery"
-                                @keydown.enter="handleBarcodeOrSearch()"
-                                placeholder="Cari nama produk, SKU, atau scan barcode..."
-                                style="padding-left: 46px; padding-right: 90px;"
-                                class="w-full h-11 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/10 rounded-[14px] pl-12 pr-24 text-[13px] sm:text-[14px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/25 focus:border-[#007AFF] shadow-[0_1px_2px_rgba(0,0,0,0.04)] transition">
-
-                            <!-- Search Field Right Adornment (Clear Button & Enter Shortcut) -->
-                            <div class="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2 z-10">
-                                <button x-show="searchQuery" @click="searchQuery = ''; filterProducts()"
-                                    type="button"
-                                    class="w-5 h-5 rounded-full bg-black/10 dark:bg-white/20 text-black/60 dark:text-white/70 hover:bg-black/20 dark:hover:bg-white/30 flex items-center justify-center transition"
-                                    title="Hapus pencarian">
-                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                            d="M6 18L18 6M6 6l12 12" />
-                                    </svg>
-                                </button>
-                                <span
-                                    class="hidden md:inline-flex items-center px-2 py-0.5 rounded-[6px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.06] dark:border-white/10 text-black/40 dark:text-white/40 text-[10px] font-medium tracking-wide select-none">
-                                    ↵ Enter
-                                </span>
-                            </div>
-                        </div>
-
-                        <!-- Dedicated Camera Scanner Action Button -->
-                        <button type="button" @click="requestBarcodeScannerAccess()"
-                            class="h-11 px-3.5 sm:px-4 rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/10 hover:border-[#007AFF]/40 hover:bg-[#007AFF]/[0.04] dark:hover:bg-[#007AFF]/15 text-black/80 dark:text-white/90 hover:text-[#007AFF] dark:hover:text-[#0A84FF] active:scale-[0.97] transition-all flex items-center gap-2 shadow-[0_1px_2px_rgba(0,0,0,0.04)] shrink-0"
-                            title="Scan barcode dengan kamera" aria-label="Scan barcode dengan kamera">
-                            <div
-                                class="w-6 h-6 rounded-[8px] bg-[#007AFF]/10 dark:bg-[#007AFF]/20 text-[#007AFF] flex items-center justify-center shrink-0">
-                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                        d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" />
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                        d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0z" />
+                            @elseif(stripos($cat->name, 'Pelengkap') !== false || stripos($cat->name, 'Tambahan') !== false)
+                                <svg class="w-4 h-4 shrink-0 text-black/50 dark:text-white/50" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
-                            </div>
-                            <span class="hidden sm:inline text-[13px] font-semibold tracking-tight">Scan Barcode</span>
-                            <span class="sm:hidden text-[13px] font-semibold tracking-tight">Scan</span>
+                            @elseif(stripos($cat->name, 'Utama') !== false || stripos($cat->name, 'Menu') !== false)
+                                <svg class="w-4 h-4 shrink-0 text-black/50 dark:text-white/50" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" />
+                                </svg>
+                            @else
+                                <svg class="w-4 h-4 shrink-0 text-black/50 dark:text-white/50" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6z" />
+                                </svg>
+                            @endif
+                            <span>{{ $cat->name }}</span>
                         </button>
-                    </div>
-
-                    <!-- Segmented Item Type Filter Tabs (Boomer-friendly, high contrast, large targets) -->
-                    <div class="flex items-center justify-between gap-2 overflow-x-auto pb-0.5 max-w-full select-none"
-                        style="scrollbar-width: none; -ms-overflow-style: none;">
-                        <div
-                            class="inline-flex p-1 bg-black/[0.05] dark:bg-white/[0.08] rounded-[12px] border border-black/[0.06] dark:border-white/10 shrink-0">
-                            <button type="button" @click="selectedTypeFilter = 'all'; filterProducts()"
-                                :class="selectedTypeFilter === 'all' ?
-                                    'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-xs font-bold' :
-                                    'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white font-medium'"
-                                class="h-8.5 px-3 rounded-[9px] text-[12px] sm:text-[13px] transition-all flex items-center gap-1.5 active:scale-[0.97]">
-                                <span>Semua Item</span>
-                            </button>
-                            <button type="button" @click="selectedTypeFilter = 'goods'; filterProducts()"
-                                :class="selectedTypeFilter === 'goods' ?
-                                    'bg-white dark:bg-[#2C2C2E] text-[#007AFF] font-bold shadow-xs' :
-                                    'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white font-medium'"
-                                class="h-8.5 px-3 rounded-[9px] text-[12px] sm:text-[13px] transition-all flex items-center gap-1.5 active:scale-[0.97]">
-                                <span>Produk Fisik</span>
-                            </button>
-                            <button type="button" @click="selectedTypeFilter = 'service'; filterProducts()"
-                                :class="selectedTypeFilter === 'service' ? 'bg-[#AF52DE] text-white font-bold shadow-xs' :
-                                    'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white font-medium'"
-                                class="h-8.5 px-3 rounded-[9px] text-[12px] sm:text-[13px] transition-all flex items-center gap-1.5 active:scale-[0.97]">
-                                <span>Jasa / Layanan</span>
-                            </button>
-                        </div>
-                        <span class="text-[11px] text-black/40 dark:text-white/40 hidden sm:inline tabular-nums"
-                            x-text="filteredProducts.length + ' item ditampilkan'"></span>
-                    </div>
-
-                    <!-- Category Cards Horizontal Scroll Strip (Larger touch-friendly cards) -->
-                    <div class="category-bar flex items-center gap-2 overflow-x-auto pb-1 max-w-full scroll-smooth select-none"
-                        style="scrollbar-width: none; -ms-overflow-style: none;">
-                        <button type="button" @click="selectedCategory = 'all'; filterProducts()"
-                            :class="selectedCategory === 'all'
-                                ?
-                                'bg-[#007AFF] text-white shadow-xs font-semibold' :
-                                'bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/10 text-black/75 dark:text-white/80 hover:bg-black/[0.03] dark:hover:bg-white/[0.06] shadow-[0_1px_2px_rgba(0,0,0,0.03)]'"
-                            class="h-10 sm:h-10.5 px-4 rounded-[12px] text-[13px] font-medium whitespace-nowrap transition-all shrink-0 flex items-center gap-1.5 active:scale-[0.97]">
-                            <span>Semua Produk</span>
-                            <span class="text-[11px] opacity-75 tabular-nums"
-                                x-text="'(' + allProducts.length + ')'"></span>
-                        </button>
-                        @foreach ($categories as $cat)
-                            <button type="button"
-                                @click="selectedCategory = '{{ $cat->id }}'; filterProducts()"
-                                :class="selectedCategory === '{{ $cat->id }}'
-                                    ?
-                                    'bg-[#007AFF] text-white shadow-xs font-semibold' :
-                                    'bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/10 text-black/75 dark:text-white/80 hover:bg-black/[0.03] dark:hover:bg-white/[0.06] shadow-[0_1px_2px_rgba(0,0,0,0.03)]'"
-                                class="h-10 sm:h-10.5 px-4 rounded-[12px] text-[13px] font-medium whitespace-nowrap transition-all shrink-0 flex items-center gap-1.5 active:scale-[0.97]">
-                                <span>{{ $cat->name }}</span>
-                            </button>
-                        @endforeach
-                    </div>
+                    @endforeach
                 </div>
 
-                <!-- Products Touch Cards Grid -->
-                <div class="pos-products pr-1">
-                    <div
-                        class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-2.5 sm:gap-3">
-                        <template x-for="product in filteredProducts" :key="product.id">
+                <!-- Products Touch Cards Grid (4 Columns Exact to Screenshot) -->
+                <div class="pos-products flex-1 overflow-y-auto pr-1">
+                    <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5">
+                        <template x-for="product in paginatedProducts" :key="product.id">
                             <div @click="handleProductClick(product)"
-                                class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/5 hover:border-[#007AFF]/40 hover:shadow-sm active:scale-[0.97] active:opacity-85 transition-all p-2.5 sm:p-3 cursor-pointer flex flex-col justify-between group select-none min-w-0">
+                                class="rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/10 hover:border-[#007AFF]/40 hover:shadow-md active:scale-[0.98] transition-all p-3 cursor-pointer flex flex-col justify-between group select-none min-w-0">
                                 <div>
                                     @if ($posShowProductImages)
-                                        <!-- Thumbnail Image with Aspect Ratio (Never squishing or overlapping) -->
+                                        <!-- Thumbnail Image with 16/10 Aspect Ratio -->
                                         <div
-                                            class="relative w-full aspect-[4/3] rounded-[10px] bg-black/[0.03] dark:bg-black/40 border border-black/[0.04] dark:border-white/5 mb-2 overflow-hidden items-center justify-center flex shrink-0">
+                                            class="relative w-full aspect-[16/10] rounded-[12px] bg-black/[0.03] dark:bg-black/40 border border-black/[0.04] dark:border-white/5 mb-2.5 overflow-hidden items-center justify-center flex shrink-0">
                                             <template x-if="product.image_url">
                                                 <img :src="product.image_url" :alt="product.name" loading="lazy"
                                                     class="w-full h-full object-cover group-hover:scale-105 transition duration-300"
@@ -743,48 +709,27 @@
                                             <template x-if="!product.image_url">
                                                 <div
                                                     class="w-full h-full flex flex-col items-center justify-center text-black/20 dark:text-white/20">
-                                                    <svg class="w-7 h-7" fill="none" stroke="currentColor"
+                                                    <svg class="w-8 h-8" fill="none" stroke="currentColor"
                                                         stroke-width="1.5" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round"
                                                             d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
                                                     </svg>
                                                 </div>
                                             </template>
-                                            <!-- Stock Badge Pill -->
+
+                                            <!-- Stock Badge Pill (Top-Right) -->
                                             <template x-if="product.type === 'service'">
                                                 <span
-                                                    class="absolute top-1.5 right-1.5 text-[9px] font-bold px-2 py-0.5 rounded-full bg-white/90 dark:bg-black/85 text-[#AF52DE] border border-[#AF52DE]/40 shadow-xs flex items-center gap-1">
-                                                    <span>Layanan</span>
+                                                    class="absolute top-2 right-2 text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#AF52DE] text-white shadow-xs">
+                                                    Layanan
                                                 </span>
                                             </template>
                                             <template x-if="product.type !== 'service'">
                                                 <span
-                                                    class="absolute top-1.5 right-1.5 text-[9px] font-semibold px-1.5 py-0.5 rounded-full backdrop-blur-md tabular-nums"
+                                                    class="absolute top-2 right-2 text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/95 dark:bg-black/90 shadow-xs tabular-nums"
                                                     :class="product.current_stock > 0 ?
-                                                        'bg-white/80 dark:bg-black/70 text-[#248A3D] dark:text-[#30D158] border border-[#34C759]/30' :
-                                                        'bg-white/80 dark:bg-black/70 text-[#C41E17] dark:text-[#FF453A] border border-[#FF3B30]/30'"
-                                                    x-text="'Stok: ' + (product.current_stock ?? 0)">
-                                                </span>
-                                            </template>
-                                        </div>
-                                    @else
-                                        <!-- Code & Stock Header -->
-                                        <div class="flex items-center justify-between gap-1 mb-1.5">
-                                            <span
-                                                class="text-[10px] font-medium text-black/40 dark:text-white/40 tabular-nums truncate"
-                                                x-text="product.code || '-'"></span>
-                                            <template x-if="product.type === 'service'">
-                                                <span
-                                                    class="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-[#AF52DE]/15 text-[#AF52DE]">
-                                                    Bebas Stok
-                                                </span>
-                                            </template>
-                                            <template x-if="product.type !== 'service'">
-                                                <span
-                                                    class="text-[9px] font-semibold px-1.5 py-0.5 rounded-full tabular-nums"
-                                                    :class="product.current_stock > 0 ?
-                                                        'bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158]' :
-                                                        'bg-[#FF3B30]/12 text-[#C41E17] dark:text-[#FF453A]'"
+                                                        'text-[#34C759] border border-[#34C759]' :
+                                                        'text-[#FF3B30] border border-[#FF3B30]'"
                                                     x-text="'Stok: ' + (product.current_stock ?? 0)">
                                                 </span>
                                             </template>
@@ -792,41 +737,37 @@
                                     @endif
 
                                     <!-- Product Name (2 lines clamped) -->
-                                    <h4 class="font-semibold text-[13px] sm:text-[14px] text-black dark:text-white line-clamp-2 leading-snug group-hover:text-[#007AFF] transition-colors"
+                                    <h4 class="font-bold text-[13.5px] sm:text-[14px] text-black dark:text-white line-clamp-2 leading-snug group-hover:text-[#007AFF] transition-colors"
                                         x-text="product.name"></h4>
-                                    <div class="flex items-center gap-1.5 flex-wrap mt-0.5">
-                                        <span
-                                            class="text-[11px] text-black/40 dark:text-white/40 tabular-nums truncate"
+                                    
+                                    <!-- SKU / Code & Badges -->
+                                    <div class="flex items-center gap-1.5 flex-wrap mt-1">
+                                        <span class="text-[11px] font-medium text-black/45 dark:text-white/45 tabular-nums truncate"
                                             x-text="product.code || '-'"></span>
                                         <template x-if="product.type === 'service'">
-                                            <span
-                                                class="inline-flex items-center px-1.5 py-0.2 rounded text-[9px] font-bold bg-[#AF52DE]/10 text-[#AF52DE]">
+                                            <span class="inline-flex items-center px-1.5 py-0.2 rounded text-[9px] font-bold bg-[#AF52DE]/15 text-[#AF52DE]">
                                                 Jasa
                                             </span>
                                         </template>
                                         <template x-if="product.modifier_groups && product.modifier_groups.length > 0">
-                                            <span
-                                                class="inline-flex items-center px-1.5 py-0.2 rounded text-[9px] font-bold bg-[#007AFF]/10 text-[#007AFF]">
+                                            <span class="inline-flex items-center px-1.5 py-0.2 rounded text-[9px] font-bold bg-[#007AFF]/10 text-[#007AFF]">
                                                 + Varian
                                             </span>
                                         </template>
                                     </div>
                                 </div>
 
-                                <!-- Price and Add Button -->
-                                <div
-                                    class="mt-2.5 pt-2 border-t border-black/[0.04] dark:border-white/5 flex items-center justify-between gap-1">
-                                    <span
-                                        class="font-bold text-[13px] sm:text-[14px] text-black dark:text-white tabular-nums truncate"
+                                <!-- Price and Add Button (Exact to screenshot) -->
+                                <div class="mt-3 pt-2.5 flex items-center justify-between gap-1">
+                                    <span class="font-bold text-[14px] sm:text-[15px] text-black dark:text-white tabular-nums truncate"
                                         x-text="formatRupiah(product.selling_price)"></span>
-                                    <div
-                                        class="w-6 h-6 sm:w-7 sm:h-7 rounded-[8px] bg-black/[0.05] dark:bg-white/[0.08] text-black/70 dark:text-white/80 group-hover:bg-[#007AFF] group-hover:text-white transition-colors flex items-center justify-center shrink-0">
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
-                                            stroke-width="2.5" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                d="M12 4.5v15m7.5-7.5h-15" />
+                                    <button type="button" @click.stop="handleProductClick(product)"
+                                        class="w-8 h-8 rounded-full bg-[#007AFF] hover:bg-[#0062CC] text-white flex items-center justify-center font-bold text-base shadow-sm shrink-0 active:scale-90 transition-all"
+                                        title="Tambah ke Keranjang">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                                         </svg>
-                                    </div>
+                                    </button>
                                 </div>
                             </div>
                         </template>
@@ -840,10 +781,36 @@
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
                         </svg>
-                        <div class="text-[14px] font-semibold text-black/60 dark:text-white/60">Tidak ada produk
-                            ditemukan</div>
-                        <div class="text-[12px] text-black/40 dark:text-white/40 mt-0.5">Coba ubah kata kunci pencarian
-                            atau kategori filter</div>
+                        <div class="text-[14px] font-semibold text-black/60 dark:text-white/60">Tidak ada produk ditemukan</div>
+                        <div class="text-[12px] text-black/40 dark:text-white/40 mt-0.5">Coba ubah kata kunci pencarian atau kategori filter</div>
+                    </div>
+                </div>
+
+                <!-- Catalog Bottom Footer (Exact to Screenshot: Total Produk X item & Pagination) -->
+                <div class="mt-auto pt-2.5 border-t border-black/[0.06] dark:border-white/10 flex items-center justify-between shrink-0">
+                    <div class="flex items-center gap-1.5 text-xs text-black/60 dark:text-white/60">
+                        <svg class="w-4 h-4 text-black/40 dark:text-white/40" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                        </svg>
+                        <span>Total Produk <strong class="text-black dark:text-white font-bold" x-text="filteredProducts.length"></strong> item</span>
+                    </div>
+
+                    <div class="flex items-center gap-1 select-none" x-show="filteredProducts.length > 0">
+                        <button type="button" @click="prevPage()" :disabled="currentPage <= 1"
+                            class="w-7 h-7 sm:w-8 sm:h-8 rounded-[8px] border border-black/10 dark:border-white/15 bg-white dark:bg-[#1C1C1E] text-black/70 dark:text-white/80 hover:bg-black/[0.03] dark:hover:bg-white/[0.05] disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center transition text-xs font-semibold">
+                            ‹
+                        </button>
+                        <template x-for="p in totalPages" :key="p">
+                            <button type="button" @click="goToPage(p)"
+                                :class="currentPage === p ? 'bg-[#007AFF] text-white shadow-xs font-bold' : 'border border-black/10 dark:border-white/15 bg-white dark:bg-[#1C1C1E] text-black/70 dark:text-white/80 hover:bg-black/[0.03]'"
+                                class="w-7 h-7 sm:w-8 sm:h-8 rounded-[8px] flex items-center justify-center transition text-xs font-semibold"
+                                x-text="p">
+                            </button>
+                        </template>
+                        <button type="button" @click="nextPage()" :disabled="currentPage >= totalPages"
+                            class="w-7 h-7 sm:w-8 sm:h-8 rounded-[8px] border border-black/10 dark:border-white/15 bg-white dark:bg-[#1C1C1E] text-black/70 dark:text-white/80 hover:bg-black/[0.03] dark:hover:bg-white/[0.05] disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center transition text-xs font-semibold">
+                            ›
+                        </button>
                     </div>
                 </div>
             </div>
@@ -861,15 +828,17 @@
                 <!-- Cart Header -->
                 <div class="p-3.5 sm:p-4 border-b border-black/[0.06] dark:border-white/10 space-y-2.5 shrink-0">
                     <div class="flex items-center justify-between">
-                        <div class="font-semibold text-[15px] text-black dark:text-white flex items-center gap-2">
+                        <div class="font-bold text-[15px] text-black dark:text-white flex items-center gap-2">
                             <svg class="w-5 h-5 text-[#007AFF] shrink-0" style="width: 20px; height: 20px;"
-                                fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round"
                                     d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
                             </svg>
                             <span>Keranjang Pesanan</span>
                         </div>
                         <div class="flex items-center gap-2">
+                            <span class="px-2.5 py-0.5 rounded-full bg-[#007AFF]/10 text-[#007AFF] font-bold text-xs tabular-nums"
+                                x-text="cart.length + ' item'">0 item</span>
                             <button @click="clearCart()" x-show="cart.length > 0"
                                 class="text-[12px] text-[#FF3B30] hover:underline font-medium transition">
                                 Kosongkan
