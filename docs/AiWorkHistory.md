@@ -79,25 +79,29 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
    - Membuat `app/Http/Controllers/Web/PortalWebController.php` untuk memuat data presensi harian, riwayat presensi 7 hari terakhir, ringkasan durasi kerja (akumulasi jam dan status ketepatan waktu), geolokasi kantor cabang, dan daftar modul kerja resmi yang berhak diakses oleh akun aktif.
    - Memperbarui `app/Http/Controllers/Web/DashboardWebController.php` agar staf non-dashboard langsung diarahkan ke `route('portal')`.
    - Memperbarui `app/Http/Controllers/Web/Hrm/HrmWebController.php` agar form presensi yang dikirim dari `/portal` diarahkan kembali ke `/portal` (bukan hardcoded ke tab HRM).
-2. **Middleware Layer:**
+   - Memperbarui `app/Http/Controllers/Web/AuthWebController.php` (`resolveUserLandingRouteName`) agar saat login pengguna tanpa izin `dashboard.view` langsung diarahkan mendarat di `route('portal')`.
+2. **Middleware & Bootstrap Layer:**
    - Memperbarui `app/Http/Middleware/RequirePermission.php` baris 72-78 untuk mengalihkan seluruh akses menu terlarang langsung ke `route('portal')`. Menambahkan pencegahan rekursi apabila route yang diakses adalah portal itu sendiri.
-3. **Routing Layer:**
+   - Memperbarui `bootstrap/app.php` (`redirectUsersTo`) agar menggunakan `\App\Support\Context::homeRoute()` sehingga redirect pasca-login selalu konsisten ke Portal untuk non-dashboard users.
+3. **Routing & Context Helper Layer:**
+   - Menambahkan helper `homeRouteName()`, `homeRoute()`, dan `homeLabel()` pada `App\Support\Context` untuk mengabstraksi rute beranda adaptif.
    - Menambahkan route `Route::get('/portal', [PortalWebController::class, 'index'])->name('portal');` di dalam middleware group tenant terlindungi pada `routes/owner.php`.
    - Menambahkan middleware `require.permission:dashboard.view` pada route `/dashboard` dan `/dashboard/quick-stats`.
 4. **Model Layer:**
    - Menambahkan relasi alias `roleModel()` dan `location()` pada `App\Models\BusinessMembership` untuk memudahkan penarikan relasi role dan lokasi penugasan cabang.
 5. **View & UI/UX Layer:**
-   - Membuat template Blade Bento Apple HIG `resources/views/app/portal/index.blade.php` dengan Alpine.js:
-     - Live ticking seconds timer WIB (`Asia/Jakarta`) berformat `HH:mm:ss WIB` dengan `tabular-nums`.
-     - Weather widget adaptif memanggil Open-Meteo API dengan fallback offline jika jaringan terhambat.
-     - Action card tombol Absen Masuk dan Absen Pulang dengan loading state, feedback toast instan, dan geolocation capture.
-     - Card ringkasan performa 7 hari terakhir (Total Hadir, Tepat Waktu, Terlambat, Akumulasi Jam Kerja).
-     - Tabel responsif (desktop table & mobile cards) riwayat presensi 7 hari terakhir.
-     - Quick workstation launcher untuk akses langsung ke fitur kerja staf (POS Kasir, Denah Meja, Gudang, dll).
+   - Membuat template Blade Bento Apple HIG `resources/views/app/portal/index.blade.php` dengan Alpine.js (Live WIB clock, Cuaca Open-Meteo, identitas, tombol presensi, dan histori 7 hari).
+   - Memperbarui komponen `resources/views/components/breadcrumb.blade.php` untuk mengonversi breadcrumb root ("Dashboard") secara otomatis menjadi "Portal" yang mengarah ke `route('portal')` bagi staf tanpa izin dashboard.
    - Memperbarui `resources/views/layouts/partials/sidebar.blade.php` untuk menyembunyikan Dashboard bagi staf tanpa izin dan menampilkan menu Portal & Presensi.
+   - Memperbarui `resources/views/layouts/partials/topbar.blade.php` pada search palette command bar.
    - Memperbarui `resources/views/layouts/app.blade.php` pada iOS frosted tab bar navigasi mobile.
 6. **Testing & QA:**
-   - Membuat feature test `tests/Feature/PortalAndDashboardPermissionTest.php` (100% lulus, 13 assertions).
+   - Mengembangkan feature test `tests/Feature/PortalAndDashboardPermissionTest.php` dengan 5 skenario komprehensif (100% lulus, 21 assertions):
+     1. Akses dashboard bagi owner (status 200).
+     2. Redireksi akses dashboard & menu terlarang ke portal bagi staf non-dashboard.
+     3. Render antarmuka portal (WIB clock, cuaca, absensi, dan histori 7 hari).
+     4. Redireksi login form ke portal bagi akun non-dashboard.
+     5. Integrasi helper `Context::homeRoute()` dan adaptasi komponen `<x-breadcrumb>`.
    - Memperbarui `tests/Feature/RolePermissionEnforcementTest.php` (100% lulus, 6 assertions).
    - Menjalankan kembali seluruh test suite `tests/Feature/HrmAttendanceGeofenceTest.php` (100% lulus, 53 assertions).
    - Menjalankan `php artisan view:cache` (100% sukses tanpa error sintaks).
@@ -107,12 +111,17 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
   - `app/Http/Controllers/Web/PortalWebController.php` (NEW)
   - `resources/views/app/portal/index.blade.php` (NEW)
   - `tests/Feature/PortalAndDashboardPermissionTest.php` (NEW)
+  - `app/Http/Controllers/Web/AuthWebController.php` (MODIFIED)
   - `app/Http/Controllers/Web/DashboardWebController.php` (MODIFIED)
   - `app/Http/Controllers/Web/Hrm/HrmWebController.php` (MODIFIED)
   - `app/Http/Middleware/RequirePermission.php` (MODIFIED)
   - `app/Models/BusinessMembership.php` (MODIFIED)
+  - `app/Support/Context.php` (MODIFIED)
+  - `bootstrap/app.php` (MODIFIED)
+  - `resources/views/components/breadcrumb.blade.php` (MODIFIED)
   - `resources/views/layouts/app.blade.php` (MODIFIED)
   - `resources/views/layouts/partials/sidebar.blade.php` (MODIFIED)
+  - `resources/views/layouts/partials/topbar.blade.php` (MODIFIED)
   - `routes/owner.php` (MODIFIED)
   - `tests/Feature/RolePermissionEnforcementTest.php` (MODIFIED)
 
@@ -122,7 +131,7 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 - **Permission Impact:** Hak akses `dashboard.view` kini aktif ditegakkan secara absolut di level route dan controller.
 
 #### 5. Verification & Testing
-- `vendor/bin/phpunit --filter=PortalAndDashboardPermissionTest`: PASSED (3 tests, 13 assertions, 0 failures).
+- `vendor/bin/phpunit --filter=PortalAndDashboardPermissionTest`: PASSED (5 tests, 21 assertions, 0 failures).
 - `vendor/bin/phpunit --filter=RolePermissionEnforcementTest`: PASSED (2 tests, 6 assertions, 0 failures).
 - `vendor/bin/phpunit --filter=HrmAttendanceGeofenceTest`: PASSED (10 tests, 53 assertions, 0 failures).
 - `php artisan view:clear; php artisan view:cache`: PASSED (Compiled views cleared & cached successfully).

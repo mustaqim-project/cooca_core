@@ -166,6 +166,38 @@ final class Context
     }
 
     /**
+     * Get the default landing / home route name for the active user.
+     */
+    public static function homeRouteName(): string
+    {
+        if (self::isOwner() || self::hasPermission('dashboard.view')) {
+            return 'dashboard';
+        }
+
+        return 'portal';
+    }
+
+    /**
+     * Get the default landing / home route URL for the active user.
+     */
+    public static function homeRoute(): string
+    {
+        return route(self::homeRouteName());
+    }
+
+    /**
+     * Get the default home label for breadcrumbs.
+     */
+    public static function homeLabel(): string
+    {
+        if (self::isOwner() || self::hasPermission('dashboard.view')) {
+            return 'Dashboard';
+        }
+
+        return 'Portal & Presensi';
+    }
+
+    /**
      * Flush current context state (useful for tests and octane-safe cleanup).
      */
     public static function flush(): void

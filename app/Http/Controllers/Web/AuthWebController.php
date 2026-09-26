@@ -800,27 +800,9 @@ final class AuthWebController extends Controller
             return 'dashboard';
         }
 
-        // Role-based shortcut for known staff roles
-        $hasDashboard = $membership->hasPermission('dashboard.view');
-
-        // Kasir: has POS access but not dashboard → straight to terminal
-        if (! $hasDashboard && $membership->hasPermission('pos.terminal')) {
-            return 'pos.terminal';
-        }
-
-        // Kitchen Display Staff: has kitchen access but not dashboard
-        if (! $hasDashboard && $membership->hasPermission('pos.kitchen')) {
-            return 'pos.kitchen.index';
-        }
-
-        // Staf Gudang: has warehouse access but not dashboard
-        if (! $hasDashboard && $membership->hasPermission('inventory.view')) {
-            return 'warehouse.index';
-        }
-
-        // Staf Keuangan: has finance access but not dashboard
-        if (! $hasDashboard && $membership->hasPermission('finance.cash_bank')) {
-            return 'finance.cash-bank.index';
+        // If user does not have dashboard.view permission, redirect to the staff attendance portal
+        if (! $membership->hasPermission('dashboard.view')) {
+            return 'portal';
         }
 
         return 'dashboard';

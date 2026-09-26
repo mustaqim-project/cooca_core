@@ -3,9 +3,26 @@
 ])
 
 @php
+    $canSeeDashboard = \App\Support\Context::isOwner() || \App\Support\Context::hasPermission('dashboard.view');
+    $homeRoute = $canSeeDashboard ? route('dashboard') : route('portal');
+    $homeLabel = $canSeeDashboard ? 'Dashboard' : 'Portal';
+
     if (empty($items)) {
         $context = \App\Support\Navigation\NavigationRegistry::getContextForCurrentRoute();
         $items = $context['breadcrumbs'] ?? [];
+    }
+
+    // Automatically adapt root breadcrumbs (Dashboard -> Portal) for non-dashboard users
+    if (! $canSeeDashboard && ! empty($items)) {
+        foreach ($items as &$crumb) {
+            if (isset($crumb['url']) && ($crumb['url'] === route('dashboard') || str_ends_with((string) $crumb['url'], '/dashboard'))) {
+                $crumb['url'] = $homeRoute;
+                if (($crumb['label'] ?? '') === 'Dashboard' || ($crumb['label'] ?? '') === 'Beranda') {
+                    $crumb['label'] = $homeLabel;
+                }
+            }
+        }
+        unset($crumb);
     }
 @endphp
 

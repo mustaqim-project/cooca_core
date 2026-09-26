@@ -41,7 +41,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 return route('customer.dashboard');
             }
 
-            return route('dashboard');
+            return \App\Support\Context::homeRoute();
         });
 
         $middleware->alias([

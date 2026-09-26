@@ -150,4 +150,108 @@ class PortalAndDashboardPermissionTest extends TestCase
         $response->assertSee('Absen Pulang (Clock-Out)');
         $response->assertSee('Kopi Kenangan Senja');
     }
+
+    public function test_login_redirects_non_dashboard_user_to_portal(): void
+    {
+        $this->seed(RbacSeeder::class);
+
+        $password = 'secret12345';
+        $user = User::create([
+            'name' => 'Budi Kasir',
+            'email' => 'budi-login@test.local',
+            'password' => bcrypt($password),
+            'email_verified_at' => now(),
+            'phone' => '6281234567890',
+            'phone_verified_at' => now(),
+        ]);
+
+        $business = Business::create(['name' => 'Bisnis Kasir', 'status' => 'active']);
+        $role = Role::create([
+            'business_id' => $business->id,
+            'name' => 'Kasir Non Dashboard',
+            'slug' => 'kasir-non-dash',
+        ]);
+        $posPerm = Permission::where('slug', 'pos.terminal')->firstOrFail();
+        $role->permissions()->sync([$posPerm->id]);
+
+        $business->users()->attach($user->id, [
+            'id' => (string) Str::uuid(),
+            'role' => 'staff',
+            'role_id' => $role->id,
+        ]);
+        $user->update(['active_business_id' => $business->id]);
+        Context::flush();
+
+        $response = $this->post('/login', [
+            'email' => 'budi-login@test.local',
+            'password' => $password,
+        ]);
+
+        $response->assertRedirect(route('portal'));
+    }
+
+    public function test_context_home_route_helper_and_breadcrumb_adaptation(): void
+    {
+        $this->seed(RbacSeeder::class);
+
+        $owner = User::create([
+            'name' => 'Pak Bos',
+            'email' => 'bos@test.local',
+            'password' => bcrypt('password'),
+            'email_verified_at' => now(),
+        ]);
+
+        $staff = User::create([
+            'name' => 'Staf Biasa',
+            'email' => 'staf@test.local',
+            'password' => bcrypt('password'),
+            'email_verified_at' => now(),
+        ]);
+
+        $business = Business::create(['name' => 'Toko Maju', 'status' => 'active']);
+        $ownerRole = Role::where('slug', 'owner')->firstOrFail();
+
+        $staffRole = Role::create([
+            'business_id' => $business->id,
+            'name' => 'Staf Saja',
+            'slug' => 'staf-saja',
+        ]);
+
+        $business->users()->attach($owner->id, [
+            'id' => (string) Str::uuid(),
+            'role' => 'owner',
+            'role_id' => $ownerRole->id,
+        ]);
+
+        $business->users()->attach($staff->id, [
+            'id' => (string) Str::uuid(),
+            'role' => 'staff',
+            'role_id' => $staffRole->id,
+        ]);
+
+        // 1. Check Owner Context Home Route
+        $owner->update(['active_business_id' => $business->id]);
+        $this->actingAs($owner);
+        Context::setBusiness($business, BusinessMembership::where('business_id', $business->id)->where('user_id', $owner->id)->first());
+        $this->assertEquals(route('dashboard'), Context::homeRoute());
+        $this->assertEquals('Dashboard', Context::homeLabel());
+
+        // 2. Check Non-Dashboard Staff Context Home Route
+        $staff->update(['active_business_id' => $business->id]);
+        $this->actingAs($staff);
+        Context::setBusiness($business, BusinessMembership::where('business_id', $business->id)->where('user_id', $staff->id)->first());
+        $this->assertEquals(route('portal'), Context::homeRoute());
+        $this->assertEquals('Portal & Presensi', Context::homeLabel());
+
+        // 3. Render Blade Component <x-breadcrumb> for Non-Dashboard User
+        $rendered = (string) $this->blade('<x-breadcrumb :items="$items" />', [
+            'items' => [
+                ['label' => 'Dashboard', 'url' => route('dashboard')],
+                ['label' => 'Pengaturan', 'url' => null],
+            ],
+        ]);
+
+        $this->assertStringContainsString(route('portal'), $rendered);
+        $this->assertStringContainsString('Portal', $rendered);
+    }
 }

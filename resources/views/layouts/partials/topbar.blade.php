@@ -513,7 +513,10 @@
     ],
     items: [
         // 1. Dashboards (Overview)
+        @if (\App\Support\Context::isOwner() || \App\Support\Context::hasPermission('dashboard.view'))
         { title: 'Beranda Dashboard', desc: 'Ringkasan performa penjualan, omset, dan laba kotor bisnis', category: 'Dashboard', route: '{{ route('dashboard') }}', icon: 'layout-dashboard', keywords: 'beranda home executive overview penjualan omset laba' },
+        @endif
+        { title: 'Portal Karyawan & Presensi', desc: 'Jam kerja real-time, cuaca, dan absensi masuk/pulang', category: 'Dashboard', route: '{{ route('portal') }}', icon: 'clock', keywords: 'portal presensi absen jam kerja kehadiran cuaca wib' },
         @if ($canAccessFinance)
             { title: 'Ringkasan Finansial & Kas', desc: 'Saldo kas, mutasi rekening bank, dan ringkasan arus kas', category: 'Dashboard', route: '{{ route('finance.cash-bank.index') }}', icon: 'wallet', keywords: 'keuangan kas bank accounting overview saldo' },
         @endif
