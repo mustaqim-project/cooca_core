@@ -464,8 +464,8 @@
                 <button @click="openIncomingOrdersModal()"
                     :class="pendingQrCount > 0 ?
                         'bg-[#007AFF]/15 dark:bg-[#007AFF]/25 text-[#007AFF] dark:text-[#0A84FF] ring-2 ring-[#007AFF]/50' :
-                        'bg-black/[0.05] dark:bg-white/[0.08] text-black/80 dark:text-white/80 hover:bg-black/[0.08] dark:hover:bg-white/[0.12]'"
-                    class="h-8 sm:h-9 px-2 sm:px-2.5 rounded-[8px] sm:rounded-[10px] active:scale-[0.97] text-[12px] font-medium transition flex items-center gap-1.5 relative"
+                        'bg-black/[0.04] dark:bg-white/[0.06] text-black/80 dark:text-white/80 hover:bg-black/[0.07] dark:hover:bg-white/[0.1]'"
+                    class="h-8.5 sm:h-9 px-2.5 sm:px-3 rounded-[10px] active:scale-[0.97] text-[12px] font-medium transition flex items-center gap-1.5 relative border border-black/[0.04] dark:border-white/[0.08]"
                     title="Pesanan Masuk dari Meja QR">
                     <div class="relative flex items-center justify-center">
                         <svg class="w-4 h-4 text-[#007AFF] shrink-0" fill="none" stroke="currentColor"
@@ -487,7 +487,7 @@
                 @if (\App\Support\Context::hasPermission('pos.tables'))
                     <!-- Resto Meja Selector Button -->
                     <button @click="openTablesModal()"
-                        class="h-8 sm:h-9 px-2 sm:px-2.5 rounded-[8px] sm:rounded-[10px] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] text-black/80 dark:text-white/80 text-[12px] font-medium transition flex items-center gap-1.5"
+                        class="h-8.5 sm:h-9 px-2.5 sm:px-3 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.07] dark:hover:bg-white/[0.1] active:scale-[0.97] text-black/80 dark:text-white/80 text-[12px] font-medium transition flex items-center gap-1.5 border border-black/[0.04] dark:border-white/[0.08]"
                         title="Daftar Meja & Sesi Tagihan Meja">
                         <svg class="w-4 h-4 text-[#34C759] shrink-0" fill="none" stroke="currentColor"
                             stroke-width="1.8" viewBox="0 0 24 24">
@@ -502,23 +502,9 @@
                     </button>
                 @endif
 
-                @if (\App\Support\Context::hasPermission('pos.kitchen'))
-                    <!-- Kitchen Display Quick Link -->
-                    <a href="{{ route('pos.kitchen.index') }}"
-                        class="h-8 sm:h-9 px-2 sm:px-2.5 rounded-[8px] sm:rounded-[10px] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] text-black/80 dark:text-white/80 text-[12px] font-medium transition flex items-center gap-1.5"
-                        title="Kitchen & Bar Display">
-                        <svg class="w-4 h-4 text-[#FF9500] shrink-0" fill="none" stroke="currentColor"
-                            stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M15.362 5.214A8.252 8.252 0 0112 21 8.25 8.25 0 016.038 7.048 8.287 8.287 0 009 9.6a8.983 8.983 0 013.361-6.867 8.21 8.21 0 003 2.48z" />
-                        </svg>
-                        <span class="hidden 2xl:inline">Dapur</span>
-                    </a>
-                @endif
-
                 <!-- Antrean Hold Button -->
                 <button @click="showHeldOrdersModal = true"
-                    class="h-8 sm:h-9 px-2 sm:px-2.5 rounded-[8px] sm:rounded-[10px] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] text-black/80 dark:text-white/80 text-[12px] font-medium transition flex items-center gap-1.5"
+                    class="h-8.5 sm:h-9 px-2.5 sm:px-3 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.07] dark:hover:bg-white/[0.1] active:scale-[0.97] text-black/80 dark:text-white/80 text-[12px] font-medium transition flex items-center gap-1.5 border border-black/[0.04] dark:border-white/[0.08]"
                     title="Antrean Transaksi (Hold)">
                     <svg class="w-4 h-4 text-[#FF9500] shrink-0" fill="none" stroke="currentColor"
                         stroke-width="1.8" viewBox="0 0 24 24">
@@ -533,7 +519,7 @@
                 @if (\App\Support\Context::hasPermission('finance.cash_bank'))
                     <!-- Kas Masuk / Keluar Button -->
                     <button @click="showCashMovementModal = true"
-                        class="h-8 sm:h-9 px-2 sm:px-2.5 rounded-[8px] sm:rounded-[10px] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] text-black/80 dark:text-white/80 text-[12px] font-medium transition flex items-center gap-1.5"
+                        class="h-8.5 sm:h-9 px-2.5 sm:px-3 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.07] dark:hover:bg-white/[0.1] active:scale-[0.97] text-black/80 dark:text-white/80 text-[12px] font-medium transition flex items-center gap-1.5 border border-black/[0.04] dark:border-white/[0.08]"
                         title="Kas Masuk / Kas Keluar">
                         <svg class="w-4 h-4 text-black/50 dark:text-white/60 shrink-0" fill="none"
                             stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
@@ -543,26 +529,6 @@
                         <span class="hidden xl:inline">Kas</span>
                     </button>
                 @endif
-
-                <!-- Buka Laci Kas Manual -->
-                <button type="button" @click="promptManualDrawerPop()"
-                    class="h-8 sm:h-9 px-2 sm:px-2.5 rounded-[8px] sm:rounded-[10px] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] text-black/80 dark:text-white/80 text-[12px] font-medium transition flex items-center gap-1.5"
-                    title="Buka Laci Kas (Cash Drawer)">
-                    <svg class="w-4 h-4 text-[#34C759] shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 9.776c.57.1 1.155.152 1.75.152 2.378 0 4.57-.847 6.276-2.259 1.706 1.412 3.898 2.259 6.276 2.259.595 0 1.18-.052 1.75-.152m0 0a9.006 9.006 0 00-16.052 0M21 12.75A9 9 0 113 12.75v3.75a2.25 2.25 0 002.25 2.25h13.5A2.25 2.25 0 0021 16.5v-3.75z" />
-                    </svg>
-                    <span class="hidden 2xl:inline">Laci</span>
-                </button>
-
-                <!-- Shortcut Pengaturan Printer & Hardware POS -->
-                <a href="{{ route('pos.printers.index') }}" target="_blank"
-                    class="h-8 sm:h-9 px-2 sm:px-2.5 rounded-[8px] sm:rounded-[10px] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] text-black/80 dark:text-white/80 text-[12px] font-medium transition flex items-center gap-1.5"
-                    title="Pengaturan Printer & Hardware ESC/POS">
-                    <svg class="w-4 h-4 text-[#007AFF] shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0110.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0l.229 2.523a1.125 1.125 0 01-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0021 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 00-1.913-.247M6.34 18H5.25A2.25 2.25 0 013 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 011.913-.247m10.5 0a48.536 48.536 0 00-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.659M18 10.5h.008v.008H18V10.5zm-3 0h.008v.008H15V10.5z" />
-                    </svg>
-                    <span class="hidden 2xl:inline">Printer</span>
-                </a>
 
                 <!-- Fullscreen Toggle -->
                 <div x-data="{
@@ -1055,12 +1021,17 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                             </svg>
                         </button>
-                        <select x-model="orderType"
-                            class="h-9 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-2 text-[12px] text-black dark:text-white focus:outline-none cursor-pointer">
-                            <option value="takeaway" class="bg-white dark:bg-[#1C1C1E]">Bungkus</option>
-                            <option value="dine_in" class="bg-white dark:bg-[#1C1C1E]">Dine In</option>
-                            <option value="delivery" class="bg-white dark:bg-[#1C1C1E]">Kirim</option>
-                        </select>
+                        <div class="flex p-0.5 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.05] dark:border-white/10 shrink-0">
+                            <button type="button" @click="orderType = 'takeaway'"
+                                :class="orderType === 'takeaway' ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white font-semibold shadow-2xs' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white'"
+                                class="px-2 py-1 text-[11px] rounded-[7px] transition active:scale-[0.98]" title="Bungkus / Takeaway">Bungkus</button>
+                            <button type="button" @click="orderType = 'dine_in'"
+                                :class="orderType === 'dine_in' ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white font-semibold shadow-2xs' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white'"
+                                class="px-2 py-1 text-[11px] rounded-[7px] transition active:scale-[0.98]" title="Makan di Tempat / Dine In">Dine In</button>
+                            <button type="button" @click="orderType = 'delivery'"
+                                :class="orderType === 'delivery' ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white font-semibold shadow-2xs' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white'"
+                                class="px-2 py-1 text-[11px] rounded-[7px] transition active:scale-[0.98]" title="Kirim / Delivery">Kirim</button>
+                        </div>
                     </div>
 
                     <!-- Active Restaurant Table Card (Apple HIG Styled) -->
@@ -1143,8 +1114,10 @@
                                 <span x-text="redeemPoints ? 'Batalkan Poin' : 'Tukar Poin'"></span>
                             </button>
                         </template>
+                    </div>
+
                     <!-- Industry Vertical: Service Data Trigger Button (Bengkel / Laundry) -->
-                    <div class="pt-2">
+                    <div class="pt-1">
                         <button type="button" @click="showServiceVerticalModal = true"
                             class="w-full flex items-center justify-between p-2 rounded-[10px] text-[12px] font-medium transition active:scale-[0.98] border"
                             :class="(vehicleLicensePlate || laundryWeightKg) ? 'bg-[#007AFF]/10 border-[#007AFF]/30 text-[#007AFF]' : 'bg-black/[0.03] dark:bg-white/[0.05] border-black/[0.05] dark:border-white/10 text-black/70 dark:text-white/70 hover:bg-black/[0.06] dark:hover:bg-white/[0.08]'">
@@ -1331,19 +1304,26 @@
                     </div>
 
                     <!-- Action Buttons: Hold & Bayar -->
-                    <div class="grid grid-cols-3 gap-2 pt-1">
+                    <div class="grid grid-cols-3 gap-2 pt-1.5">
                         <button @click="promptHoldCart()" :disabled="cart.length === 0"
-                            class="col-span-1 h-11 sm:h-12 rounded-[12px] bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] dark:hover:bg-white/[0.12] active:scale-[0.97] text-black/80 dark:text-white/90 font-medium text-[13px] flex flex-col items-center justify-center transition disabled:opacity-30 disabled:cursor-not-allowed">
-                            <span class="leading-tight">Hold Cart</span>
+                            class="col-span-1 h-12 rounded-[14px] bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.07] dark:hover:bg-white/[0.1] active:scale-[0.97] text-black/80 dark:text-white/90 font-semibold text-[13px] flex items-center justify-center gap-1.5 transition disabled:opacity-35 disabled:cursor-not-allowed border border-black/[0.06] dark:border-white/[0.08]"
+                            title="Tahan transaksi keranjang">
+                            <svg class="w-4 h-4 text-[#FF9500] shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span>Hold</span>
                         </button>
                         <button @click="openPaymentModal()" :disabled="cart.length === 0"
-                            class="col-span-2 h-11 sm:h-12 rounded-[12px] bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] text-white font-bold text-[15px] shadow-[0_2px_8px_rgba(0,122,255,0.3)] flex items-center justify-center gap-2 transition disabled:opacity-30 disabled:cursor-not-allowed">
-                            <svg class="w-4 h-4 sm:w-5 sm:h-5 shrink-0" style="width: 18px; height: 18px;"
-                                fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z" />
-                            </svg>
-                            <span>Bayar Sekarang</span>
+                            class="col-span-2 h-12 rounded-[14px] bg-gradient-to-r from-[#007AFF] to-[#0A84FF] hover:from-[#0071E3] hover:to-[#0077ED] active:scale-[0.98] text-white font-bold text-[14px] sm:text-[15px] shadow-[0_4px_16px_rgba(0,122,255,0.25)] flex items-center justify-between px-3.5 sm:px-4 transition disabled:opacity-35 disabled:cursor-not-allowed">
+                            <div class="flex items-center gap-2">
+                                <svg class="w-4 h-4 sm:w-4.5 sm:h-4.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z" />
+                                </svg>
+                                <span>Bayar</span>
+                                <span class="hidden sm:inline-block px-1.5 py-0.5 rounded text-[10px] font-bold bg-white/20 uppercase tracking-wider">F9</span>
+                            </div>
+                            <span class="font-bold tabular-nums text-[14px] sm:text-[15px]" x-text="formatRupiah(grandTotal)"></span>
                         </button>
                     </div>
                 </div>
