@@ -254,4 +254,84 @@ class PortalAndDashboardPermissionTest extends TestCase
         $this->assertStringContainsString(route('portal'), $rendered);
         $this->assertStringContainsString('Portal', $rendered);
     }
+
+    public function test_portal_strict_rbac_only_renders_permitted_modules_for_staff(): void
+    {
+        $this->seed(RbacSeeder::class);
+
+        $cashier = User::create([
+            'name' => 'Doni Kasir',
+            'email' => 'doni-kasir@test.local',
+            'password' => bcrypt('password123'),
+            'email_verified_at' => now(),
+        ]);
+
+        $business = Business::create(['name' => 'Warung Kopi Doni', 'status' => 'active']);
+
+        $role = Role::create([
+            'business_id' => $business->id,
+            'name' => 'Kasir Murni',
+            'slug' => 'pure-cashier',
+        ]);
+        $posPerm = Permission::where('slug', 'pos.terminal')->firstOrFail();
+        $role->permissions()->sync([$posPerm->id]);
+
+        $business->users()->attach($cashier->id, [
+            'id' => (string) Str::uuid(),
+            'role' => 'staff',
+            'role_id' => $role->id,
+        ]);
+        $cashier->update(['active_business_id' => $business->id]);
+        Context::flush();
+
+        $response = $this->actingAs($cashier)->get(route('portal'));
+        $response->assertStatus(200);
+
+        // Kasir must see POS
+        $response->assertSee('Mesin Kasir (POS)');
+        $response->assertSee('1 Modul Tersedia');
+
+        // Verify quickModules view data only contains pos.terminal
+        $quickModules = $response->viewData('quickModules');
+        $this->assertCount(1, $quickModules);
+        $this->assertEquals('Mesin Kasir (POS)', $quickModules[0]['name']);
+        $this->assertEquals(route('pos.terminal'), $quickModules[0]['route']);
+        $this->assertEquals('pos.terminal', $quickModules[0]['permission']);
+    }
+
+    public function test_portal_empty_state_rendered_when_staff_has_no_operational_permissions(): void
+    {
+        $this->seed(RbacSeeder::class);
+
+        $cleaner = User::create([
+            'name' => 'Joko Cleaning',
+            'email' => 'joko-cleaner@test.local',
+            'password' => bcrypt('password123'),
+            'email_verified_at' => now(),
+        ]);
+
+        $business = Business::create(['name' => 'Warung Kopi Doni', 'status' => 'active']);
+
+        $role = Role::create([
+            'business_id' => $business->id,
+            'name' => 'Staf Kebersihan',
+            'slug' => 'cleaner-role',
+        ]);
+        // No operational permissions assigned to this role
+
+        $business->users()->attach($cleaner->id, [
+            'id' => (string) Str::uuid(),
+            'role' => 'staff',
+            'role_id' => $role->id,
+        ]);
+        $cleaner->update(['active_business_id' => $business->id]);
+        Context::flush();
+
+        $response = $this->actingAs($cleaner)->get(route('portal'));
+        $response->assertStatus(200);
+
+        // Empty state must be rendered
+        $response->assertSee('Akses Modul Operasional Belum Diberikan');
+        $response->assertDontSee('Modul Tersedia');
+    }
 }

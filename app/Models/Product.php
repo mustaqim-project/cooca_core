@@ -50,6 +50,7 @@ class Product extends Model
         'is_preorder',
         'preorder_mode',
         'preorder_lead_days',
+        'is_bundle',
     ];
 
     /**
@@ -67,6 +68,7 @@ class Product extends Model
         'is_preorder' => false,
         'preorder_mode' => self::PREORDER_MODE_SCHEDULE,
         'preorder_lead_days' => 1,
+        'is_bundle' => false,
     ];
 
     public function getTypeAttribute(?string $value): string
@@ -92,6 +94,7 @@ class Product extends Model
             'is_preorder' => 'boolean',
             'preorder_mode' => 'string',
             'preorder_lead_days' => 'integer',
+            'is_bundle' => 'boolean',
         ];
     }
 
@@ -108,6 +111,60 @@ class Product extends Model
     public function isPreorder(): bool
     {
         return (bool) ($this->is_preorder ?? false);
+    }
+
+    public function isBundle(): bool
+    {
+        return (bool) ($this->is_bundle ?? false);
+    }
+
+    public function getChannelPrice(string $channel): float
+    {
+        if ($this->relationLoaded('channelPrices')) {
+            $matched = $this->channelPrices->firstWhere('channel', $channel);
+            if ($matched) {
+                return (float) $matched->price;
+            }
+        } else {
+            $cp = $this->channelPrices()->where('channel', $channel)->first();
+            if ($cp) {
+                return (float) $cp->price;
+            }
+        }
+
+        return (float) ($this->selling_price ?? 0.0);
+    }
+
+    public function getBundleHpp(): float
+    {
+        if (! $this->isBundle()) {
+            return (float) ($this->base_cost ?? 0.0);
+        }
+
+        $items = $this->relationLoaded('bundleItems')
+            ? $this->bundleItems
+            : $this->bundleItems()->with('childProduct.activeCostModel')->get();
+
+        $totalHpp = 0.0;
+        foreach ($items as $item) {
+            $child = $item->childProduct;
+            if (! $child) {
+                continue;
+            }
+
+            $childHpp = (float) ($child->base_cost ?? 0.0);
+            if ($childHpp <= 0 && $child->activeCostModel) {
+                $costModel = $child->activeCostModel;
+                $latestRun = $costModel->relationLoaded('costingRuns')
+                    ? $costModel->costingRuns->sortByDesc('created_at')->first()
+                    : $costModel->costingRuns()->with('result')->latest()->first();
+                $childHpp = (float) ($latestRun?->result?->hpp_per_unit ?? 0.0);
+            }
+
+            $totalHpp += ($childHpp * (float) $item->quantity);
+        }
+
+        return $totalHpp;
     }
 
     public function isPriceVisibleOnWeb(): bool
@@ -220,6 +277,22 @@ class Product extends Model
     }
 
     /**
+     * @return HasMany<ProductBundleItem, $this>
+     */
+    public function bundleItems(): HasMany
+    {
+        return $this->hasMany(ProductBundleItem::class, 'parent_product_id');
+    }
+
+    /**
+     * @return HasMany<ProductChannelPrice, $this>
+     */
+    public function channelPrices(): HasMany
+    {
+        return $this->hasMany(ProductChannelPrice::class, 'product_id');
+    }
+
+    /**
      * @return HasMany<InvoiceItem, $this>
      */
     public function invoiceItems(): HasMany
@@ -303,6 +376,32 @@ class Product extends Model
             return [];
         }
 
+        // Case 0: Bundle / Kombo Product Handling
+        if ($this->isBundle()) {
+            $deductions = [];
+            $bundleItems = $this->relationLoaded('bundleItems')
+                ? $this->bundleItems
+                : $this->bundleItems()->with('childProduct')->get();
+
+            foreach ($bundleItems as $bItem) {
+                $child = $bItem->childProduct;
+                if (! $child || $child->isService()) {
+                    continue;
+                }
+                $childQty = (float) $bItem->quantity * $quantity;
+                $childDeductions = $child->getMaterialDeductions($childQty);
+                foreach ($childDeductions as $cd) {
+                    $matId = $cd['material_id'];
+                    if (isset($deductions[$matId])) {
+                        $deductions[$matId]['quantity'] += $cd['quantity'];
+                    } else {
+                        $deductions[$matId] = $cd;
+                    }
+                }
+            }
+            return array_values($deductions);
+        }
+
         // Case A: Direct Material (Rule 13)
         if ($this->direct_material_id) {
             $mat = $this->directMaterial ?? Material::find($this->direct_material_id);
@@ -376,6 +475,34 @@ class Product extends Model
             return null;
         }
 
+        // If Bundle/Kombo: Bottleneck rule across all child products
+        if ($this->isBundle()) {
+            $bundleItems = $this->relationLoaded('bundleItems')
+                ? $this->bundleItems
+                : $this->bundleItems()->with('childProduct')->get();
+
+            if ($bundleItems->isEmpty()) {
+                return 0.0;
+            }
+            $minBundles = null;
+            foreach ($bundleItems as $bItem) {
+                $child = $bItem->childProduct;
+                if (! $child || $child->isService()) {
+                    continue;
+                }
+                $requiredQty = (float) $bItem->quantity;
+                if ($requiredQty <= 0) {
+                    continue;
+                }
+                $childStock = $child->calculateEffectiveStock($locationId) ?? 0.0;
+                $producible = floor($childStock / $requiredQty);
+                if ($minBundles === null || $producible < $minBundles) {
+                    $minBundles = max(0.0, (float) $producible);
+                }
+            }
+            return $minBundles ?? 0.0;
+        }
+
         // If Direct Material
         if ($this->direct_material_id) {
             $query = InventoryStock::where('material_id', $this->direct_material_id);
@@ -431,6 +558,34 @@ class Product extends Model
     {
         if ($this->isService()) {
             return null;
+        }
+
+        // If Bundle/Kombo: Bottleneck rule across available child product stocks
+        if ($this->isBundle()) {
+            $bundleItems = $this->relationLoaded('bundleItems')
+                ? $this->bundleItems
+                : $this->bundleItems()->with('childProduct')->get();
+
+            if ($bundleItems->isEmpty()) {
+                return 0.0;
+            }
+            $minBundles = null;
+            foreach ($bundleItems as $bItem) {
+                $child = $bItem->childProduct;
+                if (! $child || $child->isService()) {
+                    continue;
+                }
+                $requiredQty = (float) $bItem->quantity;
+                if ($requiredQty <= 0) {
+                    continue;
+                }
+                $childStock = $child->calculateEffectiveAvailableStock($locationId) ?? 0.0;
+                $producible = floor($childStock / $requiredQty);
+                if ($minBundles === null || $producible < $minBundles) {
+                    $minBundles = max(0.0, (float) $producible);
+                }
+            }
+            return $minBundles ?? 0.0;
         }
 
         // If Direct Material

@@ -110,6 +110,8 @@ class PosReceiptImageService
             'customer' => $order->customer?->name ?? $order->customer_name_guest ?? null,
             'table_ref' => $order->table_or_reference ?? null,
             'order_type' => strtoupper((string) ($order->order_type ?? 'dine_in')),
+            'sales_channel' => $order->sales_channel ?? 'dine_in',
+            'external_order_ref' => $order->external_order_ref ?? null,
             'items' => $items,
             'totals' => $totals,
             'grand_total' => 'Rp ' . number_format((float) $order->total_amount, 0, ',', '.'),
@@ -213,7 +215,17 @@ class PosReceiptImageService
         }
 
         $this->drawRow($im, 'Tipe Pesanan', $data['order_type'], $padding, $contentWidth, $y, $textMuted, $textDark, 10, false, $fontFile);
-        $y += 24;
+        $y += 20;
+
+        if (!empty($data['sales_channel']) && $data['sales_channel'] !== 'dine_in') {
+            $this->drawRow($im, 'Channel', strtoupper($data['sales_channel']), $padding, $contentWidth, $y, $textMuted, $brandBlue, 10, true, $fontFile);
+            $y += 20;
+        }
+        if (!empty($data['external_order_ref'])) {
+            $this->drawRow($im, 'Ref Order', '#' . $data['external_order_ref'], $padding, $contentWidth, $y, $textMuted, $textDark, 10, true, $fontFile);
+            $y += 20;
+        }
+        $y += 4;
 
         $this->drawDashedLine($im, $padding, $y, $this->width - $padding, $y, $lineColor);
         $y += 22;

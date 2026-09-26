@@ -261,6 +261,16 @@
                 @endforeach
             </div>
         </div>
+    @else
+        <div class="rounded-[20px] bg-white/40 dark:bg-[#1C1C1E]/40 backdrop-blur-xl border border-black/5 dark:border-white/10 p-6 sm:p-8 text-center">
+            <div class="w-12 h-12 rounded-[16px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 flex items-center justify-center mx-auto mb-3 text-slate-400">
+                <i data-lucide="shield-alert" class="w-6 h-6 text-[#FF9500]"></i>
+            </div>
+            <h4 class="text-sm font-bold text-slate-800 dark:text-slate-200">Akses Modul Operasional Belum Diberikan</h4>
+            <p class="text-xs text-slate-500 dark:text-slate-400 max-w-md mx-auto mt-1">
+                Akun Anda saat ini hanya memiliki izin presensi mandiri. Jika Anda memerlukan akses ke terminal kasir (POS), pesanan dapur (KDS), atau inventaris, silakan hubungi Manajer Toko atau Pemilik Bisnis.
+            </p>
+        </div>
     @endif
 
     {{-- ======================================================== --}}

@@ -20,6 +20,10 @@
         quickUnitLoading: false,
         categoryList: {{ Js::from($categories->map(fn($c) => ['id' => (string) $c->id, 'name' => $c->name])) }},
         unitList: {{ Js::from($units->map(fn($u) => ['id' => (string) $u->id, 'name' => $u->name, 'code' => $u->code])) }},
+        allProductsList: {{ Js::from($allProducts->map(fn($p) => ['id' => (string) $p->id, 'name' => $p->name, 'code' => $p->code, 'price' => (float)$p->selling_price, 'cost' => (float)$p->base_cost])) }},
+        newIsBundle: false,
+        newBundleItems: [],
+        newChannelPrices: { dine_in: '', takeaway: '', gofood: '', grabfood: '', shopeefood: '' },
     
         showProductScannerPermission: false,
         showProductScanner: false,
@@ -49,6 +53,43 @@
         newIsPreorder: false,
         newPreorderMode: 'customer_schedule',
         newPreorderLeadDays: 1,
+        addBundleItem(target) {
+            if (target === 'add') {
+                this.newBundleItems.push({ child_product_id: '', quantity: 1 });
+            } else {
+                if (!this.editProduct.bundle_items) this.editProduct.bundle_items = [];
+                this.editProduct.bundle_items.push({ child_product_id: '', quantity: 1 });
+            }
+        },
+        removeBundleItem(target, index) {
+            if (target === 'add') {
+                this.newBundleItems.splice(index, 1);
+            } else {
+                this.editProduct.bundle_items.splice(index, 1);
+            }
+        },
+        getEstimatedBundleCost(items) {
+            if (!items || !items.length) return 0;
+            let total = 0;
+            for (const item of items) {
+                const prod = this.allProductsList.find(p => p.id === String(item.child_product_id));
+                if (prod) {
+                    total += (prod.cost || 0) * (Number(item.quantity) || 1);
+                }
+            }
+            return total;
+        },
+        getEstimatedBundleValue(items) {
+            if (!items || !items.length) return 0;
+            let total = 0;
+            for (const item of items) {
+                const prod = this.allProductsList.find(p => p.id === String(item.child_product_id));
+                if (prod) {
+                    total += (prod.price || 0) * (Number(item.quantity) || 1);
+                }
+            }
+            return total;
+        },
         showBranchPricesModal: false,
         branchPricesLoading: false,
         branchPricesSaving: false,
@@ -257,12 +298,15 @@
                     'is_preorder' => (bool) ($editProduct->is_preorder ?? false),
                     'preorder_mode' => (string) ($editProduct->preorder_mode ?? 'customer_schedule'),
                     'preorder_lead_days' => (int) ($editProduct->preorder_lead_days ?? 1),
+                    'is_bundle' => (bool) ($editProduct->is_bundle ?? false),
+                    'bundle_items' => $editProduct->bundleItems->map(fn($bi) => ['child_product_id' => (string)$bi->child_product_id, 'quantity' => (float)$bi->quantity])->values()->all(),
+                    'channel_prices' => $editProduct->channelPrices->pluck('price', 'channel')->all(),
                     'description' => $editProduct->description ?? '',
                     'image_url' => $editProduct->image_url,
                 ],
                 JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE,
             )
-            : "{ id: '', slug: '', name: '', sku: '', category_id: '', output_unit_id: '', base_cost: 0, selling_price: 0, min_stock: 0, is_active: true, show_in_website: true, show_in_pos: true, show_in_sales_order: true, show_price_on_web: true, is_preorder: false, preorder_mode: 'customer_schedule', preorder_lead_days: 1, description: '', image_url: '' }" !!},
+            : "{ id: '', slug: '', name: '', sku: '', category_id: '', output_unit_id: '', base_cost: 0, selling_price: 0, min_stock: 0, is_active: true, show_in_website: true, show_in_pos: true, show_in_sales_order: true, show_price_on_web: true, is_preorder: false, preorder_mode: 'customer_schedule', preorder_lead_days: 1, is_bundle: false, bundle_items: [], channel_prices: {}, description: '', image_url: '' }" !!},
     
         productToggles: {
             @foreach($products as $p)
@@ -352,6 +396,9 @@
                 show_price_on_web: currentToggle ? currentToggle.show_price_on_web : p.show_price_on_web,
                 is_preorder: currentToggle ? currentToggle.is_preorder : p.is_preorder,
                 is_active: currentToggle ? currentToggle.is_active : p.is_active,
+                is_bundle: Boolean(p.is_bundle),
+                bundle_items: (p.bundle_items || []).map(b => ({ child_product_id: String(b.child_product_id), quantity: Number(b.quantity) })),
+                channel_prices: p.channel_prices || {},
             };
             this.editProductPreview = '';
             this.showEditModal = true;
@@ -783,8 +830,14 @@
                                             @endif
                                         </div>
                                         <div class="min-w-0">
-                                            <div class="font-semibold text-black dark:text-white text-[13.5px] truncate">
-                                                {{ $prod->name }}</div>
+                                            <div class="flex items-center gap-1.5 flex-wrap">
+                                                <span class="font-semibold text-black dark:text-white text-[13.5px] truncate">{{ $prod->name }}</span>
+                                                @if ($prod->isBundle())
+                                                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30">
+                                                        KOMBO ({{ $prod->bundleItems->count() }} Item)
+                                                    </span>
+                                                @endif
+                                            </div>
                                             <div class="text-[11px] text-black/45 dark:text-white/45 tabular-nums">
                                                 {{ $prod->code ?? ($prod->sku ?? 'Tanpa Barcode') }}</div>
                                         </div>
@@ -970,7 +1023,10 @@
                                     preorder_mode: '{{ $prod->preorder_mode ?? 'customer_schedule' }}',
                                     preorder_lead_days: {{ (int) ($prod->preorder_lead_days ?? 1) }},
                                     description: '{{ addslashes($prod->description ?? '') }}',
-                                    image_url: '{{ addslashes($prod->image_url ?? '') }}'
+                                    image_url: '{{ addslashes($prod->image_url ?? '') }}',
+                                    is_bundle: {{ $prod->isBundle() ? 'true' : 'false' }},
+                                    bundle_items: {{ Js::from($prod->bundleItems->map(fn($bi) => ['child_product_id' => (string)$bi->child_product_id, 'quantity' => (float)$bi->quantity])) }},
+                                    channel_prices: {{ Js::from($prod->channelPrices->pluck('price', 'channel')) }}
                                 })"
                                                 class="h-8 px-2.5 rounded-[8px] text-[12px] font-medium text-black/70 dark:text-white/70 hover:bg-black/5 dark:hover:bg-white/5 transition-colors flex items-center"
                                                 title="Edit Produk">
@@ -1041,9 +1097,14 @@
                                 @endif
                             </div>
                             <div class="min-w-0">
-                                <div class="flex items-center gap-2">
+                                <div class="flex items-center gap-2 flex-wrap">
                                     <p class="text-[15px] font-semibold text-black dark:text-white truncate">
                                         {{ $prod->name }}</p>
+                                    @if ($prod->isBundle())
+                                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30">
+                                            KOMBO ({{ $prod->bundleItems->count() }} Item)
+                                        </span>
+                                    @endif
                                     <span class="w-2 h-2 rounded-full shrink-0"
                                         :class="productToggles['{{ $prod->id }}']?.is_active ? 'bg-[#34C759]' :
                                             'bg-[#FF3B30]'"></span>
@@ -1091,7 +1152,10 @@
                         preorder_mode: '{{ $prod->preorder_mode ?? 'customer_schedule' }}',
                         preorder_lead_days: {{ (int) ($prod->preorder_lead_days ?? 1) }},
                         description: '{{ addslashes($prod->description ?? '') }}',
-                        image_url: '{{ addslashes($prod->image_url ?? '') }}'
+                        image_url: '{{ addslashes($prod->image_url ?? '') }}',
+                        is_bundle: {{ $prod->isBundle() ? 'true' : 'false' }},
+                        bundle_items: {{ Js::from($prod->bundleItems->map(fn($bi) => ['child_product_id' => (string)$bi->child_product_id, 'quantity' => (float)$bi->quantity])) }},
+                        channel_prices: {{ Js::from($prod->channelPrices->pluck('price', 'channel')) }}
                     })"
                                     class="h-8 px-2.5 rounded-[8px] text-[12px] font-medium text-black/70 dark:text-white/70 bg-black/[0.05] dark:bg-white/[0.08] flex items-center">
                                     Edit
@@ -1339,6 +1403,82 @@
                                             class="w-full bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] rounded-[12px] p-3 text-[16px] sm:text-[14px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition"></textarea>
                                     </div>
                                 </div>
+
+                                <!-- Bento Box: Paket Kombo / Bundling Produk -->
+                                <div class="p-5 rounded-[18px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.08] space-y-4">
+                                    <div class="flex items-start justify-between gap-3">
+                                        <div>
+                                            <div class="flex items-center gap-2">
+                                                <span class="w-7 h-7 rounded-[8px] bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9" />
+                                                    </svg>
+                                                </span>
+                                                <h3 class="text-[14px] font-bold text-black dark:text-white tracking-tight">Paket Kombo / Bundling</h3>
+                                            </div>
+                                            <p class="text-[12px] text-black/50 dark:text-white/50 mt-1">Gabungkan beberapa produk menjadi 1 paket hemat (otomatis potong stok multi-produk & akumulasi HPP).</p>
+                                        </div>
+                                        <label class="relative inline-flex items-center cursor-pointer shrink-0">
+                                            <input type="hidden" name="is_bundle" value="0">
+                                            <input type="checkbox" name="is_bundle" value="1" x-model="newIsBundle" class="sr-only peer">
+                                            <div class="w-11 h-6 bg-black/10 peer-focus:outline-none rounded-full peer dark:bg-white/10 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-amber-500"></div>
+                                        </label>
+                                    </div>
+
+                                    <!-- Active Bundle Config Section -->
+                                    <div x-show="newIsBundle" x-cloak class="space-y-3 pt-3 border-t border-black/[0.05] dark:border-white/[0.08]">
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-[12px] font-semibold text-black/70 dark:text-white/70">Daftar Produk di Dalam Paket</span>
+                                            <button type="button" @click="addBundleItem('add')" class="h-8 px-2.5 rounded-[8px] bg-amber-500/10 text-amber-600 dark:text-amber-400 hover:bg-amber-500/20 text-[12px] font-semibold flex items-center gap-1 transition">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+                                                <span>+ Tambah Produk</span>
+                                            </button>
+                                        </div>
+
+                                        <template x-if="newBundleItems.length === 0">
+                                            <div class="p-4 rounded-[12px] border border-dashed border-black/15 dark:border-white/15 text-center text-[12px] text-black/45 dark:text-white/45">
+                                                Belum ada produk yang dimasukkan ke dalam paket kombo. Klik <strong>+ Tambah Produk</strong> di atas.
+                                            </div>
+                                        </template>
+
+                                        <div class="space-y-2">
+                                            <template x-for="(item, idx) in newBundleItems" :key="idx">
+                                                <div class="p-3 rounded-[12px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] flex items-center gap-2.5">
+                                                    <div class="flex-1 min-w-0">
+                                                        <select :name="'bundle_items[' + idx + '][child_product_id]'" x-model="item.child_product_id" required class="w-full h-9 px-2.5 bg-black/[0.03] dark:bg-white/[0.05] border border-black/[0.08] dark:border-white/[0.1] rounded-[8px] text-[13px] text-black dark:text-white focus:ring-1 focus:ring-amber-500">
+                                                            <option value="">-- Pilih Produk Anak --</option>
+                                                            <template x-for="p in allProductsList" :key="p.id">
+                                                                <option :value="p.id" x-text="p.name + ' (Rp ' + Number(p.price).toLocaleString('id-ID') + ')'"></option>
+                                                            </template>
+                                                        </select>
+                                                    </div>
+                                                    <div class="w-24 shrink-0">
+                                                        <div class="relative">
+                                                            <input type="number" min="0.01" step="any" :name="'bundle_items[' + idx + '][quantity]'" x-model="item.quantity" placeholder="Qty" required class="w-full h-9 px-2.5 bg-black/[0.03] dark:bg-white/[0.05] border border-black/[0.08] dark:border-white/[0.1] rounded-[8px] text-[13px] text-black dark:text-white tabular-nums font-semibold focus:ring-1 focus:ring-amber-500 text-center">
+                                                        </div>
+                                                    </div>
+                                                    <button type="button" @click="removeBundleItem('add', idx)" class="w-9 h-9 rounded-[8px] text-[#FF3B30] hover:bg-[#FF3B30]/10 flex items-center justify-center shrink-0 transition" title="Hapus dari Paket">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12h-15" /></svg>
+                                                    </button>
+                                                </div>
+                                            </template>
+                                        </div>
+
+                                        <div x-show="newBundleItems.length > 0" class="p-3 rounded-[12px] bg-amber-500/10 border border-amber-500/20 text-[12px] space-y-1">
+                                            <div class="flex justify-between text-black/70 dark:text-white/70">
+                                                <span>Total Estimasi Modal (HPP Gabungan):</span>
+                                                <span class="font-bold tabular-nums text-black dark:text-white" x-text="'Rp ' + getEstimatedBundleCost(newBundleItems).toLocaleString('id-ID')"></span>
+                                            </div>
+                                            <div class="flex justify-between text-black/70 dark:text-white/70">
+                                                <span>Nilai Normal Satuan (Sebelum Diskon):</span>
+                                                <span class="line-through tabular-nums text-black/50 dark:text-white/50" x-text="'Rp ' + getEstimatedBundleValue(newBundleItems).toLocaleString('id-ID')"></span>
+                                            </div>
+                                            <p class="text-[11px] text-amber-700 dark:text-amber-300 pt-1 border-t border-amber-500/20">
+                                                💡 <em>Aturan Bottleneck: Stok kombo ini otomatis dihitung dari produk dengan sisa stok terkecil.</em>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
                             <!-- Kolom Kanan: Finansial, Media & Saluran (5 Kolom) -->
@@ -1383,6 +1523,53 @@
                                         <input type="number" step="any" name="min_stock" value="0"
                                             placeholder="0"
                                             class="w-full h-10 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] rounded-[10px] px-3.5 text-[16px] sm:text-[14px] text-black dark:text-white tabular-nums focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50">
+                                    </div>
+                                </div>
+
+                                <!-- Bento Box: Multi-Harga Saluran (F&B / Online) -->
+                                <div class="p-5 rounded-[18px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.08] space-y-3.5">
+                                    <div class="flex items-center justify-between">
+                                        <h3 class="text-[14px] font-bold text-black dark:text-white tracking-tight">Multi-Harga Saluran POS (F&amp;B)</h3>
+                                        <span class="text-[11px] font-medium text-black/40 dark:text-white/40">Dine-in / Ojol</span>
+                                    </div>
+                                    <p class="text-[12px] text-black/50 dark:text-white/50">Atur harga khusus pesanan Dine-in, Takeaway, atau Komisi Aplikasi Ojol (GoFood, GrabFood, ShopeeFood). Kosongkan untuk memakai harga jual standar.</p>
+
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                        <div>
+                                            <label class="block text-[11px] font-medium text-black/70 dark:text-white/70 mb-1">Dine-in (Makan di Tempat)</label>
+                                            <div class="relative">
+                                                <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-black/40 dark:text-white/40 text-[12px]">{{ $business->currency_symbol }}</span>
+                                                <input type="number" step="any" name="channel_prices[dine_in]" placeholder="Harga standar" class="w-full h-9 pl-8 pr-2.5 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] rounded-[8px] text-[13px] text-black dark:text-white tabular-nums focus:ring-1 focus:ring-[#007AFF]">
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-[11px] font-medium text-black/70 dark:text-white/70 mb-1">Takeaway (Bungkus)</label>
+                                            <div class="relative">
+                                                <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-black/40 dark:text-white/40 text-[12px]">{{ $business->currency_symbol }}</span>
+                                                <input type="number" step="any" name="channel_prices[takeaway]" placeholder="Harga standar" class="w-full h-9 pl-8 pr-2.5 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] rounded-[8px] text-[13px] text-black dark:text-white tabular-nums focus:ring-1 focus:ring-[#007AFF]">
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-[11px] font-medium text-[#00AA13] dark:text-[#00C819] mb-1">GoFood</label>
+                                            <div class="relative">
+                                                <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-black/40 dark:text-white/40 text-[12px]">{{ $business->currency_symbol }}</span>
+                                                <input type="number" step="any" name="channel_prices[gofood]" placeholder="Contoh: +20%" class="w-full h-9 pl-8 pr-2.5 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] rounded-[8px] text-[13px] text-black dark:text-white tabular-nums focus:ring-1 focus:ring-[#00AA13]">
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-[11px] font-medium text-[#00B14F] dark:text-[#00D05C] mb-1">GrabFood</label>
+                                            <div class="relative">
+                                                <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-black/40 dark:text-white/40 text-[12px]">{{ $business->currency_symbol }}</span>
+                                                <input type="number" step="any" name="channel_prices[grabfood]" placeholder="Contoh: +20%" class="w-full h-9 pl-8 pr-2.5 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] rounded-[8px] text-[13px] text-black dark:text-white tabular-nums focus:ring-1 focus:ring-[#00B14F]">
+                                            </div>
+                                        </div>
+                                        <div class="sm:col-span-2">
+                                            <label class="block text-[11px] font-medium text-[#EE4D2D] dark:text-[#FF5B37] mb-1">ShopeeFood</label>
+                                            <div class="relative">
+                                                <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-black/40 dark:text-white/40 text-[12px]">{{ $business->currency_symbol }}</span>
+                                                <input type="number" step="any" name="channel_prices[shopeefood]" placeholder="Contoh: +20%" class="w-full h-9 pl-8 pr-2.5 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] rounded-[8px] text-[13px] text-black dark:text-white tabular-nums focus:ring-1 focus:ring-[#EE4D2D]">
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -1667,6 +1854,82 @@
                                             class="w-full bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] rounded-[12px] p-3 text-[16px] sm:text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition"></textarea>
                                     </div>
                                 </div>
+
+                                <!-- Bento Box: Paket Kombo / Bundling Produk -->
+                                <div class="p-5 rounded-[18px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.08] space-y-4">
+                                    <div class="flex items-start justify-between gap-3">
+                                        <div>
+                                            <div class="flex items-center gap-2">
+                                                <span class="w-7 h-7 rounded-[8px] bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9" />
+                                                    </svg>
+                                                </span>
+                                                <h3 class="text-[14px] font-bold text-black dark:text-white tracking-tight">Paket Kombo / Bundling</h3>
+                                            </div>
+                                            <p class="text-[12px] text-black/50 dark:text-white/50 mt-1">Gabungkan beberapa produk menjadi 1 paket hemat (otomatis potong stok multi-produk & akumulasi HPP).</p>
+                                        </div>
+                                        <label class="relative inline-flex items-center cursor-pointer shrink-0">
+                                            <input type="hidden" name="is_bundle" value="0">
+                                            <input type="checkbox" name="is_bundle" value="1" x-model="editProduct.is_bundle" class="sr-only peer">
+                                            <div class="w-11 h-6 bg-black/10 peer-focus:outline-none rounded-full peer dark:bg-white/10 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-amber-500"></div>
+                                        </label>
+                                    </div>
+
+                                    <!-- Active Bundle Config Section -->
+                                    <div x-show="editProduct.is_bundle" x-cloak class="space-y-3 pt-3 border-t border-black/[0.05] dark:border-white/[0.08]">
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-[12px] font-semibold text-black/70 dark:text-white/70">Daftar Produk di Dalam Paket</span>
+                                            <button type="button" @click="addBundleItem('edit')" class="h-8 px-2.5 rounded-[8px] bg-amber-500/10 text-amber-600 dark:text-amber-400 hover:bg-amber-500/20 text-[12px] font-semibold flex items-center gap-1 transition">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+                                                <span>+ Tambah Produk</span>
+                                            </button>
+                                        </div>
+
+                                        <template x-if="!editProduct.bundle_items || editProduct.bundle_items.length === 0">
+                                            <div class="p-4 rounded-[12px] border border-dashed border-black/15 dark:border-white/15 text-center text-[12px] text-black/45 dark:text-white/45">
+                                                Belum ada produk yang dimasukkan ke dalam paket kombo. Klik <strong>+ Tambah Produk</strong> di atas.
+                                            </div>
+                                        </template>
+
+                                        <div class="space-y-2">
+                                            <template x-for="(item, idx) in editProduct.bundle_items" :key="idx">
+                                                <div class="p-3 rounded-[12px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] flex items-center gap-2.5">
+                                                    <div class="flex-1 min-w-0">
+                                                        <select :name="'bundle_items[' + idx + '][child_product_id]'" x-model="item.child_product_id" required class="w-full h-9 px-2.5 bg-black/[0.03] dark:bg-white/[0.05] border border-black/[0.08] dark:border-white/[0.1] rounded-[8px] text-[13px] text-black dark:text-white focus:ring-1 focus:ring-amber-500">
+                                                            <option value="">-- Pilih Produk Anak --</option>
+                                                            <template x-for="p in allProductsList" :key="p.id">
+                                                                <option :value="p.id" :disabled="p.id === String(editProduct.id)" x-text="p.name + ' (Rp ' + Number(p.price).toLocaleString('id-ID') + ')'"></option>
+                                                            </template>
+                                                        </select>
+                                                    </div>
+                                                    <div class="w-24 shrink-0">
+                                                        <div class="relative">
+                                                            <input type="number" min="0.01" step="any" :name="'bundle_items[' + idx + '][quantity]'" x-model="item.quantity" placeholder="Qty" required class="w-full h-9 px-2.5 bg-black/[0.03] dark:bg-white/[0.05] border border-black/[0.08] dark:border-white/[0.1] rounded-[8px] text-[13px] text-black dark:text-white tabular-nums font-semibold focus:ring-1 focus:ring-amber-500 text-center">
+                                                        </div>
+                                                    </div>
+                                                    <button type="button" @click="removeBundleItem('edit', idx)" class="w-9 h-9 rounded-[8px] text-[#FF3B30] hover:bg-[#FF3B30]/10 flex items-center justify-center shrink-0 transition" title="Hapus dari Paket">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12h-15" /></svg>
+                                                    </button>
+                                                </div>
+                                            </template>
+                                        </div>
+
+                                        <div x-show="editProduct.bundle_items && editProduct.bundle_items.length > 0" class="p-3 rounded-[12px] bg-amber-500/10 border border-amber-500/20 text-[12px] space-y-1">
+                                            <div class="flex justify-between text-black/70 dark:text-white/70">
+                                                <span>Total Estimasi Modal (HPP Gabungan):</span>
+                                                <span class="font-bold tabular-nums text-black dark:text-white" x-text="'Rp ' + getEstimatedBundleCost(editProduct.bundle_items).toLocaleString('id-ID')"></span>
+                                            </div>
+                                            <div class="flex justify-between text-black/70 dark:text-white/70">
+                                                <span>Nilai Normal Satuan (Sebelum Diskon):</span>
+                                                <span class="line-through tabular-nums text-black/50 dark:text-white/50" x-text="'Rp ' + getEstimatedBundleValue(editProduct.bundle_items).toLocaleString('id-ID')"></span>
+                                            </div>
+                                            <p class="text-[11px] text-amber-700 dark:text-amber-300 pt-1 border-t border-amber-500/20">
+                                                💡 <em>Aturan Bottleneck: Stok kombo ini otomatis dihitung dari produk dengan sisa stok terkecil.</em>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
                             <!-- Kolom Kanan: Finansial, Media & Saluran (5 Kolom) -->
@@ -1711,6 +1974,53 @@
                                         <input type="number" step="any" name="min_stock"
                                             x-model="editProduct.min_stock"
                                             class="w-full h-10 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] rounded-[10px] px-3.5 text-[16px] sm:text-[14px] text-black dark:text-white tabular-nums focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50">
+                                    </div>
+                                </div>
+
+                                <!-- Bento Box: Multi-Harga Saluran (F&B / Online) -->
+                                <div class="p-5 rounded-[18px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.08] space-y-3.5">
+                                    <div class="flex items-center justify-between">
+                                        <h3 class="text-[14px] font-bold text-black dark:text-white tracking-tight">Multi-Harga Saluran POS (F&amp;B)</h3>
+                                        <span class="text-[11px] font-medium text-black/40 dark:text-white/40">Dine-in / Ojol</span>
+                                    </div>
+                                    <p class="text-[12px] text-black/50 dark:text-white/50">Atur harga khusus pesanan Dine-in, Takeaway, atau Komisi Aplikasi Ojol (GoFood, GrabFood, ShopeeFood). Kosongkan untuk memakai harga jual standar.</p>
+
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                        <div>
+                                            <label class="block text-[11px] font-medium text-black/70 dark:text-white/70 mb-1">Dine-in (Makan di Tempat)</label>
+                                            <div class="relative">
+                                                <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-black/40 dark:text-white/40 text-[12px]">{{ $business->currency_symbol }}</span>
+                                                <input type="number" step="any" name="channel_prices[dine_in]" :value="editProduct.channel_prices?.['dine_in'] || ''" placeholder="Harga standar" class="w-full h-9 pl-8 pr-2.5 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] rounded-[8px] text-[13px] text-black dark:text-white tabular-nums focus:ring-1 focus:ring-[#007AFF]">
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-[11px] font-medium text-black/70 dark:text-white/70 mb-1">Takeaway (Bungkus)</label>
+                                            <div class="relative">
+                                                <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-black/40 dark:text-white/40 text-[12px]">{{ $business->currency_symbol }}</span>
+                                                <input type="number" step="any" name="channel_prices[takeaway]" :value="editProduct.channel_prices?.['takeaway'] || ''" placeholder="Harga standar" class="w-full h-9 pl-8 pr-2.5 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] rounded-[8px] text-[13px] text-black dark:text-white tabular-nums focus:ring-1 focus:ring-[#007AFF]">
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-[11px] font-medium text-[#00AA13] dark:text-[#00C819] mb-1">GoFood</label>
+                                            <div class="relative">
+                                                <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-black/40 dark:text-white/40 text-[12px]">{{ $business->currency_symbol }}</span>
+                                                <input type="number" step="any" name="channel_prices[gofood]" :value="editProduct.channel_prices?.['gofood'] || ''" placeholder="Contoh: +20%" class="w-full h-9 pl-8 pr-2.5 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] rounded-[8px] text-[13px] text-black dark:text-white tabular-nums focus:ring-1 focus:ring-[#00AA13]">
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-[11px] font-medium text-[#00B14F] dark:text-[#00D05C] mb-1">GrabFood</label>
+                                            <div class="relative">
+                                                <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-black/40 dark:text-white/40 text-[12px]">{{ $business->currency_symbol }}</span>
+                                                <input type="number" step="any" name="channel_prices[grabfood]" :value="editProduct.channel_prices?.['grabfood'] || ''" placeholder="Contoh: +20%" class="w-full h-9 pl-8 pr-2.5 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] rounded-[8px] text-[13px] text-black dark:text-white tabular-nums focus:ring-1 focus:ring-[#00B14F]">
+                                            </div>
+                                        </div>
+                                        <div class="sm:col-span-2">
+                                            <label class="block text-[11px] font-medium text-[#EE4D2D] dark:text-[#FF5B37] mb-1">ShopeeFood</label>
+                                            <div class="relative">
+                                                <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-black/40 dark:text-white/40 text-[12px]">{{ $business->currency_symbol }}</span>
+                                                <input type="number" step="any" name="channel_prices[shopeefood]" :value="editProduct.channel_prices?.['shopeefood'] || ''" placeholder="Contoh: +20%" class="w-full h-9 pl-8 pr-2.5 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] rounded-[8px] text-[13px] text-black dark:text-white tabular-nums focus:ring-1 focus:ring-[#EE4D2D]">
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 

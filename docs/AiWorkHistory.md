@@ -50,7 +50,193 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 - Keputusan desain arsitektur yang diambil.
 - Kepatuhan terhadap pedoman keselamatan (Financial Integrity, Tenant Isolation, Boomer Ergonomics).
 
-#### 7. Documentation Promotion
+### [WORK-2026-09-26-182] Product Bundling & Combo Engine: Multi-Item Stock Deduction, Bottleneck Rule, Combined HPP Calculation & Master Product UI (Phase 4)
+
+- **Date:** 2026-09-26
+- **Status:** COMPLETED
+- **Module:** Inventory / Products / POS / Costing
+- **Feature:** Eksekusi Fase 4: Product Bundling Engine (Paket Kombo F&B/Retail). Fitur mencakup: kalkulasi akumulasi HPP dari seluruh item anak, aturan stok efektif bottleneck ($\min \lfloor \text{child\_stock} / \text{qty} \rfloor$), pemotongan stok atomik rekursif (baik untuk produk fisik jadi maupun bahan baku BOM resep), sinkronisasi relasi bundle di ProductWebController, antarmuka Master Produk Bento Apple HIG (Add & Edit Modal) dengan item repeater dinamis, estimasi HPP/nilai normal, dan integrasi input multi-harga channel F&B.
+- **Work Type:** Feature | Architecture | Financial Integrity | UI/UX
+
+#### 1. Business Context & Objective
+- **Konteks:** Merchant F&B dan retail sering membuat paket hemat kombo (misal: Kombo Sarapan Burger + Es Teh = Rp30.000, dari harga normal Rp35.000). Secara akuntansi dan operasional UMKM, HPP kombo adalah penjumlahan langsung HPP masing-masing produk (misal: HPP Burger Rp8.000 + HPP Es Teh Rp4.000 = Rp12.000), profit margin lebih tipis, namun stok setiap produk/bahan di dalamnya harus otomatis terpotong secara akurat saat kasir menjual kombo tersebut tanpa perlu kasir menginput manual tiap komponen.
+- **Target:** 
+  1. HPP kombo terakumulasi otomatis dari modal item anak (`getBundleHpp()`).
+  2. Stok produk kombo mengikuti aturan bottleneck (jika stok salah satu produk anak habis atau tidak mencukupi, stok kombo otomatis 0).
+  3. Pemotongan stok saat POS checkout dan pengembalian saat retur/refund merekursi seluruh produk anak dan bahan BOM secara atomik tanpa duplikasi.
+  4. Pengguna dapat mengonfigurasi paket kombo dan multi-harga saluran penjualan langsung dari modal Master Produk.
+
+#### 2. What Was Done
+- **Model Layer (`app/Models/Product.php`):**
+  - Implementasi metode `getBundleHpp()`: Menghitung total HPP dengan mengakumulasi `base_cost` atau HPP aktif dari costing run BOM masing-masing produk anak dikali kuantitasnya.
+  - Implementasi aturan stok bottleneck pada `calculateEffectiveStock(?string $locationId = null)` dan `calculateEffectiveAvailableStock(?string $locationId = null)`: Menghitung $\min(\lfloor \text{childStock} / \text{qtyRequired} \rfloor)$.
+  - Implementasi Case 0 pada `getMaterialDeductions()`: Merekursi pemotongan bahan baku untuk produk anak bertipe resep/BOM.
+- **Inventory & POS Services:**
+  - `app/Domain/Inventory/StockService.php`:
+    - Pada `deductForProductSale()`: Menambahkan penanganan `$productModel->isBundle()`, merekursi pemotongan stok untuk setiap child product secara atomik dengan catatan deskripsi item kombo.
+    - Pada `restoreForPosRefund()`: Menambahkan penanganan rekursif untuk mengembalikan stok setiap child product saat terjadi refund kombo.
+  - `app/Domain/Pos/PosOrderService.php`:
+    - Pada `checkout()` dan `createOrderFromTable()`: Mengarahkan perhitungan `$unitHpp` ke `$product->getBundleHpp()` jika produk bertipe kombo (`is_bundle = true`), menjamin kalkulasi `total_hpp_cost` dan `total_gross_profit` pada order tetap presisi.
+- **Master Product Management & UI (`ProductWebController.php` & `products/index.blade.php`):**
+  - Di `ProductWebController`:
+    - Meng-eager load relasi `bundleItems.childProduct` dan `channelPrices`.
+    - Menyediakan data `$allProducts` untuk opsi dropdown produk anak kombo.
+    - Menangani validasi dan persistensi `is_bundle`, `bundle_items` (`child_product_id`, `quantity`), dan `channel_prices` pada `store()` dan `update()`, termasuk proteksi circular reference.
+  - Di `resources/views/app/products/index.blade.php`:
+    - Menampilkan lencana visual `[KOMBO (x Item)]` dengan warna aksen amber pada tabel produk desktop dan daftar kartu mobile.
+    - Menambahkan Bento Box "Paket Kombo / Bundling" pada Modal Tambah dan Modal Ubah Produk dengan switch aktivasi, dynamic child item repeater, dropdown produk anak, input kuantitas, ringkasan estimasi total HPP modal gabungan, dan estimasi nilai normal.
+    - Menambahkan Bento Box "Multi-Harga Saluran POS (F&B)" pada Modal Tambah dan Ubah Produk (Dine-in, Takeaway, GoFood, GrabFood, ShopeeFood).
+- **Automated Verification:**
+  - Membuat `tests/Feature/ProductBundleStockAndHppTest.php` dengan 5 uji skenario:
+    1. Akumulasi HPP kombo dari harga modal anak.
+    2. Aturan bottleneck stok kombo saat stok anak terbatas atau habis.
+    3. Rekursi bahan baku BOM untuk produk anak bertipe resep.
+    4. POS Checkout order kombo: pemotongan stok anak dan pencatatan `total_hpp_cost`.
+    5. CRUD Master Produk kombo dan multi-harga saluran melalui `ProductWebController`.
+
+#### 3. Technical Changes
+- **Files Affected:**
+  - `app/Models/Product.php`
+  - `app/Domain/Inventory/StockService.php`
+  - `app/Domain/Pos/PosOrderService.php`
+  - `app/Http/Controllers/Web/ProductWebController.php`
+  - `resources/views/app/products/index.blade.php`
+  - `tests/Feature/ProductBundleStockAndHppTest.php`
+
+#### 4. Verification & Testing
+- `php artisan test tests/Feature/ProductBundleStockAndHppTest.php` -> 5 tests, 30 assertions, 100% passed.
+- `php artisan test tests/Feature/ProductBundleAndChannelPriceSchemaTest.php tests/Feature/PosChannelPricingTest.php tests/Feature/PortalAndDashboardPermissionTest.php tests/Feature/ProductBundleStockAndHppTest.php` -> 18 tests, 102 assertions, 100% passed.
+
+---
+
+### [WORK-2026-09-26-181] POS Multi-Harga F&B Delivery Channel Pricing Engine, Terminal UI, KDS & Receipt Integration (Phase 3)
+
+- **Date:** 2026-09-26
+- **Status:** COMPLETED
+- **Module:** POS / F&B Multi-Channel / Orders / Kitchen / Receipt
+- **Feature:** Eksekusi Fase 3: Channel Multi-Harga F&B untuk kasir POS (Dine-in, Takeaway, GoFood, GrabFood, ShopeeFood) dengan segmented selector bar, input nomor referensi eksternal, auto-recalculating keranjang, penandaan struk thermal ESC-POS, KDS Kanban real-time badges, dan order history channel tags.
+- **Work Type:** Feature | UI/UX | Business Logic | Security
+
+#### 1. Business Context & Objective
+- **Konteks:** Merchant F&B dan kafe menjual produk melalui multiple sales channel dengan struktur margin dan komisi berbeda (Dine-in reguler vs GrabFood/GoFood/ShopeeFood yang dipotong komisi 15-20%). Merchant membutuhkan penetapan harga manual per channel di POS tanpa integrasi API delivery pihak ketiga yang rumit.
+- **Target:** Kasir dapat memilih channel penjualan di terminal POS. Ketika channel dipilih, harga produk di katalog dan harga item di keranjang secara otomatis menyesuaikan harga channel tersebut. Struk belanja, KDS dapur, dan rekap pesanan mencantumkan channel dan nomor pesanan eksternal aplikasi.
+
+#### 2. What Was Done
+- **Backend Plumbing:**
+  - Meng-eager load relasi `channelPrices` pada produk di `PosTerminalWebController::index()` dan memetakan kamus harga channel `[dine_in, takeaway, gofood, grabfood, shopeefood]`.
+  - Mengupdate `PosTerminalWebController::searchProducts()` untuk menyertakan `channel_prices` dan `is_bundle` saat kasir mencari produk.
+  - Memperbarui validasi `checkout()` untuk menerima `sales_channel` dan `external_order_ref`, menyertakannya dalam respon JSON transaksi.
+  - Memperbarui `PosOrderService::checkout()` agar mencatat `sales_channel` dan `external_order_ref` ke `pos_orders` baik untuk order baru maupun order meja yang sudah ada.
+  - Menyesuaikan `PosReceiptImageService` untuk mencetak baris Channel dan Ref Order pada struk gambar/thermal.
+- **Frontend & Terminal POS (`terminal.blade.php`):**
+  - Menambahkan Bento Segmented Channel Selector Pill Bar (`Dine In`, `Takeaway`, `GoFood`, `GrabFood`, `ShopeeFood`) dengan visual brand icons/colors Apple HIG.
+  - Menambahkan input dinamis untuk nomor order referensi eksternal (`external_order_ref`) saat channel online delivery aktif.
+  - Menambahkan sinkronisasi state Alpine.js (`salesChannel`, `externalOrderRef`, `setSalesChannel`, `getProductPrice`) yang mere-kalkulasi harga item keranjang secara instan.
+  - Menampilkan badge channel khusus online di keranjang belanja dan kartu katalog.
+- **KDS & Thermal Receipt:**
+  - Menambahkan badge channel berwarna kontras tinggi pada 3 kolom Kanban Kitchen Display (`kitchen.blade.php`).
+  - Menambahkan baris channel dan nomor referensi order pada struk thermal cetak (`receipt.blade.php`) dan riwayat pesanan (`orders.blade.php`).
+- **Automated Testing:**
+  - Membuat `tests/Feature/PosChannelPricingTest.php` yang memvalidasi mapping channel prices di POS Terminal, penyimpanan channel & external ref saat checkout, akurasi HPP & Gross Profit, serta tampilan pada struk (100% lolos).
+
+#### 3. Technical Changes
+- **Files Affected:**
+  - `app/Http/Controllers/Web/Pos/PosTerminalWebController.php`
+  - `app/Domain/Pos/PosOrderService.php`
+  - `app/Domain/Pos/PosReceiptImageService.php`
+  - `resources/views/app/pos/terminal.blade.php`
+  - `resources/views/app/pos/kitchen.blade.php`
+  - `resources/views/app/pos/receipt.blade.php`
+  - `resources/views/app/pos/orders.blade.php`
+  - `tests/Feature/PosChannelPricingTest.php`
+
+#### 4. Verification & Testing
+- `php artisan test tests/Feature/PosChannelPricingTest.php` -> 3 tests, 26 assertions, 100% passed.
+- `php artisan test tests/Feature/ProductBundleAndChannelPriceSchemaTest.php tests/Feature/PortalAndDashboardPermissionTest.php` -> 10 tests, 46 assertions, 100% passed.
+- `php artisan test tests/Feature/PosReceiptImageTest.php` -> 3 tests, 12 assertions, 100% passed.
+
+---
+
+### [WORK-2026-09-26-180] Staff Portal Strict RBAC Quick Access Filtering and Empty State Remediation (Phase 2)
+
+- **Date:** 2026-09-26
+- **Status:** COMPLETED
+- **Module:** Portal / RBAC / Navigation / Security
+- **Feature:** Eksekusi Fase 2: Penyaringan ketat kartu modul cepat di Portal Karyawan (`/portal`) agar hanya me-render menu yang izinnya secara sah dimiliki staf aktif, pemisahan rute `warehouse.view` (`/warehouse`) dengan `inventory.view` (`/inventory/stocks`), serta penambahan Bento empty-state card jika staf belum memiliki izin operasional.
+- **Work Type:** Security Remediation | UI/UX (Bento Apple HIG) | Refactoring
+
+#### 1. Business Context & Objective
+- **Konteks:** Pada portal karyawan sebelumnya, kartu modul cepat di-render menggunakan pengecekan longgar yang menggabungkan izin gudang dengan stok, sehingga staf yang hanya memiliki izin `inventory.view` diarahkan ke `/warehouse` yang memicu 403 Forbidden. Selain itu, diperlukan pemfilteran ketat agar kasir/barista hanya melihat modul kerja yang relevan (seperti POS Kasir) tanpa melihat modul logistik atau akuntansi.
+- **Target Fase 2:**
+  1. Memodifikasi `PortalWebController` untuk menyaring kandidat modul operasional secara deklaratif berdasarkan `Context::hasPermission($mod['permission'])`.
+  2. Memisahkan kartu `Gudang & Lokasi` (izin `warehouse.view`, route `warehouse.index`) dengan kartu `Stok & Mutasi` (izin `inventory.view`, route `inventory.stocks`).
+  3. Memastikan pemilik bisnis (`Context::isOwner()`) tetap memiliki akses penuh ke seluruh modul cepat.
+  4. Menambahkan Bento empty-state card di `resources/views/app/portal/index.blade.php` ketika staf tidak memiliki izin modul operasional.
+  5. Memvalidasi perubahan dengan test suite `PortalAndDashboardPermissionTest`.
+
+#### 2. What Was Done
+1. **Controller Layer:**
+   - Merefaktor `app/Http/Controllers/Web/PortalWebController.php`:
+     - Membuat array `$candidateModules` terstruktur dengan field `permission`.
+     - Menyaring array dengan `array_filter` berbasis `Context::isOwner() || Context::hasPermission($mod['permission'])`.
+     - Memperbaiki target rute: `inventory.view` mengarah ke `inventory.stocks` (bukan `warehouse.index`).
+2. **View & UI/UX Layer:**
+   - Memperbarui `resources/views/app/portal/index.blade.php`:
+     - Menambahkan blok `@else` pada pengecekan `count($quickModules) > 0` berupa Bento empty-state card ramah pengguna dengan ikon `shield-alert` dan pesan informatif bagi staf yang hanya memiliki izin presensi mandiri.
+3. **Automated Testing:**
+   - Menambahkan 2 test case baru pada `tests/Feature/PortalAndDashboardPermissionTest.php`:
+     - `test_portal_strict_rbac_only_renders_permitted_modules_for_staff`: Memastikan kasir hanya melihat modul `Mesin Kasir (POS)` dan `1 Modul Tersedia`.
+     - `test_portal_empty_state_rendered_when_staff_has_no_operational_permissions`: Memastikan role tanpa izin operasional menampilkan empty state card.
+   - Hasil pengujian: 7 tests, 31 assertions lulus 100%.
+
+#### 3. Technical Changes
+- **Files Affected:**
+  - `app/Http/Controllers/Web/PortalWebController.php` (Modified)
+  - `resources/views/app/portal/index.blade.php` (Modified)
+  - `tests/Feature/PortalAndDashboardPermissionTest.php` (Modified)
+
+### [WORK-2026-09-26-179] F&B Product Bundling Schema, POS Multi-Channel Pricing Foundation, and Eloquent Models (Phase 1)
+
+- **Date:** 2026-09-26
+- **Status:** COMPLETED
+- **Module:** POS / Inventory / Products / Multi-Pricing / Bundling
+- **Feature:** Eksekusi Fase 1: Pembuatan skema database dan model Eloquent untuk Kombo Produk (Paket Bundling) dengan relasi produk anak, skema multi-harga kanal penjualan (Dine In, Takeaway, GoFood, GrabFood, ShopeeFood), dan penambahan field sales_channel & external_order_ref pada transaksi POS.
+- **Work Type:** Database Migration | Model Architecture | Feature
+
+#### 1. Business Context & Objective
+- **Konteks:** Restoran dan kafe pengguna COOCA memerlukan penetapan multi-harga untuk mengkompensasi potongan komisi agregator online delivery (GoFood, GrabFood, ShopeeFood) serta kemampuan membuat paket hemat kombo (misal: Kopi Susu + Croissant = Rp 30.000) dengan perhitungan HPP gabungan dan pemotongan stok bahan baku secara otomatis.
+- **Target Fase 1:**
+  1. Membuat migrasi tabel `product_bundle_items` dan penambahan kolom `is_bundle` pada tabel `products`.
+  2. Membuat migrasi tabel `product_channel_prices` dan penambahan kolom `sales_channel` serta `external_order_ref` pada tabel `pos_orders`.
+  3. Membangun model Eloquent `ProductBundleItem` dan `ProductChannelPrice`.
+  4. Menambahkan relasi `bundleItems` dan `channelPrices` serta helper `isBundle()`, `getChannelPrice()`, dan `getBundleHpp()` pada model `Product`.
+  5. Memperbarui `$fillable` pada model `PosOrder`.
+  6. Memastikan seluruh migrasi berjalan mulus dan diverifikasi dengan automated test suite.
+
+#### 2. What Was Done
+1. **Database Migrations:**
+   - Membuat `database/migrations/2026_09_26_100000_create_product_bundle_items_table.php` (menambahkan `is_bundle` pada `products`, tabel `product_bundle_items` dengan FK `parent_product_id` dan `child_product_id`).
+   - Membuat `database/migrations/2026_09_26_110000_create_product_channel_prices_table.php` (menambahkan `sales_channel` dan `external_order_ref` pada `pos_orders`, tabel `product_channel_prices` dengan unique constraint `uk_product_channel`).
+   - Menjalankan `php artisan migrate` dengan status sukses 100%.
+2. **Model Layer:**
+   - Membuat `app/Models/ProductBundleItem.php` dengan trait `BelongsToBusiness`, `HasUuid`, relasi `parentProduct()` dan `childProduct()`.
+   - Membuat `app/Models/ProductChannelPrice.php` dengan konstanta channel (`CHANNEL_DINE_IN`, `CHANNEL_TAKEAWAY`, `CHANNEL_GOFOOD`, `CHANNEL_GRABFOOD`, `CHANNEL_SHOPEEFOOD`).
+   - Memperbarui `app/Models/Product.php` dengan `$casts['is_bundle']`, relasi `bundleItems()` dan `channelPrices()`, serta method `isBundle()`, `getChannelPrice(string $channel)`, dan `getBundleHpp()`.
+   - Memperbarui `app/Models/PosOrder.php` dengan menambahkan `sales_channel` dan `external_order_ref` ke `$fillable`.
+3. **Automated Testing:**
+   - Membuat `tests/Feature/ProductBundleAndChannelPriceSchemaTest.php` untuk menguji relasi bundle, kalkulasi HPP gabungan, resolusi harga kanal (GoFood, ShopeeFood, fallback Dine In), dan persistensi order POS dengan sales channel.
+   - Hasil pengujian: 3 test cases, 15 assertions lulus 100%.
+   - Menjalankan uji regresi `tests/Feature/PortalAndDashboardPermissionTest.php`: 5 test cases, 21 assertions lulus 100%.
+
+#### 3. Technical Changes
+- **Files Affected:**
+  - `database/migrations/2026_09_26_100000_create_product_bundle_items_table.php` (Created)
+  - `database/migrations/2026_09_26_110000_create_product_channel_prices_table.php` (Created)
+  - `app/Models/ProductBundleItem.php` (Created)
+  - `app/Models/ProductChannelPrice.php` (Created)
+  - `app/Models/Product.php` (Modified)
+  - `app/Models/PosOrder.php` (Modified)
+  - `tests/Feature/ProductBundleAndChannelPriceSchemaTest.php` (Created)
 
 ### [WORK-2026-09-26-178] Dashboard Role Permission Guard, Unauthorized Access Redirection, and Staff Personal Attendance Portal
 

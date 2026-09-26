@@ -81,6 +81,8 @@ class PosOrder extends Model
         'gateway_fee',
         'gateway_expired_at',
         'order_type',
+        'sales_channel',
+        'external_order_ref',
         'order_source',
         'pos_table_id',
         'pos_table_session_id',

@@ -62,108 +62,106 @@ final class PortalWebController extends Controller
         $defaultLng = $location?->longitude ? (float) $location->longitude : 106.8456;
         $cityName = $location?->city ?? $business->city ?? 'Jakarta';
 
-        // 6. Authorized quick-access modules for this user
-        $quickModules = [];
-
-        if (Context::isOwner() || Context::hasPermission('pos.terminal')) {
-            $quickModules[] = [
+        // 6. Authorized quick-access modules for this user (Strict RBAC filtering)
+        $isOwner = Context::isOwner();
+        $candidateModules = [
+            [
                 'name' => 'Mesin Kasir (POS)',
+                'permission' => 'pos.terminal',
                 'route' => route('pos.terminal'),
                 'icon' => 'calculator',
                 'color' => '#007AFF',
                 'desc' => 'Buka terminal transaksi kasir toko',
-            ];
-        }
-
-        if (Context::isOwner() || Context::hasPermission('pos.orders')) {
-            $quickModules[] = [
+            ],
+            [
                 'name' => 'Pesanan Kasir',
+                'permission' => 'pos.orders',
                 'route' => route('pos.orders.index'),
                 'icon' => 'receipt',
                 'color' => '#5856D6',
                 'desc' => 'Daftar transaksi kasir & shift kas',
-            ];
-        }
-
-        if (Context::isOwner() || Context::hasPermission('pos.kitchen')) {
-            $quickModules[] = [
+            ],
+            [
                 'name' => 'Dapur KDS',
+                'permission' => 'pos.kitchen',
                 'route' => route('pos.kitchen.index'),
                 'icon' => 'utensils',
                 'color' => '#FF9500',
                 'desc' => 'Layar pesanan dapur & barista',
-            ];
-        }
-
-        if (Context::isOwner() || Context::hasPermission('pos.tables')) {
-            $quickModules[] = [
+            ],
+            [
                 'name' => 'Denah Meja',
+                'permission' => 'pos.tables',
                 'route' => route('pos.tables.index'),
                 'icon' => 'layout-grid',
                 'color' => '#34C759',
                 'desc' => 'Status meja & nomor reservasi',
-            ];
-        }
-
-        if (Context::isOwner() || Context::hasPermission('inventory.view') || Context::hasPermission('warehouse.view')) {
-            $quickModules[] = [
-                'name' => 'Gudang & Stok',
+            ],
+            [
+                'name' => 'Stok & Mutasi',
+                'permission' => 'inventory.view',
+                'route' => route('inventory.stocks'),
+                'icon' => 'clipboard-list',
+                'color' => '#5E5CE6',
+                'desc' => 'Cek mutasi stok & kartu opname',
+            ],
+            [
+                'name' => 'Gudang & Lokasi',
+                'permission' => 'warehouse.view',
                 'route' => route('warehouse.index'),
                 'icon' => 'warehouse',
                 'color' => '#AF52DE',
-                'desc' => 'Cek mutasi stok & penerimaan barang',
-            ];
-        }
-
-        if (Context::isOwner() || Context::hasPermission('products.view')) {
-            $quickModules[] = [
+                'desc' => 'Manajemen multi-lokasi & rak gudang',
+            ],
+            [
                 'name' => 'Katalog Produk',
+                'permission' => 'products.view',
                 'route' => route('products.index'),
                 'icon' => 'package',
                 'color' => '#0A84FF',
                 'desc' => 'Daftar produk, menu & resep',
-            ];
-        }
-
-        if (Context::isOwner() || Context::hasPermission('materials.view')) {
-            $quickModules[] = [
+            ],
+            [
                 'name' => 'Bahan Baku',
+                'permission' => 'materials.view',
                 'route' => route('materials.index'),
                 'icon' => 'boxes',
                 'color' => '#30B0C7',
                 'desc' => 'Daftar bahan baku & harga beli',
-            ];
-        }
-
-        if (Context::isOwner() || Context::hasPermission('customers.view')) {
-            $quickModules[] = [
+            ],
+            [
                 'name' => 'Data Pelanggan',
+                'permission' => 'customers.view',
                 'route' => route('customers.index'),
                 'icon' => 'users',
                 'color' => '#32D74B',
                 'desc' => 'Kontak pelanggan & keanggotaan',
-            ];
-        }
-
-        if (Context::isOwner() || Context::hasPermission('finance.cash_bank')) {
-            $quickModules[] = [
+            ],
+            [
                 'name' => 'Kas & Bank',
+                'permission' => 'finance.cash_bank',
                 'route' => route('finance.cash-bank.index'),
                 'icon' => 'wallet',
                 'color' => '#30D158',
                 'desc' => 'Mutasi kas masuk dan kas keluar',
-            ];
-        }
-
-        if (Context::isOwner() || Context::hasPermission('ai.access')) {
-            $quickModules[] = [
+            ],
+            [
                 'name' => 'Asisten AI',
+                'permission' => 'ai.access',
                 'route' => route('pos.ai.index'),
                 'icon' => 'sparkles',
                 'color' => '#BF5AF2',
                 'desc' => 'Konsultasi pintar & analisis',
-            ];
-        }
+            ],
+        ];
+
+        $quickModules = array_values(array_filter($candidateModules, function (array $mod) use ($isOwner): bool {
+            if ($isOwner) {
+                return true;
+            }
+
+            return Context::hasPermission($mod['permission']);
+        }));
 
         return view('app.portal.index', compact(
             'business',

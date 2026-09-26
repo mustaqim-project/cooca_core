@@ -150,16 +150,20 @@ final class PosOrderService
 
                 $unitPrice = $baseUnitPrice + $modPriceDelta;
 
-                // Unit HPP from Product base_cost or active BOM/cost model
+                // Unit HPP from Product bundle, base_cost or active BOM/cost model
                 $unitHpp = 0.0;
                 if ($product) {
-                    $unitHpp = (float) $product->base_cost;
-                    if ($unitHpp <= 0 && $product->activeCostModel) {
-                        $costModel = $product->activeCostModel;
-                        $latestRun = $costModel->relationLoaded('costingRuns')
-                            ? $costModel->costingRuns->sortByDesc('created_at')->first()
-                            : $costModel->costingRuns()->with('result')->latest()->first();
-                        $unitHpp = (float) ($latestRun?->result?->hpp_per_unit ?? 0.0);
+                    if ($product->isBundle()) {
+                        $unitHpp = $product->getBundleHpp();
+                    } else {
+                        $unitHpp = (float) $product->base_cost;
+                        if ($unitHpp <= 0 && $product->activeCostModel) {
+                            $costModel = $product->activeCostModel;
+                            $latestRun = $costModel->relationLoaded('costingRuns')
+                                ? $costModel->costingRuns->sortByDesc('created_at')->first()
+                                : $costModel->costingRuns()->with('result')->latest()->first();
+                            $unitHpp = (float) ($latestRun?->result?->hpp_per_unit ?? 0.0);
+                        }
                     }
                 }
 
@@ -266,6 +270,8 @@ final class PosOrderService
                     'order_date' => Carbon::today()->toDateString(),
                     'status' => PosOrder::STATUS_COMPLETED,
                     'order_type' => $attributes['order_type'] ?? ($existingOrder->order_type ?? 'dine_in'),
+                    'sales_channel' => $attributes['sales_channel'] ?? ($existingOrder->sales_channel ?? 'dine_in'),
+                    'external_order_ref' => $attributes['external_order_ref'] ?? ($existingOrder->external_order_ref ?? null),
                     'pos_table_id' => $attributes['pos_table_id'] ?? $existingOrder->pos_table_id,
                     'pos_table_session_id' => $attributes['pos_table_session_id'] ?? $existingOrder->pos_table_session_id,
                     'table_or_reference' => $attributes['table_or_reference'] ?? $existingOrder->table_or_reference,
@@ -312,6 +318,8 @@ final class PosOrderService
                     'order_date' => Carbon::today()->toDateString(),
                     'status' => PosOrder::STATUS_COMPLETED,
                     'order_type' => $attributes['order_type'] ?? 'takeaway',
+                    'sales_channel' => $attributes['sales_channel'] ?? 'dine_in',
+                    'external_order_ref' => $attributes['external_order_ref'] ?? null,
                     'order_source' => $attributes['order_source'] ?? PosOrder::SOURCE_POS,
                     'pos_table_id' => $attributes['pos_table_id'] ?? null,
                     'pos_table_session_id' => $attributes['pos_table_session_id'] ?? null,
@@ -578,7 +586,7 @@ final class PosOrderService
 
                 $unitPrice = $baseUnitPrice + $modResult['total_price_delta'];
                 $lineSubtotal = $qty * $unitPrice;
-                $unitHpp = (float) $product->base_cost;
+                $unitHpp = $product->isBundle() ? $product->getBundleHpp() : (float) $product->base_cost;
                 $lineHpp = $qty * $unitHpp;
 
                 $subtotal += $lineSubtotal;

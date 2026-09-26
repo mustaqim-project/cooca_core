@@ -76,6 +76,11 @@
                             <div>
                                 <div class="flex items-center gap-2">
                                     <span class="px-2.5 py-1 rounded-[8px] text-[12px] font-bold bg-[#007AFF]/15 text-[#007AFF]" x-text="order.pos_table ? ('Meja ' + order.pos_table.table_number) : 'Kasir / Takeaway'"></span>
+                                    <template x-if="order.sales_channel && order.sales_channel !== 'dine_in'">
+                                        <span class="px-2 py-0.5 rounded-[6px] text-[10.5px] font-black uppercase tracking-wider text-white shadow-xs"
+                                            :class="order.sales_channel === 'gofood' ? 'bg-[#00AA13]' : (order.sales_channel === 'grabfood' ? 'bg-[#00B14F]' : (order.sales_channel === 'shopeefood' ? 'bg-[#EE4D2D]' : 'bg-[#5856D6]'))"
+                                            x-text="order.sales_channel + (order.external_order_ref ? ' #' + order.external_order_ref : '')"></span>
+                                    </template>
                                     <span class="text-[12px] font-mono text-black/50 dark:text-white/50" x-text="'#' + (order.order_number || order.id)"></span>
                                 </div>
                                 <div class="text-[13px] font-bold text-black dark:text-white mt-1.5" x-text="(order.customer_name_guest || (order.customer ? order.customer.name : 'Pelanggan')) + (order.customer_phone_guest ? ' (' + order.customer_phone_guest + ')' : '')"></div>
@@ -156,6 +161,11 @@
                             <div>
                                 <div class="flex items-center gap-2">
                                     <span class="px-2.5 py-1 rounded-[8px] text-[12px] font-bold bg-[#FF9500]/15 text-[#FF9500]" x-text="order.pos_table ? ('Meja ' + order.pos_table.table_number) : 'Kasir / Takeaway'"></span>
+                                    <template x-if="order.sales_channel && order.sales_channel !== 'dine_in'">
+                                        <span class="px-2 py-0.5 rounded-[6px] text-[10.5px] font-black uppercase tracking-wider text-white shadow-xs"
+                                            :class="order.sales_channel === 'gofood' ? 'bg-[#00AA13]' : (order.sales_channel === 'grabfood' ? 'bg-[#00B14F]' : (order.sales_channel === 'shopeefood' ? 'bg-[#EE4D2D]' : 'bg-[#5856D6]'))"
+                                            x-text="order.sales_channel + (order.external_order_ref ? ' #' + order.external_order_ref : '')"></span>
+                                    </template>
                                     <span class="text-[12px] font-mono text-black/50 dark:text-white/50" x-text="'#' + (order.order_number || order.id)"></span>
                                 </div>
                                 <div class="text-[13px] font-bold text-black dark:text-white mt-1.5" x-text="(order.customer_name_guest || (order.customer ? order.customer.name : 'Pelanggan'))"></div>
@@ -236,6 +246,11 @@
                             <div>
                                 <div class="flex items-center gap-2">
                                     <span class="px-2.5 py-1 rounded-[8px] text-[12px] font-bold bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158]" x-text="order.pos_table ? ('Meja ' + order.pos_table.table_number) : 'Kasir / Takeaway'"></span>
+                                    <template x-if="order.sales_channel && order.sales_channel !== 'dine_in'">
+                                        <span class="px-2 py-0.5 rounded-[6px] text-[10.5px] font-black uppercase tracking-wider text-white shadow-xs"
+                                            :class="order.sales_channel === 'gofood' ? 'bg-[#00AA13]' : (order.sales_channel === 'grabfood' ? 'bg-[#00B14F]' : (order.sales_channel === 'shopeefood' ? 'bg-[#EE4D2D]' : 'bg-[#5856D6]'))"
+                                            x-text="order.sales_channel + (order.external_order_ref ? ' #' + order.external_order_ref : '')"></span>
+                                    </template>
                                     <span class="text-[12px] font-mono text-black/50 dark:text-white/50" x-text="'#' + (order.order_number || order.id)"></span>
                                 </div>
                                 <div class="text-[13px] font-bold text-black dark:text-white mt-1.5" x-text="(order.customer_name_guest || (order.customer ? order.customer.name : 'Pelanggan'))"></div>

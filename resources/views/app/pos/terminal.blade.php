@@ -973,6 +973,84 @@
             <!-- Left Area: Catalog & Products Touch Grid -->
             <div class="pos-catalog flex-1 flex flex-col overflow-hidden p-2 sm:p-4 gap-2 sm:gap-3">
 
+                <!-- 0. F&B MULTI-CHANNEL PRICE SELECTOR (APPLE HIG BENTO SEGMENTED) -->
+                <div class="channel-bar flex items-center justify-between gap-2 overflow-x-auto pb-0.5 max-w-full scroll-smooth select-none shrink-0"
+                    style="scrollbar-width: none; -ms-overflow-style: none;">
+                    <div class="inline-flex items-center p-1 rounded-[14px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.06] dark:border-white/10 gap-1 shrink-0">
+                        <!-- 1. Dine In -->
+                        <button type="button" @click="setSalesChannel('dine_in')"
+                            :class="salesChannel === 'dine_in'
+                                ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-sm font-bold'
+                                : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white font-medium'"
+                            class="h-8 sm:h-9 px-3 sm:px-3.5 rounded-[10px] text-[12px] sm:text-[13px] whitespace-nowrap transition-all flex items-center gap-1.5 active:scale-[0.97]"
+                            title="Harga Dine-in / Reguler">
+                            <svg class="w-3.5 h-3.5 text-[#007AFF]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
+                            </svg>
+                            <span>Dine In</span>
+                        </button>
+
+                        <!-- 2. Takeaway -->
+                        <button type="button" @click="setSalesChannel('takeaway')"
+                            :class="salesChannel === 'takeaway'
+                                ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-sm font-bold'
+                                : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white font-medium'"
+                            class="h-8 sm:h-9 px-3 sm:px-3.5 rounded-[10px] text-[12px] sm:text-[13px] whitespace-nowrap transition-all flex items-center gap-1.5 active:scale-[0.97]"
+                            title="Harga Takeaway / Bawa Pulang">
+                            <svg class="w-3.5 h-3.5 text-[#FF9500]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25c-.669 0-1.189-.578-1.119-1.243l1.263-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+                            </svg>
+                            <span>Takeaway</span>
+                        </button>
+
+                        <!-- 3. GoFood -->
+                        <button type="button" @click="setSalesChannel('gofood')"
+                            :class="salesChannel === 'gofood'
+                                ? 'bg-[#00AA13] text-white shadow-sm font-bold ring-2 ring-[#00AA13]/30'
+                                : 'text-black/60 dark:text-white/60 hover:text-[#00AA13] font-medium'"
+                            class="h-8 sm:h-9 px-3 sm:px-3.5 rounded-[10px] text-[12px] sm:text-[13px] whitespace-nowrap transition-all flex items-center gap-1.5 active:scale-[0.97]"
+                            title="Harga Khusus GoFood">
+                            <span class="w-2 h-2 rounded-full" :class="salesChannel === 'gofood' ? 'bg-white' : 'bg-[#00AA13]'"></span>
+                            <span>GoFood</span>
+                        </button>
+
+                        <!-- 4. GrabFood -->
+                        <button type="button" @click="setSalesChannel('grabfood')"
+                            :class="salesChannel === 'grabfood'
+                                ? 'bg-[#00B14F] text-white shadow-sm font-bold ring-2 ring-[#00B14F]/30'
+                                : 'text-black/60 dark:text-white/60 hover:text-[#00B14F] font-medium'"
+                            class="h-8 sm:h-9 px-3 sm:px-3.5 rounded-[10px] text-[12px] sm:text-[13px] whitespace-nowrap transition-all flex items-center gap-1.5 active:scale-[0.97]"
+                            title="Harga Khusus GrabFood">
+                            <span class="w-2 h-2 rounded-full" :class="salesChannel === 'grabfood' ? 'bg-white' : 'bg-[#00B14F]'"></span>
+                            <span>GrabFood</span>
+                        </button>
+
+                        <!-- 5. ShopeeFood -->
+                        <button type="button" @click="setSalesChannel('shopeefood')"
+                            :class="salesChannel === 'shopeefood'
+                                ? 'bg-[#EE4D2D] text-white shadow-sm font-bold ring-2 ring-[#EE4D2D]/30'
+                                : 'text-black/60 dark:text-white/60 hover:text-[#EE4D2D] font-medium'"
+                            class="h-8 sm:h-9 px-3 sm:px-3.5 rounded-[10px] text-[12px] sm:text-[13px] whitespace-nowrap transition-all flex items-center gap-1.5 active:scale-[0.97]"
+                            title="Harga Khusus ShopeeFood">
+                            <span class="w-2 h-2 rounded-full" :class="salesChannel === 'shopeefood' ? 'bg-white' : 'bg-[#EE4D2D]'"></span>
+                            <span>ShopeeFood</span>
+                        </button>
+                    </div>
+
+                    <!-- External Order Reference (ID Order App) -->
+                    <div x-show="['gofood', 'grabfood', 'shopeefood'].includes(salesChannel)"
+                        x-transition:enter="transition ease-out duration-150"
+                        x-transition:enter-start="opacity-0 -translate-y-1"
+                        x-transition:enter-end="opacity-100 translate-y-0"
+                        class="flex items-center gap-1.5 bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 rounded-[12px] px-2.5 py-1 shadow-xs shrink-0">
+                        <span class="text-[10px] font-extrabold uppercase tracking-wider text-black/50 dark:text-white/50"
+                            x-text="salesChannel.toUpperCase() + ' REF:'"></span>
+                        <input type="text" x-model="externalOrderRef"
+                            :placeholder="'No. Order / ID ' + (salesChannel === 'gofood' ? 'GoFood' : (salesChannel === 'grabfood' ? 'GrabFood' : 'ShopeeFood'))"
+                            class="bg-transparent border-0 p-0 text-[12px] font-semibold focus:ring-0 text-black dark:text-white placeholder:text-black/30 dark:placeholder:text-white/30 w-32 sm:w-44">
+                    </div>
+                </div>
+
                 <!-- 1. DESKTOP TOP HORIZONTAL CATEGORY STRIP (ENLARGED) -->
                 <div class="category-bar hidden md:flex items-center gap-2.5 overflow-x-auto pb-1.5 max-w-full scroll-smooth select-none shrink-0"
                     style="scrollbar-width: none; -ms-overflow-style: none;">
@@ -1205,8 +1283,14 @@
 
                                         <!-- Price and Add Button -->
                                         <div class="mt-2 sm:mt-3 pt-2 sm:pt-2.5 flex items-center justify-between gap-1">
-                                            <span class="font-bold text-[12.5px] sm:text-[15px] text-black dark:text-white tabular-nums truncate"
-                                                x-text="formatRupiah(product.selling_price)"></span>
+                                            <div class="flex flex-col min-w-0">
+                                                <span class="font-bold text-[12.5px] sm:text-[15px] text-black dark:text-white tabular-nums truncate"
+                                                    x-text="formatRupiah(getProductPrice(product))"></span>
+                                                <span x-show="product.channel_prices && salesChannel !== 'dine_in' && Number(product.channel_prices[salesChannel]) !== Number(product.selling_price)"
+                                                    class="text-[9.5px] font-black uppercase tracking-wider rounded px-1 w-max"
+                                                    :class="salesChannel === 'gofood' ? 'bg-[#00AA13]/15 text-[#00AA13]' : (salesChannel === 'grabfood' ? 'bg-[#00B14F]/15 text-[#00B14F]' : (salesChannel === 'shopeefood' ? 'bg-[#EE4D2D]/15 text-[#EE4D2D]' : 'bg-[#FF9500]/15 text-[#FF9500]'))"
+                                                    x-text="salesChannel"></span>
+                                            </div>
                                             <button type="button" @click.stop="handleProductClick(product)"
                                                 class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#007AFF] hover:bg-[#0062CC] text-white flex items-center justify-center font-bold text-sm sm:text-base shadow-sm shrink-0 active:scale-90 transition-all"
                                                 title="Tambah ke Keranjang">
@@ -1455,8 +1539,8 @@
                         </button>
 
                         <!-- Bungkus Button -->
-                        <button type="button" @click="orderType = 'takeaway'; detachTableFromCart()"
-                            :class="orderType === 'takeaway' ? 'bg-[#007AFF] text-white shadow-xs font-semibold' : 'bg-black/[0.04] dark:bg-white/[0.06] text-black/70 dark:text-white/70 hover:bg-black/[0.07] dark:hover:bg-white/[0.1]'"
+                        <button type="button" @click="setSalesChannel('takeaway'); detachTableFromCart()"
+                            :class="salesChannel === 'takeaway' ? 'bg-[#007AFF] text-white shadow-xs font-semibold' : 'bg-black/[0.04] dark:bg-white/[0.06] text-black/70 dark:text-white/70 hover:bg-black/[0.07] dark:hover:bg-white/[0.1]'"
                             class="shrink-0 h-9 px-3 rounded-[10px] border border-black/5 dark:border-white/10 text-[12px] transition flex items-center gap-1.5 active:scale-[0.97]"
                             title="Bungkus / Takeaway">
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -1467,8 +1551,8 @@
 
                         <!-- Dine In Dropdown / Toggle Button -->
                         <div class="relative shrink-0" x-data="{ dineDropdown: false }" @click.outside="dineDropdown = false">
-                            <button type="button" @click="orderType = 'dine_in'; dineDropdown = !dineDropdown"
-                                :class="orderType === 'dine_in' ? 'bg-[#007AFF] text-white shadow-xs font-semibold' : 'bg-black/[0.04] dark:bg-white/[0.06] text-black/70 dark:text-white/70 hover:bg-black/[0.07] dark:hover:bg-white/[0.1]'"
+                            <button type="button" @click="setSalesChannel('dine_in'); dineDropdown = !dineDropdown"
+                                :class="salesChannel === 'dine_in' ? 'bg-[#007AFF] text-white shadow-xs font-semibold' : 'bg-black/[0.04] dark:bg-white/[0.06] text-black/70 dark:text-white/70 hover:bg-black/[0.07] dark:hover:bg-white/[0.1]'"
                                 class="h-9 px-3 rounded-[10px] border border-black/5 dark:border-white/10 text-[12px] transition flex items-center gap-1.5 active:scale-[0.97]"
                                 title="Makan di Tempat / Dine In">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -1551,6 +1635,20 @@
                                 </button>
                             </div>
                         </div>
+                    </div>
+
+                    <!-- Online Delivery Channel Indicator in Cart -->
+                    <div x-show="['gofood', 'grabfood', 'shopeefood'].includes(salesChannel)"
+                        class="p-2.5 rounded-[12px] text-white flex items-center justify-between shadow-xs transition"
+                        :class="salesChannel === 'gofood' ? 'bg-[#00AA13]' : (salesChannel === 'grabfood' ? 'bg-[#00B14F]' : 'bg-[#EE4D2D]')">
+                        <div class="flex items-center gap-2 min-w-0">
+                            <span class="w-2 h-2 rounded-full bg-white animate-pulse shrink-0"></span>
+                            <div class="min-w-0">
+                                <div class="text-[12px] font-bold uppercase tracking-wider truncate" x-text="salesChannel"></div>
+                                <div x-show="externalOrderRef" class="text-[11px] font-mono opacity-90 truncate" x-text="'Ref: #' + externalOrderRef"></div>
+                            </div>
+                        </div>
+                        <span class="text-[10px] font-bold uppercase tracking-wider bg-black/20 px-2 py-0.5 rounded-[6px] shrink-0">Harga Khusus Online</span>
                     </div>
 
                     <!-- Member Loyalty Card Preview -->
@@ -2875,7 +2973,7 @@
                                 <h3 class="font-bold text-[15px] text-black dark:text-white leading-snug truncate"
                                     x-text="activeModifierProduct.name"></h3>
                                 <div class="text-xs text-[#007AFF] font-bold tabular-nums mt-0.5"
-                                    x-text="formatRupiah(activeModifierProduct.selling_price)"></div>
+                                    x-text="formatRupiah(getProductPrice(activeModifierProduct))"></div>
                             </div>
                         </div>
                         <button type="button" @click="showModifierModal = false"
@@ -3872,7 +3970,9 @@
                 activeCustomer: null,
                 customerSearchQuery: '',
                 customerDropdownOpen: false,
-                orderType: 'takeaway',
+                orderType: 'dine_in',
+                salesChannel: 'dine_in',
+                externalOrderRef: '',
                 voucherCode: '',
                 voucherDiscount: 0,
                 discountType: 'fixed',
@@ -4297,8 +4397,35 @@
                     return 'Kamera tidak dapat dibuka. Periksa izin kamera lalu coba lagi.';
                 },
 
+                getProductPrice(product) {
+                    if (!product) return 0;
+                    if (product.channel_prices && product.channel_prices[this.salesChannel] !== undefined) {
+                        return Number(product.channel_prices[this.salesChannel]);
+                    }
+                    return Number(product.selling_price || 0);
+                },
+
+                setSalesChannel(channel) {
+                    this.salesChannel = channel;
+                    if (channel === 'dine_in') {
+                        this.orderType = 'dine_in';
+                    } else {
+                        this.orderType = 'takeaway';
+                    }
+
+                    // Recalculate existing items in cart with the new channel price
+                    this.cart.forEach(item => {
+                        const product = this.allProducts.find(p => p.id === item.product_id);
+                        if (product) {
+                            const basePrice = this.getProductPrice(product);
+                            const delta = Number(item.modifier_delta || 0);
+                            item.unit_price = basePrice + delta;
+                        }
+                    });
+                },
+
                 addToCart(product) {
-                    const existing = this.cart.find(item => item.product_id === product.id);
+                    const existing = this.cart.find(item => item.product_id === product.id && (!item.selected_modifiers || item.selected_modifiers.length === 0));
                     if (existing) {
                         const current = parseFloat(existing.quantity) || 0;
                         existing.quantity = parseFloat((current + 1).toFixed(4));
@@ -4308,7 +4435,8 @@
                         this.cart.push({
                             product_id: product.id,
                             product_name: product.name,
-                            unit_price: Number(product.selling_price || 0),
+                            unit_price: Number(this.getProductPrice(product)),
+                            modifier_delta: 0,
                             unit_symbol: unitSymbol,
                             quantity: 1,
                             discount_amount: 0,
@@ -4627,6 +4755,8 @@
                         customer_id: this.selectedCustomerId || null,
                         customer_name_guest: this.activeTableCustomerName || null,
                         order_type: this.orderType,
+                        sales_channel: this.salesChannel || 'dine_in',
+                        external_order_ref: this.externalOrderRef ? this.externalOrderRef.trim() : null,
                         pos_table_id: this.selectedTable?.id || null,
                         pos_table_session_id: this.selectedTable?.active_session?.id || null,
                         existing_order_id: this.activeTableOrderId || null,
@@ -4693,6 +4823,8 @@
                             this.rackLocation = '';
                             this.estimatedCompletionAt = '';
                             this.laundryStatus = 'received';
+                            this.salesChannel = 'dine_in';
+                            this.externalOrderRef = '';
                         } else {
                             AppAlert.error('Gagal: ' + (data.message || 'Terjadi kesalahan.'));
                         }
@@ -5098,7 +5230,7 @@
 
                 calculateModifierTotalPrice() {
                     if (!this.activeModifierProduct) return 0;
-                    let base = Number(this.activeModifierProduct.selling_price || 0);
+                    let base = Number(this.getProductPrice(this.activeModifierProduct));
                     let delta = 0;
 
                     this.activeModifierProduct.modifier_groups.forEach(group => {
@@ -5156,7 +5288,9 @@
                         }
                     });
 
+                    const basePrice = Number(this.getProductPrice(this.activeModifierProduct));
                     const unitPrice = this.calculateModifierTotalPrice();
+                    const delta = unitPrice - basePrice;
                     const unitSymbol = this.activeModifierProduct.output_unit?.symbol || this.activeModifierProduct
                         .output_unit?.name || '';
 
@@ -5165,6 +5299,7 @@
                         product_id: this.activeModifierProduct.id,
                         product_name: this.activeModifierProduct.name,
                         unit_price: unitPrice,
+                        modifier_delta: delta,
                         unit_symbol: unitSymbol,
                         quantity: this.modifierItemQty,
                         selected_modifiers: selectedOptionIds,

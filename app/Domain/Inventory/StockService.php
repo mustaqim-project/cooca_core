@@ -227,6 +227,37 @@ final class StockService
             return [];
         }
 
+        // If Bundle/Kombo product: Deduct each child product recursively
+        if ($productModel->isBundle()) {
+            $bundleItems = $productModel->relationLoaded('bundleItems')
+                ? $productModel->bundleItems
+                : $productModel->bundleItems()->with('childProduct')->get();
+
+            $movements = [];
+            foreach ($bundleItems as $bItem) {
+                $child = $bItem->childProduct;
+                if (! $child || $child->isService()) {
+                    continue;
+                }
+                $childQty = (float) $bItem->quantity * $productQuantity;
+                $childUnitCost = (float) ($child->base_cost ?? 0.0);
+                $childMovements = $this->deductForProductSale(
+                    businessId: $businessId,
+                    locationId: $locationId,
+                    product: $child,
+                    productQuantity: $childQty,
+                    unitCost: $childUnitCost,
+                    orderId: $orderId,
+                    orderNumber: $orderNumber,
+                    userId: $userId,
+                    movementType: $movementType,
+                    notes: ($notes ?? "Penjualan Produk {$productModel->name} #{$orderNumber}") . " (Item Kombo: {$child->name})"
+                );
+                $movements = array_merge($movements, $childMovements);
+            }
+            return $movements;
+        }
+
         $deductions = $productModel->getMaterialDeductions($productQuantity);
         $movements = [];
 
@@ -668,6 +699,35 @@ final class StockService
         $effectiveProduct = $product ?? $productId;
         $productModel = is_string($effectiveProduct) ? Product::find($effectiveProduct) : $effectiveProduct;
         if (! $productModel || $productModel->isService()) return [];
+
+        // If Bundle/Kombo product: Restore each child product recursively
+        if ($productModel->isBundle()) {
+            $bundleItems = $productModel->relationLoaded('bundleItems')
+                ? $productModel->bundleItems
+                : $productModel->bundleItems()->with('childProduct')->get();
+
+            $movements = [];
+            foreach ($bundleItems as $bItem) {
+                $child = $bItem->childProduct;
+                if (! $child || $child->isService()) {
+                    continue;
+                }
+                $childQty = (float) $bItem->quantity * $quantity;
+                $childUnitCost = (float) ($child->base_cost ?? 0.0);
+                $childMovements = $this->restoreForPosRefund(
+                    businessId: $businessId,
+                    locationId: $locationId,
+                    product: $child,
+                    quantity: $childQty,
+                    unitCost: $childUnitCost,
+                    orderId: $orderId,
+                    orderNumber: $orderNumber,
+                    userId: $userId
+                );
+                $movements = array_merge($movements, $childMovements);
+            }
+            return $movements;
+        }
 
         $deductions = $productModel->getMaterialDeductions($quantity);
         $movements = [];

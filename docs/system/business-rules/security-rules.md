@@ -46,3 +46,17 @@
   - Administrator memeriksa kesesuaian nama pemohon, kecocokan dokumen usaha, dan nomor WhatsApp baru sebelum memberikan persetujuan (`approve`) atau penolakan (`reject`).
   - Persetujuan memperbarui kredensial `User` (`email` dan `phone`), menandai email terverifikasi, dan menyinkronkan profil bisnis terkait, disertai notifikasi otomatis via WhatsApp.
 
+### RULE-SEC-006: Staff Portal Operational RBAC Scoping & Safe Navigation Guard
+* **Name:** Pengalihan Aman Dashboard & Penyaringan Ketat Hak Akses Portal Karyawan
+* **Deskripsi:** Menu Dashboard Eksekutif (`/dashboard`) wajib dilindungi izin `dashboard.view`. Pengguna tanpa izin ini wajib dialihkan secara aman ke Portal Karyawan (`/portal`) tanpa memicu error 403 atau redirect loop.
+* **Perilaku Portal:**
+  - Tile modul operasional cepat wajib disaring ketat berdasarkan `Context::hasPermission($permission)`.
+  - Akses gudang fisik (`warehouse.view`) dan mutasi stok (`inventory.view`) wajib dipisahkan rutenya (`/warehouse` vs `/inventory/stocks`).
+  - Staf tanpa izin modul operasional wajib disajikan Bento empty-state card tanpa link mati.
+
+### RULE-SEC-007: Circular Product Bundle Prevention
+* **Name:** Pencegahan Referensi Bundling Melingkar (Circular Bundle Protection)
+* **Deskripsi:** Pada saat konfigurasi paket kombo (`is_bundle = true`), produk induk DILARANG memilih dirinya sendiri sebagai produk anak (`child_product_id != parent_product_id`).
+* **Perilaku:** Validasi backend pada `ProductWebController::store()` dan `update()` wajib memverifikasi bahwa tidak ada `child_product_id` yang sama dengan ID produk induk untuk mencegah infinite recursion pada kalkulasi HPP dan pemotongan stok.
+
+

@@ -25,6 +25,7 @@
    - [3.11 Kepatuhan Pajak UMKM & Penggajian Karyawan (HRM & Tax Compliance)](#311-kepatuhan-pajak-umkm--penggajian-karyawan-hrm--tax-compliance)
    - [3.12 Analitik Bisnis & Tren Pertumbuhan (Analytics Suite)](#312-analitik-bisnis--tren-pertumbuhan-analytics-suite)
    - [3.13 Pusat Otorisasi Dokumen (MAR Engine)](#313-pusat-otorisasi-dokumen-mar---maker-approver-releaser)
+   - [3.14 Portal Karyawan & Presensi Mandiri (Staff Personal Attendance & Workstation Hub)](#314-portal-karyawan--presensi-mandiri-staff-personal-attendance--workstation-hub)
 4. [Panduan Rekayasa Developer & AI Agent (Engineering Blueprint)](#4-panduan-rekayasa-developer--ai-agent-engineering-blueprint)
    - [4.1 Struktur 33 Domain Packages DDD](#41-struktur-33-domain-packages-ddd)
    - [4.2 Aturan Scoping Tenant & Proteksi Keamanan](#42-aturan-scoping-tenant--proteksi-keamanan)
@@ -43,6 +44,7 @@
    - [4.15 Arsitektur POS Hardware, ESC/POS Thermal Printer, Cash Drawer Safety & Local Agent Bridge](#415-arsitektur-pos-hardware-escpos-thermal-printer-cash-drawer-safety--local-agent-bridge)
    - [4.16 Cetak Biru Penataan 6-Hub Modul & Rekomendasi Optimasi Performa End-to-End](#416-cetak-biru-penataan-6-hub-modul--rekomendasi-optimasi-performa-end-to-end)
    - [4.17 Arsitektur Limitasi Subscription, Downgrade Auto-Gating, Pelacakan Storage & Data Pruning Previewer](#417-arsitektur-limitasi-subscription-downgrade-auto-gating-pelacakan-storage--data-pruning-previewer)
+   - [4.18 Arsitektur F&B Channel Multi-Pricing, Online Delivery Tags & Product Bundling Engine (Phases 1-4)](#418-arsitektur-fb-channel-multi-pricing-online-delivery-tags--product-bundling-engine-phases-1-4)
 5. [Matriks Penelusuran Pengetahuan (Traceability Matrix)](#5-matriks-penelusuran-pengetahuan-traceability-matrix)
 
 ---
@@ -105,10 +107,11 @@ Aplikasi ini dirancang untuk dapat dioperasikan secara percaya diri oleh **gener
 * **Kapan Digunakan?** Setiap hari selama jam operasional toko berlangsung untuk melayani antrean pembeli di kasir.
 * **Alur Standar Kasir:**
   1. **Buka Shift:** Masukkan modal awal kas kecil di laci kasir (*Float Cash*).
-  2. **Transaksi Cepat:** Sentuh foto produk di katalog bento, pilih topping/level pedas (modifier), dan pilih metode bayar (Tunai, QRIS, atau Kasbon).
-  3. **Cetak Struk & Kirim WA:** Tekan `[ 📄 Simpan & Cetak Struk ]`. Printer thermal mencetak struk fisik seketika, dan WhatsApp pelanggan menerima link struk digital resmi.
-  4. **Tutup Shift:** Hitung uang fisik di laci kasir di akhir hari. Sistem membandingkannya dengan catatan sistem dan mencatat selisih kas secara transparan.
-* **Dampak ke Bisnis:** Kasir tidak bisa membatalkan transaksi (void) atau mengambil uang secara diam-diam karena tindakan berisiko dilindungi **PIN Supervisor**.
+  2. **Pilihan Saluran Penjualan F&B:** Kasir memilih saluran via Segmented Pill Bar (`Dine In`, `Takeaway`, `GoFood`, `GrabFood`, `ShopeeFood`). Jika saluran online delivery dipilih, kasir memasukkan nomor referensi pesanan pengemudi aplikasi luar (misal: `GF-8849201`). Harga produk langsung menyesuaikan saluran terpilih.
+  3. **Transaksi Cepat & Paket Kombo:** Sentuh foto produk atau paket kombo di katalog bento, pilih topping/level pedas (modifier), dan pilih metode bayar (Tunai, QRIS, atau Kasbon).
+  4. **Cetak Struk & Kirim WA:** Tekan `[ 📄 Simpan & Cetak Struk ]`. Printer thermal mencetak struk fisik seketika (mencantumkan saluran & nomor referensi aplikasi), pesanan dapur KDS menampilkan lencana warna kontras, dan WhatsApp pelanggan menerima tautan struk digital resmi.
+  5. **Tutup Shift:** Hitung uang fisik di laci kasir di akhir hari. Sistem membandingkannya dengan catatan sistem dan mencatat selisih kas secara transparan.
+* **Dampak ke Bisnis:** Kasir tidak bisa membatalkan transaksi (void) atau mengambil uang secara diam-diam karena tindakan berisiko dilindungi **PIN Supervisor**. Pemotongan stok paket kombo merekursi seluruh komponen anak secara atomik tanpa duplikasi.
 
 ### 3.3 Manajemen Stok & Penerimaan Bahan (Gudang & GR)
 * **Kapan Digunakan?** Saat pasokan bahan baku atau stok barang dari supplier datang ke toko/gudang.
@@ -137,10 +140,12 @@ Aplikasi ini dirancang untuk dapat dioperasikan secara percaya diri oleh **gener
   - **Audit Trail Callback Webhook & Tombol Failover Sinkronisasi:** Jejak seluruh webhook gateway tercatat pada `payment_gateway_callback_logs` dan jika ada notifikasi gateway terlambat, kasir/pemilik dapat menekan tombol *"Cek & Sinkronkan Status TriPay"* untuk verifikasi instan.
  
 ### 3.6 Manajemen Katalog Produk, Resep (BOM), & Modifiers (Varian)
-* **Kapan Digunakan?** Mengelola seluruh daftar dagangan toko, baik barang jadi (retail/F&B), bahan mentah, jasa/layanan, formula resep produksi (BOM), hingga pilihan varian/topping.
+* **Kapan Digunakan?** Mengelola seluruh daftar dagangan toko, baik barang jadi (retail/F&B), bahan mentah, jasa/layanan, formula resep produksi (BOM), paket kombo bundling, hingga pilihan varian/topping.
 * **Fitur & Keunggulan Alur Kerja:**
   - **Apple Segmented Control:** Berpindah seketika antara *Barang Fisik (Katalog)*, *Jasa & Layanan*, dan *Varian & Modifiers* melalui tab tersegmentasi yang bersih dan intuitif.
   - **Full Layout XXL Modal (Zero Navigation Jump):** Menambah atau mengedit produk dilakukan langsung di jendela pop-up XXL 12-kolom terpadu tanpa pernah meninggalkan daftar katalog atau mereset filter.
+  - **Paket Kombo / Bundling F&B & Retail:** Konfigurasi paket kombo (`is_bundle = true`) dengan dynamic child item repeater, penentuan kuantitas anak, proteksi circular reference, live kalkulasi estimasi total modal HPP, dan estimasi nilai normal.
+  - **Multi-Harga Saluran POS (F&B):** Kolom input penetapan harga khusus per kanal penjualan (Dine In, Takeaway, GoFood, GrabFood, ShopeeFood) untuk mengkompensasi komisi agregator.
   - **Inline Quick-Add AJAX `[ + ]`:** Menambah kategori atau satuan baru langsung dari samping dropdown tanpa reload halaman atau kehilangan data yang sedang diketik.
   - **Manajemen Kanal Terpadu:** Pengaturan visibilitas kasir POS, Surat Pesanan (Sales Order), Toko Online Storefront, dan Pre-Order dapat disesuaikan per produk dengan saklar instan.
   - **Resep Produksi (BOM) & Modifiers:** Setiap produk jadi dapat dihubungkan ke resep bahan baku sehingga stok gudang terpotong otomatis saat kasir memproses pesanan.
@@ -220,6 +225,14 @@ Aplikasi ini dirancang untuk dapat dioperasikan secara percaya diri oleh **gener
   - **Audit Trail Permanen:** Seluruh aksi persetujuan, penolakan, dan catatan tertulis direkam abadi untuk kepatuhan tata kelola bisnis.
   - **Pencegahan Fraud & Auto-Journaling:** Dokumen yang ditolak otomatis diblokir dari pencairan kas; dokumen yang disetujui penuh secara otomatis terhubung ke pemotongan stok bahan baku (BOM) dan jurnal akuntansi berimbang.
   - **Manajemen Plafon Mandiri:** Pemilik usaha dapat mengatur batas nominal minimal dan tingkatan penyetuju langsung melalui modal sheet in-place.
+
+### 3.14 Portal Karyawan & Presensi Mandiri (Staff Personal Attendance & Workstation Hub)
+* **Kapan Digunakan?** Setiap hari saat staf toko (kasir, barista, pelayan, staf gudang) mulai bertugas atau mengakhiri shift.
+* **Fitur & Keamanan Alur Kerja:**
+  - **Pengalihan Otomatis Non-Eksekutif:** Staf tanpa hak akses `dashboard.view` otomatis dialihkan ke `/portal` alih-alih menemui error 403 Forbidden.
+  - **Penyaringan Ketat Hak Akses Operasional:** Kartu modul cepat hanya menampilkan modul yang sah dimiliki staf (kasir hanya melihat POS Kasir, staf logistik hanya melihat Gudang & Stok).
+  - **Bento Empty-State Card:** Jika staf belum diberikan izin operasional apa pun, layar menyajikan kartu empty state ramah pengguna yang menjelaskan bahwa akses difokuskan untuk presensi mandiri.
+  - **Presensi Mandiri Sederhana:** Dilengkapi jam live WIB dan widget cuaca lokal (Open-Meteo), staf cukup menekan tombol `[ Masuk Sekarang ]` atau `[ Pulang Sekarang ]` dengan riwayat 7 hari terakhir yang transparan.
 
 ---
 
@@ -384,6 +397,20 @@ Berdasarkan dokumen arsitektur `docs/BLUEPRINT_TIER_PRICING_DAN_LIMITASI_COOCA.m
   - **No-Panic Microcopy:** *"Tenang: Pembersihan log aktivitas lama tidak akan pernah menghapus data transaksi penjualan, nota kasir, faktur invoice, atau laporan keuangan pembukuan Anda."*
   - Eksekusi pembersihan dijalankan aman di latar belakang via *Chunked Queue Job* setelah konfirmasi dua langkah Owner.
 
+### 4.18 Arsitektur F&B Channel Multi-Pricing, Online Delivery Tags & Product Bundling Engine (Phases 1-4)
+* **Mesin Multi-Harga Saluran Penjualan F&B (`product_channel_prices`):**
+  - Mendukung 5 kanal penjualan: `dine_in`, `takeaway`, `gofood`, `grabfood`, `shopeefood`.
+  - `PosTerminalWebController::index()` meng-eager load relasi `channelPrices` dan merender segmented channel selector pill bar bergaya Apple HIG.
+  - State Alpine.js `salesChannel` mere-kalkulasi harga item keranjang belanja secara instan (`getProductPrice()`) dengan fallback ke harga dasar produk jika harga saluran belum diset.
+  - Dialog modal sheet menangani input nomor referensi pesanan eksternal (`external_order_ref`) untuk order online delivery.
+  - Lencana kontras tinggi pada Kanban Dapur (`kitchen.blade.php`) dan penandaan baris saluran pada struk thermal ESC/POS (`receipt.blade.php` & `PosReceiptImageService.php`).
+* **Mesin Paket Kombo / Bundling Produk (`product_bundle_items`):**
+  - Kolom `is_bundle = true` pada tabel `products` dan tabel anak `product_bundle_items`.
+  - **Kalkulasi Akumulasi HPP (`Product::getBundleHpp()`):** Menjumlahkan seluruh `base_cost` atau HPP aktif dari costing run masing-masing produk anak dikali kuantitasnya, menjaga akurasi `total_hpp_cost` dan `total_gross_profit` pada `pos_orders`.
+  - **Aturan Stok Efektif Bottleneck:** Stok paket kombo dihitung dinamis dari stok fisik item anak: $\min_{i} \lfloor \text{child\_stock}_i / \text{qty}_i \rfloor$. Jika salah satu komponen anak habis, stok paket kombo otomatis bernilai `0.0`.
+  - **Pemotongan & Pengembalian Stok Rekursif:** `StockService::deductForProductSale()` memotong stok produk anak fisik pada `inventory_stocks` dan merekursi `getMaterialDeductions()` (Case 0) untuk produk anak bertipe resep BOM secara atomik. Pada aksi refund/void kasir, `StockService::restoreForPosRefund()` memulihkan kembali seluruh komponen anak secara otomatis.
+  - **Antarmuka Master Produk (Bento Apple HIG):** Dynamic child item repeater pada modal tambah/ubah produk dengan live estimasi total HPP modal dan harga normal.
+
 ---
 
 ## 5. Matriks Penelusuran Pengetahuan (Traceability Matrix)
@@ -466,9 +493,19 @@ Dokumentasi Cooca saling terhubung secara dua arah untuk memudahkan penelusuran 
    ├──► Modul Produk & BOM ────────► docs/system/modules/costing.md ────────────────► resources/views/app/products/
    │                                                                                    └──► WORK-2026-09-26-171
    │
-   └──► POS Hardware & Shifts ─────► docs/system/modules/pos-hardware-and-printers.md ──► app/Domain/Printer/ & PosShiftService
-                                                                                        └──► WORK-2026-09-25-154
+   ├──► POS Hardware & Shifts ─────► docs/system/modules/pos-hardware-and-printers.md ──► app/Domain/Printer/ & PosShiftService
+   │                                                                                         └──► WORK-2026-09-25-154
+   │
+   ├──► Staff Portal & RBAC ────────► docs/system/workflows/staff-portal-and-attendance-flow.md ──► PortalWebController
+   │                                                                                              └──► WORK-2026-09-26-180
+   │
+   ├──► POS Channel Multi-Pricing ──► docs/system/workflows/pos-channel-pricing-and-delivery-flow.md ──► PosTerminalWebController
+   │                                                                                                   └──► WORK-2026-09-26-181
+   │
+   └──► Product Bundling Engine ────► docs/system/workflows/product-bundling-and-combo-flow.md ───────► Product & StockService
+                                                                                                        └──► WORK-2026-09-26-182
 ```
 
 ---
 *Dokumen ini merupakan panduan resmi hidup (living guide) sistem Cooca ERP & POS. Setiap pembaruan fungsional atau arsitektur pada source code wajib tercermin dalam System Knowledge Base dan diperbarui di System Guide ini.*
+

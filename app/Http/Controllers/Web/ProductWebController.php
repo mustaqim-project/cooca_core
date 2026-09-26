@@ -13,7 +13,9 @@ use App\Models\BranchProductPrice;
 use App\Models\Location;
 use App\Models\Material;
 use App\Models\Product;
+use App\Models\ProductBundleItem;
 use App\Models\ProductCategory;
+use App\Models\ProductChannelPrice;
 use App\Models\Unit;
 use App\Support\Context;
 use App\Domain\Storage\OwnerStorageQuotaService;
@@ -37,7 +39,7 @@ final class ProductWebController extends Controller
         $business = Context::requireBusiness();
 
         $query = Product::goods()
-            ->with(['category', 'outputUnit', 'costModels.latestVersion'])
+            ->with(['category', 'outputUnit', 'costModels.latestVersion', 'bundleItems.childProduct', 'channelPrices'])
             ->latest();
 
         if ($request->filled('search')) {
@@ -55,12 +57,18 @@ final class ProductWebController extends Controller
         $products = $query->paginate(15)->withQueryString();
         $categories = ProductCategory::where('business_id', $business->id)->get();
         $units = Unit::available()->orderBy('name')->get();
+        $allProducts = Product::goods()
+            ->where('business_id', $business->id)
+            ->where('is_bundle', false)
+            ->where('is_active', true)
+            ->orderBy('name')
+            ->get(['id', 'name', 'code', 'selling_price', 'base_cost']);
 
         // Optional preselect for edit modal (?edit=<id>) - used when arriving from calculator.
         $editProductId = $request->get('edit');
         $editProduct = null;
         if ($editProductId) {
-            $editProduct = Product::with(['category', 'outputUnit'])
+            $editProduct = Product::with(['category', 'outputUnit', 'bundleItems.childProduct', 'channelPrices'])
                 ->where('id', $editProductId)
                 ->where('business_id', $business->id)
                 ->first();
@@ -69,7 +77,7 @@ final class ProductWebController extends Controller
             }
         }
 
-        return view('app.products.index', compact('business', 'products', 'categories', 'units', 'editProductId', 'editProduct'));
+        return view('app.products.index', compact('business', 'products', 'categories', 'units', 'editProductId', 'editProduct', 'allProducts'));
     }
 
     /**
@@ -179,6 +187,12 @@ final class ProductWebController extends Controller
             'is_preorder' => ['nullable', 'boolean'],
             'preorder_mode' => ['nullable', 'string', 'in:merchant_batch,customer_schedule'],
             'preorder_lead_days' => ['nullable', 'integer', 'min:0', 'max:90'],
+            'is_bundle' => ['nullable', 'boolean'],
+            'bundle_items' => ['nullable', 'array'],
+            'bundle_items.*.child_product_id' => ['required_with:bundle_items', 'exists:products,id'],
+            'bundle_items.*.quantity' => ['required_with:bundle_items', 'numeric', 'gt:0'],
+            'channel_prices' => ['nullable', 'array'],
+            'channel_prices.*' => ['nullable', 'numeric', 'gte:0'],
             'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096', 'dimensions:max_width=2400,max_height=2400'],
         ]);
 
@@ -202,7 +216,35 @@ final class ProductWebController extends Controller
             'is_preorder' => $request->boolean('is_preorder'),
             'preorder_mode' => $validated['preorder_mode'] ?? Product::PREORDER_MODE_SCHEDULE,
             'preorder_lead_days' => (int) ($validated['preorder_lead_days'] ?? 1),
+            'is_bundle' => $request->boolean('is_bundle'),
         ]);
+
+        if ($request->boolean('is_bundle') && $request->filled('bundle_items')) {
+            foreach ($request->input('bundle_items') as $bItem) {
+                if (!empty($bItem['child_product_id']) && (float) ($bItem['quantity'] ?? 0) > 0) {
+                    ProductBundleItem::create([
+                        'business_id' => $business->id,
+                        'parent_product_id' => $product->id,
+                        'child_product_id' => $bItem['child_product_id'],
+                        'quantity' => (float) $bItem['quantity'],
+                    ]);
+                }
+            }
+        }
+
+        if ($request->filled('channel_prices')) {
+            $allowedChannels = ['dine_in', 'takeaway', 'gofood', 'grabfood', 'shopeefood'];
+            foreach ($request->input('channel_prices') as $channel => $price) {
+                if (in_array($channel, $allowedChannels, true) && $price !== null && $price !== '') {
+                    ProductChannelPrice::create([
+                        'business_id' => $business->id,
+                        'product_id' => $product->id,
+                        'channel' => $channel,
+                        'price' => (float) $price,
+                    ]);
+                }
+            }
+        }
 
         if ($request->hasFile('image')) {
             $dir = TenantStorage::publicDir($business, TenantStorage::FOLDER_PRODUCTS);
@@ -270,6 +312,12 @@ final class ProductWebController extends Controller
             'is_preorder' => ['nullable', 'boolean'],
             'preorder_mode' => ['nullable', 'string', 'in:merchant_batch,customer_schedule'],
             'preorder_lead_days' => ['nullable', 'integer', 'min:0', 'max:90'],
+            'is_bundle' => ['nullable', 'boolean'],
+            'bundle_items' => ['nullable', 'array'],
+            'bundle_items.*.child_product_id' => ['required_with:bundle_items', 'exists:products,id'],
+            'bundle_items.*.quantity' => ['required_with:bundle_items', 'numeric', 'gt:0'],
+            'channel_prices' => ['nullable', 'array'],
+            'channel_prices.*' => ['nullable', 'numeric', 'gte:0'],
             'description' => ['nullable', 'string'],
             'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096', 'dimensions:max_width=2400,max_height=2400'],
             'remove_image' => ['nullable', 'boolean'],
@@ -291,8 +339,43 @@ final class ProductWebController extends Controller
             'is_preorder' => $request->boolean('is_preorder'),
             'preorder_mode' => $validated['preorder_mode'] ?? $product->preorder_mode,
             'preorder_lead_days' => isset($validated['preorder_lead_days']) ? (int) $validated['preorder_lead_days'] : $product->preorder_lead_days,
+            'is_bundle' => $request->boolean('is_bundle'),
             'description' => $validated['description'] ?? $product->description,
         ]);
+
+        // Sync Bundle Items
+        ProductBundleItem::where('parent_product_id', $product->id)->delete();
+        if ($request->boolean('is_bundle') && $request->filled('bundle_items')) {
+            foreach ($request->input('bundle_items') as $bItem) {
+                if (!empty($bItem['child_product_id']) && (float) ($bItem['quantity'] ?? 0) > 0) {
+                    if ($bItem['child_product_id'] === $product->id) {
+                        continue;
+                    }
+                    ProductBundleItem::create([
+                        'business_id' => $business->id,
+                        'parent_product_id' => $product->id,
+                        'child_product_id' => $bItem['child_product_id'],
+                        'quantity' => (float) $bItem['quantity'],
+                    ]);
+                }
+            }
+        }
+
+        // Sync Channel Prices
+        if ($request->has('channel_prices')) {
+            $allowedChannels = ['dine_in', 'takeaway', 'gofood', 'grabfood', 'shopeefood'];
+            ProductChannelPrice::where('product_id', $product->id)->delete();
+            foreach ((array) $request->input('channel_prices', []) as $channel => $price) {
+                if (in_array($channel, $allowedChannels, true) && $price !== null && $price !== '') {
+                    ProductChannelPrice::create([
+                        'business_id' => $business->id,
+                        'product_id' => $product->id,
+                        'channel' => $channel,
+                        'price' => (float) $price,
+                    ]);
+                }
+            }
+        }
 
         if ($request->boolean('remove_image') && $product->image_path) {
             $trackingService->deleteFile($product->image_path, 'public');

@@ -218,6 +218,18 @@
                 <span>Tipe:</span>
                 <span class="uppercase font-semibold">{{ $order->order_type }}</span>
             </div>
+            @if ($order->sales_channel && $order->sales_channel !== 'dine_in')
+                <div class="flex justify-between font-bold text-[11px] py-0.5 px-1 bg-black text-white rounded mt-1">
+                    <span>CHANNEL:</span>
+                    <span class="uppercase tracking-wider">{{ strtoupper($order->sales_channel) }}</span>
+                </div>
+            @endif
+            @if ($order->external_order_ref)
+                <div class="flex justify-between font-bold text-[10px] text-gray-800">
+                    <span>REF ORDER:</span>
+                    <span class="tracking-wider">#{{ $order->external_order_ref }}</span>
+                </div>
+            @endif
 
             {{-- Bengkel Otomotif Metadata --}}
             @if ($order->vehicle_license_plate)

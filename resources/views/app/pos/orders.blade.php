@@ -205,7 +205,16 @@
                                     </span>
                                 @endif
                             </div>
-                            <div class="text-[11px] text-black/45 dark:text-white/45 uppercase">{{ $o->order_type }} • {{ $o->location->name ?? 'Outlet' }}</div>
+                            <div class="text-[11px] text-black/45 dark:text-white/45 flex items-center gap-1.5 flex-wrap">
+                                <span class="uppercase font-medium">{{ $o->order_type }}</span>
+                                @if($o->sales_channel && $o->sales_channel !== 'dine_in')
+                                    <span class="px-1.5 py-0.2 rounded text-[10px] font-black uppercase text-white tracking-wider
+                                        {{ $o->sales_channel === 'gofood' ? 'bg-[#00AA13]' : ($o->sales_channel === 'grabfood' ? 'bg-[#00B14F]' : ($o->sales_channel === 'shopeefood' ? 'bg-[#EE4D2D]' : 'bg-[#5856D6]')) }}">
+                                        {{ $o->sales_channel }}{{ $o->external_order_ref ? ' #' . $o->external_order_ref : '' }}
+                                    </span>
+                                @endif
+                                <span>• {{ $o->location->name ?? 'Outlet' }}</span>
+                            </div>
                         </td>
                         <td class="px-4 py-3">
                             <div class="tabular-nums text-black/80 dark:text-white/80">{{ $o->order_date->format('d/m/Y') }} {{ $o->created_at->format('H:i') }}</div>

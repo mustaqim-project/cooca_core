@@ -30,3 +30,17 @@
 ### RULE-INV-004: Material Unit Conversion Precision
 * **Name:** Presisi Konversi Multi-Satuan Bahan Baku
 * **Deskripsi:** Faktor konversi antara satuan beli dan satuan pakai resep wajib menggunakan rasio desimal presisi tinggi (minimal 4 digit desimal) untuk meminimalkan akumulasi pembulatan selisih gram/mililiter dalam produksi massal.
+
+### RULE-INV-005: Bundle Bottleneck Stock Rule
+* **Name:** Aturan Stok Efektif Paket Kombo / Bundling (Bottleneck Rule)
+* **Deskripsi:** Produk kombo (`is_bundle = true`) tidak memiliki stok fisik mandiri. Ketersediaan stok dihitung dinamis dari stok fisik item anak dibagi rasio kebutuhan:
+  $$\text{Effective Bundle Stock} = \min_{i=1}^{n} \left( \left\lfloor \frac{\text{Physical Stock}(\text{Child}_i)}{\text{Required Qty}(\text{Child}_i)} \right\rfloor \right)$$
+* **Perilaku:** Jika salah satu stok produk anak habis atau kurang dari rasio kebutuhan per paket, stok kombo otomatis bernilai `0.0`. Dilarang menampilkan stok tersedia jika salah satu komponen anak kosong.
+
+### RULE-INV-006: Recursive Multi-Item Bundle Stock Deduction & Restoration
+* **Name:** Pemotongan & Pemulihan Stok Atomik Rekursif Paket Kombo
+* **Deskripsi:** Penjualan paket kombo di POS wajib memotong stok seluruh komponen anak secara atomik di dalam transaksi basis data:
+  - Jika item anak adalah produk fisik langsung, kurangi stok pada tabel `inventory_stocks` dan catat mutasi `sale`.
+  - Jika item anak memiliki resep BOM, rekursi `getMaterialDeductions()` (Case 0) untuk memotong bahan baku mentah dari dapur/gudang terkait.
+  - Saat transaksi kombo di-refund/void, seluruh stok item anak dan bahan baku wajib dipulihkan kembali (*auto-restock*).
+

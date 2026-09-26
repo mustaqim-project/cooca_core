@@ -26,8 +26,10 @@
 | **Portal Karyawan & Presensi (`/portal`)** | ❌ | ✅ Akses | ✅ Akses | ✅ Presensi Mandiri | ✅ Presensi Mandiri | ❌ | ❌ |
 | **Kalkulator HPP & Costing** | ❌ | ✅ Penuh | ✅ Lihat/Hitung | ❌ | ❌ | ❌ | ❌ |
 | **Master Produk & Bahan** | ❌ | ✅ Penuh | ✅ Edit/Kelola | 👁️ Lihat Saja | 👁️ Lihat Saja | 👁️ Katalog Publik | ❌ |
+| **Paket Kombo & Bundling Produk** | ❌ | ✅ Penuh | ✅ Edit/Kelola | 👁️ Jual di Kasir | 👁️ Sesuai Stok Anak | 👁️ Katalog Publik | ⚡ Auto-Potong Anak |
+| **Multi-Harga Saluran POS (F&B)** | ❌ | ✅ Konfigurasi | ✅ Edit Saluran | ✅ Pilih Saluran POS | ❌ | ❌ | ❌ |
 | **Terminal Kasir POS** | ❌ | ✅ Penuh | ✅ Penuh | ✅ Transaksi | ❌ | ❌ | ❌ |
-| **Void & Refund Kasir (PIN)** | ❌ | ✅ Wewenang | ✅ Wewenang | ❌ Butuh PIN | ❌ | ❌ | ❌ |
+| **Void & Refund Kasir (PIN)** | ❌ | ✅ Wewenang | ✅ Wewenang | ❌ Butuh PIN | ❌ | ❌ | ⚡ Auto-Restock Anak |
 | **Goods Receipt (GR) & Stok** | ❌ | ✅ Penuh | ✅ Penuh | ❌ | ✅ Kelola GR | ❌ | ⚡ Auto-Potong |
 | **Purchase Order & Supplier** | ❌ | ✅ Penuh | ✅ Buat PO | ❌ | 👁️ Lihat Saja | ❌ | ❌ |
 | **Kas & Rekening Bank** | ❌ | ✅ Penuh | 👁️ Kas Toko | 👁️ Kas Shift | ❌ | ❌ | ⚡ Mutasi Saldo |
@@ -38,6 +40,16 @@
 
 *Keterangan Simbol:*
 - ✅ : Hak akses penuh (View, Create, Edit, Delete).
-- 👁️ : Hak akses terbatas hanya melihat (*Read-Only*).
+- 👁️ : Hak akses terbatas hanya melihat (*Read-Only*) atau menjual.
 - ❌ : Tidak memiliki hak akses (Akses ditolak).
 - ⚡ : Dieksekusi otomatis oleh sistem di latar belakang tanpa intervensi manual.
+
+---
+
+## 🔒 Kebijakan Penyaringan Hak Akses Portal Karyawan (`/portal`)
+
+Pemberian tile navigasi cepat pada antarmuka Portal Karyawan menerapkan prinsip *Zero-Trust RBAC Filtering*:
+1. **Pengecekan Deklaratif:** Modul kandidat (`pos.view`, `orders.view`, `products.view`, `warehouse.view`, `inventory.view`, `purchasing.view`, `goods_receipt.view`, `customers.view`) dievaluasi per pengguna menggunakan `Context::hasPermission($perm)`.
+2. **Pemisahan Rute Logistik:** Izin `warehouse.view` mengarah spesifik ke `/warehouse`, sedangkan `inventory.view` mengarah ke `/inventory/stocks` untuk mengeliminasi celah 403 Forbidden.
+3. **Empty-State Graceful Fallback:** Pengguna tanpa hak akses operasional disajikan Bento Empty-State Card untuk fokus pada presensi harian pribadi.
+

@@ -24,13 +24,16 @@
 
 ### 3. Alur Kerja End-to-End (Workflows)
 * [`docs/system/workflows/pos-sales-flow.md`](file:///c:/laragon/www/cooca_core/docs/system/workflows/pos-sales-flow.md) - Alur Lengkap Penjualan Kasir ➔ Potong Stok BOM ➔ Kas Ledger ➔ Auto-Journal ➔ Nota WhatsApp. `[COMPLETE]`
+* [`docs/system/workflows/pos-channel-pricing-and-delivery-flow.md`](file:///c:/laragon/www/cooca_core/docs/system/workflows/pos-channel-pricing-and-delivery-flow.md) - Alur Multi-Harga Saluran POS & Online Delivery (Dine In, Takeaway, GoFood, GrabFood, ShopeeFood) ➔ Nomor Order Ref Eksternal ➔ Lencana KDS Dapur ➔ Struk Thermal ESC/POS. `[COMPLETE]`
+* [`docs/system/workflows/product-bundling-and-combo-flow.md`](file:///c:/laragon/www/cooca_core/docs/system/workflows/product-bundling-and-combo-flow.md) - Alur Paket Kombo & Bundling Produk ➔ Konfigurasi Item Anak ➔ Aturan Stok Bottleneck ➔ Akumulasi HPP ➔ Pemotongan & Pengembalian Rekursif. `[COMPLETE]`
+* [`docs/system/workflows/staff-portal-and-attendance-flow.md`](file:///c:/laragon/www/cooca_core/docs/system/workflows/staff-portal-and-attendance-flow.md) - Alur Portal Karyawan & Presensi Mandiri ➔ Pengalihan Aman Dashboard ➔ Penyaringan Ketat Modul Cepat RBAC ➔ Bento Empty-State. `[COMPLETE]`
 * [`docs/system/workflows/purchasing-goods-receipt-flow.md`](file:///c:/laragon/www/cooca_core/docs/system/workflows/purchasing-goods-receipt-flow.md) - Alur Pengadaan PO ➔ Penerimaan Fisik Barang (GR) ➔ Update Stok & HPP ➔ Tagihan Vendor (AP) ➔ Jurnal Akuntansi. `[COMPLETE]`
 * [`docs/system/workflows/customer-storefront-flow.md`](file:///c:/laragon/www/cooca_core/docs/system/workflows/customer-storefront-flow.md) - Alur Pembelian Pelanggan ➔ Gated Checkout ➔ Upload Bukti Bayar ➔ Konfirmasi Merchant ➔ Pelacakan Pesanan. `[VERIFIED]`
 
 ### 4. Aturan Bisnis (Business Rules)
 * [`docs/system/business-rules/finance-rules.md`](file:///c:/laragon/www/cooca_core/docs/system/business-rules/finance-rules.md) - Integritas Finansial, Ketetapan Transaksi Final (Immutability), & Keseimbangan Jurnal. `[COMPLETE]`
-* [`docs/system/business-rules/inventory-rules.md`](file:///c:/laragon/www/cooca_core/docs/system/business-rules/inventory-rules.md) - Aturan Pengurangan Bahan Baku, Kebijakan Stok Minus, & Valuasi Biaya Rata-Rata. `[COMPLETE]`
-* [`docs/system/business-rules/security-rules.md`](file:///c:/laragon/www/cooca_core/docs/system/business-rules/security-rules.md) - Scoping Isolasi Multi-Tenant, Proteksi IDOR Pelanggan, Otorisasi PIN Kasir, & Rate Limiting. `[COMPLETE]`
+* [`docs/system/business-rules/inventory-rules.md`](file:///c:/laragon/www/cooca_core/docs/system/business-rules/inventory-rules.md) - Aturan Pengurangan Bahan Baku, Kebijakan Stok Minus, Bottleneck Stok Paket Kombo, & Pemotongan Rekursif. `[COMPLETE]`
+* [`docs/system/business-rules/security-rules.md`](file:///c:/laragon/www/cooca_core/docs/system/business-rules/security-rules.md) - Scoping Multi-Tenant, Proteksi IDOR, PIN Supervisor, Proteksi Akun, Staff Portal RBAC Guard, & Proteksi Circular Bundle. `[COMPLETE]`
 
 ### 5. Hak Akses & Peran (Permissions)
 * [`docs/system/permissions/permission-matrix.md`](file:///c:/laragon/www/cooca_core/docs/system/permissions/permission-matrix.md) - Matriks Wewenang Lintas Peran: Superadmin, Business Owner, Manajer Toko, Kasir, Staf Dapur/Gudang, Pelanggan, & Otomasi Sistem. `[COMPLETE]`
@@ -45,16 +48,17 @@
 
 | Modul / Domain | Status | Referensi Source Code / Migrasi | Terakhir Diverifikasi |
 | :--- | :---: | :--- | :---: |
-| **Costing & HPP Engine** | `COMPLETE` | `app/Domain/Costing/`, `app/Domain/Calculation/`, Migrasi `000014`-`000029` | 2026-09-15 |
-| **Point of Sale (POS)** | `COMPLETE` | `app/Domain/Pos/`, Migrasi `000040`-`000045`, `000001`-`000004` (2026-09-10) | 2026-09-15 |
-| **Inventory & Materials** | `COMPLETE` | `app/Domain/Inventory/`, `app/Domain/Material/`, Migrasi `000008`-`000013`, `000042` | 2026-09-15 |
+| **Costing & HPP Engine** | `COMPLETE` | `app/Domain/Costing/`, `app/Domain/Calculation/`, Migrasi `000014`-`000029` | 2026-09-26 |
+| **Point of Sale (POS)** | `COMPLETE` | `app/Domain/Pos/`, Migrasi `000040`-`000045`, `2026_09_26_110000` (Channel Pricing) | 2026-09-26 |
+| **Inventory & Materials** | `COMPLETE` | `app/Domain/Inventory/`, `ProductBundleItem`, Migrasi `2026_09_26_100000` (Bundling Engine) | 2026-09-26 |
+| **Staff Portal & RBAC** | `COMPLETE` | `PortalWebController`, `portal/index.blade.php`, RBAC Permission Guard | 2026-09-26 |
 | **Finance & Accounting** | `COMPLETE` | `app/Domain/Finance/`, `app/Domain/Accounting/`, Migrasi `000044`, `000080`-`000081` | 2026-09-15 |
 | **Customer & CRM Loyalty** | `COMPLETE` | `app/Domain/Customer/`, `app/Domain/Crm/`, `routes/web.php`, Views `customers/` & `crm/` | 2026-09-15 |
 | **Commerce & Storefront** | `VERIFIED` | `app/Domain/Commerce/`, Migrasi `2026_09_15_000001`-`063500`, `routes/customer.php` | 2026-09-15 |
 | **SaaS Billing & Quotas** | `VERIFIED` | `app/Domain/Billing/`, Migrasi `000047`-`000048`, `000002` (2026-09-02) | 2026-09-15 |
 | **WhatsApp Gateway** | `COMPLETE` | `app/Domain/WhatsApp/`, `wa-server/`, `AdminWhatsAppController`, Views `admin/whatsapp/` | 2026-09-15 |
-| **Multi-Tenant & Security** | `COMPLETE` | `app/Support/Context.php`, Middleware, Migrasi `000001`-`000004` | 2026-09-15 |
-| **UI/UX Bento Apple HIG** | `COMPLETE` | `docs/prompt.md`, `AGENTS.md`, `layouts/app.blade.php`, `layouts/admin.blade.php` | 2026-09-16 |
+| **Multi-Tenant & Security** | `COMPLETE` | `app/Support/Context.php`, Middleware, Migrasi `000001`-`000004` | 2026-09-26 |
+| **UI/UX Bento Apple HIG** | `COMPLETE` | `docs/prompt.md`, `AGENTS.md`, `layouts/app.blade.php`, `layouts/admin.blade.php` | 2026-09-26 |
 | **System Diagnostics & Logs** | `COMPLETE` | `AdminErrorLogController`, `resources/views/admin/error-logs/`, `AdminErrorLogTest` | 2026-09-16 |
 
 *Keterangan Status:*
@@ -65,3 +69,4 @@
 - `COMPLETE`: Telah diverifikasi penuh, bebas kontradiksi, dan tervalidasi dengan pengujian otomatis.
 - `NEEDS_REVIEW`: Ada perubahan kode terbaru yang memerlukan peninjauan ulang dokumentasi.
 - `OUTDATED`: Implementasi telah berubah dan dokumentasi harus segera diperbarui.
+

@@ -125,7 +125,7 @@ final class PosTerminalWebController extends Controller
         try {
             $products = Product::where('business_id', $business->id)
                 ->forPos()
-                ->with(['category', 'outputUnit', 'costModels.costingRuns.result'])
+                ->with(['category', 'outputUnit', 'costModels.costingRuns.result', 'channelPrices'])
                 ->get()
                 ->map(function ($p) use ($selectedLocationId, $branchPrices) {
                     if (isset($branchPrices[$p->id])) {
@@ -142,6 +142,22 @@ final class PosTerminalWebController extends Controller
                     } catch (\Throwable) {
                         $p->modifier_groups = [];
                     }
+
+                    $channelPricesMap = [
+                        'dine_in' => (float) $p->selling_price,
+                        'takeaway' => (float) $p->selling_price,
+                        'gofood' => (float) $p->selling_price,
+                        'grabfood' => (float) $p->selling_price,
+                        'shopeefood' => (float) $p->selling_price,
+                    ];
+                    if ($p->relationLoaded('channelPrices')) {
+                        foreach ($p->channelPrices as $cp) {
+                            $channelPricesMap[$cp->channel] = (float) $cp->price;
+                        }
+                    }
+                    $p->channel_prices = $channelPricesMap;
+                    $p->is_bundle = (bool) ($p->is_bundle ?? false);
+
                     return $p;
                 })
                 ->each(function ($p): void {
@@ -375,17 +391,31 @@ final class PosTerminalWebController extends Controller
                 if ($locationId) {
                     $q->where('location_id', $locationId);
                 }
-            }])
+            }, 'channelPrices'])
             ->limit(20)
             ->get()
             ->map(function ($p) use ($branchPrices) {
                 $locStock = $p->stocks->first();
                 $price = isset($branchPrices[$p->id]) ? (float) $branchPrices[$p->id] : (float) $p->selling_price;
+                $channelPricesMap = [
+                    'dine_in' => $price,
+                    'takeaway' => $price,
+                    'gofood' => $price,
+                    'grabfood' => $price,
+                    'shopeefood' => $price,
+                ];
+                if ($p->relationLoaded('channelPrices')) {
+                    foreach ($p->channelPrices as $cp) {
+                        $channelPricesMap[$cp->channel] = (float) $cp->price;
+                    }
+                }
                 return [
                     'id' => $p->id,
                     'name' => $p->name,
                     'code' => $p->code,
                     'selling_price' => $price,
+                    'channel_prices' => $channelPricesMap,
+                    'is_bundle' => (bool) ($p->is_bundle ?? false),
                     'base_cost' => (float) $p->base_cost,
                     'stock' => $locStock ? (float) $locStock->quantity : 0.0,
                 ];
@@ -421,6 +451,8 @@ final class PosTerminalWebController extends Controller
             'customer_id' => ['nullable', 'string'],
             'customer_name_guest' => ['nullable', 'string', 'max:150'],
             'order_type' => ['nullable', 'string', 'in:dine_in,takeaway,delivery'],
+            'sales_channel' => ['nullable', 'string', 'in:dine_in,takeaway,gofood,grabfood,shopeefood'],
+            'external_order_ref' => ['nullable', 'string', 'max:100'],
             'table_or_reference' => ['nullable', 'string', 'max:100'],
             'pos_table_id' => ['nullable', 'string'],
             'pos_table_session_id' => ['nullable', 'string'],
@@ -464,6 +496,8 @@ final class PosTerminalWebController extends Controller
                     'customer_id' => $validated['customer_id'] ?? null,
                     'customer_name_guest' => $validated['customer_name_guest'] ?? null,
                     'order_type' => $validated['order_type'] ?? 'takeaway',
+                    'sales_channel' => $validated['sales_channel'] ?? 'dine_in',
+                    'external_order_ref' => $validated['external_order_ref'] ?? null,
                     'order_source' => PosOrder::SOURCE_POS,
                     'pos_register_id' => $validated['pos_register_id'] ?? $activeShift?->pos_register_id ?? null,
                     'pos_table_id' => $validated['pos_table_id'] ?? null,
@@ -519,6 +553,8 @@ final class PosTerminalWebController extends Controller
                     'total_hpp_cost' => $order->total_hpp_cost,
                     'total_gross_profit' => $order->total_gross_profit,
                     'points_earned' => $order->points_earned,
+                    'sales_channel' => $order->sales_channel,
+                    'external_order_ref' => $order->external_order_ref,
                 ],
                 'whatsapp_url' => $whatsappUrl,
                 'whatsapp_bot_sent' => $botSent,
