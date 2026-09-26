@@ -6,80 +6,31 @@
 
 @section('content')
 <div class="max-w-[1360px] mx-auto space-y-6 pb-28 lg:pb-12">
-    <!-- ===================================================== -->
-    <!-- 1. TOOLBAR / PAGE HEADER (macOS Sonoma Style)          -->
-    <!-- ===================================================== -->
-    <header class="rounded-[16px] backdrop-blur-md bg-white/75 dark:bg-[#1C1C1E]/75 border border-black/5 dark:border-white/10 px-4 sm:px-6 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
-        <div>
-            <!-- Breadcrumb minimal -->
-            <nav class="flex items-center gap-1.5 text-[12px] text-black/50 dark:text-white/50 mb-1" aria-label="Breadcrumb">
-                <a href="{{ route('dashboard') }}" class="hover:text-[#007AFF] transition-colors">Dashboard</a>
-                <i data-lucide="chevron-right" class="w-3.5 h-3.5 opacity-40"></i>
-                <span class="text-black/70 dark:text-white/70 font-medium">Pembelian &amp; Vendor</span>
-                <i data-lucide="chevron-right" class="w-3.5 h-3.5 opacity-40"></i>
-                <span class="text-black dark:text-white font-medium">Tagihan &amp; Hutang</span>
-            </nav>
-            <h1 class="text-[20px] font-semibold text-black dark:text-white tracking-tight">Tagihan &amp; Hutang Supplier</h1>
-            <p class="text-[13px] text-black/50 dark:text-white/50">Kelola faktur tagihan masuk dari supplier atas penerimaan barang (PO) dan pantau jadwal pelunasan.</p>
-        </div>
-
-        <!-- Toolbar Actions -->
-        <div class="flex items-center gap-2 w-full sm:w-auto">
-            @if(\App\Support\Context::hasPermission('finance.payables') || \App\Support\Context::hasPermission('accounting.view'))
+    {{-- ===================================================== --}}
+    {{-- 1. TOOLBAR / PAGE HEADER                                --}}
+    {{-- ===================================================== --}}
+    <x-module-header
+        title="Tagihan & Hutang Supplier"
+        subtitle="Kelola faktur tagihan masuk dari supplier atas penerimaan barang (PO) dan pantau jadwal pelunasan">
+        @if(\App\Support\Context::hasPermission('finance.payables') || \App\Support\Context::hasPermission('accounting.view'))
             <a href="{{ route('finance.payables') }}" class="min-h-[44px] sm:min-h-0 h-11 sm:h-9 px-4 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5">
                 <i data-lucide="clock" class="w-4 h-4 text-[#FF9500] dark:text-[#FF9F0A]"></i>
                 <span>Analisis AP Aging</span>
             </a>
-            @endif
+        @endif
 
-            @if(\App\Support\Context::hasPermission('purchasing.view') || \App\Support\Context::hasPermission('purchasing.manage'))
+        @if(\App\Support\Context::hasPermission('purchasing.view') || \App\Support\Context::hasPermission('purchasing.manage'))
             <a href="{{ route('purchase-orders.index') }}" class="min-h-[44px] sm:min-h-0 h-11 sm:h-9 px-4 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5">
                 <i data-lucide="file-text" class="w-4 h-4 text-black/60 dark:text-white/60"></i>
                 <span>Daftar PO</span>
             </a>
-            @endif
-        </div>
-    </header>
+        @endif
+    </x-module-header>
 
     {{-- ===================================================== --}}
-    {{-- SUB-NAVIGATION TABS (Apple Segmented Control)         --}}
+    {{-- 2. MODULE TABS (SSOT)                                   --}}
     {{-- ===================================================== --}}
-    <div class="overflow-x-auto pb-1 scrollbar-none">
-        <div class="inline-flex p-1 rounded-[14px] bg-black/[0.05] dark:bg-white/[0.07] border border-black/5 dark:border-white/10 text-[13px] font-medium whitespace-nowrap">
-            <a href="{{ route('purchase-orders.index') }}"
-                class="px-3.5 py-1.5 rounded-[10px] {{ request()->routeIs('purchase-orders.*') ? 'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] font-semibold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white' }} flex items-center gap-2 transition-all">
-                <i data-lucide="file-text" class="w-4 h-4 {{ request()->routeIs('purchase-orders.*') ? 'text-[#007AFF]' : 'text-black/40 dark:text-white/40' }}"></i>
-                <span>Purchase Order (PO)</span>
-            </a>
-
-            @if(\App\Support\Context::hasPermission('purchasing.bills') || \App\Support\Context::hasPermission('purchasing.manage'))
-            <a href="{{ route('purchasing.bills.index') }}"
-                class="px-3.5 py-1.5 rounded-[10px] {{ request()->routeIs('purchasing.bills.*') ? 'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] font-semibold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white' }} flex items-center gap-2 transition-all">
-                <i data-lucide="receipt" class="w-4 h-4 {{ request()->routeIs('purchasing.bills.*') ? 'text-[#FF9500]' : 'text-black/40 dark:text-white/40' }}"></i>
-                <span>Tagihan Vendor (Bills)</span>
-                @if(isset($invoices) && method_exists($invoices, 'total'))
-                    <span class="px-1.5 py-0.2 rounded-full text-[11px] tabular-nums font-semibold {{ request()->routeIs('purchasing.bills.*') ? 'bg-[#FF9500]/12 text-[#FF9500]' : 'bg-black/10 dark:bg-white/10 text-black/60 dark:text-white/60' }}">{{ $invoices->total() }}</span>
-                @endif
-            </a>
-            @endif
-
-            @if(\App\Support\Context::hasPermission('master_data.suppliers.view') || \App\Support\Context::hasPermission('purchasing.view') || \App\Support\Context::hasPermission('purchasing.manage'))
-            <a href="{{ route('suppliers.index') }}"
-                class="px-3.5 py-1.5 rounded-[10px] {{ request()->routeIs('suppliers.*') ? 'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] font-semibold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white' }} flex items-center gap-2 transition-all">
-                <i data-lucide="truck" class="w-4 h-4 {{ request()->routeIs('suppliers.*') ? 'text-[#34C759]' : 'text-black/40 dark:text-white/40' }}"></i>
-                <span>Direktori Vendor</span>
-            </a>
-            @endif
-
-            @if(\App\Support\Context::hasPermission('purchase.returns') || \App\Support\Context::hasPermission('purchasing.manage'))
-            <a href="{{ route('purchase.returns.index') }}"
-                class="px-3.5 py-1.5 rounded-[10px] {{ request()->routeIs('purchase.returns.*') ? 'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] font-semibold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white' }} flex items-center gap-2 transition-all">
-                <i data-lucide="undo-2" class="w-4 h-4 {{ request()->routeIs('purchase.returns.*') ? 'text-[#AF52DE]' : 'text-black/40 dark:text-white/40' }}"></i>
-                <span>Retur Pembelian</span>
-            </a>
-            @endif
-        </div>
-    </div>
+    <x-module-tabs module="purchasing" />
 
     @if(session('success'))
     <div class="rounded-[12px] bg-[#34C759]/12 border border-[#34C759]/20 px-4 py-3 text-[13px] text-[#248A3D] dark:text-[#30D158] flex items-center gap-2">

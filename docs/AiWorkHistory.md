@@ -52,6 +52,121 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 
 #### 7. Documentation Promotion
 
+### [WORK-2026-09-26-174] Implementation & Acceptance Verification of Persistent Tabs, Breadcrumbs, Navigation Registry SSOT, Dynamic Module Enforcement & RBAC Across All Core Hubs (Phases 1-10)
+- **Date:** 2026-09-26
+- **Status:** COMPLETED
+- **Module:** Architecture, Core UI/UX, Navigation, Multi-Tenant Module Enforcement, RBAC, Finance & Accounting, Purchasing & Logistics, B2B Sales & CRM, Master Data, Communication, Storefront
+- **Feature:** Eksekusi komprehensif 10 Fase Remediasi Navigasi & Tab Persisten (PRD-09): `NavigationRegistry` SSOT, middleware `CheckModuleEnabled`, shared components `<x-breadcrumb>`, `<x-module-header>`, `<x-module-tabs>`, kontekstual wrapper Master Data (`from=materials`/`from=products`), standardisasi 30+ views, sinkronisasi layout global & sidebar Alpine.js, dan 100% penerimaan acceptance criteria (AC-1 s.d. AC-6).
+- **Work Type:** Architecture | UI/UX | Security | Feature | Refactoring
+
+#### 1. Business Context & Objective
+- **Konteks:** Menuntaskan disorientasi spasial pengguna ERP UMKM ketika berpindah antar sub-halaman di dalam satu modul bisnis. Sebelumnya, beberapa modul memiliki tab navigasi yang menghilang saat berpindah ke sub-fitur (misal dari Master Bahan Baku ke Satuan Ukur atau Kategori), breadcrumbs yang tidak seragam, sidebar collapse/expand yang tidak sinkron dengan modul aktif, serta rute fitur yang tetap dapat diakses via URL langsung meskipun modul bersangkutan dinonaktifkan di pengaturan bisnis.
+- **Masalah/Target:** Mengimplementasikan seluruh spesifikasi PRD-09 (Persistent Tabs & Breadcrumb Navigation Remediation):
+  1. Single Source of Truth (SSOT) metadata navigasi terpusat via `NavigationRegistry`.
+  2. Middleware proteksi modul dinamis `CheckModuleEnabled` yang mencegat akses URL langsung pada modul tidak aktif dan melakukan redirect ke dashboard disertai flash session error notification.
+  3. Shared Blade components konsisten berstandar Bento Apple HIG (`<x-breadcrumb>`, `<x-module-header>`, `<x-module-tabs>`).
+  4. State persistence kontekstual untuk Master Data (`from=materials` vs `from=products`).
+  5. Refactor komprehensif pada 30+ views di Finance, Accounting, Purchasing, Logistics, Sales, CRM, Storefront, dan Communication Hubs.
+  6. Integrasi global layout (`layouts/app.blade.php` dan `sidebar.blade.php`) terikat `$activeModuleKey` dengan auto-expanded sidebar groups (`salesOpen`, `marketingOpen`, `financeOpen`).
+  7. Pemenuhan 100% Acceptance Criteria (AC-1 s.d. AC-6) yang diverifikasi melalui automated feature testing.
+
+#### 2. What Was Done
+- **Fase 1 (Dynamic Module Protection Middleware):**
+  - Mengembangkan middleware `CheckModuleEnabled` (`App\Http\Middleware\CheckModuleEnabled`) dengan alias mapping fleksibel (`ALIAS_MAP`) yang memetakan alias rute ke konstanta resmi `ModuleRegistry`.
+  - Mencegat akses direct URL HTTP & API requests ke modul yang dinonaktifkan tenant, melempar JSON 403 untuk API atau me-redirect ke dashboard dengan session alert flash untuk Web.
+  - Mendaftarkan middleware alias `module.enabled` di `bootstrap/app.php` dan menerapkannya pada route groups: Storefront, Warehouse, Labor Machines, B2B Sales, CRM, WhatsApp/Marketing, Procurement, dan Corporate Accounting.
+  - Memverifikasi proteksi dengan unit/feature test `tests/Feature/CheckModuleMiddlewareTest.php` (4 tests).
+- **Fase 2 (Navigation Registry SSOT Core):**
+  - Menciptakan `App\Support\Navigation\NavigationRegistry` sebagai Single Source of Truth yang mengelola seluruh metadata modul, tab in-page, route patterns, izin RBAC (`permission`), dependensi modul (`module`), URL query params, dan auto-resolusi breadcrumbs hirarkis.
+  - Mendukung 9 modul utama: `finance`, `accounting`, `purchasing`, `inventory`, `sales`, `crm`, `materials`, `products`, dan `communication`.
+  - Menguji fungsionalitas SSOT secara ekstensif melalui `tests/Unit/NavigationRegistryTest.php` (7 tests).
+- **Fase 3 (Shared Component Architecture):**
+  - Mengembangkan `<x-breadcrumb>` (`resources/views/components/breadcrumb.blade.php`) dengan resolusi otomatis dari `NavigationRegistry::getContextForCurrentRoute()`, separator Lucide `chevron-right`, dan dukungan item kustom.
+  - Mengembangkan `<x-module-header>` (`resources/views/components/module-header.blade.php`) yang membungkus breadcrumbs, judul halaman h1 bold, badge opsional, subjudul keterangan, dan action slot fleksibel.
+  - Mengembangkan `<x-module-tabs>` (`resources/views/components/module-tabs.blade.php`) menggunakan semantic `<nav data-module-tabs="...">`, Apple segmented control pill styling (`rounded-[14px] bg-black/[0.05] p-1`), dukungan badge counter, dan scroll horizontal responsif mobile (`no-scrollbar flex-nowrap`).
+  - Menguji render komponen melalui `tests/Feature/SharedNavigationComponentsTest.php` (4 tests).
+- **Fase 4 (Master Data Contextual Navigation):**
+  - Menerapkan parameter URL state persistence (`?from=materials` vs `?from=products`) pada controller dan view `units.index`, `product-categories.index`, dan `material-categories.index`.
+  - Mempertahankan tab modul Bahan Baku (`materials.index` <-> `material-categories.index` <-> `units.index?from=materials`) tanpa kehilangan konteks visual.
+  - Memverifikasi state retention dengan `tests/Feature/MasterDataContextualNavigationTest.php` (5 tests).
+- **Fase 5 (Finance & Accounting Hub Standardization):**
+  - Menstandarisasi 7 view Keuangan: Kas & Bank (`cash-bank.index`), Pemasukan Kas (`cash-in.index`), Pengeluaran Kas (`cash-out.index`), Hutang Usaha (`payables.index`), Piutang Usaha (`receivables.index`), Rekonsiliasi Bank (`reconciliation.index`), dan Laporan Arus Kas (`reports.cash-flow`).
+  - Menstandarisasi 5 view Akuntansi Korporat: Jurnal Umum (`journals.index`), Buku Besar (`ledger.index`), Neraca Saldo (`trial-balance`), Laba Rugi (`income-statement`), dan Neraca (`balance-sheet`).
+  - Memverifikasi melalui `tests/Feature/FinanceAndAccountingNavigationTest.php` (12 tests).
+- **Fase 6 (Purchasing & Logistics Hub Standardization):**
+  - Menstandarisasi 4 view Pengadaan (Purchasing): Pesanan Pembelian (`purchase-orders.index`), Tagihan Vendor (`purchasing/bills/index`), Retur Pembelian (`purchasing/returns/index`), dan Pemasok/Vendor (`suppliers/index`).
+  - Menstandarisasi 3 view Gudang & Inventori: Ringkasan Stok (`inventory/stocks`), Mutasi Stok (`inventory/movements`), dan Manajemen Gudang/Lokasi (`inventory/warehouse/index`).
+  - Memverifikasi melalui `tests/Feature/PurchasingAndInventoryNavigationTest.php` (7 tests).
+- **Fase 7 (B2B Sales, CRM, & Storefront Standardization):**
+  - Menstandarisasi 4 view Penjualan B2B: Penawaran Harga (`quotations.index`), Pesanan Penjualan (`sales-orders.index`), Faktur Penjualan (`invoices.index`), dan Retur Penjualan (`sales/returns/index`).
+  - Menstandarisasi 3 view CRM: Anggota Loyalitas (`crm/members/index`), Poin Pelanggan (`crm/points/index`), dan Voucher Diskon (`crm/vouchers/index`).
+  - Menstandarisasi 2 view Storefront: Pesanan Toko Online (`storefront/orders/index`) dan Pengaturan Toko (`storefront/settings/index`).
+  - Memverifikasi melalui `tests/Feature/SalesAndCrmNavigationTest.php` (9 tests).
+- **Fase 8 (Communication Hub Standardization):**
+  - Menstandarisasi 2 view Komunikasi: WhatsApp Gateway (`whatsapp/index`) dan Integrasi Media Sosial (`social_media/index`).
+  - Menyatukan tab WhatsApp & Media Sosial di bawah Navigation Hub terpadu.
+  - Memverifikasi melalui `tests/Feature/CommunicationNavigationTest.php` (4 tests).
+- **Fase 9 (Global Layout Cleanup & Sidebar Synchronization):**
+  - Membersihkan header duplikat di `resources/views/layouts/app.blade.php`.
+  - Mengintegrasikan `$activeModuleKey` yang disuplai secara otomatis dari `NavigationRegistry::getActiveModuleKey()`.
+  - Menghubungkan state Alpine.js pada `resources/views/layouts/partials/sidebar.blade.php` sehingga menu dropdown grup terbuka secara otomatis berdasarkan modul aktif (`salesOpen`, `marketingOpen`, `financeOpen`).
+  - Memverifikasi melalui `tests/Feature/GlobalLayoutNavigationTest.php` (6 tests).
+- **Fase 10 (Acceptance Testing & Full Regression Verification):**
+  - Menulis dan mengeksekusi test suite penerimaan menyeluruh `tests/Feature/NavigationRemediationAcceptanceTest.php` yang menguji 6 Acceptance Criteria PRD-09:
+    - **AC-1:** Tab persistence antar transisi modul Bahan Baku (`materials.index` <-> `material-categories.index` <-> `units.index?from=materials`).
+    - **AC-2:** Hierarki tata letak visual atas-ke-bawah (`<x-breadcrumb>` -> `<h1 Title>` -> `<nav data-module-tabs>` -> Content).
+    - **AC-3:** Kontainer tab memiliki kelas scroll horizontal mobile (`overflow-x-auto`, `flex-nowrap`, `whitespace-nowrap`, `no-scrollbar`).
+    - **AC-4:** Akses URL langsung ke modul yang dinonaktifkan terblokir oleh middleware dan diredirect dengan alert flash session.
+    - **AC-5:** RBAC gating pada level tab: tab fitur yang tidak diizinkan untuk peran tertentu (misal: Retur Penjualan untuk Kasir) dihilangkan sepenuhnya dari DOM.
+    - **AC-6:** Sidebar otomatis melakukan sinkronisasi state expand group sesuai modul aktif.
+  - Menjalankan 10 test suite regresi navigasi lengkap: 64 tests, 735 assertions, 100% PASSED (0 failure, 0 error).
+
+#### 3. Technical Changes
+- **Files Affected:**
+  - `app/Support/Navigation/NavigationRegistry.php` (Baru - SSOT Registry Navigasi)
+  - `app/Http/Middleware/CheckModuleEnabled.php` (Baru - Middleware Enforcer Modul Dinamis)
+  - `bootstrap/app.php` (Pendaftaran middleware alias `module.enabled`)
+  - `resources/views/components/breadcrumb.blade.php` (Baru - Komponen Breadcrumb Terstandarisasi)
+  - `resources/views/components/module-header.blade.php` (Baru - Komponen Header Modul Terstandarisasi)
+  - `resources/views/components/module-tabs.blade.php` (Baru - Komponen Tab Modul Terstandarisasi)
+  - `resources/views/layouts/app.blade.php` (Pembersihan layout global & integrasi `$activeModuleKey`)
+  - `resources/views/layouts/partials/sidebar.blade.php` (Sinkronisasi Alpine.js grup & pengetatan RBAC sidebar)
+  - 30+ Blade views di `resources/views/app/*` (Refactor header & tab ke shared components)
+  - 10 File Pengujian di `tests/Unit/*` dan `tests/Feature/*` (64 automated tests).
+- **Database Changes:** Tidak ada perubahan skema database (menggunakan kolom `disabled_modules` pada tabel `businesses` dan relasi RBAC yang telah ada).
+- **API / Route Changes:**
+  - Pemasangan middleware `module.enabled` pada seluruh rute fitur yang bersifat opsional/dapat dinonaktifkan di `routes/owner.php` dan `routes/api.php`.
+  - Standarisasi query parameter `from=materials` vs `from=products` pada controller `UnitWebController` dan `ProductCategoryWebController`.
+
+#### 4. System Impacts
+- **Workflow Impact:** Orientasi navigasi pengguna meningkat secara signifikan. Pengguna tidak lagi kehilangan tab modul saat menavigasi ke sub-halaman konfigurasi master data. Pengguna mobile mendapatkan navigasi tab yang nyaman di-scroll secara horizontal tanpa memakan ruang vertikal layar.
+- **Business Rule Impact:** Penonaktifan modul di tingkat tenant kini memiliki penegakan lapis ganda: tidak hanya disembunyikan dari sidebar, tetapi juga secara aktif diblokir pada layer HTTP middleware jika pengguna mencoba mengakses via bookmark atau direct URL.
+- **Permission Impact:** Hak akses peran ditegakkan secara presisi di level tab DOM. Kasir atau staf tanpa izin `sales.returns` atau `purchasing.bills` tidak akan melihat tab tersebut sama sekali di dalam view, mencegah kebingungan dan upaya akses ilegal.
+
+#### 5. Verification & Testing
+- **Acceptance Test Suite:**
+  - `tests/Feature/NavigationRemediationAcceptanceTest.php` (6 tests, 35 assertions, PASSED).
+- **Full Navigation Regression Test Suite (10 Suites):**
+  - `tests/Unit/NavigationRegistryTest.php` (7 tests, 28 assertions, PASSED)
+  - `tests/Feature/CheckModuleMiddlewareTest.php` (4 tests, 12 assertions, PASSED)
+  - `tests/Feature/SharedNavigationComponentsTest.php` (4 tests, 24 assertions, PASSED)
+  - `tests/Feature/MasterDataContextualNavigationTest.php` (5 tests, 37 assertions, PASSED)
+  - `tests/Feature/FinanceAndAccountingNavigationTest.php` (12 tests, 142 assertions, PASSED)
+  - `tests/Feature/PurchasingAndInventoryNavigationTest.php` (7 tests, 84 assertions, PASSED)
+  - `tests/Feature/SalesAndCrmNavigationTest.php` (9 tests, 131 assertions, PASSED)
+  - `tests/Feature/CommunicationNavigationTest.php` (4 tests, 48 assertions, PASSED)
+  - `tests/Feature/GlobalLayoutNavigationTest.php` (6 tests, 194 assertions, PASSED)
+  - `tests/Feature/NavigationRemediationAcceptanceTest.php` (6 tests, 35 assertions, PASSED)
+  - **Total:** 64 tests, 735 assertions, 0 failures, 0 errors, durasi 34.5 detik.
+
+#### 6. Important Decisions & Guardrails
+- **Zero-Regresi Policy:** Seluruh route name, query parameter default, dan izin otorisasi yang sudah ada dipertahankan tanpa mengubah kontrak API atau logika bisnis controller inti.
+- **Bento Apple HIG v2.0 Compliance:** Semua elemen tab mematuhi styling Apple Segmented Control (`rounded-[14px] bg-black/[0.05] p-1`), font medium 13px, ikon Lucide dengan warna semantik Apple Blue (`#007AFF`), dan touch target memadai.
+- **Strict Tenant & Role Isolation:** Validasi ganda via `Context::hasPermission` dan `Context::business()->isModuleEnabled()` memastikan tidak ada kebocoran data atau kebocoran tab lintas modul maupun lintas tenant.
+
+#### 7. Documentation Promotion
+- Spesifikasi ini menuntaskan secara menyeluruh [PRD-09-PERSISTENT-TABS-BREADCRUMB-NAVIGATION-REMEDIATION.md](file:///c:/laragon/www/cooca_core/docs/PRD-09-PERSISTENT-TABS-BREADCRUMB-NAVIGATION-REMEDIATION.md) dan rencana kerja [IMPLEMENTATION_PLAN_NAVIGATION_AND_TABS_REMEDIATION.md](file:///c:/laragon/www/cooca_core/docs/IMPLEMENTATION_PLAN_NAVIGATION_AND_TABS_REMEDIATION.md).
+
 ### [WORK-2026-09-26-173] Comprehensive UI/UX Consistency, In-Page Tab Standardization & RBAC Permission Audit Remediation Across Procurement, Costing, Finance, Corporate Accounting, Roles & Security
 - **Date:** 2026-09-26
 - **Status:** COMPLETED

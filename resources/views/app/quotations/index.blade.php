@@ -6,65 +6,19 @@
 
 @section('content')
 <div class="max-w-[1360px] mx-auto space-y-6 pb-12">
-    <!-- ===================================================== -->
-    <!-- 0. UNIFIED APPLE SEGMENTED CONTROL (Penjualan B2B)    -->
-    <!-- ===================================================== -->
-    <div class="overflow-x-auto pb-1 scrollbar-none">
-        <div class="inline-flex p-1 rounded-[14px] bg-black/[0.05] dark:bg-white/[0.08] border border-black/[0.04] dark:border-white/[0.06] text-[13px] font-medium whitespace-nowrap">
-            <a href="{{ route('sales.orders.index') }}"
-               class="h-10 px-4 rounded-[10px] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white flex items-center gap-2 transition-all">
-                <i data-lucide="file-check" class="w-4 h-4 text-black/40 dark:text-white/40"></i>
-                <span>Pesanan Penjualan (SO)</span>
-            </a>
-            <a href="{{ route('sales.quotations.index') }}"
-               class="h-10 px-4 rounded-[10px] bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-sm font-semibold flex items-center gap-2 transition-all">
-                <i data-lucide="file-text" class="w-4 h-4 text-[#007AFF]"></i>
-                <span>Surat Penawaran</span>
-            </a>
-            @if(\App\Support\Context::hasPermission('invoices.view'))
-            <a href="{{ route('invoices.index') }}"
-               class="h-10 px-4 rounded-[10px] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white flex items-center gap-2 transition-all">
-                <i data-lucide="receipt" class="w-4 h-4 text-black/40 dark:text-white/40"></i>
-                <span>Faktur Tagihan</span>
-            </a>
-            @endif
-            @if(\App\Support\Context::hasPermission('sales.returns') || \App\Support\Context::hasPermission('sales.pipeline'))
-            <a href="{{ route('sales.returns.index') }}"
-               class="h-10 px-4 rounded-[10px] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white flex items-center gap-2 transition-all">
-                <i data-lucide="rotate-ccw" class="w-4 h-4 text-black/40 dark:text-white/40"></i>
-                <span>Retur Penjualan</span>
-            </a>
-            @endif
-        </div>
-    </div>
+    <x-module-header
+        module="sales"
+        title="Penawaran Harga (Quotations)"
+        subtitle="Terbitkan penawaran harga komersial B2B dan konversi ke Pesanan Penjualan (SO) dalam 1 klik.">
+        @if(\App\Support\Context::hasPermission('sales.pipeline'))
+        <a href="{{ route('sales.quotations.create') }}" class="h-10 px-4 rounded-[12px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] transition-all flex items-center justify-center gap-2 shadow-sm shadow-[#007AFF]/25">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+            <span>Buat Penawaran Baru</span>
+        </a>
+        @endif
+    </x-module-header>
 
-    <!-- ===================================================== -->
-    <!-- 1. TOOLBAR / PAGE HEADER (macOS Sonoma Style)          -->
-    <!-- ===================================================== -->
-    <header class="rounded-[20px] backdrop-blur-xl bg-white/80 dark:bg-[#1C1C1E]/80 border border-black/[0.06] dark:border-white/[0.08] px-5 sm:px-7 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
-        <div>
-            <!-- Breadcrumb minimal -->
-            <nav class="flex items-center gap-1.5 text-[12px] text-black/50 dark:text-white/50 mb-1">
-                <a href="{{ route('dashboard') }}" class="hover:text-[#007AFF] transition-colors">Dashboard</a>
-                <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-black/30 dark:text-white/30 shrink-0"></i>
-                <span class="text-black/70 dark:text-white/70 font-medium">Penjualan B2B &amp; Faktur</span>
-                <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-black/30 dark:text-white/30 shrink-0"></i>
-                <span class="text-black dark:text-white font-medium">Penawaran Harga</span>
-            </nav>
-            <h1 class="text-xl sm:text-2xl font-bold text-[#1C1C1E] dark:text-[#F2F2F7] tracking-tight leading-snug truncate">Penawaran Harga (Quotations)</h1>
-            <p class="text-[13px] text-black/50 dark:text-white/50 mt-0.5">Terbitkan penawaran harga komersial B2B dan konversi ke Pesanan Penjualan (SO) dalam 1 klik.</p>
-        </div>
-
-        <!-- Toolbar Actions -->
-        <div class="flex items-center gap-2.5 w-full sm:w-auto">
-            @if(\App\Support\Context::hasPermission('sales.pipeline'))
-            <a href="{{ route('sales.quotations.create') }}" class="h-10 px-4 rounded-[12px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] transition-all flex items-center justify-center gap-2 shadow-sm shadow-[#007AFF]/25">
-                <i data-lucide="plus" class="w-4 h-4"></i>
-                <span>Buat Penawaran Baru</span>
-            </a>
-            @endif
-        </div>
-    </header>
+    <x-module-tabs module="sales" />
 
     <!-- ===================================================== -->
     <!-- 2. KPI SUMMARY ROW                                     -->

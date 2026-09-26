@@ -51,6 +51,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'require.role'       => RequireRole::class,
             'wa.otp'             => RequireWhatsAppOtp::class,
             'require.permission' => \App\Http\Middleware\RequirePermission::class,
+            'module'             => \App\Http\Middleware\CheckModuleEnabled::class,
+            'require.module'     => \App\Http\Middleware\CheckModuleEnabled::class,
             'entitlement'        => \App\Http\Middleware\CheckResourceEntitlement::class,
             // Customer portal gates
             'customer.profile'   => \App\Http\Middleware\RequireCustomerProfile::class,

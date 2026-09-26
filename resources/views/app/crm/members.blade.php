@@ -75,43 +75,12 @@
         }
     }">
 
-        <!-- ========================================================================= -->
-        <!-- 0. APPLE HIG BREADCRUMB & UNIFIED SEGMENTED CONTROL                        -->
-        <!-- ========================================================================= -->
-        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <nav class="flex items-center gap-2 text-xs font-medium text-black/45 dark:text-white/45" aria-label="Breadcrumb">
-                <a href="{{ route('dashboard') }}" class="hover:text-black dark:hover:text-white transition-colors flex items-center gap-1.5">
-                    <i data-lucide="layout-dashboard" class="w-3.5 h-3.5 text-[#007AFF]"></i>
-                    <span>Dashboard</span>
-                </a>
-                <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-black/30 dark:text-white/30"></i>
-                <a href="{{ route('customers.index') }}" class="hover:text-black dark:hover:text-white transition-colors">
-                    Pelanggan &amp; Loyalitas
-                </a>
-                <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-black/30 dark:text-white/30"></i>
-                <span class="text-black dark:text-white font-bold">CRM &amp; Membership</span>
-            </nav>
+        <x-module-header
+            module="crm"
+            title="Member &amp; Loyalitas Poin"
+            subtitle="Pantau riwayat perolehan poin belanja member, klasifikasi segmen pelanggan VIP, serta kelola batas tempo dan pelunasan piutang bisnis Anda." />
 
-            <!-- Apple HIG Segmented Control -->
-            <div class="inline-flex p-1 rounded-[14px] bg-black/[0.05] dark:bg-white/[0.08] backdrop-blur-md border border-black/[0.04] dark:border-white/[0.06] self-stretch sm:self-auto overflow-x-auto">
-                <a href="{{ route('customers.index', ['tab' => 'customers']) }}"
-                    class="h-9 px-3.5 sm:px-4 rounded-[10px] text-[13px] font-semibold transition-all flex items-center justify-center gap-2 text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white whitespace-nowrap cursor-pointer">
-                    <i data-lucide="users" class="w-4 h-4 text-[#007AFF]"></i>
-                    <span>Direktori Pelanggan</span>
-                </a>
-                <a href="{{ route('crm.members.index') }}"
-                    class="h-9 px-3.5 sm:px-4 rounded-[10px] text-[13px] font-semibold transition-all flex items-center justify-center gap-2 bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-xs whitespace-nowrap cursor-pointer">
-                    <i data-lucide="award" class="w-4 h-4 text-[#FF9500]"></i>
-                    <span>Member &amp; Poin</span>
-                    <span class="ml-1 text-[11px] px-1.5 py-0.5 rounded-full bg-black/[0.06] dark:bg-white/[0.1] tabular-nums">{{ $customers->total() }}</span>
-                </a>
-                <a href="{{ route('crm.vouchers.index') }}"
-                    class="h-9 px-3.5 sm:px-4 rounded-[10px] text-[13px] font-semibold transition-all flex items-center justify-center gap-2 text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white whitespace-nowrap cursor-pointer">
-                    <i data-lucide="ticket" class="w-4 h-4 text-[#34C759]"></i>
-                    <span>Voucher Diskon Kasir</span>
-                </a>
-            </div>
-        </div>
+        <x-module-tabs module="crm" />
 
         <!-- ========================================================================= -->
         <!-- 1. BENTO HERO KPI TILES                                                   -->

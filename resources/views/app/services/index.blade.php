@@ -139,38 +139,16 @@
     }">
 
         <!-- ===================================================== -->
-        <!-- 1. UNIFIED APPLE SEGMENTED CONTROL                    -->
+        <!-- 1. TOOLBAR / PAGE HEADER                                -->
         <!-- ===================================================== -->
-        <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
-            <div class="overflow-x-auto pb-1 scrollbar-none">
-                <div class="inline-flex p-1 bg-black/[0.05] dark:bg-white/[0.08] rounded-[14px] border border-black/[0.04] dark:border-white/[0.06] shrink-0">
-                    <a href="{{ route('products.index') }}"
-                        class="h-10 px-4 rounded-[10px] text-[13px] font-medium text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white flex items-center gap-2 transition-all whitespace-nowrap">
-                        <i data-lucide="package" class="w-4 h-4 text-black/40 dark:text-white/40"></i>
-                        <span>Barang Fisik (Katalog)</span>
-                    </a>
-                    <a href="{{ route('services.index') }}"
-                        class="h-10 px-4 rounded-[10px] text-[13px] font-semibold bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-sm flex items-center gap-2 whitespace-nowrap transition-all">
-                        <i data-lucide="wrench" class="w-4 h-4 text-[#007AFF]"></i>
-                        <span>Jasa &amp; Layanan</span>
-                    </a>
-                    @if(\App\Support\Context::hasPermission('pos.modifiers') || \App\Support\Context::hasPermission('pos.terminal'))
-                    <a href="{{ route('pos.modifiers.index') }}"
-                        class="h-10 px-4 rounded-[10px] text-[13px] font-medium text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white flex items-center gap-2 transition-all whitespace-nowrap">
-                        <i data-lucide="sliders" class="w-4 h-4 text-black/40 dark:text-white/40"></i>
-                        <span>Varian &amp; Modifiers</span>
-                    </a>
-                    @endif
-                    @if(Route::has('marketplace-hub.products') && \App\Support\Context::hasPermission('products.view'))
-                    <a href="{{ route('marketplace-hub.products') }}"
-                        class="h-10 px-4 rounded-[10px] text-[13px] font-medium text-[#EE4D2D] hover:bg-[#EE4D2D]/10 flex items-center gap-2 transition-all whitespace-nowrap">
-                        <i data-lucide="store" class="w-4 h-4 text-[#EE4D2D]"></i>
-                        <span>Marketplace &amp; Multi-Harga</span>
-                    </a>
-                    @endif
-                </div>
-            </div>
-
+        <x-module-header
+            title="Jasa & Layanan"
+            subtitle="Kelola tarif ongkos jasa, biaya servis, atau perawatan tanpa repot mengatur stok gudang"
+            :breadcrumbs="[
+                ['label' => 'Dashboard', 'url' => route('dashboard')],
+                ['label' => 'Produk', 'url' => route('products.index')],
+                ['label' => 'Jasa & Layanan', 'url' => null],
+            ]">
             @if(\App\Support\Context::hasPermission('products.manage') || \App\Support\Context::hasPermission('products.create'))
             <button type="button" @click="openAdd()"
                 class="h-10 px-4 rounded-[12px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] transition-all flex items-center justify-center gap-2 shadow-sm shadow-[#007AFF]/25 shrink-0">
@@ -178,7 +156,12 @@
                 <span>Tambah Layanan Baru</span>
             </button>
             @endif
-        </div>
+        </x-module-header>
+
+        <!-- ===================================================== -->
+        <!-- 2. PERSISTENT MODULE TABS                             -->
+        <!-- ===================================================== -->
+        <x-module-tabs module="products" />
 
         <!-- ===================================================== -->
         <!-- 2. BENTO KPI METRICS SUMMARY                          -->

@@ -283,116 +283,51 @@
 }">
 
     {{-- ===================================================== --}}
-    {{-- 0. BREADCRUMB BAR                                     --}}
+    {{-- 1. TOOLBAR / PAGE HEADER                                --}}
     {{-- ===================================================== --}}
-    <nav class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 print:hidden" aria-label="Breadcrumb">
-        <a href="{{ route('dashboard') }}" class="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors flex items-center gap-1.5 font-bold text-slate-900 dark:text-white">
-            <i data-lucide="layout-dashboard" class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400"></i>
-            <span>Dashboard</span>
-        </a>
-        <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-slate-400 dark:text-slate-600"></i>
-        <span class="text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
-            <i data-lucide="archive" class="w-3.5 h-3.5"></i>
-            <span>Inventori</span>
-        </span>
-        <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-slate-400 dark:text-slate-600"></i>
-        <span class="text-slate-900 dark:text-white font-bold flex items-center gap-1.5">
-            <span>Cabang &amp; Gudang</span>
-        </span>
-    </nav>
-
-    {{-- ===================================================== --}}
-    {{-- 1. SUB-NAVIGATION TABS (Apple Segmented Control)      --}}
-    {{-- ===================================================== --}}
-    <div class="overflow-x-auto pb-1 scrollbar-none">
-        <div class="inline-flex p-1 rounded-[14px] bg-black/[0.05] dark:bg-white/[0.08] border border-black/[0.04] dark:border-white/[0.06] text-[13px] font-medium whitespace-nowrap">
-            <a href="{{ route('inventory.stocks') }}"
-               class="h-10 px-4 rounded-[10px] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white flex items-center gap-2 transition-all">
-                <i data-lucide="boxes" class="w-4 h-4 text-black/40 dark:text-white/40"></i>
-                <span>Saldo Stok Real-Time</span>
-            </a>
-            <a href="{{ route('warehouse.index') }}"
-               class="h-10 px-4 rounded-[10px] bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-sm font-semibold flex items-center gap-2 transition-all">
-                <i data-lucide="warehouse" class="w-4 h-4 text-[#007AFF]"></i>
-                <span>Cabang &amp; Lokasi Gudang</span>
-                <span class="px-1.5 py-0.5 rounded-full text-[11px] tabular-nums font-semibold bg-[#007AFF]/12 text-[#007AFF]">{{ $locations->count() }}</span>
-            </a>
-            @if(\App\Support\Context::hasPermission('inventory.manage'))
-            <a href="{{ route('inventory.transfers.index') }}"
-               class="h-10 px-4 rounded-[10px] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white flex items-center gap-2 transition-all">
-                <i data-lucide="arrow-left-right" class="w-4 h-4 text-black/40 dark:text-white/40"></i>
-                <span>Transfer Stok</span>
-            </a>
-            <a href="{{ route('inventory.opnames.index') }}"
-               class="h-10 px-4 rounded-[10px] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white flex items-center gap-2 transition-all">
-                <i data-lucide="clipboard-check" class="w-4 h-4 text-black/40 dark:text-white/40"></i>
-                <span>Stock Opname Fisik</span>
-            </a>
-            <a href="{{ route('inventory.movements') }}"
-               class="h-10 px-4 rounded-[10px] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white flex items-center gap-2 transition-all">
-                <i data-lucide="history" class="w-4 h-4 text-black/40 dark:text-white/40"></i>
-                <span>Kartu Mutasi Stok</span>
-            </a>
-            @endif
-        </div>
-    </div>
-
-    {{-- ===================================================== --}}
-    {{-- 2. TOOLBAR / PAGE HEADER (Bento Header)               --}}
-    {{-- ===================================================== --}}
-    <header class="bg-white dark:bg-[#1C1C1E] p-4 sm:p-5 rounded-[20px] border border-black/[0.06] dark:border-white/[0.08] shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-colors">
-        <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-[12px] bg-[#007AFF]/10 dark:bg-[#007AFF]/20 border border-[#007AFF]/20 text-[#007AFF] flex items-center justify-center shrink-0">
-                <i data-lucide="warehouse" class="w-5 h-5"></i>
-            </div>
-            <div>
-                <h1 class="text-base sm:text-lg font-black text-slate-900 dark:text-white tracking-tight">
-                    Cabang &amp; Gudang Logistik
-                </h1>
-                <p class="text-xs text-slate-500 dark:text-slate-400">
-                    Kelola jaringan cabang toko/outlet, titik penyimpanan gudang logistik, dan absensi geofence
-                </p>
-            </div>
-        </div>
-
-        {{-- Toolbar Actions --}}
-        <div class="flex items-center gap-2 w-full sm:w-auto flex-wrap">
-            @if(\App\Support\Context::hasPermission('inventory.view'))
+    <x-module-header
+        title="Cabang & Gudang Logistik"
+        subtitle="Kelola jaringan cabang toko/outlet, titik penyimpanan gudang logistik, dan absensi geofence">
+        @if(\App\Support\Context::hasPermission('inventory.view'))
             <a href="{{ route('materials.index') }}"
-               class="h-9 px-3.5 rounded-[10px] text-xs font-semibold text-slate-700 dark:text-slate-200 bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] dark:hover:bg-white/[0.1] active:scale-[0.98] transition-all flex items-center justify-center gap-1.5">
-                <i data-lucide="boxes" class="w-4 h-4 text-slate-500 dark:text-slate-400"></i>
+               class="min-h-[44px] sm:min-h-0 h-11 sm:h-9 px-3.5 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] dark:hover:bg-white/[0.1] active:scale-[0.98] transition-all flex items-center justify-center gap-1.5">
+                <i data-lucide="boxes" class="w-4 h-4 text-black/50 dark:text-white/50"></i>
                 <span>Katalog Bahan</span>
             </a>
             <a href="{{ route('products.index') }}"
-               class="h-9 px-3.5 rounded-[10px] text-xs font-semibold text-slate-700 dark:text-slate-200 bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] dark:hover:bg-white/[0.1] active:scale-[0.98] transition-all flex items-center justify-center gap-1.5">
-                <i data-lucide="package" class="w-4 h-4 text-slate-500 dark:text-slate-400"></i>
+               class="min-h-[44px] sm:min-h-0 h-11 sm:h-9 px-3.5 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] dark:hover:bg-white/[0.1] active:scale-[0.98] transition-all flex items-center justify-center gap-1.5">
+                <i data-lucide="package" class="w-4 h-4 text-black/50 dark:text-white/50"></i>
                 <span>Katalog Produk</span>
             </a>
-            @endif
+        @endif
 
-            @if(\App\Support\Context::hasPermission('storefront.shipping.manage') || \App\Support\Context::isAdminOrOwner())
+        @if(\App\Support\Context::hasPermission('storefront.shipping.manage') || \App\Support\Context::isAdminOrOwner())
             <a href="{{ route('storefront.shipping.index') }}"
-               class="h-9 px-3.5 rounded-[10px] text-xs font-semibold text-[#5856D6] dark:text-[#A78BFA] bg-[#5856D6]/10 hover:bg-[#5856D6]/15 active:scale-[0.98] transition-all flex items-center justify-center gap-1.5"
+               class="min-h-[44px] sm:min-h-0 h-11 sm:h-9 px-3.5 rounded-[10px] text-[13px] font-semibold text-[#5856D6] dark:text-[#A78BFA] bg-[#5856D6]/10 hover:bg-[#5856D6]/15 active:scale-[0.98] transition-all flex items-center justify-center gap-1.5"
                title="Pengaturan Ongkir & Kurir Toko Online">
                 <i data-lucide="truck" class="w-4 h-4 text-[#5856D6] dark:text-[#A78BFA]"></i>
                 <span>Pengiriman Storefront</span>
             </a>
-            @endif
+        @endif
 
-            @if(\App\Support\Context::hasPermission('inventory.manage') || \App\Support\Context::isAdminOrOwner() || \App\Support\Context::hasPermission('warehouse.manage'))
+        @if(\App\Support\Context::hasPermission('inventory.manage') || \App\Support\Context::isAdminOrOwner() || \App\Support\Context::hasPermission('warehouse.manage'))
             <button type="button" @click="showCreateOutletModal = true; gpsError = ''; gpsSuccess = false;"
-                    class="h-9 px-4 rounded-[10px] text-xs font-bold text-white bg-[#34C759] hover:bg-[#28A745] active:scale-[0.98] transition-all flex items-center justify-center gap-1.5 shadow-[0_1px_2px_rgba(52,199,89,0.25)] cursor-pointer">
+                    class="min-h-[44px] sm:min-h-0 h-11 sm:h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#34C759] hover:bg-[#28A745] active:scale-[0.98] transition-all flex items-center justify-center gap-1.5 shadow-[0_1px_2px_rgba(52,199,89,0.25)] cursor-pointer">
                 <i data-lucide="store" class="w-4 h-4"></i>
                 <span>+ Cabang / Outlet</span>
             </button>
             <button type="button" @click="showCreateModal = true; gpsError = ''; gpsSuccess = false;"
-                    class="h-9 px-4 rounded-[10px] text-xs font-bold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] transition-all flex items-center justify-center gap-1.5 shadow-[0_1px_2px_rgba(0,122,255,0.25)] cursor-pointer">
+                    class="min-h-[44px] sm:min-h-0 h-11 sm:h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] transition-all flex items-center justify-center gap-1.5 shadow-[0_1px_2px_rgba(0,122,255,0.25)] cursor-pointer">
                 <i data-lucide="plus" class="w-4 h-4"></i>
                 <span>+ Gudang Logistik</span>
             </button>
-            @endif
-        </div>
-    </header>
+        @endif
+    </x-module-header>
+
+    {{-- ===================================================== --}}
+    {{-- 2. MODULE TABS (SSOT)                                   --}}
+    {{-- ===================================================== --}}
+    <x-module-tabs module="inventory" />
 
     {{-- ===================================================== --}}
     {{-- FLASH MESSAGES                                        --}}

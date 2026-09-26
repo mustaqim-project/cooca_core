@@ -21,157 +21,46 @@
     }">
 
         {{-- ===================================================== --}}
-        {{-- 0. BREADCRUMB BAR                                     --}}
         {{-- ===================================================== --}}
-        <nav class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 print:hidden" aria-label="Breadcrumb">
-            <a href="{{ route('dashboard') }}" class="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors flex items-center gap-1.5 font-bold text-slate-900 dark:text-white">
-                <i data-lucide="layout-dashboard" class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400"></i>
-                <span>Dashboard</span>
+        {{-- 1. TOOLBAR / PAGE HEADER                                --}}
+        {{-- ===================================================== --}}
+        <x-module-header
+            title="{{ $location->name }}"
+            subtitle="{{ $location->address ?: 'Belum ada alamat terdaftar' }}"
+            badge="{{ $location->type === 'warehouse' ? 'Gudang' : ($location->type === 'central_kitchen' ? 'Dapur Pusat' : 'Outlet') }}"
+            :breadcrumbs="[
+                ['label' => 'Dashboard', 'url' => route('dashboard')],
+                ['label' => 'Inventori', 'url' => route('inventory.stocks')],
+                ['label' => 'Lokasi Gudang', 'url' => route('warehouse.index')],
+                ['label' => $location->name, 'url' => null],
+            ]">
+            <a href="{{ route('warehouse.index') }}"
+                class="min-h-[44px] sm:min-h-0 h-11 sm:h-9 px-3.5 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] dark:hover:bg-white/[0.1] active:scale-[0.98] transition-all flex items-center justify-center gap-1.5">
+                <i data-lucide="arrow-left" class="w-4 h-4 text-black/50 dark:text-white/50"></i>
+                <span>Kembali</span>
             </a>
-            <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-slate-400 dark:text-slate-600"></i>
-            <a href="{{ route('warehouse.index') }}" class="hover:text-[#007AFF] transition-colors flex items-center gap-1.5 font-semibold text-slate-600 dark:text-slate-400">
-                <i data-lucide="warehouse" class="w-3.5 h-3.5"></i>
-                <span>Gudang &amp; Lokasi</span>
-            </a>
-            <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-slate-400 dark:text-slate-600"></i>
-            <span class="text-slate-900 dark:text-white font-bold flex items-center gap-1.5">
-                <span>{{ $location->name }}</span>
-            </span>
-        </nav>
+
+            @if (\App\Support\Context::hasPermission('inventory.manage'))
+                <button type="button" @click="showEditModal = true"
+                    class="min-h-[44px] sm:min-h-0 h-11 sm:h-9 px-3.5 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] dark:hover:bg-white/[0.1] active:scale-[0.98] transition-all flex items-center justify-center gap-1.5 cursor-pointer">
+                    <i data-lucide="pencil" class="w-4 h-4 text-[#007AFF]"></i>
+                    <span>Edit Gudang</span>
+                </button>
+            @endif
+
+            @if (\App\Support\Context::hasPermission('receiving.manage'))
+                <a href="{{ route('purchase-orders.index') }}?po_type=supplier"
+                    class="min-h-[44px] sm:min-h-0 h-11 sm:h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] transition-all flex items-center justify-center gap-1.5 shadow-[0_1px_2px_rgba(0,122,255,0.25)] cursor-pointer">
+                    <i data-lucide="plus" class="w-4 h-4"></i>
+                    <span>Terima Barang dari PO</span>
+                </a>
+            @endif
+        </x-module-header>
 
         {{-- ===================================================== --}}
-        {{-- 1. SUB-NAVIGATION TABS (Apple Segmented Control)      --}}
+        {{-- 2. MODULE TABS (SSOT)                                   --}}
         {{-- ===================================================== --}}
-        <div class="overflow-x-auto pb-1 scrollbar-none">
-            <div class="inline-flex p-1 rounded-[14px] bg-black/[0.05] dark:bg-white/[0.07] border border-black/5 dark:border-white/10 text-[13px] font-medium whitespace-nowrap">
-                <a href="{{ route('warehouse.index') }}"
-                    class="px-3.5 py-1.5 rounded-[10px] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white transition-all flex items-center gap-2">
-                    <i data-lucide="warehouse" class="w-4 h-4 text-black/40 dark:text-white/40"></i>
-                    <span>Daftar Gudang &amp; Lokasi</span>
-                </a>
-                <a href="{{ route('inventory.stocks') }}?location_id={{ $location->id }}"
-                    class="px-3.5 py-1.5 rounded-[10px] bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] font-semibold flex items-center gap-2 transition-all">
-                    <i data-lucide="package" class="w-4 h-4 text-[#007AFF]"></i>
-                    <span>Stok di Lokasi Ini</span>
-                    <span class="px-1.5 py-0.2 rounded-full text-[11px] tabular-nums font-semibold bg-[#007AFF]/12 text-[#007AFF]">{{ $stocks->total() }}</span>
-                </a>
-                <a href="{{ route('inventory.transfers.index') }}"
-                    class="px-3.5 py-1.5 rounded-[10px] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white transition-all flex items-center gap-2">
-                    <i data-lucide="arrow-left-right" class="w-4 h-4 text-black/40 dark:text-white/40"></i>
-                    <span>Transfer Stok</span>
-                </a>
-                <a href="{{ route('inventory.opnames.index') }}"
-                    class="px-3.5 py-1.5 rounded-[10px] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white transition-all flex items-center gap-2">
-                    <i data-lucide="clipboard-check" class="w-4 h-4 text-black/40 dark:text-white/40"></i>
-                    <span>Stock Opname</span>
-                </a>
-                <a href="{{ route('inventory.movements') }}?location_id={{ $location->id }}"
-                    class="px-3.5 py-1.5 rounded-[10px] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white transition-all flex items-center gap-2">
-                    <i data-lucide="history" class="w-4 h-4 text-black/40 dark:text-white/40"></i>
-                    <span>Riwayat Mutasi</span>
-                </a>
-                <a href="{{ route('purchase-orders.index') }}"
-                    class="px-3.5 py-1.5 rounded-[10px] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white transition-all flex items-center gap-2">
-                    <i data-lucide="truck" class="w-4 h-4 text-black/40 dark:text-white/40"></i>
-                    <span>PO Supplier</span>
-                </a>
-            </div>
-        </div>
-
-        {{-- ===================================================== --}}
-        {{-- 2. TOOLBAR / COCKPIT HEADER (Bento Header)            --}}
-        {{-- ===================================================== --}}
-        <header class="bg-white dark:bg-[#1C1C1E] p-4 sm:p-5 rounded-[20px] border border-black/[0.06] dark:border-white/[0.08] shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-colors">
-            <div class="flex items-start sm:items-center gap-3.5">
-                {{-- Location Icon Tile --}}
-                <div class="w-11 h-11 rounded-[14px] flex items-center justify-center shrink-0
-                    @if ($location->type === 'warehouse') bg-[#007AFF]/10 text-[#007AFF] border border-[#007AFF]/20
-                    @elseif($location->type === 'central_kitchen') bg-[#FF9500]/10 text-[#FF9500] border border-[#FF9500]/20
-                    @else bg-[#34C759]/10 text-[#34C759] border border-[#34C759]/20 @endif
-                ">
-                    @if ($location->type === 'warehouse')
-                        <i data-lucide="warehouse" class="w-6 h-6"></i>
-                    @elseif($location->type === 'central_kitchen')
-                        <i data-lucide="flame" class="w-6 h-6"></i>
-                    @else
-                        <i data-lucide="store" class="w-6 h-6"></i>
-                    @endif
-                </div>
-
-                <div>
-                    <div class="flex items-center gap-2 flex-wrap">
-                        <h1 class="text-base sm:text-lg font-black text-slate-900 dark:text-white tracking-tight">
-                            {{ $location->name }}
-                        </h1>
-
-                        {{-- Badges --}}
-                        @if ($location->type === 'warehouse')
-                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#007AFF]/12 text-[#007AFF]">
-                                Gudang
-                            </span>
-                        @elseif($location->type === 'central_kitchen')
-                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#FF9500]/12 text-[#B25E00] dark:text-[#FF9F0A]">
-                                Dapur Pusat
-                            </span>
-                        @else
-                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158]">
-                                Outlet
-                            </span>
-                        @endif
-
-                        @if ($location->code)
-                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-mono tabular-nums font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
-                                {{ $location->code }}
-                            </span>
-                        @endif
-
-                        @if ($location->is_primary)
-                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#5856D6]/12 text-[#413FA6] dark:text-[#5E5CE6]">
-                                Lokasi Utama
-                            </span>
-                        @endif
-
-                        @if ($location->is_active)
-                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158]">
-                                <span class="w-1.5 h-1.5 rounded-full bg-[#34C759]"></span> Aktif
-                            </span>
-                        @else
-                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400">
-                                <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span> Nonaktif
-                            </span>
-                        @endif
-                    </div>
-                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                        {{ $location->address ?: 'Belum ada alamat terdaftar' }}
-                    </p>
-                </div>
-            </div>
-
-            {{-- Top Right Actions --}}
-            <div class="flex items-center gap-2 w-full sm:w-auto flex-wrap">
-                <a href="{{ route('warehouse.index') }}"
-                    class="h-9 px-3.5 rounded-[10px] text-xs font-semibold text-slate-700 dark:text-slate-200 bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] dark:hover:bg-white/[0.1] active:scale-[0.98] transition-all flex items-center justify-center gap-1.5">
-                    <i data-lucide="arrow-left" class="w-4 h-4 text-slate-500 dark:text-slate-400"></i>
-                    <span>Kembali</span>
-                </a>
-
-                @if (\App\Support\Context::hasPermission('inventory.manage'))
-                    <button type="button" @click="showEditModal = true"
-                        class="h-9 px-3.5 rounded-[10px] text-xs font-semibold text-slate-700 dark:text-slate-200 bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] dark:hover:bg-white/[0.1] active:scale-[0.98] transition-all flex items-center justify-center gap-1.5 cursor-pointer">
-                        <i data-lucide="pencil" class="w-4 h-4 text-[#007AFF]"></i>
-                        <span>Edit Gudang</span>
-                    </button>
-                @endif
-
-                @if (\App\Support\Context::hasPermission('receiving.manage'))
-                    <a href="{{ route('purchase-orders.index') }}?po_type=supplier"
-                        class="h-9 px-4 rounded-[10px] text-xs font-bold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] transition-all flex items-center justify-center gap-1.5 shadow-[0_1px_2px_rgba(0,122,255,0.25)] cursor-pointer">
-                        <i data-lucide="plus" class="w-4 h-4"></i>
-                        <span>Terima Barang dari PO</span>
-                    </a>
-                @endif
-            </div>
-        </header>
+        <x-module-tabs module="inventory" />
 
         {{-- ===================================================== --}}
         {{-- FLASH MESSAGES                                        --}}

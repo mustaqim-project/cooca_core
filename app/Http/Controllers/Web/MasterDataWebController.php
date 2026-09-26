@@ -24,6 +24,7 @@ final class MasterDataWebController extends Controller
             'business' => $business,
             'items' => $items,
             'type' => 'material-categories',
+            'module' => 'materials',
             'title' => 'Kategori Bahan Baku',
             'subtitle' => 'Kelola klasifikasi bahan baku yang digunakan bisnis.',
             'icon' => 'layers',
@@ -41,6 +42,7 @@ final class MasterDataWebController extends Controller
             'business' => $business,
             'items' => $items,
             'type' => 'product-categories',
+            'module' => 'products',
             'title' => 'Kategori Produk',
             'subtitle' => 'Kelola klasifikasi produk dan menu penjualan bisnis.',
             'icon' => 'folder',
@@ -49,7 +51,7 @@ final class MasterDataWebController extends Controller
         ]);
     }
 
-    public function units(): View
+    public function units(Request $request): View
     {
         $business = Context::requireBusiness();
         $systemUnits = Unit::whereNull('business_id')->orderBy('name')->get();
@@ -59,10 +61,14 @@ final class MasterDataWebController extends Controller
             ->latest()
             ->get();
 
+        $from = $request->query('from');
+        $module = in_array($from, ['products', 'materials'], true) ? $from : 'materials';
+
         return view('app.master-data.index', [
             'business' => $business,
             'items' => $systemUnits->concat($businessUnits),
             'type' => 'units',
+            'module' => $module,
             'title' => 'Satuan Ukur',
             'subtitle' => 'Kelola satuan bahan baku, pembelian, produksi, dan penjualan.',
             'icon' => 'scale',

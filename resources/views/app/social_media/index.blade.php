@@ -7,48 +7,21 @@
 @section('content')
     <div class="max-w-[1360px] mx-auto space-y-6 pb-28 lg:pb-12" x-data="socialMediaGateway()" x-init="init()">
 
-        {{-- 0. BREADCRUMB --}}
-        <nav class="flex items-center gap-1.5 text-[12px] text-black/50 dark:text-white/50 py-0.5 whitespace-nowrap print:hidden">
-            <a href="{{ route('dashboard') }}" class="hover:text-[#007AFF] transition-colors font-medium">Dashboard</a>
-            <i data-lucide="chevron-right" class="w-3.5 h-3.5 opacity-40"></i>
-            <span class="text-black/60 dark:text-white/60 font-medium">Komunikasi &amp; Pemasaran</span>
-            <i data-lucide="chevron-right" class="w-3.5 h-3.5 opacity-40"></i>
-            <span class="text-black/80 dark:text-white/80 font-medium">Media Sosial</span>
-        </nav>
-
-        {{-- 1. PAGE HEADER --}}
-        <header class="rounded-[16px] backdrop-blur-md bg-white/80 dark:bg-[#1C1C1E]/80 border border-black/5 dark:border-white/10 p-5 sm:p-6 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-5 shadow-sm">
-            <div class="space-y-1.5 max-w-2xl">
-                <div class="flex flex-wrap items-center gap-2">
-                    <span class="rounded-full px-2.5 py-0.5 text-[11px] font-semibold inline-flex items-center gap-1.5 bg-[#1877F2]/10 text-[#1877F2]">
-                        <span class="w-1.5 h-1.5 rounded-full bg-[#1877F2]"></span>
-                        <span>Meta Graph API (FB, IG, Threads)</span>
-                    </span>
-                    <span class="rounded-full px-2.5 py-0.5 text-[11px] font-semibold inline-flex items-center gap-1.5 bg-black/10 dark:bg-white/10 text-black dark:text-white">
-                        <span class="w-1.5 h-1.5 rounded-full bg-[#000000] dark:bg-[#ffffff]"></span>
-                        <span>TikTok Official API</span>
-                    </span>
-                    <span class="rounded-full px-2.5 py-0.5 text-[11px] font-semibold inline-flex items-center gap-1.5 bg-[#0A66C2]/10 text-[#0A66C2]">
-                        <span class="w-1.5 h-1.5 rounded-full bg-[#0A66C2]"></span>
-                        <span>LinkedIn Official API</span>
-                    </span>
-                </div>
-                <h1 class="text-[20px] sm:text-[24px] font-bold text-black dark:text-white tracking-tight">
-                    Pengelolaan Media Sosial &amp; Konten Terpadu
-                </h1>
-                <p class="text-[13px] text-black/60 dark:text-white/60 leading-relaxed">
-                    Kelola seluruh media sosial toko <strong class="text-black dark:text-white font-medium">{{ $business->name }}</strong> dari satu dashboard: Facebook, Instagram, Threads, TikTok, dan LinkedIn.
-                </p>
-            </div>
-
-            <div class="flex items-center gap-2.5 w-full lg:w-auto">
+        {{-- MODULE HEADER & PERSISTENT COMMUNICATION TABS --}}
+        <x-module-header
+            module="communication"
+            title="Pengelolaan Media Sosial & Konten Terpadu"
+            subtitle="Kelola seluruh media sosial toko {{ $business->name }} dari satu dashboard: Facebook, Instagram, Threads, TikTok, dan LinkedIn.">
+            <x-slot:actions>
                 <a href="{{ route('social-media.posts.index') }}"
                     class="h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] transition-all flex items-center justify-center gap-1.5 w-full sm:w-auto shadow-sm">
                     <i data-lucide="plus" class="w-4 h-4"></i>
                     <span>Buat Postingan Baru</span>
                 </a>
-            </div>
-        </header>
+            </x-slot:actions>
+        </x-module-header>
+
+        <x-module-tabs module="communication" />
 
         {{-- 2. MODULE NAVIGATION SUB-TABS --}}
         <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-2 sm:p-2.5 flex items-center justify-between shadow-sm">

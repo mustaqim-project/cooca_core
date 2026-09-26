@@ -55,105 +55,36 @@
     }">
 
         {{-- ===================================================== --}}
-        {{-- 0. BREADCRUMB BAR                                     --}}
+        {{-- 1. TOOLBAR / PAGE HEADER                                --}}
         {{-- ===================================================== --}}
-        <nav class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 print:hidden" aria-label="Breadcrumb">
-            <a href="{{ route('dashboard') }}" class="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors flex items-center gap-1.5 font-bold text-slate-900 dark:text-white">
-                <i data-lucide="layout-dashboard" class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400"></i>
-                <span>Dashboard</span>
+        <x-module-header
+            title="Direktori Pemasok & Vendor"
+            subtitle="Kelola direktori mitra vendor, PIC, rekening perbankan, dan histori pengadaan bahan baku">
+            <a href="{{ route('materials.index') }}"
+                class="min-h-[44px] sm:min-h-0 h-11 sm:h-9 px-3.5 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] dark:hover:bg-white/[0.1] active:scale-[0.98] transition-all flex items-center justify-center gap-1.5">
+                <i data-lucide="boxes" class="w-4 h-4 text-black/50 dark:text-white/50"></i>
+                <span>Katalog Bahan</span>
             </a>
-            <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-slate-400 dark:text-slate-600"></i>
-            <span class="text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
-                <i data-lucide="shopping-bag" class="w-3.5 h-3.5"></i>
-                <span>Pengadaan</span>
-            </span>
-            <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-slate-400 dark:text-slate-600"></i>
-            <span class="text-slate-900 dark:text-white font-bold flex items-center gap-1.5">
-                <span>Pemasok &amp; Vendor</span>
-            </span>
-        </nav>
+
+            <a href="{{ route('purchase-orders.index') }}"
+                class="min-h-[44px] sm:min-h-0 h-11 sm:h-9 px-3.5 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] dark:hover:bg-white/[0.1] active:scale-[0.98] transition-all flex items-center justify-center gap-1.5">
+                <i data-lucide="file-text" class="w-4 h-4 text-black/50 dark:text-white/50"></i>
+                <span>Daftar PO</span>
+            </a>
+
+            @if (\App\Support\Context::hasPermission('master_data.suppliers.manage'))
+                <button type="button" @click="showAddModal = true"
+                    class="min-h-[44px] sm:min-h-0 h-11 sm:h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] transition-all flex items-center justify-center gap-1.5 shadow-[0_1px_2px_rgba(0,122,255,0.25)] cursor-pointer">
+                    <i data-lucide="plus" class="w-4 h-4"></i>
+                    <span>Tambah Pemasok</span>
+                </button>
+            @endif
+        </x-module-header>
 
         {{-- ===================================================== --}}
-        {{-- 1. SUB-NAVIGATION TABS (Apple Segmented Control)      --}}
+        {{-- 2. MODULE TABS (SSOT)                                   --}}
         {{-- ===================================================== --}}
-        <div class="overflow-x-auto pb-1 scrollbar-none">
-            <div class="inline-flex p-1 rounded-[14px] bg-black/[0.05] dark:bg-white/[0.07] border border-black/5 dark:border-white/10 text-[13px] font-medium whitespace-nowrap">
-                <a href="{{ route('purchase-orders.index') }}"
-                    class="px-3.5 py-1.5 rounded-[10px] {{ request()->routeIs('purchase-orders.*') ? 'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] font-semibold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white' }} flex items-center gap-2 transition-all">
-                    <i data-lucide="file-text" class="w-4 h-4 {{ request()->routeIs('purchase-orders.*') ? 'text-[#007AFF]' : 'text-black/40 dark:text-white/40' }}"></i>
-                    <span>Purchase Order (PO)</span>
-                </a>
-
-                @if(\App\Support\Context::hasPermission('purchasing.bills') || \App\Support\Context::hasPermission('purchasing.manage'))
-                <a href="{{ route('purchasing.bills.index') }}"
-                    class="px-3.5 py-1.5 rounded-[10px] {{ request()->routeIs('purchasing.bills.*') ? 'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] font-semibold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white' }} flex items-center gap-2 transition-all">
-                    <i data-lucide="receipt" class="w-4 h-4 {{ request()->routeIs('purchasing.bills.*') ? 'text-[#FF9500]' : 'text-black/40 dark:text-white/40' }}"></i>
-                    <span>Tagihan Vendor (Bills)</span>
-                </a>
-                @endif
-
-                @if(\App\Support\Context::hasPermission('master_data.suppliers.view') || \App\Support\Context::hasPermission('purchasing.view') || \App\Support\Context::hasPermission('purchasing.manage'))
-                <a href="{{ route('suppliers.index') }}"
-                    class="px-3.5 py-1.5 rounded-[10px] {{ request()->routeIs('suppliers.*') ? 'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] font-semibold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white' }} flex items-center gap-2 transition-all">
-                    <i data-lucide="truck" class="w-4 h-4 {{ request()->routeIs('suppliers.*') ? 'text-[#34C759]' : 'text-black/40 dark:text-white/40' }}"></i>
-                    <span>Direktori Vendor</span>
-                    @if(isset($suppliers) && method_exists($suppliers, 'total'))
-                        <span class="px-1.5 py-0.2 rounded-full text-[11px] tabular-nums font-semibold {{ request()->routeIs('suppliers.*') ? 'bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158]' : 'bg-black/10 dark:bg-white/10 text-black/60 dark:text-white/60' }}">{{ $suppliers->total() }}</span>
-                    @endif
-                </a>
-                @endif
-
-                @if(\App\Support\Context::hasPermission('purchase.returns') || \App\Support\Context::hasPermission('purchasing.manage'))
-                <a href="{{ route('purchase.returns.index') }}"
-                    class="px-3.5 py-1.5 rounded-[10px] {{ request()->routeIs('purchase.returns.*') ? 'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] font-semibold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white' }} flex items-center gap-2 transition-all">
-                    <i data-lucide="undo-2" class="w-4 h-4 {{ request()->routeIs('purchase.returns.*') ? 'text-[#AF52DE]' : 'text-black/40 dark:text-white/40' }}"></i>
-                    <span>Retur Pembelian</span>
-                </a>
-                @endif
-            </div>
-        </div>
-
-        {{-- ===================================================== --}}
-        {{-- 2. TOOLBAR / PAGE HEADER (Bento Header)               --}}
-        {{-- ===================================================== --}}
-        <header class="bg-white dark:bg-[#1C1C1E] p-4 sm:p-5 rounded-[20px] border border-black/[0.06] dark:border-white/[0.08] shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-colors">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-[12px] bg-[#007AFF]/10 dark:bg-[#007AFF]/20 border border-[#007AFF]/20 text-[#007AFF] flex items-center justify-center shrink-0">
-                    <i data-lucide="truck" class="w-5 h-5"></i>
-                </div>
-                <div>
-                    <h1 class="text-base sm:text-lg font-black text-slate-900 dark:text-white tracking-tight">
-                        Direktori Pemasok &amp; Vendor
-                    </h1>
-                    <p class="text-xs text-slate-500 dark:text-slate-400">
-                        Kelola direktori mitra vendor, PIC, rekening perbankan, dan histori pengadaan bahan baku
-                    </p>
-                </div>
-            </div>
-
-            {{-- Toolbar Actions --}}
-            <div class="flex items-center gap-2 w-full sm:w-auto flex-wrap">
-                <a href="{{ route('materials.index') }}"
-                    class="h-9 px-3.5 rounded-[10px] text-xs font-semibold text-slate-700 dark:text-slate-200 bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] dark:hover:bg-white/[0.1] active:scale-[0.98] transition-all flex items-center justify-center gap-1.5">
-                    <i data-lucide="boxes" class="w-4 h-4 text-slate-500 dark:text-slate-400"></i>
-                    <span>Katalog Bahan</span>
-                </a>
-
-                <a href="{{ route('purchase-orders.index') }}"
-                    class="h-9 px-3.5 rounded-[10px] text-xs font-semibold text-slate-700 dark:text-slate-200 bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] dark:hover:bg-white/[0.1] active:scale-[0.98] transition-all flex items-center justify-center gap-1.5">
-                    <i data-lucide="file-text" class="w-4 h-4 text-slate-500 dark:text-slate-400"></i>
-                    <span>Daftar PO</span>
-                </a>
-
-                @if (\App\Support\Context::hasPermission('master_data.suppliers.manage'))
-                    <button type="button" @click="showAddModal = true"
-                        class="h-9 px-4 rounded-[10px] text-xs font-bold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] transition-all flex items-center justify-center gap-1.5 shadow-[0_1px_2px_rgba(0,122,255,0.25)] cursor-pointer">
-                        <i data-lucide="plus" class="w-4 h-4"></i>
-                        <span>Tambah Pemasok</span>
-                    </button>
-                @endif
-            </div>
-        </header>
+        <x-module-tabs module="purchasing" />
 
         {{-- ===================================================== --}}
         {{-- FLASH MESSAGES                                        --}}

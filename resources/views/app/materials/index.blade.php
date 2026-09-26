@@ -211,69 +211,36 @@
     }">
 
         <!-- ===================================================== -->
-        <!-- 0. UNIFIED SEGMENTED NAVIGATION (Bahan Baku & Master) -->
+        <!-- 1. TOOLBAR / PAGE HEADER                                -->
         <!-- ===================================================== -->
-        <div class="overflow-x-auto pb-1 scrollbar-none">
-            <div class="inline-flex p-1 bg-black/[0.05] dark:bg-white/[0.08] rounded-[14px] border border-black/[0.04] dark:border-white/[0.06] shrink-0">
-                <a href="{{ route('materials.index') }}"
-                    class="h-10 px-4 rounded-[10px] text-[13px] font-semibold bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-sm flex items-center gap-2 whitespace-nowrap transition-all">
-                    <i data-lucide="layers" class="w-4 h-4 text-[#007AFF]"></i>
-                    <span>Katalog Bahan Baku</span>
+        <x-module-header
+            title="Katalog Bahan Baku & Pemasok"
+            subtitle="Kelola harga beli efektif, susut/rendemen (yield), dan relasi pemasok bahan baku"
+            :breadcrumbs="[
+                ['label' => 'Dashboard', 'url' => route('dashboard')],
+                ['label' => 'Bahan Baku', 'url' => route('materials.index')],
+                ['label' => 'Katalog Bahan Baku', 'url' => null],
+            ]">
+            @if (\App\Support\Context::hasPermission('materials.create'))
+                <a href="{{ route('import.index', ['tab' => 'materials']) }}"
+                    class="h-10 px-4 rounded-[12px] text-[13px] font-semibold text-[#1C1C1E] dark:text-[#F2F2F7] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] transition-all flex items-center justify-center gap-2"
+                    title="Import data bahan baku massal dari file Excel / CSV">
+                    <i data-lucide="file-spreadsheet" class="w-4 h-4 text-black/60 dark:text-white/60"></i>
+                    <span>Import Excel</span>
                 </a>
-                @if(\App\Support\Context::hasPermission('products.view') || \App\Support\Context::hasPermission('materials.view'))
-                <a href="{{ route('material-categories.index') }}"
-                    class="h-10 px-4 rounded-[10px] text-[13px] font-medium text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white flex items-center gap-2 transition-all whitespace-nowrap">
-                    <i data-lucide="tags" class="w-4 h-4 text-black/40 dark:text-white/40"></i>
-                    <span>Kategori Bahan</span>
-                </a>
-                <a href="{{ route('units.index') }}"
-                    class="h-10 px-4 rounded-[10px] text-[13px] font-medium text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white flex items-center gap-2 transition-all whitespace-nowrap">
-                    <i data-lucide="scale" class="w-4 h-4 text-black/40 dark:text-white/40"></i>
-                    <span>Satuan Ukur &amp; Konversi</span>
-                </a>
-                @endif
-            </div>
-        </div>
+
+                <button type="button" @click="showAddModal = true"
+                    class="h-10 px-4 rounded-[12px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] transition-all flex items-center justify-center gap-2 shadow-sm shadow-[#007AFF]/25">
+                    <i data-lucide="plus" class="w-4 h-4"></i>
+                    <span>Tambah Bahan Baku</span>
+                </button>
+            @endif
+        </x-module-header>
 
         <!-- ===================================================== -->
-        <!-- 1. TOOLBAR / PAGE HEADER (macOS Sonoma Toolbar Style)  -->
+        <!-- 2. PERSISTENT MODULE TABS                             -->
         <!-- ===================================================== -->
-        <header
-            class="rounded-[20px] backdrop-blur-xl bg-white/80 dark:bg-[#1C1C1E]/80 border border-black/[0.06] dark:border-white/[0.08] p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
-            <div>
-                <!-- Breadcrumb minimal -->
-                <nav
-                    class="flex items-center gap-1.5 text-[11px] font-medium text-[#8E8E93] dark:text-[#98989D] mb-1 uppercase tracking-wider">
-                    <a href="{{ route('dashboard') }}" class="hover:text-[#007AFF] transition-colors">Dashboard</a>
-                    <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-black/30 dark:text-white/30 shrink-0"></i>
-                    <span>Produk &amp; Logistik</span>
-                    <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-black/30 dark:text-white/30 shrink-0"></i>
-                    <span class="text-[#1C1C1E] dark:text-[#F2F2F7] font-semibold">Bahan Baku &amp; Pemasok</span>
-                </nav>
-                <h1 class="text-[20px] sm:text-[24px] font-bold text-[#1C1C1E] dark:text-[#F2F2F7] tracking-tight">Katalog
-                    Bahan Baku &amp; Pemasok</h1>
-                <p class="text-[13px] text-[#3C3C43]/70 dark:text-[#EBEBF5]/70 mt-0.5">Kelola harga beli efektif,
-                    susut/rendemen (yield), dan relasi pemasok bahan baku</p>
-            </div>
-
-            <!-- Toolbar Actions -->
-            <div class="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
-                @if (\App\Support\Context::hasPermission('materials.create'))
-                    <a href="{{ route('import.index', ['tab' => 'materials']) }}"
-                        class="h-10 px-4 rounded-[12px] text-[13px] font-semibold text-[#1C1C1E] dark:text-[#F2F2F7] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] transition-all flex items-center justify-center gap-2"
-                        title="Import data bahan baku massal dari file Excel / CSV">
-                        <i data-lucide="file-spreadsheet" class="w-4 h-4 text-black/60 dark:text-white/60"></i>
-                        <span>Import Excel</span>
-                    </a>
-
-                    <button type="button" @click="showAddModal = true"
-                        class="h-10 px-4 rounded-[12px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] transition-all flex items-center justify-center gap-2 shadow-sm shadow-[#007AFF]/25">
-                        <i data-lucide="plus" class="w-4 h-4"></i>
-                        <span>Tambah Bahan Baku</span>
-                    </button>
-                @endif
-            </div>
-        </header>
+        <x-module-tabs module="materials" />
 
         <!-- ===================================================== -->
         <!-- 2. BENTO KPI METRICS SUMMARY                          -->

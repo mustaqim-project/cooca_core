@@ -7,63 +7,28 @@
 @section('content')
     <div class="max-w-[1360px] mx-auto space-y-6 pb-28 sm:pb-32 lg:pb-12" x-data="broadcastManager()">
 
-        <!-- ========================================== -->
-        <!-- 0. BREADCRUMB BAR (APPLE MINIMALIST)       -->
-        <!-- ========================================== -->
-        <nav class="flex items-center gap-1.5 text-[12px] text-black/50 dark:text-white/50 py-0.5 whitespace-nowrap print:hidden"
-            aria-label="Breadcrumb">
-            <a href="{{ route('dashboard') }}" class="hover:text-[#007AFF] transition-colors font-medium">Dashboard</a>
-            <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-black/30 dark:text-white/30"></i>
-            <a href="{{ route('whatsapp.index') }}" class="hover:text-[#007AFF] transition-colors font-medium">WhatsApp Gateway</a>
-            <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-black/30 dark:text-white/30"></i>
-            <span class="text-black/80 dark:text-white/80 font-medium">Blast Promosi</span>
-        </nav>
-
-        <!-- ===================================================== -->
-        <!-- 1. TOOLBAR & SUB-TABS (macOS Sonoma Toolbar Style)     -->
-        <!-- ===================================================== -->
-        <header
-            class="rounded-[20px] backdrop-blur-md bg-white/80 dark:bg-[#1C1C1E]/80 border border-black/5 dark:border-white/10 p-5 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
-            <div>
-                <h1 class="text-[20px] sm:text-[24px] font-bold text-black dark:text-white tracking-tight">
-                    Blast Promosi WhatsApp
-                </h1>
-                <p class="text-[13px] text-black/50 dark:text-white/50 mt-0.5">
-                    Kirim promosi massal &amp; notifikasi spesial ke seluruh pelanggan terdaftar
-                </p>
-            </div>
-
-            @if (\App\Support\Context::hasPermission('whatsapp.manage'))
-                <button type="button" @click="openCreateModal()"
-                    class="min-h-[44px] px-5 rounded-[12px] bg-[#007AFF] hover:bg-[#0071E3] text-white font-bold text-[13.5px] shadow-md shadow-[#007AFF]/25 flex items-center justify-center gap-2 transition-all active:scale-[0.98] w-full sm:w-auto">
-                    <i data-lucide="plus" class="w-4 h-4"></i>
-                    <span>Buat Blast Promosi Baru</span>
-                </button>
-            @endif
-        </header>
-
-        <!-- Sub-Tabs Segmented Bar -->
-        <div
-            class="rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-2 sm:p-2.5 flex items-center justify-between shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
-            <div
-                class="inline-flex p-1 rounded-[12px] bg-black/[0.05] dark:bg-white/[0.08] border border-black/5 dark:border-white/5 w-full sm:w-auto overflow-x-auto text-[13px] font-medium">
-                <a href="{{ route('whatsapp.index') }}"
-                    class="h-9 px-4 rounded-[10px] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white flex items-center gap-2 whitespace-nowrap transition-colors">
-                    <i data-lucide="smartphone" class="w-4 h-4"></i>
-                    <span>Koneksi Gateway</span>
-                </a>
-                <a href="{{ route('whatsapp.broadcast.index') }}"
-                    class="h-9 px-4 rounded-[10px] bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] flex items-center gap-2 whitespace-nowrap font-semibold">
-                    <i data-lucide="megaphone" class="w-4 h-4 text-[#007AFF]"></i>
-                    <span>Blast Promosi</span>
-                </a>
+        {{-- MODULE HEADER & PERSISTENT COMMUNICATION TABS --}}
+        <x-module-header
+            module="communication"
+            title="Blast Promosi WhatsApp"
+            subtitle="Kirim promosi massal & notifikasi spesial ke seluruh pelanggan terdaftar">
+            <x-slot:actions>
                 <a href="{{ route('whatsapp.logs.index') }}"
-                    class="h-9 px-4 rounded-[10px] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white flex items-center gap-2 whitespace-nowrap transition-colors">
-                    <i data-lucide="history" class="w-4 h-4"></i>
+                    class="min-h-[44px] px-4 rounded-[12px] text-[13px] font-semibold text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.98] transition-all flex items-center justify-center gap-2 w-full sm:w-auto">
+                    <i data-lucide="history" class="w-4 h-4 text-black/60 dark:text-white/60"></i>
                     <span>Log Pesan</span>
                 </a>
-            </div>
-        </div>
+                @if (\App\Support\Context::hasPermission('whatsapp.manage'))
+                    <button type="button" @click="openCreateModal()"
+                        class="min-h-[44px] px-5 rounded-[12px] bg-[#007AFF] hover:bg-[#0071E3] text-white font-bold text-[13.5px] shadow-md shadow-[#007AFF]/25 flex items-center justify-center gap-2 transition-all active:scale-[0.98] w-full sm:w-auto">
+                        <i data-lucide="plus" class="w-4 h-4"></i>
+                        <span>Buat Blast Promosi Baru</span>
+                    </button>
+                @endif
+            </x-slot:actions>
+        </x-module-header>
+
+        <x-module-tabs module="communication" />
 
         <!-- ===================================================== -->
         <!-- 2. STATS KPI GRID (4 METRICS - Apple HIG Style)        -->

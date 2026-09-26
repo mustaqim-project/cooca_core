@@ -1,17 +1,20 @@
 @php
-    $activeBiz = \App\Support\Context::business();
-    $navEntitlement = app(\App\Domain\Billing\EntitlementService::class);
-    $navUsage = $activeBiz ? $navEntitlement->getUsageSummary($activeBiz) : null;
+    $activeBiz = $activeBiz ?? \App\Support\Context::business();
+    $navEntitlement = $navEntitlement ?? app(\App\Domain\Billing\EntitlementService::class);
+    $navUsage = $navUsage ?? ($activeBiz ? $navEntitlement->getUsageSummary($activeBiz) : null);
     $isCorePlan = $navUsage['is_core'] ?? false;
+
+    $activeModuleKey = \App\Support\Navigation\NavigationRegistry::getActiveModuleKey();
 
     $isPosRoute = request()->routeIs('pos.*') && !request()->routeIs('pos.modifiers.*');
     $isB2bSalesRoute = request()->routeIs('sales.*') || request()->routeIs('invoices.*');
-    $isSalesRoute = $isPosRoute || $isB2bSalesRoute || request()->routeIs('customers.*') || request()->routeIs('crm.*');
+    $isSalesRoute = $isPosRoute || $isB2bSalesRoute || request()->routeIs('customers.*') || request()->routeIs('crm.*') || in_array($activeModuleKey, ['sales', 'crm'], true);
     $isPurchasingRoute =
         request()->routeIs('purchasing.*') ||
         request()->routeIs('purchase-orders.*') ||
         request()->routeIs('purchase.returns.*') ||
-        request()->routeIs('suppliers.*');
+        request()->routeIs('suppliers.*') ||
+        $activeModuleKey === 'purchasing';
     $isInventoryRoute =
         request()->routeIs('products.*') ||
         request()->routeIs('services.*') ||
@@ -22,7 +25,8 @@
         request()->routeIs('product-categories.*') ||
         request()->routeIs('material-categories.*') ||
         request()->routeIs('units.*') ||
-        request()->routeIs('pos.modifiers.*');
+        request()->routeIs('pos.modifiers.*') ||
+        in_array($activeModuleKey, ['products', 'materials', 'inventory'], true);
     $isFinanceRoute =
         request()->routeIs('finance.*') ||
         request()->routeIs('calculator.*') ||
@@ -32,17 +36,21 @@
         request()->routeIs('reports.*') ||
         request()->routeIs('pos.reports.*') ||
         request()->routeIs('hrm.*') ||
-        request()->routeIs('tax.*');
+        request()->routeIs('tax.*') ||
+        in_array($activeModuleKey, ['finance', 'accounting'], true);
     $isMarketingRoute =
         request()->routeIs('storefront.*') ||
         request()->routeIs('landing-page.*') ||
         request()->routeIs('whatsapp.*') ||
-        request()->routeIs('social-media.*');
+        request()->routeIs('social-media.*') ||
+        in_array($activeModuleKey, ['communication', 'storefront'], true);
     $isChannelsRoute =
         request()->routeIs('storefront.*') ||
         request()->routeIs('landing-page.*') ||
         request()->routeIs('whatsapp.*') ||
-        request()->routeIs('social-media.*');
+        request()->routeIs('social-media.*') ||
+        in_array($activeModuleKey, ['communication', 'storefront'], true);
+    $isApprovalsRoute = request()->routeIs('approvals.*') || $activeModuleKey === 'approvals';
     $isSettingsRoute =
         request()->routeIs('settings.*') ||
         request()->routeIs('approval-rules.*') ||
@@ -51,8 +59,8 @@
         request()->routeIs('billing.*') ||
         request()->routeIs('community.*') ||
         request()->routeIs('feedback.*') ||
-        request()->routeIs('profile.*');
-    $isApprovalsRoute = request()->routeIs('approvals.*');
+        request()->routeIs('profile.*') ||
+        $isApprovalsRoute;
 
     // Granular RBAC Permissions
     $canAccessPos =
@@ -1113,7 +1121,7 @@
                             </a>
                         @endif
 
-                        @if (\App\Support\Context::hasPermission('sales.view') || \App\Support\Context::hasPermission('sales.returns'))
+                        @if (\App\Support\Context::hasPermission('sales.returns'))
                             <a href="{{ route('sales.returns.index') }}" id="tour-nav-sales-returns"
                                 {{ request()->routeIs('sales.returns.*') ? 'aria-current="page"' : '' }}
                                 class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-all active:scale-[0.98] {{ request()->routeIs('sales.returns.*') ? 'bg-[#007AFF] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
@@ -1149,7 +1157,7 @@
                                 <span>Faktur Penjualan</span>
                             </a>
                         @endif
-                        @if (\App\Support\Context::hasPermission('sales.view') || \App\Support\Context::hasPermission('sales.returns'))
+                        @if (\App\Support\Context::hasPermission('sales.returns'))
                             <a href="{{ route('sales.returns.index') }}"
                                 class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
                                 <i data-lucide="undo-2" class="w-3.5 h-3.5 text-[#FF9500]"></i>

@@ -55,64 +55,38 @@
         }
     }">
 
-        <!-- ===================================================== -->
-        <!-- 1. TOOLBAR / PAGE HEADER (macOS Sonoma Toolbar Style)  -->
-        <!-- ===================================================== -->
-        <header
-            class="rounded-[14px] backdrop-blur-md bg-white/75 dark:bg-[#1C1C1E]/75 border border-black/5 dark:border-white/10 px-4 sm:px-6 py-3.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div>
-                <!-- Breadcrumb minimal -->
-                <nav class="flex items-center gap-1.5 text-[12px] text-black/50 dark:text-white/50 mb-1" aria-label="Breadcrumb">
-                    <a href="{{ route('dashboard') }}" class="hover:text-[#007AFF] transition-colors">Dashboard</a>
-                    <i data-lucide="chevron-right" class="w-3.5 h-3.5 opacity-40"></i>
-                    <span class="text-black/70 dark:text-white/70 font-medium">Pengaturan</span>
-                    <i data-lucide="chevron-right" class="w-3.5 h-3.5 opacity-40"></i>
-                    <span class="text-black/70 dark:text-white/70 font-medium">Master Data</span>
-                    <i data-lucide="chevron-right" class="w-3.5 h-3.5 opacity-40"></i>
-                    <span class="text-black dark:text-white font-medium">{{ $title }}</span>
-                </nav>
-                <div class="flex items-center gap-3">
-                    <div
-                        class="w-10 h-10 rounded-[10px] bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center shrink-0">
-                        @if ($icon === 'layers')
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="m21 7.5-9-5.25L3 7.5m18 0-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9" />
-                            </svg>
-                        @elseif($icon === 'folder')
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M2.25 12.75V12A2.25 2.25 0 0 1 4.5 9.75h15A2.25 2.25 0 0 1 21.75 12v.75m-8.69-6.44-2.12-2.12a1.5 1.5 0 0 0-1.061-.44H4.5A2.25 2.25 0 0 0 2.25 6v12a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9a2.25 2.25 0 0 0-2.25-2.25h-5.379a1.5 1.5 0 0 1-1.06-.44Z" />
-                            </svg>
-                        @else
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M12 3v17.25m0 0c-1.472 0-2.882.265-4.185.75M12 20.25c1.472 0 2.882.265 4.185.75M18.75 4.97A48.416 48.416 0 0 0 12 4.5c-2.291 0-4.545.16-6.75.47m13.5 0c1.01.143 2.01.317 3 .52m-3-.52l2.62 10.726c.122.499-.106 1.028-.589 1.202a5.988 5.988 0 0 1-2.031.352 5.988 5.988 0 0 1-2.031-.352c-.483-.174-.711-.703-.59-1.202L18.75 4.971Zm-16.5.52c.99-.203 1.99-.377 3-.52m0 0 2.62 10.726c.122.499-.106 1.028-.589 1.202a5.989 5.989 0 0 1-2.031.352 5.989 5.989 0 0 1-2.031-.352c-.483-.174-.711-.703-.59-1.202L5.25 4.971Z" />
-                            </svg>
-                        @endif
-                    </div>
-                    <div>
-                        <h1 class="text-[20px] font-semibold text-black dark:text-white tracking-tight">{{ $title }}
-                        </h1>
-                        <p class="text-[13px] text-black/50 dark:text-white/50">{{ $subtitle }}</p>
-                    </div>
-                </div>
-            </div>
+        @php
+            $activeModule = $module ?? ($type === 'product-categories' ? 'products' : 'materials');
+            $modDef = \App\Support\Navigation\NavigationRegistry::getModule($activeModule);
+            $parentLabel = $modDef['parent_breadcrumb']['label'] ?? ($activeModule === 'products' ? 'Produk' : 'Bahan Baku');
+            $parentRoute = $modDef['parent_breadcrumb']['route'] ?? ($activeModule === 'products' ? 'products.index' : 'materials.index');
+            $breadcrumbs = [
+                ['label' => 'Dashboard', 'url' => route('dashboard')],
+                ['label' => $parentLabel, 'url' => route($parentRoute)],
+                ['label' => $title, 'url' => null],
+            ];
+        @endphp
 
+        <!-- ===================================================== -->
+        <!-- 1. TOOLBAR / PAGE HEADER                                -->
+        <!-- ===================================================== -->
+        <x-module-header :title="$title" :subtitle="$subtitle" :breadcrumbs="$breadcrumbs">
             @if (in_array($type, ['material-categories', 'product-categories', 'units'], true) &&
                     \App\Support\Context::hasPermission("master_data.{$type}.manage"))
                 <button type="button" @click="showAddModal = true"
-                    class="h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5 shadow-[0_1px_2px_rgba(0,122,255,0.25)]">
+                    class="h-10 px-4 rounded-[12px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5 shadow-sm shadow-[#007AFF]/25">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                     </svg>
                     <span>Tambah {{ $type === 'units' ? 'Satuan' : 'Kategori' }}</span>
                 </button>
             @endif
-        </header>
+        </x-module-header>
+
+        <!-- ===================================================== -->
+        <!-- 2. PERSISTENT MODULE TABS                             -->
+        <!-- ===================================================== -->
+        <x-module-tabs :module="$activeModule" />
 
         <!-- ===================================================== -->
         <!-- FLASH MESSAGES (Apple HIG Banner Style)                -->

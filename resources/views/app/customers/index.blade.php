@@ -137,70 +137,28 @@
         }
     }">
 
-        <!-- 0. Breadcrumb Bar Apple HIG -->
-        <nav class="flex items-center gap-2 text-[12px] text-black/50 dark:text-white/50 print:hidden" aria-label="Breadcrumb">
-            <a href="{{ route('dashboard') }}" class="hover:text-[#007AFF] transition-colors flex items-center gap-1.5 font-medium text-black/70 dark:text-white/70">
-                <i data-lucide="layout-dashboard" class="w-3.5 h-3.5 text-[#007AFF]"></i>
-                <span>Dashboard</span>
-            </a>
-            <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-black/30 dark:text-white/30"></i>
-            <span class="text-black/50 dark:text-white/50 flex items-center gap-1.5">
-                <i data-lucide="users" class="w-3.5 h-3.5"></i>
-                <span>Operasional Bisnis</span>
-            </span>
-            <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-black/30 dark:text-white/30"></i>
-            <span class="text-black dark:text-white font-semibold">
-                Pusat Pelanggan &amp; Loyalitas CRM
-            </span>
-        </nav>
+        <x-module-header
+            module="crm"
+            title="Pusat Pelanggan &amp; Direktori Kontak"
+            subtitle="Kelola direktori kontak pelanggan, profil perusahaan B2B, termin tempo pembayaran, dan catatan piutang komersial.">
+            @if (\App\Support\Context::hasPermission('customers.create'))
+                <button type="button" @click="showAddModal = true"
+                    class="h-10 px-4 rounded-[12px] bg-[#007AFF] hover:bg-[#0071E3] text-white text-[13px] font-semibold shadow-sm shadow-[#007AFF]/25 active:scale-[0.97] transition flex items-center justify-center gap-2 w-full sm:w-auto cursor-pointer">
+                    <i data-lucide="user-plus" class="w-4 h-4"></i>
+                    <span>+ Tambah Pelanggan</span>
+                </button>
+            @endif
 
-        <!-- 1. Header Hero Banner (Apple HIG Card Squircle) -->
-        <div class="relative overflow-hidden rounded-[24px] backdrop-blur-md bg-white/80 dark:bg-[#1C1C1E]/80 border border-black/[0.06] dark:border-white/[0.08] p-6 sm:p-7 shadow-[0_4px_24px_rgba(0,0,0,0.03)] transition-all">
-            <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
-                <div class="space-y-2 max-w-3xl">
-                    <div class="flex flex-wrap items-center gap-2">
-                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-[#007AFF]/10 text-[#007AFF] border border-[#007AFF]/20">
-                            <i data-lucide="heart-handshake" class="w-3.5 h-3.5"></i>
-                            <span>Pusat Pelanggan &amp; Loyalitas</span>
-                        </span>
-                        <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-medium bg-black/[0.04] dark:bg-white/[0.06] text-black/70 dark:text-white/70 border border-black/[0.06] dark:border-white/[0.08] tabular-nums">
-                            {{ number_format($totalCustomers, 0, ',', '.') }} Terdaftar
-                        </span>
-                    </div>
-                    <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-black dark:text-white">
-                        Pusat Pelanggan &amp; Loyalitas CRM
-                    </h1>
-                    <p class="text-[13px] sm:text-[14px] text-black/60 dark:text-white/60 leading-relaxed">
-                        Kelola data klien komersial, pantau tier keanggotaan loyalty, riwayat poin belanja, pelunasan kasbon tempo, dan kode kupon diskon kasir dalam satu antarmuka terpadu.
-                    </p>
-                </div>
+            @if (\App\Support\Context::hasPermission('crm.manage'))
+                <button type="button" @click="showVoucherModal = true"
+                    class="h-10 px-4 rounded-[12px] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] text-black dark:text-white text-[13px] font-semibold active:scale-[0.97] transition flex items-center justify-center gap-2 w-full sm:w-auto cursor-pointer border border-black/[0.06] dark:border-white/[0.08]">
+                    <i data-lucide="ticket-plus" class="w-4 h-4 text-[#FF9500]"></i>
+                    <span>+ Buat Voucher</span>
+                </button>
+            @endif
+        </x-module-header>
 
-                <!-- Action CTA Buttons -->
-                <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto">
-                    @if (\App\Support\Context::hasPermission('customers.create'))
-                        <button type="button" @click="showAddModal = true"
-                            class="h-11 sm:h-12 px-5 rounded-[14px] bg-[#007AFF] hover:bg-[#0071E3] text-white text-[13px] sm:text-[14px] font-semibold shadow-[0_2px_8px_rgba(0,122,255,0.3)] active:scale-[0.98] transition flex items-center justify-center gap-2 w-full sm:w-auto cursor-pointer">
-                            <i data-lucide="user-plus" class="w-4 h-4"></i>
-                            <span>+ Tambah Pelanggan Baru</span>
-                        </button>
-                    @endif
-
-                    @if (\App\Support\Context::hasPermission('crm.manage'))
-                        <button type="button" @click="showVoucherModal = true"
-                            class="h-11 sm:h-12 px-4 rounded-[14px] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] text-black dark:text-white text-[13px] sm:text-[14px] font-semibold active:scale-[0.98] transition flex items-center justify-center gap-2 w-full sm:w-auto cursor-pointer border border-black/[0.06] dark:border-white/[0.08]">
-                            <i data-lucide="ticket-plus" class="w-4 h-4 text-[#FF9500]"></i>
-                            <span>+ Buat Voucher Diskon</span>
-                        </button>
-                    @endif
-                </div>
-            </div>
-
-            <!-- No-Panic Microcopy Banner -->
-            <div class="mt-5 pt-4 border-t border-black/[0.05] dark:border-white/[0.06] flex items-center gap-2 text-[12px] text-black/55 dark:text-white/55">
-                <i data-lucide="shield-check" class="w-4 h-4 text-[#34C759] shrink-0"></i>
-                <span><strong>Keamanan Data:</strong> Seluruh riwayat transaksi, saldo poin, dan catatan piutang pelanggan Anda selalu aman dan terenkripsi otomatis di sistem.</span>
-            </div>
-        </div>
+        <x-module-tabs module="crm" />
 
         <!-- 2. Bento Hero Metrics (3-Second Glanceability) -->
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -261,38 +219,7 @@
             </div>
         </div>
 
-        <!-- 3. Apple HIG Segmented Control Navigation -->
-        <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 p-1.5 rounded-[16px] backdrop-blur-md bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.05] dark:border-white/[0.06]">
-            <div class="inline-flex p-1 rounded-[12px] bg-black/[0.05] dark:bg-white/[0.08] gap-1">
-                <button type="button" @click="switchTab('customers')"
-                    :class="activeTab === 'customers' ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-[0_1px_3px_rgba(0,0,0,0.1)] font-semibold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white font-medium'"
-                    class="h-9 px-4 rounded-[10px] text-[13px] transition-all flex items-center gap-2 cursor-pointer">
-                    <i data-lucide="users" class="w-4 h-4 text-[#007AFF]"></i>
-                    <span>Direktori Pelanggan</span>
-                    <span class="ml-1 text-[11px] px-1.5 py-0.5 rounded-full bg-black/[0.06] dark:bg-white/[0.1] tabular-nums">{{ $customers->total() }}</span>
-                </button>
 
-                <button type="button" @click="switchTab('members')"
-                    :class="activeTab === 'members' ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-[0_1px_3px_rgba(0,0,0,0.1)] font-semibold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white font-medium'"
-                    class="h-9 px-4 rounded-[10px] text-[13px] transition-all flex items-center gap-2 cursor-pointer">
-                    <i data-lucide="award" class="w-4 h-4 text-[#FF9500]"></i>
-                    <span>Member &amp; Loyalitas Poin</span>
-                    <span class="ml-1 text-[11px] px-1.5 py-0.5 rounded-full bg-black/[0.06] dark:bg-white/[0.1] tabular-nums">{{ $members->total() }}</span>
-                </button>
-
-                <button type="button" @click="switchTab('vouchers')"
-                    :class="activeTab === 'vouchers' ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-[0_1px_3px_rgba(0,0,0,0.1)] font-semibold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white font-medium'"
-                    class="h-9 px-4 rounded-[10px] text-[13px] transition-all flex items-center gap-2 cursor-pointer">
-                    <i data-lucide="ticket" class="w-4 h-4 text-[#34C759]"></i>
-                    <span>Voucher Diskon Kasir</span>
-                    <span class="ml-1 text-[11px] px-1.5 py-0.5 rounded-full bg-black/[0.06] dark:bg-white/[0.1] tabular-nums">{{ $vouchers->total() }}</span>
-                </button>
-            </div>
-
-            <div class="text-[12px] text-black/50 dark:text-white/50 px-3 text-right hidden sm:block">
-                <span>Tab Aktif: <strong class="text-black dark:text-white capitalize" x-text="activeTab"></strong></span>
-            </div>
-        </div>
 
         <!-- ========================================================================= -->
         <!-- TAB 1: DIREKTORI PELANGGAN & KLIEN KOMERSIAL                              -->

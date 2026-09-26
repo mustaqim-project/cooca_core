@@ -24,26 +24,13 @@
     }
 }">
 
-    <!-- ===================================================== -->
-    <!-- 1. TOOLBAR / PAGE HEADER (macOS Sonoma Style)          -->
-    <!-- ===================================================== -->
-    <header class="rounded-[16px] backdrop-blur-md bg-white/75 dark:bg-[#1C1C1E]/75 border border-black/5 dark:border-white/10 px-4 sm:px-6 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
-        <div>
-            <!-- Breadcrumb minimal -->
-            <nav class="flex items-center gap-1.5 text-[12px] text-black/50 dark:text-white/50 mb-1" aria-label="Breadcrumb">
-                <a href="{{ route('dashboard') }}" class="hover:text-[#007AFF] transition-colors">Dashboard</a>
-                <i data-lucide="chevron-right" class="w-3.5 h-3.5 opacity-40"></i>
-                <span class="text-black/70 dark:text-white/70 font-medium">Pembelian &amp; Pengadaan</span>
-                <i data-lucide="chevron-right" class="w-3.5 h-3.5 opacity-40"></i>
-                <span class="text-black dark:text-white font-medium">Purchase Orders</span>
-            </nav>
-            <h1 class="text-[20px] font-semibold text-black dark:text-white tracking-tight">Manajemen Purchase Order (PO)</h1>
-            <p class="text-[13px] text-black/50 dark:text-white/50">Kelola pesanan pengadaan bahan baku ke pemasok dan pesanan masuk B2B.</p>
-        </div>
-
-        <!-- Toolbar Actions -->
-        <div class="flex items-center gap-2 w-full sm:w-auto">
-            @if(\App\Support\Context::hasPermission('purchasing.manage'))
+    {{-- ===================================================== --}}
+    {{-- 1. TOOLBAR / PAGE HEADER                                --}}
+    {{-- ===================================================== --}}
+    <x-module-header
+        title="Manajemen Purchase Order (PO)"
+        subtitle="Kelola pesanan pengadaan bahan baku ke pemasok dan pesanan masuk B2B">
+        @if(\App\Support\Context::hasPermission('purchasing.manage'))
             <button type="button" @click="instantModalOpen = true"
                     class="min-h-[44px] sm:min-h-0 h-11 sm:h-9 px-3.5 rounded-[10px] text-[13px] font-medium text-[#FF9500] dark:text-[#FF9F0A] bg-[#FF9500]/10 hover:bg-[#FF9500]/15 active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5">
                 <i data-lucide="zap" class="w-4 h-4"></i>
@@ -55,49 +42,13 @@
                 <i data-lucide="plus" class="w-4 h-4"></i>
                 <span>Buat PO Baru</span>
             </a>
-            @endif
-        </div>
-    </header>
+        @endif
+    </x-module-header>
 
     {{-- ===================================================== --}}
-    {{-- SUB-NAVIGATION TABS (Apple Segmented Control)         --}}
+    {{-- 2. MODULE TABS (SSOT)                                   --}}
     {{-- ===================================================== --}}
-    <div class="overflow-x-auto pb-1 scrollbar-none">
-        <div class="inline-flex p-1 rounded-[14px] bg-black/[0.05] dark:bg-white/[0.07] border border-black/5 dark:border-white/10 text-[13px] font-medium whitespace-nowrap">
-            <a href="{{ route('purchase-orders.index') }}"
-                class="px-3.5 py-1.5 rounded-[10px] {{ request()->routeIs('purchase-orders.*') ? 'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] font-semibold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white' }} flex items-center gap-2 transition-all">
-                <i data-lucide="file-text" class="w-4 h-4 {{ request()->routeIs('purchase-orders.*') ? 'text-[#007AFF]' : 'text-black/40 dark:text-white/40' }}"></i>
-                <span>Purchase Order (PO)</span>
-                @if(isset($totalOrders))
-                    <span class="px-1.5 py-0.2 rounded-full text-[11px] tabular-nums font-semibold {{ request()->routeIs('purchase-orders.*') ? 'bg-[#007AFF]/12 text-[#007AFF]' : 'bg-black/10 dark:bg-white/10 text-black/60 dark:text-white/60' }}">{{ $totalOrders }}</span>
-                @endif
-            </a>
-
-            @if(\App\Support\Context::hasPermission('purchasing.bills') || \App\Support\Context::hasPermission('purchasing.manage'))
-            <a href="{{ route('purchasing.bills.index') }}"
-                class="px-3.5 py-1.5 rounded-[10px] {{ request()->routeIs('purchasing.bills.*') ? 'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] font-semibold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white' }} flex items-center gap-2 transition-all">
-                <i data-lucide="receipt" class="w-4 h-4 {{ request()->routeIs('purchasing.bills.*') ? 'text-[#FF9500]' : 'text-black/40 dark:text-white/40' }}"></i>
-                <span>Tagihan Vendor (Bills)</span>
-            </a>
-            @endif
-
-            @if(\App\Support\Context::hasPermission('master_data.suppliers.view') || \App\Support\Context::hasPermission('purchasing.view') || \App\Support\Context::hasPermission('purchasing.manage'))
-            <a href="{{ route('suppliers.index') }}"
-                class="px-3.5 py-1.5 rounded-[10px] {{ request()->routeIs('suppliers.*') ? 'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] font-semibold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white' }} flex items-center gap-2 transition-all">
-                <i data-lucide="truck" class="w-4 h-4 {{ request()->routeIs('suppliers.*') ? 'text-[#34C759]' : 'text-black/40 dark:text-white/40' }}"></i>
-                <span>Direktori Vendor</span>
-            </a>
-            @endif
-
-            @if(\App\Support\Context::hasPermission('purchase.returns') || \App\Support\Context::hasPermission('purchasing.manage'))
-            <a href="{{ route('purchase.returns.index') }}"
-                class="px-3.5 py-1.5 rounded-[10px] {{ request()->routeIs('purchase.returns.*') ? 'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] font-semibold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white' }} flex items-center gap-2 transition-all">
-                <i data-lucide="undo-2" class="w-4 h-4 {{ request()->routeIs('purchase.returns.*') ? 'text-[#AF52DE]' : 'text-black/40 dark:text-white/40' }}"></i>
-                <span>Retur Pembelian</span>
-            </a>
-            @endif
-        </div>
-    </div>
+    <x-module-tabs module="purchasing" />
 
     <!-- ===================================================== -->
     <!-- 2. KPI SUMMARY ROW                                     -->

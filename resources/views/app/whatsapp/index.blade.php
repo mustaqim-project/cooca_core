@@ -7,47 +7,17 @@
 @section('content')
     <div class="max-w-[1360px] mx-auto space-y-6 pb-28 sm:pb-32 lg:pb-12" x-data="waGateway()" x-init="init()">
 
-        <!-- ========================================== -->
-        <!-- 0. BREADCRUMB BAR (APPLE MINIMALIST)       -->
-        <!-- ========================================== -->
-        <nav class="flex items-center gap-1.5 text-[12px] text-black/50 dark:text-white/50 py-0.5 whitespace-nowrap print:hidden"
-            aria-label="Breadcrumb">
-            <a href="{{ route('dashboard') }}" class="hover:text-[#007AFF] transition-colors font-medium">Dashboard</a>
-            <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-black/30 dark:text-white/30"></i>
-            <span class="text-black/60 dark:text-white/60 font-medium">Komunikasi &amp; Otomasi</span>
-            <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-black/30 dark:text-white/30"></i>
-            <span class="text-black/80 dark:text-white/80 font-medium">WhatsApp Gateway</span>
-        </nav>
-
-        <!-- ===================================================== -->
-        <!-- 1. TOOLBAR / PAGE HEADER (macOS Sonoma Toolbar Style)  -->
-        <!-- ===================================================== -->
-        <header
-            class="rounded-[20px] backdrop-blur-md bg-white/80 dark:bg-[#1C1C1E]/80 border border-black/5 dark:border-white/10 p-5 sm:p-6 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-5 transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
-            <div class="space-y-1.5 max-w-2xl">
-                <div class="flex flex-wrap items-center gap-2">
-                    <span
-                        class="rounded-full px-2.5 py-0.5 text-[11px] font-semibold inline-flex items-center gap-1.5 bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158]">
-                        <span class="w-1.5 h-1.5 rounded-full bg-[#34C759]"></span>
-                        <span>Multi-Device Gateway</span>
-                    </span>
-                    <span
-                        class="rounded-full px-2.5 py-0.5 text-[11px] font-semibold inline-flex items-center gap-1.5 bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF]">
-                        <span class="w-1.5 h-1.5 rounded-full bg-[#007AFF]"></span>
-                        <span>Otomasi POS &amp; Broadcast</span>
-                    </span>
-                </div>
-                <h1 class="text-[20px] sm:text-[24px] font-bold text-black dark:text-white tracking-tight">
-                    WhatsApp Gateway &amp; Otomasi Bisnis
-                </h1>
-                <p class="text-[13px] text-black/60 dark:text-white/60 leading-relaxed">
-                    Sinkronisasikan nomor WhatsApp <strong
-                        class="text-black dark:text-white font-medium">{{ $business->name }}</strong> untuk pengiriman struk
-                    kasir tanpa kertas dan distribusi blast promosi ke pelanggan setia.
-                </p>
-            </div>
-
-            <div class="flex items-center gap-2 w-full lg:w-auto">
+        {{-- MODULE HEADER & PERSISTENT COMMUNICATION TABS --}}
+        <x-module-header
+            module="communication"
+            title="WhatsApp Gateway & Otomasi Bisnis"
+            subtitle="Sinkronisasikan nomor WhatsApp {{ $business->name }} untuk pengiriman struk kasir tanpa kertas dan distribusi blast promosi ke pelanggan setia.">
+            <x-slot:actions>
+                <a href="{{ route('whatsapp.logs.index') }}"
+                    class="min-h-[44px] px-4 rounded-[12px] text-[13px] font-semibold text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.98] transition-all flex items-center justify-center gap-2 w-full sm:w-auto">
+                    <i data-lucide="history" class="w-4 h-4 text-black/60 dark:text-white/60"></i>
+                    <span>Log Pesan</span>
+                </a>
                 @if (\App\Support\Context::hasPermission('pos.terminal'))
                     <a href="{{ route('pos.terminal') }}"
                         class="min-h-[44px] px-4 rounded-[12px] text-[13px] font-semibold text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.98] transition-all flex items-center justify-center gap-2 w-full sm:w-auto">
@@ -55,33 +25,10 @@
                         <span>Buka Terminal Kasir POS</span>
                     </a>
                 @endif
-            </div>
-        </header>
+            </x-slot:actions>
+        </x-module-header>
 
-        <!-- ===================================================== -->
-        <!-- 2. MODULE NAVIGATION SUB-TABS (Segmented Control)     -->
-        <!-- ===================================================== -->
-        <div
-            class="rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-2 sm:p-2.5 flex items-center justify-between shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
-            <div
-                class="inline-flex p-1 rounded-[12px] bg-black/[0.05] dark:bg-white/[0.08] border border-black/5 dark:border-white/5 w-full sm:w-auto overflow-x-auto text-[13px] font-medium">
-                <a href="{{ route('whatsapp.index') }}"
-                    class="h-9 px-4 rounded-[10px] bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] flex items-center gap-2 whitespace-nowrap font-semibold">
-                    <i data-lucide="smartphone" class="w-4 h-4 text-[#007AFF]"></i>
-                    <span>Koneksi Gateway</span>
-                </a>
-                <a href="{{ route('whatsapp.broadcast.index') }}"
-                    class="h-9 px-4 rounded-[10px] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white flex items-center gap-2 whitespace-nowrap transition-colors">
-                    <i data-lucide="megaphone" class="w-4 h-4"></i>
-                    <span>Blast Promosi</span>
-                </a>
-                <a href="{{ route('whatsapp.logs.index') }}"
-                    class="h-9 px-4 rounded-[10px] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white flex items-center gap-2 whitespace-nowrap transition-colors">
-                    <i data-lucide="history" class="w-4 h-4"></i>
-                    <span>Log Pesan</span>
-                </a>
-            </div>
-        </div>
+        <x-module-tabs module="communication" />
 
         <!-- ===================================================== -->
         <!-- 3. MAIN GATEWAY COCKPIT GRID (2 COLUMNS)              -->

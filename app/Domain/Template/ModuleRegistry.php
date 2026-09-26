@@ -87,6 +87,7 @@ final class ModuleRegistry
                     'materials.create',
                     'materials.edit',
                     'materials.delete',
+                    'costing.view_margin',
                     'costing.manage',
                     'master_data.material_categories.view',
                     'master_data.material_categories.manage',

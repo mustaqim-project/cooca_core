@@ -538,100 +538,58 @@
     }">
 
         <!-- ===================================================== -->
-        <!-- 0. UNIFIED SEGMENTED NAVIGATION (UI Unification)      -->
+        <!-- 1. TOOLBAR / PAGE HEADER                                -->
         <!-- ===================================================== -->
-        <div class="overflow-x-auto pb-1 scrollbar-none">
-            <div class="inline-flex p-1 bg-black/[0.05] dark:bg-white/[0.08] rounded-[14px] border border-black/[0.04] dark:border-white/[0.06] shrink-0">
-                <a href="{{ route('products.index') }}"
-                    class="h-10 px-4 rounded-[10px] text-[13px] font-semibold bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-sm flex items-center gap-2 whitespace-nowrap transition-all">
-                    <i data-lucide="package" class="w-4 h-4 text-[#007AFF]"></i>
-                    <span>Barang Fisik (Katalog)</span>
+        <x-module-header
+            title="Katalog Produk & Model HPP"
+            subtitle="Kelola produk fisik, kalkulasi biaya (BOM/ABC/Job Order), harga jual, dan etalase toko"
+            :breadcrumbs="[
+                ['label' => 'Dashboard', 'url' => route('dashboard')],
+                ['label' => 'Produk', 'url' => route('products.index')],
+                ['label' => 'Katalog Produk', 'url' => null],
+            ]">
+            @if (\App\Support\Context::hasPermission('products.manage') || \App\Support\Context::hasPermission('products.edit'))
+                <!-- Toggle Gambar POS -->
+                <button type="button" @click="togglePosShowImages()" :disabled="posImageToggling"
+                    class="h-10 px-3.5 rounded-[12px] text-[13px] font-medium transition-all border flex items-center justify-center gap-2 active:scale-[0.98] disabled:opacity-50"
+                    :class="posShowImages ? 'bg-[#34C759]/10 border-[#34C759]/30 text-[#248A3D] dark:text-[#30D158]' :
+                        'bg-black/[0.04] dark:bg-white/[0.06] border-black/[0.06] dark:border-white/[0.08] text-black/70 dark:text-white/70 hover:bg-black/[0.07] dark:hover:bg-white/[0.1]'"
+                    title="Ubah apakah foto produk ditampilkan pada terminal kasir POS">
+                    <span class="w-2 h-2 rounded-full transition-colors shrink-0"
+                        :class="posShowImages ? 'bg-[#34C759]' : 'bg-black/30 dark:bg-white/30'"></span>
+                    <span>Foto POS:</span>
+                    <span class="font-bold tabular-nums" x-text="posShowImages ? 'ON' : 'OFF'"></span>
+                </button>
+            @endif
+
+            @if (\App\Support\Context::hasPermission('products.create') || \App\Support\Context::hasPermission('products.manage'))
+                <!-- Import Excel -->
+                <a href="{{ route('import.index', ['tab' => 'products']) }}"
+                    class="h-10 px-3.5 rounded-[12px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] dark:hover:bg-white/[0.1] border border-black/[0.06] dark:border-white/[0.08] active:scale-[0.98] transition-all flex items-center justify-center gap-1.5"
+                    title="Import data produk massal dari file Excel / CSV">
+                    <svg class="w-4 h-4 text-black/60 dark:text-white/60" fill="none" stroke="currentColor"
+                        stroke-width="1.8" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                    </svg>
+                    <span>Import</span>
                 </a>
-                @if(\App\Support\Context::hasPermission('products.view'))
-                <a href="{{ route('services.index') }}"
-                    class="h-10 px-4 rounded-[10px] text-[13px] font-medium text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white flex items-center gap-2 transition-all whitespace-nowrap">
-                    <i data-lucide="wrench" class="w-4 h-4 text-black/40 dark:text-white/40"></i>
-                    <span>Jasa &amp; Layanan</span>
-                </a>
-                @endif
-                @if(\App\Support\Context::hasPermission('pos.modifiers') || \App\Support\Context::hasPermission('pos.terminal'))
-                <a href="{{ route('pos.modifiers.index') }}"
-                    class="h-10 px-4 rounded-[10px] text-[13px] font-medium text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white flex items-center gap-2 transition-all whitespace-nowrap">
-                    <i data-lucide="sliders" class="w-4 h-4 text-black/40 dark:text-white/40"></i>
-                    <span>Varian &amp; Modifiers</span>
-                </a>
-                @endif
-                @if(Route::has('marketplace-hub.products') && \App\Support\Context::hasPermission('products.view'))
-                <a href="{{ route('marketplace-hub.products') }}"
-                    class="h-10 px-4 rounded-[10px] text-[13px] font-medium text-[#EE4D2D] hover:bg-[#EE4D2D]/10 flex items-center gap-2 transition-all whitespace-nowrap">
-                    <i data-lucide="store" class="w-4 h-4 text-[#EE4D2D]"></i>
-                    <span>Marketplace &amp; Multi-Harga</span>
-                </a>
-                @endif
-            </div>
-        </div>
+
+                <!-- Tambah Produk Baru -->
+                <button @click="showAddModal = true"
+                    class="h-10 px-4 rounded-[12px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] transition-all flex items-center justify-center gap-1.5 shadow-sm shadow-[#007AFF]/25">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                    </svg>
+                    <span>Tambah Produk</span>
+                </button>
+            @endif
+        </x-module-header>
 
         <!-- ===================================================== -->
-        <!-- 1. TOOLBAR / PAGE HEADER (macOS Sonoma Toolbar Style)  -->
+        <!-- 2. PERSISTENT MODULE TABS                             -->
         <!-- ===================================================== -->
-        <header
-            class="rounded-[20px] backdrop-blur-xl bg-white/80 dark:bg-[#1C1C1E]/80 border border-black/[0.06] dark:border-white/[0.08] px-5 sm:px-7 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
-            <div class="min-w-0 flex flex-col justify-center">
-                <!-- Breadcrumb minimal -->
-                <nav class="flex items-center gap-1.5 text-[12px] text-black/50 dark:text-white/50 mb-1">
-                    <a href="{{ route('dashboard') }}" class="hover:text-[#007AFF] transition-colors">Dashboard</a>
-                    <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-black/30 dark:text-white/30 shrink-0"></i>
-                    <span class="text-black/70 dark:text-white/70 font-medium">Produk &amp; Logistik</span>
-                    <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-black/30 dark:text-white/30 shrink-0"></i>
-                    <span class="text-black dark:text-white font-medium">Katalog Produk</span>
-                </nav>
-                <h1
-                    class="text-xl sm:text-2xl font-bold text-[#1C1C1E] dark:text-[#F2F2F7] tracking-tight leading-snug truncate">
-                    Katalog Produk &amp; Model HPP</h1>
-                <p class="text-[13px] text-black/50 dark:text-white/50 mt-0.5">Kelola produk fisik, kalkulasi biaya
-                    (BOM/ABC/Job Order), harga jual, dan etalase toko</p>
-            </div>
-
-            <!-- Toolbar Actions -->
-            <div class="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
-                @if (\App\Support\Context::hasPermission('products.manage') || \App\Support\Context::hasPermission('products.edit'))
-                    <!-- Toggle Gambar POS -->
-                    <button type="button" @click="togglePosShowImages()" :disabled="posImageToggling"
-                        class="h-10 px-3.5 rounded-[12px] text-[13px] font-medium transition-all border flex items-center justify-center gap-2 active:scale-[0.98] disabled:opacity-50"
-                        :class="posShowImages ? 'bg-[#34C759]/10 border-[#34C759]/30 text-[#248A3D] dark:text-[#30D158]' :
-                            'bg-black/[0.04] dark:bg-white/[0.06] border-black/[0.06] dark:border-white/[0.08] text-black/70 dark:text-white/70 hover:bg-black/[0.07] dark:hover:bg-white/[0.1]'"
-                        title="Ubah apakah foto produk ditampilkan pada terminal kasir POS">
-                        <span class="w-2 h-2 rounded-full transition-colors shrink-0"
-                            :class="posShowImages ? 'bg-[#34C759]' : 'bg-black/30 dark:bg-white/30'"></span>
-                        <span>Foto POS:</span>
-                        <span class="font-bold tabular-nums" x-text="posShowImages ? 'ON' : 'OFF'"></span>
-                    </button>
-                @endif
-
-                @if (\App\Support\Context::hasPermission('products.create') || \App\Support\Context::hasPermission('products.manage'))
-                    <!-- Import Excel -->
-                    <a href="{{ route('import.index', ['tab' => 'products']) }}"
-                        class="h-10 px-3.5 rounded-[12px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] dark:hover:bg-white/[0.1] border border-black/[0.06] dark:border-white/[0.08] active:scale-[0.98] transition-all flex items-center justify-center gap-1.5"
-                        title="Import data produk massal dari file Excel / CSV">
-                        <svg class="w-4 h-4 text-black/60 dark:text-white/60" fill="none" stroke="currentColor"
-                            stroke-width="1.8" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
-                        </svg>
-                        <span>Import</span>
-                    </a>
-
-                    <!-- Tambah Produk Baru -->
-                    <button @click="showAddModal = true"
-                        class="h-10 px-4 rounded-[12px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] transition-all flex items-center justify-center gap-1.5 shadow-sm shadow-[#007AFF]/25">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                        </svg>
-                        <span>Tambah Produk</span>
-                    </button>
-                @endif
-            </div>
-        </header>
+        <x-module-tabs module="products" />
 
         <!-- ===================================================== -->
         <!-- 2. KPI SUMMARY (Apple Bento Metric Cards)              -->

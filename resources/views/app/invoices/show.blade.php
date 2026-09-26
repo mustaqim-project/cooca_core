@@ -17,66 +17,16 @@
     }
 }">
 
-    <!-- ===================================================== -->
-    <!-- 1. TOOLBAR / PAGE HEADER (macOS Sonoma Toolbar Style)  -->
-    <!-- ===================================================== -->
-    <header class="rounded-[14px] backdrop-blur-md bg-white/75 dark:bg-[#1C1C1E]/75 border border-black/5 dark:border-white/10 px-4 sm:px-6 py-3.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div>
-            <!-- Minimal Breadcrumb -->
-            <nav class="flex items-center gap-1.5 text-[12px] text-black/50 dark:text-white/50 mb-1" aria-label="Breadcrumb">
-                <a href="{{ route('dashboard') }}" class="hover:text-[#007AFF] transition-colors">Dashboard</a>
-                <i data-lucide="chevron-right" class="w-3.5 h-3.5 opacity-40"></i>
-                <a href="{{ route('invoices.index') }}" class="hover:text-[#007AFF] transition-colors">Faktur Penjualan</a>
-                <i data-lucide="chevron-right" class="w-3.5 h-3.5 opacity-40"></i>
-                <span class="text-black dark:text-white font-medium tabular-nums">{{ $invoice->invoice_number }}</span>
-            </nav>
-            <div class="flex items-center gap-2.5">
-                <h1 class="text-[20px] font-semibold text-black dark:text-white tracking-tight tabular-nums">
-                    Faktur {{ $invoice->invoice_number }}
-                </h1>
-                @php
-                    $statusTints = [
-                        'draft' => 'bg-black/6 dark:bg-white/8 text-black/55 dark:text-white/55',
-                        'sent' => 'bg-[#5856D6]/12 text-[#413FA6] dark:text-[#5E5CE6]',
-                        'unpaid' => 'bg-[#007AFF]/12 text-[#007AFF] dark:text-[#0A84FF]',
-                        'partially_paid' => 'bg-[#FF9500]/12 text-[#B25E00] dark:text-[#FF9F0A]',
-                        'paid' => 'bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158]',
-                        'overdue' => 'bg-[#FF3B30]/12 text-[#C41E17] dark:text-[#FF453A]',
-                        'void' => 'bg-black/6 dark:bg-white/8 text-black/40 dark:text-white/40 line-through',
-                    ];
-                    $dotColors = [
-                        'draft' => 'bg-black/40 dark:bg-white/40',
-                        'sent' => 'bg-[#5856D6]',
-                        'unpaid' => 'bg-[#007AFF]',
-                        'partially_paid' => 'bg-[#FF9500]',
-                        'paid' => 'bg-[#34C759]',
-                        'overdue' => 'bg-[#FF3B30]',
-                        'void' => 'bg-black/40 dark:bg-white/40',
-                    ];
-                    $statusLabel = [
-                        'draft' => 'Draft',
-                        'sent' => 'Terkirim',
-                        'unpaid' => 'Menunggu Pembayaran',
-                        'partially_paid' => 'Sebagian Dibayar',
-                        'paid' => 'Lunas',
-                        'overdue' => 'Jatuh Tempo',
-                        'void' => 'Dibatalkan (Void)',
-                    ];
-                    $tintClass = $statusTints[$invoice->status] ?? $statusTints['draft'];
-                    $dotClass = $dotColors[$invoice->status] ?? $dotColors['draft'];
-                    $currentLabel = $statusLabel[$invoice->status] ?? ucfirst(str_replace('_', ' ', $invoice->status));
-                @endphp
-                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold {{ $tintClass }}">
-                    <span class="w-1.5 h-1.5 rounded-full {{ $dotClass }}"></span>
-                    {{ $currentLabel }}
-                </span>
-            </div>
-            <p class="text-[13px] text-black/50 dark:text-white/50 mt-0.5">
-                {{ $invoice->customer?->name ?? 'Pelanggan' }} · Diterbitkan {{ $invoice->invoice_date?->translatedFormat('d F Y') }}
-            </p>
-        </div>
-
-        <!-- Toolbar Action Buttons -->
+    <x-module-header
+        module="sales"
+        :title="'Faktur ' . $invoice->invoice_number"
+        :subtitle="($invoice->customer?->name ?? 'Pelanggan') . ' · Diterbitkan ' . ($invoice->invoice_date?->translatedFormat('d F Y') ?? '')"
+        :breadcrumbs="[
+            ['label' => 'Dashboard', 'route' => route('dashboard')],
+            ['label' => 'Penjualan B2B', 'route' => route('sales.orders.index')],
+            ['label' => 'Faktur Penjualan', 'route' => route('invoices.index')],
+            ['label' => $invoice->invoice_number],
+        ]">
         <div class="flex items-center gap-2 flex-wrap w-full sm:w-auto">
             <a href="{{ route('invoices.index') }}" class="min-h-[44px] sm:min-h-0 h-11 sm:h-9 px-3.5 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5">
                 <i data-lucide="arrow-left" class="w-4 h-4 text-black/60 dark:text-white/60"></i>
@@ -125,7 +75,9 @@
             </form>
             @endif
         </div>
-    </header>
+    </x-module-header>
+
+    <x-module-tabs module="sales" />
 
     <!-- ===================================================== -->
     <!-- 2. MAIN INVOICE DOCUMENT CARD (Apple Material & Depth) -->

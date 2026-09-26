@@ -20,6 +20,8 @@
 @endphp
 
 <div class="space-y-4">
+    <x-breadcrumb />
+
     {{-- Header Strip with Title and Quick Link --}}
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-1">
         <div class="flex items-center gap-3">

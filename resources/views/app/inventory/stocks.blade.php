@@ -23,68 +23,24 @@
         window.COOCA_STOCKS = @json($stocks->items());
     </script>
 
-    <!-- ===================================================== -->
-    <!-- 0. UNIFIED APPLE SEGMENTED CONTROL (Logistik & Gudang) -->
-    <!-- ===================================================== -->
-    <div class="overflow-x-auto pb-1 scrollbar-none">
-        <div class="inline-flex p-1 rounded-[14px] bg-black/[0.05] dark:bg-white/[0.08] border border-black/[0.04] dark:border-white/[0.06] text-[13px] font-medium whitespace-nowrap">
-            <a href="{{ route('inventory.stocks') }}"
-               class="h-10 px-4 rounded-[10px] bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-sm font-semibold flex items-center gap-2 transition-all">
-                <i data-lucide="boxes" class="w-4 h-4 text-[#007AFF]"></i>
-                <span>Saldo Stok Real-Time</span>
-            </a>
-            <a href="{{ route('warehouse.index') }}"
-               class="h-10 px-4 rounded-[10px] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white flex items-center gap-2 transition-all">
-                <i data-lucide="warehouse" class="w-4 h-4 text-black/40 dark:text-white/40"></i>
-                <span>Cabang &amp; Lokasi Gudang</span>
-            </a>
-            @if(\App\Support\Context::hasPermission('inventory.manage'))
-            <a href="{{ route('inventory.transfers.index') }}"
-               class="h-10 px-4 rounded-[10px] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white flex items-center gap-2 transition-all">
-                <i data-lucide="arrow-left-right" class="w-4 h-4 text-black/40 dark:text-white/40"></i>
-                <span>Transfer Stok</span>
-            </a>
-            <a href="{{ route('inventory.opnames.index') }}"
-               class="h-10 px-4 rounded-[10px] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white flex items-center gap-2 transition-all">
-                <i data-lucide="clipboard-check" class="w-4 h-4 text-black/40 dark:text-white/40"></i>
-                <span>Stock Opname Fisik</span>
-            </a>
-            <a href="{{ route('inventory.movements') }}"
-               class="h-10 px-4 rounded-[10px] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white flex items-center gap-2 transition-all">
-                <i data-lucide="history" class="w-4 h-4 text-black/40 dark:text-white/40"></i>
-                <span>Kartu Mutasi Stok</span>
-            </a>
-            @endif
-        </div>
-    </div>
-    
-    <!-- ===================================================== -->
-    <!-- 1. TOOLBAR / PAGE HEADER (macOS Sonoma Toolbar Style)  -->
-    <!-- ===================================================== -->
-    <header class="rounded-[20px] backdrop-blur-xl bg-white/80 dark:bg-[#1C1C1E]/80 border border-black/[0.06] dark:border-white/[0.08] px-5 sm:px-7 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
-        <div>
-            <!-- Breadcrumb minimal -->
-            <nav class="flex items-center gap-1.5 text-[12px] text-black/50 dark:text-white/50 mb-1">
-                <a href="{{ route('dashboard') }}" class="hover:text-[#007AFF] transition-colors">Dashboard</a>
-                <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-black/30 dark:text-white/30 shrink-0"></i>
-                <span class="text-black/70 dark:text-white/70 font-medium">Produk &amp; Logistik</span>
-                <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-black/30 dark:text-white/30 shrink-0"></i>
-                <span class="text-black dark:text-white font-medium">Saldo Stok Real-Time</span>
-            </nav>
-            <h1 class="text-xl sm:text-2xl font-bold text-[#1C1C1E] dark:text-[#F2F2F7] tracking-tight leading-snug truncate">Inventori &amp; Stok Real-Time</h1>
-            <p class="text-[13px] text-black/50 dark:text-white/50 mt-0.5">Pantau stok produk di seluruh cabang &amp; gudang secara terpusat</p>
-        </div>
-
-        <!-- Quick Navigation Toolbar Actions -->
-        <div class="flex items-center gap-2 flex-wrap w-full sm:w-auto">
-            @if(\App\Support\Context::hasPermission('inventory.manage'))
-            <a href="{{ route('import.index', ['tab' => 'inventory']) }}" class="h-10 px-4 rounded-[12px] text-[13px] font-semibold text-[#1C1C1E] dark:text-[#F2F2F7] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] transition-all flex items-center justify-center gap-2">
+    {{-- ===================================================== --}}
+    {{-- 1. TOOLBAR / PAGE HEADER                                --}}
+    {{-- ===================================================== --}}
+    <x-module-header
+        title="Inventori & Stok Real-Time"
+        subtitle="Pantau stok produk di seluruh cabang & gudang secara terpusat">
+        @if(\App\Support\Context::hasPermission('inventory.manage'))
+            <a href="{{ route('import.index', ['tab' => 'inventory']) }}" class="min-h-[44px] sm:min-h-0 h-11 sm:h-9 px-4 rounded-[10px] text-[13px] font-semibold text-[#1C1C1E] dark:text-[#F2F2F7] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] transition-all flex items-center justify-center gap-2">
                 <i data-lucide="file-spreadsheet" class="w-4 h-4 text-black/60 dark:text-white/60"></i>
                 <span>Import Stok</span>
             </a>
-            @endif
-        </div>
-    </header>
+        @endif
+    </x-module-header>
+
+    {{-- ===================================================== --}}
+    {{-- 2. MODULE TABS (SSOT)                                   --}}
+    {{-- ===================================================== --}}
+    <x-module-tabs module="inventory" />
 
     <!-- Session Feedback Banner -->
     @if(session('success'))

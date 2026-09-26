@@ -836,41 +836,6 @@
         $navEntitlement = app(\App\Domain\Billing\EntitlementService::class);
         $navUsage = $activeBiz ? $navEntitlement->getUsageSummary($activeBiz) : null;
         $isCorePlan = $navUsage['is_core'] ?? false;
-
-        $canAccessSales =
-            \App\Support\Context::hasPermission('pos.terminal') ||
-            \App\Support\Context::hasPermission('invoices.view') ||
-            \App\Support\Context::hasPermission('sales.view') ||
-            \App\Support\Context::hasPermission('customers.view');
-        $canAccessPurchasing =
-            \App\Support\Context::hasPermission('purchasing.view') ||
-            \App\Support\Context::hasPermission('receiving.manage');
-        $canAccessInventory =
-            \App\Support\Context::hasPermission('products.view') ||
-            \App\Support\Context::hasPermission('materials.view') ||
-            \App\Support\Context::hasPermission('inventory.view') ||
-            \App\Support\Context::hasPermission('inventory.manage');
-        $canAccessCosting =
-            \App\Support\Context::hasPermission('costing.view_margin') ||
-            \App\Support\Context::hasPermission('costing.manage') ||
-            \App\Support\Context::hasPermission('labor_machines.view');
-        $canAccessFinance =
-            \App\Support\Context::hasPermission('accounting.view') ||
-            \App\Support\Context::hasPermission('expenses.view');
-        $canAccessReports =
-            \App\Support\Context::hasPermission('reports.view') || \App\Support\Context::hasPermission('pos.reports');
-        $canAccessSettings =
-            \App\Support\Context::hasPermission('settings.view') ||
-            \App\Support\Context::hasPermission('roles.view') ||
-            \App\Support\Context::hasPermission('billing.view') ||
-            \App\Support\Context::isOwner();
-        $canAccessRoles = \App\Support\Context::hasPermission('roles.view') || \App\Support\Context::isOwner();
-        $canAccessBilling = \App\Support\Context::hasPermission('billing.view') || \App\Support\Context::isOwner();
-        $canAccessMasterData =
-            \App\Support\Context::hasPermission('master_data.suppliers.view') ||
-            \App\Support\Context::hasPermission('master_data.material_categories.view') ||
-            \App\Support\Context::hasPermission('master_data.product_categories.view') ||
-            \App\Support\Context::hasPermission('master_data.units.view');
     @endphp
     <div class="min-h-full flex flex-col lg:flex-row">
 
@@ -882,23 +847,7 @@
             @click="sidebarOpen = false" style="display: none;"></div>
 
         <!-- Sidebar Navigation (Apple HIG / macOS Sonoma Edition) -->
-        @include(
-            'layouts.partials.sidebar',
-            compact(
-                'activeBiz',
-                'navEntitlement',
-                'navUsage',
-                'isCorePlan',
-                'canAccessSales',
-                'canAccessPurchasing',
-                'canAccessInventory',
-                'canAccessCosting',
-                'canAccessFinance',
-                'canAccessReports',
-                'canAccessSettings',
-                'canAccessRoles',
-                'canAccessBilling',
-                'canAccessMasterData'))
+        @include('layouts.partials.sidebar', compact('activeBiz', 'navEntitlement', 'navUsage', 'isCorePlan'))
 
         <!-- Main Content Area (macOS Window Canvas) -->
         <div :class="sidebarCollapsed ? 'lg:pl-[76px]' : 'lg:pl-[272px]'"
@@ -1491,7 +1440,7 @@
                     </button>
 
                     <!-- 4. Katalog Produk & Stok -->
-                    @if ($canAccessInventory)
+                    @if (\App\Support\Context::hasPermission('products.view') || \App\Support\Context::hasPermission('inventory.view'))
                         <a href="{{ route('products.index') }}"
                             {{ request()->routeIs('products.*') || request()->routeIs('inventory.*') ? 'aria-current="page"' : '' }}
                             class="flex flex-col items-center gap-0.5 py-1 px-2.5 rounded-[8px] transition active:scale-[0.97] {{ request()->routeIs('products.*') || request()->routeIs('inventory.*') ? 'text-[#007AFF] font-semibold' : 'text-black/45 dark:text-white/45 hover:text-black/70 dark:hover:text-white/70' }}">

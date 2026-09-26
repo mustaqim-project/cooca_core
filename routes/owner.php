@@ -308,10 +308,10 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
         });
 
         // Labor Rates & Machine Costs
-        Route::middleware('require.permission:labor_machines.view')->group(function (): void {
+        Route::middleware(['module:labor_machines', 'require.permission:labor_machines.view'])->group(function (): void {
             Route::get('/labor-machines', [LaborMachineWebController::class, 'index'])->name('labor-machines.index');
         });
-        Route::middleware('require.permission:costing.manage')->group(function (): void {
+        Route::middleware(['module:labor_machines', 'require.permission:labor_machines.manage'])->group(function (): void {
             Route::post('/labor-rates', [LaborMachineWebController::class, 'storeLabor'])->name('labor-rates.store');
             Route::put('/labor-rates/{laborRate}', [LaborMachineWebController::class, 'updateLabor'])->name('labor-rates.update');
             Route::delete('/labor-rates/{laborRate}', [LaborMachineWebController::class, 'destroyLabor'])->name('labor-rates.destroy');
@@ -488,11 +488,11 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
         Route::get('/pos/incoming-orders', [PosTerminalWebController::class, 'getIncomingOrders'])->name('pos.incoming-orders');
         Route::post('/pos/incoming-orders/{order}/accept', [PosTerminalWebController::class, 'acceptIncomingOrder'])->name('pos.incoming-orders.accept');
         Route::post('/pos/incoming-orders/{order}/reject', [PosTerminalWebController::class, 'rejectIncomingOrder'])->name('pos.incoming-orders.reject');
-        Route::get('/pos/tables/{table}/details', [PosTerminalWebController::class, 'getTableDetails'])->name('pos.tables.details');
         Route::post('/pos/orders/{order}/pay-table', [PosTerminalWebController::class, 'payTableOrder'])->name('pos.orders.pay-table');
 
         // Table Management
-        Route::middleware('require.permission:pos.tables')->group(function (): void {
+        Route::middleware(['module:pos_dinein', 'require.permission:pos.tables'])->group(function (): void {
+            Route::get('/pos/tables/{table}/details', [PosTerminalWebController::class, 'getTableDetails'])->name('pos.tables.details');
             Route::get('/pos/tables', [PosTableWebController::class, 'index'])->name('pos.tables.index');
             Route::get('/pos/tables/qr-cards', [PosTableWebController::class, 'allQrCards'])->name('pos.tables.qr-cards');
             Route::post('/pos/tables', [PosTableWebController::class, 'store'])->middleware('entitlement:table')->name('pos.tables.store');
@@ -542,11 +542,13 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
         });
 
         // Warehouse Management Hub
-        Route::get('/warehouse', [WarehouseWebController::class, 'index'])->middleware('require.permission:inventory.view')->name('warehouse.index');
-        Route::post('/warehouse', [WarehouseWebController::class, 'store'])->middleware(['require.permission:inventory.manage', 'entitlement:warehouse'])->name('warehouse.store');
-        Route::get('/warehouse/{location}', [WarehouseWebController::class, 'show'])->middleware('require.permission:inventory.view')->name('warehouse.show');
-        Route::put('/warehouse/{location}', [WarehouseWebController::class, 'update'])->middleware('require.permission:inventory.manage')->name('warehouse.update');
-        Route::delete('/warehouse/{location}', [WarehouseWebController::class, 'destroy'])->middleware('require.permission:inventory.manage')->name('warehouse.destroy');
+        Route::middleware('module:inventory_warehouse')->group(function (): void {
+            Route::get('/warehouse', [WarehouseWebController::class, 'index'])->middleware('require.permission:warehouse.view')->name('warehouse.index');
+            Route::post('/warehouse', [WarehouseWebController::class, 'store'])->middleware(['require.permission:warehouse.manage', 'entitlement:warehouse'])->name('warehouse.store');
+            Route::get('/warehouse/{location}', [WarehouseWebController::class, 'show'])->middleware('require.permission:warehouse.view')->name('warehouse.show');
+            Route::put('/warehouse/{location}', [WarehouseWebController::class, 'update'])->middleware('require.permission:warehouse.manage')->name('warehouse.update');
+            Route::delete('/warehouse/{location}', [WarehouseWebController::class, 'destroy'])->middleware('require.permission:warehouse.manage')->name('warehouse.destroy');
+        });
 
         // Inventory & Multi-Warehouse Operations
         Route::middleware('require.permission:inventory.view')->group(function (): void {
@@ -684,7 +686,7 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
         });
 
         // Business Landing Page & Mini Website CMS
-        Route::prefix('landing-page')->name('landing-page.')->middleware('require.permission:cms.manage,storefront.popup.manage')->group(function (): void {
+        Route::prefix('landing-page')->name('landing-page.')->middleware(['module:channels_marketing', 'require.permission:cms.manage,storefront.popup.manage'])->group(function (): void {
             Route::get('/', [BusinessLandingPageWebController::class, 'edit'])->name('edit');
             Route::put('/', [BusinessLandingPageWebController::class, 'update'])->name('update');
             Route::post('/preset', [BusinessLandingPageWebController::class, 'applyPreset'])->name('preset');
@@ -696,40 +698,46 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
         });
 
         // Omnichannel Storefront & Order Management
-        Route::prefix('storefront')->name('storefront.')->group(function (): void {
+        Route::prefix('storefront')->name('storefront.')->middleware(['module:storefront_checkout', 'require.permission:storefront.orders.view'])->group(function (): void {
             Route::get('/orders', [MerchantOrderController::class, 'index'])->name('orders.index');
             Route::get('/orders/{order}', [MerchantOrderController::class, 'show'])->name('orders.show');
             Route::get('/orders/{order}/shipping-label', [MerchantOrderController::class, 'shippingLabel'])->name('orders.shipping_label');
-            Route::post('/orders/{order}/waybill', [MerchantOrderController::class, 'updateWaybill'])->name('orders.waybill.update');
-            Route::post('/orders/{order}/verify-payment', [MerchantOrderController::class, 'verifyPayment'])->name('orders.verify_payment');
-            Route::post('/orders/{order}/reject-payment', [MerchantOrderController::class, 'rejectPayment'])->name('orders.reject_payment');
-            Route::post('/orders/{order}/status', [MerchantOrderController::class, 'updateStatus'])->name('orders.update_status');
-            Route::post('/orders/{order}/quote', [MerchantOrderController::class, 'quoteRequestOrder'])->name('orders.quote');
-            Route::post('/orders/{order}/batches/{batch}/status', [MerchantOrderController::class, 'updateBatchStatus'])->name('orders.batches.status');
-            Route::post('/orders/{order}/sync-gateway', [MerchantOrderController::class, 'syncGatewayStatus'])->name('orders.sync_gateway');
-            Route::post('/orders/{order}/biteship/create', [MerchantOrderController::class, 'createBiteshipOrder'])->name('orders.biteship.create');
+            Route::post('/orders/{order}/waybill', [MerchantOrderController::class, 'updateWaybill'])->middleware('require.permission:storefront.orders.process')->name('orders.waybill.update');
+            Route::post('/orders/{order}/verify-payment', [MerchantOrderController::class, 'verifyPayment'])->middleware('require.permission:storefront.orders.process')->name('orders.verify_payment');
+            Route::post('/orders/{order}/reject-payment', [MerchantOrderController::class, 'rejectPayment'])->middleware('require.permission:storefront.orders.process')->name('orders.reject_payment');
+            Route::post('/orders/{order}/status', [MerchantOrderController::class, 'updateStatus'])->middleware('require.permission:storefront.orders.process')->name('orders.update_status');
+            Route::post('/orders/{order}/quote', [MerchantOrderController::class, 'quoteRequestOrder'])->middleware('require.permission:storefront.orders.process')->name('orders.quote');
+            Route::post('/orders/{order}/batches/{batch}/status', [MerchantOrderController::class, 'updateBatchStatus'])->middleware('require.permission:storefront.orders.process')->name('orders.batches.status');
+            Route::post('/orders/{order}/sync-gateway', [MerchantOrderController::class, 'syncGatewayStatus'])->middleware('require.permission:storefront.orders.process')->name('orders.sync_gateway');
+            Route::post('/orders/{order}/biteship/create', [MerchantOrderController::class, 'createBiteshipOrder'])->middleware('require.permission:storefront.orders.process')->name('orders.biteship.create');
             Route::post('/orders/{order}/biteship/track', [MerchantOrderController::class, 'trackBiteshipOrder'])->name('orders.biteship.track');
-            Route::post('/orders/{order}/biteship/cancel', [MerchantOrderController::class, 'cancelBiteshipOrder'])->name('orders.biteship.cancel');
+            Route::post('/orders/{order}/biteship/cancel', [MerchantOrderController::class, 'cancelBiteshipOrder'])->middleware('require.permission:storefront.orders.process')->name('orders.biteship.cancel');
             Route::get('/proofs/{proof}/stream', [MerchantOrderController::class, 'streamProof'])->name('proofs.stream');
 
-            Route::get('/shipping', [MerchantShippingRuleController::class, 'index'])->name('shipping.index');
-            Route::post('/shipping/origin', [MerchantShippingRuleController::class, 'saveOrigin'])->name('shipping.origin.save');
-            Route::post('/shipping/test-rate', [MerchantShippingRuleController::class, 'testRate'])->name('shipping.test_rate');
-            Route::get('/shipping/search-areas', [MerchantShippingRuleController::class, 'searchAreas'])->name('shipping.search_areas');
-            Route::post('/shipping', [MerchantShippingRuleController::class, 'store'])->name('shipping.store');
-            Route::put('/shipping/{shippingRule}', [MerchantShippingRuleController::class, 'update'])->name('shipping.update');
-            Route::post('/shipping/{shippingRule}/toggle', [MerchantShippingRuleController::class, 'toggle'])->name('shipping.toggle');
-            Route::delete('/shipping/{shippingRule}', [MerchantShippingRuleController::class, 'destroy'])->name('shipping.destroy');
+            Route::middleware(['module:merchant_shipping', 'require.permission:storefront.shipping.manage'])->group(function (): void {
+                Route::get('/shipping', [MerchantShippingRuleController::class, 'index'])->name('shipping.index');
+                Route::post('/shipping/origin', [MerchantShippingRuleController::class, 'saveOrigin'])->name('shipping.origin.save');
+                Route::post('/shipping/test-rate', [MerchantShippingRuleController::class, 'testRate'])->name('shipping.test_rate');
+                Route::get('/shipping/search-areas', [MerchantShippingRuleController::class, 'searchAreas'])->name('shipping.search_areas');
+                Route::post('/shipping', [MerchantShippingRuleController::class, 'store'])->name('shipping.store');
+                Route::put('/shipping/{shippingRule}', [MerchantShippingRuleController::class, 'update'])->name('shipping.update');
+                Route::post('/shipping/{shippingRule}/toggle', [MerchantShippingRuleController::class, 'toggle'])->name('shipping.toggle');
+                Route::delete('/shipping/{shippingRule}', [MerchantShippingRuleController::class, 'destroy'])->name('shipping.destroy');
+            });
 
-            Route::get('/reservations', [MerchantReservationController::class, 'index'])->name('reservations.index');
-            Route::post('/reservations/{reservation}/status', [MerchantReservationController::class, 'updateStatus'])->name('reservations.status');
-            Route::post('/reservations/{reservation}/assign-table', [MerchantReservationController::class, 'assignTable'])->name('reservations.assign_table');
+            Route::middleware(['module:reservation', 'require.permission:storefront.reservations.manage'])->group(function (): void {
+                Route::get('/reservations', [MerchantReservationController::class, 'index'])->name('reservations.index');
+                Route::post('/reservations/{reservation}/status', [MerchantReservationController::class, 'updateStatus'])->name('reservations.status');
+                Route::post('/reservations/{reservation}/assign-table', [MerchantReservationController::class, 'assignTable'])->name('reservations.assign_table');
+            });
 
-            Route::get('/settings', [MerchantStoreSettingController::class, 'index'])->name('settings.index');
-            Route::post('/settings', [MerchantStoreSettingController::class, 'update'])->name('settings.update');
-            Route::post('/settings/payment-methods', [MerchantStoreSettingController::class, 'storePaymentMethod'])->name('settings.payment_methods.store');
-            Route::post('/settings/payment-methods/{paymentMethod}/toggle', [MerchantStoreSettingController::class, 'togglePaymentMethod'])->name('settings.payment_methods.toggle');
-            Route::delete('/settings/payment-methods/{paymentMethod}', [MerchantStoreSettingController::class, 'deletePaymentMethod'])->name('settings.payment_methods.destroy');
+            Route::middleware('require.permission:storefront.manage')->group(function (): void {
+                Route::get('/settings', [MerchantStoreSettingController::class, 'index'])->name('settings.index');
+                Route::post('/settings', [MerchantStoreSettingController::class, 'update'])->name('settings.update');
+                Route::post('/settings/payment-methods', [MerchantStoreSettingController::class, 'storePaymentMethod'])->name('settings.payment_methods.store');
+                Route::post('/settings/payment-methods/{paymentMethod}/toggle', [MerchantStoreSettingController::class, 'togglePaymentMethod'])->name('settings.payment_methods.toggle');
+                Route::delete('/settings/payment-methods/{paymentMethod}', [MerchantStoreSettingController::class, 'deletePaymentMethod'])->name('settings.payment_methods.destroy');
+            });
         });
 
         // Marketplace Integrations (Shopee, TikTok Shop, Tokopedia)
