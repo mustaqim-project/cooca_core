@@ -72,6 +72,13 @@ Cooca memisahkan data inventori menjadi tiga entitas spesifik:
   2. Merekursi resep BOM untuk produk anak bertipe olahan/resep dan memotong bahan baku mentah terkait.
 * **Pemulihan Stok Refund Rekursif (`StockService::restoreForPosRefund`):** Jika terjadi refund atau void transaksi kasir, stok seluruh produk anak dan bahan baku dikembalikan secara presisi ke saldo inventori.
 
+### 3.7 Galeri Foto Multi-Image & Thumbnail Produk (`product_images`)
+* **Pemisahan Peran Media:**
+  - **Thumbnail Utama (`products.image_path`):** Satu gambar utama yang dioptimalkan untuk performa tinggi pada Kasir POS, Cetak Struk/Faktur, dan Sinkronisasi Marketplace Hub.
+  - **Galeri Foto Tambahan (`product_images`):** Tabel terpisah yang dapat menampung hingga 10 foto per produk dengan atribut `image_path`, `caption`, `sort_order`, dan `is_primary`.
+* **Multi-Tenant Storage & Quota Tracking:** Setiap unggahan berkas thumbnail dan galeri divalidasi batas kuota bisnis melalui `StorageTrackingService::assertCanUpload()`, diunggah ke storage terisolasi `TenantStorage::publicDir($business, 'products')`, dan dicatat ke `storage_files`.
+* **Cascade Deletion:** Saat master produk dihapus, seluruh berkas galeri dan entitas `product_images` otomatis dibersihkan dari penyimpanan tenant.
+
 ---
 
 ## 4. Aturan Bisnis Inventori (Business Rules)

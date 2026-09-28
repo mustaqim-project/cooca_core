@@ -244,6 +244,52 @@ class Product extends Model
     }
 
     /**
+     * @return HasMany<ProductImage, $this>
+     */
+    public function images(): HasMany
+    {
+        return $this->hasMany(ProductImage::class, 'product_id')->orderBy('sort_order', 'asc');
+    }
+
+    /**
+     * Get all images (primary thumbnail + secondary gallery images) as a unified collection.
+     *
+     * @return \Illuminate\Support\Collection<int, array{id: string|null, url: string, is_primary: bool, caption: string|null}>
+     */
+    public function getAllImagesAttribute(): \Illuminate\Support\Collection
+    {
+        $gallery = collect();
+
+        // 1. Primary Thumbnail Image
+        if ($this->image_url) {
+            $gallery->push([
+                'id'         => null,
+                'url'        => $this->image_url,
+                'is_primary' => true,
+                'caption'    => $this->name,
+            ]);
+        }
+
+        // 2. Secondary Gallery Images
+        $secondaryImages = $this->relationLoaded('images')
+            ? $this->images
+            : $this->images()->get();
+
+        foreach ($secondaryImages as $img) {
+            if ($img->image_url && $img->image_url !== $this->image_url) {
+                $gallery->push([
+                    'id'         => (string) $img->id,
+                    'url'        => $img->image_url,
+                    'is_primary' => false,
+                    'caption'    => $img->caption,
+                ]);
+            }
+        }
+
+        return $gallery;
+    }
+
+    /**
      * Resolve route binding by either UUID id or slug.
      */
     public function resolveRouteBinding($value, $field = null)

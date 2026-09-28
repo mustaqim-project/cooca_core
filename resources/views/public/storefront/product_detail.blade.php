@@ -95,20 +95,58 @@
         {{-- Main PDP Layout: 2 Columns (Image Gallery on Left, Details & Buy Action on Right) --}}
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
 
-            {{-- Left: Product Image Showcase --}}
-            <div class="lg:col-span-6 space-y-4">
+            {{-- Left: Product Image & Multi-Image Gallery Showcase --}}
+            <div class="lg:col-span-6 space-y-3" x-data="{
+                images: @js($product->all_images),
+                activeImage: '{{ $product->image_url ?: ($product->images->first()?->image_url ?? '') }}',
+                activeIndex: 0,
+                selectImage(index) {
+                    if (this.images[index]) {
+                        this.activeIndex = index;
+                        this.activeImage = this.images[index].image_url;
+                    }
+                },
+                nextImage() {
+                    if (this.images.length > 1) {
+                        this.selectImage((this.activeIndex + 1) % this.images.length);
+                    }
+                },
+                prevImage() {
+                    if (this.images.length > 1) {
+                        this.selectImage((this.activeIndex - 1 + this.images.length) % this.images.length);
+                    }
+                }
+            }">
+                {{-- Main Active Image Viewport --}}
                 <div
-                    class="relative aspect-square rounded-theme overflow-hidden bg-white dark:bg-neutral-800 border border-black/5 dark:border-white/10 shadow-lg">
-                    @if ($product->image_url)
-                        <img src="{{ $product->image_url }}" alt="{{ $product->name }}"
-                            class="w-full h-full object-cover">
-                    @else
+                    class="relative aspect-square rounded-[24px] overflow-hidden bg-white dark:bg-neutral-800 border border-black/5 dark:border-white/10 shadow-lg group">
+                    <template x-if="activeImage">
+                        <img :src="activeImage" :alt="'{{ addslashes($product->name) }}'"
+                            class="w-full h-full object-cover transition duration-300">
+                    </template>
+                    <template x-if="!activeImage">
                         <div
                             class="w-full h-full flex flex-col items-center justify-center text-neutral-400 bg-neutral-100 dark:bg-neutral-800">
                             <i data-lucide="package" class="w-20 h-20 stroke-1 mb-2"></i>
                             <span class="text-xs font-medium">Foto Produk Resmi</span>
                         </div>
-                    @endif
+                    </template>
+
+                    {{-- Navigation Arrows on Main Image --}}
+                    <template x-if="images.length > 1">
+                        <div>
+                            <button type="button" @click.stop="prevImage()"
+                                class="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/50 hover:bg-black/80 text-white backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition shadow-md"
+                                aria-label="Foto Sebelumnya">
+                                <i data-lucide="chevron-left" class="w-5 h-5"></i>
+                            </button>
+                            <button type="button" @click.stop="nextImage()"
+                                class="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/50 hover:bg-black/80 text-white backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition shadow-md"
+                                aria-label="Foto Selanjutnya">
+                                <i data-lucide="chevron-right" class="w-5 h-5"></i>
+                            </button>
+                        </div>
+                    </template>
 
                     @if ($product->is_preorder)
                         <div
@@ -116,7 +154,35 @@
                             Sistem Pre-Order (PO)
                         </div>
                     @endif
+
+                    {{-- Image Counter Badge --}}
+                    <template x-if="images.length > 1">
+                        <div class="absolute bottom-3 right-3 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-black/60 backdrop-blur-md text-white shadow-sm"
+                            style="font-variant-numeric: tabular-nums;">
+                            <span x-text="activeIndex + 1"></span>/<span x-text="images.length"></span>
+                        </div>
+                    </template>
                 </div>
+
+                {{-- Gallery Thumbnails Row --}}
+                <template x-if="images.length > 1">
+                    <div class="relative flex items-center gap-2 pt-1">
+                        <div class="flex items-center gap-2.5 overflow-x-auto pb-1.5 scrollbar-none no-scrollbar w-full">
+                            <template x-for="(img, idx) in images" :key="img.id || idx">
+                                <button type="button"
+                                    @click="selectImage(idx)"
+                                    @mouseenter="selectImage(idx)"
+                                    class="relative shrink-0 w-16 sm:w-20 aspect-square rounded-[14px] overflow-hidden border-2 transition-all duration-200 cursor-pointer focus:outline-none"
+                                    :class="activeIndex === idx 
+                                        ? 'border-emerald-500 dark:border-emerald-400 ring-2 ring-emerald-500/30 shadow-md scale-105' 
+                                        : 'border-black/10 dark:border-white/10 hover:border-neutral-400 opacity-70 hover:opacity-100'">
+                                    <img :src="img.image_url" :alt="img.caption || '{{ addslashes($product->name) }}'"
+                                        class="w-full h-full object-cover">
+                                </button>
+                            </template>
+                        </div>
+                    </div>
+                </template>
             </div>
 
             {{-- Right: Product Details, Stock, Pricing & Purchase Action --}}

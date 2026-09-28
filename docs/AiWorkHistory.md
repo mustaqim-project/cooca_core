@@ -49,6 +49,74 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 
 ---
 
+### [WORK-2026-09-28-210] Implementasi Fitur Galeri Foto Produk Multi-Image (Toko Online & Dashboard Owner)
+
+- **Date:** 2026-09-28
+- **Status:** COMPLETED
+- **Module:** Inventory & Commerce (`App\Models\Product`, `App\Models\ProductImage`, `ProductWebController`, `PublicStorefrontController`, Storefront PDP)
+- **Feature:** Sistem Galeri Foto Produk Multi-Image Terintegrasi:
+  1. **Migrasi Database `product_images`**: Membuat tabel `product_images` (`id` UUID, `business_id`, `product_id`, `image_path`, `caption`, `sort_order`, `is_primary`, `created_at`, `updated_at`, composite index `['business_id', 'product_id']` dan cascading foreign key) via migrasi `2026_09_28_173000_create_product_images_table.php`.
+  2. **Eloquent Model `ProductImage` & Relasi `Product`**:
+     - Model `App\Models\ProductImage` dengan `BelongsToBusiness`, `HasUuid`, relasi `product()` dan `business()`, serta accessor `image_url` berbasis `TenantStorage::url()`.
+     - Model `App\Models\Product` dengan relasi `images()` HasMany (urut `sort_order` ASC) dan accessor `all_images` yang menggabungkan foto utama (thumbnail `image_path`) dengan seluruh foto galeri tambahan.
+  3. **Showcase Interaktif Galeri Toko Online (PDP / Product Detail Page)**:
+     - Tampilan galeri foto Apple HIG/Bento modern pada `resources/views/public/storefront/product_detail.blade.php`.
+     - Viewport gambar utama beresolusi tinggi dengan smooth transition, indikator counter foto (`x/y`), dan tombol navigasi panah (`<` dan `>`).
+     - Baris thumbnail foto di bagian bawah dengan highlight active ring (`border-emerald-500 ring-2 ring-emerald-500/30 scale-105`), interaksi klik/hover instan untuk menukar foto utama, serta scroll horizontal responsif.
+     - Rich Snippets Schema.org JSON-LD otomatis menyertakan seluruh URL gambar galeri.
+  4. **Manajemen Galeri di Dashboard Owner (Create & Edit Modal)**:
+     - Modal Tambah Produk: Input foto utama (thumbnail) + input multi-berkas `gallery_images[]` (maks. 10 gambar, @ 4 MB) dengan preview strip interaktif sebelum disimpan.
+     - Modal Edit Produk: Menampilkan foto galeri aktif saat ini dengan tombol hapus visual per-foto (`remove_gallery_ids[]`) + input upload foto baru.
+     - Validasi kuota penyimpanan tenant melalui `StorageTrackingService::assertCanUpload()` dan pencatatan upload melalui `recordUpload()`.
+     - Endpoint khusus `DELETE /products/{product}/gallery/{image}` (`products.gallery.destroy`) untuk penghapusan foto galeri secara modular/AJAX.
+     - Cascade deletion saat produk dihapus (menghapus seluruh file galeri dari storage tenant).
+  5. **Zero Breaking Changes**: Foto utama (`products.image_path`) tetap dipertahankan sebagai thumbnail standar untuk POS Kasir, Faktur SO, dan integrasi Marketplace Hub.
+- **Work Type:** Database Migration | Feature | UI/UX (Storefront PDP & Owner Modal) | Multi-Tenant Storage Tracking
+
+#### 1. Business Context & Objective
+
+- **Konteks:** Pada toko online e-commerce modern (seperti marketplace terkemuka), calon pembeli memerlukan tampilan visual produk yang kaya dari berbagai sudut (tampak depan, samping, detail bahan, sertifikasi, varian). Sebelumnya, produk di COOCA hanya memiliki satu file gambar tunggal (`image_path`).
+- **Masalah/Target:** Memisahkan peran gambar menjadi Thumbnail Utama (kasir POS & cover etalase) dan Galeri Foto Multi-Image (khusus toko online/PDP interaktif) tanpa merusak kompatibilitas POS kasir dan marketplace sync.
+
+#### 2. What Was Done
+
+- Membuat migrasi database `2026_09_28_173000_create_product_images_table.php` dan mengeksekusinya ke database.
+- Membuat model Eloquent `app/Models/ProductImage.php` dan memperbarui `app/Models/Product.php` dengan relasi `images()` dan accessor `all_images`.
+- Memperbarui `app/Http/Controllers/Web/ProductWebController.php` untuk memvalidasi `gallery_images.*`, memeriksa kuota storage, menyimpan berkas, menghapus foto yang ditandai, menghapus berkas saat produk dihapus, dan menambahkan endpoint `deleteGalleryImage()`.
+- Menambahkan route `DELETE /products/{product}/gallery/{image}` pada `routes/owner.php`.
+- Memperbarui `app/Http/Controllers/Web/Storefront/PublicStorefrontController.php` untuk eager-load `images` pada `productDetail()`.
+- Memperbarui `resources/views/public/storefront/product_detail.blade.php` dengan komponen galeri interaktif Alpine.js (gambar utama + strip thumbnail aktif + tombol panah).
+- Memperbarui `resources/views/app/products/index.blade.php` pada Create Modal dan Edit Modal untuk mendukung multi-image gallery upload dan penghapusan per-foto.
+- Membuat suite pengujian menyeluruh pada `tests/Feature/ProductGalleryTest.php` (5 automated tests, 37 assertions, 100% pass).
+
+#### 3. Technical Changes
+
+- **Files Affected:**
+  - `database/migrations/2026_09_28_173000_create_product_images_table.php`
+  - `app/Models/ProductImage.php`
+  - `app/Models/Product.php`
+  - `app/Http/Controllers/Web/ProductWebController.php`
+  - `routes/owner.php`
+  - `app/Http/Controllers/Web/Storefront/PublicStorefrontController.php`
+  - `resources/views/public/storefront/product_detail.blade.php`
+  - `resources/views/app/products/index.blade.php`
+  - `tests/Feature/ProductGalleryTest.php`
+- **Database Changes:** Tabel baru `product_images` dengan UUID, `business_id`, `product_id`, `image_path`, `caption`, `sort_order`, `is_primary`, timestamps.
+- **API / Route Changes:** Penambahan route `DELETE /products/{product}/gallery/{image}` (`products.gallery.destroy`).
+
+#### 4. System Impacts
+
+- **Workflow Impact:** Pemilik usaha kini dapat mengunggah hingga 10 foto galeri per produk. Pengunjung toko online dapat berinteraksi dengan galeri foto berkecepatan tinggi.
+- **Business Rule Impact:** Thumbnail utama tetap digunakan oleh Kasir POS untuk efisiensi memori, sedangkan PDP toko online menampilkan galeri lengkap.
+- **Permission Impact:** Hak akses kelola galeri dilindungi `products.edit` dan `products.delete`.
+
+#### 5. Verification & Testing
+
+- `tests/Feature/ProductGalleryTest.php`: 5 tests, 37 assertions passed (100%).
+- Regression suite (`ProductChannelVisibilityAndPreorderTest.php`, `CommerceStorefrontCheckoutTest.php`, `MarketplaceIntegrationTest.php`): 46 tests, 261 assertions passed (100%).
+
+---
+
 ### [WORK-2026-09-28-209] Penambahan Kolom Database is_active & Resolusi Persistence Toggle Penjualan Marketplace Hub
 
 - **Date:** 2026-09-28

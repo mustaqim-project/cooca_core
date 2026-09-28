@@ -16,6 +16,7 @@ use App\Models\Product;
 use App\Models\ProductBundleItem;
 use App\Models\ProductCategory;
 use App\Models\ProductChannelPrice;
+use App\Models\ProductImage;
 use App\Models\Unit;
 use App\Support\Context;
 use App\Domain\Storage\OwnerStorageQuotaService;
@@ -39,7 +40,7 @@ final class ProductWebController extends Controller
         $business = Context::requireBusiness();
 
         $query = Product::goods()
-            ->with(['category', 'outputUnit', 'costModels.latestVersion', 'bundleItems.childProduct', 'channelPrices'])
+            ->with(['category', 'outputUnit', 'costModels.latestVersion', 'bundleItems.childProduct', 'channelPrices', 'images'])
             ->latest();
 
         if ($request->filled('search')) {
@@ -159,8 +160,19 @@ final class ProductWebController extends Controller
 
         $trackingService = app(\App\Domain\Storage\StorageTrackingService::class);
         $owner = app(OwnerStorageQuotaService::class)->ownerForBusiness($business);
-        if ($owner && $request->hasFile('image')) {
-            $trackingService->assertCanUpload($owner, (int) $request->file('image')->getSize(), 'image');
+        $totalBytes = 0;
+        if ($request->hasFile('image')) {
+            $totalBytes += (int) $request->file('image')->getSize();
+        }
+        if ($request->hasFile('gallery_images')) {
+            foreach ($request->file('gallery_images') as $gFile) {
+                if ($gFile) {
+                    $totalBytes += (int) $gFile->getSize();
+                }
+            }
+        }
+        if ($owner && $totalBytes > 0) {
+            $trackingService->assertCanUpload($owner, $totalBytes, 'image');
         }
 
         $validated = $request->validate([
@@ -194,6 +206,8 @@ final class ProductWebController extends Controller
             'channel_prices' => ['nullable', 'array'],
             'channel_prices.*' => ['nullable', 'numeric', 'gte:0'],
             'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096', 'dimensions:max_width=2400,max_height=2400'],
+            'gallery_images' => ['nullable', 'array', 'max:10'],
+            'gallery_images.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:4096', 'dimensions:max_width=2400,max_height=2400'],
         ]);
 
         /** @var Product $product */
@@ -263,6 +277,32 @@ final class ProductWebController extends Controller
             }
         }
 
+        if ($request->hasFile('gallery_images')) {
+            $dir = TenantStorage::publicDir($business, TenantStorage::FOLDER_PRODUCTS);
+            foreach ($request->file('gallery_images') as $index => $gFile) {
+                if ($gFile && $gFile->isValid()) {
+                    $gPath = $gFile->store($dir, 'public');
+                    ProductImage::create([
+                        'business_id' => $business->id,
+                        'product_id' => $product->id,
+                        'image_path' => $gPath,
+                        'sort_order' => $index + 1,
+                    ]);
+                    if ($owner) {
+                        $trackingService->recordUpload(
+                            file: $gFile,
+                            filePath: $gPath,
+                            category: \App\Models\StorageFile::CATEGORY_PRODUCT_IMAGE,
+                            module: 'product',
+                            owner: $owner,
+                            business: $business,
+                            uploader: $request->user()
+                        );
+                    }
+                }
+            }
+        }
+
         // Auto create primary CostModel
         CostModel::create([
             'business_id' => $business->id,
@@ -285,8 +325,19 @@ final class ProductWebController extends Controller
 
         $trackingService = app(\App\Domain\Storage\StorageTrackingService::class);
         $owner = app(OwnerStorageQuotaService::class)->ownerForBusiness($business);
-        if ($owner && $request->hasFile('image')) {
-            $trackingService->assertCanUpload($owner, (int) $request->file('image')->getSize(), 'image');
+        $totalBytes = 0;
+        if ($request->hasFile('image')) {
+            $totalBytes += (int) $request->file('image')->getSize();
+        }
+        if ($request->hasFile('gallery_images')) {
+            foreach ($request->file('gallery_images') as $gFile) {
+                if ($gFile) {
+                    $totalBytes += (int) $gFile->getSize();
+                }
+            }
+        }
+        if ($owner && $totalBytes > 0) {
+            $trackingService->assertCanUpload($owner, $totalBytes, 'image');
         }
 
         $validated = $request->validate([
@@ -321,6 +372,10 @@ final class ProductWebController extends Controller
             'description' => ['nullable', 'string'],
             'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096', 'dimensions:max_width=2400,max_height=2400'],
             'remove_image' => ['nullable', 'boolean'],
+            'gallery_images' => ['nullable', 'array', 'max:10'],
+            'gallery_images.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:4096', 'dimensions:max_width=2400,max_height=2400'],
+            'remove_gallery_ids' => ['nullable', 'array'],
+            'remove_gallery_ids.*' => ['string'],
         ]);
 
         $product->update([
@@ -398,6 +453,49 @@ final class ProductWebController extends Controller
             }
             if ($oldImagePath) {
                 $trackingService->deleteFile($oldImagePath, 'public');
+            }
+        }
+
+        // Delete specified gallery images
+        if ($request->filled('remove_gallery_ids')) {
+            $imagesToDelete = ProductImage::where('business_id', $business->id)
+                ->where('product_id', $product->id)
+                ->whereIn('id', (array) $request->input('remove_gallery_ids'))
+                ->get();
+
+            foreach ($imagesToDelete as $img) {
+                if ($img->image_path) {
+                    $trackingService->deleteFile($img->image_path, 'public');
+                }
+                $img->delete();
+            }
+        }
+
+        // Add new gallery images
+        if ($request->hasFile('gallery_images')) {
+            $dir = TenantStorage::publicDir($business, TenantStorage::FOLDER_PRODUCTS);
+            $currentMaxSort = (int) ProductImage::where('product_id', $product->id)->max('sort_order');
+            foreach ($request->file('gallery_images') as $index => $gFile) {
+                if ($gFile && $gFile->isValid()) {
+                    $gPath = $gFile->store($dir, 'public');
+                    ProductImage::create([
+                        'business_id' => $business->id,
+                        'product_id' => $product->id,
+                        'image_path' => $gPath,
+                        'sort_order' => $currentMaxSort + $index + 1,
+                    ]);
+                    if ($owner) {
+                        $trackingService->recordUpload(
+                            file: $gFile,
+                            filePath: $gPath,
+                            category: \App\Models\StorageFile::CATEGORY_PRODUCT_IMAGE,
+                            module: 'product',
+                            owner: $owner,
+                            business: $business,
+                            uploader: $request->user()
+                        );
+                    }
+                }
             }
         }
 
@@ -508,13 +606,50 @@ final class ProductWebController extends Controller
         $business = Context::requireBusiness();
         abort_unless($product->business_id === $business->id, 404);
 
+        $trackingService = app(\App\Domain\Storage\StorageTrackingService::class);
+
         if ($product->image_path) {
-            app(\App\Domain\Storage\StorageTrackingService::class)->deleteFile($product->image_path, 'public');
+            $trackingService->deleteFile($product->image_path, 'public');
+        }
+
+        // Delete all gallery images and their storage files
+        $galleryImages = ProductImage::where('business_id', $business->id)
+            ->where('product_id', $product->id)
+            ->get();
+        foreach ($galleryImages as $img) {
+            if ($img->image_path) {
+                $trackingService->deleteFile($img->image_path, 'public');
+            }
+            $img->delete();
         }
 
         $product->delete();
 
         return redirect()->route('products.index')->with('success', 'Produk berhasil dihapus.');
+    }
+
+    /**
+     * Delete a single gallery image from a product.
+     */
+    public function deleteGalleryImage(Product $product, ProductImage $image): JsonResponse|RedirectResponse
+    {
+        $business = Context::requireBusiness();
+        abort_unless($product->business_id === $business->id, 403);
+        abort_unless($image->business_id === $business->id && $image->product_id === $product->id, 404);
+
+        if ($image->image_path) {
+            app(\App\Domain\Storage\StorageTrackingService::class)->deleteFile($image->image_path, 'public');
+        }
+        $image->delete();
+
+        if (request()->wantsJson()) {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Foto galeri berhasil dihapus.',
+            ]);
+        }
+
+        return back()->with('success', 'Foto galeri berhasil dihapus.');
     }
 
     /**

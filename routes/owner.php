@@ -167,6 +167,7 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
         Route::post('/bom-headers/{bomHeader}/items', [ProductWebController::class, 'addBomItem'])->middleware(['require.permission:products.edit', 'entitlement:recipe'])->name('bom.items.store');
         Route::delete('/bom-items/{bomItem}', [ProductWebController::class, 'removeBomItem'])->middleware('require.permission:products.edit')->name('bom.items.destroy');
         Route::delete('/products/{product}', [ProductWebController::class, 'destroy'])->middleware('require.permission:products.delete')->name('products.destroy');
+        Route::delete('/products/{product}/gallery/{image}', [ProductWebController::class, 'deleteGalleryImage'])->middleware('require.permission:products.edit')->name('products.gallery.destroy');
 
         // Jasa & Layanan Management
         Route::middleware('require.permission:products.view')->group(function (): void {

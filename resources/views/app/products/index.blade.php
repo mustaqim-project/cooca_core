@@ -255,6 +255,10 @@
             }
         },
     
+        newGalleryPreviews: [],
+        editGalleryPreviews: [],
+        removeGalleryIds: [],
+
         handleNewProductImage(e) {
             const file = e.target.files[0];
             if (!file) return;
@@ -276,7 +280,41 @@
             }
             this.newProductPreview = URL.createObjectURL(file);
         },
-    
+
+        handleNewGalleryImages(e) {
+            const files = Array.from(e.target.files || []);
+            if (!files.length) return;
+            if (files.length > 10) {
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({ icon: 'error', title: 'Maksimal 10 Foto', text: 'Anda dapat mengunggah maksimal 10 foto galeri sekaligus.', confirmButtonColor: '#FF3B30' });
+                }
+                e.target.value = '';
+                this.newGalleryPreviews = [];
+                return;
+            }
+            const validPreviews = [];
+            for (const file of files) {
+                if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({ icon: 'error', title: 'Format Tidak Didukung', text: `File ${file.name} bukan format JPG, PNG, atau WebP.`, confirmButtonColor: '#FF3B30' });
+                    }
+                    e.target.value = '';
+                    this.newGalleryPreviews = [];
+                    return;
+                }
+                if (file.size > 4 * 1024 * 1024) {
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({ icon: 'error', title: 'Ukuran Terlalu Besar', text: `File ${file.name} melebihi batas 4 MB.`, confirmButtonColor: '#FF3B30' });
+                    }
+                    e.target.value = '';
+                    this.newGalleryPreviews = [];
+                    return;
+                }
+                validPreviews.push(URL.createObjectURL(file));
+            }
+            this.newGalleryPreviews = validPreviews;
+        },
+
         handleEditProductImage(e) {
             const file = e.target.files[0];
             if (!file) return;
@@ -298,7 +336,50 @@
             }
             this.editProductPreview = URL.createObjectURL(file);
         },
-    
+
+        handleEditGalleryImages(e) {
+            const files = Array.from(e.target.files || []);
+            if (!files.length) return;
+            if (files.length > 10) {
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({ icon: 'error', title: 'Maksimal 10 Foto', text: 'Anda dapat mengunggah maksimal 10 foto galeri sekaligus.', confirmButtonColor: '#FF3B30' });
+                }
+                e.target.value = '';
+                this.editGalleryPreviews = [];
+                return;
+            }
+            const validPreviews = [];
+            for (const file of files) {
+                if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({ icon: 'error', title: 'Format Tidak Didukung', text: `File ${file.name} bukan format JPG, PNG, atau WebP.`, confirmButtonColor: '#FF3B30' });
+                    }
+                    e.target.value = '';
+                    this.editGalleryPreviews = [];
+                    return;
+                }
+                if (file.size > 4 * 1024 * 1024) {
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({ icon: 'error', title: 'Ukuran Terlalu Besar', text: `File ${file.name} melebihi batas 4 MB.`, confirmButtonColor: '#FF3B30' });
+                    }
+                    e.target.value = '';
+                    this.editGalleryPreviews = [];
+                    return;
+                }
+                validPreviews.push(URL.createObjectURL(file));
+            }
+            this.editGalleryPreviews = validPreviews;
+        },
+
+        toggleRemoveExistingGallery(id) {
+            const idx = this.removeGalleryIds.indexOf(id);
+            if (idx > -1) {
+                this.removeGalleryIds.splice(idx, 1);
+            } else {
+                this.removeGalleryIds.push(id);
+            }
+        },
+
         editProduct: {!! $editProduct
             ? json_encode(
                 [
@@ -324,10 +405,11 @@
                     'channel_prices' => $editProduct->channelPrices->pluck('price', 'channel')->all(),
                     'description' => $editProduct->description ?? '',
                     'image_url' => $editProduct->image_url,
+                    'images' => $editProduct->images->map(fn($img) => ['id' => $img->id, 'image_url' => $img->image_url, 'caption' => $img->caption])->values()->all(),
                 ],
                 JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE,
             )
-            : "{ id: '', slug: '', name: '', sku: '', category_id: '', output_unit_id: '', base_cost: 0, selling_price: 0, min_stock: 0, is_active: true, show_in_website: true, show_in_pos: true, show_in_sales_order: true, show_price_on_web: true, is_preorder: false, preorder_mode: 'customer_schedule', preorder_lead_days: 1, is_bundle: false, bundle_items: [], channel_prices: {}, description: '', image_url: '' }" !!},
+            : "{ id: '', slug: '', name: '', sku: '', category_id: '', output_unit_id: '', base_cost: 0, selling_price: 0, min_stock: 0, is_active: true, show_in_website: true, show_in_pos: true, show_in_sales_order: true, show_price_on_web: true, is_preorder: false, preorder_mode: 'customer_schedule', preorder_lead_days: 1, is_bundle: false, bundle_items: [], channel_prices: {}, description: '', image_url: '', images: [] }" !!},
     
         productToggles: {
             @foreach($products as $p)
@@ -420,8 +502,11 @@
                 is_bundle: Boolean(p.is_bundle),
                 bundle_items: (p.bundle_items || []).map(b => ({ child_product_id: String(b.child_product_id), quantity: Number(b.quantity) })),
                 channel_prices: p.channel_prices || {},
+                images: p.images || [],
             };
             this.editProductPreview = '';
+            this.editGalleryPreviews = [];
+            this.removeGalleryIds = [];
             this.showEditModal = true;
         },
     
@@ -1047,7 +1132,8 @@
                                     image_url: '{{ addslashes($prod->image_url ?? '') }}',
                                     is_bundle: {{ $prod->isBundle() ? 'true' : 'false' }},
                                     bundle_items: {{ Js::from($prod->bundleItems->map(fn($bi) => ['child_product_id' => (string)$bi->child_product_id, 'quantity' => (float)$bi->quantity])) }},
-                                    channel_prices: {{ Js::from($prod->channelPrices->pluck('price', 'channel')) }}
+                                    channel_prices: {{ Js::from($prod->channelPrices->pluck('price', 'channel')) }},
+                                    images: {{ Js::from($prod->images->map(fn($img) => ['id' => $img->id, 'image_url' => $img->image_url, 'caption' => $img->caption])) }}
                                 })"
                                                 class="h-8 px-2.5 rounded-[8px] text-[12px] font-medium text-black/70 dark:text-white/70 hover:bg-black/5 dark:hover:bg-white/5 transition-colors flex items-center"
                                                 title="Edit Produk">
@@ -1176,7 +1262,8 @@
                         image_url: '{{ addslashes($prod->image_url ?? '') }}',
                         is_bundle: {{ $prod->isBundle() ? 'true' : 'false' }},
                         bundle_items: {{ Js::from($prod->bundleItems->map(fn($bi) => ['child_product_id' => (string)$bi->child_product_id, 'quantity' => (float)$bi->quantity])) }},
-                        channel_prices: {{ Js::from($prod->channelPrices->pluck('price', 'channel')) }}
+                        channel_prices: {{ Js::from($prod->channelPrices->pluck('price', 'channel')) }},
+                        images: {{ Js::from($prod->images->map(fn($img) => ['id' => $img->id, 'image_url' => $img->image_url, 'caption' => $img->caption])) }}
                     })"
                                     class="h-8 px-2.5 rounded-[8px] text-[12px] font-medium text-black/70 dark:text-white/70 bg-black/[0.05] dark:bg-white/[0.08] flex items-center">
                                     Edit
@@ -1594,30 +1681,59 @@
                                     </div>
                                 </div>
 
-                                <!-- Bento Box 2: Gambar Produk -->
+                                <!-- Bento Box 2: Gambar Utama & Galeri Produk -->
                                 <div
-                                    class="p-5 rounded-[18px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.08] space-y-3">
-                                    <h3 class="text-[14px] font-bold text-black dark:text-white tracking-tight">Foto Produk
-                                    </h3>
-                                    <div x-show="newProductPreview"
-                                        class="w-20 h-20 rounded-[12px] overflow-hidden border border-black/10 dark:border-white/10 relative">
-                                        <img :src="newProductPreview" alt="Preview Gambar Baru"
-                                            class="w-full h-full object-cover">
-                                        <button type="button"
-                                            @click="newProductPreview = ''; $refs.newProductImageInput.value = ''"
-                                            class="absolute top-1 right-1 p-1 rounded-full bg-black/70 text-white hover:text-[#FF3B30] transition">
-                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                    d="M6 18L18 6M6 6l12 12" />
-                                            </svg>
-                                        </button>
+                                    class="p-5 rounded-[18px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.08] space-y-4">
+                                    <div class="flex items-center justify-between">
+                                        <h3 class="text-[14px] font-bold text-black dark:text-white tracking-tight">Foto & Galeri Produk</h3>
+                                        <span class="text-[11px] font-medium text-black/40 dark:text-white/40">Multi-Foto</span>
                                     </div>
-                                    <input type="file" name="image" x-ref="newProductImageInput"
-                                        @change="handleNewProductImage($event)" accept="image/jpeg,image/png,image/webp"
-                                        class="w-full text-[12px] text-black/60 dark:text-white/60 file:mr-3 file:rounded-[8px] file:border-0 file:bg-black/[0.06] dark:file:bg-white/[0.08] file:px-3 file:py-2 file:text-[12px] file:font-semibold">
-                                    <p class="text-[11px] text-black/45 dark:text-white/45">Maks. 4 MB (JPG, PNG, WebP).
-                                        Tampil di etalase web dan kasir POS.</p>
+
+                                    <!-- Foto Utama (Thumbnail) -->
+                                    <div class="space-y-2">
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-[12px] font-semibold text-black/80 dark:text-white/80">Foto Utama (Thumbnail)</span>
+                                            <span class="text-[11px] text-black/40 dark:text-white/40">Tampil di Kasir POS & Cover Web</span>
+                                        </div>
+                                        <div x-show="newProductPreview"
+                                            class="w-20 h-20 rounded-[12px] overflow-hidden border border-black/10 dark:border-white/10 relative">
+                                            <img :src="newProductPreview" alt="Preview Thumbnail"
+                                                class="w-full h-full object-cover">
+                                            <button type="button"
+                                                @click="newProductPreview = ''; $refs.newProductImageInput.value = ''"
+                                                class="absolute top-1 right-1 p-1 rounded-full bg-black/70 text-white hover:text-[#FF3B30] transition">
+                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        d="M6 18L18 6M6 6l12 12" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                        <input type="file" name="image" x-ref="newProductImageInput"
+                                            @change="handleNewProductImage($event)" accept="image/jpeg,image/png,image/webp"
+                                            class="w-full text-[12px] text-black/60 dark:text-white/60 file:mr-3 file:rounded-[8px] file:border-0 file:bg-black/[0.06] dark:file:bg-white/[0.08] file:px-3 file:py-2 file:text-[12px] file:font-semibold">
+                                    </div>
+
+                                    <!-- Galeri Foto Tambahan (Toko Online) -->
+                                    <div class="pt-3 border-t border-black/[0.06] dark:border-white/[0.08] space-y-2">
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-[12px] font-semibold text-black/80 dark:text-white/80">Galeri Foto Toko Online</span>
+                                            <span class="text-[11px] text-[#007AFF] font-medium" x-show="newGalleryPreviews.length > 0" x-text="newGalleryPreviews.length + ' foto dipilih'"></span>
+                                        </div>
+                                        <template x-if="newGalleryPreviews.length > 0">
+                                            <div class="flex items-center gap-2 overflow-x-auto py-1">
+                                                <template x-for="(prev, pIdx) in newGalleryPreviews" :key="pIdx">
+                                                    <div class="w-16 h-16 rounded-[10px] overflow-hidden border border-black/10 dark:border-white/10 shrink-0 relative bg-black/5">
+                                                        <img :src="prev" alt="Gallery Preview" class="w-full h-full object-cover">
+                                                    </div>
+                                                </template>
+                                            </div>
+                                        </template>
+                                        <input type="file" name="gallery_images[]" multiple x-ref="newProductGalleryInput"
+                                            @change="handleNewGalleryImages($event)" accept="image/jpeg,image/png,image/webp"
+                                            class="w-full text-[12px] text-black/60 dark:text-white/60 file:mr-3 file:rounded-[8px] file:border-0 file:bg-[#007AFF]/10 file:text-[#007AFF] dark:file:bg-[#007AFF]/20 file:px-3 file:py-2 file:text-[12px] file:font-semibold">
+                                        <p class="text-[11px] text-black/45 dark:text-white/45">Bisa pilih beberapa foto sekaligus (Maks. 10 foto, @ 4 MB). Akan tampil sebagai galeri interaktif di halaman toko online.</p>
+                                    </div>
                                 </div>
 
                                 <!-- Bento Box 3: Saluran Penjualan Multi-Channel -->
@@ -2045,36 +2161,96 @@
                                     </div>
                                 </div>
 
-                                <!-- Bento Box 2: Gambar Produk -->
+                                <!-- Bento Box 2: Foto Utama & Galeri Produk -->
                                 <div
-                                    class="p-5 rounded-[18px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.08] space-y-3">
-                                    <h3 class="text-[14px] font-bold text-black dark:text-white tracking-tight">Foto Produk
-                                    </h3>
-                                    <div x-show="editProductPreview || editProduct.image_url"
-                                        class="flex items-center gap-3.5">
-                                        <div
-                                            class="w-16 h-16 rounded-[12px] overflow-hidden border border-black/10 dark:border-white/10 bg-black/[0.04] dark:bg-white/[0.06] relative shrink-0">
-                                            <img :src="editProductPreview || editProduct.image_url"
-                                                :alt="editProduct.name" class="w-full h-full object-cover">
-                                        </div>
-                                        <div class="text-[12px] text-black/50 dark:text-white/50">
-                                            <span x-show="editProductPreview"
-                                                class="text-[#007AFF] font-medium block">Foto baru dipilih</span>
-                                            <span x-show="!editProductPreview && editProduct.image_url"
-                                                class="block">Foto aktif saat ini</span>
-                                            <span class="text-[11px] text-black/40 dark:text-white/40">Pilih berkas baru
-                                                untuk mengganti.</span>
-                                        </div>
+                                    class="p-5 rounded-[18px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.08] space-y-4">
+                                    <div class="flex items-center justify-between">
+                                        <h3 class="text-[14px] font-bold text-black dark:text-white tracking-tight">Foto & Galeri Produk</h3>
+                                        <span class="text-[11px] font-medium text-black/40 dark:text-white/40">Multi-Foto</span>
                                     </div>
-                                    <input type="file" name="image" @change="handleEditProductImage($event)"
-                                        accept="image/jpeg,image/png,image/webp"
-                                        class="w-full text-[12px] text-black/60 dark:text-white/60 file:mr-3 file:rounded-[8px] file:border-0 file:bg-black/[0.06] dark:file:bg-white/[0.08] file:px-3 file:py-2 file:text-[12px] file:font-semibold">
-                                    <label x-show="editProduct.image_url"
-                                        class="mt-2 flex items-center gap-2 text-[12px] text-black/60 dark:text-white/60 cursor-pointer">
-                                        <input type="checkbox" name="remove_image" value="1"
-                                            class="rounded-[4px] border-black/20 text-[#FF3B30] focus:ring-[#FF3B30]">
-                                        <span>Hapus foto saat ini</span>
-                                    </label>
+
+                                    <!-- Foto Utama (Thumbnail) -->
+                                    <div class="space-y-2">
+                                        <span class="text-[12px] font-semibold text-black/80 dark:text-white/80 block">Foto Utama (Thumbnail)</span>
+                                        <div x-show="editProductPreview || editProduct.image_url"
+                                            class="flex items-center gap-3.5">
+                                            <div
+                                                class="w-16 h-16 rounded-[12px] overflow-hidden border border-black/10 dark:border-white/10 bg-black/[0.04] dark:bg-white/[0.06] relative shrink-0">
+                                                <img :src="editProductPreview || editProduct.image_url"
+                                                    :alt="editProduct.name" class="w-full h-full object-cover">
+                                            </div>
+                                            <div class="text-[12px] text-black/50 dark:text-white/50">
+                                                <span x-show="editProductPreview"
+                                                    class="text-[#007AFF] font-medium block">Foto baru dipilih</span>
+                                                <span x-show="!editProductPreview && editProduct.image_url"
+                                                    class="block">Foto aktif saat ini</span>
+                                                <span class="text-[11px] text-black/40 dark:text-white/40">Pilih berkas baru untuk mengganti thumbnail.</span>
+                                            </div>
+                                        </div>
+                                        <input type="file" name="image" @change="handleEditProductImage($event)"
+                                            accept="image/jpeg,image/png,image/webp"
+                                            class="w-full text-[12px] text-black/60 dark:text-white/60 file:mr-3 file:rounded-[8px] file:border-0 file:bg-black/[0.06] dark:file:bg-white/[0.08] file:px-3 file:py-2 file:text-[12px] file:font-semibold">
+                                        <label x-show="editProduct.image_url"
+                                            class="mt-1 flex items-center gap-2 text-[12px] text-black/60 dark:text-white/60 cursor-pointer">
+                                            <input type="checkbox" name="remove_image" value="1"
+                                                class="rounded-[4px] border-black/20 text-[#FF3B30] focus:ring-[#FF3B30]">
+                                            <span>Hapus thumbnail saat ini</span>
+                                        </label>
+                                    </div>
+
+                                    <!-- Galeri Foto Toko Online Eksisting & Baru -->
+                                    <div class="pt-3 border-t border-black/[0.06] dark:border-white/[0.08] space-y-3">
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-[12px] font-semibold text-black/80 dark:text-white/80">Galeri Foto Toko Online</span>
+                                            <span class="text-[11px] text-black/40 dark:text-white/40" x-show="editProduct.images && editProduct.images.length > 0" x-text="editProduct.images.length + ' foto aktif'"></span>
+                                        </div>
+
+                                        <!-- Existing Gallery Items with Delete Toggle -->
+                                        <template x-if="editProduct.images && editProduct.images.length > 0">
+                                            <div class="space-y-1.5">
+                                                <span class="text-[11px] text-black/45 dark:text-white/45 block">Klik tanda silang untuk menandai foto yang akan dihapus:</span>
+                                                <div class="grid grid-cols-4 sm:grid-cols-5 gap-2">
+                                                    <template x-for="gImg in editProduct.images" :key="gImg.id">
+                                                        <div class="relative aspect-square rounded-[10px] overflow-hidden border border-black/10 dark:border-white/10 group">
+                                                            <img :src="gImg.image_url" :alt="gImg.caption || 'Galeri'"
+                                                                class="w-full h-full object-cover transition"
+                                                                :class="removeGalleryIds.includes(gImg.id) ? 'opacity-25 grayscale' : ''">
+                                                            <input type="checkbox" name="remove_gallery_ids[]" :value="gImg.id"
+                                                                :checked="removeGalleryIds.includes(gImg.id)" class="hidden">
+                                                            <button type="button" @click="toggleRemoveExistingGallery(gImg.id)"
+                                                                class="absolute inset-0 flex items-center justify-center transition"
+                                                                :class="removeGalleryIds.includes(gImg.id) ? 'bg-[#FF3B30]/30' : 'bg-black/40 opacity-0 group-hover:opacity-100'">
+                                                                <span class="p-1 rounded-full text-white shadow" :class="removeGalleryIds.includes(gImg.id) ? 'bg-[#FF3B30]' : 'bg-black/70'">
+                                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                                                    </svg>
+                                                                </span>
+                                                            </button>
+                                                        </div>
+                                                    </template>
+                                                </div>
+                                            </div>
+                                        </template>
+
+                                        <!-- New Gallery Upload Previews -->
+                                        <template x-if="editGalleryPreviews.length > 0">
+                                            <div class="space-y-1">
+                                                <span class="text-[11px] font-medium text-[#007AFF]">Foto baru akan ditambahkan:</span>
+                                                <div class="flex items-center gap-2 overflow-x-auto py-1">
+                                                    <template x-for="(prev, epIdx) in editGalleryPreviews" :key="epIdx">
+                                                        <div class="w-14 h-14 rounded-[8px] overflow-hidden border border-[#007AFF]/30 shrink-0 relative bg-black/5">
+                                                            <img :src="prev" alt="Gallery Preview" class="w-full h-full object-cover">
+                                                        </div>
+                                                    </template>
+                                                </div>
+                                            </div>
+                                        </template>
+
+                                        <input type="file" name="gallery_images[]" multiple @change="handleEditGalleryImages($event)"
+                                            accept="image/jpeg,image/png,image/webp"
+                                            class="w-full text-[12px] text-black/60 dark:text-white/60 file:mr-3 file:rounded-[8px] file:border-0 file:bg-[#007AFF]/10 file:text-[#007AFF] dark:file:bg-[#007AFF]/20 file:px-3 file:py-2 file:text-[12px] file:font-semibold">
+                                        <p class="text-[11px] text-black/45 dark:text-white/45">Tambah foto baru ke galeri toko online (Maks. 10 foto, @ 4 MB).</p>
+                                    </div>
                                 </div>
 
                                 <!-- Bento Box 3: Saluran Penjualan Multi-Channel -->

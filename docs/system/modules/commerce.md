@@ -93,6 +93,12 @@ Sistem menerapkan arsitektur **Global Identity dengan Multi-Tenant Shopping Cart
 * **Pelacakan Mandiri Publik (`/storefront/order-tracking/{uuid}`):**
   - Menampilkan nama ekspedisi, tipe layanan, nomor resi AWB dengan tombol 1-klik salin (*copy to clipboard*), dan tombol pelacakan langsung ke portal tracking resmi Biteship.
 
+### 3.7 Galeri Interaktif Halaman Detail Produk (Storefront PDP Gallery Showcase)
+* **Tampilan Interaktif Multi-Image (`/{slug}/produk/{product}`):**
+  - **Main Viewport:** Gambar beresolusi tinggi dengan transisi halus, navigasi panah (`<` dan `>`), serta counter foto dinamis (`x/y`).
+  - **Strip Thumbnail Aktif:** Deretan kartu thumbnail di bagian bawah dengan indikator cincin hijau/primary aktif (`border-emerald-500 ring-2 ring-emerald-500/30 scale-105`), swap gambar instan saat di-klik atau di-hover.
+  - **Rich Snippets E-Commerce (SEO):** Data terstruktur Schema.org JSON-LD secara otomatis menyertakan array seluruh URL gambar galeri untuk optimalisasi pencarian Google & sosial media OpenGraph.
+
 ---
 
 ## 4. Aturan Bisnis E-Commerce (Business Rules)
