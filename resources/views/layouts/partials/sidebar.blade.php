@@ -882,35 +882,19 @@
                     $recentHighRiskCount = $activeBiz && $canAccessAuditLogs ? \App\Models\AuditLog::where('business_id', $activeBiz->id)->highRisk()->where('created_at', '>=', now()->subDays(7))->count() : 0;
                 @endphp
 
-                @if ($pendingApprovalCount > 0 || $recentHighRiskCount > 0)
+                @if ($pendingApprovalCount > 0)
                     <div x-show="!sidebarCollapsed" class="ml-4 pl-3 py-1 space-y-0.5 border-l border-black/10 dark:border-white/10 mt-1">
-                        @if ($pendingApprovalCount > 0)
-                            <a href="{{ route('approvals.inbox') }}" id="tour-nav-approvals"
-                                {{ request()->routeIs('approvals.*') ? 'aria-current="page"' : '' }}
-                                class="sidebar-item flex items-center justify-between px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-colors text-black/70 dark:text-white/70 hover:bg-black/[0.03] dark:hover:bg-white/[0.04]">
-                                <div class="flex items-center gap-2 min-w-0">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-[#FF9500] shrink-0"></span>
-                                    <span class="truncate">Persetujuan Pending</span>
-                                </div>
-                                <span class="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-[#FF9500]/15 text-[#FF9500] border border-[#FF9500]/30 shrink-0">
-                                    {{ $pendingApprovalCount }}
-                                </span>
-                            </a>
-                        @endif
-
-                        @if ($recentHighRiskCount > 0)
-                            <a href="{{ route('settings.audit-logs.index', ['risk' => 'high']) }}" id="tour-nav-audit-logs-overview"
-                                {{ request()->routeIs('settings.audit-logs.*') || request()->routeIs('audit-logs.*') ? 'aria-current="page"' : '' }}
-                                class="sidebar-item flex items-center justify-between px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-colors text-black/70 dark:text-white/70 hover:bg-black/[0.03] dark:hover:bg-white/[0.04]">
-                                <div class="flex items-center gap-2 min-w-0">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-[#FF3B30] shrink-0"></span>
-                                    <span class="truncate">Peringatan Audit</span>
-                                </div>
-                                <span class="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-[#FF3B30]/15 text-[#FF3B30] border border-[#FF3B30]/30 shrink-0">
-                                    {{ $recentHighRiskCount }}
-                                </span>
-                            </a>
-                        @endif
+                        <a href="{{ route('approvals.inbox') }}" id="tour-nav-approvals"
+                            {{ request()->routeIs('approvals.*') ? 'aria-current="page"' : '' }}
+                            class="sidebar-item flex items-center justify-between px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-colors text-black/70 dark:text-white/70 hover:bg-black/[0.03] dark:hover:bg-white/[0.04]">
+                            <div class="flex items-center gap-2 min-w-0">
+                                <span class="w-1.5 h-1.5 rounded-full bg-[#FF9500] shrink-0"></span>
+                                <span class="truncate">Persetujuan Pending</span>
+                            </div>
+                            <span class="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-[#FF9500]/15 text-[#FF9500] border border-[#FF9500]/30 shrink-0">
+                                {{ $pendingApprovalCount }}
+                            </span>
+                        </a>
                     </div>
                 @endif
 
@@ -949,18 +933,6 @@
                             </div>
                             <span class="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-[#FF9500]/15 text-[#FF9500] border border-[#FF9500]/30 shrink-0">
                                 {{ $pendingApprovalCount }}
-                            </span>
-                        </a>
-                    @endif
-                    @if ($recentHighRiskCount > 0)
-                        <a href="{{ route('settings.audit-logs.index', ['risk' => 'high']) }}"
-                            class="sidebar-item flex items-center justify-between px-2.5 py-1.5 rounded-[7px] text-xs text-black/75 dark:text-white/75 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
-                            <div class="flex items-center gap-2 min-w-0">
-                                <i data-lucide="shield-alert" class="w-3.5 h-3.5 text-[#FF3B30]"></i>
-                                <span>Peringatan Audit</span>
-                            </div>
-                            <span class="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-[#FF3B30]/15 text-[#FF3B30] border border-[#FF3B30]/30 shrink-0">
-                                {{ $recentHighRiskCount }}
                             </span>
                         </a>
                     @endif
@@ -2309,18 +2281,18 @@
 
                         @if ($canAccessSettings)
                             <a href="{{ route('settings.index') }}" id="tour-nav-settings"
-                                {{ request()->routeIs('settings.*') ? 'aria-current="page"' : '' }}
-                                class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-all active:scale-[0.98] {{ request()->routeIs('settings.*') ? 'bg-[#007AFF] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
-                                <i data-lucide="sliders" class="w-3.5 h-3.5 {{ request()->routeIs('settings.*') ? 'text-white' : 'text-black/40 dark:text-white/40' }} shrink-0"></i>
+                                {{ (request()->routeIs('settings.*') && !request()->routeIs('settings.audit-logs.*') && !request()->routeIs('settings.approval-rules.*') && !request()->routeIs('settings.roles.*') && !request()->routeIs('settings.pos.printers.*')) ? 'aria-current="page"' : '' }}
+                                class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-all active:scale-[0.98] {{ (request()->routeIs('settings.*') && !request()->routeIs('settings.audit-logs.*') && !request()->routeIs('settings.approval-rules.*') && !request()->routeIs('settings.roles.*') && !request()->routeIs('settings.pos.printers.*')) ? 'bg-[#007AFF] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
+                                <i data-lucide="sliders" class="w-3.5 h-3.5 {{ (request()->routeIs('settings.*') && !request()->routeIs('settings.audit-logs.*') && !request()->routeIs('settings.approval-rules.*') && !request()->routeIs('settings.roles.*') && !request()->routeIs('settings.pos.printers.*')) ? 'text-white' : 'text-black/40 dark:text-white/40' }} shrink-0"></i>
                                 <span class="truncate">Pengaturan Usaha &amp; Cabang</span>
                             </a>
                         @endif
 
                         @if ($canAccessSettings || \App\Support\Context::isOwner())
                             <a href="{{ route('approval-rules.index') }}" id="tour-nav-approval-rules"
-                                {{ request()->routeIs('approval-rules.*') ? 'aria-current="page"' : '' }}
-                                class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-all active:scale-[0.98] {{ request()->routeIs('approval-rules.*') ? 'bg-[#007AFF] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
-                                <i data-lucide="shield-check" class="w-3.5 h-3.5 {{ request()->routeIs('approval-rules.*') ? 'text-white' : 'text-black/40 dark:text-white/40' }} shrink-0"></i>
+                                {{ request()->routeIs('approval-rules.*') || request()->routeIs('settings.approval-rules.*') ? 'aria-current="page"' : '' }}
+                                class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-all active:scale-[0.98] {{ request()->routeIs('approval-rules.*') || request()->routeIs('settings.approval-rules.*') ? 'bg-[#007AFF] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
+                                <i data-lucide="shield-check" class="w-3.5 h-3.5 {{ request()->routeIs('approval-rules.*') || request()->routeIs('settings.approval-rules.*') ? 'text-white' : 'text-black/40 dark:text-white/40' }} shrink-0"></i>
                                 <span class="truncate">Aturan Persetujuan Transaksi (MAR)</span>
                             </a>
                         @endif
@@ -2328,9 +2300,16 @@
                         @if ($canAccessAuditLogs)
                             <a href="{{ route('settings.audit-logs.index') }}" id="tour-nav-audit-logs"
                                 {{ request()->routeIs('settings.audit-logs.*') || request()->routeIs('audit-logs.*') ? 'aria-current="page"' : '' }}
-                                class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-all active:scale-[0.98] {{ request()->routeIs('settings.audit-logs.*') || request()->routeIs('audit-logs.*') ? 'bg-[#007AFF] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
-                                <i data-lucide="shield-alert" class="w-3.5 h-3.5 {{ request()->routeIs('settings.audit-logs.*') || request()->routeIs('audit-logs.*') ? 'text-white' : 'text-[#FF3B30]' }} shrink-0"></i>
-                                <span class="truncate">Jejak Audit &amp; Anti-Fraud</span>
+                                class="sidebar-item flex items-center justify-between px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-all active:scale-[0.98] {{ request()->routeIs('settings.audit-logs.*') || request()->routeIs('audit-logs.*') ? 'bg-[#007AFF] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
+                                <div class="flex items-center gap-2 min-w-0">
+                                    <i data-lucide="shield-alert" class="w-3.5 h-3.5 {{ request()->routeIs('settings.audit-logs.*') || request()->routeIs('audit-logs.*') ? 'text-white' : 'text-[#FF3B30]' }} shrink-0"></i>
+                                    <span class="truncate">Jejak Audit &amp; Anti-Fraud</span>
+                                </div>
+                                @if (isset($recentHighRiskCount) && $recentHighRiskCount > 0)
+                                    <span class="px-1.5 py-0.5 rounded-full text-[10px] font-bold {{ request()->routeIs('settings.audit-logs.*') || request()->routeIs('audit-logs.*') ? 'bg-white/20 text-white border-white/30' : 'bg-[#FF3B30]/15 text-[#FF3B30] border-[#FF3B30]/30' }} border shrink-0">
+                                        {{ $recentHighRiskCount }}
+                                    </span>
+                                @endif
                             </a>
                         @endif
 
@@ -2390,9 +2369,16 @@
                         @endif
                         @if ($canAccessAuditLogs)
                             <a href="{{ route('settings.audit-logs.index') }}"
-                                class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
-                                <i data-lucide="shield-alert" class="w-3.5 h-3.5 text-[#FF3B30]"></i>
-                                <span>Jejak Audit &amp; Anti-Fraud</span>
+                                class="sidebar-item flex items-center justify-between px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
+                                <div class="flex items-center gap-2 min-w-0">
+                                    <i data-lucide="shield-alert" class="w-3.5 h-3.5 text-[#FF3B30] shrink-0"></i>
+                                    <span>Jejak Audit &amp; Anti-Fraud</span>
+                                </div>
+                                @if (isset($recentHighRiskCount) && $recentHighRiskCount > 0)
+                                    <span class="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-[#FF3B30]/15 text-[#FF3B30] border border-[#FF3B30]/30 shrink-0">
+                                        {{ $recentHighRiskCount }}
+                                    </span>
+                                @endif
                             </a>
                         @endif
                         @if ($canAccessRoles)

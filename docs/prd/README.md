@@ -19,6 +19,10 @@ Repositori ini memuat 11 dokumen PRD resmi yang merinci spesifikasi audit sistem
 | 9 | `PRD-09` | **Remediasi Sistem Navigasi Persisten, Hierarki Breadcrumb & Tab Sekunder** | [`PRD-09-PERSISTENT-TABS-BREADCRUMB-NAVIGATION-REMEDIATION.md`](PRD-09-PERSISTENT-TABS-BREADCRUMB-NAVIGATION-REMEDIATION.md) | `READY` |
 | 10 | `PRD-10` | **Hardening Keamanan, Proteksi Fraud Stok & UI Sadar Konteks 20 Industri** | [`PRD-10-WAREHOUSE-HARDENING-ANTI-FRAUD-MULTI-INDUSTRY.md`](PRD-10-WAREHOUSE-HARDENING-ANTI-FRAUD-MULTI-INDUSTRY.md) | `COMPLETE` |
 | 11 | `PRD-11` | **Hardening Keamanan Cyber, Proteksi Fraud Struk POS, & UI Sadar Konteks 20 Industri** | [`PRD-11-WHATSAPP-GATEWAY-AND-BROADCAST-MULTI-INDUSTRY.md`](PRD-11-WHATSAPP-GATEWAY-AND-BROADCAST-MULTI-INDUSTRY.md) | `COMPLETE` |
+| 12 | `PRD-12` | **Social Media Hardening, Anti-Fraud & Multi-Industry Automation** | [`PRD-12-SOCIAL-MEDIA-HARDENING-ANTI-FRAUD-MULTI-INDUSTRY.md`](PRD-12-SOCIAL-MEDIA-HARDENING-ANTI-FRAUD-MULTI-INDUSTRY.md) | `COMPLETE` |
+| 13 | `PRD-13` | **Marketplace Hardening, Anti-Fraud & Omnichannel Sync Multi-Industry** | [`PRD-13-MARKETPLACE-HARDENING-ANTI-FRAUD-MULTI-INDUSTRY.md`](PRD-13-MARKETPLACE-HARDENING-ANTI-FRAUD-MULTI-INDUSTRY.md) | `COMPLETE` |
+| 14 | `PRD-14` | **Remediasi Menyeluruh Navigasi Sidebar, Sinkronisasi Flyout & Stabilitas Interaksi** | [`PRD-14-SIDEBAR-NAVIGATION-REMEDIATION-UX-STABILITY.md`](PRD-14-SIDEBAR-NAVIGATION-REMEDIATION-UX-STABILITY.md) | `COMPLETE` |
+| 15 | `PRD-15` | **Remediasi Otorisasi Granular RBAC, Eliminasi 403 & Isolasi Status Aktif Deterministik** | [`PRD-15-SIDEBAR-GRANULAR-RBAC-AUTHORIZATION-AND-ACTIVE-STATE-ISOLATION.md`](PRD-15-SIDEBAR-GRANULAR-RBAC-AUTHORIZATION-AND-ACTIVE-STATE-ISOLATION.md) | `COMPLETE` |
 
 ---
 

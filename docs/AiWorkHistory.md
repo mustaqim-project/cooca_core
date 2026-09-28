@@ -48,7 +48,47 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 #### 6. Important Decisions & Guardrails
 
 - Keputusan desain arsitektur yang diambil.
-- Kepatuhan terhadap pedoman keselamatan (Financial Integrity, Tenant Isolation, Boomer Ergonomics).
+### [WORK-2026-09-28-207] Resolusi Active State Collision Settings & Unifikasi Badge Peringatan Audit (Opsi B)
+
+- **Date:** 2026-09-28
+- **Status:** COMPLETED
+- **Module:** UI/UX & Navigation System (Sidebar Navigation Bento Apple HIG)
+- **Feature:** Resolusi tabrakan status aktif (Active State Collision) dan unifikasi menu audit log:
+  1. **Isolasi Penuh Route `settings.index`**: Mengeliminasi wildcard `request()->routeIs('settings.*')` pada menu "Pengaturan Usaha & Cabang" yang sebelumnya menyebabkan menu tersebut ikut menyala biru (aktif) saat pengguna mengakses halaman Jejak Audit (`settings.audit-logs.index`), Aturan Persetujuan (`settings.approval-rules.index`), maupun Peran Karyawan (`settings.roles.index`).
+  2. **Unifikasi Indikator Risiko Tinggi (Opsi B)**: Menghapus duplikasi menu "Peringatan Audit" (`settings/audit-logs?risk=high`) dari Grup 1 (Overview / Ringkasan), dan mengintegrasikan badge indikator merah dinamis (`$recentHighRiskCount`) langsung menempel di samping teks menu "Jejak Audit & Anti-Fraud" pada Grup 8 (Pengaturan Usaha) di mode Expanded dan Flyout.
+- **Work Type:** Bug Fix | UX Architecture | Navigation State Isolation | Component Clean-up
+
+#### 1. Business Context & Objective
+
+- **Konteks:** Pemilik bisnis melaporkan kebingungan saat membuka menu "Jejak Audit & Anti-Fraud", di mana menu "Pengaturan Usaha & Cabang" ikut aktif secara bersamaan, serta adanya dua link terpisah yang mengarah ke log audit ("Peringatan Audit" di Overview dan "Jejak Audit & Anti-Fraud" di Pengaturan).
+- **Masalah/Target:**
+  1. Memisahkan active indicator secara deterministik (0 false-positive active states).
+  2. Menyederhanakan struktur informasi navigasi (information architecture) sesuai Opsi B: memusatkan seluruh audit log dan indikator risiko fraud ke menu resmi di Pengaturan Usaha.
+
+#### 2. What Was Done
+
+- Mengubah logika pengecekan active state pada `tour-nav-settings` di `resources/views/layouts/partials/sidebar.blade.php` dengan mengecualikan sub-modul audit logs, rules, roles, dan pos-printers.
+- Menghapus conditional alert link "Peringatan Audit" dari bagian Overview (Expanded dan Flyout).
+- Menambahkan badge dinamis pill merah `{{ $recentHighRiskCount }}` pada item navigasi `Jejak Audit & Anti-Fraud` di Expanded dan Flyout.
+- Menguji via script `scratch/detect_active_collisions.py` (hasil: 0 active collisions dari 71 route).
+
+#### 3. Technical Changes
+
+- **Files Affected:** `resources/views/layouts/partials/sidebar.blade.php`.
+- **Database/Route Changes:** Tidak ada (menggunakan route terdaftar `settings.audit-logs.index`).
+
+#### 4. System Impacts
+
+- **Workflow Impact:** Navigasi audit log menjadi konsisten, bersih, dan bebas dari kebingungan multi-active highlight.
+- **Permission Impact:** Hak akses tetap terlindungi oleh `$canAccessAuditLogs` (`audit_logs.view` / `isOwner`).
+
+#### 5. Verification & Testing
+
+- `php -l resources/views/layouts/partials/sidebar.blade.php`: Pass (No syntax errors).
+- `python scratch/inspect_nav_duplicates.py`: 100% parity antara Expanded dan Flyout (71 route).
+- `python scratch/detect_active_collisions.py`: 0 active state collisions.
+
+---
 
 ### [WORK-2026-09-28-206] Penyelesaian Akhir Fase 3 & 4: Harmonisasi Copywriting Humanis, Palet Semantik Apple HIG, Pemisahan Visual Subgrup & Penutupan PRD-14
 

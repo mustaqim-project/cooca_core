@@ -476,10 +476,12 @@ Berdasarkan dokumen arsitektur `docs/BLUEPRINT_TIER_PRICING_DAN_LIMITASI_COOCA.m
     - Kas & Keuangan: `#34C759` (Apple Emerald)
     - Laporan & Pajak: `#AF52DE` (Apple Purple)
     - Pengaturan Usaha: `#8E8E93` (Apple Slate)
-* **Penegakan Keamanan RBAC Zero-Error:**
+* **Penegakan Keamanan RBAC & Isolasi Status Aktif (Zero Active Collision):**
   - Rute bantuan dan pelaporan bug (`feedback.bugs.index`) dilindungi eksklusif oleh `@if (\App\Support\Context::isOwner())` di kedua mode, mencegah HTTP 403 bagi staf non-owner.
   - Rute impor massal (`/import`) diselaraskan dengan backend middleware `require.permission:materials.view,products.view`.
   - Rute pajak `tax.index` dikonsolidasikan tunggal ke Grup 7 (Laporan & Analitik) dengan label resmi *"Laporan Pajak & Kepatuhan"* dan guard `reports.view || isOwner() || canAccessFinance`.
+  - **Isolasi Penuh State Aktif (`settings.index`):** Wildcard `settings.*` diisolasi ketat dengan mengecualikan sub-modul audit logs, rules, roles, dan pos-printers, menjamin 0 false-positive active highlight di seluruh navigasi.
+  - **Unifikasi Audit Log & Peringatan Risiko (Opsi B):** Mengeliminasi duplikasi tautan "Peringatan Audit" dari Ringkasan & Dashboard, serta memusatkan badge indikator insiden risiko tinggi (`$recentHighRiskCount`) langsung menempel di samping label *"Jejak Audit & Anti-Fraud"* di menu Pengaturan Usaha pada mode Expanded maupun Flyout.
 
 ---
 
