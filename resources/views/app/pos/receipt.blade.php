@@ -131,7 +131,7 @@
                     </button>
                 </form>
 
-                <a href="{{ $whatsappUrl }}" target="_blank"
+                <a href="{{ $whatsappUrl ?? '#' }}" target="_blank"
                     class="min-h-[36px] h-9 px-2.5 rounded-[10px] bg-[#25D366]/15 hover:bg-[#25D366]/25 text-[#25D366] text-[12px] font-sans font-semibold active:scale-[0.97] transition flex items-center gap-1">
                     <i data-lucide="send" class="w-3.5 h-3.5"></i>
                     <span>WA</span>
@@ -382,14 +382,40 @@
         </div>
 
         <!-- Payment & Change -->
-        <div class="py-2 border-b border-dashed border-gray-400 space-y-0.5 text-[10px] tabular-nums">
+        <div class="py-2 border-b border-dashed border-gray-400 space-y-1 text-[10px] tabular-nums">
+            @if(count($order->payments) > 1)
+                <div class="text-[9px] font-bold uppercase tracking-wider text-gray-700 bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded text-center mb-1">
+                    *** MULTI-PAYMENT (SPLIT) ***
+                </div>
+            @endif
             @foreach ($order->payments as $payment)
+                @php
+                    $methodLabel = match ($payment->payment_method) {
+                        'cash' => 'Tunai (Cash)',
+                        'qris' => 'QRIS Cooca Pay',
+                        'qris_dynamic' => 'QRIS Dinamis',
+                        'transfer' => 'Transfer Bank',
+                        'edc_debit' => 'EDC Debit' . ($payment->edcTerminal ? ' ' . $payment->edcTerminal->bank_name : ''),
+                        'edc_credit' => 'EDC Kredit' . ($payment->edcTerminal ? ' ' . $payment->edcTerminal->bank_name : ''),
+                        'customer_credit' => 'Kasbon (Piutang)',
+                        'loyalty_points' => 'Tukar Poin',
+                        default => strtoupper($payment->payment_method)
+                    };
+                @endphp
                 <div class="flex justify-between">
-                    <span>Bayar ({{ strtoupper($payment->payment_method) }}):</span>
-                    <span>{{ number_format($payment->amount, 0, ',', '.') }}</span>
+                    <div>
+                        <span class="font-medium">{{ $methodLabel }}</span>
+                        @if($payment->edcTerminal && $payment->edcTerminal->terminal_id_tid)
+                            <span class="text-[8px] text-gray-500 block">TID: {{ $payment->edcTerminal->terminal_id_tid }}</span>
+                        @endif
+                        @if($payment->reference_number)
+                            <span class="text-[8px] text-gray-500 block">Ref/Appr: {{ $payment->reference_number }}</span>
+                        @endif
+                    </div>
+                    <span class="font-semibold">{{ number_format($payment->amount, 0, ',', '.') }}</span>
                 </div>
             @endforeach
-            <div class="flex justify-between font-bold">
+            <div class="flex justify-between font-bold pt-1 border-t border-dotted border-gray-300">
                 <span>Kembalian:</span>
                 <span>Rp {{ number_format($order->change_amount, 0, ',', '.') }}</span>
             </div>

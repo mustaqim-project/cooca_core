@@ -96,6 +96,22 @@ final class NavigationRegistry
                         'active_routes' => ['finance.settlements.*'],
                         'permission'    => 'finance.cash_bank',
                     ],
+                    [
+                        'key'           => 'payout-accounts',
+                        'label'         => 'Rekening Payout',
+                        'icon'          => 'landmark',
+                        'route'         => 'finance.payout-accounts.index',
+                        'active_routes' => ['finance.payout-accounts.*'],
+                        'permission'    => 'finance.cash_bank',
+                    ],
+                    [
+                        'key'           => 'edc-terminals',
+                        'label'         => 'Mesin EDC',
+                        'icon'          => 'terminal',
+                        'route'         => 'finance.edc-terminals.index',
+                        'active_routes' => ['finance.edc-terminals.*'],
+                        'permission'    => 'finance.cash_bank',
+                    ],
                 ],
             ],
 

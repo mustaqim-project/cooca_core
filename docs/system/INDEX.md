@@ -50,6 +50,7 @@
 ### 6. Arsitektur Teknis (Architecture)
 * [`docs/system/architecture/multi-tenancy.md`](file:///c:/laragon/www/cooca_core/docs/system/architecture/multi-tenancy.md) - Isolasi Basis Data Multi-Tenant, Context Resolver (`Context::requireBusiness()`), dan Tenant Lifecycle. `[COMPLETE]`
 * [`docs/system/architecture/ui-ux-design-system.md`](file:///c:/laragon/www/cooca_core/docs/system/architecture/ui-ux-design-system.md) - Desain Sistem Bento Apple HIG v2.0, Keseragaman Konsep Mobile/Tablet, Floating Bottom Navbar, Pop-Up First Index, & Inline Quick-Add. `[COMPLETE]`
+* [`docs/system/architecture/financial-engine-multi-payment-and-settlement-audit.md`](file:///c:/laragon/www/cooca_core/docs/system/architecture/financial-engine-multi-payment-and-settlement-audit.md) - Audit Sistem Keuangan, Analisis Kesenjangan (*Gap Analysis*), & Cetak Biru Finansial Multi-Payment, Multi-Cabang, Multi-EDC, Payout Hub, & Rekonsiliasi Omnichannel. `[COMPLETE]`
 * [`docs/prd/PRD-14-SIDEBAR-NAVIGATION-REMEDIATION-UX-STABILITY.md`](file:///c:/laragon/www/cooca_core/docs/prd/PRD-14-SIDEBAR-NAVIGATION-REMEDIATION-UX-STABILITY.md) - Remediasi Navigasi Sidebar, Invisible Hover Bridge (Anti-Flicker), Paritas Flyout 100%, & RBAC Zero-Error. `[COMPLETE]`
 
 ---

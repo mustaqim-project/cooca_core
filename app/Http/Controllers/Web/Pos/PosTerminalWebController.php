@@ -295,6 +295,20 @@ final class PosTerminalWebController extends Controller
             $todayReservationsCount = 0;
         }
 
+        // 11. Store EDC Terminals for Multi-Payment / Card processing
+        try {
+            $storeEdcTerminals = \App\Models\StoreEdcTerminal::where('business_id', $business->id)
+                ->where('is_active', true)
+                ->where(function ($q) use ($selectedLocationId) {
+                    $q->whereNull('location_id')
+                      ->orWhere('location_id', $selectedLocationId);
+                })
+                ->orderBy('bank_name')
+                ->get();
+        } catch (\Throwable) {
+            $storeEdcTerminals = collect();
+        }
+
         return view('app.pos.terminal', compact(
             'business',
             'user',
@@ -314,7 +328,8 @@ final class PosTerminalWebController extends Controller
             'canBypassSupervisor',
             'hideCostFromCashier',
             'posShowProductImages',
-            'technicians'
+            'technicians',
+            'storeEdcTerminals'
         ));
     }
 
@@ -474,6 +489,7 @@ final class PosTerminalWebController extends Controller
             'payments' => ['required', 'array', 'min:1'],
             'payments.*.payment_method' => ['required', 'string'],
             'payments.*.amount' => ['required', 'numeric', 'min:0'],
+            'payments.*.store_edc_terminal_id' => ['nullable', 'string', 'exists:store_edc_terminals,id'],
             'payments.*.reference_number' => ['nullable', 'string'],
             'customer_id' => ['nullable', 'string'],
             'customer_name_guest' => ['nullable', 'string', 'max:150'],

@@ -35,6 +35,7 @@ final class AutoJournalService
             ['code' => '1-1003', 'name' => 'Piutang Pelanggan', 'type' => ChartOfAccount::TYPE_ASSET, 'normal_balance' => 'debit'],
             ['code' => '1-1004', 'name' => 'Persediaan Barang Dagang', 'type' => ChartOfAccount::TYPE_ASSET, 'normal_balance' => 'debit'],
             ['code' => '1-1005', 'name' => 'Clearing Gateway Pembayaran', 'type' => ChartOfAccount::TYPE_ASSET, 'normal_balance' => 'debit'],
+            ['code' => '1-1008', 'name' => 'Kliring Mesin EDC Bank', 'type' => ChartOfAccount::TYPE_ASSET, 'normal_balance' => 'debit'],
             ['code' => '2-2001', 'name' => 'Hutang Usaha', 'type' => ChartOfAccount::TYPE_LIABILITY, 'normal_balance' => 'credit'],
             ['code' => '2-2002', 'name' => 'Hutang PPN Keluaran', 'type' => ChartOfAccount::TYPE_LIABILITY, 'normal_balance' => 'credit'],
             ['code' => '2-2003', 'name' => 'Hutang Service Charge', 'type' => ChartOfAccount::TYPE_LIABILITY, 'normal_balance' => 'credit'],
@@ -92,6 +93,8 @@ final class AutoJournalService
         $bankAccount = $this->getAccount($business, '1-1002');
         $piutangAccount = $this->getAccount($business, '1-1003');
         $persediaanAccount = $this->getAccount($business, '1-1004');
+        $clearingGatewayAccount = $this->getAccount($business, '1-1005');
+        $edcClearingAccount = $this->getAccount($business, '1-1008');
         $ppnAccount = $this->getAccount($business, '2-2002');
         $serviceAccount = $this->getAccount($business, '2-2003');
         $revenueAccount = $this->getAccount($business, '4-4001');
@@ -109,6 +112,8 @@ final class AutoJournalService
             $bankAccount,
             $piutangAccount,
             $persediaanAccount,
+            $clearingGatewayAccount,
+            $edcClearingAccount,
             $ppnAccount,
             $serviceAccount,
             $revenueAccount,
@@ -130,7 +135,7 @@ final class AutoJournalService
             $totalDebit = 0.0;
             $totalCredit = 0.0;
 
-            // 1. Debits: Payments (Cash, Bank/QRIS, Piutang)
+            // 1. Debits: Payments (Cash, Bank/QRIS, EDC, Piutang)
             $remainingChange = (float) $order->change_amount;
             foreach ($order->payments as $payment) {
                 $payMethod = $payment->payment_method;
@@ -149,15 +154,18 @@ final class AutoJournalService
                 $targetAccount = match ($payMethod) {
                     PosOrderPayment::METHOD_CASH => $kasAccount,
                     PosOrderPayment::METHOD_CUSTOMER_CREDIT => $piutangAccount,
+                    PosOrderPayment::METHOD_QRIS, PosOrderPayment::METHOD_QRIS_DYNAMIC => $clearingGatewayAccount ?? $bankAccount,
+                    PosOrderPayment::METHOD_EDC_DEBIT, PosOrderPayment::METHOD_EDC_CREDIT => $edcClearingAccount ?? $bankAccount,
                     default => $bankAccount,
                 };
 
                 $payLabel = match ($payMethod) {
                     PosOrderPayment::METHOD_CASH => 'Kasir Tunai (Cash)',
-                    PosOrderPayment::METHOD_QRIS => 'QRIS',
+                    PosOrderPayment::METHOD_QRIS => 'QRIS Cooca Pay',
+                    PosOrderPayment::METHOD_QRIS_DYNAMIC => 'QRIS Dinamis Cooca Pay',
                     PosOrderPayment::METHOD_TRANSFER => 'Transfer Bank',
-                    PosOrderPayment::METHOD_EDC_DEBIT => 'EDC Debit',
-                    PosOrderPayment::METHOD_EDC_CREDIT => 'EDC Kredit',
+                    PosOrderPayment::METHOD_EDC_DEBIT => 'EDC Debit ' . ($payment->edcTerminal ? "({$payment->edcTerminal->terminal_name})" : ''),
+                    PosOrderPayment::METHOD_EDC_CREDIT => 'EDC Kredit ' . ($payment->edcTerminal ? "({$payment->edcTerminal->terminal_name})" : ''),
                     PosOrderPayment::METHOD_CUSTOMER_CREDIT => 'Piutang Pelanggan (Kasbon)',
                     default => ucfirst(str_replace('_', ' ', $payMethod)),
                 };

@@ -148,6 +148,11 @@ class Location extends Model
         return $this->hasMany(Attendance::class);
     }
 
+    public function storeEdcTerminals(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(StoreEdcTerminal::class);
+    }
+
     /**
      * Calculate distance in meters to a given coordinate using Haversine formula.
      */

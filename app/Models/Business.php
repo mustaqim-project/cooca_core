@@ -246,6 +246,16 @@ class Business extends Model
         return $this->hasMany(CommerceOrder::class);
     }
 
+    public function payoutBankAccounts(): HasMany
+    {
+        return $this->hasMany(MerchantPayoutBankAccount::class);
+    }
+
+    public function storeEdcTerminals(): HasMany
+    {
+        return $this->hasMany(StoreEdcTerminal::class);
+    }
+
     public function subscriptions(): HasMany
     {
         return $this->hasMany(BusinessSubscription::class);

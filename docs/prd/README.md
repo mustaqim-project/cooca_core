@@ -23,6 +23,7 @@ Repositori ini memuat 11 dokumen PRD resmi yang merinci spesifikasi audit sistem
 | 13 | `PRD-13` | **Marketplace Hardening, Anti-Fraud & Omnichannel Sync Multi-Industry** | [`PRD-13-MARKETPLACE-HARDENING-ANTI-FRAUD-MULTI-INDUSTRY.md`](PRD-13-MARKETPLACE-HARDENING-ANTI-FRAUD-MULTI-INDUSTRY.md) | `COMPLETE` |
 | 14 | `PRD-14` | **Remediasi Menyeluruh Navigasi Sidebar, Sinkronisasi Flyout & Stabilitas Interaksi** | [`PRD-14-SIDEBAR-NAVIGATION-REMEDIATION-UX-STABILITY.md`](PRD-14-SIDEBAR-NAVIGATION-REMEDIATION-UX-STABILITY.md) | `COMPLETE` |
 | 15 | `PRD-15` | **Remediasi Otorisasi Granular RBAC, Eliminasi 403 & Isolasi Status Aktif Deterministik** | [`PRD-15-SIDEBAR-GRANULAR-RBAC-AUTHORIZATION-AND-ACTIVE-STATE-ISOLATION.md`](PRD-15-SIDEBAR-GRANULAR-RBAC-AUTHORIZATION-AND-ACTIVE-STATE-ISOLATION.md) | `COMPLETE` |
+| 16 | `PRD-16` | **Arsitektur Finansial Terpadu, Multi-Payment POS, EDC, Cooca Pay Payout Hub & Rekonsiliasi Multi-Cabang** | [`PRD-16-UNIFIED-FINANCIAL-ENGINE-MULTI-PAYMENT-SETTLEMENT-AND-PAYOUT-HUB.md`](PRD-16-UNIFIED-FINANCIAL-ENGINE-MULTI-PAYMENT-SETTLEMENT-AND-PAYOUT-HUB.md) | `READY` |
 
 ---
 

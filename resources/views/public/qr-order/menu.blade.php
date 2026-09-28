@@ -478,29 +478,57 @@
                 </div>
 
                 <!-- Payment Method Selection Bento -->
-                <div class="space-y-1.5 pt-1">
-                    <label class="block text-[11px] font-bold uppercase tracking-wider text-black/50 dark:text-white/50">Pilih Metode Pembayaran</label>
-                    <div class="grid grid-cols-2 gap-2">
-                        <!-- Option 1: QRIS Pay Now -->
+                <div class="space-y-2 pt-1">
+                    <label class="block text-[11px] font-bold uppercase tracking-wider text-black/50 dark:text-white/50">Pilih Cara Pembayaran</label>
+                    <div class="grid grid-cols-2 gap-2.5">
+                        <!-- Option 1: QRIS Pay Now (Cooca Pay) -->
                         <button type="button" @click="paymentMode = 'pay_now'"
-                            :class="paymentMode === 'pay_now' ? 'border-[#007AFF] bg-[#007AFF]/10 dark:bg-[#007AFF]/15 text-[#007AFF] ring-1 ring-[#007AFF]' : 'border-black/10 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.03] text-black/70 dark:text-white/70'"
-                            class="p-2.5 rounded-[12px] border text-left transition-all flex flex-col justify-between">
-                            <div class="flex items-center justify-between">
-                                <span class="font-bold text-xs">QRIS di Meja</span>
-                                <span class="w-2 h-2 rounded-full" :class="paymentMode === 'pay_now' ? 'bg-[#007AFF]' : 'bg-transparent'"></span>
+                            :class="paymentMode === 'pay_now' ? 'border-[#007AFF] bg-[#007AFF]/10 dark:bg-[#007AFF]/15 text-[#007AFF] ring-1.5 ring-[#007AFF] shadow-sm' : 'border-black/10 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.03] text-black/70 dark:text-white/70 hover:border-black/20'"
+                            class="p-3 rounded-[14px] border text-left transition-all flex flex-col justify-between min-h-[92px]">
+                            <div>
+                                <div class="flex items-center justify-between">
+                                    <span class="font-bold text-xs flex items-center gap-1.5">
+                                        <svg class="w-3.5 h-3.5 text-[#007AFF]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5zM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5zM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0113.5 9.375v-4.5z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 6.75h.75v.75h-.75v-.75zM6.75 16.5h.75v.75h-.75v-.75zM16.5 6.75h.75v.75h-.75v-.75zM13.5 13.5h3.75v3.75H13.5v-3.75zM13.5 19.5h3.75M19.5 13.5v6" />
+                                        </svg>
+                                        Bayar QRIS
+                                    </span>
+                                    <span class="w-2.5 h-2.5 rounded-full transition-colors" :class="paymentMode === 'pay_now' ? 'bg-[#007AFF]' : 'bg-black/15 dark:bg-white/15'"></span>
+                                </div>
+                                <p class="text-[10px] text-black/55 dark:text-white/55 mt-1 leading-tight">
+                                    Scan di HP • Dapur langsung proses
+                                </p>
                             </div>
-                            <span class="text-[10px] text-[#34C759] font-semibold mt-1">Bebas Biaya Admin</span>
+                            <span class="text-[10px] text-[#34C759] dark:text-[#30D158] font-bold mt-1.5 flex items-center gap-1">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                </svg>
+                                Bebas Biaya Admin
+                            </span>
                         </button>
 
                         <!-- Option 2: Pay Later at Cashier -->
                         <button type="button" @click="paymentMode = 'pay_at_cashier'"
-                            :class="paymentMode === 'pay_at_cashier' ? 'border-[#007AFF] bg-[#007AFF]/10 dark:bg-[#007AFF]/15 text-[#007AFF] ring-1 ring-[#007AFF]' : 'border-black/10 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.03] text-black/70 dark:text-white/70'"
-                            class="p-2.5 rounded-[12px] border text-left transition-all flex flex-col justify-between">
-                            <div class="flex items-center justify-between">
-                                <span class="font-bold text-xs">Bayar di Kasir</span>
-                                <span class="w-2 h-2 rounded-full" :class="paymentMode === 'pay_at_cashier' ? 'bg-[#007AFF]' : 'bg-transparent'"></span>
+                            :class="paymentMode === 'pay_at_cashier' ? 'border-[#007AFF] bg-[#007AFF]/10 dark:bg-[#007AFF]/15 text-[#007AFF] ring-1.5 ring-[#007AFF] shadow-sm' : 'border-black/10 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.03] text-black/70 dark:text-white/70 hover:border-black/20'"
+                            class="p-3 rounded-[14px] border text-left transition-all flex flex-col justify-between min-h-[92px]">
+                            <div>
+                                <div class="flex items-center justify-between">
+                                    <span class="font-bold text-xs flex items-center gap-1.5">
+                                        <svg class="w-3.5 h-3.5 text-black/60 dark:text-white/60" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 21v-7.5a.75.75 0 01.75-.75h3a.75.75 0 01.75.75V21m-4.5 0H2.25A2.25 2.25 0 010 18.75V10.5M18 21h3.75A2.25 2.25 0 0024 18.75V10.5m-24 0l12-7.5 12 7.5M3.75 21v-7.5a.75.75 0 01.75-.75h3a.75.75 0 01.75.75V21" />
+                                        </svg>
+                                        Bayar di Kasir
+                                    </span>
+                                    <span class="w-2.5 h-2.5 rounded-full transition-colors" :class="paymentMode === 'pay_at_cashier' ? 'bg-[#007AFF]' : 'bg-black/15 dark:bg-white/15'"></span>
+                                </div>
+                                <p class="text-[10px] text-black/55 dark:text-white/55 mt-1 leading-tight">
+                                    Bayar sebelum / setelah makan
+                                </p>
                             </div>
-                            <span class="text-[10px] text-black/45 dark:text-white/45 mt-1">Tunai / Kartu EDC</span>
+                            <span class="text-[10px] text-black/45 dark:text-white/45 mt-1.5 font-medium">
+                                Tunai / Kartu EDC
+                            </span>
                         </button>
                     </div>
                 </div>
@@ -510,7 +538,7 @@
             <div class="pt-2">
                 <button type="button" @click="submitOrderToCashier()" :disabled="isSubmitting"
                     class="w-full h-12 rounded-[14px] bg-[#007AFF] hover:bg-[#0062CC] active:scale-[0.98] disabled:opacity-50 text-white font-bold text-sm flex items-center justify-center gap-2 transition shadow-md">
-                    <span x-show="!isSubmitting" x-text="paymentMode === 'pay_now' ? 'Bayar Langsung via QRIS (' + formatRupiah(cartTotalAmount) + ')' : 'Kirim Pesanan ke Kasir'"></span>
+                    <span x-show="!isSubmitting" x-text="paymentMode === 'pay_now' ? 'Bayar Langsung via QRIS (' + formatRupiah(cartTotalAmount) + ')' : 'Kirim Pesanan ke Kasir (' + formatRupiah(cartTotalAmount) + ')'"></span>
                     <span x-show="isSubmitting">Memproses Pesanan...</span>
                 </button>
             </div>
@@ -528,7 +556,7 @@
             <div class="flex items-center justify-between pb-3 border-b border-black/10 dark:border-white/10">
                 <div class="text-left">
                     <h3 class="font-bold text-[16px] text-black dark:text-white">QRIS Meja {{ $table->table_number }}</h3>
-                    <p class="text-[11px] text-black/50 dark:text-white/50">Scan dengan aplikasi e-Wallet atau m-Banking</p>
+                    <p class="text-[11px] text-black/50 dark:text-white/50">Scan dengan GoPay, OVO, BCA, Mandiri, atau m-Banking</p>
                 </div>
                 <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#34C759]/10 text-[#34C759] border border-[#34C759]/20">
                     Bebas Biaya Admin

@@ -436,6 +436,7 @@ final class PosOrderService
             foreach ($paymentsData as $p) {
                 $payMethod = (string) ($p['payment_method'] ?? 'cash');
                 $payAmount = (float) ($p['amount'] ?? 0.0);
+                $edcTerminalId = ! empty($p['store_edc_terminal_id']) ? (string) $p['store_edc_terminal_id'] : null;
                 if ($payAmount <= 0) {
                     continue;
                 }
@@ -443,6 +444,7 @@ final class PosOrderService
                 $payment = PosOrderPayment::create([
                     'pos_order_id' => $order->id,
                     'payment_method' => $payMethod,
+                    'store_edc_terminal_id' => $edcTerminalId,
                     'amount' => $payAmount,
                     'reference_number' => $p['reference_number'] ?? null,
                     'fee_amount' => 0.0,
@@ -464,7 +466,7 @@ final class PosOrderService
                     if ($netCashIn > 0) {
                         $methodLabel = match ($payMethod) {
                             PosOrderPayment::METHOD_CASH => 'Tunai',
-                            PosOrderPayment::METHOD_QRIS => 'QRIS',
+                            PosOrderPayment::METHOD_QRIS => 'QRIS Cooca Pay',
                             PosOrderPayment::METHOD_TRANSFER => 'Transfer Bank',
                             PosOrderPayment::METHOD_EDC_DEBIT => 'EDC Debit',
                             PosOrderPayment::METHOD_EDC_CREDIT => 'EDC Kredit',
@@ -500,7 +502,7 @@ final class PosOrderService
                 $this->tableService->syncTableStatus($order->posTable);
             }
 
-            return $order->load(['items.modifiers', 'payments', 'customer', 'location', 'posTable']);
+            return $order->load(['items.modifiers', 'payments.edcTerminal', 'customer', 'location', 'posTable']);
         });
     }
 

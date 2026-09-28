@@ -1998,136 +1998,282 @@
     <!-- 4. MODAL: PAYMENT MODAL (Apple Sheet Presentation)    -->
     <!-- ===================================================== -->
     <div x-show="showPaymentModal"
-        class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-[2px] p-4"
-        style="display: none;">
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-[4px] p-3 sm:p-4"
+        style="display: none;"
+        @keydown.escape.window="showPaymentModal = false">
         <div
-            class="pos-modal-panel w-full max-w-2xl bg-white dark:bg-[#2C2C2E] rounded-[16px] border border-black/10 dark:border-white/10 p-5 sm:p-6 flex flex-col max-h-[90vh] overflow-y-auto space-y-4 shadow-[0_20px_50px_rgba(0,0,0,0.25)] text-black dark:text-white">
-            <div class="flex items-center justify-between pb-3 border-b border-black/10 dark:border-white/10">
+            class="pos-modal-panel w-full max-w-3xl lg:max-w-4xl bg-white dark:bg-[#1C1C1E] rounded-[24px] border border-black/10 dark:border-white/15 p-5 sm:p-6 flex flex-col max-h-[92vh] overflow-y-auto space-y-4 shadow-[0_25px_60px_rgba(0,0,0,0.35)] text-black dark:text-white"
+            @click.outside="showPaymentModal = false">
+            
+            {{-- Modal Header & Mode Switcher --}}
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3.5 border-b border-black/5 dark:border-white/10">
                 <div class="flex items-center gap-2.5">
-                    <div class="w-8 h-8 rounded-[8px] bg-[#007AFF]/15 text-[#007AFF] flex items-center justify-center">
-                        <svg class="w-5 h-5 shrink-0" style="width: 20px; height: 20px;" fill="none"
-                            stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z" />
+                    <div class="w-9 h-9 rounded-[12px] bg-[#007AFF]/15 text-[#007AFF] flex items-center justify-center shrink-0">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z" />
                         </svg>
                     </div>
-                    <h3 class="font-semibold text-[17px] text-black dark:text-white">Pembayaran Kasir</h3>
+                    <div>
+                        <h3 class="font-bold text-[17px] text-black dark:text-white leading-tight">Pembayaran Kasir POS</h3>
+                        <p class="text-[11px] text-black/50 dark:text-white/50">Pilih metode pembayaran tunggal atau kombinasi (split)</p>
+                    </div>
                 </div>
-                <button @click="showPaymentModal = false"
-                    class="w-7 h-7 rounded-full bg-black/[0.05] dark:bg-white/[0.08] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white flex items-center justify-center transition">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
+
+                {{-- Mode Switcher (Apple Segmented Tab) --}}
+                <div class="flex items-center p-1 rounded-[12px] bg-black/[0.05] dark:bg-white/[0.08] border border-black/5 dark:border-white/10 text-xs font-medium self-start sm:self-auto">
+                    <button type="button" @click="isSplitPayment = false"
+                        :class="!isSplitPayment ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-xs font-semibold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white'"
+                        class="px-3 py-1.5 rounded-[9px] transition flex items-center gap-1.5">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" /></svg>
+                        <span>Satu Metode</span>
+                    </button>
+                    <button type="button" @click="initSplitPayment()"
+                        :class="isSplitPayment ? 'bg-[#007AFF] text-white shadow-xs font-semibold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white'"
+                        class="px-3 py-1.5 rounded-[9px] transition flex items-center gap-1.5">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+                        <span>Split Payment (Majemuk)</span>
+                    </button>
+                    <button type="button" @click="showPaymentModal = false"
+                        class="ml-2 w-7 h-7 rounded-full bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.1] text-black/50 dark:text-white/50 flex items-center justify-center">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                    </button>
+                </div>
             </div>
 
-            <div class="space-y-4">
+            {{-- 1. MODE STANDAR (SINGLE PAYMENT) --}}
+            <div x-show="!isSplitPayment" class="space-y-4">
                 <!-- Tagihan Summary Box -->
-                <div
-                    class="p-4 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.04] border border-black/5 dark:border-white/5 flex items-center justify-between gap-3">
+                <div class="p-4 rounded-[16px] bg-black/[0.03] dark:bg-white/[0.04] border border-black/5 dark:border-white/5 flex items-center justify-between gap-3">
                     <div>
-                        <div class="text-[12px] text-black/50 dark:text-white/50">Total yang harus dibayar:</div>
-                        <div class="text-[22px] font-bold text-black dark:text-white tabular-nums tracking-tight"
+                        <div class="text-[11px] font-medium text-black/50 dark:text-white/50 uppercase tracking-wider">Total Tagihan</div>
+                        <div class="text-[24px] sm:text-[28px] font-extrabold text-[#007AFF] tabular-nums tracking-tight"
                             x-text="formatRupiah(grandTotal)"></div>
                     </div>
                     <div class="text-right">
-                        <div class="text-[12px] text-black/50 dark:text-white/50">Total Diterima:</div>
-                        <div class="text-[18px] font-semibold text-black/90 dark:text-white/90 tabular-nums"
-                            x-text="formatRupiah(totalTendered)"></div>
+                        <div class="text-[11px] font-medium text-black/50 dark:text-white/50 uppercase tracking-wider">Uang Diterima</div>
+                        <div class="text-[20px] font-bold text-black dark:text-white tabular-nums"
+                            x-text="formatRupiah(currentTenderAmount)"></div>
                     </div>
                 </div>
 
-                <!-- Payment Methods Segmented Grid -->
+                <!-- Payment Methods Grid -->
                 <div>
-                    <label class="block text-[12px] font-medium text-black/60 dark:text-white/60 mb-2">Metode
-                        Pembayaran</label>
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    <label class="block text-xs font-semibold text-black/70 dark:text-white/70 mb-2">Pilih Kanal Pembayaran</label>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
                         <button type="button" @click="selectedPayMethod = 'cash'"
-                            :class="selectedPayMethod === 'cash' ? 'bg-[#007AFF] text-white shadow-sm' :
-                                'bg-black/[0.04] dark:bg-white/[0.06] text-black/80 dark:text-white/80 hover:bg-black/[0.08] dark:hover:bg-white/[0.1]'"
-                            class="p-3 rounded-[10px] flex flex-col items-center gap-1.5 text-[12px] font-medium transition active:scale-[0.97]">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75M15 10.5a3 3 0 11-6 0 3 3 0 016 0zm3 0h.008v.008H18V10.5zm-12 0h.008v.008H6V10.5z" />
-                            </svg>
+                            :class="selectedPayMethod === 'cash' ? 'bg-[#007AFF] text-white ring-2 ring-[#007AFF]/30' : 'bg-black/[0.03] dark:bg-white/[0.05] text-black/80 dark:text-white/80 hover:bg-black/[0.06] dark:hover:bg-white/[0.08]'"
+                            class="p-3 rounded-[14px] flex flex-col items-center justify-center gap-1.5 text-xs font-semibold transition active:scale-[0.97] border border-black/5 dark:border-white/5">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75M15 10.5a3 3 0 11-6 0 3 3 0 016 0zm3 0h.008v.008H18V10.5zm-12 0h.008v.008H6V10.5z" /></svg>
                             <span>Tunai (Cash)</span>
                         </button>
                         <button type="button" @click="selectedPayMethod = 'qris'"
-                            :class="selectedPayMethod === 'qris' ? 'bg-[#007AFF] text-white shadow-sm' :
-                                'bg-black/[0.04] dark:bg-white/[0.06] text-black/80 dark:text-white/80 hover:bg-black/[0.08] dark:hover:bg-white/[0.1]'"
-                            class="p-3 rounded-[10px] flex flex-col items-center gap-1.5 text-[12px] font-medium transition active:scale-[0.97]">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5zM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5zM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0113.5 9.375v-4.5z" />
-                            </svg>
-                            <span>QRIS / E-Wallet</span>
-                        </button>
-                        <button type="button" @click="selectedPayMethod = 'transfer'"
-                            :class="selectedPayMethod === 'transfer' ? 'bg-[#007AFF] text-white shadow-sm' :
-                                'bg-black/[0.04] dark:bg-white/[0.06] text-black/80 dark:text-white/80 hover:bg-black/[0.08] dark:hover:bg-white/[0.1]'"
-                            class="p-3 rounded-[10px] flex flex-col items-center gap-1.5 text-[12px] font-medium transition active:scale-[0.97]">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
-                            </svg>
-                            <span>Transfer Bank</span>
+                            :class="selectedPayMethod === 'qris' ? 'bg-[#007AFF] text-white ring-2 ring-[#007AFF]/30' : 'bg-black/[0.03] dark:bg-white/[0.05] text-black/80 dark:text-white/80 hover:bg-black/[0.06] dark:hover:bg-white/[0.08]'"
+                            class="p-3 rounded-[14px] flex flex-col items-center justify-center gap-1.5 text-xs font-semibold transition active:scale-[0.97] border border-black/5 dark:border-white/5">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5zM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5zM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0113.5 9.375v-4.5z" /></svg>
+                            <span>QRIS Cooca Pay</span>
                         </button>
                         <button type="button" @click="selectedPayMethod = 'edc_debit'"
-                            :class="selectedPayMethod === 'edc_debit' ? 'bg-[#007AFF] text-white shadow-sm' :
-                                'bg-black/[0.04] dark:bg-white/[0.06] text-black/80 dark:text-white/80 hover:bg-black/[0.08] dark:hover:bg-white/[0.1]'"
-                            class="p-3 rounded-[10px] flex flex-col items-center gap-1.5 text-[12px] font-medium transition active:scale-[0.97]">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z" />
-                            </svg>
-                            <span>Kartu Debit/EDC</span>
+                            :class="selectedPayMethod === 'edc_debit' ? 'bg-[#007AFF] text-white ring-2 ring-[#007AFF]/30' : 'bg-black/[0.03] dark:bg-white/[0.05] text-black/80 dark:text-white/80 hover:bg-black/[0.06] dark:hover:bg-white/[0.08]'"
+                            class="p-3 rounded-[14px] flex flex-col items-center justify-center gap-1.5 text-xs font-semibold transition active:scale-[0.97] border border-black/5 dark:border-white/5">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z" /></svg>
+                            <span>EDC Debit</span>
                         </button>
+                        <button type="button" @click="selectedPayMethod = 'edc_credit'"
+                            :class="selectedPayMethod === 'edc_credit' ? 'bg-[#007AFF] text-white ring-2 ring-[#007AFF]/30' : 'bg-black/[0.03] dark:bg-white/[0.05] text-black/80 dark:text-white/80 hover:bg-black/[0.06] dark:hover:bg-white/[0.08]'"
+                            class="p-3 rounded-[14px] flex flex-col items-center justify-center gap-1.5 text-xs font-semibold transition active:scale-[0.97] border border-black/5 dark:border-white/5">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z" /></svg>
+                            <span>EDC Kredit</span>
+                        </button>
+                        <button type="button" @click="selectedPayMethod = 'transfer'"
+                            :class="selectedPayMethod === 'transfer' ? 'bg-[#007AFF] text-white ring-2 ring-[#007AFF]/30' : 'bg-black/[0.03] dark:bg-white/[0.05] text-black/80 dark:text-white/80 hover:bg-black/[0.06] dark:hover:bg-white/[0.08]'"
+                            class="p-3 rounded-[14px] flex flex-col items-center justify-center gap-1.5 text-xs font-semibold transition active:scale-[0.97] border border-black/5 dark:border-white/5">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" /></svg>
+                            <span>Transfer Bank</span>
+                        </button>
+                        <button type="button" @click="selectedPayMethod = 'customer_credit'"
+                            :class="selectedPayMethod === 'customer_credit' ? 'bg-[#007AFF] text-white ring-2 ring-[#007AFF]/30' : 'bg-black/[0.03] dark:bg-white/[0.05] text-black/80 dark:text-white/80 hover:bg-black/[0.06] dark:hover:bg-white/[0.08]'"
+                            class="p-3 rounded-[14px] flex flex-col items-center justify-center gap-1.5 text-xs font-semibold transition active:scale-[0.97] border border-black/5 dark:border-white/5">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                            <span>Kasbon / Piutang</span>
+                        </button>
+                    </div>
+                </div>
+
+                {{-- Opsi Mesin EDC & Nomor Approval jika metode EDC dipilih --}}
+                <div x-show="selectedPayMethod === 'edc_debit' || selectedPayMethod === 'edc_credit'" class="p-3.5 rounded-[14px] bg-[#007AFF]/5 dark:bg-[#007AFF]/10 border border-[#007AFF]/20 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[11px] font-semibold text-black/70 dark:text-white/70 mb-1">Pilih Mesin EDC Bank *</label>
+                        <select x-model="selectedEdcTerminalId"
+                            class="w-full h-10 px-3 rounded-[10px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 text-xs font-medium text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                            <option value="">-- Pilih Mesin EDC --</option>
+                            <template x-for="t in storeEdcTerminals" :key="t.id">
+                                <option :value="t.id" x-text="t.terminal_name + ' (' + t.bank_name + ' - TID: ' + t.terminal_id_tid + ')'"></option>
+                            </template>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold text-black/70 dark:text-white/70 mb-1">No. Approval / Ref EDC (Opsional)</label>
+                        <input type="text" x-model="paymentRefNumber" placeholder="Contoh: APPR-992019"
+                            class="w-full h-10 px-3 rounded-[10px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 text-xs font-mono text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
                     </div>
                 </div>
 
                 <!-- Input Nominal Tender -->
                 <div>
-                    <label class="block text-[12px] font-medium text-black/60 dark:text-white/60 mb-1.5">Nominal Bayar
-                        (Rp)</label>
+                    <label class="block text-xs font-semibold text-black/70 dark:text-white/70 mb-1.5">Nominal Uang Bayar (Rp)</label>
                     <input type="number" x-model.number="currentTenderAmount"
-                        class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 rounded-[10px] px-3.5 text-[18px] font-bold tabular-nums text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50">
+                        class="w-full h-12 bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 rounded-[12px] px-3.5 text-[20px] font-extrabold tabular-nums text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
 
                     <!-- Quick Cash Presets (only for Cash) -->
                     <div x-show="selectedPayMethod === 'cash'" class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2">
                         <button type="button" @click="currentTenderAmount = grandTotal"
-                            class="h-9 rounded-[8px] bg-[#007AFF]/12 hover:bg-[#007AFF]/20 text-[12px] font-semibold text-[#007AFF] tabular-nums transition active:scale-[0.97]">Uang
-                            Pas</button>
-                        <button type="button" @click="currentTenderAmount = 20000"
-                            class="h-9 rounded-[8px] bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] dark:hover:bg-white/[0.1] text-[12px] font-medium text-black/80 dark:text-white/80 tabular-nums transition active:scale-[0.97]">20.000</button>
+                            class="h-9 rounded-[10px] bg-[#007AFF]/12 hover:bg-[#007AFF]/20 text-xs font-bold text-[#007AFF] tabular-nums transition active:scale-[0.97]">Uang Pas</button>
                         <button type="button" @click="currentTenderAmount = 50000"
-                            class="h-9 rounded-[8px] bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] dark:hover:bg-white/[0.1] text-[12px] font-medium text-black/80 dark:text-white/80 tabular-nums transition active:scale-[0.97]">50.000</button>
+                            class="h-9 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] text-xs font-semibold text-black/80 dark:text-white/80 tabular-nums transition active:scale-[0.97]">50.000</button>
                         <button type="button" @click="currentTenderAmount = 100000"
-                            class="h-9 rounded-[8px] bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] dark:hover:bg-white/[0.1] text-[12px] font-medium text-black/80 dark:text-white/80 tabular-nums transition active:scale-[0.97]">100.000</button>
+                            class="h-9 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] text-xs font-semibold text-black/80 dark:text-white/80 tabular-nums transition active:scale-[0.97]">100.000</button>
+                        <button type="button" @click="currentTenderAmount = 200000"
+                            class="h-9 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] text-xs font-semibold text-black/80 dark:text-white/80 tabular-nums transition active:scale-[0.97]">200.000</button>
                     </div>
                 </div>
 
-                <!-- Kembalian / Sisa Bayar -->
-                <div
-                    class="p-3 rounded-[10px] bg-black/[0.03] dark:bg-white/[0.04] border border-black/5 dark:border-white/5 flex items-center justify-between">
-                    <span class="text-[12px] font-medium text-black/60 dark:text-white/60">Kembalian:</span>
-                    <span class="text-[18px] font-bold text-[#34C759] tabular-nums"
+                <!-- Kembalian Live Indicator -->
+                <div class="p-3.5 rounded-[14px] bg-black/[0.03] dark:bg-white/[0.04] border border-black/5 dark:border-white/5 flex items-center justify-between">
+                    <span class="text-xs font-medium text-black/60 dark:text-white/60">Kembalian:</span>
+                    <span class="text-[20px] font-extrabold text-[#34C759] tabular-nums"
                         x-text="formatRupiah(Math.max(0, currentTenderAmount - grandTotal))"></span>
                 </div>
             </div>
 
-            <div class="pt-3 border-t border-black/10 dark:border-white/10 flex items-center justify-end gap-2.5">
-                <button type="button" @click="showPaymentModal = false"
-                    class="h-9 px-4 rounded-[10px] text-[13px] font-medium text-black/70 dark:text-white/70 hover:bg-black/[0.06] dark:hover:bg-white/[0.08] transition">Batal</button>
-                <button type="button" @click="submitCheckout()"
-                    :disabled="isProcessing || currentTenderAmount < grandTotal"
-                    class="h-9 px-5 rounded-[10px] bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] text-white font-semibold text-[13px] shadow-sm disabled:opacity-30 transition flex items-center gap-2">
-                    <span x-show="!isProcessing">Proses Transaksi</span>
-                    <span x-show="isProcessing">Memproses...</span>
+            {{-- 2. MODE SPLIT PAYMENT (MULTI-METODE) --}}
+            <div x-show="isSplitPayment" class="space-y-4">
+                {{-- Financial Balance Status Bar --}}
+                <div class="p-4 rounded-[16px] bg-black/[0.03] dark:bg-white/[0.04] border border-black/5 dark:border-white/5 grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+                    <div>
+                        <span class="text-[10px] uppercase font-bold text-black/45 dark:text-white/45 block">Total Tagihan</span>
+                        <span class="text-base font-extrabold text-black dark:text-white tabular-nums block mt-0.5" x-text="formatRupiah(grandTotal)"></span>
+                    </div>
+                    <div>
+                        <span class="text-[10px] uppercase font-bold text-[#007AFF] block">Total Teralokasi</span>
+                        <span class="text-base font-extrabold text-[#007AFF] tabular-nums block mt-0.5" x-text="formatRupiah(totalSplitPaid)"></span>
+                    </div>
+                    <div>
+                        <span class="text-[10px] uppercase font-bold text-black/45 dark:text-white/45 block">Sisa Kurang</span>
+                        <span class="text-base font-extrabold tabular-nums block mt-0.5" :class="splitRemainingAmount > 0 ? 'text-[#FF3B30]' : 'text-black/40 dark:text-white/40'" x-text="formatRupiah(splitRemainingAmount)"></span>
+                    </div>
+                    <div>
+                        <span class="text-[10px] uppercase font-bold text-[#34C759] block">Kembalian</span>
+                        <span class="text-base font-extrabold text-[#34C759] tabular-nums block mt-0.5" x-text="formatRupiah(splitChangeAmount)"></span>
+                    </div>
+                </div>
+
+                {{-- Dynamic Split Rows Container --}}
+                <div class="space-y-2.5 max-h-[42vh] overflow-y-auto pr-1">
+                    <template x-for="(row, idx) in splitPaymentRows" :key="idx">
+                        <div class="p-3.5 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5 space-y-2.5">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold text-black dark:text-white flex items-center gap-1.5">
+                                    <span class="w-5 h-5 rounded-full bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center text-[10px]" x-text="idx + 1"></span>
+                                    <span>Metode Pembayaran #<span x-text="idx + 1"></span></span>
+                                </span>
+                                <button type="button" @click="removeSplitRow(idx)" x-show="splitPaymentRows.length > 1"
+                                    class="w-6 h-6 rounded-full hover:bg-[#FF3B30]/10 text-[#FF3B30] flex items-center justify-center transition">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                                </button>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5">
+                                {{-- Dropdown Metode --}}
+                                <div class="sm:col-span-4">
+                                    <label class="block text-[10px] font-medium text-black/50 dark:text-white/50 mb-1">Kanal Bayar *</label>
+                                    <select x-model="row.payment_method"
+                                        class="w-full h-10 px-2.5 rounded-[10px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 text-xs font-semibold text-black dark:text-white focus:ring-2 focus:ring-[#007AFF]">
+                                        <option value="cash">Tunai (Cash)</option>
+                                        <option value="qris">QRIS Cooca Pay</option>
+                                        <option value="edc_debit">EDC Debit</option>
+                                        <option value="edc_credit">EDC Kredit</option>
+                                        <option value="transfer">Transfer Bank</option>
+                                        <option value="customer_credit">Kasbon / Piutang</option>
+                                    </select>
+                                </div>
+
+                                {{-- Input Nominal & Auto Fill Sisa --}}
+                                <div class="sm:col-span-4">
+                                    <div class="flex items-center justify-between mb-1">
+                                        <label class="text-[10px] font-medium text-black/50 dark:text-white/50">Nominal (Rp) *</label>
+                                        <button type="button" @click="fillRemainingSplit(idx)" x-show="splitRemainingAmount > 0"
+                                            class="text-[10px] font-bold text-[#007AFF] hover:underline">
+                                            + Sisa (<span x-text="formatRupiah(splitRemainingAmount)"></span>)
+                                        </button>
+                                    </div>
+                                    <input type="number" x-model.number="row.amount"
+                                        class="w-full h-10 px-3 rounded-[10px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 text-xs font-bold tabular-nums text-black dark:text-white focus:ring-2 focus:ring-[#007AFF]">
+                                </div>
+
+                                {{-- Detail EDC / Ref --}}
+                                <div class="sm:col-span-4">
+                                    <label class="block text-[10px] font-medium text-black/50 dark:text-white/50 mb-1">
+                                        <span x-text="row.payment_method.startsWith('edc') ? 'Mesin EDC / Approval' : 'No. Ref / Catatan'"></span>
+                                    </label>
+                                    <template x-if="row.payment_method.startsWith('edc') && storeEdcTerminals.length > 0">
+                                        <select x-model="row.store_edc_terminal_id"
+                                            class="w-full h-10 px-2.5 rounded-[10px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 text-xs font-medium text-black dark:text-white focus:ring-2 focus:ring-[#007AFF]">
+                                            <option value="">-- Pilih EDC --</option>
+                                            <template x-for="t in storeEdcTerminals" :key="t.id">
+                                                <option :value="t.id" x-text="t.terminal_name + ' (' + t.terminal_id_tid + ')'"></option>
+                                            </template>
+                                        </select>
+                                    </template>
+                                    <template x-if="!row.payment_method.startsWith('edc') || storeEdcTerminals.length === 0">
+                                        <input type="text" x-model="row.reference_number" placeholder="No. ref / approval..."
+                                            class="w-full h-10 px-3 rounded-[10px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 text-xs text-black dark:text-white focus:ring-2 focus:ring-[#007AFF]">
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
+                {{-- Button Tambah Baris Split --}}
+                <button type="button" @click="addSplitRow()"
+                    class="w-full h-10 rounded-[12px] bg-[#007AFF]/10 hover:bg-[#007AFF]/15 text-[#007AFF] text-xs font-bold flex items-center justify-center gap-1.5 transition active:scale-[0.98]">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+                    <span>+ Tambah Metode Pembayaran Lain</span>
                 </button>
+            </div>
+
+            {{-- Modal Actions Footer --}}
+            <div class="pt-3 border-t border-black/10 dark:border-white/10 flex items-center justify-between gap-3">
+                <div class="text-xs">
+                    <template x-if="isSplitPayment && splitRemainingAmount > 0">
+                        <span class="text-[#FF3B30] font-semibold flex items-center gap-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" /></svg>
+                            <span>Alokasi kurang <strong x-text="formatRupiah(splitRemainingAmount)"></strong></span>
+                        </span>
+                    </template>
+                    <template x-if="isSplitPayment && splitRemainingAmount === 0">
+                        <span class="text-[#34C759] font-bold flex items-center gap-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
+                            <span>Total Pembayaran Pas</span>
+                        </span>
+                    </template>
+                    <template x-if="!isSplitPayment && currentTenderAmount >= grandTotal">
+                        <span class="text-[#34C759] font-bold">Siap diproses</span>
+                    </template>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <button type="button" @click="showPaymentModal = false"
+                        class="h-10 px-4 rounded-[12px] text-xs font-medium text-black/70 dark:text-white/70 hover:bg-black/[0.06] dark:hover:bg-white/[0.08] transition">
+                        Batal
+                    </button>
+                    <button type="button" @click="submitCheckout()"
+                        :disabled="isProcessing || (isSplitPayment ? splitRemainingAmount > 0 : currentTenderAmount < grandTotal)"
+                        class="h-10 px-6 rounded-[12px] bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] text-white font-bold text-xs shadow-sm disabled:opacity-35 transition flex items-center gap-2">
+                        <span x-show="!isProcessing" x-text="isSplitPayment ? 'Selesaikan Split Payment' : 'Selesaikan Transaksi'"></span>
+                        <span x-show="isProcessing">Memproses...</span>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -4076,9 +4222,50 @@
                 scannerBusy: false,
                 mobileCartOpen: false,
 
-                // Payment state
+                // Payment & Multi-EDC state
+                storeEdcTerminals: @json($storeEdcTerminals ?? []),
                 selectedPayMethod: 'cash',
+                selectedEdcTerminalId: '',
+                paymentRefNumber: '',
                 currentTenderAmount: 0,
+                isSplitPayment: false,
+                splitPaymentRows: [],
+                get totalSplitPaid() {
+                    return this.splitPaymentRows.reduce((sum, r) => sum + (Number(r.amount) || 0), 0);
+                },
+                get splitRemainingAmount() {
+                    return Math.max(0, this.grandTotal - this.totalSplitPaid);
+                },
+                get splitChangeAmount() {
+                    return Math.max(0, this.totalSplitPaid - this.grandTotal);
+                },
+                initSplitPayment() {
+                    this.isSplitPayment = true;
+                    if (this.splitPaymentRows.length === 0) {
+                        this.splitPaymentRows = [
+                            { payment_method: 'cash', amount: this.grandTotal, store_edc_terminal_id: '', reference_number: '' }
+                        ];
+                    }
+                },
+                addSplitRow() {
+                    const rem = this.splitRemainingAmount;
+                    this.splitPaymentRows.push({
+                        payment_method: 'cash',
+                        amount: rem > 0 ? rem : 0,
+                        store_edc_terminal_id: '',
+                        reference_number: ''
+                    });
+                },
+                removeSplitRow(idx) {
+                    if (this.splitPaymentRows.length > 1) {
+                        this.splitPaymentRows.splice(idx, 1);
+                    }
+                },
+                fillRemainingSplit(idx) {
+                    if (this.splitPaymentRows[idx]) {
+                        this.splitPaymentRows[idx].amount = (Number(this.splitPaymentRows[idx].amount) || 0) + this.splitRemainingAmount;
+                    }
+                },
                 isProcessing: false,
                 directPrinting: false,
                 kitchenPrinting: false,
@@ -4668,6 +4855,11 @@
                         }
                     }
 
+                    this.isSplitPayment = false;
+                    this.selectedPayMethod = 'cash';
+                    this.selectedEdcTerminalId = '';
+                    this.paymentRefNumber = '';
+                    this.splitPaymentRows = [];
                     this.currentTenderAmount = this.grandTotal;
                     this.mobileCartOpen = false;
                     this.showPaymentModal = true;
@@ -4728,12 +4920,33 @@
                         return;
                     }
 
-                    if (this.currentTenderAmount < this.grandTotal) {
-                        AppAlert.warning('Nominal pembayaran kurang.');
-                        return;
+                    if (this.isSplitPayment) {
+                        if (this.splitRemainingAmount > 0) {
+                            AppAlert.warning('Total alokasi split payment belum mencukupi total tagihan.');
+                            return;
+                        }
+                    } else {
+                        if (this.currentTenderAmount < this.grandTotal) {
+                            AppAlert.warning('Nominal pembayaran kurang.');
+                            return;
+                        }
                     }
 
                     this.isProcessing = true;
+
+                    const paymentsPayload = this.isSplitPayment ?
+                        this.splitPaymentRows.map(r => ({
+                            payment_method: r.payment_method,
+                            store_edc_terminal_id: (r.payment_method.startsWith('edc') && r.store_edc_terminal_id) ? r.store_edc_terminal_id : null,
+                            amount: Number(r.amount) || 0,
+                            reference_number: r.reference_number ? r.reference_number.trim() : null
+                        })) :
+                        [{
+                            payment_method: this.selectedPayMethod,
+                            store_edc_terminal_id: (this.selectedPayMethod.startsWith('edc') && this.selectedEdcTerminalId) ? this.selectedEdcTerminalId : null,
+                            amount: Number(this.currentTenderAmount) || 0,
+                            reference_number: this.paymentRefNumber ? this.paymentRefNumber.trim() : null
+                        }];
 
                     const payload = {
                         items: this.cart.map(i => ({
@@ -4748,10 +4961,7 @@
                             dosage_instructions: i.dosage_instructions || null,
                             selected_modifiers: i.selected_modifiers || []
                         })),
-                        payments: [{
-                            payment_method: this.selectedPayMethod,
-                            amount: this.currentTenderAmount
-                        }],
+                        payments: paymentsPayload,
                         customer_id: this.selectedCustomerId || null,
                         customer_name_guest: this.activeTableCustomerName || null,
                         order_type: this.orderType,
@@ -4800,6 +5010,10 @@
                             this.showPaymentModal = false;
                             this.showSuccessModal = true;
                             this.cart = [];
+                            this.isSplitPayment = false;
+                            this.splitPaymentRows = [];
+                            this.selectedEdcTerminalId = '';
+                            this.paymentRefNumber = '';
                             this.selectedTable = null;
                             this.activeTableOrderId = null;
                             this.activeTableOrderNumber = null;

@@ -32,6 +32,7 @@ class PosOrderPayment extends Model
     protected $fillable = [
         'pos_order_id',
         'payment_method',
+        'store_edc_terminal_id',
         'amount',
         'reference_number',
         'fee_amount',
@@ -58,5 +59,13 @@ class PosOrderPayment extends Model
     public function order(): BelongsTo
     {
         return $this->belongsTo(PosOrder::class, 'pos_order_id');
+    }
+
+    /**
+     * @return BelongsTo<StoreEdcTerminal, $this>
+     */
+    public function edcTerminal(): BelongsTo
+    {
+        return $this->belongsTo(StoreEdcTerminal::class, 'store_edc_terminal_id');
     }
 }

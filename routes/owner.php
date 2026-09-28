@@ -19,8 +19,10 @@ use App\Http\Controllers\Web\DashboardWebController;
 use App\Http\Controllers\Web\FeedbackWebController;
 use App\Http\Controllers\Web\Finance\AccountingWebController;
 use App\Http\Controllers\Web\Finance\CashLedgerWebController;
+use App\Http\Controllers\Web\Finance\MerchantPayoutAccountWebController;
 use App\Http\Controllers\Web\Finance\PaymentSettlementWebController;
 use App\Http\Controllers\Web\Finance\PosFinanceWebController;
+use App\Http\Controllers\Web\Finance\StoreEdcTerminalWebController;
 
 use App\Http\Controllers\Web\Hrm\HrmWebController;
 use App\Http\Controllers\Web\ImportWebController;
@@ -598,6 +600,18 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
             Route::get('/finance/settlements/unsettled', [PaymentSettlementWebController::class, 'getUnsettled'])->name('finance.settlements.unsettled');
             Route::post('/finance/settlements/reconcile', [PaymentSettlementWebController::class, 'reconcile'])->name('finance.settlements.reconcile');
             Route::get('/finance/settlements/{settlement}', [PaymentSettlementWebController::class, 'show'])->name('finance.settlements.show');
+
+            // Merchant Payout Bank Accounts (Strict Owner Matching)
+            Route::get('/finance/payout-accounts', [MerchantPayoutAccountWebController::class, 'index'])->name('finance.payout-accounts.index');
+            Route::post('/finance/payout-accounts', [MerchantPayoutAccountWebController::class, 'store'])->name('finance.payout-accounts.store');
+            Route::patch('/finance/payout-accounts/{account}/primary', [MerchantPayoutAccountWebController::class, 'setPrimary'])->name('finance.payout-accounts.set-primary');
+            Route::delete('/finance/payout-accounts/{account}', [MerchantPayoutAccountWebController::class, 'destroy'])->name('finance.payout-accounts.destroy');
+
+            // Store EDC Terminals & MDR Management
+            Route::get('/finance/edc-terminals', [StoreEdcTerminalWebController::class, 'index'])->name('finance.edc-terminals.index');
+            Route::post('/finance/edc-terminals', [StoreEdcTerminalWebController::class, 'store'])->name('finance.edc-terminals.store');
+            Route::patch('/finance/edc-terminals/{terminal}/toggle', [StoreEdcTerminalWebController::class, 'toggle'])->name('finance.edc-terminals.toggle');
+            Route::delete('/finance/edc-terminals/{terminal}', [StoreEdcTerminalWebController::class, 'destroy'])->name('finance.edc-terminals.destroy');
         });
         Route::get('/finance/receivables', [CashLedgerWebController::class, 'receivables'])->middleware('require.permission:finance.receivables')->name('finance.receivables');
         Route::get('/finance/payables', [CashLedgerWebController::class, 'payables'])->middleware('require.permission:finance.payables')->name('finance.payables');
