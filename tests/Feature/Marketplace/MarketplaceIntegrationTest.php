@@ -902,6 +902,59 @@ class MarketplaceIntegrationTest extends TestCase
         $responseInvalidState->assertRedirect(route('marketplace-hub.index'));
         $responseInvalidState->assertSessionHas('error');
     }
+
+    public function test_it_handles_tiktok_far_future_token_expiry_without_overflow_error(): void
+    {
+        // Simulate TikTok Shop returning 156-year refresh_expires_in (~4.9 billion seconds)
+        $farFutureExpiresIn = 4924800000;
+
+        \Illuminate\Support\Facades\Http::fake([
+            'https://auth.tiktok-shops.com/api/v2/token/get*' => \Illuminate\Support\Facades\Http::response([
+                'code'    => 0,
+                'message' => 'Success',
+                'data'    => [
+                    'open_id'                 => 'SANDBOX_TT_12345',
+                    'seller_name'             => 'TikTok Super Seller',
+                    'access_token'            => 'tts_mock_access_token_123',
+                    'refresh_token'           => 'tts_mock_refresh_token_123',
+                    'access_token_expire_in'  => 86400,
+                    'refresh_token_expire_in' => $farFutureExpiresIn, // ~156 years -> would produce year 2182
+                    'seller_base_region'      => 'ID',
+                    'user_type'               => 0,
+                ],
+            ], 200),
+        ]);
+
+        \App\Models\SystemSetting::set('tiktok_app_key', 'test_key', 'marketplace');
+        \App\Models\SystemSetting::set('tiktok_app_secret', 'test_secret', 'marketplace');
+
+        $manager = app(MarketplaceManagerService::class);
+        $account = $manager->connectAccount(
+            $this->businessA,
+            MarketplaceAccount::CHANNEL_TIKTOK,
+            ['code' => 'mock_auth_code_xyz'],
+            'https://app.cooca.id/callback'
+        );
+
+        $this->assertNotNull($account);
+        $this->assertEquals(MarketplaceAccount::STATUS_CONNECTED, $account->status);
+        $this->assertEquals('SANDBOX_TT_12345', $account->shop_id);
+        $this->assertNotNull($account->token_expires_at);
+        $this->assertNotNull($account->refresh_token_expires_at);
+
+        // Expiry should be capped safely and not exceed 11 years from now
+        $this->assertTrue($account->refresh_token_expires_at->isFuture());
+        $this->assertTrue($account->refresh_token_expires_at->lessThanOrEqualTo(now()->addYears(11)));
+
+        // Verify stored cleanly in database
+        $this->assertDatabaseHas('marketplace_accounts', [
+            'id'          => $account->id,
+            'business_id' => $this->businessA->id,
+            'channel'     => MarketplaceAccount::CHANNEL_TIKTOK,
+            'shop_id'     => 'SANDBOX_TT_12345',
+            'status'      => MarketplaceAccount::STATUS_CONNECTED,
+        ]);
+    }
 }
 
 

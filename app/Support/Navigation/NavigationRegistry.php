@@ -90,7 +90,7 @@ final class NavigationRegistry
                     ],
                     [
                         'key'           => 'settlements',
-                        'label'         => 'Settlement Gateway',
+                        'label'         => 'Payout Hub',
                         'icon'          => 'credit-card',
                         'route'         => 'finance.settlements.index',
                         'active_routes' => ['finance.settlements.*'],
@@ -112,7 +112,16 @@ final class NavigationRegistry
                         'active_routes' => ['finance.edc-terminals.*'],
                         'permission'    => 'finance.cash_bank',
                     ],
+                    [
+                        'key'           => 'external-recon',
+                        'label'         => 'Rekonsiliasi & Likuiditas',
+                        'icon'          => 'layout-dashboard',
+                        'route'         => 'finance.external-recon.index',
+                        'active_routes' => ['finance.external-recon.*', 'finance.liquidity-dashboard', 'finance.discrepancies'],
+                        'permission'    => 'finance.cash_bank',
+                    ],
                 ],
+
             ],
 
             'accounting' => [

@@ -99,8 +99,8 @@ class MarketplaceManagerService
             $account->status                   = MarketplaceAccount::STATUS_CONNECTED;
             $account->access_token             = $result['access_token'];
             $account->refresh_token            = $result['refresh_token'] ?? null;
-            $account->token_expires_at         = now()->addSeconds((int) ($result['expires_in'] ?? 86400));
-            $account->refresh_token_expires_at = now()->addSeconds((int) ($result['refresh_expires_in'] ?? 2592000));
+            $account->token_expires_at         = min(now()->addSeconds((int) ($result['expires_in'] ?? 86400)), now()->addYears(10));
+            $account->refresh_token_expires_at = min(now()->addSeconds((int) ($result['refresh_expires_in'] ?? 2592000)), now()->addYears(10));
             $account->settings                 = array_merge($account->settings ?? [], $result['extra'] ?? []);
             $account->error_message            = null;
             $account->last_synced_at           = now();
