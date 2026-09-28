@@ -47,6 +47,229 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 
 - Keputusan desain arsitektur yang diambil.
 
+### [WORK-2026-09-28-217] Redesign Public QR Order Menu Mengadopsi UI POS Terminal & Penyelarasan Unified Navigation Modifiers
+
+- **Date:** 2026-09-28
+- **Status:** COMPLETED
+- **Module:** Point of Sale & Public QR Order (`resources/views/public/qr-order/menu.blade.php`, `resources/views/app/products/modifiers.blade.php`, `app/Http/Controllers/Web/Pos/ModifierWebController.php`, `app/Support/Navigation/NavigationRegistry.php`)
+- **Feature:**
+  1. **Redesign Public QR Order (`menu.blade.php`):**
+     - Mengadopsi arsitektur dan estetika Bento Apple HIG dari POS Terminal (`terminal.blade.php`).
+     - Layout Desktop Split-Screen: Header dark navy (`bg-[#0B1528]`), Panel kiri katalog menu dengan Segmented Category Tabs sticky & Bento Product Grid cards, Panel kanan Permanent Sticky Cart Checkout sidebar dengan mode bayar QRIS / Kasir.
+     - Layout Mobile Responsive: Topbar Apple HIG, Search bar, Category horizontal bar, 2-kolom Bento Product Grid, Floating Cart Pill Bar + Apple HIG Bottom Sheet Cart modal (`max-h-[88vh]`).
+     - Modal Kustomisasi Modifiers: Desain Apple Bento Sheet dengan radio/checkbox options, live price calculation, catatan khusus item, dan stepper quantity.
+     - Modal Dynamic QRIS Pay-at-Table dengan countdown timer 15 menit dan live auto-polling status konfirmasi pembayaran.
+  2. **Penyelarasan Form vs Controller Modifiers (`https://cooca.id/pos/modifiers`):**
+     - Memperbaiki ketidaksesuaian form payload `materials` di mana DOM input terkirim meski `affects_material` bernilai false.
+     - Menambahkan sanitasi otomatis `$filteredMaterials` dan normalisasi boolean `is_required` & `affects_material` pada `ModifierWebController.php`.
+     - Membungkus material mapping section di `modifiers.blade.php` dengan `<template x-if="optionForm.affects_material">` dan watcher pembersih array `materials`.
+  3. **Integrasi UNIFIED SEGMENTED NAVIGATION (UI Unification):**
+     - Mendaftarkan tab `Varian & Modifiers` (`pos.modifiers.index`) dan `Marketplace & Multi-Harga` (`marketplace-hub.products`) pada module `products` di `NavigationRegistry.php`.
+     - Mengganti tab HTML statis di `modifiers.blade.php` dengan `<x-module-header>` dan `<x-module-tabs module="products" />`.
+     - Memastikan active state dan navigasi sidebar konsisten di bawah grup Produk & Logistik.
+
+#### 1. Business Context & Objective
+- Memberikan pengalaman pemesanan mandiri meja (QR Order) yang setara dengan POS Terminal kasir baik di layar desktop (tablet/laptop restoran) maupun ponsel pelanggan, serta memberantas kegagalan validasi saat pemilik bisnis mengonfigurasi varian & add-on menu F&B.
+
+#### 2. Technical Changes
+- `resources/views/public/qr-order/menu.blade.php`: Redesign total layout split-screen & mobile bottom sheet ala `terminal.blade.php`.
+- `app/Http/Controllers/Web/Pos/ModifierWebController.php`: Sanitasi array `materials` dan normalisasi input boolean pada `storeOption`, `updateOption`, `storeGroup`, dan `updateGroup`.
+- `app/Support/Navigation/NavigationRegistry.php`: Registrasi tab `modifiers` dan `marketplace` ke modul `products`.
+- `resources/views/app/products/modifiers.blade.php`: Integrasi `<x-module-header>`, `<x-module-tabs module="products" />`, dan isolasi DOM input `materials`.
+
+#### 3. Verification & Testing
+- `php -l` seluruh berkas: 100% Bebas Syntax Error.
+- `php artisan test tests/Feature/Pos`: 33 passed, 205 assertions (100% Green).
+
+---
+
+### [WORK-2026-09-28-216] Eksekusi Fase 5: Pengujian Otomatis Komprehensif, Hardening Keamanan Siber & Penutupan Dokumentasi 3-Layer POS Hardening
+
+- **Date:** 2026-09-28
+- **Status:** COMPLETED
+- **Module:** Point of Sale (`tests/Feature/Pos/`, `docs/system/modules/pos.md`, `docs/system/workflows/pos-sales-flow.md`, `docs/system/workflows/pos-qr-order-flow.md`, `docs/IMPLEMENTATION_PLAN_POS_HARDENING_ANTI_FRAUD.md`, `docs/SYSTEM_GUIDE.md`)
+- **Feature:** Pengujian Komprehensif & Penutupan Hardening POS & Anti-Fraud:
+  1. **Pengujian Otomatis 100% Lolos Seluruh Modul POS:**
+     - `tests/Feature/Pos/PosSecurityAndAntiFraudTest.php` (14 tests, 72 assertions):
+       - Pencegahan SSRF & restriksi port socket TCP pada printer LAN (`PrinterIpValidator`).
+       - Penolakan otorisasi jika PIN supervisor kosong (tidak ada fallback rentan `'1234'`).
+       - Penolakan client-side price tampering pada checkout (penegakan harga dasar server).
+       - Validasi keabsahan voucher via endpoint `/pos/validate-voucher`.
+       - Penegakan Blind Cash Count pada penutupan shift kasir (ekspektasi kas sistem tertutup dari kasir).
+       - Alur pemesanan meja mandiri publik QR (`/t/{qrToken}/order`) dengan Customer CRM auto-connect.
+       - Akumulasi lifetime spend, order count, dan poin loyalitas pada pesanan QR selesai.
+     - Seluruh direktori `tests/Feature/Pos/` (33 tests, 205 assertions, 0 failures, 0 errors):
+       - `IndustryVerticalGapAndPrepSheetTest.php`
+       - `PosMultiPaymentSplitTest.php`
+       - `PosMultiRegisterShiftAndStockFeatureTest.php`
+       - `PosPrinterHardwareIntegrationTest.php`
+       - `PosSecurityAndAntiFraudTest.php`
+  2. **Validasi Keutuhan Routing:**
+     - Menjalankan `php artisan route:list --path=pos` memvalidasi 119 rute POS berjalan normal tanpa konflik nama rute atau signature handler.
+  3. **Pembaruan & Sinkronisasi Dokumentasi 3-Layer:**
+     - **Layer 1:** Pencatatan riwayat kronologis lengkap di `docs/AiWorkHistory.md`.
+     - **Layer 2:** Sinkronisasi dokumen arsitektur dan alur kerja di `docs/system/modules/pos.md`, `docs/system/workflows/pos-sales-flow.md`, dan `docs/system/workflows/pos-qr-order-flow.md`.
+     - **Layer 3:** Penutupan status implementasi pada `docs/IMPLEMENTATION_PLAN_POS_HARDENING_ANTI_FRAUD.md` menjadi `COMPLETED ✅` serta sinkronisasi master guide di `docs/SYSTEM_GUIDE.md`.
+
+#### 1. Business Context & Objective
+- **Konteks:** Melengkapi seluruh siklus rekayasa sistem untuk program POS Hardening, Anti-Fraud, Bento Apple HIG XXL Modal Standard, dan QR Table Order 20 Sektor Industri dengan pengujian otomatis end-to-end tanpa celah, serta pembaruan dokumentasi komprehensif.
+- **Masalah/Target:** Memastikan tidak ada regresi fungsional di seluruh modul kasir POS, memvalidasi keamanan siber dan perlindungan fraud internal, serta menjamin seluruh dokumen panduan dan arsitektur selaras 100% dengan kode produksi.
+
+#### 2. What Was Done
+- Menjalankan pengujian otomatis penuh untuk 33 test cases di `tests/Feature/Pos/`.
+- Memverifikasi keutuhan 119 rute POS di `php artisan route:list`.
+- Menyinkronkan dokumentasi Layer 1 (`docs/AiWorkHistory.md`), Layer 2 (`docs/system/modules/pos.md`, `docs/system/workflows/pos-sales-flow.md`, `docs/system/workflows/pos-qr-order-flow.md`), dan Layer 3 (`docs/SYSTEM_GUIDE.md` dan `docs/IMPLEMENTATION_PLAN_POS_HARDENING_ANTI_FRAUD.md`).
+
+#### 3. Technical Changes
+- **Files Affected:**
+  - `tests/Feature/Pos/PosSecurityAndAntiFraudTest.php`
+  - `docs/system/modules/pos.md`
+  - `docs/system/workflows/pos-sales-flow.md`
+  - `docs/system/workflows/pos-qr-order-flow.md`
+  - `docs/IMPLEMENTATION_PLAN_POS_HARDENING_ANTI_FRAUD.md`
+  - `docs/SYSTEM_GUIDE.md`
+  - `docs/AiWorkHistory.md`
+- **Database Changes:** Tidak ada.
+- **API / Route Changes:** 119 route terverifikasi utuh dan aman.
+
+#### 4. System Impacts
+- **Workflow Impact:** Terminal kasir dan pemesanan meja mandiri publik beroperasi dengan perlindungan anti-fraud berlapis, UI modal XXL yang luas dan responsif, serta integrasi CRM otomatis.
+- **Business Rule Impact:** Seluruh 10 aturan bisnis POS (`RULE-POS-001` s/d `RULE-POS-010`) terverifikasi dan aktif di seluruh level controller, service, model, dan view.
+
+#### 5. Verification & Testing
+- `php artisan test tests/Feature/Pos` (33 tests, 205 assertions, 0 errors, 0 failures).
+- `php artisan route:list --path=pos` (119 routes verified).
+
+---
+
+### [WORK-2026-09-28-215] Eksekusi Fase 4: Integrasi CRM Customer Otomatis, Guardrail No HP Indonesia, Toast Apple HIG & Dinamisasi Layanan Vertikal 20 Sektor
+
+- **Date:** 2026-09-28
+- **Status:** COMPLETED
+- **Module:** Point of Sale & CRM (`LoyaltyService.php`, `PosOrderService.php`, `menu.blade.php`, `terminal.blade.php`, `PosSecurityAndAntiFraudTest.php`)
+- **Feature:** Hardening POS & CRM Auto-Connect Multi-Industri:
+  1. **Customer CRM Auto-Connect & Lifetime Stats Akumulatif:**
+     - `app/Domain/Pos/PosOrderService.php`:
+       - `createQrOrder`: Otomatis mencari record `Customer` berdasarkan `business_id` dan nomor HP tersanitasi. Jika belum ada, sistem membuat record baru secara otomatis dan menautkan `order.customer_id = $customer->id`.
+       - `completePaidQrOrder` & `payQrOrder`: Mengakumulasikan statistik pelanggan (`total_orders_count`, `total_spent`, dan `loyalty_points`) saat pesanan QR lunas/selesai.
+     - `app/Domain/Crm/LoyaltyService.php`:
+       - `awardPointsForOrder`: Menjamin statistik lifetime pelanggan (`total_spent`, `total_orders_count`, dan tier) selalu diperbarui untuk semua nominal belanja, serta mencatat mutasi poin loyalitas jika rasio poin bisnis menghasilkan perolehan > 0.
+  2. **Public QR Menu Guardrail No HP & Apple HIG Toast (`resources/views/public/qr-order/menu.blade.php`):**
+     - Validasi nomor WhatsApp/HP Indonesia 10–15 digit (`08...`, `628...`, `+628...`) dengan sanitasi real-time.
+     - Pencegahan iOS Safari auto-zoom dengan menerapkan `text-[16px] sm:text-xs` pada semua input formulir publik.
+     - Eliminasi 100% dialog browser native `alert()` (6 instance) digantikan oleh Floating Toast Notification Apple HIG dengan animasi slide-in & auto-dismiss.
+     - Perluasan modal Customization, Cart, QRIS, Customer, dan Tracking menjadi responsif XXL (`sm:max-w-lg md:max-w-xl lg:max-w-2xl`).
+     - Mengunci tombol `[ Mulai Pilih Menu ]` dengan state `isCustomerValid` sehingga pelanggan wajib mengisi identitas valid sebelum memesan.
+  3. **Dinamisasi Tombol Layanan Vertikal 20 Sektor (`resources/views/app/pos/terminal.blade.php`):**
+     - Bengkel & Otomotif (`service_workshop`, `service_autodetailing`, `bengkel`, `carwash`): Tombol SPK Kendaraan (Plat, Model, KM Odometer, Mekanik).
+     - Laundry (`service_laundry`, `laundry`): Tombol Timbangan Cucian & Lokasi Rak (Kg, No Rak, Status).
+     - Apotek (`retail_pharmacy` / `isPharmacy()`): Banner indikator mode farmasi (Batch & ED Obat aktif).
+     - F&B & Ritel Murni: Menyembunyikan tombol jasa luar agar antarmuka kasir tetap bersih dan cepat, namun tetap menampilkan badge jika data terisi.
+     - Multi-Layanan Umum: Tombol adaptif multi-layanan.
+     - Inisialisasi tab modal vertikal secara kontekstual sesuai template bisnis aktif (`workshop` atau `laundry`).
+  4. **Kondisionalisasi Modul Meja & KDS:**
+     - Mengunci akses tombol Denah Meja, Reservasi, dan KDS di header, drawer navigasi mobile, dan modal tautan cepat hanya jika bisnis memiliki modul `pos_dinein` aktif.
+  5. **Pengujian Otomatis 100% Passing:**
+     - 14 test cases di `tests/Feature/Pos/PosSecurityAndAntiFraudTest.php` dan 33 test cases di seluruh `tests/Feature/Pos/` lolos 100% (205 assertions, 0 failures, 0 errors).
+
+#### 1. Business Context & Objective
+- **Konteks:** Menghubungkan pesanan self-service QR pelanggan secara seamless ke modul CRM UMKM tanpa input manual kasir, mencegah kesalahan nomor telepon pelanggan di Indonesia, memberikan pengalaman pemesanan publik berstandar Apple HIG tanpa pop-up alert browser yang mengganggu, serta menyesuaikan terminal POS agar relevan dengan 20 sektor industri.
+- **Masalah/Target:** Mengatasi disconnect data pelanggan pada order QR, menghilangkan dialog `alert()` yang merusak UX mobile, menghentikan auto-zoom Safari iOS, dan membersihkan terminal kasir dari tombol layanan yang tidak relevan dengan sektor bisnisnya.
+
+#### 2. What Was Done
+- Mengimplementasikan pencarian/pembuatan otomatis profil pelanggan CRM di `PosOrderService`.
+- Memperbarui `LoyaltyService` agar lifetime stats selalu terakumulasi.
+- Merekayasa ulang `resources/views/public/qr-order/menu.blade.php` dengan Floating Toast Apple HIG, guardrail nomor HP, dan modal XXL.
+- Menyesuaikan tombol layanan vertikal kasir di `resources/views/app/pos/terminal.blade.php` berdasarkan `$business->template_code`.
+- Menambahkan pengujian otomatis komprehensif di `PosSecurityAndAntiFraudTest`.
+
+#### 3. Technical Changes
+- **Files Affected:**
+  - `app/Domain/Crm/LoyaltyService.php`
+  - `app/Domain/Pos/PosOrderService.php`
+  - `resources/views/public/qr-order/menu.blade.php`
+  - `resources/views/app/pos/terminal.blade.php`
+  - `tests/Feature/Pos/PosSecurityAndAntiFraudTest.php`
+- **Database Changes:** Tidak ada migrasi baru (memanfaatkan skema `customers`, `pos_orders`, dan `pos_tables` yang sudah ada).
+- **API / Route Changes:** Tidak ada breaking changes (kompatibel penuh dengan seluruh endpoint).
+
+#### 4. System Impacts
+- **Workflow Impact:** Setiap transaksi QR otomatis terhubung ke pelanggan CRM. Kasir dapat melihat histori belanja pelanggan dan memberikan layanan yang lebih personal.
+- **Business Rule Impact:** Nomor HP pelanggan diverifikasi berformat valid Indonesia (10–15 digit). Modul F&B (Meja & KDS) hanya aktif jika izin dan modul `pos_dinein` diaktifkan.
+- **Permission Impact:** Tetap menghormati RBAC dan isolasi multi-tenant `business_id`.
+
+#### 5. Verification & Testing
+- `php artisan test tests/Feature/Pos/PosSecurityAndAntiFraudTest.php` (14/14 tests passing, 72 assertions).
+- `php artisan test tests/Feature/Pos` (33/33 tests passing, 205 assertions, 0 failures).
+
+---
+
+### [WORK-2026-09-28-214] Eksekusi Fase 3: Penegakan Standar Modal Pop-Up XXL Bento Apple HIG v2.0, Eliminasi 100% Dialog Native Browser & Pembersihan Emoji POS
+
+- **Date:** 2026-09-28
+- **Status:** COMPLETED
+- **Module:** Point of Sale (`shifts.blade.php`, `printers/index.blade.php`, `tables.blade.php`, `kitchen.blade.php`, `orders.blade.php`, `receipt.blade.php`, `terminal.blade.php`)
+- **Feature:** Rekayasa UI/UX Modal Pop-Up XXL Bento Apple HIG v2.0 & Eliminasi Total Dialog Native Browser:
+  1. **Restrukturisasi Modal ke Standar XXL 2-Kolom Bento Apple HIG:**
+     - `shifts.blade.php`:
+       - Modal Buka Shift: Di-upgrade ke `max-w-5xl xl:max-w-6xl` (2 kolom: Kiri = Grid input pecahan fisik nominal Rp 100 s/d Rp 100.000, Kanan = Sesi kasir aktif, jam operasional, dan SOP laci kas).
+       - Modal Tutup Shift: Di-upgrade ke `max-w-5xl xl:max-w-6xl` (2 kolom: Kiri = Input fisik Strict Blind Cash Count pecahan uang, Kanan = Info kasir, catatan shift, dan status guardrail).
+       - Modal Mutasi Kas: Di-upgrade ke `max-w-3xl lg:max-w-4xl` dengan selector jenis mutasi bento dan catatan transaksi.
+       - Modal Detail Shift: Diimplementasikan modal detail riwayat shift komprehensif (`max-w-4xl lg:max-w-5xl`).
+     - `printers/index.blade.php`:
+       - Modal Tambah & Edit Printer: Di-upgrade ke `max-w-5xl xl:max-w-6xl` (2 kolom: Kiri = Konfigurasi jaringan LAN/IP interface & port, Kanan = Preview kapabilitas hardware, routing KDS/KOT, dan SSRF Security Guardrail box).
+       - Modal Manual Drawer Pop: Di-upgrade ke `max-w-2xl` lapang bento dengan proteksi Supervisor PIN & alasan audit.
+     - `tables.blade.php`:
+       - Modal Tambah & Edit Meja: Di-upgrade ke `max-w-3xl lg:max-w-4xl xl:max-w-5xl` (2 kolom: Kiri = Form nomor meja, area, kapasitas kursi, status meja, Kanan = Integrasi QR self-ordering, auto-routing KDS, dan shortcut kartu akrilik).
+  2. **Eliminasi 100% Dialog Native Browser (`alert()`, `confirm()`, `prompt()`):**
+     - Mengganti seluruh konfirmasi hapus printer, hapus meja, tutup sesi meja, reprint receipt/bill, void order, refund order, dan tes printer dengan suite unified notification `AppAlert` (`AppAlert.confirm()`, `AppAlert.confirmSubmit()`, `AppAlert.success()`, `AppAlert.error()`).
+     - Memastikan `receipt.blade.php` memuat `app-alert.js` untuk konfirmasi Re-Print aman.
+  3. **Pembersihan Karakter Emoji Unicode:**
+     - Mengganti seluruh emoji pada `terminal.blade.php` (baris 2619 `⚡` dan baris 3752 `📅`) dengan icon semantik Lucide (`<i data-lucide="zap">`, `<i data-lucide="calendar">`).
+  4. **Proteksi Anti Double-Submit Form:**
+     - Menambahkan proteksi `:disabled="isSubmitting"` dengan visual feedback loading spinner pada seluruh modal form di `shifts.blade.php`, `printers/index.blade.php`, `tables.blade.php`, dan `orders.blade.php`.
+  5. **Verifikasi Pengujian Otomatis:**
+     - Seluruh pengujian fitur `Tests\Feature\Pos\PosSecurityAndAntiFraudTest` (12 tests, 58 assertions) lolos 100% (0 errors, 0 failures).
+
+---
+
+### [WORK-2026-09-28-213] Eksekusi Fase 2: Proteksi Fraud Kasir, Server-Authoritative Pricing, Real-time Voucher API & Strict Blind Cash Count
+
+- **Date:** 2026-09-28
+- **Status:** COMPLETED
+- **Module:** Point of Sale (`PosOrderService`, `PosTerminalWebController`, `PosShiftWebController`, `routes/owner.php`, `shifts.blade.php`, `terminal.blade.php`)
+- **Feature:** Penguatan Integritas Finansial Kasir POS & Pencegahan Fraud Sisi Klien:
+  1. **Server-Authoritative Pricing (`PosOrderService.php`):**
+     - Memvalidasi seluruh harga produk di method `checkout()` dari database master (`Product::selling_price` dan `ProductChannelPrice`), mengabaikan payload `unit_price` yang dikirim dari browser klien guna menutup celah price tampering fraud.
+     - Tetap mendukung custom item non-katalog secara aman.
+  2. **Endpoint Validasi Voucher Real-Time (`POST /pos/validate-voucher` & `PosTerminalWebController.php`):**
+     - Menyediakan endpoint AJAX asinkron untuk memvalidasi voucher multi-tenant (`business_id`), masa aktif (`valid_from`, `valid_until`), kuota (`usage_limit`, `used_count`), dan batas minimum belanja (`min_order_amount`).
+     - Mengganti mock voucher 10% hardcoded di `terminal.blade.php` dengan request real-time ke endpoint backend.
+  3. **Strict Blind Cash Count (`PosShiftWebController.php`, `shifts.blade.php`, `terminal.blade.php`):**
+     - Memask nilai `expected_cash` dan `cash_difference` pada API summary shift kasir biasa (`null`) agar kasir wajib menghitung uang fisik secara murni tanpa melihat estimasi sistem.
+     - Menyembunyikan baris harapan uang fisik dan live variance dari DOM kasir non-supervisor/non-owner pada modal tutup shift di `shifts.blade.php` dan `terminal.blade.php`.
+     - Menghilangkan prefill otomatis `this.shiftActualCash = data.summary.expected_cash` di Alpine.js `terminal.blade.php`, menginisialisasi dengan angka `0`.
+  4. **Pengujian Otomatis Bebas Eror:**
+     - Menambahkan 4 feature test baru pada `Tests\Feature\Pos\PosSecurityAndAntiFraudTest` (total 12 tests, 58 assertions) yang lolos 100% (0 failures, 0 errors).
+
+---
+
+### [WORK-2026-09-28-212] Eksekusi Fase 1: Keamanan Siber, Proteksi SSRF Printer LAN & Otorisasi PIN POS
+
+- **Date:** 2026-09-28
+- **Status:** COMPLETED
+- **Module:** Point of Sale (`PosPrinterWebController`, `PosOrderWebController`, `NetworkConnector`, `CashDrawerService`, `PrinterIpValidator`)
+- **Feature:** Hardening Keamanan Siber & Eliminasi Insecure Fallback PIN pada Hardware POS:
+  1. **SSRF Guardrail & Printer IP Sanitizer (`PrinterIpValidator.php` & `NetworkConnector.php`):**
+     - Membangun `App\Domain\Printer\PrinterIpValidator` untuk memblokir alamat IP loopback (`127.0.0.0/8`, `::1`, `localhost`), link-local dan metadata cloud (`169.254.0.0/16`, `169.254.169.254`, `metadata.google.internal`), broadcast, dan hostname internal berisiko.
+     - Mengintegrasikan validator ke `PosPrinterWebController@store` & `@update` serta `NetworkConnector@send` & `@testConnection`.
+     - Mengoptimalkan connection timeout socket TCP menjadi 2.0 detik anti-hang.
+  2. **Eliminasi Insecure Default PIN Fallback `'1234'`:**
+     - Menghapus fallback PIN `'1234'` pada `PosOrderWebController@verifySupervisorAuthorization`, `PosPrinterWebController@manualDrawerPop`, dan `CashDrawerService@openManualWithPin`.
+     - Mengubah kolom `pos_supervisor_pin` pada migrasi database menjadi `nullable` tanpa nilai default `'1234'`, memastikan Owner wajib mengatur PIN sebelum otorisasi sensitif (void, refund, manual drawer pop) dapat dieksekusi.
+  3. **Pengujian Otomatis Bebas Eror:**
+     - Membuat test suite `Tests\Feature\Pos\PosSecurityAndAntiFraudTest` (8 tests, 34 assertions) yang lolos 100% (0 failures, 0 errors).
+
 ---
 
 ### [WORK-2026-09-28-211] Implementasi 1-Click Push/Publish Produk & Galeri ke Marketplace (Shopee, TikTok Shop, Tokopedia)

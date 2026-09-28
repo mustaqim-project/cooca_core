@@ -100,8 +100,21 @@ final class PosShiftWebController extends Controller
         $business = Context::requireBusiness();
         abort_unless($shift->business_id === $business->id, 403);
 
+        $isOwnerOrSupervisor = Context::isOwner() || Context::isAdminOrOwner() || Context::hasPermission('pos.supervisor_pin');
+
         $summary = $this->shiftService->getShiftSummary($shift);
-        return response()->json(['success' => true, 'summary' => $summary, 'shift' => $shift->load(['user', 'location', 'register'])]);
+        if (! $isOwnerOrSupervisor) {
+            // Mask expected_cash and cash difference for regular cashiers to enforce Strict Blind Cash Count
+            $summary['expected_cash'] = null;
+            $summary['cash_difference'] = null;
+        }
+
+        return response()->json([
+            'success' => true,
+            'summary' => $summary,
+            'shift' => $shift->load(['user', 'location', 'register']),
+            'is_blind_count' => ! $isOwnerOrSupervisor,
+        ]);
     }
 
     /**

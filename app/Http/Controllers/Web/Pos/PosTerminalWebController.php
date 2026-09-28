@@ -467,6 +467,93 @@ final class PosTerminalWebController extends Controller
     }
 
     /**
+     * Validate voucher code in real-time and calculate discount amount (AJAX).
+     */
+    public function validateVoucher(Request $request): JsonResponse
+    {
+        $business = Context::requireBusiness();
+
+        $validated = $request->validate([
+            'code' => ['required', 'string', 'max:50'],
+            'subtotal' => ['required', 'numeric', 'min:0'],
+            'customer_id' => ['nullable', 'string'],
+        ]);
+
+        $code = trim($validated['code']);
+        $subtotal = (float) $validated['subtotal'];
+
+        $voucher = Voucher::where('business_id', $business->id)
+            ->where('code', $code)
+            ->first();
+
+        if (! $voucher) {
+            return response()->json([
+                'success' => false,
+                'valid' => false,
+                'message' => 'Kode voucher tidak ditemukan atau tidak berlaku di outlet ini.',
+            ], 422);
+        }
+
+        if (! $voucher->is_active) {
+            return response()->json([
+                'success' => false,
+                'valid' => false,
+                'message' => 'Voucher sedang tidak aktif.',
+            ], 422);
+        }
+
+        if ($voucher->valid_from && now()->lt($voucher->valid_from->startOfDay())) {
+            return response()->json([
+                'success' => false,
+                'valid' => false,
+                'message' => 'Voucher baru dapat digunakan mulai ' . $voucher->valid_from->format('d M Y') . '.',
+            ], 422);
+        }
+
+        if ($voucher->valid_until && now()->gt($voucher->valid_until->endOfDay())) {
+            return response()->json([
+                'success' => false,
+                'valid' => false,
+                'message' => 'Voucher telah kedaluwarsa pada ' . $voucher->valid_until->format('d M Y') . '.',
+            ], 422);
+        }
+
+        if ($voucher->usage_limit !== null && $voucher->used_count >= $voucher->usage_limit) {
+            return response()->json([
+                'success' => false,
+                'valid' => false,
+                'message' => 'Kuota penggunaan voucher ini sudah habis.',
+            ], 422);
+        }
+
+        if ($subtotal < (float) $voucher->min_order_amount) {
+            return response()->json([
+                'success' => false,
+                'valid' => false,
+                'message' => 'Minimum belanja untuk voucher ini adalah Rp ' . number_format((float) $voucher->min_order_amount, 0, ',', '.') . ' (Subtotal saat ini: Rp ' . number_format($subtotal, 0, ',', '.') . ').',
+            ], 422);
+        }
+
+        $discountAmount = $voucher->calculateDiscount($subtotal);
+
+        return response()->json([
+            'success' => true,
+            'valid' => true,
+            'voucher' => [
+                'id' => $voucher->id,
+                'code' => $voucher->code,
+                'name' => $voucher->name,
+                'discount_type' => $voucher->discount_type,
+                'discount_value' => (float) $voucher->discount_value,
+                'min_order_amount' => (float) $voucher->min_order_amount,
+                'max_discount_amount' => (float) $voucher->max_discount_amount,
+            ],
+            'discount_amount' => $discountAmount,
+            'message' => 'Voucher ' . $voucher->code . ' berhasil diterapkan! Hemat Rp ' . number_format($discountAmount, 0, ',', '.'),
+        ]);
+    }
+
+    /**
      * Execute POS order checkout (AJAX).
      */
     public function checkout(Request $request): JsonResponse

@@ -4,18 +4,28 @@ declare(strict_types=1);
 
 namespace App\Domain\Printer\Connectors;
 
+use App\Domain\Printer\PrinterIpValidator;
 use App\Models\PosPrinter;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 
 class NetworkConnector implements PrinterConnectorInterface
 {
-    protected float $timeoutSeconds = 2.5;
+    protected float $timeoutSeconds = 2.0;
 
     public function send(PosPrinter $printer, string $rawData): array
     {
         $ip = trim($printer->interface_address);
         $port = $printer->port ?: 9100;
+
+        if (! PrinterIpValidator::isSafe($ip)) {
+            $msg = "Alamat printer [{$ip}] ditolak karena melanggar kebijakan keamanan SSRF.";
+            Log::warning("[POS Network Printer SSRF Block] " . $msg);
+            return [
+                'success' => false,
+                'message' => $msg,
+            ];
+        }
 
         $fp = @fsockopen($ip, $port, $errno, $errstr, $this->timeoutSeconds);
 
@@ -56,6 +66,14 @@ class NetworkConnector implements PrinterConnectorInterface
         $ip = trim($printer->interface_address);
         $port = $printer->port ?: 9100;
 
+        if (! PrinterIpValidator::isSafe($ip)) {
+            return [
+                'connected' => false,
+                'latency_ms' => 0.0,
+                'message' => "Alamat printer [{$ip}] tidak aman (SSRF Protection).",
+            ];
+        }
+
         $startTime = microtime(true);
         $fp = @fsockopen($ip, $port, $errno, $errstr, $this->timeoutSeconds);
         $latencyMs = round((microtime(true) - $startTime) * 1000, 2);
@@ -77,3 +95,4 @@ class NetworkConnector implements PrinterConnectorInterface
         ];
     }
 }
+

@@ -17,6 +17,7 @@
     cashierNotes: '',
     notes: '',
     isPrinting: false,
+    isSubmitting: false,
     
     // Denominations for Opening
     openDenoms: {
@@ -97,14 +98,10 @@
             if (data.success) {
                 if (window.AppAlert) {
                     window.AppAlert.success(data.message || 'Struk laporan shift berhasil dicetak.');
-                } else {
-                    alert(data.message || 'Struk laporan shift berhasil dicetak.');
                 }
             } else {
                 if (window.AppAlert) {
                     window.AppAlert.error(data.message || 'Gagal mencetak laporan shift.');
-                } else {
-                    alert(data.message || 'Gagal mencetak laporan shift.');
                 }
             }
         } catch (e) {
@@ -401,7 +398,7 @@
     @if(\App\Support\Context::hasPermission('pos.terminal') || \App\Support\Context::hasPermission('pos.orders'))
     <div x-show="showOpenModal"
         x-cloak
-        class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-[2px] p-4 overflow-y-auto"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-md p-4 overflow-y-auto"
         x-transition:enter="transition ease-out duration-200"
         x-transition:enter-start="opacity-0"
         x-transition:enter-end="opacity-100"
@@ -409,7 +406,7 @@
         x-transition:leave-start="opacity-100"
         x-transition:leave-end="opacity-0">
 
-        <div class="w-full max-w-lg rounded-[16px] bg-white/95 dark:bg-[#1C1C1E]/95 backdrop-blur-xl border border-black/5 dark:border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.25)] p-5 sm:p-6 space-y-4 my-8"
+        <div class="w-full max-w-5xl xl:max-w-6xl rounded-[24px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/15 shadow-[0_25px_60px_rgba(0,0,0,0.35)] p-6 sm:p-7 space-y-6 my-8 max-h-[92vh] overflow-y-auto"
             @click.away="showOpenModal = false"
             x-transition:enter="transition ease-out duration-200"
             x-transition:enter-start="opacity-0 scale-95"
@@ -418,101 +415,155 @@
             x-transition:leave-start="opacity-100 scale-100"
             x-transition:leave-end="opacity-0 scale-95">
 
-            <div class="flex items-center justify-between border-b border-black/5 dark:border-white/10 pb-3">
-                <div>
-                    <h3 class="text-[17px] font-semibold text-black dark:text-white">Buka Shift Kasir Baru</h3>
-                    <p class="text-[12px] text-black/50 dark:text-white/50">Tentukan terminal dan hitung modal awal laci</p>
+            <div class="flex items-center justify-between border-b border-black/10 dark:border-white/10 pb-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-[12px] bg-[#007AFF]/15 text-[#007AFF] flex items-center justify-center font-bold">
+                        <i data-lucide="plus-circle" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-[19px] font-bold text-black dark:text-white tracking-tight">Buka Sesi Shift Kasir Baru</h3>
+                        <p class="text-[13px] text-black/50 dark:text-white/50">Tentukan terminal kerja dan input modal kas awal laci fisik</p>
+                    </div>
                 </div>
-                <button type="button" @click="showOpenModal = false" class="w-7 h-7 rounded-full bg-black/[0.05] dark:bg-white/[0.08] text-black/50 dark:text-white/50 hover:bg-black/10 flex items-center justify-center transition-colors">
+                <button type="button" @click="showOpenModal = false" class="w-8 h-8 rounded-full bg-black/[0.05] dark:bg-white/[0.08] text-black/50 dark:text-white/50 hover:bg-black/10 hover:text-black dark:hover:text-white flex items-center justify-center transition-colors">
                     <i data-lucide="x" class="w-4 h-4"></i>
                 </button>
             </div>
 
-            <form action="{{ route('pos.shifts.open') }}" method="POST" class="space-y-4">
+            <form action="{{ route('pos.shifts.open') }}" method="POST" @submit="isSubmitting = true" class="space-y-6">
                 @csrf
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-[12px] font-medium text-black/60 dark:text-white/60 mb-1.5">Pilih Outlet</label>
-                        <select name="location_id" class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
-                            @foreach($locations as $loc)
-                                <option value="{{ $loc->id }}">{{ $loc->name }}</option>
-                            @endforeach
-                        </select>
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <!-- Kolom Kiri: Form Input & Denominasi (7 Cols) -->
+                    <div class="lg:col-span-7 space-y-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                            <div>
+                                <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">Pilih Outlet / Cabang *</label>
+                                <select name="location_id" class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 rounded-[12px] px-3.5 text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                                    @foreach($locations as $loc)
+                                        <option value="{{ $loc->id }}">{{ $loc->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">Terminal / Register</label>
+                                <select name="pos_register_id" class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 rounded-[12px] px-3.5 text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                                    <option value="">-- Terminal Utama (Default) --</option>
+                                    @foreach($registers as $reg)
+                                        <option value="{{ $reg->id }}">{{ $reg->name }} ({{ $reg->code }})</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Toggle Mode: Direct Input vs Denominations Calculator -->
+                        <div class="flex items-center justify-between p-3 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.04] border border-black/5 dark:border-white/5 text-[13px]">
+                            <span class="text-black/80 dark:text-white/80 font-medium">Hitung Rinci Pecahan Lembar &amp; Koin Fisik</span>
+                            <button type="button" @click="openUseDenoms = !openUseDenoms" class="text-[#007AFF] font-semibold hover:underline">
+                                <span x-text="openUseDenoms ? 'Gunakan Input Nominal Sederhana' : 'Buka Rincian Pecahan'"></span>
+                            </button>
+                        </div>
+
+                        <!-- Denominations Grid -->
+                        <div x-show="openUseDenoms" class="space-y-3 p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5">
+                            <div class="flex items-center justify-between">
+                                <p class="text-[11px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45">Jumlah Fisik Pecahan Laci Kasir</p>
+                                <span class="text-[11px] text-black/40 dark:text-white/40">Otomatis Terakumulasi</span>
+                            </div>
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-[12px]">
+                                <div>
+                                    <label class="block text-[11px] font-medium text-black/50 dark:text-white/50 mb-1">Rp 100.000</label>
+                                    <input type="number" min="0" name="opening_denominations[100000]" x-model.number="openDenoms['100000']" class="w-full h-9 bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 rounded-[8px] px-2.5 text-[13px] tabular-nums font-semibold text-black dark:text-white">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-medium text-black/50 dark:text-white/50 mb-1">Rp 50.000</label>
+                                    <input type="number" min="0" name="opening_denominations[50000]" x-model.number="openDenoms['50000']" class="w-full h-9 bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 rounded-[8px] px-2.5 text-[13px] tabular-nums font-semibold text-black dark:text-white">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-medium text-black/50 dark:text-white/50 mb-1">Rp 20.000</label>
+                                    <input type="number" min="0" name="opening_denominations[20000]" x-model.number="openDenoms['20000']" class="w-full h-9 bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 rounded-[8px] px-2.5 text-[13px] tabular-nums font-semibold text-black dark:text-white">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-medium text-black/50 dark:text-white/50 mb-1">Rp 10.000</label>
+                                    <input type="number" min="0" name="opening_denominations[10000]" x-model.number="openDenoms['10000']" class="w-full h-9 bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 rounded-[8px] px-2.5 text-[13px] tabular-nums font-semibold text-black dark:text-white">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-medium text-black/50 dark:text-white/50 mb-1">Rp 5.000</label>
+                                    <input type="number" min="0" name="opening_denominations[5000]" x-model.number="openDenoms['5000']" class="w-full h-9 bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 rounded-[8px] px-2.5 text-[13px] tabular-nums font-semibold text-black dark:text-white">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-medium text-black/50 dark:text-white/50 mb-1">Rp 2.000</label>
+                                    <input type="number" min="0" name="opening_denominations[2000]" x-model.number="openDenoms['2000']" class="w-full h-9 bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 rounded-[8px] px-2.5 text-[13px] tabular-nums font-semibold text-black dark:text-white">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-medium text-black/50 dark:text-white/50 mb-1">Rp 1.000</label>
+                                    <input type="number" min="0" name="opening_denominations[1000]" x-model.number="openDenoms['1000']" class="w-full h-9 bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 rounded-[8px] px-2.5 text-[13px] tabular-nums font-semibold text-black dark:text-white">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-medium text-black/50 dark:text-white/50 mb-1">Total Koin</label>
+                                    <input type="number" min="0" name="opening_denominations[coins]" x-model.number="openDenoms['coins']" placeholder="Rp" class="w-full h-9 bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 rounded-[8px] px-2.5 text-[13px] tabular-nums font-semibold text-black dark:text-white">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">Total Modal Awal Laci (Rp) *</label>
+                            <input type="number" name="opening_cash" :value="openCalculatedCash" @input="openManualCash = $event.target.value" :readonly="openUseDenoms" required class="w-full h-12 bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 rounded-[12px] px-4 text-[18px] font-bold tabular-nums text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                        </div>
+
+                        <div>
+                            <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">Catatan Pembukaan (Opsional)</label>
+                            <input type="text" name="notes" placeholder="Contoh: Tambahan modal uang kecil Rp 50.000..." class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 rounded-[12px] px-3.5 text-[14px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                        </div>
                     </div>
-                    <div>
-                        <label class="block text-[12px] font-medium text-black/60 dark:text-white/60 mb-1.5">Terminal / Register</label>
-                        <select name="pos_register_id" class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
-                            <option value="">-- Terminal Utama (Default) --</option>
-                            @foreach($registers as $reg)
-                                <option value="{{ $reg->id }}">{{ $reg->name }} ({{ $reg->code }})</option>
-                            @endforeach
-                        </select>
-                    </div>
-                </div>
 
-                <!-- Toggle Mode: Direct Input vs Denominations Calculator -->
-                <div class="flex items-center justify-between p-2.5 rounded-[10px] bg-black/[0.03] dark:bg-white/[0.04] border border-black/5 dark:border-white/5 text-[12px]">
-                    <span class="text-black/70 dark:text-white/70 font-medium">Hitung Rinci Pecahan Uang</span>
-                    <button type="button" @click="openUseDenoms = !openUseDenoms" class="text-[#007AFF] font-semibold hover:underline">
-                        <span x-text="openUseDenoms ? 'Gunakan Input Langsung' : 'Buka Kalkulator Pecahan'"></span>
-                    </button>
-                </div>
+                    <!-- Kolom Kanan: Bento Information & Guidelines (5 Cols) -->
+                    <div class="lg:col-span-5 space-y-4">
+                        <div class="p-4 rounded-[18px] bg-black/[0.03] dark:bg-white/[0.04] border border-black/5 dark:border-white/10 space-y-3">
+                            <div class="flex items-center gap-2.5 text-[#007AFF]">
+                                <i data-lucide="user-check" class="w-5 h-5"></i>
+                                <h4 class="font-bold text-[14px] text-black dark:text-white">Informasi Kasir</h4>
+                            </div>
+                            <div class="space-y-2 text-[12px] divide-y divide-black/5 dark:divide-white/5">
+                                <div class="flex items-center justify-between pt-1">
+                                    <span class="text-black/50 dark:text-white/50">Petugas Kasir</span>
+                                    <span class="font-semibold text-black dark:text-white">{{ auth()->user()->name ?? 'Kasir Aktif' }}</span>
+                                </div>
+                                <div class="flex items-center justify-between pt-2">
+                                    <span class="text-black/50 dark:text-white/50">Waktu Mulai</span>
+                                    <span class="tabular-nums font-medium text-black dark:text-white">{{ now()->format('d/m/Y H:i') }} WIB</span>
+                                </div>
+                                <div class="flex items-center justify-between pt-2">
+                                    <span class="text-black/50 dark:text-white/50">Status Sistem</span>
+                                    <span class="inline-flex items-center gap-1 text-[#34C759] font-semibold">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-[#34C759]"></span> Siap Bertransaksi
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
 
-                <!-- Denominations Grid -->
-                <div x-show="openUseDenoms" class="space-y-2 p-3 rounded-[12px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5">
-                    <p class="text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40">Jumlah Lembar / Keping Fisik</p>
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[12px]">
-                        <div>
-                            <label class="block text-[11px] text-black/50 dark:text-white/50 mb-0.5">Rp 100.000</label>
-                            <input type="number" min="0" name="opening_denominations[100000]" x-model.number="openDenoms['100000']" class="w-full h-8 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[8px] px-2 text-[13px] tabular-nums text-black dark:text-white">
-                        </div>
-                        <div>
-                            <label class="block text-[11px] text-black/50 dark:text-white/50 mb-0.5">Rp 50.000</label>
-                            <input type="number" min="0" name="opening_denominations[50000]" x-model.number="openDenoms['50000']" class="w-full h-8 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[8px] px-2 text-[13px] tabular-nums text-black dark:text-white">
-                        </div>
-                        <div>
-                            <label class="block text-[11px] text-black/50 dark:text-white/50 mb-0.5">Rp 20.000</label>
-                            <input type="number" min="0" name="opening_denominations[20000]" x-model.number="openDenoms['20000']" class="w-full h-8 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[8px] px-2 text-[13px] tabular-nums text-black dark:text-white">
-                        </div>
-                        <div>
-                            <label class="block text-[11px] text-black/50 dark:text-white/50 mb-0.5">Rp 10.000</label>
-                            <input type="number" min="0" name="opening_denominations[10000]" x-model.number="openDenoms['10000']" class="w-full h-8 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[8px] px-2 text-[13px] tabular-nums text-black dark:text-white">
-                        </div>
-                        <div>
-                            <label class="block text-[11px] text-black/50 dark:text-white/50 mb-0.5">Rp 5.000</label>
-                            <input type="number" min="0" name="opening_denominations[5000]" x-model.number="openDenoms['5000']" class="w-full h-8 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[8px] px-2 text-[13px] tabular-nums text-black dark:text-white">
-                        </div>
-                        <div>
-                            <label class="block text-[11px] text-black/50 dark:text-white/50 mb-0.5">Rp 2.000</label>
-                            <input type="number" min="0" name="opening_denominations[2000]" x-model.number="openDenoms['2000']" class="w-full h-8 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[8px] px-2 text-[13px] tabular-nums text-black dark:text-white">
-                        </div>
-                        <div>
-                            <label class="block text-[11px] text-black/50 dark:text-white/50 mb-0.5">Rp 1.000</label>
-                            <input type="number" min="0" name="opening_denominations[1000]" x-model.number="openDenoms['1000']" class="w-full h-8 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[8px] px-2 text-[13px] tabular-nums text-black dark:text-white">
-                        </div>
-                        <div>
-                            <label class="block text-[11px] text-black/50 dark:text-white/50 mb-0.5">Total Koin</label>
-                            <input type="number" min="0" name="opening_denominations[coins]" x-model.number="openDenoms['coins']" placeholder="Rp" class="w-full h-8 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[8px] px-2 text-[13px] tabular-nums text-black dark:text-white">
+                        <div class="p-4 rounded-[18px] bg-gradient-to-br from-[#007AFF]/5 to-[#007AFF]/10 border border-[#007AFF]/15 space-y-2.5">
+                            <div class="flex items-center gap-2 text-[#007AFF] font-bold text-[13px]">
+                                <i data-lucide="shield-alert" class="w-4 h-4"></i>
+                                <span>SOP Kasir &amp; Anti-Fraud</span>
+                            </div>
+                            <ul class="space-y-1.5 text-[12px] text-black/70 dark:text-white/70 list-disc list-inside leading-relaxed">
+                                <li>Pastikan uang fisik di laci telah dihitung teliti sebelum shift dimulai.</li>
+                                <li>Semua transaksi penjualan wajib tercatat melalui terminal kasir.</li>
+                                <li>Setiap penambahan atau pengambilan kas di tengah jam operasional wajib dicatat pada menu <em>Mutasi Kas</em>.</li>
+                            </ul>
                         </div>
                     </div>
                 </div>
 
-                <div>
-                    <label class="block text-[12px] font-medium text-black/60 dark:text-white/60 mb-1.5">Total Modal Awal (Rp)</label>
-                    <input type="number" name="opening_cash" :value="openCalculatedCash" @input="openManualCash = $event.target.value" :readonly="openUseDenoms" class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 text-[16px] font-semibold tabular-nums text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
-                </div>
-
-                <div>
-                    <label class="block text-[12px] font-medium text-black/60 dark:text-white/60 mb-1.5">Catatan (Opsional)</label>
-                    <input type="text" name="notes" placeholder="Catatan pembukaan shift..." class="w-full h-11 sm:h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 text-[16px] sm:text-[14px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
-                </div>
-
-                <div class="flex items-center justify-end gap-2 pt-3 border-t border-black/5 dark:border-white/10">
-                    <button type="button" @click="showOpenModal = false" class="min-h-[44px] sm:min-h-0 sm:h-9 px-4 rounded-[10px] text-[13px] font-medium text-black/70 dark:text-white/70 hover:bg-black/[0.06] dark:hover:bg-white/[0.08] transition-colors">
+                <div class="flex items-center justify-end gap-3 pt-4 border-t border-black/10 dark:border-white/10">
+                    <button type="button" @click="showOpenModal = false" class="min-h-[44px] px-5 rounded-[12px] text-[13px] font-medium text-black/70 dark:text-white/70 hover:bg-black/[0.06] dark:hover:bg-white/[0.08] transition-colors">
                         Batal
                     </button>
-                    <button type="submit" class="min-h-[44px] sm:min-h-0 sm:h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] active:opacity-80 transition-all shadow-[0_1px_2px_rgba(0,122,255,0.25)]">
-                        Buka Shift
+                    <button type="submit" :disabled="isSubmitting" class="min-h-[44px] px-6 rounded-[12px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] transition-all shadow-[0_2px_8px_rgba(0,122,255,0.35)] flex items-center gap-2">
+                        <template x-if="isSubmitting">
+                            <i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i>
+                        </template>
+                        <span x-text="isSubmitting ? 'Membuka Shift...' : 'Konfirmasi Buka Shift'"></span>
                     </button>
                 </div>
             </form>
@@ -526,7 +577,7 @@
     @if(\App\Support\Context::hasPermission('pos.orders') || \App\Support\Context::hasPermission('pos.supervisor_pin'))
     <div x-show="showCloseModal"
         x-cloak
-        class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-[2px] p-4 overflow-y-auto"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-md p-4 overflow-y-auto"
         x-transition:enter="transition ease-out duration-200"
         x-transition:enter-start="opacity-0"
         x-transition:enter-end="opacity-100"
@@ -534,7 +585,7 @@
         x-transition:leave-start="opacity-100"
         x-transition:leave-end="opacity-0">
 
-        <div class="w-full max-w-lg rounded-[16px] bg-white/95 dark:bg-[#1C1C1E]/95 backdrop-blur-xl border border-black/5 dark:border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.25)] p-5 sm:p-6 space-y-4 my-8"
+        <div class="w-full max-w-5xl xl:max-w-6xl rounded-[24px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/15 shadow-[0_25px_60px_rgba(0,0,0,0.35)] p-6 sm:p-7 space-y-6 my-8 max-h-[92vh] overflow-y-auto"
             @click.away="showCloseModal = false"
             x-transition:enter="transition ease-out duration-200"
             x-transition:enter-start="opacity-0 scale-95"
@@ -543,91 +594,147 @@
             x-transition:leave-start="opacity-100 scale-100"
             x-transition:leave-end="opacity-0 scale-95">
 
-            <div class="flex items-center justify-between border-b border-black/5 dark:border-white/10 pb-3">
-                <div>
-                    <h3 class="text-[17px] font-semibold text-black dark:text-white">Tutup Shift &amp; Rekonsiliasi Kas</h3>
-                    <p class="text-[12px] text-black/50 dark:text-white/50">Penghitungan fisik uang laci (Blind Cash Count)</p>
+            <div class="flex items-center justify-between border-b border-black/10 dark:border-white/10 pb-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-[12px] bg-[#FF3B30]/15 text-[#FF3B30] flex items-center justify-center font-bold">
+                        <i data-lucide="lock" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-[19px] font-bold text-black dark:text-white tracking-tight">Tutup Shift &amp; Rekonsiliasi Kas</h3>
+                        <p class="text-[13px] text-black/50 dark:text-white/50">Penghitungan fisik uang laci tanpa kebocoran estimasi sistem (Blind Cash Count)</p>
+                    </div>
                 </div>
-                <button type="button" @click="showCloseModal = false" class="w-7 h-7 rounded-full bg-black/[0.05] dark:bg-white/[0.08] text-black/50 dark:text-white/50 hover:bg-black/10 flex items-center justify-center transition-colors">
+                <button type="button" @click="showCloseModal = false" class="w-8 h-8 rounded-full bg-black/[0.05] dark:bg-white/[0.08] text-black/50 dark:text-white/50 hover:bg-black/10 hover:text-black dark:hover:text-white flex items-center justify-center transition-colors">
                     <i data-lucide="x" class="w-4 h-4"></i>
                 </button>
             </div>
 
-            <form :action="'{{ url('/pos/shifts') }}/' + selectedShiftId + '/close'" method="POST" class="space-y-4">
+            @php
+                $isSupervisor = \App\Support\Context::isOwner() || auth()->user()?->hasRole('owner') || auth()->user()?->can('pos.supervisor_pin');
+            @endphp
+
+            <form :action="'{{ url('/pos/shifts') }}/' + selectedShiftId + '/close'" method="POST" @submit="isSubmitting = true" class="space-y-6">
                 @csrf
-                <div class="p-3.5 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.04] border border-black/5 dark:border-white/5 flex items-center justify-between">
-                    <span class="text-[13px] text-black/60 dark:text-white/60">Total Harapan di Laci (Sistem):</span>
-                    <span class="font-bold text-[15px] tabular-nums text-[#34C759] dark:text-[#30D158]" x-text="'Rp ' + Number(expectedCash).toLocaleString('id-ID')"></span>
-                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <!-- Kolom Kiri: Input Fisik Pecahan Kas (7 Cols) -->
+                    <div class="lg:col-span-7 space-y-4">
+                        <div class="flex items-center justify-between p-3 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.04] border border-black/5 dark:border-white/5 text-[13px]">
+                            <span class="text-black/80 dark:text-white/80 font-medium">Hitung Fisik Rinci Pecahan Laci</span>
+                            <button type="button" @click="closeUseDenoms = !closeUseDenoms" class="text-[#007AFF] font-semibold hover:underline">
+                                <span x-text="closeUseDenoms ? 'Gunakan Input Total Langsung' : 'Rincikan Lembar Pecahan'"></span>
+                            </button>
+                        </div>
 
-                <!-- Pecahan Uang Fisik Kasir -->
-                <div class="space-y-2 p-3 rounded-[12px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5">
-                    <div class="flex items-center justify-between mb-1">
-                        <p class="text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40">Hitung Fisik Laci (Pecahan)</p>
-                        <button type="button" @click="closeUseDenoms = !closeUseDenoms" class="text-[11px] text-[#007AFF] font-medium">
-                            <span x-text="closeUseDenoms ? 'Input Nominal Total' : 'Rincikan Pecahan'"></span>
-                        </button>
+                        <!-- Pecahan Uang Fisik Kasir -->
+                        <div x-show="closeUseDenoms" class="space-y-3 p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5">
+                            <p class="text-[11px] font-bold uppercase tracking-wider text-black/45 dark:text-white/45">Jumlah Lembar / Keping Fisik Aktual</p>
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-[12px]">
+                                <div>
+                                    <label class="block text-[11px] font-medium text-black/50 dark:text-white/50 mb-1">Rp 100.000</label>
+                                    <input type="number" min="0" name="closing_denominations[100000]" x-model.number="closeDenoms['100000']" class="w-full h-9 bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 rounded-[8px] px-2.5 text-[13px] tabular-nums font-semibold text-black dark:text-white">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-medium text-black/50 dark:text-white/50 mb-1">Rp 50.000</label>
+                                    <input type="number" min="0" name="closing_denominations[50000]" x-model.number="closeDenoms['50000']" class="w-full h-9 bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 rounded-[8px] px-2.5 text-[13px] tabular-nums font-semibold text-black dark:text-white">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-medium text-black/50 dark:text-white/50 mb-1">Rp 20.000</label>
+                                    <input type="number" min="0" name="closing_denominations[20000]" x-model.number="closeDenoms['20000']" class="w-full h-9 bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 rounded-[8px] px-2.5 text-[13px] tabular-nums font-semibold text-black dark:text-white">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-medium text-black/50 dark:text-white/50 mb-1">Rp 10.000</label>
+                                    <input type="number" min="0" name="closing_denominations[10000]" x-model.number="closeDenoms['10000']" class="w-full h-9 bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 rounded-[8px] px-2.5 text-[13px] tabular-nums font-semibold text-black dark:text-white">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-medium text-black/50 dark:text-white/50 mb-1">Rp 5.000</label>
+                                    <input type="number" min="0" name="closing_denominations[5000]" x-model.number="closeDenoms['5000']" class="w-full h-9 bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 rounded-[8px] px-2.5 text-[13px] tabular-nums font-semibold text-black dark:text-white">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-medium text-black/50 dark:text-white/50 mb-1">Rp 2.000</label>
+                                    <input type="number" min="0" name="closing_denominations[2000]" x-model.number="closeDenoms['2000']" class="w-full h-9 bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 rounded-[8px] px-2.5 text-[13px] tabular-nums font-semibold text-black dark:text-white">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-medium text-black/50 dark:text-white/50 mb-1">Rp 1.000</label>
+                                    <input type="number" min="0" name="closing_denominations[1000]" x-model.number="closeDenoms['1000']" class="w-full h-9 bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 rounded-[8px] px-2.5 text-[13px] tabular-nums font-semibold text-black dark:text-white">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-medium text-black/50 dark:text-white/50 mb-1">Total Koin</label>
+                                    <input type="number" min="0" name="closing_denominations[coins]" x-model.number="closeDenoms['coins']" placeholder="Rp" class="w-full h-9 bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 rounded-[8px] px-2.5 text-[13px] tabular-nums font-semibold text-black dark:text-white">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">Hitungan Fisik Aktual Kasir (Rp) *</label>
+                            <input type="number" name="closing_cash_actual" :value="closeCalculatedCash" @input="actualCash = $event.target.value" :readonly="closeUseDenoms" required class="w-full h-12 bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 rounded-[12px] px-4 text-[18px] font-bold tabular-nums text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                        </div>
+
+                        <div>
+                            <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">Penjelasan / Catatan Kasir</label>
+                            <input type="text" name="cashier_notes" x-model="cashierNotes" placeholder="Catatan jika ada selisih uang atau kondisi penutupan shift..." class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 rounded-[12px] px-3.5 text-[14px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                        </div>
                     </div>
 
-                    <div x-show="closeUseDenoms" class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[12px]">
-                        <div>
-                            <label class="block text-[11px] text-black/50 dark:text-white/50 mb-0.5">Rp 100.000</label>
-                            <input type="number" min="0" name="closing_denominations[100000]" x-model.number="closeDenoms['100000']" class="w-full h-8 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[8px] px-2 text-[13px] tabular-nums text-black dark:text-white">
+                    <!-- Kolom Kanan: Guardrail & Supervisor View (5 Cols) -->
+                    <div class="lg:col-span-5 space-y-4">
+                        @if($isSupervisor)
+                        <div class="p-4 rounded-[18px] bg-black/[0.03] dark:bg-white/[0.04] border border-black/5 dark:border-white/10 space-y-3">
+                            <div class="flex items-center gap-2 text-[#FF9500] font-bold text-[13px]">
+                                <i data-lucide="key" class="w-4 h-4"></i>
+                                <span>Rekonsiliasi Supervisor (Privileged View)</span>
+                            </div>
+                            <div class="space-y-2 text-[12px] divide-y divide-black/5 dark:divide-white/5">
+                                <div class="flex items-center justify-between pt-1">
+                                    <span class="text-black/60 dark:text-white/60">Harapan Sistem:</span>
+                                    <span class="font-bold tabular-nums text-[#34C759] dark:text-[#30D158]" x-text="'Rp ' + Number(expectedCash).toLocaleString('id-ID')"></span>
+                                </div>
+                                <div class="flex items-center justify-between pt-2">
+                                    <span class="text-black/60 dark:text-white/60">Fisik Kasir:</span>
+                                    <span class="font-bold tabular-nums text-black dark:text-white" x-text="'Rp ' + Number(closeCalculatedCash).toLocaleString('id-ID')"></span>
+                                </div>
+                                <div class="flex items-center justify-between pt-2 text-[13px]">
+                                    <span class="font-semibold text-black dark:text-white">Selisih Kas:</span>
+                                    <span :class="(closeCalculatedCash - expectedCash) === 0 ? 'text-[#34C759] dark:text-[#30D158] font-bold' : ((closeCalculatedCash - expectedCash) > 0 ? 'text-[#007AFF] font-bold' : 'text-[#FF3B30] font-bold')" 
+                                          class="tabular-nums font-bold"
+                                          x-text="((closeCalculatedCash - expectedCash) >= 0 ? '+' : '') + 'Rp ' + Number(closeCalculatedCash - expectedCash).toLocaleString('id-ID')"></span>
+                                </div>
+                            </div>
                         </div>
-                        <div>
-                            <label class="block text-[11px] text-black/50 dark:text-white/50 mb-0.5">Rp 50.000</label>
-                            <input type="number" min="0" name="closing_denominations[50000]" x-model.number="closeDenoms['50000']" class="w-full h-8 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[8px] px-2 text-[13px] tabular-nums text-black dark:text-white">
+                        @else
+                        <div class="p-4 rounded-[18px] bg-[#007AFF]/5 dark:bg-[#007AFF]/10 border border-[#007AFF]/20 space-y-2.5">
+                            <div class="flex items-center gap-2 text-[#007AFF] font-bold text-[13px]">
+                                <i data-lucide="shield-check" class="w-4 h-4"></i>
+                                <span>Strict Blind Cash Count Aktif</span>
+                            </div>
+                            <p class="text-[12px] text-black/70 dark:text-white/70 leading-relaxed">
+                                Anda wajib menghitung dan menginput seluruh uang fisik di laci secara mandiri tanpa mengetahui saldo ekspektasi sistem. Sistem akan merekonsiliasi selisih secara otomatis ke laporan Owner.
+                            </p>
                         </div>
-                        <div>
-                            <label class="block text-[11px] text-black/50 dark:text-white/50 mb-0.5">Rp 20.000</label>
-                            <input type="number" min="0" name="closing_denominations[20000]" x-model.number="closeDenoms['20000']" class="w-full h-8 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[8px] px-2 text-[13px] tabular-nums text-black dark:text-white">
-                        </div>
-                        <div>
-                            <label class="block text-[11px] text-black/50 dark:text-white/50 mb-0.5">Rp 10.000</label>
-                            <input type="number" min="0" name="closing_denominations[10000]" x-model.number="closeDenoms['10000']" class="w-full h-8 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[8px] px-2 text-[13px] tabular-nums text-black dark:text-white">
-                        </div>
-                        <div>
-                            <label class="block text-[11px] text-black/50 dark:text-white/50 mb-0.5">Rp 5.000</label>
-                            <input type="number" min="0" name="closing_denominations[5000]" x-model.number="closeDenoms['5000']" class="w-full h-8 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[8px] px-2 text-[13px] tabular-nums text-black dark:text-white">
-                        </div>
-                        <div>
-                            <label class="block text-[11px] text-black/50 dark:text-white/50 mb-0.5">Rp 2.000</label>
-                            <input type="number" min="0" name="closing_denominations[2000]" x-model.number="closeDenoms['2000']" class="w-full h-8 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[8px] px-2 text-[13px] tabular-nums text-black dark:text-white">
-                        </div>
-                        <div>
-                            <label class="block text-[11px] text-black/50 dark:text-white/50 mb-0.5">Rp 1.000</label>
-                            <input type="number" min="0" name="closing_denominations[1000]" x-model.number="closeDenoms['1000']" class="w-full h-8 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[8px] px-2 text-[13px] tabular-nums text-black dark:text-white">
-                        </div>
-                        <div>
-                            <label class="block text-[11px] text-black/50 dark:text-white/50 mb-0.5">Total Koin</label>
-                            <input type="number" min="0" name="closing_denominations[coins]" x-model.number="closeDenoms['coins']" placeholder="Rp" class="w-full h-8 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[8px] px-2 text-[13px] tabular-nums text-black dark:text-white">
+                        @endif
+
+                        <div class="p-4 rounded-[18px] bg-black/[0.03] dark:bg-white/[0.04] border border-black/5 dark:border-white/10 space-y-2">
+                            <h4 class="font-bold text-[13px] text-black dark:text-white flex items-center gap-1.5">
+                                <i data-lucide="info" class="w-4 h-4 text-black/50 dark:text-white/50"></i>
+                                <span>SOP Penutupan Kasir</span>
+                            </h4>
+                            <ul class="space-y-1 text-[12px] text-black/60 dark:text-white/60 list-disc list-inside leading-relaxed">
+                                <li>Pisahkan uang modal awal dan uang hasil penjualan harian.</li>
+                                <li>Cetak struk laporan shift penutupan setelah formulir dikirim.</li>
+                                <li>Serahkan laci uang dan dokumen fisik ke supervisor yang bertugas.</li>
+                            </ul>
                         </div>
                     </div>
                 </div>
 
-                <div>
-                    <label class="block text-[12px] font-medium text-black/60 dark:text-white/60 mb-1.5">Hitungan Fisik Aktual Kasir (Rp)</label>
-                    <input type="number" name="closing_cash_actual" :value="closeCalculatedCash" @input="actualCash = $event.target.value" :readonly="closeUseDenoms" class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 text-[16px] font-bold tabular-nums text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
-                </div>
-
-                <div class="p-3 rounded-[12px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5 flex items-center justify-between text-[13px]">
-                    <span class="text-black/60 dark:text-white/60">Selisih Kas Rekonsiliasi:</span>
-                    <span :class="(closeCalculatedCash - expectedCash) === 0 ? 'text-[#34C759] dark:text-[#30D158] font-bold' : ((closeCalculatedCash - expectedCash) > 0 ? 'text-[#007AFF] font-bold' : 'text-[#FF3B30] font-bold')" 
-                          class="tabular-nums"
-                          x-text="((closeCalculatedCash - expectedCash) >= 0 ? '+' : '') + 'Rp ' + Number(closeCalculatedCash - expectedCash).toLocaleString('id-ID')"></span>
-                </div>
-
-                <div>
-                    <label class="block text-[12px] font-medium text-black/60 dark:text-white/60 mb-1.5">Penjelasan / Catatan Kasir</label>
-                    <input type="text" name="cashier_notes" x-model="cashierNotes" placeholder="Catatan jika ada selisih uang atau kondisi shift..." class="w-full h-11 sm:h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 text-[16px] sm:text-[14px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
-                </div>
-
-                <div class="flex items-center justify-end gap-2 pt-3 border-t border-black/5 dark:border-white/10">
-                    <button type="button" @click="showCloseModal = false" class="min-h-[44px] sm:min-h-0 sm:h-9 px-4 rounded-[10px] text-[13px] font-medium text-black/70 dark:text-white/70 hover:bg-black/[0.06] dark:hover:bg-white/[0.08] transition-colors">
+                <div class="flex items-center justify-end gap-3 pt-4 border-t border-black/10 dark:border-white/10">
+                    <button type="button" @click="showCloseModal = false" class="min-h-[44px] px-5 rounded-[12px] text-[13px] font-medium text-black/70 dark:text-white/70 hover:bg-black/[0.06] dark:hover:bg-white/[0.08] transition-colors">
                         Batal
                     </button>
-                    <button type="submit" class="min-h-[44px] sm:min-h-0 sm:h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#FF3B30] hover:bg-[#E0352B] active:scale-[0.97] active:opacity-80 transition-all">
-                        Tutup &amp; Rekonsiliasi
+                    <button type="submit" :disabled="isSubmitting" class="min-h-[44px] px-6 rounded-[12px] text-[13px] font-semibold text-white bg-[#FF3B30] hover:bg-[#E0352B] active:scale-[0.97] transition-all shadow-[0_2px_8px_rgba(255,59,48,0.35)] flex items-center gap-2">
+                        <template x-if="isSubmitting">
+                            <i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i>
+                        </template>
+                        <span x-text="isSubmitting ? 'Merekonsiliasi...' : 'Tutup Shift &amp; Rekonsiliasi'"></span>
                     </button>
                 </div>
             </form>
@@ -641,7 +748,7 @@
     @if(\App\Support\Context::hasPermission('finance.cash_bank') || \App\Support\Context::hasPermission('pos.orders'))
     <div x-show="showMovementModal"
         x-cloak
-        class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-[2px] p-4"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-md p-4 overflow-y-auto"
         x-transition:enter="transition ease-out duration-200"
         x-transition:enter-start="opacity-0"
         x-transition:enter-end="opacity-100"
@@ -649,7 +756,7 @@
         x-transition:leave-start="opacity-100"
         x-transition:leave-end="opacity-0">
 
-        <div class="w-full max-w-md rounded-[16px] bg-white/95 dark:bg-[#1C1C1E]/95 backdrop-blur-xl border border-black/5 dark:border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.25)] p-5 sm:p-6 space-y-4"
+        <div class="w-full max-w-3xl lg:max-w-4xl rounded-[24px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/15 shadow-[0_25px_60px_rgba(0,0,0,0.35)] p-6 sm:p-7 space-y-6 my-8 max-h-[92vh] overflow-y-auto"
             @click.away="showMovementModal = false"
             x-transition:enter="transition ease-out duration-200"
             x-transition:enter-start="opacity-0 scale-95"
@@ -658,43 +765,145 @@
             x-transition:leave-start="opacity-100 scale-100"
             x-transition:leave-end="opacity-0 scale-95">
 
-            <div class="flex items-center justify-between border-b border-black/5 dark:border-white/10 pb-3">
-                <h3 class="text-[17px] font-semibold text-black dark:text-white">Catat Kas Masuk / Keluar</h3>
-                <button type="button" @click="showMovementModal = false" class="w-7 h-7 rounded-full bg-black/[0.05] dark:bg-white/[0.08] text-black/50 dark:text-white/50 hover:bg-black/10 flex items-center justify-center transition-colors">
+            <div class="flex items-center justify-between border-b border-black/10 dark:border-white/10 pb-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-[12px] bg-[#007AFF]/15 text-[#007AFF] flex items-center justify-center font-bold">
+                        <i data-lucide="arrow-left-right" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-[19px] font-bold text-black dark:text-white tracking-tight">Catat Mutasi Kas Masuk / Keluar</h3>
+                        <p class="text-[13px] text-black/50 dark:text-white/50">Pencatatan uang masuk/keluar laci operasional dengan audit trail terverifikasi</p>
+                    </div>
+                </div>
+                <button type="button" @click="showMovementModal = false" class="w-8 h-8 rounded-full bg-black/[0.05] dark:bg-white/[0.08] text-black/50 dark:text-white/50 hover:bg-black/10 hover:text-black dark:hover:text-white flex items-center justify-center transition-colors">
                     <i data-lucide="x" class="w-4 h-4"></i>
                 </button>
             </div>
 
-            <form :action="'{{ url('/pos/shifts') }}/' + selectedShiftId + '/cash-movement'" method="POST" class="space-y-4">
+            <form :action="'{{ url('/pos/shifts') }}/' + selectedShiftId + '/cash-movement'" method="POST" @submit="isSubmitting = true" class="space-y-6">
                 @csrf
-                <div>
-                    <label class="block text-[12px] font-medium text-black/60 dark:text-white/60 mb-1.5">Tipe Mutasi</label>
-                    <select name="type" class="w-full h-11 sm:h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 text-[16px] sm:text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
-                        <option value="cash_in">Kas Masuk (Tambah Modal/Uang Pecahan)</option>
-                        <option value="cash_out">Kas Keluar (Operasional/Beli Barang/Setor)</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-[12px] font-medium text-black/60 dark:text-white/60 mb-1.5">Nominal (Rp)</label>
-                    <input type="number" name="amount" required class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 text-[16px] font-bold tabular-nums text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
-                </div>
-                <div>
-                    <label class="block text-[12px] font-medium text-black/60 dark:text-white/60 mb-1.5">Alasan / Keterangan</label>
-                    <input type="text" name="reason" placeholder="Alasan kas masuk/keluar..." required class="w-full h-11 sm:h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 text-[16px] sm:text-[14px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <div class="lg:col-span-7 space-y-4">
+                        <div>
+                            <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">Tipe Mutasi Kas *</label>
+                            <select name="type" class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 rounded-[12px] px-3.5 text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                                <option value="cash_in">Kas Masuk (Tambah Modal / Uang Kembalian Pecahan Kecil)</option>
+                                <option value="cash_out">Kas Keluar (Operasional Harian / Pengeluaran Toko / Setor Owner)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">Nominal Kas (Rp) *</label>
+                            <input type="number" name="amount" min="1" required placeholder="0" class="w-full h-12 bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 rounded-[12px] px-4 text-[18px] font-bold tabular-nums text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                        </div>
+                        <div>
+                            <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">Alasan / Keterangan Mutasi *</label>
+                            <input type="text" name="reason" placeholder="Contoh: Beli es batu darurat, setor tunai kasir..." required class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 rounded-[12px] px-3.5 text-[14px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-5 space-y-4">
+                        <div class="p-4 rounded-[18px] bg-black/[0.03] dark:bg-white/[0.04] border border-black/5 dark:border-white/10 space-y-2">
+                            <div class="flex items-center gap-2 text-[#007AFF] font-bold text-[13px]">
+                                <i data-lucide="file-text" class="w-4 h-4"></i>
+                                <span>Ketentuan Mutasi Kas</span>
+                            </div>
+                            <p class="text-[12px] text-black/70 dark:text-white/70 leading-relaxed">
+                                Mutasi kas langsung mempengaruhi saldo akhir yang diharapkan pada saat shift ditutup. Pastikan bukti nota/struk fisik disimpan untuk diverifikasi supervisor.
+                            </p>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="flex items-center justify-end gap-2 pt-3 border-t border-black/5 dark:border-white/10">
-                    <button type="button" @click="showMovementModal = false" class="min-h-[44px] sm:min-h-0 sm:h-9 px-4 rounded-[10px] text-[13px] font-medium text-black/70 dark:text-white/70 hover:bg-black/[0.06] dark:hover:bg-white/[0.08] transition-colors">
+                <div class="flex items-center justify-end gap-3 pt-4 border-t border-black/10 dark:border-white/10">
+                    <button type="button" @click="showMovementModal = false" class="min-h-[44px] px-5 rounded-[12px] text-[13px] font-medium text-black/70 dark:text-white/70 hover:bg-black/[0.06] dark:hover:bg-white/[0.08] transition-colors">
                         Batal
                     </button>
-                    <button type="submit" class="min-h-[44px] sm:min-h-0 sm:h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] active:opacity-80 transition-all shadow-[0_1px_2px_rgba(0,122,255,0.25)]">
-                        Simpan Mutasi
+                    <button type="submit" :disabled="isSubmitting" class="min-h-[44px] px-6 rounded-[12px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] transition-all shadow-[0_2px_8px_rgba(0,122,255,0.35)] flex items-center gap-2">
+                        <template x-if="isSubmitting">
+                            <i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i>
+                        </template>
+                        <span x-text="isSubmitting ? 'Menyimpan...' : 'Simpan Mutasi Kas'"></span>
                     </button>
                 </div>
             </form>
         </div>
     </div>
     @endif
+
+    <!-- ===================================================== -->
+    <!-- 8. MODAL DETAIL SHIFT (Apple Sheet Presentation)      -->
+    <!-- ===================================================== -->
+    <div x-show="showDetailModal"
+        x-cloak
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-md p-4 overflow-y-auto"
+        x-transition:enter="transition ease-out duration-200"
+        x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100"
+        x-transition:leave="transition ease-in duration-150"
+        x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0">
+
+        <div class="w-full max-w-4xl lg:max-w-5xl rounded-[24px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/15 shadow-[0_25px_60px_rgba(0,0,0,0.35)] p-6 sm:p-7 space-y-6 my-8 max-h-[92vh] overflow-y-auto"
+            @click.away="showDetailModal = false"
+            x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0 scale-95"
+            x-transition:enter-end="opacity-100 scale-100"
+            x-transition:leave="transition ease-in duration-150"
+            x-transition:leave-start="opacity-100 scale-100"
+            x-transition:leave-end="opacity-0 scale-95">
+
+            <div class="flex items-center justify-between border-b border-black/10 dark:border-white/10 pb-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-[12px] bg-[#007AFF]/15 text-[#007AFF] flex items-center justify-center font-bold">
+                        <i data-lucide="file-check" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-[19px] font-bold text-black dark:text-white tracking-tight">Rincian Rekonsiliasi Sesi Shift</h3>
+                        <p class="text-[13px] text-black/50 dark:text-white/50">Audit komprehensif kas masuk, penjualan tunai, dan mutasi saldo laci</p>
+                    </div>
+                </div>
+                <button type="button" @click="showDetailModal = false" class="w-8 h-8 rounded-full bg-black/[0.05] dark:bg-white/[0.08] text-black/50 dark:text-white/50 hover:bg-black/10 hover:text-black dark:hover:text-white flex items-center justify-center transition-colors">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+
+            <template x-if="selectedShiftData">
+                <div class="space-y-6">
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
+                        <div class="p-4 rounded-[16px] bg-black/[0.03] dark:bg-white/[0.04] border border-black/5 dark:border-white/5">
+                            <span class="text-[11px] font-semibold uppercase tracking-wider text-black/50 dark:text-white/50 block">Modal Awal</span>
+                            <span class="text-[18px] font-bold tabular-nums text-black dark:text-white mt-1 block" x-text="'Rp ' + Number(selectedShiftData.opening_cash || 0).toLocaleString('id-ID')"></span>
+                        </div>
+                        <div class="p-4 rounded-[16px] bg-black/[0.03] dark:bg-white/[0.04] border border-black/5 dark:border-white/5">
+                            <span class="text-[11px] font-semibold uppercase tracking-wider text-[#34C759] block">Penjualan Tunai</span>
+                            <span class="text-[18px] font-bold tabular-nums text-[#34C759] dark:text-[#30D158] mt-1 block" x-text="'Rp ' + Number(selectedShiftData.total_cash_sales || 0).toLocaleString('id-ID')"></span>
+                        </div>
+                        <div class="p-4 rounded-[16px] bg-black/[0.03] dark:bg-white/[0.04] border border-black/5 dark:border-white/5">
+                            <span class="text-[11px] font-semibold uppercase tracking-wider text-black/50 dark:text-white/50 block">Kas Masuk / Keluar</span>
+                            <span class="text-[14px] font-semibold tabular-nums text-black dark:text-white mt-1 block" x-text="'+Rp ' + Number(selectedShiftData.total_cash_in || 0).toLocaleString('id-ID') + ' / -Rp ' + Number(selectedShiftData.total_cash_out || 0).toLocaleString('id-ID')"></span>
+                        </div>
+                        <div class="p-4 rounded-[16px] bg-black/[0.03] dark:bg-white/[0.04] border border-black/5 dark:border-white/5">
+                            <span class="text-[11px] font-semibold uppercase tracking-wider text-black/50 dark:text-white/50 block">Selisih Kas</span>
+                            <span class="text-[18px] font-bold tabular-nums mt-1 block"
+                                  :class="Number(selectedShiftData.cash_difference || 0) === 0 ? 'text-[#34C759]' : (Number(selectedShiftData.cash_difference || 0) > 0 ? 'text-[#007AFF]' : 'text-[#FF3B30]')"
+                                  x-text="(Number(selectedShiftData.cash_difference || 0) >= 0 ? '+' : '') + 'Rp ' + Number(selectedShiftData.cash_difference || 0).toLocaleString('id-ID')"></span>
+                        </div>
+                    </div>
+
+                    <div class="p-4 rounded-[18px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5 space-y-2">
+                        <h4 class="font-bold text-[13px] text-black dark:text-white">Catatan Sesi Kasir</h4>
+                        <p class="text-[13px] text-black/70 dark:text-white/70 italic" x-text="selectedShiftData.cashier_notes || selectedShiftData.notes || 'Tidak ada catatan khusus.'"></p>
+                    </div>
+                </div>
+            </template>
+
+            <div class="flex items-center justify-end gap-3 pt-4 border-t border-black/10 dark:border-white/10">
+                <button type="button" @click="showDetailModal = false" class="min-h-[44px] px-6 rounded-[12px] text-[13px] font-semibold text-black dark:text-white bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.1] transition-colors">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>

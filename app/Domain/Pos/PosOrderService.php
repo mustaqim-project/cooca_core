@@ -131,11 +131,19 @@ final class PosOrderService
                 }
 
                 $productId = ! empty($row['product_id']) ? (string) $row['product_id'] : null;
-                $product = $productId ? Product::find($productId) : null;
+                $product = $productId ? Product::where('business_id', $business->id)->find($productId) : null;
 
-                $productName = $row['product_name'] ?? $product?->name ?? 'Item Custom';
+                $productName = $product?->name ?? ($row['product_name'] ?? 'Item Custom');
                 $productCode = $product?->code;
-                $baseUnitPrice = (float) (isset($row['unit_price']) ? $row['unit_price'] : ($product?->selling_price ?? 0.0));
+
+                $salesChannel = (string) ($attributes['sales_channel'] ?? $attributes['channel'] ?? 'dine_in');
+                if ($product) {
+                    // Server-authoritative pricing: enforce official database selling price / channel pricing, ignore client-side price tampering
+                    $baseUnitPrice = (float) $product->getChannelPrice($salesChannel);
+                } else {
+                    // Custom non-catalog item
+                    $baseUnitPrice = max(0.0, (float) ($row['unit_price'] ?? 0.0));
+                }
 
                 // Modifiers validation and server-side calculation
                 $selectedModifiers = $row['selected_modifiers'] ?? [];
@@ -623,11 +631,34 @@ final class PosOrderService
                 ->latest('opened_at')
                 ->first();
 
+            // Customer CRM Auto-Connect: Find or create customer record for this business
+            $cleanPhone = preg_replace('/[^0-9+]/', '', $customerPhone) ?: $customerPhone;
+            $customer = Customer::where('business_id', $business->id)
+                ->where(function ($q) use ($cleanPhone, $customerPhone) {
+                    $q->where('phone', $cleanPhone)
+                      ->orWhere('phone', $customerPhone);
+                })
+                ->first();
+
+            if (! $customer) {
+                $customerCode = 'CUST-' . strtoupper(substr(uniqid(), -6));
+                $customer = Customer::create([
+                    'business_id' => $business->id,
+                    'code' => $customerCode,
+                    'name' => $customerName,
+                    'phone' => $cleanPhone,
+                    'is_active' => true,
+                ]);
+            } elseif ($customerName !== '' && (empty($customer->name) || $customer->name === 'Tamu Meja' || $customer->name === 'Tamu')) {
+                $customer->update(['name' => $customerName]);
+            }
+
             $order = PosOrder::create([
                 'business_id' => $business->id,
                 'location_id' => $locationId,
                 'user_id' => $activeShift?->user_id ?? $business->users()->first()?->id ?? null,
                 'pos_shift_id' => $activeShift?->id,
+                'customer_id' => $customer?->id,
                 'order_number' => $orderNumber,
                 'order_date' => Carbon::today()->toDateString(),
                 'status' => PosOrder::STATUS_PENDING,
@@ -637,7 +668,7 @@ final class PosOrderService
                 'pos_table_session_id' => $session->id,
                 'table_or_reference' => $table->table_number,
                 'customer_name_guest' => $customerName,
-                'customer_phone_guest' => $customerPhone,
+                'customer_phone_guest' => $cleanPhone,
                 'subtotal' => $subtotal,
                 'tax_percentage' => $taxPercent,
                 'tax_amount' => $taxAmount,
@@ -764,6 +795,14 @@ final class PosOrderService
                 'user_id' => $cashier->id,
                 'pos_shift_id' => $shift?->id ?? $order->pos_shift_id,
             ]);
+
+            // Customer Loyalty & Stats Update
+            if ($order->customer_id) {
+                $customer = Customer::find($order->customer_id);
+                if ($customer) {
+                    $this->loyaltyService->awardPointsForOrder($customer, $order);
+                }
+            }
 
             // Table Session closing if all orders in session are finished
             $session = $order->tableSession;
@@ -939,6 +978,14 @@ final class PosOrderService
 
             // Auto Journal
             $this->journalService->recordPosSaleJournal($order);
+
+            // Customer Loyalty & Stats Update
+            if ($order->customer_id) {
+                $customer = Customer::find($order->customer_id);
+                if ($customer) {
+                    $this->loyaltyService->awardPointsForOrder($customer, $order);
+                }
+            }
 
             // Table Session closing if all orders in session are finished
             $session = $order->tableSession;

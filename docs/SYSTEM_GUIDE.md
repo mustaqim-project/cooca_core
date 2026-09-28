@@ -44,11 +44,8 @@
    - [4.15 Arsitektur POS Hardware, ESC/POS Thermal Printer, Cash Drawer Safety & Local Agent Bridge](#415-arsitektur-pos-hardware-escpos-thermal-printer-cash-drawer-safety--local-agent-bridge)
    - [4.16 Cetak Biru Penataan 6-Hub Modul & Rekomendasi Optimasi Performa End-to-End](#416-cetak-biru-penataan-6-hub-modul--rekomendasi-optimasi-performa-end-to-end)
    - [4.17 Arsitektur Limitasi Subscription, Downgrade Auto-Gating, Pelacakan Storage & Data Pruning Previewer](#417-arsitektur-limitasi-subscription-downgrade-auto-gating-pelacakan-storage--data-pruning-previewer)
-    ├──► Product Bundling Engine ────► docs/system/workflows/product-bundling-and-combo-flow.md ───────► Product & StockService
-    │                                                                                                         └──► WORK-2026-09-26-182
-    │
-    └──► Shell Navigasi Sidebar ────► docs/prd/PRD-14-SIDEBAR-NAVIGATION-REMEDIATION-UX-STABILITY.md ──► resources/views/layouts/partials/sidebar.blade.php
-                                                                                                          └──► WORK-2026-09-28-206
+   - [4.18 Hardening Keamanan Siber POS Hardware, SSRF Guardrail & Otorisasi PIN (PRD-17)](#418-hardening-keamanan-siber-pos-hardware-ssrf-guardrail--otorisasi-pin-prd-17)
+
 ---
 
 ## 1. Ikhtisar Sistem & Filosofi Desain
@@ -407,7 +404,7 @@ Berdasarkan dokumen arsitektur `docs/BLUEPRINT_TIER_PRICING_DAN_LIMITASI_COOCA.m
   - **Offline-First POS Resilience (IndexedDB / PWA):** Cache katalog lokal di browser kasir memungkinkan checkout tunai dan cetak ESC/POS lokal tetap berjalan saat koneksi internet toko terputus, dilengkapi antrean auto-sync saat online.
   - **Database Indexing & Zero N+1 Queries:** Indeks komposit pada tabel transaksi besar (`business_id, branch_id, status, created_at`) dan kewajiban Eager Loading (`with(['items.product', ...])`).
   - **Asynchronous Task Offloading:** Proses berat (PDF invoice, email digest, WhatsApp API, rekapitulasi data besar) dialirkan ke antrean worker latar belakang (*Laravel Queue*).
-  - **Smart Workflows:** Global Barcode Scanner listener, Self-Service QR Table Ordering, Auto-Reorder PO saat stok menyentuh Reorder Point (ROP), dan Interactive Customer WhatsApp Bot.
+  - **Smart Workflows:** Global Barcode Scanner listener, Self-Service QR Table Ordering dengan Customer CRM Auto-Connect & akumulasi poin loyalitas otomatis, validasi nomor HP standar Indonesia (10–15 digit), dinamisasi pemicu layanan POS adaptif untuk 20 sektor industri (`service_workshop`, `service_laundry`, `retail_pharmacy`), Auto-Reorder PO saat stok menyentuh Reorder Point (ROP), dan Interactive Customer WhatsApp Bot.
 
 ### 4.17 Arsitektur Limitasi Subscription, Downgrade Auto-Gating, Pelacakan Storage & Data Pruning Previewer
 * **Transparansi Limitasi Paket pada UI:** Setiap batas kuota fitur (produk, staf, cabang, storage, transaksi bulanan, kuota WhatsApp) disajikan secara jelas dan transparan melalui meter progress bar dan badge status berwarna semantik.
@@ -483,6 +480,23 @@ Berdasarkan dokumen arsitektur `docs/BLUEPRINT_TIER_PRICING_DAN_LIMITASI_COOCA.m
   - Rute pajak `tax.index` dikonsolidasikan tunggal ke Grup 7 (Laporan & Analitik) dengan label resmi *"Laporan Pajak & Kepatuhan"* dan guard `reports.view || isOwner() || canAccessFinance`.
   - **Isolasi Penuh State Aktif (`settings.index`):** Wildcard `settings.*` diisolasi ketat dengan mengecualikan sub-modul audit logs, rules, roles, dan pos-printers, menjamin 0 false-positive active highlight di seluruh navigasi.
   - **Unifikasi Audit Log & Peringatan Risiko (Opsi B):** Mengeliminasi duplikasi tautan "Peringatan Audit" dari Ringkasan & Dashboard, serta memusatkan badge indikator insiden risiko tinggi (`$recentHighRiskCount`) langsung menempel di samping label *"Jejak Audit & Anti-Fraud"* di menu Pengaturan Usaha pada mode Expanded maupun Flyout.
+
+### 4.18 Hardening Keamanan Siber POS Hardware, Proteksi Fraud Kasir & Otorisasi PIN (PRD-17)
+
+Sistem mengimplementasikan penguatan keamanan siber dan proteksi anti-fraud kasir menyeluruh pada modul Point of Sale:
+1. **SSRF Guardrail & Sanitizer IP Printer LAN (`PrinterIpValidator`):**
+   - Seluruh input alamat IP printer LAN/WiFi divalidasi ketat dan memblokir alamat IP loopback (`127.0.0.0/8`, `::1`, `localhost`), link-local dan metadata cloud (`169.254.0.0/16`, `169.254.169.254`, `metadata.google.internal`), broadcast, dan hostname internal.
+   - Pengecekan diterapkan ganda pada lapisan controller (`PosPrinterWebController@store` & `@update`) dan lapisan socket connector (`NetworkConnector@send` & `@testConnection`).
+   - Timeout koneksi socket TCP dibatasi maksimal 2.0 detik untuk mencegah ancaman *connection hang* dan *resource exhaustion*.
+2. **Eliminasi Fallback Insecure PIN Default:**
+   - Menghapus fallback PIN hardcoded `'1234'`. Jika pemilik usaha belum menyetel PIN Supervisor pada menu Pengaturan, seluruh tindakan sensitif (pembatalan/void, pengembalian dana/refund, dan pembukaan laci kas manual tanpa transaksi/no-sale) ditolak otomatis dengan pesan jelas yang mewajibkan Owner mengatur PIN 6 digit ter-hash Bcrypt terlebih dahulu.
+3. **Server-Authoritative Pricing (`PosOrderService@checkout`):**
+   - Seluruh harga produk dalam keranjang belanja diverifikasi dan dihitung ulang secara ketat di sisi server berdasarkan harga katalog master database (`Product::selling_price`) dan harga channel penjualan aktif (`ProductChannelPrice`). Payload `unit_price` yang dikirim dari browser klien diabaikan untuk mencegah manipulasi harga via skrip JavaScript atau tampering HTTP.
+4. **Endpoint Asinkron Validasi Voucher Real-Time (`POST /pos/validate-voucher`):**
+   - Setiap penggunaan kode voucher divalidasi secara real-time ke backend untuk memeriksa kepemilikan tenant (`business_id`), rentang masa aktif, kuota penggunaan, dan batas minimum belanja (`min_order_amount`), menggantikan kalkulasi mock statis di frontend.
+5. **Strict Blind Cash Count (`PosShiftWebController@summary`, `shifts.blade.php`, `terminal.blade.php`):**
+   - Untuk mencegah tindak penggelapan kas laci (*cash skimming*), kasir biasa diwajibkan menghitung dan memasukkan uang fisik di laci tanpa melihat nilai ekspektasi sistem (`expected_cash` di-mask menjadi `null` pada API response).
+   - Nilai ekspektasi kas dan selisih kas (*variance*) hanya dirender untuk pengguna berstatus `Owner` atau `Supervisor`. Prefill otomatis kas dihilangkan dari inisialisasi Alpine.js modal tutup shift.
 
 ---
 

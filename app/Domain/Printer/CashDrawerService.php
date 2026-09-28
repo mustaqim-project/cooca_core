@@ -120,7 +120,11 @@ class CashDrawerService
     public function openManualWithPin(PosPrinter $printer, string $pin, string $reason, User $actor): array
     {
         $business = $printer->business;
-        $validPin = (string) ($business->pos_supervisor_pin ?? '1234');
+        $validPin = (string) ($business?->pos_supervisor_pin ?? '');
+
+        if ($validPin === '') {
+            throw new DomainException('PIN Supervisor belum diatur oleh pemilik bisnis. Silakan atur PIN di Pengaturan Bisnis terlebih dahulu.');
+        }
 
         if ($pin === '' || (! Hash::check($pin, $validPin) && ! hash_equals($validPin, $pin))) {
             throw new DomainException('PIN Supervisor salah. Otorisasi pembukaan laci kas ditolak.');

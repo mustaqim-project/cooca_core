@@ -240,6 +240,22 @@ final class NavigationRegistry
                         'permission'    => 'products.view',
                     ],
                     [
+                        'key'           => 'modifiers',
+                        'label'         => 'Varian & Modifiers',
+                        'icon'          => 'sliders',
+                        'route'         => 'pos.modifiers.index',
+                        'active_routes' => ['pos.modifiers.*'],
+                        'permission'    => 'pos.modifiers',
+                    ],
+                    [
+                        'key'           => 'marketplace',
+                        'label'         => 'Marketplace & Multi-Harga',
+                        'icon'          => 'store',
+                        'route'         => 'marketplace-hub.products',
+                        'active_routes' => ['marketplace-hub.products*'],
+                        'permission'    => 'products.view',
+                    ],
+                    [
                         'key'           => 'categories',
                         'label'         => 'Kategori Produk',
                         'icon'          => 'folder-tree',

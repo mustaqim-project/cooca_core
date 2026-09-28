@@ -542,7 +542,7 @@
                             class="px-1.5 py-0.5 rounded-full bg-[#007AFF] text-white font-bold text-[9px] flex items-center justify-center tabular-nums"></span>
                     </button>
 
-                    @if (\App\Support\Context::hasPermission('pos.tables'))
+                    @if (\App\Support\Context::hasPermission('pos.tables') && (!isset($business) || $business->isModuleEnabled('pos_dinein')))
                         <!-- Resto Meja Selector Button -->
                         <button @click="openTablesModal('tables')"
                             class="h-8.5 sm:h-9 px-2.5 sm:px-3 rounded-[10px] bg-white/10 hover:bg-white/15 active:scale-[0.97] text-white text-[12px] font-medium transition flex items-center gap-1.5 border border-white/10"
@@ -804,7 +804,7 @@
                             </div>
                         </button>
 
-                        @if (\App\Support\Context::hasPermission('pos.tables'))
+                        @if (\App\Support\Context::hasPermission('pos.tables') && (!isset($business) || $business->isModuleEnabled('pos_dinein')))
                             <!-- Resto Meja -->
                             <button type="button" @click="mobileMenuOpen = false; openTablesModal('tables')"
                                 class="w-full p-3 rounded-[12px] bg-white/[0.04] hover:bg-white/[0.08] active:scale-[0.98] border border-white/10 text-left transition flex items-center justify-between group">
@@ -1676,25 +1676,104 @@
                         </template>
                     </div>
 
-                    <!-- Industry Vertical: Service Data Trigger Button (Bengkel / Laundry) -->
-                    <div class="pt-1">
-                        <button type="button" @click="showServiceVerticalModal = true"
-                            class="w-full flex items-center justify-between p-2 rounded-[10px] text-[12px] font-medium transition active:scale-[0.98] border"
-                            :class="(vehicleLicensePlate || laundryWeightKg) ? 'bg-[#007AFF]/10 border-[#007AFF]/30 text-[#007AFF]' : 'bg-black/[0.03] dark:bg-white/[0.05] border-black/[0.05] dark:border-white/10 text-black/70 dark:text-white/70 hover:bg-black/[0.06] dark:hover:bg-white/[0.08]'">
-                            <div class="flex items-center gap-2 min-w-0">
-                                <svg class="w-4 h-4 shrink-0 text-[#007AFF]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17L17.25 21A2.652 2.652 0 0021 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 11-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 004.486-6.32l-3.276 3.277a3.004 3.004 0 01-2.25-2.25l3.276-3.276a4.5 4.5 0 00-6.32 4.486c.049.58.025 1.193-.14 1.743" />
-                                </svg>
-                                <span class="truncate font-medium" x-text="vehicleLicensePlate ? ('Bengkel: ' + vehicleLicensePlate + (vehicleModel ? ' • ' + vehicleModel : '')) : (laundryWeightKg ? ('Laundry: ' + laundryWeightKg + ' kg' + (rackLocation ? ' • ' + rackLocation : '')) : 'Layanan Khusus (Bengkel / Laundry)')"></span>
+                    <!-- Industry Vertical: Dynamic Service Data Trigger (20 Sector Adaptive) -->
+                    @php
+                        $templateCode = strtolower((string) ($business->template_code ?? $business->industry_category ?? ''));
+                        $isWorkshop = in_array($templateCode, ['service_workshop', 'service_autodetailing', 'bengkel', 'carwash'], true);
+                        $isLaundry = in_array($templateCode, ['service_laundry', 'laundry'], true);
+                        $isPharmacy = method_exists($business, 'isPharmacy') ? $business->isPharmacy() : ($templateCode === 'retail_pharmacy');
+                        $isFnB = str_starts_with($templateCode, 'fnb_') || in_array($templateCode, ['restaurant', 'cafe', 'fnb'], true);
+                        $isRetail = str_starts_with($templateCode, 'retail_') && !$isPharmacy;
+                    @endphp
+
+                    @if ($isWorkshop)
+                        <!-- Industry Vertical: SPK Bengkel & Otomotif -->
+                        <div class="pt-1">
+                            <button type="button" @click="serviceVerticalTab = 'workshop'; showServiceVerticalModal = true"
+                                class="w-full flex items-center justify-between p-2 rounded-[10px] text-[12px] font-medium transition active:scale-[0.98] border"
+                                :class="vehicleLicensePlate ? 'bg-[#007AFF]/10 border-[#007AFF]/30 text-[#007AFF]' : 'bg-black/[0.03] dark:bg-white/[0.05] border-black/[0.05] dark:border-white/10 text-black/70 dark:text-white/70 hover:bg-black/[0.06] dark:hover:bg-white/[0.08]'">
+                                <div class="flex items-center gap-2 min-w-0">
+                                    <svg class="w-4 h-4 shrink-0 text-[#007AFF]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17L17.25 21A2.652 2.652 0 0021 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 11-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 004.486-6.32l-3.276 3.277a3.004 3.004 0 01-2.25-2.25l3.276-3.276a4.5 4.5 0 00-6.32 4.486c.049.58.025 1.193-.14 1.743" />
+                                    </svg>
+                                    <span class="truncate font-medium" x-text="vehicleLicensePlate ? ('SPK: ' + vehicleLicensePlate + (vehicleModel ? ' • ' + vehicleModel : '')) : 'SPK Bengkel (Plat & Mekanik)'"></span>
+                                </div>
+                                <div class="flex items-center gap-1 shrink-0">
+                                    <span x-show="vehicleLicensePlate" class="text-[10px] font-bold px-1.5 py-0.2 rounded bg-[#007AFF] text-white">Terisi</span>
+                                    <svg class="w-3.5 h-3.5 text-black/40 dark:text-white/40" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                                    </svg>
+                                </div>
+                            </button>
+                        </div>
+                    @elseif ($isLaundry)
+                        <!-- Industry Vertical: Laundry & Timbangan Cucian -->
+                        <div class="pt-1">
+                            <button type="button" @click="serviceVerticalTab = 'laundry'; showServiceVerticalModal = true"
+                                class="w-full flex items-center justify-between p-2 rounded-[10px] text-[12px] font-medium transition active:scale-[0.98] border"
+                                :class="laundryWeightKg ? 'bg-[#5856D6]/10 border-[#5856D6]/30 text-[#5856D6]' : 'bg-black/[0.03] dark:bg-white/[0.05] border-black/[0.05] dark:border-white/10 text-black/70 dark:text-white/70 hover:bg-black/[0.06] dark:hover:bg-white/[0.08]'">
+                                <div class="flex items-center gap-2 min-w-0">
+                                    <svg class="w-4 h-4 shrink-0 text-[#5856D6]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5m8.25 3v6.75m0 0l-3-3m3 3l3-3M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
+                                    </svg>
+                                    <span class="truncate font-medium" x-text="laundryWeightKg ? ('Laundry: ' + laundryWeightKg + ' kg' + (rackLocation ? ' • Rak ' + rackLocation : '')) : 'Timbangan Cucian & Lokasi Rak'"></span>
+                                </div>
+                                <div class="flex items-center gap-1 shrink-0">
+                                    <span x-show="laundryWeightKg" class="text-[10px] font-bold px-1.5 py-0.2 rounded bg-[#5856D6] text-white">Terisi</span>
+                                    <svg class="w-3.5 h-3.5 text-black/40 dark:text-white/40" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                                    </svg>
+                                </div>
+                            </button>
+                        </div>
+                    @elseif ($isPharmacy)
+                        <!-- Industry Vertical: Apotek & Farmasi Batch/Dosage Quick Info -->
+                        <div class="pt-1">
+                            <div class="w-full flex items-center justify-between p-2 rounded-[10px] text-[11px] font-medium bg-[#34C759]/10 border border-[#34C759]/20 text-[#248A3D] dark:text-[#30D158]">
+                                <div class="flex items-center gap-2 min-w-0">
+                                    <svg class="w-4 h-4 shrink-0 text-[#34C759]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.942A4.5 4.5 0 0115.89 17H8.11a4.5 4.5 0 01-2.34-.658L4.2 15.3m15.6 0a2.25 2.25 0 00.2-.958V8.25a2.25 2.25 0 00-2.25-2.25H6.25A2.25 2.25 0 004 8.25v6.092c0 .332.072.658.2.958" />
+                                    </svg>
+                                    <span class="truncate font-semibold">Mode Apotek (Batch &amp; ED Obat Aktif)</span>
+                                </div>
+                                <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-[#34C759]/20 text-[#248A3D] dark:text-[#30D158]">Farmasi</span>
                             </div>
-                            <div class="flex items-center gap-1 shrink-0">
-                                <span x-show="vehicleLicensePlate || laundryWeightKg" class="text-[10px] font-bold px-1.5 py-0.2 rounded bg-[#007AFF] text-white">Terisi</span>
-                                <svg class="w-3.5 h-3.5 text-black/40 dark:text-white/40" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-                                </svg>
-                            </div>
-                        </button>
-                    </div>
+                        </div>
+                    @elseif (!$isFnB && !$isRetail)
+                        <!-- Industry Vertical: Multi-Layanan Umum -->
+                        <div class="pt-1">
+                            <button type="button" @click="showServiceVerticalModal = true"
+                                class="w-full flex items-center justify-between p-2 rounded-[10px] text-[12px] font-medium transition active:scale-[0.98] border"
+                                :class="(vehicleLicensePlate || laundryWeightKg) ? 'bg-[#007AFF]/10 border-[#007AFF]/30 text-[#007AFF]' : 'bg-black/[0.03] dark:bg-white/[0.05] border-black/[0.05] dark:border-white/10 text-black/70 dark:text-white/70 hover:bg-black/[0.06] dark:hover:bg-white/[0.08]'">
+                                <div class="flex items-center gap-2 min-w-0">
+                                    <svg class="w-4 h-4 shrink-0 text-[#007AFF]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17L17.25 21A2.652 2.652 0 0021 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 11-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 004.486-6.32l-3.276 3.277a3.004 3.004 0 01-2.25-2.25l3.276-3.276a4.5 4.5 0 00-6.32 4.486c.049.58.025 1.193-.14 1.743" />
+                                    </svg>
+                                    <span class="truncate font-medium" x-text="vehicleLicensePlate ? ('Bengkel: ' + vehicleLicensePlate + (vehicleModel ? ' • ' + vehicleModel : '')) : (laundryWeightKg ? ('Laundry: ' + laundryWeightKg + ' kg' + (rackLocation ? ' • ' + rackLocation : '')) : 'Layanan Khusus (Bengkel / Laundry)')"></span>
+                                </div>
+                                <div class="flex items-center gap-1 shrink-0">
+                                    <span x-show="vehicleLicensePlate || laundryWeightKg" class="text-[10px] font-bold px-1.5 py-0.2 rounded bg-[#007AFF] text-white">Terisi</span>
+                                    <svg class="w-3.5 h-3.5 text-black/40 dark:text-white/40" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                                    </svg>
+                                </div>
+                            </button>
+                        </div>
+                    @else
+                        <!-- Fallback when data is already populated in F&B/Retail -->
+                        <div class="pt-1" x-show="vehicleLicensePlate || laundryWeightKg" x-cloak>
+                            <button type="button" @click="showServiceVerticalModal = true"
+                                class="w-full flex items-center justify-between p-2 rounded-[10px] text-[12px] font-medium bg-[#007AFF]/10 border border-[#007AFF]/30 text-[#007AFF] transition active:scale-[0.98]">
+                                <div class="flex items-center gap-2 min-w-0">
+                                    <svg class="w-4 h-4 shrink-0 text-[#007AFF]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17L17.25 21A2.652 2.652 0 0021 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 11-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 004.486-6.32l-3.276 3.277a3.004 3.004 0 01-2.25-2.25l3.276-3.276a4.5 4.5 0 00-6.32 4.486c.049.58.025 1.193-.14 1.743" />
+                                    </svg>
+                                    <span class="truncate font-medium" x-text="vehicleLicensePlate ? ('Bengkel: ' + vehicleLicensePlate) : ('Laundry: ' + laundryWeightKg + ' kg')"></span>
+                                </div>
+                                <span class="text-[10px] font-bold px-1.5 py-0.2 rounded bg-[#007AFF] text-white">Terisi</span>
+                            </button>
+                        </div>
+                    @endif
                 </div>
 
                 <!-- Cart Items Scrollable List -->
@@ -2616,12 +2695,12 @@
                         </div>
                         <div class="mt-3 pt-2.5 border-t border-black/5 dark:border-white/5 flex items-center justify-between text-xs text-[#34C759] font-medium">
                             <span>Buka Laci Sekarang</span>
-                            <span class="group-hover:translate-x-0.5 transition">⚡</span>
+                            <i data-lucide="zap" class="w-3.5 h-3.5 group-hover:translate-x-0.5 transition"></i>
                         </div>
                     </button>
 
                     <!-- 3. Kitchen Display System (KDS) -->
-                    @if (\App\Support\Context::hasPermission('pos.kitchen'))
+                    @if (\App\Support\Context::hasPermission('pos.kitchen') && (!isset($business) || $business->isModuleEnabled('pos_dinein')))
                         <a href="{{ route('pos.kitchen.index') }}" target="_blank"
                             class="group p-4 rounded-2xl bg-black/[0.03] dark:bg-white/[0.04] hover:bg-black/[0.06] dark:hover:bg-white/[0.08] border border-black/5 dark:border-white/10 transition-all flex flex-col justify-between hover:scale-[1.01] active:scale-[0.99]">
                             <div>
@@ -2694,7 +2773,7 @@
                     @endif
 
                     <!-- 6. Denah Meja & QR Self-Order -->
-                    @if (\App\Support\Context::hasPermission('pos.tables'))
+                    @if (\App\Support\Context::hasPermission('pos.tables') && (!isset($business) || $business->isModuleEnabled('pos_dinein')))
                         <a href="{{ route('pos.tables.index') }}"
                             class="group p-4 rounded-2xl bg-black/[0.03] dark:bg-white/[0.04] hover:bg-black/[0.06] dark:hover:bg-white/[0.08] border border-black/5 dark:border-white/10 transition-all flex flex-col justify-between hover:scale-[1.01] active:scale-[0.99]">
                             <div>
@@ -2800,10 +2879,17 @@
                     <span class="tabular-nums font-medium text-black dark:text-white"
                         x-text="formatRupiah(shiftSummary.cash_in - shiftSummary.cash_out)"></span>
                 </div>
-                <div
+                <div x-show="shiftSummary.expected_cash !== null && shiftSummary.expected_cash !== undefined"
                     class="flex justify-between text-[#34C759] font-semibold border-t border-black/5 dark:border-white/5 pt-1.5 text-[13px]">
                     <span>Uang Fisik Diharapkan:</span>
                     <span class="tabular-nums font-bold" x-text="formatRupiah(shiftSummary.expected_cash)"></span>
+                </div>
+                <div x-show="shiftSummary.expected_cash === null || shiftSummary.expected_cash === undefined"
+                    class="p-2.5 rounded-[10px] bg-[#007AFF]/10 border border-[#007AFF]/20 text-[11px] text-[#007AFF] font-medium flex items-center gap-2">
+                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+                    </svg>
+                    <span>Mode Blind Count: Hitung uang tunai fisik di laci tanpa estimasi sistem.</span>
                 </div>
             </div>
 
@@ -2814,7 +2900,7 @@
                     <input type="number" x-model.number="shiftActualCash"
                         class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 rounded-[10px] px-3.5 text-[16px] font-bold tabular-nums text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50">
                 </div>
-                <div
+                <div x-show="shiftSummary.expected_cash !== null && shiftSummary.expected_cash !== undefined"
                     class="p-3 rounded-[10px] bg-black/[0.03] dark:bg-white/[0.04] border border-black/5 dark:border-white/5 flex justify-between items-center text-xs">
                     <span class="text-black/60 dark:text-white/60">Selisih Kas:</span>
                     <span
@@ -3742,7 +3828,10 @@
                                 <div x-show="tbl.today_reservation"
                                     class="mt-2 p-1.5 rounded-[8px] bg-[#5856D6]/10 border border-[#5856D6]/20 text-[10px] text-[#5856D6] space-y-0.5">
                                     <div class="flex items-center justify-between font-bold">
-                                        <span class="truncate">📅 Booking Hari Ini</span>
+                                        <span class="inline-flex items-center gap-1 truncate">
+                                            <i data-lucide="calendar" class="w-3 h-3 text-[#5856D6]"></i>
+                                            <span>Booking Hari Ini</span>
+                                        </span>
                                         <span x-text="tbl.today_reservation?.time_slot"></span>
                                     </div>
                                     <div class="text-[10px] text-black/70 dark:text-white/70 truncate"
@@ -4174,7 +4263,7 @@
                 // Industry vertical fields (Bengkel / Laundry / Apotek)
                 technicians: @json($technicians ?? []),
                 showServiceVerticalModal: false,
-                serviceVerticalTab: 'workshop',
+                serviceVerticalTab: '{{ in_array(strtolower((string)($business->template_code ?? $business->industry_category ?? '')), ['service_laundry', 'laundry'], true) ? 'laundry' : 'workshop' }}',
                 // Bengkel
                 vehicleLicensePlate: '',
                 vehicleModel: '',
@@ -4830,10 +4919,42 @@
                     }
                 },
 
-                applyVoucher() {
-                    if (!this.voucherCode.trim()) return;
-                    AppAlert.success("Voucher " + this.voucherCode + " diterapkan!");
-                    this.voucherDiscount = Math.min(this.subtotal * 0.1, 50000);
+                async applyVoucher() {
+                    const code = this.voucherCode ? this.voucherCode.trim() : '';
+                    if (!code) {
+                        AppAlert.warning("Masukkan kode voucher terlebih dahulu.");
+                        return;
+                    }
+                    if (this.subtotal <= 0) {
+                        AppAlert.warning("Keranjang belanja masih kosong.");
+                        return;
+                    }
+
+                    try {
+                        const res = await fetch("{{ route('pos.validate-voucher') }}", {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': this.csrfToken
+                            },
+                            body: JSON.stringify({
+                                code: code,
+                                subtotal: this.subtotal,
+                                customer_id: this.selectedCustomerId || null
+                            })
+                        });
+                        const data = await res.json();
+                        if (!res.ok || !data.success) {
+                            this.voucherDiscount = 0;
+                            throw new Error(data.message || 'Kode voucher tidak valid.');
+                        }
+                        this.voucherDiscount = Number(data.discount_amount) || 0;
+                        AppAlert.success(data.message || "Voucher berhasil diterapkan!");
+                    } catch (error) {
+                        this.voucherDiscount = 0;
+                        AppAlert.error(error.message || 'Voucher tidak dapat diterapkan.');
+                    }
                 },
 
                 openPaymentModal() {
@@ -5322,7 +5443,7 @@
                         .then(data => {
                             if (data.success) {
                                 this.shiftSummary = data.summary;
-                                this.shiftActualCash = data.summary.expected_cash;
+                                this.shiftActualCash = 0;
                                 this.showCloseShiftModal = true;
                             }
                         });

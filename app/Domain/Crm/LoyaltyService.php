@@ -42,9 +42,6 @@ final class LoyaltyService
     public function awardPointsForOrder(Customer $customer, PosOrder $order): int
     {
         $earned = $this->calculatePointsEarned((float) $order->total_amount);
-        if ($earned <= 0) {
-            return 0;
-        }
 
         DB::transaction(function () use ($customer, $order, $earned) {
             $newBalance = (int) $customer->points_balance + $earned;
@@ -66,17 +63,19 @@ final class LoyaltyService
                 'membership_tier' => $tier,
             ]);
 
-            CustomerPointHistory::create([
-                'business_id' => $customer->business_id,
-                'customer_id' => $customer->id,
-                'points_change' => $earned,
-                'type' => CustomerPointHistory::TYPE_POS_EARN,
-                'reference_id' => $order->id,
-                'balance_after' => $newBalance,
-                'notes' => "Perolehan poin dari transaksi POS #{$order->order_number}",
-            ]);
+            if ($earned > 0) {
+                CustomerPointHistory::create([
+                    'business_id' => $customer->business_id,
+                    'customer_id' => $customer->id,
+                    'points_change' => $earned,
+                    'type' => CustomerPointHistory::TYPE_POS_EARN,
+                    'reference_id' => $order->id,
+                    'balance_after' => $newBalance,
+                    'notes' => "Perolehan poin dari transaksi POS #{$order->order_number}",
+                ]);
 
-            $order->update(['points_earned' => $earned]);
+                $order->update(['points_earned' => $earned]);
+            }
         });
 
         return $earned;

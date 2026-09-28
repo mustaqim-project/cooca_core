@@ -130,68 +130,29 @@
 }">
 
     <!-- ===================================================== -->
-    <!-- 0. UNIFIED SEGMENTED NAVIGATION (UI Unification)      -->
-    <!-- ===================================================== -->
-    <div class="overflow-x-auto pb-1 scrollbar-none">
-        <div class="inline-flex p-1 bg-black/[0.05] dark:bg-white/[0.08] rounded-[14px] border border-black/[0.04] dark:border-white/[0.06] shrink-0">
-            <a href="{{ route('products.index') }}"
-               class="h-10 px-4 rounded-[10px] text-[13px] font-medium text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white flex items-center gap-2 transition-all whitespace-nowrap">
-                <i data-lucide="package" class="w-4 h-4 text-black/40 dark:text-white/40"></i>
-                <span>Barang Fisik (Katalog)</span>
-            </a>
-            @if(\App\Support\Context::hasPermission('products.view'))
-            <a href="{{ route('services.index') }}"
-               class="h-10 px-4 rounded-[10px] text-[13px] font-medium text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white flex items-center gap-2 transition-all whitespace-nowrap">
-                <i data-lucide="wrench" class="w-4 h-4 text-black/40 dark:text-white/40"></i>
-                <span>Jasa &amp; Layanan</span>
-            </a>
-            @endif
-            <a href="{{ route('pos.modifiers.index') }}"
-               class="h-10 px-4 rounded-[10px] text-[13px] font-semibold bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-sm flex items-center gap-2 whitespace-nowrap transition-all">
-                <i data-lucide="sliders" class="w-4 h-4 text-[#007AFF]"></i>
-                <span>Varian &amp; Modifiers</span>
-            </a>
-            @if(Route::has('marketplace-hub.products') && \App\Support\Context::hasPermission('products.view'))
-            <a href="{{ route('marketplace-hub.products') }}"
-               class="h-10 px-4 rounded-[10px] text-[13px] font-medium text-[#EE4D2D] hover:bg-[#EE4D2D]/10 flex items-center gap-2 transition-all whitespace-nowrap">
-                <i data-lucide="store" class="w-4 h-4 text-[#EE4D2D]"></i>
-                <span>Marketplace &amp; Multi-Harga</span>
-            </a>
-            @endif
-        </div>
-    </div>
-
-    <!-- ===================================================== -->
     <!-- 1. TOOLBAR / PAGE HEADER                              -->
     <!-- ===================================================== -->
-    <header class="rounded-[20px] backdrop-blur-xl bg-white/80 dark:bg-[#1C1C1E]/80 border border-black/[0.06] dark:border-white/[0.08] px-5 sm:px-7 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
-        <div class="min-w-0 flex flex-col justify-center">
-            <!-- Breadcrumb minimal -->
-            <nav class="flex items-center gap-1.5 text-[12px] text-black/50 dark:text-white/50 mb-1">
-                <a href="{{ route('dashboard') }}" class="hover:text-[#007AFF] transition-colors">Dashboard</a>
-                <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-black/30 dark:text-white/30 shrink-0"></i>
-                <a href="{{ route('products.index') }}" class="hover:text-[#007AFF] transition-colors">Katalog Produk</a>
-                <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-black/30 dark:text-white/30 shrink-0"></i>
-                <span class="text-black dark:text-white font-medium">Varian &amp; Modifiers</span>
-            </nav>
-            <h1 class="text-xl sm:text-2xl font-bold text-[#1C1C1E] dark:text-[#F2F2F7] tracking-tight leading-snug truncate">
-                Varian &amp; Add-on Produk (Modifiers)
-            </h1>
-            <p class="text-[13px] text-black/50 dark:text-white/50 mt-0.5">
-                Konfigurasi opsi ukuran cup, tingkat rasa, topping tambahan, dan integrasi konsumsi bahan baku resep
-            </p>
-        </div>
-
+    <x-module-header
+        title="Varian &amp; Add-on Produk (Modifiers)"
+        subtitle="Konfigurasi opsi ukuran cup, tingkat rasa, topping tambahan, dan integrasi pemotongan stok bahan baku resep"
+        :breadcrumbs="[
+            ['label' => 'Dashboard', 'url' => route('dashboard')],
+            ['label' => 'Katalog Produk', 'url' => route('products.index')],
+            ['label' => 'Varian & Modifiers', 'url' => null],
+        ]">
         @if(\App\Support\Context::hasPermission('pos.modifiers'))
-        <div class="flex items-center gap-2.5 w-full sm:w-auto">
-            <button type="button" @click="showAddGroupModal = true"
-                class="h-10 px-4 rounded-[12px] bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] text-white text-[13px] font-semibold flex items-center justify-center gap-2 transition shadow-sm shadow-[#007AFF]/25">
-                <i data-lucide="plus" class="w-4 h-4"></i>
-                <span>Buat Grup Modifier</span>
-            </button>
-        </div>
+        <button type="button" @click="showAddGroupModal = true"
+            class="h-10 px-4 rounded-[12px] bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] text-white text-[13px] font-semibold flex items-center justify-center gap-2 transition shadow-sm shadow-[#007AFF]/25 shrink-0">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+            <span>Buat Grup Modifier</span>
+        </button>
         @endif
-    </header>
+    </x-module-header>
+
+    <!-- ===================================================== -->
+    <!-- 2. UNIFIED SEGMENTED NAVIGATION (UI Unification)      -->
+    <!-- ===================================================== -->
+    <x-module-tabs module="products" />
 
     <!-- ===================================================== -->
     <!-- 2. MODIFIERS GROUP LIST                               -->
@@ -480,8 +441,8 @@
                             <label class="block font-medium text-black/70 dark:text-white/70 mb-1 text-[13px]">Kewajiban Memilih <span class="text-[#FF3B30]">*</span></label>
                             <select name="is_required" x-model="groupForm.is_required"
                                 class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.08] dark:border-white/[0.1] rounded-[12px] px-3 text-[16px] sm:text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
-                                <option :value="false">Opsional (Boleh Dilewati)</option>
-                                <option :value="true">Wajib Diisi (Required)</option>
+                                <option value="0" :value="false">Opsional (Boleh Dilewati)</option>
+                                <option value="1" :value="true">Wajib Diisi (Required)</option>
                             </select>
                         </div>
                     </div>
@@ -601,6 +562,7 @@
                         <div>
                             <label class="block font-medium text-black/70 dark:text-white/70 mb-1 text-[13px]">Potong Stok Bahan Baku Resep?</label>
                             <select name="affects_material" x-model="optionForm.affects_material"
+                                @change="if(!Boolean(optionForm.affects_material) || optionForm.affects_material === '0' || optionForm.affects_material === false) { optionForm.materials = []; }"
                                 class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.08] dark:border-white/[0.1] rounded-[12px] px-3 text-[16px] sm:text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
                                 <option value="0" :value="false">Tidak (Hanya variasi harga, tanpa potong stok)</option>
                                 <option value="1" :value="true">Ya (Kurangi bahan baku resep dari gudang)</option>
@@ -609,53 +571,55 @@
                     </div>
 
                     <!-- Material Recipe Mapping Section -->
-                    <div x-show="optionForm.affects_material" class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.08] space-y-3">
-                        <div class="flex items-center justify-between">
-                            <div class="text-[13px] font-bold text-black dark:text-white flex items-center gap-2">
-                                <svg class="w-4 h-4 text-[#007AFF]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/></svg>
-                                <span>Pemetaan Bahan Baku Resep</span>
-                            </div>
-                            <button type="button" @click="addMaterialRow()" class="text-[12px] font-semibold text-[#007AFF] hover:underline">
-                                + Tambah Bahan
-                            </button>
-                        </div>
-
-                        <p class="text-[11.5px] text-black/50 dark:text-white/50">Tentukan bahan baku yang otomatis dipotong saat opsi ini dipilih oleh pembeli.</p>
-
-                        <div class="space-y-2.5">
-                            <template x-for="(matRow, idx) in optionForm.materials" :key="idx">
-                                <div class="flex items-center gap-2.5">
-                                    <select :name="'materials[' + idx + '][material_id]'" x-model="matRow.material_id" required
-                                        class="flex-1 h-10 px-3 rounded-[10px] bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50">
-                                        <option value="">-- Pilih Bahan Baku --</option>
-                                        @foreach($materials as $mat)
-                                            <option value="{{ $mat->id }}">{{ $mat->name }} ({{ $mat->unit?->name ?? 'Unit' }})</option>
-                                        @endforeach
-                                    </select>
-
-                                    <input type="number" :name="'materials[' + idx + '][quantity]'" x-model.number="matRow.quantity" step="0.0001" min="0.0001" placeholder="Jumlah" required
-                                        class="w-24 h-10 px-3 rounded-[10px] bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] text-[13px] font-semibold tabular-nums text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50">
-
-                                    <select :name="'materials[' + idx + '][unit_id]'" x-model="matRow.unit_id"
-                                        class="w-24 h-10 px-2 rounded-[10px] bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] text-[12px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50">
-                                        <option value="">Satuan</option>
-                                        @foreach($units as $u)
-                                            <option value="{{ $u->id }}">{{ $u->name }}</option>
-                                        @endforeach
-                                    </select>
-
-                                    <button type="button" @click="removeMaterialRow(idx)"
-                                        class="w-8 h-8 rounded-[8px] text-[#FF3B30] hover:bg-[#FF3B30]/10 flex items-center justify-center shrink-0 transition" title="Hapus Baris">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
-                                    </button>
+                    <template x-if="Boolean(optionForm.affects_material) && optionForm.affects_material !== '0'">
+                        <div class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.08] space-y-3">
+                            <div class="flex items-center justify-between">
+                                <div class="text-[13px] font-bold text-black dark:text-white flex items-center gap-2">
+                                    <svg class="w-4 h-4 text-[#007AFF]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/></svg>
+                                    <span>Pemetaan Bahan Baku Resep</span>
                                 </div>
-                            </template>
+                                <button type="button" @click="addMaterialRow()" class="text-[12px] font-semibold text-[#007AFF] hover:underline">
+                                    + Tambah Bahan
+                                </button>
+                            </div>
 
-                            <div x-show="optionForm.materials.length === 0" class="text-center py-3 text-[12px] text-black/40 dark:text-white/40">
-                                Belum ada bahan baku ditambahkan. Klik "+ Tambah Bahan".
+                            <p class="text-[11.5px] text-black/50 dark:text-white/50">Tentukan bahan baku yang otomatis dipotong saat opsi ini dipilih oleh pembeli.</p>
+
+                            <div class="space-y-2.5">
+                                <template x-for="(matRow, idx) in optionForm.materials" :key="idx">
+                                    <div class="flex items-center gap-2.5">
+                                        <select :name="'materials[' + idx + '][material_id]'" x-model="matRow.material_id" required
+                                            class="flex-1 h-10 px-3 rounded-[10px] bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50">
+                                            <option value="">-- Pilih Bahan Baku --</option>
+                                            @foreach($materials as $mat)
+                                                <option value="{{ $mat->id }}">{{ $mat->name }} ({{ $mat->unit?->name ?? 'Unit' }})</option>
+                                            @endforeach
+                                        </select>
+
+                                        <input type="number" :name="'materials[' + idx + '][quantity]'" x-model.number="matRow.quantity" step="0.0001" min="0.0001" placeholder="Jumlah" required
+                                            class="w-24 h-10 px-3 rounded-[10px] bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] text-[13px] font-semibold tabular-nums text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50">
+
+                                        <select :name="'materials[' + idx + '][unit_id]'" x-model="matRow.unit_id"
+                                            class="w-24 h-10 px-2 rounded-[10px] bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] text-[12px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50">
+                                            <option value="">Satuan</option>
+                                            @foreach($units as $u)
+                                                <option value="{{ $u->id }}">{{ $u->name }}</option>
+                                            @endforeach
+                                        </select>
+
+                                        <button type="button" @click="removeMaterialRow(idx)"
+                                            class="w-8 h-8 rounded-[8px] text-[#FF3B30] hover:bg-[#FF3B30]/10 flex items-center justify-center shrink-0 transition" title="Hapus Baris">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                                        </button>
+                                    </div>
+                                </template>
+
+                                <div x-show="optionForm.materials.length === 0" class="text-center py-3 text-[12px] text-black/40 dark:text-white/40">
+                                    Belum ada bahan baku ditambahkan. Klik "+ Tambah Bahan".
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    </template>
                 </div>
 
                 <!-- Sticky Footer -->

@@ -56,6 +56,7 @@
         this.manualDrawer.reason = '';
         this.showManualDrawerModal = true;
     },
+    isSubmitting: false,
     async runTestPrint(printerId) {
         this.isTesting = true;
         this.testFeedback = '';
@@ -71,15 +72,34 @@
             const data = await res.json();
             this.testFeedbackSuccess = data.success;
             this.testFeedback = data.message || (data.success ? 'Tes cetak berhasil dikirim.' : 'Tes cetak gagal.');
+            if (window.AppAlert) {
+                if (data.success) {
+                    window.AppAlert.success(this.testFeedback);
+                } else {
+                    window.AppAlert.error(this.testFeedback);
+                }
+            }
         } catch (e) {
             this.testFeedbackSuccess = false;
             this.testFeedback = 'Gagal mengirim perintah tes cetak: ' + e.message;
+            if (window.AppAlert) {
+                window.AppAlert.error(this.testFeedback);
+            }
         } finally {
             this.isTesting = false;
         }
     },
     async runTestDrawer(printerId) {
-        if (!confirm('Uji coba sinyal pembukaan laci kas fisik (Cash Drawer Pulse)?\n\nPastikan laci uang terhubung dengan kabel RJ11/RJ12 ke printer.')) return;
+        if (window.AppAlert) {
+            const confirmed = await window.AppAlert.confirm({
+                title: 'Uji Sinyal Laci Kas',
+                message: 'Kirim sinyal pulse pembukaan laci kas fisik (Cash Drawer Pulse)? Pastikan laci uang terhubung dengan kabel RJ11/RJ12 ke printer.',
+                type: 'warning',
+                confirmText: 'Kirim Sinyal Laci',
+                cancelText: 'Batal'
+            });
+            if (!confirmed) return;
+        }
         this.isTesting = true;
         this.testFeedback = '';
         try {
@@ -94,9 +114,19 @@
             const data = await res.json();
             this.testFeedbackSuccess = data.success;
             this.testFeedback = data.message || (data.success ? 'Sinyal pulse laci kas berhasil dikirim.' : 'Gagal membuka laci kas.');
+            if (window.AppAlert) {
+                if (data.success) {
+                    window.AppAlert.success(this.testFeedback);
+                } else {
+                    window.AppAlert.error(this.testFeedback);
+                }
+            }
         } catch (e) {
             this.testFeedbackSuccess = false;
             this.testFeedback = 'Kesalahan uji coba laci kas: ' + e.message;
+            if (window.AppAlert) {
+                window.AppAlert.error(this.testFeedback);
+            }
         } finally {
             this.isTesting = false;
         }
@@ -116,16 +146,28 @@
             const data = await res.json();
             this.testFeedbackSuccess = data.connected;
             this.testFeedback = data.message;
+            if (window.AppAlert) {
+                if (data.connected) {
+                    window.AppAlert.success(data.message || 'Diagnostik sukses: Printer terhubung.');
+                } else {
+                    window.AppAlert.error(data.message || 'Diagnostik gagal: Printer tidak merespons.');
+                }
+            }
         } catch (e) {
             this.testFeedbackSuccess = false;
             this.testFeedback = 'Gagal melakukan diagnostik: ' + e.message;
+            if (window.AppAlert) {
+                window.AppAlert.error(this.testFeedback);
+            }
         } finally {
             this.isTesting = false;
         }
     },
     async submitManualDrawer() {
         if (!this.manualDrawer.supervisor_pin || !this.manualDrawer.reason) {
-            alert('PIN Supervisor dan Alasan pembukaan laci kas wajib diisi.');
+            if (window.AppAlert) {
+                window.AppAlert.error('PIN Supervisor dan Alasan pembukaan laci kas wajib diisi.');
+            }
             return;
         }
         this.isTesting = true;
@@ -144,11 +186,18 @@
                 this.showManualDrawerModal = false;
                 this.testFeedbackSuccess = true;
                 this.testFeedback = 'Laci kas berhasil dibuka secara manual (Tercatat di Audit Log).';
+                if (window.AppAlert) {
+                    window.AppAlert.success(this.testFeedback);
+                }
             } else {
-                alert(data.message || 'Gagal membuka laci kas.');
+                if (window.AppAlert) {
+                    window.AppAlert.error(data.message || 'Gagal membuka laci kas.');
+                }
             }
         } catch (e) {
-            alert('Terjadi kesalahan: ' + e.message);
+            if (window.AppAlert) {
+                window.AppAlert.error('Terjadi kesalahan: ' + e.message);
+            }
         } finally {
             this.isTesting = false;
         }
@@ -424,7 +473,7 @@
 
                                 <!-- Delete -->
                                 <form method="POST" action="{{ route('pos.printers.destroy', $p->id) }}" class="inline"
-                                    onsubmit="return confirm('Hapus printer \'{{ $p->name }}\'?');">
+                                    onsubmit="return typeof AppAlert !== 'undefined' ? AppAlert.confirmSubmit(event, this, 'Hapus printer \'{{ addslashes($p->name) }}\'?', 'Hapus Printer?', 'danger') : true">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="h-8 w-8 rounded-[8px] bg-[#FF3B30]/10 hover:bg-[#FF3B30]/20 text-[#FF3B30] flex items-center justify-center transition" title="Hapus Printer">
@@ -500,7 +549,8 @@
                         <button type="button" @click="openEdit({{ json_encode($p) }})" class="h-8 px-2.5 rounded-lg text-[12px] font-medium bg-black/[0.05] dark:bg-white/[0.08] text-black/80 dark:text-white/80">
                             Edit
                         </button>
-                        <form method="POST" action="{{ route('pos.printers.destroy', $p->id) }}" class="inline" onsubmit="return confirm('Hapus printer ini?');">
+                        <form method="POST" action="{{ route('pos.printers.destroy', $p->id) }}" class="inline"
+                            onsubmit="return typeof AppAlert !== 'undefined' ? AppAlert.confirmSubmit(event, this, 'Hapus printer \'{{ addslashes($p->name) }}\'?', 'Hapus Printer?', 'danger') : true">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="h-8 px-2.5 rounded-lg text-[12px] font-medium bg-[#FF3B30]/10 text-[#FF3B30]">
@@ -554,312 +604,361 @@
     </div>
 
     <!-- ===================================================== -->
-    <!-- 5. MODAL: TAMBAH PRINTER (Apple Sheet Style)          -->
+    <!-- 5. MODAL: TAMBAH PRINTER (Apple Sheet Style XXL)      -->
     <!-- ===================================================== -->
     <div x-show="showAddModal" x-cloak
-        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-[3px] p-4"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-md p-4 overflow-y-auto"
         @keydown.escape.window="showAddModal = false">
-        <div class="w-full max-w-xl bg-white dark:bg-[#1C1C1E] rounded-[24px] border border-black/10 dark:border-white/15 p-5 sm:p-6 space-y-4 shadow-2xl text-black dark:text-white max-h-[90vh] overflow-y-auto"
+        <div class="w-full max-w-5xl xl:max-w-6xl bg-white dark:bg-[#1C1C1E] rounded-[24px] border border-black/10 dark:border-white/15 p-6 sm:p-7 space-y-6 shadow-[0_25px_60px_rgba(0,0,0,0.35)] text-black dark:text-white max-h-[92vh] overflow-y-auto"
             @click.outside="showAddModal = false">
 
-            <div class="flex items-center justify-between border-b border-black/[0.06] dark:border-white/[0.08] pb-3">
-                <h3 class="font-bold text-[16px]">Tambah Printer Baru</h3>
+            <div class="flex items-center justify-between border-b border-black/10 dark:border-white/10 pb-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-[12px] bg-[#007AFF]/15 text-[#007AFF] flex items-center justify-center font-bold">
+                        <i data-lucide="printer" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-[19px] tracking-tight">Tambah Printer &amp; Perangkat Keras Baru</h3>
+                        <p class="text-[13px] text-black/50 dark:text-white/50">Konfigurasikan printer thermal ESC/POS, cash drawer, atau KOT routing</p>
+                    </div>
+                </div>
                 <button type="button" @click="showAddModal = false" class="w-8 h-8 rounded-full bg-black/[0.05] dark:bg-white/[0.08] flex items-center justify-center text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white transition">
                     <i data-lucide="x" class="w-4 h-4"></i>
                 </button>
             </div>
 
-            <form method="POST" action="{{ route('pos.printers.store') }}" class="space-y-4" x-data="{ connType: 'lan' }">
+            <form method="POST" action="{{ route('pos.printers.store') }}" @submit="isSubmitting = true" class="space-y-6" x-data="{ connType: 'lan' }">
                 @csrf
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <!-- Left Column: Primary Config (7 Cols) -->
+                    <div class="lg:col-span-7 space-y-4">
+                        <!-- Nama Printer -->
+                        <div>
+                            <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">Nama Printer *</label>
+                            <input type="text" name="name" required placeholder="Contoh: Kasir Utama, Printer Dapur, Barista"
+                                class="w-full h-11 px-3.5 rounded-[12px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                        </div>
 
-                <!-- Nama Printer -->
-                <div>
-                    <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Nama Printer *</label>
-                    <input type="text" name="name" required placeholder="Contoh: Kasir Utama, Printer Dapur, Barista"
-                        class="w-full h-10 px-3 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 text-[16px] sm:text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
-                </div>
+                        <!-- Outlet / Lokasi -->
+                        <div>
+                            <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">Outlet / Lokasi Operasional</label>
+                            <select name="location_id" class="w-full h-11 px-3.5 rounded-[12px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                                <option value="">Semua Outlet (Global)</option>
+                                @foreach($locations as $loc)
+                                <option value="{{ $loc->id }}">{{ $loc->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
 
-                <!-- Outlet / Lokasi -->
-                <div>
-                    <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Outlet / Lokasi</label>
-                    <select name="location_id" class="w-full h-10 px-3 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 text-[16px] sm:text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
-                        <option value="">Semua Outlet (Global)</option>
-                        @foreach($locations as $loc)
-                        <option value="{{ $loc->id }}">{{ $loc->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
+                        <!-- Tipe Koneksi & Lebar Kertas -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                            <div>
+                                <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">Tipe Koneksi *</label>
+                                <select name="connection_type" x-model="connType" required class="w-full h-11 px-3.5 rounded-[12px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                                    <option value="lan">Kabel LAN (Ethernet TCP/IP)</option>
+                                    <option value="wifi">Wi-Fi (Wireless TCP/IP)</option>
+                                    <option value="windows">Windows Shared Printer / Spooler</option>
+                                    <option value="usb">USB Direct / Device Path</option>
+                                    <option value="bluetooth">Bluetooth (via Local Agent / COM)</option>
+                                    <option value="serial">Serial COM Port</option>
+                                    <option value="agent">Local POS Agent (Bridge 9898)</option>
+                                </select>
+                            </div>
 
-                <!-- Tipe Koneksi -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Tipe Koneksi *</label>
-                        <select name="connection_type" x-model="connType" required class="w-full h-10 px-3 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 text-[16px] sm:text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
-                            <option value="lan">Kabel LAN (Ethernet TCP/IP)</option>
-                            <option value="wifi">Wi-Fi (Wireless TCP/IP)</option>
-                            <option value="windows">Windows Shared Printer / Spooler</option>
-                            <option value="usb">USB Direct / Device Path</option>
-                            <option value="bluetooth">Bluetooth (via Local Agent / COM)</option>
-                            <option value="serial">Serial COM Port</option>
-                            <option value="agent">Local POS Agent (Bridge 9898)</option>
-                        </select>
+                            <div>
+                                <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">Lebar Kertas Thermal *</label>
+                                <select name="paper_width" required class="w-full h-11 px-3.5 rounded-[12px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                                    <option value="80mm">80mm (Standar Kasir POS / 48 Kolom)</option>
+                                    <option value="58mm">58mm (Mobile Portable / 32 Kolom)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Interface Address & Port -->
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+                            <div class="sm:col-span-2">
+                                <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">
+                                    <span x-show="connType === 'lan' || connType === 'wifi'">Alamat IP LAN / Wi-Fi *</span>
+                                    <span x-show="connType === 'windows'">Nama Share Printer Windows *</span>
+                                    <span x-show="connType === 'usb' || connType === 'serial'">Path Port / Device *</span>
+                                    <span x-show="connType === 'bluetooth' || connType === 'agent'">Identifier Bluetooth / Agen *</span>
+                                </label>
+                                <input type="text" name="interface_address" required
+                                    :placeholder="connType === 'lan' || connType === 'wifi' ? '192.168.1.200' : (connType === 'windows' ? 'POS-80' : '/dev/usb/lp0')"
+                                    class="w-full h-11 px-3.5 rounded-[12px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 text-[14px] text-black dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                            </div>
+
+                            <div>
+                                <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">Port (Raw Socket)</label>
+                                <input type="number" name="port" value="9100" min="1" max="65535"
+                                    class="w-full h-11 px-3.5 rounded-[12px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 text-[14px] text-black dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                            </div>
+                        </div>
+
+                        <!-- Default Printer Toggle -->
+                        <div class="flex items-center gap-2.5 p-3 rounded-[12px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5">
+                            <input type="checkbox" name="is_default" value="1" id="add_is_default" class="w-4 h-4 rounded text-[#007AFF]">
+                            <label for="add_is_default" class="text-[13px] font-medium text-black/80 dark:text-white/80 cursor-pointer">
+                                Jadikan sebagai printer kasir utama (Default)
+                            </label>
+                        </div>
                     </div>
 
-                    <div>
-                        <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Lebar Kertas *</label>
-                        <select name="paper_width" required class="w-full h-10 px-3 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 text-[16px] sm:text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
-                            <option value="80mm">80mm (Standar POS / 48 Kolom)</option>
-                            <option value="58mm">58mm (Mobile Portable / 32 Kolom)</option>
-                        </select>
+                    <!-- Right Column: Capabilities & Security Info (5 Cols) -->
+                    <div class="lg:col-span-5 space-y-4">
+                        <!-- Capabilities -->
+                        <div class="p-4 rounded-[18px] bg-black/[0.03] dark:bg-white/[0.04] border border-black/5 dark:border-white/10 space-y-2.5">
+                            <label class="block text-[12px] font-bold uppercase tracking-wider text-black/60 dark:text-white/60">Kemampuan Hardware</label>
+                            <div class="grid grid-cols-2 gap-2 text-[12px]">
+                                <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 cursor-pointer">
+                                    <input type="checkbox" name="capabilities[]" value="cut" checked class="rounded text-[#007AFF]">
+                                    <span>Auto-Cut</span>
+                                </label>
+                                <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 cursor-pointer">
+                                    <input type="checkbox" name="capabilities[]" value="cash_drawer" checked class="rounded text-[#007AFF]">
+                                    <span>Laci Uang</span>
+                                </label>
+                                <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 cursor-pointer">
+                                    <input type="checkbox" name="capabilities[]" value="qr_code" checked class="rounded text-[#007AFF]">
+                                    <span>QR Code</span>
+                                </label>
+                                <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 cursor-pointer">
+                                    <input type="checkbox" name="capabilities[]" value="barcode" checked class="rounded text-[#007AFF]">
+                                    <span>Barcode 1D</span>
+                                </label>
+                                <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 cursor-pointer col-span-2">
+                                    <input type="checkbox" name="capabilities[]" value="beep" class="rounded text-[#007AFF]">
+                                    <span>Buzzer / Audio Beep</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Assigned Usages -->
+                        <div class="p-4 rounded-[18px] bg-black/[0.03] dark:bg-white/[0.04] border border-black/5 dark:border-white/10 space-y-2.5">
+                            <label class="block text-[12px] font-bold uppercase tracking-wider text-black/60 dark:text-white/60">Fungsi / Routing Cetak</label>
+                            <div class="grid grid-cols-2 gap-2 text-[12px]">
+                                <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 cursor-pointer">
+                                    <input type="checkbox" name="assigned_usages[]" value="cashier_receipt" checked class="rounded text-[#007AFF]">
+                                    <span>Struk Kasir</span>
+                                </label>
+                                <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 cursor-pointer">
+                                    <input type="checkbox" name="assigned_usages[]" value="kitchen_order" class="rounded text-[#007AFF]">
+                                    <span>Tiket Dapur</span>
+                                </label>
+                                <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 cursor-pointer">
+                                    <input type="checkbox" name="assigned_usages[]" value="bar_order" class="rounded text-[#007AFF]">
+                                    <span>Tiket Bar</span>
+                                </label>
+                                <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 cursor-pointer">
+                                    <input type="checkbox" name="assigned_usages[]" value="shift_report" checked class="rounded text-[#007AFF]">
+                                    <span>Tutup Shift</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Security Whitelist Info -->
+                        <div class="p-3.5 rounded-[14px] bg-[#007AFF]/5 dark:bg-[#007AFF]/10 border border-[#007AFF]/15 text-[11px] text-black/70 dark:text-white/70 space-y-1">
+                            <div class="font-bold text-[#007AFF] flex items-center gap-1.5">
+                                <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
+                                <span>Proteksi Keamanan Siber (SSRF Guard)</span>
+                            </div>
+                            <p>IP LAN wajib menggunakan subnet privat (192.168.x.x / 10.x.x.x / 172.16-31.x.x) dengan port standar 9100, 9898, 515, 631, atau 8080.</p>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Interface Address & Port -->
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <div class="sm:col-span-2">
-                        <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">
-                            <span x-show="connType === 'lan' || connType === 'wifi'">Alamat IP Printer *</span>
-                            <span x-show="connType === 'windows'">Nama Printer Windows *</span>
-                            <span x-show="connType === 'usb' || connType === 'serial'">Path Port / Device *</span>
-                            <span x-show="connType === 'bluetooth' || connType === 'agent'">Identifier Bluetooth / Agen *</span>
-                        </label>
-                        <input type="text" name="interface_address" required
-                            :placeholder="connType === 'lan' || connType === 'wifi' ? '192.168.1.200' : (connType === 'windows' ? 'POS-80' : '/dev/usb/lp0')"
-                            class="w-full h-10 px-3 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 text-[16px] sm:text-[13px] text-black dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
-                    </div>
-
-                    <div>
-                        <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Port (Raw Socket)</label>
-                        <input type="number" name="port" value="9100" min="1" max="65535"
-                            class="w-full h-10 px-3 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 text-[16px] sm:text-[13px] text-black dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
-                    </div>
-                </div>
-
-                <!-- Capabilities -->
-                <div>
-                    <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">Fitur Perangkat Keras (Capabilities)</label>
-                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-[12px]">
-                        <label class="flex items-center gap-2 p-2 rounded-lg bg-black/[0.03] dark:bg-white/[0.04] cursor-pointer">
-                            <input type="checkbox" name="capabilities[]" value="cut" checked class="rounded text-[#007AFF]">
-                            <span>Auto-Cut Kertas</span>
-                        </label>
-                        <label class="flex items-center gap-2 p-2 rounded-lg bg-black/[0.03] dark:bg-white/[0.04] cursor-pointer">
-                            <input type="checkbox" name="capabilities[]" value="cash_drawer" checked class="rounded text-[#007AFF]">
-                            <span>Laci Uang (Drawer)</span>
-                        </label>
-                        <label class="flex items-center gap-2 p-2 rounded-lg bg-black/[0.03] dark:bg-white/[0.04] cursor-pointer">
-                            <input type="checkbox" name="capabilities[]" value="qr_code" checked class="rounded text-[#007AFF]">
-                            <span>Cetak QR Code</span>
-                        </label>
-                        <label class="flex items-center gap-2 p-2 rounded-lg bg-black/[0.03] dark:bg-white/[0.04] cursor-pointer">
-                            <input type="checkbox" name="capabilities[]" value="barcode" checked class="rounded text-[#007AFF]">
-                            <span>Cetak Barcode 1D</span>
-                        </label>
-                        <label class="flex items-center gap-2 p-2 rounded-lg bg-black/[0.03] dark:bg-white/[0.04] cursor-pointer">
-                            <input type="checkbox" name="capabilities[]" value="beep" class="rounded text-[#007AFF]">
-                            <span>Buzzer / Beep</span>
-                        </label>
-                    </div>
-                </div>
-
-                <!-- Assigned Usages -->
-                <div>
-                    <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">Penugasan / Fungsi Printer</label>
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[12px]">
-                        <label class="flex items-center gap-2 p-2 rounded-lg bg-black/[0.03] dark:bg-white/[0.04] cursor-pointer">
-                            <input type="checkbox" name="assigned_usages[]" value="cashier_receipt" checked class="rounded text-[#007AFF]">
-                            <span>Struk Kasir</span>
-                        </label>
-                        <label class="flex items-center gap-2 p-2 rounded-lg bg-black/[0.03] dark:bg-white/[0.04] cursor-pointer">
-                            <input type="checkbox" name="assigned_usages[]" value="kitchen_order" class="rounded text-[#007AFF]">
-                            <span>Tiket Dapur</span>
-                        </label>
-                        <label class="flex items-center gap-2 p-2 rounded-lg bg-black/[0.03] dark:bg-white/[0.04] cursor-pointer">
-                            <input type="checkbox" name="assigned_usages[]" value="bar_order" class="rounded text-[#007AFF]">
-                            <span>Tiket Bar</span>
-                        </label>
-                        <label class="flex items-center gap-2 p-2 rounded-lg bg-black/[0.03] dark:bg-white/[0.04] cursor-pointer">
-                            <input type="checkbox" name="assigned_usages[]" value="shift_report" checked class="rounded text-[#007AFF]">
-                            <span>Tutup Shift</span>
-                        </label>
-                    </div>
-                </div>
-
-                <!-- Default Printer Toggle -->
-                <div class="flex items-center gap-2 pt-1">
-                    <input type="checkbox" name="is_default" value="1" id="add_is_default" class="rounded text-[#007AFF]">
-                    <label for="add_is_default" class="text-[12px] font-medium text-black/80 dark:text-white/80 cursor-pointer">
-                        Jadikan sebagai printer kasir utama (Default)
-                    </label>
-                </div>
-
-                <div class="flex items-center justify-end gap-2 pt-3 border-t border-black/[0.06] dark:border-white/[0.08]">
-                    <button type="button" @click="showAddModal = false" class="h-9 px-4 rounded-[10px] text-[13px] font-medium bg-black/[0.05] dark:bg-white/[0.08] text-black/80 dark:text-white/80 hover:bg-black/[0.1] transition">Batal</button>
-                    <button type="submit" class="h-9 px-5 rounded-[10px] text-[13px] font-semibold bg-[#007AFF] hover:bg-[#0071E3] text-white transition shadow-sm">Simpan Printer</button>
+                <div class="flex items-center justify-end gap-3 pt-4 border-t border-black/10 dark:border-white/10">
+                    <button type="button" @click="showAddModal = false" class="min-h-[44px] px-5 rounded-[12px] text-[13px] font-medium bg-black/[0.05] dark:bg-white/[0.08] text-black/80 dark:text-white/80 hover:bg-black/[0.1] transition">Batal</button>
+                    <button type="submit" :disabled="isSubmitting" class="min-h-[44px] px-6 rounded-[12px] text-[13px] font-semibold bg-[#007AFF] hover:bg-[#0071E3] text-white transition shadow-sm flex items-center gap-2">
+                        <template x-if="isSubmitting">
+                            <i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i>
+                        </template>
+                        <span x-text="isSubmitting ? 'Menyimpan...' : 'Simpan Profil Printer'"></span>
+                    </button>
                 </div>
             </form>
         </div>
     </div>
 
     <!-- ===================================================== -->
-    <!-- 6. MODAL: EDIT PRINTER                                -->
+    <!-- 6. MODAL: EDIT PRINTER (Apple Sheet Style XXL)         -->
     <!-- ===================================================== -->
     <div x-show="showEditModal" x-cloak
-        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-[3px] p-4"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-md p-4 overflow-y-auto"
         @keydown.escape.window="showEditModal = false">
-        <div class="w-full max-w-xl bg-white dark:bg-[#1C1C1E] rounded-[24px] border border-black/10 dark:border-white/15 p-5 sm:p-6 space-y-4 shadow-2xl text-black dark:text-white max-h-[90vh] overflow-y-auto"
+        <div class="w-full max-w-5xl xl:max-w-6xl bg-white dark:bg-[#1C1C1E] rounded-[24px] border border-black/10 dark:border-white/15 p-6 sm:p-7 space-y-6 shadow-[0_25px_60px_rgba(0,0,0,0.35)] text-black dark:text-white max-h-[92vh] overflow-y-auto"
             @click.outside="showEditModal = false">
 
-            <div class="flex items-center justify-between border-b border-black/[0.06] dark:border-white/[0.08] pb-3">
-                <h3 class="font-bold text-[16px]">Edit Profil Printer</h3>
+            <div class="flex items-center justify-between border-b border-black/10 dark:border-white/10 pb-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-[12px] bg-[#007AFF]/15 text-[#007AFF] flex items-center justify-center font-bold">
+                        <i data-lucide="edit-3" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-[19px] tracking-tight">Edit Profil Printer &amp; Hardware</h3>
+                        <p class="text-[13px] text-black/50 dark:text-white/50">Perbarui konfigurasi interface, kemampuan perangkat, dan penugasan fungsi cetak</p>
+                    </div>
+                </div>
                 <button type="button" @click="showEditModal = false" class="w-8 h-8 rounded-full bg-black/[0.05] dark:bg-white/[0.08] flex items-center justify-center text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white transition">
                     <i data-lucide="x" class="w-4 h-4"></i>
                 </button>
             </div>
 
-            <form method="POST" :action="`{{ url('/pos/printers') }}/${editPrinter.id}`" class="space-y-4">
+            <form method="POST" :action="`{{ url('/pos/printers') }}/${editPrinter.id}`" @submit="isSubmitting = true" class="space-y-6">
                 @csrf
                 @method('PUT')
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <!-- Left Column: Primary Config (7 Cols) -->
+                    <div class="lg:col-span-7 space-y-4">
+                        <!-- Nama Printer -->
+                        <div>
+                            <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">Nama Printer *</label>
+                            <input type="text" name="name" x-model="editPrinter.name" required
+                                class="w-full h-11 px-3.5 rounded-[12px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                        </div>
 
-                <!-- Nama Printer -->
-                <div>
-                    <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Nama Printer *</label>
-                    <input type="text" name="name" x-model="editPrinter.name" required
-                        class="w-full h-10 px-3 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 text-[16px] sm:text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
-                </div>
+                        <!-- Outlet / Lokasi -->
+                        <div>
+                            <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">Outlet / Lokasi Operasional</label>
+                            <select name="location_id" x-model="editPrinter.location_id" class="w-full h-11 px-3.5 rounded-[12px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                                <option value="">Semua Outlet (Global)</option>
+                                @foreach($locations as $loc)
+                                <option value="{{ $loc->id }}">{{ $loc->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
 
-                <!-- Outlet / Lokasi -->
-                <div>
-                    <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Outlet / Lokasi</label>
-                    <select name="location_id" x-model="editPrinter.location_id" class="w-full h-10 px-3 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 text-[16px] sm:text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
-                        <option value="">Semua Outlet (Global)</option>
-                        @foreach($locations as $loc)
-                        <option value="{{ $loc->id }}">{{ $loc->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
+                        <!-- Tipe Koneksi & Lebar Kertas -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                            <div>
+                                <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">Tipe Koneksi *</label>
+                                <select name="connection_type" x-model="editPrinter.connection_type" required class="w-full h-11 px-3.5 rounded-[12px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                                    <option value="lan">Kabel LAN (Ethernet TCP/IP)</option>
+                                    <option value="wifi">Wi-Fi (Wireless TCP/IP)</option>
+                                    <option value="windows">Windows Shared Printer / Spooler</option>
+                                    <option value="usb">USB Direct / Device Path</option>
+                                    <option value="bluetooth">Bluetooth (via Local Agent / COM)</option>
+                                    <option value="serial">Serial COM Port</option>
+                                    <option value="agent">Local POS Agent (Bridge 9898)</option>
+                                </select>
+                            </div>
 
-                <!-- Tipe Koneksi & Lebar Kertas -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Tipe Koneksi *</label>
-                        <select name="connection_type" x-model="editPrinter.connection_type" required class="w-full h-10 px-3 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 text-[16px] sm:text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
-                            <option value="lan">Kabel LAN (Ethernet TCP/IP)</option>
-                            <option value="wifi">Wi-Fi (Wireless TCP/IP)</option>
-                            <option value="windows">Windows Shared Printer / Spooler</option>
-                            <option value="usb">USB Direct / Device Path</option>
-                            <option value="bluetooth">Bluetooth (via Local Agent / COM)</option>
-                            <option value="serial">Serial COM Port</option>
-                            <option value="agent">Local POS Agent (Bridge 9898)</option>
-                        </select>
+                            <div>
+                                <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">Lebar Kertas Thermal *</label>
+                                <select name="paper_width" x-model="editPrinter.paper_width" required class="w-full h-11 px-3.5 rounded-[12px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                                    <option value="80mm">80mm (Standar POS / 48 Kolom)</option>
+                                    <option value="58mm">58mm (Mobile Portable / 32 Kolom)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Interface Address & Port -->
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+                            <div class="sm:col-span-2">
+                                <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">Alamat IP / Nama Share / Port *</label>
+                                <input type="text" name="interface_address" x-model="editPrinter.interface_address" required
+                                    class="w-full h-11 px-3.5 rounded-[12px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 text-[14px] text-black dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                            </div>
+
+                            <div>
+                                <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">Port</label>
+                                <input type="number" name="port" x-model="editPrinter.port" min="1" max="65535"
+                                    class="w-full h-11 px-3.5 rounded-[12px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 text-[14px] text-black dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                            </div>
+                        </div>
+
+                        <!-- Default Printer Toggle -->
+                        <div class="flex items-center gap-2.5 p-3 rounded-[12px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5">
+                            <input type="checkbox" name="is_default" value="1" id="edit_is_default" x-model="editPrinter.is_default" class="w-4 h-4 rounded text-[#007AFF]">
+                            <label for="edit_is_default" class="text-[13px] font-medium text-black/80 dark:text-white/80 cursor-pointer">
+                                Jadikan sebagai printer kasir utama (Default)
+                            </label>
+                        </div>
                     </div>
 
-                    <div>
-                        <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Lebar Kertas *</label>
-                        <select name="paper_width" x-model="editPrinter.paper_width" required class="w-full h-10 px-3 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 text-[16px] sm:text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
-                            <option value="80mm">80mm (Standar POS / 48 Kolom)</option>
-                            <option value="58mm">58mm (Mobile Portable / 32 Kolom)</option>
-                        </select>
+                    <!-- Right Column: Capabilities & Usages (5 Cols) -->
+                    <div class="lg:col-span-5 space-y-4">
+                        <!-- Capabilities -->
+                        <div class="p-4 rounded-[18px] bg-black/[0.03] dark:bg-white/[0.04] border border-black/5 dark:border-white/10 space-y-2.5">
+                            <label class="block text-[12px] font-bold uppercase tracking-wider text-black/60 dark:text-white/60">Kemampuan Hardware</label>
+                            <div class="grid grid-cols-2 gap-2 text-[12px]">
+                                <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 cursor-pointer">
+                                    <input type="checkbox" name="capabilities[]" value="cut" :checked="editPrinter.capabilities.includes('cut')" class="rounded text-[#007AFF]">
+                                    <span>Auto-Cut</span>
+                                </label>
+                                <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 cursor-pointer">
+                                    <input type="checkbox" name="capabilities[]" value="cash_drawer" :checked="editPrinter.capabilities.includes('cash_drawer')" class="rounded text-[#007AFF]">
+                                    <span>Laci Uang</span>
+                                </label>
+                                <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 cursor-pointer">
+                                    <input type="checkbox" name="capabilities[]" value="qr_code" :checked="editPrinter.capabilities.includes('qr_code')" class="rounded text-[#007AFF]">
+                                    <span>QR Code</span>
+                                </label>
+                                <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 cursor-pointer">
+                                    <input type="checkbox" name="capabilities[]" value="barcode" :checked="editPrinter.capabilities.includes('barcode')" class="rounded text-[#007AFF]">
+                                    <span>Barcode 1D</span>
+                                </label>
+                                <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 cursor-pointer col-span-2">
+                                    <input type="checkbox" name="capabilities[]" value="beep" :checked="editPrinter.capabilities.includes('beep')" class="rounded text-[#007AFF]">
+                                    <span>Buzzer / Audio Beep</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Assigned Usages -->
+                        <div class="p-4 rounded-[18px] bg-black/[0.03] dark:bg-white/[0.04] border border-black/5 dark:border-white/10 space-y-2.5">
+                            <label class="block text-[12px] font-bold uppercase tracking-wider text-black/60 dark:text-white/60">Fungsi / Routing Cetak</label>
+                            <div class="grid grid-cols-2 gap-2 text-[12px]">
+                                <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 cursor-pointer">
+                                    <input type="checkbox" name="assigned_usages[]" value="cashier_receipt" :checked="editPrinter.assigned_usages.includes('cashier_receipt')" class="rounded text-[#007AFF]">
+                                    <span>Struk Kasir</span>
+                                </label>
+                                <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 cursor-pointer">
+                                    <input type="checkbox" name="assigned_usages[]" value="kitchen_order" :checked="editPrinter.assigned_usages.includes('kitchen_order')" class="rounded text-[#007AFF]">
+                                    <span>Tiket Dapur</span>
+                                </label>
+                                <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 cursor-pointer">
+                                    <input type="checkbox" name="assigned_usages[]" value="bar_order" :checked="editPrinter.assigned_usages.includes('bar_order')" class="rounded text-[#007AFF]">
+                                    <span>Tiket Bar</span>
+                                </label>
+                                <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 cursor-pointer">
+                                    <input type="checkbox" name="assigned_usages[]" value="shift_report" :checked="editPrinter.assigned_usages.includes('shift_report')" class="rounded text-[#007AFF]">
+                                    <span>Tutup Shift</span>
+                                </label>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Interface Address & Port -->
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <div class="sm:col-span-2">
-                        <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Alamat IP / Nama Share / Port</label>
-                        <input type="text" name="interface_address" x-model="editPrinter.interface_address" required
-                            class="w-full h-10 px-3 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 text-[16px] sm:text-[13px] text-black dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
-                    </div>
-
-                    <div>
-                        <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Port</label>
-                        <input type="number" name="port" x-model="editPrinter.port" min="1" max="65535"
-                            class="w-full h-10 px-3 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 text-[16px] sm:text-[13px] text-black dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
-                    </div>
-                </div>
-
-                <!-- Capabilities -->
-                <div>
-                    <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">Fitur Perangkat Keras</label>
-                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-[12px]">
-                        <label class="flex items-center gap-2 p-2 rounded-lg bg-black/[0.03] dark:bg-white/[0.04] cursor-pointer">
-                            <input type="checkbox" name="capabilities[]" value="cut" :checked="editPrinter.capabilities.includes('cut')" class="rounded text-[#007AFF]">
-                            <span>Auto-Cut Kertas</span>
-                        </label>
-                        <label class="flex items-center gap-2 p-2 rounded-lg bg-black/[0.03] dark:bg-white/[0.04] cursor-pointer">
-                            <input type="checkbox" name="capabilities[]" value="cash_drawer" :checked="editPrinter.capabilities.includes('cash_drawer')" class="rounded text-[#007AFF]">
-                            <span>Laci Uang (Drawer)</span>
-                        </label>
-                        <label class="flex items-center gap-2 p-2 rounded-lg bg-black/[0.03] dark:bg-white/[0.04] cursor-pointer">
-                            <input type="checkbox" name="capabilities[]" value="qr_code" :checked="editPrinter.capabilities.includes('qr_code')" class="rounded text-[#007AFF]">
-                            <span>Cetak QR Code</span>
-                        </label>
-                        <label class="flex items-center gap-2 p-2 rounded-lg bg-black/[0.03] dark:bg-white/[0.04] cursor-pointer">
-                            <input type="checkbox" name="capabilities[]" value="barcode" :checked="editPrinter.capabilities.includes('barcode')" class="rounded text-[#007AFF]">
-                            <span>Cetak Barcode 1D</span>
-                        </label>
-                        <label class="flex items-center gap-2 p-2 rounded-lg bg-black/[0.03] dark:bg-white/[0.04] cursor-pointer">
-                            <input type="checkbox" name="capabilities[]" value="beep" :checked="editPrinter.capabilities.includes('beep')" class="rounded text-[#007AFF]">
-                            <span>Buzzer / Beep</span>
-                        </label>
-                    </div>
-                </div>
-
-                <!-- Assigned Usages -->
-                <div>
-                    <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">Penugasan / Fungsi</label>
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[12px]">
-                        <label class="flex items-center gap-2 p-2 rounded-lg bg-black/[0.03] dark:bg-white/[0.04] cursor-pointer">
-                            <input type="checkbox" name="assigned_usages[]" value="cashier_receipt" :checked="editPrinter.assigned_usages.includes('cashier_receipt')" class="rounded text-[#007AFF]">
-                            <span>Struk Kasir</span>
-                        </label>
-                        <label class="flex items-center gap-2 p-2 rounded-lg bg-black/[0.03] dark:bg-white/[0.04] cursor-pointer">
-                            <input type="checkbox" name="assigned_usages[]" value="kitchen_order" :checked="editPrinter.assigned_usages.includes('kitchen_order')" class="rounded text-[#007AFF]">
-                            <span>Tiket Dapur</span>
-                        </label>
-                        <label class="flex items-center gap-2 p-2 rounded-lg bg-black/[0.03] dark:bg-white/[0.04] cursor-pointer">
-                            <input type="checkbox" name="assigned_usages[]" value="bar_order" :checked="editPrinter.assigned_usages.includes('bar_order')" class="rounded text-[#007AFF]">
-                            <span>Tiket Bar</span>
-                        </label>
-                        <label class="flex items-center gap-2 p-2 rounded-lg bg-black/[0.03] dark:bg-white/[0.04] cursor-pointer">
-                            <input type="checkbox" name="assigned_usages[]" value="shift_report" :checked="editPrinter.assigned_usages.includes('shift_report')" class="rounded text-[#007AFF]">
-                            <span>Tutup Shift</span>
-                        </label>
-                    </div>
-                </div>
-
-                <!-- Default Printer Toggle -->
-                <div class="flex items-center gap-2 pt-1">
-                    <input type="checkbox" name="is_default" value="1" id="edit_is_default" x-model="editPrinter.is_default" class="rounded text-[#007AFF]">
-                    <label for="edit_is_default" class="text-[12px] font-medium text-black/80 dark:text-white/80 cursor-pointer">
-                        Jadikan sebagai printer kasir utama (Default)
-                    </label>
-                </div>
-
-                <div class="flex items-center justify-end gap-2 pt-3 border-t border-black/[0.06] dark:border-white/[0.08]">
-                    <button type="button" @click="showEditModal = false" class="min-h-[44px] h-11 px-4 rounded-[12px] text-[13px] font-medium bg-black/[0.05] dark:bg-white/[0.08] text-black/80 dark:text-white/80 hover:bg-black/[0.1] transition">Batal</button>
-                    <button type="submit" class="min-h-[44px] h-11 px-5 rounded-[12px] text-[13px] font-semibold bg-[#007AFF] hover:bg-[#0071E3] text-white transition shadow-sm">Simpan Perubahan</button>
+                <div class="flex items-center justify-end gap-3 pt-4 border-t border-black/10 dark:border-white/10">
+                    <button type="button" @click="showEditModal = false" class="min-h-[44px] px-5 rounded-[12px] text-[13px] font-medium bg-black/[0.05] dark:bg-white/[0.08] text-black/80 dark:text-white/80 hover:bg-black/[0.1] transition">Batal</button>
+                    <button type="submit" :disabled="isSubmitting" class="min-h-[44px] px-6 rounded-[12px] text-[13px] font-semibold bg-[#007AFF] hover:bg-[#0071E3] text-white transition shadow-sm flex items-center gap-2">
+                        <template x-if="isSubmitting">
+                            <i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i>
+                        </template>
+                        <span x-text="isSubmitting ? 'Menyimpan...' : 'Simpan Perubahan'"></span>
+                    </button>
                 </div>
             </form>
         </div>
     </div>
 
     <!-- ===================================================== -->
-    <!-- 6. MANUAL CASH DRAWER POP MODAL (Supervisor PIN Sheet) -->
+    <!-- 7. MANUAL CASH DRAWER POP MODAL (Supervisor PIN XXL)  -->
     <!-- ===================================================== -->
     <div x-show="showManualDrawerModal" x-cloak
-        class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/40 backdrop-blur-sm transition-opacity"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-md p-4 overflow-y-auto"
         @keydown.escape.window="showManualDrawerModal = false">
-        <div class="w-full sm:max-w-md bg-white dark:bg-[#1C1C1E] rounded-t-[28px] sm:rounded-[24px] p-6 space-y-5 shadow-2xl border border-black/5 dark:border-white/10"
+        <div class="w-full max-w-2xl bg-white dark:bg-[#1C1C1E] rounded-[24px] p-6 sm:p-7 space-y-6 shadow-[0_25px_60px_rgba(0,0,0,0.35)] border border-black/10 dark:border-white/15 max-h-[92vh] overflow-y-auto"
             @click.away="showManualDrawerModal = false">
-            <div class="flex items-center justify-between pb-3 border-b border-black/[0.06] dark:border-white/[0.08]">
-                <div class="flex items-center gap-2.5">
-                    <div class="w-9 h-9 rounded-xl bg-[#FF9500]/15 flex items-center justify-center text-[#FF9500]">
+            <div class="flex items-center justify-between pb-4 border-b border-black/10 dark:border-white/10">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-[12px] bg-[#FF9500]/15 flex items-center justify-center text-[#FF9500]">
                         <i data-lucide="shield-alert" class="w-5 h-5"></i>
                     </div>
                     <div>
-                        <h3 class="text-[16px] font-bold text-black dark:text-white">Buka Laci Kas Manual</h3>
-                        <p class="text-[12px] text-black/50 dark:text-white/50">Otorisasi Supervisor &amp; Audit Log Anti-Fraud</p>
+                        <h3 class="text-[19px] font-bold text-black dark:text-white tracking-tight">Buka Laci Kas Manual (No-Sale Pop)</h3>
+                        <p class="text-[13px] text-black/50 dark:text-white/50">Otorisasi Supervisor &amp; Audit Log Anti-Fraud</p>
                     </div>
                 </div>
                 <button type="button" @click="showManualDrawerModal = false" class="w-8 h-8 rounded-full bg-black/[0.05] dark:bg-white/[0.08] flex items-center justify-center text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white">
@@ -867,31 +966,34 @@
                 </button>
             </div>
 
-            <div class="p-3.5 rounded-[14px] bg-[#FF9500]/10 border border-[#FF9500]/25 text-[#995B00] dark:text-[#FFB340] text-[12px] leading-relaxed flex items-start gap-2.5">
+            <div class="p-4 rounded-[16px] bg-[#FF9500]/10 border border-[#FF9500]/25 text-[#995B00] dark:text-[#FFB340] text-[12px] leading-relaxed flex items-start gap-3">
                 <i data-lucide="info" class="w-4 h-4 shrink-0 mt-0.5"></i>
-                <span>Setiap pembukaan laci kas tanpa penjualan dicatat permanen dalam audit log sistem demi mencegah selisih kas fisik.</span>
+                <span>Setiap pembukaan laci kas tanpa transaksi penjualan dicatat secara permanen dalam audit log sistem dengan identitas kasir, waktu, dan alasan untuk mencegah selisih kas fisik.</span>
             </div>
 
             <form @submit.prevent="submitManualDrawer" class="space-y-4">
                 <div>
-                    <label class="block text-[13px] font-semibold text-black/80 dark:text-white/80 mb-1">PIN Supervisor / Owner <span class="text-red-500">*</span></label>
-                    <input type="password" x-model="manualDrawer.supervisor_pin" required maxlength="8" placeholder="Masukkan 4-8 digit PIN"
-                        class="w-full h-11 px-3.5 rounded-[12px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 text-[16px] text-black dark:text-white tracking-widest font-mono focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                    <label class="block text-[13px] font-semibold text-black/80 dark:text-white/80 mb-1.5">PIN Supervisor / Owner <span class="text-red-500">*</span></label>
+                    <input type="password" x-model="manualDrawer.supervisor_pin" required maxlength="8" placeholder="Masukkan 4-8 digit PIN otorisasi"
+                        class="w-full h-12 px-4 rounded-[12px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 text-[18px] text-black dark:text-white tracking-widest font-mono focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
                 </div>
 
                 <div>
-                    <label class="block text-[13px] font-semibold text-black/80 dark:text-white/80 mb-1">Alasan Pembukaan Laci <span class="text-red-500">*</span></label>
-                    <textarea x-model="manualDrawer.reason" required rows="2" placeholder="Contoh: Penukaran uang kembalian pecahan kecil..."
-                        class="w-full p-3 rounded-[12px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 text-[16px] sm:text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] resize-none"></textarea>
+                    <label class="block text-[13px] font-semibold text-black/80 dark:text-white/80 mb-1.5">Alasan Pembukaan Laci <span class="text-red-500">*</span></label>
+                    <textarea x-model="manualDrawer.reason" required rows="3" placeholder="Contoh: Penukaran uang kembalian pecahan kecil dengan kasir sebelah..."
+                        class="w-full p-3.5 rounded-[12px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 resize-none transition"></textarea>
                 </div>
 
-                <div class="flex items-center justify-end gap-2.5 pt-3 border-t border-black/[0.06] dark:border-white/[0.08]">
-                    <button type="button" @click="showManualDrawerModal = false" class="min-h-[44px] h-11 px-4 rounded-[12px] text-[13px] font-medium bg-black/[0.05] dark:bg-white/[0.08] text-black/80 dark:text-white/80 hover:bg-black/[0.1] transition">
+                <div class="flex items-center justify-end gap-3 pt-4 border-t border-black/10 dark:border-white/10">
+                    <button type="button" @click="showManualDrawerModal = false" class="min-h-[44px] px-5 rounded-[12px] text-[13px] font-medium bg-black/[0.05] dark:bg-white/[0.08] text-black/80 dark:text-white/80 hover:bg-black/[0.1] transition">
                         Batal
                     </button>
-                    <button type="submit" :disabled="isTesting" class="min-h-[44px] h-11 px-5 rounded-[12px] text-[13px] font-semibold bg-[#FF9500] hover:bg-[#E08500] text-white transition shadow-sm flex items-center justify-center gap-2">
-                        <i data-lucide="unlock" class="w-4 h-4"></i>
-                        <span x-text="isTesting ? 'Mengirim Sinyal...' : 'Otorisasi & Buka Laci'"></span>
+                    <button type="submit" :disabled="isTesting" class="min-h-[44px] px-6 rounded-[12px] text-[13px] font-semibold bg-[#FF9500] hover:bg-[#E08500] text-white transition shadow-sm flex items-center justify-center gap-2">
+                        <template x-if="isTesting">
+                            <i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i>
+                        </template>
+                        <i x-show="!isTesting" data-lucide="unlock" class="w-4 h-4"></i>
+                        <span x-text="isTesting ? 'Mengirim Sinyal...' : 'Otorisasi &amp; Buka Laci'"></span>
                     </button>
                 </div>
             </form>

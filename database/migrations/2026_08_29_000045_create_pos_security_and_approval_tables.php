@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::table('businesses', function (Blueprint $table): void {
             if (! Schema::hasColumn('businesses', 'pos_supervisor_pin')) {
-                $table->string('pos_supervisor_pin', 60)->default('1234')->after('currency_precision');
+                $table->string('pos_supervisor_pin', 60)->nullable()->after('currency_precision');
             }
             if (! Schema::hasColumn('businesses', 'pos_max_cashier_discount_percent')) {
                 $table->decimal('pos_max_cashier_discount_percent', 5, 2)->default(10.00)->after('pos_supervisor_pin');

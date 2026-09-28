@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Web\Pos;
 
 use App\Domain\Printer\CashDrawerService;
+use App\Domain\Printer\PrinterIpValidator;
 use App\Domain\Printer\PrinterManager;
 use App\Http\Controllers\Controller;
 use App\Models\Location;
@@ -93,6 +94,23 @@ final class PosPrinterWebController extends Controller
             'assigned_category_ids' => ['nullable', 'array'],
         ]);
 
+        if (in_array($validated['connection_type'], ['lan', 'wifi'], true)) {
+            if (! PrinterIpValidator::isSafe($validated['interface_address'])) {
+                if ($request->wantsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Alamat IP / Host printer tidak valid atau merupakan alamat internal/metadata yang dilarang.',
+                        'errors' => [
+                            'interface_address' => ['Alamat IP / Host printer tidak valid atau merupakan alamat internal/metadata yang dilarang.'],
+                        ],
+                    ], 422);
+                }
+                return back()->withErrors([
+                    'interface_address' => 'Alamat IP / Host printer tidak valid atau merupakan alamat internal/metadata yang dilarang.',
+                ])->withInput();
+            }
+        }
+
         if (!empty($validated['is_default'])) {
             // Unset previous defaults for this business/location
             PosPrinter::where('business_id', $business->id)
@@ -159,6 +177,23 @@ final class PosPrinterWebController extends Controller
             'assigned_usages' => ['nullable', 'array'],
             'assigned_category_ids' => ['nullable', 'array'],
         ]);
+
+        if (in_array($validated['connection_type'], ['lan', 'wifi'], true)) {
+            if (! PrinterIpValidator::isSafe($validated['interface_address'])) {
+                if ($request->wantsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Alamat IP / Host printer tidak valid atau merupakan alamat internal/metadata yang dilarang.',
+                        'errors' => [
+                            'interface_address' => ['Alamat IP / Host printer tidak valid atau merupakan alamat internal/metadata yang dilarang.'],
+                        ],
+                    ], 422);
+                }
+                return back()->withErrors([
+                    'interface_address' => 'Alamat IP / Host printer tidak valid atau merupakan alamat internal/metadata yang dilarang.',
+                ])->withInput();
+            }
+        }
 
         if (!empty($validated['is_default'])) {
             PosPrinter::where('business_id', $business->id)
@@ -336,7 +371,14 @@ final class PosPrinterWebController extends Controller
 
         // If user is owner/supervisor and pin is empty, fallback to business PIN
         if ($pin === '' && (Context::isOwner() || $user->hasRole('owner'))) {
-            $pin = (string) ($business->pos_supervisor_pin ?? '1234');
+            $pin = (string) ($business->pos_supervisor_pin ?? '');
+        }
+
+        if ($pin === '' || empty($business->pos_supervisor_pin)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'PIN Supervisor belum diatur oleh pemilik bisnis. Silakan atur PIN di Pengaturan Bisnis terlebih dahulu.',
+            ], 422);
         }
 
         try {

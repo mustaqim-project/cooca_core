@@ -8,6 +8,7 @@
     selectedOrder: null,
     selectedOrderId: null,
     statusFilter: '{{ request('status', '') }}',
+    isSubmitting: false,
     viewDetail(id) {
         this.selectedOrder = (window.COOCA_POS_ORDERS || []).find(o => o.id === id) || null;
         this.showDetailModal = true;
@@ -22,6 +23,20 @@
         this.selectedOrderId = id;
         this.showRefundModal = true;
         this.$nextTick(() => { if (window.lucide) window.lucide.createIcons(); });
+    },
+    async confirmReprint(url, printCount) {
+        const ok = typeof AppAlert !== 'undefined'
+            ? await AppAlert.confirm({
+                title: 'Cetak Ulang Bill?',
+                message: 'Cetak Ulang (Re-Print) Bill ini? Tindakan ini akan dicatat dalam Jejak Audit sebagai Salinan / Cetakan ke-' + (printCount + 1) + '.',
+                type: 'warning',
+                confirmText: 'Cetak Ulang',
+                cancelText: 'Batal'
+            })
+            : confirm('Cetak Ulang (Re-Print) Bill ini?');
+        if (ok) {
+            window.open(url, '_blank');
+        }
     },
     filterByStatus(st) {
         this.statusFilter = st;
@@ -268,12 +283,12 @@
                         <td class="px-4 py-3 text-right">
                             <div class="flex items-center justify-end gap-1">
                                 @if(($o->print_count ?? 0) > 0)
-                                    <a href="{{ route('pos.receipt', $o->id) }}?reprint=1" target="_blank"
-                                        onclick="return confirm('Cetak Ulang (Re-Print) Bill ini?\n\nTindakan ini akan dicatat dalam Jejak Audit sebagai Salinan / Cetakan ke-{{ $o->print_count + 1 }}.');"
+                                    <button type="button"
+                                        @click="confirmReprint('{{ route('pos.receipt', $o->id) }}?reprint=1', {{ (int)$o->print_count }})"
                                         title="Cetak Ulang (Salinan ke-{{ $o->print_count }})"
                                         class="h-7 px-2 rounded-[6px] text-[12px] font-medium text-[#FF9500] hover:bg-[#FF9500]/10 transition-colors flex items-center">
                                         Re-Print
-                                    </a>
+                                    </button>
                                 @else
                                     <a href="{{ route('pos.receipt', $o->id) }}" target="_blank" title="Cetak Bill Pertama Kali"
                                         class="h-7 px-2 rounded-[6px] text-[12px] font-medium text-black/70 dark:text-white/70 hover:bg-black/5 dark:hover:bg-white/5 transition-colors flex items-center">
@@ -360,12 +375,12 @@
 
             <div class="flex items-center justify-end gap-1.5 pt-1">
                 @if(($o->print_count ?? 0) > 0)
-                <a href="{{ route('pos.receipt', $o->id) }}?reprint=1" target="_blank"
-                    onclick="return confirm('Cetak Ulang (Re-Print) Bill ini?\n\nTindakan ini akan dicatat dalam Jejak Audit sebagai Salinan / Cetakan ke-{{ $o->print_count + 1 }}.');"
+                <button type="button"
+                    @click="confirmReprint('{{ route('pos.receipt', $o->id) }}?reprint=1', {{ (int)$o->print_count }})"
                     class="h-8 px-2.5 rounded-[8px] text-[12px] font-semibold text-[#B25E00] dark:text-[#FF9F0A] bg-[#FF9500]/15 flex items-center gap-1"
                     title="Cetak Salinan (Ke-{{ $o->print_count }})">
                     <span>Re-Print ({{ $o->print_count }}x)</span>
-                </a>
+                </button>
                 @else
                 <a href="{{ route('pos.receipt', $o->id) }}" target="_blank"
                     class="h-8 px-2.5 rounded-[8px] text-[12px] font-medium text-black/80 dark:text-white/80 bg-black/[0.06] dark:bg-white/[0.08] flex items-center">
@@ -575,7 +590,7 @@
             <p class="text-[13px] text-black/60 dark:text-white/60 leading-relaxed">
                 Void akan membatalkan transaksi dan otomatis mengembalikan kuantitas produk ke stok inventori secara akurat.
             </p>
-            <form :action="'{{ url('/pos/orders') }}/' + selectedOrderId + '/void'" method="POST" class="space-y-3.5 text-[13px]">
+            <form :action="'{{ url('/pos/orders') }}/' + selectedOrderId + '/void'" method="POST" @submit="isSubmitting = true" class="space-y-3.5 text-[13px]">
                 @csrf
                 <div>
                     <label class="block text-[12px] font-bold uppercase tracking-wider text-black/60 dark:text-white/60 mb-1">Alasan Pembatalan <span class="text-red-500">*</span></label>
@@ -593,13 +608,16 @@
                 </div>
                 @endif
                 <div class="flex justify-end gap-2.5 pt-3 border-t border-black/[0.06] dark:border-white/[0.08]">
-                    <button type="button" @click="showVoidModal = false"
+                    <button type="button" @click="showVoidModal = false" :disabled="isSubmitting"
                         class="min-h-[44px] h-11 px-4 rounded-[12px] text-[13px] font-medium text-black/70 dark:text-white/70 hover:bg-black/5 dark:hover:bg-white/5 transition">
                         Batal
                     </button>
-                    <button type="submit"
-                        class="min-h-[44px] h-11 px-6 rounded-[12px] bg-[#FF3B30] hover:bg-[#E0352B] text-white font-semibold text-[13px] active:scale-[0.97] transition shadow-sm">
-                        Void
+                    <button type="submit" :disabled="isSubmitting"
+                        class="min-h-[44px] h-11 px-6 rounded-[12px] bg-[#FF3B30] hover:bg-[#E0352B] text-white font-semibold text-[13px] active:scale-[0.97] transition shadow-sm flex items-center gap-1.5 disabled:opacity-50">
+                        <template x-if="isSubmitting">
+                            <i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i>
+                        </template>
+                        <span x-text="isSubmitting ? 'Memproses...' : 'Void'"></span>
                     </button>
                 </div>
             </form>
@@ -625,7 +643,7 @@
             <p class="text-[13px] text-black/60 dark:text-white/60 leading-relaxed">
                 Catat pengembalian barang transaksi pelanggan ke sistem penjualan secara resmi.
             </p>
-            <form :action="'{{ url('/pos/orders') }}/' + selectedOrderId + '/refund'" method="POST" class="space-y-3.5 text-[13px]">
+            <form :action="'{{ url('/pos/orders') }}/' + selectedOrderId + '/refund'" method="POST" @submit="isSubmitting = true" class="space-y-3.5 text-[13px]">
                 @csrf
                 <div>
                     <label class="block text-[12px] font-bold uppercase tracking-wider text-black/60 dark:text-white/60 mb-1">Alasan Retur <span class="text-red-500">*</span></label>
@@ -650,13 +668,16 @@
                     </label>
                 </div>
                 <div class="flex justify-end gap-2.5 pt-3 border-t border-black/[0.06] dark:border-white/[0.08]">
-                    <button type="button" @click="showRefundModal = false"
+                    <button type="button" @click="showRefundModal = false" :disabled="isSubmitting"
                         class="min-h-[44px] h-11 px-4 rounded-[12px] text-[13px] font-medium text-black/70 dark:text-white/70 hover:bg-black/5 dark:hover:bg-white/5 transition">
                         Batal
                     </button>
-                    <button type="submit"
-                        class="min-h-[44px] h-11 px-6 rounded-[12px] bg-[#FF9500] hover:bg-[#E08600] text-white font-semibold text-[13px] active:scale-[0.97] transition shadow-sm">
-                        Retur
+                    <button type="submit" :disabled="isSubmitting"
+                        class="min-h-[44px] h-11 px-6 rounded-[12px] bg-[#FF9500] hover:bg-[#E08600] text-white font-semibold text-[13px] active:scale-[0.97] transition shadow-sm flex items-center gap-1.5 disabled:opacity-50">
+                        <template x-if="isSubmitting">
+                            <i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i>
+                        </template>
+                        <span x-text="isSubmitting ? 'Memproses...' : 'Retur'"></span>
                     </button>
                 </div>
             </form>

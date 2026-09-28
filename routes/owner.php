@@ -451,6 +451,7 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
         // POS (Point of Sale) & Cashier Terminal
         Route::get('/pos', [PosTerminalWebController::class, 'index'])->middleware('require.permission:pos.terminal')->name('pos.terminal');
         Route::get('/pos/search-products', [PosTerminalWebController::class, 'searchProducts'])->middleware('require.permission:pos.terminal')->name('pos.search-products');
+        Route::post('/pos/validate-voucher', [PosTerminalWebController::class, 'validateVoucher'])->middleware('require.permission:pos.terminal')->name('pos.validate-voucher');
         Route::post('/pos/checkout', [PosTerminalWebController::class, 'checkout'])->middleware(['require.permission:pos.terminal', 'entitlement:pos'])->name('pos.checkout');
         Route::post('/pos/hold', [PosTerminalWebController::class, 'holdOrder'])->middleware('require.permission:pos.terminal')->name('pos.hold');
         Route::get('/pos/held-orders', [PosTerminalWebController::class, 'getHeldOrders'])->name('pos.held-orders');

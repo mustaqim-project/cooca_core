@@ -175,7 +175,10 @@ final class PosOrderWebController extends Controller
             return false;
         }
 
-        $validPin = (string) ($business->pos_supervisor_pin ?? '1234');
+        $validPin = (string) ($business->pos_supervisor_pin ?? '');
+        if ($validPin === '') {
+            return false;
+        }
 
         return \Illuminate\Support\Facades\Hash::check($pin, $validPin) || hash_equals($validPin, $pin);
     }

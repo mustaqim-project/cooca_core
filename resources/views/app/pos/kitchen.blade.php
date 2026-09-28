@@ -425,10 +425,19 @@ function kitchenDisplay() {
                     }
                     this.$nextTick(() => { if (window.lucide) window.lucide.createIcons(); });
                 } else {
-                    alert(data.message || 'Gagal memperbarui status');
+                    if (typeof AppAlert !== 'undefined') {
+                        AppAlert.error(data.message || 'Gagal memperbarui status pesanan');
+                    } else if (window.AppAlert) {
+                        window.AppAlert.error(data.message || 'Gagal memperbarui status pesanan');
+                    } else {
+                        console.error('Kitchen update error:', data.message);
+                    }
                 }
             } catch (e) {
                 console.error('Update status error:', e);
+                if (typeof AppAlert !== 'undefined') {
+                    AppAlert.error('Terjadi gangguan jaringan saat memperbarui status');
+                }
             }
         },
 

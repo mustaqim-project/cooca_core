@@ -16,6 +16,7 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="{{ asset('js/app-alert.js') }}"></script>
 
     <style>
         body {
@@ -121,7 +122,7 @@
 
                 <!-- Re-Print Trigger Action -->
                 <form method="POST" action="{{ route('pos.receipt.reprint', $order->id) }}" class="inline"
-                    onsubmit="return confirm('Cetak Ulang (Re-Print) Bill ini?\n\nTindakan ini akan dicatat dalam Jejak Audit & Anti-Fraud sebagai Salinan / Cetakan ke-{{ $order->print_count + 1 }}.');">
+                    onsubmit="return typeof AppAlert !== 'undefined' ? AppAlert.confirmSubmit(event, this, 'Cetak Ulang (Re-Print) Bill ini? Tindakan ini akan dicatat dalam Jejak Audit & Anti-Fraud sebagai Salinan ke-{{ $order->print_count + 1 }}.', 'Cetak Ulang Bill?', 'warning') : confirm('Cetak Ulang (Re-Print) Bill ini?');">
                     @csrf
                     <button type="submit"
                         class="min-h-[36px] h-9 px-2.5 rounded-[10px] bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.1] dark:hover:bg-white/[0.12] text-black/85 dark:text-white/85 text-[12px] font-sans font-medium active:scale-[0.97] transition flex items-center gap-1"

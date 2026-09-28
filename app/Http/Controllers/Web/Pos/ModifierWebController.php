@@ -46,6 +46,10 @@ final class ModifierWebController extends Controller
     {
         $business = Context::requireBusiness();
 
+        if ($request->has('is_required')) {
+            $request->merge(['is_required' => filter_var($request->input('is_required'), FILTER_VALIDATE_BOOLEAN)]);
+        }
+
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:150'],
             'description' => ['nullable', 'string', 'max:255'],
@@ -82,6 +86,13 @@ final class ModifierWebController extends Controller
         $business = Context::requireBusiness();
         if ($group->business_id !== $business->id) {
             abort(403);
+        }
+
+        if ($request->has('is_required')) {
+            $request->merge(['is_required' => filter_var($request->input('is_required'), FILTER_VALIDATE_BOOLEAN)]);
+        }
+        if ($request->has('is_active')) {
+            $request->merge(['is_active' => filter_var($request->input('is_active'), FILTER_VALIDATE_BOOLEAN)]);
         }
 
         $validated = $request->validate([
@@ -149,18 +160,41 @@ final class ModifierWebController extends Controller
             abort(403);
         }
 
+        $affectsMaterial = filter_var($request->input('affects_material', false), FILTER_VALIDATE_BOOLEAN);
+
+        // Sanitize materials array
+        $rawMaterials = $request->input('materials');
+        $filteredMaterials = [];
+        if ($affectsMaterial && is_array($rawMaterials)) {
+            foreach ($rawMaterials as $item) {
+                if (is_array($item) && ! empty($item['material_id'])) {
+                    $filteredMaterials[] = [
+                        'material_id' => (string) $item['material_id'],
+                        'quantity' => (float) ($item['quantity'] ?? 1),
+                        'unit_id' => ! empty($item['unit_id']) ? (string) $item['unit_id'] : null,
+                    ];
+                }
+            }
+        }
+
+        $request->merge([
+            'affects_material' => $affectsMaterial,
+            'materials' => $filteredMaterials,
+        ]);
+
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:150'],
             'price_delta' => ['nullable', 'numeric', 'min:0'],
-            'affects_material' => ['nullable'],
+            'affects_material' => ['required', 'boolean'],
             'sort_order' => ['nullable', 'integer'],
             'materials' => ['nullable', 'array'],
-            'materials.*.material_id' => ['required_with:materials', 'string', 'exists:materials,id'],
-            'materials.*.quantity' => ['required_with:materials', 'numeric', 'min:0.0001'],
+            'materials.*.material_id' => ['required', 'string', 'exists:materials,id'],
+            'materials.*.quantity' => ['required', 'numeric', 'min:0.0001'],
             'materials.*.unit_id' => ['nullable', 'string', 'exists:units,id'],
         ]);
 
-        $validated['affects_material'] = filter_var($request->input('affects_material', false), FILTER_VALIDATE_BOOLEAN);
+        $validated['affects_material'] = $affectsMaterial;
+        $validated['materials'] = $filteredMaterials;
 
         try {
             $option = $this->modifierService->addOption($group, $validated);
@@ -189,19 +223,43 @@ final class ModifierWebController extends Controller
             abort(403);
         }
 
+        $affectsMaterial = filter_var($request->input('affects_material', false), FILTER_VALIDATE_BOOLEAN);
+
+        // Sanitize materials array
+        $rawMaterials = $request->input('materials');
+        $filteredMaterials = [];
+        if ($affectsMaterial && is_array($rawMaterials)) {
+            foreach ($rawMaterials as $item) {
+                if (is_array($item) && ! empty($item['material_id'])) {
+                    $filteredMaterials[] = [
+                        'material_id' => (string) $item['material_id'],
+                        'quantity' => (float) ($item['quantity'] ?? 1),
+                        'unit_id' => ! empty($item['unit_id']) ? (string) $item['unit_id'] : null,
+                    ];
+                }
+            }
+        }
+
+        $request->merge([
+            'affects_material' => $affectsMaterial,
+            'materials' => $filteredMaterials,
+            'is_active' => $request->has('is_active') ? filter_var($request->input('is_active'), FILTER_VALIDATE_BOOLEAN) : true,
+        ]);
+
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:150'],
             'price_delta' => ['nullable', 'numeric', 'min:0'],
-            'affects_material' => ['nullable'],
+            'affects_material' => ['required', 'boolean'],
             'sort_order' => ['nullable', 'integer'],
             'is_active' => ['nullable', 'boolean'],
             'materials' => ['nullable', 'array'],
-            'materials.*.material_id' => ['required_with:materials', 'string', 'exists:materials,id'],
-            'materials.*.quantity' => ['required_with:materials', 'numeric', 'min:0.0001'],
+            'materials.*.material_id' => ['required', 'string', 'exists:materials,id'],
+            'materials.*.quantity' => ['required', 'numeric', 'min:0.0001'],
             'materials.*.unit_id' => ['nullable', 'string', 'exists:units,id'],
         ]);
 
-        $validated['affects_material'] = filter_var($request->input('affects_material', false), FILTER_VALIDATE_BOOLEAN);
+        $validated['affects_material'] = $affectsMaterial;
+        $validated['materials'] = $filteredMaterials;
 
         try {
             $this->modifierService->updateOption($option, $validated);
