@@ -7,6 +7,7 @@ namespace App\Domain\Marketplace\Contracts;
 use App\Models\Business;
 use App\Models\MarketplaceAccount;
 use App\Models\MarketplaceProductMapping;
+use App\Models\Product;
 use Illuminate\Http\Request;
 
 interface MarketplaceAdapterInterface
@@ -73,6 +74,14 @@ interface MarketplaceAdapterInterface
     public function pullOrders(MarketplaceAccount $account, array $params = []): array;
 
     /**
+     * Upload / publish a new product listing from COOCA to the marketplace channel.
+     *
+     * @param array<string, mixed> $options
+     * @return array{success: bool, external_product_id: string, external_sku_code?: ?string, message?: ?string, raw_response?: array}
+     */
+    public function publishProduct(MarketplaceAccount $account, Product $product, array $options = []): array;
+
+    /**
      * Verify and parse incoming webhook request from marketplace.
      *
      * @param array<string, mixed> $headers
@@ -80,3 +89,4 @@ interface MarketplaceAdapterInterface
      */
     public function handleWebhook(Request $request, string $rawBody, array $headers): array;
 }
+

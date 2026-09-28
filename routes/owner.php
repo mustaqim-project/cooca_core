@@ -788,6 +788,7 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
 
                 // Product Mappings & Per-Channel Pricing
                 Route::post('/products/map', [MarketplaceWebController::class, 'updateMapping'])->name('products.map');
+                Route::post('/products/{product}/publish', [MarketplaceWebController::class, 'publishProduct'])->name('products.publish');
                 Route::post('/products/{product}/sync-price', [MarketplaceWebController::class, 'syncProductPrice'])->name('products.sync-price');
                 Route::post('/products/{product}/sync-stock', [MarketplaceWebController::class, 'syncProductStock'])->name('products.sync-stock');
                 Route::post('/products/sync-all', [MarketplaceWebController::class, 'syncAll'])->middleware('throttle:10,1')->name('products.sync-all');
@@ -795,6 +796,7 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
                 // Marketplace Orders
                 Route::post('/orders/pull', [MarketplaceWebController::class, 'pullOrders'])->middleware('throttle:10,1')->name('orders.pull');
             });
+
         });
     });
 });

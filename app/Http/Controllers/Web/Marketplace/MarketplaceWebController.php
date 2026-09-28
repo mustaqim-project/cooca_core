@@ -553,4 +553,53 @@ class MarketplaceWebController extends Controller
 
         return back()->with('success', "Berhasil menarik {$totalPulled} pesanan terbaru dari marketplace.");
     }
+
+    /**
+     * 1-Click Publish / Push product listing and gallery images directly to a marketplace channel.
+     */
+    public function publishProduct(Request $request, Product $product): RedirectResponse|JsonResponse
+    {
+        $business = Context::requireBusiness();
+        if ($product->business_id !== $business->id) {
+            abort(404);
+        }
+
+        $validated = $request->validate([
+            'channel'          => ['required', 'string'],
+            'channel_price'    => ['nullable', 'numeric', 'min:0'],
+            'sync_price_auto'  => ['nullable', 'boolean'],
+            'price_multiplier' => ['nullable', 'numeric', 'min:0.1', 'max:5.0'],
+            'custom_stock'     => ['nullable', 'integer', 'min:0'],
+            'sync_stock_auto'  => ['nullable', 'boolean'],
+            'stock_buffer'     => ['nullable', 'integer', 'min:0', 'max:1000'],
+            'allow_below_cost' => ['nullable', 'boolean'],
+        ]);
+
+        $result = $this->syncService->publishProductToChannel($product, $validated['channel'], $validated);
+
+        if (! $result['success']) {
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'error'   => $result['message'] ?? 'Gagal menerbitkan produk ke marketplace.',
+                ], 422);
+            }
+
+            return back()->with('error', $result['message'] ?? 'Gagal menerbitkan produk ke marketplace.');
+        }
+
+        $msg = "Produk \"{$product->name}\" beserta seluruh galeri fotonya berhasil diterbitkan ke {$result['channel_name']} (Item ID: {$result['external_product_id']})!";
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'success'             => true,
+                'message'             => $msg,
+                'mapping'             => $result['mapping'],
+                'external_product_id' => $result['external_product_id'],
+            ]);
+        }
+
+        return back()->with('success', $msg);
+    }
 }
+

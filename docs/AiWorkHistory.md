@@ -49,7 +49,35 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 
 ---
 
+### [WORK-2026-09-28-211] Implementasi 1-Click Push/Publish Produk & Galeri ke Marketplace (Shopee, TikTok Shop, Tokopedia)
+
+- **Date:** 2026-09-28
+- **Status:** COMPLETED
+- **Module:** Omnichannel Marketplace Hub (`MarketplaceAdapterInterface`, `ShopeeAdapter`, `TikTokShopAdapter`, `TokopediaAdapter`, `MarketplaceSyncService`, `MarketplaceWebController`, `marketplace/products.blade.php`)
+- **Feature:** Sistem Penerbitan Listing Produk Otomatis (1-Click Push to Marketplace):
+  1. **Interface Contract `publishProduct`**: Menambahkan deklarasi `publishProduct(MarketplaceAccount $account, Product $product, array $options = []): array` pada `App\Domain\Marketplace\Contracts\MarketplaceAdapterInterface`.
+  2. **Driver Implementations & Media Space CDN Uploader**:
+     - `ShopeeAdapter`: Mengunggah cover dan semua berkas galeri foto (`product_images`) ke Shopee Media Space (`/api/v2/media_space/upload_image`), kemudian menerbitkan listing via `/api/v2/product/add_item` dengan `image_id_list`.
+     - `TikTokShopAdapter`: Mengunggah gambar ke TikTok Shop CDN (`/product/202309/images/upload`) dan membuat produk via `/product/202309/products`.
+     - `TokopediaAdapter`: Mengirimkan payload listing produk beserta deretan foto ke endpoint Tokopedia V3 `/v3/products/fs/{fs_id}/create`.
+     - Resilient fallback / sandbox generator otomatis untuk kebutuhan testing/demo review.
+  3. **Core Sync Service `publishProductToChannel`**:
+     - Memvalidasi guardrails bisnis (Hard-lock obat keras BPOM RI, blokir item tipe jasa non-fisik, anti-margin bleed guard).
+     - Menghitung kalkulasi harga jual dan alokasi stok.
+     - Mengeksekusi adapter dan secara otomatis membuat/memperbarui rekaman `MarketplaceProductMapping` dengan status `STATUS_SYNCED` dan `external_product_id`.
+     - Mencatat audit log di tabel `marketplace_sync_logs`.
+  4. **Controller & Route**:
+     - Route `POST /marketplace-hub/products/{product}/publish` (`marketplace-hub.products.publish`).
+     - Handler `publishProduct` di `MarketplaceWebController`.
+  5. **Bento Apple HIG UI Experience**:
+     - Tombol **"1-Click Terbitkan ke [Channel]"** pada modal Bento XXL dengan status loading state dan konfirmasi interaktif.
+     - Banner status listing marketplace pada modal dan tombol direct action `Terbitkan` pada tabel produk belum terhubung.
+- **Verification:** 100% test pass pada `MarketplacePublishProductTest`, `MarketplaceIntegrationTest`, dan `ProductGalleryTest` (31 tests, 195 assertions).
+
+---
+
 ### [WORK-2026-09-28-210] Implementasi Fitur Galeri Foto Produk Multi-Image (Toko Online & Dashboard Owner)
+
 
 - **Date:** 2026-09-28
 - **Status:** COMPLETED

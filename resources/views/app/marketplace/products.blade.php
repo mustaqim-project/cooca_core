@@ -9,14 +9,18 @@
     mappingModal: false,
     syncModal: false,
     submitting: false,
+    publishing: false,
     selectedProduct: null,
+    pricingMode: 'nominal', // 'nominal' (Harga Langsung Rp) or 'percentage' (Markup %)
+    markupPercent: 0,
+    stockMode: 'auto', // 'auto' (Gudang) or 'manual' (Kuota Khusus)
     form: {
         product_id: '',
         channel: 'shopee',
         marketplace_item_id: '',
         marketplace_sku: '',
         channel_price: '',
-        sync_price_auto: true,
+        sync_price_auto: false,
         price_multiplier: 1.0,
         sync_stock_auto: true,
         stock_buffer: 0,
@@ -30,6 +34,7 @@
         this.form.allow_below_cost = false;
         this.switchChannel(channel || 'shopee');
         this.submitting = false;
+        this.publishing = false;
         this.mappingModal = true;
     },
     switchChannel(channel) {
@@ -38,12 +43,15 @@
         if (!this.selectedProduct) return;
         const existing = (this.selectedProduct.marketplace_mappings || []).find(m => m.channel === channel);
         if (existing) {
-            this.form.marketplace_item_id = existing.marketplace_item_id || '';
-            this.form.marketplace_sku = existing.marketplace_sku || '';
+            this.form.marketplace_item_id = existing.marketplace_item_id || existing.external_product_id || '';
+            this.form.marketplace_sku = existing.marketplace_sku || existing.external_sku_code || '';
             this.form.channel_price = existing.channel_price || '';
             this.form.sync_price_auto = Boolean(existing.sync_price_auto);
             this.form.price_multiplier = existing.price_multiplier || 1.0;
+            this.pricingMode = this.form.sync_price_auto ? 'percentage' : 'nominal';
+            this.markupPercent = Math.round(((parseFloat(this.form.price_multiplier) || 1.0) - 1.0) * 100);
             this.form.sync_stock_auto = Boolean(existing.sync_stock_auto);
+            this.stockMode = this.form.sync_stock_auto ? 'auto' : 'manual';
             this.form.stock_buffer = existing.stock_buffer || 0;
             this.form.custom_stock = existing.custom_stock !== null ? existing.custom_stock : '';
             this.form.is_active = Boolean(existing.is_active);
@@ -51,17 +59,129 @@
             this.form.marketplace_item_id = '';
             this.form.marketplace_sku = this.selectedProduct.code || '';
             this.form.channel_price = this.selectedProduct.selling_price || '';
-            this.form.sync_price_auto = true;
+            this.form.sync_price_auto = false;
             this.form.price_multiplier = 1.0;
+            this.pricingMode = 'nominal';
+            this.markupPercent = 0;
             this.form.sync_stock_auto = true;
+            this.stockMode = 'auto';
             this.form.stock_buffer = 0;
             this.form.custom_stock = '';
             this.form.is_active = true;
         }
     },
+    setPricingMode(mode) {
+        this.pricingMode = mode;
+        if (mode === 'percentage') {
+            this.form.sync_price_auto = true;
+            this.updateMultiplierFromPercent();
+        } else {
+            this.form.sync_price_auto = false;
+            if (!this.form.channel_price || Number(this.form.channel_price) === 0) {
+                this.form.channel_price = this.computedEffectivePrice || this.selectedProduct?.selling_price || 0;
+            }
+        }
+    },
+    updateMultiplierFromPercent() {
+        const p = parseFloat(this.markupPercent) || 0;
+        this.form.price_multiplier = Math.round((1 + (p / 100)) * 1000) / 1000;
+    },
+    setMarkupPercent(p) {
+        this.markupPercent = p;
+        this.setPricingMode('percentage');
+        this.updateMultiplierFromPercent();
+    },
+    setNominalPrice(price) {
+        this.form.channel_price = Math.max(0, Math.round(price));
+        this.setPricingMode('nominal');
+    },
+    setStockMode(mode) {
+        this.stockMode = mode;
+        this.form.sync_stock_auto = (mode === 'auto');
+    },
+    async publishToMarketplace() {
+        if (!this.selectedProduct) return;
+        if (this.isBelowCost && !this.form.allow_below_cost) {
+            if (window.AppAlert) {
+                AppAlert.toast('Buka kunci persetujuan risiko harga di bawah modal dasar (HPP) untuk melanjutkan.', 'warning');
+            }
+            return;
+        }
+
+        const channelName = this.form.channel === 'tiktok_shop' ? 'TikTok Shop' : (this.form.channel === 'tokopedia' ? 'Tokopedia' : 'Shopee');
+        
+        if (window.AppAlert && typeof window.AppAlert['confirm'] === 'function') {
+            const confirmed = await window.AppAlert['confirm'](
+                `1-Click Terbitkan ke ${channelName}?`,
+                `Produk "${this.selectedProduct.name}" beserta foto utama dan seluruh galeri fotonya akan langsung diunggah dan dibuatkan listing baru di ${channelName}.`
+            );
+            if (!confirmed) return;
+        }
+
+        this.publishing = true;
+        try {
+            const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+            const url = `/marketplace-hub/products/${this.selectedProduct.id}/publish`;
+            
+            const res = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': token || ''
+                },
+                body: JSON.stringify({
+                    channel: this.form.channel,
+                    channel_price: this.form.channel_price,
+                    sync_price_auto: this.form.sync_price_auto,
+                    price_multiplier: this.form.price_multiplier,
+                    custom_stock: this.form.custom_stock,
+                    sync_stock_auto: this.form.sync_stock_auto,
+                    stock_buffer: this.form.stock_buffer,
+                    allow_below_cost: this.form.allow_below_cost
+                })
+            });
+
+            const data = await res.json();
+            if (!res.ok || !data.success) {
+                throw new Error(data.error || data.message || 'Gagal menerbitkan produk ke marketplace.');
+            }
+
+            this.form.marketplace_item_id = data.external_product_id || this.form.marketplace_item_id;
+            
+            if (window.AppAlert) {
+                AppAlert.toast(data.message || `Berhasil menerbitkan listing ke ${channelName}!`, 'success');
+            }
+
+            setTimeout(() => {
+                window.location.reload();
+            }, 1200);
+        } catch (err) {
+            if (window.AppAlert) {
+                AppAlert.toast(err.message, 'error');
+            } else {
+                alert(err.message);
+            }
+        } finally {
+            this.publishing = false;
+        }
+    },
+    get nominalDiffVsStore() {
+        if (!this.selectedProduct) return { amount: 0, rawDiff: 0, percent: 0, isHigher: true };
+        const storePrice = Number(this.selectedProduct.selling_price || 0);
+        const channelPrice = Number(this.form.channel_price || 0);
+        const diff = channelPrice - storePrice;
+        const percent = storePrice > 0 ? Math.round((diff / storePrice) * 100) : 0;
+        return {
+            amount: Math.abs(diff),
+            rawDiff: diff,
+            percent: Math.abs(percent),
+            isHigher: diff >= 0
+        };
+    },
     get computedEffectivePrice() {
         if (!this.selectedProduct) return 0;
-        if (this.form.sync_price_auto) {
+        if (this.pricingMode === 'percentage' || this.form.sync_price_auto) {
             const mult = parseFloat(this.form.price_multiplier) || 1.0;
             return Math.round(Number(this.selectedProduct.selling_price || 0) * mult);
         }
@@ -324,9 +444,9 @@
                                     </button>
                                 @else
                                     <button type="button" @click="openMapping(@js($product), 'shopee')"
-                                        class="h-7 px-2.5 rounded-[8px] text-[11px] font-semibold text-black/60 dark:text-white/60 bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] inline-flex items-center gap-1 cursor-pointer">
-                                        <i data-lucide="plus" class="w-3 h-3"></i>
-                                        <span>Petakan</span>
+                                        class="h-7 px-2.5 rounded-[8px] text-[11px] font-semibold text-[#EE4D2D] bg-[#EE4D2D]/10 hover:bg-[#EE4D2D]/20 inline-flex items-center gap-1 cursor-pointer transition-colors" title="1-Click Terbitkan ke Shopee atau Petakan">
+                                        <i data-lucide="cloud-upload" class="w-3 h-3"></i>
+                                        <span>Terbitkan</span>
                                     </button>
                                 @endif
                             </td>
@@ -356,9 +476,9 @@
                                     </button>
                                 @else
                                     <button type="button" @click="openMapping(@js($product), 'tiktok_shop')"
-                                        class="h-7 px-2.5 rounded-[8px] text-[11px] font-semibold text-black/60 dark:text-white/60 bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] inline-flex items-center gap-1 cursor-pointer">
-                                        <i data-lucide="plus" class="w-3 h-3"></i>
-                                        <span>Petakan</span>
+                                        class="h-7 px-2.5 rounded-[8px] text-[11px] font-semibold text-black dark:text-white bg-black/[0.06] dark:bg-white/[0.1] hover:bg-black/[0.1] inline-flex items-center gap-1 cursor-pointer transition-colors" title="1-Click Terbitkan ke TikTok Shop atau Petakan">
+                                        <i data-lucide="cloud-upload" class="w-3 h-3"></i>
+                                        <span>Terbitkan</span>
                                     </button>
                                 @endif
                             </td>
@@ -388,12 +508,13 @@
                                     </button>
                                 @else
                                     <button type="button" @click="openMapping(@js($product), 'tokopedia')"
-                                        class="h-7 px-2.5 rounded-[8px] text-[11px] font-semibold text-black/60 dark:text-white/60 bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] inline-flex items-center gap-1 cursor-pointer">
-                                        <i data-lucide="plus" class="w-3 h-3"></i>
-                                        <span>Petakan</span>
+                                        class="h-7 px-2.5 rounded-[8px] text-[11px] font-semibold text-[#00AA5B] bg-[#00AA5B]/10 hover:bg-[#00AA5B]/20 inline-flex items-center gap-1 cursor-pointer transition-colors" title="1-Click Terbitkan ke Tokopedia atau Petakan">
+                                        <i data-lucide="cloud-upload" class="w-3 h-3"></i>
+                                        <span>Terbitkan</span>
                                     </button>
                                 @endif
                             </td>
+
 
                             <!-- Column 6: Sync Actions -->
                             <td class="py-4 px-4 sm:px-6 text-right">
@@ -523,132 +644,244 @@
                             </div>
                         </div>
 
-                        <!-- 2. External Item ID / SKU in Marketplace -->
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                            <div>
-                                <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">
-                                    Marketplace Item ID (Opsional)
-                                </label>
-                                <input type="text" name="marketplace_item_id" x-model="form.marketplace_item_id"
-                                    placeholder="Contoh: 1982739281"
-                                    class="w-full h-10 px-3.5 rounded-[12px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.08] dark:border-white/[0.1] text-[13px] text-black dark:text-white font-mono placeholder:text-black/30 dark:placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/30">
+                        <!-- 2. Marketplace Listing Status & Item ID/SKU -->
+                        <div class="space-y-3">
+                            <div class="p-3.5 rounded-[16px] border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5 text-[12.5px]"
+                                :class="form.marketplace_item_id ? 'bg-[#34C759]/10 border-[#34C759]/20 text-[#248A3D] dark:text-[#30D158]' : 'bg-[#007AFF]/10 border-[#007AFF]/20 text-[#007AFF]'">
+                                <div class="flex items-center gap-2.5">
+                                    <i :data-lucide="form.marketplace_item_id ? 'check-circle-2' : 'sparkles'" class="w-4 h-4 shrink-0"></i>
+                                    <div>
+                                        <template x-if="form.marketplace_item_id">
+                                            <span>Terhubung di channel: <strong class="font-mono" x-text="form.marketplace_item_id"></strong></span>
+                                        </template>
+                                        <template x-if="!form.marketplace_item_id">
+                                            <span>Belum terdaftar di channel ini. Klik <strong>"1-Click Terbitkan"</strong> di bawah untuk otomatis upload galeri &amp; terbitkan listing baru.</span>
+                                        </template>
+                                    </div>
+                                </div>
+                                <div x-show="selectedProduct" class="shrink-0 text-[11px] font-semibold opacity-90 px-2.5 py-0.5 rounded-full bg-white/60 dark:bg-black/20 border border-current/20">
+                                    <span x-text="((selectedProduct?.images ? selectedProduct.images.length : 0) + (selectedProduct?.image ? 1 : 0)) + ' Foto Siap Terbit'"></span>
+                                </div>
                             </div>
-                            <div>
-                                <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">
-                                    Marketplace SKU
-                                </label>
-                                <input type="text" name="marketplace_sku" x-model="form.marketplace_sku"
-                                    placeholder="Contoh: SKU-SHP-001"
-                                    class="w-full h-10 px-3.5 rounded-[12px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.08] dark:border-white/[0.1] text-[13px] text-black dark:text-white font-mono placeholder:text-black/30 dark:placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/30">
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                                <div>
+                                    <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">
+                                        Marketplace Item ID (Manual)
+                                    </label>
+                                    <input type="text" name="marketplace_item_id" x-model="form.marketplace_item_id"
+                                        placeholder="Contoh: 1982739281"
+                                        class="w-full h-10 px-3.5 rounded-[12px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.08] dark:border-white/[0.1] text-[13px] text-black dark:text-white font-mono placeholder:text-black/30 dark:placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/30">
+                                </div>
+                                <div>
+                                    <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">
+                                        Marketplace SKU
+                                    </label>
+                                    <input type="text" name="marketplace_sku" x-model="form.marketplace_sku"
+                                        placeholder="Contoh: SKU-SHP-001"
+                                        class="w-full h-10 px-3.5 rounded-[12px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.08] dark:border-white/[0.1] text-[13px] text-black dark:text-white font-mono placeholder:text-black/30 dark:placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/30">
+                                </div>
                             </div>
                         </div>
 
+
                         <!-- 3. Pricing Bento Card -->
-                        <div class="p-4 sm:p-5 rounded-[20px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.08] space-y-3.5">
+                        <div class="p-4 sm:p-5 rounded-[20px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.08] space-y-4">
                             <div class="flex items-center justify-between">
                                 <div>
                                     <span class="text-[13.5px] font-bold text-black dark:text-white">Skema Penetapan Harga Saluran</span>
-                                    <p class="text-[11.5px] text-black/50 dark:text-white/50">Otomatis ikuti persentase pengali dari harga COOCA atau atur manual tetap</p>
+                                    <p class="text-[11.5px] text-black/50 dark:text-white/50">Tentukan harga berdasarkan nominal Rupiah langsung atau persentase markup</p>
                                 </div>
-                                <div class="flex items-center gap-2">
-                                    <span class="text-[11.5px] font-bold px-2 py-0.5 rounded-full" :class="form.sync_price_auto ? 'bg-[#007AFF]/10 text-[#007AFF]' : 'bg-black/10 text-black/60 dark:text-white/60'">
-                                        <span x-text="form.sync_price_auto ? 'Otomatis Multiplier' : 'Manual Khusus'"></span>
-                                    </span>
-                                    <button type="button" @click="form.sync_price_auto = !form.sync_price_auto"
-                                        class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none"
-                                        :class="form.sync_price_auto ? 'bg-[#007AFF]' : 'bg-black/20 dark:bg-white/20'">
-                                        <span class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
-                                            :class="form.sync_price_auto ? 'translate-x-5' : 'translate-x-0'"></span>
+                                <span class="text-[11px] font-bold px-2.5 py-1 rounded-full" 
+                                    :class="pricingMode === 'nominal' ? 'bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158]' : 'bg-[#007AFF]/10 text-[#007AFF]'">
+                                    <span x-text="pricingMode === 'nominal' ? 'Harga Tetap Rp' : 'Persentase %'"></span>
+                                </span>
+                            </div>
+
+                            <!-- Segmented Control Tabs (Harga Langsung vs Persentase Markup) -->
+                            <div class="grid grid-cols-2 gap-1.5 p-1 rounded-[14px] bg-black/[0.04] dark:bg-white/[0.06]">
+                                <button type="button" @click="setPricingMode('nominal')"
+                                    :class="pricingMode === 'nominal' ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-sm font-bold' : 'text-black/60 dark:text-white/60 font-medium hover:text-black dark:hover:text-white'"
+                                    class="py-2.5 text-[12.5px] rounded-[10px] transition-all flex items-center justify-center gap-2 cursor-pointer">
+                                    <i data-lucide="tag" class="w-4 h-4 text-[#34C759]"></i>
+                                    <span>Harga Langsung (Rp)</span>
+                                </button>
+                                <button type="button" @click="setPricingMode('percentage')"
+                                    :class="pricingMode === 'percentage' ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-sm font-bold' : 'text-black/60 dark:text-white/60 font-medium hover:text-black dark:hover:text-white'"
+                                    class="py-2.5 text-[12.5px] rounded-[10px] transition-all flex items-center justify-center gap-2 cursor-pointer">
+                                    <i data-lucide="percent" class="w-4 h-4 text-[#007AFF]"></i>
+                                    <span>Persentase Markup (%)</span>
+                                </button>
+                            </div>
+
+                            <!-- MODE 1: HARGA LANGSUNG / NOMINAL RP -->
+                            <div x-show="pricingMode === 'nominal'" class="space-y-3 pt-1">
+                                <div>
+                                    <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">
+                                        Masukkan Harga Jual di Marketplace (Rp)
+                                    </label>
+                                    <div class="relative">
+                                        <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-black/40 dark:text-white/40 font-bold text-[13px]">Rp</span>
+                                        <input type="number" step="100" min="0" name="channel_price" x-model="form.channel_price"
+                                            placeholder="Contoh: 150000"
+                                            class="w-full h-11 pl-10 pr-3.5 rounded-[12px] bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] text-[14px] text-black dark:text-white font-mono font-bold focus:outline-none focus:ring-2 focus:ring-[#34C759]/40">
+                                    </div>
+                                    
+                                    <!-- Live comparison info with COOCA Store Price -->
+                                    <div class="mt-2 text-[12px] flex items-center gap-1.5" x-show="form.channel_price && selectedProduct">
+                                        <template x-if="nominalDiffVsStore.rawDiff > 0">
+                                            <span class="text-[#34C759] font-medium flex items-center gap-1">
+                                                <i data-lucide="trending-up" class="w-3.5 h-3.5"></i>
+                                                <span>+<strong x-text="formatRupiah(nominalDiffVsStore.amount)"></strong> (+<span x-text="nominalDiffVsStore.percent"></span>%) dibanding harga toko COOCA (<span x-text="formatRupiah(selectedProduct.selling_price)"></span>)</span>
+                                            </span>
+                                        </template>
+                                        <template x-if="nominalDiffVsStore.rawDiff < 0">
+                                            <span class="text-[#FF9500] font-medium flex items-center gap-1">
+                                                <i data-lucide="trending-down" class="w-3.5 h-3.5"></i>
+                                                <span>-<strong x-text="formatRupiah(nominalDiffVsStore.amount)"></strong> (-<span x-text="nominalDiffVsStore.percent"></span>%) dibanding harga toko COOCA (<span x-text="formatRupiah(selectedProduct.selling_price)"></span>)</span>
+                                            </span>
+                                        </template>
+                                        <template x-if="nominalDiffVsStore.rawDiff === 0">
+                                            <span class="text-black/50 dark:text-white/50 font-medium">
+                                                Sama persis dengan harga toko COOCA (<span x-text="formatRupiah(selectedProduct?.selling_price || 0)"></span>)
+                                            </span>
+                                        </template>
+                                    </div>
+                                </div>
+
+                                <!-- Quick nominal presets -->
+                                <div class="flex flex-wrap items-center gap-1.5 pt-0.5" x-show="selectedProduct">
+                                    <span class="text-[11px] text-black/45 dark:text-white/45">Preset Cepat:</span>
+                                    <button type="button" @click="setNominalPrice(Number(selectedProduct.selling_price || 0))"
+                                        class="px-2.5 py-1 rounded-[8px] text-[11px] font-semibold bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 hover:border-[#34C759] transition-colors cursor-pointer">
+                                        Sama Harga Toko
+                                    </button>
+                                    <button type="button" @click="setNominalPrice(Number(selectedProduct.selling_price || 0) + 5000)"
+                                        class="px-2.5 py-1 rounded-[8px] text-[11px] font-semibold bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 hover:border-[#34C759] transition-colors cursor-pointer">
+                                        +Rp 5.000
+                                    </button>
+                                    <button type="button" @click="setNominalPrice(Number(selectedProduct.selling_price || 0) + 10000)"
+                                        class="px-2.5 py-1 rounded-[8px] text-[11px] font-semibold bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 hover:border-[#34C759] transition-colors cursor-pointer">
+                                        +Rp 10.000
+                                    </button>
+                                    <button type="button" @click="setNominalPrice(Number(selectedProduct.selling_price || 0) + 20000)"
+                                        class="px-2.5 py-1 rounded-[8px] text-[11px] font-semibold bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 hover:border-[#34C759] transition-colors cursor-pointer">
+                                        +Rp 20.000
                                     </button>
                                 </div>
                             </div>
 
-                            <!-- If Auto: Multiplier with Quick Presets -->
-                            <div x-show="form.sync_price_auto" class="pt-1 space-y-3">
-                                <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70">
-                                    Faktor Pengali Harga (Price Multiplier)
-                                </label>
-                                <div class="flex items-center gap-3">
-                                    <input type="number" step="0.01" min="0.5" max="3.0" name="price_multiplier" x-model="form.price_multiplier"
-                                        class="w-32 h-10 px-3.5 rounded-[12px] bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] text-[13px] text-black dark:text-white font-mono font-bold">
-                                    <span class="text-[12.5px] text-black/60 dark:text-white/60">
-                                        = <strong class="text-black dark:text-white" x-text="formatRupiah(computedEffectivePrice)"></strong> di channel
-                                    </span>
+                            <!-- MODE 2: PERSENTASE MARKUP (%) -->
+                            <div x-show="pricingMode === 'percentage'" class="space-y-3 pt-1">
+                                <div>
+                                    <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">
+                                        Persentase Markup dari Harga Toko COOCA
+                                    </label>
+                                    <div class="flex items-center gap-3">
+                                        <div class="relative w-36">
+                                            <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-black/40 dark:text-white/40 font-bold text-[13px]">+</span>
+                                            <input type="number" step="0.5" min="-50" max="200" x-model="markupPercent" @input="updateMultiplierFromPercent()"
+                                                placeholder="Contoh: 10"
+                                                class="w-full h-11 pl-8 pr-7 rounded-[12px] bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] text-[14px] text-black dark:text-white font-mono font-bold focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40">
+                                            <span class="absolute right-3.5 top-1/2 -translate-y-1/2 text-black/40 dark:text-white/40 font-bold text-[13px]">%</span>
+                                        </div>
+                                        <input type="hidden" name="price_multiplier" :value="form.price_multiplier">
+                                        <div class="text-[13px] text-black/70 dark:text-white/70">
+                                            = <strong class="text-black dark:text-white font-mono text-[14px]" x-text="formatRupiah(computedEffectivePrice)"></strong> di channel
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="flex flex-wrap items-center gap-2 pt-0.5">
-                                    <span class="text-[11px] text-black/45 dark:text-white/45">Preset Cepat:</span>
-                                    <button type="button" @click="form.price_multiplier = 1.0"
-                                        class="px-2.5 py-1 rounded-[8px] text-[11px] font-semibold bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 hover:border-[#007AFF] transition-colors cursor-pointer">
+
+                                <!-- Quick percentage presets -->
+                                <div class="flex flex-wrap items-center gap-1.5 pt-0.5">
+                                    <span class="text-[11px] text-black/45 dark:text-white/45">Preset Persen:</span>
+                                    <button type="button" @click="setMarkupPercent(0)"
+                                        class="px-2.5 py-1 rounded-[8px] text-[11px] font-semibold bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 hover:border-[#007AFF] transition-colors cursor-pointer"
+                                        :class="markupPercent == 0 ? 'border-[#007AFF] text-[#007AFF]' : ''">
                                         Sama (+0%)
                                     </button>
-                                    <button type="button" @click="form.price_multiplier = 1.05"
-                                        class="px-2.5 py-1 rounded-[8px] text-[11px] font-semibold bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 hover:border-[#007AFF] transition-colors cursor-pointer">
+                                    <button type="button" @click="setMarkupPercent(5)"
+                                        class="px-2.5 py-1 rounded-[8px] text-[11px] font-semibold bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 hover:border-[#007AFF] transition-colors cursor-pointer"
+                                        :class="markupPercent == 5 ? 'border-[#007AFF] text-[#007AFF]' : ''">
                                         +5%
                                     </button>
-                                    <button type="button" @click="form.price_multiplier = 1.08"
-                                        class="px-2.5 py-1 rounded-[8px] text-[11px] font-semibold bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 hover:border-[#007AFF] transition-colors cursor-pointer">
-                                        +8% (Rekomendasi)
+                                    <button type="button" @click="setMarkupPercent(8)"
+                                        class="px-2.5 py-1 rounded-[8px] text-[11px] font-semibold bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 hover:border-[#007AFF] transition-colors cursor-pointer"
+                                        :class="markupPercent == 8 ? 'border-[#007AFF] text-[#007AFF] ring-1 ring-[#007AFF]' : ''">
+                                        +8% (Rekomendasi Fee)
                                     </button>
-                                    <button type="button" @click="form.price_multiplier = 1.10"
-                                        class="px-2.5 py-1 rounded-[8px] text-[11px] font-semibold bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 hover:border-[#007AFF] transition-colors cursor-pointer">
+                                    <button type="button" @click="setMarkupPercent(10)"
+                                        class="px-2.5 py-1 rounded-[8px] text-[11px] font-semibold bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 hover:border-[#007AFF] transition-colors cursor-pointer"
+                                        :class="markupPercent == 10 ? 'border-[#007AFF] text-[#007AFF]' : ''">
                                         +10%
                                     </button>
+                                    <button type="button" @click="setMarkupPercent(15)"
+                                        class="px-2.5 py-1 rounded-[8px] text-[11px] font-semibold bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 hover:border-[#007AFF] transition-colors cursor-pointer"
+                                        :class="markupPercent == 15 ? 'border-[#007AFF] text-[#007AFF]' : ''">
+                                        +15%
+                                    </button>
+                                    <button type="button" @click="setMarkupPercent(20)"
+                                        class="px-2.5 py-1 rounded-[8px] text-[11px] font-semibold bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 hover:border-[#007AFF] transition-colors cursor-pointer"
+                                        :class="markupPercent == 20 ? 'border-[#007AFF] text-[#007AFF]' : ''">
+                                        +20%
+                                    </button>
                                 </div>
-                            </div>
-
-                            <!-- If Manual: Custom Price -->
-                            <div x-show="!form.sync_price_auto" class="pt-1">
-                                <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">
-                                    Harga Tetap Saluran (Rp)
-                                </label>
-                                <input type="number" step="100" min="0" name="channel_price" x-model="form.channel_price"
-                                    placeholder="Contoh: 125000"
-                                    class="w-full h-10 px-3.5 rounded-[12px] bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] text-[13px] text-black dark:text-white font-mono font-bold focus:outline-none focus:ring-2 focus:ring-[#007AFF]/30">
                             </div>
                         </div>
 
                         <!-- 4. Stock Bento Card -->
-                        <div class="p-4 sm:p-5 rounded-[20px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.08] space-y-3.5">
+                        <div class="p-4 sm:p-5 rounded-[20px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.08] space-y-4">
                             <div class="flex items-center justify-between">
                                 <div>
                                     <span class="text-[13.5px] font-bold text-black dark:text-white">Skema Alokasi Stok Saluran</span>
-                                    <p class="text-[11.5px] text-black/50 dark:text-white/50">Sinkronisasi stok fisik gudang otomatis atau alokasi kuota khusus</p>
+                                    <p class="text-[11.5px] text-black/50 dark:text-white/50">Sinkronisasi otomatis stok fisik gudang atau tetapkan kuota stok mandiri</p>
                                 </div>
-                                <div class="flex items-center gap-2">
-                                    <span class="text-[11.5px] font-bold px-2 py-0.5 rounded-full" :class="form.sync_stock_auto ? 'bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158]' : 'bg-black/10 text-black/60 dark:text-white/60'">
-                                        <span x-text="form.sync_stock_auto ? 'Otomatis Gudang' : 'Manual Kuota'"></span>
-                                    </span>
-                                    <button type="button" @click="form.sync_stock_auto = !form.sync_stock_auto"
-                                        class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none"
-                                        :class="form.sync_stock_auto ? 'bg-[#34C759]' : 'bg-black/20 dark:bg-white/20'">
-                                        <span class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
-                                            :class="form.sync_stock_auto ? 'translate-x-5' : 'translate-x-0'"></span>
-                                    </button>
-                                </div>
+                                <span class="text-[11px] font-bold px-2.5 py-1 rounded-full" :class="stockMode === 'auto' ? 'bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158]' : 'bg-black/10 text-black/60 dark:text-white/60'">
+                                    <span x-text="stockMode === 'auto' ? 'Otomatis Gudang' : 'Manual Kuota'"></span>
+                                </span>
+                            </div>
+
+                            <!-- Segmented Control Tabs (Stok Otomatis vs Kuota Manual) -->
+                            <div class="grid grid-cols-2 gap-1.5 p-1 rounded-[14px] bg-black/[0.04] dark:bg-white/[0.06]">
+                                <button type="button" @click="setStockMode('auto')"
+                                    :class="stockMode === 'auto' ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-sm font-bold' : 'text-black/60 dark:text-white/60 font-medium hover:text-black dark:hover:text-white'"
+                                    class="py-2.5 text-[12.5px] rounded-[10px] transition-all flex items-center justify-center gap-2 cursor-pointer">
+                                    <i data-lucide="refresh-cw" class="w-4 h-4 text-[#34C759]"></i>
+                                    <span>Sinkron Stok Gudang (Auto)</span>
+                                </button>
+                                <button type="button" @click="setStockMode('manual')"
+                                    :class="stockMode === 'manual' ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-sm font-bold' : 'text-black/60 dark:text-white/60 font-medium hover:text-black dark:hover:text-white'"
+                                    class="py-2.5 text-[12.5px] rounded-[10px] transition-all flex items-center justify-center gap-2 cursor-pointer">
+                                    <i data-lucide="layers" class="w-4 h-4 text-[#007AFF]"></i>
+                                    <span>Kuota Stok Khusus (Manual)</span>
+                                </button>
                             </div>
 
                             <!-- If Auto: Stock Buffer -->
-                            <div x-show="form.sync_stock_auto" class="pt-1">
-                                <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">
-                                    Stok Pengaman Toko Fisik (Safety Buffer)
+                            <div x-show="stockMode === 'auto'" class="space-y-2 pt-1">
+                                <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70">
+                                    Stok Pengaman Toko Fisik / Kasir Offline (Safety Buffer)
                                 </label>
                                 <div class="flex items-center gap-3">
                                     <input type="number" min="0" name="stock_buffer" x-model="form.stock_buffer"
-                                        class="w-32 h-10 px-3.5 rounded-[12px] bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] text-[13px] text-black dark:text-white font-mono font-bold">
-                                    <div class="text-[12px] text-black/60 dark:text-white/60">
-                                        Unit yang selalu dicadangkan untuk kasir toko offline (tidak dipublish ke marketplace)
+                                        class="w-32 h-11 px-3.5 rounded-[12px] bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] text-[14px] text-black dark:text-white font-mono font-bold">
+                                    <div class="text-[12px] text-black/60 dark:text-white/60 leading-relaxed">
+                                        Unit yang selalu dicadangkan untuk kasir toko offline (tidak akan dikirim ke marketplace).
                                     </div>
                                 </div>
                             </div>
 
                             <!-- If Manual: Custom Stock -->
-                            <div x-show="!form.sync_stock_auto" class="pt-1">
-                                <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">
-                                    Alokasi Kuota Stok Manual
+                            <div x-show="stockMode === 'manual'" class="space-y-2 pt-1">
+                                <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70">
+                                    Alokasi Kuota Stok Manual di Marketplace
                                 </label>
-                                <input type="number" min="0" name="custom_stock" x-model="form.custom_stock"
-                                    placeholder="Contoh: 50"
-                                    class="w-full h-10 px-3.5 rounded-[12px] bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] text-[13px] text-black dark:text-white font-mono font-bold focus:outline-none focus:ring-2 focus:ring-[#007AFF]/30">
+                                <div class="relative">
+                                    <input type="number" min="0" name="custom_stock" x-model="form.custom_stock"
+                                        placeholder="Contoh: 50"
+                                        class="w-full h-11 px-3.5 rounded-[12px] bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] text-[14px] text-black dark:text-white font-mono font-bold focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40">
+                                </div>
+                                <p class="text-[11.5px] text-black/50 dark:text-white/50">Hanya angka ini yang akan dikirim ke marketplace, terlepas dari total stok aktual di gudang.</p>
                             </div>
                         </div>
 
@@ -768,20 +1001,41 @@
                 </div>
 
                 <!-- Modal Actions -->
-                <div class="flex items-center justify-end gap-3 pt-4 border-t border-black/[0.06] dark:border-white/[0.08]">
-                    <button type="button" @click="mappingModal = false" :disabled="submitting"
-                        class="h-11 px-5 rounded-[14px] text-[13px] font-semibold text-black/70 dark:text-white/70 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] transition-all cursor-pointer">
-                        Batal
-                    </button>
-                    <button type="submit" :disabled="submitting || (isBelowCost && !form.allow_below_cost)"
-                        class="h-11 px-6 rounded-[14px] text-[13.5px] font-bold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer">
-                        <svg x-show="submitting" class="animate-spin w-4 h-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        <span x-text="submitting ? 'Menyimpan Pengaturan...' : (isBelowCost && !form.allow_below_cost ? 'Buka Kunci Risiko untuk Simpan' : 'Simpan Pengaturan Saluran')"></span>
-                    </button>
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-4 border-t border-black/[0.06] dark:border-white/[0.08]">
+                    <div class="text-[12px] text-black/50 dark:text-white/50">
+                        <span x-show="form.marketplace_item_id">Item ID terhubung: <strong class="font-mono text-black dark:text-white" x-text="form.marketplace_item_id"></strong></span>
+                        <span x-show="!form.marketplace_item_id" class="inline-flex items-center gap-1 text-[#FF9500] font-semibold">
+                            <i data-lucide="info" class="w-3.5 h-3.5"></i>
+                            <span>Listing belum diterbitkan ke marketplace</span>
+                        </span>
+                    </div>
+                    <div class="flex items-center justify-end gap-2.5 flex-wrap">
+                        <button type="button" @click="mappingModal = false" :disabled="submitting || publishing"
+                            class="h-11 px-4 rounded-[14px] text-[13px] font-semibold text-black/70 dark:text-white/70 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] transition-all cursor-pointer">
+                            Batal
+                        </button>
+                        <button type="button" @click="publishToMarketplace()" :disabled="publishing || submitting || (isBelowCost && !form.allow_below_cost)"
+                            class="h-11 px-5 rounded-[14px] text-[13px] font-bold text-white bg-[#34C759] hover:bg-[#28A745] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer"
+                            title="Upload listing baru dan seluruh foto galeri langsung ke marketplace">
+                            <svg x-show="publishing" class="animate-spin w-4 h-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <i x-show="!publishing" data-lucide="cloud-upload" class="w-4 h-4"></i>
+                            <span x-text="publishing ? 'Menerbitkan Listing...' : '1-Click Terbitkan ke ' + (form.channel === 'tiktok_shop' ? 'TikTok Shop' : (form.channel === 'tokopedia' ? 'Tokopedia' : 'Shopee'))"></span>
+                        </button>
+                        <button type="submit" :disabled="submitting || publishing || (isBelowCost && !form.allow_below_cost)"
+                            class="h-11 px-5 rounded-[14px] text-[13px] font-bold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer">
+                            <svg x-show="submitting" class="animate-spin w-4 h-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <span x-text="submitting ? 'Menyimpan Pengaturan...' : (isBelowCost && !form.allow_below_cost ? 'Buka Kunci Risiko untuk Simpan' : 'Simpan Pengaturan Saluran')"></span>
+                        </button>
+
+                    </div>
                 </div>
+
             </form>
         </div>
     </div>
