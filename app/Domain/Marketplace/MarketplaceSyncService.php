@@ -22,7 +22,7 @@ class MarketplaceSyncService
     public function syncProductPrice(MarketplaceProductMapping $mapping): bool
     {
         $account = $mapping->account;
-        if (! $account || ! $account->isConnected()) {
+        if (! $account || ! $account->isConnected() || ! ($account->is_active ?? true)) {
             return false;
         }
 
@@ -115,7 +115,7 @@ class MarketplaceSyncService
         $account = $mapping->account;
         $product = $mapping->product;
 
-        if (! $account || ! $account->isConnected() || ! $product) {
+        if (! $account || ! $account->isConnected() || ! ($account->is_active ?? true) || ! $product) {
             return false;
         }
 
@@ -194,6 +194,14 @@ class MarketplaceSyncService
      */
     public function syncAllForAccount(MarketplaceAccount $account): array
     {
+        if (! $account->isConnected() || ! ($account->is_active ?? true)) {
+            return [
+                'total'   => 0,
+                'success' => 0,
+                'failed'  => 0,
+            ];
+        }
+
         $mappings = MarketplaceProductMapping::where('marketplace_account_id', $account->id)->get();
         $successCount = 0;
         $failCount    = 0;

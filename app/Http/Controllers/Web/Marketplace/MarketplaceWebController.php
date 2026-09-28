@@ -244,9 +244,18 @@ class MarketplaceWebController extends Controller
     public function disconnect(string $channel): RedirectResponse
     {
         $business = Context::requireBusiness();
+        $normalizedChannel = match (strtolower($channel)) {
+            'shopee'                      => 'shopee',
+            'tiktok', 'tiktok-tokopedia' => 'tiktok_shop',
+            'tokopedia'                   => 'tokopedia',
+            default                       => $channel,
+        };
+
         $account = MarketplaceAccount::where('business_id', $business->id)
-            ->where(function ($q) use ($channel) {
-                $q->where('channel', $channel)->orWhere('id', $channel);
+            ->where(function ($q) use ($channel, $normalizedChannel) {
+                $q->where('channel', $channel)
+                  ->orWhere('channel', $normalizedChannel)
+                  ->orWhere('id', $channel);
             })
             ->first();
 
@@ -261,19 +270,45 @@ class MarketplaceWebController extends Controller
     /**
      * Toggle active status of a channel account.
      */
-    public function toggleActive(string $channel): RedirectResponse
+    public function toggleActive(Request $request, string $channel): RedirectResponse|JsonResponse
     {
         $business = Context::requireBusiness();
+        $normalizedChannel = match (strtolower($channel)) {
+            'shopee'                      => 'shopee',
+            'tiktok', 'tiktok-tokopedia' => 'tiktok_shop',
+            'tokopedia'                   => 'tokopedia',
+            default                       => $channel,
+        };
+
         $account = MarketplaceAccount::where('business_id', $business->id)
-            ->where(function ($q) use ($channel) {
-                $q->where('channel', $channel)->orWhere('id', $channel);
+            ->where(function ($q) use ($channel, $normalizedChannel) {
+                $q->where('channel', $channel)
+                  ->orWhere('channel', $normalizedChannel)
+                  ->orWhere('id', $channel);
             })
             ->first();
 
         if ($account) {
             $account->update(['is_active' => ! $account->is_active]);
             $status = $account->is_active ? 'diaktifkan' : 'dinonaktifkan';
-            return back()->with('success', "Status penjualan {$account->getChannelLabel()} berhasil {$status}.");
+            $message = "Status penjualan {$account->getChannelLabel()} berhasil {$status}.";
+
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json([
+                    'success'   => true,
+                    'is_active' => (bool) $account->is_active,
+                    'message'   => $message,
+                ]);
+            }
+
+            return back()->with('success', $message);
+        }
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Akun toko tidak ditemukan.',
+            ], 404);
         }
 
         return back()->with('error', 'Akun toko tidak ditemukan.');

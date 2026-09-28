@@ -117,6 +117,7 @@ class SetupTikTokReviewDemoCommand extends Command
                 'refresh_token'            => 'enc_tiktok_shop_refresh_review_' . Str::random(32),
                 'token_expires_at'         => now()->addYear(),
                 'refresh_token_expires_at' => now()->addYears(2),
+                'is_active'                => true,
                 'auto_sync_stock'          => true,
                 'auto_sync_price'          => true,
                 'stock_buffer'             => 2,

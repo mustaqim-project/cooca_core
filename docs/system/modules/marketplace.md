@@ -49,7 +49,7 @@ Setiap driver mengimplementasikan metode standar:
 ## 3. Komponen Teknis & Skema Data
 
 ### 3.1 Model Basis Data
-1. **`MarketplaceAccount`**: Menyimpan kredensial otorisasi multi-tenant toko. Access token dan refresh token terenkripsi menggunakan cast `encrypted`.
+1. **`MarketplaceAccount`**: Menyimpan kredensial otorisasi multi-tenant toko. Access token dan refresh token terenkripsi menggunakan cast `encrypted`. Dilengkapi kolom `is_active` (boolean) untuk mengontrol saklar aktif/nonaktif penjualan dan sinkronisasi otomatis per saluran tanpa memutuskan otorisasi OAuth.
 2. **`MarketplaceProductMapping`**: Pemetaan 1-ke-Banyak dari `Product` Cooca ke SKU marketplace eksternal dengan konfigurasi `price_multiplier`, `stock_buffer`, dan `custom_stock`.
 3. **`MarketplaceOrder`**: Pencatatan riwayat transaksi pesanan eksternal dengan status siklus hidup (`UNPAID`, `PAID`, `SHIPPED`, `COMPLETED`, `CANCELLED`).
 4. **`MarketplaceSyncLog`**: Catatan audit trail immutable untuk setiap aktivitas API keluar (*outbound*) maupun webhook masuk (*inbound*).

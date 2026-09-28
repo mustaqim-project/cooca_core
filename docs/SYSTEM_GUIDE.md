@@ -210,6 +210,7 @@ Aplikasi ini dirancang untuk dapat dioperasikan secara percaya diri oleh **gener
   - **Multi-Harga Per Channel & Faktor Pengali:** Menetapkan margin harga dinamis (misal: pengali `1.08` untuk menyerap biaya admin marketplace 8%) atau harga tetap manual per channel dari harga dasar COOCA.
   - **Alokasi Stok Pengaman (Safety Buffer Stock):** Menyisihkan stok fisik di gudang utama agar tidak terpublikasikan ke marketplace, mencegah risiko kehabisan stok (*overselling*) saat kasir offline POS sedang melayani pelanggan toko fisik.
   - **Anti-Margin Bleed Guard:** Peringatan visual proaktif saat harga jual saluran yang dimasukkan berada di bawah modal dasar produk (HPP) untuk mencegah kerugian finansial akibat salah ketik staf (*human error*).
+  - **Saklar Penjualan & Sinkronisasi Aktif Per Saluran:** Mengontrol keaktifan jalur penjualan dan pembaruan stok/harga otomatis per channel secara instan via toggle switch Apple HIG tanpa memutus koneksi otorisasi toko.
   - **Inbound Order Feed & Real-Time Sync:** Menarik pesanan masuk secara real-time via webhook HMAC SHA-256 terverifikasi atau penarikan massal terjadwal, lengkap dengan kurir ekspedisi dan nomor resi pelacakan.
   - **Penegakan Regulasi 20 Sektor Industri:** Hard-lock pencegahan penjualan obat keras BPOM RI untuk sektor apotek, serta pemisahan produk barang fisik (*goods*) dari jasa (*service*) untuk sektor bengkel, salon, dan laundry.
 

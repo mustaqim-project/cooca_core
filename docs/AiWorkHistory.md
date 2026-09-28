@@ -49,6 +49,61 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 
 ---
 
+### [WORK-2026-09-28-209] Penambahan Kolom Database is_active & Resolusi Persistence Toggle Penjualan Marketplace Hub
+
+- **Date:** 2026-09-28
+- **Status:** COMPLETED
+- **Module:** Commerce & Marketplace Hub (`App\Domain\Marketplace`, `MarketplaceWebController`, `MarketplaceAccount`)
+- **Feature:** Resolusi Persistence Toggle Penjualan Akun Marketplace & Sinkronisasi Hulu-ke-Hilir:
+  1. **Migrasi Database `marketplace_accounts.is_active`**: Menambahkan kolom boolean `is_active` (default `true`, index) pada tabel `marketplace_accounts` melalui migration `2026_09_28_170000_add_is_active_to_marketplace_accounts_table.php`.
+  2. **Eloquent Model Update**: Mendaftarkan `is_active` ke properti `$fillable` dan array `$casts` (`'is_active' => 'boolean'`) pada model `App\Models\MarketplaceAccount`.
+  3. **Controller Resilience & Multi-Response**: Memperbarui method `toggleActive(Request $request, string $channel)` pada `MarketplaceWebController` untuk menormalisasi alias nama channel (`tiktok`, `tiktok-tokopedia` -> `tiktok_shop`), mendukung baik redirect web (302) maupun respons AJAX/JSON (200), serta mengembalikan flash message yang informatif.
+  4. **Domain Auto-Sync Guard**: Memperbarui `MarketplaceSyncService` agar memeriksa `$account->is_active` sebelum mendorong pembaruan harga (`syncProductPrice`), stok (`syncProductStock`), atau batch sync (`syncAllForAccount`), sehingga saat channel dinonaktifkan oleh merchant, proses sinkronisasi otomatis ke marketplace tersebut dijeda secara aman.
+  5. **Review Command & UI Enhancement**: Memperbarui `SetupTikTokReviewDemoCommand` dan `resources/views/app/marketplace/index.blade.php` untuk menampilkan status aktif/nonaktif toggle switch Apple HIG secara akurat dan responsif.
+- **Work Type:** Database Migration | Bug Fix | UI/UX | Business Logic & Auto-Sync Guard
+
+#### 1. Business Context & Objective
+
+- **Konteks:** Pada Hub Integrasi Marketplace (`/marketplace-hub`), ketika pemilik usaha menekan toggle switch "Status Penjualan & Sinkronisasi Aktif" untuk TikTok Shop atau Shopee (mengirim request `POST /marketplace-hub/toggle/tiktok_shop`), sistem mengembalikan status HTTP 302 Found namun toggle switch di UI tetap tidak berubah (mati) dan status tidak tersimpan di database.
+- **Masalah/Target:** Mengatasi ketiadaan kolom `is_active` di tabel `marketplace_accounts`, mengaktifkan penyimpanan status aktif akun secara persisten, dan mengintegrasikan status tersebut ke engine sinkronisasi harga & stok.
+
+#### 2. What Was Done
+
+- Membuat migration database `2026_09_28_170000_add_is_active_to_marketplace_accounts_table.php` dan menjalankannya dengan sukses.
+- Memperbarui `app/Models/MarketplaceAccount.php` dengan menambahkan `is_active` ke `$fillable` dan `$casts`.
+- Memperbarui `app/Http/Controllers/Web/Marketplace/MarketplaceWebController.php` pada method `toggleActive` dan `disconnect` dengan normalisasi channel provider dan dukungan respons JSON.
+- Memperbarui `app/Domain/Marketplace/MarketplaceSyncService.php` agar memeriksa `$account->is_active` sebelum melakukan push harga dan stok.
+- Memperbarui `app/Console/Commands/SetupTikTokReviewDemoCommand.php` untuk memastikan inisialisasi akun demo review terhubung dengan `is_active = true`.
+- Memperbarui `resources/views/app/marketplace/index.blade.php` dengan binding `is_active` yang aman dan tooltip interaktif.
+- Menambahkan 3 automated tests baru pada `tests/Feature/Marketplace/MarketplaceIntegrationTest.php` untuk memverifikasi toggle persisten di database, respons JSON/asinkron, dan jeda sinkronisasi saat akun nonaktif.
+
+#### 3. Technical Changes
+
+- **Files Affected:**
+  - `database/migrations/2026_09_28_170000_add_is_active_to_marketplace_accounts_table.php`
+  - `app/Models/MarketplaceAccount.php`
+  - `app/Http/Controllers/Web/Marketplace/MarketplaceWebController.php`
+  - `app/Domain/Marketplace/MarketplaceSyncService.php`
+  - `app/Console/Commands/SetupTikTokReviewDemoCommand.php`
+  - `resources/views/app/marketplace/index.blade.php`
+  - `tests/Feature/Marketplace/MarketplaceIntegrationTest.php`
+- **Database Changes:** Penambahan kolom `is_active` (boolean, default true, indexed) pada tabel `marketplace_accounts`.
+- **API / Route Changes:** Route `POST /marketplace-hub/toggle/{provider}` kini mendukung respons JSON (`200 OK`) maupun redirect browser (`302 Found`).
+
+#### 4. System Impacts
+
+- **Workflow Impact:** Pemilik usaha dapat secara instan mengaktifkan atau menonaktifkan jalur penjualan & sinkronisasi per channel marketplace secara visual dan persisten.
+- **Business Rule Impact:** Ketika channel dinonaktifkan (`is_active = false`), sinkronisasi harga & stok ke channel terkait dijeda otomatis tanpa menghapus kredensial/token toko.
+- **Permission Impact:** Tetap dilindungi middleware `require.permission:marketplace.manage`.
+
+#### 5. Verification & Testing
+
+- `php -l` seluruh berkas terdampak: Pass (0 syntax error).
+- `php artisan migrate`: Migrasi sukses diterapkan ke database.
+- `php artisan test tests/Feature/Marketplace`: 23/23 tests passed, 142 assertions, 0 errors, 0 failures.
+
+---
+
 ### [WORK-2026-09-28-208] Perbaikan Undefined Variable $redirectUri & $state pada Marketplace OAuth Connect & Penguatan Contract Adapter
 
 - **Date:** 2026-09-28

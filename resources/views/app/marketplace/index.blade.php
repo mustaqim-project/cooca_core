@@ -187,8 +187,9 @@
                             <p class="text-[11px] text-black/50 dark:text-white/50">Kirim update harga &amp; stok ke Shopee</p>
                         </div>
                         <button type="submit"
-                            class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none {{ $shopeeAccount->is_active ? 'bg-[#34C759]' : 'bg-black/20 dark:bg-white/20' }}">
-                            <span class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out {{ $shopeeAccount->is_active ? 'translate-x-5' : 'translate-x-0' }}"></span>
+                            title="{{ ($shopeeAccount->is_active ?? true) ? 'Klik untuk menonaktifkan' : 'Klik untuk mengaktifkan' }}"
+                            class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none {{ ($shopeeAccount->is_active ?? true) ? 'bg-[#34C759]' : 'bg-black/20 dark:bg-white/20' }}">
+                            <span class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out {{ ($shopeeAccount->is_active ?? true) ? 'translate-x-5' : 'translate-x-0' }}"></span>
                         </button>
                     </form>
                 @else
@@ -282,8 +283,9 @@
                             <p class="text-[11.5px] text-black/50 dark:text-white/50">Kirim pembaruan harga multi-channel dan stok inventori otomatis ke TikTok Shop &amp; Tokopedia</p>
                         </div>
                         <button type="submit"
-                            class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none {{ $tiktokAccount->is_active ? 'bg-[#34C759]' : 'bg-black/20 dark:bg-white/20' }}">
-                            <span class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out {{ $tiktokAccount->is_active ? 'translate-x-5' : 'translate-x-0' }}"></span>
+                            title="{{ ($tiktokAccount->is_active ?? true) ? 'Klik untuk menonaktifkan' : 'Klik untuk mengaktifkan' }}"
+                            class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none {{ ($tiktokAccount->is_active ?? true) ? 'bg-[#34C759]' : 'bg-black/20 dark:bg-white/20' }}">
+                            <span class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out {{ ($tiktokAccount->is_active ?? true) ? 'translate-x-5' : 'translate-x-0' }}"></span>
                         </button>
                     </form>
                 @else

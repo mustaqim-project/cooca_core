@@ -955,7 +955,115 @@ class MarketplaceIntegrationTest extends TestCase
             'status'      => MarketplaceAccount::STATUS_CONNECTED,
         ]);
     }
+
+    public function test_it_toggles_channel_account_active_status_and_persists_in_database(): void
+    {
+        $account = MarketplaceAccount::create([
+            'business_id'   => $this->businessA->id,
+            'channel'       => MarketplaceAccount::CHANNEL_TIKTOK,
+            'shop_id'       => 'SHOP-TT-TEST-123',
+            'shop_name'     => 'TikTok Shop Test Official',
+            'status'        => MarketplaceAccount::STATUS_CONNECTED,
+            'is_active'     => true,
+            'access_token'  => 'tok_secret',
+            'refresh_token' => 'ref_secret',
+        ]);
+
+        $this->assertTrue($account->fresh()->is_active);
+
+        // Toggle 1: POST to toggle active -> is_active should become false
+        $response1 = $this->actingAs($this->userA)->post(route('marketplace-hub.toggle', 'tiktok_shop'));
+        $response1->assertRedirect();
+        $response1->assertSessionHas('success');
+
+        $this->assertFalse($account->fresh()->is_active);
+        $this->assertDatabaseHas('marketplace_accounts', [
+            'id'        => $account->id,
+            'is_active' => false,
+        ]);
+
+        // Toggle 2: POST to toggle active -> is_active should become true again
+        $response2 = $this->actingAs($this->userA)->post(route('marketplace-hub.toggle', 'tiktok_shop'));
+        $response2->assertRedirect();
+        $response2->assertSessionHas('success');
+
+        $this->assertTrue($account->fresh()->is_active);
+        $this->assertDatabaseHas('marketplace_accounts', [
+            'id'        => $account->id,
+            'is_active' => true,
+        ]);
+    }
+
+    public function test_it_handles_json_toggle_request_for_async_interaction(): void
+    {
+        $account = MarketplaceAccount::create([
+            'business_id'   => $this->businessA->id,
+            'channel'       => MarketplaceAccount::CHANNEL_SHOPEE,
+            'shop_id'       => 'SHOP-SP-TEST-456',
+            'shop_name'     => 'Shopee Store Test',
+            'status'        => MarketplaceAccount::STATUS_CONNECTED,
+            'is_active'     => true,
+            'access_token'  => 'tok_secret',
+            'refresh_token' => 'ref_secret',
+        ]);
+
+        $response = $this->actingAs($this->userA)
+            ->postJson(route('marketplace-hub.toggle', 'shopee'));
+
+        $response->assertOk();
+        $response->assertJson([
+            'success'   => true,
+            'is_active' => false,
+        ]);
+
+        $this->assertFalse($account->fresh()->is_active);
+    }
+
+    public function test_it_skips_price_and_stock_push_when_account_is_inactive(): void
+    {
+        $syncService = app(MarketplaceSyncService::class);
+
+        $account = MarketplaceAccount::create([
+            'business_id'   => $this->businessA->id,
+            'channel'       => MarketplaceAccount::CHANNEL_SHOPEE,
+            'shop_id'       => 'SHOP-SP-INACTIVE',
+            'shop_name'     => 'Shopee Inactive Store',
+            'status'        => MarketplaceAccount::STATUS_CONNECTED,
+            'is_active'     => false, // Inactive!
+            'access_token'  => 'tok_secret',
+            'refresh_token' => 'ref_secret',
+        ]);
+
+        $product = Product::create([
+            'business_id'    => $this->businessA->id,
+            'name'           => 'Produk Nonaktif Sync',
+            'slug'           => 'produk-nonaktif-sync',
+            'code'           => 'PRD-INACT',
+            'base_cost'      => 10000,
+            'selling_price'  => 25000,
+            'output_unit_id' => $this->unit->id,
+            'is_active'      => true,
+        ]);
+
+        $mapping = MarketplaceProductMapping::create([
+            'business_id'            => $this->businessA->id,
+            'product_id'             => $product->id,
+            'marketplace_account_id' => $account->id,
+            'channel'                => 'shopee',
+            'sync_price_auto'        => true,
+            'sync_stock_auto'        => true,
+            'is_active'              => true,
+        ]);
+
+        // When account is inactive, syncProductPrice and syncProductStock must return false
+        $this->assertFalse($syncService->syncProductPrice($mapping));
+        $this->assertFalse($syncService->syncProductStock($mapping));
+
+        $batchResult = $syncService->syncAllForAccount($account);
+        $this->assertEquals(0, $batchResult['total']);
+    }
 }
+
 
 
 
