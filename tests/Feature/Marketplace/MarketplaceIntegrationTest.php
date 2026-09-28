@@ -860,6 +860,48 @@ class MarketplaceIntegrationTest extends TestCase
             'status'      => MarketplaceAccount::STATUS_DISCONNECTED,
         ]);
     }
+
+    public function test_it_initiates_oauth_redirect_when_credentials_are_configured(): void
+    {
+        \App\Models\SystemSetting::set('shopee_partner_id', '123456', 'marketplace');
+        \App\Models\SystemSetting::set('shopee_partner_key', 'test_secret_key', 'marketplace');
+
+        $response = $this->actingAs($this->userA)->post(route('marketplace-hub.connect', 'shopee'));
+
+        $response->assertStatus(302);
+        $redirectUrl = (string) $response->headers->get('Location');
+        $this->assertStringContainsString('partner.shopeemobile.com/api/v2/shop/auth_partner', $redirectUrl);
+        $this->assertStringContainsString('partner_id=123456', $redirectUrl);
+        $this->assertStringContainsString('redirect=', $redirectUrl);
+        $this->assertStringContainsString('state=', $redirectUrl);
+    }
+
+    public function test_it_handles_unconfigured_credentials_gracefully_without_crashing(): void
+    {
+        // Tokopedia without credentials
+        \App\Models\SystemSetting::where('key', 'like', 'tokopedia_%')->delete();
+
+        $response = $this->actingAs($this->userA)->post(route('marketplace-hub.connect', 'tokopedia'));
+
+        $response->assertRedirect(route('marketplace-hub.index'));
+        $response->assertSessionHas('error');
+    }
+
+    public function test_it_handles_oauth_callback_validation_cleanly(): void
+    {
+        // 1. Missing state
+        $responseMissingState = $this->actingAs($this->userA)->get(route('integrations.marketplace.callback', 'shopee'));
+        $responseMissingState->assertRedirect(route('marketplace-hub.index'));
+        $responseMissingState->assertSessionHas('error');
+
+        // 2. Invalid state
+        $responseInvalidState = $this->actingAs($this->userA)->get(route('integrations.marketplace.callback', [
+            'provider' => 'shopee',
+            'state'    => 'invalid_tampered_state_value',
+        ]));
+        $responseInvalidState->assertRedirect(route('marketplace-hub.index'));
+        $responseInvalidState->assertSessionHas('error');
+    }
 }
 
 

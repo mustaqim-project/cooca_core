@@ -38,6 +38,11 @@ class ShopeeAdapter implements MarketplaceAdapterInterface
         return 'Shopee';
     }
 
+    public function hasCredentials(): bool
+    {
+        return ! empty($this->partnerId) && ! empty($this->partnerKey);
+    }
+
     public function generateSignature(string $path, int $timestamp, string $accessToken = '', string $shopId = ''): string
     {
         $baseStr = sprintf('%s%s%s%s%s', $this->partnerId, $path, $timestamp, $accessToken, $shopId);

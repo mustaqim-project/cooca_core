@@ -37,6 +37,11 @@ class TokopediaAdapter implements MarketplaceAdapterInterface
         return 'Tokopedia';
     }
 
+    public function hasCredentials(): bool
+    {
+        return ! empty($this->clientId) && ! empty($this->clientSecret);
+    }
+
     public function getAuthUrl(Business $business, string $redirectUri, string $state): string
     {
         // For Tokopedia Open API / Seller OAuth

@@ -45,9 +45,65 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 - Hasil pengujian otomatis (`php artisan test`, `php -l`, `php artisan route:list`).
 - Pengujian fungsional dan jaminan bebas error.
 
+- Keputusan desain arsitektur yang diambil.
+
+---
+
+### [WORK-2026-09-28-208] Perbaikan Undefined Variable $redirectUri & $state pada Marketplace OAuth Connect & Penguatan Contract Adapter
+
+- **Date:** 2026-09-28
+- **Status:** COMPLETED
+- **Module:** Commerce & Marketplace Hub (`App\Domain\Marketplace`, `MarketplaceWebController`)
+- **Feature:** Resolusi Production Crash Error OAuth Marketplace & Interface Hardening:
+  1. **Inisialisasi `$redirectUri` & `$state`**: Memperbaiki method `connect(string $provider)` pada `MarketplaceWebController` dengan menginisialisasi parameter URL callback (`route('integrations.marketplace.callback', ['provider' => $provider])`) dan multi-tenant encrypted state (`$this->manager->generateOAuthState(...)`) sebelum memanggil `$adapter->getAuthUrl(...)`.
+  2. **Penguatan Contract `MarketplaceAdapterInterface`**: Menambahkan deklarasi method `public function hasCredentials(): bool` pada contract dan mengimplementasikannya secara konsisten pada `ShopeeAdapter`, `TokopediaAdapter`, dan `TikTokShopAdapter`.
+  3. **Graceful Credential Fallback**: Mencegah exception saat menghubungkan channel marketplace yang kredensial API-nya belum dikonfigurasi di Pengaturan Platform, dengan mengembalikan flash alert error yang ramah pengguna.
+  4. **Standarisasi Route Callback**: Menyelaraskan pembuatan redirect URI di method `callback()` menggunakan helper `route('integrations.marketplace.callback', ['provider' => $provider])`.
+- **Work Type:** Bug Fix | Security & Multi-Tenant State | Production Hardening | Contract Hardening
+
+#### 1. Business Context & Objective
+
+- **Konteks:** Di lingkungan produksi, saat pengguna/pemilik usaha menekan tombol "Hubungkan" untuk toko Shopee, TikTok Shop, atau Tokopedia di Hub Integrasi Marketplace (`/marketplace-hub`), sistem mengalami 500 fatal error akibat `ErrorException: Undefined variable $redirectUri at MarketplaceWebController.php:192`.
+- **Masalah/Target:** Mengeliminasi error undefined variable, menjamin seluruh saluran marketplace dapat menghasilkan URL otorisasi OAuth yang valid dan terenkripsi, serta menyediakan fallback yang aman jika kredensial belum diisi.
+
+#### 2. What Was Done
+
+- Memperbaiki method `connect()` di `app/Http/Controllers/Web/Marketplace/MarketplaceWebController.php` dengan membangkitkan `$redirectUri` dan `$state` sebelum memanggil driver adapter OAuth.
+- Membungkus pembentukan URL otorisasi dengan blok `try-catch` yang mengarahkan kembali ke hub marketplace dengan pesan error informatif jika ada kendala jaringan atau adapter.
+- Menambahkan `hasCredentials(): bool` ke `app/Domain/Marketplace/Contracts/MarketplaceAdapterInterface.php` serta mengimplementasikan pengecekan kredensial di `ShopeeAdapter.php` dan `TokopediaAdapter.php`.
+- Menambahkan 3 skenario automated test baru pada `tests/Feature/Marketplace/MarketplaceIntegrationTest.php` untuk memverifikasi inisiasi redirect OAuth, penanganan kredensial kosong, dan validasi token state callback.
+
+#### 3. Technical Changes
+
+- **Files Affected:**
+  - `app/Http/Controllers/Web/Marketplace/MarketplaceWebController.php`
+  - `app/Domain/Marketplace/Contracts/MarketplaceAdapterInterface.php`
+  - `app/Domain/Marketplace/Drivers/Shopee/ShopeeAdapter.php`
+  - `app/Domain/Marketplace/Drivers/Tokopedia/TokopediaAdapter.php`
+  - `tests/Feature/Marketplace/MarketplaceIntegrationTest.php`
+- **Database Changes:** Tidak ada perubahan skema database (menggunakan skema `marketplace_accounts` dan `system_settings` yang sudah ada).
+- **API / Route Changes:** Menggunakan route terdaftar `marketplace-hub.connect` dan `integrations.marketplace.callback`.
+
+#### 4. System Impacts
+
+- **Workflow Impact:** Alur menghubungkan toko marketplace Shopee, TikTok Shop, dan Tokopedia berjalan mulus tanpa error 500, dengan redirect URL yang valid dan aman.
+- **Security Impact:** State OAuth tetap terisolasi per tenant bisnis (`business_id`), user (`user_id`), channel (`channel`), nonce acak, dan timestamp kadaluwarsa 30 menit.
+- **Permission Impact:** Tetap dilindungi middleware `require.permission:marketplace.manage`.
+
+#### 5. Verification & Testing
+
+- `php -l app/Http/Controllers/Web/Marketplace/MarketplaceWebController.php`: Pass.
+- `php -l app/Domain/Marketplace/Contracts/MarketplaceAdapterInterface.php`: Pass.
+- `php -l app/Domain/Marketplace/Drivers/Shopee/ShopeeAdapter.php`: Pass.
+- `php -l app/Domain/Marketplace/Drivers/Tokopedia/TokopediaAdapter.php`: Pass.
+- `php artisan test --filter=MarketplaceIntegrationTest`: 19/19 tests passed, 119 assertions, 0 errors, 0 failures.
+
 #### 6. Important Decisions & Guardrails
 
-- Keputusan desain arsitektur yang diambil.
+- Memastikan setiap adapter marketplace wajib memiliki pengecekan `hasCredentials()` untuk membedakan antara review store demo khusus TikTok Shop dan channel tanpa kredensial yang membutuhkan konfigurasi Superadmin.
+
+---
+
 ### [WORK-2026-09-28-207] Resolusi Active State Collision Settings & Unifikasi Badge Peringatan Audit (Opsi B)
 
 - **Date:** 2026-09-28

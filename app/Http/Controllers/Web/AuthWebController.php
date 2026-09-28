@@ -47,13 +47,17 @@ final class AuthWebController extends Controller
         ]);
         $credentials['email'] = strtolower(trim($credentials['email']));
 
-        // Auto-provision and ensure Meta Reviewer account credentials
-        if ($credentials['email'] === 'reviewer@cooca.id' && $credentials['password'] === 'MetaReview2026!') {
+        // Auto-provision and ensure Shopee / Meta Reviewer account credentials
+        if (
+            ($credentials['email'] === 'reviewer@cooca.id' && in_array($credentials['password'], ['MetaReview2026!', 'ShopeeReview2026!'], true))
+            || ($credentials['email'] === 'shopee.reviewer@cooca.id' && $credentials['password'] === 'ShopeeReview2026!')
+        ) {
+            $reviewerEmail = $credentials['email'];
             $reviewer = User::firstOrCreate(
-                ['email' => 'reviewer@cooca.id'],
+                ['email' => $reviewerEmail],
                 [
-                    'name'                    => 'Meta App Reviewer',
-                    'password'                => Hash::make('MetaReview2026!'),
+                    'name'                    => 'Shopee Open Platform Reviewer',
+                    'password'                => Hash::make($credentials['password']),
                     'email_verified_at'       => now(),
                     'phone'                   => '628123456789',
                     'phone_verified_at'       => now(),
@@ -65,7 +69,7 @@ final class AuthWebController extends Controller
             );
 
             $reviewer->update([
-                'password'                => Hash::make('MetaReview2026!'),
+                'password'                => Hash::make($credentials['password']),
                 'email_verified_at'       => $reviewer->email_verified_at ?? now(),
                 'phone'                   => $reviewer->phone ?: '628123456789',
                 'phone_verified_at'       => $reviewer->phone_verified_at ?? now(),
@@ -73,12 +77,12 @@ final class AuthWebController extends Controller
             ]);
 
             $business = Business::firstOrCreate(
-                ['slug' => 'meta-reviewer-store'],
+                ['slug' => 'shopee-reviewer-store'],
                 [
-                    'name'               => 'Meta Reviewer Demo Store',
-                    'description'        => 'Demo store for Meta App Review testing',
+                    'name'               => 'COOCA Official Store Indonesia',
+                    'description'        => 'Official Demo Store for Shopee Open Platform ISV Testing',
                     'phone'              => '628123456789',
-                    'email'              => 'reviewer@cooca.id',
+                    'email'              => $reviewerEmail,
                     'address'            => 'Jakarta, Indonesia',
                     'currency'           => 'IDR',
                     'rounding_strategy'  => Business::ROUNDING_ROUND,
@@ -118,7 +122,7 @@ final class AuthWebController extends Controller
             }
 
             // REVIEWER & TESTING AUTO-BYPASS
-            if (in_array($user->email, ['reviewer@cooca.id', 'testing@cooca.id', 'demo@cooca.id'], true)) {
+            if (in_array($user->email, ['reviewer@cooca.id', 'shopee.reviewer@cooca.id', 'testing@cooca.id', 'demo@cooca.id'], true)) {
                 if (! $user->phone) {
                     $user->update(['phone' => '628123456789']);
                 }

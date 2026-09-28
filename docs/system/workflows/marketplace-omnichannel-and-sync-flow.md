@@ -69,6 +69,8 @@ Modul ini menjalankan 4 pilar fungsional utama:
 ┌───────────────────────────────────────────────────────────────────────────────────────────────────┐
 │ [Node 4] Web Controller Dispatcher                                                                │
 │ - `MarketplaceWebController@index`: Menghitung metrik akun, pemetaan, pesanan, dan error          │
+│ - `MarketplaceWebController@connect`: Memulai handshake OAuth multi-tenant & redirect authorization│
+│ - `MarketplaceWebController@callback`: Validasi state token & persistensi MarketplaceAccount      │
 │ - `MarketplaceWebController@products`: Paginasi produk dengan relasi `marketplaceMappings`        │
 │ - `MarketplaceWebController@updateMapping`: Validasi dan penyimpanan konfigurasi per produk       │
 │ - `MarketplaceWebController@syncProductPrice` / `syncProductStock`: Pemicu sinkronisasi instan    │

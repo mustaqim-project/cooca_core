@@ -22,6 +22,11 @@ interface MarketplaceAdapterInterface
     public function getName(): string;
 
     /**
+     * Check if marketplace adapter credentials have been configured in platform settings.
+     */
+    public function hasCredentials(): bool;
+
+    /**
      * Generate OAuth 2.0 authorization redirect URL.
      */
     public function getAuthUrl(Business $business, string $redirectUri, string $state): string;

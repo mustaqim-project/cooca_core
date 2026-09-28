@@ -181,17 +181,30 @@ class MarketplaceWebController extends Controller
 
         // If credentials are not configured or in review mode, seamlessly auto-connect realistic review store
         if (method_exists($adapter, 'hasCredentials') && ! $adapter->hasCredentials()) {
-            \Illuminate\Support\Facades\Artisan::call('marketplace:setup-tiktok-review', [
-                '--business' => $business->id,
-            ]);
+            if ($normalizedChannel === 'tiktok_shop' && class_exists(\App\Console\Commands\SetupTikTokReviewDemoCommand::class)) {
+                \Illuminate\Support\Facades\Artisan::call('marketplace:setup-tiktok-review', [
+                    '--business' => $business->id,
+                ]);
+
+                return redirect()->route('marketplace-hub.index')
+                    ->with('success', "Akun toko {$adapter->getName()} (COOCA Official Store Indonesia) berhasil terhubung!");
+            }
 
             return redirect()->route('marketplace-hub.index')
-                ->with('success', "Akun toko {$adapter->getName()} (COOCA Official Store Indonesia) berhasil terhubung!");
+                ->with('error', "Kredensial API untuk {$adapter->getName()} belum dikonfigurasi di Pengaturan Integrasi Marketplace.");
         }
 
-        $authUrl = $adapter->getAuthUrl($business, $redirectUri, $state);
+        $redirectUri = route('integrations.marketplace.callback', ['provider' => $provider]);
+        $state       = $this->manager->generateOAuthState($business, $user, $normalizedChannel);
 
-        return redirect()->away($authUrl);
+        try {
+            $authUrl = $adapter->getAuthUrl($business, $redirectUri, $state);
+
+            return redirect()->away($authUrl);
+        } catch (\Throwable $e) {
+            return redirect()->route('marketplace-hub.index')
+                ->with('error', "Gagal memulai otorisasi {$adapter->getName()}: " . $e->getMessage());
+        }
     }
 
     /**
@@ -212,10 +225,9 @@ class MarketplaceWebController extends Controller
                     ->with('error', 'Sesi otorisasi OAuth telah kedaluwarsa atau tidak valid. Silakan ulangi proses koneksi.');
             }
 
-            $business  = \App\Models\Business::findOrFail($stateData['business_id']);
-            $channel   = $stateData['channel'];
-
-            $redirectUri = url("/integrations/{$provider}/callback");
+            $business    = \App\Models\Business::findOrFail($stateData['business_id']);
+            $channel     = $stateData['channel'];
+            $redirectUri = route('integrations.marketplace.callback', ['provider' => $provider]);
             $account     = $this->manager->connectAccount($business, $channel, $request->all(), $redirectUri);
 
             return redirect()->route('marketplace-hub.index')
