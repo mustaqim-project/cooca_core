@@ -200,4 +200,124 @@ class MarketplacePublishProductTest extends TestCase
         $response->assertStatus(422);
         $response->assertJsonPath('success', false);
     }
+
+    public function test_it_registers_all_30_official_marketplace_categories(): void
+    {
+        $categories = \App\Domain\Marketplace\MarketplaceCategoryRegistry::all();
+        $this->assertCount(30, $categories);
+
+        // Check key categories requested
+        $names = array_column($categories, 'name');
+        $this->assertContains('Perlengkapan Rumah Tangga', $names);
+        $this->assertContains('Perlengkapan Dapur', $names);
+        $this->assertContains('Tekstil & Soft Furnishing', $names);
+        $this->assertContains('Peralatan Rumah Tangga', $names);
+        $this->assertContains('Pakaian & Dalaman Wanita', $names);
+        $this->assertContains('Muslim Fashion', $names);
+        $this->assertContains('Sepatu', $names);
+        $this->assertContains('Perawatan & Kecantikan', $names);
+        $this->assertContains('Ponsel & Elektronik', $names);
+        $this->assertContains('Komputer & Peralatan Kantor', $names);
+        $this->assertContains('Perlengkapan Hewan Peliharaan', $names);
+        $this->assertContains('Ibu & Bayi', $names);
+        $this->assertContains('Olahraga & Outdoor', $names);
+        $this->assertContains('Mainan & Hobi', $names);
+        $this->assertContains('Furnitur', $names);
+        $this->assertContains('Alat & Perangkat Keras', $names);
+        $this->assertContains('Renovasi Rumah', $names);
+        $this->assertContains('Otomotif & Motor', $names);
+        $this->assertContains('Aksesori Pakaian', $names);
+        $this->assertContains('Makanan & Minuman', $names);
+        $this->assertContains('Kesehatan', $names);
+        $this->assertContains('Buku, Majalah, & Audio', $names);
+        $this->assertContains('Pakaian Anak', $names);
+        $this->assertContains('Pakaian & Dalaman Pria', $names);
+        $this->assertContains('Koper & Tas', $names);
+        $this->assertContains('Produk Virtual', $names);
+        $this->assertContains('Barang Bekas', $names);
+        $this->assertContains('Koleksi', $names);
+        $this->assertContains('Aksesori Perhiasan & Turunannya', $names);
+        $this->assertContains('Pemesanan & Voucher', $names);
+    }
+
+    public function test_it_suggests_category_automatically_for_coffee_product(): void
+    {
+        $suggested = \App\Domain\Marketplace\MarketplaceCategoryRegistry::suggestCategory($this->product);
+        $this->assertNotNull($suggested);
+        $this->assertEquals('Makanan & Minuman', $suggested['name']);
+        $this->assertEquals('601100', $suggested['id']);
+    }
+
+    public function test_it_publishes_product_with_selected_marketplace_category(): void
+    {
+        MarketplaceAccount::create([
+            'business_id'   => $this->business->id,
+            'channel'       => 'tiktok_shop',
+            'shop_id'       => 'TTS-CAT-TEST',
+            'shop_name'     => 'TikTok Shop Category Test',
+            'access_token'  => 'tok_test',
+            'status'        => MarketplaceAccount::STATUS_CONNECTED,
+            'is_active'     => true,
+        ]);
+
+        $response = $this->actingAs($this->user)
+            ->postJson(route('marketplace-hub.products.publish', $this->product->id), [
+                'channel'          => 'tiktok_shop',
+                'category_id'      => '601100',
+                'category_name'    => 'Makanan & Minuman',
+                'channel_price'    => 25000,
+                'sync_price_auto'  => false,
+                'sync_stock_auto'  => true,
+            ]);
+
+        $response->assertOk();
+        $response->assertJsonPath('success', true);
+
+        $mapping = MarketplaceProductMapping::where('business_id', $this->business->id)
+            ->where('product_id', $this->product->id)
+            ->where('channel', 'tiktok_shop')
+            ->first();
+
+        $this->assertNotNull($mapping);
+        $this->assertEquals('601100', $mapping->raw_metadata['category_id'] ?? null);
+        $this->assertEquals('Makanan & Minuman', $mapping->raw_metadata['category_name'] ?? null);
+    }
+
+    public function test_it_persists_category_in_update_mapping_modal_endpoint(): void
+    {
+        MarketplaceAccount::create([
+            'business_id'   => $this->business->id,
+            'channel'       => 'tokopedia',
+            'shop_id'       => 'TKPD-MAP-TEST',
+            'shop_name'     => 'Tokopedia Map Test',
+            'access_token'  => 'tok_test',
+            'status'        => MarketplaceAccount::STATUS_CONNECTED,
+            'is_active'     => true,
+        ]);
+
+        $response = $this->actingAs($this->user)
+            ->postJson(route('marketplace-hub.products.map'), [
+                'product_id'          => $this->product->id,
+                'channel'             => 'tokopedia',
+                'category_id'         => '600202',
+                'category_name'       => 'Sepatu',
+                'marketplace_item_id' => 'TKPD-123984',
+                'channel_price'       => 20000,
+                'sync_price_auto'     => 0,
+                'sync_stock_auto'     => 1,
+            ]);
+
+        $response->assertOk();
+        $response->assertJsonPath('success', true);
+
+        $mapping = MarketplaceProductMapping::where('business_id', $this->business->id)
+            ->where('product_id', $this->product->id)
+            ->where('channel', 'tokopedia')
+            ->first();
+
+        $this->assertNotNull($mapping);
+        $this->assertEquals('TKPD-123984', $mapping->external_product_id);
+        $this->assertEquals('600202', $mapping->raw_metadata['category_id'] ?? null);
+        $this->assertEquals('Sepatu', $mapping->raw_metadata['category_name'] ?? null);
+    }
 }

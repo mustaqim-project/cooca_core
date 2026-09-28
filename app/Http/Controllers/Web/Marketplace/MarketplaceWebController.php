@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Web\Marketplace;
 
+use App\Domain\Marketplace\MarketplaceCategoryRegistry;
 use App\Domain\Marketplace\MarketplaceManagerService;
 use App\Domain\Marketplace\MarketplaceOrderService;
 use App\Domain\Marketplace\MarketplaceSyncService;
@@ -105,15 +106,18 @@ class MarketplaceWebController extends Controller
         }
 
         $products = $query->paginate(20);
+        $marketplaceCategories = MarketplaceCategoryRegistry::all();
 
         return view('app.marketplace.products', compact(
             'business',
             'accounts',
             'products',
+            'marketplaceCategories',
             'isPharmacy',
             'isServiceSector',
             'typeFilter'
         ));
+
     }
 
     /**
@@ -326,6 +330,8 @@ class MarketplaceWebController extends Controller
             'channel'             => ['required', 'string'],
             'marketplace_item_id' => ['nullable', 'string', 'max:100'],
             'marketplace_sku'     => ['nullable', 'string', 'max:100'],
+            'category_id'         => ['nullable', 'string', 'max:50'],
+            'category_name'       => ['nullable', 'string', 'max:100'],
             'channel_price'       => ['nullable', 'numeric', 'min:0'],
             'sync_price_auto'     => ['nullable', 'boolean'],
             'price_multiplier'    => ['nullable', 'numeric', 'min:0.1', 'max:5.0'],
@@ -335,6 +341,7 @@ class MarketplaceWebController extends Controller
             'is_active'           => ['nullable', 'boolean'],
             'allow_below_cost'    => ['nullable', 'boolean'],
         ]);
+
 
         $product = Product::where('business_id', $business->id)
             ->with('category')
@@ -401,8 +408,13 @@ class MarketplaceWebController extends Controller
                 'sync_stock_auto'       => $request->boolean('sync_stock_auto', true),
                 'stock_buffer'          => (int) ($validated['stock_buffer'] ?? 0),
                 'is_active'             => $request->boolean('is_active', true),
+                'raw_metadata'          => array_filter([
+                    'category_id'   => $validated['category_id'] ?? null,
+                    'category_name' => $validated['category_name'] ?? null,
+                ]),
             ]
         );
+
 
         if ($request->wantsJson()) {
             return response()->json(['success' => true, 'mapping' => $mapping]);
@@ -566,6 +578,8 @@ class MarketplaceWebController extends Controller
 
         $validated = $request->validate([
             'channel'          => ['required', 'string'],
+            'category_id'      => ['nullable', 'string', 'max:50'],
+            'category_name'    => ['nullable', 'string', 'max:100'],
             'channel_price'    => ['nullable', 'numeric', 'min:0'],
             'sync_price_auto'  => ['nullable', 'boolean'],
             'price_multiplier' => ['nullable', 'numeric', 'min:0.1', 'max:5.0'],
@@ -574,6 +588,7 @@ class MarketplaceWebController extends Controller
             'stock_buffer'     => ['nullable', 'integer', 'min:0', 'max:1000'],
             'allow_below_cost' => ['nullable', 'boolean'],
         ]);
+
 
         $result = $this->syncService->publishProductToChannel($product, $validated['channel'], $validated);
 

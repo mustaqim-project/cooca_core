@@ -22,6 +22,8 @@ class ProductCategory extends Model
         'name',
         'slug',
         'description',
+        'marketplace_category_id',
+        'marketplace_category_name',
     ];
 
     /**
@@ -40,5 +42,27 @@ class ProductCategory extends Model
     public function products(): HasMany
     {
         return $this->hasMany(Product::class, 'category_id');
+    }
+
+    /**
+     * Get the registered marketplace category definition.
+     *
+     * @return array{id: string, name: string, description: string, icon: string, keywords: array<string>}|null
+     */
+    public function getMarketplaceCategory(): ?array
+    {
+        if (empty($this->marketplace_category_id)) {
+            return null;
+        }
+
+        return \App\Domain\Marketplace\MarketplaceCategoryRegistry::find($this->marketplace_category_id);
+    }
+
+    /**
+     * Check if category has a mapped marketplace category.
+     */
+    public function hasMarketplaceCategory(): bool
+    {
+        return ! empty($this->marketplace_category_id);
     }
 }

@@ -295,13 +295,25 @@ class MarketplaceSyncService
             ? (int) $options['custom_stock']
             : $this->resolveEffectiveStock($product);
 
+        // Resolve category from hierarchy: 1. Explicit options -> 2. Category parent -> 3. Smart suggestion
+        $resolvedCategoryId   = $options['category_id'] ?? $options['marketplace_category_id'] ?? $product->category?->marketplace_category_id;
+        $resolvedCategoryName = $options['category_name'] ?? $options['marketplace_category_name'] ?? $product->category?->marketplace_category_name;
+
+        if (empty($resolvedCategoryId)) {
+            $suggested = MarketplaceCategoryRegistry::suggestCategory($product);
+            $resolvedCategoryId   = $suggested['id'];
+            $resolvedCategoryName = $suggested['name'];
+        }
+
         $adapter = $this->manager->driver($normalizedChannel);
 
         try {
             $publishResult = $adapter->publishProduct($account, $product, array_merge($options, [
-                'price' => $effectivePrice,
-                'stock' => $effectiveStock,
-                'sku'   => $product->code ?: ('SKU-' . $product->id),
+                'price'         => $effectivePrice,
+                'stock'         => $effectiveStock,
+                'sku'           => $product->code ?: ('SKU-' . $product->id),
+                'category_id'   => $resolvedCategoryId,
+                'category_name' => $resolvedCategoryName,
             ]));
 
             if (empty($publishResult['success']) || empty($publishResult['external_product_id'])) {
@@ -336,9 +348,16 @@ class MarketplaceSyncService
                     'last_stock_synced_at'  => now(),
                     'last_sync_error'       => null,
                     'is_active'             => true,
-                    'raw_metadata'          => $publishResult['raw_response'] ?? [],
+                    'raw_metadata'          => array_merge(
+                        $publishResult['raw_response'] ?? [],
+                        [
+                            'category_id'   => $resolvedCategoryId,
+                            'category_name' => $resolvedCategoryName,
+                        ]
+                    ),
                 ]
             );
+
 
             MarketplaceSyncLog::log(
                 businessId: $product->business_id,

@@ -36,18 +36,19 @@ final class MasterDataWebController extends Controller
     public function productCategories(): View
     {
         $business = Context::requireBusiness();
-        $items = ProductCategory::latest()->get();
+        $items = ProductCategory::where('business_id', $business->id)->latest()->get();
 
         return view('app.master-data.index', [
-            'business' => $business,
-            'items' => $items,
-            'type' => 'product-categories',
-            'module' => 'products',
-            'title' => 'Kategori Produk',
-            'subtitle' => 'Kelola klasifikasi produk dan menu penjualan bisnis.',
-            'icon' => 'folder',
-            'nameLabel' => 'Nama Kategori Produk',
-            'emptyLabel' => 'Belum ada kategori produk.',
+            'business'              => $business,
+            'items'                 => $items,
+            'type'                  => 'product-categories',
+            'module'                => 'products',
+            'title'                 => 'Kategori Produk',
+            'subtitle'              => 'Kelola klasifikasi produk dan pemetaan otomatis ke kategori resmi marketplace.',
+            'icon'                  => 'folder',
+            'nameLabel'             => 'Nama Kategori Produk',
+            'emptyLabel'            => 'Belum ada kategori produk.',
+            'marketplaceCategories' => \App\Domain\Marketplace\MarketplaceCategoryRegistry::all(),
         ]);
     }
 

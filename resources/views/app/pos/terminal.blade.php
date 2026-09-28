@@ -3221,6 +3221,7 @@
                 </div>
             </template>
         </div>
+    </div>
 
     <!-- ===================================================== -->
     <!-- MODAL: DATA LAYANAN INDUSTRI (BENGKEL & LAUNDRY)       -->

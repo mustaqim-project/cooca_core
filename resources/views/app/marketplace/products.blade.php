@@ -11,12 +11,17 @@
     submitting: false,
     publishing: false,
     selectedProduct: null,
+    categories: @js($marketplaceCategories ?? []),
+    categorySearch: '',
+    categoryDropdownOpen: false,
     pricingMode: 'nominal', // 'nominal' (Harga Langsung Rp) or 'percentage' (Markup %)
     markupPercent: 0,
     stockMode: 'auto', // 'auto' (Gudang) or 'manual' (Kuota Khusus)
     form: {
         product_id: '',
         channel: 'shopee',
+        category_id: '',
+        category_name: '',
         marketplace_item_id: '',
         marketplace_sku: '',
         channel_price: '',
@@ -32,6 +37,8 @@
         this.selectedProduct = product;
         this.form.product_id = product.id;
         this.form.allow_below_cost = false;
+        this.categorySearch = '';
+        this.categoryDropdownOpen = false;
         this.switchChannel(channel || 'shopee');
         this.submitting = false;
         this.publishing = false;
@@ -45,6 +52,11 @@
         if (existing) {
             this.form.marketplace_item_id = existing.marketplace_item_id || existing.external_product_id || '';
             this.form.marketplace_sku = existing.marketplace_sku || existing.external_sku_code || '';
+            this.form.category_id = (existing.raw_metadata && existing.raw_metadata.category_id) ? existing.raw_metadata.category_id : '';
+            this.form.category_name = (existing.raw_metadata && existing.raw_metadata.category_name) ? existing.raw_metadata.category_name : '';
+            if (!this.form.category_id) {
+                this.autoDetectCategory(this.selectedProduct);
+            }
             this.form.channel_price = existing.channel_price || '';
             this.form.sync_price_auto = Boolean(existing.sync_price_auto);
             this.form.price_multiplier = existing.price_multiplier || 1.0;
@@ -58,6 +70,7 @@
         } else {
             this.form.marketplace_item_id = '';
             this.form.marketplace_sku = this.selectedProduct.code || '';
+            this.autoDetectCategory(this.selectedProduct);
             this.form.channel_price = this.selectedProduct.selling_price || '';
             this.form.sync_price_auto = false;
             this.form.price_multiplier = 1.0;
@@ -69,6 +82,55 @@
             this.form.custom_stock = '';
             this.form.is_active = true;
         }
+    },
+    autoDetectCategory(product) {
+        if (!product || !this.categories || !this.categories.length) return;
+        const text = ((product.name || '') + ' ' + (product.category?.name || '') + ' ' + (product.description || '')).toLowerCase();
+        let bestMatch = null;
+        let maxScore = 0;
+        for (const cat of this.categories) {
+            let score = 0;
+            if (text.includes(cat.name.toLowerCase())) {
+                score += 10;
+            }
+            if (cat.keywords && Array.isArray(cat.keywords)) {
+                for (const kw of cat.keywords) {
+                    if (text.includes(kw.toLowerCase())) {
+                        score += 3;
+                    }
+                }
+            }
+            if (score > maxScore) {
+                maxScore = score;
+                bestMatch = cat;
+            }
+        }
+        if (bestMatch && maxScore > 0) {
+            this.form.category_id = bestMatch.id;
+            this.form.category_name = bestMatch.name;
+        } else {
+            this.form.category_id = this.categories[0]?.id || '';
+            this.form.category_name = this.categories[0]?.name || '';
+        }
+    },
+    get filteredCategories() {
+        if (!this.categorySearch || !this.categorySearch.trim()) return this.categories;
+        const q = this.categorySearch.toLowerCase().trim();
+        return this.categories.filter(c => 
+            c.name.toLowerCase().includes(q) || 
+            (c.id && c.id.includes(q)) || 
+            (c.description && c.description.toLowerCase().includes(q)) ||
+            (c.keywords && c.keywords.some(k => k.toLowerCase().includes(q)))
+        );
+    },
+    get selectedCategoryObj() {
+        return this.categories.find(c => c.id === this.form.category_id) || null;
+    },
+    selectCategory(cat) {
+        this.form.category_id = cat.id;
+        this.form.category_name = cat.name;
+        this.categoryDropdownOpen = false;
+        this.categorySearch = '';
     },
     setPricingMode(mode) {
         this.pricingMode = mode;
@@ -132,6 +194,8 @@
                 },
                 body: JSON.stringify({
                     channel: this.form.channel,
+                    category_id: this.form.category_id,
+                    category_name: this.form.category_name,
                     channel_price: this.form.channel_price,
                     sync_price_auto: this.form.sync_price_auto,
                     price_multiplier: this.form.price_multiplier,
@@ -607,6 +671,8 @@
                 @csrf
                 <input type="hidden" name="product_id" :value="form.product_id">
                 <input type="hidden" name="channel" :value="form.channel">
+                <input type="hidden" name="category_id" :value="form.category_id">
+                <input type="hidden" name="category_name" :value="form.category_name">
                 <input type="hidden" name="sync_price_auto" :value="form.sync_price_auto ? '1' : '0'">
                 <input type="hidden" name="sync_stock_auto" :value="form.sync_stock_auto ? '1' : '0'">
                 <input type="hidden" name="allow_below_cost" :value="form.allow_below_cost ? '1' : '0'">
@@ -641,6 +707,86 @@
                                     <span class="w-2 h-2 rounded-full" :class="form.channel === 'tokopedia' ? 'bg-[#00AA5B]' : 'bg-transparent'"></span>
                                     <span>Tokopedia</span>
                                 </button>
+                            </div>
+                        </div>
+
+                        <!-- 1.5 Official Marketplace Category Selector Bento Card -->
+                        <div class="p-4 sm:p-5 rounded-[20px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.08] space-y-3.5">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <label class="block text-[13px] font-bold text-black dark:text-white">
+                                        Kategori Resmi Marketplace
+                                    </label>
+                                    <p class="text-[11.5px] text-black/50 dark:text-white/50">
+                                        Wajib untuk listing TikTok Shop &amp; Tokopedia (30 Kategori Resmi)
+                                    </p>
+                                </div>
+                                <template x-if="selectedCategoryObj">
+                                    <span class="text-[11px] font-mono font-bold px-2.5 py-1 rounded-full bg-[#007AFF]/10 text-[#007AFF]">
+                                        ID: <span x-text="form.category_id"></span>
+                                    </span>
+                                </template>
+                            </div>
+
+                            <!-- Active Selection Card / Trigger Button -->
+                            <div class="relative">
+                                <button type="button" @click="categoryDropdownOpen = !categoryDropdownOpen"
+                                    class="w-full p-3.5 rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/[0.1] dark:border-white/[0.12] hover:border-[#007AFF] transition-all flex items-center justify-between text-left gap-3 shadow-2xs cursor-pointer">
+                                    <div class="flex items-center gap-3 min-w-0">
+                                        <div class="w-9 h-9 rounded-[10px] bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center shrink-0">
+                                            <i data-lucide="layers" class="w-5 h-5"></i>
+                                        </div>
+                                        <div class="min-w-0">
+                                            <div class="text-[13px] font-bold text-black dark:text-white truncate" x-text="selectedCategoryObj ? selectedCategoryObj.name : 'Pilih Kategori Marketplace...'"></div>
+                                            <div class="text-[11px] text-black/50 dark:text-white/50 truncate max-w-[280px] sm:max-w-md" x-text="selectedCategoryObj ? selectedCategoryObj.description : 'Klik untuk mencari atau memilih kategori resmi'"></div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-1.5 shrink-0 text-black/40 dark:text-white/40">
+                                        <span class="text-[11.5px] font-medium hidden sm:inline" x-text="categoryDropdownOpen ? 'Tutup' : 'Ubah'"></span>
+                                        <i data-lucide="chevron-down" class="w-4 h-4 transition-transform duration-200" :class="categoryDropdownOpen ? 'rotate-180' : ''"></i>
+                                    </div>
+                                </button>
+
+                                <!-- Searchable Dropdown Overlay Card (Bento Sheet) -->
+                                <div x-show="categoryDropdownOpen" @click.away="categoryDropdownOpen = false" x-cloak
+                                    x-transition:enter="transition ease-out duration-150"
+                                    x-transition:enter-start="opacity-0 translate-y-2 scale-95"
+                                    x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+                                    x-transition:exit="transition ease-in duration-100"
+                                    x-transition:exit-start="opacity-100 translate-y-0 scale-100"
+                                    x-transition:exit-end="opacity-0 translate-y-2 scale-95"
+                                    class="absolute z-50 left-0 right-0 top-full mt-2 p-3 rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/15 shadow-xl max-h-[340px] flex flex-col space-y-2.5">
+                                    
+                                    <!-- Search bar -->
+                                    <div class="relative">
+                                        <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-black/40 dark:text-white/40"></i>
+                                        <input type="text" x-model="categorySearch" placeholder="Cari nama kategori, id, atau kata kunci (contoh: makanan, sepatu, baju)..."
+                                            class="w-full h-9 pl-9 pr-3 rounded-[10px] bg-black/[0.03] dark:bg-white/[0.05] border border-black/[0.08] dark:border-white/[0.1] text-[12.5px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/30">
+                                    </div>
+
+                                    <!-- Categories List Scrollable -->
+                                    <div class="overflow-y-auto space-y-1 pr-1 flex-1 max-h-[240px] custom-scrollbar">
+                                        <template x-for="cat in filteredCategories" :key="cat.id">
+                                            <button type="button" @click="selectCategory(cat)"
+                                                :class="form.category_id === cat.id ? 'bg-[#007AFF]/10 border-[#007AFF]/30 text-[#007AFF]' : 'hover:bg-black/[0.03] dark:hover:bg-white/[0.05] border-transparent text-black dark:text-white'"
+                                                class="w-full p-2.5 rounded-[12px] border text-left flex items-center justify-between gap-2.5 transition-colors cursor-pointer group">
+                                                <div class="min-w-0 flex-1">
+                                                    <div class="flex items-center gap-2">
+                                                        <span class="text-[12.5px] font-semibold group-hover:text-[#007AFF] transition-colors" x-text="cat.name"></span>
+                                                        <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-black/5 dark:bg-white/10 text-black/60 dark:text-white/60" x-text="cat.id"></span>
+                                                    </div>
+                                                    <p class="text-[11px] text-black/50 dark:text-white/50 truncate mt-0.5" x-text="cat.description"></p>
+                                                </div>
+                                                <template x-if="form.category_id === cat.id">
+                                                    <i data-lucide="check" class="w-4 h-4 text-[#007AFF] shrink-0"></i>
+                                                </template>
+                                            </button>
+                                        </template>
+                                        <div x-show="filteredCategories.length === 0" class="py-6 text-center text-[12px] text-black/40 dark:text-white/40">
+                                            Tidak ada kategori yang cocok dengan pencarian.
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
