@@ -25,6 +25,7 @@
         request()->routeIs('product-categories.*') ||
         request()->routeIs('material-categories.*') ||
         request()->routeIs('units.*') ||
+        request()->routeIs('marketplace-hub.*') ||
         request()->routeIs('pos.modifiers.*') ||
         in_array($activeModuleKey, ['products', 'materials', 'inventory'], true);
     $isFinanceRoute =
@@ -898,7 +899,7 @@
                         @endif
 
                         @if ($recentHighRiskCount > 0)
-                            <a href="{{ route('settings.audit-logs.index') }}" id="tour-nav-audit-logs-overview"
+                            <a href="{{ route('settings.audit-logs.index', ['risk' => 'high']) }}" id="tour-nav-audit-logs-overview"
                                 {{ request()->routeIs('settings.audit-logs.*') || request()->routeIs('audit-logs.*') ? 'aria-current="page"' : '' }}
                                 class="sidebar-item flex items-center justify-between px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-colors text-black/70 dark:text-white/70 hover:bg-black/[0.03] dark:hover:bg-white/[0.04]">
                                 <div class="flex items-center gap-2 min-w-0">
@@ -915,7 +916,7 @@
 
                 {{-- Submenu Melayang (Collapsed Flyout) --}}
                 <div x-show="sidebarCollapsed && activeFlyout === 'overview'" x-transition.opacity
-                    class="fixed left-[84px] -mt-8 w-56 p-2 rounded-[14px] bg-white/95 dark:bg-[#1C1C1E]/95 backdrop-blur-xl border border-black/5 dark:border-white/10 shadow-[0_16px_36px_rgba(0,0,0,0.18)] z-50 space-y-1 pointer-events-auto max-h-[85vh] overflow-y-auto overscroll-contain"
+                    class="fixed left-[84px] -mt-8 w-56 p-2 rounded-[14px] bg-white/95 dark:bg-[#1C1C1E]/95 backdrop-blur-xl border border-black/5 dark:border-white/10 shadow-[0_16px_36px_rgba(0,0,0,0.18)] z-50 space-y-1 pointer-events-auto max-h-[85vh] overflow-y-auto overscroll-contain before:content-[''] before:absolute before:-left-4 before:w-4 before:inset-y-0 before:z-50"
                     style="display: none;">
                     <div class="px-2.5 py-1 font-semibold text-xs text-black dark:text-white border-b border-black/5 dark:border-white/10 pb-1.5 mb-1">
                         Ringkasan &amp; Dashboard
@@ -952,7 +953,7 @@
                         </a>
                     @endif
                     @if ($recentHighRiskCount > 0)
-                        <a href="{{ route('settings.audit-logs.index') }}"
+                        <a href="{{ route('settings.audit-logs.index', ['risk' => 'high']) }}"
                             class="sidebar-item flex items-center justify-between px-2.5 py-1.5 rounded-[7px] text-xs text-black/75 dark:text-white/75 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
                             <div class="flex items-center gap-2 min-w-0">
                                 <i data-lucide="shield-alert" class="w-3.5 h-3.5 text-[#FF3B30]"></i>
@@ -1045,7 +1046,7 @@
 
                     {{-- Submenu Melayang (Collapsed Flyout) --}}
                     <div x-show="sidebarCollapsed && activeFlyout === 'pos'" x-transition.opacity
-                        class="fixed left-[84px] -mt-8 w-60 p-2 rounded-[14px] bg-white/95 dark:bg-[#1C1C1E]/95 backdrop-blur-xl border border-black/5 dark:border-white/10 shadow-[0_16px_36px_rgba(0,0,0,0.18)] z-50 space-y-1 pointer-events-auto max-h-[85vh] overflow-y-auto overscroll-contain"
+                        class="fixed left-[84px] -mt-8 w-60 p-2 rounded-[14px] bg-white/95 dark:bg-[#1C1C1E]/95 backdrop-blur-xl border border-black/5 dark:border-white/10 shadow-[0_16px_36px_rgba(0,0,0,0.18)] z-50 space-y-1 pointer-events-auto max-h-[85vh] overflow-y-auto overscroll-contain before:content-[''] before:absolute before:-left-4 before:w-4 before:inset-y-0 before:z-50"
                         style="display: none;">
                         <div class="px-2.5 py-1 font-semibold text-xs text-black dark:text-white border-b border-black/5 dark:border-white/10 pb-1.5 mb-1">
                             Kasir &amp; POS Resto
@@ -1106,7 +1107,7 @@
                         class="sidebar-item w-full flex items-center justify-between px-2.5 py-1.5 rounded-[8px] text-left text-[13px] font-medium transition-all active:scale-[0.98] {{ $isB2bSalesRoute ? 'bg-black/[0.05] dark:bg-white/[0.06] text-black dark:text-white font-semibold' : 'text-black/75 dark:text-white/75 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
                         <div class="sidebar-item-inner flex items-center gap-2.5 min-w-0">
                             <i data-lucide="file-text"
-                                class="w-4 h-4 {{ $isB2bSalesRoute ? 'text-[#007AFF]' : 'text-black/50 dark:text-white/50' }} shrink-0"></i>
+                                class="w-4 h-4 {{ $isB2bSalesRoute ? 'text-[#5856D6]' : 'text-black/50 dark:text-white/50' }} shrink-0"></i>
                             <span class="truncate" x-show="!sidebarCollapsed" x-transition.opacity>Penjualan B2B &amp; Faktur</span>
                         </div>
                         <i data-lucide="chevron-down" x-show="!sidebarCollapsed"
@@ -1155,7 +1156,7 @@
 
                     {{-- Submenu Melayang (Collapsed Flyout) --}}
                     <div x-show="sidebarCollapsed && activeFlyout === 'b2bSales'" x-transition.opacity
-                        class="fixed left-[84px] -mt-8 w-60 p-2 rounded-[14px] bg-white/95 dark:bg-[#1C1C1E]/95 backdrop-blur-xl border border-black/5 dark:border-white/10 shadow-[0_16px_36px_rgba(0,0,0,0.18)] z-50 space-y-1 pointer-events-auto max-h-[85vh] overflow-y-auto overscroll-contain"
+                        class="fixed left-[84px] -mt-8 w-60 p-2 rounded-[14px] bg-white/95 dark:bg-[#1C1C1E]/95 backdrop-blur-xl border border-black/5 dark:border-white/10 shadow-[0_16px_36px_rgba(0,0,0,0.18)] z-50 space-y-1 pointer-events-auto max-h-[85vh] overflow-y-auto overscroll-contain before:content-[''] before:absolute before:-left-4 before:w-4 before:inset-y-0 before:z-50"
                         style="display: none;">
                         <div class="px-2.5 py-1 font-semibold text-xs text-black dark:text-white border-b border-black/5 dark:border-white/10 pb-1.5 mb-1">
                             Penjualan B2B &amp; Faktur
@@ -1214,7 +1215,7 @@
                         class="sidebar-item w-full flex items-center justify-between px-2.5 py-1.5 rounded-[8px] text-left text-[13px] font-medium transition-all active:scale-[0.98] {{ $isInventoryRoute ? 'bg-black/[0.05] dark:bg-white/[0.06] text-black dark:text-white font-semibold' : 'text-black/75 dark:text-white/75 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
                         <div class="sidebar-item-inner flex items-center gap-2.5 min-w-0">
                             <i data-lucide="box"
-                                class="w-4 h-4 {{ $isInventoryRoute ? 'text-[#007AFF]' : 'text-black/50 dark:text-white/50' }} shrink-0"></i>
+                                class="w-4 h-4 {{ $isInventoryRoute ? 'text-[#FF9500]' : 'text-black/50 dark:text-white/50' }} shrink-0"></i>
                             <span class="truncate" x-show="!sidebarCollapsed" x-transition.opacity>Produk &amp; Logistik</span>
                         </div>
                         <i data-lucide="chevron-down" x-show="!sidebarCollapsed"
@@ -1232,6 +1233,15 @@
                                 class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-all active:scale-[0.98] {{ request()->routeIs('products.*') || request()->routeIs('services.*') || request()->routeIs('pos.modifiers.*') ? 'bg-[#007AFF] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
                                 <i data-lucide="package" class="w-3.5 h-3.5 {{ request()->routeIs('products.*') || request()->routeIs('services.*') || request()->routeIs('pos.modifiers.*') ? 'text-white' : 'text-black/40 dark:text-white/40' }} shrink-0"></i>
                                 <span class="truncate font-semibold">Katalog Produk &amp; Menu</span>
+                            </a>
+                        @endif
+
+                        @if (\App\Support\Context::hasPermission('marketplace.view') || \App\Support\Context::isOwner())
+                            <a href="{{ route('marketplace-hub.index') }}" id="tour-nav-marketplace-hub"
+                                {{ request()->routeIs('marketplace-hub.*') ? 'aria-current="page"' : '' }}
+                                class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-all active:scale-[0.98] {{ request()->routeIs('marketplace-hub.*') ? 'bg-[#007AFF] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
+                                <i data-lucide="shopping-bag" class="w-3.5 h-3.5 {{ request()->routeIs('marketplace-hub.*') ? 'text-white' : 'text-[#FF2D55]' }} shrink-0"></i>
+                                <span class="truncate font-medium">Integrasi Marketplace</span>
                             </a>
                         @endif
 
@@ -1308,7 +1318,7 @@
                                 </a>
                             @endif
 
-                            @if (\App\Support\Context::hasPermission('products.view') || \App\Support\Context::isOwner())
+                            @if (\App\Support\Context::hasPermission('materials.view') || \App\Support\Context::hasPermission('products.view') || \App\Support\Context::isOwner())
                                 <a href="{{ route('import.index') }}" id="tour-nav-import"
                                     {{ request()->routeIs('import.*') ? 'aria-current="page"' : '' }}
                                     class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-all active:scale-[0.98] {{ request()->routeIs('import.*') ? 'bg-[#007AFF] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
@@ -1321,7 +1331,7 @@
 
                     {{-- Submenu Melayang (Collapsed Flyout) --}}
                     <div x-show="sidebarCollapsed && activeFlyout === 'inventory'" x-transition.opacity
-                        class="fixed left-[84px] -mt-8 w-60 p-2 rounded-[14px] bg-white/95 dark:bg-[#1C1C1E]/95 backdrop-blur-xl border border-black/5 dark:border-white/10 shadow-[0_16px_36px_rgba(0,0,0,0.18)] z-50 space-y-1 pointer-events-auto max-h-[85vh] overflow-y-auto overscroll-contain"
+                        class="fixed left-[84px] -mt-8 w-60 p-2 rounded-[14px] bg-white/95 dark:bg-[#1C1C1E]/95 backdrop-blur-xl border border-black/5 dark:border-white/10 shadow-[0_16px_36px_rgba(0,0,0,0.18)] z-50 space-y-1 pointer-events-auto max-h-[85vh] overflow-y-auto overscroll-contain before:content-[''] before:absolute before:-left-4 before:w-4 before:inset-y-0 before:z-50"
                         style="display: none;">
                         <div class="px-2.5 py-1 font-semibold text-xs text-black dark:text-white border-b border-black/5 dark:border-white/10 pb-1.5 mb-1">
                             Produk &amp; Logistik
@@ -1331,6 +1341,13 @@
                                 class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
                                 <i data-lucide="package" class="w-3.5 h-3.5 text-[#007AFF]"></i>
                                 <span>Katalog Produk &amp; Menu</span>
+                            </a>
+                        @endif
+                        @if (\App\Support\Context::hasPermission('marketplace.view') || \App\Support\Context::isOwner())
+                            <a href="{{ route('marketplace-hub.index') }}"
+                                class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
+                                <i data-lucide="shopping-bag" class="w-3.5 h-3.5 text-[#FF2D55]"></i>
+                                <span>Integrasi Marketplace</span>
                             </a>
                         @endif
                         @if (\App\Support\Context::hasPermission('materials.view'))
@@ -1364,6 +1381,39 @@
                                 <span>Kartu Mutasi Stok</span>
                             </a>
                         @endif
+                        @if ($canAccessMasterData)
+                            <div class="px-2.5 pt-1.5 pb-0.5 text-[10px] font-semibold uppercase tracking-wider text-black/40 dark:text-white/40 border-t border-black/5 dark:border-white/10 mt-1">
+                                Master Data Logistik
+                            </div>
+                            @if (\App\Support\Context::hasPermission('master_data.product_categories.view'))
+                                <a href="{{ route('product-categories.index') }}"
+                                    class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
+                                    <i data-lucide="tag" class="w-3.5 h-3.5 text-[#007AFF]"></i>
+                                    <span>Kategori Produk</span>
+                                </a>
+                            @endif
+                            @if (\App\Support\Context::hasPermission('master_data.material_categories.view'))
+                                <a href="{{ route('material-categories.index') }}"
+                                    class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
+                                    <i data-lucide="tags" class="w-3.5 h-3.5 text-[#34C759]"></i>
+                                    <span>Kategori Bahan</span>
+                                </a>
+                            @endif
+                            @if (\App\Support\Context::hasPermission('master_data.units.view'))
+                                <a href="{{ route('units.index') }}"
+                                    class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
+                                    <i data-lucide="scale" class="w-3.5 h-3.5 text-[#FF9500]"></i>
+                                    <span>Satuan Ukur</span>
+                                </a>
+                            @endif
+                            @if (\App\Support\Context::hasPermission('materials.view') || \App\Support\Context::hasPermission('products.view') || \App\Support\Context::isOwner())
+                                <a href="{{ route('import.index') }}"
+                                    class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
+                                    <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5 text-[#30B0C7]"></i>
+                                    <span>Impor / Ekspor Excel</span>
+                                </a>
+                            @endif
+                        @endif
                     </div>
                 </div>
             </div>
@@ -1392,7 +1442,7 @@
                         class="sidebar-item w-full flex items-center justify-between px-2.5 py-1.5 rounded-[8px] text-left text-[13px] font-medium transition-all active:scale-[0.98] {{ $isPurchasingRoute ? 'bg-black/[0.05] dark:bg-white/[0.06] text-black dark:text-white font-semibold' : 'text-black/75 dark:text-white/75 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
                         <div class="sidebar-item-inner flex items-center gap-2.5 min-w-0">
                             <i data-lucide="truck"
-                                class="w-4 h-4 {{ $isPurchasingRoute ? 'text-[#007AFF]' : 'text-black/50 dark:text-white/50' }} shrink-0"></i>
+                                class="w-4 h-4 {{ $isPurchasingRoute ? 'text-[#30B0C7]' : 'text-black/50 dark:text-white/50' }} shrink-0"></i>
                             <span class="truncate" x-show="!sidebarCollapsed" x-transition.opacity>Pembelian &amp; Supplier</span>
                         </div>
                         <i data-lucide="chevron-down" x-show="!sidebarCollapsed"
@@ -1443,7 +1493,7 @@
 
                     {{-- Submenu Melayang (Collapsed Flyout) --}}
                     <div x-show="sidebarCollapsed && activeFlyout === 'purchasing'" x-transition.opacity
-                        class="fixed left-[84px] -mt-8 w-60 p-2 rounded-[14px] bg-white/95 dark:bg-[#1C1C1E]/95 backdrop-blur-xl border border-black/5 dark:border-white/10 shadow-[0_16px_36px_rgba(0,0,0,0.18)] z-50 space-y-1 pointer-events-auto max-h-[85vh] overflow-y-auto overscroll-contain"
+                        class="fixed left-[84px] -mt-8 w-60 p-2 rounded-[14px] bg-white/95 dark:bg-[#1C1C1E]/95 backdrop-blur-xl border border-black/5 dark:border-white/10 shadow-[0_16px_36px_rgba(0,0,0,0.18)] z-50 space-y-1 pointer-events-auto max-h-[85vh] overflow-y-auto overscroll-contain before:content-[''] before:absolute before:-left-4 before:w-4 before:inset-y-0 before:z-50"
                         style="display: none;">
                         <div class="px-2.5 py-1 font-semibold text-xs text-black dark:text-white border-b border-black/5 dark:border-white/10 pb-1.5 mb-1">
                             Pembelian &amp; Supplier
@@ -1504,7 +1554,7 @@
                         class="sidebar-item w-full flex items-center justify-between px-2.5 py-1.5 rounded-[8px] text-left text-[13px] font-medium transition-all active:scale-[0.98] {{ $isChannelsRoute || (isset($isMarketingRoute) && $isMarketingRoute) ? 'bg-black/[0.05] dark:bg-white/[0.06] text-black dark:text-white font-semibold' : 'text-black/75 dark:text-white/75 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
                         <div class="sidebar-item-inner flex items-center gap-2.5 min-w-0">
                             <i data-lucide="megaphone"
-                                class="w-4 h-4 {{ $isChannelsRoute || (isset($isMarketingRoute) && $isMarketingRoute) ? 'text-[#007AFF]' : 'text-black/50 dark:text-white/50' }} shrink-0"></i>
+                                class="w-4 h-4 {{ $isChannelsRoute || (isset($isMarketingRoute) && $isMarketingRoute) ? 'text-[#FF2D55]' : 'text-black/50 dark:text-white/50' }} shrink-0"></i>
                             <span class="truncate" x-show="!sidebarCollapsed" x-transition.opacity>Pelanggan &amp; Pemasaran</span>
                         </div>
                         <i data-lucide="chevron-down" x-show="!sidebarCollapsed"
@@ -1651,7 +1701,7 @@
 
                     {{-- Submenu Melayang (Collapsed Flyout) --}}
                     <div x-show="sidebarCollapsed && activeFlyout === 'marketing'" x-transition.opacity
-                        class="fixed left-[84px] -mt-8 w-60 p-2 rounded-[14px] bg-white/95 dark:bg-[#1C1C1E]/95 backdrop-blur-xl border border-black/5 dark:border-white/10 shadow-[0_16px_36px_rgba(0,0,0,0.18)] z-50 space-y-1 pointer-events-auto max-h-[85vh] overflow-y-auto overscroll-contain"
+                        class="fixed left-[84px] -mt-8 w-60 p-2 rounded-[14px] bg-white/95 dark:bg-[#1C1C1E]/95 backdrop-blur-xl border border-black/5 dark:border-white/10 shadow-[0_16px_36px_rgba(0,0,0,0.18)] z-50 space-y-1 pointer-events-auto max-h-[85vh] overflow-y-auto overscroll-contain before:content-[''] before:absolute before:-left-4 before:w-4 before:inset-y-0 before:z-50"
                         style="display: none;">
                         <div class="px-2.5 py-1 font-semibold text-xs text-black dark:text-white border-b border-black/5 dark:border-white/10 pb-1.5 mb-1">
                             Pelanggan &amp; Pemasaran
@@ -1717,10 +1767,35 @@
                                 <i data-lucide="message-square" class="w-3.5 h-3.5 text-[#34C759]"></i>
                                 <span>WhatsApp Bisnis</span>
                             </a>
+                            <a href="{{ route('whatsapp.broadcast.index') }}"
+                                class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
+                                <i data-lucide="send" class="w-3.5 h-3.5 text-[#34C759]"></i>
+                                <span>Broadcast Pesan WA</span>
+                            </a>
+                            <a href="{{ route('whatsapp.logs.index') }}"
+                                class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
+                                <i data-lucide="list" class="w-3.5 h-3.5 text-[#8E8E93]"></i>
+                                <span>Riwayat Pesan WA</span>
+                            </a>
                             <a href="{{ route('social-media.index') }}"
                                 class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
                                 <i data-lucide="share-2" class="w-3.5 h-3.5 text-[#007AFF]"></i>
                                 <span>Media Sosial Omnichannel</span>
+                            </a>
+                            <a href="{{ route('social-media.posts.index') }}"
+                                class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
+                                <i data-lucide="edit-3" class="w-3.5 h-3.5 text-[#007AFF]"></i>
+                                <span>Konten &amp; Jadwal</span>
+                            </a>
+                            <a href="{{ route('social-media.calendar') }}"
+                                class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
+                                <i data-lucide="calendar" class="w-3.5 h-3.5 text-[#5856D6]"></i>
+                                <span>Kalender Konten</span>
+                            </a>
+                            <a href="{{ route('social-media.inbox.index') }}"
+                                class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
+                                <i data-lucide="inbox" class="w-3.5 h-3.5 text-[#FF9500]"></i>
+                                <span>Kotak Masuk Pesan</span>
                             </a>
                         @endif
                     </div>
@@ -1751,7 +1826,7 @@
                         class="sidebar-item w-full flex items-center justify-between px-2.5 py-1.5 rounded-[8px] text-left text-[13px] font-medium transition-all active:scale-[0.98] {{ $isFinanceRoute ? 'bg-black/[0.05] dark:bg-white/[0.06] text-black dark:text-white font-semibold' : 'text-black/75 dark:text-white/75 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
                         <div class="sidebar-item-inner flex items-center gap-2.5 min-w-0">
                             <i data-lucide="wallet"
-                                class="w-4 h-4 {{ $isFinanceRoute ? 'text-[#007AFF]' : 'text-black/50 dark:text-white/50' }} shrink-0"></i>
+                                class="w-4 h-4 {{ $isFinanceRoute ? 'text-[#34C759]' : 'text-black/50 dark:text-white/50' }} shrink-0"></i>
                             <span class="truncate" x-show="!sidebarCollapsed" x-transition.opacity>Keuangan &amp; Biaya</span>
                         </div>
                         <i data-lucide="chevron-down" x-show="!sidebarCollapsed"
@@ -1814,7 +1889,7 @@
                                     {{ request()->routeIs('finance.coa.*') ? 'aria-current="page"' : '' }}
                                     class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-all active:scale-[0.98] {{ request()->routeIs('finance.coa.*') ? 'bg-[#007AFF] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
                                     <i data-lucide="list-tree" class="w-3.5 h-3.5 {{ request()->routeIs('finance.coa.*') ? 'text-white' : 'text-black/40 dark:text-white/40' }} shrink-0"></i>
-                                    <span class="truncate">Bagan Akun (COA)</span>
+                                    <span class="truncate">Bagan Akun Keuangan (COA)</span>
                                 </a>
 
                                 <a href="{{ route('finance.journals.index') }}"
@@ -1889,7 +1964,7 @@
                         @endif
 
                         @if ($canAccessHrm)
-                            <div class="pt-1.5 pb-0.5 px-2 text-[10px] font-semibold uppercase tracking-wider text-black/40 dark:text-white/40">
+                            <div class="pt-2 pb-0.5 px-2 text-[10px] font-semibold uppercase tracking-wider text-black/40 dark:text-white/40 border-t border-black/5 dark:border-white/10 mt-1.5">
                                 Karyawan &amp; Payroll
                             </div>
 
@@ -1906,19 +1981,12 @@
                                 <i data-lucide="badge-percent" class="w-3.5 h-3.5 {{ request()->routeIs('hrm.payrolls.*') ? 'text-white' : 'text-black/40 dark:text-white/40' }} shrink-0"></i>
                                 <span class="truncate">Payroll &amp; Slip Gaji</span>
                             </a>
-
-                            <a href="{{ route('tax.index') }}"
-                                {{ request()->routeIs('tax.*') ? 'aria-current="page"' : '' }}
-                                class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-all active:scale-[0.98] {{ request()->routeIs('tax.*') ? 'bg-[#007AFF] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
-                                <i data-lucide="percent" class="w-3.5 h-3.5 {{ request()->routeIs('tax.*') ? 'text-white' : 'text-black/40 dark:text-white/40' }} shrink-0"></i>
-                                <span class="truncate">Perhitungan Pajak Karyawan</span>
-                            </a>
                         @endif
                     </div>
 
                     {{-- Submenu Melayang (Collapsed Flyout) --}}
                     <div x-show="sidebarCollapsed && activeFlyout === 'finance'" x-transition.opacity
-                        class="fixed left-[84px] -mt-8 w-60 p-2 rounded-[14px] bg-white/95 dark:bg-[#1C1C1E]/95 backdrop-blur-xl border border-black/5 dark:border-white/10 shadow-[0_16px_36px_rgba(0,0,0,0.18)] z-50 space-y-1 pointer-events-auto max-h-[85vh] overflow-y-auto overscroll-contain"
+                        class="fixed left-[84px] -mt-8 w-60 p-2 rounded-[14px] bg-white/95 dark:bg-[#1C1C1E]/95 backdrop-blur-xl border border-black/5 dark:border-white/10 shadow-[0_16px_36px_rgba(0,0,0,0.18)] z-50 space-y-1 pointer-events-auto max-h-[85vh] overflow-y-auto overscroll-contain before:content-[''] before:absolute before:-left-4 before:w-4 before:inset-y-0 before:z-50"
                         style="display: none;">
                         <div class="px-2.5 py-1 font-semibold text-xs text-black dark:text-white border-b border-black/5 dark:border-white/10 pb-1.5 mb-1">
                             Keuangan &amp; Biaya
@@ -1947,7 +2015,7 @@
                             <a href="{{ route('finance.settlements.index') }}"
                                 class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
                                 <i data-lucide="badge-check" class="w-3.5 h-3.5 text-[#34C759]"></i>
-                                <span>Pencairan Dana (Settlement)</span>
+                                <span>Pencairan Dana Penjualan</span>
                             </a>
 
                             @if ($showCorporateAccounting && \App\Support\Context::hasPermission('accounting.view'))
@@ -1957,7 +2025,7 @@
                                 <a href="{{ route('finance.coa.index') }}"
                                     class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
                                     <i data-lucide="list-tree" class="w-3.5 h-3.5 text-[#007AFF]"></i>
-                                    <span>Bagan Akun (COA)</span>
+                                    <span>Bagan Akun Keuangan (COA)</span>
                                 </a>
                                 <a href="{{ route('finance.journals.index') }}"
                                     class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
@@ -1992,6 +2060,16 @@
                                 <i data-lucide="calculator" class="w-3.5 h-3.5 text-[#007AFF]"></i>
                                 <span>Kalkulator HPP &amp; Margin</span>
                             </a>
+                            <a href="{{ route('simulator.index') }}"
+                                class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
+                                <i data-lucide="cpu" class="w-3.5 h-3.5 text-[#5856D6]"></i>
+                                <span>Simulator Harga Jual</span>
+                            </a>
+                            <a href="{{ route('labor-machines.index') }}"
+                                class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
+                                <i data-lucide="hammer" class="w-3.5 h-3.5 text-[#FF9500]"></i>
+                                <span>Biaya Mesin &amp; Tenaga Kerja</span>
+                            </a>
                             <a href="{{ route('profitability.index') }}"
                                 class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
                                 <i data-lucide="pie-chart" class="w-3.5 h-3.5 text-[#FF9500]"></i>
@@ -1999,10 +2077,18 @@
                             </a>
                         @endif
                         @if ($canAccessHrm)
+                            <div class="px-2.5 pt-1.5 pb-0.5 text-[10px] font-semibold uppercase tracking-wider text-black/40 dark:text-white/40 border-t border-black/5 dark:border-white/10 mt-1">
+                                Karyawan &amp; Payroll
+                            </div>
                             <a href="{{ route('hrm.index') }}"
                                 class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
                                 <i data-lucide="users-2" class="w-3.5 h-3.5 text-[#5856D6]"></i>
-                                <span>Data Karyawan &amp; Slip Gaji</span>
+                                <span>Data Karyawan &amp; Staf</span>
+                            </a>
+                            <a href="{{ route('hrm.payrolls.index') }}"
+                                class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
+                                <i data-lucide="badge-percent" class="w-3.5 h-3.5 text-[#007AFF]"></i>
+                                <span>Payroll &amp; Slip Gaji</span>
                             </a>
                         @endif
                     </div>
@@ -2033,7 +2119,7 @@
                         class="sidebar-item w-full flex items-center justify-between px-2.5 py-1.5 rounded-[8px] text-left text-[13px] font-medium transition-all active:scale-[0.98] {{ (request()->routeIs('reports.*') || request()->routeIs('analytics.*') || request()->routeIs('pos.reports.*')) ? 'bg-black/[0.05] dark:bg-white/[0.06] text-black dark:text-white font-semibold' : 'text-black/75 dark:text-white/75 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
                         <div class="sidebar-item-inner flex items-center gap-2.5 min-w-0">
                             <i data-lucide="bar-chart-3"
-                                class="w-4 h-4 {{ (request()->routeIs('reports.*') || request()->routeIs('analytics.*') || request()->routeIs('pos.reports.*')) ? 'text-[#007AFF]' : 'text-black/50 dark:text-white/50' }} shrink-0"></i>
+                                class="w-4 h-4 {{ (request()->routeIs('reports.*') || request()->routeIs('analytics.*') || request()->routeIs('pos.reports.*')) ? 'text-[#AF52DE]' : 'text-black/50 dark:text-white/50' }} shrink-0"></i>
                             <span class="truncate" x-show="!sidebarCollapsed" x-transition.opacity>Laporan &amp; Analitik</span>
                         </div>
                         <i data-lucide="chevron-down" x-show="!sidebarCollapsed"
@@ -2089,23 +2175,23 @@
                                 {{ request()->fullUrlIs('*tab=stock*') ? 'aria-current="page"' : '' }}
                                 class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-all active:scale-[0.98] {{ request()->fullUrlIs('*tab=stock*') ? 'bg-[#007AFF] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
                                 <i data-lucide="package" class="w-3.5 h-3.5 {{ request()->fullUrlIs('*tab=stock*') ? 'text-white' : 'text-[#AF52DE]' }} shrink-0"></i>
-                                <span class="truncate">Valuasi &amp; Perputaran Stok</span>
+                                <span class="truncate">Laporan &amp; Valuasi Stok</span>
                             </a>
                         @endif
 
-                        @if ($canAccessFinance)
-                            <a href="{{ route('tax.index') }}"
+                        @if (\App\Support\Context::hasPermission('reports.view') || \App\Support\Context::isOwner() || $canAccessFinance)
+                            <a href="{{ route('tax.index') }}" id="tour-nav-tax"
                                 {{ request()->routeIs('tax.*') ? 'aria-current="page"' : '' }}
                                 class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-all active:scale-[0.98] {{ request()->routeIs('tax.*') ? 'bg-[#007AFF] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
                                 <i data-lucide="percent" class="w-3.5 h-3.5 {{ request()->routeIs('tax.*') ? 'text-white' : 'text-[#FF2D55]' }} shrink-0"></i>
-                                <span class="truncate">Ringkasan Laporan Pajak</span>
+                                <span class="truncate">Laporan Pajak &amp; Kepatuhan</span>
                             </a>
                         @endif
                     </div>
 
                     {{-- Submenu Melayang (Collapsed Flyout) --}}
                     <div x-show="sidebarCollapsed && activeFlyout === 'reports'" x-transition.opacity
-                        class="fixed left-[84px] -mt-8 w-60 p-2 rounded-[14px] bg-white/95 dark:bg-[#1C1C1E]/95 backdrop-blur-xl border border-black/5 dark:border-white/10 shadow-[0_16px_36px_rgba(0,0,0,0.18)] z-50 space-y-1 pointer-events-auto max-h-[85vh] overflow-y-auto overscroll-contain"
+                        class="fixed left-[84px] -mt-8 w-60 p-2 rounded-[14px] bg-white/95 dark:bg-[#1C1C1E]/95 backdrop-blur-xl border border-black/5 dark:border-white/10 shadow-[0_16px_36px_rgba(0,0,0,0.18)] z-50 space-y-1 pointer-events-auto max-h-[85vh] overflow-y-auto overscroll-contain before:content-[''] before:absolute before:-left-4 before:w-4 before:inset-y-0 before:z-50"
                         style="display: none;">
                         <div class="px-2.5 py-1 font-semibold text-xs text-black dark:text-white border-b border-black/5 dark:border-white/10 pb-1.5 mb-1">
                             Laporan &amp; Analitik
@@ -2143,14 +2229,14 @@
                             <a href="{{ route('reports.index', ['tab' => 'stock']) }}"
                                 class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
                                 <i data-lucide="package" class="w-3.5 h-3.5 text-[#AF52DE]"></i>
-                                <span>Valuasi &amp; Perputaran Stok</span>
+                                <span>Laporan &amp; Valuasi Stok</span>
                             </a>
                         @endif
-                        @if ($canAccessFinance)
+                        @if (\App\Support\Context::hasPermission('reports.view') || \App\Support\Context::isOwner() || $canAccessFinance)
                             <a href="{{ route('tax.index') }}"
                                 class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
                                 <i data-lucide="percent" class="w-3.5 h-3.5 text-[#FF2D55]"></i>
-                                <span>Ringkasan Laporan Pajak</span>
+                                <span>Laporan Pajak &amp; Kepatuhan</span>
                             </a>
                         @endif
                     </div>
@@ -2202,7 +2288,7 @@
                         class="sidebar-item w-full flex items-center justify-between px-2.5 py-1.5 rounded-[8px] text-left text-[13px] font-medium transition-all active:scale-[0.98] {{ $isSettingsRoute ? 'bg-black/[0.05] dark:bg-white/[0.06] text-black dark:text-white font-semibold' : 'text-black/75 dark:text-white/75 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
                         <div class="sidebar-item-inner flex items-center gap-2.5 min-w-0">
                             <i data-lucide="settings"
-                                class="w-4 h-4 {{ $isSettingsRoute ? 'text-[#007AFF]' : 'text-black/50 dark:text-white/50' }} shrink-0"></i>
+                                class="w-4 h-4 {{ $isSettingsRoute ? 'text-[#8E8E93]' : 'text-black/50 dark:text-white/50' }} shrink-0"></i>
                             <span class="truncate" x-show="!sidebarCollapsed" x-transition.opacity>Pengaturan Usaha</span>
                         </div>
                         <i data-lucide="chevron-down" x-show="!sidebarCollapsed"
@@ -2235,7 +2321,7 @@
                                 {{ request()->routeIs('approval-rules.*') ? 'aria-current="page"' : '' }}
                                 class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-all active:scale-[0.98] {{ request()->routeIs('approval-rules.*') ? 'bg-[#007AFF] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
                                 <i data-lucide="shield-check" class="w-3.5 h-3.5 {{ request()->routeIs('approval-rules.*') ? 'text-white' : 'text-black/40 dark:text-white/40' }} shrink-0"></i>
-                                <span class="truncate">Aturan Persetujuan (MAR)</span>
+                                <span class="truncate">Aturan Persetujuan Transaksi (MAR)</span>
                             </a>
                         @endif
 
@@ -2253,7 +2339,7 @@
                                 {{ request()->routeIs('roles.*') ? 'aria-current="page"' : '' }}
                                 class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-all active:scale-[0.98] {{ request()->routeIs('roles.*') ? 'bg-[#007AFF] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
                                 <i data-lucide="shield" class="w-3.5 h-3.5 {{ request()->routeIs('roles.*') ? 'text-white' : 'text-black/40 dark:text-white/40' }} shrink-0"></i>
-                                <span class="truncate">Hak Akses &amp; Peran Staf</span>
+                                <span class="truncate">Izin Akses &amp; Peran Karyawan</span>
                             </a>
                         @endif
 
@@ -2266,17 +2352,19 @@
                             </a>
                         @endif
 
-                        <a href="{{ route('feedback.bugs.index') }}"
-                            {{ request()->routeIs('feedback.*') ? 'aria-current="page"' : '' }}
-                            class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-all active:scale-[0.98] {{ request()->routeIs('feedback.*') ? 'bg-[#007AFF] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
-                            <i data-lucide="life-buoy" class="w-3.5 h-3.5 {{ request()->routeIs('feedback.*') ? 'text-white' : 'text-[#FF9500]' }} shrink-0"></i>
-                            <span class="truncate">Bantuan &amp; Dukungan</span>
-                        </a>
+                        @if (\App\Support\Context::isOwner())
+                            <a href="{{ route('feedback.bugs.index') }}"
+                                {{ request()->routeIs('feedback.*') ? 'aria-current="page"' : '' }}
+                                class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-all active:scale-[0.98] {{ request()->routeIs('feedback.*') ? 'bg-[#007AFF] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
+                                <i data-lucide="life-buoy" class="w-3.5 h-3.5 {{ request()->routeIs('feedback.*') ? 'text-white' : 'text-[#FF9500]' }} shrink-0"></i>
+                                <span class="truncate">Bantuan &amp; Dukungan</span>
+                            </a>
+                        @endif
                     </div>
 
                     {{-- Submenu Melayang (Collapsed Flyout) --}}
                     <div x-show="sidebarCollapsed && activeFlyout === 'settings'" x-transition.opacity
-                        class="fixed left-[84px] -mt-8 w-60 p-2 rounded-[14px] bg-white/95 dark:bg-[#1C1C1E]/95 backdrop-blur-xl border border-black/5 dark:border-white/10 shadow-[0_16px_36px_rgba(0,0,0,0.18)] z-50 space-y-1 pointer-events-auto max-h-[85vh] overflow-y-auto overscroll-contain"
+                        class="fixed left-[84px] -mt-8 w-60 p-2 rounded-[14px] bg-white/95 dark:bg-[#1C1C1E]/95 backdrop-blur-xl border border-black/5 dark:border-white/10 shadow-[0_16px_36px_rgba(0,0,0,0.18)] z-50 space-y-1 pointer-events-auto max-h-[85vh] overflow-y-auto overscroll-contain before:content-[''] before:absolute before:-left-4 before:w-4 before:inset-y-0 before:z-50"
                         style="display: none;">
                         <div class="px-2.5 py-1 font-semibold text-xs text-black dark:text-white border-b border-black/5 dark:border-white/10 pb-1.5 mb-1">
                             Pengaturan Usaha
@@ -2297,7 +2385,7 @@
                             <a href="{{ route('approval-rules.index') }}"
                                 class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
                                 <i data-lucide="shield-check" class="w-3.5 h-3.5 text-[#007AFF]"></i>
-                                <span>Aturan Persetujuan (MAR)</span>
+                                <span>Aturan Persetujuan Transaksi (MAR)</span>
                             </a>
                         @endif
                         @if ($canAccessAuditLogs)
@@ -2311,7 +2399,7 @@
                             <a href="{{ route('roles.index') }}"
                                 class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
                                 <i data-lucide="shield" class="w-3.5 h-3.5 text-[#34C759]"></i>
-                                <span>Hak Akses &amp; Peran Staf</span>
+                                <span>Izin Akses &amp; Peran Karyawan</span>
                             </a>
                         @endif
                         @if ($canAccessBilling)
@@ -2321,11 +2409,13 @@
                                 <span>Paket Berlangganan &amp; Kuota</span>
                             </a>
                         @endif
-                        <a href="{{ route('feedback.bugs.index') }}"
-                            class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
-                            <i data-lucide="life-buoy" class="w-3.5 h-3.5 text-[#FF9500]"></i>
-                            <span>Bantuan &amp; Dukungan</span>
-                        </a>
+                        @if (\App\Support\Context::isOwner())
+                            <a href="{{ route('feedback.bugs.index') }}"
+                                class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
+                                <i data-lucide="life-buoy" class="w-3.5 h-3.5 text-[#FF9500]"></i>
+                                <span>Bantuan &amp; Dukungan</span>
+                            </a>
+                        @endif
                     </div>
                 </div>
             </div>

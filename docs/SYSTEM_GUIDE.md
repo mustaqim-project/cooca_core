@@ -44,9 +44,11 @@
    - [4.15 Arsitektur POS Hardware, ESC/POS Thermal Printer, Cash Drawer Safety & Local Agent Bridge](#415-arsitektur-pos-hardware-escpos-thermal-printer-cash-drawer-safety--local-agent-bridge)
    - [4.16 Cetak Biru Penataan 6-Hub Modul & Rekomendasi Optimasi Performa End-to-End](#416-cetak-biru-penataan-6-hub-modul--rekomendasi-optimasi-performa-end-to-end)
    - [4.17 Arsitektur Limitasi Subscription, Downgrade Auto-Gating, Pelacakan Storage & Data Pruning Previewer](#417-arsitektur-limitasi-subscription-downgrade-auto-gating-pelacakan-storage--data-pruning-previewer)
-   - [4.18 Arsitektur F&B Channel Multi-Pricing, Online Delivery Tags & Product Bundling Engine (Phases 1-4)](#418-arsitektur-fb-channel-multi-pricing-online-delivery-tags--product-bundling-engine-phases-1-4)
-5. [Matriks Penelusuran Pengetahuan (Traceability Matrix)](#5-matriks-penelusuran-pengetahuan-traceability-matrix)
-
+    ├──► Product Bundling Engine ────► docs/system/workflows/product-bundling-and-combo-flow.md ───────► Product & StockService
+    │                                                                                                         └──► WORK-2026-09-26-182
+    │
+    └──► Shell Navigasi Sidebar ────► docs/prd/PRD-14-SIDEBAR-NAVIGATION-REMEDIATION-UX-STABILITY.md ──► resources/views/layouts/partials/sidebar.blade.php
+                                                                                                          └──► WORK-2026-09-28-206
 ---
 
 ## 1. Ikhtisar Sistem & Filosofi Desain
@@ -113,13 +115,15 @@ Aplikasi ini dirancang untuk dapat dioperasikan secara percaya diri oleh **gener
   5. **Tutup Shift:** Hitung uang fisik di laci kasir di akhir hari. Sistem membandingkannya dengan catatan sistem dan mencatat selisih kas secara transparan.
 * **Dampak ke Bisnis:** Kasir tidak bisa membatalkan transaksi (void) atau mengambil uang secara diam-diam karena tindakan berisiko dilindungi **PIN Supervisor**. Pemotongan stok paket kombo merekursi seluruh komponen anak secara atomik tanpa duplikasi.
 
-### 3.3 Manajemen Stok & Penerimaan Bahan (Gudang & GR)
-* **Kapan Digunakan?** Saat pasokan bahan baku atau stok barang dari supplier datang ke toko/gudang.
-* **Cara Kerjanya:**
-  1. Buka menu **Penerimaan Barang (*Goods Receipt*)**.
-  2. Cocokkan fisik barang yang datang dengan Surat Pesanan (PO).
-  3. Simpan penerimaan.
-* **Otomasi Latar Belakang:** Sesaat setelah disimpan, stok bertambah seketika, HPP modal rata-rata diperbarui otomatis, dan tagihan hutang supplier (AP) langsung tercatat di menu keuangan tanpa perlu input ulang.
+### 3.3 Manajemen Jaringan Cabang, Gudang Logistik & Penerimaan Bahan (Warehouse Hub)
+* **Kapan Digunakan?** Saat Anda ingin mengelola titik fisik toko/outlet, mengatur hierarki gudang penyimpanan (Gudang Pusat vs Sub-Gudang Cabang), menentukan titik jemput ekspedisi online, membatasi radius geofence absensi karyawan, menerima pasokan PO supplier, atau melakukan penyesuaian stok fisik (Stock Adjustment).
+* **Fitur Utama & Keunggulan Operasional:**
+  1. **Hierarki Cabang & Multi-Gudang Terpadu:** Membedakan Gudang Pusat (DC) penampung kontainer supplier dari Sub-Gudang Cabang (Gudang Belakang / Etalase Depan / Dapur). Stok kasir teragregasi secara otomatis tanpa membuat data fiktif.
+  2. **Deteksi GPS & Integrasi Kurir Ekspedisi Otomatis:** Tombol `[📍 Deteksi Lokasi Saya]` mengambil koordinat satelit instan, melakukan reverse-geocoding alamat Indonesia otomatis, dan menyambungkan kode area kurir Biteship tanpa salah ketik manual.
+  3. **Absensi Berpagar Geofence Presisi:** Menentukan radius toleransi absensi (10 s/d 10.000 meter) agar presensi karyawan di portal staf terkunci pada titik fisik toko.
+  4. **Penerimaan Barang (*Goods Receipt* / GR) dari PO:** Mencocokkan surat jalan supplier dengan Purchase Order (PO). Stok fisik langsung bertambah, HPP modal diperbarui via Moving Average, dan hutang supplier (AP) tercatat otomatis di menu keuangan.
+  5. **Penyesuaian Stok Fisik Cepat & Analisis Dampak:** Mengoreksi selisih fisik riil langsung dari kartu bento gudang dengan live kalkulasi delta unit dan selisih valuasi rupiah HPP.
+* **Dampak ke Bisnis:** Distribusi stok antar-cabang terpantau transparan, valuasi aset persediaan akurat hingga rupiah terkecil, dan pengiriman kurir online toko storefront berjalan otomatis dari cabang utama terdekat.
 
 ### 3.4 Mengembangkan Kanal Penjualan Online (Storefront)
 * **Kapan Digunakan?** Membagikan link toko online Anda (`cooca.id/nama-toko-anda` atau alias `cooca.id/b/nama-toko-anda`) ke media sosial, Instagram Bio, atau status WhatsApp.
@@ -177,25 +181,39 @@ Aplikasi ini dirancang untuk dapat dioperasikan secara percaya diri oleh **gener
     - **Anti-FOUC Theme Synchronizer:** Inisialisasi tema instan berbasis database CMS toko (`var isLandingDark`) yang mencegah kedipan kontras saat halaman dimuat.
     - **Model Referensi FnB & Katering (Dapur Sedap Rasa):** Melalui `DapurSedapRasaSeeder.php` (`/dapur-sedap-rasa`), platform mendemonstrasikan kapabilitas ganda operasional: Order Offline (Kasir POS, 12 Meja Dine-in Indoor/Outdoor/VIP, Takeaway) dan Pre-Order (PO) Online Katering (Nasi Box, Tumpeng, Prasmanan, kuota pesanan, batch schedule delivery, transfer bank BCA/Mandiri & QRIS).
 
-### 3.9 Saluran WhatsApp Resmi (WhatsApp Cloud API Meta)
-* **Kapan Digunakan?** Saat Anda ingin mengirimkan struk kasir digital otomatis, faktur tagihan (invoice), kode OTP, dan notifikasi pesanan resmi langsung ke nomor WhatsApp pelanggan tanpa risiko blokir nomor.
+### 3.9 Saluran WhatsApp Resmi (WhatsApp Cloud API Meta & Broadcast Hub)
+* **Kapan Digunakan?** Saat Anda ingin mengirimkan struk kasir digital otomatis, faktur tagihan (invoice), kode OTP, notifikasi pesanan resmi, serta blast promosi massal langsung ke nomor WhatsApp pelanggan tanpa risiko blokir nomor.
 * **Fitur Utama & Keunggulan Operasional:**
   - **Onboarding Mandiri 1-Klik (Meta Embedded Signup):** Merchant cukup menghubungkan akun WhatsApp Business Facebook mereka melalui jendela pop-up resmi Meta tanpa perlu konfigurasi token manual yang rumit.
   - **Identitas Bisnis Resmi & Verified Badge:** Menampilkan nama bisnis resmi (`verified_name`) dan centang hijau Meta di chat pelanggan, meningkatkan kepercayaan dan kredibilitas UMKM.
-  - **Pengiriman Struk POS & Invoice Terstruktur:** Menggunakan template pesan resmi Meta yang disetujui, dilengkapi media gambar struk, rincian biaya, serta tombol tautan langsung ke struk digital interaktif.
-  - **Notifikasi Otomatis & Pemantauan Status Transparan:** Status pengiriman pesan terperinci secara live (`terkirim`, `diterima`, `dibaca`, `gagal`) dengan pemantauan rating kualitas nomor (GREEN/YELLOW/RED) dan batas kuota pesan (tier).
+  - **Pengiriman Struk POS & Invoice Terstruktur:** Menggunakan template pesan resmi Meta yang disetujui, dilengkapi media gambar struk, rincian biaya, serta tombol tautan langsung ke struk digital interaktif publik (`/receipt/{order}`) tanpa login merchant.
+  - **Penyusunan Broadcast Promosi Sadar Konteks (Context-Aware 20 Industri):** Modul komposer broadcast Bento XXL secara cerdas mendeteksi template sektor industri merchant (`fnb_*`, `service_workshop`, `service_laundry`, `mfg_*`, `service_contractor`, `retail_pharmacy`) dan menyajikan chip tag personal adaptif (`{meja}`, `{nopol}`, `{servis_terakhir}`, `{no_rak}`, `{berat_kg}`, `{no_spk}`, `{produk}`, `{proyek}`, `{termin}`, `{no_resep}`, `{poin}`, `{tier}`, `{bisnis}`) dengan live smartphone simulator WYSIWYG.
+  - **Peringatan Kepatuhan Regulasi Farmasi (Meta Health Policy & BPOM):** Banner proteksi proaktif khusus apotek (`retail_pharmacy`) yang mencegah pemblokiran nomor akun WABA akibat promosi obat keras / antibiotik / obat resep.
+  - **Peringatan Jam Istirahat Pelanggan (Quiet Hours 21:00–08:00 WIB):** Edukasi real-time waktu lokal merchant untuk mencegah pengiriman pesan di luar jam operasional wajar, menjaga skor kualitas nomor (*Meta Quality Rating*), dan mencegah laporan spam.
+  - **Perlindungan Privasi Pelanggan (PII Masking):** Penyamaran nomor telepon pelanggan (`0812••••7890`) bagi staf non-owner pada tabel log pesan dan detail penerima broadcast, serta pembatasan tautan eksternal `wa.me` khusus untuk Owner.
+  - **Notifikasi Otomatis & Pemantauan Status Transparan:** Status pengiriman pesan terperinci secara live (`terkirim`, `diterima`, `dibaca`, `gagal`) dengan pemantauan rating kualitas nomor (GREEN/YELLOW/RED) dan batas kuota pesan bulanan.
 
-### 3.10 Pengelolaan Media Sosial Terpadu (Meta & TikTok)
-* **Kapan Digunakan?** Saat pemilik toko ingin mengelola dan mempublikasikan materi promosi, video produk, dan foto katalog ke Facebook Page, Instagram Bisnis, Threads, dan TikTok secara serentak dari satu dashboard COOCA.
+### 3.10 Pengelolaan Media Sosial Terpadu (Meta, TikTok & LinkedIn)
+* **Kapan Digunakan?** Saat pemilik toko ingin mengelola dan mempublikasikan materi promosi, video produk, dan foto katalog ke Facebook Page, Instagram Bisnis, Threads, TikTok, dan LinkedIn secara serentak dari satu dashboard COOCA.
 * **Fitur Utama & Keunggulan Operasional:**
-  - **Koneksi Akun 1-Klik Resmi:** Menghubungkan akun Facebook, Instagram, Threads, dan TikTok melalui dialog otorisasi OAuth 2.0 resmi (Meta Login & TikTok Developer Platform) dengan pembaruan token otomatis (*auto-refresh*).
-  - **Composer Omnichannel Terpadu:** Membuat 1 konten promosi dan mendistribusikannya ke berbagai akun media sosial sekaligus, dengan pratinjau langsung (*live preview*) dan kustomisasi caption spesifik per kanal.
-  - **Instagram Carousel 2–10 Media dengan Drag & Drop:** Pengunggahan korsel foto/video Instagram multi-item dengan fitur penyusunan ulang urutan slide (*reordering tray*) yang mulus.
+  - **Koneksi Akun 1-Klik Resmi:** Menghubungkan akun Facebook, Instagram, Threads, TikTok, dan LinkedIn melalui dialog otorisasi OAuth 2.0 resmi (Meta Login for Business, TikTok Developer Platform, dan LinkedIn OpenID Connect) dengan pembaruan token otomatis (*auto-refresh*).
+  - **Composer Omnichannel Terpadu:** Membuat 1 konten promosi dan mendistribusikannya ke berbagai akun media sosial sekaligus, dengan pratinjau langsung (*live preview*), kustomisasi caption spesifik per kanal, serta pemenuhan panduan Do's & Don'ts untuk 20 sektor industri bisnis.
+  - **Instagram Carousel 2–10 Media dengan Reordering Tray:** Pengunggahan korsel foto/video Instagram multi-item dengan fitur penyusunan ulang urutan slide (*reordering tray*) yang mulus.
   - **Aturan Bisnis COOCA (Maksimal 5 Tagar Unik):** Menegakkan batas maksimal 5 tagar per postingan/kanal secara otomatis dengan deduplikasi case-insensitive dan indikator badge live (`Tagar: X / 5`) demi memaksimalkan jangkauan algoritma dan estetika feed.
-  - **Penyimpanan Server Bebas Beban (*Storage Auto-Purge*):** Berkas video/foto yang diunggah langsung dibersihkan permanen dari server COOCA segera setelah postingan sukses terbit ke API platform.
-  - **Kalender Konten & Analitik:** Tampilan kalender jadwal tayang bulanan dan pemantauan metrik impresi, jangkauan (*reach*), interaksi, dan komentar.
+  - **Penyimpanan Server Bebas Beban (*Storage Auto-Purge*):** Berkas video/foto yang diunggah langsung dibersihkan permanen dari server lokal COOCA setelah 1x24 jam publikasi berhasil untuk menjaga kapasitas storage disk server.
+  - **Kalender Konten & Analitik:** Tampilan kalender jadwal tayang bulanan dan pemantauan metrik impresi, jangkauan (*reach*), interaksi, dan komentar dengan tombol *Tarik Live*.
 
-### 3.11 Kepatuhan Pajak UMKM & Penggajian Karyawan (HRM & Tax Compliance Hub)
+### 3.11 Hub Integrasi Marketplace Omnichannel (Shopee, TikTok Shop & Tokopedia)
+* **Kapan Digunakan?** Saat pemilik usaha ingin mengintegrasikan inventori gudang, perbedaan harga jual (*channel pricing*), dan pesanan masuk dari toko resmi di Shopee, TikTok Shop, dan Tokopedia ke dalam satu pintu operasional COOCA.
+* **Fitur Utama & Keunggulan Operasional:**
+  - **Otorisasi Resmi 1-Pintu:** Menghubungkan akun toko resmi via OAuth 2.0 (Shopee Open V2 dan TikTok Shop Partner Center yang mengelola TikTok Shop + Tokopedia sekaligus) dengan penyimpanan token terenkripsi (`encrypted`).
+  - **Multi-Harga Per Channel & Faktor Pengali:** Menetapkan margin harga dinamis (misal: pengali `1.08` untuk menyerap biaya admin marketplace 8%) atau harga tetap manual per channel dari harga dasar COOCA.
+  - **Alokasi Stok Pengaman (Safety Buffer Stock):** Menyisihkan stok fisik di gudang utama agar tidak terpublikasikan ke marketplace, mencegah risiko kehabisan stok (*overselling*) saat kasir offline POS sedang melayani pelanggan toko fisik.
+  - **Anti-Margin Bleed Guard:** Peringatan visual proaktif saat harga jual saluran yang dimasukkan berada di bawah modal dasar produk (HPP) untuk mencegah kerugian finansial akibat salah ketik staf (*human error*).
+  - **Inbound Order Feed & Real-Time Sync:** Menarik pesanan masuk secara real-time via webhook HMAC SHA-256 terverifikasi atau penarikan massal terjadwal, lengkap dengan kurir ekspedisi dan nomor resi pelacakan.
+  - **Penegakan Regulasi 20 Sektor Industri:** Hard-lock pencegahan penjualan obat keras BPOM RI untuk sektor apotek, serta pemisahan produk barang fisik (*goods*) dari jasa (*service*) untuk sektor bengkel, salon, dan laundry.
+
+### 3.12 Kepatuhan Pajak UMKM & Penggajian Karyawan (HRM & Tax Compliance Hub)
 * **Kapan Digunakan?** Saat Anda ingin memantau kewajiban perpajakan bisnis (PPh Final UMKM 0.5% PP 55/2022, PB1 Restoran / PPN) atau mengelola seluruh operasional SDM & penggajian staf (profil data karyawan, struktur upah, BPJS Ketenagakerjaan & Kesehatan, pinjaman kasbon, pekerja harian lepas, penggajian bulanan batch PPh 21 TER A/B/C, dan slip gaji digital).
 * **Fitur Utama & Keunggulan Operasional:**
   - **HRM Hub Terpadu (`/hrm`):** 
@@ -209,7 +227,7 @@ Aplikasi ini dirancang untuk dapat dioperasikan secara percaya diri oleh **gener
   - **Kalkulator Interaktif 4-in-1:**
     1. *Simulasi PPh Final UMKM:* Menghitung tarif 0.5% berdasarkan omzet bulanan dan status wajib pajak.
     2. *Simulasi PPh 21 TER & Daily Worker:* Menghitung pemotongan bulanan TER Kategori A/B/C (PP 58/2023) dan upah harian lepas.
-### 3.12 Analitik Bisnis & Tren Pertumbuhan (Analytics Suite)
+### 3.13 Analitik Bisnis & Tren Pertumbuhan (Analytics Suite)
 * **Kapan Digunakan?** Saat pemilik usaha atau tim manajemen ingin meninjau performa penjualan, laba kotor riil, perbandingan antar-periode, dan pola belanja pelanggan.
 * **Fitur Utama & Keunggulan Operasional:**
   - **Konsolidasi Multi-Channel:** Menghitung omzet gabungan dari transaksi kasir POS, faktur B2B, dan toko online secara real-time.
@@ -218,7 +236,7 @@ Aplikasi ini dirancang untuk dapat dioperasikan secara percaya diri oleh **gener
   - **Distribusi Pembayaran:** Komposisi transaksi metode QRIS, Tunai, Transfer Bank, Kartu EDC, dan Kasbon.
   - **Top 10 Menu/Produk Terlaris:** Menampilkan kontribusi kuantitas dan margin produk terlaris dengan antarmuka dual-mode (Tabel Desktop & Kartu Mobile).
 
-### 3.13 Pusat Otorisasi Dokumen (MAR - Maker, Approver, Releaser)
+### 3.14 Pusat Otorisasi Dokumen (MAR - Maker, Approver, Releaser)
 * **Kapan Digunakan?** Saat bisnis menerapkan tata kelola bertingkat untuk pengeluaran biaya operasional, tagihan supplier, dan permohonan pengadaan barang (Purchase Order) di atas ambang nominal tertentu.
 * **Fitur Utama & Keunggulan Operasional:**
   - **Pemisahan Wewenang (Segregation of Duties):** Staf pembuat draf (*Maker*) mengajukan dokumen, sementara penyetujuan diotorisasi berjenjang (*Level 1 Supervisor -> Level 2 Manager -> Level 3 Owner*).
@@ -226,7 +244,7 @@ Aplikasi ini dirancang untuk dapat dioperasikan secara percaya diri oleh **gener
   - **Pencegahan Fraud & Auto-Journaling:** Dokumen yang ditolak otomatis diblokir dari pencairan kas; dokumen yang disetujui penuh secara otomatis terhubung ke pemotongan stok bahan baku (BOM) dan jurnal akuntansi berimbang.
   - **Manajemen Plafon Mandiri:** Pemilik usaha dapat mengatur batas nominal minimal dan tingkatan penyetuju langsung melalui modal sheet in-place.
 
-### 3.14 Portal Karyawan & Presensi Mandiri (Staff Personal Attendance & Workstation Hub)
+### 3.15 Portal Karyawan & Presensi Mandiri (Staff Personal Attendance & Workstation Hub)
 * **Kapan Digunakan?** Setiap hari saat staf toko (kasir, barista, pelayan, staf gudang) mulai bertugas atau mengakhiri shift.
 * **Fitur & Keamanan Alur Kerja:**
   - **Pengalihan Otomatis Non-Eksekutif:** Staf tanpa hak akses `dashboard.view` otomatis dialihkan ke `/portal` alih-alih menemui error 403 Forbidden.
@@ -269,12 +287,19 @@ Seluruh aktivitas pengembangan dan perbaikan sistem oleh AI Agent atau Engineer 
 * **10 Aspek Pemicu Pembaruan `docs/system/`:** Pembaruan Layer 2 `docs/system/` wajib dilakukan jika perubahan menyentuh salah satu dari: (1) Arsitektur sistem, (2) Struktur database, (3) Modul/fitur, (4) Alur bisnis, (5) Integrasi, (6) Konfigurasi, (7) API/Endpoint, (8) Permission/role, (9) Workflow operasional, (10) Struktur file/komponen.
 * **Status Penyelesaian:** Tugas yang hanya mencatatkan history di `AiWorkHistory.md` tanpa menyelaraskan `SYSTEM_GUIDE.md` dan `docs/system/` diklasifikasikan sebagai **BELUM SELESAI (INCOMPLETE / PARTIAL)** dan tidak dapat dinyatakan `VERIFIED` atau `COMPLETED`.
 
-### 4.6 Arsitektur Multi-Tenant WhatsApp Cloud API
+### 4.6 Arsitektur Multi-Tenant WhatsApp Cloud API & Hardening Terpadu
 * **Pemisahan Kredensial Multi-Tenant:** Setiap merchant memiliki satu rekaman data pada tabel `whatsapp_accounts` yang menyimpan `waba_id`, `phone_number_id`, `phone_number`, dan `access_token`.
 * **Enkripsi Otomatis Atribut Sensitif:** Kolom `access_token` dienkripsi secara otomatis pada level basis data menggunakan native Laravel cast `'access_token' => 'encrypted'` (AES-256-CBC dengan `APP_KEY`), mencegah kebocoran kredensial saat backup basis data.
 * **Asynchronous Webhook Processing via Redis:** Endpoint webhook Meta (`/api/v1/wa/meta/webhook`) segera memvalidasi tanda tangan kriptografis HMAC-SHA256 (`X-Hub-Signature-256`) menggunakan `hash_equals()` dan mendispatch event ke antrean Redis Job (`ProcessWhatsAppWebhookJob`), mengembalikan HTTP 200 dalam waktu <200ms untuk memenuhi SLA Meta.
 * **Isolasi Pemrosesan Event:** `WhatsAppWebhookService` memetakan `phone_number_id` yang tertera pada metadata webhook ke `business_id` tenant merchant secara presisi, menjamin pesan masuk dan pembaruan status tidak pernah tertukar lintas tenant.
 * **Client HTTP Andal dengan Retry Logic:** `WhatsAppClient` membungkus pemanggilan Graph API v26.0 dengan retry otomatis (hingga 3 kali percobaan) pada galat jaringan transien (HTTP 429 Rate Limit dan HTTP 5xx Server Error Meta) dan audit logging terstruktur per-tenant.
+* **Proteksi Anti-Fraud & Audit Struk Kasir (`receipt.phone_override`):** Saat kasir mengubah nomor telepon penerima struk digital di luar data pelanggan terdaftar, `PosTerminalWebController@sendReceipt` mencatat audit log permanen (`audit_logs`) memuat nomor awal, nomor pengalihan, ID kasir, IP address, dan User Agent.
+* **Idempotency Key Lock 300 Detik:** `WhatsAppBroadcastWebController@store` mengamankan penjadwalan broadcast dengan kunci atomik cache (`Cache::add("broadcast_lock_{$hash}", true, 300)`) berbasis hash `business_id + title + message`, mencegah pengiriman ganda akibat lag koneksi atau double-click.
+* **Mitigasi Anti-SSRF Banner Media:** Validasi URL banner pada broadcast memverifikasi protokol `https://` dan menolak seluruh IP privat (RFC 1918), IP loopback (127.0.0.1/localhost), dan metadata cloud providers (169.254.169.254).
+* **Rate Limiting & E.164 Normalization:** Endpoint konsol uji coba `POST /whatsapp/test` dilindungi pembatasan ketat `throttle:5,1` dan konversi deterministik format nomor lokal `08xx` &rarr; `628xx`.
+* **Masking PII Nomor Telepon & Proteksi wa.me:** Nomor pelanggan pada log pesan dan daftar penerima kampanye dimasking (`0812••••7890`) bagi pengguna non-owner via `\App\Support\Context::isOwner()`, dan tombol eksternal `wa.me` hanya diizinkan untuk Owner guna mencegah pembajakan database kontak pelanggan oleh staf.
+* **Arsitektur Modal-First XXL & Anti Double-Submit:** Penyatuan halaman create ke modal sheet Bento XXL di halaman index via pengalihan anggun (`whatsapp.broadcast.create` &rarr; `whatsapp.broadcast.index?open_composer=1`), dilengkapi proteksi `submitting: false` dengan tombol terkunci dan SVG spinner animasi.
+* **Sadar Konteks 20 Industri, Meta Health Policy & Quiet Hours:** Komposer broadcast secara otomatis menyajikan kamus tag personal adaptif per klaster industri (`fnb_*`, `service_workshop`, `service_laundry`, `mfg_*`, `service_contractor`, `retail_pharmacy`), menyematkan banner peringatan hukum Meta Health Policy & BPOM khusus apotek, serta deteksi jam istirahat pelanggan (*Quiet Hours* 21:00–08:00 WIB) berbasis waktu lokal.
 
 ### 4.7 Arsitektur Media Sosial Omnichannel (Meta, TikTok & LinkedIn UGC Post API)
 * **Zero .env Architecture & Database-Driven Settings:** Seluruh konfigurasi platform (`social_media_app_id`, `social_media_app_secret`, `instagram_app_id`, `instagram_app_name`, `instagram_app_secret`, `instagram_access_token`, `tiktok_client_key`, `tiktok_client_secret`, `linkedin_client_id`, `linkedin_client_secret`) dikelola eksklusif melalui antarmuka Superadmin `resources/views/admin/settings` (Tab "Media Sosial") dan tersimpan di tabel `system_settings` dengan flag rahasia `is_secret = true`, tanpa menyentuh file `.env`.
@@ -411,6 +436,51 @@ Berdasarkan dokumen arsitektur `docs/BLUEPRINT_TIER_PRICING_DAN_LIMITASI_COOCA.m
   - **Pemotongan & Pengembalian Stok Rekursif:** `StockService::deductForProductSale()` memotong stok produk anak fisik pada `inventory_stocks` dan merekursi `getMaterialDeductions()` (Case 0) untuk produk anak bertipe resep BOM secara atomik. Pada aksi refund/void kasir, `StockService::restoreForPosRefund()` memulihkan kembali seluruh komponen anak secara otomatis.
   - **Antarmuka Master Produk (Bento Apple HIG):** Dynamic child item repeater pada modal tambah/ubah produk dengan live estimasi total HPP modal dan harga normal.
 
+### 4.19 Arsitektur Manajemen Gudang & Multi-Cabang Terpadu, Geocoding GPS, dan Mitigasi Fraud Internal
+* **Arsitektur Multi-Hierarki Cabang & Titik Simpan Fisik (`locations`):**
+  - Struktur self-referencing `parent_id` membedakan Gudang Pusat (DC) penampung kontainer supplier dari Sub-Gudang Cabang (Gudang Belakang, Etalase Depan, Dapur/Workshop Produksi).
+  - Agregasi ketersediaan stok fisik kasir POS dihitung dinamis via `Location::resolveLocationIds()` tanpa membuat saldo cabang fiktif.
+  - Pemotongan stok otomatis (`StockService::deductForProductSale`) mendahulukan saldo cabang lalu merekursi ke sub-gudang fisik yang menyimpan barang secara atomik.
+* **Geocoding Otomatis & Geofencing Absensi Staf:**
+  - Integrasi Geolocation API HTML5 dengan backend reverse-geocoding (`GeoLocationService`) yang memetakan koordinat lat/lng satelit ke nama jalan, kelurahan, kecamatan, dan kode pos secara instan.
+  - Pencarian area kurir Biteship terintegrasi otomatis untuk menetapkan titik penjemputan (*origin location*) kurir toko online storefront (`CommerceStoreSetting`).
+  - Radius geofence presisi (`geofence_radius_meters`) menjadi pagar virtual absensi karyawan di portal staf (`/portal`).
+* **Audit Proteksi Fraud & Kepatuhan Integritas Buku Besar (Defensive Controls):**
+  - Penyesuaian stok cepat (`quickAdjust`) wajib divalidasi kepemilikan tenant (`business_id`) untuk mencegah kerentanan IDOR.
+  - Penyesuaian stok minus (write-off) bernilai tinggi wajib dilindungi otorisasi **Supervisor PIN**, pemilihan kode Berita Acara baku (rusak, kadaluarsa, selisih opname, hilang), serta memicu pencatatan jurnal akuntansi otomatis (*Auto-Journal Beban Kerugian Selisih Persediaan* vs *Persediaan Barang Dagang*) agar Neraca Keuangan tetap seimbang dengan stok fisik riil.
+  - Penghapusan lokasi fisik dilarang menggunakan hard-delete jika telah memiliki jejak transaksi historis (`stock_movements`, `goods_receipts`, `pos_orders`) guna mencegah kerusakan integritas foreign key dan kehilangan audit trail.
+* **Penegakan Antarmuka Sadar Konteks (*Context-Aware UI*) untuk 20 Sektor Industri:**
+  - Opsi dropdown `central_kitchen` ("Dapur Pusat") dikawal ketat oleh `template_code` agar hanya tampil untuk industri kuliner/F&B, dan bertransformasi menjadi *"Pabrik / Workshop Produksi"* pada manufaktur atau *"Basecamp / Workshop Proyek"* pada kontraktor.
+  - Tombol aksi *"Pengiriman Storefront"* dan *"Katalog Bahan"* disembunyikan otomatis jika modul `merchant_shipping` atau `recipe_bom` dinonaktifkan oleh preset industri pengguna.
+
+---
+
+### 4.20 Arsitektur Shell Navigasi Sidebar Bento Apple HIG, Invisible Hover Bridge & RBAC Paritas
+* **Arsitektur Shell Navigasi Dua Mode (Expanded 272px & Collapsed Rail 76px):**
+  - Mengatur navigasi 71 rute modul bisnis UMKM terdistribusi dalam 8 grup terpadu (Overview, POS Kasir, Penjualan B2B, Produk & Logistik, Pembelian & Supplier, Pelanggan & Pemasaran, Keuangan & Biaya, Laporan & Analitik, dan Pengaturan Usaha).
+  - Mengimplementasikan standar ergonomi sentuh Apple HIG dengan tinggi target klik minimal 44px (`--sidebar-row: 2.75rem`), radius squircle `rounded-[8px]`, dan micro-copy ramah pengguna senior (40–65 tahun).
+* **Rekayasa Jembatan Hover Anti-Flicker (*Invisible Hover Bridge*):**
+  - Mengatasi celah fisik 8px antara rel sidebar (76px) dan popover flyout (`left-[84px]`).
+  - Seluruh 9 kontainer flyout (`div[x-show*="sidebarCollapsed && activeFlyout === ..."]`) dilengkapi pseudo-elemen CSS tak kasat mata selebar 16px ke kiri:
+    `before:content-[''] before:absolute before:-left-4 before:w-4 before:inset-y-0 before:z-50`.
+  - Mencegah *mouse-leave* / penutupan popover mendadak saat pengguna menggerakkan kursor diagonal menggunakan trackpad atau mouse.
+* **Penegakan Paritas Tautan 100% Antar-Mode:**
+  - Menghilangkan diskrepansi 12 menu yang sebelumnya hilang saat mode collapsed, memastikan seluruh menu Master Data Logistik (Kategori Produk, Bahan Baku, Satuan Ukur, Impor Excel), Omnichannel (WhatsApp Broadcast, Jadwal Medsos), Kalkulasi (Simulator HPP, Biaya Mesin), dan HR (Data Karyawan & Slip Gaji) dapat diakses identik pada kedua mode.
+* **Palet Warna Aksen Semantik Apple HIG Resmi:**
+  - Ikon grup pada rel collapsed dan akordeon aktif menggunakan palet semantik Apple HIG terstandarisasi untuk memori visual instan:
+    - POS & Dashboard: `#007AFF` (Apple System Blue)
+    - Penjualan B2B: `#5856D6` (Apple Indigo)
+    - Logistik & Stok: `#FF9500` (Apple Amber)
+    - Pengadaan & Supplier: `#30B0C7` (Apple Cyan)
+    - Pemasaran & Saluran: `#FF2D55` (Apple Rose)
+    - Kas & Keuangan: `#34C759` (Apple Emerald)
+    - Laporan & Pajak: `#AF52DE` (Apple Purple)
+    - Pengaturan Usaha: `#8E8E93` (Apple Slate)
+* **Penegakan Keamanan RBAC Zero-Error:**
+  - Rute bantuan dan pelaporan bug (`feedback.bugs.index`) dilindungi eksklusif oleh `@if (\App\Support\Context::isOwner())` di kedua mode, mencegah HTTP 403 bagi staf non-owner.
+  - Rute impor massal (`/import`) diselaraskan dengan backend middleware `require.permission:materials.view,products.view`.
+  - Rute pajak `tax.index` dikonsolidasikan tunggal ke Grup 7 (Laporan & Analitik) dengan label resmi *"Laporan Pajak & Kepatuhan"* dan guard `reports.view || isOwner() || canAccessFinance`.
+
 ---
 
 ## 5. Matriks Penelusuran Pengetahuan (Traceability Matrix)
@@ -487,8 +557,8 @@ Dokumentasi Cooca saling terhubung secara dua arah untuk memudahkan penelusuran 
    ├──► Modul HRM & Tax Engine ────► docs/system/modules/hrm-and-tax.md ────────────► app/Domain/Tax/ & app/Domain/HRM/
    │                                                                                    └──► WORK-2026-09-19-085
    │
-   ├──► Modul Gudang & Cabang ─────► docs/system/modules/inventory.md ──────────────► resources/views/app/warehouse/
-   │                                                                                    └──► WORK-2026-09-26-171
+   ├──► Modul Gudang & Cabang ─────► docs/system/workflows/warehouse-logistics-and-multi-branch-flow.md ──► resources/views/app/warehouse/
+   │                                                                                                          └──► WORK-2026-09-27-187
    │
    ├──► Modul Produk & BOM ────────► docs/system/modules/costing.md ────────────────► resources/views/app/products/
    │                                                                                    └──► WORK-2026-09-26-171
@@ -502,10 +572,9 @@ Dokumentasi Cooca saling terhubung secara dua arah untuk memudahkan penelusuran 
    ├──► POS Channel Multi-Pricing ──► docs/system/workflows/pos-channel-pricing-and-delivery-flow.md ──► PosTerminalWebController
    │                                                                                                   └──► WORK-2026-09-26-181
    │
-   └──► Product Bundling Engine ────► docs/system/workflows/product-bundling-and-combo-flow.md ───────► Product & StockService
+   ├──► Product Bundling Engine ────► docs/system/workflows/product-bundling-and-combo-flow.md ───────► Product & StockService
                                                                                                         └──► WORK-2026-09-26-182
+    │
+    └──► Shell Navigasi Sidebar ────► docs/prd/PRD-14-SIDEBAR-NAVIGATION-REMEDIATION-UX-STABILITY.md ──► resources/views/layouts/partials/sidebar.blade.php
+                                                                                                          └──► WORK-2026-09-28-206
 ```
-
----
-*Dokumen ini merupakan panduan resmi hidup (living guide) sistem Cooca ERP & POS. Setiap pembaruan fungsional atau arsitektur pada source code wajib tercermin dalam System Knowledge Base dan diperbarui di System Guide ini.*
-

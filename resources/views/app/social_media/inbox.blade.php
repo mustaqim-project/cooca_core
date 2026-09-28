@@ -169,7 +169,7 @@
                                 </span>
                             @endif
 
-                            <button @click="prepareReply('{{ $c->id }}', '{{ addslashes($c->sender_name ?: 'Pengguna') }}', '{{ addslashes($c->message) }}', '{{ $c->platform }}')"
+                            <button type="button" @click="prepareReply(@js($c->id), @js($c->sender_name ?: 'Pengguna ' . ucfirst($c->platform)), @js($c->message), @js($c->platform))"
                                 class="h-8 px-3.5 rounded-[9px] text-[12.5px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] transition-all inline-flex items-center gap-1.5 shadow-sm">
                                 <i data-lucide="corner-up-left" class="w-3.5 h-3.5"></i>
                                 <span>Balas</span>
@@ -184,61 +184,69 @@
             </div>
         @endif
 
-        {{-- 5. REPLY MODAL SHEET --}}
+        {{-- 5. REPLY MODAL SHEET (Apple HIG Bento Card Design) --}}
         <div x-show="openReplyModal" style="display: none;"
             class="fixed inset-0 z-50 overflow-y-auto bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
-            <div class="relative w-full max-w-lg rounded-[22px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 shadow-2xl p-6 space-y-4"
+            <div class="relative w-full max-w-2xl rounded-[24px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 shadow-2xl p-6 sm:p-7 space-y-5"
                 @click.away="openReplyModal = false">
 
                 {{-- Modal Header --}}
-                <div class="flex items-center justify-between pb-3 border-b border-black/5 dark:border-white/10">
-                    <div class="flex items-center gap-2.5">
-                        <div class="w-8 h-8 rounded-[10px] bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center font-bold">
-                            <i data-lucide="corner-up-left" class="w-4 h-4"></i>
+                <div class="flex items-center justify-between pb-3.5 border-b border-black/5 dark:border-white/10">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-[14px] bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center font-bold">
+                            <i data-lucide="corner-up-left" class="w-5 h-5"></i>
                         </div>
                         <div>
-                            <h3 class="text-[15px] font-bold text-black dark:text-white">Kirim Balasan Komentar</h3>
-                            <p class="text-[11.5px] text-black/55 dark:text-white/55">Balasan akan dipublikasikan atas nama akun resmi toko</p>
+                            <h3 class="text-[16px] font-bold text-black dark:text-white">Kirim Balasan Komentar</h3>
+                            <p class="text-[12px] text-black/55 dark:text-white/55">Balasan akan dipublikasikan langsung ke saluran pelanggan atas nama akun resmi toko</p>
                         </div>
                     </div>
-                    <button @click="openReplyModal = false" class="text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white p-1">
+                    <button type="button" @click="openReplyModal = false" class="text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white p-1 rounded-full hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
                         <i data-lucide="x" class="w-5 h-5"></i>
                     </button>
                 </div>
 
-                {{-- Original Comment Preview --}}
-                <div class="p-3.5 rounded-[14px] bg-black/[0.03] dark:bg-white/[0.04] border border-black/5 dark:border-white/5 space-y-1">
-                    <div class="text-[11.5px] font-bold text-black/60 dark:text-white/60 flex items-center gap-1.5">
-                        <span x-text="activeSender"></span>
-                        <span class="uppercase text-[10px] px-1.5 py-0.2 rounded bg-black/10 dark:bg-white/10 font-semibold" x-text="activePlatform"></span>
+                {{-- Original Comment Preview (Apple HIG Bento Card) --}}
+                <div class="p-4 rounded-[16px] bg-black/[0.03] dark:bg-white/[0.04] border border-black/5 dark:border-white/5 space-y-2.5">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2.5 min-w-0">
+                            <div class="w-7 h-7 rounded-full bg-gradient-to-tr from-[#007AFF] to-[#5856D6] text-white text-[11px] font-bold flex items-center justify-center shadow-xs shrink-0"
+                                x-text="activeSender ? activeSender.charAt(0).toUpperCase() : 'U'">
+                            </div>
+                            <div class="flex items-center gap-2 min-w-0">
+                                <span class="text-[13px] font-bold text-black dark:text-white truncate" x-text="activeSender"></span>
+                                <span class="uppercase text-[10px] font-mono px-2 py-0.5 rounded-full bg-black/10 dark:bg-white/10 font-bold tracking-wider text-black/70 dark:text-white/70 shrink-0" x-text="activePlatform"></span>
+                            </div>
+                        </div>
+                        <span class="text-[11px] font-medium text-black/40 dark:text-white/40 shrink-0">Komentar Pelanggan</span>
                     </div>
-                    <p class="text-[12.5px] text-black/80 dark:text-white/80 italic" x-text="'&quot;' + activeMessage + '&quot;'"></p>
+                    <p class="text-[13px] text-black/85 dark:text-white/85 leading-relaxed bg-white/70 dark:bg-black/25 p-3 rounded-[12px] border border-black/5 dark:border-white/5 italic" x-text="'&quot;' + activeMessage + '&quot;'"></p>
                 </div>
 
                 {{-- Reply Textarea --}}
                 <div class="space-y-1.5">
-                    <div class="flex items-center justify-between text-[12px] font-semibold text-black/70 dark:text-white/70">
+                    <div class="flex items-center justify-between text-[12.5px] font-semibold text-black/70 dark:text-white/70">
                         <label>Pesan Balasan Anda</label>
                         <span class="text-[11px] text-black/40 dark:text-white/40 tabular-nums font-normal" x-text="replyText.length + ' / 1000'"></span>
                     </div>
-                    <textarea rows="3" x-model="replyText"
+                    <textarea rows="4" x-model="replyText"
                         placeholder="Ketik balasan ramah untuk pelanggan Anda..."
-                        class="w-full p-3 rounded-[12px] text-[13px] bg-black/[0.03] dark:bg-white/[0.05] border border-black/10 dark:border-white/10 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] resize-none"></textarea>
+                        class="w-full p-3.5 rounded-[14px] text-[13px] bg-black/[0.03] dark:bg-white/[0.05] border border-black/10 dark:border-white/10 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] resize-none"></textarea>
                 </div>
 
                 {{-- Status / Error notification inside modal --}}
                 <div x-show="errorMessage" style="display: none;"
-                     class="p-2.5 rounded-[10px] bg-[#FF3B30]/10 border border-[#FF3B30]/20 text-[12px] text-[#FF3B30]"
+                     class="p-3 rounded-[12px] bg-[#FF3B30]/10 border border-[#FF3B30]/20 text-[12.5px] text-[#FF3B30] flex items-center gap-2"
                      x-text="errorMessage"></div>
 
                 {{-- Modal Footer --}}
-                <div class="pt-2 flex items-center justify-end gap-2 border-t border-black/5 dark:border-white/10">
+                <div class="pt-3 flex items-center justify-end gap-2.5 border-t border-black/5 dark:border-white/10">
                     <button type="button" @click="openReplyModal = false" :disabled="isSubmitting"
-                        class="h-8 px-3.5 rounded-[9px] text-[12.5px] font-semibold text-black/70 dark:text-white/70 hover:bg-black/[0.05] dark:hover:bg-white/[0.08] transition-colors">
+                        class="h-9 px-4 rounded-[10px] text-[13px] font-semibold text-black/70 dark:text-white/70 hover:bg-black/[0.05] dark:hover:bg-white/[0.08] transition-colors">
                         Batal
                     </button>
                     <button type="button" @click="sendReply()" :disabled="!replyText.trim() || isSubmitting"
-                        class="h-8 px-4 rounded-[9px] text-[12.5px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] disabled:opacity-50 disabled:pointer-events-none transition-all flex items-center gap-1.5 shadow-sm">
+                        class="h-9 px-5 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] disabled:opacity-50 disabled:pointer-events-none transition-all flex items-center gap-1.5 shadow-sm">
                         <i data-lucide="send" class="w-3.5 h-3.5" x-show="!isSubmitting"></i>
                         <i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin" x-show="isSubmitting" style="display: none;"></i>
                         <span x-text="isSubmitting ? 'Mengirim...' : 'Kirim Balasan'"></span>
@@ -296,14 +304,30 @@
                             const badge = document.getElementById(`badge-${this.activeCommentId}`);
                             if (badge) {
                                 badge.className = 'px-2.5 py-1 rounded-full text-[11.5px] font-semibold bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158] inline-flex items-center gap-1.5';
-                                badge.innerHTML = '<svg class="w-3.5 h-3.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span>Sudah Dibalas</span>';
+                                badge.replaceChildren();
+                                const icon = document.createElement('i');
+                                icon.setAttribute('data-lucide', 'check');
+                                icon.className = 'w-3.5 h-3.5';
+                                const textSpan = document.createElement('span');
+                                textSpan.textContent = 'Sudah Dibalas';
+                                badge.appendChild(icon);
+                                badge.appendChild(textSpan);
+                                if (window.lucide) window.lucide.createIcons();
                             }
-                            alert('Balasan berhasil dikirim ke platform media sosial.');
+                            if (window.AppAlert) {
+                                AppAlert.success('Balasan berhasil dikirim ke platform media sosial.');
+                            }
                         } else {
                             this.errorMessage = data.error || 'Gagal mengirim balasan.';
+                            if (window.AppAlert) {
+                                AppAlert.error(this.errorMessage);
+                            }
                         }
                     } catch (err) {
                         this.errorMessage = 'Terjadi kesalahan jaringan atau server.';
+                        if (window.AppAlert) {
+                            AppAlert.error(this.errorMessage);
+                        }
                     } finally {
                         this.isSubmitting = false;
                     }

@@ -404,6 +404,23 @@ class Business extends Model
         return ($this->business_scale ?? '') === self::SCALE_CORPORATE;
     }
 
+    public function isPharmacy(): bool
+    {
+        $code = strtolower((string) ($this->template_code ?? $this->industry_category ?? ''));
+        return $code === 'retail_pharmacy' || str_contains(strtolower($this->name), 'apotek') || str_contains(strtolower($this->name), 'farmasi');
+    }
+
+    public function isServiceSector(): bool
+    {
+        $code = strtolower((string) ($this->template_code ?? $this->industry_category ?? ''));
+        $serviceCodes = [
+            'service_workshop', 'service_barbershop', 'service_laundry',
+            'service_autodetailing', 'service_agency', 'service_contractor',
+            'service_event', 'bengkel', 'salon', 'laundry', 'carwash',
+        ];
+        return in_array($code, $serviceCodes, true);
+    }
+
     public function approvalRules(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(ApprovalRule::class);

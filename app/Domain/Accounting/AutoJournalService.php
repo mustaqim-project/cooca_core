@@ -15,6 +15,7 @@ use App\Models\PosOrder;
 use App\Models\PosOrderPayment;
 use App\Models\PurchaseReturn as PurchaseReturnModel;
 use App\Models\SalesReturn;
+use App\Models\StockMovement;
 use App\Models\SupplierPayment;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -45,6 +46,8 @@ final class AutoJournalService
             ['code' => '6-6001', 'name' => 'Beban Diskon Penjualan', 'type' => ChartOfAccount::TYPE_EXPENSE, 'normal_balance' => 'debit'],
             ['code' => '6-6002', 'name' => 'Beban Operasional Toko', 'type' => ChartOfAccount::TYPE_EXPENSE, 'normal_balance' => 'debit'],
             ['code' => '6-6003', 'name' => 'Beban Administrasi Gateway (MDR)', 'type' => ChartOfAccount::TYPE_EXPENSE, 'normal_balance' => 'debit'],
+            ['code' => '6-6004', 'name' => 'Beban Kerugian Selisih Persediaan', 'type' => ChartOfAccount::TYPE_EXPENSE, 'normal_balance' => 'debit'],
+            ['code' => '7-7004', 'name' => 'Pendapatan Selisih Stok', 'type' => ChartOfAccount::TYPE_REVENUE, 'normal_balance' => 'credit'],
         ];
 
 
@@ -803,5 +806,89 @@ final class AutoJournalService
             return $entry;
         });
     }
+
+    /**
+     * Automatically generate double-entry journal for stock adjustment / opname variance.
+     *
+     * Jika $quantityChange < 0 (Stok berkurang / selisih minus):
+     *   Debit:  Beban Kerugian Selisih Persediaan (6-6004)
+     *   Kredit: Persediaan Barang Dagang (1-1004)
+     *
+     * Jika $quantityChange > 0 (Stok bertambah / selisih plus):
+     *   Debit:  Persediaan Barang Dagang (1-1004)
+     *   Kredit: Pendapatan Selisih Stok (7-7004)
+     */
+    public function recordStockAdjustmentJournal(
+        Business $business,
+        StockMovement $movement,
+        float $quantityChange,
+        float $unitCost,
+        ?string $userId = null
+    ): ?JournalEntry {
+        $amount = round(abs($quantityChange * $unitCost), 2);
+        if ($amount <= 0) {
+            return null;
+        }
+
+        $this->ensureStandardAccounts($business);
+
+        $inventoryAccount = $this->getAccount($business, '1-1004');
+        $expenseAccount = $this->getAccount($business, '6-6004');
+        $revenueAccount = $this->getAccount($business, '7-7004');
+
+        if (! $inventoryAccount || ! $expenseAccount || ! $revenueAccount) {
+            return null;
+        }
+
+        return DB::transaction(function () use (
+            $business,
+            $movement,
+            $quantityChange,
+            $amount,
+            $inventoryAccount,
+            $expenseAccount,
+            $revenueAccount,
+            $userId
+        ) {
+            $isNegative = $quantityChange < 0;
+            $debitAccount = $isNegative ? $expenseAccount : $inventoryAccount;
+            $creditAccount = $isNegative ? $inventoryAccount : $revenueAccount;
+
+            $description = $isNegative
+                ? "Beban selisih stok berkurang: " . ($movement->notes ?: 'Penyesuaian stok')
+                : "Penyesuaian surplus stok: " . ($movement->notes ?: 'Penyesuaian stok');
+
+            $entry = JournalEntry::create([
+                'business_id' => $business->id,
+                'entry_number' => 'JRN-ADJ-' . date('Ymd') . '-' . Str::upper(Str::random(6)),
+                'entry_date' => now()->toDateString(),
+                'reference_type' => JournalEntry::REF_STOCK_ADJUSTMENT,
+                'reference_id' => $movement->id,
+                'description' => $description,
+                'total_debit' => $amount,
+                'total_credit' => $amount,
+                'created_by' => $userId,
+            ]);
+
+            JournalEntryLine::create([
+                'journal_entry_id' => $entry->id,
+                'account_id' => $debitAccount->id,
+                'type' => JournalEntryLine::TYPE_DEBIT,
+                'amount' => $amount,
+                'notes' => $isNegative ? 'Beban kerugian selisih persediaan' : 'Penambahan nilai persediaan',
+            ]);
+
+            JournalEntryLine::create([
+                'journal_entry_id' => $entry->id,
+                'account_id' => $creditAccount->id,
+                'type' => JournalEntryLine::TYPE_CREDIT,
+                'amount' => $amount,
+                'notes' => $isNegative ? 'Pengurangan nilai persediaan' : 'Pendapatan surplus selisih stok',
+            ]);
+
+            return $entry;
+        });
+    }
 }
+
 

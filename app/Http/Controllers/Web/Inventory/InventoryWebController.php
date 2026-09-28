@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Web\Inventory;
 
+use App\Domain\Accounting\AutoJournalService;
 use App\Domain\Inventory\StockService;
 use App\Http\Controllers\Controller;
 use App\Models\InventoryStock;
@@ -24,13 +25,16 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 final class InventoryWebController extends Controller
 {
     public function __construct(
-        private readonly StockService $stockService = new StockService
+        private readonly StockService $stockService = new StockService,
+        private readonly AutoJournalService $journalService = new AutoJournalService
     ) {}
 
     /**
@@ -84,12 +88,23 @@ final class InventoryWebController extends Controller
         $user = auth()->user();
 
         $validated = $request->validate([
-            'location_id' => ['required', 'string'],
-            'product_id' => ['required', 'string'],
+            'location_id' => ['required', 'uuid', Rule::exists('locations', 'id')->where('business_id', $business->id)],
+            'product_id' => ['required', 'uuid', Rule::exists('products', 'id')->where('business_id', $business->id)],
             'new_quantity' => ['required', 'numeric', 'min:0'],
             'unit_cost' => ['nullable', 'numeric', 'min:0'],
-            'notes' => ['nullable', 'string', 'max:255'],
+            'reason_code' => ['nullable', 'string', Rule::in(['damaged', 'expired', 'opname_variance', 'theft_loss', 'initial_balance', 'other'])],
+            'notes' => ['nullable', 'string', 'max:500'],
+            'supervisor_pin' => ['nullable', 'string', 'max:10'],
         ]);
+
+        if (($validated['reason_code'] ?? null) === 'other') {
+            $notesTrimmed = trim((string) ($validated['notes'] ?? ''));
+            if (strlen($notesTrimmed) < 10) {
+                throw ValidationException::withMessages([
+                    'notes' => 'Untuk alasan "Lainnya", penjelasan catatan wajib diisi minimal 10 karakter.',
+                ]);
+            }
+        }
 
         $stock = $this->stockService->getOrCreateStock(
             $business->id,
@@ -99,18 +114,48 @@ final class InventoryWebController extends Controller
 
         $diff = (float) $validated['new_quantity'] - (float) $stock->quantity;
         $unitCost = (float) ($validated['unit_cost'] ?? $stock->last_cost ?? 0);
+        $diffValue = abs($diff * $unitCost);
+        $diffQty = abs($diff);
+
+        // Fase 2: Supervisor PIN Verification on Significant Shrinkage / Loss (§FR-02)
+        if ($diff < 0 && ($diffValue > 100000 || $diffQty > 10)) {
+            $validPin = (string) ($business->pos_supervisor_pin ?? '1234');
+            $pin = (string) $request->input('supervisor_pin', '');
+
+            if ($pin === '' || ! (Hash::check($pin, $validPin) || hash_equals($validPin, $pin))) {
+                throw ValidationException::withMessages([
+                    'supervisor_pin' => 'Penyesuaian pengurangan stok melebihi batas toleransi (kuantitas > 10 unit atau nilai > Rp 100.000). PIN Supervisor 6-digit wajib diisi dengan benar.',
+                ]);
+            }
+        }
 
         if ($diff != 0) {
-            $this->stockService->recordMovement(
+            $notes = $validated['notes'] ?? 'Penyesuaian stok cepat';
+            if (! empty($validated['reason_code'])) {
+                $notes = "[{$validated['reason_code']}] {$notes}";
+            }
+
+            $movement = $this->stockService->recordMovement(
                 businessId: $business->id,
                 locationId: $validated['location_id'],
                 productId: $validated['product_id'],
                 movementType: StockMovement::TYPE_ADJUSTMENT,
                 quantityChange: $diff,
                 unitCost: $unitCost,
-                notes: $validated['notes'] ?? 'Penyesuaian stok cepat',
+                notes: $notes,
                 userId: $user->id
             );
+
+            // Fase 2: Auto-Journal Integration for Stock Adjustment (§FR-04)
+            if ($unitCost > 0) {
+                $this->journalService->recordStockAdjustmentJournal(
+                    business: $business,
+                    movement: $movement,
+                    quantityChange: $diff,
+                    unitCost: $unitCost,
+                    userId: $user->id
+                );
+            }
         }
 
         if ($request->wantsJson()) {
@@ -178,7 +223,7 @@ final class InventoryWebController extends Controller
         $user = auth()->user();
 
         $validated = $request->validate([
-            'location_id' => ['required', 'string', 'exists:locations,id'],
+            'location_id' => ['required', 'uuid', Rule::exists('locations', 'id')->where('business_id', $business->id)],
             'opname_date' => ['required', 'date'],
             'notes' => ['nullable', 'string', 'max:255'],
             'items' => ['required', 'array', 'min:1'],
@@ -323,12 +368,12 @@ final class InventoryWebController extends Controller
         $user = auth()->user();
 
         $validated = $request->validate([
-            'source_location_id' => ['required', 'string', 'different:destination_location_id'],
-            'destination_location_id' => ['required', 'string'],
+            'source_location_id' => ['required', 'uuid', 'different:destination_location_id', Rule::exists('locations', 'id')->where('business_id', $business->id)],
+            'destination_location_id' => ['required', 'uuid', Rule::exists('locations', 'id')->where('business_id', $business->id)],
             'transfer_date' => ['required', 'date'],
-            'notes' => ['nullable', 'string', 'max:255'],
+            'notes' => ['nullable', 'string', 'max:500'],
             'items' => ['required', 'array', 'min:1'],
-            'items.*.product_id' => ['required', 'string'],
+            'items.*.product_id' => ['required', 'uuid', Rule::exists('products', 'id')->where('business_id', $business->id)],
             'items.*.quantity' => ['required', 'numeric', 'min:0.0001'],
         ]);
 
@@ -368,6 +413,9 @@ final class InventoryWebController extends Controller
      */
     public function receiveTransfer(StockTransfer $transfer): RedirectResponse
     {
+        $business = Context::requireBusiness();
+        abort_unless($transfer->business_id === $business->id, 404);
+
         $user = auth()->user();
         $this->stockService->completeStockTransfer($transfer, $user);
 

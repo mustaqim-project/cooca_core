@@ -38,6 +38,7 @@
 
     // Create Warehouse Form Data
     warehouseForm: {
+        parent_id: '',
         name: '',
         code: '',
         phone: '',
@@ -60,6 +61,7 @@
     // Edit Form Data
     editData: {
         id: null,
+        parent_id: '',
         name: '',
         type: 'warehouse',
         code: '',
@@ -93,6 +95,7 @@
     openEdit(loc) {
         this.editData = {
             id: loc.id,
+            parent_id: loc.parent_id || '',
             name: loc.name || '',
             type: loc.type || 'warehouse',
             code: loc.code || '',
@@ -288,12 +291,14 @@
     <x-module-header
         title="Cabang & Gudang Logistik"
         subtitle="Kelola jaringan cabang toko/outlet, titik penyimpanan gudang logistik, dan absensi geofence">
-        @if(\App\Support\Context::hasPermission('inventory.view'))
+        @if($business->isModuleEnabled(\App\Domain\Template\ModuleRegistry::MODULE_RECIPE_BOM) && \App\Support\Context::hasPermission('inventory.view'))
             <a href="{{ route('materials.index') }}"
                class="min-h-[44px] sm:min-h-0 h-11 sm:h-9 px-3.5 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] dark:hover:bg-white/[0.1] active:scale-[0.98] transition-all flex items-center justify-center gap-1.5">
                 <i data-lucide="boxes" class="w-4 h-4 text-black/50 dark:text-white/50"></i>
                 <span>Katalog Bahan</span>
             </a>
+        @endif
+        @if(\App\Support\Context::hasPermission('inventory.view'))
             <a href="{{ route('products.index') }}"
                class="min-h-[44px] sm:min-h-0 h-11 sm:h-9 px-3.5 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] dark:hover:bg-white/[0.1] active:scale-[0.98] transition-all flex items-center justify-center gap-1.5">
                 <i data-lucide="package" class="w-4 h-4 text-black/50 dark:text-white/50"></i>
@@ -301,7 +306,7 @@
             </a>
         @endif
 
-        @if(\App\Support\Context::hasPermission('storefront.shipping.manage') || \App\Support\Context::isAdminOrOwner())
+        @if(($business->isModuleEnabled(\App\Domain\Template\ModuleRegistry::MODULE_MERCHANT_SHIPPING) || $business->isModuleEnabled(\App\Domain\Template\ModuleRegistry::MODULE_STOREFRONT_CHECKOUT)) && (\App\Support\Context::hasPermission('storefront.shipping.manage') || \App\Support\Context::isAdminOrOwner()))
             <a href="{{ route('storefront.shipping.index') }}"
                class="min-h-[44px] sm:min-h-0 h-11 sm:h-9 px-3.5 rounded-[10px] text-[13px] font-semibold text-[#5856D6] dark:text-[#A78BFA] bg-[#5856D6]/10 hover:bg-[#5856D6]/15 active:scale-[0.98] transition-all flex items-center justify-center gap-1.5"
                title="Pengaturan Ongkir & Kurir Toko Online">
@@ -474,8 +479,9 @@
                                         {{ $loc->name }}
                                     </h3>
                                     @php
-                                        $isActiveStorefrontOrigin = ($storeSetting && $storeSetting->origin_location_id === $loc->id)
-                                            || ($loc->is_primary && empty($storeSetting?->origin_location_id));
+                                        $isStorefrontEnabled = ($business->isModuleEnabled(\App\Domain\Template\ModuleRegistry::MODULE_MERCHANT_SHIPPING) || $business->isModuleEnabled(\App\Domain\Template\ModuleRegistry::MODULE_STOREFRONT_CHECKOUT));
+                                        $isActiveStorefrontOrigin = $isStorefrontEnabled && (($storeSetting && $storeSetting->origin_location_id === $loc->id)
+                                            || ($loc->is_primary && empty($storeSetting?->origin_location_id)));
                                     @endphp
                                     @if($isActiveStorefrontOrigin)
                                         <a href="{{ route('storefront.shipping.index') }}" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/25 transition-colors" title="Titik Asal Penjemputan Storefront Online Aktif">
@@ -486,6 +492,25 @@
                                         <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#FF9500]/15 text-[#D97706] dark:text-[#FBBF24] border border-[#FF9500]/30" title="Cabang Utama Toko">
                                             <i data-lucide="building" class="w-3 h-3"></i>
                                             <span>Cabang Utama</span>
+                                        </span>
+                                    @endif
+
+                                    {{-- Hierarchical Location Badges (Case 5) --}}
+                                    @if($loc->parent_id && $loc->parent)
+                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#5856D6]/15 text-[#5856D6] dark:text-[#A78BFA] border border-[#5856D6]/30" title="Sub-gudang di bawah cabang {{ $loc->parent->name }}">
+                                            <i data-lucide="corner-down-right" class="w-3 h-3"></i>
+                                            <span>Sub-Gudang: {{ $loc->parent->name }}</span>
+                                        </span>
+                                    @elseif($loc->type === 'warehouse' && empty($loc->parent_id))
+                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#007AFF]/15 text-[#007AFF] border border-[#007AFF]/30" title="Gudang Distribusi Pusat (DC) Perusahaan">
+                                            <i data-lucide="boxes" class="w-3 h-3"></i>
+                                            <span>Gudang Pusat (DC)</span>
+                                        </span>
+                                    @endif
+                                    @if($loc->children && $loc->children->isNotEmpty())
+                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158] border border-[#34C759]/30" title="{{ $loc->children->pluck('name')->implode(', ') }}">
+                                            <i data-lucide="git-branch" class="w-3 h-3"></i>
+                                            <span>{{ $loc->children->count() }} Sub-Gudang</span>
                                         </span>
                                     @endif
                                 </div>
@@ -874,7 +899,7 @@
                 </button>
             </div>
 
-            <form action="{{ route('warehouse.store') }}" method="POST" class="flex flex-col flex-1 overflow-hidden">
+            <form action="{{ route('warehouse.store') }}" method="POST" x-data="{ submitting: false }" @submit="submitting = true" class="flex flex-col flex-1 overflow-hidden">
                 @csrf
                 <input type="hidden" name="type" value="warehouse">
                 <input type="hidden" name="province" :value="warehouseForm.province">
@@ -902,6 +927,25 @@
                                     </label>
                                     <input type="text" name="name" x-model="warehouseForm.name" required placeholder="Contoh: Gudang Utama, Gudang Transit Jakarta, Gudang Bahan..."
                                            class="w-full h-11 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3.5 text-[16px] sm:text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
+                                </div>
+
+                                {{-- Hierarki Induk Cabang / Outlet (Case 5) --}}
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                                        Induk Cabang / Outlet <span class="text-[10px] font-normal text-slate-400 dark:text-slate-500">(Opsional)</span>
+                                    </label>
+                                    <select name="parent_id" x-model="warehouseForm.parent_id"
+                                            class="w-full h-11 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3.5 text-[16px] sm:text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
+                                        <option value="">-- Tanpa Induk (Gudang Pusat / Mandiri) --</option>
+                                        @if(isset($parentOutlets))
+                                            @foreach($parentOutlets as $pOut)
+                                                <option value="{{ $pOut->id }}">{{ $pOut->name }} ({{ $pOut->code ?? 'Cabang' }})</option>
+                                            @endforeach
+                                        @endif
+                                    </select>
+                                    <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                                        Pilih cabang jika gudang ini berlokasi di dalam outlet fisik (seperti Gudang Belakang, Etalase Depan, atau Dapur/Bar). Biarkan kosong jika merupakan Gudang Pusat (DC) mandiri.
+                                    </p>
                                 </div>
 
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -1101,10 +1145,18 @@
                             class="min-h-[44px] h-11 px-5 rounded-[12px] text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer">
                         Batal
                     </button>
-                    <button type="submit"
-                            class="min-h-[44px] h-11 px-6 rounded-[12px] text-xs font-bold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] transition-all shadow-[0_2px_4px_rgba(0,122,255,0.25)] cursor-pointer flex items-center gap-2">
-                        <i data-lucide="plus" class="w-4 h-4"></i>
-                        <span>Simpan Gudang Logistik</span>
+                    <button type="submit" :disabled="submitting"
+                            class="min-h-[44px] h-11 px-6 rounded-[12px] text-xs font-bold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] transition-all shadow-[0_2px_4px_rgba(0,122,255,0.25)] cursor-pointer flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <template x-if="submitting">
+                            <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                        </template>
+                        <template x-if="!submitting">
+                            <i data-lucide="plus" class="w-4 h-4"></i>
+                        </template>
+                        <span x-text="submitting ? 'Menyimpan...' : 'Simpan Gudang Logistik'"></span>
                     </button>
                 </div>
             </form>
@@ -1152,7 +1204,7 @@
                 </button>
             </div>
 
-            <form action="{{ route('warehouse.store') }}" method="POST" class="flex flex-col flex-1 overflow-hidden">
+            <form action="{{ route('warehouse.store') }}" method="POST" x-data="{ submitting: false }" @submit="submitting = true" class="flex flex-col flex-1 overflow-hidden">
                 @csrf
                 <input type="hidden" name="type" value="outlet">
                 <input type="hidden" name="province" :value="outletForm.province">
@@ -1379,10 +1431,18 @@
                             class="min-h-[44px] h-11 px-5 rounded-[12px] text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer">
                         Batal
                     </button>
-                    <button type="submit"
-                            class="min-h-[44px] h-11 px-6 rounded-[12px] text-xs font-bold text-white bg-[#34C759] hover:bg-[#28A745] active:scale-[0.98] transition-all shadow-[0_2px_4px_rgba(52,199,89,0.25)] cursor-pointer flex items-center gap-2">
-                        <i data-lucide="plus" class="w-4 h-4"></i>
-                        <span>Simpan Cabang / Outlet</span>
+                    <button type="submit" :disabled="submitting"
+                            class="min-h-[44px] h-11 px-6 rounded-[12px] text-xs font-bold text-white bg-[#34C759] hover:bg-[#28A745] active:scale-[0.98] transition-all shadow-[0_2px_4px_rgba(52,199,89,0.25)] cursor-pointer flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <template x-if="submitting">
+                            <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                        </template>
+                        <template x-if="!submitting">
+                            <i data-lucide="plus" class="w-4 h-4"></i>
+                        </template>
+                        <span x-text="submitting ? 'Menyimpan...' : 'Simpan Cabang / Outlet'"></span>
                     </button>
                 </div>
             </form>
@@ -1430,7 +1490,7 @@
                 </button>
             </div>
 
-            <form :action="'{{ url('/warehouse') }}/' + editData.id" method="POST" class="flex flex-col flex-1 overflow-hidden">
+            <form :action="'{{ url('/warehouse') }}/' + editData.id" method="POST" x-data="{ submitting: false }" @submit="submitting = true" class="flex flex-col flex-1 overflow-hidden">
                 @csrf
                 @method('PUT')
                 <input type="hidden" name="province" :value="editData.province">
@@ -1466,9 +1526,19 @@
                                             Tipe Lokasi
                                         </label>
                                         <select name="type" x-model="editData.type" class="w-full h-10 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3 text-[16px] sm:text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
-                                            <option value="warehouse">Gudang (Warehouse)</option>
-                                            <option value="outlet">Outlet / Toko</option>
-                                            <option value="central_kitchen">Dapur Pusat (Central Kitchen)</option>
+                                            <option value="warehouse">Gudang Penyimpanan</option>
+                                            <option value="outlet">Cabang / Outlet</option>
+                                            @if(str_starts_with($business->template_code ?? '', 'fnb_'))
+                                                <option value="central_kitchen">Dapur Pusat (Central Kitchen)</option>
+                                            @elseif(str_starts_with($business->template_code ?? '', 'mfg_'))
+                                                <option value="central_kitchen">Pabrik / Workshop Produksi</option>
+                                            @elseif(($business->template_code ?? '') === 'service_contractor')
+                                                <option value="central_kitchen">Basecamp / Workshop Proyek</option>
+                                            @else
+                                                <template x-if="editData.type === 'central_kitchen'">
+                                                    <option value="central_kitchen">Pusat Operasional / Central Kitchen</option>
+                                                </template>
+                                            @endif
                                         </select>
                                     </div>
                                     <div>
@@ -1478,6 +1548,25 @@
                                         <input type="text" name="code" x-model="editData.code"
                                                class="w-full h-10 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3.5 text-[16px] sm:text-xs text-slate-900 dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
                                     </div>
+                                </div>
+
+                                {{-- Hierarki Induk Cabang / Outlet (Case 5) --}}
+                                <div x-show="editData.type === 'warehouse'">
+                                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                                        Induk Cabang / Outlet <span class="text-[10px] font-normal text-slate-400 dark:text-slate-500">(Opsional)</span>
+                                    </label>
+                                    <select name="parent_id" x-model="editData.parent_id"
+                                            class="w-full h-11 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3.5 text-[16px] sm:text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
+                                        <option value="">-- Tanpa Induk (Gudang Pusat / Mandiri) --</option>
+                                        @if(isset($parentOutlets))
+                                            @foreach($parentOutlets as $pOut)
+                                                <option value="{{ $pOut->id }}" x-show="editData.id !== '{{ $pOut->id }}'">{{ $pOut->name }} ({{ $pOut->code ?? 'Cabang' }})</option>
+                                            @endforeach
+                                        @endif
+                                    </select>
+                                    <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                                        Kosongkan jika merupakan Gudang Pusat mandiri. Pilih cabang jika merupakan sub-gudang internal di dalam outlet.
+                                    </p>
                                 </div>
 
                                 <div>
@@ -1676,10 +1765,18 @@
                             class="min-h-[44px] h-11 px-5 rounded-[12px] text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer">
                         Batal
                     </button>
-                    <button type="submit"
-                            class="min-h-[44px] h-11 px-6 rounded-[12px] text-xs font-bold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] transition-all shadow-[0_2px_4px_rgba(0,122,255,0.25)] cursor-pointer flex items-center gap-2">
-                        <i data-lucide="check" class="w-4 h-4"></i>
-                        <span>Simpan Perubahan Lokasi</span>
+                    <button type="submit" :disabled="submitting"
+                            class="min-h-[44px] h-11 px-6 rounded-[12px] text-xs font-bold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] transition-all shadow-[0_2px_4px_rgba(0,122,255,0.25)] cursor-pointer flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <template x-if="submitting">
+                            <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                        </template>
+                        <template x-if="!submitting">
+                            <i data-lucide="check" class="w-4 h-4"></i>
+                        </template>
+                        <span x-text="submitting ? 'Menyimpan...' : 'Simpan Perubahan Lokasi'"></span>
                     </button>
                 </div>
             </form>

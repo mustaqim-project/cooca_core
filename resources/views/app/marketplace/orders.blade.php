@@ -7,6 +7,7 @@
 @section('content')
 <div class="max-w-[1360px] mx-auto space-y-6 pb-28 sm:pb-32 lg:pb-12" x-data="{
     pullModal: false,
+    submitting: false,
     selectedPullChannel: 'shopee'
 }">
 
@@ -116,21 +117,21 @@
                                     @else
                                         <span class="px-2 py-0.5 rounded-[6px] text-[10.5px] font-bold bg-black/10">{{ strtoupper($order->channel) }}</span>
                                     @endif
-                                    <span class="font-mono font-bold text-black dark:text-white text-[13px]">{{ $order->marketplace_order_sn }}</span>
+                                    <span class="font-mono font-bold text-black dark:text-white text-[13px]">{{ $order->external_order_sn ?? $order->external_order_id }}</span>
                                 </div>
-                                <div class="text-[11px] text-black/45 dark:text-white/45 mt-0.5">
-                                    Sync ID: #{{ $order->id }}
+                                <div class="text-[11px] text-black/45 dark:text-white/45 mt-0.5 font-mono">
+                                    Ref ID: #{{ substr($order->id, 0, 8) }}
                                 </div>
                             </td>
 
                             <!-- Col 2: Customer -->
                             <td class="py-4 px-4">
                                 <div class="font-bold text-black dark:text-white text-[13px]">
-                                    {{ $order->customer_name ?? 'Pelanggan Marketplace' }}
+                                    {{ $order->buyer_name ?? 'Pelanggan Marketplace' }}
                                 </div>
-                                @if($order->customer_phone)
+                                @if($order->buyer_phone)
                                     <div class="text-[11px] text-black/50 dark:text-white/50 font-mono">
-                                        {{ $order->customer_phone }}
+                                        {{ $order->buyer_phone }}
                                     </div>
                                 @endif
                             </td>
@@ -138,12 +139,20 @@
                             <!-- Col 3: Items Summary -->
                             <td class="py-4 px-4">
                                 @php
-                                    $items = is_array($order->items_payload) ? $order->items_payload : json_decode($order->items_payload ?? '[]', true);
+                                    $items = is_array($order->items_summary) ? $order->items_summary : json_decode($order->items_summary ?? '[]', true);
                                     $itemCount = is_countable($items) ? count($items) : 0;
                                 @endphp
                                 <div class="font-medium text-black dark:text-white">
                                     {{ $itemCount }} Item Produk
                                 </div>
+                                @if(!empty($items[0]['item_name'] ?? ($items[0]['name'] ?? null)))
+                                    <div class="text-[11px] text-black/60 dark:text-white/60 truncate max-w-[200px]">
+                                        {{ $items[0]['item_name'] ?? $items[0]['name'] }}
+                                        @if($itemCount > 1)
+                                            <span class="text-black/40 dark:text-white/40">(+{{ $itemCount - 1 }})</span>
+                                        @endif
+                                    </div>
+                                @endif
                                 @if(!empty($order->shipping_provider))
                                     <div class="text-[11px] text-black/50 dark:text-white/50 flex items-center gap-1 mt-0.5">
                                         <i data-lucide="truck" class="w-3 h-3"></i>
@@ -160,9 +169,11 @@
                                 <div class="font-bold text-black dark:text-white text-[13.5px]">
                                     Rp {{ number_format((float)$order->total_amount, 0, ',', '.') }}
                                 </div>
-                                <div class="text-[10.5px] text-black/45 dark:text-white/45 uppercase">
-                                    {{ $order->payment_method ?? 'Online' }}
-                                </div>
+                                @if($order->channel_fee > 0)
+                                    <div class="text-[10.5px] text-black/45 dark:text-white/45">
+                                        Fee: Rp {{ number_format((float)$order->channel_fee, 0, ',', '.') }}
+                                    </div>
+                                @endif
                             </td>
 
                             <!-- Col 5: Status Badge -->
@@ -184,10 +195,10 @@
                             <!-- Col 6: Time -->
                             <td class="py-4 px-4 sm:px-6 text-right">
                                 <div class="text-[12px] font-medium text-black dark:text-white">
-                                    {{ $order->order_created_at ? $order->order_created_at->format('d M Y, H:i') : $order->created_at->format('d M Y, H:i') }}
+                                    {{ $order->placed_at ? $order->placed_at->format('d M Y, H:i') : $order->created_at->format('d M Y, H:i') }}
                                 </div>
                                 <div class="text-[10.5px] text-black/45 dark:text-white/45">
-                                    {{ $order->created_at->diffForHumans() }}
+                                    {{ ($order->placed_at ?? $order->created_at)->diffForHumans() }}
                                 </div>
                             </td>
                         </tr>
@@ -214,7 +225,7 @@
     </div>
 
     <!-- ===================================================== -->
-    <!-- 4. MODAL TARIK PESANAN MANUAL                         -->
+    <!-- 4. MODAL TARIK PESANAN MANUAL (BENTO HIG)             -->
     <!-- ===================================================== -->
     <div x-show="pullModal" x-cloak
         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
@@ -226,49 +237,64 @@
         x-transition:leave-end="opacity-0">
 
         <div @click.away="pullModal = false"
-            class="w-full max-w-md rounded-[24px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 p-6 space-y-5 shadow-2xl">
-            <div class="flex items-center gap-3.5">
-                <div class="w-11 h-11 rounded-[14px] bg-[#007AFF]/15 text-[#007AFF] flex items-center justify-center shrink-0">
-                    <i data-lucide="download-cloud" class="w-5 h-5"></i>
+            class="w-full max-w-lg rounded-[28px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 p-6 sm:p-7 space-y-5 shadow-2xl">
+            
+            <div class="flex items-center justify-between border-b border-black/[0.06] dark:border-white/[0.08] pb-4">
+                <div class="flex items-center gap-3.5">
+                    <div class="w-11 h-11 rounded-[14px] bg-[#007AFF]/15 text-[#007AFF] flex items-center justify-center shrink-0">
+                        <i data-lucide="download-cloud" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-[16px] font-bold text-black dark:text-white">Tarik Pesanan Marketplace</h3>
+                        <p class="text-[12px] text-black/50 dark:text-white/50">Sinkronkan transaksi terkini secara manual via API resmi.</p>
+                    </div>
                 </div>
-                <div>
-                    <h3 class="text-[16px] font-bold text-black dark:text-white">Tarik Pesanan Marketplace</h3>
-                    <p class="text-[12px] text-black/50 dark:text-white/50">Ambil daftar transaksi terbaru dari API resmi.</p>
-                </div>
+                <button type="button" @click="pullModal = false" class="w-8 h-8 rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white transition-all cursor-pointer">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
             </div>
 
-            <form method="POST" action="{{ route('marketplace-hub.orders.pull') }}" class="space-y-4">
+            <form method="POST" action="{{ route('marketplace-hub.orders.pull') }}" @submit="submitting = true" class="space-y-4">
                 @csrf
                 <div>
-                    <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">Pilih Saluran Toko</label>
-                    <div class="grid grid-cols-3 gap-2 p-1 rounded-[14px] bg-black/[0.04] dark:bg-white/[0.06]">
+                    <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-2">Pilih Saluran Toko</label>
+                    <div class="grid grid-cols-3 gap-2 p-1.5 rounded-[16px] bg-black/[0.04] dark:bg-white/[0.06]">
                         <button type="button" @click="selectedPullChannel = 'shopee'"
-                            :class="selectedPullChannel === 'shopee' ? 'bg-white dark:bg-[#2C2C2E] shadow-xs font-bold text-[#EE4D2D]' : 'text-black/60 dark:text-white/60 font-medium'"
-                            class="py-2 text-[12px] rounded-[10px] transition-all flex items-center justify-center gap-1.5 cursor-pointer">
+                            :class="selectedPullChannel === 'shopee' ? 'bg-white dark:bg-[#2C2C2E] shadow-sm font-bold text-[#EE4D2D]' : 'text-black/60 dark:text-white/60 font-medium'"
+                            class="py-2.5 text-[12px] rounded-[11px] transition-all flex items-center justify-center gap-1.5 cursor-pointer">
                             <span>Shopee</span>
                         </button>
                         <button type="button" @click="selectedPullChannel = 'tiktok_shop'"
-                            :class="selectedPullChannel === 'tiktok_shop' ? 'bg-white dark:bg-[#2C2C2E] shadow-xs font-bold text-black dark:text-white' : 'text-black/60 dark:text-white/60 font-medium'"
-                            class="py-2 text-[12px] rounded-[10px] transition-all flex items-center justify-center gap-1.5 cursor-pointer">
+                            :class="selectedPullChannel === 'tiktok_shop' ? 'bg-white dark:bg-[#2C2C2E] shadow-sm font-bold text-black dark:text-white' : 'text-black/60 dark:text-white/60 font-medium'"
+                            class="py-2.5 text-[12px] rounded-[11px] transition-all flex items-center justify-center gap-1.5 cursor-pointer">
                             <span>TikTok Shop</span>
                         </button>
                         <button type="button" @click="selectedPullChannel = 'tokopedia'"
-                            :class="selectedPullChannel === 'tokopedia' ? 'bg-white dark:bg-[#2C2C2E] shadow-xs font-bold text-[#00AA5B]' : 'text-black/60 dark:text-white/60 font-medium'"
-                            class="py-2 text-[12px] rounded-[10px] transition-all flex items-center justify-center gap-1.5 cursor-pointer">
+                            :class="selectedPullChannel === 'tokopedia' ? 'bg-white dark:bg-[#2C2C2E] shadow-sm font-bold text-[#00AA5B]' : 'text-black/60 dark:text-white/60 font-medium'"
+                            class="py-2.5 text-[12px] rounded-[11px] transition-all flex items-center justify-center gap-1.5 cursor-pointer">
                             <span>Tokopedia</span>
                         </button>
                     </div>
                     <input type="hidden" name="channel" :value="selectedPullChannel">
                 </div>
 
+                <div class="p-3.5 rounded-[14px] bg-black/[0.02] dark:bg-white/[0.03] text-[12px] text-black/60 dark:text-white/60 flex items-center gap-2.5">
+                    <i data-lucide="info" class="w-4 h-4 text-[#007AFF] shrink-0"></i>
+                    <span>Pesanan berstatus terbayar akan otomatis mengurangi stok produk COOCA secara real-time.</span>
+                </div>
+
                 <div class="flex items-center justify-end gap-2.5 pt-2">
-                    <button type="button" @click="pullModal = false"
-                        class="h-10 px-4 rounded-[12px] text-[13px] font-semibold text-black/70 dark:text-white/70 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] cursor-pointer">
+                    <button type="button" @click="pullModal = false" :disabled="submitting"
+                        class="h-10 px-4 rounded-[12px] text-[13px] font-semibold text-black/70 dark:text-white/70 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] transition-all cursor-pointer">
                         Batal
                     </button>
-                    <button type="submit"
-                        class="h-10 px-5 rounded-[12px] text-[13px] font-bold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] transition-all shadow-sm cursor-pointer">
-                        Mulai Tarik Pesanan
+                    <button type="submit" :disabled="submitting"
+                        class="h-10 px-5 rounded-[12px] text-[13px] font-bold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 shadow-sm cursor-pointer">
+                        <svg x-show="submitting" class="animate-spin w-4 h-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span x-text="submitting ? 'Menarik Pesanan...' : 'Mulai Tarik Pesanan'"></span>
                     </button>
                 </div>
             </form>

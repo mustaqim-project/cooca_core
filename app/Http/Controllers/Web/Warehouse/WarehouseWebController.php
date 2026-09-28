@@ -4,21 +4,32 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Web\Warehouse;
 
+use App\Domain\Billing\EntitlementService;
 use App\Http\Controllers\Controller;
+use App\Models\Attendance;
 use App\Models\CommerceStoreSetting;
 use App\Models\GoodsReceipt;
 use App\Models\InventoryStock;
 use App\Models\Location;
+use App\Models\PosOrder;
+use App\Models\StockAdjustment;
 use App\Models\StockMovement;
+use App\Models\StockOpname;
+use App\Models\StockTransfer;
 use App\Support\Context;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 final class WarehouseWebController extends Controller
 {
+    public function __construct(
+        private readonly EntitlementService $entitlementService = new EntitlementService
+    ) {}
     /**
      * Warehouse Management Hub - semua gudang/lokasi dalam satu dashboard.
      */
@@ -27,6 +38,7 @@ final class WarehouseWebController extends Controller
         $business = Context::requireBusiness();
 
         $locations = Location::where('business_id', $business->id)
+            ->with(['parent', 'children'])
             ->withCount(['stocks as total_products' => function ($q) {
                 $q->where('quantity', '>', 0);
             }])
@@ -69,9 +81,16 @@ final class WarehouseWebController extends Controller
 
         $storeSetting = $business->commerceStoreSetting ?? $business->storeSetting;
 
+        $parentOutlets = Location::where('business_id', $business->id)
+            ->whereNull('parent_id')
+            ->whereIn('type', ['outlet', 'store', 'central_kitchen'])
+            ->orderBy('name')
+            ->get();
+
         return view('app.warehouse.index', compact(
             'business',
             'locations',
+            'parentOutlets',
             'storeSetting',
             'totalValuation',
             'totalLowStock',
@@ -91,6 +110,7 @@ final class WarehouseWebController extends Controller
         $business = Context::requireBusiness();
 
         $validated = $request->validate([
+            'parent_id'              => ['nullable', 'uuid', Rule::exists('locations', 'id')->where('business_id', $business->id)],
             'name'                   => ['required', 'string', 'max:100'],
             'type'                   => ['required', 'string', 'in:outlet,warehouse,central_kitchen'],
             'code'                   => ['nullable', 'string', 'max:50'],
@@ -108,6 +128,15 @@ final class WarehouseWebController extends Controller
             'geofence_radius_meters' => ['nullable', 'integer', 'min:10', 'max:10000'],
             'is_primary'             => ['nullable', 'boolean'],
         ]);
+
+        $locationType = $validated['type'];
+        if (! $this->entitlementService->canCreateLocation($business, $locationType)) {
+            $label = in_array($locationType, ['outlet', 'store'], true) ? 'Cabang / Outlet' : ($locationType === 'central_kitchen' ? 'Dapur Pusat' : 'Gudang');
+
+            return redirect()->back()
+                ->withInput()
+                ->with('error', "Batas kuota {$label} untuk paket langganan Anda telah tercapai. Silakan upgrade paket Anda untuk menambah lokasi baru.");
+        }
 
         // Generate unique slug
         $baseSlug = Str::slug($validated['name']);
@@ -130,6 +159,7 @@ final class WarehouseWebController extends Controller
 
         $location = Location::create([
             'business_id'             => $business->id,
+            'parent_id'               => ! empty($validated['parent_id']) ? $validated['parent_id'] : null,
             'name'                    => $validated['name'],
             'slug'                    => $slug,
             'type'                    => $validated['type'],
@@ -241,6 +271,7 @@ final class WarehouseWebController extends Controller
         abort_unless($location->business_id === $business->id, 403);
 
         $validated = $request->validate([
+            'parent_id'              => ['nullable', 'uuid', Rule::exists('locations', 'id')->where('business_id', $business->id)],
             'name'                   => ['required', 'string', 'max:100'],
             'type'                   => ['required', 'string', 'in:outlet,warehouse,central_kitchen'],
             'code'                   => ['nullable', 'string', 'max:50'],
@@ -260,12 +291,28 @@ final class WarehouseWebController extends Controller
             'is_primary'             => ['nullable', 'boolean'],
         ]);
 
+        $parentId = ! empty($validated['parent_id']) ? $validated['parent_id'] : null;
+        if ($parentId !== null) {
+            if ($parentId === $location->id) {
+                throw ValidationException::withMessages([
+                    'parent_id' => 'Lokasi tidak dapat menjadi induk bagi dirinya sendiri.',
+                ]);
+            }
+            $descendantIds = $location->children()->pluck('id')->all();
+            if (in_array($parentId, $descendantIds, true)) {
+                throw ValidationException::withMessages([
+                    'parent_id' => 'Lokasi cabang induk tidak boleh berasal dari sub-lokasinya sendiri.',
+                ]);
+            }
+        }
+
         $isPrimary = $request->boolean('is_primary');
         if ($isPrimary) {
             Location::where('business_id', $business->id)->where('id', '!=', $location->id)->update(['is_primary' => false]);
         }
 
         $updateData = [
+            'parent_id'               => $parentId,
             'name'                    => $validated['name'],
             'type'                    => $validated['type'],
             'code'                    => $validated['code'] ?? null,
@@ -339,8 +386,33 @@ final class WarehouseWebController extends Controller
             return back()->with('error', 'Gudang ini masih memiliki stok aktif. Kosongkan stok terlebih dahulu sebelum menghapus.');
         }
 
+        // Non-Destructive Location Archival Guard (§FR-05)
+        $hasHistory = StockMovement::where('location_id', $location->id)->exists()
+            || GoodsReceipt::where('location_id', $location->id)->exists()
+            || PosOrder::where('location_id', $location->id)->exists()
+            || StockTransfer::where('source_location_id', $location->id)->orWhere('destination_location_id', $location->id)->exists()
+            || StockOpname::where('location_id', $location->id)->exists()
+            || StockAdjustment::where('location_id', $location->id)->exists()
+            || Attendance::where('location_id', $location->id)->exists();
+
+        if ($hasHistory) {
+            $location->update(['is_active' => false]);
+            $msg = "Lokasi \"{$location->name}\" memiliki riwayat transaksi masa lalu sehingga telah dinonaktifkan dengan aman untuk melindungi data pembukuan dan audit.";
+
+            if (request()->wantsJson()) {
+                return response()->json(['success' => true, 'message' => $msg, 'deactivated' => true]);
+            }
+
+            return redirect()->route('warehouse.index')
+                ->with('success', $msg);
+        }
+
         $name = $location->name;
         $location->delete();
+
+        if (request()->wantsJson()) {
+            return response()->json(['success' => true, 'message' => "Gudang \"{$name}\" berhasil dihapus."]);
+        }
 
         return redirect()->route('warehouse.index')
             ->with('success', "Gudang \"{$name}\" berhasil dihapus.");

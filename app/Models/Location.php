@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Models\Traits\Auditable;
 use App\Models\Traits\BelongsToBusiness;
 use App\Models\Traits\HasSlug;
 use App\Models\Traits\HasUuid;
@@ -12,12 +13,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class Location extends Model
 {
-    use BelongsToBusiness, HasFactory, HasSlug, HasUuid;
+    use Auditable, BelongsToBusiness, HasFactory, HasSlug, HasUuid;
 
     protected $table = 'locations';
 
     protected $fillable = [
         'business_id',
+        'parent_id',
         'name',
         'slug',
         'type',
@@ -67,6 +69,63 @@ class Location extends Model
         ]);
 
         return implode(', ', $parts);
+    }
+
+    public function parent(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(self::class, 'parent_id');
+    }
+
+    public function children(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(self::class, 'parent_id');
+    }
+
+    public function childWarehouses(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(self::class, 'parent_id')->where('type', 'warehouse');
+    }
+
+    public function isRoot(): bool
+    {
+        return empty($this->parent_id);
+    }
+
+    public function isSubWarehouse(): bool
+    {
+        return ! empty($this->parent_id);
+    }
+
+    public function isCentralWarehouse(): bool
+    {
+        return $this->type === 'warehouse' && empty($this->parent_id);
+    }
+
+    public function scopeRootLocations(\Illuminate\Database\Eloquent\Builder $query): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->whereNull('parent_id');
+    }
+
+    public function scopeSubLocations(\Illuminate\Database\Eloquent\Builder $query): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->whereNotNull('parent_id');
+    }
+
+    public function scopeOutlets(\Illuminate\Database\Eloquent\Builder $query): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->whereIn('type', ['outlet', 'store', 'central_kitchen']);
+    }
+
+    /**
+     * Resolve location ID and any child sub-warehouse IDs for stock aggregation.
+     *
+     * @return array<int, string>
+     */
+    public static function resolveLocationIds(string $locationId): array
+    {
+        $childIds = self::where('parent_id', $locationId)->pluck('id')->all();
+
+        return array_merge([$locationId], $childIds);
     }
 
     public function stocks(): \Illuminate\Database\Eloquent\Relations\HasMany

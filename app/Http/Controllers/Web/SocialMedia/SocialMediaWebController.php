@@ -389,6 +389,40 @@ class SocialMediaWebController extends Controller
             'scheduled_at'             => ['nullable', 'date'],
         ]);
 
+        // Anti-SSRF Validation for external media URLs
+        if (! empty($validated['media_url'])) {
+            $url = trim($validated['media_url']);
+            $parsed = parse_url($url);
+            $scheme = strtolower($parsed['scheme'] ?? '');
+            if ($scheme !== 'https') {
+                return redirect()->back()->withInput()->with('error', 'URL media wajib menggunakan protokol aman https://');
+            }
+
+            $host = $parsed['host'] ?? '';
+            if (empty($host)) {
+                return redirect()->back()->withInput()->with('error', 'URL media tidak memiliki hostname yang valid.');
+            }
+
+            // Immediately block localhost, loopbacks and unspecified
+            if (in_array(strtolower($host), ['localhost', '127.0.0.1', '::1', '0.0.0.0'], true)) {
+                return redirect()->back()->withInput()->with('error', 'URL media tidak valid atau mengarah ke alamat jaringan lokal/privat.');
+            }
+
+            $ip = gethostbyname($host);
+            if ($ip === $host && ! filter_var($ip, FILTER_VALIDATE_IP)) {
+                return redirect()->back()->withInput()->with('error', 'Hostname pada URL media tidak dapat diresolusi.');
+            }
+
+            if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) {
+                return redirect()->back()->withInput()->with('error', 'URL media tidak valid atau mengarah ke alamat jaringan lokal/privat.');
+            }
+
+            // Cloud metadata block (169.254.x.x link-local)
+            if (str_starts_with($ip, '169.254.')) {
+                return redirect()->back()->withInput()->with('error', 'URL media tidak diizinkan mengakses metadata cloud.');
+            }
+        }
+
         // Resolve Target Accounts (Unified multi-select or single fallback)
         $selectedAccountIds = ! empty($validated['target_accounts'])
             ? $validated['target_accounts']
@@ -516,20 +550,55 @@ class SocialMediaWebController extends Controller
 
         $firstAccount = $accounts->first();
 
-        // 4. Create Parent Social Media Post
+        // 4. Maker-Checker & Bank Phishing Heuristic Evaluation
+        $currentUser = $request->user();
+        $isOwnerOrManager = Context::isAdminOrOwner()
+            || in_array(Context::role(), ['owner', 'admin', 'manager', 'store_manager'], true);
+
+        $riskFlags = [];
+
+        // Heuristic Scan: Rekening Bank Liar
+        $detectedBankAccounts = $this->scanBankAccountsInCaption($validated['content']);
+        if (! empty($detectedBankAccounts)) {
+            $registeredAccounts = array_filter(array_merge(
+                [$business->bank_account_number],
+                \App\Models\CommercePaymentMethod::where('business_id', $business->id)->pluck('account_number')->all()
+            ));
+            $normalizedRegistered = array_filter(array_map(
+                fn ($acc) => preg_replace('/[^0-9]/', '', (string) $acc),
+                $registeredAccounts
+            ));
+
+            $unauthorized = array_diff($detectedBankAccounts, $normalizedRegistered);
+            if (! empty($unauthorized)) {
+                $riskFlags[] = 'unregistered_bank_account_detected';
+            }
+        }
+
+        // Determine approval status:
+        // Staf non-owner/manager, ATAU postingan memuat nomor rekening bank tak terdaftar mewajibkan approval
+        $requiresApproval = (! $isOwnerOrManager) || in_array('unregistered_bank_account_detected', $riskFlags, true);
+        $approvalStatus = $requiresApproval ? 'pending_review' : 'approved';
+
+        // 5. Create Parent Social Media Post with Audit Trail
         $post = SocialMediaPost::create([
             'business_id'             => $business->id,
+            'user_id'                 => $currentUser?->id,
             'social_media_account_id' => $firstAccount->id,
             'platform'                => $firstAccount->platform,
             'content'                 => $validated['content'],
             'media_type'              => $primaryMediaType,
             'media_urls'              => ! empty($uploadedMedia) ? array_column($uploadedMedia, 'media_url') : null,
             'local_media_paths'       => ! empty($uploadedMedia) ? array_filter(array_column($uploadedMedia, 'local_path')) : null,
-            'status'                  => 'publishing',
+            'status'                  => ($approvalStatus === 'pending_review') ? 'pending_review' : 'publishing',
+            'approval_status'         => $approvalStatus,
+            'reviewed_by'             => ($approvalStatus === 'approved') ? $currentUser?->id : null,
+            'reviewed_at'             => ($approvalStatus === 'approved') ? now() : null,
+            'risk_flags'              => ! empty($riskFlags) ? $riskFlags : null,
             'scheduled_at'            => $globalScheduledAt,
         ]);
 
-        // 5. Create Post Media Records
+        // 6. Create Post Media Records
         foreach ($uploadedMedia as $item) {
             \App\Models\SocialPostMedia::create([
                 'social_media_post_id' => $post->id,
@@ -541,7 +610,7 @@ class SocialMediaWebController extends Controller
             ]);
         }
 
-        // 6. Create Targets for each selected account with independent schedule support
+        // 7. Create Targets for each selected account with independent schedule support
         $immediateTargets = [];
         $hasScheduledTargets = false;
 
@@ -586,6 +655,10 @@ class SocialMediaWebController extends Controller
                 $hasScheduledTargets = true;
             }
 
+            $targetStatus = ($approvalStatus === 'pending_review')
+                ? 'pending_review'
+                : ($isTargetScheduled ? 'scheduled' : 'pending');
+
             $target = \App\Models\SocialPostTarget::create([
                 'social_media_post_id'    => $post->id,
                 'social_media_account_id' => $account->id,
@@ -593,17 +666,35 @@ class SocialMediaWebController extends Controller
                 'channel'                 => $channel,
                 'content_type'            => $contentType,
                 'custom_caption'          => $customCaption ?: null,
-                'status'                  => $isTargetScheduled ? 'scheduled' : 'pending',
+                'status'                  => $targetStatus,
                 'scheduled_at'            => $isTargetScheduled ? $targetSchedTime : null,
                 'retry_count'             => 0,
             ]);
 
-            if (! $isTargetScheduled) {
+            if ($approvalStatus === 'approved' && ! $isTargetScheduled) {
                 $immediateTargets[] = $target;
             }
         }
 
-        // 7. Dispatch or Execute Immediate Targets
+        // 8. Handle Maker-Checker Hold
+        if ($approvalStatus === 'pending_review') {
+            $post->syncStatusFromTargets();
+
+            // Track quota usage for free tier businesses
+            if (! $entitlement->hasActiveSocialMediaSubscription($business)) {
+                $entitlement->incrementMonthlyUsage($business, \App\Models\QuotaMonthlyUsage::TYPE_SOCIAL_POST, \App\Domain\Billing\EntitlementService::FREE_SOCIAL_POST_MONTHLY_LIMIT);
+                $entitlement->clearUsageCache($business);
+            }
+
+            $warningMessage = in_array('unregistered_bank_account_detected', $riskFlags, true)
+                ? 'Postingan memuat nomor rekening bank yang tidak terdaftar pada profil toko dan ditahan untuk persetujuan Pemilik Toko (Maker-Checker).'
+                : 'Postingan berhasil diajukan dan sedang menunggu persetujuan (approval) dari Pemilik Toko sebelum dipublikasikan.';
+
+            return redirect()->route('social-media.posts.index')
+                ->with('warning', $warningMessage);
+        }
+
+        // 9. Dispatch or Execute Immediate Targets
         if (count($immediateTargets) === 1 && $accounts->count() === 1 && in_array($firstAccount->platform, ['facebook', 'instagram', 'threads'])) {
             // Single target immediate execution for Meta
             $this->socialService->publishPost($business, $post);
@@ -622,13 +713,13 @@ class SocialMediaWebController extends Controller
 
         $post->syncStatusFromTargets();
 
-        // 8. Track quota usage for free tier businesses
+        // 10. Track quota usage for free tier businesses
         if (! $entitlement->hasActiveSocialMediaSubscription($business)) {
             $entitlement->incrementMonthlyUsage($business, \App\Models\QuotaMonthlyUsage::TYPE_SOCIAL_POST, \App\Domain\Billing\EntitlementService::FREE_SOCIAL_POST_MONTHLY_LIMIT);
             $entitlement->clearUsageCache($business);
         }
 
-        // 9. User feedback response
+        // 11. User feedback response
         if ($hasScheduledTargets && ! empty($immediateTargets)) {
             return redirect()->route('social-media.posts.index')
                 ->with('success', 'Sebagian saluran berhasil dikirim untuk dipublikasikan langsung, dan saluran lainnya dijadwalkan sesuai waktu yang ditentukan.');
@@ -830,5 +921,134 @@ class SocialMediaWebController extends Controller
             'success' => $ok,
             'message' => $ok ? 'Akun berhasil diputuskan.' : 'Akun tidak ditemukan.',
         ]);
+    }
+
+    /**
+     * Maker-Checker: Approve a pending social media post and dispatch publishing.
+     */
+    public function approvePost(Request $request, SocialMediaPost $post): RedirectResponse
+    {
+        $business = Context::requireBusiness();
+        abort_unless($post->business_id === $business->id, 404);
+
+        $isOwnerOrManager = Context::isAdminOrOwner()
+            || in_array(Context::role(), ['owner', 'admin', 'manager', 'store_manager'], true)
+            || Context::hasPermission('social_media.manage');
+
+        abort_unless($isOwnerOrManager, 403, 'Hanya Owner atau Manager yang berwenang menyetujui postingan.');
+
+        if ($post->approval_status === 'approved') {
+            return redirect()->route('social-media.posts.index')
+                ->with('info', 'Postingan ini sudah disetujui sebelumnya.');
+        }
+
+        $post->update([
+            'approval_status' => 'approved',
+            'reviewed_by'     => $request->user()?->id,
+            'reviewed_at'     => now(),
+            'status'          => 'publishing',
+        ]);
+
+        $post->load(['targets.account']);
+
+        $immediateTargets = [];
+        $hasScheduledTargets = false;
+
+        foreach ($post->targets as $target) {
+            $isScheduled = $target->scheduled_at && $target->scheduled_at->isFuture();
+            $newStatus = $isScheduled ? 'scheduled' : 'pending';
+            if ($isScheduled) {
+                $hasScheduledTargets = true;
+            } else {
+                $immediateTargets[] = $target;
+            }
+            $target->update(['status' => $newStatus]);
+        }
+
+        $firstAccount = $post->account;
+
+        if (count($immediateTargets) === 1 && $post->targets->count() === 1 && in_array($firstAccount?->platform, ['facebook', 'instagram', 'threads'])) {
+            $this->socialService->publishPost($business, $post);
+            $immediateTargets[0]->update([
+                'status'           => $post->status,
+                'platform_post_id' => $post->platform_post_id,
+                'published_at'     => $post->published_at,
+                'error_message'    => $post->error_message,
+            ]);
+        } elseif (! empty($immediateTargets)) {
+            foreach ($immediateTargets as $immTarget) {
+                \App\Jobs\SocialMedia\PublishSocialMediaTargetJob::dispatch($immTarget->id);
+            }
+        }
+
+        $post->syncStatusFromTargets();
+
+        return redirect()->route('social-media.posts.index')
+            ->with('success', 'Postingan berhasil disetujui dan diproses untuk dipublikasikan.');
+    }
+
+    /**
+     * Maker-Checker: Reject a pending social media post with reason.
+     */
+    public function rejectPost(Request $request, SocialMediaPost $post): RedirectResponse
+    {
+        $business = Context::requireBusiness();
+        abort_unless($post->business_id === $business->id, 404);
+
+        $isOwnerOrManager = Context::isAdminOrOwner()
+            || in_array(Context::role(), ['owner', 'admin', 'manager', 'store_manager'], true)
+            || Context::hasPermission('social_media.manage');
+
+        abort_unless($isOwnerOrManager, 403, 'Hanya Owner atau Manager yang berwenang menolak postingan.');
+
+        $validated = $request->validate([
+            'reason' => ['nullable', 'string', 'max:500'],
+        ]);
+
+        $post->update([
+            'approval_status'  => 'rejected',
+            'reviewed_by'      => $request->user()?->id,
+            'reviewed_at'      => now(),
+            'rejection_reason' => $validated['reason'] ?? 'Ditolak oleh manajemen.',
+            'status'           => 'rejected',
+        ]);
+
+        $post->targets()->update(['status' => 'cancelled']);
+
+        return redirect()->route('social-media.posts.index')
+            ->with('info', 'Postingan telah ditolak.');
+    }
+
+    /**
+     * Scan caption for potential bank account numbers.
+     *
+     * @return array<int, string>
+     */
+    protected function scanBankAccountsInCaption(string $text): array
+    {
+        $detected = [];
+
+        // 1. Keyword-adjacent sequences: rek/rekening/bca/mandiri/bri/bni/bsi/cimb/permata/danamon/bank/an
+        if (preg_match_all('/(?:rek(?:ening)?|transfer|bca|mandiri|bri|bni|bsi|cimb|permata|danamon|bank|a\.?n\.?)\s*[:\-\.]?\s*([0-9\-\. ]{8,22})/i', $text, $matches)) {
+            foreach ($matches[1] as $match) {
+                $digits = preg_replace('/[^0-9]/', '', (string) $match);
+                if (strlen($digits) >= 8 && strlen($digits) <= 18) {
+                    $detected[] = $digits;
+                }
+            }
+        }
+
+        // 2. Standalone 9-18 digit sequences, excluding typical Indonesian mobile phone numbers (08... or 628...)
+        if (preg_match_all('/\b(\d{9,18})\b/', $text, $matches)) {
+            foreach ($matches[1] as $match) {
+                $digits = (string) $match;
+                if (str_starts_with($digits, '08') || str_starts_with($digits, '628')) {
+                    continue;
+                }
+                $detected[] = $digits;
+            }
+        }
+
+        return array_values(array_unique($detected));
     }
 }

@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Web\WhatsApp;
 
 use App\Domain\WhatsApp\WhatsAppGatewayService;
 use App\Http\Controllers\Controller;
+use App\Models\AuditLog;
 use App\Models\PosOrder;
 use App\Models\WhatsAppMessageLog;
 use App\Models\WhatsAppSession;
@@ -241,7 +242,13 @@ class WhatsAppWebController extends Controller
             'message' => ['required', 'string', 'min:1', 'max:1000'],
         ]);
 
-        $phone   = trim($validated['phone']);
+        $rawPhone = preg_replace('/[^0-9]/', '', (string) $validated['phone']);
+        if (str_starts_with($rawPhone, '0')) {
+            $phone = '62' . substr($rawPhone, 1);
+        } else {
+            $phone = $rawPhone;
+        }
+
         $message = trim($validated['message']);
 
         $result = $this->gateway->sendMessage($business, $phone, $message);
@@ -272,7 +279,40 @@ class WhatsAppWebController extends Controller
             abort(404);
         }
 
-        $phone  = $request->input('phone') ?: $order->customer?->phone;
+        $customPhone   = $request->input('phone');
+        $originalPhone = $order->customer?->phone ?: $order->customer_phone_guest;
+
+        // Anti-Fraud Audit Trail: Catat jika kasir/operator mengalihkan nomor struk transaksi
+        if (! empty($customPhone) && ! empty($originalPhone)) {
+            $normCustom = preg_replace('/[^0-9]/', '', (string) $customPhone);
+            if (str_starts_with($normCustom, '0')) {
+                $normCustom = '62' . substr($normCustom, 1);
+            }
+            $normOriginal = preg_replace('/[^0-9]/', '', (string) $originalPhone);
+            if (str_starts_with($normOriginal, '0')) {
+                $normOriginal = '62' . substr($normOriginal, 1);
+            }
+
+            if ($normCustom !== $normOriginal) {
+                AuditLog::create([
+                    'business_id'    => $business->id,
+                    'user_id'        => auth()->id(),
+                    'action'         => 'receipt.phone_override',
+                    'auditable_type' => PosOrder::class,
+                    'auditable_id'   => $order->id,
+                    'risk_level'     => AuditLog::RISK_MEDIUM,
+                    'risk_reason'    => 'Pengalihan nomor WhatsApp penerima struk transaksi kasir.',
+                    'old_values'     => ['phone' => $originalPhone],
+                    'new_values'     => ['phone' => $customPhone],
+                    'notes'          => 'Kasir mengalihkan nomor struk digital transaksi.',
+                    'ip_address'     => $request->ip(),
+                    'user_agent'     => $request->userAgent(),
+                    'created_at'     => now(),
+                ]);
+            }
+        }
+
+        $phone  = $customPhone ?: $originalPhone;
         $force  = (bool) $request->input('force', false);
         $ok     = $this->gateway->sendReceipt($order, $phone, $force);
 

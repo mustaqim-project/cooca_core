@@ -353,8 +353,6 @@
                             confirmText: 'Ya, Putuskan',
                             cancelText: 'Batal'
                         });
-                    } else {
-                        confirmed = confirm('Yakin ingin memutuskan akun media sosial ini?');
                     }
                     if (!confirmed) return;
 
@@ -372,8 +370,16 @@
                         const data = await res.json();
                         if (data.success) {
                             window.location.reload();
+                        } else {
+                            if (window.AppAlert) {
+                                AppAlert.error(data.error || 'Gagal memutuskan akun.');
+                            }
                         }
-                    } catch (e) {}
+                    } catch (e) {
+                        if (window.AppAlert) {
+                            AppAlert.error('Terjadi kesalahan jaringan saat memutuskan akun.');
+                        }
+                    }
                 }
             };
         }

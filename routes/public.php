@@ -253,7 +253,9 @@ Route::get('/payslip/{token}', [\App\Http\Controllers\Web\Hrm\HrmWebController::
 
 // 14. Marketplace Integration OAuth Callbacks & Webhooks
 Route::get('/integrations/{provider}/callback', [\App\Http\Controllers\Web\Marketplace\MarketplaceWebController::class, 'callback'])->name('integrations.marketplace.callback');
-Route::post('/webhooks/marketplace/{provider}', [\App\Http\Controllers\Web\Marketplace\MarketplaceWebhookController::class, 'handle'])->name('webhooks.marketplace');
+Route::post('/webhooks/marketplace/{provider}', [\App\Http\Controllers\Web\Marketplace\MarketplaceWebhookController::class, 'handle'])
+    ->middleware('throttle:120,1')
+    ->name('webhooks.marketplace');
 
 // 15. Public business landing pages using business name as direct URL slug (Must be last)
 Route::get('/{slug}', [PublicStorefrontController::class, 'home'])

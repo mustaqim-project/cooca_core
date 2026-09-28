@@ -108,10 +108,10 @@
                 this.branchProduct = data.product;
                 this.branchList = (data.branches || []).map(b => ({
                     ...b,
-                    custom_price: b.has_override ? b.price : '',
-                    custom_cost: b.has_override ? b.cost_price : '',
-                    is_available: b.is_available,
-                    use_custom: b.has_override
+                    custom_price: b.has_price_override ? b.price : '',
+                    custom_cost: (b.has_override && b.cost_price !== null) ? b.cost_price : '',
+                    is_available: b.is_available ?? true,
+                    use_custom: b.has_price_override ?? false
                 }));
             } catch (e) {
                 this.showBranchPricesModal = false;
@@ -127,6 +127,26 @@
                 this.branchPricesLoading = false;
             }
         },
+        toggleAllBranchesAvailability(status) {
+            this.branchList.forEach(b => {
+                b.is_available = status;
+            });
+        },
+        resetAllBranchPrices() {
+            this.branchList.forEach(b => {
+                b.use_custom = false;
+                b.custom_price = '';
+                b.custom_cost = '';
+                b.is_available = true;
+            });
+        },
+        getBranchMargin(branch) {
+            const price = branch.use_custom && branch.custom_price ? Number(branch.custom_price) : Number(this.branchProduct.selling_price || 0);
+            const cost = branch.use_custom && branch.custom_cost !== '' ? Number(branch.custom_cost) : Number(this.branchProduct.base_cost || 0);
+            if (!price || price <= 0) return 0;
+            const profit = price - cost;
+            return ((profit / price) * 100).toFixed(1);
+        },
         async saveBranchPrices() {
             if (this.branchPricesSaving) return;
             this.branchPricesSaving = true;
@@ -134,10 +154,11 @@
                 const payload = {
                     prices: this.branchList.map(b => ({
                         location_id: b.location_id,
-                        price: b.use_custom && b.custom_price !== '' ? Number(b.custom_price) : null,
-                        cost_price: b.use_custom && b.custom_cost !== '' ? Number(b.custom_cost) : null,
+                        price: b.is_available && b.use_custom && b.custom_price !== '' ? Number(b.custom_price) : null,
+                        cost_price: b.is_available && b.use_custom && b.custom_cost !== '' ? Number(b.custom_cost) : null,
                         is_available: b.is_available,
-                        reset: !b.use_custom
+                        use_custom: b.use_custom,
+                        reset: b.is_available && !b.use_custom
                     }))
                 };
                 const res = await fetch('/products/' + this.branchProduct.id + '/branch-prices', {
@@ -2398,13 +2419,16 @@
                         <div class="min-w-0">
                             <h2
                                 class="text-[17px] sm:text-[19px] font-bold text-black dark:text-white tracking-tight leading-snug truncate">
-                                Atur Harga Cabang
+                                Ketersediaan & Multi-Harga Cabang
                             </h2>
                             <p class="text-[12px] sm:text-[13px] text-black/60 dark:text-white/60 truncate">
                                 <span x-text="branchProduct.name" class="font-semibold text-[#007AFF]"></span>
                                 <span class="mx-1">·</span>
-                                <span>Master: Rp <span
-                                        x-text="Number(branchProduct.selling_price || 0).toLocaleString('id-ID')"></span></span>
+                                <span>Master Jual: <strong>Rp <span
+                                            x-text="Number(branchProduct.selling_price || 0).toLocaleString('id-ID')"></span></strong></span>
+                                <span class="mx-1">·</span>
+                                <span>HPP: <strong>Rp <span
+                                            x-text="Number(branchProduct.base_cost || 0).toLocaleString('id-ID')"></span></strong></span>
                             </p>
                         </div>
                     </div>
@@ -2415,6 +2439,43 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </button>
+                </div>
+
+                <!-- Quick Actions Toolbar -->
+                <div
+                    class="px-5 sm:px-7 py-2.5 bg-black/[0.02] dark:bg-white/[0.02] border-b border-black/[0.06] dark:border-white/[0.08] flex flex-wrap items-center justify-between gap-2 shrink-0">
+                    <div class="flex items-center gap-1.5 text-[12px] font-semibold text-black/60 dark:text-white/60">
+                        <svg class="w-3.5 h-3.5 text-[#007AFF]" fill="none" stroke="currentColor" stroke-width="2"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
+                        </svg>
+                        <span>Aksi Cepat:</span>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <button type="button" @click="toggleAllBranchesAvailability(true)"
+                            class="h-7 px-2.5 rounded-[8px] text-[11px] font-semibold text-[#34C759] bg-[#34C759]/10 hover:bg-[#34C759]/20 active:scale-95 transition-all flex items-center gap-1">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                            </svg>
+                            <span>Aktifkan Semua</span>
+                        </button>
+                        <button type="button" @click="toggleAllBranchesAvailability(false)"
+                            class="h-7 px-2.5 rounded-[8px] text-[11px] font-semibold text-[#FF3B30] bg-[#FF3B30]/10 hover:bg-[#FF3B30]/20 active:scale-95 transition-all flex items-center gap-1">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                            <span>Nonaktifkan Semua</span>
+                        </button>
+                        <button type="button" @click="resetAllBranchPrices()"
+                            class="h-7 px-2.5 rounded-[8px] text-[11px] font-semibold text-[#007AFF] bg-[#007AFF]/10 hover:bg-[#007AFF]/20 active:scale-95 transition-all flex items-center gap-1">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+                            </svg>
+                            <span>Reset ke Master</span>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Modal Body (Scrollable Bento List) -->
@@ -2440,8 +2501,14 @@
 
                     <!-- List of Branches -->
                     <template x-for="(branch, index) in branchList" :key="branch.location_id">
-                        <div class="p-4 sm:p-5 rounded-[18px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.08] transition-all space-y-3.5"
-                            :class="branch.use_custom ? 'ring-2 ring-[#007AFF]/30 bg-[#007AFF]/[0.02]' : ''">
+                        <div class="p-4 sm:p-5 rounded-[18px] border transition-all space-y-3.5"
+                            :class="!branch.is_available ?
+                                'opacity-70 bg-black/[0.01] dark:bg-white/[0.01] border-dashed border-[#FF3B30]/30' :
+                                (branch.use_custom ?
+                                    'ring-2 ring-[#007AFF]/30 bg-[#007AFF]/[0.02] border-[#007AFF]/20 dark:border-[#007AFF]/30' :
+                                    'bg-black/[0.02] dark:bg-white/[0.03] border-black/[0.06] dark:border-white/[0.08]')">
+                            
+                            <!-- Header Bar Cabang -->
                             <div class="flex items-center justify-between gap-3">
                                 <div class="min-w-0">
                                     <div class="flex items-center gap-2">
@@ -2457,65 +2524,88 @@
                                         x-text="'Kode: ' + (branch.location_code || '-')"></p>
                                 </div>
 
-                                <!-- Custom Price Toggle -->
+                                <!-- Switch 1: Ketersediaan di Cabang Ini -->
                                 <label class="flex items-center gap-2 cursor-pointer select-none">
-                                    <span class="text-[12px] font-medium text-black/60 dark:text-white/60">Harga
-                                        Khusus</span>
-                                    <input type="checkbox" x-model="branch.use_custom"
-                                        class="w-4 h-4 rounded text-[#007AFF] border-black/20 focus:ring-[#007AFF]">
-                                </label>
-                            </div>
-
-                            <!-- If Custom Active -->
-                            <div x-show="branch.use_custom" x-cloak
-                                class="pt-2 border-t border-black/[0.06] dark:border-white/[0.08] space-y-3">
-                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                    <div>
-                                        <label
-                                            class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">
-                                            Harga Jual Cabang (Rp) <span class="text-[#FF3B30]">*</span>
-                                        </label>
-                                        <div class="relative">
-                                            <span
-                                                class="absolute left-3.5 top-1/2 -translate-y-1/2 text-[14px] font-semibold text-black/40 dark:text-white/40">Rp</span>
-                                            <input type="number" step="any" min="0"
-                                                x-model="branch.custom_price" placeholder="0"
-                                                class="w-full h-11 pl-10 pr-3.5 rounded-[12px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 text-black dark:text-white text-[16px] font-semibold tabular-nums focus:ring-2 focus:ring-[#007AFF] focus:border-[#007AFF] transition-all">
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <label
-                                            class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">
-                                            HPP Khusus (Rp, Opsional)
-                                        </label>
-                                        <div class="relative">
-                                            <span
-                                                class="absolute left-3.5 top-1/2 -translate-y-1/2 text-[14px] font-semibold text-black/40 dark:text-white/40">Rp</span>
-                                            <input type="number" step="any" min="0"
-                                                x-model="branch.custom_cost" placeholder="0"
-                                                class="w-full h-11 pl-10 pr-3.5 rounded-[12px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 text-black dark:text-white text-[16px] font-semibold tabular-nums focus:ring-2 focus:ring-[#007AFF] focus:border-[#007AFF] transition-all">
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <label class="flex items-center gap-2 cursor-pointer pt-1">
                                     <input type="checkbox" x-model="branch.is_available"
                                         class="w-4 h-4 rounded text-[#34C759] border-black/20 focus:ring-[#34C759]">
-                                    <span class="text-[12px] text-black/70 dark:text-white/70">Produk ini tersedia untuk
-                                        dijual di cabang ini</span>
+                                    <span class="text-[12px] font-semibold"
+                                        :class="branch.is_available ? 'text-[#34C759]' : 'text-[#FF3B30]'"
+                                        x-text="branch.is_available ? 'Tersedia di POS' : 'Nonaktif di Cabang'"></span>
                                 </label>
                             </div>
 
-                            <!-- If Master Default -->
-                            <div x-show="!branch.use_custom"
-                                class="text-[12px] text-black/50 dark:text-white/50 bg-black/[0.02] dark:bg-white/[0.02] p-2.5 rounded-[10px] flex items-center gap-2">
-                                <svg class="w-4 h-4 text-[#34C759] shrink-0" fill="none" stroke="currentColor"
-                                    stroke-width="2" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                            <!-- Jika Dinonaktifkan di Cabang Ini -->
+                            <div x-show="!branch.is_available" x-cloak
+                                class="p-3 rounded-[12px] bg-[#FF3B30]/5 text-[#FF3B30] text-[12px] flex items-center gap-2 border border-[#FF3B30]/10">
+                                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
                                 </svg>
-                                <span>Mengikuti harga master katalog pusat: <strong
-                                        class="text-black/80 dark:text-white/80 tabular-nums">Rp <span
-                                            x-text="Number(branchProduct.selling_price || 0).toLocaleString('id-ID')"></span></strong></span>
+                                <span>Produk ini <strong>tidak dijual</strong> di cabang ini. Kasir tidak dapat melihat atau mencari produk ini di POS.</span>
+                            </div>
+
+                            <!-- Jika Tersedia di Cabang Ini -->
+                            <div x-show="branch.is_available" class="space-y-3">
+                                <!-- Switch 2: Gunakan Harga Khusus -->
+                                <div class="flex items-center justify-between pt-2 border-t border-black/[0.06] dark:border-white/[0.08]">
+                                    <label class="flex items-center gap-2 cursor-pointer select-none">
+                                        <input type="checkbox" x-model="branch.use_custom"
+                                            class="w-4 h-4 rounded text-[#007AFF] border-black/20 focus:ring-[#007AFF]">
+                                        <span class="text-[12px] font-medium text-black/70 dark:text-white/70">Gunakan Harga Khusus Cabang Ini</span>
+                                    </label>
+                                    <span x-show="branch.use_custom" class="text-[11px] font-bold text-[#007AFF] bg-[#007AFF]/10 px-2 py-0.5 rounded-[6px]">Custom Price</span>
+                                </div>
+
+                                <!-- Jika Mengikuti Master -->
+                                <div x-show="!branch.use_custom"
+                                    class="text-[12px] text-black/50 dark:text-white/50 bg-black/[0.02] dark:bg-white/[0.02] p-2.5 rounded-[10px] flex items-center justify-between">
+                                    <div class="flex items-center gap-2">
+                                        <svg class="w-4 h-4 text-[#34C759] shrink-0" fill="none" stroke="currentColor"
+                                            stroke-width="2" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                        </svg>
+                                        <span>Mengikuti harga master katalog pusat</span>
+                                    </div>
+                                    <strong class="text-black/80 dark:text-white/80 tabular-nums">Rp <span
+                                            x-text="Number(branchProduct.selling_price || 0).toLocaleString('id-ID')"></span></strong>
+                                </div>
+
+                                <!-- Jika Menggunakan Harga Khusus -->
+                                <div x-show="branch.use_custom" x-cloak class="space-y-3 pt-1">
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                        <div>
+                                            <label
+                                                class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">
+                                                Harga Jual Cabang (Rp) <span class="text-[#FF3B30]">*</span>
+                                            </label>
+                                            <div class="relative">
+                                                <span
+                                                    class="absolute left-3.5 top-1/2 -translate-y-1/2 text-[14px] font-semibold text-black/40 dark:text-white/40">Rp</span>
+                                                <input type="number" step="any" min="0"
+                                                    x-model="branch.custom_price" placeholder="0"
+                                                    class="w-full h-11 pl-10 pr-3.5 rounded-[12px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 text-black dark:text-white text-[16px] font-semibold tabular-nums focus:ring-2 focus:ring-[#007AFF] focus:border-[#007AFF] transition-all">
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label
+                                                class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">
+                                                HPP Khusus (Rp, Opsional)
+                                            </label>
+                                            <div class="relative">
+                                                <span
+                                                    class="absolute left-3.5 top-1/2 -translate-y-1/2 text-[14px] font-semibold text-black/40 dark:text-white/40">Rp</span>
+                                                <input type="number" step="any" min="0"
+                                                    x-model="branch.custom_cost" placeholder="0"
+                                                    class="w-full h-11 pl-10 pr-3.5 rounded-[12px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 text-black dark:text-white text-[16px] font-semibold tabular-nums focus:ring-2 focus:ring-[#007AFF] focus:border-[#007AFF] transition-all">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Estimasi Margin Laba Cabang -->
+                                    <div class="p-2.5 rounded-[10px] bg-[#007AFF]/5 border border-[#007AFF]/10 text-[12px] flex items-center justify-between text-[#007AFF]">
+                                        <span class="font-medium">Estimasi Margin Laba Cabang:</span>
+                                        <span class="font-bold tabular-nums" x-text="getBranchMargin(branch) + '%'"></span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </template>
@@ -2539,7 +2629,7 @@
                                 d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
                             </path>
                         </svg>
-                        <span x-text="branchPricesSaving ? 'Menyimpan...' : 'Simpan Harga Cabang'"></span>
+                        <span x-text="branchPricesSaving ? 'Menyimpan...' : 'Simpan Pengaturan Cabang'"></span>
                     </button>
                 </div>
             </div>

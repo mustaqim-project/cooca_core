@@ -15,7 +15,9 @@ use App\Support\Context;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class WhatsAppBroadcastWebController extends Controller
@@ -65,30 +67,11 @@ class WhatsAppBroadcastWebController extends Controller
     }
 
     /**
-     * Show the create broadcast form.
+     * Gracefully redirect the legacy standalone create page to the Modal Sheet composer in index.
      */
-    public function create(): View
+    public function create(): RedirectResponse
     {
-        $business         = Context::requireBusiness();
-        $waSession        = WhatsAppSession::where('business_id', $business->id)->first();
-        $whatsAppAccount  = WhatsAppAccount::where('business_id', $business->id)->first();
-        $customerCount    = Customer::where('business_id', $business->id)
-            ->where('is_active', true)
-            ->whereNotNull('phone')
-            ->where('phone', '!=', '')
-            ->count();
-
-        // Tier counts for filter preview
-        $tierCounts = Customer::where('business_id', $business->id)
-            ->where('is_active', true)
-            ->whereNotNull('phone')
-            ->where('phone', '!=', '')
-            ->selectRaw('LOWER(membership_tier) as tier, COUNT(*) as count')
-            ->groupBy('tier')
-            ->pluck('count', 'tier')
-            ->toArray();
-
-        return view('app.whatsapp.create', compact('business', 'waSession', 'whatsAppAccount', 'customerCount', 'tierCounts'));
+        return redirect()->route('whatsapp.broadcast.index', ['open_composer' => 1]);
     }
 
     /**
@@ -105,6 +88,31 @@ class WhatsAppBroadcastWebController extends Controller
             'target_filter' => 'required|in:all,bronze,silver,gold,vip',
         ]);
 
+        $mediaUrl = trim((string) ($validated['media_url'] ?? ''));
+        if ($mediaUrl !== '') {
+            $parsed = parse_url($mediaUrl);
+            $scheme = strtolower((string) ($parsed['scheme'] ?? ''));
+            if ($scheme !== 'https') {
+                throw ValidationException::withMessages([
+                    'media_url' => 'URL media wajib menggunakan protokol https:// yang aman.',
+                ]);
+            }
+
+            $host = strtolower((string) ($parsed['host'] ?? ''));
+            if (empty($host) || in_array($host, ['localhost', '127.0.0.1', '::1', '0.0.0.0', '169.254.169.254'], true)) {
+                throw ValidationException::withMessages([
+                    'media_url' => 'URL media tidak valid atau mengarah ke alamat jaringan lokal/privat.',
+                ]);
+            }
+
+            $ip = filter_var($host, FILTER_VALIDATE_IP) ? $host : @gethostbyname($host);
+            if (! $ip || filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) {
+                throw ValidationException::withMessages([
+                    'media_url' => 'URL media tidak valid atau mengarah ke alamat jaringan lokal/privat.',
+                ]);
+            }
+        }
+
         // Ensure WA is connected before creating campaign
         $whatsAppAccount = WhatsAppAccount::where('business_id', $business->id)->first();
         $waSession       = WhatsAppSession::where('business_id', $business->id)->first();
@@ -112,6 +120,15 @@ class WhatsAppBroadcastWebController extends Controller
 
         if (! $isConnected) {
             return back()->withErrors(['whatsapp' => 'Akun WhatsApp resmi Meta belum terhubung. Harap hubungkan nomor WhatsApp bisnis Anda di halaman Integrasi WhatsApp.'])->withInput();
+        }
+
+        // Idempotency Lock: Mencegah penembakan broadcast duplikat dalam kurun waktu 300 detik (5 menit)
+        $idempotencyHash = md5($business->id . ':' . trim((string) $validated['title']) . ':' . trim((string) $validated['message']));
+        $lockKey         = "broadcast_lock_{$idempotencyHash}";
+        if (! Cache::add($lockKey, true, 300)) {
+            return back()->withErrors([
+                'title' => 'Kampanye broadcast yang identik baru saja dijadwalkan. Mohon tunggu proses pengiriman selesai untuk mencegah pesan duplikat ke pelanggan.',
+            ])->withInput();
         }
 
         $campaign = DB::transaction(function () use ($business, $validated) {

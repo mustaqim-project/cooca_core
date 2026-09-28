@@ -142,12 +142,27 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-black/[0.04] dark:divide-white/[0.06]">
+                            @php
+                                $isOwner = \App\Support\Context::isOwner();
+                                $formatPhone = function (?string $phone) use ($isOwner): string {
+                                    if (! $phone) return '-';
+                                    if ($isOwner) return $phone;
+                                    $raw = trim($phone);
+                                    $len = strlen($raw);
+                                    if ($len <= 7) {
+                                        return substr($raw, 0, 2) . '••••' . substr($raw, -2);
+                                    }
+                                    return substr($raw, 0, 4) . '••••' . substr($raw, -4);
+                                };
+                            @endphp
                             @foreach ($logs as $log)
                                 @php
+                                    $displayPhone = $formatPhone($log->recipient_phone);
                                     $logJson = [
                                         'id' => $log->id,
                                         'recipient_name' => $log->recipient_name,
-                                        'recipient_phone' => $log->recipient_phone,
+                                        'recipient_phone' => $displayPhone,
+                                        'raw_phone' => $isOwner ? $log->recipient_phone : null,
                                         'type' => $log->type,
                                         'message' => $log->message,
                                         'status' => $log->status,
@@ -160,7 +175,7 @@
                                     @click="inspectLog(@json($logJson))">
                                     <td class="px-5 py-3.5">
                                         <div class="font-bold text-black dark:text-white">{{ $log->recipient_name }}</div>
-                                        <div class="text-black/50 dark:text-white/50 tabular-nums text-[12px]">{{ $log->recipient_phone }}</div>
+                                        <div class="text-black/50 dark:text-white/50 tabular-nums text-[12px] font-mono">{{ $displayPhone }}</div>
                                     </td>
                                     <td class="px-4 py-3.5">
                                         @php
@@ -237,10 +252,12 @@
                                 'test' => 'Uji Tes',
                                 default => ucfirst($log->type),
                             };
+                            $displayPhoneMobile = $formatPhone($log->recipient_phone);
                             $logJsonMobile = [
                                 'id' => $log->id,
                                 'recipient_name' => $log->recipient_name,
-                                'recipient_phone' => $log->recipient_phone,
+                                'recipient_phone' => $displayPhoneMobile,
+                                'raw_phone' => $isOwner ? $log->recipient_phone : null,
                                 'type' => $log->type,
                                 'message' => $log->message,
                                 'status' => $log->status,
@@ -254,7 +271,7 @@
                             <div class="flex items-start justify-between gap-2">
                                 <div>
                                     <div class="font-bold text-[14.5px] text-black dark:text-white">{{ $log->recipient_name }}</div>
-                                    <div class="text-black/50 dark:text-white/50 font-mono tabular-nums text-[11.5px] mt-0.5">{{ $log->recipient_phone }}</div>
+                                    <div class="text-black/50 dark:text-white/50 font-mono tabular-nums text-[11.5px] mt-0.5">{{ $displayPhoneMobile }}</div>
                                 </div>
                                 <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10.5px] font-semibold {{ $typeBadge }} shrink-0">
                                     {{ $typeLabel }}
@@ -391,12 +408,20 @@
 
                 <!-- Footer Action -->
                 <footer class="px-5 sm:px-6 py-4 bg-white/95 dark:bg-[#1C1C1E]/95 backdrop-blur-md border-t border-black/5 dark:border-white/10 flex items-center justify-between gap-3 shrink-0">
-                    <a :href="'https://wa.me/' + (activeLog?.recipient_phone ? activeLog.recipient_phone.replace(/[^0-9]/g, '') : '') + '?text=' + encodeURIComponent(activeLog?.message || '')"
-                        target="_blank" rel="noopener noreferrer"
-                        class="min-h-[44px] px-4 rounded-[12px] bg-[#34C759] hover:bg-[#2FB350] text-white font-bold text-[13px] shadow-sm flex items-center gap-2 transition active:scale-[0.98]">
-                        <i data-lucide="external-link" class="w-4 h-4"></i>
-                        <span>Buka di WhatsApp Web / HP</span>
-                    </a>
+                    <template x-if="activeLog?.raw_phone">
+                        <a :href="'https://wa.me/' + activeLog.raw_phone.replace(/[^0-9]/g, '') + '?text=' + encodeURIComponent(activeLog?.message || '')"
+                            target="_blank" rel="noopener noreferrer"
+                            class="min-h-[44px] px-4 rounded-[12px] bg-[#34C759] hover:bg-[#2FB350] text-white font-bold text-[13px] shadow-sm flex items-center gap-2 transition active:scale-[0.98]">
+                            <i data-lucide="external-link" class="w-4 h-4"></i>
+                            <span>Buka di WhatsApp Web / HP</span>
+                        </a>
+                    </template>
+                    <template x-if="!activeLog?.raw_phone">
+                        <div class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-[12px] bg-black/[0.04] dark:bg-white/[0.06] text-black/50 dark:text-white/50 text-[12px] font-medium">
+                            <i data-lucide="shield" class="w-3.5 h-3.5 text-[#007AFF]"></i>
+                            <span>Nomor disamarkan (Privasi PII)</span>
+                        </div>
+                    </template>
 
                     <button type="button" @click="closeInspector()"
                         class="min-h-[44px] px-4 rounded-[12px] text-[13px] font-semibold text-black/70 dark:text-white/70 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] transition active:scale-[0.98]">

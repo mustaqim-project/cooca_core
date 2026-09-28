@@ -223,13 +223,29 @@ class TokopediaAdapter implements MarketplaceAdapterInterface
 
     public function handleWebhook(Request $request, string $rawBody, array $headers): array
     {
+        $token = $headers['x-tkpd-token'][0] 
+            ?? ($headers['x-tkpd-token'] 
+            ?? ($headers['x-tokopedia-signature'][0] 
+            ?? ($headers['x-tokopedia-signature'] 
+            ?? ($headers['authorization'][0] 
+            ?? ($headers['authorization'] ?? '')))));
+
+        if (str_starts_with((string) $token, 'Bearer ')) {
+            $token = substr((string) $token, 7);
+        }
+
         $payload = json_decode($rawBody, true) ?: [];
+        $secret  = (string) (SystemSetting::get('tokopedia_webhook_secret') ?? config('services.tokopedia.webhook_secret', $this->clientSecret));
+
+        // Tokopedia validates either via shared webhook secret or HMAC-SHA256 signature
+        $calcSign = ! empty($secret) ? hash_hmac('sha256', $rawBody, $secret) : '';
+        $isValid  = ! empty($token) && ! empty($secret) && (hash_equals($secret, (string) $token) || hash_equals($calcSign, (string) $token));
 
         return [
             'event'    => (string) ($payload['msg_type'] ?? 'order_notification'),
             'shop_id'  => (string) ($payload['shop_id'] ?? ''),
             'payload'  => $payload,
-            'is_valid' => true,
+            'is_valid' => $isValid,
         ];
     }
 }

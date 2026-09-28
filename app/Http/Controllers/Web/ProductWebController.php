@@ -537,15 +537,18 @@ final class ProductWebController extends Controller
 
         $branchData = $locations->map(function ($loc) use ($existingPrices, $product) {
             $priceObj = $existingPrices->get($loc->id);
+            $hasPriceOverride = $priceObj !== null && $priceObj->price !== null;
+
             return [
                 'location_id' => $loc->id,
                 'location_name' => $loc->name,
                 'location_type' => $loc->type,
                 'location_code' => $loc->code,
-                'price' => $priceObj ? (float) $priceObj->price : (float) $product->selling_price,
-                'cost_price' => $priceObj ? (float) $priceObj->cost_price : (float) $product->base_cost,
+                'price' => $hasPriceOverride ? (float) $priceObj->price : (float) $product->selling_price,
+                'cost_price' => ($priceObj && $priceObj->cost_price !== null) ? (float) $priceObj->cost_price : (float) $product->base_cost,
                 'is_available' => $priceObj ? (bool) $priceObj->is_available : true,
                 'has_override' => $priceObj !== null,
+                'has_price_override' => $hasPriceOverride,
             ];
         });
 
@@ -563,7 +566,7 @@ final class ProductWebController extends Controller
     }
 
     /**
-     * Update branch-specific prices for a product.
+     * Update branch-specific prices and availability for a product.
      */
     public function updateBranchPrices(Request $request, Product $product)
     {
@@ -580,14 +583,18 @@ final class ProductWebController extends Controller
             'prices.*.price' => ['nullable', 'numeric', 'gte:0'],
             'prices.*.cost_price' => ['nullable', 'numeric', 'gte:0'],
             'prices.*.is_available' => ['nullable', 'boolean'],
+            'prices.*.use_custom' => ['nullable', 'boolean'],
             'prices.*.reset' => ['nullable', 'boolean'],
         ]);
 
         foreach ($validated['prices'] as $item) {
             $locationId = $item['location_id'];
+            $isAvailable = isset($item['is_available']) ? (bool) $item['is_available'] : true;
             $shouldReset = !empty($item['reset']);
+            $hasCustomPrice = isset($item['price']) && $item['price'] !== null && $item['price'] !== '';
 
-            if ($shouldReset) {
+            // Clean reset to master: delete record if available and requested to reset
+            if ($shouldReset && $isAvailable) {
                 BranchProductPrice::where('business_id', $business->id)
                     ->where('product_id', $product->id)
                     ->where('location_id', $locationId)
@@ -595,7 +602,8 @@ final class ProductWebController extends Controller
                 continue;
             }
 
-            if (isset($item['price']) && $item['price'] !== null && $item['price'] !== '') {
+            // Either explicitly disabled or has a custom price override
+            if (! $isAvailable || $hasCustomPrice) {
                 BranchProductPrice::updateOrCreate(
                     [
                         'business_id' => $business->id,
@@ -603,21 +611,27 @@ final class ProductWebController extends Controller
                         'location_id' => $locationId,
                     ],
                     [
-                        'price' => (float) $item['price'],
-                        'cost_price' => isset($item['cost_price']) && $item['cost_price'] !== '' ? (float) $item['cost_price'] : (float) $product->base_cost,
-                        'is_available' => isset($item['is_available']) ? (bool) $item['is_available'] : true,
+                        'is_available' => $isAvailable,
+                        'price' => $hasCustomPrice ? (float) $item['price'] : null,
+                        'cost_price' => (isset($item['cost_price']) && $item['cost_price'] !== null && $item['cost_price'] !== '') ? (float) $item['cost_price'] : null,
                     ]
                 );
+            } else {
+                // If it is available and has no custom price, remove any stale override
+                BranchProductPrice::where('business_id', $business->id)
+                    ->where('product_id', $product->id)
+                    ->where('location_id', $locationId)
+                    ->delete();
             }
         }
 
         if ($request->wantsJson()) {
             return response()->json([
                 'success' => true,
-                'message' => 'Harga cabang berhasil disimpan.',
+                'message' => 'Pengaturan ketersediaan dan harga cabang berhasil disimpan.',
             ]);
         }
 
-        return back()->with('success', 'Harga cabang berhasil disimpan.');
+        return back()->with('success', 'Pengaturan ketersediaan dan harga cabang berhasil disimpan.');
     }
 }

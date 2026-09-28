@@ -86,56 +86,80 @@
     <!-- Screen Action Bar (macOS Sonoma Floating Toolbar, Hidden on Print) -->
     <div
         class="no-print max-w-md mx-auto mb-4 p-2.5 rounded-[16px] backdrop-blur-md bg-white/80 dark:bg-[#2C2C2E]/80 border border-black/5 dark:border-white/10 shadow-sm flex flex-wrap items-center justify-between gap-2">
-        <div class="flex items-center gap-1.5">
-            <a href="{{ route('pos.terminal') }}"
-                class="min-h-[36px] h-9 px-3 rounded-[10px] bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] text-black/80 dark:text-white/80 text-[13px] font-sans font-medium transition flex items-center gap-1.5 active:scale-[0.98]">
-                <i data-lucide="arrow-left" class="w-4 h-4"></i>
-                <span>Terminal</span>
-            </a>
-            @if ($order->print_count > 1)
-                <span class="px-2.5 py-1 rounded-[8px] text-[11px] font-sans font-bold bg-[#FF9500]/15 text-[#B25E00] dark:text-[#FF9F0A] border border-[#FF9500]/30 shrink-0">
-                    Salinan (Ke-{{ $order->print_count }})
-                </span>
-            @else
-                <span class="px-2.5 py-1 rounded-[8px] text-[11px] font-sans font-bold bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158] border border-[#34C759]/30 shrink-0">
-                    Cetakan Asli
-                </span>
-            @endif
-        </div>
+        @auth
+            <div class="flex items-center gap-1.5">
+                <a href="{{ route('pos.terminal') }}"
+                    class="min-h-[36px] h-9 px-3 rounded-[10px] bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] text-black/80 dark:text-white/80 text-[13px] font-sans font-medium transition flex items-center gap-1.5 active:scale-[0.98]">
+                    <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                    <span>Terminal</span>
+                </a>
+                @if ($order->print_count > 1)
+                    <span class="px-2.5 py-1 rounded-[8px] text-[11px] font-sans font-bold bg-[#FF9500]/15 text-[#B25E00] dark:text-[#FF9F0A] border border-[#FF9500]/30 shrink-0">
+                        Salinan (Ke-{{ $order->print_count }})
+                    </span>
+                @else
+                    <span class="px-2.5 py-1 rounded-[8px] text-[11px] font-sans font-bold bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158] border border-[#34C759]/30 shrink-0">
+                        Cetakan Asli
+                    </span>
+                @endif
+            </div>
 
-        <div class="flex items-center gap-1.5 flex-wrap">
-            <!-- Direct ESC/POS Hardware Print -->
-            <button type="button" id="btn-direct-escpos" onclick="directPrintEscpos()"
-                class="min-h-[36px] h-9 px-3 rounded-[10px] bg-[#34C759] hover:bg-[#2EB34E] text-white text-[12px] font-sans font-semibold active:scale-[0.97] transition flex items-center gap-1.5 shadow-sm">
-                <i data-lucide="printer" class="w-3.5 h-3.5"></i>
-                <span id="txt-direct-escpos">Cetak ESC/POS</span>
-            </button>
-
-            <!-- Standard Browser Print Fallback -->
-            <button type="button" onclick="window.print()"
-                class="min-h-[36px] h-9 px-3 rounded-[10px] {{ $order->print_count > 1 ? 'bg-[#FF9500] hover:bg-[#E08500]' : 'bg-[#007AFF] hover:bg-[#0071E3]' }} text-white text-[12px] font-sans font-semibold active:scale-[0.97] transition flex items-center gap-1.5 shadow-sm">
-                <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
-                <span>{{ $order->print_count > 1 ? 'Cetak Ulang' : 'Cetak Bill' }}</span>
-            </button>
-
-            <!-- Re-Print Trigger Action -->
-            <form method="POST" action="{{ route('pos.receipt.reprint', $order->id) }}" class="inline"
-                onsubmit="return confirm('Cetak Ulang (Re-Print) Bill ini?\n\nTindakan ini akan dicatat dalam Jejak Audit & Anti-Fraud sebagai Salinan / Cetakan ke-{{ $order->print_count + 1 }}.');">
-                @csrf
-                <button type="submit"
-                    class="min-h-[36px] h-9 px-2.5 rounded-[10px] bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.1] dark:hover:bg-white/[0.12] text-black/85 dark:text-white/85 text-[12px] font-sans font-medium active:scale-[0.97] transition flex items-center gap-1"
-                    title="Cetak Salinan Tambahan & Catat Log Forensik">
-                    <i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-[#FF9500]"></i>
-                    <span>Re-Print</span>
+            <div class="flex items-center gap-1.5 flex-wrap">
+                <!-- Direct ESC/POS Hardware Print -->
+                <button type="button" id="btn-direct-escpos" onclick="directPrintEscpos()"
+                    class="min-h-[36px] h-9 px-3 rounded-[10px] bg-[#34C759] hover:bg-[#2EB34E] text-white text-[12px] font-sans font-semibold active:scale-[0.97] transition flex items-center gap-1.5 shadow-sm">
+                    <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+                    <span id="txt-direct-escpos">Cetak ESC/POS</span>
                 </button>
-            </form>
 
-            <a href="{{ $whatsappUrl }}" target="_blank"
-                class="min-h-[36px] h-9 px-2.5 rounded-[10px] bg-[#25D366]/15 hover:bg-[#25D366]/25 text-[#25D366] text-[12px] font-sans font-semibold active:scale-[0.97] transition flex items-center gap-1">
-                <i data-lucide="send" class="w-3.5 h-3.5"></i>
-                <span>WA</span>
-            </a>
-        </div>
+                <!-- Standard Browser Print Fallback -->
+                <button type="button" onclick="window.print()"
+                    class="min-h-[36px] h-9 px-3 rounded-[10px] {{ $order->print_count > 1 ? 'bg-[#FF9500] hover:bg-[#E08500]' : 'bg-[#007AFF] hover:bg-[#0071E3]' }} text-white text-[12px] font-sans font-semibold active:scale-[0.97] transition flex items-center gap-1.5 shadow-sm">
+                    <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
+                    <span>{{ $order->print_count > 1 ? 'Cetak Ulang' : 'Cetak Bill' }}</span>
+                </button>
+
+                <!-- Re-Print Trigger Action -->
+                <form method="POST" action="{{ route('pos.receipt.reprint', $order->id) }}" class="inline"
+                    onsubmit="return confirm('Cetak Ulang (Re-Print) Bill ini?\n\nTindakan ini akan dicatat dalam Jejak Audit & Anti-Fraud sebagai Salinan / Cetakan ke-{{ $order->print_count + 1 }}.');">
+                    @csrf
+                    <button type="submit"
+                        class="min-h-[36px] h-9 px-2.5 rounded-[10px] bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.1] dark:hover:bg-white/[0.12] text-black/85 dark:text-white/85 text-[12px] font-sans font-medium active:scale-[0.97] transition flex items-center gap-1"
+                        title="Cetak Salinan Tambahan & Catat Log Forensik">
+                        <i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-[#FF9500]"></i>
+                        <span>Re-Print</span>
+                    </button>
+                </form>
+
+                <a href="{{ $whatsappUrl }}" target="_blank"
+                    class="min-h-[36px] h-9 px-2.5 rounded-[10px] bg-[#25D366]/15 hover:bg-[#25D366]/25 text-[#25D366] text-[12px] font-sans font-semibold active:scale-[0.97] transition flex items-center gap-1">
+                    <i data-lucide="send" class="w-3.5 h-3.5"></i>
+                    <span>WA</span>
+                </a>
+            </div>
+        @else
+            <!-- Public Guest / Customer Action Bar -->
+            <div class="flex items-center gap-2">
+                <span class="text-[13px] font-sans font-semibold text-black/80 dark:text-white/80">
+                    Struk Digital Transaksi
+                </span>
+                <span class="px-2 py-0.5 rounded-[6px] text-[11px] font-sans font-semibold bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158]">
+                    {{ $order->payment_status_label ?? 'Lunas' }}
+                </span>
+            </div>
+            <div class="flex items-center gap-1.5">
+                <a href="{{ route('public.receipt.image', $order->id) }}" download="struk-{{ $order->order_number }}.png"
+                    class="min-h-[36px] h-9 px-3 rounded-[10px] bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] text-black/80 dark:text-white/80 text-[12px] font-sans font-medium transition flex items-center gap-1.5 active:scale-[0.98]">
+                    <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                    <span>Simpan Gambar</span>
+                </a>
+                <button type="button" onclick="window.print()"
+                    class="min-h-[36px] h-9 px-3 rounded-[10px] bg-[#007AFF] hover:bg-[#0071E3] text-white text-[12px] font-sans font-semibold active:scale-[0.97] transition flex items-center gap-1.5 shadow-sm">
+                    <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+                    <span>Cetak Struk</span>
+                </button>
+            </div>
+        @endauth
     </div>
 
     <!-- Thermal Paper Receipt -->

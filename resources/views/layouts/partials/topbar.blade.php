@@ -562,6 +562,7 @@
         @if ($canAccessInventory)
             // 3. Produk & Persediaan
             { title: 'Katalog Produk & Menu', desc: 'Daftar barang dagangan, harga jual, dan resep produk', category: 'Produk & Stok', route: '{{ route('products.index') }}', icon: 'package', keywords: 'produk barang menu katalog makanan minuman sku' },
+            { title: 'Integrasi Marketplace', desc: 'Hub multi-channel Shopee, TikTok Shop, dan Tokopedia dengan sinkronisasi harga & stok', category: 'Produk & Stok', route: '{{ route('marketplace-hub.index') }}', icon: 'shopping-bag', keywords: 'marketplace shopee tiktok shop tokopedia integrasi channel online pesanan sync' },
             { title: 'Jasa & Layanan', desc: 'Katalog jasa pengerjaan, servis teknis, dan tarif per jam', category: 'Produk & Stok', route: '{{ route('services.index') }}', icon: 'wrench', keywords: 'jasa layanan servis service tarif ongkos kerja' },
             { title: 'Bahan Baku & Resep (BOM)', desc: 'Master bahan mentah, komponen produksi, dan kartu resep', category: 'Produk & Stok', route: '{{ route('materials.index') }}', icon: 'boxes', keywords: 'bahan baku resep bom material racikan formula bumbu' },
             { title: 'Varian & Opsi Tambahan', desc: 'Topping, level pedas, ukuran cup, dan modifikasi pesanan', category: 'Produk & Stok', route: '{{ route('pos.modifiers.index') }}', icon: 'layers', keywords: 'varian modifier topping opsi pilihan ekstra add on' },

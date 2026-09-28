@@ -108,6 +108,31 @@ class Product extends Model
         return ($this->type ?? self::TYPE_GOODS) !== self::TYPE_SERVICE;
     }
 
+    /**
+     * Check if product is categorized as a restricted pharmacy drug (BPOM RI regulation).
+     */
+    public function isRestrictedPharmacyProduct(): bool
+    {
+        $restrictedKeywords = [
+            'obat keras',
+            'resep dokter',
+            'daftar g',
+            'lingkaran merah',
+            'antibiotik',
+            'psikotropika',
+            'narkotika',
+            'injeksi',
+            'infus',
+        ];
+        $searchString = strtolower($this->name . ' ' . ($this->category?->name ?? '') . ' ' . ($this->description ?? ''));
+        foreach ($restrictedKeywords as $keyword) {
+            if (str_contains($searchString, $keyword)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public function isPreorder(): bool
     {
         return (bool) ($this->is_preorder ?? false);
@@ -503,11 +528,13 @@ class Product extends Model
             return $minBundles ?? 0.0;
         }
 
+        $locIds = $locationId ? Location::resolveLocationIds($locationId) : null;
+
         // If Direct Material
         if ($this->direct_material_id) {
             $query = InventoryStock::where('material_id', $this->direct_material_id);
-            if ($locationId) {
-                $query->where('location_id', $locationId);
+            if ($locIds) {
+                $query->whereIn('location_id', $locIds);
             }
             return (float) $query->sum('quantity');
         }
@@ -521,8 +548,8 @@ class Product extends Model
                 if ($reqPerUnit <= 0) continue;
 
                 $stockQuery = InventoryStock::where('material_id', $d['material_id']);
-                if ($locationId) {
-                    $stockQuery->where('location_id', $locationId);
+                if ($locIds) {
+                    $stockQuery->whereIn('location_id', $locIds);
                 }
                 $avail = (float) $stockQuery->sum('quantity');
                 $batches = floor($avail / $reqPerUnit);
@@ -536,8 +563,8 @@ class Product extends Model
 
         // Fallback for legacy product stock records
         $query = $this->stocks();
-        if ($locationId) {
-            $query->where('location_id', $locationId);
+        if ($locIds) {
+            $query->whereIn('location_id', $locIds);
         }
         return (float) $query->sum('quantity');
     }
@@ -588,11 +615,13 @@ class Product extends Model
             return $minBundles ?? 0.0;
         }
 
+        $locIds = $locationId ? Location::resolveLocationIds($locationId) : null;
+
         // If Direct Material
         if ($this->direct_material_id) {
             $query = InventoryStock::where('material_id', $this->direct_material_id);
-            if ($locationId) {
-                $query->where('location_id', $locationId);
+            if ($locIds) {
+                $query->whereIn('location_id', $locIds);
             }
             $qty = (float) $query->sum('quantity');
             $reserved = (float) $query->sum('reserved_quantity');
@@ -608,8 +637,8 @@ class Product extends Model
                 if ($reqPerUnit <= 0) continue;
 
                 $stockQuery = InventoryStock::where('material_id', $d['material_id']);
-                if ($locationId) {
-                    $stockQuery->where('location_id', $locationId);
+                if ($locIds) {
+                    $stockQuery->whereIn('location_id', $locIds);
                 }
                 $qty = (float) $stockQuery->sum('quantity');
                 $reserved = (float) $stockQuery->sum('reserved_quantity');
@@ -625,8 +654,8 @@ class Product extends Model
 
         // Fallback for legacy product stock records
         $query = $this->stocks();
-        if ($locationId) {
-            $query->where('location_id', $locationId);
+        if ($locIds) {
+            $query->whereIn('location_id', $locIds);
         }
         $qty = (float) $query->sum('quantity');
         $reserved = (float) $query->sum('reserved_quantity');

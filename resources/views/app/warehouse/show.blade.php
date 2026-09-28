@@ -12,10 +12,14 @@
         selectedStock: null,
         newQuantity: 0,
         unitCost: 0,
+        reasonCode: 'opname_variance',
+        notes: '',
         openAdjust(stock) {
             this.selectedStock = stock;
             this.newQuantity = Number(stock.quantity);
             this.unitCost = Number(stock.last_cost || 0);
+            this.reasonCode = 'opname_variance';
+            this.notes = '';
             this.showAdjustModal = true;
         }
     }">
@@ -24,10 +28,24 @@
         {{-- ===================================================== --}}
         {{-- 1. TOOLBAR / PAGE HEADER                                --}}
         {{-- ===================================================== --}}
+        @php
+            $badgeLabel = 'Gudang';
+            if ($location->type === 'central_kitchen') {
+                if (str_starts_with($business->template_code ?? '', 'mfg_')) {
+                    $badgeLabel = 'Pabrik / Workshop';
+                } elseif (($business->template_code ?? '') === 'service_contractor') {
+                    $badgeLabel = 'Basecamp / Proyek';
+                } else {
+                    $badgeLabel = 'Dapur Pusat';
+                }
+            } elseif (in_array($location->type, ['outlet', 'store'], true)) {
+                $badgeLabel = 'Cabang / Outlet';
+            }
+        @endphp
         <x-module-header
             title="{{ $location->name }}"
             subtitle="{{ $location->address ?: 'Belum ada alamat terdaftar' }}"
-            badge="{{ $location->type === 'warehouse' ? 'Gudang' : ($location->type === 'central_kitchen' ? 'Dapur Pusat' : 'Outlet') }}"
+            badge="{{ $badgeLabel }}"
             :breadcrumbs="[
                 ['label' => 'Dashboard', 'url' => route('dashboard')],
                 ['label' => 'Inventori', 'url' => route('inventory.stocks')],
@@ -743,7 +761,7 @@
                     </button>
                 </div>
 
-                <form action="{{ route('warehouse.update', $location->id) }}" method="POST" class="flex flex-col flex-1 overflow-hidden">
+                <form action="{{ route('warehouse.update', $location->id) }}" method="POST" x-data="{ submitting: false }" @submit="submitting = true" class="flex flex-col flex-1 overflow-hidden">
                     @csrf
                     @method('PUT')
                     
@@ -773,9 +791,17 @@
                                             </label>
                                             <select name="type"
                                                 class="w-full h-10 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3 text-[16px] sm:text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
-                                                <option value="warehouse" {{ $location->type === 'warehouse' ? 'selected' : '' }}>Gudang (Warehouse)</option>
-                                                <option value="outlet" {{ $location->type === 'outlet' ? 'selected' : '' }}>Outlet / Toko</option>
-                                                <option value="central_kitchen" {{ $location->type === 'central_kitchen' ? 'selected' : '' }}>Dapur Pusat (Central Kitchen)</option>
+                                                <option value="warehouse" {{ $location->type === 'warehouse' ? 'selected' : '' }}>Gudang Penyimpanan</option>
+                                                <option value="outlet" {{ $location->type === 'outlet' ? 'selected' : '' }}>Cabang / Outlet</option>
+                                                @if(str_starts_with($business->template_code ?? '', 'fnb_'))
+                                                    <option value="central_kitchen" {{ $location->type === 'central_kitchen' ? 'selected' : '' }}>Dapur Pusat (Central Kitchen)</option>
+                                                @elseif(str_starts_with($business->template_code ?? '', 'mfg_'))
+                                                    <option value="central_kitchen" {{ $location->type === 'central_kitchen' ? 'selected' : '' }}>Pabrik / Workshop Produksi</option>
+                                                @elseif(($business->template_code ?? '') === 'service_contractor')
+                                                    <option value="central_kitchen" {{ $location->type === 'central_kitchen' ? 'selected' : '' }}>Basecamp / Workshop Proyek</option>
+                                                @elseif($location->type === 'central_kitchen')
+                                                    <option value="central_kitchen" selected>Pusat Operasional / Central Kitchen</option>
+                                                @endif
                                             </select>
                                         </div>
                                         <div>
@@ -835,10 +861,18 @@
                             class="min-h-[44px] h-11 px-5 rounded-[12px] text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer">
                             Batal
                         </button>
-                        <button type="submit"
-                            class="min-h-[44px] h-11 px-6 rounded-[12px] text-xs font-bold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] transition-all shadow-[0_2px_4px_rgba(0,122,255,0.25)] cursor-pointer flex items-center gap-2">
-                            <i data-lucide="check" class="w-4 h-4"></i>
-                            <span>Simpan Perubahan</span>
+                        <button type="submit" :disabled="submitting"
+                            class="min-h-[44px] h-11 px-6 rounded-[12px] text-xs font-bold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] transition-all shadow-[0_2px_4px_rgba(0,122,255,0.25)] cursor-pointer flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                            <template x-if="submitting">
+                                <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                            </template>
+                            <template x-if="!submitting">
+                                <i data-lucide="check" class="w-4 h-4"></i>
+                            </template>
+                            <span x-text="submitting ? 'Menyimpan...' : 'Simpan Perubahan'"></span>
                         </button>
                     </div>
                 </form>
@@ -881,7 +915,7 @@
                         </button>
                     </div>
 
-                    <form action="{{ route('inventory.stocks.adjust') }}" method="POST" class="flex flex-col flex-1 overflow-hidden">
+                    <form action="{{ route('inventory.stocks.adjust') }}" method="POST" x-data="{ submitting: false }" @submit="submitting = true" class="flex flex-col flex-1 overflow-hidden">
                         @csrf
                         <input type="hidden" name="product_id" x-bind:value="selectedStock?.product_id">
                         <input type="hidden" name="location_id" value="{{ $location->id }}">
@@ -915,11 +949,51 @@
 
                                         <div>
                                             <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                                                Keterangan / Alasan Penyesuaian
+                                                Kode Berita Acara (Alasan Penyesuaian) <span class="text-[#FF3B30]">*</span>
                                             </label>
-                                            <input type="text" name="notes"
-                                                placeholder="Contoh: Selisih fisik stock opname, barang rusak/kadaluarsa..."
+                                            <select name="reason_code" x-model="reasonCode" required
+                                                class="w-full h-10 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
+                                                <option value="opname_variance">Selisih Hitung Rutin (Stock Opname)</option>
+                                                <option value="damaged">Barang Rusak / Cacat Fisik / Basi</option>
+                                                <option value="expired">Melewati Tanggal Kadaluarsa</option>
+                                                <option value="theft_loss">Kehilangan / Dugaan Pencurian</option>
+                                                <option value="initial_balance">Input Saldo Awal Gudang</option>
+                                                <option value="other">Lainnya (Wajib tulis alasan min. 10 karakter)</option>
+                                            </select>
+                                        </div>
+
+                                        <div>
+                                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                                                Keterangan / Catatan Penjelasan <span x-show="reasonCode === 'other'" class="text-[#FF3B30]">*</span>
+                                            </label>
+                                            <input type="text" name="notes" x-model="notes"
+                                                :placeholder="reasonCode === 'other' ? 'Wajib tulis alasan detail (min. 10 karakter)...' : 'Contoh: Selisih fisik stock opname, barang rusak/kadaluarsa...'"
+                                                :required="reasonCode === 'other'"
                                                 class="w-full h-10 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3.5 text-[16px] sm:text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
+                                            <p x-show="reasonCode === 'other'" class="text-[10px] text-amber-600 dark:text-amber-400 mt-1">
+                                                * Alasan "Lainnya" mewajibkan catatan penjelasan minimal 10 karakter untuk kepatuhan audit.
+                                            </p>
+                                        </div>
+
+                                        {{-- Supervisor PIN Prompt on High-Value / Volume Shrinkage --}}
+                                        <div x-show="(Number(newQuantity) - Number(selectedStock?.quantity || 0)) < 0 && (Math.abs(Number(newQuantity) - Number(selectedStock?.quantity || 0)) > 10 || Math.abs((Number(newQuantity) - Number(selectedStock?.quantity || 0)) * Number(unitCost || 0)) > 100000)"
+                                            x-transition
+                                            class="p-3.5 rounded-[14px] bg-red-500/10 border border-red-500/30 space-y-2">
+                                            <div class="flex items-center gap-2 text-red-600 dark:text-red-400">
+                                                <i data-lucide="shield-alert" class="w-4 h-4 shrink-0"></i>
+                                                <span class="font-bold text-xs">Otorisasi Supervisor Diperlukan</span>
+                                            </div>
+                                            <p class="text-[11px] text-red-700 dark:text-red-300 leading-relaxed">
+                                                Pengurangan stok melebihi batas toleransi (&gt; 10 unit atau nilai &gt; Rp 100.000). Masukkan PIN Supervisor 6-digit untuk memverifikasi berita acara ini.
+                                            </p>
+                                            <div>
+                                                <label class="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                                                    PIN Supervisor <span class="text-[#FF3B30]">*</span>
+                                                </label>
+                                                <input type="password" name="supervisor_pin" maxlength="10" placeholder="Masukkan 6-digit PIN"
+                                                    :required="(Number(newQuantity) - Number(selectedStock?.quantity || 0)) < 0 && (Math.abs(Number(newQuantity) - Number(selectedStock?.quantity || 0)) > 10 || Math.abs((Number(newQuantity) - Number(selectedStock?.quantity || 0)) * Number(unitCost || 0)) > 100000)"
+                                                    class="w-full h-10 bg-white dark:bg-[#1C1C1E] border border-red-300 dark:border-red-500/40 rounded-[10px] px-3.5 text-xs text-slate-900 dark:text-white font-mono tracking-widest focus:outline-none focus:ring-2 focus:ring-red-500 transition">
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -984,10 +1058,18 @@
                                 class="min-h-[44px] h-11 px-5 rounded-[12px] text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer">
                                 Batal
                             </button>
-                            <button type="submit"
-                                class="min-h-[44px] h-11 px-6 rounded-[12px] text-xs font-bold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] transition-all shadow-[0_2px_4px_rgba(0,122,255,0.25)] cursor-pointer flex items-center gap-2">
-                                <i data-lucide="check" class="w-4 h-4"></i>
-                                <span>Simpan Penyesuaian Stok</span>
+                            <button type="submit" :disabled="submitting"
+                                class="min-h-[44px] h-11 px-6 rounded-[12px] text-xs font-bold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] transition-all shadow-[0_2px_4px_rgba(0,122,255,0.25)] cursor-pointer flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                                <template x-if="submitting">
+                                    <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                </template>
+                                <template x-if="!submitting">
+                                    <i data-lucide="check" class="w-4 h-4"></i>
+                                </template>
+                                <span x-text="submitting ? 'Menyimpan...' : 'Simpan Penyesuaian Stok'"></span>
                             </button>
                         </div>
                     </form>

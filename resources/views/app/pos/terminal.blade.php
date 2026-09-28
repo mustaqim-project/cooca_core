@@ -421,7 +421,7 @@
                             <option value="{{ $loc->id }}"
                                 class="bg-[#0B1528] text-white"
                                 {{ $loc->id === $selectedLocationId ? 'selected' : '' }}>
-                                {{ $loc->name }}
+                                {{ $loc->parent ? ($loc->parent->name . ' ↳ ' . $loc->name) : $loc->name }}
                             </option>
                         @endforeach
                     </select>

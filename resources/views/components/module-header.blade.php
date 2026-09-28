@@ -22,9 +22,12 @@
         @endif
     </div>
 
-    @if (isset($slot) && $slot->isNotEmpty())
+    @php
+        $actionContent = isset($actions) && $actions->isNotEmpty() ? $actions : (isset($slot) && $slot->isNotEmpty() ? $slot : null);
+    @endphp
+    @if ($actionContent)
         <div class="flex items-center gap-2.5 w-full sm:w-auto shrink-0 flex-wrap sm:flex-nowrap">
-            {{ $slot }}
+            {{ $actionContent }}
         </div>
     @endif
 </header>

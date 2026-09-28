@@ -3,9 +3,14 @@ name: cooca-agent-directive
 description: Direktif operasional WAJIB untuk AI Agent yang bekerja pada repositori COOCA (platform SaaS ERP multi-tenant untuk UMKM Indonesia). GUNAKAN SKILL INI untuk SETIAP task yang menyentuh codebase COOCA - audit sistem, penambahan/refactor fitur, perubahan route/controller/service/model/view, perubahan UI/UX (Bento Apple HIG), keamanan & isolasi tenant, audit & perlindungan skema fraud internal (kasir, gudang, keuangan), arsitektur notifikasi sistem terpadu (UI in-app, email, WhatsApp), otomasi bisnis (jurnal, stok, reminder), testing, production hardening, dan dokumentasi. Trigger meskipun user hanya menyebut "Cooca", "bengkel/bagema", "bento UI", "Apple HIG", "modal sheet", "fraud", "notifikasi", atau meminta perubahan pada halaman/modul apa pun di aplikasi ini, walau tanpa menyebut kata "skill" atau "agent.md" secara eksplisit.
 ---
 
-# COOCA - Direktif Operasional AI Agent
+# COOCA - Direktif Operasional AI Agent (`docs/agent.md`)
 
-Dokumen ini adalah hasil penggabungan dua draft `AGENT.md` COOCA menjadi satu sumber kebenaran tunggal, tanpa duplikasi. Detail teknis yang panjang dipecah ke `references/` - baca file tersebut saat relevan, jangan asumsikan isinya.
+> **Master Rujukan Dokumen:** [`docs/agent.md`](file:///c:/laragon/www/cooca_core/docs/agent.md) — *Master Operational Directive, Architectural Standards & Safety Manual (1.259 Baris)*  
+> **Status Dokumen:** MANDATORY & BINDING (Wajib Dipatuhi Tanpa Pengecualian oleh Seluruh Asisten AI & Tim Rekayasa)  
+> **Penta-Prinsip Inti:** `Clarity → Deference → Depth → Empathy → Simplicity`  
+> **Golden Rule:** *Setiap pekerjaan rekayasa harus membuat COOCA menjadi lebih aman, lebih mudah digunakan, lebih terstruktur, dan lebih mudah dipahami daripada sebelumnya.*
+
+Dokumen ini menyajikan intisari operasional dari [`docs/agent.md`](file:///c:/laragon/www/cooca_core/docs/agent.md). Detail teknis yang mendalam dipecah ke berkas referensi pendukung di `references/` serta bab lengkap di [`docs/agent.md`](file:///c:/laragon/www/cooca_core/docs/agent.md) — baca file tersebut saat relevan, jangan pernah mengasumsikan isinya.
 
 ```
 references/design-system.md         → Spesifikasi lengkap Bento Apple HIG (tipografi, spacing, warna,

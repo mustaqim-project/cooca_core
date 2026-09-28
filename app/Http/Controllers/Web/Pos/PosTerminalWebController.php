@@ -53,10 +53,14 @@ final class PosTerminalWebController extends Controller
             return redirect()->route('login');
         }
 
-        // 1. Locations / Outlets - prioritize outlet-type locations
+        // 1. Locations / Outlets - prioritize outlet-type locations and branch sub-warehouses
         $locations = Location::where('business_id', $business->id)
             ->where('is_active', true)
-            ->whereIn('type', ['outlet', 'store', 'central_kitchen'])
+            ->where(function ($q) {
+                $q->whereIn('type', ['outlet', 'store', 'central_kitchen'])
+                  ->orWhereNotNull('parent_id');
+            })
+            ->with('parent')
             ->get();
 
         if ($locations->isEmpty()) {
@@ -110,21 +114,33 @@ final class PosTerminalWebController extends Controller
 
         // 4. Products with Selling Price and Effective Stock (Material Master)
         $branchPrices = [];
+        $disabledProductIds = [];
         if ($selectedLocationId) {
             try {
                 $branchPrices = \App\Models\BranchProductPrice::where('business_id', $business->id)
                     ->where('location_id', $selectedLocationId)
                     ->where('is_available', true)
+                    ->whereNotNull('price')
                     ->pluck('price', 'product_id')
+                    ->toArray();
+
+                $disabledProductIds = \App\Models\BranchProductPrice::where('business_id', $business->id)
+                    ->where('location_id', $selectedLocationId)
+                    ->where('is_available', false)
+                    ->pluck('product_id')
                     ->toArray();
             } catch (\Throwable) {
                 $branchPrices = [];
+                $disabledProductIds = [];
             }
         }
 
         try {
             $products = Product::where('business_id', $business->id)
                 ->forPos()
+                ->when(!empty($disabledProductIds), function ($query) use ($disabledProductIds) {
+                    $query->whereNotIn('id', $disabledProductIds);
+                })
                 ->with(['category', 'outputUnit', 'costModels.costingRuns.result', 'channelPrices'])
                 ->get()
                 ->map(function ($p) use ($selectedLocationId, $branchPrices) {
@@ -152,7 +168,7 @@ final class PosTerminalWebController extends Controller
                     ];
                     if ($p->relationLoaded('channelPrices')) {
                         foreach ($p->channelPrices as $cp) {
-                            $channelPricesMap[$cp->channel] = (float) $cp->price;
+                            $channelPricesMap[$cp->channel] = max((float) $cp->price, (float) $p->selling_price);
                         }
                     }
                     $p->channel_prices = $channelPricesMap;
@@ -373,16 +389,27 @@ final class PosTerminalWebController extends Controller
         $locationId = (string) $request->get('location_id', '');
 
         $branchPrices = [];
+        $disabledProductIds = [];
         if ($locationId !== '') {
             $branchPrices = \App\Models\BranchProductPrice::where('business_id', $business->id)
                 ->where('location_id', $locationId)
                 ->where('is_available', true)
+                ->whereNotNull('price')
                 ->pluck('price', 'product_id')
+                ->toArray();
+
+            $disabledProductIds = \App\Models\BranchProductPrice::where('business_id', $business->id)
+                ->where('location_id', $locationId)
+                ->where('is_available', false)
+                ->pluck('product_id')
                 ->toArray();
         }
 
         $products = Product::where('business_id', $business->id)
             ->where('is_active', true)
+            ->when(!empty($disabledProductIds), function ($query) use ($disabledProductIds) {
+                $query->whereNotIn('id', $disabledProductIds);
+            })
             ->where(function ($q) use ($query) {
                 $q->where('name', 'like', "%{$query}%")
                     ->orWhere('code', 'like', "%{$query}%");
@@ -406,7 +433,7 @@ final class PosTerminalWebController extends Controller
                 ];
                 if ($p->relationLoaded('channelPrices')) {
                     foreach ($p->channelPrices as $cp) {
-                        $channelPricesMap[$cp->channel] = (float) $cp->price;
+                        $channelPricesMap[$cp->channel] = max((float) $cp->price, $price);
                     }
                 }
                 return [
@@ -484,6 +511,26 @@ final class PosTerminalWebController extends Controller
                 'success' => false,
                 'message' => 'Shift kasir belum dibuka. Buka shift terlebih dahulu sebelum melakukan transaksi POS.',
             ], 403);
+        }
+
+        // Validasi ketersediaan produk di cabang yang bersangkutan (Anti-Fraud / Anti-IDOR)
+        $locationId = $validated['location_id'] ?? $activeShift?->location_id ?? null;
+        if ($locationId) {
+            $productIds = collect($validated['items'])->pluck('product_id')->filter()->unique();
+            if ($productIds->isNotEmpty()) {
+                $hasDisabled = \App\Models\BranchProductPrice::where('business_id', $business->id)
+                    ->where('location_id', $locationId)
+                    ->where('is_available', false)
+                    ->whereIn('product_id', $productIds)
+                    ->exists();
+
+                if ($hasDisabled) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Terdapat produk yang tidak tersedia untuk dijual di cabang ini.',
+                    ], 422);
+                }
+            }
         }
 
         try {
@@ -665,17 +712,30 @@ final class PosTerminalWebController extends Controller
      */
     public function printReceipt(PosOrder $order, Request $request): View
     {
-        $currentBiz = Context::requireBusiness();
-        abort_unless($order->business_id === $currentBiz->id, 403);
+        $isPublic = $request->routeIs('public.receipt');
 
-        $business = $order->business;
+        if ($isPublic) {
+            $business = $order->business;
+            if (! $business) {
+                abort(404, 'Data bisnis transaksi tidak ditemukan.');
+            }
+            if ($order->status === PosOrder::STATUS_DRAFT_HELD) {
+                abort(404, 'Struk transaksi belum tersedia.');
+            }
+        } else {
+            $currentBiz = Context::requireBusiness();
+            abort_unless($order->business_id === $currentBiz->id, 403);
+            $business = $order->business;
+        }
 
-        // Check if explicit reprint requested via query ?reprint=1
-        if ($request->boolean('reprint') || $request->query('reprint') === '1') {
-            $order->recordReprint(auth()->id());
-        } elseif ((int) ($order->print_count ?? 0) === 0) {
-            // First time opening/printing: mark as original print
-            $order->recordPrint(auth()->id());
+        // Check if explicit reprint requested via query ?reprint=1 (cashier only)
+        if (! $isPublic || auth()->check()) {
+            if ($request->boolean('reprint') || $request->query('reprint') === '1') {
+                $order->recordReprint(auth()->id());
+            } elseif ((int) ($order->print_count ?? 0) === 0) {
+                // First time opening/printing: mark as original print
+                $order->recordPrint(auth()->id());
+            }
         }
 
         $order->load(['items', 'payments', 'customer', 'user', 'location', 'lastPrintedBy']);

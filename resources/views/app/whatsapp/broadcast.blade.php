@@ -377,7 +377,61 @@
                 <div class="flex-1 overflow-y-auto p-5 sm:p-7 space-y-6">
                     @php
                         $isWaConnected = ($whatsAppAccount && $whatsAppAccount->isConnected()) || ($waSession && $waSession->isConnected());
+
+                        $templateCode = $business->template_code ?? 'retail_general';
+                        $isFnb        = str_starts_with($templateCode, 'fnb_');
+                        $isWorkshop   = $templateCode === 'service_workshop';
+                        $isLaundry    = $templateCode === 'service_laundry';
+                        $isMfg        = str_starts_with($templateCode, 'mfg_');
+                        $isContractor = $templateCode === 'service_contractor';
+                        $isPharmacy   = $templateCode === 'retail_pharmacy';
+
+                        $contextVars = match (true) {
+                            $isFnb => ['{nama}', '{poin}', '{meja}', '{bisnis}'],
+                            $isWorkshop => ['{nama}', '{nopol}', '{servis_terakhir}', '{bisnis}'],
+                            $isLaundry => ['{nama}', '{no_rak}', '{berat_kg}', '{bisnis}'],
+                            $isMfg => ['{nama}', '{no_spk}', '{produk}', '{bisnis}'],
+                            $isContractor => ['{nama}', '{proyek}', '{termin}', '{bisnis}'],
+                            $isPharmacy => ['{nama}', '{no_resep}', '{bisnis}'],
+                            default => ['{nama}', '{poin}', '{tier}', '{bisnis}'],
+                        };
+
+                        $contextPlaceholder = match (true) {
+                            $isFnb => "Halo {nama},\nAda promo jam santai spesial dari {$business->name}!\n\nTunjukkan pesan ini di {meja} untuk mendapatkan bonus dessert pilihan Anda.",
+                            $isWorkshop => "Halo {nama},\nKendaraan Anda ({nopol}) sudah saatnya servis berkala di {$business->name}!\n\nServis terakhir: {servis_terakhir}. Booking jadwal sekarang untuk bonus cuci gratis.",
+                            $isLaundry => "Halo {nama},\nCucian Anda di {$business->name} (Rak: {no_rak}, Berat: {berat_kg}) sudah selesai disetrika rapi & siap diambil!\n\nTerima kasih.",
+                            $isMfg => "Halo {nama},\nPesanan produksi nomor {no_spk} ({produk}) telah selesai diproses di {$business->name} dan siap untuk tahap pengiriman.",
+                            $isContractor => "Yth. Bapak/Ibu {nama},\nProgress pekerjaan proyek {proyek} dari {$business->name} telah mencapai tahap {termin}.\n\nTerima kasih atas kerja samanya.",
+                            $isPharmacy => "Halo {nama},\nKebutuhan multivitamin & suplemen harian Anda tersedia lengkap di {$business->name}!\n\nNikmati diskon 15% untuk paket kesehatan keluarga pekan ini.",
+                            default => "Halo {nama},\nAda promo spesial dari {$business->name} untuk tier {tier}!\n\nDapatkan diskon 20% khusus hari ini. Tunjukkan pesan ini ke kasir.",
+                        };
                     @endphp
+
+                    {{-- Quiet Hours Warning (Peringatan Jam Istirahat 21:00 - 08:00 WIB) --}}
+                    <template x-if="isQuietHours">
+                        <div class="p-4 rounded-[16px] bg-[#5856D6]/10 border border-[#5856D6]/20 text-[#5856D6] dark:text-[#5E5CE6] text-[12.5px] flex items-center gap-3">
+                            <i data-lucide="moon" class="w-5 h-5 shrink-0 text-[#5856D6] dark:text-[#5E5CE6]"></i>
+                            <div>
+                                <strong class="font-bold">Peringatan Jam Istirahat Pelanggan (Quiet Hours 21:00 &ndash; 08:00 WIB):</strong>
+                                <p class="text-[12px] text-black/70 dark:text-white/70 mt-0.5 leading-relaxed">
+                                    Saat ini berada di luar jam operasional wajar pelanggan. Mengirim pesan promosi massal pada malam atau dini hari berisiko tinggi memicu komplain (report spam) dan dapat menurunkan skor kualitas (Quality Rating) nomor WhatsApp bisnis Anda di Meta.
+                                </p>
+                            </div>
+                        </div>
+                    </template>
+
+                    {{-- Meta Health Policy Warning for Pharmacy --}}
+                    @if ($isPharmacy)
+                        <div class="p-4 rounded-[16px] bg-[#FF9500]/12 border border-[#FF9500]/25 text-[#B25E00] dark:text-[#FF9F0A] text-[12.5px] space-y-1">
+                            <div class="font-bold flex items-center gap-1.5">
+                                <i data-lucide="shield-alert" class="w-4 h-4"></i>
+                                <span>Peringatan Kebijakan Farmasi Meta &amp; BPOM:</span>
+                            </div>
+                            <p class="leading-relaxed">
+                                Dilarang mempromosikan obat keras (Daftar G), antibiotik, atau obat resep dokter via broadcast WhatsApp. Pelanggaran dapat mengakibatkan nomor WhatsApp toko diblokir permanen oleh Meta.
+                            </p>
+                        </div>
+                    @endif
 
                     @if (! $isWaConnected)
                         <div class="p-4 rounded-[16px] bg-[#FF9500]/12 border border-[#FF9500]/20 text-[#B25E00] dark:text-[#FF9F0A] text-[13px] font-medium flex items-center gap-3">
@@ -456,10 +510,10 @@
                                         <label class="block text-[12.5px] font-bold text-black/70 dark:text-white/70">Konten Pesan Promosi</label>
                                     </div>
 
-                                    <!-- Variable insertion chips -->
+                                    <!-- Variable insertion chips (Context-Aware 20 Industri) -->
                                     <div class="flex flex-wrap items-center gap-1.5 pt-1">
                                         <span class="text-[11.5px] text-black/50 dark:text-white/50 font-semibold mr-1">Tag Personal:</span>
-                                        @foreach (['{nama}', '{poin}', '{tier}', '{bisnis}'] as $var)
+                                        @foreach ($contextVars as $var)
                                             <button type="button" @click="insertVar('{{ $var }}')"
                                                 class="min-h-[28px] px-2.5 rounded-[8px] bg-black/[0.05] hover:bg-black/[0.08] dark:bg-white/[0.08] dark:hover:bg-white/[0.12] text-black/80 dark:text-white/80 text-[12px] font-mono transition active:scale-[0.97]">
                                                 {{ $var }}
@@ -468,7 +522,7 @@
                                     </div>
 
                                     <textarea name="message" id="modalMsgTextarea" x-model="message" rows="5" required
-                                        placeholder="Halo {nama},&#10;Ada promo spesial dari {{ $business->name }} untuk tier {tier}!&#10;&#10;Dapatkan diskon 20% khusus hari ini. Tunjukkan pesan ini ke kasir."
+                                        placeholder="{{ $contextPlaceholder }}"
                                         @input="updatePreview()"
                                         class="w-full bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[12px] p-3.5 text-[16px] sm:text-[13.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 resize-none font-sans placeholder:text-black/35 dark:placeholder:text-white/35 leading-relaxed transition-colors"></textarea>
 
@@ -537,8 +591,19 @@
                                         </div>
                                     </div>
 
+                                    @php
+                                        $previewExampleNote = match (true) {
+                                            $isFnb => 'Simulasi data pelanggan contoh: Budi Santoso (Meja 08, 1.250 Poin).',
+                                            $isWorkshop => 'Simulasi data pelanggan contoh: Budi Santoso (B 1234 XYZ, Servis: Ganti Oli & Filter).',
+                                            $isLaundry => 'Simulasi data pelanggan contoh: Budi Santoso (No. Rak: RAK-B3, 4.5 kg).',
+                                            $isMfg => 'Simulasi data pelanggan contoh: Budi Santoso (SPK-2026/09/042, Kemeja Katun Bordir).',
+                                            $isContractor => 'Simulasi data pelanggan contoh: Budi Santoso (Proyek: Renovasi Ruko Blok A).',
+                                            $isPharmacy => 'Simulasi data pelanggan contoh: Budi Santoso (No. Resep: RSP-8821).',
+                                            default => 'Simulasi data pelanggan contoh: Budi Santoso (Gold Tier, 1.250 Poin).',
+                                        };
+                                    @endphp
                                     <p class="text-center text-[11px] text-black/50 dark:text-white/50">
-                                        Simulasi data pelanggan contoh: <em>Budi Santoso</em> (Gold Tier).
+                                        {{ $previewExampleNote }}
                                     </p>
                                 </div>
                             </div>
@@ -563,8 +628,12 @@
                         @if (\App\Support\Context::hasPermission('whatsapp.manage'))
                             <button type="button" @click="submitBlast()"
                                 :disabled="submitting || !message.trim() || !title.trim()"
+                                :class="submitting ? 'opacity-70 cursor-not-allowed' : ''"
                                 class="min-h-[44px] px-6 rounded-[12px] bg-[#007AFF] hover:bg-[#0071E3] text-white font-bold text-[13.5px] shadow-md shadow-[#007AFF]/25 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-all active:scale-[0.98] w-full sm:w-auto">
-                                <i data-lucide="loader-2" x-show="submitting" class="w-4 h-4 animate-spin"></i>
+                                <svg x-show="submitting" class="w-4 h-4 animate-spin text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
                                 <i data-lucide="send" x-show="!submitting" class="w-4 h-4"></i>
                                 <span x-text="submitting ? 'Menjadwalkan...' : 'Kirim Blast ke ' + estimatedCount.toLocaleString('id-ID') + ' Pelanggan'"></span>
                             </button>
@@ -582,7 +651,8 @@
     <script>
         function broadcastManager() {
             return {
-                createModalOpen: false,
+                createModalOpen: {{ (request()->boolean('open_composer') || request()->boolean('create')) ? 'true' : 'false' }},
+                isQuietHours: false,
                 title: '',
                 targetFilter: 'all',
                 message: '',
@@ -593,6 +663,8 @@
                 tierCounts: @json($tierCounts + ['all' => $customerCount]),
 
                 init() {
+                    const currentHour = new Date().getHours();
+                    this.isQuietHours = (currentHour >= 21 || currentHour < 8);
                     this.updatePreview();
                     this.$watch('targetFilter', (val) => {
                         this.estimatedCount = this.tierCounts[val] ?? 0;
@@ -632,7 +704,17 @@
                         .replace(/\{nama\}/g, 'Budi Santoso')
                         .replace(/\{poin\}/g, '1.250')
                         .replace(/\{tier\}/g, 'Gold')
-                        .replace(/\{bisnis\}/g, {{ Js::from($business->name) }});
+                        .replace(/\{bisnis\}/g, {{ Js::from($business->name) }})
+                        .replace(/\{meja\}/g, 'Meja 08')
+                        .replace(/\{nopol\}/g, 'B 1234 XYZ')
+                        .replace(/\{servis_terakhir\}/g, 'Ganti Oli & Filter')
+                        .replace(/\{no_rak\}/g, 'RAK-B3')
+                        .replace(/\{berat_kg\}/g, '4.5 kg')
+                        .replace(/\{no_spk\}/g, 'SPK-2026/09/042')
+                        .replace(/\{produk\}/g, 'Kemeja Katun Bordir')
+                        .replace(/\{proyek\}/g, 'Renovasi Ruko Blok A')
+                        .replace(/\{termin\}/g, 'Termin 2')
+                        .replace(/\{no_resep\}/g, 'RSP-8821');
                     this.$nextTick(() => {
                         if (window.lucide) lucide.createIcons();
                     });

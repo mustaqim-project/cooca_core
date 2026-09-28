@@ -11,8 +11,10 @@ use App\Models\Business;
 use App\Models\BusinessMembership;
 use App\Models\Customer;
 use App\Models\JournalEntry;
+use App\Models\Location;
 use App\Models\PosOrder;
 use App\Models\Product;
+use App\Models\StockAdjustment;
 use App\Models\Supplier;
 use App\Models\User;
 use Carbon\Carbon;
@@ -151,7 +153,38 @@ class AntiFraudService
             ];
         }
 
-        // 7. DEFAULT: LOW RISK
+        // 7. RULE: Penonaktifan atau Penghapusan Gudang / Lokasi Operasional -> HIGH RISK (§FR-05)
+        if ($model instanceof Location) {
+            if ($action === 'updated' && isset($newValues['is_active']) && $newValues['is_active'] === false) {
+                return [
+                    'risk_level' => AuditLog::RISK_HIGH,
+                    'risk_reason' => 'Penonaktifan Gudang/Lokasi Operasional',
+                    'notes' => "Lokasi operasional {$model->name} dinonaktifkan dari sistem",
+                ];
+            }
+
+            if ($action === 'deleted') {
+                return [
+                    'risk_level' => AuditLog::RISK_HIGH,
+                    'risk_reason' => 'Penghapusan Gudang/Lokasi',
+                    'notes' => "Lokasi {$model->name} dihapus permanen",
+                ];
+            }
+        }
+
+        // 8. RULE: Penyesuaian Kerugian Stok Bernilai Tinggi -> HIGH RISK
+        if ($model instanceof StockAdjustment) {
+            $lossCost = (float) ($newValues['total_loss_cost'] ?? $model->total_loss_cost ?? 0);
+            if ($lossCost > 100000) {
+                return [
+                    'risk_level' => AuditLog::RISK_HIGH,
+                    'risk_reason' => 'Penyesuaian Kerugian Stok Bernilai Tinggi',
+                    'notes' => "Penyesuaian kerugian stok #{$model->adjustment_number} senilai Rp " . number_format($lossCost, 0, ',', '.'),
+                ];
+            }
+        }
+
+        // 9. DEFAULT: LOW RISK
         return [
             'risk_level' => AuditLog::RISK_LOW,
             'risk_reason' => null,

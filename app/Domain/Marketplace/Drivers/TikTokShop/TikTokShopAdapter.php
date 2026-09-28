@@ -39,6 +39,16 @@ class TikTokShopAdapter implements MarketplaceAdapterInterface
         return 'TikTok Shop + Tokopedia';
     }
 
+    public function getAppKey(): string
+    {
+        return $this->appKey;
+    }
+
+    public function hasCredentials(): bool
+    {
+        return ! empty($this->appKey) && ! empty($this->appSecret);
+    }
+
     public function generateSignature(string $path, array $params): string
     {
         ksort($params);
@@ -55,11 +65,17 @@ class TikTokShopAdapter implements MarketplaceAdapterInterface
 
     public function getAuthUrl(Business $business, string $redirectUri, string $state): string
     {
+        $configuredUri = SystemSetting::get('tiktok_tokopedia_redirect_uri')
+            ?? SystemSetting::get('tiktok_shop_redirect_uri')
+            ?? config('services.tiktok_shop.redirect_uri')
+            ?? $redirectUri;
+
+        $targetRedirect = ! empty($configuredUri) ? $configuredUri : $redirectUri;
+
         $params = [
             'service_id'   => $this->serviceId ?: $this->appKey,
-            'app_key'      => $this->appKey,
             'state'        => $state,
-            'redirect_uri' => $redirectUri,
+            'redirect_uri' => $targetRedirect,
         ];
 
         return $this->authHost . '?' . http_build_query($params);
@@ -298,12 +314,15 @@ class TikTokShopAdapter implements MarketplaceAdapterInterface
 
     public function handleWebhook(Request $request, string $rawBody, array $headers): array
     {
-        $signature = $headers['authorization'][0] ?? ($headers['authorization'] ?? '');
+        $signature = $headers['authorization'][0] 
+            ?? ($headers['authorization'] 
+            ?? ($headers['x-tts-signature'][0] 
+            ?? ($headers['x-tts-signature'] ?? '')));
         $payload   = json_decode($rawBody, true) ?: [];
 
-        // Verify webhook signature with app_secret
-        $calcSign = hash_hmac('sha256', $rawBody, $this->appSecret);
-        $isValid  = hash_equals($calcSign, (string) $signature) || ! empty($payload['event']);
+        // Verify webhook signature with app_secret using HMAC-SHA256
+        $calcSign = ! empty($this->appSecret) ? hash_hmac('sha256', $rawBody, $this->appSecret) : '';
+        $isValid  = ! empty($signature) && ! empty($this->appSecret) && hash_equals($calcSign, (string) $signature);
 
         return [
             'event'    => (string) ($payload['type'] ?? ($payload['event'] ?? 'order_status_change')),

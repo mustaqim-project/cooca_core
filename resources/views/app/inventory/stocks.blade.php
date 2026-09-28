@@ -10,12 +10,16 @@
     selectedStock: null,
     newQuantity: 0,
     unitCost: 0,
+    reasonCode: 'opname_variance',
+    notes: '',
     openAdjust(stockId) {
         const stock = (window.COOCA_STOCKS || []).find(s => s.id === stockId);
         if (!stock) return;
         this.selectedStock = stock;
         this.newQuantity = Number(stock.quantity);
         this.unitCost = Number(stock.last_cost || (stock.product ? stock.product.base_cost : 0) || 0);
+        this.reasonCode = 'opname_variance';
+        this.notes = '';
         this.showAdjustModal = true;
     }
 }">
@@ -329,9 +333,54 @@
                 </div>
 
                 <div>
-                    <label class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">Alasan Penyesuaian</label>
-                    <input type="text" name="notes" placeholder="Misal: Koreksi saldo awal, barang rusak..."
+                    <label class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">
+                        Kode Berita Acara (Alasan Penyesuaian) *
+                    </label>
+                    <select name="reason_code" x-model="reasonCode" required
+                        class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                        <option value="opname_variance">Selisih Hitung Rutin (Stock Opname)</option>
+                        <option value="damaged">Barang Rusak / Cacat Fisik / Basi</option>
+                        <option value="expired">Melewati Tanggal Kadaluarsa</option>
+                        <option value="theft_loss">Kehilangan / Dugaan Pencurian</option>
+                        <option value="initial_balance">Input Saldo Awal Gudang</option>
+                        <option value="other">Lainnya (Wajib tulis alasan min. 10 karakter)</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">
+                        Keterangan / Catatan Penjelasan <span x-show="reasonCode === 'other'" class="text-[#FF3B30]">*</span>
+                    </label>
+                    <input type="text" name="notes" x-model="notes"
+                        :placeholder="reasonCode === 'other' ? 'Wajib tulis alasan detail (minimal 10 karakter)...' : 'Misal: Koreksi saldo awal, barang rusak...'"
+                        :required="reasonCode === 'other'"
                         class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 text-[13px] text-black dark:text-white placeholder:text-black/30 dark:placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                    <p x-show="reasonCode === 'other'" class="text-[11px] text-amber-600 dark:text-amber-400 mt-1">
+                        * Alasan "Lainnya" mewajibkan catatan penjelasan minimal 10 karakter untuk audit trail.
+                    </p>
+                </div>
+
+                {{-- Supervisor PIN Verification Prompt on High-Value / Volume Shrinkage --}}
+                <div x-show="(Number(newQuantity) - Number(selectedStock?.quantity || 0)) < 0 && (Math.abs(Number(newQuantity) - Number(selectedStock?.quantity || 0)) > 10 || Math.abs((Number(newQuantity) - Number(selectedStock?.quantity || 0)) * Number(unitCost || 0)) > 100000)"
+                    x-transition
+                    class="p-3.5 rounded-[12px] bg-red-500/10 border border-red-500/25 space-y-2">
+                    <div class="flex items-center gap-1.5 text-red-600 dark:text-red-400 font-semibold text-[12px]">
+                        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                        <span>Otorisasi Supervisor Diperlukan</span>
+                    </div>
+                    <p class="text-[11px] text-red-700 dark:text-red-300 leading-relaxed">
+                        Pengurangan stok melebihi batas toleransi (&gt; 10 unit atau nilai &gt; Rp 100.000). Masukkan PIN Supervisor 6-digit untuk memverifikasi berita acara ini.
+                    </p>
+                    <div>
+                        <label class="block text-[11px] font-medium text-black/70 dark:text-white/70 mb-1">
+                            PIN Supervisor <span class="text-[#FF3B30]">*</span>
+                        </label>
+                        <input type="password" name="supervisor_pin" maxlength="10" placeholder="Masukkan 6-digit PIN"
+                            :required="(Number(newQuantity) - Number(selectedStock?.quantity || 0)) < 0 && (Math.abs(Number(newQuantity) - Number(selectedStock?.quantity || 0)) > 10 || Math.abs((Number(newQuantity) - Number(selectedStock?.quantity || 0)) * Number(unitCost || 0)) > 100000)"
+                            class="w-full h-10 bg-white dark:bg-[#1C1C1E] border border-red-300 dark:border-red-500/40 rounded-[8px] px-3 text-[13px] font-mono tracking-widest text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-red-500 transition">
+                    </div>
                 </div>
 
                 <div class="flex items-center justify-end gap-2 pt-3 border-t border-black/5 dark:border-white/10">

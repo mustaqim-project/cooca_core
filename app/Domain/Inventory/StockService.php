@@ -271,9 +271,11 @@ final class StockService
                     $matQty = $this->unitConversionService->convert($matQty, $bomUnit, $materialUnit);
                 }
 
+                $targetLocationId = $this->resolveDeductionLocationId($businessId, $locationId, null, $matId);
+
                 $movements[] = $this->recordMovement(
                     businessId: $businessId,
-                    locationId: $locationId,
+                    locationId: $targetLocationId,
                     productId: $productModel->id,
                     movementType: $movementType,
                     quantityChange: -abs($matQty),
@@ -289,9 +291,11 @@ final class StockService
         }
 
         // Legacy product stock still uses the centralized stock gate.
+        $targetLocationId = $this->resolveDeductionLocationId($businessId, $locationId, $productModel->id, null);
+
         $movements[] = $this->recordMovement(
             businessId: $businessId,
-            locationId: $locationId,
+            locationId: $targetLocationId,
             productId: $productModel->id,
             movementType: $movementType,
             quantityChange: -abs($productQuantity),
@@ -303,6 +307,49 @@ final class StockService
         );
 
         return $movements;
+    }
+
+    /**
+     * Resolve the target location to deduct stock from.
+     * If the specified location has direct stock, use it.
+     * If direct stock is empty and the location has child sub-warehouses (e.g. Display Shelf / Kitchen),
+     * dynamically select the child sub-warehouse that holds available stock.
+     */
+    public function resolveDeductionLocationId(
+        string $businessId,
+        string $locationId,
+        ?string $productId = null,
+        ?string $materialId = null
+    ): string {
+        $directStock = InventoryStock::where('business_id', $businessId)
+            ->where('location_id', $locationId)
+            ->when($materialId, fn($q) => $q->where('material_id', $materialId))
+            ->when($productId, fn($q) => $q->where('product_id', $productId))
+            ->first();
+
+        if ($directStock && (float) $directStock->quantity > 0) {
+            return $locationId;
+        }
+
+        $childIds = Location::where('business_id', $businessId)
+            ->where('parent_id', $locationId)
+            ->pluck('id')
+            ->all();
+
+        if (! empty($childIds)) {
+            $childStock = InventoryStock::where('business_id', $businessId)
+                ->whereIn('location_id', $childIds)
+                ->when($materialId, fn($q) => $q->where('material_id', $materialId))
+                ->when($productId, fn($q) => $q->where('product_id', $productId))
+                ->where('quantity', '>', 0)
+                ->first();
+
+            if ($childStock) {
+                return (string) $childStock->location_id;
+            }
+        }
+
+        return $locationId;
     }
 
     /**

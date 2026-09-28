@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Models\Traits\Auditable;
 use App\Models\Traits\BelongsToBusiness;
 use App\Models\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -13,7 +14,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class StockOpname extends Model
 {
-    use BelongsToBusiness, HasFactory, HasUuid;
+    use Auditable, BelongsToBusiness, HasFactory, HasUuid;
 
     public const STATUS_DRAFT = 'draft';
 

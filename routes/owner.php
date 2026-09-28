@@ -174,7 +174,7 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
         Route::delete('/services/{product}', [ServiceWebController::class, 'destroy'])->middleware('require.permission:products.delete')->name('services.destroy');
 
         // Mass Excel / CSV Import (Materials, Products, Recipes & Inventory)
-        Route::middleware('require.permission:materials.view')->group(function (): void {
+        Route::middleware('require.permission:materials.view,products.view')->group(function (): void {
             Route::get('/import', [ImportWebController::class, 'index'])->name('import.index');
             Route::get('/import/materials/template', [ImportWebController::class, 'downloadMaterialTemplate'])->name('import.materials.template');
             Route::post('/import/materials/preview', [ImportWebController::class, 'previewMaterials'])->middleware('entitlement:import')->name('import.materials.preview');
@@ -549,7 +549,7 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
         // Warehouse Management Hub
         Route::middleware('module:inventory_warehouse')->group(function (): void {
             Route::get('/warehouse', [WarehouseWebController::class, 'index'])->middleware('require.permission:warehouse.view')->name('warehouse.index');
-            Route::post('/warehouse', [WarehouseWebController::class, 'store'])->middleware(['require.permission:warehouse.manage', 'entitlement:warehouse'])->name('warehouse.store');
+            Route::post('/warehouse', [WarehouseWebController::class, 'store'])->middleware('require.permission:warehouse.manage')->name('warehouse.store');
             Route::get('/warehouse/{location}', [WarehouseWebController::class, 'show'])->middleware('require.permission:warehouse.view')->name('warehouse.show');
             Route::put('/warehouse/{location}', [WarehouseWebController::class, 'update'])->middleware('require.permission:warehouse.manage')->name('warehouse.update');
             Route::delete('/warehouse/{location}', [WarehouseWebController::class, 'destroy'])->middleware('require.permission:warehouse.manage')->name('warehouse.destroy');
@@ -635,7 +635,7 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
                 Route::post('/start', [WhatsAppWebController::class, 'startSession'])->name('start');
                 Route::post('/disconnect', [WhatsAppWebController::class, 'disconnect'])->name('disconnect');
                 Route::post('/settings', [WhatsAppWebController::class, 'updateSettings'])->name('settings');
-                Route::post('/test', [WhatsAppWebController::class, 'testSend'])->name('test');
+                Route::post('/test', [WhatsAppWebController::class, 'testSend'])->middleware('throttle:5,1')->name('test');
                 Route::post('/verify-meta', [WhatsAppWebController::class, 'verifyMetaCredentials'])->name('verify-meta');
             });
 
@@ -660,12 +660,12 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
             });
         });
 
-        // Integrasi Media Sosial (Meta Facebook, Instagram, Threads, & TikTok)
-        Route::prefix('social-media')->name('social-media.')->middleware('require.permission:whatsapp.view')->group(function (): void {
+        // Integrasi Media Sosial (Meta Facebook, Instagram, Threads, TikTok, & LinkedIn)
+        Route::prefix('social-media')->name('social-media.')->middleware('require.permission:social_media.view')->group(function (): void {
             Route::get('/', [SocialMediaWebController::class, 'index'])->name('index');
             Route::get('/config', [SocialMediaWebController::class, 'getOAuthConfig'])->name('config');
-            Route::post('/exchange-token', [SocialMediaWebController::class, 'exchangeToken'])->name('exchange-token');
-            Route::post('/disconnect', [SocialMediaWebController::class, 'disconnect'])->name('disconnect');
+            Route::post('/exchange-token', [SocialMediaWebController::class, 'exchangeToken'])->middleware('require.permission:social_media.manage')->name('exchange-token');
+            Route::post('/disconnect', [SocialMediaWebController::class, 'disconnect'])->middleware('require.permission:social_media.manage')->name('disconnect');
 
             // TikTok OAuth 2.0 Connect & Callback
             Route::get('/tiktok/connect', [SocialMediaWebController::class, 'getTikTokAuthUrl'])->name('tiktok.connect');
@@ -675,19 +675,21 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
             Route::get('/linkedin/connect', [SocialMediaWebController::class, 'getLinkedInAuthUrl'])->name('linkedin.connect');
             Route::get('/linkedin/callback', [SocialMediaWebController::class, 'handleLinkedInCallback'])->name('linkedin.callback');
 
-            // Posts, Targets & Publishing
+            // Posts, Targets, Publishing & Maker-Checker Approval
             Route::get('/posts', [SocialMediaWebController::class, 'posts'])->name('posts.index');
-            Route::post('/posts', [SocialMediaWebController::class, 'storePost'])->middleware('entitlement:social_post')->name('posts.store');
-            Route::post('/targets/{target}/retry', [SocialMediaWebController::class, 'retryTarget'])->name('targets.retry');
+            Route::post('/posts', [SocialMediaWebController::class, 'storePost'])->middleware(['entitlement:social_post', 'require.permission:social_media.manage'])->name('posts.store');
+            Route::post('/posts/{post}/approve', [SocialMediaWebController::class, 'approvePost'])->middleware('require.permission:social_media.manage')->name('posts.approve');
+            Route::post('/posts/{post}/reject', [SocialMediaWebController::class, 'rejectPost'])->middleware('require.permission:social_media.manage')->name('posts.reject');
+            Route::post('/targets/{target}/retry', [SocialMediaWebController::class, 'retryTarget'])->middleware('require.permission:social_media.manage')->name('targets.retry');
             Route::get('/calendar', [SocialMediaWebController::class, 'calendar'])->name('calendar');
 
             // Comments & Inbox
             Route::get('/inbox', [SocialMediaWebController::class, 'inbox'])->name('inbox.index');
-            Route::post('/comments/{comment}/reply', [SocialMediaWebController::class, 'replyComment'])->name('comments.reply');
+            Route::post('/comments/{comment}/reply', [SocialMediaWebController::class, 'replyComment'])->middleware(['throttle:15,1', 'require.permission:social_media.manage'])->name('comments.reply');
 
             // Analytics & Insights
             Route::get('/insights', [SocialMediaWebController::class, 'insights'])->name('insights.index');
-            Route::post('/insights/{post}/sync', [SocialMediaWebController::class, 'syncInsights'])->name('insights.sync');
+            Route::post('/insights/{post}/sync', [SocialMediaWebController::class, 'syncInsights'])->middleware('throttle:10,1')->name('insights.sync');
         });
 
         // Business Landing Page & Mini Website CMS
@@ -747,24 +749,29 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
 
         // Marketplace Integrations (Shopee, TikTok Shop, Tokopedia)
         Route::prefix('marketplace-hub')->name('marketplace-hub.')->group(function (): void {
-            Route::get('/', [MarketplaceWebController::class, 'index'])->name('index');
-            Route::post('/connect/{provider}', [MarketplaceWebController::class, 'connect'])->name('connect');
-            Route::post('/disconnect/{provider}', [MarketplaceWebController::class, 'disconnect'])->name('disconnect');
-            Route::post('/toggle/{provider}', [MarketplaceWebController::class, 'toggleActive'])->name('toggle');
+            // View / Read-only routes
+            Route::middleware('require.permission:marketplace.view')->group(function (): void {
+                Route::get('/', [MarketplaceWebController::class, 'index'])->name('index');
+                Route::get('/products', [MarketplaceWebController::class, 'products'])->name('products');
+                Route::get('/orders', [MarketplaceWebController::class, 'orders'])->name('orders');
+                Route::get('/logs', [MarketplaceWebController::class, 'logs'])->name('logs');
+            });
 
-            // Product Mappings & Per-Channel Pricing
-            Route::get('/products', [MarketplaceWebController::class, 'products'])->name('products');
-            Route::post('/products/map', [MarketplaceWebController::class, 'updateMapping'])->name('products.map');
-            Route::post('/products/{product}/sync-price', [MarketplaceWebController::class, 'syncProductPrice'])->name('products.sync-price');
-            Route::post('/products/{product}/sync-stock', [MarketplaceWebController::class, 'syncProductStock'])->name('products.sync-stock');
-            Route::post('/products/sync-all', [MarketplaceWebController::class, 'syncAll'])->name('products.sync-all');
+            // Management / Mutating routes
+            Route::middleware('require.permission:marketplace.manage')->group(function (): void {
+                Route::post('/connect/{provider}', [MarketplaceWebController::class, 'connect'])->name('connect');
+                Route::post('/disconnect/{provider}', [MarketplaceWebController::class, 'disconnect'])->name('disconnect');
+                Route::post('/toggle/{provider}', [MarketplaceWebController::class, 'toggleActive'])->name('toggle');
 
-            // Marketplace Orders
-            Route::get('/orders', [MarketplaceWebController::class, 'orders'])->name('orders');
-            Route::post('/orders/pull', [MarketplaceWebController::class, 'pullOrders'])->name('orders.pull');
+                // Product Mappings & Per-Channel Pricing
+                Route::post('/products/map', [MarketplaceWebController::class, 'updateMapping'])->name('products.map');
+                Route::post('/products/{product}/sync-price', [MarketplaceWebController::class, 'syncProductPrice'])->name('products.sync-price');
+                Route::post('/products/{product}/sync-stock', [MarketplaceWebController::class, 'syncProductStock'])->name('products.sync-stock');
+                Route::post('/products/sync-all', [MarketplaceWebController::class, 'syncAll'])->middleware('throttle:10,1')->name('products.sync-all');
 
-            // Sync Logs & Activity
-            Route::get('/logs', [MarketplaceWebController::class, 'logs'])->name('logs');
+                // Marketplace Orders
+                Route::post('/orders/pull', [MarketplaceWebController::class, 'pullOrders'])->middleware('throttle:10,1')->name('orders.pull');
+            });
         });
     });
 });

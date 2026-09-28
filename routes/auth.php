@@ -76,9 +76,9 @@ Route::middleware(['auth:web'])->group(function (): void {
     Route::get('/complete-profile', [AuthWebController::class, 'showCompleteProfile'])->name('profile.complete');
     Route::post('/complete-profile', [AuthWebController::class, 'updateCompleteProfile'])->name('profile.complete.save');
 
-    // GeoLocation & Indonesian Village/Postal Code Search
-    Route::get('/geo/search-areas', [\App\Http\Controllers\Web\Common\GeoLocationController::class, 'searchAreas'])->name('geo.search-areas');
-    Route::get('/geo/reverse-geocode', [\App\Http\Controllers\Web\Common\GeoLocationController::class, 'reverseGeocode'])->name('geo.reverse-geocode');
+    // GeoLocation & Indonesian Village/Postal Code Search (Rate-limited to prevent abuse & DoS)
+    Route::get('/geo/search-areas', [\App\Http\Controllers\Web\Common\GeoLocationController::class, 'searchAreas'])->middleware('throttle:60,1')->name('geo.search-areas');
+    Route::get('/geo/reverse-geocode', [\App\Http\Controllers\Web\Common\GeoLocationController::class, 'reverseGeocode'])->middleware('throttle:60,1')->name('geo.reverse-geocode');
 
     // Tenant Selection & Creation
     Route::get('/select-business', [AuthWebController::class, 'selectBusiness'])->name('businesses.select');

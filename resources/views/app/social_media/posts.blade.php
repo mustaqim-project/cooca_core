@@ -162,6 +162,10 @@
                     class="h-7 px-3 rounded-full text-[12px] font-medium transition-colors {{ $status === 'scheduled' ? 'bg-[#5856D6] text-white shadow-sm' : 'bg-black/[0.04] dark:bg-white/[0.06] text-black/70 dark:text-white/70 hover:bg-black/[0.08]' }}">
                     Terjadwal
                 </a>
+                <a href="{{ route('social-media.posts.index', ['status' => 'pending_review', 'platform' => $platform]) }}"
+                    class="h-7 px-3 rounded-full text-[12px] font-medium transition-colors {{ $status === 'pending_review' ? 'bg-[#FF9500] text-white shadow-sm' : 'bg-black/[0.04] dark:bg-white/[0.06] text-black/70 dark:text-white/70 hover:bg-black/[0.08]' }}">
+                    Menunggu Approval
+                </a>
                 <a href="{{ route('social-media.posts.index', ['status' => 'failed', 'platform' => $platform]) }}"
                     class="h-7 px-3 rounded-full text-[12px] font-medium transition-colors {{ $status === 'failed' ? 'bg-[#FF3B30] text-white shadow-sm' : 'bg-black/[0.04] dark:bg-white/[0.06] text-black/70 dark:text-white/70 hover:bg-black/[0.08]' }}">
                     Gagal
@@ -283,6 +287,16 @@
                                             <i data-lucide="alert-circle" class="w-3 h-3"></i>
                                             <span>Sebagian Gagal</span>
                                         </span>
+                                    @elseif($post->approval_status === 'pending_review' || $post->status === 'pending_review')
+                                        <span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#FF9500]/15 text-[#FF9500] inline-flex items-center gap-1">
+                                            <i data-lucide="shield-alert" class="w-3 h-3"></i>
+                                            <span>Menunggu Approval</span>
+                                        </span>
+                                    @elseif($post->approval_status === 'rejected' || $post->status === 'rejected')
+                                        <span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#FF3B30]/15 text-[#FF3B30] inline-flex items-center gap-1">
+                                            <i data-lucide="x-circle" class="w-3 h-3"></i>
+                                            <span>Ditolak</span>
+                                        </span>
                                     @else
                                         <span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-black/10 dark:bg-white/10 text-black/60 dark:text-white/60">
                                             {{ ucfirst($post->status) }}
@@ -362,6 +376,43 @@
                                     <strong>Penyebab:</strong> {{ $post->error_message }}
                                 </div>
                             @endif
+
+                            {{-- Risk Flags Warning --}}
+                            @if(! empty($post->risk_flags) && in_array('unregistered_bank_account_detected', $post->risk_flags, true))
+                                <div class="p-2.5 rounded-[10px] bg-[#FF9500]/10 border border-[#FF9500]/25 text-[11.5px] text-[#FF9500] flex items-center gap-2">
+                                    <i data-lucide="shield-alert" class="w-4 h-4 shrink-0"></i>
+                                    <span><strong>Peringatan Anti-Fraud:</strong> Terdeteksi nomor rekening bank pada caption yang tidak terdaftar di akun resmi toko.</span>
+                                </div>
+                            @endif
+
+                            {{-- Rejection Reason --}}
+                            @if(($post->approval_status === 'rejected' || $post->status === 'rejected') && $post->rejection_reason)
+                                <div class="p-2.5 rounded-[10px] bg-[#FF3B30]/10 border border-[#FF3B30]/25 text-[11.5px] text-[#FF3B30]">
+                                    <strong>Alasan Ditolak:</strong> {{ $post->rejection_reason }}
+                                </div>
+                            @endif
+
+                            {{-- Maker-Checker Action Buttons for Owner / Manager --}}
+                            @if(($post->approval_status === 'pending_review' || $post->status === 'pending_review') && (\App\Support\Context::isAdminOrOwner() || \App\Support\Context::hasPermission('social_media.manage')))
+                                <div class="pt-2 flex items-center gap-2 justify-end border-t border-black/5 dark:border-white/10">
+                                    <form method="POST" action="{{ route('social-media.posts.approve', $post) }}" class="inline"
+                                        onsubmit="return typeof AppAlert !== 'undefined' ? AppAlert.confirmSubmit(event, this, 'Apakah Anda yakin ingin menyetujui dan mempublikasikan postingan ini?', 'Setujui Postingan?', 'info') : true">
+                                        @csrf
+                                        <button type="submit" class="h-7 px-3 rounded-[8px] text-[11.5px] font-semibold text-white bg-[#34C759] hover:bg-[#2FB34F] active:scale-[0.97] transition-all inline-flex items-center gap-1 shadow-sm">
+                                            <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                                            <span>Setujui &amp; Publikasi</span>
+                                        </button>
+                                    </form>
+                                    <form method="POST" action="{{ route('social-media.posts.reject', $post) }}" class="inline"
+                                        onsubmit="return typeof AppAlert !== 'undefined' ? AppAlert.confirmSubmit(event, this, 'Apakah Anda yakin ingin menolak postingan ini?', 'Tolak Postingan?', 'danger') : true">
+                                        @csrf
+                                        <button type="submit" class="h-7 px-3 rounded-[8px] text-[11.5px] font-semibold text-white bg-[#FF3B30] hover:bg-[#E0352B] active:scale-[0.97] transition-all inline-flex items-center gap-1 shadow-sm">
+                                            <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                                            <span>Tolak</span>
+                                        </button>
+                                    </form>
+                                </div>
+                            @endif
                         </div>
 
                         {{-- Footer Card with Metrics --}}
@@ -396,21 +447,21 @@
             </div>
         @endif
 
-        {{-- 5. UNIFIED COMPOSER MODAL SHEET (Apple HIG Bento Design) --}}
+        {{-- 5. UNIFIED COMPOSER MODAL SHEET (Apple HIG Bento Design XXL) --}}
         <div x-show="openComposerModal" style="display: none;"
-            class="fixed inset-0 z-50 overflow-y-auto bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
-            <div class="relative w-full max-w-3xl rounded-[24px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 shadow-2xl p-6 sm:p-7 space-y-5 my-8 max-h-[90vh] overflow-y-auto"
+            class="fixed inset-0 z-50 overflow-y-auto bg-black/50 backdrop-blur-sm flex items-center justify-center p-3 sm:p-5">
+            <div class="relative w-full max-w-5xl xl:max-w-6xl rounded-[26px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 shadow-2xl p-6 sm:p-8 space-y-6 my-6 max-h-[92vh] overflow-y-auto"
                 @click.away="openComposerModal = false">
 
                 {{-- Modal Header --}}
-                <div class="flex items-center justify-between pb-3 border-b border-black/5 dark:border-white/10">
+                <div class="flex items-center justify-between pb-3.5 border-b border-black/5 dark:border-white/10">
                     <div class="flex items-center gap-3">
                         <div class="w-10 h-10 rounded-[14px] bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center font-bold">
                             <i data-lucide="feather" class="w-5 h-5"></i>
                         </div>
                         <div>
                             <h3 class="text-[17px] font-bold text-black dark:text-white">Unified Social Media Composer</h3>
-                            <p class="text-[12.5px] text-black/55 dark:text-white/55">Buat satu materi dan sebarkan ke Facebook, Instagram, Threads, TikTok, dan LinkedIn</p>
+                            <p class="text-[12.5px] text-black/55 dark:text-white/55">Buat satu materi promosi dan sebarkan serentak ke Facebook, Instagram, Threads, TikTok, dan LinkedIn</p>
                         </div>
                     </div>
                     <button type="button" @click="openComposerModal = false" class="text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white p-1 rounded-full hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
@@ -418,447 +469,719 @@
                     </button>
                 </div>
 
-                {{-- Form Content --}}
-                <form action="{{ route('social-media.posts.store') }}" method="POST" enctype="multipart/form-data" class="space-y-4" @submit="isSubmitting = true">
+                {{-- Form Content with Bento 2-Column Architecture --}}
+                <form action="{{ route('social-media.posts.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6" @submit="isSubmitting = true">
                     @csrf
                     <input type="hidden" name="media_format" :value="mediaFormat">
                     <input type="hidden" name="social_media_account_id" :value="selectedAccounts[0] || ''">
 
-                    {{-- 1. Target Accounts Multi-Selector (Bento Tiles) --}}
-                    <div class="space-y-2">
-                        <div class="flex items-center justify-between">
-                            <label class="text-[12.5px] font-bold text-black/80 dark:text-white/80">
-                                Pilih Saluran Publikasi <span class="text-[#FF3B30]">*</span>
-                            </label>
-                            <button type="button" @click="toggleSelectAll()" class="text-[11.5px] font-bold text-[#007AFF] hover:underline">
-                                <span x-text="selectedAccounts.length === allAccountIds.length ? 'Batalkan Semua' : 'Pilih Semua Saluran'"></span>
-                            </button>
-                        </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                        {{-- LEFT COLUMN: FORM CONTROLS (Col-span 7) --}}
+                        <div class="lg:col-span-7 space-y-4">
+                            {{-- 1. Target Accounts Multi-Selector (Bento Tiles) --}}
+                            <div class="space-y-2">
+                                <div class="flex items-center justify-between">
+                                    <label class="text-[12.5px] font-bold text-black/80 dark:text-white/80">
+                                        Pilih Saluran Publikasi <span class="text-[#FF3B30]">*</span>
+                                    </label>
+                                    <button type="button" @click="toggleSelectAll()" class="text-[11.5px] font-bold text-[#007AFF] hover:underline">
+                                        <span x-text="selectedAccounts.length === allAccountIds.length ? 'Batalkan Semua' : 'Pilih Semua Saluran'"></span>
+                                    </button>
+                                </div>
 
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                            @foreach($accounts as $acc)
-                                <label class="p-3 rounded-[14px] border cursor-pointer transition-all flex items-center justify-between gap-2.5"
-                                    :class="selectedAccounts.includes('{{ $acc->id }}') ? 'bg-[#007AFF]/10 border-[#007AFF] text-black dark:text-white shadow-xs' : 'bg-black/[0.02] dark:bg-white/[0.03] border-black/10 dark:border-white/10 text-black/70 dark:text-white/70 hover:bg-black/[0.04]'">
-                                    <div class="flex items-center gap-2.5 min-w-0">
-                                        <input type="checkbox" name="target_accounts[]" value="{{ $acc->id }}"
-                                            x-model="selectedAccounts" class="rounded text-[#007AFF] focus:ring-[#007AFF]">
-                                        <div class="min-w-0">
-                                            <div class="text-[13px] font-bold truncate">{{ $acc->account_name }}</div>
-                                            <div class="text-[11px] opacity-75 capitalize flex items-center gap-1.5">
-                                                <span>{{ $acc->platform }}</span>
-                                                @if($acc->username)
-                                                    <span>•</span>
-                                                    <span class="font-mono text-[#007AFF]">{{ $acc->username }}</span>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                                    @foreach($accounts as $acc)
+                                        <label class="p-3 rounded-[14px] border cursor-pointer transition-all flex items-center justify-between gap-2.5"
+                                            :class="selectedAccounts.includes('{{ $acc->id }}') ? 'bg-[#007AFF]/10 border-[#007AFF] text-black dark:text-white shadow-xs' : 'bg-black/[0.02] dark:bg-white/[0.03] border-black/10 dark:border-white/10 text-black/70 dark:text-white/70 hover:bg-black/[0.04]'">
+                                            <div class="flex items-center gap-2.5 min-w-0">
+                                                <input type="checkbox" name="target_accounts[]" value="{{ $acc->id }}"
+                                                    x-model="selectedAccounts" class="rounded text-[#007AFF] focus:ring-[#007AFF]">
+                                                <div class="min-w-0">
+                                                    <div class="text-[13px] font-bold truncate">{{ $acc->account_name }}</div>
+                                                    <div class="text-[11px] opacity-75 capitalize flex items-center gap-1.5">
+                                                        <span>{{ $acc->platform }}</span>
+                                                        @if($acc->username)
+                                                            <span>•</span>
+                                                            <span class="font-mono text-[#007AFF]">{{ $acc->username }}</span>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="w-7 h-7 rounded-[9px] flex items-center justify-center shrink-0 {{ $acc->platform === 'facebook' ? 'bg-[#1877F2]/15 text-[#1877F2]' : ($acc->platform === 'instagram' ? 'bg-[#E1306C]/15 text-[#E1306C]' : ($acc->platform === 'tiktok' ? 'bg-black/10 dark:bg-white/15 text-black dark:text-white' : ($acc->platform === 'linkedin' ? 'bg-[#0A66C2]/15 text-[#0A66C2]' : 'bg-black/10 text-black dark:text-white'))) }}">
+                                                @if($acc->platform === 'facebook')
+                                                    <i data-lucide="facebook" class="w-4 h-4"></i>
+                                                @elseif($acc->platform === 'instagram')
+                                                    <i data-lucide="instagram" class="w-4 h-4"></i>
+                                                @elseif($acc->platform === 'tiktok')
+                                                    <i data-lucide="video" class="w-4 h-4"></i>
+                                                @elseif($acc->platform === 'linkedin')
+                                                    <i data-lucide="linkedin" class="w-4 h-4"></i>
+                                                @else
+                                                    <i data-lucide="at-sign" class="w-4 h-4"></i>
                                                 @endif
                                             </div>
-                                        </div>
+                                        </label>
+                                    @endforeach
+                                </div>
+
+                                @if($accounts->isEmpty())
+                                    <div class="p-3 rounded-[12px] bg-[#FF9500]/10 border border-[#FF9500]/25 text-[12px] text-[#FF9500] flex items-center gap-2">
+                                        <i data-lucide="alert-circle" class="w-4 h-4 shrink-0"></i>
+                                        <span>Belum ada akun media sosial aktif. <a href="{{ route('social-media.index') }}" class="underline font-bold">Hubungkan akun Meta, TikTok, atau LinkedIn terlebih dahulu</a>.</span>
                                     </div>
-                                    <div class="w-7 h-7 rounded-[9px] flex items-center justify-center shrink-0 {{ $acc->platform === 'facebook' ? 'bg-[#1877F2]/15 text-[#1877F2]' : ($acc->platform === 'instagram' ? 'bg-[#E1306C]/15 text-[#E1306C]' : ($acc->platform === 'tiktok' ? 'bg-black/10 dark:bg-white/15 text-black dark:text-white' : ($acc->platform === 'linkedin' ? 'bg-[#0A66C2]/15 text-[#0A66C2]' : 'bg-black/10 text-black dark:text-white'))) }}">
-                                        @if($acc->platform === 'facebook')
-                                            <i data-lucide="facebook" class="w-4 h-4"></i>
-                                        @elseif($acc->platform === 'instagram')
-                                            <i data-lucide="instagram" class="w-4 h-4"></i>
-                                        @elseif($acc->platform === 'tiktok')
-                                            <i data-lucide="video" class="w-4 h-4"></i>
-                                        @elseif($acc->platform === 'linkedin')
-                                            <i data-lucide="linkedin" class="w-4 h-4"></i>
-                                        @else
-                                            <i data-lucide="at-sign" class="w-4 h-4"></i>
-                                        @endif
-                                    </div>
+                                @endif
+                            </div>
+
+                            {{-- 2. Format Selector (Bento Segmented Buttons) --}}
+                            <div class="space-y-2">
+                                <label class="text-[12.5px] font-bold text-black/80 dark:text-white/80">
+                                    Format Postingan <span class="text-[#FF3B30]">*</span>
                                 </label>
-                            @endforeach
-                        </div>
-
-                        @if($accounts->isEmpty())
-                            <div class="p-3 rounded-[12px] bg-[#FF9500]/10 border border-[#FF9500]/25 text-[12px] text-[#FF9500] flex items-center gap-2">
-                                <i data-lucide="alert-circle" class="w-4 h-4 shrink-0"></i>
-                                <span>Belum ada akun media sosial aktif. <a href="{{ route('social-media.index') }}" class="underline font-bold">Hubungkan akun Meta, TikTok, atau LinkedIn terlebih dahulu</a>.</span>
-                            </div>
-                        @endif
-                    </div>
-
-                    {{-- 2. Format Selector (Bento Segmented Buttons) --}}
-                    <div class="space-y-2">
-                        <label class="text-[12.5px] font-bold text-black/80 dark:text-white/80">
-                            Format Postingan <span class="text-[#FF3B30]">*</span>
-                        </label>
-                        <div class="grid grid-cols-2 sm:grid-cols-5 gap-2">
-                            {{-- Foto Tunggal --}}
-                            <button type="button" @click="setMediaFormat('photo')"
-                                :class="mediaFormat === 'photo' ? 'bg-[#007AFF] text-white shadow-sm ring-2 ring-[#007AFF]/30' : 'bg-black/[0.03] dark:bg-white/[0.05] text-black/70 dark:text-white/70 hover:bg-black/[0.06]'"
-                                class="p-2.5 rounded-[14px] border border-black/5 dark:border-white/10 text-left transition-all flex flex-col gap-1">
-                                <div class="flex items-center justify-between">
-                                    <i data-lucide="image" class="w-4 h-4"></i>
-                                    <span class="w-1.5 h-1.5 rounded-full" :class="mediaFormat === 'photo' ? 'bg-white' : 'bg-transparent'"></span>
-                                </div>
-                                <div class="text-[12px] font-bold leading-tight">Foto</div>
-                                <div class="text-[10px] opacity-75 truncate">Feed / Album</div>
-                            </button>
-
-                            {{-- Carousel (Instagram & Multi) --}}
-                            <button type="button" @click="setMediaFormat('carousel')"
-                                :class="mediaFormat === 'carousel' ? 'bg-[#FF9500] text-white shadow-sm ring-2 ring-[#FF9500]/30' : 'bg-black/[0.03] dark:bg-white/[0.05] text-black/70 dark:text-white/70 hover:bg-black/[0.06]'"
-                                class="p-2.5 rounded-[14px] border border-black/5 dark:border-white/10 text-left transition-all flex flex-col gap-1">
-                                <div class="flex items-center justify-between">
-                                    <i data-lucide="layers" class="w-4 h-4"></i>
-                                    <span class="w-1.5 h-1.5 rounded-full" :class="mediaFormat === 'carousel' ? 'bg-white' : 'bg-transparent'"></span>
-                                </div>
-                                <div class="text-[12px] font-bold leading-tight">Carousel</div>
-                                <div class="text-[10px] opacity-75 truncate">2-10 Media</div>
-                            </button>
-
-                            {{-- Video --}}
-                            <button type="button" @click="setMediaFormat('video')"
-                                :class="mediaFormat === 'video' ? 'bg-[#007AFF] text-white shadow-sm ring-2 ring-[#007AFF]/30' : 'bg-black/[0.03] dark:bg-white/[0.05] text-black/70 dark:text-white/70 hover:bg-black/[0.06]'"
-                                class="p-2.5 rounded-[14px] border border-black/5 dark:border-white/10 text-left transition-all flex flex-col gap-1">
-                                <div class="flex items-center justify-between">
-                                    <i data-lucide="video" class="w-4 h-4"></i>
-                                    <span class="w-1.5 h-1.5 rounded-full" :class="mediaFormat === 'video' ? 'bg-white' : 'bg-transparent'"></span>
-                                </div>
-                                <div class="text-[12px] font-bold leading-tight">Video</div>
-                                <div class="text-[10px] opacity-75 truncate">MP4 / TikTok</div>
-                            </button>
-
-                            {{-- Reels --}}
-                            <button type="button" @click="setMediaFormat('reels')"
-                                :class="mediaFormat === 'reels' ? 'bg-[#AF52DE] text-white shadow-sm ring-2 ring-[#AF52DE]/30' : 'bg-black/[0.03] dark:bg-white/[0.05] text-black/70 dark:text-white/70 hover:bg-black/[0.06]'"
-                                class="p-2.5 rounded-[14px] border border-black/5 dark:border-white/10 text-left transition-all flex flex-col gap-1">
-                                <div class="flex items-center justify-between">
-                                    <i data-lucide="film" class="w-4 h-4"></i>
-                                    <span class="w-1.5 h-1.5 rounded-full" :class="mediaFormat === 'reels' ? 'bg-white' : 'bg-transparent'"></span>
-                                </div>
-                                <div class="text-[12px] font-bold leading-tight">Reels</div>
-                                <div class="text-[10px] opacity-75 truncate">9:16 Vertikal</div>
-                            </button>
-
-                            {{-- Teks --}}
-                            <button type="button" @click="setMediaFormat('text')"
-                                :class="mediaFormat === 'text' ? 'bg-[#34C759] text-white shadow-sm ring-2 ring-[#34C759]/30' : 'bg-black/[0.03] dark:bg-white/[0.05] text-black/70 dark:text-white/70 hover:bg-black/[0.06]'"
-                                class="p-2.5 rounded-[14px] border border-black/5 dark:border-white/10 text-left transition-all flex flex-col gap-1">
-                                <div class="flex items-center justify-between">
-                                    <i data-lucide="align-left" class="w-4 h-4"></i>
-                                    <span class="w-1.5 h-1.5 rounded-full" :class="mediaFormat === 'text' ? 'bg-white' : 'bg-transparent'"></span>
-                                </div>
-                                <div class="text-[12px] font-bold leading-tight">Teks</div>
-                                <div class="text-[10px] opacity-75 truncate">FB / Threads</div>
-                            </button>
-                        </div>
-                    </div>
-
-                    {{-- 3. Media Upload Area (Single or Carousel) --}}
-                    <div x-show="mediaFormat !== 'text'" class="space-y-3 pt-1">
-                        <div class="flex items-center justify-between">
-                            <label class="text-[12.5px] font-bold text-black/80 dark:text-white/80">
-                                Berkas Media <span class="text-[#FF3B30]">*</span>
-                            </label>
-                            <div class="inline-flex p-0.5 rounded-[9px] bg-black/[0.04] dark:bg-white/[0.06] text-[11.5px] font-medium">
-                                <button type="button" @click="mediaSourceTab = 'upload'"
-                                    :class="mediaSourceTab === 'upload' ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-xs' : 'text-black/60 dark:text-white/60'"
-                                    class="px-2.5 py-1 rounded-[7px] transition-colors">
-                                    Upload Berkas
-                                </button>
-                                <button type="button" @click="mediaSourceTab = 'url'"
-                                    :class="mediaSourceTab === 'url' ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-xs' : 'text-black/60 dark:text-white/60'"
-                                    class="px-2.5 py-1 rounded-[7px] transition-colors">
-                                    Tautan URL
-                                </button>
-                            </div>
-                        </div>
-
-                        {{-- Mode A: Carousel Multi-Upload (2 - 10 Media) --}}
-                        <div x-show="mediaFormat === 'carousel' && mediaSourceTab === 'upload'" class="space-y-3">
-                            <input type="file" name="media_files[]" id="carousel_files_input" x-ref="carouselInput" multiple
-                                @change="handleCarouselFilesSelect($event)" accept="image/jpeg,image/png,image/webp,video/mp4" class="hidden">
-
-                            <div class="flex items-center justify-between text-[12px]">
-                                <span class="font-bold text-black/70 dark:text-white/70">
-                                    Urutan Media Carousel: <span class="text-[#FF9500]" x-text="carouselItems.length + ' / 10 media'"></span>
-                                </span>
-                                <button type="button" @click="$refs.carouselInput.click()"
-                                    class="px-3 py-1 rounded-[8px] bg-[#007AFF]/10 text-[#007AFF] hover:bg-[#007AFF]/20 font-bold text-[11.5px] transition-colors flex items-center gap-1">
-                                    <i data-lucide="plus" class="w-3.5 h-3.5"></i>
-                                    <span>Tambah Media</span>
-                                </button>
-                            </div>
-
-                            {{-- Carousel Empty State --}}
-                            <div x-show="carouselItems.length === 0" @click="$refs.carouselInput.click()"
-                                class="rounded-[16px] border-2 border-dashed border-black/15 dark:border-white/15 p-6 text-center cursor-pointer hover:border-[#FF9500] hover:bg-[#FF9500]/5 transition-all group">
-                                <div class="w-12 h-12 rounded-[14px] bg-[#FF9500]/10 text-[#FF9500] flex items-center justify-center mx-auto mb-2">
-                                    <i data-lucide="layers" class="w-6 h-6"></i>
-                                </div>
-                                <div class="text-[13px] font-bold text-black dark:text-white group-hover:text-[#FF9500]">
-                                    Pilih 2 hingga 10 Foto / Video untuk Carousel
-                                </div>
-                                <p class="text-[11.5px] text-black/50 dark:text-white/50 mt-0.5">
-                                    Instagram Carousel mendukung campuran foto dan video berurutan.
-                                </p>
-                            </div>
-
-                            {{-- Carousel Items Tray with Reordering & Badges --}}
-                            <div x-show="carouselItems.length > 0" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                                <template x-for="(item, idx) in carouselItems" :key="idx">
-                                    <div class="relative p-2 rounded-[14px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/10 dark:border-white/10 flex flex-col gap-2 group">
-                                        {{-- Sort Order Badge --}}
-                                        <div class="absolute top-3 left-3 w-5 h-5 rounded-full bg-black/80 text-white text-[10px] font-bold flex items-center justify-center z-10" x-text="idx + 1"></div>
-
-                                        {{-- Thumbnail --}}
-                                        <div class="w-full aspect-square rounded-[10px] overflow-hidden bg-black/5 flex items-center justify-center">
-                                            <template x-if="item.mime.startsWith('image/')">
-                                                <img :src="item.previewUrl" class="w-full h-full object-cover">
-                                            </template>
-                                            <template x-if="item.mime.startsWith('video/')">
-                                                <video :src="item.previewUrl" class="w-full h-full object-cover"></video>
-                                            </template>
+                                <div class="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                                    {{-- Foto Tunggal --}}
+                                    <button type="button" @click="setMediaFormat('photo')"
+                                        :class="mediaFormat === 'photo' ? 'bg-[#007AFF] text-white shadow-sm ring-2 ring-[#007AFF]/30' : 'bg-black/[0.03] dark:bg-white/[0.05] text-black/70 dark:text-white/70 hover:bg-black/[0.06]'"
+                                        class="p-2.5 rounded-[14px] border border-black/5 dark:border-white/10 text-left transition-all flex flex-col gap-1">
+                                        <div class="flex items-center justify-between">
+                                            <i data-lucide="image" class="w-4 h-4"></i>
+                                            <span class="w-1.5 h-1.5 rounded-full" :class="mediaFormat === 'photo' ? 'bg-white' : 'bg-transparent'"></span>
                                         </div>
+                                        <div class="text-[12px] font-bold leading-tight">Foto</div>
+                                        <div class="text-[10px] opacity-75 truncate">Feed / Album</div>
+                                    </button>
 
-                                        {{-- Controls: Move Left, Move Right, Delete --}}
-                                        <div class="flex items-center justify-between text-[11px] pt-1">
-                                            <div class="flex items-center gap-1">
-                                                <button type="button" @click="moveCarouselItem(idx, -1)" :disabled="idx === 0"
-                                                    class="w-6 h-6 rounded-[6px] bg-black/5 dark:bg-white/10 hover:bg-black/10 flex items-center justify-center disabled:opacity-30">
-                                                    <i data-lucide="chevron-left" class="w-3.5 h-3.5"></i>
-                                                </button>
-                                                <button type="button" @click="moveCarouselItem(idx, 1)" :disabled="idx === carouselItems.length - 1"
-                                                    class="w-6 h-6 rounded-[6px] bg-black/5 dark:bg-white/10 hover:bg-black/10 flex items-center justify-center disabled:opacity-30">
-                                                    <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
-                                                </button>
+                                    {{-- Carousel (Instagram & Multi) --}}
+                                    <button type="button" @click="setMediaFormat('carousel')"
+                                        :class="mediaFormat === 'carousel' ? 'bg-[#FF9500] text-white shadow-sm ring-2 ring-[#FF9500]/30' : 'bg-black/[0.03] dark:bg-white/[0.05] text-black/70 dark:text-white/70 hover:bg-black/[0.06]'"
+                                        class="p-2.5 rounded-[14px] border border-black/5 dark:border-white/10 text-left transition-all flex flex-col gap-1">
+                                        <div class="flex items-center justify-between">
+                                            <i data-lucide="layers" class="w-4 h-4"></i>
+                                            <span class="w-1.5 h-1.5 rounded-full" :class="mediaFormat === 'carousel' ? 'bg-white' : 'bg-transparent'"></span>
+                                        </div>
+                                        <div class="text-[12px] font-bold leading-tight">Carousel</div>
+                                        <div class="text-[10px] opacity-75 truncate">2-10 Media</div>
+                                    </button>
+
+                                    {{-- Video --}}
+                                    <button type="button" @click="setMediaFormat('video')"
+                                        :class="mediaFormat === 'video' ? 'bg-[#007AFF] text-white shadow-sm ring-2 ring-[#007AFF]/30' : 'bg-black/[0.03] dark:bg-white/[0.05] text-black/70 dark:text-white/70 hover:bg-black/[0.06]'"
+                                        class="p-2.5 rounded-[14px] border border-black/5 dark:border-white/10 text-left transition-all flex flex-col gap-1">
+                                        <div class="flex items-center justify-between">
+                                            <i data-lucide="video" class="w-4 h-4"></i>
+                                            <span class="w-1.5 h-1.5 rounded-full" :class="mediaFormat === 'video' ? 'bg-white' : 'bg-transparent'"></span>
+                                        </div>
+                                        <div class="text-[12px] font-bold leading-tight">Video</div>
+                                        <div class="text-[10px] opacity-75 truncate">MP4 / TikTok</div>
+                                    </button>
+
+                                    {{-- Reels --}}
+                                    <button type="button" @click="setMediaFormat('reels')"
+                                        :class="mediaFormat === 'reels' ? 'bg-[#AF52DE] text-white shadow-sm ring-2 ring-[#AF52DE]/30' : 'bg-black/[0.03] dark:bg-white/[0.05] text-black/70 dark:text-white/70 hover:bg-black/[0.06]'"
+                                        class="p-2.5 rounded-[14px] border border-black/5 dark:border-white/10 text-left transition-all flex flex-col gap-1">
+                                        <div class="flex items-center justify-between">
+                                            <i data-lucide="film" class="w-4 h-4"></i>
+                                            <span class="w-1.5 h-1.5 rounded-full" :class="mediaFormat === 'reels' ? 'bg-white' : 'bg-transparent'"></span>
+                                        </div>
+                                        <div class="text-[12px] font-bold leading-tight">Reels</div>
+                                        <div class="text-[10px] opacity-75 truncate">9:16 Vertikal</div>
+                                    </button>
+
+                                    {{-- Teks --}}
+                                    <button type="button" @click="setMediaFormat('text')"
+                                        :class="mediaFormat === 'text' ? 'bg-[#34C759] text-white shadow-sm ring-2 ring-[#34C759]/30' : 'bg-black/[0.03] dark:bg-white/[0.05] text-black/70 dark:text-white/70 hover:bg-black/[0.06]'"
+                                        class="p-2.5 rounded-[14px] border border-black/5 dark:border-white/10 text-left transition-all flex flex-col gap-1">
+                                        <div class="flex items-center justify-between">
+                                            <i data-lucide="align-left" class="w-4 h-4"></i>
+                                            <span class="w-1.5 h-1.5 rounded-full" :class="mediaFormat === 'text' ? 'bg-white' : 'bg-transparent'"></span>
+                                        </div>
+                                        <div class="text-[12px] font-bold leading-tight">Teks</div>
+                                        <div class="text-[10px] opacity-75 truncate">FB / Threads</div>
+                                    </button>
+                                </div>
+                            </div>
+
+                            {{-- 3. Media Upload Area (Single or Carousel) --}}
+                            <div x-show="mediaFormat !== 'text'" class="space-y-3 pt-1">
+                                <div class="flex items-center justify-between">
+                                    <label class="text-[12.5px] font-bold text-black/80 dark:text-white/80">
+                                        Berkas Media <span class="text-[#FF3B30]">*</span>
+                                    </label>
+                                    <div class="inline-flex p-0.5 rounded-[9px] bg-black/[0.04] dark:bg-white/[0.06] text-[11.5px] font-medium">
+                                        <button type="button" @click="mediaSourceTab = 'upload'"
+                                            :class="mediaSourceTab === 'upload' ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-xs' : 'text-black/60 dark:text-white/60'"
+                                            class="px-2.5 py-1 rounded-[7px] transition-colors">
+                                            Upload Berkas
+                                        </button>
+                                        <button type="button" @click="mediaSourceTab = 'url'"
+                                            :class="mediaSourceTab === 'url' ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-xs' : 'text-black/60 dark:text-white/60'"
+                                            class="px-2.5 py-1 rounded-[7px] transition-colors">
+                                            Tautan URL
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {{-- Mode A: Carousel Multi-Upload (2 - 10 Media) --}}
+                                <div x-show="mediaFormat === 'carousel' && mediaSourceTab === 'upload'" class="space-y-3">
+                                    <input type="file" name="media_files[]" id="carousel_files_input" x-ref="carouselInput" multiple
+                                        @change="handleCarouselFilesSelect($event)" accept="image/jpeg,image/png,image/webp,video/mp4" class="hidden">
+
+                                    <div class="flex items-center justify-between text-[12px]">
+                                        <span class="font-bold text-black/70 dark:text-white/70">
+                                            Urutan Media Carousel: <span class="text-[#FF9500]" x-text="carouselItems.length + ' / 10 media'"></span>
+                                        </span>
+                                        <button type="button" @click="$refs.carouselInput.click()"
+                                            class="px-3 py-1 rounded-[8px] bg-[#007AFF]/10 text-[#007AFF] hover:bg-[#007AFF]/20 font-bold text-[11.5px] transition-colors flex items-center gap-1">
+                                            <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                                            <span>Tambah Media</span>
+                                        </button>
+                                    </div>
+
+                                    {{-- Carousel Empty State --}}
+                                    <div x-show="carouselItems.length === 0" @click="$refs.carouselInput.click()"
+                                        class="rounded-[16px] border-2 border-dashed border-black/15 dark:border-white/15 p-6 text-center cursor-pointer hover:border-[#FF9500] hover:bg-[#FF9500]/5 transition-all group">
+                                        <div class="w-12 h-12 rounded-[14px] bg-[#FF9500]/10 text-[#FF9500] flex items-center justify-center mx-auto mb-2">
+                                            <i data-lucide="layers" class="w-6 h-6"></i>
+                                        </div>
+                                        <div class="text-[13px] font-bold text-black dark:text-white group-hover:text-[#FF9500]">
+                                            Pilih 2 hingga 10 Foto / Video untuk Carousel
+                                        </div>
+                                        <p class="text-[11.5px] text-black/50 dark:text-white/50 mt-0.5">
+                                            Instagram Carousel mendukung campuran foto dan video berurutan.
+                                        </p>
+                                    </div>
+
+                                    {{-- Carousel Items Tray with Reordering & Badges --}}
+                                    <div x-show="carouselItems.length > 0" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                                        <template x-for="(item, idx) in carouselItems" :key="idx">
+                                            <div class="relative p-2 rounded-[14px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/10 dark:border-white/10 flex flex-col gap-2 group">
+                                                {{-- Sort Order Badge --}}
+                                                <div class="absolute top-3 left-3 w-5 h-5 rounded-full bg-black/80 text-white text-[10px] font-bold flex items-center justify-center z-10" x-text="idx + 1"></div>
+
+                                                {{-- Thumbnail --}}
+                                                <div class="w-full aspect-square rounded-[10px] overflow-hidden bg-black/5 flex items-center justify-center">
+                                                    <template x-if="item.mime.startsWith('image/')">
+                                                        <img :src="item.previewUrl" class="w-full h-full object-cover">
+                                                    </template>
+                                                    <template x-if="item.mime.startsWith('video/')">
+                                                        <video :src="item.previewUrl" class="w-full h-full object-cover"></video>
+                                                    </template>
+                                                </div>
+
+                                                {{-- Controls: Move Left, Move Right, Delete --}}
+                                                <div class="flex items-center justify-between text-[11px] pt-1">
+                                                    <div class="flex items-center gap-1">
+                                                        <button type="button" @click="moveCarouselItem(idx, -1)" :disabled="idx === 0"
+                                                            class="w-6 h-6 rounded-[6px] bg-black/5 dark:bg-white/10 hover:bg-black/10 flex items-center justify-center disabled:opacity-30">
+                                                            <i data-lucide="chevron-left" class="w-3.5 h-3.5"></i>
+                                                        </button>
+                                                        <button type="button" @click="moveCarouselItem(idx, 1)" :disabled="idx === carouselItems.length - 1"
+                                                            class="w-6 h-6 rounded-[6px] bg-black/5 dark:bg-white/10 hover:bg-black/10 flex items-center justify-center disabled:opacity-30">
+                                                            <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+                                                        </button>
+                                                    </div>
+                                                    <button type="button" @click="removeCarouselItem(idx)"
+                                                        class="w-6 h-6 rounded-[6px] text-[#FF3B30] hover:bg-[#FF3B30]/10 flex items-center justify-center">
+                                                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                                    </button>
+                                                </div>
                                             </div>
-                                            <button type="button" @click="removeCarouselItem(idx)"
-                                                class="w-6 h-6 rounded-[6px] text-[#FF3B30] hover:bg-[#FF3B30]/10 flex items-center justify-center">
-                                                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                        </template>
+                                    </div>
+                                </div>
+
+                                {{-- Mode B: Single File Upload (Photo, Video, Reels) --}}
+                                <div x-show="mediaFormat !== 'carousel' && mediaSourceTab === 'upload'" class="space-y-2.5">
+                                    <input type="file" name="media_file" id="media_file_input" x-ref="fileInput"
+                                        @change="handleFileSelect($event)"
+                                        :accept="mediaFormat === 'photo' ? 'image/jpeg,image/png,image/webp,image/gif' : 'video/mp4,video/quicktime'"
+                                        class="hidden">
+
+                                    {{-- Drop Zone when empty --}}
+                                    <div x-show="!filePreviewUrl"
+                                        @click="$refs.fileInput.click()"
+                                        class="rounded-[16px] border-2 border-dashed border-black/15 dark:border-white/15 p-6 text-center cursor-pointer hover:border-[#007AFF] hover:bg-[#007AFF]/5 transition-all group">
+                                        <div class="w-12 h-12 rounded-[14px] bg-black/[0.04] dark:bg-white/[0.06] text-black/50 dark:text-white/50 group-hover:text-[#007AFF] group-hover:scale-105 transition-all flex items-center justify-center mx-auto mb-2.5">
+                                            <i data-lucide="upload-cloud" class="w-6 h-6"></i>
+                                        </div>
+                                        <div class="text-[13px] font-bold text-black dark:text-white group-hover:text-[#007AFF] transition-colors">
+                                            Pilih Berkas Media
+                                        </div>
+                                        <p class="text-[11.5px] text-black/50 dark:text-white/50 mt-0.5"
+                                           x-text="mediaFormat === 'photo' ? 'Mendukung JPG, PNG, WEBP hingga 100 MB' : 'Mendukung MP4 atau MOV video hingga 100 MB'">
+                                        </p>
+                                    </div>
+
+                                    {{-- File Preview Card when selected --}}
+                                    <div x-show="filePreviewUrl" style="display: none;"
+                                        class="rounded-[16px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/10 dark:border-white/10 p-3.5 flex items-center justify-between gap-3">
+                                        <div class="flex items-center gap-3 min-w-0">
+                                            <template x-if="fileMime && fileMime.startsWith('image/')">
+                                                <img :src="filePreviewUrl" alt="Pratinjau Foto" class="w-16 h-16 rounded-[10px] object-cover border border-black/10 dark:border-white/10 shrink-0">
+                                            </template>
+                                            <template x-if="fileMime && fileMime.startsWith('video/')">
+                                                <video :src="filePreviewUrl" controls class="w-24 h-16 rounded-[10px] object-cover bg-black shrink-0"></video>
+                                            </template>
+                                            <div class="min-w-0">
+                                                <div class="text-[13px] font-bold text-black dark:text-white truncate" x-text="fileName"></div>
+                                                <div class="text-[11.5px] text-black/50 dark:text-white/50 flex items-center gap-2 mt-0.5">
+                                                    <span x-text="fileSize"></span>
+                                                    <span>•</span>
+                                                    <span class="uppercase font-semibold text-[#007AFF]" x-text="mediaFormat"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center gap-1.5 shrink-0">
+                                            <button type="button" @click="$refs.fileInput.click()"
+                                                class="h-8 px-2.5 rounded-[8px] text-[11.5px] font-semibold text-black/70 dark:text-white/70 hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+                                                Ganti
+                                            </button>
+                                            <button type="button" @click="clearFile()"
+                                                class="h-8 w-8 rounded-[8px] text-[#FF3B30] hover:bg-[#FF3B30]/10 transition-colors flex items-center justify-center">
+                                                <i data-lucide="trash-2" class="w-4 h-4"></i>
                                             </button>
                                         </div>
                                     </div>
-                                </template>
+                                </div>
+
+                                {{-- Mode C: Direct URL --}}
+                                <div x-show="mediaSourceTab === 'url'" style="display: none;" class="space-y-1.5">
+                                    <div class="relative">
+                                        <i data-lucide="link" class="w-4 h-4 absolute left-3 top-3 text-black/40 dark:text-white/40"></i>
+                                        <input type="url" name="media_url" x-model="mediaUrl"
+                                            placeholder="https://domain-anda.com/media/promo.mp4"
+                                            class="w-full h-10 pl-9 pr-3 rounded-[12px] text-[13px] bg-black/[0.03] dark:bg-white/[0.05] border border-black/10 dark:border-white/10 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                                    </div>
+                                    <p class="text-[11px] text-black/50 dark:text-white/50">
+                                        Pastikan tautan langsung mengarah ke berkas media publik (HTTPS) yang dapat diunduh oleh server Meta atau TikTok.
+                                    </p>
+                                </div>
+                            </div>
+
+                            {{-- 4. Text Content & STRICT COOCA 5-HASHTAG COUNTER --}}
+                            <div class="space-y-2">
+                                <div class="flex items-center justify-between text-[12.5px] font-bold text-black/80 dark:text-white/80">
+                                    <label>Caption Postingan Utama <span class="text-[#FF3B30]">*</span></label>
+                                    <div class="flex items-center gap-2">
+                                        {{-- COOCA 5 Hashtag Badge --}}
+                                        <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold inline-flex items-center gap-1 border transition-colors"
+                                            :class="hashtagCount <= 5 ? 'bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158] border-[#34C759]/30' : 'bg-[#FF3B30]/15 text-[#FF3B30] border-[#FF3B30]/30'">
+                                            <i data-lucide="hash" class="w-3 h-3"></i>
+                                            <span x-text="'Tagar: ' + hashtagCount + ' / 5'"></span>
+                                        </span>
+                                        <span class="text-[11.5px] text-black/40 dark:text-white/40 tabular-nums font-normal" x-text="captionText.length + ' / 5000'"></span>
+                                    </div>
+                                </div>
+
+                                <textarea name="content" rows="4" required x-model="captionText"
+                                    :placeholder="mediaFormat === 'reels' ? 'Tulis caption menarik dan tagar untuk Reels Anda...' : (mediaFormat === 'video' ? 'Jelaskan materi video promo toko Anda...' : 'Tulis pesan promosi, pengumuman promo, diskon, atau informasi produk...')"
+                                    class="w-full p-3.5 rounded-[14px] text-[13px] bg-black/[0.03] dark:bg-white/[0.05] border border-black/10 dark:border-white/10 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] resize-none"></textarea>
+
+                                {{-- Alert Exceeding 5 Hashtags --}}
+                                <div x-show="hashtagCount > 5" class="p-3 rounded-[12px] bg-[#FF3B30]/10 border border-[#FF3B30]/25 text-[12px] text-[#FF3B30] flex items-start gap-2">
+                                    <i data-lucide="alert-triangle" class="w-4 h-4 shrink-0 mt-0.5"></i>
+                                    <div>
+                                        <strong>Aturan COOCA:</strong> Maksimal 5 hashtag unik per postingan! Saat ini terdeteksi <strong x-text="hashtagCount"></strong> hashtag. Kurangi <span x-text="hashtagCount - 5"></span> hashtag agar dapat dipublikasikan.
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- 5. Collapsible Channel Caption Overrides (Optional) --}}
+                            <div class="p-3.5 rounded-[14px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5 space-y-3">
+                                <button type="button" @click="showOverrides = !showOverrides"
+                                    class="w-full flex items-center justify-between text-left text-[12.5px] font-bold text-black/80 dark:text-white/80">
+                                    <span class="flex items-center gap-1.5">
+                                        <i data-lucide="sliders-horizontal" class="w-4 h-4 text-[#007AFF]"></i>
+                                        <span>Kustomisasi Caption per Saluran (Opsional)</span>
+                                    </span>
+                                    <span class="text-[11px] text-[#007AFF]" x-text="showOverrides ? 'Tutup' : 'Buka Kustomisasi'"></span>
+                                </button>
+
+                                <div x-show="showOverrides" style="display: none;" class="space-y-3 pt-2 border-t border-black/5 dark:border-white/5">
+                                    <p class="text-[11.5px] text-black/50 dark:text-white/50">
+                                        Bila diisi, saluran di bawah ini akan menggunakan teks khusus sebagai pengganti caption utama.
+                                    </p>
+                                    @foreach($accounts as $acc)
+                                        <div class="space-y-1">
+                                            <label class="text-[11.5px] font-semibold text-black/70 dark:text-white/70 capitalize flex items-center gap-1.5">
+                                                <span>Khusus {{ $acc->platform }} ({{ $acc->account_name }}):</span>
+                                            </label>
+                                            <textarea name="custom_captions[{{ $acc->id }}]" rows="2" placeholder="Biarkan kosong untuk menggunakan caption utama..."
+                                                class="w-full p-2.5 rounded-[10px] text-[12px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 text-black dark:text-white focus:outline-none focus:ring-1 focus:ring-[#007AFF] resize-none"></textarea>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+
+                            {{-- 6. Waktu & Penjadwalan Publikasi (Multi-Mode & Per-Channel Support) --}}
+                            <div class="p-3.5 rounded-[14px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5 space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <span class="text-[13px] font-bold text-black dark:text-white">Waktu Publikasi Saluran</span>
+                                        <p class="text-[11.5px] text-black/50 dark:text-white/50">Tentukan kapan konten ini ditayangkan ke masing-masing media sosial</p>
+                                    </div>
+                                    <span class="px-2 py-0.5 rounded-full text-[10.5px] font-semibold bg-[#007AFF]/10 text-[#007AFF]">
+                                        Fleksibel
+                                    </span>
+                                </div>
+
+                                {{-- Mode Selector --}}
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[12px]">
+                                    <label class="p-2.5 rounded-[10px] border cursor-pointer transition-all flex items-center gap-2"
+                                        :class="scheduleMode === 'all_now' ? 'bg-[#007AFF]/10 border-[#007AFF] text-black dark:text-white font-bold shadow-xs' : 'bg-black/[0.02] dark:bg-white/[0.04] border-black/10 dark:border-white/10 text-black/70 dark:text-white/70'">
+                                        <input type="radio" name="schedule_mode" value="all_now" x-model="scheduleMode" class="sr-only">
+                                        <i data-lucide="zap" class="w-3.5 h-3.5 text-[#007AFF]"></i>
+                                        <span>Semua Sekarang</span>
+                                    </label>
+
+                                    <label class="p-2.5 rounded-[10px] border cursor-pointer transition-all flex items-center gap-2"
+                                        :class="scheduleMode === 'all_same' ? 'bg-[#5856D6]/10 border-[#5856D6] text-black dark:text-white font-bold shadow-xs' : 'bg-black/[0.02] dark:bg-white/[0.04] border-black/10 dark:border-white/10 text-black/70 dark:text-white/70'">
+                                        <input type="radio" name="schedule_mode" value="all_same" x-model="scheduleMode" class="sr-only">
+                                        <i data-lucide="clock" class="w-3.5 h-3.5 text-[#5856D6]"></i>
+                                        <span>Jadwal Serentak</span>
+                                    </label>
+
+                                    <label class="p-2.5 rounded-[10px] border cursor-pointer transition-all flex items-center gap-2"
+                                        :class="scheduleMode === 'per_channel' ? 'bg-[#FF9500]/10 border-[#FF9500] text-black dark:text-white font-bold shadow-xs' : 'bg-black/[0.02] dark:bg-white/[0.04] border-black/10 dark:border-white/10 text-black/70 dark:text-white/70'">
+                                        <input type="radio" name="schedule_mode" value="per_channel" x-model="scheduleMode" class="sr-only">
+                                        <i data-lucide="sliders" class="w-3.5 h-3.5 text-[#FF9500]"></i>
+                                        <span>Beda per Saluran</span>
+                                    </label>
+                                </div>
+
+                                {{-- Mode B: Jadwal Serentak (Satu waktu untuk semua saluran) --}}
+                                <div x-show="scheduleMode === 'all_same'" style="display: none;" class="pt-2 border-t border-black/5 dark:border-white/5 space-y-1.5">
+                                    <label class="block text-[11.5px] font-semibold text-black/70 dark:text-white/70">Pilih Tanggal &amp; Jam Penayangan Serentak</label>
+                                    <input type="datetime-local" name="scheduled_at" x-model="globalScheduleTime"
+                                        class="w-full h-9 px-3 rounded-[10px] text-[12.5px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#5856D6]">
+                                    <p class="text-[11px] text-black/50 dark:text-white/50">
+                                        Seluruh saluran terpilih akan otomatis dipublikasikan bersamaan oleh cron scheduler saat waktu tiba.
+                                    </p>
+                                </div>
+
+                                {{-- Mode C: Beda Waktu per Saluran (Bento Card per Akun Terpilih) --}}
+                                <div x-show="scheduleMode === 'per_channel'" style="display: none;" class="pt-2 border-t border-black/5 dark:border-white/5 space-y-2.5">
+                                    <p class="text-[11.5px] text-black/60 dark:text-white/60">
+                                        Tentukan waktu khusus untuk masing-masing saluran (misal: Instagram langsung, Facebook jam 2 siang, TikTok besok):
+                                    </p>
+                                    <div class="space-y-2">
+                                        @foreach($accounts as $acc)
+                                            <div x-show="selectedAccounts.includes('{{ $acc->id }}')"
+                                                class="p-3 rounded-[12px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 space-y-2">
+                                                <div class="flex items-center justify-between">
+                                                    <div class="flex items-center gap-2 min-w-0">
+                                                        <div class="w-6 h-6 rounded-[7px] flex items-center justify-center shrink-0 {{ $acc->platform === 'facebook' ? 'bg-[#1877F2]/15 text-[#1877F2]' : ($acc->platform === 'instagram' ? 'bg-[#E1306C]/15 text-[#E1306C]' : ($acc->platform === 'tiktok' ? 'bg-black/10 dark:bg-white/15 text-black dark:text-white' : ($acc->platform === 'linkedin' ? 'bg-[#0A66C2]/15 text-[#0A66C2]' : 'bg-black/10 text-black dark:text-white'))) }}">
+                                                            @if($acc->platform === 'facebook')
+                                                                <i data-lucide="facebook" class="w-3.5 h-3.5"></i>
+                                                            @elseif($acc->platform === 'instagram')
+                                                                <i data-lucide="instagram" class="w-3.5 h-3.5"></i>
+                                                            @elseif($acc->platform === 'tiktok')
+                                                                <i data-lucide="video" class="w-3.5 h-3.5"></i>
+                                                            @elseif($acc->platform === 'linkedin')
+                                                                <i data-lucide="linkedin" class="w-3.5 h-3.5"></i>
+                                                            @else
+                                                                <i data-lucide="at-sign" class="w-3.5 h-3.5"></i>
+                                                            @endif
+                                                        </div>
+                                                        <span class="text-[12px] font-bold text-black dark:text-white truncate">{{ $acc->account_name }}</span>
+                                                        <span class="text-[10.5px] text-black/50 dark:text-white/50 uppercase font-mono">({{ $acc->platform }})</span>
+                                                    </div>
+                                                    <div class="inline-flex p-0.5 rounded-[8px] bg-black/[0.04] dark:bg-white/[0.06] text-[11px]">
+                                                        <button type="button" @click="channelTiming['{{ $acc->id }}'] = 'now'"
+                                                            :class="channelTiming['{{ $acc->id }}'] === 'now' ? 'bg-white dark:bg-[#1C1C1E] text-[#007AFF] font-bold shadow-xs' : 'text-black/60 dark:text-white/60'"
+                                                            class="px-2 py-0.5 rounded-[6px] transition-colors">
+                                                            Langsung
+                                                        </button>
+                                                        <button type="button" @click="channelTiming['{{ $acc->id }}'] = 'schedule'"
+                                                            :class="channelTiming['{{ $acc->id }}'] === 'schedule' ? 'bg-white dark:bg-[#1C1C1E] text-[#FF9500] font-bold shadow-xs' : 'text-black/60 dark:text-white/60'"
+                                                            class="px-2 py-0.5 rounded-[6px] transition-colors">
+                                                            Jadwalkan
+                                                        </button>
+                                                    </div>
+                                                </div>
+
+                                                <input type="hidden" :name="'channel_schedule_modes[{{ $acc->id }}]'" :value="channelTiming['{{ $acc->id }}']">
+
+                                                <div x-show="channelTiming['{{ $acc->id }}'] === 'schedule'" class="pt-1.5 border-t border-black/5 dark:border-white/5">
+                                                    <input type="datetime-local" :name="'channel_scheduled_at[{{ $acc->id }}]'" x-model="channelScheduledAts['{{ $acc->id }}']"
+                                                        class="w-full h-8 px-2.5 rounded-[8px] text-[12px] bg-black/[0.03] dark:bg-white/[0.05] border border-black/10 dark:border-white/10 text-black dark:text-white focus:outline-none focus:ring-1 focus:ring-[#FF9500]">
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
-                        {{-- Mode B: Single File Upload (Photo, Video, Reels) --}}
-                        <div x-show="mediaFormat !== 'carousel' && mediaSourceTab === 'upload'" class="space-y-2.5">
-                            <input type="file" name="media_file" id="media_file_input" x-ref="fileInput"
-                                @change="handleFileSelect($event)"
-                                :accept="mediaFormat === 'photo' ? 'image/jpeg,image/png,image/webp,image/gif' : 'video/mp4,video/quicktime'"
-                                class="hidden">
+                        {{-- RIGHT COLUMN: DYNAMIC PREVIEW & BENTO GUARDRAILS (Col-span 5) --}}
+                        <div class="lg:col-span-5 space-y-4 lg:sticky lg:top-2">
+                            {{-- A. SECTOR CONTEXTUAL GUARDRAIL (Fase 4.1) --}}
+                            @php
+                                $bizTemplate = strtolower((string) ($business->template_code ?? ''));
+                                $bizCategory = strtolower((string) ($business->industry_category ?? ''));
+                                $bizIndustry = strtolower((string) ($business->industry ?? ''));
 
-                            {{-- Drop Zone when empty --}}
-                            <div x-show="!filePreviewUrl"
-                                @click="$refs.fileInput.click()"
-                                class="rounded-[16px] border-2 border-dashed border-black/15 dark:border-white/15 p-6 text-center cursor-pointer hover:border-[#007AFF] hover:bg-[#007AFF]/5 transition-all group">
-                                <div class="w-12 h-12 rounded-[14px] bg-black/[0.04] dark:bg-white/[0.06] text-black/50 dark:text-white/50 group-hover:text-[#007AFF] group-hover:scale-105 transition-all flex items-center justify-center mx-auto mb-2.5">
-                                    <i data-lucide="upload-cloud" class="w-6 h-6"></i>
+                                $isPharmacy = str_contains($bizTemplate, 'pharmacy') || str_contains($bizTemplate, 'apotek') || str_contains($bizCategory, 'pharmacy') || str_contains($bizIndustry, 'obat') || str_contains($bizIndustry, 'apotek');
+                                $isWorkshop = str_contains($bizTemplate, 'workshop') || str_contains($bizTemplate, 'autodetailing') || str_contains($bizCategory, 'workshop') || str_contains($bizIndustry, 'bengkel') || str_contains($bizIndustry, 'detailing');
+                                $isSalon = str_contains($bizTemplate, 'barbershop') || str_contains($bizTemplate, 'salon') || str_contains($bizTemplate, 'cosmetics') || str_contains($bizCategory, 'salon') || str_contains($bizIndustry, 'barbershop');
+                                $isFnb = str_starts_with($bizTemplate, 'fnb') || $bizCategory === 'fnb' || str_contains($bizIndustry, 'resto') || str_contains($bizIndustry, 'kuliner') || str_contains($bizIndustry, 'cafe');
+                                $isMfgCreative = str_starts_with($bizTemplate, 'mfg') || str_contains($bizTemplate, 'garment') || str_contains($bizTemplate, 'printing') || str_contains($bizTemplate, 'agency') || $bizCategory === 'manufacturing' || $bizCategory === 'creative';
+                            @endphp
+
+                            @if($isPharmacy)
+                                {{-- Apotek / Toko Obat: BPOM & Prescription drugs alert --}}
+                                <div class="p-3.5 rounded-[16px] bg-[#FF3B30]/10 border border-[#FF3B30]/25 text-[#FF3B30] space-y-1.5 shadow-xs">
+                                    <div class="flex items-center gap-2 font-bold text-[12.5px]">
+                                        <i data-lucide="shield-alert" class="w-4 h-4 shrink-0"></i>
+                                        <span>Guardrail BPOM &amp; Iklan Obat Keras</span>
+                                    </div>
+                                    <p class="text-[11.5px] leading-relaxed opacity-90">
+                                        <strong>Perhatian:</strong> Dilarang mempromosikan obat keras (Daftar G / lingkaran merah), obat resep dokter, atau menjanjikan klaim medis instan tanpa izin edar BPOM. Materi promosi yang melanggar dapat dicekal oleh Meta dan berisiko sanksi regulasi.
+                                    </p>
                                 </div>
-                                <div class="text-[13px] font-bold text-black dark:text-white group-hover:text-[#007AFF] transition-colors">
-                                    Pilih Berkas Media
+                            @elseif($isWorkshop)
+                                {{-- Bengkel & Detailing: License plate & Customer privacy --}}
+                                <div class="p-3.5 rounded-[16px] bg-[#FF9500]/10 border border-[#FF9500]/25 text-[#FF9500] space-y-1.5 shadow-xs">
+                                    <div class="flex items-center gap-2 font-bold text-[12.5px]">
+                                        <i data-lucide="shield-alert" class="w-4 h-4 shrink-0"></i>
+                                        <span>Guardrail Privasi Plat Nomor (UU PDP)</span>
+                                    </div>
+                                    <p class="text-[11.5px] leading-relaxed opacity-90">
+                                        <strong>Privasi Pelanggan:</strong> Pastikan plat nomor polisi kendaraan pelanggan dan wajah di area servis disamarkan / blur sebelum materi visual dipublikasikan demi kepatuhan Undang-Undang Perlindungan Data Pribadi (UU PDP).
+                                    </p>
                                 </div>
-                                <p class="text-[11.5px] text-black/50 dark:text-white/50 mt-0.5"
-                                   x-text="mediaFormat === 'photo' ? 'Mendukung JPG, PNG, WEBP hingga 100 MB' : 'Mendukung MP4 atau MOV video hingga 100 MB'">
+                            @elseif($isSalon)
+                                {{-- Salon & Barbershop: Client consent & before-after --}}
+                                <div class="p-3.5 rounded-[16px] bg-[#AF52DE]/10 border border-[#AF52DE]/25 text-[#AF52DE] space-y-1.5 shadow-xs">
+                                    <div class="flex items-center gap-2 font-bold text-[12.5px]">
+                                        <i data-lucide="camera" class="w-4 h-4 shrink-0"></i>
+                                        <span>Guardrail Izin Foto &amp; Before-After</span>
+                                    </div>
+                                    <p class="text-[11.5px] leading-relaxed opacity-90">
+                                        <strong>Persetujuan Pelanggan:</strong> Wajib mengantongi persetujuan lisan/tertulis dari pelanggan sebelum menayangkan foto wajah close-up, potret rambut, atau transformasi treatment (before-after) ke media sosial.
+                                    </p>
+                                </div>
+                            @elseif($isFnb)
+                                {{-- F&B: Golden hours tips --}}
+                                <div class="p-3.5 rounded-[16px] bg-[#34C759]/10 border border-[#34C759]/25 text-[#248A3D] dark:text-[#30D158] space-y-1.5 shadow-xs">
+                                    <div class="flex items-center gap-2 font-bold text-[12.5px]">
+                                        <i data-lucide="clock-8" class="w-4 h-4 shrink-0"></i>
+                                        <span>Waktu Emas Publikasi Kuliner (F&amp;B)</span>
+                                    </div>
+                                    <p class="text-[11.5px] leading-relaxed opacity-90">
+                                        <strong>Tips Konversi:</strong> Waktu optimal posting kuliner adalah <strong>10:30 - 11:30 WIB</strong> (jelang jam makan siang) dan <strong>16:30 - 18:00 WIB</strong> (jelang jam makan malam / santai sore) untuk engagement dan order tertinggi.
+                                    </p>
+                                </div>
+                            @elseif($isMfgCreative)
+                                {{-- Garment, Percetakan, Agency: NDA & Client Copyright --}}
+                                <div class="p-3.5 rounded-[16px] bg-[#007AFF]/10 border border-[#007AFF]/25 text-[#007AFF] space-y-1.5 shadow-xs">
+                                    <div class="flex items-center gap-2 font-bold text-[12.5px]">
+                                        <i data-lucide="file-check-2" class="w-4 h-4 shrink-0"></i>
+                                        <span>Guardrail Hak Cipta &amp; Kerahasiaan Klien</span>
+                                    </div>
+                                    <p class="text-[11.5px] leading-relaxed opacity-90">
+                                        <strong>Hak Cipta Klien:</strong> Pastikan hasil cetak, desain sablon, atau seragam berlogo brand/institusi pelanggan telah mendapat izin untuk dijadikan portofolio publik dan tidak terikat perjanjian kerahasiaan (NDA).
+                                    </p>
+                                </div>
+                            @else
+                                {{-- General UMKM: Business Ethics & Anti-Fraud --}}
+                                <div class="p-3.5 rounded-[16px] bg-black/[0.03] dark:bg-white/[0.04] border border-black/10 dark:border-white/10 text-black/75 dark:text-white/75 space-y-1.5 shadow-xs">
+                                    <div class="flex items-center gap-2 font-bold text-[12.5px]">
+                                        <i data-lucide="shield-check" class="w-4 h-4 text-[#007AFF] shrink-0"></i>
+                                        <span>Etika Publikasi &amp; Anti-Penipuan</span>
+                                    </div>
+                                    <p class="text-[11.5px] leading-relaxed opacity-85">
+                                        Gunakan visual orisinal toko Anda. Hindari menyertakan rekening pribadi tidak resmi di caption agar materi lolos verifikasi sistem keamanan COOCA.
+                                    </p>
+                                </div>
+                            @endif
+
+                            {{-- B. QUIET HOURS ALERT CHIP (Fase 4.2) --}}
+                            <div x-show="isQuietHours" style="display: none;"
+                                class="p-3.5 rounded-[16px] bg-[#FF9500]/10 border border-[#FF9500]/25 text-[#FF9500] space-y-1 shadow-xs transition-all">
+                                <div class="flex items-center gap-2 font-bold text-[12.5px]">
+                                    <i data-lucide="moon" class="w-4 h-4 shrink-0"></i>
+                                    <span>Peringatan Jam Senyap (22:00 - 06:00 WIB)</span>
+                                </div>
+                                <p class="text-[11.5px] leading-relaxed opacity-90">
+                                    Waktu publikasi berada di luar jam aktif audiens. Algoritma feed media sosial cenderung menahan jangkauan postingan yang tayang larut malam. Direkomendasikan menjadwalkan pada jam aktif (08:00 - 21:00 WIB).
                                 </p>
                             </div>
 
-                            {{-- File Preview Card when selected --}}
-                            <div x-show="filePreviewUrl" style="display: none;"
-                                class="rounded-[16px] bg-black/[0.02] dark:bg-white/[0.04] border border-black/10 dark:border-white/10 p-3.5 flex items-center justify-between gap-3">
-                                <div class="flex items-center gap-3 min-w-0">
-                                    <template x-if="fileMime && fileMime.startsWith('image/')">
-                                        <img :src="filePreviewUrl" alt="Pratinjau Foto" class="w-16 h-16 rounded-[10px] object-cover border border-black/10 dark:border-white/10 shrink-0">
-                                    </template>
-                                    <template x-if="fileMime && fileMime.startsWith('video/')">
-                                        <video :src="filePreviewUrl" controls class="w-24 h-16 rounded-[10px] object-cover bg-black shrink-0"></video>
-                                    </template>
-                                    <div class="min-w-0">
-                                        <div class="text-[13px] font-bold text-black dark:text-white truncate" x-text="fileName"></div>
-                                        <div class="text-[11.5px] text-black/50 dark:text-white/50 flex items-center gap-2 mt-0.5">
-                                            <span x-text="fileSize"></span>
-                                            <span>•</span>
-                                            <span class="uppercase font-semibold text-[#007AFF]" x-text="mediaFormat"></span>
-                                        </div>
+                            {{-- C. VIDEO ASPECT RATIO INSPECTOR (Fase 3.3) --}}
+                            <div x-show="(mediaFormat === 'reels' || mediaFormat === 'video') && isLandscapeVideo" style="display: none;"
+                                class="p-3.5 rounded-[16px] bg-[#FF3B30]/10 border border-[#FF3B30]/25 text-[#FF3B30] space-y-1.5 shadow-xs">
+                                <div class="flex items-center gap-2 font-bold text-[12.5px]">
+                                    <i data-lucide="smartphone" class="w-4 h-4 shrink-0"></i>
+                                    <span>Peringatan Rasio Video Landscape (<span x-text="videoRatio ? videoRatio + ':1' : ''"></span>)</span>
+                                </div>
+                                <p class="text-[11.5px] leading-relaxed opacity-90">
+                                    Video yang Anda pilih berorientasi horizontal (<span x-text="videoWidth + 'x' + videoHeight"></span> px). Untuk format <strong>Reels &amp; TikTok</strong>, video vertikal 9:16 (1080x1920) sangat disarankan agar video tidak terpotong (crop) otomatis atau memiliki bilah hitam (letterbox).
+                                </p>
+                            </div>
+
+                            <div x-show="(mediaFormat === 'reels' || mediaFormat === 'video') && !isLandscapeVideo && videoWidth && videoHeight" style="display: none;"
+                                class="p-2.5 rounded-[12px] bg-[#34C759]/10 border border-[#34C759]/25 text-[#248A3D] dark:text-[#30D158] flex items-center gap-2 text-[11.5px] font-semibold">
+                                <i data-lucide="check-circle-2" class="w-4 h-4 shrink-0"></i>
+                                <span>Format Vertikal Terdeteksi: <span x-text="videoWidth + 'x' + videoHeight"></span> px (Optimal untuk Reels &amp; TikTok)</span>
+                            </div>
+
+                            {{-- D. LIVE SMARTPHONE FEED PREVIEW CARD (Apple HIG Style) --}}
+                            <div class="rounded-[20px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/10 dark:border-white/10 p-3.5 space-y-3">
+                                <div class="flex items-center justify-between pb-2 border-b border-black/5 dark:border-white/5">
+                                    <div class="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-black/50 dark:text-white/50">
+                                        <i data-lucide="smartphone" class="w-3.5 h-3.5 text-[#007AFF]"></i>
+                                        <span>Live Feed Preview</span>
+                                    </div>
+                                    <div class="flex items-center gap-1">
+                                        <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#007AFF]/10 text-[#007AFF]" x-text="mediaFormat.toUpperCase()"></span>
                                     </div>
                                 </div>
-                                <div class="flex items-center gap-1.5 shrink-0">
-                                    <button type="button" @click="$refs.fileInput.click()"
-                                        class="h-8 px-2.5 rounded-[8px] text-[11.5px] font-semibold text-black/70 dark:text-white/70 hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
-                                        Ganti
-                                    </button>
-                                    <button type="button" @click="clearFile()"
-                                        class="h-8 w-8 rounded-[8px] text-[#FF3B30] hover:bg-[#FF3B30]/10 transition-colors flex items-center justify-center">
-                                        <i data-lucide="trash-2" class="w-4 h-4"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
 
-                        {{-- Mode C: Direct URL --}}
-                        <div x-show="mediaSourceTab === 'url'" style="display: none;" class="space-y-1.5">
-                            <div class="relative">
-                                <i data-lucide="link" class="w-4 h-4 absolute left-3 top-3 text-black/40 dark:text-white/40"></i>
-                                <input type="url" name="media_url" x-model="mediaUrl"
-                                    placeholder="https://domain-anda.com/media/promo.mp4"
-                                    class="w-full h-10 pl-9 pr-3 rounded-[12px] text-[13px] bg-black/[0.03] dark:bg-white/[0.05] border border-black/10 dark:border-white/10 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
-                            </div>
-                            <p class="text-[11px] text-black/50 dark:text-white/50">
-                                Pastikan tautan langsung mengarah ke berkas media publik (HTTPS) yang dapat diunduh oleh server Meta atau TikTok.
-                            </p>
-                        </div>
-                    </div>
-
-                    {{-- 4. Text Content & STRICT COOCA 5-HASHTAG COUNTER --}}
-                    <div class="space-y-2">
-                        <div class="flex items-center justify-between text-[12.5px] font-bold text-black/80 dark:text-white/80">
-                            <label>Caption Postingan Utama <span class="text-[#FF3B30]">*</span></label>
-                            <div class="flex items-center gap-2">
-                                {{-- COOCA 5 Hashtag Badge --}}
-                                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold inline-flex items-center gap-1 border transition-colors"
-                                    :class="hashtagCount <= 5 ? 'bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158] border-[#34C759]/30' : 'bg-[#FF3B30]/15 text-[#FF3B30] border-[#FF3B30]/30'">
-                                    <i data-lucide="hash" class="w-3 h-3"></i>
-                                    <span x-text="'Tagar: ' + hashtagCount + ' / 5'"></span>
-                                </span>
-                                <span class="text-[11.5px] text-black/40 dark:text-white/40 tabular-nums font-normal" x-text="captionText.length + ' / 5000'"></span>
-                            </div>
-                        </div>
-
-                        <textarea name="content" rows="4" required x-model="captionText"
-                            :placeholder="mediaFormat === 'reels' ? 'Tulis caption menarik dan tagar untuk Reels Anda...' : (mediaFormat === 'video' ? 'Jelaskan materi video promo toko Anda...' : 'Tulis pesan promosi, pengumuman promo, diskon, atau informasi produk...')"
-                            class="w-full p-3 rounded-[12px] text-[13px] bg-black/[0.03] dark:bg-white/[0.05] border border-black/10 dark:border-white/10 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] resize-none"></textarea>
-
-                        {{-- Alert Exceeding 5 Hashtags --}}
-                        <div x-show="hashtagCount > 5" class="p-3 rounded-[12px] bg-[#FF3B30]/10 border border-[#FF3B30]/25 text-[12px] text-[#FF3B30] flex items-start gap-2">
-                            <i data-lucide="alert-triangle" class="w-4 h-4 shrink-0 mt-0.5"></i>
-                            <div>
-                                <strong>Aturan COOCA:</strong> Maksimal 5 hashtag unik per postingan! Saat ini terdeteksi <strong x-text="hashtagCount"></strong> hashtag. Kurangi <span x-text="hashtagCount - 5"></span> hashtag agar dapat dipublikasikan.
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- 5. Collapsible Channel Caption Overrides (Optional) --}}
-                    <div class="p-3.5 rounded-[14px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5 space-y-3">
-                        <button type="button" @click="showOverrides = !showOverrides"
-                            class="w-full flex items-center justify-between text-left text-[12.5px] font-bold text-black/80 dark:text-white/80">
-                            <span class="flex items-center gap-1.5">
-                                <i data-lucide="sliders-horizontal" class="w-4 h-4 text-[#007AFF]"></i>
-                                <span>Kustomisasi Caption per Saluran (Opsional)</span>
-                            </span>
-                            <span class="text-[11px] text-[#007AFF]" x-text="showOverrides ? 'Tutup' : 'Buka Kustomisasi'"></span>
-                        </button>
-
-                        <div x-show="showOverrides" style="display: none;" class="space-y-3 pt-2 border-t border-black/5 dark:border-white/5">
-                            <p class="text-[11.5px] text-black/50 dark:text-white/50">
-                                Bila diisi, saluran di bawah ini akan menggunakan teks khusus sebagai pengganti caption utama.
-                            </p>
-                            @foreach($accounts as $acc)
-                                <div class="space-y-1">
-                                    <label class="text-[11.5px] font-semibold text-black/70 dark:text-white/70 capitalize flex items-center gap-1.5">
-                                        <span>Khusus {{ $acc->platform }} ({{ $acc->account_name }}):</span>
-                                    </label>
-                                    <textarea name="custom_captions[{{ $acc->id }}]" rows="2" placeholder="Biarkan kosong untuk menggunakan caption utama..."
-                                        class="w-full p-2.5 rounded-[10px] text-[12px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 text-black dark:text-white focus:outline-none focus:ring-1 focus:ring-[#007AFF] resize-none"></textarea>
-                                </div>
-                            @endforeach
-                        </div>
-                    </div>
-
-                    {{-- 6. Waktu & Penjadwalan Publikasi (Multi-Mode & Per-Channel Support) --}}
-                    <div class="p-3.5 rounded-[14px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5 space-y-3">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <span class="text-[13px] font-bold text-black dark:text-white">Waktu Publikasi Saluran</span>
-                                <p class="text-[11.5px] text-black/50 dark:text-white/50">Tentukan kapan konten ini ditayangkan ke masing-masing media sosial</p>
-                            </div>
-                            <span class="px-2 py-0.5 rounded-full text-[10.5px] font-semibold bg-[#007AFF]/10 text-[#007AFF]">
-                                Fleksibel
-                            </span>
-                        </div>
-
-                        {{-- Mode Selector --}}
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[12px]">
-                            <label class="p-2.5 rounded-[10px] border cursor-pointer transition-all flex items-center gap-2"
-                                :class="scheduleMode === 'all_now' ? 'bg-[#007AFF]/10 border-[#007AFF] text-black dark:text-white font-bold shadow-xs' : 'bg-black/[0.02] dark:bg-white/[0.04] border-black/10 dark:border-white/10 text-black/70 dark:text-white/70'">
-                                <input type="radio" name="schedule_mode" value="all_now" x-model="scheduleMode" class="sr-only">
-                                <i data-lucide="zap" class="w-3.5 h-3.5 text-[#007AFF]"></i>
-                                <span>Semua Sekarang</span>
-                            </label>
-
-                            <label class="p-2.5 rounded-[10px] border cursor-pointer transition-all flex items-center gap-2"
-                                :class="scheduleMode === 'all_same' ? 'bg-[#5856D6]/10 border-[#5856D6] text-black dark:text-white font-bold shadow-xs' : 'bg-black/[0.02] dark:bg-white/[0.04] border-black/10 dark:border-white/10 text-black/70 dark:text-white/70'">
-                                <input type="radio" name="schedule_mode" value="all_same" x-model="scheduleMode" class="sr-only">
-                                <i data-lucide="clock" class="w-3.5 h-3.5 text-[#5856D6]"></i>
-                                <span>Jadwal Serentak</span>
-                            </label>
-
-                            <label class="p-2.5 rounded-[10px] border cursor-pointer transition-all flex items-center gap-2"
-                                :class="scheduleMode === 'per_channel' ? 'bg-[#FF9500]/10 border-[#FF9500] text-black dark:text-white font-bold shadow-xs' : 'bg-black/[0.02] dark:bg-white/[0.04] border-black/10 dark:border-white/10 text-black/70 dark:text-white/70'">
-                                <input type="radio" name="schedule_mode" value="per_channel" x-model="scheduleMode" class="sr-only">
-                                <i data-lucide="sliders" class="w-3.5 h-3.5 text-[#FF9500]"></i>
-                                <span>Beda per Saluran</span>
-                            </label>
-                        </div>
-
-                        {{-- Mode B: Jadwal Serentak (Satu waktu untuk semua saluran) --}}
-                        <div x-show="scheduleMode === 'all_same'" style="display: none;" class="pt-2 border-t border-black/5 dark:border-white/5 space-y-1.5">
-                            <label class="block text-[11.5px] font-semibold text-black/70 dark:text-white/70">Pilih Tanggal &amp; Jam Penayangan Serentak</label>
-                            <input type="datetime-local" name="scheduled_at" x-model="globalScheduleTime"
-                                class="w-full h-9 px-3 rounded-[10px] text-[12.5px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#5856D6]">
-                            <p class="text-[11px] text-black/50 dark:text-white/50">
-                                Seluruh saluran terpilih akan otomatis dipublikasikan bersamaan oleh cron scheduler saat waktu tiba.
-                            </p>
-                        </div>
-
-                        {{-- Mode C: Beda Waktu per Saluran (Bento Card per Akun Terpilih) --}}
-                        <div x-show="scheduleMode === 'per_channel'" style="display: none;" class="pt-2 border-t border-black/5 dark:border-white/5 space-y-2.5">
-                            <p class="text-[11.5px] text-black/60 dark:text-white/60">
-                                Tentukan waktu khusus untuk masing-masing saluran (misal: Instagram langsung, Facebook jam 2 siang, TikTok besok):
-                            </p>
-                            <div class="space-y-2">
-                                @foreach($accounts as $acc)
-                                    <div x-show="selectedAccounts.includes('{{ $acc->id }}')"
-                                        class="p-3 rounded-[12px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 space-y-2">
-                                        <div class="flex items-center justify-between">
-                                            <div class="flex items-center gap-2 min-w-0">
-                                                <div class="w-6 h-6 rounded-[7px] flex items-center justify-center shrink-0 {{ $acc->platform === 'facebook' ? 'bg-[#1877F2]/15 text-[#1877F2]' : ($acc->platform === 'instagram' ? 'bg-[#E1306C]/15 text-[#E1306C]' : ($acc->platform === 'tiktok' ? 'bg-black/10 dark:bg-white/15 text-black dark:text-white' : ($acc->platform === 'linkedin' ? 'bg-[#0A66C2]/15 text-[#0A66C2]' : 'bg-black/10 text-black dark:text-white'))) }}">
-                                                    @if($acc->platform === 'facebook')
-                                                        <i data-lucide="facebook" class="w-3.5 h-3.5"></i>
-                                                    @elseif($acc->platform === 'instagram')
-                                                        <i data-lucide="instagram" class="w-3.5 h-3.5"></i>
-                                                    @elseif($acc->platform === 'tiktok')
-                                                        <i data-lucide="video" class="w-3.5 h-3.5"></i>
-                                                    @elseif($acc->platform === 'linkedin')
-                                                        <i data-lucide="linkedin" class="w-3.5 h-3.5"></i>
-                                                    @else
-                                                        <i data-lucide="at-sign" class="w-3.5 h-3.5"></i>
-                                                    @endif
+                                {{-- Phone Card Container --}}
+                                <div class="rounded-[18px] bg-white dark:bg-[#151516] border border-black/10 dark:border-white/10 shadow-md overflow-hidden text-black dark:text-white">
+                                    {{-- Post Card Header --}}
+                                    <div class="p-3 flex items-center justify-between">
+                                        <div class="flex items-center gap-2 min-w-0">
+                                            <div class="w-8 h-8 rounded-full bg-[#007AFF] text-white font-bold text-[12px] flex items-center justify-center shrink-0 shadow-xs">
+                                                {{ strtoupper(substr($business->name, 0, 1)) }}
+                                            </div>
+                                            <div class="min-w-0">
+                                                <div class="text-[12.5px] font-bold truncate">{{ $business->name }}</div>
+                                                <div class="text-[10.5px] text-black/50 dark:text-white/50 flex items-center gap-1 truncate">
+                                                    <span x-text="scheduleMode === 'all_now' ? 'Baru saja' : 'Dijadwalkan'"></span>
+                                                    <span>•</span>
+                                                    <span x-text="activePlatformNames.length ? activePlatformNames.join(', ') : 'Pilih Saluran'"></span>
                                                 </div>
-                                                <span class="text-[12px] font-bold text-black dark:text-white truncate">{{ $acc->account_name }}</span>
-                                                <span class="text-[10.5px] text-black/50 dark:text-white/50 uppercase font-mono">({{ $acc->platform }})</span>
-                                            </div>
-                                            <div class="inline-flex p-0.5 rounded-[8px] bg-black/[0.04] dark:bg-white/[0.06] text-[11px]">
-                                                <button type="button" @click="channelTiming['{{ $acc->id }}'] = 'now'"
-                                                    :class="channelTiming['{{ $acc->id }}'] === 'now' ? 'bg-white dark:bg-[#1C1C1E] text-[#007AFF] font-bold shadow-xs' : 'text-black/60 dark:text-white/60'"
-                                                    class="px-2 py-0.5 rounded-[6px] transition-colors">
-                                                    Langsung
-                                                </button>
-                                                <button type="button" @click="channelTiming['{{ $acc->id }}'] = 'schedule'"
-                                                    :class="channelTiming['{{ $acc->id }}'] === 'schedule' ? 'bg-white dark:bg-[#1C1C1E] text-[#FF9500] font-bold shadow-xs' : 'text-black/60 dark:text-white/60'"
-                                                    class="px-2 py-0.5 rounded-[6px] transition-colors">
-                                                    Jadwalkan
-                                                </button>
                                             </div>
                                         </div>
+                                        <i data-lucide="more-horizontal" class="w-4 h-4 text-black/40 dark:text-white/40"></i>
+                                    </div>
 
-                                        <input type="hidden" :name="'channel_schedule_modes[{{ $acc->id }}]'" :value="channelTiming['{{ $acc->id }}']">
+                                    {{-- Post Media Display Area --}}
+                                    <div class="bg-black/5 dark:bg-black/30 relative flex items-center justify-center overflow-hidden"
+                                        :class="mediaFormat === 'reels' ? 'aspect-[9/16] max-h-[380px]' : (mediaFormat === 'text' ? 'min-h-[160px] p-5' : 'aspect-square')">
 
-                                        <div x-show="channelTiming['{{ $acc->id }}'] === 'schedule'" class="pt-1.5 border-t border-black/5 dark:border-white/5">
-                                            <input type="datetime-local" :name="'channel_scheduled_at[{{ $acc->id }}]'" x-model="channelScheduledAts['{{ $acc->id }}']"
-                                                class="w-full h-8 px-2.5 rounded-[8px] text-[12px] bg-black/[0.03] dark:bg-white/[0.05] border border-black/10 dark:border-white/10 text-black dark:text-white focus:outline-none focus:ring-1 focus:ring-[#FF9500]">
+                                        {{-- Photo Preview --}}
+                                        <template x-if="mediaFormat === 'photo'">
+                                            <div class="w-full h-full flex items-center justify-center">
+                                                <template x-if="filePreviewUrl">
+                                                    <img :src="filePreviewUrl" class="w-full h-full object-cover">
+                                                </template>
+                                                <template x-if="!filePreviewUrl && mediaSourceTab === 'url' && mediaUrl">
+                                                    <img :src="mediaUrl" class="w-full h-full object-cover">
+                                                </template>
+                                                <template x-if="!filePreviewUrl && (!mediaUrl || mediaSourceTab !== 'url')">
+                                                    <div class="text-center p-6 space-y-2">
+                                                        <div class="w-12 h-12 rounded-[14px] bg-black/5 dark:bg-white/10 flex items-center justify-center mx-auto text-black/40 dark:text-white/40">
+                                                            <i data-lucide="image" class="w-6 h-6"></i>
+                                                        </div>
+                                                        <div class="text-[11.5px] font-medium text-black/50 dark:text-white/50">Foto feed belum diunggah</div>
+                                                    </div>
+                                                </template>
+                                            </div>
+                                        </template>
+
+                                        {{-- Carousel Preview --}}
+                                        <template x-if="mediaFormat === 'carousel'">
+                                            <div class="w-full h-full relative flex items-center justify-center">
+                                                <template x-if="carouselItems.length > 0">
+                                                    <div class="w-full h-full relative">
+                                                        <template x-if="carouselItems[activePreviewSlide] && carouselItems[activePreviewSlide].mime.startsWith('image/')">
+                                                            <img :src="carouselItems[activePreviewSlide].previewUrl" class="w-full h-full object-cover">
+                                                        </template>
+                                                        <template x-if="carouselItems[activePreviewSlide] && carouselItems[activePreviewSlide].mime.startsWith('video/')">
+                                                            <video :src="carouselItems[activePreviewSlide].previewUrl" class="w-full h-full object-cover" controls></video>
+                                                        </template>
+                                                        {{-- Slide Counter Pill --}}
+                                                        <div class="absolute top-2.5 right-2.5 px-2 py-0.5 rounded-full bg-black/70 backdrop-blur-md text-white text-[10px] font-bold">
+                                                            <span x-text="(activePreviewSlide + 1) + ' / ' + carouselItems.length"></span>
+                                                        </div>
+                                                        {{-- Slide Nav Arrows --}}
+                                                        <div x-show="carouselItems.length > 1" class="absolute inset-x-2 top-1/2 -translate-y-1/2 flex items-center justify-between pointer-events-none">
+                                                            <button type="button" @click="activePreviewSlide = Math.max(0, activePreviewSlide - 1)"
+                                                                :disabled="activePreviewSlide === 0"
+                                                                class="w-7 h-7 rounded-full bg-black/60 text-white flex items-center justify-center pointer-events-auto disabled:opacity-20 transition-opacity">
+                                                                <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                                                            </button>
+                                                            <button type="button" @click="activePreviewSlide = Math.min(carouselItems.length - 1, activePreviewSlide + 1)"
+                                                                :disabled="activePreviewSlide === carouselItems.length - 1"
+                                                                class="w-7 h-7 rounded-full bg-black/60 text-white flex items-center justify-center pointer-events-auto disabled:opacity-20 transition-opacity">
+                                                                <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </template>
+                                                <template x-if="carouselItems.length === 0">
+                                                    <div class="text-center p-6 space-y-2">
+                                                        <div class="w-12 h-12 rounded-[14px] bg-[#FF9500]/10 flex items-center justify-center mx-auto text-[#FF9500]">
+                                                            <i data-lucide="layers" class="w-6 h-6"></i>
+                                                        </div>
+                                                        <div class="text-[11.5px] font-medium text-black/50 dark:text-white/50">Urutan slide carousel (2-10 media)</div>
+                                                    </div>
+                                                </template>
+                                            </div>
+                                        </template>
+
+                                        {{-- Video / Reels Preview --}}
+                                        <template x-if="mediaFormat === 'video' || mediaFormat === 'reels'">
+                                            <div class="w-full h-full flex items-center justify-center">
+                                                <template x-if="filePreviewUrl">
+                                                    <video :src="filePreviewUrl" controls class="w-full h-full object-cover bg-black"></video>
+                                                </template>
+                                                <template x-if="!filePreviewUrl && mediaSourceTab === 'url' && mediaUrl">
+                                                    <video :src="mediaUrl" controls class="w-full h-full object-cover bg-black"></video>
+                                                </template>
+                                                <template x-if="!filePreviewUrl && (!mediaUrl || mediaSourceTab !== 'url')">
+                                                    <div class="text-center p-6 space-y-2">
+                                                        <div class="w-12 h-12 rounded-[14px] bg-black/5 dark:bg-white/10 flex items-center justify-center mx-auto text-black/40 dark:text-white/40">
+                                                            <i data-lucide="play" class="w-6 h-6"></i>
+                                                        </div>
+                                                        <div class="text-[11.5px] font-medium text-black/50 dark:text-white/50" x-text="mediaFormat === 'reels' ? 'Video Reels (9:16 vertikal)' : 'Video promo MP4'"></div>
+                                                    </div>
+                                                </template>
+                                            </div>
+                                        </template>
+
+                                        {{-- Text Status Preview --}}
+                                        <template x-if="mediaFormat === 'text'">
+                                            <div class="w-full h-full flex items-center justify-center text-center p-6 rounded-[14px] bg-gradient-to-tr from-[#007AFF] to-[#5856D6] text-white">
+                                                <p class="text-[14px] font-bold leading-relaxed line-clamp-5" x-text="captionText || 'Tulis pesan promosi Anda di sini...'"></p>
+                                            </div>
+                                        </template>
+                                    </div>
+
+                                    {{-- Post Action Buttons Mockup --}}
+                                    <div class="p-3 border-t border-black/5 dark:border-white/5 space-y-2">
+                                        <div class="flex items-center justify-between text-black/60 dark:text-white/60">
+                                            <div class="flex items-center gap-3">
+                                                <i data-lucide="heart" class="w-4 h-4"></i>
+                                                <i data-lucide="message-circle" class="w-4 h-4"></i>
+                                                <i data-lucide="send" class="w-4 h-4"></i>
+                                            </div>
+                                            <i data-lucide="bookmark" class="w-4 h-4"></i>
+                                        </div>
+
+                                        {{-- Caption Preview --}}
+                                        <div class="space-y-1 text-[12px] leading-relaxed">
+                                            <div class="font-bold inline mr-1">{{ $business->name }}</div>
+                                            <span class="text-black/80 dark:text-white/80 whitespace-pre-line" x-text="captionText ? (captionText.length > 180 ? captionText.slice(0, 180) + '...' : captionText) : 'Belum ada caption ditulis...'"></span>
+                                        </div>
+
+                                        {{-- Detected Hashtags Chips --}}
+                                        <div x-show="uniqueHashtags.length > 0" class="flex flex-wrap gap-1 pt-1">
+                                            <template x-for="tag in uniqueHashtags" :key="tag">
+                                                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#007AFF]/10 text-[#007AFF]" x-text="tag"></span>
+                                            </template>
                                         </div>
                                     </div>
-                                @endforeach
+                                </div>
                             </div>
+
                         </div>
                     </div>
 
                     {{-- Modal Footer --}}
-                    <div class="pt-3 flex items-center justify-end gap-2 border-t border-black/5 dark:border-white/10">
+                    <div class="pt-4 flex items-center justify-end gap-2.5 border-t border-black/5 dark:border-white/10">
                         <button type="button" @click="openComposerModal = false"
                             class="h-9 px-4 rounded-[10px] text-[13px] font-semibold text-black/70 dark:text-white/70 hover:bg-black/[0.05] dark:hover:bg-white/[0.08] transition-colors">
                             Batal
@@ -916,6 +1239,11 @@
                 fileSize: '',
                 fileMime: '',
                 carouselItems: [],
+                activePreviewSlide: 0,
+                videoWidth: null,
+                videoHeight: null,
+                videoRatio: null,
+                isLandscapeVideo: false,
                 isSubmitting: false,
 
                 get uniqueHashtags() {
@@ -927,6 +1255,34 @@
 
                 get hashtagCount() {
                     return this.uniqueHashtags.length;
+                },
+
+                get isQuietHours() {
+                    let hour = null;
+                    if (this.scheduleMode === 'all_same' && this.globalScheduleTime) {
+                        hour = new Date(this.globalScheduleTime).getHours();
+                    } else if (this.scheduleMode === 'all_now') {
+                        hour = new Date().getHours();
+                    } else if (this.scheduleMode === 'per_channel') {
+                        for (const accId of this.selectedAccounts) {
+                            if (this.channelTiming[accId] === 'schedule' && this.channelScheduledAts[accId]) {
+                                const h = new Date(this.channelScheduledAts[accId]).getHours();
+                                if (h >= 22 || h < 6) return true;
+                            }
+                        }
+                        return false;
+                    }
+                    return hour !== null && (hour >= 22 || hour < 6);
+                },
+
+                get activePlatformNames() {
+                    const names = [];
+                    @foreach($accounts as $acc)
+                        if (this.selectedAccounts.includes('{{ $acc->id }}')) {
+                            names.push('{{ ucfirst($acc->platform) }}');
+                        }
+                    @endforeach
+                    return names;
                 },
 
                 toggleSelectAll() {
@@ -962,6 +1318,26 @@
                         URL.revokeObjectURL(this.filePreviewUrl);
                     }
                     this.filePreviewUrl = URL.createObjectURL(file);
+
+                    // Reset video inspection metadata
+                    this.videoWidth = null;
+                    this.videoHeight = null;
+                    this.videoRatio = null;
+                    this.isLandscapeVideo = false;
+
+                    if (file.type.startsWith('video/')) {
+                        const vid = document.createElement('video');
+                        vid.preload = 'metadata';
+                        vid.src = this.filePreviewUrl;
+                        vid.onloadedmetadata = () => {
+                            this.videoWidth = vid.videoWidth;
+                            this.videoHeight = vid.videoHeight;
+                            if (vid.videoHeight > 0) {
+                                this.videoRatio = (vid.videoWidth / vid.videoHeight).toFixed(2);
+                                this.isLandscapeVideo = vid.videoWidth > vid.videoHeight;
+                            }
+                        };
+                    }
 
                     // Auto-sync format if user chose video while in photo mode
                     if (file.type.startsWith('video/') && this.mediaFormat === 'photo') {
@@ -1008,6 +1384,9 @@
                         URL.revokeObjectURL(item.previewUrl);
                     }
                     this.carouselItems.splice(index, 1);
+                    if (this.activePreviewSlide >= this.carouselItems.length) {
+                        this.activePreviewSlide = Math.max(0, this.carouselItems.length - 1);
+                    }
                 },
 
                 clearFile() {
@@ -1018,6 +1397,10 @@
                     this.fileName = '';
                     this.fileSize = '';
                     this.fileMime = '';
+                    this.videoWidth = null;
+                    this.videoHeight = null;
+                    this.videoRatio = null;
+                    this.isLandscapeVideo = false;
                     if (this.$refs.fileInput) {
                         this.$refs.fileInput.value = '';
                     }

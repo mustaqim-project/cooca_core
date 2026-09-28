@@ -76,7 +76,7 @@
 
             @if (\App\Support\Context::hasPermission('whatsapp.manage'))
                 <div class="flex items-center gap-2">
-                    <a href="{{ route('whatsapp.broadcast.create') }}"
+                    <a href="{{ route('whatsapp.broadcast.index', ['open_composer' => 1]) }}"
                         class="min-h-[44px] px-4 rounded-[12px] bg-[#007AFF] hover:bg-[#0071E3] text-white font-bold text-[13px] shadow-md shadow-[#007AFF]/25 flex items-center gap-2 transition-all active:scale-[0.98]">
                         <i data-lucide="plus" class="w-4 h-4"></i>
                         <span>Buat Blast Baru</span>
@@ -237,13 +237,24 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-black/[0.04] dark:divide-white/[0.06]">
+                            @php
+                                $isOwner = \App\Support\Context::isOwner();
+                            @endphp
                             @foreach ($recipients as $item)
+                                @php
+                                    $rawPhone = (string) $item->phone_number;
+                                    $len = strlen($rawPhone);
+                                    $maskedPhone = $len <= 7
+                                        ? substr($rawPhone, 0, 2) . '••••' . substr($rawPhone, -2)
+                                        : substr($rawPhone, 0, 4) . '••••' . substr($rawPhone, -4);
+                                    $displayPhone = $isOwner ? $rawPhone : $maskedPhone;
+                                @endphp
                                 <tr class="hover:bg-black/[0.02] dark:hover:bg-white/[0.03] transition-colors">
                                     <td class="px-5 py-3.5 font-bold text-black dark:text-white">
                                         {{ $item->customer_name ?? ($item->customer?->name ?? 'Pelanggan') }}
                                     </td>
                                     <td class="px-4 py-3.5 font-medium tabular-nums text-black/70 dark:text-white/70">
-                                        {{ $item->phone_number }}
+                                        <span class="font-mono text-[13px]">{{ $displayPhone }}</span>
                                     </td>
                                     <td class="px-4 py-3.5 text-center">
                                         @if ($item->status === 'sent')

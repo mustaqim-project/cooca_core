@@ -297,14 +297,18 @@ class ShopeeAdapter implements MarketplaceAdapterInterface
 
     public function handleWebhook(Request $request, string $rawBody, array $headers): array
     {
-        $authorization = $headers['authorization'][0] ?? ($headers['authorization'] ?? '');
-        $signHeader    = $headers['x-shopee-sign'][0] ?? ($headers['x-shopee-sign'] ?? '');
+        $signHeader = $headers['x-shopee-sign'][0] 
+            ?? ($headers['x-shopee-sign'] 
+            ?? ($headers['authorization'][0] 
+            ?? ($headers['authorization'] ?? '')));
         
         $payload = json_decode($rawBody, true) ?: [];
 
-        // Shopee Webhook signature check
-        $calcSign = hash_hmac('sha256', $request->fullUrl() . '|' . $rawBody, $this->partnerKey);
-        $isValid  = hash_equals($calcSign, (string) $signHeader) || ! empty($payload['code']);
+        // Shopee Webhook signature check: HMAC-SHA256 of url|rawBody signed with partnerKey
+        $calcSign = ! empty($this->partnerKey) 
+            ? hash_hmac('sha256', $request->fullUrl() . '|' . $rawBody, $this->partnerKey) 
+            : '';
+        $isValid  = ! empty($signHeader) && ! empty($this->partnerKey) && hash_equals($calcSign, (string) $signHeader);
 
         return [
             'event'    => (string) ($payload['code'] ?? 'order.status_update'),

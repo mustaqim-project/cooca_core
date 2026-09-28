@@ -40,6 +40,7 @@ class SocialMediaPost extends Model
 
     protected $fillable = [
         'business_id',
+        'user_id',
         'admin_id',
         'is_platform',
         'social_media_account_id',
@@ -50,6 +51,11 @@ class SocialMediaPost extends Model
         'media_urls',
         'local_media_paths',
         'status',
+        'approval_status',
+        'reviewed_by',
+        'reviewed_at',
+        'rejection_reason',
+        'risk_flags',
         'error_message',
         'metrics',
         'scheduled_at',
@@ -66,14 +72,26 @@ class SocialMediaPost extends Model
             'media_urls'        => 'array',
             'local_media_paths' => 'array',
             'metrics'           => 'array',
+            'risk_flags'        => 'array',
             'scheduled_at'      => 'datetime',
             'published_at'      => 'datetime',
+            'reviewed_at'       => 'datetime',
         ];
     }
 
     public function business(): BelongsTo
     {
         return $this->belongsTo(Business::class, 'business_id');
+    }
+
+    public function author(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function reviewer(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'reviewed_by');
     }
 
     public function admin(): BelongsTo
@@ -137,6 +155,21 @@ class SocialMediaPost extends Model
         return false;
     }
 
+    public function isPendingReview(): bool
+    {
+        return $this->approval_status === 'pending_review' || $this->status === 'pending_review';
+    }
+
+    public function isApproved(): bool
+    {
+        return $this->approval_status === 'approved';
+    }
+
+    public function isRejected(): bool
+    {
+        return $this->approval_status === 'rejected' || $this->status === 'rejected';
+    }
+
     public function canRetry(): bool
     {
         return in_array($this->status, ['failed', 'partially_failed'], true)
@@ -153,18 +186,28 @@ class SocialMediaPost extends Model
      */
     public function syncStatusFromTargets(): void
     {
+        if ($this->approval_status === 'pending_review' || $this->status === 'pending_review') {
+            $this->update(['status' => 'pending_review']);
+            return;
+        }
+
         $targets = $this->targets()->get();
         if ($targets->isEmpty()) {
             return;
         }
 
         $total = $targets->count();
+        $pendingReviewCount = $targets->where('status', 'pending_review')->count();
         $publishedCount = $targets->where('status', 'published')->count();
         $failedCount = $targets->where('status', 'failed')->count();
         $scheduledCount = $targets->where('status', 'scheduled')->count();
         $processingCount = $targets->whereIn('status', ['pending', 'processing'])->count();
 
-        if ($publishedCount === $total) {
+        if ($pendingReviewCount === $total) {
+            $this->update([
+                'status' => 'pending_review',
+            ]);
+        } elseif ($publishedCount === $total) {
             $this->update([
                 'status'       => 'published',
                 'published_at' => $this->published_at ?? now(),

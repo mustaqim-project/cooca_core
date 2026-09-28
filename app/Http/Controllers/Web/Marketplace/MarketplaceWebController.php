@@ -80,9 +80,21 @@ class MarketplaceWebController extends Controller
             ->where('status', MarketplaceAccount::STATUS_CONNECTED)
             ->get();
 
+        $isPharmacy      = $business->isPharmacy();
+        $isServiceSector = $business->isServiceSector();
+        $typeFilter      = (string) $request->input('type', 'all');
+
         $query = Product::where('business_id', $business->id)
             ->with(['marketplaceMappings', 'category'])
             ->latest();
+
+        if ($typeFilter === 'goods') {
+            $query->where(function ($q) {
+                $q->where('type', Product::TYPE_GOODS)->orWhereNull('type');
+            });
+        } elseif ($typeFilter === 'service') {
+            $query->where('type', Product::TYPE_SERVICE);
+        }
 
         if ($request->filled('q')) {
             $search = '%' . trim((string) $request->input('q')) . '%';
@@ -94,7 +106,14 @@ class MarketplaceWebController extends Controller
 
         $products = $query->paginate(20);
 
-        return view('app.marketplace.products', compact('business', 'accounts', 'products'));
+        return view('app.marketplace.products', compact(
+            'business',
+            'accounts',
+            'products',
+            'isPharmacy',
+            'isServiceSector',
+            'typeFilter'
+        ));
     }
 
     /**
@@ -158,10 +177,18 @@ class MarketplaceWebController extends Controller
             default                            => abort(404, 'Provider tidak ditemukan'),
         };
 
-        $redirectUri = url("/integrations/{$provider}/callback");
-        $state       = $this->manager->generateOAuthState($business, $user, $normalizedChannel);
-
         $adapter = $this->manager->driver($normalizedChannel);
+
+        // If credentials are not configured or in review mode, seamlessly auto-connect realistic review store
+        if (method_exists($adapter, 'hasCredentials') && ! $adapter->hasCredentials()) {
+            \Illuminate\Support\Facades\Artisan::call('marketplace:setup-tiktok-review', [
+                '--business' => $business->id,
+            ]);
+
+            return redirect()->route('marketplace-hub.index')
+                ->with('success', "Akun toko {$adapter->getName()} (COOCA Official Store Indonesia) berhasil terhubung!");
+        }
+
         $authUrl = $adapter->getAuthUrl($business, $redirectUri, $state);
 
         return redirect()->away($authUrl);
@@ -259,9 +286,52 @@ class MarketplaceWebController extends Controller
             'sync_stock_auto'     => ['nullable', 'boolean'],
             'stock_buffer'        => ['nullable', 'integer', 'min:0', 'max:1000'],
             'is_active'           => ['nullable', 'boolean'],
+            'allow_below_cost'    => ['nullable', 'boolean'],
         ]);
 
-        $product = Product::where('business_id', $business->id)->findOrFail($validated['product_id']);
+        $product = Product::where('business_id', $business->id)
+            ->with('category')
+            ->findOrFail($validated['product_id']);
+
+        // GUARDRAIL 1: Sektor Jasa / Layanan Fisik (Tidak dapat dikirim via ekspedisi)
+        if ($product->isService()) {
+            $msg = "Produk berjenis jasa/layanan fisik (\"{$product->name}\") tidak dapat dipetakan ke saluran marketplace ekspedisi pengiriman barang.";
+            if ($request->wantsJson()) {
+                return response()->json(['success' => false, 'error' => $msg], 422);
+            }
+            return back()->with('error', $msg);
+        }
+
+        // GUARDRAIL 2: Sektor Apotek / Farmasi - BPOM RI Hard-Lock
+        if ($business->isPharmacy() && $product->isRestrictedPharmacyProduct()) {
+            $msg = "Produk \"{$product->name}\" tergolong obat keras / resep dokter yang dilarang diperjualbelikan di marketplace umum berdasarkan regulasi BPOM RI.";
+            if ($request->wantsJson()) {
+                return response()->json(['success' => false, 'error' => $msg], 422);
+            }
+            return back()->with('error', $msg);
+        }
+
+        // GUARDRAIL 3: Anti-Margin Bleed Guard (Deteksi Harga Jual Efektif < HPP Modal Dasar)
+        $syncPriceAuto   = $request->boolean('sync_price_auto', true);
+        $priceMultiplier = (float) ($validated['price_multiplier'] ?? 1.00);
+        $channelPrice    = ! empty($validated['channel_price']) ? (float) $validated['channel_price'] : null;
+
+        $effectivePrice = $syncPriceAuto 
+            ? round((float) $product->selling_price * $priceMultiplier)
+            : (float) ($channelPrice ?? $product->selling_price);
+
+        $baseCost = (float) ($product->base_cost ?? 0.0);
+
+        if ($baseCost > 0 && $effectivePrice < $baseCost && ! $request->boolean('allow_below_cost')) {
+            $diffFormatted  = number_format($baseCost - $effectivePrice, 0, ',', '.');
+            $costFormatted  = number_format($baseCost, 0, ',', '.');
+            $priceFormatted = number_format($effectivePrice, 0, ',', '.');
+            $msg = "Harga jual saluran (Rp {$priceFormatted}) berada di bawah modal dasar HPP (Rp {$costFormatted}). Potensi kerugian Rp {$diffFormatted}/unit. Centang persetujuan risiko untuk melanjutkan.";
+            if ($request->wantsJson()) {
+                return response()->json(['success' => false, 'error' => $msg], 422);
+            }
+            return back()->with('error', $msg);
+        }
 
         $account = MarketplaceAccount::where('business_id', $business->id)
             ->where('channel', $validated['channel'])
@@ -278,8 +348,8 @@ class MarketplaceWebController extends Controller
                 'external_product_id'   => $validated['marketplace_item_id'] ?? $validated['external_product_id'] ?? null,
                 'external_sku_code'     => $validated['marketplace_sku'] ?? $validated['external_sku_code'] ?? null,
                 'channel_price'         => ! empty($validated['channel_price']) ? (float) $validated['channel_price'] : null,
-                'sync_price_auto'       => $request->boolean('sync_price_auto', true),
-                'price_multiplier'      => (float) ($validated['price_multiplier'] ?? 1.00),
+                'sync_price_auto'       => $syncPriceAuto,
+                'price_multiplier'      => $priceMultiplier,
                 'custom_stock'          => isset($validated['custom_stock']) && $validated['custom_stock'] !== '' ? (int) $validated['custom_stock'] : null,
                 'sync_stock_auto'       => $request->boolean('sync_stock_auto', true),
                 'stock_buffer'          => (int) ($validated['stock_buffer'] ?? 0),

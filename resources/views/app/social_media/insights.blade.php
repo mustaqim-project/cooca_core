@@ -266,12 +266,19 @@
                             if (document.getElementById(`metric-shares-${postId}`)) {
                                 document.getElementById(`metric-shares-${postId}`).textContent = (m.shares || 0).toLocaleString();
                             }
-                            alert('Metrik live berhasil diperbarui.');
+                            if (window.AppAlert) {
+                                AppAlert.success('Metrik live berhasil diperbarui.');
+                            }
                         } else {
-                            alert(data.error || 'Gagal memperbarui metrik.');
+                            const errorMsg = data.error || 'Gagal memperbarui metrik.';
+                            if (window.AppAlert) {
+                                AppAlert.error(errorMsg);
+                            }
                         }
                     } catch (e) {
-                        alert('Terjadi kesalahan saat menyinkronkan data.');
+                        if (window.AppAlert) {
+                            AppAlert.error('Terjadi kesalahan saat menyinkronkan data.');
+                        }
                     } finally {
                         if (icon) icon.classList.remove('animate-spin');
                     }

@@ -178,6 +178,57 @@ class BranchProductPricingTest extends TestCase
         ]);
     }
 
+    public function test_can_set_product_availability_without_custom_price(): void
+    {
+        BusinessSubscription::create([
+            'business_id' => $this->business->id,
+            'plan_code' => BusinessSubscription::PLAN_PREMIUM_MONTHLY,
+            'status' => BusinessSubscription::STATUS_ACTIVE,
+            'starts_at' => now()->subDay(),
+            'ends_at' => now()->addDays(30),
+        ]);
+
+        // 1. Disable product at Outlet 2 (Senayan/Rest Area) without setting custom price
+        $response = $this->actingAs($this->owner)
+            ->postJson(route('products.branch_prices.update', $this->product->id), [
+                'prices' => [
+                    [
+                        'location_id' => $this->outlet2->id,
+                        'is_available' => false,
+                        'price' => null,
+                        'cost_price' => null,
+                    ],
+                ],
+            ]);
+
+        $response->assertOk()
+            ->assertJsonPath('success', true);
+
+        // Verify record exists with is_available = false and null price
+        $this->assertDatabaseHas('branch_product_prices', [
+            'business_id' => $this->business->id,
+            'product_id' => $this->product->id,
+            'location_id' => $this->outlet2->id,
+            'is_available' => false,
+            'price' => null,
+        ]);
+
+        // 2. Fetch via GET and verify metadata
+        $getResponse = $this->actingAs($this->owner)
+            ->getJson(route('products.branch_prices.index', $this->product->id));
+
+        $getResponse->assertOk();
+        $branches = collect($getResponse->json('branches'));
+        $senayanBranch = $branches->firstWhere('location_id', $this->outlet2->id);
+
+        $this->assertNotNull($senayanBranch);
+        $this->assertFalse($senayanBranch['is_available']);
+        $this->assertTrue($senayanBranch['has_override']);
+        $this->assertFalse($senayanBranch['has_price_override']);
+        // Price should still fallback to master price for display
+        $this->assertEquals((float) $this->product->selling_price, (float) $senayanBranch['price']);
+    }
+
     public function test_tenant_isolation_prevents_access_to_other_business_products(): void
     {
         BusinessSubscription::create([

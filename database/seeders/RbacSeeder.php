@@ -106,6 +106,14 @@ final class RbacSeeder extends Seeder
             'whatsapp.view'               => ['Lihat WhatsApp Gateway',                 'whatsapp',    'Melihat status koneksi QR code dan riwayat log pengiriman pesan struk.'],
             'whatsapp.manage'             => ['Kelola WhatsApp & Broadcast',            'whatsapp',    'Menghubungkan nomor WhatsApp, konfigurasi gateway, dan kirim blast promo.'],
 
+            // ─── Social Media Omnichannel ─────────────────────────────
+            'social_media.view'           => ['Lihat Media Sosial',                     'social_media', 'Melihat akun terhubung, jadwal postingan, kotak masuk, dan performa wawasan media sosial.'],
+            'social_media.manage'         => ['Kelola Media Sosial & Publikasi',         'social_media', 'Menghubungkan/memutuskan akun, membuat & menjadwalkan postingan, serta membalas komentar.'],
+
+            // ─── Marketplace Hub (PRD-13) ─────────────────────────────
+            'marketplace.view'            => ['Lihat Marketplace Hub',                  'marketplace', 'Melihat status toko terhubung, katalog terpetakan, pesanan, dan log sinkronisasi.'],
+            'marketplace.manage'          => ['Kelola Marketplace Hub',                 'marketplace', 'Menghubungkan/memutuskan toko, pemetaan multi-harga/stok, dan sinkronisasi.'],
+
             // ─── Landing Page & Storefront CMS ────────────────────────
             'cms.manage'                  => ['Kelola Landing Page CMS',                'cms',         'Mengatur website mini publik bisnis, katalog unggulan, banner, dan kontak.'],
             'storefront.popup.manage'     => ['Kelola Pop Up Toko Online',              'cms',         'Mengatur promo pop up, banner pengumuman modal, frekuensi tampil, dan tombol aksi di storefront publik.'],
@@ -229,6 +237,10 @@ final class RbacSeeder extends Seeder
             'audit_logs.view',
             'whatsapp.view',
             'whatsapp.manage',
+            'social_media.view',
+            'social_media.manage',
+            'marketplace.view',
+            'marketplace.manage',
             'cms.manage',
             'storefront.popup.manage',
             'reports.view',
