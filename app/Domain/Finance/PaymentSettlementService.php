@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Finance;
 
 use App\Domain\Accounting\AutoJournalService;
+use App\Domain\WhatsApp\WhatsAppService;
 use App\Models\Business;
 use App\Models\CashTransaction;
 use App\Models\ChartOfAccount;
@@ -12,12 +13,15 @@ use App\Models\CommerceOrder;
 use App\Models\InvoicePayment;
 use App\Models\JournalEntry;
 use App\Models\JournalEntryLine;
+use App\Models\MerchantPayoutBankAccount;
 use App\Models\PaymentSettlement;
 use App\Models\PaymentSettlementAllocation;
 use App\Models\PosOrder;
 use App\Models\PosOrderPayment;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use InvalidArgumentException;
 
 final class PaymentSettlementService
@@ -132,8 +136,150 @@ final class PaymentSettlementService
                 'admin_notes'      => $adminNotes ?? $settlement->admin_notes,
             ]);
 
-            return $settlement->fresh(['allocations', 'admin', 'reconciler']);
+            // Send WhatsApp notification to business owner
+            $this->notifyOwnerPayoutCompleted($settlement);
+
+            return $settlement->fresh(['allocations', 'admin', 'reconciler', 'payoutBankAccount']);
         });
+    }
+
+    /**
+     * Create a payout request linked to a verified MerchantPayoutBankAccount.
+     * This replaces the free-text destination_bank with a strict verified bank account.
+     */
+    public function requestPayoutWithVerifiedBank(
+        Business $business,
+        MerchantPayoutBankAccount $bankAccount,
+        array $allocations,
+        ?string $userId = null,
+        string $payoutMode = PaymentSettlement::PAYOUT_MODE_MANUAL,
+        ?string $notes = null
+    ): PaymentSettlement {
+        if (! $bankAccount->is_verified) {
+            throw new InvalidArgumentException('Rekening penarikan belum terverifikasi. Silakan verifikasi terlebih dahulu.');
+        }
+
+        if ($bankAccount->business_id !== $business->id) {
+            throw new InvalidArgumentException('Rekening penarikan tidak milik bisnis ini.');
+        }
+
+        $grossAmount = 0.0;
+        $feeAmount = 0.0;
+        foreach ($allocations as $alloc) {
+            $grossAmount += round((float) ($alloc['amount'] ?? 0), 2);
+        }
+
+        // Estimate fee from unsettled data
+        $unsettled = $this->getUnsettledPayments($business);
+        $unsettledMap = collect($unsettled['items'])->keyBy(fn ($i) => $i['payment_type'] . '-' . $i['payment_id']);
+        foreach ($allocations as $alloc) {
+            $key = ($alloc['payment_type'] ?? '') . '-' . ($alloc['payment_id'] ?? '');
+            $item = $unsettledMap->get($key);
+            if ($item) {
+                $feeAmount += (float) ($item['fee_amount'] ?? 0);
+            }
+        }
+
+        $netAmount = max(0.0, $grossAmount - $feeAmount);
+        $destinationDisplay = "{$bankAccount->bank_name} - {$bankAccount->account_number} (a.n {$bankAccount->account_holder_name})";
+
+        $scheduledAt = null;
+        if ($payoutMode === PaymentSettlement::PAYOUT_MODE_AUTO_H1) {
+            // Schedule for tomorrow 09:00 WIB
+            $scheduledAt = Carbon::tomorrow('Asia/Jakarta')->setHour(9)->setMinute(0)->setSecond(0)->utc();
+        }
+
+        $settlementNumber = 'SETTLE-' . Carbon::today()->format('Ymd') . '-' . strtoupper(Str::random(5));
+
+        $data = [
+            'settlement_number' => $settlementNumber,
+            'settlement_date'   => Carbon::today()->toDateString(),
+            'payment_channel'   => 'cooca_pay',
+            'gross_amount'      => $grossAmount,
+            'fee_amount'        => $feeAmount,
+            'net_amount'        => $netAmount,
+            'destination_bank'  => $destinationDisplay,
+            'notes'             => $notes ?? 'Pencairan saldo Cooca Pay ke rekening terverifikasi',
+        ];
+
+        $settlement = $this->reconcile(
+            business: $business,
+            data: $data,
+            allocations: $allocations,
+            userId: $userId,
+            immediateComplete: false
+        );
+
+        // Link payout bank account and mode
+        $settlement->update([
+            'payout_bank_account_id' => $bankAccount->id,
+            'payout_mode'            => $payoutMode,
+            'scheduled_payout_at'    => $scheduledAt,
+        ]);
+
+        return $settlement->fresh(['allocations', 'payoutBankAccount']);
+    }
+
+    /**
+     * Schedule auto-payout H+1 for all unsettled payments of a business.
+     * Called by cron job or manual trigger.
+     */
+    public function scheduleAutoPayout(Business $business): ?PaymentSettlement
+    {
+        $primaryBank = MerchantPayoutBankAccount::where('business_id', $business->id)
+            ->where('is_verified', true)
+            ->where('is_primary', true)
+            ->first();
+
+        if (! $primaryBank) {
+            Log::info("Auto-payout skipped for business {$business->id}: no verified primary bank account.");
+            return null;
+        }
+
+        $unsettled = $this->getUnsettledPayments($business);
+        if ($unsettled['summary']['count'] === 0) {
+            return null;
+        }
+
+        $allocations = collect($unsettled['items'])->map(fn ($item) => [
+            'payment_type' => $item['payment_type'],
+            'payment_id'   => $item['payment_id'],
+            'amount'       => $item['gross_amount'],
+        ])->all();
+
+        $ownerId = $business->users()->wherePivot('role', 'owner')->first()?->id;
+
+        return $this->requestPayoutWithVerifiedBank(
+            business: $business,
+            bankAccount: $primaryBank,
+            allocations: $allocations,
+            userId: $ownerId,
+            payoutMode: PaymentSettlement::PAYOUT_MODE_AUTO_H1,
+            notes: 'Auto-Payout H+1 terjadwal (09:00 WIB)'
+        );
+    }
+
+    /**
+     * Process all due auto-payout settlements across all businesses.
+     * Called by Laravel scheduler (daily at 09:00 WIB).
+     */
+    public static function processAutoPayoutQueue(): int
+    {
+        $dueSettlements = PaymentSettlement::autoPayoutQueue()->with('business')->get();
+        $processedCount = 0;
+
+        foreach ($dueSettlements as $settlement) {
+            try {
+                // Auto-payouts are just submitted — they still need Admin approval
+                // Mark them as ready-for-admin-review by keeping status pending
+                Log::info("Auto-payout settlement #{$settlement->settlement_number} is due and awaiting admin approval.");
+                $processedCount++;
+            } catch (\Throwable $e) {
+                Log::error("Auto-payout processing failed for #{$settlement->settlement_number}: {$e->getMessage()}");
+            }
+        }
+
+        return $processedCount;
     }
 
     /**
@@ -255,5 +401,42 @@ final class PaymentSettlementService
                 'total_net' => $totalNet,
             ],
         ];
+    }
+
+    /**
+     * Send WhatsApp notification to business owner when payout is completed.
+     */
+    private function notifyOwnerPayoutCompleted(PaymentSettlement $settlement): void
+    {
+        try {
+            $business = $settlement->business ?? Business::find($settlement->business_id);
+            if (! $business) return;
+
+            $owner = $business->users()->wherePivot('role', 'owner')->first();
+            $phone = $owner?->phone ?? $owner?->whatsapp_number;
+            if (! $phone) {
+                Log::info("Payout WA notification skipped for settlement #{$settlement->settlement_number}: owner has no phone.");
+                return;
+            }
+
+            $netFormatted = 'Rp ' . number_format($settlement->net_amount, 0, ',', '.');
+            $destination = $settlement->destination_bank ?? 'Rekening Terdaftar';
+            $transferredAt = $settlement->transferred_at ? $settlement->transferred_at->setTimezone('Asia/Jakarta')->format('d M Y H:i') . ' WIB' : now()->format('d M Y H:i') . ' WIB';
+
+            $message = "✅ *Pencairan Dana Berhasil!*\n\n"
+                . "Halo *{$owner->name}*,\n\n"
+                . "Dana dari *{$business->name}* telah berhasil ditransfer ke rekening Anda:\n\n"
+                . "• No. Settlement: *#{$settlement->settlement_number}*\n"
+                . "• Nominal Cair: *{$netFormatted}*\n"
+                . "• Rekening Tujuan: *{$destination}*\n"
+                . "• Waktu Transfer: *{$transferredAt}*\n\n"
+                . "Bukti transfer tersedia di Cooca Pay Payout Hub.\n\n"
+                . "Terima kasih telah menggunakan *COOCA*! 🚀";
+
+            $waService = new WhatsAppService;
+            $waService->sendMessage($waService->formatPhoneNumber($phone), $message);
+        } catch (\Throwable $e) {
+            Log::warning("Payout WA notification failed for #{$settlement->settlement_number}: {$e->getMessage()}");
+        }
     }
 }

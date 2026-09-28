@@ -20,6 +20,9 @@
                 @elseif($settlement->status === 'rejected')
                     <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#FF3B30]/15 text-[#FF3B30]">Ditolak</span>
                 @endif
+                @if($settlement->payout_mode === 'auto_h1')
+                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#007AFF]/10 text-[#007AFF]">Auto H+1</span>
+                @endif
             </h1>
             <p class="text-xs text-black/50 dark:text-white/50 mt-0.5">Toko: <strong>{{ $settlement->business?->name }}</strong> • Tanggal: {{ \Carbon\Carbon::parse($settlement->settlement_date)->format('d F Y') }}</p>
         </div>
@@ -28,6 +31,61 @@
             <i data-lucide="arrow-left" class="w-4 h-4"></i>
             <span>Kembali</span>
         </a>
+    </div>
+
+    {{-- ========================================================== --}}
+    {{-- OWNER IDENTITY VERIFICATION CARD (ANTI-FRAUD)              --}}
+    {{-- ========================================================== --}}
+    <div class="p-5 sm:p-6 rounded-[22px] border shadow-sm space-y-4
+        {{ $identityMatch
+            ? 'bg-[#34C759]/[0.03] dark:bg-[#34C759]/[0.05] border-[#34C759]/20'
+            : 'bg-[#FF3B30]/[0.03] dark:bg-[#FF3B30]/[0.05] border-[#FF3B30]/20' }}">
+        <div class="flex items-center gap-3 pb-3 border-b {{ $identityMatch ? 'border-[#34C759]/15' : 'border-[#FF3B30]/15' }}">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0
+                {{ $identityMatch ? 'bg-[#34C759]/15 text-[#34C759]' : 'bg-[#FF3B30]/15 text-[#FF3B30]' }}">
+                <i data-lucide="{{ $identityMatch ? 'shield-check' : 'shield-alert' }}" class="w-5 h-5"></i>
+            </div>
+            <div>
+                <h3 class="text-[15px] font-bold {{ $identityMatch ? 'text-[#248A3D] dark:text-[#30D158]' : 'text-[#FF3B30]' }}">
+                    {{ $identityMatch ? 'Identitas Pemilik Terverifikasi ✓' : '⚠️ Identitas Pemilik TIDAK COCOK' }}
+                </h3>
+                <p class="text-xs text-black/50 dark:text-white/50">
+                    {{ $identityMatch
+                        ? 'Nama pemilik bisnis cocok dengan nama pemegang rekening bank tujuan.'
+                        : 'PERHATIAN: Nama pemilik bisnis TIDAK sama dengan pemegang rekening bank. Periksa manual sebelum menyetujui.' }}
+                </p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="p-3.5 rounded-[14px] bg-white/80 dark:bg-black/20 border border-black/5 dark:border-white/5">
+                <span class="text-[10px] text-black/45 dark:text-white/45 block font-medium uppercase tracking-wider mb-1">Nama Pemilik Bisnis (Owner)</span>
+                <span class="text-[14px] font-bold text-black dark:text-white">{{ $ownerName }}</span>
+            </div>
+            <div class="p-3.5 rounded-[14px] bg-white/80 dark:bg-black/20 border border-black/5 dark:border-white/5">
+                <span class="text-[10px] text-black/45 dark:text-white/45 block font-medium uppercase tracking-wider mb-1">Nama Pemegang Rekening Bank</span>
+                <span class="text-[14px] font-bold {{ $identityMatch ? 'text-[#34C759]' : 'text-[#FF3B30]' }}">{{ $accountHolderName }}</span>
+            </div>
+        </div>
+
+        @if($settlement->payoutBankAccount)
+            <div class="p-3.5 rounded-[14px] bg-white/80 dark:bg-black/20 border border-black/5 dark:border-white/5 text-xs text-black/70 dark:text-white/70 space-y-1">
+                <div class="flex items-center gap-2">
+                    <span class="font-medium text-black/45 dark:text-white/45">Bank:</span>
+                    <span class="font-bold">{{ $settlement->payoutBankAccount->bank_name }}</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="font-medium text-black/45 dark:text-white/45">No. Rekening:</span>
+                    <span class="font-mono font-bold">{{ $settlement->payoutBankAccount->account_number }}</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="font-medium text-black/45 dark:text-white/45">Status Verifikasi:</span>
+                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold {{ $settlement->payoutBankAccount->is_verified ? 'bg-[#34C759]/15 text-[#248A3D]' : 'bg-[#FF9500]/15 text-[#D97706]' }}">
+                        {{ $settlement->payoutBankAccount->is_verified ? 'Terverifikasi ✓' : 'Belum Verifikasi' }}
+                    </span>
+                </div>
+            </div>
+        @endif
     </div>
 
     {{-- 3 KPI Metrics --}}
@@ -45,7 +103,7 @@
             <span class="text-xl font-extrabold text-[#FF3B30] tabular-nums">
                 -Rp {{ number_format($settlement->fee_amount, 0, ',', '.') }}
             </span>
-            <span class="text-[11px] text-black/45 dark:text-white/45 block">Biaya resmi TriPay</span>
+            <span class="text-[11px] text-black/45 dark:text-white/45 block">Biaya resmi Cooca Pay</span>
         </div>
 
         <div class="p-4.5 rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 shadow-sm space-y-1">
@@ -56,6 +114,98 @@
             <span class="text-[11px] text-black/45 dark:text-white/45 block">{{ $settlement->destination_bank ?? 'Rekening Toko' }}</span>
         </div>
     </div>
+
+    {{-- ========================================================== --}}
+    {{-- APPROVE / REJECT ACTION SECTION (only for pending)         --}}
+    {{-- ========================================================== --}}
+    @if($settlement->status === 'pending')
+        <div class="rounded-[22px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 shadow-sm overflow-hidden" x-data="{ activeTab: 'approve' }">
+            <div class="px-5 py-4 border-b border-black/5 dark:border-white/10 flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center">
+                    <i data-lucide="banknote" class="w-4 h-4"></i>
+                </div>
+                <div>
+                    <h2 class="text-[15px] font-bold text-black dark:text-white">Aksi Admin: Setujui atau Tolak Pencairan</h2>
+                    <p class="text-xs text-black/50 dark:text-white/50">Transfer manual ke rekening merchant, upload bukti, lalu setujui. Notifikasi WhatsApp akan terkirim otomatis.</p>
+                </div>
+            </div>
+
+            {{-- Tab switcher --}}
+            <div class="flex border-b border-black/5 dark:border-white/10">
+                <button @click="activeTab = 'approve'"
+                    :class="activeTab === 'approve' ? 'text-[#34C759] border-[#34C759]' : 'text-black/50 dark:text-white/50 border-transparent'"
+                    class="flex-1 py-3 text-xs font-bold text-center border-b-2 transition">
+                    ✅ Setujui &amp; Upload Bukti
+                </button>
+                <button @click="activeTab = 'reject'"
+                    :class="activeTab === 'reject' ? 'text-[#FF3B30] border-[#FF3B30]' : 'text-black/50 dark:text-white/50 border-transparent'"
+                    class="flex-1 py-3 text-xs font-bold text-center border-b-2 transition">
+                    ❌ Tolak Pencairan
+                </button>
+            </div>
+
+            {{-- Approve Form --}}
+            <div x-show="activeTab === 'approve'" class="p-5 space-y-4">
+                <form action="{{ route('admin.settlements.approve', $settlement) }}" method="POST" enctype="multipart/form-data" class="space-y-4">
+                    @csrf
+                    <div>
+                        <label class="block text-xs font-semibold text-black dark:text-white mb-1.5">Upload Bukti Transfer Bank *</label>
+                        <input type="file" name="proof_image" accept="image/jpeg,image/png,image/webp" required
+                            class="w-full text-xs file:mr-3 file:py-2 file:px-4 file:rounded-[10px] file:border-0 file:text-xs file:font-semibold file:bg-[#34C759]/10 file:text-[#34C759] hover:file:bg-[#34C759]/20 text-black/60 dark:text-white/60">
+                        <p class="text-[10px] text-black/40 dark:text-white/40 mt-1">Foto/screenshot struk transfer bank ke rekening merchant. Maks. 5MB, format JPG/PNG/WebP.</p>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-black dark:text-white mb-1.5">Catatan Admin (Opsional)</label>
+                        <input type="text" name="admin_notes" placeholder="Contoh: Transfer BCA #01234 jam 14:30"
+                            class="w-full h-10 rounded-[10px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 px-3 text-xs text-black dark:text-white focus:ring-2 focus:ring-[#34C759] focus:outline-none">
+                    </div>
+                    <div class="flex items-center justify-between pt-3 border-t border-black/5 dark:border-white/10">
+                        <span class="text-xs text-black/50 dark:text-white/50">
+                            Notifikasi WhatsApp akan otomatis terkirim ke pemilik bisnis.
+                        </span>
+                        <button type="submit"
+                            class="h-10 px-6 rounded-[10px] bg-[#34C759] hover:bg-[#28A745] text-white text-xs font-bold transition active:scale-[0.98] flex items-center gap-2 shadow-sm">
+                            <i data-lucide="check-circle" class="w-4 h-4"></i>
+                            Setujui &amp; Kirim Bukti
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            {{-- Reject Form --}}
+            <div x-show="activeTab === 'reject'" x-cloak class="p-5 space-y-4">
+                <form action="{{ route('admin.settlements.reject', $settlement) }}" method="POST" class="space-y-4">
+                    @csrf
+                    <div>
+                        <label class="block text-xs font-semibold text-black dark:text-white mb-1.5">Alasan Penolakan *</label>
+                        <textarea name="rejection_reason" rows="3" required placeholder="Jelaskan alasan penolakan pencairan saldo..."
+                            class="w-full rounded-[10px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 px-3 py-2.5 text-xs text-black dark:text-white focus:ring-2 focus:ring-[#FF3B30] focus:outline-none resize-none"></textarea>
+                    </div>
+                    <div class="flex items-center justify-between pt-3 border-t border-black/5 dark:border-white/10">
+                        <span class="text-xs text-[#FF3B30]">
+                            Transaksi yang teralokasi akan dikembalikan ke saldo mengendap merchant.
+                        </span>
+                        <button type="submit"
+                            class="h-10 px-6 rounded-[10px] bg-[#FF3B30] hover:bg-[#D70015] text-white text-xs font-bold transition active:scale-[0.98] flex items-center gap-2 shadow-sm">
+                            <i data-lucide="x-circle" class="w-4 h-4"></i>
+                            Tolak Pencairan
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    @endif
+
+    {{-- Rejection reason card --}}
+    @if($settlement->status === 'rejected' && $settlement->rejection_reason)
+        <div class="p-5 rounded-[22px] bg-[#FF3B30]/5 dark:bg-[#FF3B30]/10 border border-[#FF3B30]/20 space-y-2">
+            <div class="flex items-center gap-2">
+                <i data-lucide="alert-circle" class="w-4 h-4 text-[#FF3B30]"></i>
+                <h3 class="text-[13px] font-bold text-[#FF3B30]">Alasan Penolakan</h3>
+            </div>
+            <p class="text-xs text-black/70 dark:text-white/70">{{ $settlement->rejection_reason }}</p>
+        </div>
+    @endif
 
     {{-- Bukti Transfer Card --}}
     @if($settlement->proof_image_path)

@@ -66,7 +66,7 @@ class WhatsAppService
         }
     }
 
-    private function formatPhoneNumber(string $phone): string
+    public function formatPhoneNumber(string $phone): string
     {
         $cleaned = preg_replace('/[^0-9]/', '', $phone);
         if (str_starts_with($cleaned, '0')) {

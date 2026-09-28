@@ -23,6 +23,7 @@ use App\Http\Controllers\Web\Finance\MerchantPayoutAccountWebController;
 use App\Http\Controllers\Web\Finance\PaymentSettlementWebController;
 use App\Http\Controllers\Web\Finance\PosFinanceWebController;
 use App\Http\Controllers\Web\Finance\StoreEdcTerminalWebController;
+use App\Http\Controllers\Web\Finance\ExternalReconciliationWebController;
 
 use App\Http\Controllers\Web\Hrm\HrmWebController;
 use App\Http\Controllers\Web\ImportWebController;
@@ -612,7 +613,14 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
             Route::post('/finance/edc-terminals', [StoreEdcTerminalWebController::class, 'store'])->name('finance.edc-terminals.store');
             Route::patch('/finance/edc-terminals/{terminal}/toggle', [StoreEdcTerminalWebController::class, 'toggle'])->name('finance.edc-terminals.toggle');
             Route::delete('/finance/edc-terminals/{terminal}', [StoreEdcTerminalWebController::class, 'destroy'])->name('finance.edc-terminals.destroy');
+
+            // External Account Reconciliation & Liquidity Dashboard (Fase 5)
+            Route::get('/finance/external-reconciliation', [ExternalReconciliationWebController::class, 'index'])->name('finance.external-recon.index');
+            Route::post('/finance/external-reconciliation', [ExternalReconciliationWebController::class, 'store'])->name('finance.external-recon.store');
+            Route::get('/finance/liquidity-dashboard', [ExternalReconciliationWebController::class, 'dashboard'])->name('finance.liquidity-dashboard');
+            Route::get('/finance/discrepancies', [ExternalReconciliationWebController::class, 'discrepancies'])->name('finance.discrepancies');
         });
+
         Route::get('/finance/receivables', [CashLedgerWebController::class, 'receivables'])->middleware('require.permission:finance.receivables')->name('finance.receivables');
         Route::get('/finance/payables', [CashLedgerWebController::class, 'payables'])->middleware('require.permission:finance.payables')->name('finance.payables');
 

@@ -102,20 +102,40 @@ final class AdminSettlementController extends Controller
     }
 
     /**
-     * Show detail of a merchant settlement payout request.
+     * Show detail of a merchant settlement payout request with owner identity verification.
      */
     public function show(PaymentSettlement $settlement): View|JsonResponse
     {
-        $settlement->load(['business', 'allocations', 'admin', 'reconciler']);
+        $settlement->load(['business', 'allocations', 'admin', 'reconciler', 'payoutBankAccount']);
+
+        // Owner identity comparison for anti-fraud verification
+        $business = $settlement->business;
+        $ownerName = $business?->users()->wherePivot('role', 'owner')->first()?->name ?? '—';
+        $accountHolderName = $settlement->payoutBankAccount?->account_holder_name ?? $settlement->destination_bank ?? '—';
+
+        // Fuzzy match check (case-insensitive, trimmed)
+        $ownerClean = mb_strtolower(trim($ownerName));
+        $holderClean = mb_strtolower(trim($accountHolderName));
+        $identityMatch = $ownerClean !== '—' && $holderClean !== '—' && $ownerClean === $holderClean;
 
         if (request()->wantsJson()) {
             return response()->json([
                 'success'    => true,
                 'settlement' => $settlement,
+                'identity_verification' => [
+                    'owner_name'          => $ownerName,
+                    'account_holder_name' => $accountHolderName,
+                    'is_match'            => $identityMatch,
+                ],
             ]);
         }
 
-        return view('admin.settlements.show', compact('settlement'));
+        return view('admin.settlements.show', compact(
+            'settlement',
+            'ownerName',
+            'accountHolderName',
+            'identityMatch'
+        ));
     }
 
     /**

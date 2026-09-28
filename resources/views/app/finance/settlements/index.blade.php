@@ -1,14 +1,14 @@
-@extends('layouts.app', ['title' => 'Rekonsiliasi & Settlement Gateway'])
+@extends('layouts.app', ['title' => 'Cooca Pay Payout Hub'])
 
 @section('content')
-<div class="max-w-[1360px] mx-auto space-y-6 pb-28 lg:pb-12" x-data="settlementApp()">
+<div class="max-w-[1360px] mx-auto space-y-6 pb-28 lg:pb-12" x-data="payoutHubApp()">
 
     {{-- ========================================================== --}}
     {{-- TOOLBAR / PAGE HEADER                                      --}}
     {{-- ========================================================== --}}
     <x-module-header
-        title="Rekonsiliasi & Settlement Gateway"
-        subtitle="Kelola dan rekonsiliasi pencairan dana non-tunai TriPay (QRIS & Online) ke rekening bank operasional">
+        title="Cooca Pay Payout Hub"
+        subtitle="Kelola pencairan dana QRIS, Toko Online & pembayaran gateway ke rekening bank terverifikasi">
         <a href="{{ route('finance.cash-bank.ledger') }}"
             class="min-h-[44px] sm:min-h-0 h-11 sm:h-9 px-4 rounded-[10px] text-[13px] font-medium text-[#007AFF] bg-[#007AFF]/10 hover:bg-[#007AFF]/15 active:scale-[0.97] transition-all flex items-center justify-center gap-1.5">
             <i data-lucide="book-open" class="w-4 h-4"></i>
@@ -27,29 +27,29 @@
     <x-module-tabs module="finance" />
 
     {{-- ========================================================== --}}
-    {{-- BENTO KPI CARDS: GATEWAY CLEARING STATS                   --}}
+    {{-- BENTO KPI CARDS: COOCA PAY CLEARING STATS                  --}}
     {{-- ========================================================== --}}
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {{-- Card 1: Unsettled Gross --}}
         <div class="rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 p-5 space-y-2 shadow-sm">
             <div class="flex items-center justify-between text-xs text-black/50 dark:text-white/50">
                 <span class="font-medium text-[11px] uppercase tracking-wider">Dana Mengendap</span>
-                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#FF9500]/10 text-[#D97706] dark:text-[#FBBF24]">Clearing (1-1005)</span>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#FF9500]/10 text-[#D97706] dark:text-[#FBBF24]">Cooca Pay Escrow</span>
             </div>
             <div class="text-[22px] font-extrabold text-black dark:text-white tabular-nums tracking-tight">
                 {{ $business->currency_symbol }} {{ number_format($unsettledData['summary']['total_gross'] ?? 0, 0, ',', '.') }}
             </div>
             <div class="text-[11px] text-black/45 dark:text-white/45 flex items-center justify-between">
                 <span>{{ $unsettledData['summary']['count'] ?? 0 }} transaksi siap dicairkan</span>
-                <span class="font-mono text-[10px]">TriPay Escrow</span>
+                <span class="font-mono text-[10px]">QRIS + Online</span>
             </div>
         </div>
 
         {{-- Card 2: Estimated Gateway Fee --}}
         <div class="rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 p-5 space-y-2 shadow-sm">
             <div class="flex items-center justify-between text-xs text-black/50 dark:text-white/50">
-                <span class="font-medium text-[11px] uppercase tracking-wider">Total Fee MDR Gateway</span>
-                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#FF3B30]/10 text-[#FF3B30]">Beban (6-6003)</span>
+                <span class="font-medium text-[11px] uppercase tracking-wider">Total Fee MDR</span>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#FF3B30]/10 text-[#FF3B30]">Potongan</span>
             </div>
             <div class="text-[22px] font-extrabold text-[#FF3B30] tabular-nums tracking-tight">
                 {{ $business->currency_symbol }} {{ number_format($unsettledData['summary']['total_fee'] ?? 0, 0, ',', '.') }}
@@ -62,8 +62,8 @@
         {{-- Card 3: Net Payout Estimate --}}
         <div class="rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 p-5 space-y-2 shadow-sm">
             <div class="flex items-center justify-between text-xs text-black/50 dark:text-white/50">
-                <span class="font-medium text-[11px] uppercase tracking-wider">Estimasi Bersih Bank</span>
-                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#34C759]/10 text-[#248A3D] dark:text-[#30D158]">Bank (1-1002)</span>
+                <span class="font-medium text-[11px] uppercase tracking-wider">Estimasi Bersih Cair</span>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#34C759]/10 text-[#248A3D] dark:text-[#30D158]">Bank Anda</span>
             </div>
             <div class="text-[22px] font-extrabold text-[#34C759] dark:text-[#30D158] tabular-nums tracking-tight">
                 {{ $business->currency_symbol }} {{ number_format($unsettledData['summary']['total_net'] ?? 0, 0, ',', '.') }}
@@ -76,26 +76,48 @@
         {{-- Card 4: Historical Completed Payouts --}}
         <div class="rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 p-5 space-y-2 shadow-sm">
             <div class="flex items-center justify-between text-xs text-black/50 dark:text-white/50">
-                <span class="font-medium text-[11px] uppercase tracking-wider">Settlement Selesai</span>
-                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#007AFF]/10 text-[#007AFF]">Terekonsiliasi</span>
+                <span class="font-medium text-[11px] uppercase tracking-wider">Payout Selesai</span>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#007AFF]/10 text-[#007AFF]">Ditransfer</span>
             </div>
             <div class="text-[22px] font-extrabold text-[#007AFF] tabular-nums tracking-tight">
                 {{ $business->currency_symbol }} {{ number_format($settlements->sum('net_amount'), 0, ',', '.') }}
             </div>
             <div class="text-[11px] text-black/45 dark:text-white/45">
-                {{ $settlements->total() }} riwayat pencairan tercatat
+                {{ $settlements->total() }} riwayat pencairan
             </div>
         </div>
     </div>
 
     {{-- ========================================================== --}}
-    {{-- SECTION: DAFTAR TRANSAKSI GATEWAY SIAP PENCAIRAN (ACTION) --}}
+    {{-- SECTION: REKENING PENARIKAN TERVERIFIKASI                  --}}
+    {{-- ========================================================== --}}
+    @if($payoutBankAccounts->isEmpty())
+        <div class="rounded-[16px] bg-[#FF9500]/5 dark:bg-[#FF9500]/10 border border-[#FF9500]/20 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div class="flex items-start gap-3">
+                <div class="w-10 h-10 rounded-full bg-[#FF9500]/15 flex items-center justify-center shrink-0">
+                    <i data-lucide="shield-alert" class="w-5 h-5 text-[#FF9500]"></i>
+                </div>
+                <div>
+                    <h3 class="text-[14px] font-bold text-[#D97706] dark:text-[#FBBF24]">Belum Ada Rekening Penarikan Terverifikasi</h3>
+                    <p class="text-xs text-black/60 dark:text-white/60 mt-0.5">Daftarkan rekening bank penarikan di menu Pengaturan → Rekening Penarikan Terverifikasi agar bisa mengajukan pencairan melalui Payout Hub.</p>
+                </div>
+            </div>
+            <a href="{{ route('finance.payout-accounts.index') }}"
+                class="h-10 px-5 rounded-[10px] bg-[#FF9500] hover:bg-[#E68900] text-white text-xs font-bold flex items-center justify-center gap-1.5 shrink-0 transition active:scale-[0.97]">
+                <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                Daftarkan Rekening
+            </a>
+        </div>
+    @endif
+
+    {{-- ========================================================== --}}
+    {{-- SECTION: DAFTAR TRANSAKSI SIAP PENCAIRAN (ACTION)          --}}
     {{-- ========================================================== --}}
     <div class="rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 overflow-hidden shadow-sm">
         <div class="px-5 sm:px-6 py-4 border-b border-black/5 dark:border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-black/[0.01] dark:bg-white/[0.01]">
             <div>
-                <h2 class="text-[16px] font-bold text-black dark:text-white">Pencairan Dana Gateway Baru</h2>
-                <p class="text-xs text-black/50 dark:text-white/50 mt-0.5">Pilih transaksi pesanan meja QRIS atau toko online yang telah lunas via TriPay untuk direkonsiliasi ke rekening bank toko</p>
+                <h2 class="text-[16px] font-bold text-black dark:text-white">Pencairan Dana Cooca Pay</h2>
+                <p class="text-xs text-black/50 dark:text-white/50 mt-0.5">Pilih transaksi QRIS atau toko online yang telah lunas untuk diajukan pencairan ke rekening bank terverifikasi</p>
             </div>
             <div class="flex items-center gap-2">
                 <button type="button" @click="toggleSelectAll()"
@@ -155,7 +177,7 @@
                                 <div class="w-10 h-10 rounded-full bg-[#34C759]/10 text-[#34C759] flex items-center justify-center">
                                     <i data-lucide="check-circle" class="w-5 h-5"></i>
                                 </div>
-                                <span class="text-[13px] font-medium text-black/70 dark:text-white/70">Seluruh pembayaran gateway telah selesai direkonsiliasi</span>
+                                <span class="text-[13px] font-medium text-black/70 dark:text-white/70">Seluruh pembayaran Cooca Pay telah dicairkan</span>
                                 <span class="text-[11px] text-black/40 dark:text-white/40">Tidak ada dana mengendap yang tertunda</span>
                             </div>
                         </td>
@@ -164,37 +186,57 @@
             </table>
         </div>
 
-        {{-- Settlement Action Bar --}}
+        {{-- Payout Action Bar --}}
         <div x-show="unsettledItems.length > 0" class="p-5 sm:p-6 border-t border-black/5 dark:border-white/10 bg-black/[0.015] dark:bg-white/[0.02]">
-            <form @submit.prevent="submitReconciliation()" class="space-y-4">
+            <form @submit.prevent="submitPayout()" class="space-y-4">
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    {{-- Rekening Penarikan Terverifikasi --}}
                     <div>
-                        <label class="block text-xs font-semibold text-black dark:text-white mb-1.5">Rekening Bank Tujuan Pencairan *</label>
-                        <select x-model="destinationBank" required
+                        <label class="block text-xs font-semibold text-black dark:text-white mb-1.5">Rekening Penarikan Terverifikasi *</label>
+                        <select x-model="payoutBankAccountId" required
                             class="w-full h-11 sm:h-10 rounded-[10px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 px-3 text-[16px] sm:text-xs text-black dark:text-white font-medium focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
-                            <option value="">-- Pilih Rekening Bank Operasional --</option>
-                            @foreach($bankAccounts as $bank)
-                                <option value="{{ $bank->name }} ({{ $bank->account_number ?? '-' }})">
-                                    {{ $bank->name }} - Saldo: {{ $business->currency_symbol }} {{ number_format($bank->current_balance, 0, ',', '.') }}
+                            <option value="">-- Pilih Rekening Terverifikasi --</option>
+                            @foreach($payoutBankAccounts as $pba)
+                                <option value="{{ $pba->id }}" {{ $pba->is_primary ? 'selected' : '' }}>
+                                    {{ $pba->bank_name }} - {{ $pba->account_number }} (a.n {{ $pba->account_holder_name }}){{ $pba->is_primary ? ' ★ Utama' : '' }}
                                 </option>
                             @endforeach
                         </select>
+                        <p class="text-[10px] text-black/40 dark:text-white/40 mt-1">
+                            Nama pemilik rekening wajib sama dengan: <strong class="text-black/80 dark:text-white/80">{{ $ownerName }}</strong>
+                        </p>
                     </div>
 
+                    {{-- Mode Pencairan --}}
                     <div>
-                        <label class="block text-xs font-semibold text-black dark:text-white mb-1.5">Tanggal Pencairan / Settlement</label>
-                        <input type="date" x-model="settlementDate"
+                        <label class="block text-xs font-semibold text-black dark:text-white mb-1.5">Mode Pencairan</label>
+                        <select x-model="payoutMode"
                             class="w-full h-11 sm:h-10 rounded-[10px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 px-3 text-[16px] sm:text-xs text-black dark:text-white font-medium focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                            <option value="manual">🔄 Penarikan Manual (Langsung Ajukan)</option>
+                            <option value="auto_h1">⏰ Auto-Payout H+1 (Besok Pagi 09:00 WIB)</option>
+                        </select>
                     </div>
 
+                    {{-- Catatan --}}
                     <div>
-                        <label class="block text-xs font-semibold text-black dark:text-white mb-1.5">Catatan Rekonsiliasi (Opsional)</label>
-                        <input type="text" x-model="settlementNotes" placeholder="Contoh: Pencairan batch mingguan TriPay"
+                        <label class="block text-xs font-semibold text-black dark:text-white mb-1.5">Catatan (Opsional)</label>
+                        <input type="text" x-model="settlementNotes" placeholder="Contoh: Pencairan batch harian Cooca Pay"
                             class="w-full h-11 sm:h-10 rounded-[10px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 px-3 text-[16px] sm:text-xs text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
                     </div>
                 </div>
 
-                {{-- Summary & Submit Button --}}
+                {{-- Auto-Payout H+1 Info Banner --}}
+                <div x-show="payoutMode === 'auto_h1'" x-cloak
+                    class="rounded-[12px] bg-[#007AFF]/5 dark:bg-[#007AFF]/10 border border-[#007AFF]/20 p-3.5 flex items-start gap-3">
+                    <i data-lucide="clock" class="w-5 h-5 text-[#007AFF] mt-0.5 shrink-0"></i>
+                    <div class="text-xs text-black/70 dark:text-white/70">
+                        <strong class="text-[#007AFF]">Mode Auto-Payout H+1:</strong>
+                        Pencairan akan dijadwalkan otomatis untuk besok pagi pukul <strong>09:00 WIB</strong>.
+                        Admin COOCA akan memproses transfer dan mengirimkan bukti bayar serta notifikasi WhatsApp setelah dana berhasil dikirim.
+                    </div>
+                </div>
+
+                {{-- Summary & Submit --}}
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-3 border-t border-black/5 dark:border-white/10">
                     <div class="flex flex-wrap items-center gap-4 text-xs">
                         <div>
@@ -216,10 +258,10 @@
                     </div>
 
                     <button type="submit"
-                        :disabled="selectedItems.length === 0 || !destinationBank || isProcessing"
+                        :disabled="selectedItems.length === 0 || !payoutBankAccountId || isProcessing"
                         class="min-h-[44px] h-11 sm:h-10 px-6 rounded-[10px] bg-[#34C759] hover:bg-[#28A745] active:scale-[0.98] text-white text-xs font-bold transition shadow-sm disabled:opacity-40 flex items-center justify-center gap-2 shrink-0">
                         <i data-lucide="send" class="w-4 h-4"></i>
-                        <span x-text="isProcessing ? 'Mengirim Pengajuan...' : 'Ajukan Pencairan Saldo ke COOCA'"></span>
+                        <span x-text="isProcessing ? 'Mengirim Pengajuan...' : (payoutMode === 'auto_h1' ? 'Jadwalkan Auto-Payout H+1' : 'Ajukan Pencairan ke COOCA')"></span>
                     </button>
                 </div>
             </form>
@@ -227,12 +269,12 @@
     </div>
 
     {{-- ========================================================== --}}
-    {{-- SECTION: RIWAYAT SETTLEMENT & PENCAIRAN YANG TELAH SELESAI --}}
+    {{-- SECTION: RIWAYAT SETTLEMENT & PENCAIRAN SELESAI            --}}
     {{-- ========================================================== --}}
     <div class="rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 overflow-hidden shadow-sm">
         <div class="px-5 sm:px-6 py-4 border-b border-black/5 dark:border-white/10 bg-black/[0.01] dark:bg-white/[0.01]">
-            <h2 class="text-[16px] font-bold text-black dark:text-white">Riwayat Rekonsiliasi &amp; Payout Gateway</h2>
-            <p class="text-xs text-black/50 dark:text-white/50 mt-0.5">Daftar settlement yang diajukan dan bukti transfer resmi dari Finance COOCA</p>
+            <h2 class="text-[16px] font-bold text-black dark:text-white">Riwayat Payout &amp; Pencairan Dana</h2>
+            <p class="text-xs text-black/50 dark:text-white/50 mt-0.5">Daftar pengajuan pencairan dan bukti transfer dari Finance COOCA</p>
         </div>
 
         <div class="overflow-x-auto">
@@ -241,13 +283,13 @@
                     <tr>
                         <th class="py-3 px-5">No. Settlement</th>
                         <th class="py-3 px-5">Tanggal</th>
-                        <th class="py-3 px-5">Rekening Bank Tujuan</th>
-                        <th class="py-3 px-5 text-right">Nominal Bruto</th>
-                        <th class="py-3 px-5 text-right">Potongan MDR</th>
+                        <th class="py-3 px-5">Rekening Tujuan</th>
+                        <th class="py-3 px-5">Mode</th>
+                        <th class="py-3 px-5 text-right">Bruto</th>
+                        <th class="py-3 px-5 text-right">Fee MDR</th>
                         <th class="py-3 px-5 text-right">Bersih Masuk Bank</th>
-                        <th class="py-3 px-5 text-center">Jumlah Order</th>
                         <th class="py-3 px-5 text-center">Status</th>
-                        <th class="py-3 px-5 text-right">Bukti Bayar &amp; Aksi</th>
+                        <th class="py-3 px-5 text-right">Bukti &amp; Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-black/5 dark:divide-white/5 text-black/80 dark:text-white/80">
@@ -262,6 +304,13 @@
                             <td class="py-3.5 px-5 font-medium">
                                 {{ $settlement->destination_bank ?? 'Rekening Kas Utama' }}
                             </td>
+                            <td class="py-3.5 px-5">
+                                @if($settlement->payout_mode === 'auto_h1')
+                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#007AFF]/10 text-[#007AFF]">Auto H+1</span>
+                                @else
+                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-black/5 dark:bg-white/10 text-black/60 dark:text-white/60">Manual</span>
+                                @endif
+                            </td>
                             <td class="py-3.5 px-5 text-right font-medium tabular-nums">
                                 {{ $business->currency_symbol }} {{ number_format($settlement->gross_amount, 0, ',', '.') }}
                             </td>
@@ -272,14 +321,9 @@
                                 {{ $business->currency_symbol }} {{ number_format($settlement->net_amount, 0, ',', '.') }}
                             </td>
                             <td class="py-3.5 px-5 text-center">
-                                <span class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-black/[0.05] dark:bg-white/[0.08]">
-                                    {{ $settlement->allocations->count() }} transaksi
-                                </span>
-                            </td>
-                            <td class="py-3.5 px-5 text-center">
                                 @if($settlement->status === 'completed')
                                     <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158]">
-                                        Ditransfer
+                                        Ditransfer ✓
                                     </span>
                                 @elseif($settlement->status === 'pending')
                                     <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#FF9500]/15 text-[#D97706] dark:text-[#FBBF24]">
@@ -321,7 +365,7 @@
                     @empty
                         <tr>
                             <td colspan="9" class="py-12 text-center text-black/40 dark:text-white/40 text-xs">
-                                Belum ada riwayat rekonsiliasi settlement yang tersimpan.
+                                Belum ada riwayat pengajuan pencairan Cooca Pay.
                             </td>
                         </tr>
                     @endforelse
@@ -337,14 +381,14 @@
     </div>
 
     {{-- ========================================================== --}}
-    {{-- MODAL PREVIEW BUKTI TRANSFER UNTUK MERCHANT (APPLE HIG)    --}}
+    {{-- MODAL PREVIEW BUKTI TRANSFER (APPLE HIG)                  --}}
     {{-- ========================================================== --}}
     <div x-show="showProofModal" x-cloak
         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md"
         @keydown.escape.window="showProofModal = false">
         <div class="w-full max-w-lg rounded-[22px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 shadow-2xl overflow-hidden"
             @click.outside="showProofModal = false">
-            
+
             <div class="px-6 py-4 border-b border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between">
                 <div>
                     <h3 class="text-[15px] font-bold text-black dark:text-white">Bukti Transfer Pembayaran</h3>
@@ -372,7 +416,7 @@
                         <span class="font-extrabold text-[#34C759] text-[13px] tabular-nums" x-text="'Rp ' + proofNetAmount"></span>
                     </div>
                     <div>
-                        <span class="text-black/45 dark:text-white/45 block text-[11px]">Rekening Bank Tujuan:</span>
+                        <span class="text-black/45 dark:text-white/45 block text-[11px]">Rekening Tujuan:</span>
                         <span class="font-semibold text-black dark:text-white" x-text="proofDestinationBank"></span>
                     </div>
                     <div>
@@ -391,16 +435,16 @@
 </div>
 
 {{-- ========================================================== --}}
-{{-- ALPINE.JS SETTLEMENT CLIENT ENGINE                         --}}
+{{-- ALPINE.JS COOCA PAY PAYOUT HUB ENGINE                     --}}
 {{-- ========================================================== --}}
 <script>
-function settlementApp() {
+function payoutHubApp() {
     return {
         csrfToken: document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
         unsettledItems: @json($unsettledData['items'] ?? []),
         selectedItems: [],
-        destinationBank: '',
-        settlementDate: '{{ \Carbon\Carbon::today()->toDateString() }}',
+        payoutBankAccountId: '{{ $payoutBankAccounts->firstWhere("is_primary", true)?->id ?? $payoutBankAccounts->first()?->id ?? "" }}',
+        payoutMode: 'manual',
         settlementNotes: '',
         isProcessing: false,
 
@@ -413,7 +457,6 @@ function settlementApp() {
         proofAdminNotes: '',
 
         init() {
-            // Auto-select all by default for convenient batching
             this.selectedItems = this.unsettledItems.map(i => i.payment_type + '-' + i.payment_id);
         },
 
@@ -470,13 +513,13 @@ function settlementApp() {
             return 'Rp ' + Number(num || 0).toLocaleString('id-ID');
         },
 
-        async submitReconciliation() {
+        async submitPayout() {
             if (this.selectedItems.length === 0) {
                 alert('Pilih minimal satu transaksi untuk dicairkan.');
                 return;
             }
-            if (!this.destinationBank) {
-                alert('Pilih rekening bank tujuan pencairan.');
+            if (!this.payoutBankAccountId) {
+                alert('Pilih rekening penarikan terverifikasi.');
                 return;
             }
 
@@ -496,8 +539,8 @@ function settlementApp() {
                         'X-CSRF-TOKEN': this.csrfToken
                     },
                     body: JSON.stringify({
-                        destination_bank: this.destinationBank,
-                        settlement_date: this.settlementDate,
+                        payout_bank_account_id: this.payoutBankAccountId,
+                        payout_mode: this.payoutMode,
                         notes: this.settlementNotes,
                         allocations: allocations,
                         fee_amount: this.calculateFee()
@@ -511,7 +554,7 @@ function settlementApp() {
                     alert(data.message || 'Gagal memproses pengajuan pencairan.');
                 }
             } catch (e) {
-                alert('Terjadi kesalahan memproses pengajuan: ' + e.message);
+                alert('Terjadi kesalahan: ' + e.message);
             } finally {
                 this.isProcessing = false;
             }

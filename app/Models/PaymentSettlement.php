@@ -23,6 +23,10 @@ class PaymentSettlement extends Model
 
     public const STATUS_REJECTED = 'rejected';
 
+    public const PAYOUT_MODE_MANUAL = 'manual';
+
+    public const PAYOUT_MODE_AUTO_H1 = 'auto_h1';
+
     protected $fillable = [
         'business_id',
         'settlement_number',
@@ -40,6 +44,9 @@ class PaymentSettlement extends Model
         'transferred_at',
         'admin_notes',
         'rejection_reason',
+        'payout_bank_account_id',
+        'payout_mode',
+        'scheduled_payout_at',
     ];
 
     /**
@@ -57,6 +64,7 @@ class PaymentSettlement extends Model
         return [
             'settlement_date' => 'date',
             'transferred_at' => 'datetime',
+            'scheduled_payout_at' => 'datetime',
             'gross_amount' => 'float',
             'fee_amount' => 'float',
             'net_amount' => 'float',
@@ -83,6 +91,11 @@ class PaymentSettlement extends Model
         return $this->hasMany(PaymentSettlementAllocation::class, 'payment_settlement_id');
     }
 
+    public function payoutBankAccount(): BelongsTo
+    {
+        return $this->belongsTo(MerchantPayoutBankAccount::class, 'payout_bank_account_id');
+    }
+
     public function getProofImageUrlAttribute(): ?string
     {
         if (! $this->proof_image_path) {
@@ -105,5 +118,20 @@ class PaymentSettlement extends Model
     public function isRejected(): bool
     {
         return $this->status === self::STATUS_REJECTED;
+    }
+
+    public function isAutoPayoutMode(): bool
+    {
+        return $this->payout_mode === self::PAYOUT_MODE_AUTO_H1;
+    }
+
+    /**
+     * Scope: pending auto-payout settlements due for processing.
+     */
+    public function scopeAutoPayoutQueue(\Illuminate\Database\Eloquent\Builder $query): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('payout_mode', self::PAYOUT_MODE_AUTO_H1)
+            ->where('status', self::STATUS_PENDING)
+            ->where('scheduled_payout_at', '<=', now());
     }
 }

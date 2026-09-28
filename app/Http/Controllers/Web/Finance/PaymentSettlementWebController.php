@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Web\Finance;
 use App\Domain\Finance\PaymentSettlementService;
 use App\Http\Controllers\Controller;
 use App\Models\CashAccount;
+use App\Models\MerchantPayoutBankAccount;
 use App\Models\PaymentSettlement;
 use App\Support\Context;
 use Carbon\Carbon;
@@ -24,14 +25,14 @@ final class PaymentSettlementWebController extends Controller
     ) {}
 
     /**
-     * Display Gateway Settlement & Reconciliation dashboard.
+     * Display Cooca Pay Payout Hub dashboard.
      */
     public function index(Request $request): View|JsonResponse
     {
         $business = Context::requireBusiness();
 
         $settlements = PaymentSettlement::where('business_id', $business->id)
-            ->with(['allocations', 'reconciledBy'])
+            ->with(['allocations', 'reconciledBy', 'payoutBankAccount'])
             ->latest('settlement_date')
             ->paginate(15);
 
@@ -41,6 +42,16 @@ final class PaymentSettlementWebController extends Controller
             ->where('is_active', true)
             ->orderBy('name')
             ->get();
+
+        // Verified payout bank accounts for Payout Hub
+        $payoutBankAccounts = MerchantPayoutBankAccount::where('business_id', $business->id)
+            ->where('is_verified', true)
+            ->orderByDesc('is_primary')
+            ->orderBy('bank_name')
+            ->get();
+
+        // Owner name for identity matching display
+        $ownerName = $business->users()->wherePivot('role', 'owner')->first()?->name ?? $business->name;
 
         if ($request->wantsJson()) {
             return response()->json([
@@ -54,7 +65,9 @@ final class PaymentSettlementWebController extends Controller
             'business',
             'settlements',
             'unsettledData',
-            'bankAccounts'
+            'bankAccounts',
+            'payoutBankAccounts',
+            'ownerName'
         ));
     }
 
@@ -73,7 +86,7 @@ final class PaymentSettlementWebController extends Controller
     }
 
     /**
-     * Process gateway payout reconciliation into bank account & journal ledger.
+     * Process Cooca Pay payout request — prefers verified MerchantPayoutBankAccount, falls back to legacy CashAccount.
      */
     public function reconcile(Request $request): RedirectResponse|JsonResponse
     {
@@ -81,50 +94,72 @@ final class PaymentSettlementWebController extends Controller
         $user = auth()->user();
 
         $validated = $request->validate([
-            'settlement_number' => ['nullable', 'string', 'max:50'],
-            'settlement_date'   => ['nullable', 'date'],
-            'destination_bank'  => ['nullable', 'string', 'max:100'],
-            'notes'             => ['nullable', 'string', 'max:500'],
-            'allocations'       => ['required', 'array', 'min:1'],
+            'payout_bank_account_id' => ['nullable', 'string', 'exists:merchant_payout_bank_accounts,id'],
+            'payout_mode'           => ['nullable', 'string', 'in:manual,auto_h1'],
+            'settlement_number'     => ['nullable', 'string', 'max:50'],
+            'settlement_date'       => ['nullable', 'date'],
+            'destination_bank'      => ['nullable', 'string', 'max:100'],
+            'notes'                 => ['nullable', 'string', 'max:500'],
+            'allocations'           => ['required', 'array', 'min:1'],
             'allocations.*.payment_type' => ['required', 'string', 'in:pos_order_payment,commerce_order,invoice_payment'],
             'allocations.*.payment_id'   => ['required', 'string'],
             'allocations.*.amount'       => ['required', 'numeric', 'min:0.01'],
-            'fee_amount'        => ['nullable', 'numeric', 'min:0'],
+            'fee_amount'            => ['nullable', 'numeric', 'min:0'],
         ]);
 
         try {
             $allocations = $validated['allocations'];
-            $grossAmount = 0.0;
-            foreach ($allocations as $item) {
-                $grossAmount += round((float) $item['amount'], 2);
+            $payoutMode = $validated['payout_mode'] ?? PaymentSettlement::PAYOUT_MODE_MANUAL;
+
+            // Prefer verified payout bank account (Payout Hub flow)
+            if (! empty($validated['payout_bank_account_id'])) {
+                $bankAccount = MerchantPayoutBankAccount::where('business_id', $business->id)
+                    ->where('id', $validated['payout_bank_account_id'])
+                    ->firstOrFail();
+
+                $settlement = $this->settlementService->requestPayoutWithVerifiedBank(
+                    business: $business,
+                    bankAccount: $bankAccount,
+                    allocations: $allocations,
+                    userId: $user?->id,
+                    payoutMode: $payoutMode,
+                    notes: $validated['notes'] ?? null
+                );
+            } else {
+                // Legacy flow (fallback): free-text destination bank
+                $grossAmount = 0.0;
+                foreach ($allocations as $item) {
+                    $grossAmount += round((float) $item['amount'], 2);
+                }
+                $feeAmount = round((float) ($validated['fee_amount'] ?? 0), 2);
+                $netAmount = max(0.0, $grossAmount - $feeAmount);
+
+                $settlementNumber = $validated['settlement_number']
+                    ?: ('SETTLE-' . Carbon::today()->format('Ymd') . '-' . strtoupper(Str::random(5)));
+
+                $data = [
+                    'settlement_number' => $settlementNumber,
+                    'settlement_date'   => $validated['settlement_date'] ?? Carbon::today()->toDateString(),
+                    'payment_channel'   => 'tripay',
+                    'gross_amount'      => $grossAmount,
+                    'fee_amount'        => $feeAmount,
+                    'net_amount'        => $netAmount,
+                    'destination_bank'  => $validated['destination_bank'] ?? null,
+                    'notes'             => $validated['notes'] ?? 'Pencairan saldo gateway ke rekening bank',
+                ];
+
+                $settlement = $this->settlementService->reconcile(
+                    business: $business,
+                    data: $data,
+                    allocations: $allocations,
+                    userId: $user?->id,
+                    immediateComplete: false
+                );
             }
 
-            $feeAmount = round((float) ($validated['fee_amount'] ?? 0), 2);
-            $netAmount = max(0.0, $grossAmount - $feeAmount);
-
-            $settlementNumber = $validated['settlement_number']
-                ?: ('SETTLE-' . Carbon::today()->format('Ymd') . '-' . strtoupper(Str::random(5)));
-
-            $data = [
-                'settlement_number' => $settlementNumber,
-                'settlement_date'   => $validated['settlement_date'] ?? Carbon::today()->toDateString(),
-                'payment_channel'   => 'tripay',
-                'gross_amount'      => $grossAmount,
-                'fee_amount'        => $feeAmount,
-                'net_amount'        => $netAmount,
-                'destination_bank'  => $validated['destination_bank'] ?? null,
-                'notes'             => $validated['notes'] ?? 'Pencairan saldo gateway TriPay ke rekening bank',
-            ];
-
-            $settlement = $this->settlementService->reconcile(
-                business: $business,
-                data: $data,
-                allocations: $allocations,
-                userId: $user?->id,
-                immediateComplete: false
-            );
-
-            $message = "Pengajuan pencairan saldo #{$settlement->settlement_number} sebesar Rp " . number_format($netAmount, 0, ',', '.') . " berhasil dikirim ke Admin COOCA. Bukti transfer akan dapat dilihat di sini setelah dana dikirim.";
+            $message = "Pengajuan pencairan saldo #{$settlement->settlement_number} sebesar Rp "
+                . number_format($settlement->net_amount, 0, ',', '.')
+                . " berhasil dikirim ke Admin COOCA. Bukti transfer akan tersedia setelah dana ditransfer.";
 
             if ($request->wantsJson()) {
                 return response()->json([
