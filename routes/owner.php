@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\Web\Ai\PosAiWebController;
+use App\Http\Controllers\Web\AiAssistantWebController;
 use App\Http\Controllers\Web\AnalyticsWebController;
 use App\Http\Controllers\Web\Billing\BillingAndLimitWebController;
 use App\Http\Controllers\Web\Billing\SubscriptionCheckoutWebController;
@@ -64,6 +65,7 @@ use App\Http\Controllers\Web\SimulationWebController;
 use App\Http\Controllers\Web\SocialMedia\SocialMediaWebController;
 use App\Http\Controllers\Web\SupplierWebController;
 use App\Http\Controllers\Web\TaxWebController;
+use App\Http\Controllers\Web\TenantSopWebController;
 use App\Http\Controllers\Web\UnitConversionWebController;
 use App\Http\Controllers\Web\UnitWebController;
 use App\Http\Controllers\Web\Warehouse\WarehouseWebController;
@@ -363,6 +365,17 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
         Route::put('/settings', [SettingWebController::class, 'update'])->middleware('require.permission:settings.edit')->name('settings.update');
         Route::put('/settings/modules', [SettingWebController::class, 'updateModules'])->middleware('require.role:owner')->name('settings.modules.update');
         Route::post('/settings/apply-template', [SettingWebController::class, 'applyTemplate'])->name('settings.apply-template');
+
+        // Multi-Tenant SOP Management (Upload PDF & Ingestion)
+        Route::get('/settings/sop', [TenantSopWebController::class, 'index'])->middleware('require.permission:settings.view')->name('settings.sop.index');
+        Route::post('/settings/sop', [TenantSopWebController::class, 'store'])->middleware('require.permission:settings.edit')->name('settings.sop.store');
+        Route::delete('/settings/sop/{id}', [TenantSopWebController::class, 'destroy'])->middleware('require.permission:settings.edit')->name('settings.sop.destroy');
+
+        // Smart AI Assistant & System Guide Endpoints
+        Route::post('/assistant/ask', [AiAssistantWebController::class, 'ask'])->name('assistant.ask');
+        Route::get('/assistant/prompts', [AiAssistantWebController::class, 'getPrompts'])->name('assistant.prompts');
+        Route::get('/assistant/history', [AiAssistantWebController::class, 'getHistory'])->name('assistant.history');
+        Route::post('/assistant/clear', [AiAssistantWebController::class, 'clearHistory'])->name('assistant.clear');
 
         // Dedicated Role & Access Control (RBAC)
         Route::get('/roles', [RoleWebController::class, 'index'])->middleware('require.permission:roles.view')->name('roles.index');

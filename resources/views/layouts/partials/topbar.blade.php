@@ -247,6 +247,16 @@
             </a>
         @endif
 
+        <!-- AI Assistant & Guideline Trigger Button -->
+        <button type="button" 
+            onclick="window.dispatchEvent(new CustomEvent('open-ai-assistant'))"
+            class="h-8 px-2.5 rounded-[9px] text-[#007AFF] bg-[#007AFF]/10 hover:bg-[#007AFF]/20 flex items-center gap-1.5 transition-all cursor-pointer shrink-0"
+            title="Tanya AI Assistant & Panduan SOP (Ctrl+K)" 
+            aria-label="Tanya AI Assistant">
+            <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+            <span class="text-[12px] font-semibold hidden xl:inline">Tanya Asisten</span>
+        </button>
+
         <!-- Unified System Controls Capsule (Fullscreen & Theme Switcher) -->
         <div class="flex items-center p-0.5 rounded-[8px] bg-black/[0.05] dark:bg-white/[0.08] gap-0.5">
             <!-- Fullscreen Toggle Button -->
@@ -654,6 +664,7 @@
             { title: 'Profil Pengguna', desc: 'Informasi akun pengguna, ganti password, dan kontak WhatsApp', category: 'Pengaturan Usaha', route: '{{ route('profile.edit') }}', icon: 'user', keywords: 'profil user akun password kontak hp whatsapp sandi' },
             @if ($canAccessSettings)
                 { title: 'Pengaturan Usaha & Cabang', desc: 'Identitas bisnis, logo usaha, mata uang, dan alamat toko', category: 'Pengaturan Usaha', route: '{{ route('settings.index') }}', icon: 'settings', keywords: 'pengaturan usaha bisnis cabang toko logo nama alamat mata uang' },
+                { title: 'Pusat SOP Usaha Internal (PDF)', desc: 'Unggah dokumen PDF SOP usaha dan aturan internal untuk panduan AI Assistant', category: 'Pengaturan Usaha', route: '{{ route('settings.sop.index') }}', icon: 'file-check', keywords: 'sop standar operasional prosedur pdf aturan toko panduan kerja internal usaha asisten bot' },
             @endif
             @if ($canAccessRoles)
                 { title: 'Hak Akses & Peran Staf (RBAC)', desc: 'Kelola peran kasir, admin gudang, finance, dan hak akses staf', category: 'Pengaturan Usaha', route: '{{ route('roles.index') }}', icon: 'shield-check', keywords: 'peran role hak akses staf permissions kasir rbac wewenang' },

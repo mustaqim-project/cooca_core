@@ -1799,6 +1799,9 @@
     {{-- Reusable Quota & Lock Modal (Bento Apple HIG) --}}
     <x-quota-modal />
 
+    {{-- Bento Smart AI Assistant & System Guide Modal Sheet XXL --}}
+    <x-bento-ai-assistant-modal />
+
     @stack('scripts')
 </body>
 
