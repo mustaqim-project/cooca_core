@@ -217,9 +217,25 @@
                 AppAlert.toast(data.message || `Berhasil menerbitkan listing ke ${channelName}!`, 'success');
             }
 
-            setTimeout(() => {
-                window.location.reload();
-            }, 1200);
+            // Close modal sheet reactively and update in-memory product mapping
+            this.mappingModal = false;
+            if (this.selectedProduct) {
+                if (!this.selectedProduct.marketplace_mappings) {
+                    this.selectedProduct.marketplace_mappings = [];
+                }
+                const existingIdx = this.selectedProduct.marketplace_mappings.findIndex(m => m.channel === this.form.channel);
+                const updatedMapping = {
+                    channel: this.form.channel,
+                    marketplace_item_id: this.form.marketplace_item_id,
+                    channel_price: this.form.channel_price,
+                    is_active: this.form.is_active,
+                };
+                if (existingIdx >= 0) {
+                    this.selectedProduct.marketplace_mappings[existingIdx] = Object.assign(this.selectedProduct.marketplace_mappings[existingIdx], updatedMapping);
+                } else {
+                    this.selectedProduct.marketplace_mappings.push(updatedMapping);
+                }
+            }
         } catch (err) {
             if (window.AppAlert) {
                 AppAlert.toast(err.message, 'error');
@@ -278,46 +294,29 @@
     }
 }">
 
-    <!-- ========================================== -->
-    <!-- 0. BREADCRUMB BAR (APPLE MINIMALIST)       -->
-    <!-- ========================================== -->
-    <nav class="flex items-center gap-1.5 text-[12px] text-black/50 dark:text-white/50 py-0.5 whitespace-nowrap print:hidden" aria-label="Breadcrumb">
-        <a href="{{ route('dashboard') }}" class="hover:text-[#007AFF] transition-colors font-medium">Dashboard</a>
-        <i data-lucide="chevron-right" class="w-3.5 h-3.5 opacity-40"></i>
-        <a href="{{ route('marketplace-hub.index') }}" class="hover:text-[#007AFF] transition-colors font-medium">Marketplace Hub</a>
-        <i data-lucide="chevron-right" class="w-3.5 h-3.5 opacity-40"></i>
-        <span class="text-black/80 dark:text-white/80 font-medium">Pemetaan Produk &amp; Multi-Harga</span>
-    </nav>
-
-    <!-- ===================================================== -->
-    <!-- 1. TOOLBAR / PAGE HEADER                               -->
-    <!-- ===================================================== -->
-    <header class="rounded-[20px] backdrop-blur-md bg-white/80 dark:bg-[#1C1C1E]/80 border border-black/5 dark:border-white/10 p-5 sm:p-6 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-5 shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
-        <div class="space-y-1.5 max-w-2xl">
-            <h1 class="text-[20px] sm:text-[24px] font-bold text-black dark:text-white tracking-tight">
-                Pengaturan Multi-Harga &amp; Stok Marketplace
-            </h1>
-            <p class="text-[13px] text-black/60 dark:text-white/60 leading-relaxed">
-                Tetapkan harga berbeda untuk tiap channel (Shopee, TikTok Shop, Tokopedia) untuk menutupi biaya admin marketplace atau jalankan sinkronisasi stok otomatis dari gudang utama.
-            </p>
-        </div>
-
-        <div class="flex flex-wrap items-center gap-2.5 w-full lg:w-auto">
+    {{-- MODULE HEADER & PERSISTENT MARKETPLACE TABS --}}
+    <x-module-header
+        module="marketplace"
+        title="Pengaturan Multi-Harga &amp; Stok Marketplace"
+        subtitle="Tetapkan harga berbeda per channel (Shopee, TikTok Shop, Tokopedia) untuk menutupi biaya admin marketplace serta sinkronisasi stok otomatis.">
+        <x-slot:actions>
             <form method="POST" action="{{ route('marketplace-hub.products.sync-all') }}" onsubmit="return AppAlert.confirmSubmit(event, 'Mulai Sinkronisasi Massal?', 'Data harga dan stok seluruh produk aktif akan dikirimkan serentak ke Shopee, TikTok Shop, dan Tokopedia.')">
                 @csrf
                 <button type="submit"
-                    class="h-10 px-4 rounded-[12px] text-[13px] font-bold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-sm cursor-pointer">
+                    class="min-h-[44px] sm:min-h-0 sm:h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] transition-all flex items-center justify-center gap-1.5 shadow-sm cursor-pointer">
                     <i data-lucide="refresh-cw" class="w-4 h-4"></i>
                     <span>Sinkronisasi Massal Semua</span>
                 </button>
             </form>
             <a href="{{ route('marketplace-hub.index') }}"
-                class="h-10 px-4 rounded-[12px] text-[13px] font-semibold text-black/70 dark:text-white/70 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] flex items-center justify-center gap-1.5 cursor-pointer">
+                class="min-h-[44px] sm:min-h-0 sm:h-9 px-4 rounded-[10px] text-[13px] font-medium text-black/70 dark:text-white/70 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] flex items-center justify-center gap-1.5 cursor-pointer">
                 <i data-lucide="arrow-left" class="w-4 h-4"></i>
                 <span>Kembali ke Hub</span>
             </a>
-        </div>
-    </header>
+        </x-slot:actions>
+    </x-module-header>
+
+    <x-module-tabs module="marketplace" />
 
     <!-- ===================================================== -->
     <!-- 1.1 SECTOR CONTEXT & COMPLIANCE BANNERS               -->

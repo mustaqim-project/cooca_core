@@ -568,6 +568,8 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
             Route::get('/inventory/transfers', [InventoryWebController::class, 'transfers'])->name('inventory.transfers.index');
         });
         Route::post('/inventory/stocks/adjust', [InventoryWebController::class, 'quickAdjust'])->middleware('require.permission:inventory.manage')->name('inventory.stocks.adjust');
+        Route::post('/inventory/adjustments/{adjustment}/approve', [InventoryWebController::class, 'approveAdjustment'])->middleware('require.permission:inventory.manage')->name('inventory.adjustments.approve');
+        Route::post('/inventory/adjustments/{adjustment}/reject', [InventoryWebController::class, 'rejectAdjustment'])->middleware('require.permission:inventory.manage')->name('inventory.adjustments.reject');
         Route::post('/inventory/opnames', [InventoryWebController::class, 'storeOpname'])->middleware('require.permission:inventory.manage')->name('inventory.opnames.store');
         Route::post('/inventory/opnames/{opname}/reconcile', [InventoryWebController::class, 'reconcileOpname'])->middleware('require.permission:inventory.manage')->name('inventory.opnames.reconcile');
         Route::post('/inventory/transfers', [InventoryWebController::class, 'storeTransfer'])->middleware(['require.permission:inventory.manage', 'entitlement:transfer_stock'])->name('inventory.transfers.store');

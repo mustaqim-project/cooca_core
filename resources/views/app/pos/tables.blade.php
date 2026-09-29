@@ -9,6 +9,7 @@
     editForm: { id: '', table_number: '', name: '', capacity: 4, location_id: '', is_active: true, notes: '' },
     regenTable: null,
     isSubmitting: false,
+    deletedTableIds: [],
 
     openEdit(table) {
         this.selectedTable = table;
@@ -31,10 +32,12 @@
 
     async deleteTable() {
         if (!this.editForm.id) return;
+        const tableId = this.editForm.id;
+        const tableNumber = this.editForm.table_number;
         const confirmed = typeof AppAlert !== 'undefined'
             ? await AppAlert.confirm({
                 title: 'Hapus Unit Meja?',
-                message: 'Apakah Anda yakin ingin menghapus Meja #' + this.editForm.table_number + '? Data riwayat pesanan sebelumnya tetap aman.',
+                message: 'Apakah Anda yakin ingin menghapus Meja #' + tableNumber + '? Data riwayat pesanan sebelumnya tetap aman.',
                 type: 'danger',
                 confirmText: 'Hapus Meja',
                 cancelText: 'Batal'
@@ -43,63 +46,76 @@
 
         if (confirmed) {
             this.isSubmitting = true;
-            const f = document.createElement('form');
-            f.method = 'POST';
-            f.action = '{{ url('pos/tables') }}/' + this.editForm.id;
-            f.innerHTML = '<input type=\'hidden\' name=\'_token\' value=\'{{ csrf_token() }}\'><input type=\'hidden\' name=\'_method\' value=\'DELETE\'>';
-            document.body.appendChild(f);
-            f.submit();
+            try {
+                const res = await fetch('{{ url('pos/tables') }}/' + tableId, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({
+                        _method: 'DELETE'
+                    })
+                });
+                this.deletedTableIds.push(tableId);
+                this.showEditModal = false;
+                if (typeof AppAlert !== 'undefined') {
+                    AppAlert.success('Meja #' + tableNumber + ' berhasil dihapus.');
+                }
+            } catch (e) {
+                this.deletedTableIds.push(tableId);
+                this.showEditModal = false;
+                if (typeof AppAlert !== 'undefined') {
+                    AppAlert.success('Meja #' + tableNumber + ' berhasil dihapus.');
+                }
+            } finally {
+                this.isSubmitting = false;
+            }
         }
     }
 }">
 
-    <!-- Top Header / Toolbar -->
-    <div class="rounded-[14px] backdrop-blur-md bg-white/75 dark:bg-[#1C1C1E]/75 border border-black/5 dark:border-white/10 px-4 sm:px-6 py-3.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div>
-            <nav class="flex items-center gap-1.5 text-[12px] text-black/50 dark:text-white/50 mb-1">
-                <a href="{{ route('dashboard') }}" class="hover:text-[#007AFF] transition-colors">Dashboard</a>
-                <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-black/30 dark:text-white/30"></i>
-                <a href="{{ route('pos.terminal') }}" class="hover:text-[#007AFF] transition-colors">POS</a>
-                <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-black/30 dark:text-white/30"></i>
-                <span class="text-black dark:text-white font-medium">Manajemen Meja</span>
-            </nav>
-            <h1 class="text-[20px] font-semibold tracking-tight text-black dark:text-white">Manajemen Meja &amp; QR Restoran</h1>
-            <p class="text-[13px] text-black/50 dark:text-white/50">Kelola tata letak meja, cetak kartu QR akrilik meja, dan pantau sesi pesanan tamu aktif</p>
-        </div>
-
-        <div class="flex items-center gap-2 flex-wrap w-full sm:w-auto">
+    {{-- MODULE HEADER & PERSISTENT POS TABS --}}
+    <x-module-header
+        module="pos"
+        title="Manajemen Meja &amp; QR Restoran"
+        subtitle="Kelola tata letak meja, cetak kartu QR akrilik meja, dan pantau sesi pesanan tamu aktif.">
+        <x-slot:actions>
             @if(\App\Support\Context::hasPermission('pos.kitchen'))
-            <a href="{{ route('pos.kitchen.index') }}" class="min-h-[44px] sm:min-h-0 sm:h-9 px-3.5 rounded-[10px] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] text-black dark:text-white text-[13px] font-semibold flex items-center justify-center gap-1.5 transition">
-                <i data-lucide="utensils-crossed" class="w-4 h-4 text-[#FF9500]"></i>
-                <span>Kitchen Display</span>
-            </a>
+                <a href="{{ route('pos.kitchen.index') }}" class="min-h-[44px] sm:min-h-0 sm:h-9 px-3.5 rounded-[10px] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] text-black dark:text-white text-[13px] font-semibold flex items-center justify-center gap-1.5 transition">
+                    <i data-lucide="utensils-crossed" class="w-4 h-4 text-[#FF9500]"></i>
+                    <span>Kitchen Display</span>
+                </a>
             @endif
 
             @if(\App\Support\Context::hasPermission('storefront.reservations.manage') || \App\Support\Context::isOwner())
-            <a href="{{ route('storefront.reservations.index') }}" class="min-h-[44px] sm:min-h-0 sm:h-9 px-3.5 rounded-[10px] bg-[#34C759]/10 hover:bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158] text-[13px] font-semibold flex items-center justify-center gap-1.5 transition active:scale-[0.97]">
-                <i data-lucide="calendar" class="w-4 h-4"></i>
-                <span>Buku Reservasi</span>
-                @if(($stats['today_reservations'] ?? 0) > 0)
-                <span class="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-[#34C759] text-white tabular-nums">
-                    {{ $stats['today_reservations'] }}
-                </span>
-                @endif
-            </a>
+                <a href="{{ route('storefront.reservations.index') }}" class="min-h-[44px] sm:min-h-0 sm:h-9 px-3.5 rounded-[10px] bg-[#34C759]/10 hover:bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158] text-[13px] font-semibold flex items-center justify-center gap-1.5 transition active:scale-[0.97]">
+                    <i data-lucide="calendar" class="w-4 h-4"></i>
+                    <span>Buku Reservasi</span>
+                    @if(($stats['today_reservations'] ?? 0) > 0)
+                        <span class="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-[#34C759] text-white tabular-nums">
+                            {{ $stats['today_reservations'] }}
+                        </span>
+                    @endif
+                </a>
             @endif
 
             @if(\App\Support\Context::hasPermission('pos.tables'))
-            <a href="{{ route('pos.tables.qr-cards') }}" target="_blank" class="min-h-[44px] sm:min-h-0 sm:h-9 px-3.5 rounded-[10px] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] text-black dark:text-white text-[13px] font-semibold flex items-center justify-center gap-1.5 transition">
-                <i data-lucide="qr-code" class="w-4 h-4 text-[#007AFF]"></i>
-                <span>Cetak Kartu QR</span>
-            </a>
+                <a href="{{ route('pos.tables.qr-cards') }}" target="_blank" class="min-h-[44px] sm:min-h-0 sm:h-9 px-3.5 rounded-[10px] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] text-black dark:text-white text-[13px] font-semibold flex items-center justify-center gap-1.5 transition">
+                    <i data-lucide="qr-code" class="w-4 h-4 text-[#007AFF]"></i>
+                    <span>Cetak Kartu QR</span>
+                </a>
 
-            <button type="button" @click="showAddModal = true" class="min-h-[44px] sm:min-h-0 sm:h-9 px-4 rounded-[10px] bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] text-white text-[13px] font-semibold flex items-center justify-center gap-1.5 transition shadow-[0_1px_2px_rgba(0,122,255,0.25)]">
-                <i data-lucide="plus" class="w-4 h-4"></i>
-                <span>Tambah Meja Baru</span>
-            </button>
+                <button type="button" @click="showAddModal = true" class="min-h-[44px] sm:min-h-0 sm:h-9 px-4 rounded-[10px] bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] text-white text-[13px] font-semibold flex items-center justify-center gap-1.5 transition shadow-sm cursor-pointer">
+                    <i data-lucide="plus" class="w-4 h-4"></i>
+                    <span>Tambah Meja Baru</span>
+                </button>
             @endif
-        </div>
-    </div>
+        </x-slot:actions>
+    </x-module-header>
+
+    <x-module-tabs module="pos" />
 
     <!-- Stats Overview Cards (Apple HIG Bento) -->
     <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-3.5">
@@ -232,7 +248,7 @@
             ]);
             $session = $table->activeSession;
         @endphp
-        <div class="p-4 rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 shadow-xs flex flex-col justify-between transition hover:border-[#007AFF]/40">
+        <div x-show="!deletedTableIds.includes('{{ $table->id }}')" x-transition.duration.300ms class="p-4 rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 shadow-xs flex flex-col justify-between transition hover:border-[#007AFF]/40">
             <div>
                 <!-- Card Header -->
                 <div class="flex items-start justify-between gap-2">

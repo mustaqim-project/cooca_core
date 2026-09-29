@@ -84,12 +84,12 @@ final class PosShiftWebController extends Controller
         if ($request->wantsJson()) {
             return response()->json([
                 'success' => true,
-                'message' => 'Shift kasir berhasil dibuka dengan modal awal Rp ' . number_format((float) $shift->opening_cash, 0, ',', '.'),
+                'message' => __('pos.shift_opened', ['amount' => 'Rp ' . number_format((float) $shift->opening_cash, 0, ',', '.')]),
                 'shift' => $shift->load(['user', 'location', 'register']),
             ]);
         }
 
-        return redirect()->back()->with('success', 'Shift kasir berhasil dibuka!');
+        return redirect()->back()->with('success', __('pos.shift_opened', ['amount' => 'Rp ' . number_format((float) $shift->opening_cash, 0, ',', '.')]));
     }
 
     /**
@@ -146,12 +146,12 @@ final class PosShiftWebController extends Controller
         if ($request->wantsJson()) {
             return response()->json([
                 'success' => true,
-                'message' => 'Shift kasir berhasil ditutup dan direkonsiliasi.',
+                'message' => __('pos.shift_closed'),
                 'shift' => $closed->load(['user', 'location', 'register']),
             ]);
         }
 
-        return redirect()->back()->with('success', 'Shift kasir berhasil ditutup!');
+        return redirect()->back()->with('success', __('pos.shift_closed'));
     }
 
     /**

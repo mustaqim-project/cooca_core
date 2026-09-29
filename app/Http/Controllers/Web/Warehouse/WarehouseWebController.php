@@ -196,7 +196,7 @@ final class WarehouseWebController extends Controller
         $label = in_array($validated['type'], ['outlet', 'store']) ? 'Cabang / Outlet' : ($validated['type'] === 'central_kitchen' ? 'Dapur Pusat' : 'Gudang');
 
         return redirect()->route('warehouse.index')
-            ->with('success', "{$label} \"{$validated['name']}\" berhasil ditambahkan!");
+            ->with('success', __('warehouse.created_success'));
     }
 
     /**
@@ -250,6 +250,14 @@ final class WarehouseWebController extends Controller
             ->where('is_active', true)
             ->get();
 
+        // Pengajuan penyesuaian stok bernilai tinggi yang menunggu approval (Maker-Checker)
+        $pendingAdjustments = StockAdjustment::where('business_id', $business->id)
+            ->where('location_id', $location->id)
+            ->where('status', 'pending_approval')
+            ->with(['creator', 'items.product.outputUnit'])
+            ->latest()
+            ->get();
+
         return view('app.warehouse.show', compact(
             'business',
             'location',
@@ -258,7 +266,8 @@ final class WarehouseWebController extends Controller
             'lowStockCount',
             'receipts',
             'recentMovements',
-            'otherLocations'
+            'otherLocations',
+            'pendingAdjustments'
         ));
     }
 
@@ -362,7 +371,7 @@ final class WarehouseWebController extends Controller
         $label = in_array($validated['type'], ['outlet', 'store']) ? 'Cabang / Outlet' : ($validated['type'] === 'central_kitchen' ? 'Dapur Pusat' : 'Gudang');
 
         return redirect()->route('warehouse.index')
-            ->with('success', "Data {$label} \"{$location->name}\" berhasil diperbarui.");
+            ->with('success', __('warehouse.updated_success'));
     }
 
     /**
@@ -374,7 +383,7 @@ final class WarehouseWebController extends Controller
         abort_unless($location->business_id === $business->id, 403);
 
         if ($location->is_primary) {
-            return back()->with('error', 'Gudang/outlet utama tidak dapat dihapus. Nonaktifkan saja jika tidak diperlukan.');
+            return back()->with('error', __('warehouse.cannot_delete_primary'));
         }
 
         $hasStock = InventoryStock::where('business_id', $business->id)
@@ -383,7 +392,7 @@ final class WarehouseWebController extends Controller
             ->exists();
 
         if ($hasStock) {
-            return back()->with('error', 'Gudang ini masih memiliki stok aktif. Kosongkan stok terlebih dahulu sebelum menghapus.');
+            return back()->with('error', __('warehouse.cannot_delete_has_stock'));
         }
 
         // Non-Destructive Location Archival Guard (§FR-05)
@@ -411,10 +420,10 @@ final class WarehouseWebController extends Controller
         $location->delete();
 
         if (request()->wantsJson()) {
-            return response()->json(['success' => true, 'message' => "Gudang \"{$name}\" berhasil dihapus."]);
+            return response()->json(['success' => true, 'message' => __('warehouse.deleted_success')]);
         }
 
         return redirect()->route('warehouse.index')
-            ->with('success', "Gudang \"{$name}\" berhasil dihapus.");
+            ->with('success', __('warehouse.deleted_success'));
     }
 }

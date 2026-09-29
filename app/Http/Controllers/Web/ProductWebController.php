@@ -312,7 +312,7 @@ final class ProductWebController extends Controller
             'is_active' => true,
         ]);
 
-        return redirect()->route('products.index')->with('success', 'Produk dan Model Biaya berhasil dibuat.');
+        return redirect()->route('products.index')->with('success', __('products.created_success'));
     }
 
     /**
@@ -499,7 +499,7 @@ final class ProductWebController extends Controller
             }
         }
 
-        return redirect()->route('products.index')->with('success', "Produk '{$product->name}' berhasil diperbarui.");
+        return redirect()->route('products.index')->with('success', __('products.updated_success'));
     }
 
     /**
@@ -577,7 +577,7 @@ final class ProductWebController extends Controller
             'is_mandatory' => true,
         ]);
 
-        return back()->with('success', 'Bahan berhasil ditambahkan ke resep/BOM.');
+        return back()->with('success', __('products.recipe_saved'));
     }
 
     /**
@@ -595,7 +595,7 @@ final class ProductWebController extends Controller
 
         $bomItem->delete();
 
-        return back()->with('success', 'Komponen berhasil dihapus dari BOM.');
+        return back()->with('success', __('products.recipe_saved'));
     }
 
     /**
@@ -625,7 +625,7 @@ final class ProductWebController extends Controller
 
         $product->delete();
 
-        return redirect()->route('products.index')->with('success', 'Produk berhasil dihapus.');
+        return redirect()->route('products.index')->with('success', __('products.deleted_success'));
     }
 
     /**
@@ -763,10 +763,10 @@ final class ProductWebController extends Controller
         if ($request->wantsJson()) {
             return response()->json([
                 'success' => true,
-                'message' => 'Pengaturan ketersediaan dan harga cabang berhasil disimpan.',
+                'message' => __('products.price_updated'),
             ]);
         }
 
-        return back()->with('success', 'Pengaturan ketersediaan dan harga cabang berhasil disimpan.');
+        return back()->with('success', __('products.price_updated'));
     }
 }

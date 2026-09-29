@@ -99,14 +99,14 @@ final class PosPrinterWebController extends Controller
                 if ($request->wantsJson()) {
                     return response()->json([
                         'success' => false,
-                        'message' => 'Alamat IP / Host printer tidak valid atau merupakan alamat internal/metadata yang dilarang.',
+                        'message' => __('printer.invalid_ip_host'),
                         'errors' => [
-                            'interface_address' => ['Alamat IP / Host printer tidak valid atau merupakan alamat internal/metadata yang dilarang.'],
+                            'interface_address' => [__('printer.invalid_ip_host')],
                         ],
                     ], 422);
                 }
                 return back()->withErrors([
-                    'interface_address' => 'Alamat IP / Host printer tidak valid atau merupakan alamat internal/metadata yang dilarang.',
+                    'interface_address' => __('printer.invalid_ip_host'),
                 ])->withInput();
             }
         }
@@ -146,13 +146,13 @@ final class PosPrinterWebController extends Controller
         if ($request->wantsJson()) {
             return response()->json([
                 'success' => true,
-                'message' => "Printer '{$printer->name}' berhasil ditambahkan.",
+                'message' => __('printer.printer_created', ['name' => $printer->name]),
                 'printer' => $printer,
             ]);
         }
 
         return redirect()->route('pos.printers.index')
-            ->with('success', "Printer '{$printer->name}' berhasil ditambahkan.");
+            ->with('success', __('printer.printer_created', ['name' => $printer->name]));
     }
 
     /**
@@ -183,14 +183,14 @@ final class PosPrinterWebController extends Controller
                 if ($request->wantsJson()) {
                     return response()->json([
                         'success' => false,
-                        'message' => 'Alamat IP / Host printer tidak valid atau merupakan alamat internal/metadata yang dilarang.',
+                        'message' => __('printer.invalid_ip_host'),
                         'errors' => [
-                            'interface_address' => ['Alamat IP / Host printer tidak valid atau merupakan alamat internal/metadata yang dilarang.'],
+                            'interface_address' => [__('printer.invalid_ip_host')],
                         ],
                     ], 422);
                 }
                 return back()->withErrors([
-                    'interface_address' => 'Alamat IP / Host printer tidak valid atau merupakan alamat internal/metadata yang dilarang.',
+                    'interface_address' => __('printer.invalid_ip_host'),
                 ])->withInput();
             }
         }
@@ -220,13 +220,13 @@ final class PosPrinterWebController extends Controller
         if ($request->wantsJson()) {
             return response()->json([
                 'success' => true,
-                'message' => "Pengaturan printer '{$printer->name}' berhasil diperbarui.",
+                'message' => __('printer.printer_updated', ['name' => $printer->name]),
                 'printer' => $printer,
             ]);
         }
 
         return redirect()->route('pos.printers.index')
-            ->with('success', "Pengaturan printer '{$printer->name}' berhasil diperbarui.");
+            ->with('success', __('printer.printer_updated', ['name' => $printer->name]));
     }
 
     /**
@@ -243,12 +243,12 @@ final class PosPrinterWebController extends Controller
         if (request()->wantsJson()) {
             return response()->json([
                 'success' => true,
-                'message' => "Printer '{$name}' berhasil dihapus.",
+                'message' => __('printer.printer_deleted', ['name' => $name]),
             ]);
         }
 
         return redirect()->route('pos.printers.index')
-            ->with('success', "Printer '{$name}' berhasil dihapus.");
+            ->with('success', __('printer.printer_deleted', ['name' => $name]));
     }
 
     /**
@@ -336,7 +336,7 @@ final class PosPrinterWebController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => count($results) > 0 ? 'Tiket pesanan dapur berhasil dikirim.' : 'Tidak ada printer dapur yang terkonfigurasi untuk menu ini.',
+            'message' => count($results) > 0 ? __('printer.kitchen_ticket_sent') : __('printer.no_kitchen_printer'),
             'results' => $results,
         ]);
     }
@@ -362,7 +362,7 @@ final class PosPrinterWebController extends Controller
         if (!$printer) {
             return response()->json([
                 'success' => false,
-                'message' => 'Tidak ada printer dengan kemampuan laci kas (Cash Drawer) yang terhubung.',
+                'message' => __('printer.no_cash_drawer_printer'),
             ], 422);
         }
 
@@ -370,14 +370,14 @@ final class PosPrinterWebController extends Controller
         $pin = (string) ($validated['supervisor_pin'] ?? '');
 
         // If user is owner/supervisor and pin is empty, fallback to business PIN
-        if ($pin === '' && (Context::isOwner() || $user->hasRole('owner'))) {
+        if ($pin === '' && (Context::isOwner() || in_array(Context::role(), ['owner', 'admin'], true))) {
             $pin = (string) ($business->pos_supervisor_pin ?? '');
         }
 
         if ($pin === '' || empty($business->pos_supervisor_pin)) {
             return response()->json([
                 'success' => false,
-                'message' => 'PIN Supervisor belum diatur oleh pemilik bisnis. Silakan atur PIN di Pengaturan Bisnis terlebih dahulu.',
+                'message' => __('printer.drawer_pin_unconfigured'),
             ], 422);
         }
 

@@ -121,6 +121,7 @@ class ApprovalRequest extends Model
             ApprovalRule::DOC_PURCHASE_ORDER => PurchaseOrder::find($this->document_id),
             ApprovalRule::DOC_EXPENSE => Expense::find($this->document_id),
             ApprovalRule::DOC_SUPPLIER_INVOICE => SupplierInvoice::find($this->document_id),
+            ApprovalRule::DOC_STOCK_ADJUSTMENT => StockAdjustment::find($this->document_id),
             default => null,
         };
     }
@@ -134,6 +135,7 @@ class ApprovalRequest extends Model
             ApprovalRule::DOC_PURCHASE_ORDER => 'Pesanan Pembelian (PO)',
             ApprovalRule::DOC_EXPENSE => 'Pengeluaran Kas / Biaya',
             ApprovalRule::DOC_SUPPLIER_INVOICE => 'Faktur Tagihan Pemasok',
+            ApprovalRule::DOC_STOCK_ADJUSTMENT => 'Penyesuaian Stok Gudang',
             default => ucfirst(str_replace('_', ' ', $this->document_type)),
         };
     }

@@ -355,3 +355,115 @@ Ketika Owner ingin memangkas penggunaan storage dan menghapus log audit/komunika
    - `info` Lucide box: *"Tenang: Pembersihan log aktivitas lama tidak akan pernah menghapus data transaksi penjualan, nota kasir, faktur invoice, atau laporan keuangan pembukuan Anda."*
 6. **Sticky Action Footer**: Tombol `[ Batal ]` dan tombol destruktif konfirmasi berotorisasi `[ Bersihkan 145 MB Sekarang ]` (merah taktil, 48px).
 
+---
+
+## 19. Protokol & Panduan Audit User Experience (UX) Komprehensif
+
+Setiap kali AI Agent diminta melakukan audit antarmuka (UI/UX) pada modul apa pun di COOCA, evaluasi **WAJIB** mencakup 5 pilar audit UX berikut secara terstruktur:
+
+```
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│                                 5 PILAR AUDIT UX COOCA                                 │
+├──────────────────┬──────────────────┬──────────────────┬──────────────────┬────────────┤
+│ 1. Clarity &     │ 2. Ergonomi &    │ 3. Zero-Manual & │ 4. Transparansi  │ 5. Multi-  │
+│    Apple HIG     │    Aksesibilitas │    Otomasi Alur  │    Limit & Kuota │ Sektor     │
+│  (Bento Canvas,  │   (Touch Target  │ (1-Click Action, │ (SaaS Downgrade, │ (F&B, POS, │
+│  Anti-Pill, Typo │   ≥44px, Anti-   │  CRM Auto-Link,  │  Storage Prune & │  Bengkel,  │
+│  Overline Murni) │  Zoom iOS 16px)  │  Kamus 1 Kata)   │  No Exaggeration)│  Laundry)  │
+└──────────────────┴──────────────────┴──────────────────┴──────────────────┴────────────┘
+```
+
+### 19.1 Checklist Pengecekan 5 Pilar UX
+
+1. **Pilar 1: Kepatuhan Bento Apple HIG & Visual Hierarchy**
+   - [ ] Apakah kanvas menggunakan rasio Bento Apple HIG yang proporsional dengan *continuous squircle* (`rounded-[20px]`/`[24px]`)?
+   - [ ] Apakah halaman bebas dari *eyebrow pill* berlebih? (Gunakan *Pure Typographic Overline* murni).
+   - [ ] Apakah seluruh ikon menggunakan Lucide vector icon murni dan 100% bebas dari emoji Unicode?
+   - [ ] Apakah kontras teks memenuhi standar WCAG 2.1 AA (minimal 4.5:1 untuk teks biasa)?
+
+2. **Pilar 2: Ergonomi UMKM Senior (Usia 40–65+ Tahun) & Aksesibilitas Sentuh**
+   - [ ] Apakah seluruh tombol aksi interaktif memenuhi *touch target* minimum $\ge 44\text{px}$ pada desktop/tablet dan $48\text{px}–52\text{px}$ pada mobile kasir?
+   - [ ] Apakah font input form pada perangkat mobile minimal $16\text{px}$ untuk mencegah *auto-zoom* yang mengganggu pada Safari iOS?
+   - [ ] Apakah area bawah layar mobile memiliki *safe area padding* (`pb-28` s/d `pb-32` atau `env(safe-area-inset-bottom)`) agar tidak tertutup sticky action bar atau navigation bar browser?
+   - [ ] Apakah modal input form menggunakan kanvas lapang **Full-Size XXL** (2-kolom pada desktop dan full bottom sheet pada mobile), bukan modal sempit `max-w-md`?
+
+3. **Pilar 3: Zero-Manual UI, Otomasi Alur Kerja & Multi-Bahasa (i18n / l10n)**
+   - [ ] Apakah alur kerja meminimalkan klik berulang (*streamlined workflow*)?
+   - [ ] Apakah tombol aksi form menerapkan **Kamus 1 Kata Kerja Tunggal** (`Simpan`, `Batal`, `Hapus`, `Cetak`, `Kirim`, `Void`, `Retur`)?
+   - [ ] Apakah dropdown relasi master data dilengkapi tombol *Inline Quick-Add* `[ + ]` untuk input cepat tanpa meninggalkan form utama?
+   - [ ] Apakah form dilengkapi *microcopy penenang jiwa* (*No-Panic Feedback*) pada dialog konfirmasi berisiko?
+   - [ ] **Audit Teks Multi-Bahasa**: Apakah antarmuka 100% bebas dari string bahasa Indonesia mentah (*hardcoded text*) dan seluruh label/pesan/alert menggunakan helper `{{ __('group.key') }}` atau `window.COOCA_I18N` untuk dukungan dwibahasa penuh (`id` $\leftrightarrow$ `en`)?
+   - [ ] Apakah tersedia komponen **Language Switcher Bento Apple HIG** (icon `globe`, opsi `ID` / `EN`, tanpa emoji bendera)?
+
+4. **Pilar 4: Transparansi Kuota SaaS, Storage Footprint & Integritas Data**
+   - [ ] Apakah antarmuka menyajikan informasi secara **sederhana, padat, dan jelas** (*Anti-Clutter*, tanpa dinding teks berbelit)?
+   - [ ] Apakah antarmuka 100% bebas dari klaim hiperbola/fiktif (*Anti-Hyperbole Mandate*, data wajib matematis `tabular-nums`)?
+   - [ ] Apakah kredensial sensitif (API key, token, PIN kasir) dimasking (`••••••••`) dan tidak bocor ke DOM/tabel (*Zero Plaintext Credential Exposure*)?
+   - [ ] Apakah batasan kuota langganan (misal saat *downgrade plan*) disajikan secara jelas di UI dengan status badge terkunci tanpa menghapus data historis?
+   - [ ] Apakah manajemen pembersihan data (*storage pruning*) menyediakan modal pratinjau (*preview before delete*) yang menampilkan baris data & estimasi MB yang dihemat?
+   - [ ] Apakah format angka moneter dan tanggal terformat secara presisi sesuai locale aktif (`Rp 250.000` / `29/09/2026` untuk ID vs `IDR 250,000` / `September 29, 2026` untuk EN)?
+
+5. **Pilar 5: Adaptabilitas Multi-Sektor Bisnis (Context-Aware UI)**
+   - [ ] Apakah antarmuka beradaptasi secara cerdas sesuai sektor usaha aktif merchant (misal: SPK & Nopol pada Bengkel, Berat Kg & Loker pada Laundry, No Batch & ED pada Farmasi, Meja & KOT pada Restoran/F&B)?
+   - [ ] Apakah terminologi disesuaikan dengan bahasa operasional industri terkait tanpa jargon teknis asing yang membingungkan?
+
+---
+
+### 19.2 Format Standar Laporan Audit UX & Rekomendasi
+
+Saat menyajikan Laporan Audit UX, gunakan format baku berikut:
+
+```markdown
+### 1. Ikhtisar & Metodologi Audit UX
+- Modul/Halaman yang di-audit: ...
+- Perangkat sasaran: Mobile (360–430px) / Tablet Kasir (768–1024px) / Desktop (1280px+)
+- Profil Pengguna: Kasir / Owner UMKM / Pelanggan Mandiri
+
+### 2. Temuan Masalah UX (UX Friction Points)
+| No | Modul / Elemen | Temuan Masalah | Akar Masalah | Dampak Pengguna | Pilar Terdampak |
+|---|---|---|---|---|---|
+| 1 | ... | ... | ... | ... | Pilar 1/2/3/4/5 |
+
+### 3. Matriks Perbandingan: Sebelum vs. Rekomendasi Sesudah
+| Aspek | Kondisi Saat Ini (Sebelum) | Rekomendasi Solusi (Sesudah) | Standar Acuan |
+|---|---|---|---|
+| Layout Modal | Modal sempit max-w-md | Modal-First XXL 2-Kolom Lapang | Apple HIG Bento v2.0 |
+| Touch Target | Tombol 32px | Tombol sentuh 48–52px | Ergonomi Senior 40–65 th |
+| Aksi Form | "Simpan Pengaturan Meja" | "Simpan" (1 kata kerja) | Kamus 1 Kata Tunggal |
+
+### 4. Roadmap Rekomendasi Perbaikan Bertahap
+- **P1 (Kritis - Operasional Kasir & Keamanan):** ...
+- **P2 (Tinggi - Ergonomi & Alur Pelanggan):** ...
+- **P3 (Sedang - Transparansi Kuota & Storage):** ...
+```
+
+---
+
+## 20. Standar Konsistensi 3 Panel (Admin, Owner, Customer), Tab Architecture & Information Architecture (IA)
+
+### 20.1 Standar Konsistensi Lintas 3 Panel
+1. **Admin Panel (`admin.*`)**: Shell `<x-admin-layout>`, kanvas `#F2F2F7` light / `#000000` dark, kartu bento `rounded-2xl`, header terpadu dengan breadcrumb platform teknis dan metrik multi-tenant.
+2. **Owner / User Panel (`app.*` / `owner.*`)**: Shell `<x-app-layout>`, kanvas `#F2F2F7` light / `#000000` dark, kartu bento `rounded-[20px]`–`rounded-[24px]` desktop, touch-first mobile input 16px, tombol ramah sentuhan 48–52px.
+3. **Customer Panel (`customer.*` / `storefront.*`)**: Shell `<x-customer-layout>`, kanvas `#FAFAFA` light / `#09090B` dark, kartu bento `rounded-2xl`–`rounded-3xl`, bebas jargon ERP internal, alur belanja cepat tanpa hambatan (*frictionless checkout*).
+
+### 20.2 Struktur Header & Page Title Terpadu (3 Baris Wajib)
+Setiap halaman wajib menerapkan susunan 3 baris:
+- **Baris 1 (Overline)**: Kategori atau breadcrumb berhuruf kapital murni tanpa kapsul pill (`text-[11px] sm:text-[12px] font-semibold uppercase tracking-wider text-black/40 dark:text-white/40`).
+- **Baris 2 (H1 Title + Action)**: Judul halaman (`text-2xl sm:text-3xl font-bold tracking-tight text-black dark:text-white`) + Badge Status Siklus Entitas + Action Button di pojok kanan atas (`bg-[#007AFF] text-white hover:bg-[#0062CC] rounded-xl px-4 py-2`).
+- **Baris 3 (Subtitle / Tabs)**: Deskripsi fungsional 1 baris singkat ATAU Segmented Control Tab Bar.
+
+### 20.3 Arsitektur Tab Navigasi & Pencegahan Desinkronisasi UX
+1. **Pill Segmented Control**: Untuk filter kategori / status pada tabel yang sama (`bg-black/[0.05] dark:bg-white/[0.08] p-1 rounded-xl`).
+2. **Underline Tab Bar**: Untuk membagi section formulir atau master-detail pada entitas yang sama (`border-b border-black/[0.06] dark:border-white/[0.08]`).
+3. **Mandat Deep-Linking URL (`?tab=...`)**: Tab internal wajib terhubung dengan query string URL menggunakan watcher Alpine.js agar saat refresh browser atau share link, halaman tetap membuka tab yang aktif.
+4. **Larangan Tab untuk Modul Independen**: Fitur yang memiliki alur kerja frekuensi tinggi (seperti Kasir POS) dilarang disembunyikan di dalam tab; wajib memiliki rute dan halaman mandiri.
+
+### 20.4 Information Architecture (IA): Pemisahan Operasional vs Settings Hub
+1. **Dilarang Polusi Menu Pengaturan**: Dilarang membuat menu konfigurasi (seperti Pengaturan Printer, Format Nota, Integrasi WA, Setting Pajak) berdiri sendiri di root sidebar.
+2. **4 Klaster Menu Baku Sidebar**:
+   - **Klaster 1: Operasional Harian** (Dashboard, Kasir POS, Pesanan Masuk, SPK Bengkel / Meja F&B, Surat Jalan).
+   - **Klaster 2: Master Data & Katalog** (Produk, Resep BOM, Multi-Gudang & Stok, Pelanggan CRM, Pemasok PO, Karyawan HRM).
+   - **Klaster 3: Laporan & Keuangan** (Buku Kas/Bank Auto-Journal, Laporan Penjualan, Laba Rugi).
+   - **Klaster 4: Pusat Pengaturan Terpadu (`/settings`)** (Satu menu terpusat yang memuat Sub-Hub: Profil Usaha, Kasir & Nota, Pajak & Bayar, Integrasi, Hak Akses, Plan & Storage).
+
+

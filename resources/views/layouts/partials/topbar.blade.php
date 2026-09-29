@@ -548,8 +548,10 @@
             @if ($canAccessPos)
                 { title: 'Buka Kasir POS', desc: 'Terminal kasir cepat untuk melayani transaksi kasir harian', category: 'Kasir & Penjualan', route: '{{ route('pos.terminal') }}', icon: 'calculator', keywords: 'kasir pos terminal jualan bayar struk checkout' },
                 { title: 'Riwayat Transaksi Kasir', desc: 'Daftar struk penjualan kasir POS dan rekap shift kasir', category: 'Kasir & Penjualan', route: '{{ route('pos.orders.index') }}', icon: 'receipt', keywords: 'transaksi kasir struk shift nota rekap' },
-                { title: 'Layar Dapur (KDS)', desc: 'Tampilan pesanan makanan & minuman langsung untuk staf dapur', category: 'Kasir & Penjualan', route: '{{ route('pos.kitchen.index') }}', icon: 'chef-hat', keywords: 'kitchen dapur kds order masak bar makanan resto' },
-                { title: 'Meja & QR Resto', desc: 'Tata kelola denah meja, nomor meja, dan cetak QR ordering', category: 'Kasir & Penjualan', route: '{{ route('pos.tables.index') }}', icon: 'layout-grid', keywords: 'meja table qr resto cafe dine in pesan' },
+                @if (\App\Support\Context::business()?->isModuleEnabled(\App\Domain\Template\ModuleRegistry::MODULE_POS_DINEIN) ?? true)
+                    { title: 'Layar Dapur (KDS)', desc: 'Tampilan pesanan makanan & minuman langsung untuk staf dapur', category: 'Kasir & Penjualan', route: '{{ route('pos.kitchen.index') }}', icon: 'chef-hat', keywords: 'kitchen dapur kds order masak bar makanan resto' },
+                    { title: 'Meja & QR Resto', desc: 'Tata kelola denah meja, nomor meja, dan cetak QR ordering', category: 'Kasir & Penjualan', route: '{{ route('pos.tables.index') }}', icon: 'layout-grid', keywords: 'meja table qr resto cafe dine in pesan' },
+                @endif
             @endif
             @if ($canAccessB2bSales)
                 { title: 'Pesanan Penjualan (Sales Orders)', desc: 'Daftar pesanan penjualan produk ke pelanggan atau klien', category: 'Kasir & Penjualan', route: '{{ route('sales.orders.index') }}', icon: 'shopping-bag', keywords: 'pesanan penjualan so sales order so order' },

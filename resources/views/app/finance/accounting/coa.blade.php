@@ -246,41 +246,51 @@
         </div>
 
         {{-- ========================================================== --}}
-        {{-- MODAL CREATE SUB-ACCOUNT (APPLE HIG MODAL SHEET)           --}}
+        {{-- MODAL CREATE SUB-ACCOUNT (BENTO APPLE HIG XXL SHEET)       --}}
         {{-- ========================================================== --}}
         <div x-show="createModalOpen" x-cloak
-            class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+            class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/40 backdrop-blur-md"
+            x-transition.opacity
             @keydown.escape.window="createModalOpen = false">
-            <div class="w-full max-w-md bg-white dark:bg-[#1C1C1E] rounded-[22px] shadow-2xl border border-black/10 dark:border-white/10 p-6 space-y-4"
-                @click.outside="createModalOpen = false">
-                <div class="flex items-center justify-between pb-2 border-b border-black/5 dark:border-white/10">
-                    <h2 class="text-[17px] font-bold text-black dark:text-white">Tambah Sub-Akun Baru</h2>
+            <div class="w-full max-w-full sm:max-w-2xl lg:max-w-3xl bg-white dark:bg-[#1C1C1E] rounded-[24px] shadow-[0_25px_70px_rgba(0,0,0,0.35)] border border-black/10 dark:border-white/10 overflow-hidden flex flex-col max-h-[92vh]"
+                @click.outside="createModalOpen = false"
+                x-data="{ isSubmitting: false }">
+                <div class="flex items-center justify-between px-6 sm:px-8 py-5 border-b border-black/5 dark:border-white/10 bg-black/[0.01] dark:bg-white/[0.02]">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-[12px] bg-[#007AFF]/12 text-[#007AFF] flex items-center justify-center shrink-0">
+                            <i data-lucide="plus" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-[18px] font-bold text-black dark:text-white tracking-tight">Tambah Sub-Akun Baru</h2>
+                            <p class="text-[12px] text-black/50 dark:text-white/50">Daftarkan akun buku besar COA dengan penentuan saldo normal</p>
+                        </div>
+                    </div>
                     <button type="button" @click="createModalOpen = false" class="w-8 h-8 rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center text-black/50 dark:text-white/50 hover:text-black">
                         <i data-lucide="x" class="w-4 h-4"></i>
                     </button>
                 </div>
 
-                <form method="POST" action="{{ route('finance.coa.store') }}" class="space-y-3.5">
+                <form method="POST" action="{{ route('finance.coa.store') }}" @submit="isSubmitting = true" class="flex-1 overflow-y-auto p-5 sm:p-8 space-y-5">
                     @csrf
-                    <div>
-                        <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Akun Induk (Parent COA)</label>
-                        <select name="parent_id" class="w-full h-11 sm:h-10 px-3 text-[16px] sm:text-[14px] bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] text-black dark:text-white focus:ring-1 focus:ring-[#007AFF]">
-                            <option value="">-- Tanpa Induk (Akun Utama) --</option>
-                            @foreach($parentCandidates as $p)
-                                <option value="{{ $p->id }}">{{ $p->code }} – {{ $p->name }} ({{ $p->getTypeLabel() }})</option>
-                            @endforeach
-                        </select>
-                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="sm:col-span-2">
+                            <label class="block text-[13px] font-bold text-black/80 dark:text-white/80 mb-1.5">Akun Induk (Parent COA)</label>
+                            <select name="parent_id" class="w-full h-11 px-3.5 text-[16px] sm:text-[14px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[12px] text-black dark:text-white focus:ring-2 focus:ring-[#007AFF]">
+                                <option value="">-- Tanpa Induk (Akun Utama) --</option>
+                                @foreach($parentCandidates as $p)
+                                    <option value="{{ $p->id }}">{{ $p->code }} – {{ $p->name }} ({{ $p->getTypeLabel() }})</option>
+                                @endforeach
+                            </select>
+                        </div>
 
-                    <div class="grid grid-cols-2 gap-2.5">
                         <div>
-                            <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Kode Akun *</label>
+                            <label class="block text-[13px] font-bold text-black/80 dark:text-white/80 mb-1.5">Kode Akun *</label>
                             <input type="text" name="code" required placeholder="Mis. 1-1001.01"
-                                class="w-full h-11 sm:h-10 px-3 text-[16px] sm:text-[14px] bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] text-black dark:text-white focus:ring-1 focus:ring-[#007AFF]">
+                                class="w-full h-11 px-3.5 text-[16px] sm:text-[14px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[12px] text-black dark:text-white focus:ring-2 focus:ring-[#007AFF]">
                         </div>
                         <div>
-                            <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Tipe Akun *</label>
-                            <select name="type" required class="w-full h-11 sm:h-10 px-3 text-[16px] sm:text-[14px] bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] text-black dark:text-white focus:ring-1 focus:ring-[#007AFF]">
+                            <label class="block text-[13px] font-bold text-black/80 dark:text-white/80 mb-1.5">Tipe Akun *</label>
+                            <select name="type" required class="w-full h-11 px-3.5 text-[16px] sm:text-[14px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[12px] text-black dark:text-white focus:ring-2 focus:ring-[#007AFF]">
                                 <option value="asset">Aset / Aktiva</option>
                                 <option value="liability">Kewajiban / Hutang</option>
                                 <option value="equity">Ekuitas / Modal</option>
@@ -289,72 +299,88 @@
                                 <option value="expense">Beban Operasional</option>
                             </select>
                         </div>
+
+                        <div>
+                            <label class="block text-[13px] font-bold text-black/80 dark:text-white/80 mb-1.5">Nama Sub-Akun *</label>
+                            <input type="text" name="name" required placeholder="Mis. Kas Kasir Gerai Sudirman"
+                                class="w-full h-11 px-3.5 text-[16px] sm:text-[14px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[12px] text-black dark:text-white focus:ring-2 focus:ring-[#007AFF]">
+                        </div>
+
+                        <div>
+                            <label class="block text-[13px] font-bold text-black/80 dark:text-white/80 mb-1.5">Saldo Normal *</label>
+                            <select name="normal_balance" required class="w-full h-11 px-3.5 text-[16px] sm:text-[14px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[12px] text-black dark:text-white focus:ring-2 focus:ring-[#007AFF]">
+                                <option value="debit">Debit</option>
+                                <option value="credit">Kredit</option>
+                            </select>
+                        </div>
                     </div>
 
-                    <div>
-                        <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Nama Sub-Akun *</label>
-                        <input type="text" name="name" required placeholder="Mis. Kas Kasir Gerai Sudirman"
-                            class="w-full h-11 sm:h-10 px-3 text-[16px] sm:text-[14px] bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] text-black dark:text-white focus:ring-1 focus:ring-[#007AFF]">
-                    </div>
-
-                    <div>
-                        <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Saldo Normal *</label>
-                        <select name="normal_balance" required class="w-full h-11 sm:h-10 px-3 text-[16px] sm:text-[14px] bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] text-black dark:text-white focus:ring-1 focus:ring-[#007AFF]">
-                            <option value="debit">Debit</option>
-                            <option value="credit">Kredit</option>
-                        </select>
-                    </div>
-
-                    <div class="pt-3 flex items-center justify-end gap-2 border-t border-black/5 dark:border-white/10">
-                        <button type="button" @click="createModalOpen = false" class="min-h-[44px] sm:min-h-0 h-11 sm:h-10 px-4 rounded-[10px] text-[13px] font-medium text-black/60 dark:text-white/60 hover:bg-black/5 dark:hover:bg-white/5">Batal</button>
-                        <button type="submit" class="min-h-[44px] sm:min-h-0 h-11 sm:h-10 px-5 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] shadow-md">Simpan Sub-Akun</button>
+                    <div class="pt-4 flex flex-col-reverse sm:flex-row items-center justify-end gap-3 border-t border-black/5 dark:border-white/10">
+                        <button type="button" @click="createModalOpen = false" :disabled="isSubmitting" class="w-full sm:w-auto min-h-[48px] px-6 rounded-[14px] text-[14px] font-semibold text-black/60 dark:text-white/60 hover:bg-black/5 dark:hover:bg-white/5 transition">Batal</button>
+                        <button type="submit" :disabled="isSubmitting" class="w-full sm:w-auto min-h-[48px] px-8 rounded-[14px] text-[14.5px] font-bold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] shadow-[0_4px_16px_rgba(0,122,255,0.3)] transition flex items-center justify-center gap-2">
+                            <span x-text="isSubmitting ? 'Menyimpan...' : 'Simpan Sub-Akun'">Simpan Sub-Akun</span>
+                        </button>
                     </div>
                 </form>
             </div>
         </div>
 
         {{-- ========================================================== --}}
-        {{-- MODAL EDIT ACCOUNT (APPLE HIG MODAL SHEET)                 --}}
+        {{-- MODAL EDIT ACCOUNT (BENTO APPLE HIG XXL SHEET)             --}}
         {{-- ========================================================== --}}
         <div x-show="editModalOpen" x-cloak
-            class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+            class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/40 backdrop-blur-md"
+            x-transition.opacity
             @keydown.escape.window="editModalOpen = false">
-            <div class="w-full max-w-md bg-white dark:bg-[#1C1C1E] rounded-[22px] shadow-2xl border border-black/10 dark:border-white/10 p-6 space-y-4"
-                @click.outside="editModalOpen = false">
-                <div class="flex items-center justify-between pb-2 border-b border-black/5 dark:border-white/10">
-                    <h2 class="text-[17px] font-bold text-black dark:text-white">Ubah Akun</h2>
+            <div class="w-full max-w-full sm:max-w-2xl lg:max-w-3xl bg-white dark:bg-[#1C1C1E] rounded-[24px] shadow-[0_25px_70px_rgba(0,0,0,0.35)] border border-black/10 dark:border-white/10 overflow-hidden flex flex-col max-h-[92vh]"
+                @click.outside="editModalOpen = false"
+                x-data="{ isSubmitting: false }">
+                <div class="flex items-center justify-between px-6 sm:px-8 py-5 border-b border-black/5 dark:border-white/10 bg-black/[0.01] dark:bg-white/[0.02]">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-[12px] bg-[#FF9500]/12 text-[#FF9500] flex items-center justify-center shrink-0">
+                            <i data-lucide="pencil" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-[18px] font-bold text-black dark:text-white tracking-tight">Ubah Akun COA</h2>
+                            <p class="text-[12px] text-black/50 dark:text-white/50">Perbarui informasi kode atau nama akun buku besar</p>
+                        </div>
+                    </div>
                     <button type="button" @click="editModalOpen = false" class="w-8 h-8 rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center text-black/50 dark:text-white/50 hover:text-black">
                         <i data-lucide="x" class="w-4 h-4"></i>
                     </button>
                 </div>
 
-                <form method="POST" :action="'/finance/chart-of-accounts/' + editAccount.id" class="space-y-3.5">
+                <form method="POST" :action="'/finance/chart-of-accounts/' + editAccount.id" @submit="isSubmitting = true" class="flex-1 overflow-y-auto p-5 sm:p-8 space-y-5">
                     @csrf
                     @method('PUT')
 
-                    <template x-if="!editAccount.is_system">
-                        <div>
-                            <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Kode Akun</label>
-                            <input type="text" name="code" x-model="editAccount.code" required
-                                class="w-full h-11 sm:h-10 px-3 text-[16px] sm:text-[14px] bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] text-black dark:text-white focus:ring-1 focus:ring-[#007AFF]">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <template x-if="!editAccount.is_system">
+                            <div>
+                                <label class="block text-[13px] font-bold text-black/80 dark:text-white/80 mb-1.5">Kode Akun</label>
+                                <input type="text" name="code" x-model="editAccount.code" required
+                                    class="w-full h-11 px-3.5 text-[16px] sm:text-[14px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[12px] text-black dark:text-white focus:ring-2 focus:ring-[#007AFF]">
+                            </div>
+                        </template>
+
+                        <div :class="editAccount.is_system ? 'sm:col-span-2' : ''">
+                            <label class="block text-[13px] font-bold text-black/80 dark:text-white/80 mb-1.5">Nama Akun</label>
+                            <input type="text" name="name" x-model="editAccount.name" required
+                                class="w-full h-11 px-3.5 text-[16px] sm:text-[14px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[12px] text-black dark:text-white focus:ring-2 focus:ring-[#007AFF]">
                         </div>
-                    </template>
-
-                    <div>
-                        <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Nama Akun</label>
-                        <input type="text" name="name" x-model="editAccount.name" required
-                            class="w-full h-11 sm:h-10 px-3 text-[16px] sm:text-[14px] bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] text-black dark:text-white focus:ring-1 focus:ring-[#007AFF]">
                     </div>
 
-                    <div class="flex items-center gap-2 pt-1">
+                    <div class="flex items-center gap-2.5 pt-1">
                         <input type="checkbox" name="is_active" id="edit_is_active" value="1" x-model="editAccount.is_active"
-                            class="w-4 h-4 rounded text-[#007AFF] focus:ring-[#007AFF]">
-                        <label for="edit_is_active" class="text-[13px] text-black/80 dark:text-white/80">Akun Aktif</label>
+                            class="w-5 h-5 rounded text-[#007AFF] focus:ring-[#007AFF]">
+                        <label for="edit_is_active" class="text-[13px] font-semibold text-black/80 dark:text-white/80">Akun Aktif (Dapat digunakan dalam jurnal & transaksi)</label>
                     </div>
 
-                    <div class="pt-3 flex items-center justify-end gap-2 border-t border-black/5 dark:border-white/10">
-                        <button type="button" @click="editModalOpen = false" class="min-h-[44px] sm:min-h-0 h-11 sm:h-10 px-4 rounded-[10px] text-[13px] font-medium text-black/60 dark:text-white/60 hover:bg-black/5 dark:hover:bg-white/5">Batal</button>
-                        <button type="submit" class="min-h-[44px] sm:min-h-0 h-11 sm:h-10 px-5 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] shadow-md">Perbarui Akun</button>
+                    <div class="pt-4 flex flex-col-reverse sm:flex-row items-center justify-end gap-3 border-t border-black/5 dark:border-white/10">
+                        <button type="button" @click="editModalOpen = false" :disabled="isSubmitting" class="w-full sm:w-auto min-h-[48px] px-6 rounded-[14px] text-[14px] font-semibold text-black/60 dark:text-white/60 hover:bg-black/5 dark:hover:bg-white/5 transition">Batal</button>
+                        <button type="submit" :disabled="isSubmitting" class="w-full sm:w-auto min-h-[48px] px-8 rounded-[14px] text-[14.5px] font-bold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] shadow-[0_4px_16px_rgba(0,122,255,0.3)] transition flex items-center justify-center gap-2">
+                            <span x-text="isSubmitting ? 'Menyimpan...' : 'Perbarui Akun'">Perbarui Akun</span>
+                        </button>
                     </div>
                 </form>
             </div>

@@ -87,12 +87,94 @@
             <div class="rounded-[14px] bg-[#34C759]/10 border border-[#34C759]/20 px-4 py-3 text-xs text-[#248A3D] dark:text-[#30D158] flex items-center gap-2.5">
                 <i data-lucide="check-circle" class="w-4 h-4 shrink-0 text-[#34C759]"></i>
                 <span class="font-medium">{{ session('success') }}</span>
+        @if (session('warning'))
+            <div class="rounded-[14px] bg-[#FF9500]/10 border border-[#FF9500]/20 px-4 py-3 text-xs text-[#B25E00] dark:text-[#FF9F0A] flex items-center gap-2.5">
+                <i data-lucide="shield-alert" class="w-4 h-4 shrink-0 text-[#FF9500]"></i>
+                <span class="font-medium">{{ session('warning') }}</span>
             </div>
         @endif
-        @if (session('error'))
-            <div class="rounded-[14px] bg-[#FF3B30]/10 border border-[#FF3B30]/20 px-4 py-3 text-xs text-[#C41E17] dark:text-[#FF453A] flex items-center gap-2.5">
-                <i data-lucide="alert-triangle" class="w-4 h-4 shrink-0 text-[#FF3B30]"></i>
-                <span class="font-medium">{{ session('error') }}</span>
+
+        {{-- ===================================================== --}}
+        {{-- PENDING HIGH-VALUE STOCK ADJUSTMENTS (MAKER-CHECKER)  --}}
+        {{-- ===================================================== --}}
+        @if (!empty($pendingAdjustments) && $pendingAdjustments->isNotEmpty())
+            <div class="rounded-[20px] bg-gradient-to-br from-amber-500/10 via-amber-500/5 to-transparent dark:from-amber-500/15 dark:to-transparent border border-amber-500/30 p-5 space-y-4 shadow-sm">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-[12px] bg-[#FF9500] text-white flex items-center justify-center shrink-0 shadow-md shadow-amber-500/20">
+                            <i data-lucide="shield-alert" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h3 class="text-sm sm:text-base font-bold text-slate-900 dark:text-white">
+                                    Persetujuan Penyesuaian Stok Bernilai Tinggi (Maker-Checker)
+                                </h3>
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#FF9500] text-white tabular-nums">
+                                    {{ $pendingAdjustments->count() }} Menunggu
+                                </span>
+                            </div>
+                            <p class="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
+                                Penyesuaian stok bernilai tinggi di atas batas toleransi diajukan oleh staf dan membutuhkan otorisasi Pemilik Usaha / Supervisor.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="divide-y divide-amber-500/20 rounded-[14px] bg-white/80 dark:bg-[#1C1C1E]/80 border border-amber-500/20 overflow-hidden">
+                    @foreach ($pendingAdjustments as $adj)
+                        <div class="p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                            <div class="space-y-1.5 flex-1">
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <span class="font-mono font-bold text-xs text-slate-900 dark:text-white">#{{ $adj->adjustment_number }}</span>
+                                    <span class="text-[11px] text-slate-400 dark:text-slate-500">&bull;</span>
+                                    <span class="text-xs text-slate-600 dark:text-slate-400">{{ $adj->adjustment_date?->format('d/m/Y') }}</span>
+                                    <span class="text-[11px] text-slate-400 dark:text-slate-500">&bull;</span>
+                                    <span class="text-xs font-semibold text-slate-700 dark:text-slate-300">Diajukan oleh: {{ $adj->creator?->name ?? 'Staf' }}</span>
+                                </div>
+                                <div class="text-xs text-slate-800 dark:text-slate-200">
+                                    @foreach ($adj->items as $item)
+                                        <div class="flex items-center gap-2">
+                                            <span class="font-bold">{{ $item->product?->name }}</span>:
+                                            <span class="font-mono text-red-600 dark:text-red-400 font-semibold">{{ $item->difference_quantity > 0 ? '+' : '' }}{{ number_format($item->difference_quantity, 2) }} {{ $item->product?->outputUnit?->symbol }}</span>
+                                            <span class="text-slate-400">(Estimasi Kerugian: <strong class="font-mono text-red-600 dark:text-red-400">Rp {{ number_format($item->total_cost, 0, ',', '.') }}</strong>)</span>
+                                        </div>
+                                    @endforeach
+                                </div>
+                                @if ($adj->notes)
+                                    <p class="text-[11px] text-slate-500 dark:text-slate-400 italic">
+                                        "{{ $adj->notes }}"
+                                    </p>
+                                @endif
+                            </div>
+
+                            @if (\App\Support\Context::isOwner() || auth()->user()?->hasRole('owner') || auth()->user()?->hasRole('supervisor'))
+                                <div class="flex items-center gap-2 shrink-0">
+                                    <form method="POST" action="{{ route('inventory.adjustments.reject', $adj->id) }}">
+                                        @csrf
+                                        <button type="submit" onclick="return confirm('Yakin ingin menolak pengajuan penyesuaian stok ini?')"
+                                            class="min-h-[38px] px-3.5 rounded-[10px] text-xs font-semibold text-red-600 dark:text-red-400 bg-red-500/10 hover:bg-red-500/20 active:scale-[0.98] transition-all flex items-center gap-1.5 cursor-pointer">
+                                            <i data-lucide="x-circle" class="w-4 h-4"></i>
+                                            <span>Tolak</span>
+                                        </button>
+                                    </form>
+
+                                    <form method="POST" action="{{ route('inventory.adjustments.approve', $adj->id) }}">
+                                        @csrf
+                                        <button type="submit" onclick="return confirm('Setujui penyesuaian stok ini? Kartu stok dan pembukuan jurnal akan otomatis dimutasi.')"
+                                            class="min-h-[38px] px-4 rounded-[10px] text-xs font-bold text-white bg-[#34C759] hover:bg-[#2FB34F] active:scale-[0.98] transition-all flex items-center gap-1.5 shadow-sm shadow-green-600/20 cursor-pointer">
+                                            <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+                                            <span>Setujui Penyesuaian</span>
+                                        </button>
+                                    </form>
+                                </div>
+                            @else
+                                <span class="px-3 py-1.5 rounded-[10px] text-xs font-medium text-amber-700 dark:text-amber-300 bg-amber-500/10 border border-amber-500/20">
+                                    Menunggu Otorisasi Owner
+                                </span>
+                            @endif
+                        </div>
+                    @endforeach
+                </div>
             </div>
         @endif
 

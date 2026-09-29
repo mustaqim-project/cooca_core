@@ -364,4 +364,151 @@ final class IndustryTemplateModularizationTest extends TestCase
         $this->assertTrue(Context::hasPermission('pos.kitchen'));
         $this->assertTrue(Context::hasPermission('materials.view'));
     }
+
+    public function test_sidebar_and_product_form_gating_for_non_fnb_and_fnb(): void
+    {
+        Context::flush();
+        $ownerRole = Role::where('slug', 'owner')->first();
+
+        // 1. Non-F&B Business (Bengkel / Automotive Workshop)
+        $workshopUser = $this->createUser([
+            'name' => 'Bengkel Owner',
+            'email' => 'bengkel@test.local',
+            'phone' => '628111222333',
+        ]);
+
+        $workshopTemplate = BusinessTypeTemplate::where('code', 'automotive_workshop')->first();
+        $disabledModules = $workshopTemplate
+            ? ModuleRegistry::getDisabledModulesForTemplate($workshopTemplate->code)
+            : [ModuleRegistry::MODULE_POS_DINEIN, ModuleRegistry::MODULE_RECIPE_BOM];
+
+        $workshopBiz = Business::create([
+            'name' => 'Bengkel Mobil Maju Jaya',
+            'currency' => 'IDR',
+            'disabled_modules' => $disabledModules,
+        ]);
+
+        $workshopBiz->users()->attach($workshopUser->id, [
+            'id' => (string) Str::uuid(),
+            'role' => 'owner',
+            'role_id' => $ownerRole?->id,
+        ]);
+        $workshopUser->update(['active_business_id' => $workshopBiz->id]);
+        $workshopMembership = BusinessMembership::where('business_id', $workshopBiz->id)->where('user_id', $workshopUser->id)->first();
+        Context::setBusiness($workshopBiz, $workshopMembership);
+
+        $this->assertFalse($workshopBiz->isModuleEnabled(ModuleRegistry::MODULE_POS_DINEIN));
+
+        // Visit products page as Bengkel Owner
+        $workshopResponse = $this->actingAs($workshopUser, 'web')
+            ->withSession([
+                'active_business_id' => $workshopBiz->id,
+                'auth_wa_otp_verified_user_id' => $workshopUser->id,
+            ])
+            ->get(route('products.index'));
+
+        $workshopResponse->assertOk();
+        // Should NOT see F&B Multi-Harga Bento Box or Kitchen/Tables in Sidebar
+        $workshopResponse->assertDontSee('Multi-Harga Saluran POS (F&amp;B)', false);
+        $workshopResponse->assertDontSee('Layar Dapur (KDS)');
+        $workshopResponse->assertDontSee('Meja &amp; QR Resto', false);
+
+        // Workshop owner can store product without channel_prices cleanly
+        $defaultUnit = \App\Models\Unit::first();
+        $storeResponse = $this->actingAs($workshopUser, 'web')
+            ->withSession([
+                'active_business_id' => $workshopBiz->id,
+                'auth_wa_otp_verified_user_id' => $workshopUser->id,
+            ])
+            ->post(route('products.store'), [
+                'name' => 'Oli Mesin Synth 10W-40',
+                'sku' => 'OLI-10W40',
+                'output_unit_id' => $defaultUnit->id,
+                'base_cost' => 50000,
+                'selling_price' => 75000,
+                'min_stock' => 5,
+                'costing_method' => 'simple',
+            ]);
+
+        $storeResponse->assertRedirect(route('products.index'));
+        $this->assertDatabaseHas('products', [
+            'business_id' => $workshopBiz->id,
+            'name' => 'Oli Mesin Synth 10W-40',
+            'code' => 'OLI-10W40',
+        ]);
+
+        // 2. F&B Restaurant Business
+        Context::flush();
+
+        $fnbUser = $this->createUser([
+            'name' => 'Resto Owner',
+            'email' => 'resto@test.local',
+            'phone' => '628999888777',
+        ]);
+
+        $fnbBiz = Business::create([
+            'name' => 'Restoran Nusantara Rasa',
+            'currency' => 'IDR',
+            'disabled_modules' => [], // All active
+        ]);
+
+        $fnbBiz->users()->attach($fnbUser->id, [
+            'id' => (string) Str::uuid(),
+            'role' => 'owner',
+            'role_id' => $ownerRole?->id,
+        ]);
+        $fnbUser->update(['active_business_id' => $fnbBiz->id]);
+        $fnbMembership = BusinessMembership::where('business_id', $fnbBiz->id)->where('user_id', $fnbUser->id)->first();
+        Context::setBusiness($fnbBiz, $fnbMembership);
+
+        $this->assertTrue($fnbBiz->isModuleEnabled(ModuleRegistry::MODULE_POS_DINEIN));
+        $this->assertTrue(Context::hasPermission('pos.kitchen'));
+        $this->assertTrue(Context::hasPermission('pos.tables'));
+
+        // Visit products page as Resto Owner
+        $fnbResponse = $this->actingAs($fnbUser, 'web')
+            ->withSession([
+                'active_business_id' => $fnbBiz->id,
+                'auth_wa_otp_verified_user_id' => $fnbUser->id,
+            ])
+            ->get(route('products.index'));
+
+        $fnbResponse->assertOk();
+        // SHOULD see F&B Multi-Harga Bento Box and Kitchen/Tables in Sidebar
+        $fnbResponse->assertSee('Multi-Harga Saluran POS (F&amp;B)', false);
+        $fnbResponse->assertSee('tour-nav-pos-kitchen', false);
+        $fnbResponse->assertSee('tour-nav-pos-tables', false);
+
+        // Resto owner stores product WITH channel_prices
+        $fnbStoreResponse = $this->actingAs($fnbUser, 'web')
+            ->withSession([
+                'active_business_id' => $fnbBiz->id,
+                'auth_wa_otp_verified_user_id' => $fnbUser->id,
+            ])
+            ->post(route('products.store'), [
+                'name' => 'Nasi Goreng Spesial',
+                'sku' => 'NASGOR-01',
+                'output_unit_id' => $defaultUnit->id,
+                'base_cost' => 15000,
+                'selling_price' => 30000,
+                'min_stock' => 0,
+                'costing_method' => 'simple',
+                'channel_prices' => [
+                    'dine_in' => 30000,
+                    'takeaway' => 32000,
+                    'gofood' => 36000,
+                    'grabfood' => 36000,
+                    'shopeefood' => 36000,
+                ],
+            ]);
+
+        $fnbStoreResponse->assertRedirect(route('products.index'));
+        $createdProduct = \App\Models\Product::where('business_id', $fnbBiz->id)->where('code', 'NASGOR-01')->firstOrFail();
+        $this->assertDatabaseHas('product_channel_prices', [
+            'business_id' => $fnbBiz->id,
+            'product_id' => $createdProduct->id,
+            'channel' => 'gofood',
+            'price' => 36000,
+        ]);
+    }
 }

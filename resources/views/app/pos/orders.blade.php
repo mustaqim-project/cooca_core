@@ -48,33 +48,22 @@
         window.COOCA_POS_ORDERS = @json($orders->items());
     </script>
     
-    <!-- ===================================================== -->
-    <!-- 0. BREADCRUMB & TOOLBAR HEADER (macOS Sonoma Style)   -->
-    <!-- ===================================================== -->
-    <header class="rounded-[16px] backdrop-blur-md bg-white/80 dark:bg-[#1C1C1E]/80 border border-black/5 dark:border-white/10 px-4 sm:px-6 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm transition-colors">
-        <div>
-            <nav class="flex items-center gap-1.5 text-[12px] text-black/50 dark:text-white/50 mb-1" aria-label="Breadcrumb">
-                <a href="{{ route('dashboard') }}" class="hover:text-[#007AFF] transition-colors">Dashboard</a>
-                <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-black/30 dark:text-white/30"></i>
-                <span class="text-black/70 dark:text-white/70 font-medium">Penjualan</span>
-                <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-black/30 dark:text-white/30"></i>
-                <a href="{{ route('pos.terminal') }}" class="hover:text-[#007AFF] transition-colors">Kasir POS</a>
-                <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-black/30 dark:text-white/30"></i>
-                <span class="text-black dark:text-white font-medium">Riwayat Transaksi</span>
-            </nav>
-            <h1 class="text-[20px] font-bold text-black dark:text-white tracking-tight">Riwayat Transaksi POS</h1>
-            <p class="text-[13px] text-black/50 dark:text-white/50 mt-0.5">Daftar transaksi kasir, margin HPP terintegrasi, cetak ulang struk, void, dan retur.</p>
-        </div>
-
-        <div class="flex items-center gap-2 w-full sm:w-auto">
+    {{-- MODULE HEADER & PERSISTENT POS TABS --}}
+    <x-module-header
+        module="pos"
+        title="Riwayat Transaksi POS"
+        subtitle="Daftar transaksi kasir, margin HPP terintegrasi, cetak ulang struk, void, dan retur.">
+        <x-slot:actions>
             @if(\App\Support\Context::hasPermission('pos.terminal'))
-            <a href="{{ route('pos.terminal') }}" class="min-h-[44px] h-11 px-4 rounded-[12px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-2 shadow-sm w-full sm:w-auto">
-                <i data-lucide="layout-grid" class="w-4 h-4"></i>
-                <span>Buka Terminal Kasir</span>
-            </a>
+                <a href="{{ route('pos.terminal') }}" class="min-h-[44px] sm:min-h-0 sm:h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] transition-all flex items-center justify-center gap-2 shadow-sm w-full sm:w-auto">
+                    <i data-lucide="layout-grid" class="w-4 h-4"></i>
+                    <span>Buka Terminal Kasir</span>
+                </a>
             @endif
-        </div>
-    </header>
+        </x-slot:actions>
+    </x-module-header>
+
+    <x-module-tabs module="pos" />
 
     @if(session('success'))
         <div class="p-3.5 rounded-[12px] bg-[#34C759]/10 border border-[#34C759]/20 text-[#248A3D] dark:text-[#30D158] text-[13px] font-medium flex items-center gap-2">

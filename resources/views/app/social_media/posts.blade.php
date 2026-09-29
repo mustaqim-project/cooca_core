@@ -7,37 +7,12 @@
 @section('content')
     <div class="max-w-[1360px] mx-auto space-y-6 pb-28 lg:pb-12" x-data="socialPostsManager()">
 
-        {{-- 0. BREADCRUMB --}}
-        <nav class="flex items-center gap-1.5 text-[12px] text-black/50 dark:text-white/50 py-0.5 whitespace-nowrap print:hidden">
-            <a href="{{ route('dashboard') }}" class="hover:text-[#007AFF] transition-colors font-medium">Dashboard</a>
-            <i data-lucide="chevron-right" class="w-3.5 h-3.5 opacity-40"></i>
-            <a href="{{ route('social-media.index') }}" class="hover:text-[#007AFF] transition-colors font-medium">Media Sosial</a>
-            <i data-lucide="chevron-right" class="w-3.5 h-3.5 opacity-40"></i>
-            <span class="text-black/80 dark:text-white/80 font-medium">Posting Konten</span>
-        </nav>
-
-        {{-- 1. PAGE HEADER --}}
-        <header class="rounded-[16px] backdrop-blur-md bg-white/80 dark:bg-[#1C1C1E]/80 border border-black/5 dark:border-white/10 p-5 sm:p-6 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-5 shadow-sm">
-            <div class="space-y-1.5 max-w-2xl">
-                <div class="flex flex-wrap items-center gap-2">
-                    <span class="rounded-full px-2.5 py-0.5 text-[11px] font-semibold inline-flex items-center gap-1.5 bg-[#007AFF]/10 text-[#007AFF]">
-                        <span class="w-1.5 h-1.5 rounded-full bg-[#007AFF]"></span>
-                        <span>Omnichannel Publisher</span>
-                    </span>
-                    <span class="rounded-full px-2.5 py-0.5 text-[11px] font-semibold inline-flex items-center gap-1.5 bg-[#34C759]/10 text-[#248A3D] dark:text-[#30D158]">
-                        <span class="w-1.5 h-1.5 rounded-full bg-[#34C759]"></span>
-                        <span>Multi-Akun Aktif</span>
-                    </span>
-                </div>
-                <h1 class="text-[20px] sm:text-[24px] font-bold text-black dark:text-white tracking-tight">
-                    Publikasi Konten &amp; Jadwal Otomatis
-                </h1>
-                <p class="text-[13px] text-black/60 dark:text-white/60 leading-relaxed">
-                    Tulis materi promosi sekali dan sebarkan langsung ke Facebook Page, feed Instagram, Threads, TikTok, atau LinkedIn pelanggan toko Anda. Berkas lokal dan postingan yang terpublikasi akan otomatis dibersihkan dari server setelah 1x24 jam untuk menjaga kapasitas storage server.
-                </p>
-            </div>
-
-            <div class="flex items-center gap-2.5 w-full lg:w-auto">
+        {{-- MODULE HEADER & PERSISTENT COMMUNICATION TABS --}}
+        <x-module-header
+            module="communication"
+            title="Publikasi Konten &amp; Jadwal Otomatis"
+            subtitle="Tulis materi promosi sekali dan sebarkan langsung ke Facebook Page, feed Instagram, Threads, TikTok, atau LinkedIn pelanggan toko Anda.">
+            <x-slot:actions>
                 @if(isset($canSchedulePost) && !$canSchedulePost && empty($hasSocialAddon))
                     <button type="button"
                         @click="window.dispatchEvent(new CustomEvent('open-quota-modal', {
@@ -52,19 +27,21 @@
                                 isAddon: true
                             }
                         }))"
-                        class="h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-slate-700 hover:bg-slate-800 active:scale-[0.97] transition-all flex items-center justify-center gap-1.5 w-full sm:w-auto shadow-sm cursor-pointer">
-                        <i data-lucide="lock" class="w-4 h-4 text-rose-300"></i>
+                        class="min-h-[44px] sm:min-h-0 sm:h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-black/80 dark:bg-white/20 hover:bg-black active:scale-[0.97] transition-all flex items-center justify-center gap-1.5 w-full sm:w-auto shadow-sm cursor-pointer">
+                        <i data-lucide="lock" class="w-4 h-4 text-[#FF3B30]"></i>
                         <span>Tulis Postingan (Batas Tercapai)</span>
                     </button>
                 @else
                     <button @click="openComposerModal = true"
-                        class="h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] transition-all flex items-center justify-center gap-1.5 w-full sm:w-auto shadow-sm">
+                        class="min-h-[44px] sm:min-h-0 sm:h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] transition-all flex items-center justify-center gap-1.5 w-full sm:w-auto shadow-sm cursor-pointer">
                         <i data-lucide="plus-circle" class="w-4 h-4"></i>
                         <span>Tulis Postingan Baru</span>
                     </button>
                 @endif
-            </div>
-        </header>
+            </x-slot:actions>
+        </x-module-header>
+
+        <x-module-tabs module="communication" />
 
         {{-- QUOTA LIMIT BANNER IF REACHED --}}
         @if(isset($canSchedulePost) && !$canSchedulePost && empty($hasSocialAddon))

@@ -188,53 +188,82 @@
         </div>
 
         {{-- ========================================================== --}}
-        {{-- MODAL UPLOAD BANK STATEMENT (APPLE HIG MODAL SHEET)        --}}
+        {{-- MODAL UPLOAD BANK STATEMENT (BENTO APPLE HIG XXL SHEET)    --}}
         {{-- ========================================================== --}}
         <div x-show="uploadModalOpen" x-cloak
-            class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+            class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/40 backdrop-blur-md"
+            x-transition.opacity
             @keydown.escape.window="uploadModalOpen = false">
-            <div class="w-full max-w-lg bg-white dark:bg-[#1C1C1E] rounded-[22px] shadow-2xl border border-black/10 dark:border-white/10 p-6 space-y-4"
-                @click.outside="uploadModalOpen = false">
-                <div class="flex items-center justify-between pb-2 border-b border-black/5 dark:border-white/10">
-                    <h2 class="text-[17px] font-bold text-black dark:text-white">Unggah Rekening Koran Bank</h2>
-                    <button type="button" @click="uploadModalOpen = false" class="w-8 h-8 rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center text-black/50 dark:text-white/50 hover:text-black">
+            <div class="w-full max-w-full sm:max-w-3xl lg:max-w-4xl bg-white dark:bg-[#1C1C1E] rounded-[24px] shadow-[0_25px_70px_rgba(0,0,0,0.35)] border border-black/10 dark:border-white/10 overflow-hidden flex flex-col max-h-[92vh]"
+                @click.outside="uploadModalOpen = false"
+                x-data="{ isSubmitting: false }">
+                <div class="flex items-center justify-between px-6 sm:px-8 py-5 border-b border-black/5 dark:border-white/10 bg-black/[0.01] dark:bg-white/[0.02]">
+                    <div class="flex items-center gap-3.5">
+                        <div class="w-11 h-11 rounded-[14px] bg-[#007AFF]/12 text-[#007AFF] flex items-center justify-center shrink-0 shadow-sm">
+                            <i data-lucide="file-up" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-[18px] sm:text-[20px] font-bold text-black dark:text-white tracking-tight">Unggah Rekening Koran Bank</h2>
+                            <p class="text-[12.5px] text-black/50 dark:text-white/50">Impor transaksi mutasi bank untuk pencocokan otomatis buku kas internal</p>
+                        </div>
+                    </div>
+                    <button type="button" @click="uploadModalOpen = false" class="w-9 h-9 rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center text-black/50 dark:text-white/50 hover:text-black">
                         <i data-lucide="x" class="w-4 h-4"></i>
                     </button>
                 </div>
 
-                <form method="POST" action="{{ route('finance.reconciliations.upload') }}" enctype="multipart/form-data" class="space-y-4">
+                <form method="POST" action="{{ route('finance.reconciliations.upload') }}" enctype="multipart/form-data" @submit="isSubmitting = true" class="flex-1 overflow-y-auto p-5 sm:p-8 space-y-6">
                     @csrf
-                    <div>
-                        <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Rekening Kas / Bank Tujuan *</label>
-                        <select name="cash_account_id" required class="w-full h-11 sm:h-10 px-3 text-[16px] sm:text-[14px] bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] text-black dark:text-white focus:ring-1 focus:ring-[#007AFF]">
-                            @foreach($cashAccounts as $ca)
-                                <option value="{{ $ca->id }}">{{ $ca->name }} ({{ $ca->account_number ?? 'Internal' }})</option>
-                            @endforeach
-                        </select>
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                        {{-- Kolom Kiri: Akun Kas & Tanggal (6/12) --}}
+                        <div class="lg:col-span-6 space-y-4">
+                            <div>
+                                <label class="block text-[13px] font-bold text-black/80 dark:text-white/80 mb-1.5">Rekening Kas / Bank Tujuan *</label>
+                                <select name="cash_account_id" required class="w-full h-11 px-3.5 text-[16px] sm:text-[14px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[12px] text-black dark:text-white focus:ring-2 focus:ring-[#007AFF]">
+                                    @foreach($cashAccounts as $ca)
+                                        <option value="{{ $ca->id }}">{{ $ca->name }} ({{ $ca->account_number ?? 'Internal' }})</option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-[13px] font-bold text-black/80 dark:text-white/80 mb-1.5">Tanggal Rekening Koran *</label>
+                                <input type="date" name="statement_date" value="{{ now()->toDateString() }}" required
+                                    class="w-full h-11 px-3.5 text-[16px] sm:text-[14px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[12px] text-black dark:text-white focus:ring-2 focus:ring-[#007AFF]">
+                            </div>
+
+                            <div class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.08] space-y-2">
+                                <label class="block text-[13px] font-bold text-black/80 dark:text-white/80">Berkas CSV Rekening Koran</label>
+                                <input type="file" name="statement_file" accept=".csv,.txt"
+                                    class="w-full text-[13px] text-black/70 dark:text-white/70 file:mr-3 file:py-2.5 file:px-4 file:rounded-[10px] file:border-0 file:text-[12px] file:font-semibold file:bg-[#007AFF]/10 file:text-[#007AFF] hover:file:bg-[#007AFF]/15 cursor-pointer">
+                                <p class="text-[11px] text-black/45 dark:text-white/45">Format kolom: Tanggal, Keterangan, Nominal, Tipe (debit/credit)</p>
+                            </div>
+                        </div>
+
+                        {{-- Kolom Kanan: Paste Manual CSV (6/12) --}}
+                        <div class="lg:col-span-6 space-y-4">
+                            <div>
+                                <label class="block text-[13px] font-bold text-black/80 dark:text-white/80 mb-1.5">Atau Tempel Baris Mutasi (CSV Baris Demi Baris)</label>
+                                <textarea name="manual_entries" rows="6" placeholder="2026-09-20, Setoran QRIS Gerai, 150000, credit&#10;2026-09-20, Biaya Admin Bank, 5000, debit"
+                                    class="w-full p-3.5 text-[14px] sm:text-[12.5px] font-mono bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[12px] text-black dark:text-white focus:ring-2 focus:ring-[#007AFF]"></textarea>
+                            </div>
+                            <p class="text-[11.5px] text-black/45 dark:text-white/45 leading-relaxed">
+                                Sistem secara otomatis mencocokkan mutasi rekening koran dengan jurnal kas internal berdasarkan nominal dan tanggal transaksi.
+                            </p>
+                        </div>
                     </div>
 
-                    <div>
-                        <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Tanggal Rekening Koran *</label>
-                        <input type="date" name="statement_date" value="{{ now()->toDateString() }}" required
-                            class="w-full h-11 sm:h-10 px-3 text-[16px] sm:text-[14px] bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] text-black dark:text-white focus:ring-1 focus:ring-[#007AFF]">
-                    </div>
-
-                    <div>
-                        <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Berkas CSV Rekening Koran</label>
-                        <input type="file" name="statement_file" accept=".csv,.txt"
-                            class="w-full text-[13px] text-black/70 dark:text-white/70 file:mr-4 file:py-2.5 file:px-4 file:rounded-[10px] file:border-0 file:text-[12px] file:font-semibold file:bg-[#007AFF]/10 file:text-[#007AFF] hover:file:bg-[#007AFF]/15">
-                        <p class="text-[11px] text-black/40 dark:text-white/40 mt-1">Format kolom: Tanggal, Keterangan, Nominal, Tipe (debit/credit)</p>
-                    </div>
-
-                    <div>
-                        <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">Atau Tempel Baris Mutasi (CSV Baris Demi Baris)</label>
-                        <textarea name="manual_entries" rows="4" placeholder="2026-09-20, Setoran QRIS Gerai, 150000, credit&#10;2026-09-20, Biaya Admin Bank, 5000, debit"
-                            class="w-full p-3 text-[16px] sm:text-[12px] font-mono bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] text-black dark:text-white focus:ring-1 focus:ring-[#007AFF]"></textarea>
-                    </div>
-
-                    <div class="pt-3 flex items-center justify-end gap-2 border-t border-black/5 dark:border-white/10">
-                        <button type="button" @click="uploadModalOpen = false" class="min-h-[44px] sm:min-h-0 h-11 sm:h-10 px-4 rounded-[10px] text-[13px] font-medium text-black/60 dark:text-white/60 hover:bg-black/5 dark:hover:bg-white/5">Batal</button>
-                        <button type="submit" class="min-h-[44px] sm:min-h-0 h-11 sm:h-10 px-5 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] shadow-md">Proses &amp; Cocokkan</button>
+                    <div class="pt-4 flex flex-col-reverse sm:flex-row items-center justify-end gap-3 border-t border-black/5 dark:border-white/10">
+                        <button type="button" @click="uploadModalOpen = false" :disabled="isSubmitting" class="w-full sm:w-auto min-h-[48px] px-6 rounded-[14px] text-[14px] font-semibold text-black/60 dark:text-white/60 hover:bg-black/5 dark:hover:bg-white/5 transition">Batal</button>
+                        <button type="submit" :disabled="isSubmitting" class="w-full sm:w-auto min-h-[48px] px-8 rounded-[14px] text-[14.5px] font-bold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] shadow-[0_4px_16px_rgba(0,122,255,0.3)] transition flex items-center justify-center gap-2">
+                            <template x-if="isSubmitting">
+                                <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                                </svg>
+                            </template>
+                            <span x-text="isSubmitting ? 'Memproses...' : 'Proses & Cocokkan'">Proses &amp; Cocokkan</span>
+                        </button>
                     </div>
                 </form>
             </div>

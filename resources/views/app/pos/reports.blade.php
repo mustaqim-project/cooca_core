@@ -3,40 +3,29 @@
 @section('content')
 <div class="max-w-[1360px] mx-auto space-y-6 pb-12">
 
-    <!-- ===================================================== -->
-    <!-- 0. BREADCRUMB & TOOLBAR HEADER (macOS Sonoma Style)   -->
-    <!-- ===================================================== -->
-    <header class="rounded-[16px] backdrop-blur-md bg-white/80 dark:bg-[#1C1C1E]/80 border border-black/5 dark:border-white/10 px-4 sm:px-6 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm transition-colors">
-        <div>
-            <nav class="flex items-center gap-1.5 text-[12px] text-black/50 dark:text-white/50 mb-1" aria-label="Breadcrumb">
-                <a href="{{ route('dashboard') }}" class="hover:text-[#007AFF] transition-colors">Dashboard</a>
-                <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-black/30 dark:text-white/30"></i>
-                <span class="text-black/70 dark:text-white/70 font-medium">Penjualan</span>
-                <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-black/30 dark:text-white/30"></i>
-                <a href="{{ route('pos.terminal') }}" class="hover:text-[#007AFF] transition-colors">Kasir POS</a>
-                <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-black/30 dark:text-white/30"></i>
-                <span class="text-black dark:text-white font-medium">Laporan &amp; Analitik</span>
-            </nav>
-            <h1 class="text-[20px] font-bold text-black dark:text-white tracking-tight">Laporan &amp; Analitik POS</h1>
-            <p class="text-[13px] text-black/50 dark:text-white/50 mt-0.5">Analisis performa penjualan kasir terintegrasi HPP (BOM / Recipe), laba kotor, jam ramai, dan metode bayar.</p>
-        </div>
-
-        <div class="flex items-center gap-2 w-full sm:w-auto">
+    {{-- MODULE HEADER & PERSISTENT POS TABS --}}
+    <x-module-header
+        module="pos"
+        title="Laporan &amp; Analitik POS"
+        subtitle="Analisis performa penjualan kasir terintegrasi HPP (BOM / Recipe), laba kotor, jam ramai, dan metode bayar.">
+        <x-slot:actions>
             @if(\App\Support\Context::hasPermission('pos.reports_export') || \App\Support\Context::hasPermission('pos.reports'))
-            <a id="btnPosExportExcel" href="{{ route('pos.reports.export-excel', ['start_date' => $startDate->toDateString(), 'end_date' => $endDate->toDateString()]) }}"
-                class="min-h-[44px] h-11 px-4 rounded-[12px] text-[13px] font-semibold text-black/80 dark:text-white/80 bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] dark:hover:bg-white/[0.12] active:scale-[0.97] transition-all flex items-center justify-center gap-2 flex-1 sm:flex-none">
-                <i data-lucide="file-spreadsheet" class="w-4 h-4 text-[#34C759]"></i>
-                <span>Ekspor Excel</span>
-            </a>
+                <a id="btnPosExportExcel" href="{{ route('pos.reports.export-excel', ['start_date' => $startDate->toDateString(), 'end_date' => $endDate->toDateString()]) }}"
+                    class="min-h-[44px] sm:min-h-0 sm:h-9 px-4 rounded-[10px] text-[13px] font-semibold text-black/80 dark:text-white/80 bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] dark:hover:bg-white/[0.12] active:scale-[0.97] transition-all flex items-center justify-center gap-2 flex-1 sm:flex-none">
+                    <i data-lucide="file-spreadsheet" class="w-4 h-4 text-[#34C759]"></i>
+                    <span>Ekspor Excel</span>
+                </a>
 
-            <button type="button" onclick="window.print()"
-                class="min-h-[44px] h-11 px-4 rounded-[12px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-2 shadow-sm flex-1 sm:flex-none">
-                <i data-lucide="printer" class="w-4 h-4"></i>
-                <span>Cetak / PDF</span>
-            </button>
+                <button type="button" onclick="window.print()"
+                    class="min-h-[44px] sm:min-h-0 sm:h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] transition-all flex items-center justify-center gap-2 shadow-sm flex-1 sm:flex-none cursor-pointer">
+                    <i data-lucide="printer" class="w-4 h-4"></i>
+                    <span>Cetak / PDF</span>
+                </button>
             @endif
-        </div>
-    </header>
+        </x-slot:actions>
+    </x-module-header>
+
+    <x-module-tabs module="pos" />
 
     <!-- ===================================================== -->
     <!-- 1. DATE FILTER CONTROLS                               -->

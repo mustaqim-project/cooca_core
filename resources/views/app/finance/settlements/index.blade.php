@@ -549,12 +549,28 @@ function payoutHubApp() {
 
                 const data = await res.json();
                 if (data.success) {
-                    window.location.reload();
+                    this.showPayoutModal = false;
+                    const selectedKeys = [...this.selectedItems];
+                    this.unsettledItems = this.unsettledItems.filter(i => !selectedKeys.includes(i.payment_type + '-' + i.payment_id));
+                    this.selectedItems = [];
+                    if (window.AppAlert) {
+                        AppAlert.success(data.message || 'Pencairan saldo gateway berhasil diproses.');
+                    } else {
+                        alert(data.message || 'Pencairan saldo gateway berhasil diproses.');
+                    }
                 } else {
-                    alert(data.message || 'Gagal memproses pengajuan pencairan.');
+                    if (window.AppAlert) {
+                        AppAlert.error(data.message || 'Gagal memproses pengajuan pencairan.');
+                    } else {
+                        alert(data.message || 'Gagal memproses pengajuan pencairan.');
+                    }
                 }
             } catch (e) {
-                alert('Terjadi kesalahan: ' + e.message);
+                if (window.AppAlert) {
+                    AppAlert.error('Terjadi kesalahan: ' + e.message);
+                } else {
+                    alert('Terjadi kesalahan: ' + e.message);
+                }
             } finally {
                 this.isProcessing = false;
             }

@@ -72,6 +72,10 @@ class Business extends Model
         'pos_service_charge_percent',
     ];
 
+    protected $hidden = [
+        'pos_supervisor_pin',
+    ];
+
     protected static function booted(): void
     {
         static::updating(function (Business $business): void {
@@ -444,5 +448,25 @@ class Business extends Model
     public function auditLogs(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(AuditLog::class);
+    }
+
+    /**
+     * Check if the business has a configured supervisor PIN.
+     */
+    public function hasSupervisorPin(): bool
+    {
+        return ! empty($this->pos_supervisor_pin);
+    }
+
+    /**
+     * Validate supervisor PIN using strict Bcrypt hash verification (zero plaintext fallback).
+     */
+    public function verifySupervisorPin(string $pin): bool
+    {
+        if ($pin === '' || empty($this->pos_supervisor_pin)) {
+            return false;
+        }
+
+        return \Illuminate\Support\Facades\Hash::check($pin, (string) $this->pos_supervisor_pin);
     }
 }

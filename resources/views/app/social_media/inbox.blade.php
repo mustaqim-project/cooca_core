@@ -7,44 +7,21 @@
 @section('content')
     <div class="max-w-[1360px] mx-auto space-y-6 pb-28 lg:pb-12" x-data="socialInboxManager()">
 
-        {{-- 0. BREADCRUMB --}}
-        <nav class="flex items-center gap-1.5 text-[12px] text-black/50 dark:text-white/50 py-0.5 whitespace-nowrap print:hidden">
-            <a href="{{ route('dashboard') }}" class="hover:text-[#007AFF] transition-colors font-medium">Dashboard</a>
-            <i data-lucide="chevron-right" class="w-3.5 h-3.5 opacity-40"></i>
-            <a href="{{ route('social-media.index') }}" class="hover:text-[#007AFF] transition-colors font-medium">Media Sosial</a>
-            <i data-lucide="chevron-right" class="w-3.5 h-3.5 opacity-40"></i>
-            <span class="text-black/80 dark:text-white/80 font-medium">Kotak Masuk &amp; Komentar</span>
-        </nav>
-
-        {{-- 1. PAGE HEADER --}}
-        <header class="rounded-[16px] backdrop-blur-md bg-white/80 dark:bg-[#1C1C1E]/80 border border-black/5 dark:border-white/10 p-5 sm:p-6 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-5 shadow-sm">
-            <div class="space-y-1.5 max-w-2xl">
-                <div class="flex flex-wrap items-center gap-2">
-                    <span class="rounded-full px-2.5 py-0.5 text-[11px] font-semibold inline-flex items-center gap-1.5 bg-[#FF9500]/10 text-[#FF9500]">
-                        <span class="w-1.5 h-1.5 rounded-full bg-[#FF9500]"></span>
-                        <span>Webhook Real-time</span>
-                    </span>
-                    <span class="rounded-full px-2.5 py-0.5 text-[11px] font-semibold inline-flex items-center gap-1.5 bg-[#007AFF]/10 text-[#007AFF]">
-                        <span class="w-1.5 h-1.5 rounded-full bg-[#007AFF]"></span>
-                        <span>Multi-Channel Inbox</span>
-                    </span>
-                </div>
-                <h1 class="text-[20px] sm:text-[24px] font-bold text-black dark:text-white tracking-tight">
-                    Interaksi Pelanggan &amp; Balas Komentar
-                </h1>
-                <p class="text-[13px] text-black/60 dark:text-white/60 leading-relaxed">
-                    Pantau pertanyaan dan testimoni pelanggan di setiap postingan secara terpusat, lalu balas langsung melalui API resmi Meta.
-                </p>
-            </div>
-
-            <div class="flex items-center gap-2.5">
-                <button @click="window.location.reload()"
-                    class="h-9 px-4 rounded-[10px] text-[13px] font-semibold text-black/70 dark:text-white/70 bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] active:scale-[0.97] transition-all flex items-center justify-center gap-1.5 shadow-sm">
-                    <i data-lucide="refresh-cw" class="w-4 h-4"></i>
-                    <span>Segarkan Pesan</span>
+        {{-- MODULE HEADER & PERSISTENT COMMUNICATION TABS --}}
+        <x-module-header
+            module="communication"
+            title="Interaksi Pelanggan &amp; Balas Komentar"
+            subtitle="Pantau pertanyaan dan testimoni pelanggan di setiap postingan secara terpusat, lalu balas langsung melalui API resmi.">
+            <x-slot:actions>
+                <button @click="refreshInbox()" :disabled="isRefreshing"
+                    class="min-h-[44px] sm:min-h-0 sm:h-9 px-4 rounded-[10px] text-[13px] font-semibold text-black/70 dark:text-white/70 bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] active:scale-[0.97] transition-all flex items-center justify-center gap-1.5 shadow-sm disabled:opacity-50 cursor-pointer">
+                    <i data-lucide="refresh-cw" class="w-4 h-4" :class="{'animate-spin': isRefreshing}"></i>
+                    <span x-text="isRefreshing ? 'Memperbarui...' : 'Segarkan Pesan'">Segarkan Pesan</span>
                 </button>
-            </div>
-        </header>
+            </x-slot:actions>
+        </x-module-header>
+
+        <x-module-tabs module="communication" />
 
         {{-- 2. MODULE NAVIGATION SUB-TABS --}}
         <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-2 sm:p-2.5 flex items-center justify-between shadow-sm">
@@ -92,6 +69,7 @@
         </div>
 
         {{-- 4. COMMENTS LIST --}}
+        <div id="comments-container">
         @if($comments->isEmpty())
             <div class="rounded-[22px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 p-12 text-center shadow-sm space-y-4">
                 <div class="w-16 h-16 rounded-[20px] bg-black/[0.04] dark:bg-white/[0.06] text-black/40 dark:text-white/40 flex items-center justify-center mx-auto">
@@ -183,6 +161,7 @@
                 {{ $comments->links() }}
             </div>
         @endif
+        </div>
 
         {{-- 5. REPLY MODAL SHEET (Apple HIG Bento Card Design) --}}
         <div x-show="openReplyModal" style="display: none;"
@@ -268,7 +247,40 @@
                 activePlatform: '',
                 replyText: '',
                 isSubmitting: false,
+                isRefreshing: false,
                 errorMessage: '',
+
+                async refreshInbox() {
+                    this.isRefreshing = true;
+                    try {
+                        const res = await fetch(window.location.href, {
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'Accept': 'text/html'
+                            }
+                        });
+                        if (res.ok) {
+                            const html = await res.text();
+                            const parser = new DOMParser();
+                            const doc = parser.parseFromString(html, 'text/html');
+                            const newContainer = doc.getElementById('comments-container');
+                            const currentContainer = document.getElementById('comments-container');
+                            if (newContainer && currentContainer) {
+                                currentContainer.innerHTML = newContainer.innerHTML;
+                                if (window.lucide) window.lucide.createIcons();
+                            }
+                            if (window.AppAlert) {
+                                AppAlert.success('Pesan dan komentar berhasil diperbarui.');
+                            }
+                        }
+                    } catch (e) {
+                        if (window.AppAlert) {
+                            AppAlert.error('Gagal memperbarui pesan.');
+                        }
+                    } finally {
+                        this.isRefreshing = false;
+                    }
+                },
 
                 prepareReply(id, sender, message, platform) {
                     this.activeCommentId = id;

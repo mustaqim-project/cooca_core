@@ -6,12 +6,14 @@ namespace App\Http\Controllers\Web\Pos;
 
 use App\Domain\Commerce\SalesReturnService;
 use App\Domain\Pos\PosOrderService;
+use App\Domain\System\AuditLogService;
 use App\Http\Controllers\Controller;
 use App\Models\PosOrder;
 use App\Support\Context;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\View\View;
 
 final class PosOrderWebController extends Controller
@@ -78,11 +80,14 @@ final class PosOrderWebController extends Controller
 
         $user = auth()->user();
 
-        if ($business->pos_require_pin_for_void && ! $this->verifySupervisorAuthorization($request, $business, $user)) {
-            if ($request->wantsJson()) {
-                return response()->json(['success' => false, 'message' => 'PIN Supervisor salah atau otorisasi tidak valid.'], 403);
+        if ($business->pos_require_pin_for_void) {
+            $authCheck = $this->verifySupervisorAuthorization($request, $business, $user);
+            if (! $authCheck['valid']) {
+                if ($request->wantsJson()) {
+                    return response()->json(['success' => false, 'message' => $authCheck['message']], $authCheck['status']);
+                }
+                return back()->withErrors(['void' => $authCheck['message']]);
             }
-            return back()->withErrors(['void' => 'PIN Supervisor salah atau otorisasi tidak valid.']);
         }
 
         $validated = $request->validate([
@@ -94,12 +99,12 @@ final class PosOrderWebController extends Controller
         if ($request->wantsJson()) {
             return response()->json([
                 'success' => true,
-                'message' => "Transaksi #{$voided->order_number} berhasil dibatalkan (void).",
+                'message' => __('pos.order_voided_successfully', ['order_number' => $voided->order_number]),
                 'order' => $voided,
             ]);
         }
 
-        return redirect()->back()->with('success', "Transaksi #{$voided->order_number} berhasil di-void!");
+        return redirect()->back()->with('success', __('pos.order_voided_successfully', ['order_number' => $voided->order_number]));
     }
 
     /**
@@ -114,11 +119,14 @@ final class PosOrderWebController extends Controller
 
         $user = auth()->user();
 
-        if ($business->pos_require_pin_for_refund && ! $this->verifySupervisorAuthorization($request, $business, $user)) {
-            if ($request->wantsJson()) {
-                return response()->json(['success' => false, 'message' => 'PIN Supervisor salah atau otorisasi tidak valid.'], 403);
+        if ($business->pos_require_pin_for_refund) {
+            $authCheck = $this->verifySupervisorAuthorization($request, $business, $user);
+            if (! $authCheck['valid']) {
+                if ($request->wantsJson()) {
+                    return response()->json(['success' => false, 'message' => $authCheck['message']], $authCheck['status']);
+                }
+                return back()->withErrors(['refund' => $authCheck['message']]);
             }
-            return back()->withErrors(['refund' => 'PIN Supervisor salah atau otorisasi tidak valid.']);
         }
 
         $validated = $request->validate([
@@ -138,9 +146,14 @@ final class PosOrderWebController extends Controller
                 return back()->withErrors(['refund' => $exception->getMessage()]);
             }
             if ($request->wantsJson()) {
-                return response()->json(['success' => true, 'message' => "Refund parsial #{$order->order_number} berhasil.", 'order' => $order->fresh(['items', 'salesReturns']), 'return' => $return]);
+                return response()->json([
+                    'success' => true,
+                    'message' => __('pos.partial_refund_successful', ['order_number' => $order->order_number]),
+                    'order' => $order->fresh(['items', 'salesReturns']),
+                    'return' => $return,
+                ]);
             }
-            return back()->with('success', "Refund parsial #{$order->order_number} berhasil!");
+            return back()->with('success', __('pos.partial_refund_successful', ['order_number' => $order->order_number]));
         }
 
         $restoreStock = (bool) ($validated['restore_stock'] ?? true);
@@ -153,34 +166,84 @@ final class PosOrderWebController extends Controller
         if ($request->wantsJson()) {
             return response()->json([
                 'success' => true,
-                'message' => "Transaksi #{$refunded->order_number} berhasil direfund / diretur.",
+                'message' => __('pos.order_refunded_successfully', ['order_number' => $refunded->order_number]),
                 'order' => $refunded,
             ]);
         }
 
-        return redirect()->back()->with('success', "Transaksi #{$refunded->order_number} berhasil direfund!");
+        return redirect()->back()->with('success', __('pos.order_refunded_successfully', ['order_number' => $refunded->order_number]));
     }
 
     /**
-     * Verify supervisor authorization for void or refund overrides.
+     * Verify supervisor authorization for void or refund overrides with rate limiting and strict Bcrypt verification.
+     *
+     * @return array{valid: bool, message: string, status: int}
      */
-    private function verifySupervisorAuthorization(Request $request, \App\Models\Business $business, ?\App\Models\User $user): bool
+    private function verifySupervisorAuthorization(Request $request, \App\Models\Business $business, ?\App\Models\User $user): array
     {
         if (app(\App\Domain\System\OperatingModeService::class)->canBypassSupervisor($business, $user)) {
-            return true;
+            return ['valid' => true, 'message' => __('auth.supervisor_auth_allowed'), 'status' => 200];
+        }
+
+        if (! $business->hasSupervisorPin()) {
+            return [
+                'valid' => false,
+                'message' => __('pos.supervisor_pin_invalid'),
+                'status' => 403,
+            ];
+        }
+
+        $throttleKey = 'pos_supervisor_pin:' . $business->id . ':' . ($user?->id ?? $request->ip());
+        if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
+            $seconds = RateLimiter::availableIn($throttleKey);
+            $minutes = max(1, (int) ceil($seconds / 60));
+            return [
+                'valid' => false,
+                'message' => __('auth.pin_supervisor_locked', ['minutes' => $minutes]),
+                'status' => 429,
+            ];
         }
 
         $pin = (string) $request->input('pin', '');
         if ($pin === '') {
-            return false;
+            return [
+                'valid' => false,
+                'message' => __('pos.supervisor_pin_required'),
+                'status' => 422,
+            ];
         }
 
-        $validPin = (string) ($business->pos_supervisor_pin ?? '');
-        if ($validPin === '') {
-            return false;
+        if ($business->verifySupervisorPin($pin)) {
+            RateLimiter::clear($throttleKey);
+            return ['valid' => true, 'message' => __('pos.supervisor_auth_verified'), 'status' => 200];
         }
 
-        return \Illuminate\Support\Facades\Hash::check($pin, $validPin) || hash_equals($validPin, $pin);
+        RateLimiter::hit($throttleKey, 600);
+        $attempts = RateLimiter::attempts($throttleKey);
+        $remaining = 5 - $attempts;
+
+        if ($remaining <= 0) {
+            AuditLogService::log(
+                (string) $business->id,
+                'POS_SUPERVISOR_PIN_LOCKED',
+                $business,
+                null,
+                [
+                    'reason' => 'Rate limit exceeded (5 failed attempts)',
+                    'user_id' => $user?->id,
+                    'ip' => $request->ip(),
+                ]
+            );
+            $message = __('auth.pin_supervisor_locked', ['minutes' => 10]);
+        } else {
+            $message = __('pos.supervisor_pin_invalid_attempts', ['remaining' => $remaining]);
+        }
+
+        return [
+            'valid' => false,
+            'message' => $message,
+            'status' => 403,
+        ];
     }
 
     /**

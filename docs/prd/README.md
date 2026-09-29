@@ -24,6 +24,8 @@ Repositori ini memuat 11 dokumen PRD resmi yang merinci spesifikasi audit sistem
 | 14 | `PRD-14` | **Remediasi Menyeluruh Navigasi Sidebar, Sinkronisasi Flyout & Stabilitas Interaksi** | [`PRD-14-SIDEBAR-NAVIGATION-REMEDIATION-UX-STABILITY.md`](PRD-14-SIDEBAR-NAVIGATION-REMEDIATION-UX-STABILITY.md) | `COMPLETE` |
 | 15 | `PRD-15` | **Remediasi Otorisasi Granular RBAC, Eliminasi 403 & Isolasi Status Aktif Deterministik** | [`PRD-15-SIDEBAR-GRANULAR-RBAC-AUTHORIZATION-AND-ACTIVE-STATE-ISOLATION.md`](PRD-15-SIDEBAR-GRANULAR-RBAC-AUTHORIZATION-AND-ACTIVE-STATE-ISOLATION.md) | `COMPLETE` |
 | 16 | `PRD-16` | **Arsitektur Finansial Terpadu, Multi-Payment POS, EDC, Cooca Pay Payout Hub & Rekonsiliasi Multi-Cabang** | [`PRD-16-UNIFIED-FINANCIAL-ENGINE-MULTI-PAYMENT-SETTLEMENT-AND-PAYOUT-HUB.md`](PRD-16-UNIFIED-FINANCIAL-ENGINE-MULTI-PAYMENT-SETTLEMENT-AND-PAYOUT-HUB.md) | `READY` |
+| 17 | `PRD-17` | **POS Terminal Hardening, Anti-Fraud & Multi-Industry Context** | [`PRD-17-POS-TERMINAL-HARDENING-ANTI-FRAUD-MULTI-INDUSTRY.md`](PRD-17-POS-TERMINAL-HARDENING-ANTI-FRAUD-MULTI-INDUSTRY.md) | `COMPLETE` |
+| 18 | `PRD-18` | **Comprehensive System Hardening & Multi-Industry Remediation (7 View Modules)** | [`PRD-18-COMPREHENSIVE-SYSTEM-HARDENING-7-MODULES-AND-MULTI-INDUSTRY-REMEDIATION.md`](PRD-18-COMPREHENSIVE-SYSTEM-HARDENING-7-MODULES-AND-MULTI-INDUSTRY-REMEDIATION.md) | `PROPOSED` |
 
 ---
 

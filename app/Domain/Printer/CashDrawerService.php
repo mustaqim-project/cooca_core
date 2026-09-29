@@ -122,16 +122,16 @@ class CashDrawerService
         $business = $printer->business;
         $validPin = (string) ($business?->pos_supervisor_pin ?? '');
 
-        if ($validPin === '') {
-            throw new DomainException('PIN Supervisor belum diatur oleh pemilik bisnis. Silakan atur PIN di Pengaturan Bisnis terlebih dahulu.');
+        if ($validPin === '' || ! $business?->hasSupervisorPin()) {
+            throw new DomainException(__('printer.drawer_pin_unconfigured'));
         }
 
-        if ($pin === '' || (! Hash::check($pin, $validPin) && ! hash_equals($validPin, $pin))) {
-            throw new DomainException('PIN Supervisor salah. Otorisasi pembukaan laci kas ditolak.');
+        if ($pin === '' || ! $business->verifySupervisorPin($pin)) {
+            throw new DomainException(__('printer.drawer_pin_invalid'));
         }
 
         if (empty(trim($reason))) {
-            throw new DomainException('Alasan pembukaan laci kas manual wajib diisi.');
+            throw new DomainException(__('printer.drawer_reason_required'));
         }
 
         return $this->openDrawer($printer, $reason, $actor);

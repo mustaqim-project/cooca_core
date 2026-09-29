@@ -996,7 +996,7 @@
                         @endif
 
                         {{-- Layar Dapur (KDS) --}}
-                        @if (\App\Support\Context::hasPermission('pos.kitchen'))
+                        @if (\App\Support\Context::hasPermission('pos.kitchen') && (\App\Support\Context::business()?->isModuleEnabled(\App\Domain\Template\ModuleRegistry::MODULE_POS_DINEIN) ?? true))
                             <a href="{{ route('pos.kitchen.index') }}" id="tour-nav-pos-kitchen"
                                 {{ request()->routeIs('pos.kitchen.*') ? 'aria-current="page"' : '' }}
                                 class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-all active:scale-[0.98] {{ request()->routeIs('pos.kitchen.*') ? 'bg-[#007AFF] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
@@ -1006,7 +1006,7 @@
                         @endif
 
                         {{-- Meja & QR Resto --}}
-                        @if (\App\Support\Context::hasPermission('pos.tables'))
+                        @if (\App\Support\Context::hasPermission('pos.tables') && (\App\Support\Context::business()?->isModuleEnabled(\App\Domain\Template\ModuleRegistry::MODULE_POS_DINEIN) ?? true))
                             <a href="{{ route('pos.tables.index') }}" id="tour-nav-pos-tables"
                                 {{ request()->routeIs('pos.tables.*') ? 'aria-current="page"' : '' }}
                                 class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-all active:scale-[0.98] {{ request()->routeIs('pos.tables.*') ? 'bg-[#007AFF] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
@@ -1037,14 +1037,14 @@
                                 <span>Transaksi Kasir &amp; Shift</span>
                             </a>
                         @endif
-                        @if (\App\Support\Context::hasPermission('pos.kitchen'))
+                        @if (\App\Support\Context::hasPermission('pos.kitchen') && (\App\Support\Context::business()?->isModuleEnabled(\App\Domain\Template\ModuleRegistry::MODULE_POS_DINEIN) ?? true))
                             <a href="{{ route('pos.kitchen.index') }}"
                                 class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
                                 <i data-lucide="chef-hat" class="w-3.5 h-3.5 text-[#FF9500]"></i>
                                 <span>Layar Dapur (KDS)</span>
                             </a>
                         @endif
-                        @if (\App\Support\Context::hasPermission('pos.tables'))
+                        @if (\App\Support\Context::hasPermission('pos.tables') && (\App\Support\Context::business()?->isModuleEnabled(\App\Domain\Template\ModuleRegistry::MODULE_POS_DINEIN) ?? true))
                             <a href="{{ route('pos.tables.index') }}"
                                 class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
                                 <i data-lucide="layout-grid" class="w-3.5 h-3.5 text-[#5856D6]"></i>

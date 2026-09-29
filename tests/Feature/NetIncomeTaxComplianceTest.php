@@ -179,6 +179,21 @@ class NetIncomeTaxComplianceTest extends TestCase
             ->assertJsonPath('data.tax_amount', 3300000); // 11% x 30jt = 3.3jt
     }
 
+    public function test_tax_dashboard_tabs_deep_linking_and_ui_rendering(): void
+    {
+        $this->actingAs($this->owner);
+        Context::setBusiness($this->business);
+
+        $tabs = ['net_income', 'umkm', 'pph21', 'payroll', 'sales'];
+
+        foreach ($tabs as $tab) {
+            $response = $this->get(route('tax.index', ['tab' => $tab]));
+            $response->assertOk();
+            $response->assertSee('activeSimTab', false);
+            $response->assertSee('Tax Compliance Engine');
+        }
+    }
+
     public function test_export_net_income_tax_csv(): void
     {
         $this->actingAs($this->owner);

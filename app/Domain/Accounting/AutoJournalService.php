@@ -894,6 +894,10 @@ final class AutoJournalService
                 'notes' => $isNegative ? 'Pengurangan nilai persediaan' : 'Pendapatan surplus selisih stok',
             ]);
 
+            if (abs((float) $entry->total_debit - (float) $entry->total_credit) > 0.0001) {
+                throw new \DomainException(__('finance.journal_unbalanced'));
+            }
+
             return $entry;
         });
     }

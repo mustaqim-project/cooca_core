@@ -215,7 +215,7 @@ class SocialMediaWebController extends Controller
             );
 
             return redirect()->route('social-media.index')
-                ->with('success', "Akun TikTok [{$account->account_name}] berhasil dihubungkan ke toko Anda!");
+                ->with('success', __('social_media.account_connected', ['platform' => 'TikTok', 'username' => $account->account_name]));
         } catch (\Throwable $e) {
             return redirect()->route('social-media.index')
                 ->with('error', 'Gagal menghubungkan akun TikTok: ' . $e->getMessage());
@@ -309,7 +309,7 @@ class SocialMediaWebController extends Controller
             );
 
             return redirect()->route('social-media.index')
-                ->with('success', "Akun LinkedIn [{$account->account_name}] berhasil dihubungkan ke toko Anda!");
+                ->with('success', __('social_media.account_connected', ['platform' => 'LinkedIn', 'username' => $account->account_name]));
         } catch (\Throwable $e) {
             return redirect()->route('social-media.index')
                 ->with('error', 'Gagal menghubungkan akun LinkedIn: ' . $e->getMessage());
@@ -722,24 +722,24 @@ class SocialMediaWebController extends Controller
         // 11. User feedback response
         if ($hasScheduledTargets && ! empty($immediateTargets)) {
             return redirect()->route('social-media.posts.index')
-                ->with('success', 'Sebagian saluran berhasil dikirim untuk dipublikasikan langsung, dan saluran lainnya dijadwalkan sesuai waktu yang ditentukan.');
+                ->with('success', __('social_media.post_published'));
         } elseif ($hasScheduledTargets) {
             return redirect()->route('social-media.posts.index')
-                ->with('success', 'Postingan berhasil dijadwalkan ke ' . $accounts->count() . ' saluran! Eksekusi otomatis akan dilakukan oleh cron scheduler.');
+                ->with('success', __('social_media.post_scheduled', ['time' => $validated['scheduled_at'] ?? 'waktu jadwal']));
         }
 
         if ($accounts->count() === 1 && $post->status === 'failed') {
             return redirect()->route('social-media.posts.index')
-                ->with('error', 'Gagal mempublikasikan postingan: ' . ($post->error_message ?? 'Terjadi kesalahan saat memproses konten.'));
+                ->with('error', $post->error_message ?? __('common.unauthorized'));
         }
 
         if ($accounts->count() === 1 && $post->status === 'published') {
             return redirect()->route('social-media.posts.index')
-                ->with('success', "Postingan ({$primaryMediaType}) berhasil dipublikasikan ke {$firstAccount->platform}!");
+                ->with('success', __('social_media.post_published'));
         }
 
         return redirect()->route('social-media.posts.index')
-            ->with('success', 'Postingan sedang dipublikasikan ke ' . $accounts->count() . ' saluran di latar belakang.');
+            ->with('success', __('social_media.post_published'));
     }
 
     /**

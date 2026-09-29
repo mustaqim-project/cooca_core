@@ -45,6 +45,7 @@
    - [4.16 Cetak Biru Penataan 6-Hub Modul & Rekomendasi Optimasi Performa End-to-End](#416-cetak-biru-penataan-6-hub-modul--rekomendasi-optimasi-performa-end-to-end)
    - [4.17 Arsitektur Limitasi Subscription, Downgrade Auto-Gating, Pelacakan Storage & Data Pruning Previewer](#417-arsitektur-limitasi-subscription-downgrade-auto-gating-pelacakan-storage--data-pruning-previewer)
    - [4.18 Hardening Keamanan Siber POS Hardware, SSRF Guardrail & Otorisasi PIN (PRD-17)](#418-hardening-keamanan-siber-pos-hardware-ssrf-guardrail--otorisasi-pin-prd-17)
+   - [4.19 Hardening Komprehensif 7 Modul View & Remediasi 20 Sektor Industri (PRD-18)](#419-hardening-komprehensif-7-modul-view--remediasi-20-sektor-industri-prd-18)
 
 ---
 
@@ -498,6 +499,19 @@ Sistem mengimplementasikan penguatan keamanan siber dan proteksi anti-fraud kasi
    - Untuk mencegah tindak penggelapan kas laci (*cash skimming*), kasir biasa diwajibkan menghitung dan memasukkan uang fisik di laci tanpa melihat nilai ekspektasi sistem (`expected_cash` di-mask menjadi `null` pada API response).
    - Nilai ekspektasi kas dan selisih kas (*variance*) hanya dirender untuk pengguna berstatus `Owner` atau `Supervisor`. Prefill otomatis kas dihilangkan dari inisialisasi Alpine.js modal tutup shift.
 
+### 4.19 Hardening Komprehensif 7 Modul View & Remediasi 20 Sektor Industri (PRD-18)
+
+Sistem mengimplementasikan cetak biru pembersihan menyeluruh pada 7 folder antarmuka utama (`pos`, `products`, `social_media`, `warehouse`, `tax`, `marketplace`, `finance`):
+1. **Zero Full Page Reload (`window.location.reload()` Ban):** Seluruh aksi sinkronisasi, rekonsiliasi, dan pembaruan metrik beralih ke arsitektur reaktif Smart Fetch + Alpine.js dengan notifikasi toast frosted glass sub-100ms.
+2. **Dynamic Auto-Hiding 20 Industri:** Bento Box Multi-Harga Saluran POS (Ojol) dan menu Layar Dapur (KDS)/Meja Resto dilindungi oleh kondisi `$activeBiz->isModuleEnabled('pos_dinein')`, mencegah kebocoran antarmuka ke sektor bengkel, apotek, kontraktor, dan garmen.
+3. **Modal-First Bento XXL Canvas:** Modal formulir pengeluaran beban (`expenses.blade.php`) dan akun kas/bank diperlebar ke standar `max-w-[95vw] lg:max-w-5xl 2xl:max-w-[1250px]` dengan 12-kolom grid ergonomis untuk pengguna usia 40–65 tahun.
+4. **Deep-Linking URL `?tab=` pada Simulator Pajak:** Tab kalkulasi pajak tersinkronisasi persisten ke query URL dan menggunakan token warna semantik Apple HIG Bento.
+5. **Maker-Checker Ambang Batas Stok Gudang:** Penyesuaian stok bernilai moneter tinggi diwajibkan melalui persetujuan Owner sebelum memotong kartu stok dan jurnal HPP.
+6. **Hardening Otorisasi Supervisor PIN (Strict Bcrypt & Audit Trail):** Seluruh tindakan sensitif kasir (Void, Refund, Buka Laci Kas Manual No-Sale, Quick Adjustment) diwajibkan melewati verifikasi hash Bcrypt (tanpa fallback plaintext atau default `1234`), rate limiting 5 percobaan salah dengan masa kunci 10 menit, dan pencatatan otomatis insiden `POS_SUPERVISOR_PIN_LOCKED` ke tabel `audit_logs`.
+7. **Arsitektur Multi-Bahasa Full-Stack (i18n & l10n ID & EN):** Seluruh respon backend (flash alerts, validasi request, domain exceptions, response JSON payload) dan teks frontend dilokalisasi secara dwibahasa (Bahasa Indonesia `id` & English `en`) melalui dictionary terstruktur di `lang/id/` dan `lang/en/`.
+
+*Rencana Implementasi 9 Fase Terstruktur:* [`docs/IMPLEMENTATION_PLAN_COMPREHENSIVE_7_MODULES_REMEDIATION.md`](file:///c:/laragon/www/cooca_core/docs/IMPLEMENTATION_PLAN_COMPREHENSIVE_7_MODULES_REMEDIATION.md)
+
 ---
 
 ## 5. Matriks Penelusuran Pengetahuan (Traceability Matrix)
@@ -590,8 +604,11 @@ Dokumentasi Cooca saling terhubung secara dua arah untuk memudahkan penelusuran 
    │                                                                                                   └──► WORK-2026-09-26-181
    │
    ├──► Product Bundling Engine ────► docs/system/workflows/product-bundling-and-combo-flow.md ───────► Product & StockService
-                                                                                                        └──► WORK-2026-09-26-182
-    │
-    └──► Shell Navigasi Sidebar ────► docs/prd/PRD-14-SIDEBAR-NAVIGATION-REMEDIATION-UX-STABILITY.md ──► resources/views/layouts/partials/sidebar.blade.php
-                                                                                                          └──► WORK-2026-09-28-206
+   │                                                                                                    └──► WORK-2026-09-26-182
+   │
+   ├──► Shell Navigasi Sidebar ────► docs/prd/PRD-14-SIDEBAR-NAVIGATION-REMEDIATION-UX-STABILITY.md ──► resources/views/layouts/partials/sidebar.blade.php
+   │                                                                                                     └──► WORK-2026-09-28-206
+   │
+   └──► Hardening 7 Modul View ────► docs/prd/PRD-18-COMPREHENSIVE-SYSTEM-HARDENING-7-MODULES-AND-MULTI-INDUSTRY-REMEDIATION.md ──► 7 Core View Modules
+                                                                                                                                       └──► AUDIT-2026-09-29-001
 ```

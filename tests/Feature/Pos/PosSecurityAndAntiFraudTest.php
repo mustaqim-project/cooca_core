@@ -198,7 +198,7 @@ final class PosSecurityAndAntiFraudTest extends TestCase
         $response->assertStatus(422);
         $response->assertJson([
             'success' => false,
-            'message' => 'PIN Supervisor belum diatur oleh pemilik bisnis. Silakan atur PIN di Pengaturan Bisnis terlebih dahulu.',
+            'message' => __('printer.drawer_pin_unconfigured'),
         ]);
     }
 
@@ -221,7 +221,7 @@ final class PosSecurityAndAntiFraudTest extends TestCase
         $responseWrong->assertStatus(422);
         $responseWrong->assertJsonFragment([
             'success' => false,
-            'message' => 'PIN Supervisor salah. Otorisasi pembukaan laci kas ditolak.',
+            'message' => __('printer.drawer_pin_invalid'),
         ]);
 
         // Correct PIN 889900
@@ -262,7 +262,7 @@ final class PosSecurityAndAntiFraudTest extends TestCase
         $response->assertStatus(403);
         $response->assertJson([
             'success' => false,
-            'message' => 'PIN Supervisor salah atau otorisasi tidak valid.',
+            'message' => __('pos.supervisor_pin_invalid'),
         ]);
         $this->assertEquals(PosOrder::STATUS_COMPLETED, $order->fresh()->status);
     }

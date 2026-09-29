@@ -1634,6 +1634,7 @@
                                     </div>
                                 </div>
 
+                                @if ($business?->isModuleEnabled(\App\Domain\Template\ModuleRegistry::MODULE_POS_DINEIN) ?? true)
                                 <!-- Bento Box: Multi-Harga Saluran (F&B / Online) -->
                                 <div class="p-5 rounded-[18px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.08] space-y-3.5">
                                     <div class="flex items-center justify-between">
@@ -1680,6 +1681,7 @@
                                         </div>
                                     </div>
                                 </div>
+                                @endif
 
                                 <!-- Bento Box 2: Gambar Utama & Galeri Produk -->
                                 <div
@@ -2114,6 +2116,7 @@
                                     </div>
                                 </div>
 
+                                @if ($business?->isModuleEnabled(\App\Domain\Template\ModuleRegistry::MODULE_POS_DINEIN) ?? true)
                                 <!-- Bento Box: Multi-Harga Saluran (F&B / Online) -->
                                 <div class="p-5 rounded-[18px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.08] space-y-3.5">
                                     <div class="flex items-center justify-between">
@@ -2160,6 +2163,7 @@
                                         </div>
                                     </div>
                                 </div>
+                                @endif
 
                                 <!-- Bento Box 2: Foto Utama & Galeri Produk -->
                                 <div

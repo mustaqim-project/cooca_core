@@ -7,44 +7,21 @@
 @section('content')
     <div class="max-w-[1360px] mx-auto space-y-6 pb-28 lg:pb-12" x-data="socialInsightsManager()">
 
-        {{-- 0. BREADCRUMB --}}
-        <nav class="flex items-center gap-1.5 text-[12px] text-black/50 dark:text-white/50 py-0.5 whitespace-nowrap print:hidden">
-            <a href="{{ route('dashboard') }}" class="hover:text-[#007AFF] transition-colors font-medium">Dashboard</a>
-            <i data-lucide="chevron-right" class="w-3.5 h-3.5 opacity-40"></i>
-            <a href="{{ route('social-media.index') }}" class="hover:text-[#007AFF] transition-colors font-medium">Media Sosial</a>
-            <i data-lucide="chevron-right" class="w-3.5 h-3.5 opacity-40"></i>
-            <span class="text-black/80 dark:text-white/80 font-medium">Analitik &amp; Performa</span>
-        </nav>
-
-        {{-- 1. PAGE HEADER --}}
-        <header class="rounded-[16px] backdrop-blur-md bg-white/80 dark:bg-[#1C1C1E]/80 border border-black/5 dark:border-white/10 p-5 sm:p-6 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-5 shadow-sm">
-            <div class="space-y-1.5 max-w-2xl">
-                <div class="flex flex-wrap items-center gap-2">
-                    <span class="rounded-full px-2.5 py-0.5 text-[11px] font-semibold inline-flex items-center gap-1.5 bg-[#34C759]/10 text-[#248A3D] dark:text-[#30D158]">
-                        <span class="w-1.5 h-1.5 rounded-full bg-[#34C759]"></span>
-                        <span>Official Insights API</span>
-                    </span>
-                    <span class="rounded-full px-2.5 py-0.5 text-[11px] font-semibold inline-flex items-center gap-1.5 bg-[#007AFF]/10 text-[#007AFF]">
-                        <span class="w-1.5 h-1.5 rounded-full bg-[#007AFF]"></span>
-                        <span>Aggregated Metrics</span>
-                    </span>
-                </div>
-                <h1 class="text-[20px] sm:text-[24px] font-bold text-black dark:text-white tracking-tight">
-                    Performa Postingan &amp; Keterlibatan Audiens
-                </h1>
-                <p class="text-[13px] text-black/60 dark:text-white/60 leading-relaxed">
-                    Statistik resmi Meta Graph API untuk menganalisis konten mana yang paling diminati oleh pelanggan toko Anda.
-                </p>
-            </div>
-
-            <div class="flex items-center gap-2.5">
-                <button @click="window.location.reload()"
-                    class="h-9 px-4 rounded-[10px] text-[13px] font-semibold text-black/70 dark:text-white/70 bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] active:scale-[0.97] transition-all flex items-center justify-center gap-1.5 shadow-sm">
-                    <i data-lucide="refresh-cw" class="w-4 h-4"></i>
-                    <span>Segarkan Data</span>
+        {{-- MODULE HEADER & PERSISTENT COMMUNICATION TABS --}}
+        <x-module-header
+            module="communication"
+            title="Performa Postingan &amp; Keterlibatan Audiens"
+            subtitle="Statistik performa jangkauan dan keterlibatan audiens untuk menganalisis konten yang paling diminati oleh pelanggan toko Anda.">
+            <x-slot:actions>
+                <button @click="refreshAllInsights()" :disabled="isRefreshingAll"
+                    class="min-h-[44px] sm:min-h-0 sm:h-9 px-4 rounded-[10px] text-[13px] font-semibold text-black/70 dark:text-white/70 bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] active:scale-[0.97] transition-all flex items-center justify-center gap-1.5 shadow-sm disabled:opacity-50 cursor-pointer">
+                    <i data-lucide="refresh-cw" class="w-4 h-4" :class="{'animate-spin': isRefreshingAll}"></i>
+                    <span x-text="isRefreshingAll ? 'Memperbarui...' : 'Segarkan Data'">Segarkan Data</span>
                 </button>
-            </div>
-        </header>
+            </x-slot:actions>
+        </x-module-header>
+
+        <x-module-tabs module="communication" />
 
         {{-- 2. MODULE NAVIGATION SUB-TABS --}}
         <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-2 sm:p-2.5 flex items-center justify-between shadow-sm">
@@ -233,6 +210,30 @@
     <script>
         function socialInsightsManager() {
             return {
+                isRefreshingAll: false,
+                async refreshAllInsights() {
+                    this.isRefreshingAll = true;
+                    try {
+                        const syncButtons = document.querySelectorAll('button[id^="sync-btn-"]');
+                        if (syncButtons.length > 0) {
+                            for (const btn of syncButtons) {
+                                const postId = btn.id.replace('sync-btn-', '');
+                                if (postId) {
+                                    await this.syncPostInsights(postId);
+                                }
+                            }
+                        }
+                        if (window.AppAlert) {
+                            AppAlert.success('Seluruh data analitik berhasil diperbarui.');
+                        }
+                    } catch (e) {
+                        if (window.AppAlert) {
+                            AppAlert.error('Gagal memperbarui beberapa metrik.');
+                        }
+                    } finally {
+                        this.isRefreshingAll = false;
+                    }
+                },
                 async syncPostInsights(postId) {
                     const icon = document.getElementById(`icon-sync-${postId}`);
                     if (icon) icon.classList.add('animate-spin');

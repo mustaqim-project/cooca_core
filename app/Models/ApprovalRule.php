@@ -19,6 +19,7 @@ class ApprovalRule extends Model
     public const DOC_PURCHASE_ORDER = 'purchase_order';
     public const DOC_EXPENSE = 'expense';
     public const DOC_SUPPLIER_INVOICE = 'supplier_invoice';
+    public const DOC_STOCK_ADJUSTMENT = 'stock_adjustment';
 
     protected $table = 'approval_rules';
 

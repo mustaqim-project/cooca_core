@@ -14,8 +14,9 @@ Dokumen ini menyajikan intisari operasional dari [`docs/agent.md`](file:///c:/la
 
 ```
 references/design-system.md         → Spesifikasi lengkap Bento Apple HIG (tipografi, spacing, warna,
-                                        sidebar/topbar/footer, modal-first, quick-add, anti-pill-abuse,
-                                        zero-manual UI, notifikasi UI & alert banner, tabel konsolidasi UI)
+                                        sidebar/topbar/footer, modal-first XXL, quick-add, anti-pill-abuse,
+                                        zero-manual UI, anti-hyperbole, 5 Pilar Protokol Audit UX & Rekomendasi,
+                                        Konsistensi 3 Panel [Admin, Owner, Customer], Arsitektur Tab, & IA Settings)
 references/security-and-data.md     → Hard guardrails (finansial, tenant isolation, CSRF/validasi) +
                                         Matriks Gap 4-kuadran + Audit & Perlindungan Skema Fraud Internal
                                         (Kasir/POS, Stok/Gudang, Keuangan/Piutang, Audit Trail Immutable)
@@ -23,8 +24,8 @@ references/automation-and-testing.md → Mandat otomasi bisnis, Arsitektur Notif
                                         (UI In-App, Email HTML, WhatsApp Meta API + Fail-Safe Fallback),
                                         Testing Wajib 100% Lolos, Production Hardening & Test Data Purge
 references/feature-optimization-and-architecture.md → Cetak biru penataan 6 Hub modul terpadu, optimasi
-                                        performa (caching Redis, PWA offline POS, indexing database,
-                                        queue worker), smart barcode, QR table ordering & auto-reorder PO
+                                        performa (caching Redis, PWA offline POS, indexing, queue), arsitektur
+                                        real-time & anti-reload, serta Arsitektur Multi-Bahasa (i18n/l10n ID & EN)
 references/documentation-and-dod.md  → Dokumentasi 3-layer + Definition of Done gabungan (checklist penuh)
 ```
 
@@ -314,6 +315,8 @@ Sebelum menyatakan tugas selesai, testing wajib dijalankan nyata (`php -l`, `php
 - **Smart Workflows**: Global Barcode Scanner listener, Self-Service QR Table Ordering, Smart Auto-Reorder PO saat stok mencapai Reorder Point (ROP), dan Interactive Customer WhatsApp Bot.
 - **Subscription Entitlement Lifecycle & Auto-Gating**: Batasan kuota disajikan transparan; saat downgrade paket (*No Data Punishment*), data over-quota di-suspend sementara dari POS/Storefront dan otomatis ter-unlock (*Auto-Reactivation*) seketika saat langganan diperpanjang kembali.
 - **Storage & Log Footprint Tracking + Data Pruning Previewer**: Melacak penggunaan storage dan log audit; menyediakan modal preview rincian baris data & estimasi MB dihemat sebelum eksekusi pembersihan data log lama.
+- **Arsitektur Real-Time & Larangan Reload Manual**: Dilarang keras manual page reload (`location.reload()`); pembaruan data pada KDS, pesanan QR masuk kasir, status meja dine-in, dan notifikasi wajib menggunakan **Smart AJAX Polling adaptif (3–5s aktif / 30s background)**, **Server-Sent Events (SSE)**, atau **WebSocket** dengan *optimistic UI updates*.
+- **Arsitektur Multi-Bahasa (i18n & l10n ID & EN) & Audit Teks**: Dilarang string mentah bahasa Indonesia di Blade/JS/Controller; seluruh antarmuka, respon backend, notifikasi, dan skrip JS wajib dilokalisasi dwibahasa (Bahasa Indonesia `id` & English `en`) menggunakan modul `lang/` terstruktur, middleware `SetLocale`, serta komponen Language Switcher Bento Apple HIG.
 
 ---
 

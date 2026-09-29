@@ -37,6 +37,7 @@ final class ApprovalWebController extends Controller
             'purchase_order' => $this->workflowService->getPendingRequestsForUser($business, $user, ApprovalRule::DOC_PURCHASE_ORDER)->count(),
             'expense' => $this->workflowService->getPendingRequestsForUser($business, $user, ApprovalRule::DOC_EXPENSE)->count(),
             'supplier_invoice' => $this->workflowService->getPendingRequestsForUser($business, $user, ApprovalRule::DOC_SUPPLIER_INVOICE)->count(),
+            'stock_adjustment' => $this->workflowService->getPendingRequestsForUser($business, $user, ApprovalRule::DOC_STOCK_ADJUSTMENT)->count(),
         ];
 
         return view('app.approvals.inbox', compact('business', 'pendingTickets', 'filterType', 'counts'));
@@ -135,7 +136,7 @@ final class ApprovalWebController extends Controller
         $business = Context::requireBusiness();
 
         $validated = $request->validate([
-            'document_type' => ['required', 'string', 'in:purchase_order,expense,supplier_invoice'],
+            'document_type' => ['required', 'string', 'in:purchase_order,expense,supplier_invoice,stock_adjustment'],
             'name' => ['nullable', 'string', 'max:100'],
             'min_amount' => ['required', 'numeric', 'gte:0'],
             'max_amount' => ['nullable', 'numeric', 'gte:min_amount'],
@@ -167,7 +168,7 @@ final class ApprovalWebController extends Controller
         abort_unless($approvalRule->business_id === $business->id, 404);
 
         $validated = $request->validate([
-            'document_type' => ['nullable', 'string', 'in:purchase_order,expense,supplier_invoice'],
+            'document_type' => ['nullable', 'string', 'in:purchase_order,expense,supplier_invoice,stock_adjustment'],
             'name' => ['nullable', 'string', 'max:100'],
             'min_amount' => ['required', 'numeric', 'gte:0'],
             'max_amount' => ['nullable', 'numeric', 'gte:min_amount'],

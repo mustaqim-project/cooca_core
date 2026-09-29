@@ -350,128 +350,314 @@
         </div>
 
         {{-- ========================================================== --}}
-        {{-- MODAL - CATAT BIAYA (APPLE SHEET MACOS FLOATING)           --}}
+        {{-- MODAL - CATAT BIAYA (BENTO APPLE HIG v2.0 XXL CANVAS)      --}}
         {{-- ========================================================== --}}
         <div x-show="showCreateModal" x-cloak
-            class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
-            x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0"
-            x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150"
-            x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
+            class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/40 backdrop-blur-md"
+            x-transition:enter="transition ease-out duration-250" x-transition:enter-start="opacity-0"
+            x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200"
+            x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+            @keydown.escape.window="showCreateModal = false">
 
-            <div class="w-full max-w-lg rounded-[22px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 shadow-2xl overflow-hidden"
-                @click.away="showCreateModal = false" x-transition:enter="transition ease-out duration-200"
-                x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
-                x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 scale-100"
-                x-transition:leave-end="opacity-0 scale-95">
+            <div class="w-full max-w-[95vw] lg:max-w-5xl 2xl:max-w-[1250px] mx-auto rounded-[24px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 shadow-[0_25px_70px_rgba(0,0,0,0.35)] overflow-hidden flex flex-col max-h-[92vh]"
+                @click.away="showCreateModal = false"
+                x-transition:enter="transition cubic-bezier(0.16, 1, 0.3, 1) duration-300"
+                x-transition:enter-start="opacity-0 scale-95 translate-y-4"
+                x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                x-transition:leave="transition ease-in duration-150"
+                x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+                x-transition:leave-end="opacity-0 scale-95 translate-y-2"
+                x-data="{
+                    isSubmitting: false,
+                    category: 'operational',
+                    amount: '',
+                    payment_method: 'cash',
+                    cash_account_id: '{{ $cashAccounts->first()?->id ?? '' }}',
+                    account_id: '',
+                    location_id: '',
+                    description: '',
+                    receiptPreview: null,
+                    setQuickAmount(val) {
+                        this.amount = val;
+                    },
+                    handleFileSelect(e) {
+                        const file = e.target.files[0];
+                        if (file && file.type.startsWith('image/')) {
+                            const reader = new FileReader();
+                            reader.onload = (evt) => { this.receiptPreview = evt.target.result; };
+                            reader.readAsDataURL(file);
+                        } else {
+                            this.receiptPreview = null;
+                        }
+                    },
+                    get categoryLabel() {
+                        const map = {
+                            'operational': 'Operasional Toko',
+                            'utilities': 'Listrik, Air & Internet',
+                            'supplies': 'Kemasan & Plastik',
+                            'salaries': 'Gaji & Upah Staf',
+                            'maintenance': 'Perawatan & Servis',
+                            'other': 'Beban Lain-Lain'
+                        };
+                        return map[this.category] || 'Beban Operasional';
+                    }
+                }">
 
-                {{-- Sheet Header --}}
-                <div class="flex items-center justify-between px-6 pt-5 pb-4 border-b border-black/5 dark:border-white/10">
-                    <div>
-                        <h3 class="text-[17px] font-bold text-black dark:text-white">Catat Beban Operasional</h3>
-                        <p class="text-[12px] text-black/50 dark:text-white/50 mt-0.5">Input biaya toko &amp; mutasi kas/bank otomatis</p>
+                {{-- Modal Header --}}
+                <div class="flex items-center justify-between px-6 sm:px-8 py-5 border-b border-black/5 dark:border-white/10 bg-black/[0.01] dark:bg-white/[0.02]">
+                    <div class="flex items-center gap-3.5">
+                        <div class="w-11 h-11 rounded-[14px] bg-[#FF3B30]/12 text-[#FF3B30] flex items-center justify-center shrink-0 shadow-sm">
+                            <i data-lucide="receipt" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-[18px] sm:text-[20px] font-bold text-black dark:text-white tracking-tight">Catat Beban Operasional</h3>
+                            <p class="text-[12.5px] text-black/50 dark:text-white/50">Formulir pengeluaran toko terintegrasi jurnal akuntansi double-entry & saldo kas otomatis</p>
+                        </div>
                     </div>
                     <button type="button" @click="showCreateModal = false"
-                        class="w-8 h-8 rounded-full bg-black/[0.06] dark:bg-white/[0.08] text-black/50 dark:text-white/50 hover:bg-black/[0.10] dark:hover:bg-white/[0.12] flex items-center justify-center transition-colors">
+                        class="w-9 h-9 rounded-full bg-black/[0.05] dark:bg-white/[0.08] text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white hover:bg-black/10 dark:hover:bg-white/15 flex items-center justify-center transition-all cursor-pointer">
                         <i data-lucide="x" class="w-4 h-4"></i>
                     </button>
                 </div>
 
-                {{-- Form --}}
-                <form action="{{ route('finance.expenses.store') }}" method="POST" enctype="multipart/form-data" class="px-6 py-5 space-y-4">
+                {{-- Form Body --}}
+                <form action="{{ route('finance.expenses.store') }}" method="POST" enctype="multipart/form-data"
+                    @submit="isSubmitting = true"
+                    class="flex-1 overflow-y-auto p-5 sm:p-8 space-y-6">
                     @csrf
-                    <div class="grid grid-cols-2 gap-3">
-                        <div class="space-y-1.5">
-                            <label class="block text-[13px] font-semibold text-black/70 dark:text-white/70">Tanggal Biaya *</label>
-                            <input type="date" name="expense_date" value="{{ date('Y-m-d') }}" required
-                                class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 text-[16px] sm:text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+                        {{-- Left Column (7/12) --}}
+                        <div class="lg:col-span-7 space-y-5">
+                            
+                            {{-- Bento Card: Kategori Biaya Visual --}}
+                            <div class="p-5 rounded-[20px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.08] space-y-3.5">
+                                <div class="flex items-center justify-between">
+                                    <label class="block text-[13px] font-bold text-black/80 dark:text-white/80">Kategori Biaya Operasional *</label>
+                                    <span class="text-[11.5px] text-black/40 dark:text-white/40">Pilih jenis pengeluaran</span>
+                                </div>
+                                <input type="hidden" name="category" :value="category">
+                                <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                                    <button type="button" @click="category = 'operational'"
+                                        :class="category === 'operational' ? 'bg-[#007AFF] text-white shadow-md shadow-[#007AFF]/25 border-transparent' : 'bg-white dark:bg-[#2C2C2E] text-black/80 dark:text-white/80 border-black/5 dark:border-white/10 hover:border-black/15'"
+                                        class="p-3 rounded-[14px] border text-left flex flex-col justify-between transition-all cursor-pointer">
+                                        <i data-lucide="store" class="w-4 h-4 mb-2" :class="category === 'operational' ? 'text-white' : 'text-[#007AFF]'"></i>
+                                        <span class="text-[12.5px] font-bold">Operasional</span>
+                                        <span class="text-[10.5px] opacity-70">Sewa, kebersihan, ATK</span>
+                                    </button>
+
+                                    <button type="button" @click="category = 'utilities'"
+                                        :class="category === 'utilities' ? 'bg-[#FF9500] text-white shadow-md shadow-[#FF9500]/25 border-transparent' : 'bg-white dark:bg-[#2C2C2E] text-black/80 dark:text-white/80 border-black/5 dark:border-white/10 hover:border-black/15'"
+                                        class="p-3 rounded-[14px] border text-left flex flex-col justify-between transition-all cursor-pointer">
+                                        <i data-lucide="zap" class="w-4 h-4 mb-2" :class="category === 'utilities' ? 'text-white' : 'text-[#FF9500]'"></i>
+                                        <span class="text-[12.5px] font-bold">Utilitas</span>
+                                        <span class="text-[10.5px] opacity-70">Listrik, air, WiFi</span>
+                                    </button>
+
+                                    <button type="button" @click="category = 'supplies'"
+                                        :class="category === 'supplies' ? 'bg-[#5856D6] text-white shadow-md shadow-[#5856D6]/25 border-transparent' : 'bg-white dark:bg-[#2C2C2E] text-black/80 dark:text-white/80 border-black/5 dark:border-white/10 hover:border-black/15'"
+                                        class="p-3 rounded-[14px] border text-left flex flex-col justify-between transition-all cursor-pointer">
+                                        <i data-lucide="package" class="w-4 h-4 mb-2" :class="category === 'supplies' ? 'text-white' : 'text-[#5856D6]'"></i>
+                                        <span class="text-[12.5px] font-bold">Kemasan</span>
+                                        <span class="text-[10.5px] opacity-70">Plastik, dus, cup</span>
+                                    </button>
+
+                                    <button type="button" @click="category = 'salaries'"
+                                        :class="category === 'salaries' ? 'bg-[#34C759] text-white shadow-md shadow-[#34C759]/25 border-transparent' : 'bg-white dark:bg-[#2C2C2E] text-black/80 dark:text-white/80 border-black/5 dark:border-white/10 hover:border-black/15'"
+                                        class="p-3 rounded-[14px] border text-left flex flex-col justify-between transition-all cursor-pointer">
+                                        <i data-lucide="users" class="w-4 h-4 mb-2" :class="category === 'salaries' ? 'text-white' : 'text-[#34C759]'"></i>
+                                        <span class="text-[12.5px] font-bold">Gaji & Upah</span>
+                                        <span class="text-[10.5px] opacity-70">Upah harian & kasir</span>
+                                    </button>
+
+                                    <button type="button" @click="category = 'maintenance'"
+                                        :class="category === 'maintenance' ? 'bg-[#AF52DE] text-white shadow-md shadow-[#AF52DE]/25 border-transparent' : 'bg-white dark:bg-[#2C2C2E] text-black/80 dark:text-white/80 border-black/5 dark:border-white/10 hover:border-black/15'"
+                                        class="p-3 rounded-[14px] border text-left flex flex-col justify-between transition-all cursor-pointer">
+                                        <i data-lucide="wrench" class="w-4 h-4 mb-2" :class="category === 'maintenance' ? 'text-white' : 'text-[#AF52DE]'"></i>
+                                        <span class="text-[12.5px] font-bold">Perawatan</span>
+                                        <span class="text-[10.5px] opacity-70">Servis alat, reparasi</span>
+                                    </button>
+
+                                    <button type="button" @click="category = 'other'"
+                                        :class="category === 'other' ? 'bg-[#8E8E93] text-white shadow-md shadow-[#8E8E93]/25 border-transparent' : 'bg-white dark:bg-[#2C2C2E] text-black/80 dark:text-white/80 border-black/5 dark:border-white/10 hover:border-black/15'"
+                                        class="p-3 rounded-[14px] border text-left flex flex-col justify-between transition-all cursor-pointer">
+                                        <i data-lucide="more-horizontal" class="w-4 h-4 mb-2" :class="category === 'other' ? 'text-white' : 'text-[#8E8E93]'"></i>
+                                        <span class="text-[12.5px] font-bold">Lain-lain</span>
+                                        <span class="text-[10.5px] opacity-70">Pengeluaran umum</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            {{-- Bento Card: Nominal Pengeluaran XXL --}}
+                            <div class="p-5 rounded-[20px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.08] space-y-3.5">
+                                <label class="block text-[13px] font-bold text-black/80 dark:text-white/80">Nominal Pengeluaran (Rp) *</label>
+                                <div class="relative">
+                                    <div class="absolute left-4 top-1/2 -translate-y-1/2 text-black/40 dark:text-white/40 font-bold text-lg sm:text-xl">
+                                        Rp
+                                    </div>
+                                    <input type="number" name="amount" x-model="amount" required min="1" step="any" placeholder="0"
+                                        class="w-full h-14 pl-14 pr-4 bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 rounded-[14px] text-2xl sm:text-3xl font-extrabold tabular-nums text-black dark:text-white placeholder:text-black/20 dark:placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition-all shadow-inner">
+                                </div>
+
+                                {{-- Quick Suggestion Pills --}}
+                                <div class="flex flex-wrap items-center gap-2 pt-1">
+                                    <span class="text-[11.5px] text-black/45 dark:text-white/45 font-medium">Nominal Cepat:</span>
+                                    <button type="button" @click="setQuickAmount(50000)" class="px-2.5 py-1 rounded-[8px] bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] text-[12px] font-semibold text-black/75 dark:text-white/75 transition cursor-pointer">Rp 50 rb</button>
+                                    <button type="button" @click="setQuickAmount(100000)" class="px-2.5 py-1 rounded-[8px] bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] text-[12px] font-semibold text-black/75 dark:text-white/75 transition cursor-pointer">Rp 100 rb</button>
+                                    <button type="button" @click="setQuickAmount(250000)" class="px-2.5 py-1 rounded-[8px] bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] text-[12px] font-semibold text-black/75 dark:text-white/75 transition cursor-pointer">Rp 250 rb</button>
+                                    <button type="button" @click="setQuickAmount(500000)" class="px-2.5 py-1 rounded-[8px] bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] text-[12px] font-semibold text-black/75 dark:text-white/75 transition cursor-pointer">Rp 500 rb</button>
+                                    <button type="button" @click="setQuickAmount(1000000)" class="px-2.5 py-1 rounded-[8px] bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] text-[12px] font-semibold text-black/75 dark:text-white/75 transition cursor-pointer">Rp 1 jt</button>
+                                </div>
+                            </div>
+
+                            {{-- Tanggal & Keterangan --}}
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div class="space-y-1.5">
+                                    <label class="block text-[13px] font-semibold text-black/75 dark:text-white/75">Tanggal Transaksi *</label>
+                                    <input type="date" name="expense_date" value="{{ date('Y-m-d') }}" required
+                                        class="w-full h-11 bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 rounded-[12px] px-3.5 text-[16px] sm:text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                                </div>
+                                <div class="space-y-1.5">
+                                    <label class="block text-[13px] font-semibold text-black/75 dark:text-white/75">Outlet / Cabang</label>
+                                    <select name="location_id" x-model="location_id"
+                                        class="w-full h-11 bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 rounded-[12px] px-3.5 text-[16px] sm:text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                                        <option value="">Outlet Utama (Pusat)</option>
+                                        @foreach ($locations as $loc)
+                                            <option value="{{ $loc->id }}">{{ $loc->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="space-y-1.5">
+                                <label class="block text-[13px] font-semibold text-black/75 dark:text-white/75">Keterangan / Rincian Beban *</label>
+                                <input type="text" name="description" x-model="description" required
+                                    placeholder="Misal: Pembelian kemasan takeaway & kantong plastik 500 pcs..."
+                                    class="w-full h-11 bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 rounded-[12px] px-3.5 text-[16px] sm:text-[14px] text-black dark:text-white placeholder:text-black/30 dark:placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                            </div>
+
                         </div>
-                        <div class="space-y-1.5">
-                            <label class="block text-[13px] font-semibold text-black/70 dark:text-white/70">Kategori Biaya *</label>
-                            <select name="category" required
-                                class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 text-[16px] sm:text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
-                                <option value="operational">Operasional Toko</option>
-                                <option value="utilities">Listrik, Air &amp; Internet</option>
-                                <option value="supplies">Kemasan &amp; Plastik</option>
-                                <option value="salaries">Gaji &amp; Upah Kasir</option>
-                                <option value="maintenance">Perawatan &amp; Reparasi</option>
-                                <option value="other">Lain-lain</option>
-                            </select>
+
+                        {{-- Right Column (5/12) --}}
+                        <div class="lg:col-span-5 space-y-5">
+                            
+                            {{-- Bento Card: Sumber Kas & Akun COA --}}
+                            <div class="p-5 rounded-[20px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.08] space-y-4">
+                                <h4 class="text-[13px] font-bold text-black/80 dark:text-white/80">Sumber Kas & Pembayaran</h4>
+                                
+                                <div class="space-y-1.5">
+                                    <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70">Metode Bayar *</label>
+                                    <select name="payment_method" x-model="payment_method" required
+                                        class="w-full h-11 bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 rounded-[12px] px-3.5 text-[16px] sm:text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                                        <option value="cash">Kas Tunai Kasir</option>
+                                        <option value="petty_cash">Kas Kecil (Petty Cash)</option>
+                                        <option value="bank_transfer">Transfer Rekening Bank</option>
+                                    </select>
+                                </div>
+
+                                <div class="space-y-1.5">
+                                    <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70">Rekening Kas / Bank</label>
+                                    <select name="cash_account_id" x-model="cash_account_id"
+                                        class="w-full h-11 bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 rounded-[12px] px-3.5 text-[16px] sm:text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                                        <option value="">Otomatis Sesuai Metode</option>
+                                        @foreach ($cashAccounts as $ca)
+                                            <option value="{{ $ca->id }}">{{ $ca->name }} (Saldo: Rp {{ number_format($ca->current_balance, 0, ',', '.') }})</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                <div class="space-y-1.5">
+                                    <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70">Akun Beban Buku Besar (COA)</label>
+                                    <select name="account_id" x-model="account_id"
+                                        class="w-full h-11 bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 rounded-[12px] px-3.5 text-[16px] sm:text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                                        <option value="">Otomatis (Standar Akuntansi)</option>
+                                        @foreach ($accounts as $coa)
+                                            <option value="{{ $coa->id }}">{{ $coa->code }} – {{ $coa->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+
+                            {{-- Bento Card: Unggah Bukti Nota / Kwitansi --}}
+                            <div class="p-5 rounded-[20px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.08] space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <label class="block text-[13px] font-bold text-black/80 dark:text-white/80">Bukti Nota / Struk Fisik</label>
+                                    <span class="text-[11px] text-black/40 dark:text-white/40">Opsional (Maks 5MB)</span>
+                                </div>
+                                
+                                <div class="relative border-2 border-dashed border-black/15 dark:border-white/15 rounded-[16px] p-4 text-center hover:border-[#007AFF] dark:hover:border-[#007AFF] transition bg-white/50 dark:bg-[#2C2C2E]/50">
+                                    <input type="file" name="receipt_image" accept="image/jpeg,image/png,image/webp,application/pdf"
+                                        @change="handleFileSelect"
+                                        class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                                    
+                                    <template x-if="!receiptPreview">
+                                        <div class="space-y-2 py-2">
+                                            <div class="w-10 h-10 rounded-full bg-black/5 dark:bg-white/5 mx-auto flex items-center justify-center text-black/50 dark:text-white/50">
+                                                <i data-lucide="upload-cloud" class="w-5 h-5"></i>
+                                            </div>
+                                            <p class="text-[12.5px] font-medium text-black/75 dark:text-white/75">Tarik foto struk atau <span class="text-[#007AFF] font-bold">pilih berkas</span></p>
+                                            <p class="text-[11px] text-black/40 dark:text-white/40">JPG, PNG, WEBP, atau PDF</p>
+                                        </div>
+                                    </template>
+
+                                    <template x-if="receiptPreview">
+                                        <div class="relative rounded-[12px] overflow-hidden max-h-[140px] flex items-center justify-center bg-black/5 dark:bg-white/5">
+                                            <img :src="receiptPreview" class="max-h-[140px] object-contain rounded-[10px]">
+                                            <div class="absolute bottom-1 right-1 px-2 py-0.5 rounded-[6px] bg-black/60 backdrop-blur-sm text-white text-[10px] font-semibold">
+                                                Pratinjau Nota
+                                            </div>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+
+                            {{-- Bento Card: Pratinjau Jurnal Live --}}
+                            <div class="p-4 rounded-[16px] bg-[#007AFF]/[0.06] dark:bg-[#007AFF]/[0.1] border border-[#007AFF]/20 space-y-2.5">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-2 text-[12px] font-bold text-[#007AFF]">
+                                        <i data-lucide="book-open-check" class="w-4 h-4"></i>
+                                        <span>Pratinjau Jurnal Otomatis</span>
+                                    </div>
+                                    <span class="text-[10.5px] font-semibold text-[#007AFF]/80 uppercase tracking-wider">Double-Entry</span>
+                                </div>
+                                <div class="text-[11.5px] space-y-1 text-black/75 dark:text-white/75 font-mono">
+                                    <div class="flex justify-between">
+                                        <span>(D) Beban: <strong class="font-sans" x-text="categoryLabel"></strong></span>
+                                        <span class="font-bold text-black dark:text-white" x-text="amount ? 'Rp ' + Number(amount).toLocaleString('id-ID') : 'Rp 0'"></span>
+                                    </div>
+                                    <div class="flex justify-between text-black/60 dark:text-white/60 pl-3">
+                                        <span>(K) Kas/Bank (<span class="capitalize" x-text="payment_method"></span>)</span>
+                                        <span class="font-bold text-black dark:text-white" x-text="amount ? 'Rp ' + Number(amount).toLocaleString('id-ID') : 'Rp 0'"></span>
+                                    </div>
+                                </div>
+                            </div>
+
                         </div>
+
                     </div>
 
-                    <div class="grid grid-cols-2 gap-3">
-                        <div class="space-y-1.5">
-                            <label class="block text-[13px] font-semibold text-black/70 dark:text-white/70">Nominal Biaya (Rp) *</label>
-                            <input type="number" name="amount" required placeholder="0" min="1"
-                                class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 text-[16px] sm:text-[15px] tabular-nums font-bold text-black dark:text-white placeholder:text-black/30 dark:placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
-                        </div>
-                        <div class="space-y-1.5">
-                            <label class="block text-[13px] font-semibold text-black/70 dark:text-white/70">Metode Bayar *</label>
-                            <select name="payment_method" required
-                                class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 text-[16px] sm:text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
-                                <option value="cash">Kas Tunai Kasir</option>
-                                <option value="petty_cash">Kas Kecil (Petty Cash)</option>
-                                <option value="bank_transfer">Transfer Rekening Bank</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="space-y-1.5">
-                        <label class="block text-[13px] font-semibold text-black/70 dark:text-white/70">Sumber Rekening / Akun Kas</label>
-                        <select name="cash_account_id"
-                            class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 text-[16px] sm:text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
-                            <option value="">Otomatis Sesuai Metode</option>
-                            @foreach ($cashAccounts as $ca)
-                                <option value="{{ $ca->id }}">{{ $ca->name }} (Saldo: Rp {{ number_format($ca->current_balance, 0, ',', '.') }})</option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    <div class="space-y-1.5">
-                        <label class="block text-[13px] font-semibold text-black/70 dark:text-white/70">Akun Beban (COA)</label>
-                        <select name="account_id"
-                            class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 text-[16px] sm:text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
-                            <option value="">Otomatis (Standar Akuntansi)</option>
-                            @foreach ($accounts as $coa)
-                                <option value="{{ $coa->id }}">{{ $coa->code }} – {{ $coa->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    <div class="space-y-1.5">
-                        <label class="block text-[13px] font-semibold text-black/70 dark:text-white/70">Outlet / Cabang</label>
-                        <select name="location_id"
-                            class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 text-[16px] sm:text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
-                            <option value="">Outlet Utama (Pusat)</option>
-                            @foreach ($locations as $loc)
-                                <option value="{{ $loc->id }}">{{ $loc->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    <div class="space-y-1.5">
-                        <label class="block text-[13px] font-semibold text-black/70 dark:text-white/70">Keterangan Biaya *</label>
-                        <input type="text" name="description" required
-                            placeholder="Misal: Beli gas LPG 3kg &amp; sabun cuci piring..."
-                            class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3.5 text-[16px] sm:text-[14px] text-black dark:text-white placeholder:text-black/30 dark:placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
-                    </div>
-
-                    <div class="space-y-1.5">
-                        <label class="block text-[13px] font-semibold text-black/70 dark:text-white/70">Foto / Scan Nota Bukti (Opsional)</label>
-                        <input type="file" name="receipt_image" accept="image/jpeg,image/png,image/webp,application/pdf"
-                            class="w-full text-[13px] text-black/70 dark:text-white/70 file:mr-3 file:py-2.5 file:px-4 file:rounded-[8px] file:border-0 file:text-[12px] file:font-semibold file:bg-black/[0.06] dark:file:bg-white/[0.08] file:text-black dark:file:text-white hover:file:bg-black/[0.10] cursor-pointer">
-                    </div>
-
-                    <div class="flex items-center gap-3 pt-3 border-t border-black/5 dark:border-white/10">
+                    {{-- Footer Action Bar --}}
+                    <div class="flex flex-col-reverse sm:flex-row items-center justify-end gap-3 pt-5 border-t border-black/5 dark:border-white/10 bg-white dark:bg-[#1C1C1E] sticky bottom-0 z-20">
                         <button type="button" @click="showCreateModal = false"
-                            class="flex-1 h-11 rounded-[12px] text-[14px] font-medium text-black/60 dark:text-white/60 hover:bg-black/5 dark:hover:bg-white/5 active:opacity-70 transition-all">
+                            :disabled="isSubmitting"
+                            class="w-full sm:w-auto min-h-[48px] px-6 rounded-[14px] text-[14px] font-semibold text-black/60 dark:text-white/60 hover:bg-black/5 dark:hover:bg-white/5 active:opacity-70 transition-all cursor-pointer">
                             Batal
                         </button>
                         <button type="submit"
-                            class="flex-1 h-11 rounded-[12px] text-[14px] font-bold text-white bg-[#FF3B30] hover:bg-[#E0352B] active:scale-[0.98] transition-all shadow-[0_2px_8px_rgba(255,59,48,0.3)]">
-                            Simpan Pengeluaran
+                            :disabled="isSubmitting"
+                            class="w-full sm:w-auto min-h-[48px] px-8 rounded-[14px] text-[14.5px] font-bold text-white bg-[#FF3B30] hover:bg-[#E0352B] active:scale-[0.98] transition-all shadow-[0_4px_16px_rgba(255,59,48,0.35)] flex items-center justify-center gap-2 cursor-pointer">
+                            <template x-if="isSubmitting">
+                                <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                                </svg>
+                            </template>
+                            <i data-lucide="check" class="w-4 h-4" x-show="!isSubmitting"></i>
+                            <span x-text="isSubmitting ? 'Menyimpan Pengeluaran...' : 'Simpan Pengeluaran'">Simpan Pengeluaran</span>
                         </button>
                     </div>
+
                 </form>
             </div>
         </div>

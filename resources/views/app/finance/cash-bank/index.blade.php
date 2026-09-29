@@ -500,257 +500,495 @@
         @endphp
 
         @if (\App\Support\Context::hasPermission('finance.cash_bank'))
-            {{-- MODAL TAMBAH REKENING / AKUN KAS BARU --}}
+            {{-- ====================================================== --}}
+            {{-- MODAL TAMBAH REKENING / AKUN KAS BARU (BENTO XXL)      --}}
+            {{-- ====================================================== --}}
             <div x-show="showAccountModal" x-cloak
-                class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30 backdrop-blur-sm"
-                x-transition.opacity>
-                <div class="w-full max-w-md rounded-[20px] bg-white dark:bg-[#2C2C2E] border border-black/5 dark:border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.25)] overflow-hidden"
-                    @click.away="showAccountModal = false">
-                    <div class="flex items-center justify-between px-5 pt-5 pb-4 border-b border-black/5 dark:border-white/10">
-                        <div class="flex items-center gap-2">
-                            <div class="w-8 h-8 rounded-full bg-[#007AFF]/12 text-[#007AFF] flex items-center justify-center">
-                                <i data-lucide="plus" class="w-4 h-4"></i>
+                class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/40 backdrop-blur-md"
+                x-transition:enter="transition ease-out duration-250" x-transition:enter-start="opacity-0"
+                x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200"
+                x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+                @keydown.escape.window="showAccountModal = false">
+                <div class="w-full max-w-full sm:max-w-2xl lg:max-w-3xl rounded-[24px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 shadow-[0_25px_70px_rgba(0,0,0,0.35)] overflow-hidden flex flex-col max-h-[92vh]"
+                    @click.away="showAccountModal = false"
+                    x-transition:enter="transition cubic-bezier(0.16, 1, 0.3, 1) duration-300"
+                    x-transition:enter-start="opacity-0 scale-95 translate-y-4"
+                    x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                    x-transition:leave="transition ease-in duration-150"
+                    x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+                    x-transition:leave-end="opacity-0 scale-95 translate-y-2"
+                    x-data="{ isSubmitting: false, accountType: 'bank', openingBalance: '' }">
+                    <div class="flex items-center justify-between px-6 sm:px-8 py-5 border-b border-black/5 dark:border-white/10 bg-black/[0.01] dark:bg-white/[0.02]">
+                        <div class="flex items-center gap-3.5">
+                            <div class="w-11 h-11 rounded-[14px] bg-[#007AFF]/12 text-[#007AFF] flex items-center justify-center shrink-0 shadow-sm">
+                                <i data-lucide="plus" class="w-5 h-5"></i>
                             </div>
-                            <h3 class="text-[16px] font-semibold text-black dark:text-white">Tambah Rekening / Akun Kas</h3>
+                            <div>
+                                <h3 class="text-[18px] sm:text-[20px] font-bold text-black dark:text-white tracking-tight">Tambah Rekening / Akun Kas</h3>
+                                <p class="text-[12.5px] text-black/50 dark:text-white/50">Daftarkan akun kas tunai kasir, rekening bank, atau saldo gateway QRIS</p>
+                            </div>
                         </div>
                         <button type="button" @click="showAccountModal = false"
-                            class="w-8 h-8 rounded-full bg-black/[0.06] dark:bg-white/[0.08] text-black/50 dark:text-white/50 hover:bg-black/10 flex items-center justify-center transition-colors">
+                            class="w-9 h-9 rounded-full bg-black/[0.05] dark:bg-white/[0.08] text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white hover:bg-black/10 dark:hover:bg-white/15 flex items-center justify-center transition-all cursor-pointer">
                             <i data-lucide="x" class="w-4 h-4"></i>
                         </button>
                     </div>
-                    <form method="POST" action="{{ route('finance.cash-bank.accounts.store') }}" class="px-5 py-4 space-y-3.5">
+                    <form method="POST" action="{{ route('finance.cash-bank.accounts.store') }}"
+                        @submit="isSubmitting = true"
+                        class="flex-1 overflow-y-auto p-5 sm:p-8 space-y-6">
                         @csrf
-                        <div>
-                            <label class="{{ $modalLabelCls }}">Nama Rekening / Akun Kas *</label>
-                            <input name="name" required placeholder="Contoh: Rekening BCA Operasional / Kasir Toko"
-                                class="{{ $modalInputCls }}">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                            {{-- Kolom Kiri: Informasi Akun --}}
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-[13px] font-bold text-black/80 dark:text-white/80 mb-1.5">Nama Rekening / Akun Kas *</label>
+                                    <input name="name" required placeholder="Contoh: Rekening BCA Operasional / Kasir Utama"
+                                        class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[12px] px-3.5 text-[16px] sm:text-[14px] text-black dark:text-white placeholder:text-black/30 dark:placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                                </div>
+                                <div>
+                                    <label class="block text-[13px] font-bold text-black/80 dark:text-white/80 mb-1.5">Tipe Akun Keuangan *</label>
+                                    <select name="type" x-model="accountType" required
+                                        class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[12px] px-3.5 text-[16px] sm:text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                                        <option value="bank">Rekening Bank (BCA, Mandiri, BRI, BNI, dll.)</option>
+                                        <option value="cash">Kas Tunai / Kasir Toko Fisik</option>
+                                        <option value="ewallet">E-Wallet / Saldo QRIS Gateway (Midtrans, Tripay)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            {{-- Kolom Kanan: Saldo Awal --}}
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-[13px] font-bold text-black/80 dark:text-white/80 mb-1.5">Saldo Awal Pembukaan (Rp)</label>
+                                    <div class="relative">
+                                        <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-black/40 dark:text-white/40 font-bold text-[14px]">Rp</span>
+                                        <input name="opening_balance" type="number" min="0" step="1" x-model="openingBalance" placeholder="0"
+                                            class="w-full h-11 pl-11 pr-3.5 bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[12px] text-[16px] sm:text-[15px] font-bold tabular-nums text-black dark:text-white placeholder:text-black/30 dark:placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                                    </div>
+                                    <p class="text-[11.5px] text-black/45 dark:text-white/45 mt-1.5">Kosongkan jika akun baru dimulai dari saldo nol.</p>
+                                </div>
+
+                                <div class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.08] space-y-1 text-[12px] text-black/65 dark:text-white/65">
+                                    <div class="flex items-center gap-1.5 font-bold text-black dark:text-white">
+                                        <i data-lucide="shield-check" class="w-4 h-4 text-[#34C759]"></i>
+                                        <span>Terintegrasi Buku Kas & Jurnal</span>
+                                    </div>
+                                    <p class="text-[11.5px] leading-relaxed">Setiap saldo awal akan otomatis terjurnal sebagai setoran modal / ekuitas awal pembukaan.</p>
+                                </div>
+                            </div>
                         </div>
-                        <div>
-                            <label class="{{ $modalLabelCls }}">Tipe Akun *</label>
-                            <select name="type" required class="{{ $modalSelectCls }}">
-                                <option value="bank">Rekening Bank (BCA, Mandiri, BRI, BNI, dll.)</option>
-                                <option value="cash">Kas Tunai / Kasir Toko</option>
-                                <option value="ewallet">E-Wallet / Saldo QRIS Gateway</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="{{ $modalLabelCls }}">Saldo Awal Pembukaan (Rp)</label>
-                            <input name="opening_balance" type="number" min="0" step="1" placeholder="0"
-                                class="{{ $modalInputCls }} tabular-nums font-semibold">
-                            <p class="text-[11px] text-black/45 dark:text-white/45 mt-1">Kosongkan jika rekening baru dimulai dari saldo nol.</p>
-                        </div>
-                        <div class="flex items-center gap-2 pt-2 border-t border-black/5 dark:border-white/10">
-                            <button type="button" @click="showAccountModal = false"
-                                class="flex-1 h-11 rounded-[10px] text-[14px] font-medium text-black/60 dark:text-white/60 hover:bg-black/5 transition-all">Batal</button>
-                            <button type="submit"
-                                class="flex-1 h-11 rounded-[10px] text-[14px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] transition-all shadow-sm">Simpan Rekening</button>
+
+                        <div class="flex flex-col-reverse sm:flex-row items-center justify-end gap-3 pt-5 border-t border-black/5 dark:border-white/10">
+                            <button type="button" @click="showAccountModal = false" :disabled="isSubmitting"
+                                class="w-full sm:w-auto min-h-[48px] px-6 rounded-[14px] text-[14px] font-semibold text-black/60 dark:text-white/60 hover:bg-black/5 dark:hover:bg-white/5 transition-all cursor-pointer">Batal</button>
+                            <button type="submit" :disabled="isSubmitting"
+                                class="w-full sm:w-auto min-h-[48px] px-8 rounded-[14px] text-[14.5px] font-bold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] transition-all shadow-[0_4px_16px_rgba(0,122,255,0.3)] flex items-center justify-center gap-2 cursor-pointer">
+                                <template x-if="isSubmitting">
+                                    <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                                    </svg>
+                                </template>
+                                <i data-lucide="check" class="w-4 h-4" x-show="!isSubmitting"></i>
+                                <span x-text="isSubmitting ? 'Menyimpan...' : 'Simpan Rekening'">Simpan Rekening</span>
+                            </button>
                         </div>
                     </form>
                 </div>
             </div>
 
-            {{-- MODAL EDIT REKENING --}}
+            {{-- ====================================================== --}}
+            {{-- MODAL EDIT REKENING (BENTO XXL)                         --}}
+            {{-- ====================================================== --}}
             <div x-show="editAccountModal" x-cloak
-                class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30 backdrop-blur-sm"
-                x-transition.opacity>
-                <div class="w-full max-w-md rounded-[20px] bg-white dark:bg-[#2C2C2E] border border-black/5 dark:border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.25)] overflow-hidden"
-                    @click.away="editAccountModal = false">
-                    <div class="flex items-center justify-between px-5 pt-5 pb-4 border-b border-black/5 dark:border-white/10">
-                        <div class="flex items-center gap-2">
-                            <div class="w-8 h-8 rounded-full bg-[#FF9500]/12 text-[#FF9500] flex items-center justify-center">
-                                <i data-lucide="pencil" class="w-4 h-4"></i>
+                class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/40 backdrop-blur-md"
+                x-transition:enter="transition ease-out duration-250" x-transition:enter-start="opacity-0"
+                x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200"
+                x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+                @keydown.escape.window="editAccountModal = false">
+                <div class="w-full max-w-full sm:max-w-2xl lg:max-w-3xl rounded-[24px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 shadow-[0_25px_70px_rgba(0,0,0,0.35)] overflow-hidden flex flex-col max-h-[92vh]"
+                    @click.away="editAccountModal = false"
+                    x-transition:enter="transition cubic-bezier(0.16, 1, 0.3, 1) duration-300"
+                    x-transition:enter-start="opacity-0 scale-95 translate-y-4"
+                    x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                    x-transition:leave="transition ease-in duration-150"
+                    x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+                    x-transition:leave-end="opacity-0 scale-95 translate-y-2"
+                    x-data="{ isSubmitting: false }">
+                    <div class="flex items-center justify-between px-6 sm:px-8 py-5 border-b border-black/5 dark:border-white/10 bg-black/[0.01] dark:bg-white/[0.02]">
+                        <div class="flex items-center gap-3.5">
+                            <div class="w-11 h-11 rounded-[14px] bg-[#FF9500]/12 text-[#FF9500] flex items-center justify-center shrink-0 shadow-sm">
+                                <i data-lucide="pencil" class="w-5 h-5"></i>
                             </div>
-                            <h3 class="text-[16px] font-semibold text-black dark:text-white">Ubah Data Rekening</h3>
+                            <div>
+                                <h3 class="text-[18px] sm:text-[20px] font-bold text-black dark:text-white tracking-tight">Ubah Data Rekening</h3>
+                                <p class="text-[12.5px] text-black/50 dark:text-white/50">Perbarui nama atau klasifikasi jenis rekening kas & bank</p>
+                            </div>
                         </div>
                         <button type="button" @click="editAccountModal = false"
-                            class="w-8 h-8 rounded-full bg-black/[0.06] dark:bg-white/[0.08] text-black/50 dark:text-white/50 hover:bg-black/10 flex items-center justify-center transition-colors">
+                            class="w-9 h-9 rounded-full bg-black/[0.05] dark:bg-white/[0.08] text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white hover:bg-black/10 dark:hover:bg-white/15 flex items-center justify-center transition-all cursor-pointer">
                             <i data-lucide="x" class="w-4 h-4"></i>
                         </button>
                     </div>
-                    <form method="POST" :action="'{{ url('finance/cash-bank/accounts') }}/' + currentAccount.id" class="px-5 py-4 space-y-3.5">
+                    <form method="POST" :action="'{{ url('finance/cash-bank/accounts') }}/' + currentAccount.id"
+                        @submit="isSubmitting = true"
+                        class="flex-1 overflow-y-auto p-5 sm:p-8 space-y-6">
                         @csrf
                         @method('PUT')
-                        <div>
-                            <label class="{{ $modalLabelCls }}">Nama Rekening / Akun Kas *</label>
-                            <input name="name" x-model="currentAccount.name" required class="{{ $modalInputCls }}">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                            <div>
+                                <label class="block text-[13px] font-bold text-black/80 dark:text-white/80 mb-1.5">Nama Rekening / Akun Kas *</label>
+                                <input name="name" x-model="currentAccount.name" required
+                                    class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[12px] px-3.5 text-[16px] sm:text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                            </div>
+                            <div>
+                                <label class="block text-[13px] font-bold text-black/80 dark:text-white/80 mb-1.5">Tipe Akun Keuangan *</label>
+                                <select name="type" x-model="currentAccount.type" required
+                                    class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[12px] px-3.5 text-[16px] sm:text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                                    <option value="bank">Rekening Bank</option>
+                                    <option value="cash">Kas Tunai / Kasir Toko</option>
+                                    <option value="ewallet">E-Wallet / QRIS</option>
+                                </select>
+                            </div>
                         </div>
-                        <div>
-                            <label class="{{ $modalLabelCls }}">Tipe Akun *</label>
-                            <select name="type" x-model="currentAccount.type" required class="{{ $modalSelectCls }}">
-                                <option value="bank">Rekening Bank</option>
-                                <option value="cash">Kas Tunai / Kasir Toko</option>
-                                <option value="ewallet">E-Wallet / QRIS</option>
-                            </select>
-                        </div>
-                        <div class="flex items-center gap-2 pt-2 border-t border-black/5 dark:border-white/10">
-                            <button type="button" @click="editAccountModal = false"
-                                class="flex-1 h-11 rounded-[10px] text-[14px] font-medium text-black/60 dark:text-white/60 hover:bg-black/5 transition-all">Batal</button>
-                            <button type="submit"
-                                class="flex-1 h-11 rounded-[10px] text-[14px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] transition-all shadow-sm">Simpan Perubahan</button>
+
+                        <div class="flex flex-col-reverse sm:flex-row items-center justify-end gap-3 pt-5 border-t border-black/5 dark:border-white/10">
+                            <button type="button" @click="editAccountModal = false" :disabled="isSubmitting"
+                                class="w-full sm:w-auto min-h-[48px] px-6 rounded-[14px] text-[14px] font-semibold text-black/60 dark:text-white/60 hover:bg-black/5 dark:hover:bg-white/5 transition-all cursor-pointer">Batal</button>
+                            <button type="submit" :disabled="isSubmitting"
+                                class="w-full sm:w-auto min-h-[48px] px-8 rounded-[14px] text-[14.5px] font-bold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] transition-all shadow-[0_4px_16px_rgba(0,122,255,0.3)] flex items-center justify-center gap-2 cursor-pointer">
+                                <template x-if="isSubmitting">
+                                    <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                                    </svg>
+                                </template>
+                                <i data-lucide="check" class="w-4 h-4" x-show="!isSubmitting"></i>
+                                <span x-text="isSubmitting ? 'Menyimpan...' : 'Simpan Perubahan'">Simpan Perubahan</span>
+                            </button>
                         </div>
                     </form>
                 </div>
             </div>
 
-            {{-- MODAL KAS MASUK --}}
+            {{-- ====================================================== --}}
+            {{-- MODAL KAS MASUK (BENTO XXL)                             --}}
+            {{-- ====================================================== --}}
             <div x-show="showInflowModal" x-cloak
-                class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30 backdrop-blur-sm"
-                x-transition.opacity>
-                <div class="w-full max-w-md rounded-[20px] bg-white dark:bg-[#2C2C2E] border border-black/5 dark:border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.25)] overflow-hidden"
-                    @click.away="showInflowModal = false">
-                    <div class="flex items-center justify-between px-5 pt-5 pb-4 border-b border-black/5 dark:border-white/10">
-                        <div class="flex items-center gap-2">
-                            <div class="w-8 h-8 rounded-full bg-[#34C759]/15 text-[#34C759] flex items-center justify-center">
-                                <i data-lucide="arrow-down-left" class="w-4 h-4"></i>
+                class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/40 backdrop-blur-md"
+                x-transition:enter="transition ease-out duration-250" x-transition:enter-start="opacity-0"
+                x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200"
+                x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+                @keydown.escape.window="showInflowModal = false">
+                <div class="w-full max-w-full sm:max-w-3xl lg:max-w-4xl rounded-[24px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 shadow-[0_25px_70px_rgba(0,0,0,0.35)] overflow-hidden flex flex-col max-h-[92vh]"
+                    @click.away="showInflowModal = false"
+                    x-transition:enter="transition cubic-bezier(0.16, 1, 0.3, 1) duration-300"
+                    x-transition:enter-start="opacity-0 scale-95 translate-y-4"
+                    x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                    x-transition:leave="transition ease-in duration-150"
+                    x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+                    x-transition:leave-end="opacity-0 scale-95 translate-y-2"
+                    x-data="{ isSubmitting: false, amount: '', setQuickAmount(val) { this.amount = val; } }">
+                    <div class="flex items-center justify-between px-6 sm:px-8 py-5 border-b border-black/5 dark:border-white/10 bg-black/[0.01] dark:bg-white/[0.02]">
+                        <div class="flex items-center gap-3.5">
+                            <div class="w-11 h-11 rounded-[14px] bg-[#34C759]/15 text-[#34C759] flex items-center justify-center shrink-0 shadow-sm">
+                                <i data-lucide="arrow-down-left" class="w-5 h-5"></i>
                             </div>
-                            <h3 class="text-[16px] font-semibold text-black dark:text-white">Catat Kas Masuk</h3>
+                            <div>
+                                <h3 class="text-[18px] sm:text-[20px] font-bold text-black dark:text-white tracking-tight">Catat Kas Masuk</h3>
+                                <p class="text-[12.5px] text-black/50 dark:text-white/50">Penerimaan kas non-POS (setoran modal, pendapatan lain-lain, penerimaan tunai)</p>
+                            </div>
                         </div>
                         <button type="button" @click="showInflowModal = false"
-                            class="w-8 h-8 rounded-full bg-black/[0.06] dark:bg-white/[0.08] text-black/50 dark:text-white/50 hover:bg-black/10 flex items-center justify-center transition-colors">
+                            class="w-9 h-9 rounded-full bg-black/[0.05] dark:bg-white/[0.08] text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white hover:bg-black/10 dark:hover:bg-white/15 flex items-center justify-center transition-all cursor-pointer">
                             <i data-lucide="x" class="w-4 h-4"></i>
                         </button>
                     </div>
-                    <form method="POST" action="{{ route('finance.cash-bank.inflow') }}" class="px-5 py-4 space-y-3.5">
+                    <form method="POST" action="{{ route('finance.cash-bank.inflow') }}"
+                        @submit="isSubmitting = true"
+                        class="flex-1 overflow-y-auto p-5 sm:p-8 space-y-6">
                         @csrf
-                        <div>
-                            <label class="{{ $modalLabelCls }}">Rekening Kas / Bank Penerima *</label>
-                            <select name="account_id" class="{{ $modalSelectCls }}">
-                                <option value="">Otomatis (Berdasarkan Metode)</option>
-                                @foreach ($accounts as $acc)
-                                    <option value="{{ $acc->id }}">{{ $acc->name }} ({{ strtoupper($acc->type) }}) - Rp {{ number_format($acc->current_balance, 0, ',', '.') }}</option>
-                                @endforeach
-                            </select>
+                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                            {{-- Kolom Kiri: Detail Akun (6/12) --}}
+                            <div class="lg:col-span-6 space-y-4">
+                                <div>
+                                    <label class="block text-[13px] font-bold text-black/80 dark:text-white/80 mb-1.5">Rekening Kas / Bank Penerima</label>
+                                    <select name="account_id"
+                                        class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[12px] px-3.5 text-[16px] sm:text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#34C759]">
+                                        <option value="">Otomatis (Berdasarkan Metode)</option>
+                                        @foreach ($accounts as $acc)
+                                            <option value="{{ $acc->id }}">{{ $acc->name }} ({{ strtoupper($acc->type) }}) - Saldo: Rp {{ number_format($acc->current_balance, 0, ',', '.') }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-[13px] font-bold text-black/80 dark:text-white/80 mb-1.5">Metode Pembayaran</label>
+                                    <select name="account_method"
+                                        class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[12px] px-3.5 text-[16px] sm:text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#34C759]">
+                                        <option value="cash">Kas Tunai (Cash)</option>
+                                        <option value="bank_transfer">Transfer Rekening Bank</option>
+                                        <option value="qris">QRIS / E-Wallet</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-[13px] font-bold text-black/80 dark:text-white/80 mb-1.5">Keterangan Penerimaan *</label>
+                                    <input name="description" required placeholder="Contoh: Setoran modal awal atau pendapatan non-POS"
+                                        class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[12px] px-3.5 text-[16px] sm:text-[14px] text-black dark:text-white placeholder:text-black/30 dark:placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#34C759]">
+                                </div>
+                            </div>
+
+                            {{-- Kolom Kanan: Nominal XXL (6/12) --}}
+                            <div class="lg:col-span-6 space-y-4">
+                                <div class="p-5 rounded-[20px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.08] space-y-3.5">
+                                    <label class="block text-[13px] font-bold text-black/80 dark:text-white/80">Nominal Masuk (Rp) *</label>
+                                    <div class="relative">
+                                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-black/40 dark:text-white/40 font-bold text-lg sm:text-xl">Rp</span>
+                                        <input name="amount" type="number" min="1" step="any" x-model="amount" required placeholder="0"
+                                            class="w-full h-14 pl-14 pr-4 bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 rounded-[14px] text-2xl sm:text-3xl font-extrabold tabular-nums text-black dark:text-white placeholder:text-black/20 dark:placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-[#34C759] transition-all shadow-inner">
+                                    </div>
+                                    <div class="flex flex-wrap items-center gap-2 pt-1">
+                                        <span class="text-[11.5px] text-black/45 dark:text-white/45 font-medium">Nominal Cepat:</span>
+                                        <button type="button" @click="setQuickAmount(100000)" class="px-2.5 py-1 rounded-[8px] bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] text-[12px] font-semibold text-black/75 dark:text-white/75 transition cursor-pointer">Rp 100 rb</button>
+                                        <button type="button" @click="setQuickAmount(500000)" class="px-2.5 py-1 rounded-[8px] bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] text-[12px] font-semibold text-black/75 dark:text-white/75 transition cursor-pointer">Rp 500 rb</button>
+                                        <button type="button" @click="setQuickAmount(1000000)" class="px-2.5 py-1 rounded-[8px] bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] text-[12px] font-semibold text-black/75 dark:text-white/75 transition cursor-pointer">Rp 1 jt</button>
+                                        <button type="button" @click="setQuickAmount(5000000)" class="px-2.5 py-1 rounded-[8px] bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] text-[12px] font-semibold text-black/75 dark:text-white/75 transition cursor-pointer">Rp 5 jt</button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div>
-                            <label class="{{ $modalLabelCls }}">Metode Pembayaran</label>
-                            <select name="account_method" class="{{ $modalSelectCls }}">
-                                <option value="cash">Kas Tunai (Cash)</option>
-                                <option value="bank_transfer">Rekening Bank</option>
-                                <option value="qris">QRIS / E-Wallet</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="{{ $modalLabelCls }}">Nominal (Rp) *</label>
-                            <input name="amount" type="number" min="1" step="1" required placeholder="500000" class="{{ $modalInputCls }} tabular-nums font-semibold">
-                        </div>
-                        <div>
-                            <label class="{{ $modalLabelCls }}">Keterangan Penerimaan *</label>
-                            <input name="description" required placeholder="Contoh: Setoran modal awal atau pendapatan non-POS" class="{{ $modalInputCls }}">
-                        </div>
-                        <div class="flex items-center gap-2 pt-2 border-t border-black/5 dark:border-white/10">
-                            <button type="button" @click="showInflowModal = false"
-                                class="flex-1 h-11 rounded-[10px] text-[14px] font-medium text-black/60 dark:text-white/60 hover:bg-black/5 transition-all">Batal</button>
-                            <button type="submit"
-                                class="flex-1 h-11 rounded-[10px] text-[14px] font-semibold text-white bg-[#34C759] hover:bg-[#2DBE50] active:scale-[0.97] transition-all shadow-sm">Simpan Kas Masuk</button>
+
+                        <div class="flex flex-col-reverse sm:flex-row items-center justify-end gap-3 pt-5 border-t border-black/5 dark:border-white/10">
+                            <button type="button" @click="showInflowModal = false" :disabled="isSubmitting"
+                                class="w-full sm:w-auto min-h-[48px] px-6 rounded-[14px] text-[14px] font-semibold text-black/60 dark:text-white/60 hover:bg-black/5 dark:hover:bg-white/5 transition-all cursor-pointer">Batal</button>
+                            <button type="submit" :disabled="isSubmitting"
+                                class="w-full sm:w-auto min-h-[48px] px-8 rounded-[14px] text-[14.5px] font-bold text-white bg-[#34C759] hover:bg-[#2DBE50] active:scale-[0.98] transition-all shadow-[0_4px_16px_rgba(52,199,89,0.3)] flex items-center justify-center gap-2 cursor-pointer">
+                                <template x-if="isSubmitting">
+                                    <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                                    </svg>
+                                </template>
+                                <i data-lucide="check" class="w-4 h-4" x-show="!isSubmitting"></i>
+                                <span x-text="isSubmitting ? 'Menyimpan...' : 'Simpan Kas Masuk'">Simpan Kas Masuk</span>
+                            </button>
                         </div>
                     </form>
                 </div>
             </div>
 
-            {{-- MODAL KAS KELUAR --}}
+            {{-- ====================================================== --}}
+            {{-- MODAL KAS KELUAR (BENTO XXL)                            --}}
+            {{-- ====================================================== --}}
             <div x-show="showOutflowModal" x-cloak
-                class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30 backdrop-blur-sm"
-                x-transition.opacity>
-                <div class="w-full max-w-md rounded-[20px] bg-white dark:bg-[#2C2C2E] border border-black/5 dark:border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.25)] overflow-hidden"
-                    @click.away="showOutflowModal = false">
-                    <div class="flex items-center justify-between px-5 pt-5 pb-4 border-b border-black/5 dark:border-white/10">
-                        <div class="flex items-center gap-2">
-                            <div class="w-8 h-8 rounded-full bg-[#FF3B30]/12 text-[#FF3B30] flex items-center justify-center">
-                                <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
+                class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/40 backdrop-blur-md"
+                x-transition:enter="transition ease-out duration-250" x-transition:enter-start="opacity-0"
+                x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200"
+                x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+                @keydown.escape.window="showOutflowModal = false">
+                <div class="w-full max-w-full sm:max-w-3xl lg:max-w-4xl rounded-[24px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 shadow-[0_25px_70px_rgba(0,0,0,0.35)] overflow-hidden flex flex-col max-h-[92vh]"
+                    @click.away="showOutflowModal = false"
+                    x-transition:enter="transition cubic-bezier(0.16, 1, 0.3, 1) duration-300"
+                    x-transition:enter-start="opacity-0 scale-95 translate-y-4"
+                    x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                    x-transition:leave="transition ease-in duration-150"
+                    x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+                    x-transition:leave-end="opacity-0 scale-95 translate-y-2"
+                    x-data="{ isSubmitting: false, amount: '', setQuickAmount(val) { this.amount = val; } }">
+                    <div class="flex items-center justify-between px-6 sm:px-8 py-5 border-b border-black/5 dark:border-white/10 bg-black/[0.01] dark:bg-white/[0.02]">
+                        <div class="flex items-center gap-3.5">
+                            <div class="w-11 h-11 rounded-[14px] bg-[#FF3B30]/12 text-[#FF3B30] flex items-center justify-center shrink-0 shadow-sm">
+                                <i data-lucide="arrow-up-right" class="w-5 h-5"></i>
                             </div>
-                            <h3 class="text-[16px] font-semibold text-black dark:text-white">Catat Pengeluaran Kas Keluar</h3>
+                            <div>
+                                <h3 class="text-[18px] sm:text-[20px] font-bold text-black dark:text-white tracking-tight">Catat Pengeluaran Kas Keluar</h3>
+                                <p class="text-[12.5px] text-black/50 dark:text-white/50">Pengeluaran kas non-beban (pengambilan prive pemilik, pengembalian modal, titipan dana)</p>
+                            </div>
                         </div>
                         <button type="button" @click="showOutflowModal = false"
-                            class="w-8 h-8 rounded-full bg-black/[0.06] dark:bg-white/[0.08] text-black/50 dark:text-white/50 hover:bg-black/10 flex items-center justify-center transition-colors">
+                            class="w-9 h-9 rounded-full bg-black/[0.05] dark:bg-white/[0.08] text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white hover:bg-black/10 dark:hover:bg-white/15 flex items-center justify-center transition-all cursor-pointer">
                             <i data-lucide="x" class="w-4 h-4"></i>
                         </button>
                     </div>
-                    <form method="POST" action="{{ route('finance.cash-bank.outflow') }}" class="px-5 py-4 space-y-3.5">
+                    <form method="POST" action="{{ route('finance.cash-bank.outflow') }}"
+                        @submit="isSubmitting = true"
+                        class="flex-1 overflow-y-auto p-5 sm:p-8 space-y-6">
                         @csrf
-                        <div>
-                            <label class="{{ $modalLabelCls }}">Sumber Rekening Kas / Bank</label>
-                            <select name="account_id" class="{{ $modalSelectCls }}">
-                                <option value="">Otomatis (Berdasarkan Metode)</option>
-                                @foreach ($accounts as $acc)
-                                    <option value="{{ $acc->id }}">{{ $acc->name }} ({{ strtoupper($acc->type) }}) - Saldo: Rp {{ number_format($acc->current_balance, 0, ',', '.') }}</option>
-                                @endforeach
-                            </select>
+                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                            {{-- Kolom Kiri: Detail Akun (6/12) --}}
+                            <div class="lg:col-span-6 space-y-4">
+                                <div>
+                                    <label class="block text-[13px] font-bold text-black/80 dark:text-white/80 mb-1.5">Sumber Rekening Kas / Bank</label>
+                                    <select name="account_id"
+                                        class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[12px] px-3.5 text-[16px] sm:text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#FF3B30]">
+                                        <option value="">Otomatis (Berdasarkan Metode)</option>
+                                        @foreach ($accounts as $acc)
+                                            <option value="{{ $acc->id }}">{{ $acc->name }} ({{ strtoupper($acc->type) }}) - Saldo: Rp {{ number_format($acc->current_balance, 0, ',', '.') }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-[13px] font-bold text-black/80 dark:text-white/80 mb-1.5">Metode Pembayaran</label>
+                                    <select name="account_method"
+                                        class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[12px] px-3.5 text-[16px] sm:text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#FF3B30]">
+                                        <option value="cash">Kas Tunai (Cash)</option>
+                                        <option value="bank_transfer">Rekening Bank</option>
+                                        <option value="qris">QRIS / E-Wallet</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-[13px] font-bold text-black/80 dark:text-white/80 mb-1.5">Keterangan Pengeluaran *</label>
+                                    <input name="description" required placeholder="Contoh: Pengambilan prive pemilik atau mutasi dana khusus"
+                                        class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[12px] px-3.5 text-[16px] sm:text-[14px] text-black dark:text-white placeholder:text-black/30 dark:placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#FF3B30]">
+                                </div>
+                            </div>
+
+                            {{-- Kolom Kanan: Nominal XXL (6/12) --}}
+                            <div class="lg:col-span-6 space-y-4">
+                                <div class="p-5 rounded-[20px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.08] space-y-3.5">
+                                    <label class="block text-[13px] font-bold text-black/80 dark:text-white/80">Nominal Keluar (Rp) *</label>
+                                    <div class="relative">
+                                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-black/40 dark:text-white/40 font-bold text-lg sm:text-xl">Rp</span>
+                                        <input name="amount" type="number" min="1" step="any" x-model="amount" required placeholder="0"
+                                            class="w-full h-14 pl-14 pr-4 bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 rounded-[14px] text-2xl sm:text-3xl font-extrabold tabular-nums text-black dark:text-white placeholder:text-black/20 dark:placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-[#FF3B30] transition-all shadow-inner">
+                                    </div>
+                                    <div class="flex flex-wrap items-center gap-2 pt-1">
+                                        <span class="text-[11.5px] text-black/45 dark:text-white/45 font-medium">Nominal Cepat:</span>
+                                        <button type="button" @click="setQuickAmount(50000)" class="px-2.5 py-1 rounded-[8px] bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] text-[12px] font-semibold text-black/75 dark:text-white/75 transition cursor-pointer">Rp 50 rb</button>
+                                        <button type="button" @click="setQuickAmount(100000)" class="px-2.5 py-1 rounded-[8px] bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] text-[12px] font-semibold text-black/75 dark:text-white/75 transition cursor-pointer">Rp 100 rb</button>
+                                        <button type="button" @click="setQuickAmount(250000)" class="px-2.5 py-1 rounded-[8px] bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] text-[12px] font-semibold text-black/75 dark:text-white/75 transition cursor-pointer">Rp 250 rb</button>
+                                        <button type="button" @click="setQuickAmount(500000)" class="px-2.5 py-1 rounded-[8px] bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] text-[12px] font-semibold text-black/75 dark:text-white/75 transition cursor-pointer">Rp 500 rb</button>
+                                        <button type="button" @click="setQuickAmount(1000000)" class="px-2.5 py-1 rounded-[8px] bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] text-[12px] font-semibold text-black/75 dark:text-white/75 transition cursor-pointer">Rp 1 jt</button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div>
-                            <label class="{{ $modalLabelCls }}">Metode Pembayaran</label>
-                            <select name="account_method" class="{{ $modalSelectCls }}">
-                                <option value="cash">Kas Tunai (Cash)</option>
-                                <option value="bank_transfer">Rekening Bank</option>
-                                <option value="qris">QRIS / E-Wallet</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="{{ $modalLabelCls }}">Nominal (Rp) *</label>
-                            <input name="amount" type="number" min="1" step="1" required placeholder="250000" class="{{ $modalInputCls }} tabular-nums font-semibold">
-                        </div>
-                        <div>
-                            <label class="{{ $modalLabelCls }}">Keterangan Pengeluaran *</label>
-                            <input name="description" required placeholder="Contoh: Pengambilan prive atau pengeluaran khusus" class="{{ $modalInputCls }}">
-                        </div>
-                        <div class="flex items-center gap-2 pt-2 border-t border-black/5 dark:border-white/10">
-                            <button type="button" @click="showOutflowModal = false"
-                                class="flex-1 h-11 rounded-[10px] text-[14px] font-medium text-black/60 dark:text-white/60 hover:bg-black/5 transition-all">Batal</button>
-                            <button type="submit"
-                                class="flex-1 h-11 rounded-[10px] text-[14px] font-semibold text-white bg-[#FF3B30] hover:bg-[#E0352B] active:scale-[0.97] transition-all shadow-sm">Simpan Kas Keluar</button>
+
+                        <div class="flex flex-col-reverse sm:flex-row items-center justify-end gap-3 pt-5 border-t border-black/5 dark:border-white/10">
+                            <button type="button" @click="showOutflowModal = false" :disabled="isSubmitting"
+                                class="w-full sm:w-auto min-h-[48px] px-6 rounded-[14px] text-[14px] font-semibold text-black/60 dark:text-white/60 hover:bg-black/5 dark:hover:bg-white/5 transition-all cursor-pointer">Batal</button>
+                            <button type="submit" :disabled="isSubmitting"
+                                class="w-full sm:w-auto min-h-[48px] px-8 rounded-[14px] text-[14.5px] font-bold text-white bg-[#FF3B30] hover:bg-[#E0352B] active:scale-[0.98] transition-all shadow-[0_4px_16px_rgba(255,59,48,0.3)] flex items-center justify-center gap-2 cursor-pointer">
+                                <template x-if="isSubmitting">
+                                    <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                                    </svg>
+                                </template>
+                                <i data-lucide="check" class="w-4 h-4" x-show="!isSubmitting"></i>
+                                <span x-text="isSubmitting ? 'Menyimpan...' : 'Simpan Kas Keluar'">Simpan Kas Keluar</span>
+                            </button>
                         </div>
                     </form>
                 </div>
             </div>
 
-            {{-- MODAL TRANSFER ANTAR REKENING --}}
+            {{-- ====================================================== --}}
+            {{-- MODAL TRANSFER ANTAR REKENING (BENTO XXL)               --}}
+            {{-- ====================================================== --}}
             <div x-show="showTransferModal" x-cloak
-                class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30 backdrop-blur-sm"
-                x-transition.opacity>
-                <div class="w-full max-w-md rounded-[20px] bg-white dark:bg-[#2C2C2E] border border-black/5 dark:border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.25)] overflow-hidden"
-                    @click.away="showTransferModal = false">
-                    <div class="flex items-center justify-between px-5 pt-5 pb-4 border-b border-black/5 dark:border-white/10">
-                        <div class="flex items-center gap-2">
-                            <div class="w-8 h-8 rounded-full bg-[#007AFF]/12 text-[#007AFF] flex items-center justify-center">
-                                <i data-lucide="arrow-left-right" class="w-4 h-4"></i>
+                class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/40 backdrop-blur-md"
+                x-transition:enter="transition ease-out duration-250" x-transition:enter-start="opacity-0"
+                x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200"
+                x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+                @keydown.escape.window="showTransferModal = false">
+                <div class="w-full max-w-full sm:max-w-3xl lg:max-w-4xl rounded-[24px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 shadow-[0_25px_70px_rgba(0,0,0,0.35)] overflow-hidden flex flex-col max-h-[92vh]"
+                    @click.away="showTransferModal = false"
+                    x-transition:enter="transition cubic-bezier(0.16, 1, 0.3, 1) duration-300"
+                    x-transition:enter-start="opacity-0 scale-95 translate-y-4"
+                    x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                    x-transition:leave="transition ease-in duration-150"
+                    x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+                    x-transition:leave-end="opacity-0 scale-95 translate-y-2"
+                    x-data="{ isSubmitting: false, amount: '', setQuickAmount(val) { this.amount = val; } }">
+                    <div class="flex items-center justify-between px-6 sm:px-8 py-5 border-b border-black/5 dark:border-white/10 bg-black/[0.01] dark:bg-white/[0.02]">
+                        <div class="flex items-center gap-3.5">
+                            <div class="w-11 h-11 rounded-[14px] bg-[#007AFF]/12 text-[#007AFF] flex items-center justify-center shrink-0 shadow-sm">
+                                <i data-lucide="arrow-left-right" class="w-5 h-5"></i>
                             </div>
-                            <h3 class="text-[16px] font-semibold text-black dark:text-white">Transfer Antar Rekening</h3>
+                            <div>
+                                <h3 class="text-[18px] sm:text-[20px] font-bold text-black dark:text-white tracking-tight">Transfer Antar Rekening</h3>
+                                <p class="text-[12.5px] text-black/50 dark:text-white/50">Pemindahan saldo kas tunai ke rekening bank atau antar rekening internal</p>
+                            </div>
                         </div>
                         <button type="button" @click="showTransferModal = false"
-                            class="w-8 h-8 rounded-full bg-black/[0.06] dark:bg-white/[0.08] text-black/50 dark:text-white/50 hover:bg-black/10 flex items-center justify-center transition-colors">
+                            class="w-9 h-9 rounded-full bg-black/[0.05] dark:bg-white/[0.08] text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white hover:bg-black/10 dark:hover:bg-white/15 flex items-center justify-center transition-all cursor-pointer">
                             <i data-lucide="x" class="w-4 h-4"></i>
                         </button>
                     </div>
-                    <form method="POST" action="{{ route('finance.cash-bank.transfer') }}" class="px-5 py-4 space-y-3.5">
+                    <form method="POST" action="{{ route('finance.cash-bank.transfer') }}"
+                        @submit="isSubmitting = true"
+                        class="flex-1 overflow-y-auto p-5 sm:p-8 space-y-6">
                         @csrf
-                        <div>
-                            <label class="{{ $modalLabelCls }}">Dari Rekening Asal *</label>
-                            <select name="from_account_id" required class="{{ $modalSelectCls }}">
-                                @foreach ($accounts as $account)
-                                    <option value="{{ $account->id }}">{{ $account->name }} (Rp {{ number_format($account->current_balance, 0, ',', '.') }})</option>
-                                @endforeach
-                            </select>
+                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                            {{-- Kolom Kiri: Rekening Asal & Tujuan (6/12) --}}
+                            <div class="lg:col-span-6 space-y-4">
+                                <div class="p-4 rounded-[18px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.08] space-y-3">
+                                    <div>
+                                        <label class="block text-[12px] font-bold text-black/80 dark:text-white/80 mb-1">Dari Rekening Asal (Pengurang Saldo) *</label>
+                                        <select name="from_account_id" required
+                                            class="w-full h-11 bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 rounded-[12px] px-3.5 text-[16px] sm:text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                                            @foreach ($accounts as $account)
+                                                <option value="{{ $account->id }}">{{ $account->name }} (Saldo: Rp {{ number_format($account->current_balance, 0, ',', '.') }})</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+
+                                    <div class="flex items-center justify-center py-0.5 text-[#007AFF]">
+                                        <i data-lucide="arrow-down" class="w-5 h-5"></i>
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-[12px] font-bold text-black/80 dark:text-white/80 mb-1">Ke Rekening Tujuan (Penambah Saldo) *</label>
+                                        <select name="to_account_id" required
+                                            class="w-full h-11 bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 rounded-[12px] px-3.5 text-[16px] sm:text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                                            @foreach ($accounts as $account)
+                                                <option value="{{ $account->id }}">{{ $account->name }} (Saldo: Rp {{ number_format($account->current_balance, 0, ',', '.') }})</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label class="block text-[13px] font-bold text-black/80 dark:text-white/80 mb-1.5">Keterangan Transfer *</label>
+                                    <input name="description" required placeholder="Contoh: Setoran uang tunai kasir toko ke rekening BCA Operasional"
+                                        class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[12px] px-3.5 text-[16px] sm:text-[14px] text-black dark:text-white placeholder:text-black/30 dark:placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                                </div>
+                            </div>
+
+                            {{-- Kolom Kanan: Nominal XXL (6/12) --}}
+                            <div class="lg:col-span-6 space-y-4">
+                                <div class="p-5 rounded-[20px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.08] space-y-3.5">
+                                    <label class="block text-[13px] font-bold text-black/80 dark:text-white/80">Nominal Transfer (Rp) *</label>
+                                    <div class="relative">
+                                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-black/40 dark:text-white/40 font-bold text-lg sm:text-xl">Rp</span>
+                                        <input name="amount" type="number" min="1" step="any" x-model="amount" required placeholder="0"
+                                            class="w-full h-14 pl-14 pr-4 bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 rounded-[14px] text-2xl sm:text-3xl font-extrabold tabular-nums text-black dark:text-white placeholder:text-black/20 dark:placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition-all shadow-inner">
+                                    </div>
+                                    <div class="flex flex-wrap items-center gap-2 pt-1">
+                                        <span class="text-[11.5px] text-black/45 dark:text-white/45 font-medium">Nominal Cepat:</span>
+                                        <button type="button" @click="setQuickAmount(500000)" class="px-2.5 py-1 rounded-[8px] bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] text-[12px] font-semibold text-black/75 dark:text-white/75 transition cursor-pointer">Rp 500 rb</button>
+                                        <button type="button" @click="setQuickAmount(1000000)" class="px-2.5 py-1 rounded-[8px] bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] text-[12px] font-semibold text-black/75 dark:text-white/75 transition cursor-pointer">Rp 1 jt</button>
+                                        <button type="button" @click="setQuickAmount(2500000)" class="px-2.5 py-1 rounded-[8px] bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] text-[12px] font-semibold text-black/75 dark:text-white/75 transition cursor-pointer">Rp 2.5 jt</button>
+                                        <button type="button" @click="setQuickAmount(5000000)" class="px-2.5 py-1 rounded-[8px] bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] text-[12px] font-semibold text-black/75 dark:text-white/75 transition cursor-pointer">Rp 5 jt</button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div>
-                            <label class="{{ $modalLabelCls }}">Ke Rekening Tujuan *</label>
-                            <select name="to_account_id" required class="{{ $modalSelectCls }}">
-                                @foreach ($accounts as $account)
-                                    <option value="{{ $account->id }}">{{ $account->name }} (Rp {{ number_format($account->current_balance, 0, ',', '.') }})</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div>
-                            <label class="{{ $modalLabelCls }}">Nominal Transfer (Rp) *</label>
-                            <input name="amount" type="number" min="1" step="1" required placeholder="1000000" class="{{ $modalInputCls }} tabular-nums font-semibold">
-                        </div>
-                        <div>
-                            <label class="{{ $modalLabelCls }}">Keterangan Transfer *</label>
-                            <input name="description" required placeholder="Contoh: Setoran uang tunai kasir ke rekening BCA" class="{{ $modalInputCls }}">
-                        </div>
-                        <div class="flex items-center gap-2 pt-2 border-t border-black/5 dark:border-white/10">
-                            <button type="button" @click="showTransferModal = false"
-                                class="flex-1 h-11 rounded-[10px] text-[14px] font-medium text-black/60 dark:text-white/60 hover:bg-black/5 transition-all">Batal</button>
-                            <button type="submit"
-                                class="flex-1 h-11 rounded-[10px] text-[14px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] transition-all shadow-sm">Eksekusi Transfer</button>
+
+                        <div class="flex flex-col-reverse sm:flex-row items-center justify-end gap-3 pt-5 border-t border-black/5 dark:border-white/10">
+                            <button type="button" @click="showTransferModal = false" :disabled="isSubmitting"
+                                class="w-full sm:w-auto min-h-[48px] px-6 rounded-[14px] text-[14px] font-semibold text-black/60 dark:text-white/60 hover:bg-black/5 dark:hover:bg-white/5 transition-all cursor-pointer">Batal</button>
+                            <button type="submit" :disabled="isSubmitting"
+                                class="w-full sm:w-auto min-h-[48px] px-8 rounded-[14px] text-[14.5px] font-bold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] transition-all shadow-[0_4px_16px_rgba(0,122,255,0.3)] flex items-center justify-center gap-2 cursor-pointer">
+                                <template x-if="isSubmitting">
+                                    <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                                    </svg>
+                                </template>
+                                <i data-lucide="check" class="w-4 h-4" x-show="!isSubmitting"></i>
+                                <span x-text="isSubmitting ? 'Mengeksekusi...' : 'Eksekusi Transfer'">Eksekusi Transfer</span>
+                            </button>
                         </div>
                     </form>
                 </div>

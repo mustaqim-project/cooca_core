@@ -199,7 +199,7 @@ final class PosFinanceWebController extends Controller
                 return $expense;
             });
 
-            return redirect()->back()->with('success', "Biaya operasional #{$expense->expense_number} berhasil dicatat.");
+            return redirect()->back()->with('success', __('finance.expense_saved'));
         } catch (\Throwable $e) {
             return redirect()->back()->withInput()->withErrors(['amount' => $e->getMessage()]);
         }

@@ -235,10 +235,10 @@ class MarketplaceWebController extends Controller
             $account     = $this->manager->connectAccount($business, $channel, $request->all(), $redirectUri);
 
             return redirect()->route('marketplace-hub.index')
-                ->with('success', "Akun toko {$account->getChannelLabel()} ({$account->shop_name}) berhasil terhubung!");
+                ->with('success', __('marketplace.channel_connected', ['channel' => $account->getChannelLabel(), 'shop_name' => $account->shop_name]));
         } catch (\Throwable $e) {
             return redirect()->route('marketplace-hub.index')
-                ->with('error', 'Gagal menghubungkan akun marketplace: ' . $e->getMessage());
+                ->with('error', $e->getMessage());
         }
     }
 
@@ -265,10 +265,10 @@ class MarketplaceWebController extends Controller
 
         if ($account) {
             $this->manager->disconnectAccount($business, $account);
-            return back()->with('success', "Koneksi toko {$account->getChannelLabel()} berhasil diputus.");
+            return back()->with('success', __('marketplace.channel_disconnected', ['channel' => $account->getChannelLabel()]));
         }
 
-        return back()->with('error', 'Akun toko tidak ditemukan.');
+        return back()->with('error', __('common.not_found'));
     }
 
     /**
@@ -417,10 +417,10 @@ class MarketplaceWebController extends Controller
 
 
         if ($request->wantsJson()) {
-            return response()->json(['success' => true, 'mapping' => $mapping]);
+            return response()->json(['success' => true, 'mapping' => $mapping, 'message' => __('marketplace.sku_mapping_saved')]);
         }
 
-        return back()->with('success', "Pengaturan pemetaan {$mapping->getChannelLabel()} untuk \"{$product->name}\" berhasil disimpan.");
+        return back()->with('success', __('marketplace.sku_mapping_saved'));
     }
 
     /**
@@ -472,10 +472,10 @@ class MarketplaceWebController extends Controller
         }
 
         if ($request->wantsJson()) {
-            return response()->json(['success' => true, 'message' => 'Pengaturan harga & pemetaan channel berhasil disimpan.']);
+            return response()->json(['success' => true, 'message' => __('marketplace.sku_mapping_saved')]);
         }
 
-        return back()->with('success', "Pengaturan harga multi-channel untuk produk \"{$product->name}\" berhasil disimpan.");
+        return back()->with('success', __('marketplace.sku_mapping_saved'));
     }
 
     /**
@@ -563,7 +563,7 @@ class MarketplaceWebController extends Controller
             $totalPulled += count($orders);
         }
 
-        return back()->with('success', "Berhasil menarik {$totalPulled} pesanan terbaru dari marketplace.");
+        return back()->with('success', __('marketplace.orders_synced', ['count' => $totalPulled]));
     }
 
     /**

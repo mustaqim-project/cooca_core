@@ -146,10 +146,10 @@ final class PosTableWebController extends Controller
             $table = $this->tableService->createTable($business, $validated);
 
             if ($request->wantsJson()) {
-                return response()->json(['success' => true, 'message' => 'Meja berhasil ditambahkan.', 'table' => $table]);
+                return response()->json(['success' => true, 'message' => __('pos.table_created'), 'table' => $table]);
             }
 
-            return redirect()->route('pos.tables.index')->with('success', "Meja {$table->table_number} berhasil ditambahkan.");
+            return redirect()->route('pos.tables.index')->with('success', __('pos.table_created'));
         } catch (Throwable $e) {
             if ($request->wantsJson()) {
                 return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
@@ -181,10 +181,10 @@ final class PosTableWebController extends Controller
             $this->tableService->updateTable($table, $validated);
 
             if ($request->wantsJson()) {
-                return response()->json(['success' => true, 'message' => 'Meja berhasil diperbarui.', 'table' => $table]);
+                return response()->json(['success' => true, 'message' => __('pos.table_updated'), 'table' => $table]);
             }
 
-            return redirect()->route('pos.tables.index')->with('success', "Meja {$table->table_number} berhasil diperbarui.");
+            return redirect()->route('pos.tables.index')->with('success', __('pos.table_updated'));
         } catch (Throwable $e) {
             if ($request->wantsJson()) {
                 return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
@@ -207,10 +207,10 @@ final class PosTableWebController extends Controller
             $this->tableService->deleteTable($table);
 
             if ($request->wantsJson()) {
-                return response()->json(['success' => true, 'message' => 'Meja berhasil dihapus.']);
+                return response()->json(['success' => true, 'message' => __('pos.table_deleted')]);
             }
 
-            return redirect()->route('pos.tables.index')->with('success', 'Meja berhasil dihapus.');
+            return redirect()->route('pos.tables.index')->with('success', __('pos.table_deleted'));
         } catch (Throwable $e) {
             if ($request->wantsJson()) {
                 return response()->json(['success' => false, 'message' => $e->getMessage()], 422);

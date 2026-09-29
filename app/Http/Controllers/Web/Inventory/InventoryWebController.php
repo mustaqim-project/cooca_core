@@ -6,7 +6,9 @@ namespace App\Http\Controllers\Web\Inventory;
 
 use App\Domain\Accounting\AutoJournalService;
 use App\Domain\Inventory\StockService;
+use App\Domain\System\AuditLogService;
 use App\Http\Controllers\Controller;
+use App\Models\ApprovalRule;
 use App\Models\InventoryStock;
 use App\Models\Location;
 use App\Models\Material;
@@ -80,7 +82,7 @@ final class InventoryWebController extends Controller
     }
 
     /**
-     * Quick stock adjustment / initial balance setup.
+     * Quick stock adjustment / initial balance setup with Maker-Checker Guard (§FR-02, §FR-04).
      */
     public function quickAdjust(Request $request): RedirectResponse|JsonResponse
     {
@@ -101,7 +103,7 @@ final class InventoryWebController extends Controller
             $notesTrimmed = trim((string) ($validated['notes'] ?? ''));
             if (strlen($notesTrimmed) < 10) {
                 throw ValidationException::withMessages([
-                    'notes' => 'Untuk alasan "Lainnya", penjelasan catatan wajib diisi minimal 10 karakter.',
+                    'notes' => __('inventory.notes_other_min_length'),
                 ]);
             }
         }
@@ -117,14 +119,19 @@ final class InventoryWebController extends Controller
         $diffValue = abs($diff * $unitCost);
         $diffQty = abs($diff);
 
-        // Fase 2: Supervisor PIN Verification on Significant Shrinkage / Loss (§FR-02)
+        // Supervisor PIN Verification on Significant Shrinkage / Loss (§FR-02)
         if ($diff < 0 && ($diffValue > 100000 || $diffQty > 10)) {
-            $validPin = (string) ($business->pos_supervisor_pin ?? '1234');
+            if (! $business->hasSupervisorPin()) {
+                throw ValidationException::withMessages([
+                    'supervisor_pin' => __('inventory.supervisor_pin_not_configured'),
+                ]);
+            }
+
             $pin = (string) $request->input('supervisor_pin', '');
 
-            if ($pin === '' || ! (Hash::check($pin, $validPin) || hash_equals($validPin, $pin))) {
+            if ($pin === '' || ! $business->verifySupervisorPin($pin)) {
                 throw ValidationException::withMessages([
-                    'supervisor_pin' => 'Penyesuaian pengurangan stok melebihi batas toleransi (kuantitas > 10 unit atau nilai > Rp 100.000). PIN Supervisor 6-digit wajib diisi dengan benar.',
+                    'supervisor_pin' => __('inventory.supervisor_pin_shrinkage_required'),
                 ]);
             }
         }
@@ -134,6 +141,107 @@ final class InventoryWebController extends Controller
             if (! empty($validated['reason_code'])) {
                 $notes = "[{$validated['reason_code']}] {$notes}";
             }
+
+            $stockRule = ApprovalRule::where('business_id', $business->id)
+                ->where('document_type', ApprovalRule::DOC_STOCK_ADJUSTMENT)
+                ->where('is_active', true)
+                ->orderBy('min_amount', 'asc')
+                ->first();
+
+            $nominalThreshold = $stockRule !== null ? (float) $stockRule->min_amount : 1000000.0;
+            $allowedApproverRoles = ['owner', 'supervisor', 'admin'];
+            if ($stockRule !== null && ! empty($stockRule->approver_role_level_1)) {
+                $allowedApproverRoles[] = $stockRule->approver_role_level_1;
+            }
+
+            $isOwnerOrSupervisor = Context::isOwner() || in_array(Context::role(), $allowedApproverRoles, true);
+            $pctReduction = (float) $stock->quantity > 0 ? (abs($diff) / (float) $stock->quantity) * 100 : 100;
+            $isHighValue = $diff < 0 && ($diffValue >= $nominalThreshold || ($pctReduction > 20 && abs($diff) >= 5) || abs($diff) > 50);
+
+            $adjustmentNumber = DocumentNumberGenerator::generate(
+                prefix: 'ADJ',
+                businessId: $business->id,
+                table: 'stock_adjustments',
+                column: 'adjustment_number'
+            );
+
+            // Maker-Checker Gate: High value stock loss by non-owner requires approval (§FR-02)
+            if ($isHighValue && ! $isOwnerOrSupervisor) {
+                $adjustment = StockAdjustment::create([
+                    'business_id' => $business->id,
+                    'location_id' => $validated['location_id'],
+                    'adjustment_number' => $adjustmentNumber,
+                    'adjustment_date' => now()->toDateString(),
+                    'reason' => $validated['reason_code'] ?? 'opname_variance',
+                    'status' => 'pending_approval',
+                    'total_loss_cost' => $diffValue,
+                    'notes' => $notes,
+                    'created_by' => $user->id,
+                ]);
+
+                StockAdjustmentItem::create([
+                    'stock_adjustment_id' => $adjustment->id,
+                    'product_id' => $validated['product_id'],
+                    'system_quantity' => (float) $stock->quantity,
+                    'adjusted_quantity' => (float) $validated['new_quantity'],
+                    'difference_quantity' => $diff,
+                    'unit_cost' => $unitCost,
+                    'total_cost' => $diffValue,
+                    'notes' => $notes,
+                ]);
+
+                AuditLogService::log(
+                    (string) $business->id,
+                    'STOCK_ADJUSTMENT_PENDING_APPROVAL',
+                    $adjustment,
+                    null,
+                    [
+                        'product_id' => $validated['product_id'],
+                        'diff_quantity' => $diff,
+                        'loss_value' => $diffValue,
+                        'user_id' => $user->id,
+                    ]
+                );
+
+                $msg = __('inventory.adjustment_pending_approval', ['amount' => number_format($diffValue, 0, ',', '.')]);
+
+                if ($request->wantsJson()) {
+                    return response()->json([
+                        'success' => true,
+                        'message' => $msg,
+                        'pending_approval' => true,
+                        'adjustment_id' => $adjustment->id,
+                    ]);
+                }
+
+                return redirect()->back()->with('warning', $msg);
+            }
+
+            // Standard or Pre-Approved Adjustment:
+            $adjustment = StockAdjustment::create([
+                'business_id' => $business->id,
+                'location_id' => $validated['location_id'],
+                'adjustment_number' => $adjustmentNumber,
+                'adjustment_date' => now()->toDateString(),
+                'reason' => $validated['reason_code'] ?? 'opname_variance',
+                'status' => 'completed',
+                'total_loss_cost' => $diff < 0 ? $diffValue : 0,
+                'notes' => $notes,
+                'created_by' => $user->id,
+                'approved_by' => $user->id,
+                'approved_at' => now(),
+            ]);
+
+            StockAdjustmentItem::create([
+                'stock_adjustment_id' => $adjustment->id,
+                'product_id' => $validated['product_id'],
+                'system_quantity' => (float) $stock->quantity,
+                'adjusted_quantity' => (float) $validated['new_quantity'],
+                'difference_quantity' => $diff,
+                'unit_cost' => $unitCost,
+                'total_cost' => $diffValue,
+                'notes' => $notes,
+            ]);
 
             $movement = $this->stockService->recordMovement(
                 businessId: $business->id,
@@ -159,10 +267,178 @@ final class InventoryWebController extends Controller
         }
 
         if ($request->wantsJson()) {
-            return response()->json(['success' => true, 'message' => 'Stok berhasil diperbarui.']);
+            return response()->json(['success' => true, 'message' => __('inventory.adjustment_success')]);
         }
 
-        return redirect()->back()->with('success', 'Stok berhasil disesuaikan!');
+        return redirect()->back()->with('success', __('inventory.adjustment_success'));
+    }
+
+    /**
+     * Approve a pending high-value stock adjustment (Maker-Checker approval).
+     */
+    public function approveAdjustment(StockAdjustment $adjustment): RedirectResponse|JsonResponse
+    {
+        $business = Context::requireBusiness();
+        $user = auth()->user();
+
+        $stockRule = ApprovalRule::where('business_id', $business->id)
+            ->where('document_type', ApprovalRule::DOC_STOCK_ADJUSTMENT)
+            ->where('is_active', true)
+            ->orderBy('min_amount', 'asc')
+            ->first();
+
+        $allowedApproverRoles = ['owner', 'supervisor', 'admin'];
+        if ($stockRule !== null && ! empty($stockRule->approver_role_level_1)) {
+            $allowedApproverRoles[] = $stockRule->approver_role_level_1;
+        }
+
+        $isAuthorized = Context::isOwner() || in_array(Context::role(), $allowedApproverRoles, true) || Context::hasPermission('approvals.manage');
+        if (! $isAuthorized) {
+            if (request()->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => __('inventory.unauthorized_approval'),
+                ], 403);
+            }
+            return redirect()->back()->with('error', __('inventory.unauthorized_approval'));
+        }
+
+        if ($adjustment->status !== 'pending_approval') {
+            if (request()->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => __('inventory.adjustment_not_found_or_processed'),
+                ], 422);
+            }
+            return redirect()->back()->with('error', __('inventory.adjustment_not_found_or_processed'));
+        }
+
+        DB::transaction(function () use ($adjustment, $business, $user) {
+            $adjustment->load('items');
+
+            foreach ($adjustment->items as $item) {
+                if ($item->difference_quantity != 0) {
+                    $movement = $this->stockService->recordMovement(
+                        businessId: $business->id,
+                        locationId: $adjustment->location_id,
+                        productId: $item->product_id,
+                        movementType: StockMovement::TYPE_ADJUSTMENT,
+                        quantityChange: (float) $item->difference_quantity,
+                        unitCost: (float) $item->unit_cost,
+                        notes: $item->notes ?: "Persetujuan penyesuaian stok #{$adjustment->adjustment_number}",
+                        userId: $user->id
+                    );
+
+                    if ((float) $item->unit_cost > 0) {
+                        $this->journalService->recordStockAdjustmentJournal(
+                            business: $business,
+                            movement: $movement,
+                            quantityChange: (float) $item->difference_quantity,
+                            unitCost: (float) $item->unit_cost,
+                            userId: $user->id
+                        );
+                    }
+                }
+            }
+
+            $adjustment->update([
+                'status' => 'completed',
+                'approved_by' => $user->id,
+                'approved_at' => now(),
+            ]);
+
+            AuditLogService::log(
+                (string) $business->id,
+                'STOCK_ADJUSTMENT_APPROVED',
+                $adjustment,
+                ['status' => 'pending_approval'],
+                [
+                    'status' => 'completed',
+                    'approved_by' => $user->id,
+                    'approved_at' => now()->toDateTimeString(),
+                ]
+            );
+        });
+
+        if (request()->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => __('inventory.adjustment_approved'),
+            ]);
+        }
+
+        return redirect()->back()->with('success', __('inventory.adjustment_approved'));
+    }
+
+    /**
+     * Reject a pending high-value stock adjustment.
+     */
+    public function rejectAdjustment(Request $request, StockAdjustment $adjustment): RedirectResponse|JsonResponse
+    {
+        $business = Context::requireBusiness();
+        $user = auth()->user();
+
+        $stockRule = ApprovalRule::where('business_id', $business->id)
+            ->where('document_type', ApprovalRule::DOC_STOCK_ADJUSTMENT)
+            ->where('is_active', true)
+            ->orderBy('min_amount', 'asc')
+            ->first();
+
+        $allowedApproverRoles = ['owner', 'supervisor', 'admin'];
+        if ($stockRule !== null && ! empty($stockRule->approver_role_level_1)) {
+            $allowedApproverRoles[] = $stockRule->approver_role_level_1;
+        }
+
+        $isAuthorized = Context::isOwner() || in_array(Context::role(), $allowedApproverRoles, true) || Context::hasPermission('approvals.manage');
+        if (! $isAuthorized) {
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => __('inventory.unauthorized_approval'),
+                ], 403);
+            }
+            return redirect()->back()->with('error', __('inventory.unauthorized_approval'));
+        }
+
+        if ($adjustment->status !== 'pending_approval') {
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => __('inventory.adjustment_not_found_or_processed'),
+                ], 422);
+            }
+            return redirect()->back()->with('error', __('inventory.adjustment_not_found_or_processed'));
+        }
+
+        $reason = $request->input('reason', 'Ditolak oleh Owner/Supervisor');
+
+        $adjustment->update([
+            'status' => 'rejected',
+            'notes' => trim($adjustment->notes . " [Ditolak: {$reason}]"),
+            'approved_by' => $user->id,
+            'approved_at' => now(),
+        ]);
+
+        AuditLogService::log(
+            (string) $business->id,
+            'STOCK_ADJUSTMENT_REJECTED',
+            $adjustment,
+            ['status' => 'pending_approval'],
+            [
+                'status' => 'rejected',
+                'reason' => $reason,
+                'rejected_by' => $user->id,
+            ]
+        );
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => __('inventory.adjustment_rejected'),
+            ]);
+        }
+
+        return redirect()->back()->with('success', __('inventory.adjustment_rejected'));
     }
 
     /**

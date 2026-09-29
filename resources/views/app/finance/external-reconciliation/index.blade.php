@@ -284,115 +284,177 @@
     </div>
 
     {{-- ========================================================== --}}
-    {{-- MODAL: INPUT REKONSILIASI BARU (APPLE HIG SHEET)           --}}
+    {{-- MODAL: INPUT REKONSILIASI BARU (BENTO APPLE HIG XXL SHEET) --}}
     {{-- ========================================================== --}}
     <div x-show="showFormModal" x-cloak
         class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-md"
         @keydown.escape.window="showFormModal = false">
-        <div class="w-full sm:max-w-lg rounded-t-[22px] sm:rounded-[22px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto"
+        <div class="w-full sm:max-w-3xl lg:max-w-4xl rounded-t-[24px] sm:rounded-[24px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 shadow-2xl overflow-hidden max-h-[92vh] flex flex-col"
             @click.outside="showFormModal = false"
             x-transition:enter="transition ease-out duration-200"
             x-transition:enter-start="translate-y-full sm:translate-y-0 sm:scale-95 opacity-0"
             x-transition:enter-end="translate-y-0 sm:scale-100 opacity-100">
 
-            <div class="px-6 py-4 border-b border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between sticky top-0 bg-white dark:bg-[#1C1C1E] z-10">
-                <div>
-                    <h3 class="text-[15px] font-bold text-black dark:text-white">Input Lembar Rekonsiliasi</h3>
-                    <p class="text-[11px] text-black/50 dark:text-white/50">Update saldo akun eksternal untuk periode {{ \Carbon\Carbon::parse($period . '-01')->translatedFormat('F Y') }}</p>
+            {{-- Modal Header --}}
+            <div class="px-6 py-4 border-b border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between shrink-0 bg-white/95 dark:bg-[#1C1C1E]/95 backdrop-blur-md sticky top-0 z-10">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-blue-500/10 dark:bg-blue-500/20 text-[#007AFF] flex items-center justify-center border border-blue-500/20">
+                        <i data-lucide="scale" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-black dark:text-white tracking-tight">Input Lembar Rekonsiliasi</h3>
+                        <p class="text-xs text-black/50 dark:text-white/50">Update saldo akun eksternal periode {{ \Carbon\Carbon::parse($period . '-01')->translatedFormat('F Y') }}</p>
+                    </div>
                 </div>
-                <button @click="showFormModal = false" class="p-2 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-black/40 dark:text-white/40">
+                <button type="button" @click="showFormModal = false" :disabled="isSubmitting"
+                    class="w-8 h-8 rounded-full flex items-center justify-center hover:bg-black/5 dark:hover:bg-white/10 text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white transition">
                     <i data-lucide="x" class="w-4 h-4"></i>
                 </button>
             </div>
 
-            <form @submit.prevent="submitRecon()" class="p-6 space-y-4">
+            <form @submit.prevent="submitRecon()" class="flex-1 overflow-y-auto p-6 space-y-6">
                 <input type="hidden" x-model="formData.period" value="{{ $period }}">
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-semibold text-black dark:text-white mb-1.5">Tipe Channel *</label>
-                        <select x-model="formData.channel_type" @change="autoLabel()" required
-                            class="w-full h-11 sm:h-10 rounded-[10px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 px-3 text-[16px] sm:text-xs text-black dark:text-white font-medium focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
-                            <option value="">-- Pilih Channel --</option>
-                            @foreach($channelOptions as $key => $label)
-                                <option value="{{ $key }}">{{ $label }}</option>
-                            @endforeach
-                        </select>
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    {{-- Left Column: Channel & Account Details (5 cols) --}}
+                    <div class="lg:col-span-5 space-y-4">
+                        <div class="rounded-2xl bg-black/[0.02] dark:bg-white/[0.02] border border-black/5 dark:border-white/5 p-4 space-y-4">
+                            <h4 class="text-xs font-bold text-black/70 dark:text-white/70 uppercase tracking-wider flex items-center gap-1.5">
+                                <i data-lucide="layers" class="w-3.5 h-3.5 text-[#007AFF]"></i>
+                                Channel & Identitas
+                            </h4>
+
+                            <div>
+                                <label class="block text-xs font-semibold text-black dark:text-white mb-1.5">Tipe Channel <span class="text-red-500">*</span></label>
+                                <select x-model="formData.channel_type" @change="autoLabel()" required
+                                    class="w-full h-11 rounded-xl bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 px-3.5 text-sm text-black dark:text-white font-medium focus:outline-none focus:ring-2 focus:ring-[#007AFF] shadow-sm">
+                                    <option value="">-- Pilih Channel --</option>
+                                    @foreach($channelOptions as $key => $label)
+                                        <option value="{{ $key }}">{{ $label }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold text-black dark:text-white mb-1.5">Label Akun / Terminal <span class="text-red-500">*</span></label>
+                                <input type="text" x-model="formData.channel_label" required placeholder="Contoh: EDC BCA - TID 12345"
+                                    class="w-full h-11 rounded-xl bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 px-3.5 text-sm text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] shadow-sm">
+                            </div>
+
+                            @if($locations->count() > 1)
+                                <div>
+                                    <label class="block text-xs font-semibold text-black dark:text-white mb-1.5">Cabang / Outlet</label>
+                                    <select x-model="formData.location_id"
+                                        class="w-full h-11 rounded-xl bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 px-3.5 text-sm text-black dark:text-white font-medium focus:outline-none focus:ring-2 focus:ring-[#007AFF] shadow-sm">
+                                        <option value="">Pusat / Semua Cabang</option>
+                                        @foreach($locations as $loc)
+                                            <option value="{{ $loc->id }}">{{ $loc->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            @endif
+
+                            <div>
+                                <label class="block text-xs font-semibold text-black dark:text-white mb-1.5">Catatan (Opsional)</label>
+                                <textarea x-model="formData.notes" rows="2" placeholder="Catatan kondisi pencairan / selisih..."
+                                    class="w-full rounded-xl bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 p-3 text-xs text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] shadow-sm resize-none"></textarea>
+                            </div>
+                        </div>
                     </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-black dark:text-white mb-1.5">Label Akun *</label>
-                        <input type="text" x-model="formData.channel_label" required placeholder="Contoh: EDC BCA - TID 12345"
-                            class="w-full h-11 sm:h-10 rounded-[10px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 px-3 text-[16px] sm:text-xs text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+
+                    {{-- Right Column: Balance Numbers & Variance Calculation (7 cols) --}}
+                    <div class="lg:col-span-7 space-y-4">
+                        <div class="rounded-2xl bg-black/[0.02] dark:bg-white/[0.02] border border-black/5 dark:border-white/5 p-4 space-y-3">
+                            <h4 class="text-xs font-bold text-black/70 dark:text-white/70 uppercase tracking-wider flex items-center gap-1.5">
+                                <i data-lucide="calculator" class="w-3.5 h-3.5 text-[#34C759]"></i>
+                                Data Saldo & Mutasi Bulan Ini
+                            </h4>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div class="bg-white dark:bg-[#2C2C2E] rounded-xl p-3 border border-black/5 dark:border-white/5 shadow-sm">
+                                    <label class="block text-[11px] font-semibold text-black/60 dark:text-white/60 mb-1">Saldo Awal Bulan *</label>
+                                    <div class="relative">
+                                        <span class="absolute left-3 top-2.5 text-xs text-black/40 dark:text-white/40 font-bold">Rp</span>
+                                        <input type="number" x-model.number="formData.opening_balance" required min="0" step="1" placeholder="0"
+                                            class="w-full h-9 pl-9 pr-3 rounded-lg bg-black/[0.02] dark:bg-white/[0.04] border border-black/10 dark:border-white/10 text-xs font-bold text-black dark:text-white tabular-nums focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                                    </div>
+                                </div>
+
+                                <div class="bg-white dark:bg-[#2C2C2E] rounded-xl p-3 border border-black/5 dark:border-white/5 shadow-sm">
+                                    <label class="block text-[11px] font-semibold text-black/60 dark:text-white/60 mb-1">Saldo Akhir Bulan *</label>
+                                    <div class="relative">
+                                        <span class="absolute left-3 top-2.5 text-xs text-black/40 dark:text-white/40 font-bold">Rp</span>
+                                        <input type="number" x-model.number="formData.closing_balance" required min="0" step="1" placeholder="0"
+                                            class="w-full h-9 pl-9 pr-3 rounded-lg bg-black/[0.02] dark:bg-white/[0.04] border border-black/10 dark:border-white/10 text-xs font-bold text-black dark:text-white tabular-nums focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                                    </div>
+                                </div>
+
+                                <div class="bg-white dark:bg-[#2C2C2E] rounded-xl p-3 border border-black/5 dark:border-white/5 shadow-sm">
+                                    <label class="block text-[11px] font-semibold text-black/60 dark:text-white/60 mb-1">Total Penerimaan (Inflow) *</label>
+                                    <div class="relative">
+                                        <span class="absolute left-3 top-2.5 text-xs text-[#34C759] font-bold">Rp</span>
+                                        <input type="number" x-model.number="formData.total_inflow" required min="0" step="1" placeholder="0"
+                                            class="w-full h-9 pl-9 pr-3 rounded-lg bg-black/[0.02] dark:bg-white/[0.04] border border-black/10 dark:border-white/10 text-xs font-bold text-[#34C759] tabular-nums focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                                    </div>
+                                </div>
+
+                                <div class="bg-white dark:bg-[#2C2C2E] rounded-xl p-3 border border-black/5 dark:border-white/5 shadow-sm">
+                                    <label class="block text-[11px] font-semibold text-black/60 dark:text-white/60 mb-1">Total Pencairan / Settlement *</label>
+                                    <div class="relative">
+                                        <span class="absolute left-3 top-2.5 text-xs text-[#FF9500] font-bold">Rp</span>
+                                        <input type="number" x-model.number="formData.total_disbursement" required min="0" step="1" placeholder="0"
+                                            class="w-full h-9 pl-9 pr-3 rounded-lg bg-black/[0.02] dark:bg-white/[0.04] border border-black/10 dark:border-white/10 text-xs font-bold text-[#FF9500] tabular-nums focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Bento Live Calculation Preview --}}
+                        <div class="rounded-2xl p-4 transition-all duration-300 border"
+                            :class="Math.abs(calcVariance()) > 100 ? 'bg-[#FF3B30]/5 border-[#FF3B30]/20 dark:bg-[#FF3B30]/10' : 'bg-[#34C759]/5 border-[#34C759]/20 dark:bg-[#34C759]/10'">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-xs font-bold uppercase tracking-wider flex items-center gap-1.5"
+                                    :class="Math.abs(calcVariance()) > 100 ? 'text-[#FF3B30]' : 'text-[#34C759]'">
+                                    <i :data-lucide="Math.abs(calcVariance()) > 100 ? 'alert-triangle' : 'check-circle-2'" class="w-4 h-4"></i>
+                                    Status Rekonsiliasi
+                                </span>
+                                <span class="text-[11px] font-bold px-2 py-0.5 rounded-md uppercase"
+                                    :class="Math.abs(calcVariance()) > 100 ? 'bg-[#FF3B30]/15 text-[#FF3B30]' : 'bg-[#34C759]/15 text-[#34C759]'"
+                                    x-text="Math.abs(calcVariance()) > 100 ? 'Selisih Terdeteksi' : 'Cocok / Klop'">
+                                </span>
+                            </div>
+
+                            <div class="space-y-1.5 text-xs">
+                                <div class="flex justify-between items-center text-black/60 dark:text-white/60">
+                                    <span>Ekspektasi Saldo (Awal + Masuk − Keluar):</span>
+                                    <span class="font-bold tabular-nums text-black dark:text-white" x-text="formatRupiah(calcExpected())"></span>
+                                </div>
+                                <div class="flex justify-between items-center pt-1.5 border-t border-black/5 dark:border-white/5">
+                                    <span class="font-semibold text-black dark:text-white">Nilai Selisih (Variance):</span>
+                                    <span class="font-extrabold text-sm tabular-nums" :class="Math.abs(calcVariance()) > 100 ? 'text-[#FF3B30]' : 'text-[#34C759]'" x-text="formatRupiah(calcVariance())"></span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                @if($locations->count() > 1)
-                    <div>
-                        <label class="block text-xs font-semibold text-black dark:text-white mb-1.5">Cabang (Opsional)</label>
-                        <select x-model="formData.location_id"
-                            class="w-full h-11 sm:h-10 rounded-[10px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 px-3 text-[16px] sm:text-xs text-black dark:text-white font-medium focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
-                            <option value="">Pusat / Default</option>
-                            @foreach($locations as $loc)
-                                <option value="{{ $loc->id }}">{{ $loc->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                @endif
-
-                <div class="rounded-[12px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5 p-4 space-y-3">
-                    <h4 class="text-xs font-bold text-black dark:text-white">Data Saldo Bulanan</h4>
-
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-[11px] font-medium text-black/60 dark:text-white/60 mb-1">Saldo Awal Bulan *</label>
-                            <input type="number" x-model.number="formData.opening_balance" required min="0" step="1" placeholder="0"
-                                class="w-full h-10 rounded-[10px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 px-3 text-xs text-black dark:text-white tabular-nums focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
-                        </div>
-                        <div>
-                            <label class="block text-[11px] font-medium text-black/60 dark:text-white/60 mb-1">Saldo Akhir Bulan *</label>
-                            <input type="number" x-model.number="formData.closing_balance" required min="0" step="1" placeholder="0"
-                                class="w-full h-10 rounded-[10px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 px-3 text-xs text-black dark:text-white tabular-nums focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
-                        </div>
-                        <div>
-                            <label class="block text-[11px] font-medium text-black/60 dark:text-white/60 mb-1">Total Penerimaan Bulan Ini *</label>
-                            <input type="number" x-model.number="formData.total_inflow" required min="0" step="1" placeholder="0"
-                                class="w-full h-10 rounded-[10px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 px-3 text-xs text-black dark:text-white tabular-nums focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
-                        </div>
-                        <div>
-                            <label class="block text-[11px] font-medium text-black/60 dark:text-white/60 mb-1">Total Pencairan / Settlement *</label>
-                            <input type="number" x-model.number="formData.total_disbursement" required min="0" step="1" placeholder="0"
-                                class="w-full h-10 rounded-[10px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 px-3 text-xs text-black dark:text-white tabular-nums focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
-                        </div>
-                    </div>
-                </div>
-
-                {{-- Live Calculation Preview --}}
-                <div class="rounded-[12px] p-3.5 text-xs space-y-1.5"
-                    :class="Math.abs(calcVariance()) > 100 ? 'bg-[#FF3B30]/5 border border-[#FF3B30]/15' : 'bg-[#34C759]/5 border border-[#34C759]/15'">
-                    <div class="flex justify-between">
-                        <span class="text-black/60 dark:text-white/60">Ekspektasi Sistem (Awal + Masuk − Cair):</span>
-                        <span class="font-bold tabular-nums" x-text="formatRupiah(calcExpected())"></span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-black/60 dark:text-white/60">Selisih:</span>
-                        <span class="font-bold tabular-nums" :class="Math.abs(calcVariance()) > 100 ? 'text-[#FF3B30]' : 'text-[#34C759]'" x-text="formatRupiah(calcVariance())"></span>
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-semibold text-black dark:text-white mb-1.5">Catatan (Opsional)</label>
-                    <input type="text" x-model="formData.notes" placeholder="Contoh: Pencairan GoPay tertunda, sudah klaim ke CS"
-                        class="w-full h-10 rounded-[10px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 px-3 text-xs text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
-                </div>
-
-                <div class="pt-3 border-t border-black/5 dark:border-white/10 flex items-center justify-between">
-                    <button type="button" @click="showFormModal = false"
-                        class="h-10 px-4 rounded-[10px] text-xs font-medium text-black/60 dark:text-white/60 hover:bg-black/5 dark:hover:bg-white/10 transition">
+                {{-- Modal Footer --}}
+                <div class="pt-4 border-t border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between">
+                    <button type="button" @click="showFormModal = false" :disabled="isSubmitting"
+                        class="h-12 px-5 rounded-xl text-xs font-semibold text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 transition disabled:opacity-40">
                         Batal
                     </button>
                     <button type="submit" :disabled="isSubmitting"
-                        class="h-10 px-6 rounded-[10px] bg-[#007AFF] hover:bg-[#0062CC] text-white text-xs font-bold transition active:scale-[0.98] flex items-center gap-2 shadow-sm disabled:opacity-40">
-                        <i data-lucide="check" class="w-4 h-4"></i>
+                        class="h-12 px-7 rounded-xl bg-[#007AFF] hover:bg-[#0062CC] text-white text-xs font-bold transition active:scale-[0.98] flex items-center gap-2 shadow-lg shadow-blue-500/20 disabled:opacity-50">
+                        <template x-if="isSubmitting">
+                            <svg class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                            </svg>
+                        </template>
+                        <template x-if="!isSubmitting">
+                            <i data-lucide="check" class="w-4 h-4"></i>
+                        </template>
                         <span x-text="isSubmitting ? 'Menyimpan...' : 'Simpan Rekonsiliasi'"></span>
                     </button>
                 </div>
@@ -461,12 +523,34 @@ function externalReconApp() {
                 });
                 const data = await res.json();
                 if (data.success) {
-                    window.location.reload();
+                    this.isModalOpen = false;
+                    if (window.AppAlert) {
+                        AppAlert.success(data.message || 'Rekonsiliasi eksternal berhasil dicatat.');
+                    } else {
+                        alert(data.message || 'Rekonsiliasi eksternal berhasil dicatat.');
+                    }
+                    this.formData = {
+                        channel_type: '',
+                        channel_label: '',
+                        period_start: '',
+                        period_end: '',
+                        statement_ending_balance: 0,
+                        ledger_balance: 0,
+                        notes: ''
+                    };
                 } else {
-                    alert(data.message || 'Gagal menyimpan rekonsiliasi.');
+                    if (window.AppAlert) {
+                        AppAlert.error(data.message || 'Gagal menyimpan rekonsiliasi.');
+                    } else {
+                        alert(data.message || 'Gagal menyimpan rekonsiliasi.');
+                    }
                 }
             } catch (e) {
-                alert('Terjadi kesalahan: ' + e.message);
+                if (window.AppAlert) {
+                    AppAlert.error('Terjadi kesalahan: ' + e.message);
+                } else {
+                    alert('Terjadi kesalahan: ' + e.message);
+                }
             } finally {
                 this.isSubmitting = false;
             }

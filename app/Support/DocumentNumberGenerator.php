@@ -9,6 +9,7 @@ use App\Models\Invoice;
 use App\Models\PurchaseOrder;
 use App\Models\Quotation;
 use App\Models\SalesOrder;
+use App\Models\StockAdjustment;
 use App\Models\StockOpname;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -82,6 +83,37 @@ class DocumentNumberGenerator
     {
         $year = Carbon::now()->format('Y');
         $count = StockOpname::where('business_id', $businessId)
+            ->whereYear('created_at', $year)
+            ->count();
+
+        $nextSeq = str_pad((string) ($count + 1), 5, '0', STR_PAD_LEFT);
+
+        return "{$prefix}-{$year}-{$nextSeq}";
+    }
+
+    /**
+     * Generate a readable stock adjustment number per business and year.
+     */
+    public static function generateStockAdjustmentNumber(string $businessId, string $prefix = 'ADJ'): string
+    {
+        $year = Carbon::now()->format('Y');
+        $count = StockAdjustment::where('business_id', $businessId)
+            ->whereYear('created_at', $year)
+            ->count();
+
+        $nextSeq = str_pad((string) ($count + 1), 5, '0', STR_PAD_LEFT);
+
+        return "{$prefix}-{$year}-{$nextSeq}";
+    }
+
+    /**
+     * Generic document number generator for any table/column.
+     */
+    public static function generate(string $prefix, string $businessId, string $table, string $column = 'document_number'): string
+    {
+        $year = Carbon::now()->format('Y');
+        $count = DB::table($table)
+            ->where('business_id', $businessId)
             ->whereYear('created_at', $year)
             ->count();
 

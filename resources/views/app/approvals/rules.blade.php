@@ -49,6 +49,7 @@
                                 'purchase_order' => 'Purchase Order',
                                 'expense' => 'Biaya Kas',
                                 'supplier_invoice' => 'Faktur Supplier',
+                                'stock_adjustment' => 'Penyesuaian Stok',
                                 default => $rule->document_type
                             } }}
                         </span>
@@ -172,6 +173,7 @@
                         <option value="purchase_order">Purchase Order (Pengadaan)</option>
                         <option value="expense">Pengeluaran Kas / Biaya Operasional</option>
                         <option value="supplier_invoice">Faktur Tagihan Supplier</option>
+                        <option value="stock_adjustment">Penyesuaian Stok (Gudang)</option>
                     </select>
                 </div>
 
@@ -306,6 +308,7 @@
                         <option value="purchase_order">Purchase Order (Pengadaan)</option>
                         <option value="expense">Pengeluaran Kas / Biaya Operasional</option>
                         <option value="supplier_invoice">Faktur Tagihan Supplier</option>
+                        <option value="stock_adjustment">Penyesuaian Stok (Gudang)</option>
                     </select>
                 </div>
 

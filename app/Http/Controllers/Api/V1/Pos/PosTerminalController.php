@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Api\V1\Pos;
 use App\Domain\Crm\LoyaltyService;
 use App\Domain\Pos\PosOrderService;
 use App\Domain\Pos\PosShiftService;
+use App\Domain\System\AuditLogService;
 use App\Domain\System\OperatingModeService;
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
@@ -18,6 +19,7 @@ use App\Models\Voucher;
 use App\Support\Context;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
 use Symfony\Component\HttpFoundation\Response;
 use Throwable;
 
@@ -414,23 +416,77 @@ final class PosTerminalController extends Controller
     }
 
     /**
-     * Verify supervisor PIN.
+     * Verify supervisor PIN with rate limiting and strict Bcrypt verification.
      */
     public function verifySupervisorPin(Request $request): JsonResponse
     {
         $business = Context::requireBusiness();
-        $validPin = (string) ($business->pos_supervisor_pin ?? '1234');
+        $user = auth()->user();
 
-        if ($pin !== '' && (\Illuminate\Support\Facades\Hash::check($pin, $validPin) || hash_equals($validPin, $pin))) {
+        if ($this->operatingModeService->canBypassSupervisor($business, $user)) {
             return response()->json([
                 'verified' => true,
-                'message' => 'Otorisasi Supervisor Terverifikasi.',
+                'message' => __('auth.supervisor_auth_allowed'),
             ], Response::HTTP_OK);
+        }
+
+        if (! $business->hasSupervisorPin()) {
+            return response()->json([
+                'verified' => false,
+                'message' => __('pos.supervisor_pin_not_configured'),
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
+        $throttleKey = 'pos_supervisor_pin:' . $business->id . ':' . ($user?->id ?? $request->ip());
+        if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
+            $seconds = RateLimiter::availableIn($throttleKey);
+            $minutes = max(1, (int) ceil($seconds / 60));
+            return response()->json([
+                'verified' => false,
+                'message' => __('auth.pin_supervisor_locked', ['minutes' => $minutes]),
+            ], Response::HTTP_TOO_MANY_REQUESTS);
+        }
+
+        $pin = (string) $request->input('pin', '');
+        if ($pin === '') {
+            return response()->json([
+                'verified' => false,
+                'message' => __('pos.supervisor_pin_required'),
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
+        if ($business->verifySupervisorPin($pin)) {
+            RateLimiter::clear($throttleKey);
+            return response()->json([
+                'verified' => true,
+                'message' => __('pos.supervisor_auth_verified'),
+            ], Response::HTTP_OK);
+        }
+
+        RateLimiter::hit($throttleKey, 600);
+        $attempts = RateLimiter::attempts($throttleKey);
+        $remaining = 5 - $attempts;
+
+        if ($remaining <= 0) {
+            AuditLogService::log(
+                (string) $business->id,
+                'POS_SUPERVISOR_PIN_LOCKED',
+                $business,
+                null,
+                [
+                    'reason' => 'Rate limit exceeded (5 failed attempts)',
+                    'user_id' => $user?->id,
+                    'ip' => $request->ip(),
+                ]
+            );
+            $message = __('auth.pin_supervisor_locked', ['minutes' => 10]);
+        } else {
+            $message = __('pos.supervisor_pin_invalid_attempts', ['remaining' => $remaining]);
         }
 
         return response()->json([
             'verified' => false,
-            'message' => 'PIN Supervisor salah.',
+            'message' => $message,
         ], Response::HTTP_UNAUTHORIZED);
     }
 }

@@ -18,59 +18,32 @@
     }
 }">
 
-    <!-- ========================================== -->
-    <!-- 0. BREADCRUMB BAR (APPLE MINIMALIST)       -->
-    <!-- ========================================== -->
-    <nav class="flex items-center gap-1.5 text-[12px] text-black/50 dark:text-white/50 py-0.5 whitespace-nowrap print:hidden" aria-label="Breadcrumb">
-        <a href="{{ route('dashboard') }}" class="hover:text-[#007AFF] transition-colors font-medium">Dashboard</a>
-        <i data-lucide="chevron-right" class="w-3.5 h-3.5 opacity-40"></i>
-        <a href="{{ route('products.index') }}" class="hover:text-[#007AFF] transition-colors font-medium">Produk &amp; Stok</a>
-        <i data-lucide="chevron-right" class="w-3.5 h-3.5 opacity-40"></i>
-        <span class="text-black/80 dark:text-white/80 font-medium">Integrasi Marketplace</span>
-    </nav>
-
-    <!-- ===================================================== -->
-    <!-- 1. TOOLBAR / PAGE HEADER                               -->
-    <!-- ===================================================== -->
-    <header class="rounded-[20px] backdrop-blur-md bg-white/80 dark:bg-[#1C1C1E]/80 border border-black/5 dark:border-white/10 p-5 sm:p-6 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-5 shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
-        <div class="space-y-1.5 max-w-2xl">
-            <div class="flex flex-wrap items-center gap-2">
-                <span class="rounded-full px-2.5 py-0.5 text-[11px] font-semibold inline-flex items-center gap-1.5 bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF]">
-                    <span class="w-1.5 h-1.5 rounded-full bg-[#007AFF]"></span>
-                    <span>Omnichannel Sync Engine</span>
-                </span>
-                <span class="rounded-full px-2.5 py-0.5 text-[11px] font-semibold inline-flex items-center gap-1.5 bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158]">
-                    <span class="w-1.5 h-1.5 rounded-full bg-[#34C759]"></span>
-                    <span>Multi-Business Isolated</span>
-                </span>
-            </div>
-            <h1 class="text-[20px] sm:text-[24px] font-bold text-black dark:text-white tracking-tight">
-                Hub Integrasi Marketplace
-            </h1>
-            <p class="text-[13px] text-black/60 dark:text-white/60 leading-relaxed">
-                Hubungkan toko resmi Anda di Shopee, TikTok Shop, dan Tokopedia. Atur perbedaan harga jual tiap channel, sinkronisasi stok otomatis, dan terima pesanan di satu pintu Cooca.
-            </p>
-        </div>
-
-        <div class="flex flex-wrap items-center gap-2.5 w-full lg:w-auto">
+    {{-- MODULE HEADER & PERSISTENT MARKETPLACE TABS --}}
+    <x-module-header
+        module="marketplace"
+        title="Hub Integrasi Marketplace"
+        subtitle="Hubungkan toko resmi Anda di Shopee, TikTok Shop, dan Tokopedia dengan sinkronisasi harga, stok otomatis, dan penerimaan pesanan terpadu.">
+        <x-slot:actions>
             <a href="{{ route('marketplace-hub.products') }}"
-                class="h-10 px-4 rounded-[12px] text-[13px] font-bold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-sm cursor-pointer">
+                class="min-h-[44px] sm:min-h-0 sm:h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] transition-all flex items-center justify-center gap-1.5 w-full sm:w-auto shadow-sm">
                 <i data-lucide="tag" class="w-4 h-4"></i>
                 <span>Atur Harga &amp; Stok Per Channel</span>
             </a>
             <a href="{{ route('marketplace-hub.orders') }}"
-                class="h-10 px-4 rounded-[12px] text-[13px] font-bold text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer">
+                class="min-h-[44px] sm:min-h-0 sm:h-9 px-4 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] transition-all flex items-center justify-center gap-1.5 w-full sm:w-auto">
                 <i data-lucide="shopping-cart" class="w-4 h-4"></i>
                 <span>Pesanan Masuk</span>
             </a>
             <a href="{{ route('marketplace-hub.logs') }}"
-                class="h-10 px-3.5 rounded-[12px] text-[13px] font-medium text-black/70 dark:text-white/70 bg-black/[0.03] dark:bg-white/[0.05] hover:bg-black/[0.06] dark:hover:bg-white/[0.08] flex items-center justify-center gap-1.5 cursor-pointer"
+                class="min-h-[44px] sm:min-h-0 sm:h-9 px-3 rounded-[10px] text-[13px] font-medium text-black/70 dark:text-white/70 bg-black/[0.03] dark:bg-white/[0.05] hover:bg-black/[0.06] dark:hover:bg-white/[0.08] flex items-center justify-center gap-1.5"
                 title="Log Sinkronisasi">
                 <i data-lucide="activity" class="w-4 h-4"></i>
                 <span class="hidden sm:inline">Log</span>
             </a>
-        </div>
-    </header>
+        </x-slot:actions>
+    </x-module-header>
+
+    <x-module-tabs module="marketplace" />
 
     <!-- ===================================================== -->
     <!-- 2. BENTO STATS SUMMARY (4 METRICS)                     -->

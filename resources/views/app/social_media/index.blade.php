@@ -89,7 +89,7 @@
                             <span class="text-[11.5px] font-bold uppercase tracking-wider text-black/50 dark:text-white/50 block">Aset Aktif Terhubung:</span>
                             <div class="grid grid-cols-1 gap-3">
                                 @foreach($accounts->where('status', 'active') as $acc)
-                                    <div class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/10 flex items-center justify-between gap-3">
+                                    <div x-show="!disconnectedIds.includes('{{ $acc->id }}')" x-transition.duration.300ms class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/10 flex items-center justify-between gap-3">
                                         <div class="flex items-center gap-3 min-w-0">
                                             <div class="w-10 h-10 rounded-[12px] flex items-center justify-center shrink-0 {{ $acc->platform === 'facebook' ? 'bg-[#1877F2]/12 text-[#1877F2]' : ($acc->platform === 'instagram' ? 'bg-[#E1306C]/12 text-[#E1306C]' : ($acc->platform === 'tiktok' ? 'bg-black/10 dark:bg-white/15 text-black dark:text-white' : ($acc->platform === 'linkedin' ? 'bg-[#0A66C2]/12 text-[#0A66C2]' : 'bg-black/10 text-black dark:text-white'))) }}">
                                                 @if($acc->platform === 'facebook')
@@ -276,6 +276,7 @@
                 loading: false,
                 errorMessage: null,
                 successMessage: null,
+                disconnectedIds: [],
 
                 init() {
                     // Cek apakah ada parameter 'code' dari OAuth callback redirect
@@ -332,9 +333,14 @@
                         const data = await res.json();
                         if (res.ok && data.success) {
                             this.successMessage = data.message || 'Media sosial berhasil terhubung!';
-                            setTimeout(() => window.location.reload(), 1200);
+                            if (window.AppAlert) {
+                                AppAlert.success(this.successMessage);
+                            }
                         } else {
                             this.errorMessage = data.error || 'Gagal menghubungkan akun Meta.';
+                            if (window.AppAlert) {
+                                AppAlert.error(this.errorMessage);
+                            }
                         }
                     } catch (e) {
                         this.errorMessage = 'Kesalahan koneksi saat menyimpan otorisasi.';
@@ -369,7 +375,10 @@
 
                         const data = await res.json();
                         if (data.success) {
-                            window.location.reload();
+                            this.disconnectedIds.push(accountId);
+                            if (window.AppAlert) {
+                                AppAlert.success('Akun media sosial berhasil diputuskan.');
+                            }
                         } else {
                             if (window.AppAlert) {
                                 AppAlert.error(data.error || 'Gagal memutuskan akun.');

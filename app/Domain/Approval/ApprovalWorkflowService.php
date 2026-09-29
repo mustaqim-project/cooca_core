@@ -40,6 +40,7 @@ final class ApprovalWorkflowService
                 \App\Models\PurchaseOrder::class => ApprovalRule::DOC_PURCHASE_ORDER,
                 \App\Models\Expense::class => ApprovalRule::DOC_EXPENSE,
                 \App\Models\SupplierInvoice::class => ApprovalRule::DOC_SUPPLIER_INVOICE,
+                \App\Models\StockAdjustment::class => ApprovalRule::DOC_STOCK_ADJUSTMENT,
                 default => 'purchase_order',
             };
             $documentId = (string) $document->id;

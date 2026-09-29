@@ -37,38 +37,21 @@
     }
 }">
 
-    <!-- ========================================== -->
-    <!-- 0. BREADCRUMB BAR (APPLE MINIMALIST)       -->
-    <!-- ========================================== -->
-    <nav class="flex items-center gap-1.5 text-[12px] text-black/50 dark:text-white/50 py-0.5 whitespace-nowrap print:hidden" aria-label="Breadcrumb">
-        <a href="{{ route('dashboard') }}" class="hover:text-[#007AFF] transition-colors font-medium">Dashboard</a>
-        <i data-lucide="chevron-right" class="w-3.5 h-3.5 opacity-40"></i>
-        <a href="{{ route('marketplace-hub.index') }}" class="hover:text-[#007AFF] transition-colors font-medium">Marketplace Hub</a>
-        <i data-lucide="chevron-right" class="w-3.5 h-3.5 opacity-40"></i>
-        <span class="text-black/80 dark:text-white/80 font-medium">Log &amp; Audit Sinkronisasi</span>
-    </nav>
-
-    <!-- ===================================================== -->
-    <!-- 1. TOOLBAR / PAGE HEADER                               -->
-    <!-- ===================================================== -->
-    <header class="rounded-[20px] backdrop-blur-md bg-white/80 dark:bg-[#1C1C1E]/80 border border-black/5 dark:border-white/10 p-5 sm:p-6 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-5 shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
-        <div class="space-y-1.5 max-w-2xl">
-            <h1 class="text-[20px] sm:text-[24px] font-bold text-black dark:text-white tracking-tight">
-                Log &amp; Audit Aktivitas Integrasi
-            </h1>
-            <p class="text-[13px] text-black/60 dark:text-white/60 leading-relaxed">
-                Catatan komprehensif seluruh transaksi data sinkronisasi harga, perubahan stok fisik, dan tangkapan webhook pesanan dari Shopee, TikTok Shop, dan Tokopedia.
-            </p>
-        </div>
-
-        <div class="flex items-center gap-2.5 w-full lg:w-auto">
+    {{-- MODULE HEADER & PERSISTENT MARKETPLACE TABS --}}
+    <x-module-header
+        module="marketplace"
+        title="Log &amp; Audit Aktivitas Integrasi"
+        subtitle="Catatan audit transaksi sinkronisasi harga, perubahan stok fisik, dan webhook pesanan dari Shopee, TikTok Shop, dan Tokopedia.">
+        <x-slot:actions>
             <a href="{{ route('marketplace-hub.index') }}"
-                class="h-10 px-4 rounded-[12px] text-[13px] font-semibold text-black/70 dark:text-white/70 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] flex items-center justify-center gap-1.5 cursor-pointer">
+                class="min-h-[44px] sm:min-h-0 sm:h-9 px-4 rounded-[10px] text-[13px] font-medium text-black/70 dark:text-white/70 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] flex items-center justify-center gap-1.5 cursor-pointer">
                 <i data-lucide="arrow-left" class="w-4 h-4"></i>
                 <span>Kembali ke Hub</span>
             </a>
-        </div>
-    </header>
+        </x-slot:actions>
+    </x-module-header>
+
+    <x-module-tabs module="marketplace" />
 
     <!-- ===================================================== -->
     <!-- 2. FILTER BAR                                         -->

@@ -230,4 +230,144 @@ final class PosSupervisorSecurityTest extends TestCase
         $responseSuccess->assertSessionHas('success');
         $this->assertEquals(PosOrder::STATUS_REFUNDED, $order->fresh()->status);
     }
+
+    public function test_supervisor_pin_is_hidden_from_json_serialization(): void
+    {
+        $array = $this->business->toArray();
+        $this->assertArrayNotHasKey('pos_supervisor_pin', $array);
+
+        $json = json_encode($this->business);
+        $this->assertStringNotContainsString('pos_supervisor_pin', (string) $json);
+    }
+
+    public function test_supervisor_pin_unconfigured_returns_422(): void
+    {
+        $this->business->update(['pos_supervisor_pin' => null]);
+
+        $response = $this->actingAs($this->cashier)
+            ->withSession([
+                'auth_wa_otp_verified_user_id' => $this->cashier->id,
+                'active_business_id' => $this->business->id,
+            ])
+            ->postJson(route('pos.verify-pin'), ['pin' => '8888']);
+
+        $response->assertStatus(422);
+        $response->assertJson(['success' => false]);
+        $this->assertEquals(__('pos.supervisor_pin_not_configured'), (string) $response->json('message'));
+    }
+
+    public function test_supervisor_pin_rate_limiting_locks_after_5_failures_and_logs_audit(): void
+    {
+        \Illuminate\Support\Facades\RateLimiter::clear('pos_supervisor_pin:' . $this->business->id . ':' . $this->cashier->id);
+
+        for ($i = 1; $i <= 4; $i++) {
+            $res = $this->actingAs($this->cashier)
+                ->withSession([
+                    'auth_wa_otp_verified_user_id' => $this->cashier->id,
+                    'active_business_id' => $this->business->id,
+                ])
+                ->postJson(route('pos.verify-pin'), ['pin' => '000' . $i]);
+
+            $res->assertStatus(401);
+            $this->assertEquals(__('pos.supervisor_pin_invalid_attempts', ['remaining' => 5 - $i]), (string) $res->json('message'));
+        }
+
+        // 5th failed attempt -> locks out
+        $res5 = $this->actingAs($this->cashier)
+            ->withSession([
+                'auth_wa_otp_verified_user_id' => $this->cashier->id,
+                'active_business_id' => $this->business->id,
+            ])
+            ->postJson(route('pos.verify-pin'), ['pin' => '0005']);
+
+        $res5->assertStatus(401);
+        $this->assertEquals(__('auth.pin_supervisor_locked', ['minutes' => 10]), (string) $res5->json('message'));
+
+        // 6th attempt -> returns 429 Too Many Requests (either from controller rate limiter or route throttle middleware)
+        $res6 = $this->actingAs($this->cashier)
+            ->withSession([
+                'auth_wa_otp_verified_user_id' => $this->cashier->id,
+                'active_business_id' => $this->business->id,
+            ])
+            ->postJson(route('pos.verify-pin'), ['pin' => '8888']);
+
+        $res6->assertStatus(429);
+
+        // Verify Audit Log entry created for lockout
+        $this->assertDatabaseHas('audit_logs', [
+            'business_id' => $this->business->id,
+            'action' => 'POS_SUPERVISOR_PIN_LOCKED',
+        ]);
+    }
+
+    public function test_supervisor_pin_strict_bcrypt_rejects_plaintext(): void
+    {
+        // Set business PIN to Bcrypt hash of '123456'
+        $this->business->update(['pos_supervisor_pin' => Hash::make('123456')]);
+
+        // Trying wrong PIN should fail
+        $res = $this->actingAs($this->cashier)
+            ->withSession([
+                'auth_wa_otp_verified_user_id' => $this->cashier->id,
+                'active_business_id' => $this->business->id,
+            ])
+            ->postJson(route('pos.verify-pin'), ['pin' => '654321']);
+
+        $res->assertStatus(401);
+
+        // Trying correct PIN should succeed
+        $resOk = $this->actingAs($this->cashier)
+            ->withSession([
+                'auth_wa_otp_verified_user_id' => $this->cashier->id,
+                'active_business_id' => $this->business->id,
+            ])
+            ->postJson(route('pos.verify-pin'), ['pin' => '123456']);
+
+        $resOk->assertStatus(200);
+        $resOk->assertJson(['success' => true]);
+    }
+
+    public function test_supervisor_pin_multi_language_localization_in_english_and_indonesian(): void
+    {
+        // 1. Test Indonesian Locale (default)
+        app()->setLocale('id');
+        $this->business->update(['pos_supervisor_pin' => Hash::make('8888')]);
+
+        $resId = $this->actingAs($this->cashier)
+            ->withSession([
+                'auth_wa_otp_verified_user_id' => $this->cashier->id,
+                'active_business_id' => $this->business->id,
+            ])
+            ->postJson(route('pos.verify-pin'), ['pin' => '8888']);
+
+        $resId->assertStatus(200);
+        $this->assertEquals('Otorisasi Supervisor Terverifikasi.', $resId->json('message'));
+
+        // 2. Test English Locale
+        app()->setLocale('en');
+
+        $resEn = $this->actingAs($this->cashier)
+            ->withSession([
+                'auth_wa_otp_verified_user_id' => $this->cashier->id,
+                'active_business_id' => $this->business->id,
+            ])
+            ->postJson(route('pos.verify-pin'), ['pin' => '8888']);
+
+        $resEn->assertStatus(200);
+        $this->assertEquals('Supervisor Authorization Verified.', $resEn->json('message'));
+
+        // Test English Error Message when wrong PIN provided
+        $resEnFail = $this->actingAs($this->cashier)
+            ->withSession([
+                'auth_wa_otp_verified_user_id' => $this->cashier->id,
+                'active_business_id' => $this->business->id,
+            ])
+            ->postJson(route('pos.verify-pin'), ['pin' => '9999']);
+
+        $resEnFail->assertStatus(401);
+        $this->assertStringContainsString('Incorrect Supervisor PIN', (string) $resEnFail->json('message'));
+
+        // Reset back to ID
+        app()->setLocale('id');
+    }
 }

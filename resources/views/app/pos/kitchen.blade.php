@@ -3,57 +3,46 @@
 @section('content')
 <div class="max-w-[1600px] mx-auto space-y-5 pb-16" x-data="kitchenDisplay()">
 
-    <!-- Top Navigation & Controls -->
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white/80 dark:bg-[#1C1C1E]/80 backdrop-blur-md p-4 sm:p-5 rounded-[20px] border border-black/[0.06] dark:border-white/[0.08] shadow-sm">
-        <div class="flex items-center gap-3">
-            <div class="w-11 h-11 rounded-[14px] bg-[#FF9500]/15 flex items-center justify-center text-[#FF9500] shrink-0">
-                <i data-lucide="flame" class="w-6 h-6"></i>
-            </div>
-            <div>
-                <div class="flex items-center gap-2">
-                    <h1 class="text-[20px] font-bold tracking-tight text-black dark:text-white">Kitchen &amp; Bar Display</h1>
-                    <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158] border border-[#34C759]/25">
-                        <span class="w-2 h-2 rounded-full bg-[#34C759] animate-pulse"></span>
-                        LIVE KDS
-                    </span>
-                </div>
-                <p class="text-[13px] text-black/60 dark:text-white/60 mt-0.5">Pantau antrean pesanan dapur &amp; bar secara real-time dengan modifier &amp; catatan pelanggan.</p>
-            </div>
-        </div>
-
-        <div class="flex items-center flex-wrap gap-2">
+    {{-- MODULE HEADER & PERSISTENT POS TABS --}}
+    <x-module-header
+        module="pos"
+        title="Kitchen &amp; Bar Display System"
+        subtitle="Pantau antrean pesanan dapur &amp; bar secara real-time dengan modifier dan catatan pesanan tamu.">
+        <x-slot:actions>
             <!-- Audio chime toggle -->
-            <button type="button" @click="toggleSound()" class="min-h-[44px] h-11 px-3.5 rounded-[12px] text-[13px] font-semibold flex items-center gap-2 transition" :class="soundEnabled ? 'bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158] border border-[#34C759]/30 shadow-xs' : 'bg-black/[0.05] dark:bg-white/[0.08] text-black/70 dark:text-white/70 hover:bg-black/[0.08] dark:hover:bg-white/[0.12]'">
+            <button type="button" @click="toggleSound()" class="min-h-[44px] sm:min-h-0 sm:h-9 px-3.5 rounded-[10px] text-[13px] font-semibold flex items-center gap-2 transition cursor-pointer" :class="soundEnabled ? 'bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158] border border-[#34C759]/30 shadow-xs' : 'bg-black/[0.05] dark:bg-white/[0.08] text-black/70 dark:text-white/70 hover:bg-black/[0.08] dark:hover:bg-white/[0.12]'">
                 <i :data-lucide="soundEnabled ? 'volume-2' : 'volume-x'" class="w-4 h-4"></i>
                 <span x-text="soundEnabled ? 'Suara Aktif' : 'Suara Mati'"></span>
             </button>
 
             <!-- Refresh button -->
-            <button type="button" @click="fetchOrders(true)" class="min-h-[44px] h-11 px-3.5 rounded-[12px] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] text-black dark:text-white text-[13px] font-semibold flex items-center gap-2 transition active:scale-[0.98]">
+            <button type="button" @click="fetchOrders(true)" class="min-h-[44px] sm:min-h-0 sm:h-9 px-3.5 rounded-[10px] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] text-black dark:text-white text-[13px] font-semibold flex items-center gap-2 transition active:scale-[0.98] cursor-pointer">
                 <i data-lucide="refresh-cw" class="w-4 h-4" :class="isLoading ? 'animate-spin' : ''"></i>
                 <span>Segarkan</span>
             </button>
 
             <!-- Fullscreen toggle -->
-            <button type="button" @click="toggleFullscreen()" class="min-h-[44px] h-11 px-3.5 rounded-[12px] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] text-black dark:text-white text-[13px] font-semibold flex items-center gap-2 transition active:scale-[0.98]">
+            <button type="button" @click="toggleFullscreen()" class="min-h-[44px] sm:min-h-0 sm:h-9 px-3.5 rounded-[10px] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] text-black dark:text-white text-[13px] font-semibold flex items-center gap-2 transition active:scale-[0.98] cursor-pointer">
                 <i data-lucide="maximize" class="w-4 h-4"></i>
                 <span>Layar Penuh</span>
             </button>
 
             <!-- Prep Sheet Link -->
-            <a href="{{ route('pos.kitchen.prep_sheet') }}" class="min-h-[44px] h-11 px-3.5 rounded-[12px] bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] text-white text-[13px] font-semibold flex items-center gap-2 transition shadow-sm">
+            <a href="{{ route('pos.kitchen.prep_sheet') }}" class="min-h-[44px] sm:min-h-0 sm:h-9 px-3.5 rounded-[10px] bg-[#34C759] hover:bg-[#28A745] active:scale-[0.98] text-white text-[13px] font-semibold flex items-center gap-2 transition shadow-sm">
                 <i data-lucide="clipboard-list" class="w-4 h-4"></i>
                 <span>Lembar Prep</span>
             </a>
 
             @if(\App\Support\Context::hasPermission('pos.terminal') || \App\Support\Context::hasPermission('pos.orders'))
-            <a href="{{ route('pos.terminal') }}" class="min-h-[44px] h-11 px-4 rounded-[12px] bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] text-white text-[13px] font-semibold flex items-center gap-2 transition shadow-sm">
-                <i data-lucide="layout-grid" class="w-4 h-4"></i>
-                <span>Terminal Kasir</span>
-            </a>
+                <a href="{{ route('pos.terminal') }}" class="min-h-[44px] sm:min-h-0 sm:h-9 px-4 rounded-[10px] bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] text-white text-[13px] font-semibold flex items-center gap-2 transition shadow-sm">
+                    <i data-lucide="layout-grid" class="w-4 h-4"></i>
+                    <span>Terminal Kasir</span>
+                </a>
             @endif
-        </div>
-    </div>
+        </x-slot:actions>
+    </x-module-header>
+
+    <x-module-tabs module="pos" />
 
     <!-- Kanban Grid (3 Columns) -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 items-start">

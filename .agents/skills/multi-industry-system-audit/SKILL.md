@@ -3,12 +3,15 @@ name: multi-industry-system-audit
 description: Audit kesesuaian sistem terhadap kebutuhan 20 sektor industri bisnis yang berbeda di Cooca (F&B, Manufaktur, Retail, Jasa Bengkel/Salon/Laundry, Proyek, Distribusi/Agro), menegakkan aturan Do's and Don'ts (misal: ketika industri A, maka menu/fitur/form milik industri B tidak boleh muncul), mendeteksi kebocoran UI atau terminologi yang tidak relevan, serta menyusun Rekomendasi Perbaikan, Dokumen PRD Sistem Adaptif, dan Rencana Implementasi Bertahap. Aktifkan saat user meminta audit multi-industri, penyesuaian menu/form per industri, penegakan Do's & Don'ts industri, atau audit context-aware UI.
 ---
 
-# MULTI-INDUSTRY SYSTEM AUDIT & DO'S/DON'TS ENFORCEMENT SKILL
+# MULTI-INDUSTRY SYSTEM AUDIT & CONTEXT-AWARE AUTO-HIDING SKILL
 
 Skill operasional ini memandu AI Agent dalam mengeksekusi **audit kesesuaian alur kerja, menu antarmuka, dan formulir sistem terhadap kebutuhan spesifik 20 sektor industri bisnis di Cooca**. Skill ini memastikan bahwa sistem menerapkan arsitektur **antarmuka sadar konteks (*Context-Aware & Zero Irrelevant Clutter UI*)**:
-- Jika tenant adalah **Industri A** (misal Bengkel), maka menu, fitur, tab, dan kolom form milik **Industri B** (misal Meja Restoran / Layar Dapur KDS / Saluran Ojol) **WAJIB TIDAK MUNCUL**.
-- Menegakkan daftar **Do's & Don'ts** operasional lintas industri agar pengguna tidak bingung (*Zero-Manual UI & Boomer-Friendly*).
-- Secara otomatis menghasilkan **Laporan Temuan Audit Multi-Industri, Rekomendasi Perbaikan Adaptif, Dokumen PRD Sistem Adaptif, dan Rencana Implementasi Bertahap**.
+
+> 🎯 **Mandat Auto-Hiding Multi-Sektor**:  
+> Jika suatu fitur, menu, tab, modal, atau field input **TIDAK RELATE** dengan industri aktif tenant, sistem **WAJIB OTOMATIS MENYEMBUNYIKANNYA (AUTO-HIDE)**.  
+> **Contoh Nyata:**  
+> - Industri **Bengkel / Servis Otomotif** membutuhkan formulir **Perintah Kerja Bengkel (PKB / SPK)**, Nomor Polisi, Odometer KM, dan Teknisi/Mekanik. Fitur ini **DILARANG KERAS MUNCUL DI F&B / RESTORAN**.  
+> - Sebaliknya, fitur **Denah Meja Restoran (Dine-In)**, **Tiket Dapur KDS (KOT)**, dan **Resep BOM Gramasi Makanan** **DILARANG KERAS MUNCUL DI BENGKEL ATAU TOKO BAJU**.
 
 ---
 
@@ -35,9 +38,9 @@ Sistem Cooca melayani 20 template industri yang dikelompokkan ke dalam 6 klaster
 │ • Coffee Shop & Cafe    │ • Percetakan & Offset    │ • Apotek & Toko Obat              │
 │ • Bakery & Roti         │ • Mebel & Furniture Kayu ├───────────────────────────────────┤
 │ • Cloud Kitchen         │ • Bubut & Logam Presisi  │ 4. JASA OPERASIONAL HARIAN (4)    │
-│ • Katering Prasmanan    │ • Kerajinan & Craft      │ • Bengkel Mobil & Motor           │
+│ • Katering Prasmanan    │ • Kerajinan & Craft      │ • Bengkel Mobil & Motor (PKB)     │
 ├─────────────────────────┼──────────────────────────┤ • Barbershop & Salon              │
-│ 5. JASA PROYEK (3)      │ 6. DISTRIBUSI & AGRO (2) │ • Laundry Kiloan                  │
+│ 5. JASA PROYEK (3)      │ 6. DISTRIBUSI & AGRO (2) │ • Laundry Kiloan (Kg / Loker)     │
 │ • Kontraktor Bangunan   │ • Distributor Grosir     │ • Cuci Mobil & Detailing          │
 │ • Event / Wedding Org   │ • Pertanian & Peternakan │                                   │
 │ • Digital IT Agency     │                          │                                   │
@@ -48,25 +51,29 @@ Sistem Cooca melayani 20 template industri yang dikelompokkan ke dalam 6 klaster
 
 ## ⚖️ Prinsip Universal Do's & Don'ts Lintas Industri
 
-1. **Zero Irrelevant Clutter (Anti-Kebingungan Pengguna)**:
-   - **DO:** Tampilkan hanya menu, tab, dan field input yang memiliki relevansi operasional langsung dengan industri tenant yang sedang aktif (`$business->template_code` atau `$business->isModuleEnabled()`).
-   - **DON'T:** Dilarang keras menampilkan opsi atau field yang tidak ada hubungannya dengan bisnis pengguna. Contoh:
-     - Bengkel Mobil **DILARANG MELIHAT** opsi *"Meja Dine-in / Takeaway"*, *"KDS Layar Dapur"*, *"Saluran GoFood/GrabFood"*, atau *"Waktu Masak Resep"*.
-     - Coffee Shop / Restoran **DILARANG MELIHAT** field *"Nomor Rangka Kendaraan"*, *"Odometer KM"*, *"Tarif Jam Mesin Pabrik"*, atau *"Plafon Piutang Kontrak B2B"*.
-     - Toko Kelontong / Minimarket **DILARANG MELIHAT** formulir *"Resep Masakan BOM"*, *"Bahan Baku Gramasi"*, atau *"Surat Perintah Kerja (SPK)"*.
+1. **Zero Irrelevant Clutter & Context-Aware Dynamic Auto-Hiding**:
+   - **DO:** Tampilkan **HANYA** menu, tab navigasi, widget bento, tombol aksi, dan field input formulir yang memiliki relevansi operasional langsung dengan industri aktif tenant (`$business->template_code` atau `$business->isModuleEnabled()`).
+   - **DON'T:** Dilarang keras menampilkan fitur, menu, atau field yang tidak relate dengan industri aktif. Wajib otomatis di-hide:
+     - **Bengkel Mobil/Motor (`service_workshop`)**: Wajib tampil Formulir PKB (Perintah Kerja Bengkel / SPK), Nomor Polisi, KM Odometer, Teknisi/Mekanik, Part vs Jasa, Kartu Riwayat Servis Kendaraan. **DILARANG KERAS MUNCUL**: Meja Dine-in / Reservasi Meja, Layar Dapur (KDS), Saluran Ojol (GoFood/GrabFood), Level Pedas/Gula, Resep Porsi Makanan.
+     - **Kuliner & F&B (`fnb_resto`, `fnb_cafe`, `fnb_bakery`, `fnb_cloud_kitchen`, `fnb_catering`)**: Wajib tampil Denah Meja Dine-in, Tiket Dapur KDS, Resep BOM Gramasi Makanan, Modifier Varian Rasa. **DILARANG KERAS MUNCUL**: Formulir PKB Bengkel, Plat Nomor Kendaraan, Odometer KM, Berat Kg Timbangan Laundry, No BPOM Obat, IMEI Gadget, Tarif Jam Mesin Bubut Pabrik.
+     - **Laundry Kiloan & Satuan (`service_laundry`)**: Wajib tampil Kalkulator Berat Timbangan (Kg), Nomor Rak/Loker Penyimpanan, Pilihan Pewangi/Parfum, Status Alur Cuci-Kering-Setrika-Siap Ambil. **DILARANG KERAS MUNCUL**: Plat Nomor Mobil, Resep Dokter, atau Denah Meja Makan.
+     - **Apotek & Toko Obat (`retail_pharmacy`)**: Wajib tampil Nomor Batch Produksi, Expired Date (ED / Kadaluarsa), Dosis & Aturan Pakai, Nomor Resep Dokter & SIP, Peringatan Obat Keras (K). **DILARANG KERAS MUNCUL**: Pilihan Ukuran Baju (S/M/L/XL), Pilihan Level Es/Gula, atau Denah Meja Restoran.
+     - **Konveksi & Percetakan (`mfg_garment`, `mfg_printing`)**: Wajib tampil Kalkulator HPP Multi-Tier (Bahan Baku + Ongkos Jahit/Operator + Listrik/Mesin), Termin Pembayaran DP 50%, File Mockup Desain, Estimasi Lead Time. **DILARANG KERAS MUNCUL**: Kasir Cepat Ritel Thermal, Meja Makan, atau Layar Dapur KDS.
+     - **Toko Kelontong & Minimarket (`retail_reseller`)**: Wajib tampil Barcode Scanner Cepat, Multi-Satuan (Dus ➔ Pack ➔ Pcs), Low-Stock Threshold Alert, Rak Etalase. **DILARANG KERAS MUNCUL**: Resep Formula BOM Gramasi, SPK Bengkel, atau Jam Kerja Mesin.
 2. **Terminologi Adaptif (Domain-Specific Semantics)**:
-   - **DO:** Gunakan label bahasa yang alami bagi industri tersebut:
-     - F&B: *"Daftar Menu"*, *"Pesanan Meja"*, *"Dapur"*, *"Bahan Resep"*.
-     - Bengkel: *"Jasa Servis & Suku Cadang"*, *"Kendaraan / Pelat Nomor"*, *"Mekanik"*, *"Surat Perintah Kerja (PKB)"*.
-     - Retail: *"Produk / Barang"*, *"Struk Kasir"*, *"Rak / Etalase"*, *"Stok Opname"*.
-     - Salon / Klinik: *"Layanan / Treatment"*, *"Terapis / Stylist"*, *"Reservasi Jam"*.
-   - **DON'T:** Jangan memaksakan istilah generik kaku yang terdengar aneh bagi staf operasional (misal: menyebut ganti oli bengkel sebagai "Pembelian Menu").
-3. **Formulir & Validasi Adaptif**:
-   - **DO:** Sesuaikan aturan validasi form berdasarkan modul aktif. Field opsional bagi industri A tidak boleh di-set `required` jika bisnis tersebut tidak menggunakannya.
-   - **DON'T:** Jangan menggagalkan simpan data hanya karena field milik industri lain bernilai kosong.
+   - **DO:** Gunakan kamus istilah yang natural dan akrab bagi pemilik bisnis industri tersebut:
+     - F&B: *"Daftar Menu"*, *"Pesanan Meja"*, *"Dapur"*, *"Bahan Masak / Resep"*, *"Tamu / Pelanggan"*.
+     - Bengkel: *"Jasa Servis & Suku Cadang"*, *"Kendaraan / Pelat Nomor"*, *"Mekanik / Teknisi"*, *"Perintah Kerja Bengkel (PKB / SPK)"*.
+     - Retail: *"Produk / Barang Jadi"*, *"Struk Kasir"*, *"Rak / Etalase"*, *"Stok Opname Fisik"*, *"Member"*.
+     - Salon / Barbershop: *"Layanan / Treatment"*, *"Stylist / Terapis"*, *"Reservasi Jam Layanan"*.
+     - Proyek / Agensi: *"Proyek / SPK"*, *"Surat Penawaran (Quotation)"*, *"Faktur Termin / Progress Billing"*, *"Klien"*.
+   - **DON'T:** Dilarang memaksakan istilah generik kaku atau istilah milik industri lain (misal: menyebut penggantian kampas rem di bengkel sebagai "Pembelian Menu").
+3. **Formulir & Validasi Request Adaptif**:
+   - **DO:** Validasi form di backend wajib diselaraskan dengan modul aktif. Field opsional bagi industri A tidak boleh di-set `required` jika bisnis tersebut tidak menggunakannya.
+   - **DON'T:** Dilarang menyebabkan kegagalan simpan (422 Unprocessable Entity) akibat validasi field yang disembunyikan di UI.
 4. **Proteksi Integritas Data saat Beralih Template**:
-   - **DO:** Jika tenant mengganti preset template atau menonaktifkan modul via `disabled_modules`, data lama tetap tersimpan utuh di database.
-   - **DON'T:** Dilarang menghapus baris database saat modul disembunyikan dari UI.
+   - **DO:** Jika tenant mengganti preset template atau menonaktifkan modul via `disabled_modules`, data lama tetap tersimpan utuh di database (*zero data deletion*).
+   - **DON'T:** Dilarang menghapus baris database historis saat modul dinonaktifkan dari UI.
 
 ---
 
