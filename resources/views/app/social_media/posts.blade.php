@@ -734,70 +734,179 @@
                                 </div>
                             </div>
 
-                            {{-- 4. Text Content & STRICT COOCA 5-HASHTAG COUNTER --}}
-                            <div class="space-y-2">
+                            {{-- 4. Text Content & STRICT COOCA 5-HASHTAG COUNTER & THREADS 500-CHAR GUARDRAIL --}}
+                            <div class="space-y-3">
                                 <div class="flex items-center justify-between text-[12.5px] font-bold text-black/80 dark:text-white/80">
-                                    <label>Caption Postingan Utama <span class="text-[#FF3B30]">*</span></label>
+                                    <div class="flex items-center gap-2">
+                                        <label>{{ __('social_media.main_caption_label') }} <span class="text-[#FF3B30]">*</span></label>
+                                        <span class="text-[11px] font-normal text-black/50 dark:text-white/50">(Mapping 1 caption untuk semua saluran)</span>
+                                    </div>
                                     <div class="flex items-center gap-2">
                                         {{-- COOCA 5 Hashtag Badge --}}
                                         <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold inline-flex items-center gap-1 border transition-colors"
                                             :class="hashtagCount <= 5 ? 'bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158] border-[#34C759]/30' : 'bg-[#FF3B30]/15 text-[#FF3B30] border-[#FF3B30]/30'">
                                             <i data-lucide="hash" class="w-3 h-3"></i>
-                                            <span x-text="'Tagar: ' + hashtagCount + ' / 5'"></span>
+                                            <span x-text="'{{ __('social_media.hashtag_counter', ['count' => '']) }}' + hashtagCount + ' / 5'"></span>
                                         </span>
                                         <span class="text-[11.5px] text-black/40 dark:text-white/40 tabular-nums font-normal" x-text="captionText.length + ' / 5000'"></span>
                                     </div>
                                 </div>
 
                                 <textarea name="content" rows="4" required x-model="captionText"
-                                    :placeholder="mediaFormat === 'reels' ? 'Tulis caption menarik dan tagar untuk Reels Anda...' : (mediaFormat === 'video' ? 'Jelaskan materi video promo toko Anda...' : 'Tulis pesan promosi, pengumuman promo, diskon, atau informasi produk...')"
+                                    :placeholder="mediaFormat === 'reels' ? '{{ __('social_media.main_caption_placeholder_reels') }}' : (mediaFormat === 'video' ? '{{ __('social_media.main_caption_placeholder_video') }}' : '{{ __('social_media.main_caption_placeholder_default') }}')"
                                     class="w-full p-3.5 rounded-[14px] text-[13px] bg-black/[0.03] dark:bg-white/[0.05] border border-black/10 dark:border-white/10 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] resize-none"></textarea>
 
                                 {{-- Alert Exceeding 5 Hashtags --}}
-                                <div x-show="hashtagCount > 5" class="p-3 rounded-[12px] bg-[#FF3B30]/10 border border-[#FF3B30]/25 text-[12px] text-[#FF3B30] flex items-start gap-2">
+                                <div x-show="hashtagCount > 5" style="display: none;" class="p-3 rounded-[12px] bg-[#FF3B30]/10 border border-[#FF3B30]/25 text-[12px] text-[#FF3B30] flex items-start gap-2">
                                     <i data-lucide="alert-triangle" class="w-4 h-4 shrink-0 mt-0.5"></i>
                                     <div>
                                         <strong>Aturan COOCA:</strong> Maksimal 5 hashtag unik per postingan! Saat ini terdeteksi <strong x-text="hashtagCount"></strong> hashtag. Kurangi <span x-text="hashtagCount - 5"></span> hashtag agar dapat dipublikasikan.
                                     </div>
                                 </div>
+
+                                {{-- Peringatan Khusus Threads: Karakter > 500 --}}
+                                <div x-show="hasThreadsSelected && isThreadsOverLimit" style="display: none;"
+                                    class="p-3.5 rounded-[16px] bg-[#FF9500]/10 border border-[#FF9500]/30 text-[#D97706] dark:text-[#F59E0B] space-y-2.5 shadow-xs transition-all">
+                                    <div class="flex items-start gap-3">
+                                        <div class="w-8 h-8 rounded-[10px] bg-[#FF9500]/20 flex items-center justify-center shrink-0 mt-0.5">
+                                            <i data-lucide="at-sign" class="w-4 h-4 text-[#D97706] dark:text-[#F59E0B]"></i>
+                                        </div>
+                                        <div class="space-y-0.5">
+                                            <div class="text-[13px] font-bold text-black dark:text-white">
+                                                Batas Karakter Threads Terlampaui (> 500 Karakter)
+                                            </div>
+                                            <div class="text-[11.5px] opacity-90 leading-relaxed text-black/80 dark:text-white/80">
+                                                Caption untuk Threads saat ini berisi <strong x-text="captionText.length"></strong> karakter. Sesuai standar resmi Meta Threads API, panjang postingan maksimal <strong>500 karakter</strong>. Saluran lain (Facebook, Instagram, LinkedIn) tetap dapat menggunakan teks lengkap ini.
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="pt-1 flex flex-wrap items-center gap-2">
+                                        <button type="button" @click="createSeparateThreadsCaption()"
+                                            class="h-8 px-3 rounded-[9px] text-[11.5px] font-bold text-white bg-[#FF9500] hover:bg-[#E08500] active:scale-[0.98] transition-all flex items-center gap-1.5 shadow-xs cursor-pointer">
+                                            <i data-lucide="scissors" class="w-3.5 h-3.5"></i>
+                                            <span>{{ __('social_media.threads_create_separate_btn') }}</span>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {{-- Status Caption Terpisah Threads Aktif --}}
+                                <div x-show="hasThreadsSelected && isThreadsSeparateActive" style="display: none;"
+                                    class="p-2.5 rounded-[12px] bg-[#34C759]/10 border border-[#34C759]/25 text-[#248A3D] dark:text-[#30D158] flex items-center justify-between gap-2 text-[12px] font-semibold transition-all">
+                                    <div class="flex items-center gap-2">
+                                        <i data-lucide="check-circle-2" class="w-4 h-4 shrink-0"></i>
+                                        <span>Caption terpisah khusus Threads aktif (<span x-text="getCaptionLength(threadsAccountId)"></span> / 500 karakter). Postingan siap dipublikasikan serentak.</span>
+                                    </div>
+                                    <button type="button" @click="showOverrides = true" class="text-[11px] font-bold underline hover:opacity-80">
+                                        Lihat/Edit
+                                    </button>
+                                </div>
                             </div>
 
-                            {{-- 5. Collapsible Channel Caption Overrides (Optional) --}}
-                            <div class="p-3.5 rounded-[14px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5 space-y-3">
+                            {{-- 5. Collapsible Channel Caption Overrides (Input Caption Terpisah per Saluran) --}}
+                            <div class="p-3.5 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5 space-y-3">
                                 <button type="button" @click="showOverrides = !showOverrides"
                                     class="w-full flex items-center justify-between text-left text-[12.5px] font-bold text-black/80 dark:text-white/80">
-                                    <span class="flex items-center gap-1.5">
+                                    <span class="flex items-center gap-2">
                                         <i data-lucide="sliders-horizontal" class="w-4 h-4 text-[#007AFF]"></i>
-                                        <span>Kustomisasi Caption per Saluran (Opsional)</span>
+                                        <span>{{ __('social_media.channel_overrides_toggle') }}</span>
                                     </span>
-                                    <span class="text-[11px] text-[#007AFF]" x-text="showOverrides ? 'Tutup' : 'Buka Kustomisasi'"></span>
+                                    <span class="text-[11.5px] text-[#007AFF] font-bold" x-text="showOverrides ? '{{ __('social_media.channel_overrides_close') }}' : '{{ __('social_media.channel_overrides_open') }}'"></span>
                                 </button>
 
                                 <div x-show="showOverrides" style="display: none;" class="space-y-3 pt-2 border-t border-black/5 dark:border-white/5">
-                                    <p class="text-[11.5px] text-black/50 dark:text-white/50">
-                                        Bila diisi, saluran di bawah ini akan menggunakan teks khusus sebagai pengganti caption utama.
+                                    <p class="text-[11.5px] text-black/60 dark:text-white/60">
+                                        {{ __('social_media.channel_overrides_sub') }}
                                     </p>
-                                    @foreach($accounts as $acc)
-                                        <div class="space-y-1">
-                                            <label class="text-[11.5px] font-semibold text-black/70 dark:text-white/70 capitalize flex items-center gap-1.5">
-                                                <span>Khusus {{ $acc->platform }} ({{ $acc->account_name }}):</span>
-                                            </label>
-                                            <textarea name="custom_captions[{{ $acc->id }}]" rows="2" placeholder="Biarkan kosong untuk menggunakan caption utama..."
-                                                class="w-full p-2.5 rounded-[10px] text-[12px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 text-black dark:text-white focus:outline-none focus:ring-1 focus:ring-[#007AFF] resize-none"></textarea>
-                                        </div>
-                                    @endforeach
+
+                                    <div class="space-y-3">
+                                        @foreach($accounts as $acc)
+                                            <div class="space-y-2 p-3 rounded-[12px] bg-white dark:bg-[#252528] border border-black/10 dark:border-white/10"
+                                                 x-show="selectedAccounts.includes('{{ $acc->id }}')">
+                                                <div class="flex items-center justify-between">
+                                                    <label class="text-[12px] font-bold text-black/80 dark:text-white/80 capitalize flex items-center gap-2">
+                                                        <div class="w-5 h-5 rounded-[6px] flex items-center justify-center text-[10px] {{ $acc->platform === 'facebook' ? 'bg-[#1877F2]/15 text-[#1877F2]' : ($acc->platform === 'instagram' ? 'bg-[#E1306C]/15 text-[#E1306C]' : ($acc->platform === 'tiktok' ? 'bg-black/10 dark:bg-white/15 text-black dark:text-white' : ($acc->platform === 'linkedin' ? 'bg-[#0A66C2]/15 text-[#0A66C2]' : 'bg-black/10 text-black dark:text-white'))) }}">
+                                                            @if($acc->platform === 'facebook') <i data-lucide="facebook" class="w-3 h-3"></i>
+                                                            @elseif($acc->platform === 'instagram') <i data-lucide="instagram" class="w-3 h-3"></i>
+                                                            @elseif($acc->platform === 'tiktok') <i data-lucide="video" class="w-3 h-3"></i>
+                                                            @elseif($acc->platform === 'linkedin') <i data-lucide="linkedin" class="w-3 h-3"></i>
+                                                            @else <i data-lucide="at-sign" class="w-3 h-3"></i>
+                                                            @endif
+                                                        </div>
+                                                        <span>{{ $acc->account_name }} ({{ ucfirst($acc->platform) }})</span>
+                                                        <span class="text-[10.5px] font-normal px-2 py-0.5 rounded-full bg-black/5 dark:bg-white/10 text-black/60 dark:text-white/60">
+                                                            Maks: {{ number_format(\App\Domain\SocialMedia\Validation\SocialMediaContentValidator::CAPTION_LIMITS[$acc->platform] ?? 2200) }} Chars
+                                                        </span>
+                                                    </label>
+
+                                                    <div class="flex items-center gap-2">
+                                                        <button type="button" @click="copyFromMain('{{ $acc->id }}')"
+                                                            class="text-[11px] font-semibold text-[#007AFF] hover:underline flex items-center gap-1">
+                                                            <i data-lucide="copy" class="w-3 h-3"></i>
+                                                            <span>{{ __('social_media.copy_from_main_btn') }}</span>
+                                                        </button>
+                                                        <template x-if="customCaptions['{{ $acc->id }}']">
+                                                            <button type="button" @click="resetCustomCaption('{{ $acc->id }}')"
+                                                                class="text-[11px] font-semibold text-[#FF3B30] hover:underline">
+                                                                Reset (Pakai Utama)
+                                                            </button>
+                                                        </template>
+                                                    </div>
+                                                </div>
+
+                                                <textarea name="custom_captions[{{ $acc->id }}]"
+                                                    id="custom_caption_{{ $acc->id }}"
+                                                    rows="3"
+                                                    x-model="customCaptions['{{ $acc->id }}']"
+                                                    placeholder="{{ __('social_media.override_channel_placeholder') }}"
+                                                    class="w-full p-2.5 rounded-[10px] text-[12px] bg-black/[0.02] dark:bg-black/20 border text-black dark:text-white focus:outline-none focus:ring-1 resize-none transition-colors"
+                                                    :class="getCaptionLength('{{ $acc->id }}') > (accountsMap['{{ $acc->id }}']?.limit || 2200) ? 'border-[#FF3B30] focus:ring-[#FF3B30]' : 'border-black/10 dark:border-white/10 focus:ring-[#007AFF]'"></textarea>
+
+                                                {{-- Live Counters & State per Saluran --}}
+                                                <div class="flex items-center justify-between text-[11px]">
+                                                    <div class="flex items-center gap-2">
+                                                        <template x-if="!customCaptions['{{ $acc->id }}']">
+                                                            <span class="text-black/50 dark:text-white/50 italic">Menggunakan mapping caption utama</span>
+                                                        </template>
+                                                        <template x-if="customCaptions['{{ $acc->id }}']">
+                                                            <span class="text-[#007AFF] font-semibold">Caption terpisah aktif</span>
+                                                        </template>
+                                                        <template x-if="getChannelHashtags('{{ $acc->id }}').length > 5">
+                                                            <span class="text-[#FF3B30] font-bold">Tagar > 5!</span>
+                                                        </template>
+                                                    </div>
+                                                    <div class="flex items-center gap-2 font-mono">
+                                                        <span :class="getChannelHashtags('{{ $acc->id }}').length <= 5 ? 'text-black/60 dark:text-white/60' : 'text-[#FF3B30] font-bold'">
+                                                            # <span x-text="getChannelHashtags('{{ $acc->id }}').length"></span>/5
+                                                        </span>
+                                                        <span>•</span>
+                                                        <span :class="getCaptionLength('{{ $acc->id }}') <= (accountsMap['{{ $acc->id }}']?.limit || 2200) ? 'text-black/60 dark:text-white/60' : 'text-[#FF3B30] font-bold'">
+                                                            <span x-text="getCaptionLength('{{ $acc->id }}')"></span> / <span x-text="accountsMap['{{ $acc->id }}']?.limit || 2200"></span> Chars
+                                                        </span>
+                                                    </div>
+                                                </div>
+
+                                                {{-- Channel Limit Alert --}}
+                                                <template x-if="getCaptionLength('{{ $acc->id }}') > (accountsMap['{{ $acc->id }}']?.limit || 2200)">
+                                                    <div class="p-2 rounded-[8px] bg-[#FF3B30]/10 text-[#FF3B30] text-[11px] font-semibold flex items-center gap-1.5">
+                                                        <i data-lucide="alert-circle" class="w-3.5 h-3.5 shrink-0"></i>
+                                                        <span>Karakter melebihi batas resmi platform (<span x-text="getCaptionLength('{{ $acc->id }}') - (accountsMap['{{ $acc->id }}']?.limit || 2200)"></span> karakter berlebih).</span>
+                                                    </div>
+                                                </template>
+                                            </div>
+                                        @endforeach
+                                    </div>
                                 </div>
                             </div>
 
                             {{-- 6. Waktu & Penjadwalan Publikasi (Multi-Mode & Per-Channel Support) --}}
-                            <div class="p-3.5 rounded-[14px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5 space-y-3">
+                            <div class="p-3.5 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5 space-y-3">
                                 <div class="flex items-center justify-between">
                                     <div>
-                                        <span class="text-[13px] font-bold text-black dark:text-white">Waktu Publikasi Saluran</span>
-                                        <p class="text-[11.5px] text-black/50 dark:text-white/50">Tentukan kapan konten ini ditayangkan ke masing-masing media sosial</p>
+                                        <span class="text-[13px] font-bold text-black dark:text-white">{{ __('social_media.schedule_title') }}</span>
+                                        <p class="text-[11.5px] text-black/50 dark:text-white/50">{{ __('social_media.schedule_subtitle') }}</p>
                                     </div>
                                     <span class="px-2 py-0.5 rounded-full text-[10.5px] font-semibold bg-[#007AFF]/10 text-[#007AFF]">
-                                        Fleksibel
+                                        {{ __('social_media.flexible_badge') }}
                                     </span>
                                 </div>
 
@@ -807,38 +916,38 @@
                                         :class="scheduleMode === 'all_now' ? 'bg-[#007AFF]/10 border-[#007AFF] text-black dark:text-white font-bold shadow-xs' : 'bg-black/[0.02] dark:bg-white/[0.04] border-black/10 dark:border-white/10 text-black/70 dark:text-white/70'">
                                         <input type="radio" name="schedule_mode" value="all_now" x-model="scheduleMode" class="sr-only">
                                         <i data-lucide="zap" class="w-3.5 h-3.5 text-[#007AFF]"></i>
-                                        <span>Semua Sekarang</span>
+                                        <span>{{ __('social_media.mode_all_now') }}</span>
                                     </label>
 
                                     <label class="p-2.5 rounded-[10px] border cursor-pointer transition-all flex items-center gap-2"
                                         :class="scheduleMode === 'all_same' ? 'bg-[#5856D6]/10 border-[#5856D6] text-black dark:text-white font-bold shadow-xs' : 'bg-black/[0.02] dark:bg-white/[0.04] border-black/10 dark:border-white/10 text-black/70 dark:text-white/70'">
                                         <input type="radio" name="schedule_mode" value="all_same" x-model="scheduleMode" class="sr-only">
                                         <i data-lucide="clock" class="w-3.5 h-3.5 text-[#5856D6]"></i>
-                                        <span>Jadwal Serentak</span>
+                                        <span>{{ __('social_media.mode_all_same') }}</span>
                                     </label>
 
                                     <label class="p-2.5 rounded-[10px] border cursor-pointer transition-all flex items-center gap-2"
                                         :class="scheduleMode === 'per_channel' ? 'bg-[#FF9500]/10 border-[#FF9500] text-black dark:text-white font-bold shadow-xs' : 'bg-black/[0.02] dark:bg-white/[0.04] border-black/10 dark:border-white/10 text-black/70 dark:text-white/70'">
                                         <input type="radio" name="schedule_mode" value="per_channel" x-model="scheduleMode" class="sr-only">
                                         <i data-lucide="sliders" class="w-3.5 h-3.5 text-[#FF9500]"></i>
-                                        <span>Beda per Saluran</span>
+                                        <span>{{ __('social_media.mode_per_channel') }}</span>
                                     </label>
                                 </div>
 
                                 {{-- Mode B: Jadwal Serentak (Satu waktu untuk semua saluran) --}}
                                 <div x-show="scheduleMode === 'all_same'" style="display: none;" class="pt-2 border-t border-black/5 dark:border-white/5 space-y-1.5">
-                                    <label class="block text-[11.5px] font-semibold text-black/70 dark:text-white/70">Pilih Tanggal &amp; Jam Penayangan Serentak</label>
+                                    <label class="block text-[11.5px] font-semibold text-black/70 dark:text-white/70">{{ __('social_media.global_schedule_label') }}</label>
                                     <input type="datetime-local" name="scheduled_at" x-model="globalScheduleTime"
                                         class="w-full h-9 px-3 rounded-[10px] text-[12.5px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#5856D6]">
                                     <p class="text-[11px] text-black/50 dark:text-white/50">
-                                        Seluruh saluran terpilih akan otomatis dipublikasikan bersamaan oleh cron scheduler saat waktu tiba.
+                                        {{ __('social_media.global_schedule_sub') }}
                                     </p>
                                 </div>
 
                                 {{-- Mode C: Beda Waktu per Saluran (Bento Card per Akun Terpilih) --}}
                                 <div x-show="scheduleMode === 'per_channel'" style="display: none;" class="pt-2 border-t border-black/5 dark:border-white/5 space-y-2.5">
                                     <p class="text-[11.5px] text-black/60 dark:text-white/60">
-                                        Tentukan waktu khusus untuk masing-masing saluran (misal: Instagram langsung, Facebook jam 2 siang, TikTok besok):
+                                        {{ __('social_media.per_channel_schedule_sub') }}
                                     </p>
                                     <div class="space-y-2">
                                         @foreach($accounts as $acc)
@@ -866,12 +975,12 @@
                                                         <button type="button" @click="channelTiming['{{ $acc->id }}'] = 'now'"
                                                             :class="channelTiming['{{ $acc->id }}'] === 'now' ? 'bg-white dark:bg-[#1C1C1E] text-[#007AFF] font-bold shadow-xs' : 'text-black/60 dark:text-white/60'"
                                                             class="px-2 py-0.5 rounded-[6px] transition-colors">
-                                                            Langsung
+                                                            {{ __('social_media.timing_now') }}
                                                         </button>
                                                         <button type="button" @click="channelTiming['{{ $acc->id }}'] = 'schedule'"
                                                             :class="channelTiming['{{ $acc->id }}'] === 'schedule' ? 'bg-white dark:bg-[#1C1C1E] text-[#FF9500] font-bold shadow-xs' : 'text-black/60 dark:text-white/60'"
                                                             class="px-2 py-0.5 rounded-[6px] transition-colors">
-                                                            Jadwalkan
+                                                            {{ __('social_media.timing_schedule') }}
                                                         </button>
                                                     </div>
                                                 </div>
@@ -891,13 +1000,15 @@
 
                         {{-- RIGHT COLUMN: DYNAMIC PREVIEW & BENTO GUARDRAILS (Col-span 5) --}}
                         <div class="lg:col-span-5 space-y-4 lg:sticky lg:top-2">
-                            {{-- A. SECTOR CONTEXTUAL GUARDRAIL (Fase 4.1) --}}
+                            {{-- A. SECTOR CONTEXTUAL GUARDRAIL (20 Sektor Industri Terpadu) --}}
                             @php
                                 $bizTemplate = strtolower((string) ($business->template_code ?? ''));
                                 $bizCategory = strtolower((string) ($business->industry_category ?? ''));
                                 $bizIndustry = strtolower((string) ($business->industry ?? ''));
 
                                 $isPharmacy = str_contains($bizTemplate, 'pharmacy') || str_contains($bizTemplate, 'apotek') || str_contains($bizCategory, 'pharmacy') || str_contains($bizIndustry, 'obat') || str_contains($bizIndustry, 'apotek');
+                                $isClinic = str_contains($bizTemplate, 'clinic') || str_contains($bizTemplate, 'dental') || str_contains($bizTemplate, 'healthcare') || str_contains($bizCategory, 'healthcare') || str_contains($bizIndustry, 'klinik') || str_contains($bizIndustry, 'dokter') || str_contains($bizIndustry, 'gigi');
+                                $isPetshop = str_contains($bizTemplate, 'petshop') || str_contains($bizTemplate, 'veterinary') || str_contains($bizCategory, 'pet') || str_contains($bizIndustry, 'hewan') || str_contains($bizIndustry, 'kucing') || str_contains($bizIndustry, 'anjing') || str_contains($bizIndustry, 'petshop');
                                 $isWorkshop = str_contains($bizTemplate, 'workshop') || str_contains($bizTemplate, 'autodetailing') || str_contains($bizCategory, 'workshop') || str_contains($bizIndustry, 'bengkel') || str_contains($bizIndustry, 'detailing');
                                 $isSalon = str_contains($bizTemplate, 'barbershop') || str_contains($bizTemplate, 'salon') || str_contains($bizTemplate, 'cosmetics') || str_contains($bizCategory, 'salon') || str_contains($bizIndustry, 'barbershop');
                                 $isFnb = str_starts_with($bizTemplate, 'fnb') || $bizCategory === 'fnb' || str_contains($bizIndustry, 'resto') || str_contains($bizIndustry, 'kuliner') || str_contains($bizIndustry, 'cafe');
@@ -909,10 +1020,32 @@
                                 <div class="p-3.5 rounded-[16px] bg-[#FF3B30]/10 border border-[#FF3B30]/25 text-[#FF3B30] space-y-1.5 shadow-xs">
                                     <div class="flex items-center gap-2 font-bold text-[12.5px]">
                                         <i data-lucide="shield-alert" class="w-4 h-4 shrink-0"></i>
-                                        <span>Guardrail BPOM &amp; Iklan Obat Keras</span>
+                                        <span>{{ __('social_media.guardrail_pharmacy_title') }}</span>
                                     </div>
                                     <p class="text-[11.5px] leading-relaxed opacity-90">
-                                        <strong>Perhatian:</strong> Dilarang mempromosikan obat keras (Daftar G / lingkaran merah), obat resep dokter, atau menjanjikan klaim medis instan tanpa izin edar BPOM. Materi promosi yang melanggar dapat dicekal oleh Meta dan berisiko sanksi regulasi.
+                                        {{ __('social_media.guardrail_pharmacy_desc') }}
+                                    </p>
+                                </div>
+                            @elseif($isClinic)
+                                {{-- Klinik / Praktik Medis & Dokter Gigi: Informed consent & UU PDP --}}
+                                <div class="p-3.5 rounded-[16px] bg-[#FF3B30]/10 border border-[#FF3B30]/25 text-[#FF3B30] space-y-1.5 shadow-xs">
+                                    <div class="flex items-center gap-2 font-bold text-[12.5px]">
+                                        <i data-lucide="shield-alert" class="w-4 h-4 shrink-0"></i>
+                                        <span>{{ __('social_media.guardrail_clinic_title') }}</span>
+                                    </div>
+                                    <p class="text-[11.5px] leading-relaxed opacity-90">
+                                        {{ __('social_media.guardrail_clinic_desc') }}
+                                    </p>
+                                </div>
+                            @elseif($isPetshop)
+                                {{-- Petshop & Klinik Hewan: Animal welfare & prescription drugs --}}
+                                <div class="p-3.5 rounded-[16px] bg-[#FF9500]/10 border border-[#FF9500]/25 text-[#FF9500] space-y-1.5 shadow-xs">
+                                    <div class="flex items-center gap-2 font-bold text-[12.5px]">
+                                        <i data-lucide="shield-alert" class="w-4 h-4 shrink-0"></i>
+                                        <span>{{ __('social_media.guardrail_petshop_title') }}</span>
+                                    </div>
+                                    <p class="text-[11.5px] leading-relaxed opacity-90">
+                                        {{ __('social_media.guardrail_petshop_desc') }}
                                     </p>
                                 </div>
                             @elseif($isWorkshop)
@@ -920,10 +1053,10 @@
                                 <div class="p-3.5 rounded-[16px] bg-[#FF9500]/10 border border-[#FF9500]/25 text-[#FF9500] space-y-1.5 shadow-xs">
                                     <div class="flex items-center gap-2 font-bold text-[12.5px]">
                                         <i data-lucide="shield-alert" class="w-4 h-4 shrink-0"></i>
-                                        <span>Guardrail Privasi Plat Nomor (UU PDP)</span>
+                                        <span>{{ __('social_media.guardrail_workshop_title') }}</span>
                                     </div>
                                     <p class="text-[11.5px] leading-relaxed opacity-90">
-                                        <strong>Privasi Pelanggan:</strong> Pastikan plat nomor polisi kendaraan pelanggan dan wajah di area servis disamarkan / blur sebelum materi visual dipublikasikan demi kepatuhan Undang-Undang Perlindungan Data Pribadi (UU PDP).
+                                        {{ __('social_media.guardrail_workshop_desc') }}
                                     </p>
                                 </div>
                             @elseif($isSalon)
@@ -931,10 +1064,10 @@
                                 <div class="p-3.5 rounded-[16px] bg-[#AF52DE]/10 border border-[#AF52DE]/25 text-[#AF52DE] space-y-1.5 shadow-xs">
                                     <div class="flex items-center gap-2 font-bold text-[12.5px]">
                                         <i data-lucide="camera" class="w-4 h-4 shrink-0"></i>
-                                        <span>Guardrail Izin Foto &amp; Before-After</span>
+                                        <span>{{ __('social_media.guardrail_salon_title') }}</span>
                                     </div>
                                     <p class="text-[11.5px] leading-relaxed opacity-90">
-                                        <strong>Persetujuan Pelanggan:</strong> Wajib mengantongi persetujuan lisan/tertulis dari pelanggan sebelum menayangkan foto wajah close-up, potret rambut, atau transformasi treatment (before-after) ke media sosial.
+                                        {{ __('social_media.guardrail_salon_desc') }}
                                     </p>
                                 </div>
                             @elseif($isFnb)
@@ -942,10 +1075,10 @@
                                 <div class="p-3.5 rounded-[16px] bg-[#34C759]/10 border border-[#34C759]/25 text-[#248A3D] dark:text-[#30D158] space-y-1.5 shadow-xs">
                                     <div class="flex items-center gap-2 font-bold text-[12.5px]">
                                         <i data-lucide="clock-8" class="w-4 h-4 shrink-0"></i>
-                                        <span>Waktu Emas Publikasi Kuliner (F&amp;B)</span>
+                                        <span>{{ __('social_media.guardrail_fnb_title') }}</span>
                                     </div>
                                     <p class="text-[11.5px] leading-relaxed opacity-90">
-                                        <strong>Tips Konversi:</strong> Waktu optimal posting kuliner adalah <strong>10:30 - 11:30 WIB</strong> (jelang jam makan siang) dan <strong>16:30 - 18:00 WIB</strong> (jelang jam makan malam / santai sore) untuk engagement dan order tertinggi.
+                                        {{ __('social_media.guardrail_fnb_desc') }}
                                     </p>
                                 </div>
                             @elseif($isMfgCreative)
@@ -953,10 +1086,10 @@
                                 <div class="p-3.5 rounded-[16px] bg-[#007AFF]/10 border border-[#007AFF]/25 text-[#007AFF] space-y-1.5 shadow-xs">
                                     <div class="flex items-center gap-2 font-bold text-[12.5px]">
                                         <i data-lucide="file-check-2" class="w-4 h-4 shrink-0"></i>
-                                        <span>Guardrail Hak Cipta &amp; Kerahasiaan Klien</span>
+                                        <span>{{ __('social_media.guardrail_mfg_title') }}</span>
                                     </div>
                                     <p class="text-[11.5px] leading-relaxed opacity-90">
-                                        <strong>Hak Cipta Klien:</strong> Pastikan hasil cetak, desain sablon, atau seragam berlogo brand/institusi pelanggan telah mendapat izin untuk dijadikan portofolio publik dan tidak terikat perjanjian kerahasiaan (NDA).
+                                        {{ __('social_media.guardrail_mfg_desc') }}
                                     </p>
                                 </div>
                             @else
@@ -964,27 +1097,27 @@
                                 <div class="p-3.5 rounded-[16px] bg-black/[0.03] dark:bg-white/[0.04] border border-black/10 dark:border-white/10 text-black/75 dark:text-white/75 space-y-1.5 shadow-xs">
                                     <div class="flex items-center gap-2 font-bold text-[12.5px]">
                                         <i data-lucide="shield-check" class="w-4 h-4 text-[#007AFF] shrink-0"></i>
-                                        <span>Etika Publikasi &amp; Anti-Penipuan</span>
+                                        <span>{{ __('social_media.guardrail_general_title') }}</span>
                                     </div>
                                     <p class="text-[11.5px] leading-relaxed opacity-85">
-                                        Gunakan visual orisinal toko Anda. Hindari menyertakan rekening pribadi tidak resmi di caption agar materi lolos verifikasi sistem keamanan COOCA.
+                                        {{ __('social_media.guardrail_general_desc') }}
                                     </p>
                                 </div>
                             @endif
 
-                            {{-- B. QUIET HOURS ALERT CHIP (Fase 4.2) --}}
+                            {{-- B. QUIET HOURS ALERT CHIP --}}
                             <div x-show="isQuietHours" style="display: none;"
                                 class="p-3.5 rounded-[16px] bg-[#FF9500]/10 border border-[#FF9500]/25 text-[#FF9500] space-y-1 shadow-xs transition-all">
                                 <div class="flex items-center gap-2 font-bold text-[12.5px]">
                                     <i data-lucide="moon" class="w-4 h-4 shrink-0"></i>
-                                    <span>Peringatan Jam Senyap (22:00 - 06:00 WIB)</span>
+                                    <span>{{ __('social_media.quiet_hours_title') }}</span>
                                 </div>
                                 <p class="text-[11.5px] leading-relaxed opacity-90">
-                                    Waktu publikasi berada di luar jam aktif audiens. Algoritma feed media sosial cenderung menahan jangkauan postingan yang tayang larut malam. Direkomendasikan menjadwalkan pada jam aktif (08:00 - 21:00 WIB).
+                                    {{ __('social_media.quiet_hours_desc') }}
                                 </p>
                             </div>
 
-                            {{-- C. VIDEO ASPECT RATIO INSPECTOR (Fase 3.3) --}}
+                            {{-- C. VIDEO ASPECT RATIO INSPECTOR --}}
                             <div x-show="(mediaFormat === 'reels' || mediaFormat === 'video') && isLandscapeVideo" style="display: none;"
                                 class="p-3.5 rounded-[16px] bg-[#FF3B30]/10 border border-[#FF3B30]/25 text-[#FF3B30] space-y-1.5 shadow-xs">
                                 <div class="flex items-center gap-2 font-bold text-[12.5px]">
@@ -1007,7 +1140,7 @@
                                 <div class="flex items-center justify-between pb-2 border-b border-black/5 dark:border-white/5">
                                     <div class="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-black/50 dark:text-white/50">
                                         <i data-lucide="smartphone" class="w-3.5 h-3.5 text-[#007AFF]"></i>
-                                        <span>Live Feed Preview</span>
+                                        <span>{{ __('social_media.live_preview_title') }}</span>
                                     </div>
                                     <div class="flex items-center gap-1">
                                         <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#007AFF]/10 text-[#007AFF]" x-text="mediaFormat.toUpperCase()"></span>
@@ -1025,9 +1158,9 @@
                                             <div class="min-w-0">
                                                 <div class="text-[12.5px] font-bold truncate">{{ $business->name }}</div>
                                                 <div class="text-[10.5px] text-black/50 dark:text-white/50 flex items-center gap-1 truncate">
-                                                    <span x-text="scheduleMode === 'all_now' ? 'Baru saja' : 'Dijadwalkan'"></span>
+                                                    <span x-text="scheduleMode === 'all_now' ? '{{ __('social_media.preview_just_now') }}' : '{{ __('social_media.preview_scheduled') }}'"></span>
                                                     <span>•</span>
-                                                    <span x-text="activePlatformNames.length ? activePlatformNames.join(', ') : 'Pilih Saluran'"></span>
+                                                    <span x-text="activePlatformNames.length ? activePlatformNames.join(', ') : '{{ __('social_media.preview_select_channels') }}'"></span>
                                                 </div>
                                             </div>
                                         </div>
@@ -1052,7 +1185,7 @@
                                                         <div class="w-12 h-12 rounded-[14px] bg-black/5 dark:bg-white/10 flex items-center justify-center mx-auto text-black/40 dark:text-white/40">
                                                             <i data-lucide="image" class="w-6 h-6"></i>
                                                         </div>
-                                                        <div class="text-[11.5px] font-medium text-black/50 dark:text-white/50">Foto feed belum diunggah</div>
+                                                        <div class="text-[11.5px] font-medium text-black/50 dark:text-white/50">{{ __('social_media.no_photo_preview') }}</div>
                                                     </div>
                                                 </template>
                                             </div>
@@ -1093,7 +1226,7 @@
                                                         <div class="w-12 h-12 rounded-[14px] bg-[#FF9500]/10 flex items-center justify-center mx-auto text-[#FF9500]">
                                                             <i data-lucide="layers" class="w-6 h-6"></i>
                                                         </div>
-                                                        <div class="text-[11.5px] font-medium text-black/50 dark:text-white/50">Urutan slide carousel (2-10 media)</div>
+                                                        <div class="text-[11.5px] font-medium text-black/50 dark:text-white/50">{{ __('social_media.carousel_empty_title') }}</div>
                                                     </div>
                                                 </template>
                                             </div>
@@ -1122,7 +1255,7 @@
                                         {{-- Text Status Preview --}}
                                         <template x-if="mediaFormat === 'text'">
                                             <div class="w-full h-full flex items-center justify-center text-center p-6 rounded-[14px] bg-gradient-to-tr from-[#007AFF] to-[#5856D6] text-white">
-                                                <p class="text-[14px] font-bold leading-relaxed line-clamp-5" x-text="captionText || 'Tulis pesan promosi Anda di sini...'"></p>
+                                                <p class="text-[14px] font-bold leading-relaxed line-clamp-5" x-text="captionText || '{{ __('social_media.no_caption_preview') }}'"></p>
                                             </div>
                                         </template>
                                     </div>
@@ -1141,7 +1274,7 @@
                                         {{-- Caption Preview --}}
                                         <div class="space-y-1 text-[12px] leading-relaxed">
                                             <div class="font-bold inline mr-1">{{ $business->name }}</div>
-                                            <span class="text-black/80 dark:text-white/80 whitespace-pre-line" x-text="captionText ? (captionText.length > 180 ? captionText.slice(0, 180) + '...' : captionText) : 'Belum ada caption ditulis...'"></span>
+                                            <span class="text-black/80 dark:text-white/80 whitespace-pre-line" x-text="captionText ? (captionText.length > 180 ? captionText.slice(0, 180) + '...' : captionText) : '{{ __('social_media.no_caption_preview') }}'"></span>
                                         </div>
 
                                         {{-- Detected Hashtags Chips --}}
@@ -1161,17 +1294,17 @@
                     <div class="pt-4 flex items-center justify-end gap-2.5 border-t border-black/5 dark:border-white/10">
                         <button type="button" @click="openComposerModal = false"
                             class="h-9 px-4 rounded-[10px] text-[13px] font-semibold text-black/70 dark:text-white/70 hover:bg-black/[0.05] dark:hover:bg-white/[0.08] transition-colors">
-                            Batal
+                            {{ __('social_media.cancel') }}
                         </button>
-                        <button type="submit" :disabled="!captionText.trim() || hashtagCount > 5 || selectedAccounts.length === 0 || isSubmitting"
-                            class="h-9 px-5 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] disabled:opacity-50 disabled:pointer-events-none transition-all flex items-center gap-1.5 shadow-sm">
+                        <button type="submit" :disabled="isSubmitDisabled"
+                            class="h-9 px-5 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] disabled:opacity-50 disabled:pointer-events-none transition-all flex items-center gap-1.5 shadow-sm cursor-pointer">
                             <template x-if="!isSubmitting">
                                 <i data-lucide="send" class="w-4 h-4"></i>
                             </template>
                             <template x-if="isSubmitting">
                                 <i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i>
                             </template>
-                            <span x-text="isSubmitting ? 'Mengunggah & Memproses...' : (scheduleMode !== 'all_now' ? 'Simpan Jadwal' : 'Publikasikan Sekarang')"></span>
+                            <span x-text="isSubmitting ? '{{ __('social_media.uploading_btn') }}' : (scheduleMode !== 'all_now' ? '{{ __('social_media.save_schedule_btn') }}' : '{{ __('social_media.publish_now_btn') }}')"></span>
                         </button>
                     </div>
                 </form>
@@ -1194,6 +1327,21 @@
                         '{{ $acc->id }}',
                     @endforeach
                 ],
+                accountsMap: {
+                    @foreach($accounts as $acc)
+                        '{{ $acc->id }}': {
+                            id: '{{ $acc->id }}',
+                            platform: '{{ $acc->platform }}',
+                            name: '{{ addslashes($acc->account_name) }}',
+                            limit: {{ \App\Domain\SocialMedia\Validation\SocialMediaContentValidator::CAPTION_LIMITS[$acc->platform] ?? 2200 }},
+                        },
+                    @endforeach
+                },
+                customCaptions: {
+                    @foreach($accounts as $acc)
+                        '{{ $acc->id }}': '',
+                    @endforeach
+                },
                 mediaFormat: 'photo',
                 mediaSourceTab: 'upload',
                 captionText: '',
@@ -1232,6 +1380,101 @@
 
                 get hashtagCount() {
                     return this.uniqueHashtags.length;
+                },
+
+                get hasThreadsSelected() {
+                    return this.selectedAccounts.some(id => this.accountsMap[id]?.platform === 'threads');
+                },
+
+                get threadsAccountId() {
+                    const accId = this.selectedAccounts.find(id => this.accountsMap[id]?.platform === 'threads');
+                    return accId || null;
+                },
+
+                getEffectiveCaption(accId) {
+                    const custom = this.customCaptions[accId];
+                    if (custom && custom.trim().length > 0) {
+                        return custom.trim();
+                    }
+                    return this.captionText.trim();
+                },
+
+                getCaptionLength(accId) {
+                    const custom = this.customCaptions[accId];
+                    if (custom && custom.trim().length > 0) {
+                        return custom.length;
+                    }
+                    return this.captionText.length;
+                },
+
+                getChannelHashtags(accId) {
+                    const text = this.getEffectiveCaption(accId);
+                    if (!text) return [];
+                    const matches = text.match(/#[a-zA-Z0-9_\u0080-\uFFFF]+/gu) || [];
+                    const unique = new Set(matches.map(t => t.toLowerCase()));
+                    return Array.from(unique);
+                },
+
+                get isThreadsOverLimit() {
+                    if (!this.hasThreadsSelected) return false;
+                    const threadsId = this.threadsAccountId;
+                    if (!threadsId) return false;
+                    return this.getCaptionLength(threadsId) > 500;
+                },
+
+                get isThreadsSeparateActive() {
+                    if (!this.hasThreadsSelected) return false;
+                    const threadsId = this.threadsAccountId;
+                    if (!threadsId) return false;
+                    const custom = this.customCaptions[threadsId];
+                    return custom && custom.trim().length > 0 && custom.length <= 500;
+                },
+
+                copyFromMain(accId) {
+                    this.customCaptions[accId] = this.captionText;
+                },
+
+                resetCustomCaption(accId) {
+                    this.customCaptions[accId] = '';
+                },
+
+                createSeparateThreadsCaption() {
+                    const threadsId = this.threadsAccountId;
+                    if (!threadsId) return;
+
+                    this.showOverrides = true;
+                    if (!this.customCaptions[threadsId] || this.customCaptions[threadsId].trim() === '') {
+                        this.customCaptions[threadsId] = this.captionText.slice(0, 500);
+                    }
+
+                    this.$nextTick(() => {
+                        const el = document.getElementById('custom_caption_' + threadsId);
+                        if (el) {
+                            el.focus();
+                            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                    });
+                },
+
+                get hasAnyChannelOverLimit() {
+                    for (const accId of this.selectedAccounts) {
+                        const acc = this.accountsMap[accId];
+                        if (!acc) continue;
+                        const len = this.getCaptionLength(accId);
+                        const limit = acc.limit || 2200;
+                        if (len > limit) return true;
+                        if (this.getChannelHashtags(accId).length > 5) return true;
+                    }
+                    return false;
+                },
+
+                get isSubmitDisabled() {
+                    if (!this.captionText.trim()) return true;
+                    if (this.selectedAccounts.length === 0) return true;
+                    if (this.hashtagCount > 5) return true;
+                    if (this.hasAnyChannelOverLimit) return true;
+                    if (this.isSubmitting) return true;
+                    return false;
                 },
 
                 get isQuietHours() {

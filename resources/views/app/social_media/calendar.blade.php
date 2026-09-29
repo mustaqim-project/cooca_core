@@ -1,7 +1,7 @@
 @extends('layouts.app', [
-    'title' => 'Kalender Konten Media Sosial - ' . $business->name,
-    'headerTitle' => 'Kalender Konten',
-    'headerSubtitle' => 'Visualisasikan jadwal publikasi konten multi-saluran toko Anda',
+    'title' => __('social_media.calendar_header_title') . ' - ' . $business->name,
+    'headerTitle' => __('social_media.calendar_header_title'),
+    'headerSubtitle' => __('social_media.calendar_header_subtitle'),
 ])
 
 @section('content')
@@ -30,13 +30,13 @@
         {{-- MODULE HEADER & PERSISTENT COMMUNICATION TABS --}}
         <x-module-header
             module="communication"
-            title="Kalender Jadwal Konten"
-            subtitle="Pantau alur kampanye postingan Anda di Facebook, Instagram, Threads, TikTok, dan LinkedIn dalam satu kalender terpadu.">
+            title="{{ __('social_media.calendar_title') }}"
+            subtitle="{{ __('social_media.calendar_subtitle') }}">
             <x-slot:actions>
                 <a href="{{ route('social-media.posts.index') }}"
                     class="min-h-[44px] sm:min-h-0 sm:h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] transition-all flex items-center justify-center gap-1.5 w-full sm:w-auto shadow-sm">
                     <i data-lucide="plus-circle" class="w-4 h-4"></i>
-                    <span>Tulis Postingan Baru</span>
+                    <span>{{ __('social_media.create_post_btn') }}</span>
                 </a>
             </x-slot:actions>
         </x-module-header>
@@ -49,27 +49,27 @@
                 <a href="{{ route('social-media.index') }}"
                     class="h-8 px-4 rounded-[9px] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white flex items-center gap-2 whitespace-nowrap transition-colors">
                     <i data-lucide="link" class="w-4 h-4"></i>
-                    <span>Koneksi Akun</span>
+                    <span>{{ __('social_media.tab_connect') }}</span>
                 </a>
                 <a href="{{ route('social-media.posts.index') }}"
                     class="h-8 px-4 rounded-[9px] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white flex items-center gap-2 whitespace-nowrap transition-colors">
                     <i data-lucide="image" class="w-4 h-4"></i>
-                    <span>Posting Konten</span>
+                    <span>{{ __('social_media.tab_posts') }}</span>
                 </a>
                 <a href="{{ route('social-media.calendar') }}"
                     class="h-8 px-4 rounded-[9px] bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-sm flex items-center gap-2 whitespace-nowrap">
                     <i data-lucide="calendar" class="w-4 h-4 text-[#007AFF]"></i>
-                    <span>Kalender Konten</span>
+                    <span>{{ __('social_media.tab_calendar') }}</span>
                 </a>
                 <a href="{{ route('social-media.inbox.index') }}"
                     class="h-8 px-4 rounded-[9px] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white flex items-center gap-2 whitespace-nowrap transition-colors">
                     <i data-lucide="message-square" class="w-4 h-4"></i>
-                    <span>Kotak Masuk &amp; Komentar</span>
+                    <span>{{ __('social_media.tab_inbox') }}</span>
                 </a>
                 <a href="{{ route('social-media.insights.index') }}"
                     class="h-8 px-4 rounded-[9px] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white flex items-center gap-2 whitespace-nowrap transition-colors">
                     <i data-lucide="bar-chart-3" class="w-4 h-4"></i>
-                    <span>Insight &amp; Analitik</span>
+                    <span>{{ __('social_media.tab_insights') }}</span>
                 </a>
             </div>
         </div>
@@ -85,7 +85,7 @@
                         {{ $monthName }}
                     </h2>
                     <p class="text-[12px] text-black/50 dark:text-white/50">
-                        Jadwal tayang kampanye konten toko
+                        {{ __('social_media.calendar_sub_info') }}
                     </p>
                 </div>
             </div>
@@ -94,17 +94,17 @@
                 <a href="{{ route('social-media.calendar', ['month' => $prevMonth->month, 'year' => $prevMonth->year]) }}"
                     class="h-8 px-3 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] dark:hover:bg-white/[0.1] text-black dark:text-white text-[12px] font-medium flex items-center gap-1.5 transition-colors">
                     <i data-lucide="chevron-left" class="w-4 h-4"></i>
-                    <span>Bulan Lalu</span>
+                    <span>{{ __('social_media.prev_month') }}</span>
                 </a>
 
                 <a href="{{ route('social-media.calendar', ['month' => now()->month, 'year' => now()->year]) }}"
                     class="h-8 px-3 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] dark:hover:bg-white/[0.1] text-black dark:text-white text-[12px] font-medium flex items-center gap-1.5 transition-colors">
-                    <span>Hari Ini</span>
+                    <span>{{ __('social_media.this_month') }}</span>
                 </a>
 
                 <a href="{{ route('social-media.calendar', ['month' => $nextMonth->month, 'year' => $nextMonth->year]) }}"
                     class="h-8 px-3 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] dark:hover:bg-white/[0.1] text-black dark:text-white text-[12px] font-medium flex items-center gap-1.5 transition-colors">
-                    <span>Bulan Depan</span>
+                    <span>{{ __('social_media.next_month') }}</span>
                     <i data-lucide="chevron-right" class="w-4 h-4"></i>
                 </a>
             </div>
@@ -114,17 +114,17 @@
         <div class="rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 overflow-hidden shadow-sm">
             {{-- Day Header (Mon - Sun) --}}
             <div class="grid grid-cols-7 border-b border-black/5 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.02] text-center text-[12px] font-semibold text-black/60 dark:text-white/60">
-                <div class="py-2.5">Senin</div>
-                <div class="py-2.5">Selasa</div>
-                <div class="py-2.5">Rabu</div>
-                <div class="py-2.5">Kamis</div>
-                <div class="py-2.5">Jumat</div>
-                <div class="py-2.5 text-[#007AFF]">Sabtu</div>
-                <div class="py-2.5 text-[#FF3B30]">Minggu</div>
+                <div class="py-2.5">{{ __('social_media.day_mon') }}</div>
+                <div class="py-2.5">{{ __('social_media.day_tue') }}</div>
+                <div class="py-2.5">{{ __('social_media.day_wed') }}</div>
+                <div class="py-2.5">{{ __('social_media.day_thu') }}</div>
+                <div class="py-2.5">{{ __('social_media.day_fri') }}</div>
+                <div class="py-2.5 text-[#007AFF]">{{ __('social_media.day_sat') }}</div>
+                <div class="py-2.5 text-[#FF3B30]">{{ __('social_media.day_sun') }}</div>
             </div>
 
             {{-- Grid Cells --}}
-            <div class="grid grid-cols-7 auto-rows-fr divide-x divide-y divide-black/5 dark:divide-white/10">
+            <div class="grid grid-cols-7 auto-rows-fr divide-x divide-y divide-black/5 dark:border-white/10">
                 {{-- Leading empty cells --}}
                 @for ($i = 0; $i < $startDayOfWeek; $i++)
                     <div class="min-h-[110px] sm:min-h-[130px] p-2 bg-black/[0.01] dark:bg-white/[0.01] text-black/20 dark:text-white/20">
@@ -145,7 +145,7 @@
                             </span>
                             @if (count($dayPosts) > 0)
                                 <span class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-black/[0.05] dark:bg-white/[0.08] text-black/60 dark:text-white/60">
-                                    {{ count($dayPosts) }} post
+                                    {{ __('social_media.post_unit_badge', ['count' => count($dayPosts)]) }}
                                 </span>
                             @endif
                         </div>

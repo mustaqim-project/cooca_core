@@ -47,6 +47,88 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 
 - Keputusan desain arsitektur yang diambil.
 
+### [WORK-2026-09-29-228] Audit & Implementasi Komprehensif Media Sosial: Batas Karakter Resmi API, Peringatan Threads > 500 Karakter, Kustomisasi Caption Terpisah per Saluran, Maksimal 5 Hashtag COOCA, dan Guardrail 20 Sektor Industri
+
+- **Date:** 2026-09-29
+- **Status:** COMPLETED
+- **Module:** Communication & Social Media Omnichannel (`resources/views/app/social_media`, `app/Domain/SocialMedia`, `app/Http/Controllers/Web/SocialMedia`)
+- **Feature:** Standarisasi Batas Karakter Resmi Platform API (Threads 500 chars, Instagram & TikTok 2200 chars, LinkedIn 3000 chars, Facebook 63206 chars), Banner Peringatan Interaktif Threads > 500 Chars dengan Tombol 1-Klik Pembuatan Caption Terpisah, Fleksibilitas Mapping 1 Caption untuk Semua vs Input Caption Terpisah per Saluran, Penegakan Aturan Maksimal 5 Hashtag Unik COOCA dengan Case-Insensitive Deduplication, Standarisasi Kamus Multi-Bahasa i18n (`lang/id/social_media.php`, `lang/en/social_media.php`), Auto-Polling Cerdas Inbox/Comments & Insights, dan Guardrail 20 Sektor Industri Bisnis UMKM Indonesia.
+- **Work Type:** Architecture | Security Hardening | UI/UX Bento Apple HIG | Multi-Language i18n | Automated Testing
+
+#### 1. Business Context & Objective
+
+- **Konteks:** Setiap platform media sosial memiliki batas panjang karakter API yang berbeda-beda secara resmi (Meta Threads 500 karakter, Instagram/TikTok 2.200 karakter, LinkedIn 3.000 karakter, Facebook 63.206 karakter). Membatasi caption utama hanya 500 karakter secara global merugikan channel lain seperti Instagram atau LinkedIn yang membutuhkan deskripsi panjang dan storytelling. Namun, mengirimkan caption > 500 karakter langsung ke Threads akan ditolak secara mutlak oleh API Meta. Selain itu, praktik spam hashtag berlebihan menurunkan kredibilitas UMKM dan memicu shadowban algoritma feed.
+- **Masalah/Target:**
+  1. Menegakkan batas karakter resmi masing-masing saluran secara proporsional.
+  2. Memberikan peringatan interaktif jika Threads dipilih dan caption utama > 500 karakter, lengkap dengan panduan dan tombol 1-klik untuk membuat caption terpisah khusus Threads ($\le 500$ karakter).
+  3. Menyediakan fleksibilitas ganda: pengguna dapat memetakan 1 caption untuk seluruh saluran (default) ATAU mengkustomisasi caption terpisah per saluran.
+  4. Menegakkan aturan bisnis COOCA: maksimal 5 hashtag unik per postingan dengan normalisasi case-insensitive.
+  5. Menghilangkan seluruh hardcoded string pada 5 file view Blade (`posts`, `index`, `calendar`, `inbox`, `insights`) dan menggantikannya dengan kamus modular `social_media` (Bahasa Indonesia & English).
+  6. Menerapkan guardrail etika & regulasi sadar konteks untuk 20 sektor industri UMKM (Apotek: BPOM, Klinik: UU PDP, Petshop: Satwa dilindungi & UU Peternakan, Bengkel: sensor nopol UU PDP, Salon: izin before-after, F&B: Golden Hours, Manufaktur: NDA & Copyright).
+
+#### 2. What Was Done
+
+1. **Fase 1: Standarisasi Multi-Language Dictionaries (`lang/id/social_media.php` & `lang/en/social_media.php`):**
+   - Menyusun 270 baris kamus i18n terstruktur (80+ translation keys) mencakup navigasi, on-boarding Meta/TikTok/LinkedIn, modal posting, guardrail 20 industri, inspektur video, jam senyap, filter, inbox auto-refresh, dan analitik.
+2. **Fase 2: Backend Content Validator & Controller Hardening:**
+   - Memperbarui `SocialMediaContentValidator`:
+     - Menambahkan method `getCaptionLimit(string $channel): int` dan konstanta `CAPTION_LIMITS` (Threads: 500, Instagram: 2200, TikTok: 2200, LinkedIn: 3000, Facebook: 63206, Twitter/X: 280).
+     - Menambahkan method `extractHashtags()`, `countUniqueHashtags()`, dan `validateHashtags()` dengan batasan maksimal 5 hashtag unik (`MAX_COOCA_HASHTAGS = 5`) dan deduplikasi case-insensitive.
+   - Memperbarui `SocialMediaWebController@storePost`:
+     - Memvalidasi per-channel caption length & hashtag limit untuk setiap target saluran.
+     - Menyediakan penanganan khusus: jika Threads dipilih dan caption utama > 500 karakter tanpa custom caption terpisah, backend memberikan pesan error terarah yang memandu pengguna membuka form kustomisasi saluran.
+3. **Fase 3: Composer Blade Refactor (`resources/views/app/social_media/posts.blade.php`):**
+   - **Banner Peringatan Threads > 500 Karakter:** Banner oranye interaktif yang muncul otomatis saat Threads dipilih dan caption utama > 500 karakter, dilengkapi tombol 1-klik `[ + Buat Caption Khusus Threads (Maks 500 Karakter) ]` (`createSeparateThreadsCaption()`).
+   - **Status Badge Hijau Threads:** Badge hijau aktif saat caption terpisah Threads telah diisi dan memenuhi syarat $\le 500$ karakter.
+   - **Kustomisasi Per-Saluran Accordion:** Tampilan accordion rapi dengan live character counter `X / Limit` dan live hashtag counter `# X / 5`, serta tombol `[ Salin dari Utama ]` dan `[ Reset ]`.
+   - **Guardrail 20 Sektor Industri:** Banner dinamis adaptif berbasis `$business->industry_category` & `$business->template_code`.
+4. **Fase 4: Refactor Seluruh Views ke i18n & Smart Polling:**
+   - `index.blade.php`: Seluruh teks, modal disconnect, dan status kartu akun terikat ke `{{ __('social_media....') }}`.
+   - `calendar.blade.php`: Header, navigasi bulan, nama hari, dan sub-info kalender terikat ke `{{ __('social_media....') }}`.
+   - `inbox.blade.php`: Seluruh filter, daftar komentar, modal balas Apple HIG, dan smart auto-polling background 60 detik terikat ke `{{ __('social_media....') }}`.
+   - `insights.blade.php`: 6 kartu Bento KPI, tabel 15 postingan terakhir, dan sinkronisasi live terikat ke `{{ __('social_media....') }}`.
+5. **Fase 5: Automated Feature Testing:**
+   - Memperluas `tests/Feature/SocialMedia/SocialMediaContentValidatorTest.php` untuk menguji `getCaptionLimit`, batas Threads 500, batas Instagram/TikTok 2200, batas LinkedIn 3000, batas Facebook 63206, batas 5 hashtag unik, dan deduplikasi case-insensitive. Seluruh 10 tests lolos 100% (56 assertions).
+6. **Dokumentasi:**
+   - Memperbarui `docs/system/modules/social-media.md`.
+   - Menyusun PRD resmi `docs/prd/PRD-19-COMPREHENSIVE-SOCIAL-MEDIA-CAPTION-HASHTAG-LIMITS-AND-MULTI-INDUSTRY.md`.
+   - Menyusun Implementation Plan `docs/IMPLEMENTATION_PLAN_SOCIAL_MEDIA_CAPTION_HASHTAG_AND_MULTI_INDUSTRY_REMEDIATION.md`.
+
+#### 3. Technical Changes
+
+- **Files Affected:**
+  - `lang/id/social_media.php` (Kamus terjemahan Bahasa Indonesia)
+  - `lang/en/social_media.php` (Kamus terjemahan English)
+  - `app/Domain/SocialMedia/Validation/SocialMediaContentValidator.php` (Logika validasi karakter & hashtag)
+  - `app/Http/Controllers/Web/SocialMedia/SocialMediaWebController.php` (Validasi store per-channel & threads helper)
+  - `resources/views/app/social_media/posts.blade.php` (Bento composer, banner Threads, per-channel accordion)
+  - `resources/views/app/social_media/index.blade.php` (i18n on-boarding)
+  - `resources/views/app/social_media/calendar.blade.php` (i18n kalender)
+  - `resources/views/app/social_media/inbox.blade.php` (i18n kotak masuk & auto-polling)
+  - `resources/views/app/social_media/insights.blade.php` (i18n analitik & metrik)
+  - `tests/Feature/SocialMedia/SocialMediaContentValidatorTest.php` (Unit/Feature test suite)
+  - `docs/system/modules/social-media.md` (Spesifikasi modul sistem Layer 2)
+  - `docs/prd/PRD-19-COMPREHENSIVE-SOCIAL-MEDIA-CAPTION-HASHTAG-LIMITS-AND-MULTI-INDUSTRY.md` (PRD resmi)
+  - `docs/IMPLEMENTATION_PLAN_SOCIAL_MEDIA_CAPTION_HASHTAG_AND_MULTI_INDUSTRI_REMEDIATION.md` (Rencana implementasi)
+  - `docs/AiWorkHistory.md` (Pencatatan riwayat pekerjaan)
+- **Database Changes:** Tidak ada perubahan struktur database baru.
+- **API / Route Changes:** Tidak ada perubahan signature rute; penguatan payload `channel_custom_captions` pada endpoint `POST /social-media/posts`.
+
+#### 4. System Impacts
+
+- **Workflow Impact:** Pengguna dapat menulis caption panjang dan kaya untuk Instagram/LinkedIn tanpa terhalang limit Threads, namun tetap mendapatkan panduan instan dan tombol 1-klik untuk merapikan versi singkat Threads.
+- **Business Rule Impact:** Batas 5 hashtag unik melindungi akun merchant dari shadowban algoritma; batas karakter masing-masing platform ditegakkan sesuai standar API resmi.
+- **Multi-Language Impact:** Antarmuka media sosial kini siap untuk deployment global/multi-bahasa secara native.
+
+#### 5. Verification & Testing
+
+- `php -l app/Domain/SocialMedia/Validation/SocialMediaContentValidator.php`: 100% Pass (No syntax errors).
+- `php -l app/Http/Controllers/Web/SocialMedia/SocialMediaWebController.php`: 100% Pass (No syntax errors).
+- `php -l resources/views/app/social_media/*.blade.php`: 5 views diperiksa, 100% Pass (No syntax errors).
+- `php artisan test tests/Feature/SocialMedia/SocialMediaContentValidatorTest.php`: **10 tests, 56 assertions, PASSED 100% (0 errors, 0 failures)**.
+
+---
+
 ### [WORK-2026-09-29-227] Refaktor & Perbaikan Error Alpine.js dan Kebocoran Kode JS pada Marketplace Hub Products & Master Data
 
 - **Date:** 2026-09-29

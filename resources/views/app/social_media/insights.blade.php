@@ -1,7 +1,7 @@
 @extends('layouts.app', [
-    'title' => 'Analitik & Performa Media Sosial - ' . $business->name,
-    'headerTitle' => 'Analitik & Wawasan Media Sosial',
-    'headerSubtitle' => 'Pantau pertumbuhan jangkauan dan interaksi pelanggan pada konten toko Anda',
+    'title' => __('social_media.insights_header_title') . ' - ' . $business->name,
+    'headerTitle' => __('social_media.insights_header_title'),
+    'headerSubtitle' => __('social_media.insights_header_subtitle'),
 ])
 
 @section('content')
@@ -10,13 +10,13 @@
         {{-- MODULE HEADER & PERSISTENT COMMUNICATION TABS --}}
         <x-module-header
             module="communication"
-            title="Performa Postingan &amp; Keterlibatan Audiens"
-            subtitle="Statistik performa jangkauan dan keterlibatan audiens untuk menganalisis konten yang paling diminati oleh pelanggan toko Anda.">
+            :title="__('social_media.insights_title')"
+            :subtitle="__('social_media.insights_subtitle')">
             <x-slot:actions>
                 <button @click="refreshAllInsights()" :disabled="isRefreshingAll"
                     class="min-h-[44px] sm:min-h-0 sm:h-9 px-4 rounded-[10px] text-[13px] font-semibold text-black/70 dark:text-white/70 bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] active:scale-[0.97] transition-all flex items-center justify-center gap-1.5 shadow-sm disabled:opacity-50 cursor-pointer">
                     <i data-lucide="refresh-cw" class="w-4 h-4" :class="{'animate-spin': isRefreshingAll}"></i>
-                    <span x-text="isRefreshingAll ? 'Memperbarui...' : 'Segarkan Data'">Segarkan Data</span>
+                    <span x-text="isRefreshingAll ? '{{ __('social_media.refreshing_data_btn') }}' : '{{ __('social_media.refresh_data_btn') }}'">{{ __('social_media.refresh_data_btn') }}</span>
                 </button>
             </x-slot:actions>
         </x-module-header>
@@ -29,22 +29,27 @@
                 <a href="{{ route('social-media.index') }}"
                     class="h-8 px-4 rounded-[9px] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white flex items-center gap-2 whitespace-nowrap transition-colors">
                     <i data-lucide="link" class="w-4 h-4"></i>
-                    <span>Koneksi Akun</span>
+                    <span>{{ __('social_media.tab_connect') }}</span>
                 </a>
                 <a href="{{ route('social-media.posts.index') }}"
                     class="h-8 px-4 rounded-[9px] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white flex items-center gap-2 whitespace-nowrap transition-colors">
                     <i data-lucide="image" class="w-4 h-4"></i>
-                    <span>Posting Konten</span>
+                    <span>{{ __('social_media.tab_posts') }}</span>
+                </a>
+                <a href="{{ route('social-media.calendar.index') }}"
+                    class="h-8 px-4 rounded-[9px] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white flex items-center gap-2 whitespace-nowrap transition-colors">
+                    <i data-lucide="calendar" class="w-4 h-4"></i>
+                    <span>{{ __('social_media.tab_calendar') }}</span>
                 </a>
                 <a href="{{ route('social-media.inbox.index') }}"
                     class="h-8 px-4 rounded-[9px] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white flex items-center gap-2 whitespace-nowrap transition-colors">
                     <i data-lucide="message-square" class="w-4 h-4"></i>
-                    <span>Kotak Masuk &amp; Komentar</span>
+                    <span>{{ __('social_media.tab_inbox') }}</span>
                 </a>
                 <a href="{{ route('social-media.insights.index') }}"
                     class="h-8 px-4 rounded-[9px] bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-sm flex items-center gap-2 whitespace-nowrap">
                     <i data-lucide="bar-chart-2" class="w-4 h-4 text-[#007AFF]"></i>
-                    <span>Analitik &amp; Performa</span>
+                    <span>{{ __('social_media.tab_insights') }}</span>
                 </a>
             </div>
         </div>
@@ -54,73 +59,73 @@
             {{-- Impressions --}}
             <div class="rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 p-5 shadow-sm space-y-1">
                 <div class="flex items-center justify-between text-black/50 dark:text-white/50">
-                    <span class="text-[12px] font-semibold">Tayangan</span>
+                    <span class="text-[12px] font-semibold">{{ __('social_media.kpi_impressions') }}</span>
                     <i data-lucide="eye" class="w-4 h-4 text-[#007AFF]"></i>
                 </div>
                 <div class="text-[24px] font-bold text-black dark:text-white tabular-nums tracking-tight">
                     {{ number_format($analytics['total_impressions']) }}
                 </div>
-                <div class="text-[11px] text-black/45 dark:text-white/45">Total tayangan feed</div>
+                <div class="text-[11px] text-black/45 dark:text-white/45">{{ __('social_media.kpi_impressions_sub') }}</div>
             </div>
 
             {{-- Reach --}}
             <div class="rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 p-5 shadow-sm space-y-1">
                 <div class="flex items-center justify-between text-black/50 dark:text-white/50">
-                    <span class="text-[12px] font-semibold">Jangkauan</span>
+                    <span class="text-[12px] font-semibold">{{ __('social_media.kpi_reach') }}</span>
                     <i data-lucide="users" class="w-4 h-4 text-[#34C759]"></i>
                 </div>
                 <div class="text-[24px] font-bold text-black dark:text-white tabular-nums tracking-tight">
                     {{ number_format($analytics['total_reach']) }}
                 </div>
-                <div class="text-[11px] text-black/45 dark:text-white/45">Akun unik terjangkau</div>
+                <div class="text-[11px] text-black/45 dark:text-white/45">{{ __('social_media.kpi_reach_sub') }}</div>
             </div>
 
             {{-- Engagement --}}
             <div class="rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 p-5 shadow-sm space-y-1">
                 <div class="flex items-center justify-between text-black/50 dark:text-white/50">
-                    <span class="text-[12px] font-semibold">Interaksi</span>
+                    <span class="text-[12px] font-semibold">{{ __('social_media.kpi_engagement') }}</span>
                     <i data-lucide="zap" class="w-4 h-4 text-[#FF9500]"></i>
                 </div>
                 <div class="text-[24px] font-bold text-black dark:text-white tabular-nums tracking-tight">
                     {{ number_format($analytics['total_engagement']) }}
                 </div>
-                <div class="text-[11px] text-black/45 dark:text-white/45">Total respon &amp; aksi</div>
+                <div class="text-[11px] text-black/45 dark:text-white/45">{{ __('social_media.kpi_engagement_sub') }}</div>
             </div>
 
             {{-- Likes --}}
             <div class="rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 p-5 shadow-sm space-y-1">
                 <div class="flex items-center justify-between text-black/50 dark:text-white/50">
-                    <span class="text-[12px] font-semibold">Suka / Reaksi</span>
+                    <span class="text-[12px] font-semibold">{{ __('social_media.kpi_likes') }}</span>
                     <i data-lucide="heart" class="w-4 h-4 text-[#FF2D55]"></i>
                 </div>
                 <div class="text-[24px] font-bold text-black dark:text-white tabular-nums tracking-tight">
                     {{ number_format($analytics['total_likes']) }}
                 </div>
-                <div class="text-[11px] text-black/45 dark:text-white/45">Apresiasi pelanggan</div>
+                <div class="text-[11px] text-black/45 dark:text-white/45">{{ __('social_media.kpi_likes_sub') }}</div>
             </div>
 
             {{-- Comments --}}
             <div class="rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 p-5 shadow-sm space-y-1">
                 <div class="flex items-center justify-between text-black/50 dark:text-white/50">
-                    <span class="text-[12px] font-semibold">Komentar</span>
+                    <span class="text-[12px] font-semibold">{{ __('social_media.kpi_comments') }}</span>
                     <i data-lucide="message-circle" class="w-4 h-4 text-[#5856D6]"></i>
                 </div>
                 <div class="text-[24px] font-bold text-black dark:text-white tabular-nums tracking-tight">
                     {{ number_format($analytics['total_comments']) }}
                 </div>
-                <div class="text-[11px] text-black/45 dark:text-white/45">Diskusi &amp; pertanyaan</div>
+                <div class="text-[11px] text-black/45 dark:text-white/45">{{ __('social_media.kpi_comments_sub') }}</div>
             </div>
 
             {{-- Shares --}}
             <div class="rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 p-5 shadow-sm space-y-1">
                 <div class="flex items-center justify-between text-black/50 dark:text-white/50">
-                    <span class="text-[12px] font-semibold">Dibagikan</span>
+                    <span class="text-[12px] font-semibold">{{ __('social_media.kpi_shares') }}</span>
                     <i data-lucide="share-2" class="w-4 h-4 text-[#AF52DE]"></i>
                 </div>
                 <div class="text-[24px] font-bold text-black dark:text-white tabular-nums tracking-tight">
                     {{ number_format($analytics['total_shares']) }}
                 </div>
-                <div class="text-[11px] text-black/45 dark:text-white/45">Viralitas konten</div>
+                <div class="text-[11px] text-black/45 dark:text-white/45">{{ __('social_media.kpi_shares_sub') }}</div>
             </div>
         </div>
 
@@ -128,8 +133,8 @@
         <div class="rounded-[22px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 shadow-sm p-5 sm:p-7 space-y-5">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-black/5 dark:border-white/10">
                 <div>
-                    <h2 class="text-[17px] font-bold text-black dark:text-white tracking-tight">Performa 15 Postingan Terakhir</h2>
-                    <p class="text-[12.5px] text-black/55 dark:text-white/55 mt-0.5">Metrik langsung ditarik dari Graph API resmi Meta</p>
+                    <h2 class="text-[17px] font-bold text-black dark:text-white tracking-tight">{{ __('social_media.recent_insights_title') }}</h2>
+                    <p class="text-[12.5px] text-black/55 dark:text-white/55 mt-0.5">{{ __('social_media.recent_insights_subtitle') }}</p>
                 </div>
             </div>
 
@@ -138,9 +143,9 @@
                     <div class="w-12 h-12 rounded-[16px] bg-black/[0.04] dark:bg-white/[0.06] text-black/40 dark:text-white/40 flex items-center justify-center mx-auto">
                         <i data-lucide="bar-chart" class="w-6 h-6"></i>
                     </div>
-                    <div class="text-[14px] font-bold text-black dark:text-white">Belum Ada Data Analitik</div>
+                    <div class="text-[14px] font-bold text-black dark:text-white">{{ __('social_media.no_insights_title') }}</div>
                     <p class="text-[12.5px] text-black/60 dark:text-white/60 max-w-sm mx-auto">
-                        Publikasikan postingan pertama Anda untuk mulai mengumpulkan wawasan performa.
+                        {{ __('social_media.no_insights_desc') }}
                     </p>
                 </div>
             @else
@@ -148,14 +153,14 @@
                     <table class="w-full text-left border-collapse">
                         <thead>
                             <tr class="border-b border-black/5 dark:border-white/10 text-[11.5px] font-semibold text-black/50 dark:text-white/50 uppercase tracking-wider">
-                                <th class="pb-3 pl-2">Postingan</th>
-                                <th class="pb-3 px-3">Saluran</th>
-                                <th class="pb-3 px-3 text-right">Tayangan</th>
-                                <th class="pb-3 px-3 text-right">Jangkauan</th>
-                                <th class="pb-3 px-3 text-right">Suka</th>
-                                <th class="pb-3 px-3 text-right">Komentar</th>
-                                <th class="pb-3 px-3 text-right">Bagikan</th>
-                                <th class="pb-3 pr-2 text-right">Aksi</th>
+                                <th class="pb-3 pl-2">{{ __('social_media.th_post') }}</th>
+                                <th class="pb-3 px-3">{{ __('social_media.th_channel') }}</th>
+                                <th class="pb-3 px-3 text-right">{{ __('social_media.th_impressions') }}</th>
+                                <th class="pb-3 px-3 text-right">{{ __('social_media.th_reach') }}</th>
+                                <th class="pb-3 px-3 text-right">{{ __('social_media.th_likes') }}</th>
+                                <th class="pb-3 px-3 text-right">{{ __('social_media.th_comments') }}</th>
+                                <th class="pb-3 px-3 text-right">{{ __('social_media.th_shares') }}</th>
+                                <th class="pb-3 pr-2 text-right">{{ __('social_media.th_actions') }}</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-black/5 dark:divide-white/5 text-[13px]">
@@ -194,7 +199,7 @@
                                         <button @click="syncPostInsights('{{ $post->id }}')"
                                             class="h-7 px-2.5 rounded-[8px] text-[11.5px] font-semibold text-[#007AFF] bg-[#007AFF]/10 hover:bg-[#007AFF]/20 active:scale-[0.97] transition-all inline-flex items-center gap-1">
                                             <i data-lucide="refresh-cw" class="w-3 h-3" id="icon-sync-{{ $post->id }}"></i>
-                                            <span>Tarik Live</span>
+                                            <span>{{ __('social_media.fetch_live_btn') }}</span>
                                         </button>
                                     </td>
                                 </tr>
@@ -224,7 +229,7 @@
                             }
                         }
                         if (window.AppAlert) {
-                            AppAlert.success('Seluruh data analitik berhasil diperbarui.');
+                            AppAlert.success('{{ __('social_media.insights_refreshed') }}');
                         }
                     } catch (e) {
                         if (window.AppAlert) {
@@ -268,7 +273,7 @@
                                 document.getElementById(`metric-shares-${postId}`).textContent = (m.shares || 0).toLocaleString();
                             }
                             if (window.AppAlert) {
-                                AppAlert.success('Metrik live berhasil diperbarui.');
+                                AppAlert.success('{{ __('social_media.insights_refreshed') }}');
                             }
                         } else {
                             const errorMsg = data.error || 'Gagal memperbarui metrik.';

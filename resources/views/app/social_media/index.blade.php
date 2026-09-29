@@ -1,7 +1,7 @@
 @extends('layouts.app', [
-    'title' => 'Media Sosial - ' . $business->name,
-    'headerTitle' => 'Media Sosial & Pemasaran',
-    'headerSubtitle' => 'Kelola Facebook Page, Instagram Bisnis, Threads, TikTok, dan LinkedIn untuk toko Anda',
+    'title' => __('social_media.header_title') . ' - ' . $business->name,
+    'headerTitle' => __('social_media.header_title'),
+    'headerSubtitle' => __('social_media.header_subtitle'),
 ])
 
 @section('content')
@@ -10,13 +10,13 @@
         {{-- MODULE HEADER & PERSISTENT COMMUNICATION TABS --}}
         <x-module-header
             module="communication"
-            title="Pengelolaan Media Sosial & Konten Terpadu"
-            subtitle="Kelola seluruh media sosial toko {{ $business->name }} dari satu dashboard: Facebook, Instagram, Threads, TikTok, dan LinkedIn.">
+            :title="__('social_media.cockpit_title')"
+            :subtitle="__('social_media.cockpit_subtitle', ['business' => $business->name])">
             <x-slot:actions>
                 <a href="{{ route('social-media.posts.index') }}"
                     class="h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] transition-all flex items-center justify-center gap-1.5 w-full sm:w-auto shadow-sm">
                     <i data-lucide="plus" class="w-4 h-4"></i>
-                    <span>Buat Postingan Baru</span>
+                    <span>{{ __('social_media.create_post_btn') }}</span>
                 </a>
             </x-slot:actions>
         </x-module-header>
@@ -29,22 +29,22 @@
                 <a href="{{ route('social-media.index') }}"
                     class="h-8 px-4 rounded-[9px] bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-sm flex items-center gap-2 whitespace-nowrap">
                     <i data-lucide="link" class="w-4 h-4 text-[#007AFF]"></i>
-                    <span>Koneksi Akun</span>
+                    <span>{{ __('social_media.tab_connect') }}</span>
                 </a>
                 <a href="{{ route('social-media.posts.index') }}"
                     class="h-8 px-4 rounded-[9px] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white flex items-center gap-2 whitespace-nowrap transition-colors">
                     <i data-lucide="image" class="w-4 h-4"></i>
-                    <span>Posting Konten</span>
+                    <span>{{ __('social_media.tab_posts') }}</span>
                 </a>
                 <a href="{{ route('social-media.calendar') }}"
                     class="h-8 px-4 rounded-[9px] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white flex items-center gap-2 whitespace-nowrap transition-colors">
                     <i data-lucide="calendar" class="w-4 h-4"></i>
-                    <span>Kalender Konten</span>
+                    <span>{{ __('social_media.tab_calendar') }}</span>
                 </a>
                 <a href="{{ route('social-media.inbox.index') }}"
                     class="h-8 px-4 rounded-[9px] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white flex items-center gap-2 whitespace-nowrap transition-colors">
                     <i data-lucide="message-square" class="w-4 h-4"></i>
-                    <span>Kotak Masuk &amp; Komentar</span>
+                    <span>{{ __('social_media.tab_inbox') }}</span>
                     @if($summary['unread_comments'] > 0)
                         <span class="ml-1 px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-[#FF3B30] text-white">{{ $summary['unread_comments'] }}</span>
                     @endif
@@ -52,7 +52,7 @@
                 <a href="{{ route('social-media.insights.index') }}"
                     class="h-8 px-4 rounded-[9px] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white flex items-center gap-2 whitespace-nowrap transition-colors">
                     <i data-lucide="bar-chart-2" class="w-4 h-4"></i>
-                    <span>Analitik &amp; Performa</span>
+                    <span>{{ __('social_media.tab_insights') }}</span>
                 </a>
             </div>
         </div>
@@ -70,15 +70,15 @@
                                 <i data-lucide="share-2" class="w-6 h-6"></i>
                             </div>
                             <div>
-                                <h2 class="text-[17px] font-bold text-black dark:text-white tracking-tight">Akun Media Sosial Toko</h2>
-                                <p class="text-[12.5px] text-black/55 dark:text-white/55 mt-0.5">Facebook Page, Instagram Bisnis, Threads, TikTok &amp; LinkedIn</p>
+                                <h2 class="text-[17px] font-bold text-black dark:text-white tracking-tight">{{ __('social_media.connected_accounts') }}</h2>
+                                <p class="text-[12.5px] text-black/55 dark:text-white/55 mt-0.5">{{ __('social_media.connected_accounts_sub') }}</p>
                             </div>
                         </div>
 
                         <div>
                             <span class="px-3 py-1.5 rounded-full text-[11.5px] font-bold inline-flex items-center gap-1.5 {{ $accounts->where('status', 'active')->count() > 0 ? 'bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158] border border-[#34C759]/25' : 'bg-black/[0.05] dark:bg-white/[0.08] text-black/55 dark:text-white/55 border border-black/10 dark:border-white/10' }}">
                                 <span class="w-2 h-2 rounded-full {{ $accounts->where('status', 'active')->count() > 0 ? 'bg-[#34C759]' : 'bg-[#FF9500]' }}"></span>
-                                <span>{{ $accounts->where('status', 'active')->count() > 0 ? $accounts->where('status', 'active')->count() . ' Akun Terhubung' : 'Belum Terhubung' }}</span>
+                                <span>{{ $accounts->where('status', 'active')->count() > 0 ? __('social_media.connected_count', ['count' => $accounts->where('status', 'active')->count()]) : __('social_media.not_connected') }}</span>
                             </span>
                         </div>
                     </div>
@@ -86,7 +86,7 @@
                     {{-- Connected Accounts Cards List --}}
                     @if($accounts->where('status', 'active')->isNotEmpty())
                         <div class="space-y-3">
-                            <span class="text-[11.5px] font-bold uppercase tracking-wider text-black/50 dark:text-white/50 block">Aset Aktif Terhubung:</span>
+                            <span class="text-[11.5px] font-bold uppercase tracking-wider text-black/50 dark:text-white/50 block">{{ __('social_media.active_assets') }}</span>
                             <div class="grid grid-cols-1 gap-3">
                                 @foreach($accounts->where('status', 'active') as $acc)
                                     <div x-show="!disconnectedIds.includes('{{ $acc->id }}')" x-transition.duration.300ms class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/10 flex items-center justify-between gap-3">
@@ -114,7 +114,7 @@
                                                     @endif
                                                     @if(in_array($acc->platform, ['tiktok', 'linkedin']) && $acc->token_expires_at)
                                                         <span>•</span>
-                                                        <span class="text-[10.5px] text-[#34C759]">Auto-Refresh Active</span>
+                                                        <span class="text-[10.5px] text-[#34C759]">{{ __('social_media.auto_refresh_active') }}</span>
                                                     @endif
                                                 </div>
                                             </div>
@@ -123,7 +123,7 @@
                                         <div class="flex items-center gap-2 shrink-0">
                                             <button type="button" @click="disconnect('{{ $acc->id }}')"
                                                 class="min-h-[34px] px-3 rounded-[9px] text-[11.5px] font-semibold text-[#FF3B30] bg-[#FF3B30]/10 hover:bg-[#FF3B30]/15 active:scale-[0.98] transition-all">
-                                                Putuskan
+                                                {{ __('social_media.disconnect') }}
                                             </button>
                                         </div>
                                     </div>
@@ -136,27 +136,27 @@
                     <div class="space-y-4">
                         <div class="flex items-center justify-between">
                             <h3 class="text-[14px] font-bold text-black dark:text-white">
-                                Hubungkan Akun Media Sosial (Metode 1-Klik)
+                                {{ __('social_media.onboarding_section_title') }}
                             </h3>
-                            <span class="text-[11px] text-black/45 dark:text-white/45">Meta, TikTok &amp; LinkedIn API</span>
+                            <span class="text-[11px] text-black/45 dark:text-white/45">{{ __('social_media.onboarding_api_badge') }}</span>
                         </div>
 
                         {{-- Meta Connection Card --}}
                         <div class="p-5 sm:p-6 rounded-[18px] bg-gradient-to-br from-[#1877F2]/10 via-white dark:via-[#1C1C1E] to-[#E1306C]/8 border border-[#1877F2]/20 space-y-4">
                             <div class="space-y-0.5">
                                 <h3 class="text-[15px] font-bold text-black dark:text-white">
-                                    {{ $accounts->whereIn('platform', ['facebook', 'instagram', 'threads'])->where('status', 'active')->isNotEmpty() ? 'Perbarui Akun Meta' : 'Hubungkan Akun Meta (Facebook, Instagram & Threads)' }}
+                                    {{ $accounts->whereIn('platform', ['facebook', 'instagram', 'threads'])->where('status', 'active')->isNotEmpty() ? __('social_media.meta_card_title_connected') : __('social_media.meta_card_title_new') }}
                                 </h3>
                                 <p class="text-[12px] text-black/55 dark:text-white/55">
-                                    Masuk melalui dialog resmi Meta Facebook untuk menghubungkan Halaman FB, Akun Instagram Bisnis, dan Threads.
+                                    {{ __('social_media.meta_card_desc') }}
                                 </p>
                             </div>
 
                             <button type="button" @click="launchMetaLogin()" :disabled="loading"
-                                class="w-full min-h-[46px] rounded-[14px] bg-gradient-to-r from-[#1877F2] to-[#007AFF] hover:from-[#166FE5] hover:to-[#0071E3] text-white font-bold text-[13.5px] flex items-center justify-center gap-2 shadow-md shadow-[#1877F2]/25 active:scale-[0.98] transition-all disabled:opacity-50">
+                                class="w-full min-h-[46px] rounded-[14px] bg-gradient-to-r from-[#1877F2] to-[#007AFF] hover:from-[#166FE5] hover:to-[#0071E3] text-white font-bold text-[13.5px] flex items-center justify-center gap-2 shadow-md shadow-[#1877F2]/25 active:scale-[0.98] transition-all disabled:opacity-50 cursor-pointer">
                                 <i data-lucide="loader-2" x-show="loading" class="w-4 h-4 animate-spin"></i>
                                 <i data-lucide="share-2" x-show="!loading" class="w-4 h-4"></i>
-                                <span x-text="loading ? 'Menghubungkan ke Meta...' : 'Hubungkan Meta (Facebook & Instagram)'"></span>
+                                <span x-text="loading ? '{{ __('social_media.meta_connecting_btn') }}' : '{{ __('social_media.meta_connect_btn') }}'"></span>
                             </button>
                         </div>
 
@@ -164,17 +164,17 @@
                         <div class="p-5 sm:p-6 rounded-[18px] bg-gradient-to-br from-black/5 via-white dark:via-[#1C1C1E] to-black/10 dark:to-white/5 border border-black/10 dark:border-white/10 space-y-4">
                             <div class="space-y-0.5">
                                 <h3 class="text-[15px] font-bold text-black dark:text-white">
-                                    {{ $accounts->where('platform', 'tiktok')->where('status', 'active')->isNotEmpty() ? 'Perbarui Akun TikTok' : 'Hubungkan Akun TikTok (Content Posting API)' }}
+                                    {{ $accounts->where('platform', 'tiktok')->where('status', 'active')->isNotEmpty() ? __('social_media.tiktok_card_title_connected') : __('social_media.tiktok_card_title_new') }}
                                 </h3>
                                 <p class="text-[12px] text-black/55 dark:text-white/55">
-                                    Otorisasi resmi akun TikTok Anda untuk mempublikasikan video dan foto langsung dari dashboard COOCA.
+                                    {{ __('social_media.tiktok_card_desc') }}
                                 </p>
                             </div>
 
                             <a href="{{ route('social-media.tiktok.connect') }}"
                                 class="w-full min-h-[46px] rounded-[14px] bg-black dark:bg-white text-white dark:text-black hover:bg-black/90 dark:hover:bg-white/90 font-bold text-[13.5px] flex items-center justify-center gap-2 shadow-md active:scale-[0.98] transition-all">
                                 <i data-lucide="video" class="w-4 h-4"></i>
-                                <span>Hubungkan Akun TikTok Resmi</span>
+                                <span>{{ __('social_media.tiktok_connect_btn') }}</span>
                             </a>
                         </div>
 
@@ -182,17 +182,17 @@
                         <div class="p-5 sm:p-6 rounded-[18px] bg-gradient-to-br from-[#0A66C2]/10 via-white dark:via-[#1C1C1E] to-[#004182]/5 border border-[#0A66C2]/20 space-y-4">
                             <div class="space-y-0.5">
                                 <h3 class="text-[15px] font-bold text-black dark:text-white">
-                                    {{ $accounts->where('platform', 'linkedin')->where('status', 'active')->isNotEmpty() ? 'Perbarui Akun LinkedIn' : 'Hubungkan Akun LinkedIn (Share on LinkedIn & Profile)' }}
+                                    {{ $accounts->where('platform', 'linkedin')->where('status', 'active')->isNotEmpty() ? __('social_media.linkedin_card_title_connected') : __('social_media.linkedin_card_title_new') }}
                                 </h3>
                                 <p class="text-[12px] text-black/55 dark:text-white/55">
-                                    Otorisasi akun LinkedIn profesional untuk membagikan artikel, postingan gambar, dan materi bisnis langsung dari COOCA.
+                                    {{ __('social_media.linkedin_card_desc') }}
                                 </p>
                             </div>
 
                             <a href="{{ route('social-media.linkedin.connect') }}"
                                 class="w-full min-h-[46px] rounded-[14px] bg-[#0A66C2] hover:bg-[#004182] text-white font-bold text-[13.5px] flex items-center justify-center gap-2 shadow-md shadow-[#0A66C2]/25 active:scale-[0.98] transition-all">
                                 <i data-lucide="linkedin" class="w-4 h-4"></i>
-                                <span>Hubungkan Akun LinkedIn Resmi</span>
+                                <span>{{ __('social_media.linkedin_connect_btn') }}</span>
                             </a>
                         </div>
 
@@ -219,20 +219,20 @@
                 <div class="rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 shadow-sm p-5 space-y-3.5">
                     <div class="flex items-center gap-2.5 font-bold text-[14px] text-black dark:text-white">
                         <i data-lucide="shield-check" class="w-4 h-4 text-[#34C759]"></i>
-                        <span>Keamanan &amp; Isolasi Data Bisnis</span>
+                        <span>{{ __('social_media.security_bento_title') }}</span>
                     </div>
                     <ul class="space-y-2 text-[12px] text-black/65 dark:text-white/65">
                         <li class="flex items-start gap-2">
                             <i data-lucide="check" class="w-3.5 h-3.5 text-[#34C759] shrink-0 mt-0.5"></i>
-                            <span>Token Page disimpan dengan enkripsi AES-256 (Laravel APP_KEY).</span>
+                            <span>{{ __('social_media.security_item_1') }}</span>
                         </li>
                         <li class="flex items-start gap-2">
                             <i data-lucide="check" class="w-3.5 h-3.5 text-[#34C759] shrink-0 mt-0.5"></i>
-                            <span>Data postingan &amp; komentar terisolasi ketat per toko Anda (Zero Cross-Tenant Leakage).</span>
+                            <span>{{ __('social_media.security_item_2') }}</span>
                         </li>
                         <li class="flex items-start gap-2">
                             <i data-lucide="check" class="w-3.5 h-3.5 text-[#34C759] shrink-0 mt-0.5"></i>
-                            <span>Token tidak pernah kedaluwarsa (Long-Lived Page Access Token).</span>
+                            <span>{{ __('social_media.security_item_3') }}</span>
                         </li>
                     </ul>
                 </div>
@@ -240,8 +240,8 @@
                 {{-- Recent Posts List --}}
                 <div class="rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 shadow-sm p-5 space-y-3.5">
                     <div class="flex items-center justify-between">
-                        <h3 class="text-[14px] font-bold text-black dark:text-white">Postingan Terbaru</h3>
-                        <a href="{{ route('social-media.posts.index') }}" class="text-[12px] font-semibold text-[#007AFF] hover:underline">Lihat Semua</a>
+                        <h3 class="text-[14px] font-bold text-black dark:text-white">{{ __('social_media.recent_posts_title') }}</h3>
+                        <a href="{{ route('social-media.posts.index') }}" class="text-[12px] font-semibold text-[#007AFF] hover:underline">{{ __('social_media.view_all') }}</a>
                     </div>
 
                     <div class="divide-y divide-black/5 dark:divide-white/5">
@@ -257,7 +257,7 @@
                                 <span class="text-[11px] text-black/45 dark:text-white/45 block">{{ $p->created_at->diffForHumans() }}</span>
                             </div>
                         @empty
-                            <p class="py-4 text-center text-[12.5px] text-black/40 dark:text-white/40">Belum ada riwayat postingan.</p>
+                            <p class="py-4 text-center text-[12.5px] text-black/40 dark:text-white/40">{{ __('social_media.no_recent_posts') }}</p>
                         @endforelse
                     </div>
                 </div>
@@ -299,7 +299,7 @@
                         const data = await res.json();
 
                         if (!data.success || !data.login_url) {
-                            this.errorMessage = 'Konfigurasi Meta App belum diisi oleh Superadmin.';
+                            this.errorMessage = data.message || @js(__('social_media.meta_not_configured'));
                             this.loading = false;
                             return;
                         }
@@ -312,7 +312,7 @@
 
                         window.location.href = data.login_url;
                     } catch (e) {
-                        this.errorMessage = 'Gagal menghubungi server: ' + (e.message || e);
+                        this.errorMessage = @js(__('common.error')) + ': ' + (e.message || e);
                         this.loading = false;
                     }
                 },
@@ -332,18 +332,18 @@
 
                         const data = await res.json();
                         if (res.ok && data.success) {
-                            this.successMessage = data.message || 'Media sosial berhasil terhubung!';
+                            this.successMessage = data.message || @js(__('social_media.post_published'));
                             if (window.AppAlert) {
                                 AppAlert.success(this.successMessage);
                             }
                         } else {
-                            this.errorMessage = data.error || 'Gagal menghubungkan akun Meta.';
+                            this.errorMessage = data.error || @js(__('social_media.meta_token_invalid'));
                             if (window.AppAlert) {
                                 AppAlert.error(this.errorMessage);
                             }
                         }
                     } catch (e) {
-                        this.errorMessage = 'Kesalahan koneksi saat menyimpan otorisasi.';
+                        this.errorMessage = @js(__('common.error'));
                     } finally {
                         this.loading = false;
                     }
@@ -353,11 +353,11 @@
                     let confirmed = false;
                     if (window.AppAlert) {
                         confirmed = await AppAlert.confirm({
-                            title: 'Putuskan Akun?',
-                            message: 'Yakin ingin memutuskan akun media sosial ini dari COOCA?',
+                            title: @js(__('social_media.disconnect_confirm_title')),
+                            message: @js(__('social_media.disconnect_confirm_msg')),
                             type: 'danger',
-                            confirmText: 'Ya, Putuskan',
-                            cancelText: 'Batal'
+                            confirmText: @js(__('social_media.disconnect_confirm_btn')),
+                            cancelText: @js(__('social_media.cancel'))
                         });
                     }
                     if (!confirmed) return;
@@ -377,16 +377,16 @@
                         if (data.success) {
                             this.disconnectedIds.push(accountId);
                             if (window.AppAlert) {
-                                AppAlert.success('Akun media sosial berhasil diputuskan.');
+                                AppAlert.success(data.message || @js(__('social_media.account_disconnected_success')));
                             }
                         } else {
                             if (window.AppAlert) {
-                                AppAlert.error(data.error || 'Gagal memutuskan akun.');
+                                AppAlert.error(data.error || data.message || @js(__('social_media.account_not_found')));
                             }
                         }
                     } catch (e) {
                         if (window.AppAlert) {
-                            AppAlert.error('Terjadi kesalahan jaringan saat memutuskan akun.');
+                            AppAlert.error(@js(__('common.error')));
                         }
                     }
                 }

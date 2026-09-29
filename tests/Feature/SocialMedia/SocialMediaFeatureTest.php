@@ -139,9 +139,9 @@ class SocialMediaFeatureTest extends TestCase
         $response = $this->actingAs($user)->get(route('social-media.index'));
 
         $response->assertOk();
-        $response->assertSee('Pengelolaan Media Sosial &amp; Konten', false);
-        $response->assertSee('Akun Media Sosial Toko', false);
-        $response->assertSee('Hubungkan Akun Media Sosial (Metode 1-Klik)');
+        $response->assertSee(__('social_media.cockpit_title'));
+        $response->assertSee(__('social_media.connected_accounts'));
+        $response->assertSee(__('social_media.onboarding_section_title'));
     }
 
     /**

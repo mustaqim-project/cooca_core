@@ -18,6 +18,21 @@ class SocialMediaContentValidatorTest extends TestCase
     }
 
     /**
+     * Test getCaptionLimit method returns official API platform boundaries.
+     */
+    public function test_get_caption_limit_returns_official_api_boundaries(): void
+    {
+        $this->assertSame(500, $this->validator->getCaptionLimit('threads'));
+        $this->assertSame(2200, $this->validator->getCaptionLimit('instagram'));
+        $this->assertSame(2200, $this->validator->getCaptionLimit('tiktok'));
+        $this->assertSame(3000, $this->validator->getCaptionLimit('linkedin'));
+        $this->assertSame(63206, $this->validator->getCaptionLimit('facebook'));
+        $this->assertSame(280, $this->validator->getCaptionLimit('twitter'));
+        $this->assertSame(280, $this->validator->getCaptionLimit('x'));
+        $this->assertSame(2200, $this->validator->getCaptionLimit('unknown_channel'));
+    }
+
+    /**
      * Test exactly 5 unique hashtags passes COOCA business rule.
      */
     public function test_five_unique_hashtags_is_valid(): void
@@ -109,6 +124,15 @@ class SocialMediaContentValidatorTest extends TestCase
         $tiktokResult = $this->validator->validateForChannel('tiktok', 'video', $text2300);
         $this->assertFalse($tiktokResult['is_valid']);
         $this->assertStringContainsString('melebihi batas resmi tiktok', $tiktokResult['errors'][0]);
+
+        // LinkedIn limit 3,000 (2,300 is valid, 3,001 fails)
+        $linkedInValid = $this->validator->validateForChannel('linkedin', 'feed', $text2300);
+        $this->assertTrue($linkedInValid['is_valid']);
+
+        $text3001 = str_repeat('B', 3001);
+        $linkedInFail = $this->validator->validateForChannel('linkedin', 'feed', $text3001);
+        $this->assertFalse($linkedInFail['is_valid']);
+        $this->assertStringContainsString('melebihi batas resmi linkedin', $linkedInFail['errors'][0]);
 
         // Facebook limit 63,206 (2,300 is well within limits)
         $fbResult = $this->validator->validateForChannel('facebook', 'feed', $text2300);

@@ -56,7 +56,7 @@ class SocialMediaWebController extends Controller
         if (! $client->isConfigured()) {
             return response()->json([
                 'success'   => false,
-                'message'   => 'Konfigurasi Meta App (App ID & Secret) belum diisi oleh Superadmin di Pengaturan Platform.',
+                'message'   => __('social_media.meta_not_configured'),
                 'app_id'    => null,
                 'version'   => $client->getGraphVersion(),
                 'login_url' => null,
@@ -95,7 +95,7 @@ class SocialMediaWebController extends Controller
             if (empty($userToken)) {
                 return response()->json([
                     'success' => false,
-                    'error'   => 'Token otorisasi Meta tidak valid atau tidak ditemukan.',
+                    'error'   => __('social_media.meta_token_invalid'),
                 ], 422);
             }
 
@@ -109,7 +109,7 @@ class SocialMediaWebController extends Controller
             if (empty($pages)) {
                 return response()->json([
                     'success' => false,
-                    'error'   => 'Tidak ada Facebook Page atau Instagram Bisnis yang ditemukan di akun Anda.',
+                    'error'   => __('social_media.no_pages_found'),
                 ], 422);
             }
 
@@ -119,7 +119,7 @@ class SocialMediaWebController extends Controller
             return response()->json([
                 'success' => true,
                 'count'   => count($connected),
-                'message' => count($connected) . ' aset media sosial berhasil dihubungkan ke toko Anda.',
+                'message' => __('social_media.assets_connected_count', ['count' => count($connected)]),
             ]);
         } catch (\Throwable $e) {
             return response()->json([
@@ -137,7 +137,7 @@ class SocialMediaWebController extends Controller
         $provider = $this->socialMediaManager->getProvider('tiktok');
         if (! $provider->isConfigured()) {
             return redirect()->route('social-media.index')
-                ->with('error', 'Kredensial TikTok Developer (Client Key & Secret) belum dikonfigurasi oleh Superadmin di Pengaturan Platform.');
+                ->with('error', __('social_media.tiktok_not_configured'));
         }
 
         $state = Str::random(40);
@@ -150,7 +150,7 @@ class SocialMediaWebController extends Controller
             return redirect()->away($authUrl);
         } catch (\Throwable $e) {
             return redirect()->route('social-media.index')
-                ->with('error', 'Gagal memulai koneksi TikTok: ' . $e->getMessage());
+                ->with('error', __('social_media.tiktok_connection_failed', ['error' => $e->getMessage()]));
         }
     }
 
@@ -166,7 +166,7 @@ class SocialMediaWebController extends Controller
 
         if (empty($state) || empty($savedState) || ! hash_equals($savedState, $state)) {
             return redirect()->route('social-media.index')
-                ->with('error', 'Validasi keamanan OAuth TikTok gagal (state tidak valid). Silakan coba lagi.');
+                ->with('error', __('social_media.tiktok_oauth_invalid_state'));
         }
 
         $code = (string) $request->query('code', '');
@@ -175,12 +175,12 @@ class SocialMediaWebController extends Controller
 
         if (! empty($error)) {
             return redirect()->route('social-media.index')
-                ->with('error', "Otorisasi TikTok ditolak atau dibatalkan: {$errorDesc}");
+                ->with('error', __('social_media.tiktok_oauth_denied', ['error' => $errorDesc ?: $error]));
         }
 
         if (empty($code)) {
             return redirect()->route('social-media.index')
-                ->with('error', 'Otorisasi TikTok gagal: Authorization code tidak ditemukan.');
+                ->with('error', __('social_media.tiktok_oauth_code_missing'));
         }
 
         try {
@@ -189,7 +189,7 @@ class SocialMediaWebController extends Controller
 
             $openId = (string) ($authData['open_id'] ?? '');
             if (empty($openId)) {
-                throw new \RuntimeException('TikTok OpenID tidak ditemukan dalam respons otorisasi.');
+                throw new \RuntimeException(__('social_media.tiktok_openid_missing'));
             }
 
             // Persist or update TikTok account with tenant isolation
@@ -218,7 +218,7 @@ class SocialMediaWebController extends Controller
                 ->with('success', __('social_media.account_connected', ['platform' => 'TikTok', 'username' => $account->account_name]));
         } catch (\Throwable $e) {
             return redirect()->route('social-media.index')
-                ->with('error', 'Gagal menghubungkan akun TikTok: ' . $e->getMessage());
+                ->with('error', __('social_media.tiktok_connect_failed', ['error' => $e->getMessage()]));
         }
     }
 
@@ -230,7 +230,7 @@ class SocialMediaWebController extends Controller
         $provider = $this->socialMediaManager->getProvider('linkedin');
         if (! $provider->isConfigured()) {
             return redirect()->route('social-media.index')
-                ->with('error', 'Kredensial LinkedIn Developer (Client ID & Client Secret) belum dikonfigurasi oleh Superadmin di Pengaturan Platform.');
+                ->with('error', __('social_media.linkedin_not_configured'));
         }
 
         $state = Str::random(40);
@@ -243,7 +243,7 @@ class SocialMediaWebController extends Controller
             return redirect()->away($authUrl);
         } catch (\Throwable $e) {
             return redirect()->route('social-media.index')
-                ->with('error', 'Gagal memulai koneksi LinkedIn: ' . $e->getMessage());
+                ->with('error', __('social_media.linkedin_connection_failed', ['error' => $e->getMessage()]));
         }
     }
 
@@ -259,7 +259,7 @@ class SocialMediaWebController extends Controller
 
         if (empty($state) || empty($savedState) || ! hash_equals($savedState, $state)) {
             return redirect()->route('social-media.index')
-                ->with('error', 'Validasi keamanan OAuth LinkedIn gagal (state tidak valid). Silakan coba lagi.');
+                ->with('error', __('social_media.linkedin_oauth_invalid_state'));
         }
 
         $code = (string) $request->query('code', '');
@@ -268,12 +268,12 @@ class SocialMediaWebController extends Controller
 
         if (! empty($error)) {
             return redirect()->route('social-media.index')
-                ->with('error', "Otorisasi LinkedIn ditolak atau dibatalkan: {$errorDesc}");
+                ->with('error', __('social_media.linkedin_oauth_denied', ['error' => $errorDesc ?: $error]));
         }
 
         if (empty($code)) {
             return redirect()->route('social-media.index')
-                ->with('error', 'Otorisasi LinkedIn gagal: Authorization code tidak ditemukan.');
+                ->with('error', __('social_media.linkedin_oauth_code_missing'));
         }
 
         try {
@@ -282,7 +282,7 @@ class SocialMediaWebController extends Controller
 
             $memberId = (string) ($authData['open_id'] ?? '');
             if (empty($memberId)) {
-                throw new \RuntimeException('LinkedIn Member ID (URN) tidak ditemukan dalam respons otorisasi.');
+                throw new \RuntimeException(__('social_media.linkedin_member_id_missing'));
             }
 
             // Persist or update LinkedIn account with tenant isolation
@@ -312,7 +312,7 @@ class SocialMediaWebController extends Controller
                 ->with('success', __('social_media.account_connected', ['platform' => 'LinkedIn', 'username' => $account->account_name]));
         } catch (\Throwable $e) {
             return redirect()->route('social-media.index')
-                ->with('error', 'Gagal menghubungkan akun LinkedIn: ' . $e->getMessage());
+                ->with('error', __('social_media.linkedin_connect_failed', ['error' => $e->getMessage()]));
         }
     }
 
@@ -363,7 +363,7 @@ class SocialMediaWebController extends Controller
 
         $entitlement = app(\App\Domain\Billing\EntitlementService::class);
         if (! $entitlement->canScheduleSocialPostThisMonth($business)) {
-            return redirect()->back()->withInput()->with('error', 'Batas kuota gratis posting media sosial bulan ini (3 posting) telah tercapai. Kuota akan otomatis di-reset pada tanggal 1 awal bulan berikutnya. Upgrade ke Add-On Social Media Management (Rp 89.000/bln) untuk posting tanpa batas!');
+            return redirect()->back()->withInput()->with('error', __('social_media.quota_exceeded', ['used' => 3, 'limit' => 3]));
         }
 
         $validated = $request->validate([
@@ -395,31 +395,31 @@ class SocialMediaWebController extends Controller
             $parsed = parse_url($url);
             $scheme = strtolower($parsed['scheme'] ?? '');
             if ($scheme !== 'https') {
-                return redirect()->back()->withInput()->with('error', 'URL media wajib menggunakan protokol aman https://');
+                return redirect()->back()->withInput()->with('error', __('social_media.media_url_https_required'));
             }
 
             $host = $parsed['host'] ?? '';
             if (empty($host)) {
-                return redirect()->back()->withInput()->with('error', 'URL media tidak memiliki hostname yang valid.');
+                return redirect()->back()->withInput()->with('error', __('social_media.media_url_hostname_invalid'));
             }
 
             // Immediately block localhost, loopbacks and unspecified
             if (in_array(strtolower($host), ['localhost', '127.0.0.1', '::1', '0.0.0.0'], true)) {
-                return redirect()->back()->withInput()->with('error', 'URL media tidak valid atau mengarah ke alamat jaringan lokal/privat.');
+                return redirect()->back()->withInput()->with('error', __('social_media.media_url_private_ip_blocked'));
             }
 
             $ip = gethostbyname($host);
             if ($ip === $host && ! filter_var($ip, FILTER_VALIDATE_IP)) {
-                return redirect()->back()->withInput()->with('error', 'Hostname pada URL media tidak dapat diresolusi.');
+                return redirect()->back()->withInput()->with('error', __('social_media.media_url_host_resolution_failed'));
             }
 
             if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) {
-                return redirect()->back()->withInput()->with('error', 'URL media tidak valid atau mengarah ke alamat jaringan lokal/privat.');
+                return redirect()->back()->withInput()->with('error', __('social_media.media_url_private_ip_blocked'));
             }
 
             // Cloud metadata block (169.254.x.x link-local)
             if (str_starts_with($ip, '169.254.')) {
-                return redirect()->back()->withInput()->with('error', 'URL media tidak diizinkan mengakses metadata cloud.');
+                return redirect()->back()->withInput()->with('error', __('social_media.media_url_cloud_metadata_blocked'));
             }
         }
 
@@ -429,7 +429,7 @@ class SocialMediaWebController extends Controller
             : (! empty($validated['social_media_account_id']) ? [$validated['social_media_account_id']] : []);
 
         if (empty($selectedAccountIds)) {
-            return redirect()->back()->withInput()->with('error', 'Pilih minimal satu akun/saluran media sosial tujuan.');
+            return redirect()->back()->withInput()->with('error', __('social_media.min_one_target_channel_required'));
         }
 
         $accounts = SocialMediaAccount::where('business_id', $business->id)
@@ -438,24 +438,60 @@ class SocialMediaWebController extends Controller
             ->get();
 
         if ($accounts->isEmpty()) {
-            abort(404, 'Akun media sosial yang dipilih tidak ditemukan.');
+            abort(404, __('social_media.selected_account_not_found'));
         }
 
-        // 1. STRICT COOCA HASHTAG VALIDATION (Max 5 Unique Hashtags per post)
+        // 1. STRICT COOCA VALIDATION: Caption Length & Max 5 Hashtags (Global & Per-Channel)
         $validator = $this->socialMediaManager->getValidator();
-        $hashtagValidation = $validator->validateHashtags($validated['content']);
-        if (! $hashtagValidation['is_valid']) {
-            return redirect()->back()->withInput()->with('error', $hashtagValidation['error']);
+        $globalHashtagValidation = $validator->validateHashtags($validated['content']);
+        if (! $globalHashtagValidation['is_valid']) {
+            return redirect()->back()->withInput()->with('error', $globalHashtagValidation['error']);
         }
 
-        // 2. Validate custom captions if provided
-        if (! empty($validated['custom_captions']) && is_array($validated['custom_captions'])) {
-            foreach ($validated['custom_captions'] as $accId => $customCaption) {
-                if (! empty($customCaption)) {
-                    $customHashtagCheck = $validator->validateHashtags($customCaption);
-                    if (! $customHashtagCheck['is_valid']) {
-                        return redirect()->back()->withInput()->with('error', "Custom Caption: {$customHashtagCheck['error']}");
-                    }
+        // 2. Validate per-channel effective captions (Official API Limits & Separate Caption Support)
+        foreach ($accounts as $account) {
+            $channel = strtolower((string) $account->platform);
+            $customCaption = $validated['custom_captions'][$account->id] ?? null;
+            $effectiveCaption = (! empty($customCaption) && trim($customCaption) !== '')
+                ? trim($customCaption)
+                : trim($validated['content']);
+
+            $captionLength = mb_strlen($effectiveCaption, 'UTF-8');
+            $maxLimit = $validator->getCaptionLimit($channel);
+
+            // Threads 500 character strict API guardrail
+            if ($channel === 'threads' && $captionLength > 500) {
+                return redirect()->back()->withInput()->with(
+                    'error',
+                    __('social_media.threads_caption_over_limit', ['count' => $captionLength])
+                );
+            }
+
+            // General channel limit guardrail
+            if ($captionLength > $maxLimit) {
+                return redirect()->back()->withInput()->with(
+                    'error',
+                    __('social_media.channel_caption_over_limit', [
+                        'account' => $account->account_name,
+                        'channel' => $channel,
+                        'count'   => $captionLength,
+                        'limit'   => $maxLimit,
+                    ])
+                );
+            }
+
+            // Validate hashtags on custom caption if provided
+            if (! empty($customCaption) && trim($customCaption) !== '') {
+                $customHashtagCheck = $validator->validateHashtags($customCaption);
+                if (! $customHashtagCheck['is_valid']) {
+                    return redirect()->back()->withInput()->with(
+                        'error',
+                        __('social_media.custom_caption_error_prefix', [
+                            'account' => $account->account_name,
+                            'channel' => $channel,
+                            'error'   => $customHashtagCheck['error'],
+                        ])
+                    );
                 }
             }
         }
@@ -687,8 +723,8 @@ class SocialMediaWebController extends Controller
             }
 
             $warningMessage = in_array('unregistered_bank_account_detected', $riskFlags, true)
-                ? 'Postingan memuat nomor rekening bank yang tidak terdaftar pada profil toko dan ditahan untuk persetujuan Pemilik Toko (Maker-Checker).'
-                : 'Postingan berhasil diajukan dan sedang menunggu persetujuan (approval) dari Pemilik Toko sebelum dipublikasikan.';
+                ? __('social_media.post_held_unregistered_bank')
+                : __('social_media.post_pending_manager_approval');
 
             return redirect()->route('social-media.posts.index')
                 ->with('warning', $warningMessage);
@@ -725,7 +761,7 @@ class SocialMediaWebController extends Controller
                 ->with('success', __('social_media.post_published'));
         } elseif ($hasScheduledTargets) {
             return redirect()->route('social-media.posts.index')
-                ->with('success', __('social_media.post_scheduled', ['time' => $validated['scheduled_at'] ?? 'waktu jadwal']));
+                ->with('success', __('social_media.post_scheduled', ['time' => $validated['scheduled_at'] ?? __('social_media.default_schedule_time')]));
         }
 
         if ($accounts->count() === 1 && $post->status === 'failed') {
@@ -751,11 +787,11 @@ class SocialMediaWebController extends Controller
 
         $post = $target->post;
         if (! $post || $post->business_id !== $business->id) {
-            abort(403, 'Akses tidak diizinkan untuk target postingan ini.');
+            abort(403, __('social_media.target_access_denied'));
         }
 
         if (! $target->canRetry()) {
-            return redirect()->back()->with('error', 'Target postingan ini tidak dalam status gagal.');
+            return redirect()->back()->with('error', __('social_media.target_not_in_failed_state'));
         }
 
         $target->update([
@@ -767,7 +803,7 @@ class SocialMediaWebController extends Controller
 
         \App\Jobs\SocialMedia\PublishSocialMediaTargetJob::dispatch($target->id);
 
-        return redirect()->back()->with('success', "Memulai ulang publikasi untuk target {$target->channel}...");
+        return redirect()->back()->with('success', __('social_media.retrying_target', ['channel' => $target->channel]));
     }
 
     /**
@@ -832,7 +868,7 @@ class SocialMediaWebController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Balasan berhasil dikirim.',
+                'message' => __('social_media.reply_sent_successfully'),
                 'reply'   => $reply,
             ]);
         } catch (\Throwable $e) {
@@ -919,7 +955,7 @@ class SocialMediaWebController extends Controller
 
         return response()->json([
             'success' => $ok,
-            'message' => $ok ? 'Akun berhasil diputuskan.' : 'Akun tidak ditemukan.',
+            'message' => $ok ? __('social_media.account_disconnected_success') : __('social_media.account_not_found'),
         ]);
     }
 
@@ -935,11 +971,11 @@ class SocialMediaWebController extends Controller
             || in_array(Context::role(), ['owner', 'admin', 'manager', 'store_manager'], true)
             || Context::hasPermission('social_media.manage');
 
-        abort_unless($isOwnerOrManager, 403, 'Hanya Owner atau Manager yang berwenang menyetujui postingan.');
+        abort_unless($isOwnerOrManager, 403, __('social_media.approval_permission_denied'));
 
         if ($post->approval_status === 'approved') {
             return redirect()->route('social-media.posts.index')
-                ->with('info', 'Postingan ini sudah disetujui sebelumnya.');
+                ->with('info', __('social_media.post_already_approved'));
         }
 
         $post->update([
@@ -984,7 +1020,7 @@ class SocialMediaWebController extends Controller
         $post->syncStatusFromTargets();
 
         return redirect()->route('social-media.posts.index')
-            ->with('success', 'Postingan berhasil disetujui dan diproses untuk dipublikasikan.');
+            ->with('success', __('social_media.post_approved_and_processing'));
     }
 
     /**
@@ -999,7 +1035,7 @@ class SocialMediaWebController extends Controller
             || in_array(Context::role(), ['owner', 'admin', 'manager', 'store_manager'], true)
             || Context::hasPermission('social_media.manage');
 
-        abort_unless($isOwnerOrManager, 403, 'Hanya Owner atau Manager yang berwenang menolak postingan.');
+        abort_unless($isOwnerOrManager, 403, __('social_media.rejection_permission_denied'));
 
         $validated = $request->validate([
             'reason' => ['nullable', 'string', 'max:500'],
@@ -1009,14 +1045,14 @@ class SocialMediaWebController extends Controller
             'approval_status'  => 'rejected',
             'reviewed_by'      => $request->user()?->id,
             'reviewed_at'      => now(),
-            'rejection_reason' => $validated['reason'] ?? 'Ditolak oleh manajemen.',
+            'rejection_reason' => $validated['reason'] ?? __('social_media.rejected_by_management'),
             'status'           => 'rejected',
         ]);
 
         $post->targets()->update(['status' => 'cancelled']);
 
         return redirect()->route('social-media.posts.index')
-            ->with('info', 'Postingan telah ditolak.');
+            ->with('info', __('social_media.post_rejected_info'));
     }
 
     /**

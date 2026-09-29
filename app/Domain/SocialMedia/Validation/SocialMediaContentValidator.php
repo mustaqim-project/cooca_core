@@ -20,7 +20,19 @@ class SocialMediaContentValidator
         'threads'   => 500,
         'tiktok'    => 2200,
         'linkedin'  => 3000,
+        'twitter'   => 280,
+        'x'         => 280,
     ];
+
+    /**
+     * Dapatkan batas karakter resmi untuk saluran tertentu.
+     */
+    public function getCaptionLimit(string $channel): int
+    {
+        $channel = strtolower(trim($channel));
+
+        return self::CAPTION_LIMITS[$channel] ?? 2200;
+    }
 
     /**
      * Ekstrak dan normalisasi hashtag dari caption teks (case-insensitive deduplication).
