@@ -2281,17 +2281,10 @@
 
                         @if ($canAccessSettings)
                             <a href="{{ route('settings.index') }}" id="tour-nav-settings"
-                                {{ (request()->routeIs('settings.*') && !request()->routeIs('settings.sop.*') && !request()->routeIs('settings.audit-logs.*') && !request()->routeIs('settings.approval-rules.*') && !request()->routeIs('settings.roles.*') && !request()->routeIs('settings.pos.printers.*')) ? 'aria-current="page"' : '' }}
-                                class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-all active:scale-[0.98] {{ (request()->routeIs('settings.*') && !request()->routeIs('settings.sop.*') && !request()->routeIs('settings.audit-logs.*') && !request()->routeIs('settings.approval-rules.*') && !request()->routeIs('settings.roles.*') && !request()->routeIs('settings.pos.printers.*')) ? 'bg-[#007AFF] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
-                                <i data-lucide="sliders" class="w-3.5 h-3.5 {{ (request()->routeIs('settings.*') && !request()->routeIs('settings.sop.*') && !request()->routeIs('settings.audit-logs.*') && !request()->routeIs('settings.approval-rules.*') && !request()->routeIs('settings.roles.*') && !request()->routeIs('settings.pos.printers.*')) ? 'text-white' : 'text-black/40 dark:text-white/40' }} shrink-0"></i>
+                                {{ (request()->routeIs('settings.*') && !request()->routeIs('settings.audit-logs.*') && !request()->routeIs('settings.approval-rules.*') && !request()->routeIs('settings.roles.*') && !request()->routeIs('settings.pos.printers.*')) ? 'aria-current="page"' : '' }}
+                                class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-all active:scale-[0.98] {{ (request()->routeIs('settings.*') && !request()->routeIs('settings.audit-logs.*') && !request()->routeIs('settings.approval-rules.*') && !request()->routeIs('settings.roles.*') && !request()->routeIs('settings.pos.printers.*')) ? 'bg-[#007AFF] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
+                                <i data-lucide="sliders" class="w-3.5 h-3.5 {{ (request()->routeIs('settings.*') && !request()->routeIs('settings.audit-logs.*') && !request()->routeIs('settings.approval-rules.*') && !request()->routeIs('settings.roles.*') && !request()->routeIs('settings.pos.printers.*')) ? 'text-white' : 'text-black/40 dark:text-white/40' }} shrink-0"></i>
                                 <span class="truncate">Pengaturan Usaha &amp; Cabang</span>
-                            </a>
-
-                            <a href="{{ route('settings.sop.index') }}" id="tour-nav-sop"
-                                {{ request()->routeIs('settings.sop.*') ? 'aria-current="page"' : '' }}
-                                class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-[12px] font-medium transition-all active:scale-[0.98] {{ request()->routeIs('settings.sop.*') ? 'bg-[#007AFF] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)]' : 'text-black/65 dark:text-white/65 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-black dark:hover:text-white' }}">
-                                <i data-lucide="file-check" class="w-3.5 h-3.5 {{ request()->routeIs('settings.sop.*') ? 'text-white' : 'text-indigo-500' }} shrink-0"></i>
-                                <span class="truncate">Pusat SOP Usaha (PDF)</span>
                             </a>
                         @endif
 
@@ -2365,11 +2358,6 @@
                                 class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
                                 <i data-lucide="sliders" class="w-3.5 h-3.5 text-[#5856D6]"></i>
                                 <span>Pengaturan Usaha &amp; Cabang</span>
-                            </a>
-                            <a href="{{ route('settings.sop.index') }}"
-                                class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] text-xs text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
-                                <i data-lucide="file-check" class="w-3.5 h-3.5 text-indigo-500"></i>
-                                <span>Pusat SOP Usaha (PDF)</span>
                             </a>
                         @endif
                         @if ($canAccessSettings || \App\Support\Context::isOwner())

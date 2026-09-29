@@ -26,7 +26,6 @@
    - [3.12 Analitik Bisnis & Tren Pertumbuhan (Analytics Suite)](#312-analitik-bisnis--tren-pertumbuhan-analytics-suite)
    - [3.13 Pusat Otorisasi Dokumen (MAR Engine)](#313-pusat-otorisasi-dokumen-mar---maker-approver-releaser)
    - [3.14 Portal Karyawan & Presensi Mandiri (Staff Personal Attendance & Workstation Hub)](#314-portal-karyawan--presensi-mandiri-staff-personal-attendance--workstation-hub)
-   - [3.15 Smart AI Assistant & Pusat SOP Usaha Internal (PDF Ingestion & 20 Sektor)](#315-smart-ai-assistant--pusat-sop-usaha-internal-pdf-ingestion--20-sektor)
 4. [Panduan Rekayasa Developer & AI Agent (Engineering Blueprint)](#4-panduan-rekayasa-developer--ai-agent-engineering-blueprint)
    - [4.1 Struktur 33 Domain Packages DDD](#41-struktur-33-domain-packages-ddd)
    - [4.2 Aturan Scoping Tenant & Proteksi Keamanan](#42-aturan-scoping-tenant--proteksi-keamanan)
@@ -47,7 +46,6 @@
    - [4.17 Arsitektur Limitasi Subscription, Downgrade Auto-Gating, Pelacakan Storage & Data Pruning Previewer](#417-arsitektur-limitasi-subscription-downgrade-auto-gating-pelacakan-storage--data-pruning-previewer)
    - [4.18 Hardening Keamanan Siber POS Hardware, SSRF Guardrail & Otorisasi PIN (PRD-17)](#418-hardening-keamanan-siber-pos-hardware-ssrf-guardrail--otorisasi-pin-prd-17)
    - [4.19 Hardening Komprehensif 7 Modul View & Remediasi 20 Sektor Industri (PRD-18)](#419-hardening-komprehensif-7-modul-view--remediasi-20-sektor-industri-prd-18)
-   - [4.20 Arsitektur AI Assistant RAG, Hot-Reload Markdown Indexing & Multi-Tenant SOP Ingestion](#420-arsitektur-ai-assistant-rag-hot-reload-markdown-indexing--multi-tenant-sop-ingestion)
 
 ---
 
@@ -613,21 +611,4 @@ Dokumentasi Cooca saling terhubung secara dua arah untuk memudahkan penelusuran 
    │
    └──► Hardening 7 Modul View ────► docs/prd/PRD-18-COMPREHENSIVE-SYSTEM-HARDENING-7-MODULES-AND-MULTI-INDUSTRY-REMEDIATION.md ──► 7 Core View Modules
                                                                                                                                        └──► AUDIT-2026-09-29-001
-    │
-    └──► AI Assistant & SOP Hub ────► docs/system/modules/ai_assistant.md ────────────────────────► app/Domain/Ai/ & resources/views/components/bento-ai-assistant-modal.blade.php
-                                                                                                    └──► WORK-2026-09-29-228
 ```
-
----
-
-### 4.20 Arsitektur AI Assistant RAG, Hot-Reload Markdown Indexing & Multi-Tenant SOP Ingestion
-
-Modul AI Assistant COOCA mengintegrasikan dua domain pengetahuan berjenjang:
-1. **Multi-Tenant SOP Ingestion (`TenantSopIngestionService`)**:
-   - Memproses file PDF SOP operasional yang diunggah oleh pemilik usaha di `/settings/sop`.
-   - Mengekstrak teks murni stream PDF, membagi menjadi chunk per bab/halaman, dan menguncinya di tabel `tenant_sop_chunks` secara mutlak dengan filter `business_id`.
-   - Mengeliminasi kebocoran rahasia usaha antar-tenant (*Zero Cross-Tenant Leakage*).
-2. **Dynamic Hot-Reload System Markdown Indexing (`MarkdownKnowledgeService`)**:
-   - Secara otomatis membaca dan mengindeks file-file manual di `docs/system/modules/*.md` dan `docs/SYSTEM_GUIDE.md`.
-   - Dilengkapi cache invalidation otomatis berbasis timestamp file hash, sehingga penambahan file `.md` baru otomatis meningkatkan kecerdasan asisten seketika tanpa perlu restart/retraining.
-   - Menyematkan filter taksonomi 20 sektor industri (*FnB, Bengkel, Ritel, Laundry, Konveksi, dll.*) dan peran pengguna (*Owner, Kasir, Gudang, Akuntan*) sehingga bot memberikan arahan yang 100% relevan dengan direct link 1-klik ke menu tujuan.
