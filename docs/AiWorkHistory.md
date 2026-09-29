@@ -47,6 +47,42 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 
 - Keputusan desain arsitektur yang diambil.
 
+### [WORK-2026-09-29-227] Refaktor & Perbaikan Error Alpine.js dan Kebocoran Kode JS pada Marketplace Hub Products & Master Data
+
+- **Date:** 2026-09-29
+- **Status:** COMPLETED
+- **Module:** Marketplace Hub & Master Data (`resources/views/app/marketplace/products.blade.php`, `resources/views/app/master-data/index.blade.php`)
+- **Feature:** Alpine.js Component Isolation, Safe JSON Serialization (`Js::from`), Pre-mapped `$productsMap`, dan Zero Attribute Escaping Collision
+- **Work Type:** Bug Fix, UI/UX, Frontend Architecture, Production Hardening
+
+#### 1. Business Context & Objective
+- **Konteks:** Pada antarmuka Marketplace Hub Products (`/marketplace-hub/products`), pengguna melihat teks JavaScript mentah bocor ke antarmuka, konsol browser melempar `Alpine Expression Error: Unexpected end of input` dan `ReferenceError: ... is not defined`, sehingga modal sheet pemetaan produk (*Bento XXL*) tidak dapat dibuka.
+- **Masalah/Target:** Mengeliminasi tabrakan tanda petik ganda (`"`) antara atribut HTML `x-data` dan JSON data kategori marketplace (`@js`), merefaktor seluruh logika komponen 280+ baris ke `Alpine.data` terisolasi di dalam blok `@push('scripts')`, mengoptimalkan pemanggilan modal baris tabel dengan `$productsMap` terstruktur berbasis ID produk (`openMapping(id, channel)`), serta menerapkan perbaikan preventif pada `master-data/index.blade.php`.
+
+#### 2. What Was Done
+- **Identifikasi Root Cause:** Tanda petik ganda dari Blade `@js($marketplaceCategories)` menutup atribut HTML `x-data="..."` secara prematur, menyebabkan sisa 250+ baris JS tercetak sebagai teks DOM biasa dan Alpine gagal menginisialisasi state.
+- **Refactoring Komponen Alpine:** Mengekstrak komponen `marketplaceProductManager` dan `masterDataManager` ke registrasi `Alpine.data(...)` dengan dukungan `alpine:init` lifecycle dan window fallback aman.
+- **Optimasi Data Store Client-Side:** Membangun `$productsMap` di level PHP Blade yang diindeks berdasarkan `id`, menghapus serialisasi berulang `@js($product)` pada ratusan tombol aksi tabel.
+- **Verifikasi & Hardening:** Memastikan seluruh fungsi kalkulator live margin HPP, guardrail restriksi BPOM farmasi, selector kategori 30 taksonomi resmi, dan publish 1-klik via AppAlert berjalan mulus tanpa kebocoran kode.
+
+#### 3. Technical Changes
+- **Files Affected:**
+  - `resources/views/app/marketplace/products.blade.php` (Refactor root x-data ke `marketplaceProductManager`, pre-mapped `$productsMap`, pembersihan `@js($product)` di tombol kolom tabel, penambahan `@push('scripts')`).
+  - `resources/views/app/master-data/index.blade.php` (Refactor root x-data ke `masterDataManager`, penambahan `@push('scripts')`).
+- **Database Changes:** Tidak ada.
+- **API / Route Changes:** Tidak ada.
+
+#### 4. System Impacts
+- **Workflow Impact:** Modal sheet Bento XXL pengaturan harga & stok per channel (Shopee, TikTok Shop, Tokopedia) dapat dibuka dengan lancar, cepat, responsif, dan reaktif.
+- **Business Rule Impact:** Seluruh rumus margin, kalkulasi potongan fee ~8%, guardrail modal dasar HPP, dan restriksi BPOM tetap terjaga 100%.
+- **Permission Impact:** Tetap terlindungi di bawah middleware `require.permission:marketplace.view` dan `require.permission:marketplace.manage`.
+
+#### 5. Verification & Testing
+- **Linting:** `php -l resources/views/app/marketplace/products.blade.php` & `php -l resources/views/app/master-data/index.blade.php` → `No syntax errors detected`.
+- **Automated Tests:** `php artisan test --filter=Marketplace` → 43 passed (260 assertions), `php artisan test --filter=MasterData` → 11 passed (59 assertions). 100% PASS, 0 failure, 0 error.
+
+---
+
 ### [WORK-2026-09-29-226] Pengujian Otomatis Komprehensif, QA Matrix & Penutupan Eksekusi 9 Fase Remediasi 7 Modul COOCA (Fase 9: PRD-18 / PLAN-18)
 
 - **Date:** 2026-09-29

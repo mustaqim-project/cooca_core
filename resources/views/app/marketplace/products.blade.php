@@ -5,294 +5,45 @@
 ])
 
 @section('content')
-<div class="max-w-[1360px] mx-auto space-y-6 pb-28 sm:pb-32 lg:pb-12" x-data="{
-    mappingModal: false,
-    syncModal: false,
-    submitting: false,
-    publishing: false,
-    selectedProduct: null,
-    categories: @js($marketplaceCategories ?? []),
-    categorySearch: '',
-    categoryDropdownOpen: false,
-    pricingMode: 'nominal', // 'nominal' (Harga Langsung Rp) or 'percentage' (Markup %)
-    markupPercent: 0,
-    stockMode: 'auto', // 'auto' (Gudang) or 'manual' (Kuota Khusus)
-    form: {
-        product_id: '',
-        channel: 'shopee',
-        category_id: '',
-        category_name: '',
-        marketplace_item_id: '',
-        marketplace_sku: '',
-        channel_price: '',
-        sync_price_auto: false,
-        price_multiplier: 1.0,
-        sync_stock_auto: true,
-        stock_buffer: 0,
-        custom_stock: '',
-        is_active: true,
-        allow_below_cost: false
-    },
-    openMapping(product, channel) {
-        this.selectedProduct = product;
-        this.form.product_id = product.id;
-        this.form.allow_below_cost = false;
-        this.categorySearch = '';
-        this.categoryDropdownOpen = false;
-        this.switchChannel(channel || 'shopee');
-        this.submitting = false;
-        this.publishing = false;
-        this.mappingModal = true;
-    },
-    switchChannel(channel) {
-        this.form.channel = channel;
-        this.form.allow_below_cost = false;
-        if (!this.selectedProduct) return;
-        const existing = (this.selectedProduct.marketplace_mappings || []).find(m => m.channel === channel);
-        if (existing) {
-            this.form.marketplace_item_id = existing.marketplace_item_id || existing.external_product_id || '';
-            this.form.marketplace_sku = existing.marketplace_sku || existing.external_sku_code || '';
-            this.form.category_id = (existing.raw_metadata && existing.raw_metadata.category_id) ? existing.raw_metadata.category_id : '';
-            this.form.category_name = (existing.raw_metadata && existing.raw_metadata.category_name) ? existing.raw_metadata.category_name : '';
-            if (!this.form.category_id) {
-                this.autoDetectCategory(this.selectedProduct);
-            }
-            this.form.channel_price = existing.channel_price || '';
-            this.form.sync_price_auto = Boolean(existing.sync_price_auto);
-            this.form.price_multiplier = existing.price_multiplier || 1.0;
-            this.pricingMode = this.form.sync_price_auto ? 'percentage' : 'nominal';
-            this.markupPercent = Math.round(((parseFloat(this.form.price_multiplier) || 1.0) - 1.0) * 100);
-            this.form.sync_stock_auto = Boolean(existing.sync_stock_auto);
-            this.stockMode = this.form.sync_stock_auto ? 'auto' : 'manual';
-            this.form.stock_buffer = existing.stock_buffer || 0;
-            this.form.custom_stock = existing.custom_stock !== null ? existing.custom_stock : '';
-            this.form.is_active = Boolean(existing.is_active);
-        } else {
-            this.form.marketplace_item_id = '';
-            this.form.marketplace_sku = this.selectedProduct.code || '';
-            this.autoDetectCategory(this.selectedProduct);
-            this.form.channel_price = this.selectedProduct.selling_price || '';
-            this.form.sync_price_auto = false;
-            this.form.price_multiplier = 1.0;
-            this.pricingMode = 'nominal';
-            this.markupPercent = 0;
-            this.form.sync_stock_auto = true;
-            this.stockMode = 'auto';
-            this.form.stock_buffer = 0;
-            this.form.custom_stock = '';
-            this.form.is_active = true;
-        }
-    },
-    autoDetectCategory(product) {
-        if (!product || !this.categories || !this.categories.length) return;
-        const text = ((product.name || '') + ' ' + (product.category?.name || '') + ' ' + (product.description || '')).toLowerCase();
-        let bestMatch = null;
-        let maxScore = 0;
-        for (const cat of this.categories) {
-            let score = 0;
-            if (text.includes(cat.name.toLowerCase())) {
-                score += 10;
-            }
-            if (cat.keywords && Array.isArray(cat.keywords)) {
-                for (const kw of cat.keywords) {
-                    if (text.includes(kw.toLowerCase())) {
-                        score += 3;
-                    }
-                }
-            }
-            if (score > maxScore) {
-                maxScore = score;
-                bestMatch = cat;
-            }
-        }
-        if (bestMatch && maxScore > 0) {
-            this.form.category_id = bestMatch.id;
-            this.form.category_name = bestMatch.name;
-        } else {
-            this.form.category_id = this.categories[0]?.id || '';
-            this.form.category_name = this.categories[0]?.name || '';
-        }
-    },
-    get filteredCategories() {
-        if (!this.categorySearch || !this.categorySearch.trim()) return this.categories;
-        const q = this.categorySearch.toLowerCase().trim();
-        return this.categories.filter(c => 
-            c.name.toLowerCase().includes(q) || 
-            (c.id && c.id.includes(q)) || 
-            (c.description && c.description.toLowerCase().includes(q)) ||
-            (c.keywords && c.keywords.some(k => k.toLowerCase().includes(q)))
-        );
-    },
-    get selectedCategoryObj() {
-        return this.categories.find(c => c.id === this.form.category_id) || null;
-    },
-    selectCategory(cat) {
-        this.form.category_id = cat.id;
-        this.form.category_name = cat.name;
-        this.categoryDropdownOpen = false;
-        this.categorySearch = '';
-    },
-    setPricingMode(mode) {
-        this.pricingMode = mode;
-        if (mode === 'percentage') {
-            this.form.sync_price_auto = true;
-            this.updateMultiplierFromPercent();
-        } else {
-            this.form.sync_price_auto = false;
-            if (!this.form.channel_price || Number(this.form.channel_price) === 0) {
-                this.form.channel_price = this.computedEffectivePrice || this.selectedProduct?.selling_price || 0;
-            }
-        }
-    },
-    updateMultiplierFromPercent() {
-        const p = parseFloat(this.markupPercent) || 0;
-        this.form.price_multiplier = Math.round((1 + (p / 100)) * 1000) / 1000;
-    },
-    setMarkupPercent(p) {
-        this.markupPercent = p;
-        this.setPricingMode('percentage');
-        this.updateMultiplierFromPercent();
-    },
-    setNominalPrice(price) {
-        this.form.channel_price = Math.max(0, Math.round(price));
-        this.setPricingMode('nominal');
-    },
-    setStockMode(mode) {
-        this.stockMode = mode;
-        this.form.sync_stock_auto = (mode === 'auto');
-    },
-    async publishToMarketplace() {
-        if (!this.selectedProduct) return;
-        if (this.isBelowCost && !this.form.allow_below_cost) {
-            if (window.AppAlert) {
-                AppAlert.toast('Buka kunci persetujuan risiko harga di bawah modal dasar (HPP) untuk melanjutkan.', 'warning');
-            }
-            return;
-        }
+@php
+    $productsMap = $products->getCollection()->keyBy('id')->map(function ($p) {
+        return [
+            'id' => (string) $p->id,
+            'name' => $p->name,
+            'code' => $p->code ?? '',
+            'selling_price' => (float) $p->selling_price,
+            'base_cost' => (float) $p->base_cost,
+            'stock' => $p->stock ?? 0,
+            'unit' => $p->unit ?? 'pcs',
+            'description' => $p->description ?? '',
+            'category' => $p->category ? ['name' => $p->category->name] : null,
+            'images' => $p->images ?? [],
+            'image' => $p->image,
+            'marketplace_mappings' => $p->marketplaceMappings->map(function ($m) {
+                return [
+                    'id' => (string) $m->id,
+                    'channel' => $m->channel,
+                    'marketplace_item_id' => $m->marketplace_item_id ?: $m->external_product_id,
+                    'marketplace_sku' => $m->marketplace_sku ?: $m->external_sku_code,
+                    'channel_price' => $m->channel_price,
+                    'sync_price_auto' => (bool) $m->sync_price_auto,
+                    'price_multiplier' => (float) ($m->price_multiplier ?? 1.0),
+                    'sync_stock_auto' => (bool) $m->sync_stock_auto,
+                    'stock_buffer' => (int) ($m->stock_buffer ?? 0),
+                    'custom_stock' => $m->custom_stock,
+                    'is_active' => (bool) $m->is_active,
+                    'raw_metadata' => $m->raw_metadata,
+                ];
+            })->values()->all(),
+        ];
+    })->all();
+@endphp
 
-        const channelName = this.form.channel === 'tiktok_shop' ? 'TikTok Shop' : (this.form.channel === 'tokopedia' ? 'Tokopedia' : 'Shopee');
-        
-        if (window.AppAlert && typeof window.AppAlert['confirm'] === 'function') {
-            const confirmed = await window.AppAlert['confirm'](
-                `1-Click Terbitkan ke ${channelName}?`,
-                `Produk "${this.selectedProduct.name}" beserta foto utama dan seluruh galeri fotonya akan langsung diunggah dan dibuatkan listing baru di ${channelName}.`
-            );
-            if (!confirmed) return;
-        }
-
-        this.publishing = true;
-        try {
-            const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
-            const url = `/marketplace-hub/products/${this.selectedProduct.id}/publish`;
-            
-            const res = await fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': token || ''
-                },
-                body: JSON.stringify({
-                    channel: this.form.channel,
-                    category_id: this.form.category_id,
-                    category_name: this.form.category_name,
-                    channel_price: this.form.channel_price,
-                    sync_price_auto: this.form.sync_price_auto,
-                    price_multiplier: this.form.price_multiplier,
-                    custom_stock: this.form.custom_stock,
-                    sync_stock_auto: this.form.sync_stock_auto,
-                    stock_buffer: this.form.stock_buffer,
-                    allow_below_cost: this.form.allow_below_cost
-                })
-            });
-
-            const data = await res.json();
-            if (!res.ok || !data.success) {
-                throw new Error(data.error || data.message || 'Gagal menerbitkan produk ke marketplace.');
-            }
-
-            this.form.marketplace_item_id = data.external_product_id || this.form.marketplace_item_id;
-            
-            if (window.AppAlert) {
-                AppAlert.toast(data.message || `Berhasil menerbitkan listing ke ${channelName}!`, 'success');
-            }
-
-            // Close modal sheet reactively and update in-memory product mapping
-            this.mappingModal = false;
-            if (this.selectedProduct) {
-                if (!this.selectedProduct.marketplace_mappings) {
-                    this.selectedProduct.marketplace_mappings = [];
-                }
-                const existingIdx = this.selectedProduct.marketplace_mappings.findIndex(m => m.channel === this.form.channel);
-                const updatedMapping = {
-                    channel: this.form.channel,
-                    marketplace_item_id: this.form.marketplace_item_id,
-                    channel_price: this.form.channel_price,
-                    is_active: this.form.is_active,
-                };
-                if (existingIdx >= 0) {
-                    this.selectedProduct.marketplace_mappings[existingIdx] = Object.assign(this.selectedProduct.marketplace_mappings[existingIdx], updatedMapping);
-                } else {
-                    this.selectedProduct.marketplace_mappings.push(updatedMapping);
-                }
-            }
-        } catch (err) {
-            if (window.AppAlert) {
-                AppAlert.toast(err.message, 'error');
-            } else {
-                alert(err.message);
-            }
-        } finally {
-            this.publishing = false;
-        }
-    },
-    get nominalDiffVsStore() {
-        if (!this.selectedProduct) return { amount: 0, rawDiff: 0, percent: 0, isHigher: true };
-        const storePrice = Number(this.selectedProduct.selling_price || 0);
-        const channelPrice = Number(this.form.channel_price || 0);
-        const diff = channelPrice - storePrice;
-        const percent = storePrice > 0 ? Math.round((diff / storePrice) * 100) : 0;
-        return {
-            amount: Math.abs(diff),
-            rawDiff: diff,
-            percent: Math.abs(percent),
-            isHigher: diff >= 0
-        };
-    },
-    get computedEffectivePrice() {
-        if (!this.selectedProduct) return 0;
-        if (this.pricingMode === 'percentage' || this.form.sync_price_auto) {
-            const mult = parseFloat(this.form.price_multiplier) || 1.0;
-            return Math.round(Number(this.selectedProduct.selling_price || 0) * mult);
-        }
-        return Math.round(parseFloat(this.form.channel_price) || 0);
-    },
-    get computedAdminFee() {
-        return Math.round(this.computedEffectivePrice * 0.08);
-    },
-    get computedNetReceived() {
-        return this.computedEffectivePrice - this.computedAdminFee;
-    },
-    get computedBaseCost() {
-        return Number(this.selectedProduct?.base_cost || 0);
-    },
-    get computedNetMargin() {
-        return this.computedNetReceived - this.computedBaseCost;
-    },
-    get computedMarginPercent() {
-        if (this.computedEffectivePrice <= 0) return 0;
-        return Math.round((this.computedNetMargin / this.computedEffectivePrice) * 100);
-    },
-    get isBelowCost() {
-        return this.computedBaseCost > 0 && this.computedEffectivePrice < this.computedBaseCost;
-    },
-    get costDeficit() {
-        return Math.max(0, this.computedBaseCost - this.computedEffectivePrice);
-    },
-    formatRupiah(val) {
-        return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(val || 0);
-    }
-}">
+<div class="max-w-[1360px] mx-auto space-y-6 pb-28 sm:pb-32 lg:pb-12"
+    x-data="marketplaceProductManager({
+        categories: {{ Js::from($marketplaceCategories ?? []) }},
+        products: {{ Js::from($productsMap) }}
+    })">
 
     {{-- MODULE HEADER & PERSISTENT MARKETPLACE TABS --}}
     <x-module-header
@@ -501,12 +252,12 @@
                                     <div class="text-[10.5px] text-black/50 dark:text-white/50">
                                         {{ $shopeeMapping->sync_price_auto ? 'Otomatis' : 'Harga Khusus' }}
                                     </div>
-                                    <button type="button" @click="openMapping(@js($product), 'shopee')"
+                                    <button type="button" @click="openMapping('{{ $product->id }}', 'shopee')"
                                         class="text-[11px] font-semibold text-[#007AFF] hover:underline mt-1 inline-block cursor-pointer">
                                         Ubah
                                     </button>
                                 @else
-                                    <button type="button" @click="openMapping(@js($product), 'shopee')"
+                                    <button type="button" @click="openMapping('{{ $product->id }}', 'shopee')"
                                         class="h-7 px-2.5 rounded-[8px] text-[11px] font-semibold text-[#EE4D2D] bg-[#EE4D2D]/10 hover:bg-[#EE4D2D]/20 inline-flex items-center gap-1 cursor-pointer transition-colors" title="1-Click Terbitkan ke Shopee atau Petakan">
                                         <i data-lucide="cloud-upload" class="w-3 h-3"></i>
                                         <span>Terbitkan</span>
@@ -533,12 +284,12 @@
                                     <div class="text-[10.5px] text-black/50 dark:text-white/50">
                                         {{ $tiktokMapping->sync_price_auto ? 'Otomatis' : 'Harga Khusus' }}
                                     </div>
-                                    <button type="button" @click="openMapping(@js($product), 'tiktok_shop')"
+                                    <button type="button" @click="openMapping('{{ $product->id }}', 'tiktok_shop')"
                                         class="text-[11px] font-semibold text-[#007AFF] hover:underline mt-1 inline-block cursor-pointer">
                                         Ubah
                                     </button>
                                 @else
-                                    <button type="button" @click="openMapping(@js($product), 'tiktok_shop')"
+                                    <button type="button" @click="openMapping('{{ $product->id }}', 'tiktok_shop')"
                                         class="h-7 px-2.5 rounded-[8px] text-[11px] font-semibold text-black dark:text-white bg-black/[0.06] dark:bg-white/[0.1] hover:bg-black/[0.1] inline-flex items-center gap-1 cursor-pointer transition-colors" title="1-Click Terbitkan ke TikTok Shop atau Petakan">
                                         <i data-lucide="cloud-upload" class="w-3 h-3"></i>
                                         <span>Terbitkan</span>
@@ -565,12 +316,12 @@
                                     <div class="text-[10.5px] text-black/50 dark:text-white/50">
                                         {{ $tokpedMapping->sync_price_auto ? 'Otomatis' : 'Harga Khusus' }}
                                     </div>
-                                    <button type="button" @click="openMapping(@js($product), 'tokopedia')"
+                                    <button type="button" @click="openMapping('{{ $product->id }}', 'tokopedia')"
                                         class="text-[11px] font-semibold text-[#007AFF] hover:underline mt-1 inline-block cursor-pointer">
                                         Ubah
                                     </button>
                                 @else
-                                    <button type="button" @click="openMapping(@js($product), 'tokopedia')"
+                                    <button type="button" @click="openMapping('{{ $product->id }}', 'tokopedia')"
                                         class="h-7 px-2.5 rounded-[8px] text-[11px] font-semibold text-[#00AA5B] bg-[#00AA5B]/10 hover:bg-[#00AA5B]/20 inline-flex items-center gap-1 cursor-pointer transition-colors" title="1-Click Terbitkan ke Tokopedia atau Petakan">
                                         <i data-lucide="cloud-upload" class="w-3 h-3"></i>
                                         <span>Terbitkan</span>
@@ -1187,3 +938,316 @@
 
 </div>
 @endsection
+
+@push('scripts')
+<script>
+(function() {
+    function initMarketplaceAlpine() {
+        if (typeof Alpine !== 'undefined') {
+            registerComponent();
+        } else {
+            document.addEventListener('alpine:init', registerComponent);
+        }
+    }
+
+    function registerComponent() {
+        if (!window.Alpine) return;
+        Alpine.data('marketplaceProductManager', (config = {}) => ({
+            mappingModal: false,
+            syncModal: false,
+            submitting: false,
+            publishing: false,
+            selectedProduct: null,
+            categories: config.categories || [],
+            productsMap: config.products || {},
+            categorySearch: '',
+            categoryDropdownOpen: false,
+            pricingMode: 'nominal', // 'nominal' (Harga Langsung Rp) or 'percentage' (Markup %)
+            markupPercent: 0,
+            stockMode: 'auto', // 'auto' (Gudang) or 'manual' (Kuota Khusus)
+            form: {
+                product_id: '',
+                channel: 'shopee',
+                category_id: '',
+                category_name: '',
+                marketplace_item_id: '',
+                marketplace_sku: '',
+                channel_price: '',
+                sync_price_auto: false,
+                price_multiplier: 1.0,
+                sync_stock_auto: true,
+                stock_buffer: 0,
+                custom_stock: '',
+                is_active: true,
+                allow_below_cost: false
+            },
+            openMapping(productOrId, channel) {
+                const product = (typeof productOrId === 'object' && productOrId !== null)
+                    ? productOrId
+                    : (this.productsMap[productOrId] || null);
+                if (!product) return;
+                this.selectedProduct = product;
+                this.form.product_id = product.id;
+                this.form.allow_below_cost = false;
+                this.categorySearch = '';
+                this.categoryDropdownOpen = false;
+                this.switchChannel(channel || 'shopee');
+                this.submitting = false;
+                this.publishing = false;
+                this.mappingModal = true;
+            },
+            switchChannel(channel) {
+                this.form.channel = channel;
+                this.form.allow_below_cost = false;
+                if (!this.selectedProduct) return;
+                const existing = (this.selectedProduct.marketplace_mappings || []).find(m => m.channel === channel);
+                if (existing) {
+                    this.form.marketplace_item_id = existing.marketplace_item_id || existing.external_product_id || '';
+                    this.form.marketplace_sku = existing.marketplace_sku || existing.external_sku_code || '';
+                    this.form.category_id = (existing.raw_metadata && existing.raw_metadata.category_id) ? existing.raw_metadata.category_id : '';
+                    this.form.category_name = (existing.raw_metadata && existing.raw_metadata.category_name) ? existing.raw_metadata.category_name : '';
+                    if (!this.form.category_id) {
+                        this.autoDetectCategory(this.selectedProduct);
+                    }
+                    this.form.channel_price = existing.channel_price || '';
+                    this.form.sync_price_auto = Boolean(existing.sync_price_auto);
+                    this.form.price_multiplier = existing.price_multiplier || 1.0;
+                    this.pricingMode = this.form.sync_price_auto ? 'percentage' : 'nominal';
+                    this.markupPercent = Math.round(((parseFloat(this.form.price_multiplier) || 1.0) - 1.0) * 100);
+                    this.form.sync_stock_auto = Boolean(existing.sync_stock_auto);
+                    this.stockMode = this.form.sync_stock_auto ? 'auto' : 'manual';
+                    this.form.stock_buffer = existing.stock_buffer || 0;
+                    this.form.custom_stock = existing.custom_stock !== null ? existing.custom_stock : '';
+                    this.form.is_active = Boolean(existing.is_active);
+                } else {
+                    this.form.marketplace_item_id = '';
+                    this.form.marketplace_sku = this.selectedProduct.code || '';
+                    this.autoDetectCategory(this.selectedProduct);
+                    this.form.channel_price = this.selectedProduct.selling_price || '';
+                    this.form.sync_price_auto = false;
+                    this.form.price_multiplier = 1.0;
+                    this.pricingMode = 'nominal';
+                    this.markupPercent = 0;
+                    this.form.sync_stock_auto = true;
+                    this.stockMode = 'auto';
+                    this.form.stock_buffer = 0;
+                    this.form.custom_stock = '';
+                    this.form.is_active = true;
+                }
+            },
+            autoDetectCategory(product) {
+                if (!product || !this.categories || !this.categories.length) return;
+                const text = ((product.name || '') + ' ' + (product.category?.name || '') + ' ' + (product.description || '')).toLowerCase();
+                let bestMatch = null;
+                let maxScore = 0;
+                for (const cat of this.categories) {
+                    let score = 0;
+                    if (text.includes(cat.name.toLowerCase())) {
+                        score += 10;
+                    }
+                    if (cat.keywords && Array.isArray(cat.keywords)) {
+                        for (const kw of cat.keywords) {
+                            if (text.includes(kw.toLowerCase())) {
+                                score += 3;
+                            }
+                        }
+                    }
+                    if (score > maxScore) {
+                        maxScore = score;
+                        bestMatch = cat;
+                    }
+                }
+                if (bestMatch && maxScore > 0) {
+                    this.form.category_id = bestMatch.id;
+                    this.form.category_name = bestMatch.name;
+                } else {
+                    this.form.category_id = this.categories[0]?.id || '';
+                    this.form.category_name = this.categories[0]?.name || '';
+                }
+            },
+            get filteredCategories() {
+                if (!this.categorySearch || !this.categorySearch.trim()) return this.categories;
+                const q = this.categorySearch.toLowerCase().trim();
+                return this.categories.filter(c => 
+                    c.name.toLowerCase().includes(q) || 
+                    (c.id && c.id.includes(q)) || 
+                    (c.description && c.description.toLowerCase().includes(q)) ||
+                    (c.keywords && c.keywords.some(k => k.toLowerCase().includes(q)))
+                );
+            },
+            get selectedCategoryObj() {
+                return this.categories.find(c => c.id === this.form.category_id) || null;
+            },
+            selectCategory(cat) {
+                this.form.category_id = cat.id;
+                this.form.category_name = cat.name;
+                this.categoryDropdownOpen = false;
+                this.categorySearch = '';
+            },
+            setPricingMode(mode) {
+                this.pricingMode = mode;
+                if (mode === 'percentage') {
+                    this.form.sync_price_auto = true;
+                    this.updateMultiplierFromPercent();
+                } else {
+                    this.form.sync_price_auto = false;
+                    if (!this.form.channel_price || Number(this.form.channel_price) === 0) {
+                        this.form.channel_price = this.computedEffectivePrice || this.selectedProduct?.selling_price || 0;
+                    }
+                }
+            },
+            updateMultiplierFromPercent() {
+                const p = parseFloat(this.markupPercent) || 0;
+                this.form.price_multiplier = Math.round((1 + (p / 100)) * 1000) / 1000;
+            },
+            setMarkupPercent(p) {
+                this.markupPercent = p;
+                this.setPricingMode('percentage');
+                this.updateMultiplierFromPercent();
+            },
+            setNominalPrice(price) {
+                this.form.channel_price = Math.max(0, Math.round(price));
+                this.setPricingMode('nominal');
+            },
+            setStockMode(mode) {
+                this.stockMode = mode;
+                this.form.sync_stock_auto = (mode === 'auto');
+            },
+            async publishToMarketplace() {
+                if (!this.selectedProduct) return;
+                if (this.isBelowCost && !this.form.allow_below_cost) {
+                    if (window.AppAlert) {
+                        AppAlert.toast('Buka kunci persetujuan risiko harga di bawah modal dasar (HPP) untuk melanjutkan.', 'warning');
+                    }
+                    return;
+                }
+
+                const channelName = this.form.channel === 'tiktok_shop' ? 'TikTok Shop' : (this.form.channel === 'tokopedia' ? 'Tokopedia' : 'Shopee');
+                
+                if (window.AppAlert && typeof window.AppAlert['confirm'] === 'function') {
+                    const confirmed = await window.AppAlert['confirm'](
+                        `1-Click Terbitkan ke ${channelName}?`,
+                        `Produk "${this.selectedProduct.name}" beserta foto utama dan seluruh galeri fotonya akan langsung diunggah dan dibuatkan listing baru di ${channelName}.`
+                    );
+                    if (!confirmed) return;
+                }
+
+                this.publishing = true;
+                try {
+                    const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+                    const url = `/marketplace-hub/products/${this.selectedProduct.id}/publish`;
+                    
+                    const res = await fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': token || ''
+                        },
+                        body: JSON.stringify({
+                            channel: this.form.channel,
+                            category_id: this.form.category_id,
+                            category_name: this.form.category_name,
+                            channel_price: this.form.channel_price,
+                            sync_price_auto: this.form.sync_price_auto,
+                            price_multiplier: this.form.price_multiplier,
+                            custom_stock: this.form.custom_stock,
+                            sync_stock_auto: this.form.sync_stock_auto,
+                            stock_buffer: this.form.stock_buffer,
+                            allow_below_cost: this.form.allow_below_cost
+                        })
+                    });
+
+                    const data = await res.json();
+                    if (!res.ok || !data.success) {
+                        throw new Error(data.error || data.message || 'Gagal menerbitkan produk ke marketplace.');
+                    }
+
+                    this.form.marketplace_item_id = data.external_product_id || this.form.marketplace_item_id;
+                    
+                    if (window.AppAlert) {
+                        AppAlert.toast(data.message || `Berhasil menerbitkan listing ke ${channelName}!`, 'success');
+                    }
+
+                    // Close modal sheet reactively and update in-memory product mapping
+                    this.mappingModal = false;
+                    if (this.selectedProduct) {
+                        if (!this.selectedProduct.marketplace_mappings) {
+                            this.selectedProduct.marketplace_mappings = [];
+                        }
+                        const existingIdx = this.selectedProduct.marketplace_mappings.findIndex(m => m.channel === this.form.channel);
+                        const updatedMapping = {
+                            channel: this.form.channel,
+                            marketplace_item_id: this.form.marketplace_item_id,
+                            channel_price: this.form.channel_price,
+                            is_active: this.form.is_active,
+                        };
+                        if (existingIdx >= 0) {
+                            this.selectedProduct.marketplace_mappings[existingIdx] = Object.assign(this.selectedProduct.marketplace_mappings[existingIdx], updatedMapping);
+                        } else {
+                            this.selectedProduct.marketplace_mappings.push(updatedMapping);
+                        }
+                    }
+                } catch (err) {
+                    if (window.AppAlert) {
+                        AppAlert.toast(err.message, 'error');
+                    } else {
+                        alert(err.message);
+                    }
+                } finally {
+                    this.publishing = false;
+                }
+            },
+            get nominalDiffVsStore() {
+                if (!this.selectedProduct) return { amount: 0, rawDiff: 0, percent: 0, isHigher: true };
+                const storePrice = Number(this.selectedProduct.selling_price || 0);
+                const channelPrice = Number(this.form.channel_price || 0);
+                const diff = channelPrice - storePrice;
+                const percent = storePrice > 0 ? Math.round((diff / storePrice) * 100) : 0;
+                return {
+                    amount: Math.abs(diff),
+                    rawDiff: diff,
+                    percent: Math.abs(percent),
+                    isHigher: diff >= 0
+                };
+            },
+            get computedEffectivePrice() {
+                if (!this.selectedProduct) return 0;
+                if (this.pricingMode === 'percentage' || this.form.sync_price_auto) {
+                    const mult = parseFloat(this.form.price_multiplier) || 1.0;
+                    return Math.round(Number(this.selectedProduct.selling_price || 0) * mult);
+                }
+                return Math.round(parseFloat(this.form.channel_price) || 0);
+            },
+            get computedAdminFee() {
+                return Math.round(this.computedEffectivePrice * 0.08);
+            },
+            get computedNetReceived() {
+                return this.computedEffectivePrice - this.computedAdminFee;
+            },
+            get computedBaseCost() {
+                return Number(this.selectedProduct?.base_cost || 0);
+            },
+            get computedNetMargin() {
+                return this.computedNetReceived - this.computedBaseCost;
+            },
+            get computedMarginPercent() {
+                if (this.computedEffectivePrice <= 0) return 0;
+                return Math.round((this.computedNetMargin / this.computedEffectivePrice) * 100);
+            },
+            get isBelowCost() {
+                return this.computedBaseCost > 0 && this.computedEffectivePrice < this.computedBaseCost;
+            },
+            get costDeficit() {
+                return Math.max(0, this.computedBaseCost - this.computedEffectivePrice);
+            },
+            formatRupiah(val) {
+                return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(val || 0);
+            }
+        }));
+    }
+
+    initMarketplaceAlpine();
+})();
+</script>
+@endpush

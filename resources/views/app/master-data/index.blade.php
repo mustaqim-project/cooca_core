@@ -5,101 +5,10 @@
 ])
 
 @section('content')
-    <div class="max-w-[1360px] mx-auto space-y-6 pb-28 lg:pb-12" x-data="{
-        showAddModal: false,
-        showEditModal: false,
-        activeTab: 'units',
-        filterSource: 'all',
-        searchQuery: '',
-        marketplaceCategories: @js($marketplaceCategories ?? []),
-        addItem: { name: '', description: '', marketplace_category_id: '', marketplace_category_name: '' },
-        editItem: { id: '', code: '', name: '', category: 'quantity', description: '', marketplace_category_id: '', marketplace_category_name: '', cascade_to_products: true },
-        categorySearchAdd: '',
-        categorySearchEdit: '',
-        categoryDropdownOpenAdd: false,
-        categoryDropdownOpenEdit: false,
-        deleteModalOpen: false,
-        deleteTarget: { url: '', name: '' },
-        openDelete(url, name) {
-            this.deleteTarget = { url, name };
-            this.deleteModalOpen = true;
-        },
-        closeDelete() {
-            this.deleteModalOpen = false;
-            this.deleteTarget = { url: '', name: '' };
-        },
-        submitDelete() {
-            if (this.deleteTarget.url) {
-                const form = document.getElementById('form-delete-master');
-                form.action = this.deleteTarget.url;
-                form.submit();
-            }
-        },
-        openAdd() {
-            this.addItem = { name: '', description: '', marketplace_category_id: '', marketplace_category_name: '' };
-            this.categorySearchAdd = '';
-            this.categoryDropdownOpenAdd = false;
-            this.showAddModal = true;
-        },
-        openEdit(item) {
-            this.editItem = {
-                id: item.id || '',
-                code: item.code || '',
-                name: item.name || '',
-                category: item.category || 'quantity',
-                description: item.description || '',
-                marketplace_category_id: item.marketplace_category_id || '',
-                marketplace_category_name: item.marketplace_category_name || '',
-                cascade_to_products: true
-            };
-            this.categorySearchEdit = '';
-            this.categoryDropdownOpenEdit = false;
-            this.showEditModal = true;
-        },
-        selectMarketplaceCategoryAdd(cat) {
-            this.addItem.marketplace_category_id = cat.id;
-            this.addItem.marketplace_category_name = cat.name;
-            this.categoryDropdownOpenAdd = false;
-            this.categorySearchAdd = '';
-        },
-        selectMarketplaceCategoryEdit(cat) {
-            this.editItem.marketplace_category_id = cat.id;
-            this.editItem.marketplace_category_name = cat.name;
-            this.categoryDropdownOpenEdit = false;
-            this.categorySearchEdit = '';
-        },
-        filteredCategories(query) {
-            if (!query || !query.trim()) return this.marketplaceCategories;
-            const q = query.toLowerCase().trim();
-            return this.marketplaceCategories.filter(c =>
-                c.name.toLowerCase().includes(q) ||
-                (c.id && c.id.includes(q)) ||
-                (c.description && c.description.toLowerCase().includes(q)) ||
-                (c.keywords && c.keywords.some(k => k.toLowerCase().includes(q)))
-            );
-        },
-        get selectedAddCategoryObj() {
-            return this.marketplaceCategories.find(c => c.id === this.addItem.marketplace_category_id) || null;
-        },
-        get selectedEditCategoryObj() {
-            return this.marketplaceCategories.find(c => c.id === this.editItem.marketplace_category_id) || null;
-        },
-        matchesSearch(code, name, category, desc, mpName) {
-            if (!this.searchQuery) return true;
-            const q = this.searchQuery.toLowerCase();
-            return (code && code.toLowerCase().includes(q)) ||
-                (name && name.toLowerCase().includes(q)) ||
-                (category && category.toLowerCase().includes(q)) ||
-                (desc && desc.toLowerCase().includes(q)) ||
-                (mpName && mpName.toLowerCase().includes(q));
-        },
-        matchesSource(isBusiness) {
-            if (this.filterSource === 'all') return true;
-            if (this.filterSource === 'business') return !!isBusiness;
-            if (this.filterSource === 'system') return !isBusiness;
-            return true;
-        }
-    }">
+    <div class="max-w-[1360px] mx-auto space-y-6 pb-28 lg:pb-12"
+        x-data="masterDataManager({
+            categories: {{ Js::from($marketplaceCategories ?? []) }}
+        })">
 
         @php
             $activeModule = $module ?? ($type === 'product-categories' ? 'products' : 'materials');
@@ -1080,3 +989,118 @@
 
     </div>
 @endsection
+
+@push('scripts')
+<script>
+(function() {
+    function initMasterDataAlpine() {
+        if (typeof Alpine !== 'undefined') {
+            registerComponent();
+        } else {
+            document.addEventListener('alpine:init', registerComponent);
+        }
+    }
+
+    function registerComponent() {
+        if (!window.Alpine) return;
+        Alpine.data('masterDataManager', (config = {}) => ({
+            showAddModal: false,
+            showEditModal: false,
+            activeTab: 'units',
+            filterSource: 'all',
+            searchQuery: '',
+            marketplaceCategories: config.categories || [],
+            addItem: { name: '', description: '', marketplace_category_id: '', marketplace_category_name: '' },
+            editItem: { id: '', code: '', name: '', category: 'quantity', description: '', marketplace_category_id: '', marketplace_category_name: '', cascade_to_products: true },
+            categorySearchAdd: '',
+            categorySearchEdit: '',
+            categoryDropdownOpenAdd: false,
+            categoryDropdownOpenEdit: false,
+            deleteModalOpen: false,
+            deleteTarget: { url: '', name: '' },
+            openDelete(url, name) {
+                this.deleteTarget = { url, name };
+                this.deleteModalOpen = true;
+            },
+            closeDelete() {
+                this.deleteModalOpen = false;
+                this.deleteTarget = { url: '', name: '' };
+            },
+            submitDelete() {
+                if (this.deleteTarget.url) {
+                    const form = document.getElementById('form-delete-master');
+                    form.action = this.deleteTarget.url;
+                    form.submit();
+                }
+            },
+            openAdd() {
+                this.addItem = { name: '', description: '', marketplace_category_id: '', marketplace_category_name: '' };
+                this.categorySearchAdd = '';
+                this.categoryDropdownOpenAdd = false;
+                this.showAddModal = true;
+            },
+            openEdit(item) {
+                this.editItem = {
+                    id: item.id || '',
+                    code: item.code || '',
+                    name: item.name || '',
+                    category: item.category || 'quantity',
+                    description: item.description || '',
+                    marketplace_category_id: item.marketplace_category_id || '',
+                    marketplace_category_name: item.marketplace_category_name || '',
+                    cascade_to_products: true
+                };
+                this.categorySearchEdit = '';
+                this.categoryDropdownOpenEdit = false;
+                this.showEditModal = true;
+            },
+            selectMarketplaceCategoryAdd(cat) {
+                this.addItem.marketplace_category_id = cat.id;
+                this.addItem.marketplace_category_name = cat.name;
+                this.categoryDropdownOpenAdd = false;
+                this.categorySearchAdd = '';
+            },
+            selectMarketplaceCategoryEdit(cat) {
+                this.editItem.marketplace_category_id = cat.id;
+                this.editItem.marketplace_category_name = cat.name;
+                this.categoryDropdownOpenEdit = false;
+                this.categorySearchEdit = '';
+            },
+            filteredCategories(query) {
+                if (!query || !query.trim()) return this.marketplaceCategories;
+                const q = query.toLowerCase().trim();
+                return this.marketplaceCategories.filter(c =>
+                    c.name.toLowerCase().includes(q) ||
+                    (c.id && c.id.includes(q)) ||
+                    (c.description && c.description.toLowerCase().includes(q)) ||
+                    (c.keywords && c.keywords.some(k => k.toLowerCase().includes(q)))
+                );
+            },
+            get selectedAddCategoryObj() {
+                return this.marketplaceCategories.find(c => c.id === this.addItem.marketplace_category_id) || null;
+            },
+            get selectedEditCategoryObj() {
+                return this.marketplaceCategories.find(c => c.id === this.editItem.marketplace_category_id) || null;
+            },
+            matchesSearch(code, name, category, desc, mpName) {
+                if (!this.searchQuery) return true;
+                const q = this.searchQuery.toLowerCase();
+                return (code && code.toLowerCase().includes(q)) ||
+                    (name && name.toLowerCase().includes(q)) ||
+                    (category && category.toLowerCase().includes(q)) ||
+                    (desc && desc.toLowerCase().includes(q)) ||
+                    (mpName && mpName.toLowerCase().includes(q));
+            },
+            matchesSource(isBusiness) {
+                if (this.filterSource === 'all') return true;
+                if (this.filterSource === 'business') return !!isBusiness;
+                if (this.filterSource === 'system') return !isBusiness;
+                return true;
+            }
+        }));
+    }
+
+    initMasterDataAlpine();
+})();
+</script>
+@endpush

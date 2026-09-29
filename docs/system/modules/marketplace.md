@@ -100,7 +100,8 @@ Setiap driver mengimplementasikan metode standar:
 ## 6. Standar Antarmuka Bento Apple HIG & Modal Sheet XXL
 
 Sesuai direktif Bento Apple HIG v2.0 (`docs/agent.md` & `references/design-system.md`), modul Marketplace Hub menerapkan:
-1. **Modal Sheet XXL 2-Kolom (`max-w-5xl xl:max-w-6xl`):**
+1. **Modal Sheet XXL 2-Kolom (`max-w-5xl xl:max-w-6xl`) & Arsitektur Alpine.js Terisolasi:**
+   - Komponen logika dikelola secara terisolasi via `Alpine.data('marketplaceProductManager', ...)` di skrip khusus `@push('scripts')`, dengan injeksi data server aman menggunakan `Js::from` dan pemetaan `$productsMap` berbasis ID produk untuk mencegah tabrakan quote escaping pada atribut HTML.
    - Kolom Kiri: Form pemetaan interaktif dengan tab segmented (Shopee, TikTok Shop, Tokopedia), input squircle Apple, kartu bento pricing auto-multiplier vs manual, serta alokasi stok gudang vs buffer pengaman.
    - Kolom Kanan: Kalkulator finansial reaktif live Alpine.js (Modal Dasar HPP, Harga Toko COOCA, Harga Saluran, Biaya Fee Platform ~8%, Estimasi Payout & Margin Bersih %) yang otomatis memberikan alert visual jika margin bernilai negatif.
 2. **Eliminasi Dialog Native Browser (`Zero Native Popups`):**
