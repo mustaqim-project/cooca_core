@@ -99,6 +99,17 @@ Sistem menerapkan arsitektur **Global Identity dengan Multi-Tenant Shopping Cart
   - **Strip Thumbnail Aktif:** Deretan kartu thumbnail di bagian bawah dengan indikator cincin hijau/primary aktif (`border-emerald-500 ring-2 ring-emerald-500/30 scale-105`), swap gambar instan saat di-klik atau di-hover.
   - **Rich Snippets E-Commerce (SEO):** Data terstruktur Schema.org JSON-LD secara otomatis menyertakan array seluruh URL gambar galeri untuk optimalisasi pencarian Google & sosial media OpenGraph.
 
+### 3.8 Dimensi & Berat Produk serta Biaya Layanan Sistem Platform
+* **Berat & Dimensi Produk (`products` table):**
+  - Setiap produk online didukung dengan kolom `weight` (gram, default 200.00 gr), `length`, `width`, dan `height` (cm).
+  - Data dimensi dan berat ini dihitung secara volumetrik dan riil pada kalkulasi ongkir Biteship (`CommerceShippingService`), menghasilkan tarif ekspedisi yang presisi.
+* **Biaya Layanan Sistem Platform (`biteship_service_fee`):**
+  - Transaksi pesanan delivery mengenakan biaya administrasi sistem tetap Rp 1.000 (dapat diatur di Admin Console via `SystemSetting: biteship_service_fee`).
+  - Biaya layanan ini ditampilkan transparan pada rincian belanja pelanggan di checkout storefront dan dicatat ke `commerce_orders.biteship_service_fee` sebagai pendapatan platform Cooca terpisah dari ongkos kirim ekspedisi.
+* **Antarmuka Checkout Bento Apple HIG (`/{slug}/checkout`):**
+  - Grid kartu ekspedisi interaktif dengan logo badge kurir, jenis layanan (Reguler, Instant, NextDay, Kargo), estimasi durasi pengiriman, dan harga terformat.
+  - Sanitasi tampilan: kode area internal logistik (`IDNP...`) tidak ditampilkan secara mentah kepada pembeli.
+
 ---
 
 ## 4. Aturan Bisnis E-Commerce (Business Rules)
@@ -107,7 +118,7 @@ Sistem menerapkan arsitektur **Global Identity dengan Multi-Tenant Shopping Cart
 * **RULE-COMM-002 (Stock Reservation / Deduction):** Stok produk atau bahan baku resep BOM dipotong otomatis saat merchant mengubah status pesanan menjadi `paid` atau `processing`.
 * **RULE-COMM-003 (Verified Contact Mandatory):** Pelanggan wajib memiliki nomor telepon atau email yang tervalidasi sebelum dapat menyelesaikan pesanan bernilai tinggi atau mengajukan reservasi.
 * **RULE-COMM-004 (Dual Payment Channel Transparency):** Merchant wajib memiliki kejelasan pemisahan antara pembayaran otomatis payment gateway (yang masuk ke saldo kliring escrow terpusat) dan transfer manual (yang masuk langsung ke rekening pribadi/bank merchant).
-* **RULE-COMM-005 (Biteship Live Rates & Logistics Scoping):** Perhitungan tarif ekspedisi wajib menyertakan kode pos toko asal (`origin_postal_code`) dan kode pos pembeli (`destination_postal_code`). Jika API Biteship mengalami gangguan jaringan atau akun dalam masa validasi, sistem mengaktifkan mekanisme *graceful fallback rate* dan simulasi pengiriman sandbox sehingga alur transaksi pelanggan tidak terputus.
+* **RULE-COMM-005 (Biteship Live Rates & Logistics Scoping):** Perhitungan tarif ekspedisi wajib menyertakan kode pos toko asal (`origin_postal_code`), kode pos pembeli (`destination_postal_code`), berat produk (`weight` dalam gram), serta dimensi (panjang, lebar, tinggi). Transaksi delivery dikenakan biaya layanan sistem platform Rp 1.000 yang ditambahkan ke grand total pesanan. Jika API Biteship mengalami gangguan jaringan atau akun dalam masa validasi, sistem mengaktifkan mekanisme *graceful fallback rate* dan simulasi pengiriman sandbox sehingga alur transaksi pelanggan tidak terputus.
 
 ---
 

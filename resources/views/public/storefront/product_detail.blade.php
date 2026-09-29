@@ -15,6 +15,11 @@
         $pOgImage = $landingPage->og_image_url ?: ($landingPage->hero_image_url ?: ($business->logo_url ?: asset('assets/seo/cooca-og-default.jpg')));
     }
     $pPrice = (float) $product->selling_price;
+
+    // Fase 5: Resolve active theme preset for conditional sector-specific partials
+    $activeTheme = $theme ?? app(\App\Domain\Storefront\StorefrontThemeService::class)->resolveTheme($landingPage);
+    $themePreset = $activeTheme['id'] ?? 'artisan_brew';
+    $isArtisanBrew = $themePreset === 'artisan_brew';
 @endphp
 
 @section('title', $pTitle)
@@ -243,6 +248,12 @@
                         @endif
                     </div>
                 </div>
+
+                {{-- Fase 5: Coffee-specific Tasting Notes & Grind Selector (artisan_brew only) --}}
+                @if ($isArtisanBrew)
+                    @include('public.storefront.themes.fnb_cafe.tasting_notes', ['product' => $product])
+                    @include('public.storefront.themes.fnb_cafe.grind_selector')
+                @endif
 
                 {{-- Quantity Stepper & Quick Action --}}
                 @if (($product->show_price_on_web ?? true) && $product->selling_price > 0)

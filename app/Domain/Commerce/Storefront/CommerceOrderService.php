@@ -10,6 +10,7 @@ use App\Models\Business;
 use App\Models\CommerceOrder;
 use App\Models\CommerceOrderItem;
 use App\Models\CommercePaymentMethod;
+use App\Models\CommerceShippingRule;
 use App\Models\CommerceStoreSetting;
 use App\Models\Customer;
 use App\Models\InventoryStock;
@@ -370,6 +371,14 @@ final class CommerceOrderService
 
             $totalAmount = $subtotal + $shippingCost + $biteshipServiceFee;
 
+            $persistedShippingRuleId = null;
+            if (! empty($shippingRuleId) && \Illuminate\Support\Str::isUuid((string) $shippingRuleId)) {
+                $exists = CommerceShippingRule::where('business_id', $business->id)->where('id', $shippingRuleId)->exists();
+                if ($exists) {
+                    $persistedShippingRuleId = $shippingRuleId;
+                }
+            }
+
             // Create Order
             $order = CommerceOrder::create([
                 'business_id' => $business->id,
@@ -377,7 +386,7 @@ final class CommerceOrderService
                 'customer_id' => $customer->id,
                 'global_customer_id' => auth('customer')->id() ?? null,
                 'payment_method_id' => $paymentMethod?->id,
-                'shipping_rule_id' => $shippingRuleId,
+                'shipping_rule_id' => $persistedShippingRuleId,
                 'shipping_courier_code' => $courierCode,
                 'shipping_courier_service' => $courierService,
                 'shipping_courier_name' => $courierName,
@@ -392,6 +401,9 @@ final class CommerceOrderService
                 'customer_email' => $customerData['email'] ?? null,
                 'shipping_address' => $fulfillmentType === CommerceOrder::FULFILLMENT_MERCHANT_DELIVERY ? $address : null,
                 'destination_postal_code' => $fulfillmentType === CommerceOrder::FULFILLMENT_MERCHANT_DELIVERY ? ($options['destination_postal_code'] ?? null) : null,
+                'destination_latitude' => $fulfillmentType === CommerceOrder::FULFILLMENT_MERCHANT_DELIVERY ? (isset($options['destination_latitude']) ? (float) $options['destination_latitude'] : (isset($options['latitude']) ? (float) $options['latitude'] : null)) : null,
+                'destination_longitude' => $fulfillmentType === CommerceOrder::FULFILLMENT_MERCHANT_DELIVERY ? (isset($options['destination_longitude']) ? (float) $options['destination_longitude'] : (isset($options['longitude']) ? (float) $options['longitude'] : null)) : null,
+                'destination_area_id' => $fulfillmentType === CommerceOrder::FULFILLMENT_MERCHANT_DELIVERY ? ($options['destination_area_id'] ?? ($options['biteship_area_id'] ?? null)) : null,
                 'shipping_notes' => $customerData['notes'] ?? null,
                 'scheduled_date' => $options['scheduled_date'] ?? null,
                 'scheduled_time_slot' => $options['scheduled_time_slot'] ?? null,

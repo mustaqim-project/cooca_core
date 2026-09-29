@@ -14776,10 +14776,59 @@ Business Owner / Merchant UMKM COOCA memerlukan satu pusat pengelolaan (_Single 
   6. `test_effective_stock_aggregates_across_branch_child_warehouses` -> PASSED
   7. `test_pos_checkout_at_branch_deducts_from_sub_warehouse_with_available_stock` -> PASSED
   8. `test_internal_stock_transfer_between_storage_and_display_under_same_branch` -> PASSED
-- **Uji Regresi Penuh:**
-  - `php artisan test --filter="BranchWarehouseHierarchyTest|BranchProductPricingTest|BranchProductAssortmentPosTest|PosEffectiveStockTest|ProductBundleStockAndHppTest"`: **PASSED 26 tests, 128 assertions (100%)**.
-- **Kompilasi Blade View:**
-  - `php artisan view:cache` & `php artisan view:clear`: **PASSED (0 syntax errors)**.
+### [WORK-2026-09-29-091] Integrasi Real-Time Ekspedisi Multi-Kurir (Biteship), Perhitungan Berat & Dimensi Produk (Panjang, Lebar, Tinggi), Biaya Layanan Sistem Platform (Rp 1.000), dan Sanitasi UI Checkout Bento Apple HIG
+
+- **Date:** 2026-09-29
+- **Status:** COMPLETED
+- **Module:** Commerce Storefront, Product Catalog, Logistics & Biteship Multi-Courier Integration, Checkout UI/UX
+- **Feature:**
+  1. **Perhitungan Berat & Dimensi Produk (Panjang, Lebar, Tinggi):**
+     - Menambahkan kolom `weight` (decimal 10,2 default 200.00 gram), `length`, `width`, `height` (nullable decimal 10,2 cm) pada tabel `products`.
+     - Memperbarui model `Product` dengan fillable, casts, dan accessor `weight_grams`.
+     - Memperbarui `ProductWebController` (metode `store` dan `update`) untuk validasi dan penyimpanan dimensi serta berat produk.
+     - Menambahkan Bento Box "Dimensi & Berat Pengiriman" pada modal Tambah & Edit Produk di `resources/views/app/products/index.blade.php`.
+  2. **Kalkulasi Ongkir Real-Time Multi-Kurir Biteship:**
+     - Memodernisasi `CommerceShippingService` dan `BiteshipService` untuk mengirimkan data berat dan dimensi volumetrik item ke API Biteship.
+     - Menghitung total berat paket (`total_weight_grams`) dan estimasi tarif dari berbagai kurir (JNE, SiCepat, J&T, AnterAja, GoSend, Grab) berdasarkan koordinat/kode pos tujuan.
+  3. **Biaya Layanan Sistem Platform (Rp 1.000 / `biteship_service_fee`):**
+     - Mengintegrasikan biaya admin/layanan platform Rp 1.000 yang masuk ke pendapatan Cooca pada rincian tagihan checkout, kalkulasi grand total (`subtotal + shippingCost + serviceFee`), dan pencatatan transaksi pesanan `commerce_orders.biteship_service_fee`.
+  4. **Sanitasi dan Modernisasi UI Checkout Bento Apple HIG (`checkout.blade.php`):**
+     - Menghilangkan tampilan kode area mentah (`Biteship Area: IDNP...`) dari antarmuka checkout storefront demi keamanan dan estetika.
+     - Mengganti dropdown kurir lama dengan Grid Kartu Ekspedisi Bento Apple HIG interaktif (menampilkan logo badge kurir, jenis layanan, estimasi durasi, dan tarif ongkir terformat).
+     - Menambahkan badge berat paket dinamis (`totalPackageWeight` dalam gr/kg) dan tombol refresh tarif ongkir.
+     - Memperbarui rincian belanja (Cost Breakdown) dengan pemisahan ongkos kirim dan Biaya Layanan Sistem Cooca.
+  5. **Pengujian Otomatis (Automated Tests):**
+     - Menambahkan test cases pada `tests/Feature/CustomerMultiAddressAndBiteshipGeoTest.php` untuk memvalidasi perhitungan berat/dimensi, seleksi kurir, penambahan service fee Rp 1.000, dan sanitasi UI.
+
+#### 1. Business Context & Objective
+- **Konteks:** Toko online e-commerce multi-tenant membutuhkan kalkulasi ongkos kirim yang akurat berdasarkan berat aktual dan dimensi fisik produk untuk menghindari perbedaan biaya tarif dengan kurir logistik. Selain itu, sistem platform Cooca mengenakan biaya administrasi sistem Rp 1.000 per transaksi delivery yang dicatat terpisah dari ongkir kurir.
+- **Masalah/Target:**
+  - Sebelumnya, produk belum memiliki input dimensi (panjang, lebar, tinggi) dan berat produk.
+  - Pada halaman checkout, muncul kode area teknis internal Biteship (`IDNP...`) yang membingungkan pelanggan.
+  - Pilihan ekspedisi sebelumnya berupa dropdown statis tanpa kalkulasi real-time yang mempertimbangkan variasi kurir instan, reguler, dan kargo.
+  - Biaya layanan sistem perlu dihitung secara transparan dan dicatat ke dalam database pesanan.
+
+#### 2. Technical Changes
+- **Files Affected:**
+  - `database/migrations/2026_09_29_230000_add_weight_and_dimensions_to_products_table.php` (NEW)
+  - `app/Models/Product.php`
+  - `app/Http/Controllers/Web/ProductWebController.php`
+  - `resources/views/app/products/index.blade.php`
+  - `app/Domain/Shipping/BiteshipService.php`
+  - `app/Domain/Commerce/Storefront/CommerceShippingService.php`
+  - `app/Domain/Commerce/Storefront/CommerceOrderService.php`
+  - `app/Http/Controllers/Web/Commerce/PublicOrderTrackingController.php`
+  - `resources/views/public/storefront/checkout.blade.php`
+  - `tests/Feature/CustomerMultiAddressAndBiteshipGeoTest.php`
+  - `docs/AiWorkHistory.md`
+
+#### 3. Verification & Testing
+- `php artisan migrate`: Migrasi penambahan kolom dimensi dan berat sukses.
+- `php -l`: Seluruh file PHP lolos verifikasi sintaks tanpa error.
+- `php artisan test --filter=CustomerMultiAddressAndBiteshipGeoTest`: **9 passed, 45 assertions (100%)**.
+- `php artisan test --filter=CommerceStorefrontCheckoutTest`: **13 passed, 81 assertions (100%)**.
+- `php artisan test --filter=BiteshipShippingIntegrationTest`: **7 passed, 64 assertions (100%)**.
+- `php artisan test --filter=CommerceShippingRuleFeatureTest`: **4 passed, 44 assertions (100%)**.
 
 
 

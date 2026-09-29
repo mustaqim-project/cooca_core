@@ -1,60 +1,86 @@
-@extends('layouts.public_marketing', ['title' => 'Verifikasi Email Pelanggan - COOCA'])
+@extends('layouts.public_marketing', ['title' => 'Verifikasi Email Pelanggan - COOCA', 'noindex' => true])
 
 @section('content')
-    <div class="max-w-md mx-auto py-8 sm:py-16">
-        <div class="bento-card p-6 sm:p-8 space-y-6">
-            <!-- Apple HIG Header -->
-            <div class="text-center space-y-2">
-                <div
-                    class="w-14 h-14 rounded-[20px] bg-[#007AFF]/10 text-[#007AFF] mx-auto flex items-center justify-center mb-3 shadow-sm">
-                    <i data-lucide="mail-check" class="w-7 h-7"></i>
-                </div>
-                <h1 class="text-2xl font-bold text-black dark:text-white tracking-tight">Verifikasi Email Anda</h1>
-                <p class="text-[13px] text-black/60 dark:text-white/60">Satu langkah lagi untuk menyelesaikan pendaftaran
-                    akun belanja Anda</p>
-            </div>
+    <div class="min-h-[calc(100vh-14rem)] flex flex-col justify-center py-10 sm:py-16 px-4 sm:px-6 lg:px-8">
+        <div class="w-full max-w-md mx-auto">
 
-            <div
-                class="p-4 rounded-[18px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.04] dark:border-white/[0.06] text-center space-y-2">
-                <p class="text-xs text-black/55 dark:text-white/55">Surat verifikasi dikirimkan ke:</p>
-                <div
-                    class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#007AFF]/10 text-[#007AFF] dark:bg-[#0A84FF]/15 dark:text-[#0A84FF] font-mono text-xs sm:text-sm font-semibold max-w-full truncate">
-                    <i data-lucide="mail" class="w-4 h-4 shrink-0"></i>
-                    <span class="truncate">{{ auth('customer')->user()?->email }}</span>
+            <!-- Official COOCA Branding & Header -->
+            <div class="text-center mb-6 sm:mb-8">
+                <div class="w-16 h-16 rounded-[22px] bg-[#007AFF]/10 border border-[#007AFF]/20 text-[#007AFF] dark:text-[#0A84FF] mx-auto flex items-center justify-center mb-4 shadow-sm">
+                    <i data-lucide="mail-check" class="w-8 h-8"></i>
                 </div>
-                <p class="text-xs text-black/65 dark:text-white/65 leading-relaxed pt-1">
-                    Silakan periksa kotak masuk atau folder spam email Anda, lalu klik tombol verifikasi di dalamnya.
+                <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+                    Verifikasi Email Pelanggan
+                </h1>
+                <p class="mt-2 text-xs sm:text-sm text-slate-600 dark:text-slate-400 max-w-sm mx-auto leading-relaxed">
+                    Satu langkah lagi untuk mengaktifkan akun belanja pelanggan Anda di COOCA.
                 </p>
             </div>
 
-            @if (session('status'))
-                <div
-                    class="p-3.5 rounded-[16px] bg-[#34C759]/10 border border-[#34C759]/25 text-[#34C759] text-xs sm:text-sm flex items-center gap-2.5">
-                    <i data-lucide="check-circle-2" class="w-4 h-4 shrink-0"></i>
-                    <span>{{ session('status') === 'verification-link-sent' ? 'Tautan verifikasi baru telah dikirimkan ke email Anda.' : session('status') }}</span>
+            <!-- Structured Auth Card -->
+            <div class="bg-white dark:bg-[#151B2B] border border-slate-200/80 dark:border-white/10 rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-sm dark:shadow-2xl dark:shadow-black/40 transition-colors">
+
+                <!-- Email Target Info Box -->
+                <div class="p-4 rounded-xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200/80 dark:border-white/10 text-center space-y-2 mb-5">
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Surat verifikasi dikirimkan ke:</p>
+                    <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF] font-mono text-xs sm:text-sm font-semibold max-w-full truncate">
+                        <i data-lucide="mail" class="w-4 h-4 shrink-0"></i>
+                        <span class="truncate">{{ auth('customer')->user()?->email }}</span>
+                    </div>
+                    <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed pt-1">
+                        Silakan periksa kotak masuk atau folder spam email Anda, lalu klik tombol verifikasi di dalamnya.
+                    </p>
                 </div>
-            @endif
 
-            <form method="POST" action="{{ route('customer.verification.send') }}" class="space-y-3">
-                @csrf
-                <button type="submit"
-                    class="w-full min-h-[48px] py-3 px-5 rounded-[14px] bg-[#007AFF] hover:bg-[#0071E3] text-white font-semibold text-sm shadow-md shadow-[#007AFF]/20 transition-all flex items-center justify-center gap-2 active:scale-[0.98]">
-                    <i data-lucide="send" class="w-4 h-4"></i>
-                    <span>Kirim Ulang Tautan Verifikasi</span>
-                </button>
-            </form>
+                <!-- Status / Resend Alert -->
+                @if (session('status'))
+                    <div class="mb-5 p-4 rounded-xl bg-[#34C759]/10 border border-[#34C759]/25 text-[#34C759] dark:text-[#30D158] text-xs sm:text-sm flex items-start gap-3">
+                        <i data-lucide="check-circle-2" class="w-5 h-5 shrink-0 mt-0.5"></i>
+                        <div class="flex-1 leading-relaxed">
+                            <span class="font-semibold block">Tautan Baru Terkirim!</span>
+                            <span class="text-xs sm:text-sm opacity-90">
+                                {{ session('status') === 'verification-link-sent' ? 'Tautan verifikasi baru telah berhasil dikirimkan ke email Anda.' : session('status') }}
+                            </span>
+                        </div>
+                    </div>
+                @endif
 
-            <div class="pt-2 border-t border-black/5 dark:border-white/5 flex justify-between items-center text-xs">
-                <a href="{{ route('customer.dashboard') }}" class="text-[#007AFF] hover:underline">
-                    Ke Dashboard
-                </a>
-                <form action="{{ route('customer.logout') }}" method="POST">
+                <!-- Resend Form -->
+                <form method="POST" action="{{ route('customer.verification.send') }}" class="space-y-4">
                     @csrf
-                    <button type="submit" class="text-black/50 dark:text-white/50 hover:text-red-500 transition">
-                        Keluar
+                    <button type="submit"
+                        class="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-[#00C2FF] via-[#00A3FF] to-[#007AFF] hover:from-[#1cd0ff] hover:to-[#006fe6] text-white font-bold text-sm sm:text-[15px] shadow-[0_2px_12px_rgba(0,194,255,0.3)] hover:shadow-[0_4px_20px_rgba(0,194,255,0.5)] active:scale-[0.99] min-h-[50px] transition-all focus:outline-none focus:ring-4 focus:ring-[#007AFF]/25 cursor-pointer">
+                        <i data-lucide="send" class="w-4 h-4"></i>
+                        <span>Kirim Ulang Tautan Verifikasi</span>
                     </button>
                 </form>
+
+                <!-- Navigation & Logout Actions -->
+                <div class="flex items-center justify-between pt-5 mt-5 border-t border-slate-200/80 dark:border-white/10 text-xs sm:text-sm">
+                    @if (auth('customer')->user()?->hasVerifiedEmail())
+                        <a href="{{ route('customer.dashboard') }}"
+                            class="text-[#007AFF] dark:text-[#0A84FF] hover:underline font-semibold flex items-center gap-1 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/20 rounded">
+                            <span>Lanjut ke Dashboard</span>
+                            <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                        </a>
+                    @else
+                        <a href="{{ route('customer.dashboard') }}"
+                            class="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
+                            Lewati ke Dashboard
+                        </a>
+                    @endif
+
+                    <form method="POST" action="{{ route('customer.logout') }}">
+                        @csrf
+                        <button type="submit"
+                            class="text-[#FF3B30] dark:text-[#FF453A] hover:underline font-semibold flex items-center gap-1.5 py-1 focus:outline-none focus:ring-2 focus:ring-[#FF3B30]/20 rounded cursor-pointer">
+                            <i data-lucide="log-out" class="w-4 h-4"></i>
+                            <span>Keluar Akun</span>
+                        </button>
+                    </form>
+                </div>
             </div>
+
         </div>
     </div>
 @endsection

@@ -6,6 +6,11 @@
     $pageDesc = \Illuminate\Support\Str::limit(strip_tags((string) $pageDesc), 155);
     $pageOgImage = $landingPage->og_image_url ?: ($landingPage->hero_image_url ?: ($business->logo_url ?: asset('assets/seo/cooca-og-default.jpg')));
     $pageCanonical = url('/' . $business->slug);
+
+    // Fase 5: Resolve active theme preset for conditional sector-specific partials
+    $activeTheme = $theme ?? app(\App\Domain\Storefront\StorefrontThemeService::class)->resolveTheme($landingPage);
+    $themePreset = $activeTheme['id'] ?? 'artisan_brew';
+    $isArtisanBrew = $themePreset === 'artisan_brew';
 @endphp
 
 @section('title', $pageTitle)
@@ -40,7 +45,11 @@
 
         {{-- ========================================================================= --}}
         {{-- HERO SECTION (Theme Hero Preset Architecture)                             --}}
+        {{-- Fase 5: artisan_brew uses sector-specific coffee hero partial              --}}
         {{-- ========================================================================= --}}
+        @if ($isArtisanBrew)
+            @include('public.storefront.themes.fnb_cafe.hero')
+        @else
         <section class="relative overflow-hidden pt-8 pb-16 sm:pt-16 sm:pb-24">
             <div class="max-w-[1250px] mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
@@ -114,10 +123,15 @@
                 </div>
             </div>
         </section>
+        @endif
 
         {{-- ========================================================================= --}}
         {{-- CATEGORY SHORTCUT CHIPS                                                    --}}
+        {{-- Fase 5: artisan_brew uses coffee-themed horizontal pill chips              --}}
         {{-- ========================================================================= --}}
+        @if ($isArtisanBrew)
+            @include('public.storefront.themes.fnb_cafe.category_chips')
+        @else
         @if ($productCategories->isNotEmpty() && $landingPage->isPageActive('catalog'))
             <section class="max-w-[1250px] mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex items-center justify-between gap-4 mb-6">
@@ -150,6 +164,7 @@
                 </div>
             </section>
         @endif
+        @endif
 
         {{-- ========================================================================= --}}
         {{-- FEATURED PRODUCTS GRID (Zero Modal! Dedicated Links to PDP / Instant Cart) --}}
@@ -158,16 +173,28 @@
             <section class="max-w-[1250px] mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
                     <div>
+                        @if ($isArtisanBrew)
+                            <div class="inline-block px-3 py-1 rounded-full text-xs font-semibold mb-2"
+                                style="background: {{ $activeTheme['badge_bg'] ?? '#8B5A2B1A' }}; color: {{ $activeTheme['badge_text'] ?? '#8B5A2B' }};">
+                                <i data-lucide="coffee" class="w-3 h-3 inline-block mr-0.5"></i> Rekomendasi Barista
+                            </div>
+                            <h2 class="font-heading font-extrabold text-2xl sm:text-3xl" style="color: #3D2B1F;">
+                                Kopi Pilihan & Menu Favorit
+                            </h2>
+                        @else
                         <div class="inline-block px-3 py-1 rounded-[8px] text-xs font-semibold theme-badge mb-2">Unggulan
                         </div>
                         <h2 class="font-heading font-extrabold text-2xl sm:text-3xl text-neutral-900 dark:text-white">
                             Produk Terlaris & Rekomendasi
                         </h2>
+                        @endif
                     </div>
                     @if ($landingPage->isPageActive('catalog'))
                         <a href="{{ url('/' . $business->slug . '/katalog') }}"
-                            class="inline-flex items-center gap-1.5 px-4 py-2 rounded-[12px] border border-black/10 dark:border-white/10 text-xs sm:text-sm font-medium hover:bg-neutral-100 dark:hover:bg-neutral-800 transition min-h-[40px]">
-                            <span>Buka Katalog Lengkap</span>
+                            class="inline-flex items-center gap-1.5 px-4 py-2 rounded-{{ $isArtisanBrew ? 'full' : '[12px]' }} border text-xs sm:text-sm font-medium transition min-h-[40px]"
+                            style="{{ $isArtisanBrew ? 'border-color: rgba(139, 90, 43, 0.15); color: #8B5A2B;' : '' }}"
+                            {!! $isArtisanBrew ? '' : 'class="border-black/10 dark:border-white/10 hover:bg-neutral-100 dark:hover:bg-neutral-800"' !!}>
+                            <span>{{ $isArtisanBrew ? 'Lihat Semua Menu' : 'Buka Katalog Lengkap' }}</span>
                             <i data-lucide="arrow-right" class="w-4 h-4"></i>
                         </a>
                     @endif
@@ -175,6 +202,9 @@
 
                 <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
                     @foreach ($featuredProducts as $item)
+                        @if ($isArtisanBrew)
+                            @include('public.storefront.themes.fnb_cafe.product_card', ['item' => $item])
+                        @else
                         @php
                             $pdpUrl = url('/' . $business->slug . '/produk/' . ($item->slug ?: $item->id));
                             $hasPrice = ($item->show_price_on_web ?? true) && $item->selling_price > 0;
@@ -242,6 +272,7 @@
                                 </div>
                             </div>
                         </div>
+                        @endif
                     @endforeach
                 </div>
             </section>
@@ -299,6 +330,15 @@
                         @endforeach
                     </div>
                 </div>
+            </section>
+        @endif
+
+        {{-- ========================================================================= --}}
+        {{-- FASE 5: QR DINE-IN ORDER SECTION (artisan_brew / fnb_cafe only)           --}}
+        {{-- ========================================================================= --}}
+        @if ($isArtisanBrew)
+            <section class="max-w-[1250px] mx-auto px-4 sm:px-6 lg:px-8">
+                @include('public.storefront.themes.fnb_cafe.qr_dinein')
             </section>
         @endif
 

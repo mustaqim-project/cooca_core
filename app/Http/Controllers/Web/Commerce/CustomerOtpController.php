@@ -73,10 +73,19 @@ final class CustomerOtpController extends Controller
             }
         }
 
+        $expiresAt = (int) ($challenge['expires_at'] ?? now()->addMinutes(10)->timestamp);
+        $lastSentAt = (int) ($challenge['last_sent_at'] ?? now()->timestamp);
+        $resendIn = max(0, 60 - (now()->timestamp - $lastSentAt));
+        $deliveryError = $challenge['delivery_error'] ?? null;
+
         return view('customer.auth.otp', [
-            'customer'     => $customer,
-            'already_sent' => $alreadySent,
-            'last_sent_at' => $challenge['last_sent_at'] ?? null,
+            'customer'      => $customer,
+            'phone'         => (string) $customer->phone,
+            'already_sent'  => $alreadySent,
+            'last_sent_at'  => $lastSentAt,
+            'expiresAt'     => $expiresAt,
+            'resendIn'      => $resendIn,
+            'deliveryError' => $deliveryError,
         ]);
     }
 

@@ -73,6 +73,71 @@ final class CommerceShippingService
         ?string $destinationAddress = null
     ): array {
         $storeSetting = $business->commerceStoreSetting;
+        $serviceFee = (float) (\App\Models\SystemSetting::get('biteship_service_fee') ?? config('services.biteship.service_fee', \App\Domain\Shipping\BiteshipService::SERVICE_FEE));
+
+        // Pre-calculate total weight and order items dimensions
+        $orderItems = [];
+        $totalWeightGrams = 0;
+        if (! empty($items)) {
+            foreach ($items as $item) {
+                $pId = $item['product_id'] ?? $item['id'] ?? null;
+                $qty = max(1, (int) ($item['quantity'] ?? 1));
+                $val = (float) ($item['unit_price'] ?? $item['price'] ?? $item['value'] ?? 0);
+                $name = (string) ($item['name'] ?? $item['product_name'] ?? 'Paket Belanja');
+                $weight = isset($item['weight']) ? (int) $item['weight'] : 0;
+                $length = isset($item['length']) && $item['length'] !== '' ? (int) $item['length'] : null;
+                $width = isset($item['width']) && $item['width'] !== '' ? (int) $item['width'] : null;
+                $height = isset($item['height']) && $item['height'] !== '' ? (int) $item['height'] : null;
+
+                if ($pId) {
+                    $product = \App\Models\Product::find($pId);
+                    if ($product) {
+                        $name = $product->name;
+                        $val = $val > 0 ? $val : (float) $product->selling_price;
+                        $weight = $weight > 0 ? $weight : (int) round((float) ($product->weight ?: 200));
+                        $length = $length ?: ($product->length ? (int) $product->length : null);
+                        $width = $width ?: ($product->width ? (int) $product->width : null);
+                        $height = $height ?: ($product->height ? (int) $product->height : null);
+                    }
+                }
+
+                if ($weight <= 0) {
+                    $weight = 200;
+                }
+
+                $totalWeightGrams += ($weight * $qty);
+
+                $mappedItem = [
+                    'name'     => $name,
+                    'value'    => $val > 0 ? $val : $subtotal,
+                    'weight'   => $weight,
+                    'quantity' => $qty,
+                ];
+                if ($length !== null) {
+                    $mappedItem['length'] = $length;
+                }
+                if ($width !== null) {
+                    $mappedItem['width'] = $width;
+                }
+                if ($height !== null) {
+                    $mappedItem['height'] = $height;
+                }
+
+                $orderItems[] = $mappedItem;
+            }
+        }
+
+        if (empty($orderItems)) {
+            $orderItems = [
+                [
+                    'name'     => 'Paket Belanja',
+                    'value'    => $subtotal,
+                    'weight'   => 250,
+                    'quantity' => 1,
+                ],
+            ];
+            $totalWeightGrams = 250;
+        }
 
         // Try Biteship Rates calculation first if destination is given
         if (! empty($destinationPostalCode) || ! empty($destinationCoordinates['latitude'])) {
@@ -135,15 +200,6 @@ final class CommerceShippingService
                     'address'     => $destinationAddress,
                 ];
 
-                $orderItems = ! empty($items) ? $items : [
-                    [
-                        'name'     => 'Paket Belanja',
-                        'value'    => $subtotal,
-                        'weight'   => 250,
-                        'quantity' => 1,
-                    ],
-                ];
-
                 $couriers = $storeSetting?->biteship_enabled_couriers ?? ['jne', 'sicepat', 'jnt', 'anteraja', 'gosend', 'grab'];
 
                 $rateRes = $this->biteshipService->getRates($origin, $destination, $orderItems, $couriers);
@@ -151,7 +207,7 @@ final class CommerceShippingService
                 if (($rateRes['success'] ?? false) && ! empty($rateRes['pricing'])) {
                     $options = [];
                     $selectedOption = null;
-                    $serviceFee = (float) ($rateRes['service_fee'] ?? $this->biteshipService->getServiceFee());
+                    $biteshipFee = (float) ($rateRes['service_fee'] ?? $serviceFee);
 
                     foreach ($rateRes['pricing'] as $pricing) {
                         $fee = (float) ($pricing['price'] ?? 0);
@@ -162,8 +218,8 @@ final class CommerceShippingService
                             'name'                 => $pricing['description'],
                             'rule_type'            => 'biteship',
                             'fee'                  => $fee,
-                            'service_fee'          => $serviceFee,
-                            'total_fee'            => $fee + $serviceFee,
+                            'service_fee'          => $biteshipFee,
+                            'total_fee'            => $fee + $biteshipFee,
                             'is_free'              => $isFree,
                             'description'          => $pricing['description'],
                             'courier_code'         => $pricing['courier_code'],
@@ -189,8 +245,9 @@ final class CommerceShippingService
                             'applied_rule_id'      => $selectedOption['id'],
                             'applied_rule_name'    => $selectedOption['name'],
                             'shipping_fee'         => (float) $selectedOption['fee'],
-                            'service_fee'          => (float) ($selectedOption['service_fee'] ?? $serviceFee),
-                            'total_shipping_fee'   => (float) $selectedOption['fee'] + (float) ($selectedOption['service_fee'] ?? $serviceFee),
+                            'service_fee'          => (float) ($selectedOption['service_fee'] ?? $biteshipFee),
+                            'total_shipping_fee'   => (float) $selectedOption['fee'] + (float) ($selectedOption['service_fee'] ?? $biteshipFee),
+                            'total_weight_grams'   => $totalWeightGrams,
                             'is_free'              => $selectedOption['is_free'],
                             'courier_code'         => $selectedOption['courier_code'] ?? null,
                             'courier_service_code' => $selectedOption['courier_service_code'] ?? null,
@@ -236,6 +293,8 @@ final class CommerceShippingService
                     'name'        => $rule->name,
                     'rule_type'   => $rule->rule_type,
                     'fee'         => $fee,
+                    'service_fee' => $serviceFee,
+                    'total_fee'   => $fee + $serviceFee,
                     'is_free'     => $isFree,
                     'description' => $desc,
                 ];
@@ -263,21 +322,27 @@ final class CommerceShippingService
             $finalFee = max(0.0, $lowestFee === PHP_FLOAT_MAX ? 0.0 : $lowestFee);
 
             return [
-                'applied_rule_id'   => $selectedRule?->id,
-                'applied_rule_name' => $selectedRule?->name ?? 'Kurir Logistik',
-                'shipping_fee'      => $finalFee,
-                'is_free'           => $finalFee <= 0.0,
-                'options'           => $options,
+                'applied_rule_id'    => $selectedRule?->id,
+                'applied_rule_name'  => $selectedRule?->name ?? 'Kurir Logistik',
+                'shipping_fee'       => $finalFee,
+                'service_fee'        => $serviceFee,
+                'total_shipping_fee' => $finalFee + $serviceFee,
+                'total_weight_grams' => $totalWeightGrams,
+                'is_free'            => $finalFee <= 0.0,
+                'options'            => $options,
             ];
         }
 
         // If rules are empty and no destination is specified, return empty options
         return [
-            'applied_rule_id'   => null,
-            'applied_rule_name' => 'Kurir Logistik',
-            'shipping_fee'      => 0.0,
-            'is_free'           => true,
-            'options'           => [],
+            'applied_rule_id'    => null,
+            'applied_rule_name'  => 'Kurir Logistik',
+            'shipping_fee'       => 0.0,
+            'service_fee'        => $serviceFee,
+            'total_shipping_fee' => $serviceFee,
+            'total_weight_grams' => $totalWeightGrams,
+            'is_free'            => true,
+            'options'            => [],
         ];
     }
 

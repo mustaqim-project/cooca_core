@@ -5,6 +5,11 @@
     $catDesc = 'Jelajahi seluruh koleksi produk dan layanan resmi ' . $business->name . '. Dapatkan penawaran harga terbaik, stok kasir terjamin, dan pengiriman aman.';
     $catOgImage = $landingPage->og_image_url ?: ($landingPage->hero_image_url ?: ($business->logo_url ?: asset('assets/seo/cooca-og-default.jpg')));
     $catCanonical = url('/' . $business->slug . '/katalog');
+
+    // Fase 5: Resolve active theme preset for conditional sector-specific partials
+    $activeTheme = $theme ?? app(\App\Domain\Storefront\StorefrontThemeService::class)->resolveTheme($landingPage);
+    $themePreset = $activeTheme['id'] ?? 'artisan_brew';
+    $isArtisanBrew = $themePreset === 'artisan_brew';
 @endphp
 
 @section('title', $catTitle)
@@ -39,18 +44,26 @@
             <div class="flex items-center gap-2 text-xs text-neutral-500">
                 <a href="{{ url('/' . $business->slug) }}" class="hover:text-theme-primary transition">Beranda</a>
                 <span>/</span>
-                <span class="text-neutral-800 dark:text-neutral-200 font-medium">Katalog Toko</span>
+                <span class="text-neutral-800 dark:text-neutral-200 font-medium">
+                    {{ $isArtisanBrew ? 'Menu Kopi' : 'Katalog Toko' }}
+                </span>
             </div>
-            <h1 class="font-heading font-extrabold text-2xl sm:text-4xl text-neutral-900 dark:text-white">
-                Katalog Produk &amp; Layanan
+            <h1 class="font-heading font-extrabold text-2xl sm:text-4xl"
+                style="{{ $isArtisanBrew ? 'color: #3D2B1F;' : '' }}">
+                {{ $isArtisanBrew ? 'Menu & Katalog Kopi' : 'Katalog Produk & Layanan' }}
             </h1>
-            <p class="text-sm text-neutral-500 max-w-2xl">
-                Jelajahi seluruh koleksi produk dan layanan resmi {{ $business->name }}. Temukan barang kebutuhan Anda
-                dengan harga terbaik.
+            <p class="text-sm max-w-2xl" style="{{ $isArtisanBrew ? 'color: #8B5A2B99;' : '' }}">
+                {{ $isArtisanBrew
+                    ? 'Temukan biji kopi spesialti, minuman signature, dan pastry pilihan dari ' . $business->name . '.'
+                    : 'Jelajahi seluruh koleksi produk dan layanan resmi ' . $business->name . '. Temukan barang kebutuhan Anda dengan harga terbaik.' }}
             </p>
         </div>
 
         {{-- Filter & Search Toolbar --}}
+        {{-- Fase 5: artisan_brew uses coffee-specific filter with quick-filter chips --}}
+        @if ($isArtisanBrew)
+            @include('public.storefront.themes.fnb_cafe.catalog_filter')
+        @else
         <div
             class="p-4 sm:p-5 rounded-[20px] bg-white dark:bg-neutral-800/80 border border-black/5 dark:border-white/10 shadow-sm">
             <form method="GET" action="{{ url('/' . $business->slug . '/katalog') }}"
@@ -106,11 +119,16 @@
 
             </form>
         </div>
+        @endif
 
         {{-- Product Grid --}}
+        {{-- Fase 5: artisan_brew uses coffee-specific product cards --}}
         @if ($products->isNotEmpty())
             <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
                 @foreach ($products as $item)
+                    @if ($isArtisanBrew)
+                        @include('public.storefront.themes.fnb_cafe.product_card', ['item' => $item])
+                    @else
                     @php
                         $pdpUrl = url('/' . $business->slug . '/produk/' . ($item->slug ?: $item->id));
                         $hasPrice = ($item->show_price_on_web ?? true) && $item->selling_price > 0;
@@ -178,6 +196,7 @@
                             </div>
                         </div>
                     </div>
+                    @endif
                 @endforeach
             </div>
 

@@ -51,6 +51,14 @@ Route::get('/', function () {
 Route::get('/marketplace', [PublicMarketplaceController::class, 'index'])->name('marketplace.index');
 Route::get('/marketplace/cari', [PublicMarketplaceController::class, 'search'])->name('marketplace.search');
 
+// GeoLocation & Indonesian Administrative Area Search (Biteship API + Reverse Geocoding)
+Route::get('/geo/search-areas', [\App\Http\Controllers\Web\Common\GeoLocationController::class, 'searchAreas'])
+    ->middleware('throttle:60,1')
+    ->name('geo.search-areas');
+Route::get('/geo/reverse-geocode', [\App\Http\Controllers\Web\Common\GeoLocationController::class, 'reverseGeocode'])
+    ->middleware('throttle:60,1')
+    ->name('geo.reverse-geocode');
+
 // 1. Business Calculators
 Route::prefix('kalkulator')->name('kalkulator.')->group(function (): void {
     Route::get('/', [PublicCalculatorController::class, 'index'])->name('index');
@@ -188,7 +196,7 @@ Route::prefix('{slug}')->where(['slug' => '^(?!(pos|admin|api|dashboard|auth|log
 });
 
 // 8. Legacy /b/{slug} aliases for backward compatibility (0 broken links)
-Route::get('/b/{slug}', [PublicStorefrontController::class, 'home'])->name('public.business.landing.legacy');
+Route::get('/b/{slug}', [PublicBusinessLandingController::class, 'show'])->name('public.business.landing.legacy');
 Route::prefix('b/{slug}')->where(['slug' => '[a-z0-9]+(?:-[a-z0-9]+)*'])->group(function (): void {
     Route::get('/katalog', [PublicStorefrontController::class, 'catalog']);
     Route::get('/produk/{product}', [PublicStorefrontController::class, 'productDetail']);

@@ -136,8 +136,8 @@ final class CustomerPortalController extends Controller
         $statusCounts = [
             'all'             => (clone $baseQuery)->count(),
             'pending_payment' => (clone $baseQuery)->where('status', CommerceOrder::STATUS_PENDING_PAYMENT)->count(),
-            'verifying'       => (clone $baseQuery)->where('status', CommerceOrder::STATUS_PROOF_SUBMITTED)->count(),
             'processing'      => (clone $baseQuery)->whereIn('status', [
+                CommerceOrder::STATUS_PROOF_SUBMITTED,
                 CommerceOrder::STATUS_PAID,
                 CommerceOrder::STATUS_PROCESSING,
                 CommerceOrder::STATUS_READY,
@@ -154,8 +154,7 @@ final class CustomerPortalController extends Controller
 
         match ($status) {
             'pending_payment' => $ordersQuery->where('status', CommerceOrder::STATUS_PENDING_PAYMENT),
-            'verifying'       => $ordersQuery->where('status', CommerceOrder::STATUS_PROOF_SUBMITTED),
-            'processing'      => $ordersQuery->whereIn('status', [CommerceOrder::STATUS_PAID, CommerceOrder::STATUS_PROCESSING, CommerceOrder::STATUS_READY]),
+            'processing'      => $ordersQuery->whereIn('status', [CommerceOrder::STATUS_PROOF_SUBMITTED, CommerceOrder::STATUS_PAID, CommerceOrder::STATUS_PROCESSING, CommerceOrder::STATUS_READY]),
             'completed'       => $ordersQuery->where('status', CommerceOrder::STATUS_COMPLETED),
             'cancelled'       => $ordersQuery->whereIn('status', [CommerceOrder::STATUS_CANCELLED, CommerceOrder::STATUS_PAYMENT_REJECTED, CommerceOrder::STATUS_EXPIRED]),
             default           => null,
@@ -450,7 +449,21 @@ final class CustomerPortalController extends Controller
 
     public function profile(): View
     {
-        return view('customer.profile', ['customer' => $this->customer()]);
+        $customer = $this->customer();
+        $addresses = $customer->addresses()->orderBy('is_default', 'desc')->orderBy('created_at', 'desc')->get();
+
+        if ($addresses->isEmpty() && ! empty($customer->shipping_address)) {
+            $created = $customer->addresses()->create([
+                'label'            => 'Alamat Utama',
+                'recipient_name'   => $customer->name,
+                'recipient_phone'  => $customer->phone ?: '081234567890',
+                'full_address'     => $customer->shipping_address,
+                'is_default'       => true,
+            ]);
+            $addresses = collect([$created]);
+        }
+
+        return view('customer.profile', compact('customer', 'addresses'));
     }
 
     public function updateProfile(Request $request): RedirectResponse

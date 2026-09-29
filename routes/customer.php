@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\Web\Commerce\CommerceGroupOrderWebController;
+use App\Http\Controllers\Web\Commerce\CustomerAddressController;
 use App\Http\Controllers\Web\Commerce\CustomerAuthController;
 use App\Http\Controllers\Web\Commerce\CustomerGoogleAuthController;
 use App\Http\Controllers\Web\Commerce\CustomerOtpController;
@@ -112,11 +113,18 @@ Route::prefix('customer')->name('customer.')->group(function (): void {
         Route::get('/orders/{id}/status', [CustomerPortalController::class, 'checkOrderStatus'])->name('orders.status');
         Route::post('/orders/{id}/upload-proof', [CustomerPortalController::class, 'uploadProof'])->name('orders.upload_proof');
 
-        // Profile & Address Completion
+        // Profile & Multi-Address Book Management
         Route::get('/profile', [CustomerPortalController::class, 'profile'])->name('profile');
         Route::put('/profile', [CustomerPortalController::class, 'updateProfile'])->name('profile.update');
         Route::get('/profile/complete', [CustomerPortalController::class, 'profileComplete'])->name('profile.complete');
         Route::post('/profile/complete', [CustomerPortalController::class, 'storeProfileComplete'])->name('profile.complete.save');
+
+        // Address Book Endpoints
+        Route::get('/addresses', [CustomerAddressController::class, 'index'])->name('addresses.index');
+        Route::post('/addresses', [CustomerAddressController::class, 'store'])->name('addresses.store');
+        Route::put('/addresses/{id}', [CustomerAddressController::class, 'update'])->name('addresses.update');
+        Route::delete('/addresses/{id}', [CustomerAddressController::class, 'destroy'])->name('addresses.destroy');
+        Route::post('/addresses/{id}/default', [CustomerAddressController::class, 'setDefault'])->name('addresses.default');
 
         // Permanent WhatsApp OTP Verification
         Route::get('/otp', [CustomerOtpController::class, 'show'])->name('otp');

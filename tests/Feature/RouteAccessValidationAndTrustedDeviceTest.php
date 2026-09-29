@@ -42,6 +42,13 @@ final class RouteAccessValidationAndTrustedDeviceTest extends TestCase
             'role' => 'owner',
         ]);
 
+        $this->business->locations()->create([
+            'name' => 'Outlet Utama',
+            'is_primary' => true,
+            'address' => 'Jl. Sudirman No. 12',
+            'postal_code' => '12190',
+        ]);
+
         $this->user->update(['active_business_id' => $this->business->id]);
     }
 

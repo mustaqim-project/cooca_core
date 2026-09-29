@@ -54,7 +54,7 @@ final class PublicReservationController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Permintaan reservasi Anda berhasil dikirim. Toko akan segera mengonfirmasi jadwal Anda.',
+                'message' => __('storefront.messages.reservation_success'),
                 'reservation' => [
                     'id' => $reservation->id,
                     'code' => $reservation->reservation_code,
@@ -89,7 +89,7 @@ final class PublicReservationController extends Controller
         $guestCount = (int) $request->query('guest_count', 1);
 
         if (empty($timeSlot)) {
-            return response()->json(['success' => false, 'message' => 'Slot waktu wajib ditentukan.'], 422);
+            return response()->json(['success' => false, 'message' => __('storefront.messages.slot_required')], 422);
         }
 
         $availableTables = $this->reservationService->getAvailableTables(

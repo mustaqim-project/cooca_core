@@ -193,10 +193,13 @@
 
                             <div class="flex items-center gap-2">
                                 @if($order->status === 'pending_payment')
-                                    <a href="{{ route('customer.orders.detail', $order->id) }}#upload-proof"
-                                       class="h-8 px-3 rounded-[8px] bg-[#FF9500] text-white text-[12px] font-semibold hover:opacity-90 transition active:scale-[0.97] flex items-center gap-1 shadow-xs min-h-[36px]">
-                                        <i data-lucide="upload" class="w-3 h-3"></i>
-                                        <span>Upload Bukti</span>
+                                    @php
+                                        $payUrl = $order->business ? url("/{$order->business->slug}/order/{$order->tracking_token}") : route('customer.orders.detail', $order->id);
+                                    @endphp
+                                    <a href="{{ $payUrl }}"
+                                       class="h-8 px-3 rounded-[8px] bg-[#007AFF] hover:bg-[#0071E3] text-white text-[12px] font-semibold transition active:scale-[0.97] flex items-center gap-1 shadow-xs min-h-[36px]">
+                                        <i data-lucide="credit-card" class="w-3 h-3"></i>
+                                        <span>Bayar Sekarang</span>
                                     </a>
                                 @endif
 

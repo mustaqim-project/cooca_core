@@ -368,14 +368,14 @@
                         const pos = e.target.getLatLng();
                         this.latitude = pos.lat.toFixed(7);
                         this.longitude = pos.lng.toFixed(7);
-                        this.reverseGeocode(pos.lat, pos.lng);
+                        this.reverseGeocode(pos.lat, pos.lng, true);
                     });
 
                     this.map.on('click', (e) => {
                         this.marker.setLatLng(e.latlng);
                         this.latitude = e.latlng.lat.toFixed(7);
                         this.longitude = e.latlng.lng.toFixed(7);
-                        this.reverseGeocode(e.latlng.lat, e.latlng.lng);
+                        this.reverseGeocode(e.latlng.lat, e.latlng.lng, true);
                     });
 
                     setTimeout(() => {
@@ -442,17 +442,32 @@
                     }
                 },
 
-                async reverseGeocode(lat, lng) {
+                async reverseGeocode(lat, lng, forceOverwrite = false) {
                     try {
                         const res = await fetch(`/geo/reverse-geocode?lat=${lat}&lng=${lng}`);
                         const data = await res.json();
                         if (data.success) {
-                            if (!this.selectedArea.village && data.village) this.selectedArea.village = data.village;
-                            if (!this.selectedArea.district && data.district) this.selectedArea.district = data.district;
-                            if (!this.selectedArea.city && data.city) this.selectedArea.city = data.city;
-                            if (!this.selectedArea.province && data.province) this.selectedArea.province = data.province;
-                            if (!this.selectedArea.postal_code && data.postal_code) this.selectedArea.postal_code = data.postal_code;
-                            if (data.road && !this.address) this.address = data.road;
+                            if (forceOverwrite || !this.selectedArea.province) {
+                                if (data.province) this.selectedArea.province = data.province;
+                            }
+                            if (forceOverwrite || !this.selectedArea.city) {
+                                if (data.city) this.selectedArea.city = data.city;
+                            }
+                            if (forceOverwrite || !this.selectedArea.district) {
+                                if (data.district) this.selectedArea.district = data.district;
+                            }
+                            if (forceOverwrite || !this.selectedArea.village) {
+                                if (data.village) this.selectedArea.village = data.village;
+                            }
+                            if (forceOverwrite || !this.selectedArea.postal_code) {
+                                if (data.postal_code) this.selectedArea.postal_code = data.postal_code;
+                            }
+                            if (data.biteship_area_id) {
+                                this.selectedArea.biteship_area_id = data.biteship_area_id;
+                            }
+                            if (data.road && (forceOverwrite || !this.address)) {
+                                this.address = data.road;
+                            }
                         }
                     } catch (err) {
                         console.error('Reverse geocode error:', err);
@@ -476,7 +491,7 @@
                                 this.marker.setLatLng([lat, lng]);
                                 this.map.flyTo([lat, lng], 16, { duration: 1.2 });
                             }
-                            this.reverseGeocode(lat, lng);
+                            this.reverseGeocode(lat, lng, true);
                             this.isGpsLoading = false;
                         },
                         (err) => {

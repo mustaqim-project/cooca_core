@@ -59,6 +59,11 @@ class CommerceShippingRule extends Model
         return $this->hasMany(CommerceOrder::class, 'shipping_rule_id');
     }
 
+    public function getRateAttribute(): float
+    {
+        return (float) ($this->attributes['rate_amount'] ?? 0.0);
+    }
+
     public function scopeActive(Builder $query): Builder
     {
         return $query->where('is_active', true);

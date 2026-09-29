@@ -87,6 +87,8 @@
 
     {{-- Universal Typography Hierarchy (H1 - H6 & Typographic Roles) --}}
     @include('layouts.partials.typography')
+
+    @stack('styles')
 </head>
 
 <body
@@ -322,6 +324,7 @@
             if (typeof lucide !== 'undefined') lucide.createIcons();
         });
     </script>
+    @stack('scripts')
 </body>
 
 </html>

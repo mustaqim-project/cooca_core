@@ -39,12 +39,28 @@ final class EnsureCleanUrl
             $request->server->set('SCRIPT_NAME', preg_replace('#^/public#i', '', (string) $request->server->get('SCRIPT_NAME', '')));
         }
 
-        // 3. Unconditionally lock URL generator to canonical root URL
-        $appUrl = (string) config('app.url');
-        if ($appUrl !== '') {
-            \Illuminate\Support\Facades\URL::forceRootUrl(rtrim($appUrl, '/'));
-            if (str_starts_with($appUrl, 'https://')) {
+        // 3. Lock URL generator to current clean root URL (prevent /public leaks while preserving local development host & port)
+        $host = (string) $request->getHost();
+        $isLocal = in_array($host, ['127.0.0.1', 'localhost', '::1'], true)
+            || str_ends_with($host, '.test')
+            || str_ends_with($host, '.local')
+            || app()->environment('local');
+
+        if ($isLocal) {
+            $rootUrl = rtrim($request->getSchemeAndHttpHost(), '/');
+            \Illuminate\Support\Facades\URL::forceRootUrl($rootUrl);
+            if ($request->isSecure()) {
                 \Illuminate\Support\Facades\URL::forceScheme('https');
+            } else {
+                \Illuminate\Support\Facades\URL::forceScheme('http');
+            }
+        } else {
+            $appUrl = (string) config('app.url');
+            if ($appUrl !== '') {
+                \Illuminate\Support\Facades\URL::forceRootUrl(rtrim($appUrl, '/'));
+                if (str_starts_with($appUrl, 'https://')) {
+                    \Illuminate\Support\Facades\URL::forceScheme('https');
+                }
             }
         }
 

@@ -89,6 +89,9 @@ class CommerceOrder extends Model
         'customer_email',
         'shipping_address',
         'destination_postal_code',
+        'destination_latitude',
+        'destination_longitude',
+        'destination_area_id',
         'shipping_notes',
         'scheduled_date',
         'scheduled_time_slot',
@@ -119,6 +122,8 @@ class CommerceOrder extends Model
     {
         return [
             'scheduled_date' => 'date',
+            'destination_latitude' => 'float',
+            'destination_longitude' => 'float',
             'subtotal' => 'float',
             'shipping_cost' => 'float',
             'biteship_service_fee' => 'float',

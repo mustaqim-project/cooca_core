@@ -281,9 +281,12 @@ final class TwentyIndustriesShowcaseSeeder extends Seeder
                     ? $materialMap[$pSpec['direct_material_code']]->id
                     : null;
 
-                $product = Product::updateOrCreate(
-                    ['business_id' => $business->id, 'code' => $pSpec['code']],
-                    [
+                $product = Product::withTrashed()->where('business_id', $business->id)->where('code', $pSpec['code'])->first();
+                if ($product) {
+                    if ($product->trashed()) {
+                        $product->restore();
+                    }
+                    $product->update([
                         'name' => $pSpec['name'],
                         'slug' => Str::slug($pSpec['name']),
                         'output_unit_id' => $outUnit->id,
@@ -293,8 +296,22 @@ final class TwentyIndustriesShowcaseSeeder extends Seeder
                         'business_type_hint' => $pSpec['business_type_hint'] ?? $spec['template_code'],
                         'description' => $pSpec['description'] ?? "Katalog produk resmi {$business->name}",
                         'is_active' => true,
-                    ]
-                );
+                    ]);
+                } else {
+                    $product = Product::create([
+                        'business_id' => $business->id,
+                        'code' => $pSpec['code'],
+                        'name' => $pSpec['name'],
+                        'slug' => Str::slug($pSpec['name']),
+                        'output_unit_id' => $outUnit->id,
+                        'direct_material_id' => $directMatId,
+                        'selling_price' => $pSpec['selling_price'],
+                        'base_cost' => $pSpec['base_cost'] ?? 0,
+                        'business_type_hint' => $pSpec['business_type_hint'] ?? $spec['template_code'],
+                        'description' => $pSpec['description'] ?? "Katalog produk resmi {$business->name}",
+                        'is_active' => true,
+                    ]);
+                }
 
                 // Cost Model & BOM Recipe
                 $costModel = CostModel::updateOrCreate(
@@ -595,15 +612,15 @@ final class TwentyIndustriesShowcaseSeeder extends Seeder
             ]
         );
 
-        // 2. Payment Methods (Bank Transfer & QRIS)
+        // 2. Payment Methods (QRIS Cooca Pay Exclusive for Storefront)
         CommercePaymentMethod::updateOrCreate(
             ['business_id' => $business->id, 'type' => CommercePaymentMethod::TYPE_BANK_TRANSFER, 'bank_name' => 'BCA'],
             [
                 'account_holder' => $business->name,
                 'account_number' => $business->bank_account_number ?: '8800112233',
                 'instructions' => 'Transfer tepat sesuai nominal tagihan. Bukti transfer diverifikasi otomatis oleh tim merchant.',
-                'is_active' => true,
-                'sort_order' => 1,
+                'is_active' => false,
+                'sort_order' => 2,
             ]
         );
 
@@ -613,9 +630,9 @@ final class TwentyIndustriesShowcaseSeeder extends Seeder
                 'bank_name' => 'QRIS Cooca Pay',
                 'account_holder' => $business->name,
                 'account_number' => 'NMID-ID102030405060',
-                'instructions' => 'Scan QRIS menggunakan aplikasi perbankan atau e-wallet (BCA, Mandiri, GoPay, OVO, ShopeePay, DANA).',
+                'instructions' => 'Scan QRIS menggunakan aplikasi perbankan atau e-wallet (BCA, Mandiri, GoPay, OVO, ShopeePay, DANA). Terkonfirmasi instan.',
                 'is_active' => true,
-                'sort_order' => 2,
+                'sort_order' => 1,
             ]
         );
 

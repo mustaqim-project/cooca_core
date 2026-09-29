@@ -41,6 +41,10 @@ class Product extends Model
         'base_cost',
         'selling_price',
         'min_stock',
+        'weight',
+        'length',
+        'width',
+        'height',
         'is_active',
         'business_type_hint',
         'show_in_website',
@@ -60,6 +64,7 @@ class Product extends Model
      */
     protected $attributes = [
         'type' => self::TYPE_GOODS,
+        'weight' => 200.0,
         'is_active' => true,
         'show_in_website' => true,
         'show_in_pos' => true,
@@ -76,6 +81,11 @@ class Product extends Model
         return $value ?: self::TYPE_GOODS;
     }
 
+    public function getWeightGramsAttribute(): float
+    {
+        return (float) ($this->weight ?: 200.0);
+    }
+
     /**
      * @return array<string, string>
      */
@@ -86,6 +96,10 @@ class Product extends Model
             'base_cost' => 'float',
             'selling_price' => 'float',
             'min_stock' => 'float',
+            'weight' => 'float',
+            'length' => 'float',
+            'width' => 'float',
+            'height' => 'float',
             'is_active' => 'boolean',
             'show_in_website' => 'boolean',
             'show_in_pos' => 'boolean',

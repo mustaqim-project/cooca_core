@@ -27,7 +27,6 @@
             $tabs = [
                 'all' => ['label' => 'Semua', 'count' => $statusCounts['all']],
                 'pending_payment' => ['label' => 'Menunggu Bayar', 'count' => $statusCounts['pending_payment']],
-                'verifying' => ['label' => 'Verifikasi Bukti', 'count' => $statusCounts['verifying']],
                 'processing' => ['label' => 'Diproses', 'count' => $statusCounts['processing']],
                 'completed' => ['label' => 'Selesai', 'count' => $statusCounts['completed']],
                 'cancelled' => ['label' => 'Dibatalkan', 'count' => $statusCounts['cancelled']],
@@ -96,8 +95,8 @@
                                 </span>
                             @elseif($order->status === 'proof_submitted')
                                 <span class="px-2.5 py-0.5 rounded-[8px] text-[11px] font-bold bg-[#007AFF]/10 text-[#007AFF] border border-[#007AFF]/20 flex items-center gap-1">
-                                    <i data-lucide="file-check" class="w-3 h-3"></i>
-                                    <span>Verifikasi Bukti</span>
+                                    <i data-lucide="clock" class="w-3 h-3"></i>
+                                    <span>Verifikasi Pembayaran</span>
                                 </span>
                             @elseif(in_array($order->status, ['paid', 'processing', 'ready']))
                                 <span class="px-2.5 py-0.5 rounded-[8px] text-[11px] font-bold bg-[#007AFF]/10 text-[#007AFF] border border-[#007AFF]/20 flex items-center gap-1">
@@ -154,7 +153,7 @@
                             <span class="text-black/45 dark:text-white/45">{{ $order->items->count() }} item</span>
                         </div>
 
-                        <div class="flex items-center justify-between sm:justify-end gap-3">
+                        <div class="flex flex-wrap items-center justify-between sm:justify-end gap-3">
                             <div class="text-left sm:text-right">
                                 <span class="text-[11px] text-black/50 dark:text-white/50 block">Total Pesanan</span>
                                 <span class="text-[16px] font-extrabold text-[#007AFF] tabular-nums">
@@ -162,12 +161,23 @@
                                 </span>
                             </div>
 
-                            <div class="flex items-center gap-2">
+                            <div class="flex flex-wrap items-center gap-2">
                                 @if($order->status === 'pending_payment')
-                                    <a href="{{ route('customer.orders.detail', $order->id) }}#upload-proof"
-                                       class="h-9 px-3.5 rounded-[10px] bg-[#FF9500] text-white text-[12.5px] font-semibold hover:opacity-90 transition active:scale-[0.97] flex items-center gap-1.5 shadow-xs min-h-[44px]">
-                                        <i data-lucide="upload" class="w-3.5 h-3.5"></i>
-                                        <span>Upload Bukti Bayar</span>
+                                    @php
+                                        $expiredAt = $order->gateway_expired_at ?: ($order->reserved_until ?: $order->created_at->addMinutes(15));
+                                        $isExpired = $expiredAt->isPast();
+                                        $payUrl = $order->business ? url("/{$order->business->slug}/order/{$order->tracking_token}") : route('customer.orders.detail', $order->id);
+                                    @endphp
+
+                                    <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-[8px] {{ $isExpired ? 'bg-[#FF3B30]/10 text-[#FF3B30] border border-[#FF3B30]/20' : 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20' }} text-[11.5px] font-semibold">
+                                        <i data-lucide="clock" class="w-3.5 h-3.5"></i>
+                                        <span>{{ $isExpired ? 'Waktu Bayar Habis' : 'Batas: ' . $expiredAt->translatedFormat('H:i') . ' WIB' }}</span>
+                                    </div>
+
+                                    <a href="{{ $payUrl }}"
+                                       class="h-9 px-3.5 rounded-[10px] bg-[#007AFF] hover:bg-[#0071E3] text-white text-[12.5px] font-semibold transition active:scale-[0.97] flex items-center gap-1.5 shadow-xs min-h-[44px]">
+                                        <i data-lucide="credit-card" class="w-3.5 h-3.5"></i>
+                                        <span>Lanjutkan Pembayaran</span>
                                     </a>
                                 @endif
 

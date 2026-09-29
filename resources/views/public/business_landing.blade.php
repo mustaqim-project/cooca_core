@@ -4418,8 +4418,7 @@
                                                     <span
                                                         class="px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-red-100 text-red-600 dark:bg-red-900/40 dark:text-red-400">Penuh</span>
                                                 @elseif ($bQuota !== null)
-                                                    <span class="text-[10px] font-bold opacity-75 tabular-nums">Sisa
-                                                        {{ $bQuota }} {{ $bUnit }}</span>
+                                                    <span class="text-[10px] font-bold opacity-75 tabular-nums">Sisa {{ $bQuota }} {{ $bUnit }}</span>
                                                 @endif
                                             </div>
                                             <div class="mt-1 font-extrabold text-[14px] tabular-nums tracking-tight">
@@ -6918,9 +6917,7 @@
                                                             <span
                                                                 class="px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-red-100 text-red-600 dark:bg-red-900/40 dark:text-red-400">Penuh</span>
                                                         @elseif ($bQuota !== null)
-                                                            <span
-                                                                class="text-[10px] font-semibold opacity-70 tabular-nums">Sisa
-                                                                {{ $bQuota }} {{ $bUnit }}</span>
+                                                            <span class="text-[10px] font-semibold opacity-70 tabular-nums">Sisa {{ $bQuota }} {{ $bUnit }}</span>
                                                         @endif
                                                     </div>
                                                     <div

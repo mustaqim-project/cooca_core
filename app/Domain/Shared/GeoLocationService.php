@@ -61,6 +61,7 @@ final class GeoLocationService
      *     city: string,
      *     province: string,
      *     postal_code: string,
+     *     biteship_area_id: string,
      *     display_name: string,
      *     latitude: float,
      *     longitude: float
@@ -72,7 +73,7 @@ final class GeoLocationService
             $response = Http::withHeaders([
                 'User-Agent' => 'Cooca-ERP-App/1.0 (support@cooca.id)',
                 'Accept-Language' => 'id-ID,id;q=0.9',
-            ])->timeout(5)->get('https://nominatim.openstreetmap.org/reverse', [
+            ])->timeout(8)->get('https://nominatim.openstreetmap.org/reverse', [
                 'format' => 'json',
                 'lat' => $latitude,
                 'lon' => $longitude,
@@ -82,7 +83,47 @@ final class GeoLocationService
             if ($response->successful()) {
                 $data = $response->json();
                 $addr = $data['address'] ?? [];
-                $parsed = $this->parseNominatimAddress($addr);
+                $displayName = (string) ($data['display_name'] ?? '');
+                $parsed = $this->parseNominatimAddress($addr, $displayName);
+
+                $biteshipAreaId = '';
+                if (! empty($parsed['postal_code'])) {
+                    try {
+                        $biteshipAreas = $this->searchAreas($parsed['postal_code']);
+                        if (! empty($biteshipAreas)) {
+                            $bestMatch = null;
+                            foreach ($biteshipAreas as $bArea) {
+                                if (! empty($parsed['district']) && stripos($bArea['district'], $parsed['district']) !== false) {
+                                    $bestMatch = $bArea;
+                                    break;
+                                }
+                                if (! empty($parsed['village']) && stripos($bArea['village'], $parsed['village']) !== false) {
+                                    $bestMatch = $bArea;
+                                    break;
+                                }
+                            }
+                            if (! $bestMatch) {
+                                $bestMatch = $biteshipAreas[0];
+                            }
+
+                            $biteshipAreaId = (string) ($bestMatch['id'] ?? '');
+                            if (! empty($bestMatch['province'])) {
+                                $parsed['province'] = $bestMatch['province'];
+                            }
+                            if (! empty($bestMatch['city'])) {
+                                $parsed['city'] = $bestMatch['city'];
+                            }
+                            if (! empty($bestMatch['district'])) {
+                                $parsed['district'] = $bestMatch['district'];
+                            }
+                            if (! empty($bestMatch['village'])) {
+                                $parsed['village'] = $bestMatch['village'];
+                            }
+                        }
+                    } catch (Throwable) {
+                        // Pertahankan parsed Nominatim jika pencarian Biteship mengalami kendala jaringan
+                    }
+                }
 
                 return [
                     'success' => true,
@@ -92,7 +133,8 @@ final class GeoLocationService
                     'city' => $parsed['city'],
                     'province' => $parsed['province'],
                     'postal_code' => $parsed['postal_code'],
-                    'display_name' => (string) ($data['display_name'] ?? ''),
+                    'biteship_area_id' => $biteshipAreaId,
+                    'display_name' => $displayName,
                     'latitude' => $latitude,
                     'longitude' => $longitude,
                 ];
@@ -109,6 +151,7 @@ final class GeoLocationService
             'city' => '',
             'province' => '',
             'postal_code' => '',
+            'biteship_area_id' => '',
             'display_name' => '',
             'latitude' => $latitude,
             'longitude' => $longitude,
@@ -259,6 +302,7 @@ final class GeoLocationService
      * Helper ekstraksi hierarki wilayah Indonesia dari struktur OpenStreetMap Nominatim.
      *
      * @param array<string, mixed> $addr
+     * @param string $displayName
      * @return array{
      *     village: string,
      *     district: string,
@@ -268,50 +312,95 @@ final class GeoLocationService
      *     road: string
      * }
      */
-    private function parseNominatimAddress(array $addr): array
+    private function parseNominatimAddress(array $addr, string $displayName = ''): array
     {
         $road = (string) ($addr['road'] ?? $addr['pedestrian'] ?? $addr['street'] ?? $addr['path'] ?? '');
+        $rawPostcode = (string) ($addr['postcode'] ?? '');
+        $postalCode = preg_replace('/\D+/', '', $rawPostcode) ?? '';
+        if (strlen($postalCode) > 5) {
+            $postalCode = substr($postalCode, 0, 5);
+        }
+
+        // 1. Deteksi Provinsi
+        $rawState = (string) ($addr['state'] ?? '');
+        $rawCity = (string) ($addr['city'] ?? '');
+        $rawCityDistrict = (string) ($addr['city_district'] ?? '');
+        $iso = (string) ($addr['ISO3166-2-lvl4'] ?? '');
+
+        $province = $rawState;
+        if ($iso === 'ID-JK' || stripos($rawCity, 'Jakarta') !== false || stripos($rawState, 'Jakarta') !== false || stripos($displayName, 'Daerah Khusus Ibukota Jakarta') !== false || stripos($displayName, 'DKI Jakarta') !== false) {
+            $province = 'DKI Jakarta';
+        } elseif ($iso === 'ID-YO' || stripos($rawState, 'Yogyakarta') !== false || stripos($displayName, 'Daerah Istimewa Yogyakarta') !== false) {
+            $province = 'Daerah Istimewa Yogyakarta';
+        } elseif (empty($province)) {
+            $province = (string) ($addr['region'] ?? ($addr['province'] ?? ''));
+        }
+
+        // 2. Deteksi Kota / Kabupaten
+        $city = '';
+        if ($province === 'DKI Jakarta') {
+            // Dalam DKI Jakarta, city_district (misal Jakarta Barat, Jakarta Selatan, dll) adalah Kota Administrasinya
+            if (! empty($rawCityDistrict) && stripos($rawCityDistrict, 'Jakarta') !== false) {
+                $city = $rawCityDistrict;
+            } elseif (! empty($rawCity) && stripos($rawCity, 'Jakarta') !== false && ! in_array($rawCity, ['DKI Jakarta', 'Daerah Khusus Ibukota Jakarta'], true)) {
+                $city = $rawCity;
+            } elseif (! empty($displayName) && preg_match('/(Jakarta\s+[A-Za-z]+)/i', $displayName, $m)) {
+                $city = $m[1];
+            } else {
+                $city = 'Jakarta Selatan';
+            }
+        } else {
+            $city = $rawCity ?: ($addr['town'] ?? ($addr['county'] ?? ($addr['regency'] ?? '')));
+            if (empty($city) && ! empty($rawCityDistrict)) {
+                $city = $rawCityDistrict;
+            }
+        }
+
+        // 3. Deteksi Kecamatan
+        $district = (string) (
+            $addr['district'] 
+            ?? $addr['municipality'] 
+            ?? $addr['subdistrict'] 
+            ?? ''
+        );
+
+        if (empty($district) && ! empty($rawCityDistrict) && $rawCityDistrict !== $city) {
+            $district = $rawCityDistrict;
+        }
+
+        // 4. Deteksi Kelurahan / Desa
+        $cleanNeighbourhood = (string) ($addr['neighbourhood'] ?? '');
+        if (preg_match('/^(RT|RW|\d+)/i', trim($cleanNeighbourhood))) {
+            $cleanNeighbourhood = '';
+        }
 
         $village = (string) (
-            $addr['village']
-            ?? $addr['neighbourhood']
-            ?? $addr['quarter']
-            ?? $addr['suburb']
-            ?? $addr['hamlet']
-            ?? $addr['residential']
-            ?? ''
+            $addr['village'] 
+            ?? ($cleanNeighbourhood ?: ($addr['quarter'] ?? ($addr['hamlet'] ?? '')))
         );
 
-        $district = (string) (
-            $addr['municipality']
-            ?? $addr['subdistrict']
-            ?? $addr['district']
-            ?? $addr['city_district']
-            ?? $addr['county']
-            ?? $addr['township']
-            ?? $addr['borough']
-            ?? ''
-        );
-
-        $city = (string) (
-            $addr['city']
-            ?? $addr['town']
-            ?? $addr['regency']
-            ?? $addr['state_district']
-            ?? ($addr['county'] ?? '')
-        );
-
-        $province = (string) (
-            $addr['state']
-            ?? $addr['region']
-            ?? $addr['province']
-            ?? ''
-        );
-
-        $postalCode = (string) ($addr['postcode'] ?? '');
+        if (empty($village) && ! empty($addr['suburb']) && $addr['suburb'] !== $district) {
+            $village = (string) $addr['suburb'];
+        }
 
         if (empty($district) && ! empty($addr['suburb']) && $addr['suburb'] !== $village) {
             $district = (string) $addr['suburb'];
+        }
+
+        // Ekstraksi fallback dari display_name jika kecamatan masih kosong
+        if (empty($district) && ! empty($displayName)) {
+            $parts = array_map('trim', explode(',', $displayName));
+            foreach ($parts as $idx => $part) {
+                if ($part === $city || stripos($part, $city) !== false) {
+                    if (isset($parts[$idx - 1]) && $parts[$idx - 1] !== $village) {
+                        $candidate = $parts[$idx - 1];
+                        if (! preg_match('/^(RT|RW|\d+)/i', $candidate)) {
+                            $district = $candidate;
+                        }
+                    }
+                    break;
+                }
+            }
         }
 
         return [

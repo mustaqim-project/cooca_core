@@ -640,13 +640,23 @@ final class BiteshipService
         $payload = [
             'couriers' => $courierList,
             'items'    => array_map(function (array $item): array {
-                return [
+                $mapped = [
                     'name'        => (string) ($item['name'] ?? 'Paket Produk'),
                     'description' => (string) ($item['description'] ?? 'Pesanan Storefront'),
                     'value'       => max(1000, (int) round((float) ($item['value'] ?? 50000))),
-                    'weight'      => max(100, (int) ($item['weight'] ?? 200)), // grams (default 200g)
+                    'weight'      => max(10, (int) ($item['weight'] ?? 200)), // grams (default 200g)
                     'quantity'    => max(1, (int) ($item['quantity'] ?? 1)),
                 ];
+                if (! empty($item['length']) && (int) $item['length'] > 0) {
+                    $mapped['length'] = (int) $item['length'];
+                }
+                if (! empty($item['width']) && (int) $item['width'] > 0) {
+                    $mapped['width'] = (int) $item['width'];
+                }
+                if (! empty($item['height']) && (int) $item['height'] > 0) {
+                    $mapped['height'] = (int) $item['height'];
+                }
+                return $mapped;
             }, $items),
         ];
 

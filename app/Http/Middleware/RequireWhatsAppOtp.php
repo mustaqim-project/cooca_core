@@ -32,7 +32,7 @@ final class RequireWhatsAppOtp
         $user = auth('web')->user();
 
         // Bypass for Shopee / Meta Reviewer or Testing accounts
-        if (in_array($user->email, ['reviewer@cooca.id', 'shopee.reviewer@cooca.id', 'testing@cooca.id', 'demo@cooca.id'], true)) {
+        if (in_array($user->email, ['reviewer@cooca.id', 'shopee.reviewer@cooca.id', 'testing@cooca.id', 'demo@cooca.id', 'owner.cafe@cooca.id', 'manager.cafe@cooca.id'], true)) {
             if (! $user->isPhoneVerified()) {
                 $user->update([
                     'phone'             => $user->phone ?: '628123456789',
@@ -44,6 +44,8 @@ final class RequireWhatsAppOtp
 
             return $next($request);
         }
+
+        $phone = $this->normalizePhone((string) ($user->phone ?: $user->activeBusiness?->phone));
 
         // Auto-inject phone verification to bypass WhatsApp OTP barrier
         if (! $user->isPhoneVerified()) {

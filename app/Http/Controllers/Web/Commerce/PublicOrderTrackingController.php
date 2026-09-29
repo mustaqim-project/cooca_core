@@ -36,7 +36,7 @@ final class PublicOrderTrackingController extends Controller
             'customer_name'           => ['required', 'string', 'min:2', 'max:150'],
             'customer_phone'          => ['required', 'string', 'min:8', 'max:30'],
             'customer_email'          => ['nullable', 'email', 'max:150'],
-            'fulfillment_type'        => ['required', 'string', 'in:pickup,merchant_delivery,delivery,dine_in,courier_manual'],
+            'fulfillment_type'        => ['required', 'string', 'in:pickup,merchant_delivery,delivery,courier_manual'],
             'pickup_location_id'      => ['nullable', 'uuid', 'exists:locations,id'],
             'pos_table_id'            => ['nullable', 'uuid'],
             'shipping_address'        => ['nullable', 'string', 'max:500'],
@@ -44,25 +44,34 @@ final class PublicOrderTrackingController extends Controller
             'shipping_fee'            => ['nullable', 'numeric', 'min:0'],
             'destination_postal_code' => ['nullable', 'string', 'max:10'],
             'postal_code'             => ['nullable', 'string', 'max:10'],
+            'destination_latitude'    => ['nullable', 'numeric', 'between:-90,90'],
+            'latitude'                => ['nullable', 'numeric', 'between:-90,90'],
+            'destination_longitude'   => ['nullable', 'numeric', 'between:-180,180'],
+            'longitude'               => ['nullable', 'numeric', 'between:-180,180'],
+            'biteship_area_id'        => ['nullable', 'string', 'max:100'],
+            'destination_area_id'     => ['nullable', 'string', 'max:100'],
             'courier_company'         => ['nullable', 'string', 'max:50'],
             'courier_type'            => ['nullable', 'string', 'max:50'],
             'courier_name'            => ['nullable', 'string', 'max:100'],
+            'biteship_service_fee'    => ['nullable', 'numeric', 'min:0'],
             'distance_km'             => ['nullable', 'numeric', 'min:0'],
             'scheduled_date'          => ['nullable', 'date'],
             'scheduled_time_slot'     => ['nullable', 'string', 'max:50'],
-            'payment_gateway'         => ['nullable', 'string', 'in:manual,tripay'],
+            'payment_gateway'         => ['nullable', 'string', 'in:tripay,manual'],
             'payment_channel'         => ['nullable', 'string', 'max:64'],
             'payment_method_id'       => ['nullable', 'uuid', 'exists:commerce_payment_methods,id'],
+            'save_to_address_book'    => ['nullable', 'boolean'],
+            'address_label'           => ['nullable', 'string', 'max:50'],
             'notes'                   => ['nullable', 'string', 'max:500'],
             'items'                   => ['required', 'array', 'min:1'],
             'items.*.product_id'      => ['required', 'uuid', 'exists:products,id'],
             'items.*.quantity'        => ['required', 'numeric', 'gt:0'],
             'items.*.notes'           => ['nullable', 'string', 'max:255'],
         ], [
-            'items.required'          => 'Keranjang belanja tidak boleh kosong.',
-            'items.min'               => 'Keranjang belanja minimal harus memiliki 1 item.',
-            'items.*.quantity.required' => 'Jumlah pesanan wajib diisi.',
-            'items.*.quantity.gt'     => 'Jumlah item pesanan harus lebih dari 0.',
+            'items.required'          => __('storefront.messages.cart_empty'),
+            'items.min'               => __('storefront.messages.cart_min_item'),
+            'items.*.quantity.required' => __('storefront.messages.quantity_required'),
+            'items.*.quantity.gt'     => __('storefront.messages.quantity_gt_zero'),
         ]);
 
         try {
@@ -82,16 +91,45 @@ final class PublicOrderTrackingController extends Controller
                 'shipping_courier_service' => $validated['courier_type'] ?? null,
                 'shipping_courier_name'    => $validated['courier_name'] ?? null,
                 'destination_postal_code'  => $validated['destination_postal_code'] ?? ($validated['postal_code'] ?? null),
+                'destination_latitude'     => $validated['destination_latitude'] ?? ($validated['latitude'] ?? null),
+                'destination_longitude'    => $validated['destination_longitude'] ?? ($validated['longitude'] ?? null),
+                'destination_area_id'      => $validated['destination_area_id'] ?? ($validated['biteship_area_id'] ?? null),
                 'distance_km'              => $validated['distance_km'] ?? null,
                 'location_id'              => $validated['pickup_location_id'] ?? null,
-                'pos_table_id'             => $validated['pos_table_id'] ?? null,
+                'pos_table_id'             => null,
+                'biteship_service_fee'     => isset($validated['biteship_service_fee']) ? (float) $validated['biteship_service_fee'] : null,
             ];
+
+            // Auto-save address to customer's address book if requested or if customer has no saved addresses
+            /** @var \App\Models\GlobalCustomer|null $authCustomer */
+            $authCustomer = auth('customer')->user();
+            if ($authCustomer && ! empty($validated['shipping_address'])) {
+                $shouldSave = filter_var($request->input('save_to_address_book', false), FILTER_VALIDATE_BOOLEAN)
+                    || $authCustomer->addresses()->count() === 0;
+
+                if ($shouldSave) {
+                    $authCustomer->addresses()->firstOrCreate(
+                        ['full_address' => $validated['shipping_address']],
+                        [
+                            'label'            => (string) ($request->input('address_label') ?: 'Alamat Pengiriman'),
+                            'recipient_name'   => $validated['customer_name'],
+                            'recipient_phone'  => $validated['customer_phone'],
+                            'postal_code'      => $validated['destination_postal_code'] ?? ($validated['postal_code'] ?? null),
+                            'biteship_area_id' => $validated['destination_area_id'] ?? ($validated['biteship_area_id'] ?? null),
+                            'latitude'         => isset($validated['latitude']) ? (float) $validated['latitude'] : (isset($validated['destination_latitude']) ? (float) $validated['destination_latitude'] : null),
+                            'longitude'        => isset($validated['longitude']) ? (float) $validated['longitude'] : (isset($validated['destination_longitude']) ? (float) $validated['destination_longitude'] : null),
+                            'is_default'       => $authCustomer->addresses()->count() === 0,
+                        ]
+                    );
+                }
+            }
 
             $fulfillmentType = $validated['fulfillment_type'] === 'delivery' ? 'merchant_delivery' : $validated['fulfillment_type'];
 
-            $paymentGateway = $validated['payment_gateway'] ?? 'tripay';
-            $paymentChannel = $validated['payment_channel'] ?? 'QRIS';
-            $paymentMethodId = $paymentGateway === 'manual' ? ($validated['payment_method_id'] ?? null) : null;
+            // Storefront orders are processed exclusively via QRIS Cooca Pay (Tripay)
+            $paymentGateway = 'tripay';
+            $paymentChannel = 'QRIS';
+            $paymentMethodId = null;
 
             if (! empty($validated['scheduled_date'])) {
                 $order = $this->orderService->createScheduledOrder(
@@ -304,9 +342,9 @@ final class PublicOrderTrackingController extends Controller
             'sender_bank' => ['nullable', 'string', 'max:100'],
             'sender_account_name' => ['nullable', 'string', 'max:150'],
         ], [
-            'payment_proof.required' => 'Foto atau berkas bukti transfer wajib diunggah.',
-            'payment_proof.mimes' => 'Format berkas bukti transfer harus berupa JPG, PNG, WEBP, atau PDF.',
-            'payment_proof.max' => 'Ukuran berkas bukti transfer maksimal 5 MB.',
+            'payment_proof.required' => __('storefront.tracking.choose_file'),
+            'payment_proof.mimes' => __('storefront.tracking.upload_proof_desc'),
+            'payment_proof.max' => __('storefront.tracking.upload_proof_desc'),
         ]);
 
         try {
@@ -317,7 +355,7 @@ final class PublicOrderTrackingController extends Controller
                 senderAccountName: $request->input('sender_account_name')
             );
 
-            return back()->with('success', 'Bukti transfer berhasil diunggah! Toko akan segera memverifikasi pesanan Anda.');
+            return back()->with('success', __('storefront.messages.proof_success'));
         } catch (Throwable $e) {
             return back()->with('error', $e->getMessage());
         }

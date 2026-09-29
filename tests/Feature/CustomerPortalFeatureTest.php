@@ -123,7 +123,7 @@ final class CustomerPortalFeatureTest extends TestCase
         $response->assertSee('Lanjutkan dengan Google');
         $response->assertSee('Masuk Akun');
         $response->assertSee('Kata Sandi');
-        $response->assertSee('Akun Seeder Demo');
+        $response->assertDontSee('Akun Seeder Demo');
     }
 
     public function test_customer_can_login_with_email_and_password_without_google(): void
@@ -402,7 +402,7 @@ final class CustomerPortalFeatureTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee('ORD-20260915-DET1');
         $response->assertSee('Kemeja Katun Putih');
-        $response->assertSee('Bukti Transfer Pembayaran');
+        $response->assertSee('QRIS Pembayaran');
     }
 
     public function test_customer_cannot_view_order_belonging_to_another_customer(): void
@@ -458,7 +458,7 @@ final class CustomerPortalFeatureTest extends TestCase
             'tracking_token' => Str::random(64),
         ]);
 
-        $file = UploadedFile::fake()->image('bukti_transfer.jpg', 600, 600)->size(200);
+        $file = UploadedFile::fake()->create('bukti_transfer.jpg', 200, 'image/jpeg');
 
         $response = $this->actingAs($this->customer, 'customer')->post(
             route('customer.orders.upload_proof', $order),

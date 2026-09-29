@@ -42,6 +42,10 @@ class AppServiceProvider extends ServiceProvider
             try {
                 $appUrl = (string) config('app.url');
                 if ($appUrl !== '') {
+                    // In local development, avoid forcing production cooca.id domain
+                    if (app()->environment('local') && str_contains($appUrl, 'cooca.id')) {
+                        return;
+                    }
                     \Illuminate\Support\Facades\URL::forceRootUrl(rtrim($appUrl, '/'));
                     if (str_starts_with($appUrl, 'https://')) {
                         \Illuminate\Support\Facades\URL::forceScheme('https');

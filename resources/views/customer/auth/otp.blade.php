@@ -1,131 +1,130 @@
-@extends('layouts.public_marketing', ['title' => 'Verifikasi WhatsApp'])
+@extends('layouts.public_marketing', ['title' => 'Verifikasi WhatsApp Pelanggan - COOCA', 'noindex' => true])
 
 @section('content')
-    <div class="max-w-md mx-auto py-6 sm:py-16">
-        <div class="bento-card p-8 sm:p-10 space-y-7">
+    <div class="min-h-[calc(100vh-14rem)] flex flex-col justify-center py-10 sm:py-16 px-4 sm:px-6 lg:px-8"
+        x-data="coocaOtp.boxes({{ (int) ($expiresAt ?? 0) }}, {{ (int) ($resendIn ?? 0) }})">
+        <div class="w-full max-w-md mx-auto">
 
-            {{-- Icon + Header --}}
-            <div class="text-center space-y-3">
-                <div
-                    class="w-16 h-16 rounded-[20px] bg-[#34C759]/10 border border-[#34C759]/20 mx-auto flex items-center justify-center text-[#34C759]">
+            <!-- Official WhatsApp Security Header -->
+            <div class="text-center mb-6 sm:mb-8">
+                <div class="w-16 h-16 rounded-[22px] bg-[#34C759]/10 border border-[#34C759]/20 text-[#34C759] dark:text-[#30D158] mx-auto flex items-center justify-center mb-4 shadow-sm">
                     <i data-lucide="smartphone" class="w-8 h-8"></i>
                 </div>
-                <h1 class="text-2xl font-extrabold text-black dark:text-white">Verifikasi WhatsApp</h1>
-                <p class="text-sm text-black/50 dark:text-white/50 leading-relaxed">
-                    Masukkan kode 6 digit yang dikirim ke WhatsApp
-                    <span class="font-semibold text-black dark:text-white">{{ $customer->phone }}</span>.
-                    <br>Verifikasi ini hanya dilakukan sekali.
+                <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+                    Verifikasi WhatsApp
+                </h1>
+                <p class="mt-2 text-xs sm:text-sm text-slate-600 dark:text-slate-400 max-w-sm mx-auto leading-relaxed">
+                    Masukkan kode 6 digit OTP yang dikirimkan ke WhatsApp <span class="font-mono font-bold text-slate-900 dark:text-white px-2 py-0.5 rounded bg-slate-100 dark:bg-white/10">{{ $phone }}</span>
                 </p>
             </div>
 
-            {{-- Alerts --}}
-            @if ($errors->any())
-                <div class="p-4 bg-[#FF3B30]/10 border border-[#FF3B30]/20 rounded-[16px] text-sm text-[#FF3B30]">
-                    @foreach ($errors->all() as $err)
-                        <p>{{ $err }}</p>
-                    @endforeach
-                </div>
-            @endif
-            @if (session('status'))
-                <div class="p-4 bg-[#34C759]/10 border border-[#34C759]/20 rounded-[16px] text-sm text-[#34C759]">
-                    {{ session('status') }}</div>
-            @endif
+            <!-- Structured Auth Card -->
+            <div class="bg-white dark:bg-[#151B2B] border border-slate-200/80 dark:border-white/10 rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-sm dark:shadow-2xl dark:shadow-black/40 transition-colors">
 
-            @if (!$already_sent)
-                {{-- Send OTP first --}}
-                <form method="POST" action="{{ route('customer.otp.send') }}">
-                    @csrf
-                    <button type="submit"
-                        class="w-full py-4 bg-[#34C759] text-white text-[15px] font-bold rounded-[14px] hover:bg-[#28A745] active:scale-[0.97] transition-all shadow-lg shadow-[#34C759]/30 min-h-[52px]">
-                        Kirim Kode ke WhatsApp
-                    </button>
-                </form>
-            @else
-                {{-- Enter OTP --}}
-                <form method="POST" action="{{ route('customer.otp.verify') }}" class="space-y-5" id="otp-form">
+                <!-- Success / Status Alert -->
+                @if (session('status') || session('success'))
+                    <div class="mb-5 p-3.5 rounded-xl bg-[#34C759]/10 border border-[#34C759]/25 text-[#34C759] dark:text-[#30D158] text-xs sm:text-sm flex items-center gap-2">
+                        <i data-lucide="check-circle" class="w-4 h-4 shrink-0"></i>
+                        <span>{{ session('status') ?? session('success') }}</span>
+                    </div>
+                @endif
+
+                <!-- Dev Testing Bypass Alert -->
+                <div class="mb-5 p-3.5 rounded-xl bg-[#007AFF]/10 border border-[#007AFF]/20 text-[#007AFF] dark:text-[#0A84FF] text-xs sm:text-sm flex items-center gap-2">
+                    <i data-lucide="info" class="w-4 h-4 shrink-0"></i>
+                    <span><strong>Bypass / Pengujian:</strong> Gunakan kode OTP <code class="font-mono font-bold bg-[#007AFF]/15 px-1.5 py-0.5 rounded">123456</code> untuk verifikasi instan.</span>
+                </div>
+
+                @if (!empty($deliveryError) && !$errors->any())
+                    <div class="mb-5 p-3.5 rounded-xl bg-[#FF9500]/10 border border-[#FF9500]/25 text-[#FF9500] dark:text-[#FF9F0A] text-xs sm:text-sm flex items-center gap-2">
+                        <i data-lucide="info" class="w-4 h-4 shrink-0"></i>
+                        <span>{{ $deliveryError }}</span>
+                    </div>
+                @endif
+
+                <!-- Error Alert -->
+                @if ($errors->any())
+                    <div class="mb-5 p-3.5 rounded-xl bg-[#FF3B30]/10 border border-[#FF3B30]/25 text-[#FF3B30] dark:text-[#FF453A] text-xs">
+                        <div class="font-semibold mb-1 flex items-center gap-1.5 text-sm">
+                            <i data-lucide="alert-circle" class="w-4 h-4 shrink-0"></i>
+                            <span>Verifikasi Belum Berhasil:</span>
+                        </div>
+                        <ul class="list-disc list-inside space-y-1 text-xs opacity-90 pl-1">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
+                <!-- 6-Digit OTP Form -->
+                <form method="POST" action="{{ route('customer.otp.verify') }}" class="space-y-5" x-data="{ submitting: false }"
+                    @submit="submitting = true; if ($el.querySelector('input[name=otp]')) $el.querySelector('input[name=otp]').value = otp()">
                     @csrf
                     <div>
-                        <label
-                            class="block text-xs font-bold uppercase tracking-wider text-black/50 dark:text-white/50 mb-2">
-                            Kode OTP (6 digit)
+                        <label for="otp-box-0" class="block text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200 uppercase tracking-wider mb-3 text-center">
+                            Masukkan 6-Digit Kode OTP
                         </label>
-                        <input type="text" name="otp" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autofocus
-                            autocomplete="one-time-code" placeholder="_ _ _ _ _ _"
-                            class="w-full text-center text-3xl font-black tracking-[0.5em] py-4 rounded-[16px] border-2 border-black/10 dark:border-white/10 bg-white dark:bg-[#2C2C2E] focus:outline-none focus:border-[#34C759]/60 focus:ring-2 focus:ring-[#34C759]/20 transition-all"
-                            value="{{ old('otp') }}">
-                        <p class="text-xs text-[#007AFF] dark:text-[#0A84FF] text-center mt-2">
-                            Bypass / Uji Coba: gunakan kode <code
-                                class="font-bold bg-[#007AFF]/15 px-1.5 py-0.5 rounded-[6px]"
-                                style="font-variant-numeric: tabular-nums;">123456</code>
-                        </p>
-                        @error('otp')
-                            <p class="text-[#FF3B30] text-sm mt-2">{{ $message }}</p>
-                        @enderror
+                        <input type="hidden" name="otp" :value="otp()" required>
+                        <div class="flex justify-between gap-1.5 sm:gap-2.5">
+                            <template x-for="(_, i) in [0, 1, 2, 3, 4, 5]" :key="i">
+                                <input :id="'otp-box-' + i" :value="parts[i]" @input="handleInput(i, $event)"
+                                    @keydown="handleKeydown(i, $event)" @paste="paste($event)" type="text"
+                                    inputmode="numeric" maxlength="1" autocapitalize="off" spellcheck="false"
+                                    :autocomplete="i === 0 ? 'one-time-code' : 'off'" :aria-label="'Digit ke-' + (i + 1)"
+                                    class="w-full h-12 sm:h-14 bg-slate-50 dark:bg-[#1E2638] border border-slate-200 dark:border-white/10 focus:border-[#007AFF] focus:ring-4 focus:ring-[#007AFF]/15 rounded-xl text-center text-xl sm:text-2xl font-mono font-bold text-slate-900 dark:text-white transition-all outline-none">
+                            </template>
+                        </div>
+                        <div class="flex items-center justify-between mt-3 text-xs text-slate-500 dark:text-slate-400">
+                            <span x-show="available()" class="inline-flex items-center gap-1.5">
+                                <i data-lucide="timer" class="w-4 h-4 shrink-0 text-[#FF9500] dark:text-[#FF9F0A]"></i>
+                                <span>Berlaku <span class="font-mono font-bold text-[#FF9500] dark:text-[#FF9F0A]" x-text="clockLabel()"></span> lagi</span>
+                            </span>
+                            <span x-show="!available()" class="text-[#FF3B30] dark:text-[#FF453A] font-semibold">
+                                Kode OTP kedaluwarsa - silakan kirim ulang.
+                            </span>
+                        </div>
                     </div>
 
-                    <button type="submit"
-                        class="w-full py-4 bg-[#007AFF] text-white text-[15px] font-bold rounded-[14px] hover:bg-[#0062CC] active:scale-[0.97] transition-all shadow-lg shadow-[#007AFF]/30 min-h-[52px]">
-                        Verifikasi Sekarang
+                    <button type="submit" :disabled="submitting" :class="submitting ? 'opacity-60 cursor-not-allowed' : ''"
+                        class="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-[#00C2FF] via-[#00A3FF] to-[#007AFF] hover:from-[#1cd0ff] hover:to-[#006fe6] text-white font-bold text-sm sm:text-[15px] shadow-[0_2px_12px_rgba(0,194,255,0.3)] hover:shadow-[0_4px_20px_rgba(0,194,255,0.5)] active:scale-[0.99] min-h-[50px] transition-all focus:outline-none focus:ring-4 focus:ring-[#007AFF]/25 cursor-pointer">
+                        <span>Verifikasi &amp; Masuk Akun</span>
+                        <i data-lucide="arrow-right" class="w-4 h-4"></i>
                     </button>
                 </form>
 
-                {{-- Resend with timer --}}
-                <div class="text-center">
-                    <form method="POST" action="{{ route('customer.otp.send') }}" id="resend-form">
-                        @csrf
-                        <button type="submit" id="resend-btn"
-                            class="text-sm text-black/40 dark:text-white/40 disabled:opacity-40 disabled:cursor-not-allowed hover:text-[#007AFF] transition-colors">
-                            Kirim ulang kode
-                            <span id="resend-timer" class="font-semibold text-[#007AFF]"></span>
-                        </button>
-                    </form>
+                <!-- Resend OTP Action -->
+                <form method="POST" action="{{ route('customer.otp.send') }}" class="mt-4 text-center">
+                    @csrf
+                    <button type="submit" :disabled="cooldown() > 0"
+                        :class="cooldown() > 0 ? 'opacity-40 cursor-not-allowed' : ''"
+                        class="min-h-[44px] px-3 py-2 text-xs sm:text-sm font-semibold text-[#007AFF] dark:text-[#0A84FF] hover:underline transition-colors inline-flex items-center justify-center gap-1.5 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#007AFF]/20 rounded">
+                        <i data-lucide="refresh-cw" class="w-3.5 h-3.5" :class="cooldown() > 0 ? 'animate-spin' : ''"></i>
+                        <span x-show="cooldown() <= 0">Kirim Ulang Kode OTP</span>
+                        <span x-show="cooldown() > 0">Kirim ulang dalam <span class="font-mono font-bold" x-text="cooldown()"></span> detik</span>
+                    </button>
+                </form>
+
+                <!-- Change Phone Box -->
+                <div class="mt-5 p-3.5 rounded-xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200/80 dark:border-white/10 text-xs text-center text-slate-500 dark:text-slate-400">
+                    Nomor WhatsApp salah atau tidak aktif?
+                    <a href="{{ route('customer.profile.complete') }}"
+                        class="font-semibold text-[#007AFF] dark:text-[#0A84FF] hover:underline transition-colors ml-1">
+                        Ubah Nomor WhatsApp
+                    </a>
                 </div>
-            @endif
 
-            {{-- Change phone --}}
-            <div class="text-center text-sm text-black/40 dark:text-white/40">
-                Nomor salah?
-                <a href="{{ route('customer.profile.complete') }}" class="text-[#007AFF] font-semibold hover:underline">
-                    Ubah nomor WhatsApp
-                </a>
+                <!-- Logout Action -->
+                <form method="POST" action="{{ route('customer.logout') }}" class="mt-5 pt-4 border-t border-slate-200/80 dark:border-white/10 text-center">
+                    @csrf
+                    <button type="submit"
+                        class="min-h-[40px] px-3 text-xs sm:text-sm text-slate-500 dark:text-slate-400 hover:text-[#FF3B30] dark:hover:text-[#FF453A] transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#FF3B30]/20 rounded">
+                        Keluar dari sesi akun
+                    </button>
+                </form>
             </div>
-
         </div>
     </div>
 
-    @push('scripts')
-        @if ($already_sent)
-            <script>
-                (function() {
-                    const btn = document.getElementById('resend-btn');
-                    const timerEl = document.getElementById('resend-timer');
-                    let seconds = 60;
-                    btn.disabled = true;
-
-                    const iv = setInterval(() => {
-                        seconds--;
-                        if (seconds <= 0) {
-                            clearInterval(iv);
-                            btn.disabled = false;
-                            timerEl.textContent = '';
-                        } else {
-                            timerEl.textContent = '(' + seconds + 's)';
-                        }
-                    }, 1000);
-                    timerEl.textContent = '(' + seconds + 's)';
-
-                    // Auto-focus and auto-submit on 6 digits
-                    const otpInput = document.querySelector('input[name=otp]');
-                    if (otpInput) {
-                        otpInput.addEventListener('input', function() {
-                            this.value = this.value.replace(/\D/g, '').slice(0, 6);
-                            if (this.value.length === 6) {
-                                document.getElementById('otp-form').submit();
-                            }
-                        });
-                    }
-                })();
-            </script>
-        @endif
-    @endpush
+    <script src="{{ asset('js/otp-widget.js') }}"></script>
 @endsection

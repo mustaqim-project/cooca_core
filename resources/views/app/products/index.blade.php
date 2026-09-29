@@ -409,7 +409,7 @@
                 ],
                 JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE,
             )
-            : "{ id: '', slug: '', name: '', sku: '', category_id: '', output_unit_id: '', base_cost: 0, selling_price: 0, min_stock: 0, is_active: true, show_in_website: true, show_in_pos: true, show_in_sales_order: true, show_price_on_web: true, is_preorder: false, preorder_mode: 'customer_schedule', preorder_lead_days: 1, is_bundle: false, bundle_items: [], channel_prices: {}, description: '', image_url: '', images: [] }" !!},
+            : "{ id: '', slug: '', name: '', sku: '', category_id: '', output_unit_id: '', base_cost: 0, selling_price: 0, min_stock: 0, weight: 200, length: '', width: '', height: '', is_active: true, show_in_website: true, show_in_pos: true, show_in_sales_order: true, show_price_on_web: true, is_preorder: false, preorder_mode: 'customer_schedule', preorder_lead_days: 1, is_bundle: false, bundle_items: [], channel_prices: {}, description: '', image_url: '', images: [] }" !!},
     
         productToggles: {
             @foreach($products as $p)
@@ -493,6 +493,10 @@
                 ...p,
                 category_id: String(p.category_id || ''),
                 output_unit_id: String(p.output_unit_id || ''),
+                weight: Number(p.weight || 200),
+                length: p.length ? Number(p.length) : '',
+                width: p.width ? Number(p.width) : '',
+                height: p.height ? Number(p.height) : '',
                 show_in_website: currentToggle ? currentToggle.show_in_website : p.show_in_website,
                 show_in_pos: currentToggle ? currentToggle.show_in_pos : p.show_in_pos,
                 show_in_sales_order: currentToggle ? currentToggle.show_in_sales_order : p.show_in_sales_order,
@@ -1120,6 +1124,10 @@
                                     base_cost: {{ (float) $prod->base_cost }},
                                     selling_price: {{ (float) $prod->selling_price }},
                                     min_stock: {{ (float) $prod->min_stock }},
+                                    weight: {{ (float) ($prod->weight ?? 200) }},
+                                    length: {{ $prod->length !== null ? (float) $prod->length : "''" }},
+                                    width: {{ $prod->width !== null ? (float) $prod->width : "''" }},
+                                    height: {{ $prod->height !== null ? (float) $prod->height : "''" }},
                                     is_active: {{ $prod->is_active ? 'true' : 'false' }},
                                     show_in_website: {{ $prod->show_in_website ?? true ? 'true' : 'false' }},
                                     show_in_pos: {{ $prod->show_in_pos ?? true ? 'true' : 'false' }},
@@ -1250,6 +1258,10 @@
                         base_cost: {{ (float) $prod->base_cost }},
                         selling_price: {{ (float) $prod->selling_price }},
                         min_stock: {{ (float) $prod->min_stock }},
+                        weight: {{ (float) ($prod->weight ?? 200) }},
+                        length: {{ $prod->length !== null ? (float) $prod->length : "''" }},
+                        width: {{ $prod->width !== null ? (float) $prod->width : "''" }},
+                        height: {{ $prod->height !== null ? (float) $prod->height : "''" }},
                         is_active: {{ $prod->is_active ? 'true' : 'false' }},
                         show_in_website: {{ $prod->show_in_website ?? true ? 'true' : 'false' }},
                         show_in_pos: {{ $prod->show_in_pos ?? true ? 'true' : 'false' }},
@@ -1835,6 +1847,74 @@
                                         </div>
                                     </div>
                                 </div>
+
+                                <!-- Bento Box 4: Dimensi & Berat Pengiriman Logistik (Biteship / Ekspedisi) -->
+                                <div
+                                    class="p-5 rounded-[18px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.08] space-y-3.5">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center gap-2">
+                                            <svg class="w-4 h-4 text-[#007AFF]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                                            </svg>
+                                            <h3 class="text-[14px] font-bold text-black dark:text-white tracking-tight">Dimensi &amp; Berat Pengiriman</h3>
+                                        </div>
+                                        <span class="text-[11px] font-medium text-black/40 dark:text-white/40">Logistik &amp; Ekspedisi</span>
+                                    </div>
+
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                                        <div>
+                                            <label class="block text-[11px] font-semibold text-black/70 dark:text-white/70 mb-1">
+                                                Berat Produk (Gram) <span class="text-[#FF3B30]">*</span>
+                                            </label>
+                                            <div class="relative">
+                                                <input type="number" step="1" min="1" name="weight" value="200" required
+                                                    placeholder="Contoh: 250"
+                                                    class="w-full h-10 px-3 bg-white dark:bg-[#1C1C1E] border border-black/[0.1] dark:border-white/[0.1] rounded-[10px] text-[13px] text-black dark:text-white tabular-nums font-semibold focus:ring-2 focus:ring-[#007AFF] focus:border-transparent">
+                                                <span class="absolute right-3 top-2.5 text-[11px] font-medium text-black/40 dark:text-white/40">gram</span>
+                                            </div>
+                                            <p class="text-[10px] text-black/45 dark:text-white/45 mt-1">Wajib untuk toko online / kalkulasi ongkir.</p>
+                                        </div>
+
+                                        <div>
+                                            <label class="block text-[11px] font-semibold text-black/70 dark:text-white/70 mb-1">
+                                                Panjang (P) cm
+                                            </label>
+                                            <div class="relative">
+                                                <input type="number" step="0.1" min="0" name="length"
+                                                    placeholder="Contoh: 15"
+                                                    class="w-full h-10 px-3 bg-white dark:bg-[#1C1C1E] border border-black/[0.1] dark:border-white/[0.1] rounded-[10px] text-[13px] text-black dark:text-white tabular-nums focus:ring-2 focus:ring-[#007AFF] focus:border-transparent">
+                                                <span class="absolute right-3 top-2.5 text-[11px] font-medium text-black/40 dark:text-white/40">cm</span>
+                                            </div>
+                                            <p class="text-[10px] text-black/45 dark:text-white/45 mt-1">Opsional (volumetrik)</p>
+                                        </div>
+
+                                        <div>
+                                            <label class="block text-[11px] font-semibold text-black/70 dark:text-white/70 mb-1">
+                                                Lebar (L) cm
+                                            </label>
+                                            <div class="relative">
+                                                <input type="number" step="0.1" min="0" name="width"
+                                                    placeholder="Contoh: 10"
+                                                    class="w-full h-10 px-3 bg-white dark:bg-[#1C1C1E] border border-black/[0.1] dark:border-white/[0.1] rounded-[10px] text-[13px] text-black dark:text-white tabular-nums focus:ring-2 focus:ring-[#007AFF] focus:border-transparent">
+                                                <span class="absolute right-3 top-2.5 text-[11px] font-medium text-black/40 dark:text-white/40">cm</span>
+                                            </div>
+                                            <p class="text-[10px] text-black/45 dark:text-white/45 mt-1">Opsional (volumetrik)</p>
+                                        </div>
+
+                                        <div>
+                                            <label class="block text-[11px] font-semibold text-black/70 dark:text-white/70 mb-1">
+                                                Tinggi (T) cm
+                                            </label>
+                                            <div class="relative">
+                                                <input type="number" step="0.1" min="0" name="height"
+                                                    placeholder="Contoh: 5"
+                                                    class="w-full h-10 px-3 bg-white dark:bg-[#1C1C1E] border border-black/[0.1] dark:border-white/[0.1] rounded-[10px] text-[13px] text-black dark:text-white tabular-nums focus:ring-2 focus:ring-[#007AFF] focus:border-transparent">
+                                                <span class="absolute right-3 top-2.5 text-[11px] font-medium text-black/40 dark:text-white/40">cm</span>
+                                            </div>
+                                            <p class="text-[10px] text-black/45 dark:text-white/45 mt-1">Opsional (volumetrik)</p>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -2354,6 +2434,74 @@
                                                     <span class="text-[12px] text-black/60 dark:text-white/60">Hari
                                                         (H-x)</span>
                                                 </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Bento Box 4: Dimensi & Berat Pengiriman Logistik (Biteship / Ekspedisi) -->
+                                    <div
+                                        class="p-5 rounded-[18px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.08] space-y-3.5">
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex items-center gap-2">
+                                                <svg class="w-4 h-4 text-[#007AFF]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                                                </svg>
+                                                <h3 class="text-[14px] font-bold text-black dark:text-white tracking-tight">Dimensi &amp; Berat Pengiriman</h3>
+                                            </div>
+                                            <span class="text-[11px] font-medium text-black/40 dark:text-white/40">Logistik &amp; Ekspedisi</span>
+                                        </div>
+
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                                            <div>
+                                                <label class="block text-[11px] font-semibold text-black/70 dark:text-white/70 mb-1">
+                                                    Berat Produk (Gram) <span class="text-[#FF3B30]">*</span>
+                                                </label>
+                                                <div class="relative">
+                                                    <input type="number" step="1" min="1" name="weight" x-model="editProduct.weight" required
+                                                        placeholder="Contoh: 250"
+                                                        class="w-full h-10 px-3 bg-white dark:bg-[#1C1C1E] border border-black/[0.1] dark:border-white/[0.1] rounded-[10px] text-[13px] text-black dark:text-white tabular-nums font-semibold focus:ring-2 focus:ring-[#007AFF] focus:border-transparent">
+                                                    <span class="absolute right-3 top-2.5 text-[11px] font-medium text-black/40 dark:text-white/40">gram</span>
+                                                </div>
+                                                <p class="text-[10px] text-black/45 dark:text-white/45 mt-1">Wajib untuk toko online / kalkulasi ongkir.</p>
+                                            </div>
+
+                                            <div>
+                                                <label class="block text-[11px] font-semibold text-black/70 dark:text-white/70 mb-1">
+                                                    Panjang (P) cm
+                                                </label>
+                                                <div class="relative">
+                                                    <input type="number" step="0.1" min="0" name="length" x-model="editProduct.length"
+                                                        placeholder="Contoh: 15"
+                                                        class="w-full h-10 px-3 bg-white dark:bg-[#1C1C1E] border border-black/[0.1] dark:border-white/[0.1] rounded-[10px] text-[13px] text-black dark:text-white tabular-nums focus:ring-2 focus:ring-[#007AFF] focus:border-transparent">
+                                                    <span class="absolute right-3 top-2.5 text-[11px] font-medium text-black/40 dark:text-white/40">cm</span>
+                                                </div>
+                                                <p class="text-[10px] text-black/45 dark:text-white/45 mt-1">Opsional (volumetrik)</p>
+                                            </div>
+
+                                            <div>
+                                                <label class="block text-[11px] font-semibold text-black/70 dark:text-white/70 mb-1">
+                                                    Lebar (L) cm
+                                                </label>
+                                                <div class="relative">
+                                                    <input type="number" step="0.1" min="0" name="width" x-model="editProduct.width"
+                                                        placeholder="Contoh: 10"
+                                                        class="w-full h-10 px-3 bg-white dark:bg-[#1C1C1E] border border-black/[0.1] dark:border-white/[0.1] rounded-[10px] text-[13px] text-black dark:text-white tabular-nums focus:ring-2 focus:ring-[#007AFF] focus:border-transparent">
+                                                    <span class="absolute right-3 top-2.5 text-[11px] font-medium text-black/40 dark:text-white/40">cm</span>
+                                                </div>
+                                                <p class="text-[10px] text-black/45 dark:text-white/45 mt-1">Opsional (volumetrik)</p>
+                                            </div>
+
+                                            <div>
+                                                <label class="block text-[11px] font-semibold text-black/70 dark:text-white/70 mb-1">
+                                                    Tinggi (T) cm
+                                                </label>
+                                                <div class="relative">
+                                                    <input type="number" step="0.1" min="0" name="height" x-model="editProduct.height"
+                                                        placeholder="Contoh: 5"
+                                                        class="w-full h-10 px-3 bg-white dark:bg-[#1C1C1E] border border-black/[0.1] dark:border-white/[0.1] rounded-[10px] text-[13px] text-black dark:text-white tabular-nums focus:ring-2 focus:ring-[#007AFF] focus:border-transparent">
+                                                    <span class="absolute right-3 top-2.5 text-[11px] font-medium text-black/40 dark:text-white/40">cm</span>
+                                                </div>
+                                                <p class="text-[10px] text-black/45 dark:text-white/45 mt-1">Opsional (volumetrik)</p>
                                             </div>
                                         </div>
                                     </div>

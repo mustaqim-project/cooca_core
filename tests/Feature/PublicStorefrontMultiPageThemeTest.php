@@ -117,7 +117,8 @@ class PublicStorefrontMultiPageThemeTest extends TestCase
         CommerceShippingRule::create([
             'business_id' => $this->business->id,
             'name' => 'Kurir Instan Kota',
-            'rate' => 15000,
+            'rule_type' => CommerceShippingRule::TYPE_FLAT,
+            'rate_amount' => 15000,
             'is_active' => true,
             'sort_order' => 1,
         ]);
@@ -181,15 +182,31 @@ class PublicStorefrontMultiPageThemeTest extends TestCase
 
     public function test_checkout_page_renders_standalone_two_column_view_without_modals(): void
     {
+        // 1. Guest is redirected to login with return redirect
+        $guestResponse = $this->get('/' . $this->business->slug . '/checkout');
+        $guestResponse->assertRedirect('/' . $this->business->slug . '/login?redirect=' . urlencode(url('/' . $this->business->slug . '/checkout')));
+
+        // 2. Authenticated customer with complete & verified profile can view standalone checkout
+        $customer = \App\Models\GlobalCustomer::create([
+            'name' => 'Pelanggan Setia',
+            'phone' => '081234567899',
+            'email' => 'customer.test@cooca.id',
+            'phone_verified_at' => now(),
+            'email_verified_at' => now(),
+        ]);
+        $this->actingAs($customer, 'customer');
+
         $response = $this->get('/' . $this->business->slug . '/checkout');
 
         $response->assertStatus(200);
         $response->assertSee('Checkout Pesanan');
         $response->assertSee('Metode Penerimaan Pesanan');
         $response->assertSee('Informasi Pembeli & Pengiriman');
-        $response->assertSee('Pilihan Metode Pembayaran');
+        $response->assertSee('Metode Pembayaran');
         $response->assertSee('Rincian Belanja');
-        $response->assertSee('QRIS Realtime');
+        $response->assertSee('QRIS Cooca Pay');
+        $response->assertSee('storefrontCheckout(window.__coocaCheckoutConfig)', false);
+        $response->assertDontSee('r.id === this.selectedShippingRuleId', false);
     }
 
     public function test_auto_hide_navigation_only_renders_active_pages_and_hides_disabled(): void
@@ -262,5 +279,38 @@ class PublicStorefrontMultiPageThemeTest extends TestCase
         $catalogResponse = $this->get('/b/' . $this->business->slug . '/katalog');
         $catalogResponse->assertStatus(200);
         $catalogResponse->assertSee('Katalog Produk & Layanan');
+    }
+
+    public function test_i18n_language_switching_between_indonesian_and_english(): void
+    {
+        // 1. English Locale Test
+        $enResponse = $this->get('/' . $this->business->slug . '?lang=en');
+        $enResponse->assertStatus(200);
+        $enResponse->assertSee('lang="en"', false);
+        $enResponse->assertSee('window.COOCA_LANG', false);
+        $enResponse->assertSee('All rights reserved');
+        $enResponse->assertSee('Store Navigation');
+
+        // 2. Indonesian Locale Test
+        $idResponse = $this->get('/' . $this->business->slug . '?lang=id');
+        $idResponse->assertStatus(200);
+        $idResponse->assertSee('lang="id"', false);
+        $idResponse->assertSee('window.COOCA_LANG', false);
+        $idResponse->assertSee('Seluruh hak cipta dilindungi');
+        $idResponse->assertSee('Navigasi Toko');
+    }
+
+    public function test_shared_components_and_global_js_injection(): void
+    {
+        $response = $this->get('/' . $this->business->slug);
+        $response->assertStatus(200);
+
+        // Global JS Bridge
+        $response->assertSee('window.COOCA_I18N =', false);
+        $response->assertSee('window.COOCA_BUSINESS_ID =', false);
+
+        // Reusable Floating Components & Modals
+        $response->assertSee('modal-order-token');
+        $response->assertSee('cooca_cart_' . $this->business->id);
     }
 }

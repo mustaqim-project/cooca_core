@@ -68,7 +68,9 @@ final class PublicStorefrontController extends Controller
 
         $recentArticles = [];
         if ($landingPage->isPageActive('blog')) {
-            $recentArticles = Post::where('is_published', true)
+            $hasBusinessId = Schema::hasColumn('posts', 'business_id');
+            $recentArticles = Post::when($hasBusinessId, fn ($q) => $q->where('business_id', $business->id))
+                ->where('is_published', true)
                 ->latest('published_at')
                 ->take(3)
                 ->get();
@@ -204,6 +206,30 @@ final class PublicStorefrontController extends Controller
      */
     public function checkout(Request $request, string $slug): View|RedirectResponse
     {
+        // 1. Enforce Customer Authentication
+        if (auth('customer')->guest()) {
+            return redirect()->to('/' . $slug . '/login?redirect=' . urlencode($request->fullUrl()))
+                ->with('info', 'Silakan masuk ke akun pelanggan Anda untuk melanjutkan ke checkout.');
+        }
+
+        // 2. Enforce Complete Profile & WhatsApp OTP Verification
+        $customer = auth('customer')->user();
+        if ($customer && ! $customer->isProfileComplete()) {
+            if (! $request->session()->has('url.intended')) {
+                $request->session()->put('url.intended', $request->fullUrl());
+            }
+            return redirect()->route('customer.profile.complete')
+                ->with('info', 'Lengkapi profil dan nomor WhatsApp Anda sebelum melanjutkan ke checkout.');
+        }
+
+        if ($customer && ! $customer->isPhoneVerified()) {
+            if (! $request->session()->has('url.intended')) {
+                $request->session()->put('url.intended', $request->fullUrl());
+            }
+            return redirect()->route('customer.otp')
+                ->with('info', 'Verifikasi nomor WhatsApp Anda sebelum melanjutkan ke checkout.');
+        }
+
         $context = $this->resolveContext($slug, null);
         if ($context instanceof RedirectResponse) {
             return $context;
@@ -212,8 +238,10 @@ final class PublicStorefrontController extends Controller
         $business = $context['business'];
         $storeSetting = $context['storeSetting'];
 
+        // Online storefront checkout only supports QRIS Cooca Pay (Tripay)
         $paymentMethods = CommercePaymentMethod::where('business_id', $business->id)
             ->where('is_active', true)
+            ->where('type', 'qris')
             ->orderBy('sort_order')
             ->get();
 
@@ -222,10 +250,7 @@ final class PublicStorefrontController extends Controller
             ->orderBy('sort_order')
             ->get();
 
-        $posTables = PosTable::where('business_id', $business->id)
-            ->where('is_active', true)
-            ->orderBy('table_number')
-            ->get();
+        $posTables = collect(); // Storefront checkout is delivery & pickup only
 
         $pickupLocations = Location::where('business_id', $business->id)
             ->where('is_active', true)
@@ -234,11 +259,30 @@ final class PublicStorefrontController extends Controller
             ->orderBy('name', 'asc')
             ->get();
 
+        /** @var \App\Models\GlobalCustomer|null $authCustomer */
+        $authCustomer = auth('customer')->user();
+        $customerAddresses = $authCustomer
+            ? $authCustomer->addresses()->orderBy('is_default', 'desc')->orderBy('created_at', 'desc')->get()
+            : collect();
+
+        // If customer has legacy shipping address but 0 address records, auto-migrate
+        if ($authCustomer && $customerAddresses->isEmpty() && ! empty($authCustomer->shipping_address)) {
+            $created = $authCustomer->addresses()->create([
+                'label'            => 'Alamat Utama',
+                'recipient_name'   => $authCustomer->name,
+                'recipient_phone'  => $authCustomer->phone ?: '081234567890',
+                'full_address'     => $authCustomer->shipping_address,
+                'is_default'       => true,
+            ]);
+            $customerAddresses = collect([$created]);
+        }
+
         return view('public.storefront.checkout', array_merge($context, compact(
             'paymentMethods',
             'shippingRules',
             'posTables',
-            'pickupLocations'
+            'pickupLocations',
+            'customerAddresses'
         )));
     }
 
@@ -366,6 +410,12 @@ final class PublicStorefrontController extends Controller
 
         abort_unless($business, 404);
 
+        if (request()->has('lang') && in_array(request()->query('lang'), ['id', 'en'], true)) {
+            session(['storefront_locale' => request()->query('lang')]);
+        }
+        $locale = session('storefront_locale', 'id');
+        app()->setLocale($locale);
+
         $landingPage = BusinessLandingPage::where('business_id', $business->id)->first();
         if (! $landingPage) {
             $landingPage = BusinessLandingPage::create([
@@ -444,6 +494,10 @@ final class PublicStorefrontController extends Controller
             }
         }
 
+        $industryCategory = $business->industry_category ?: ($business->businessTypeTemplate?->industry_category ?: 'retail');
+        $isDiningIndustry = in_array($industryCategory, ['fnb', 'restaurant', 'cafe', 'bakery', 'culinary'], true)
+            || (method_exists($business, 'isModuleEnabled') && $business->isModuleEnabled('pos_dining'));
+
         return [
             'business' => $business,
             'landingPage' => $landingPage,
@@ -453,6 +507,8 @@ final class PublicStorefrontController extends Controller
             'dbCartItems' => $dbCartItems,
             'isAuthorizedPreview' => $isAuthorizedPreview,
             'hasWhatsapp' => ! empty($landingPage->whatsapp_number) || ! empty($business->phone),
+            'industryCategory' => $industryCategory,
+            'isDiningIndustry' => $isDiningIndustry,
         ];
     }
 

@@ -7,6 +7,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -58,6 +59,27 @@ class GlobalCustomer extends Authenticatable
     public function carts(): HasMany
     {
         return $this->hasMany(CustomerCart::class, 'global_customer_id');
+    }
+
+    public function addresses(): HasMany
+    {
+        return $this->hasMany(GlobalCustomerAddress::class, 'global_customer_id')->orderBy('is_default', 'desc')->orderBy('created_at', 'desc');
+    }
+
+    /**
+     * Primary/default delivery address relation.
+     */
+    public function defaultAddress(): HasOne
+    {
+        return $this->hasOne(GlobalCustomerAddress::class, 'global_customer_id')->where('is_default', true);
+    }
+
+    /**
+     * Get primary/default delivery address or fallback to first available address.
+     */
+    public function getDefaultOrFirstAddress(): ?GlobalCustomerAddress
+    {
+        return $this->defaultAddress()->first() ?? $this->addresses()->first();
     }
 
     // ---------------------------------------------------------

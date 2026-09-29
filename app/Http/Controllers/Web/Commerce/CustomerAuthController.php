@@ -21,13 +21,17 @@ final class CustomerAuthController extends Controller
      */
     public function showLoginForm(Request $request): View|RedirectResponse
     {
+        $redirectTo = $request->query('redirect', '');
+
         if (Auth::guard('customer')->check()) {
+            if ($redirectTo && (str_starts_with($redirectTo, '/') || str_starts_with($redirectTo, url('/')) || str_starts_with($redirectTo, (string) config('app.url')))) {
+                return redirect($redirectTo);
+            }
             return redirect()->route('customer.dashboard');
         }
 
-        $storeSlug  = $request->query('store');
+        $storeSlug  = $request->query('store') ?: $request->route('slug');
         $store      = $storeSlug ? Business::where('slug', $storeSlug)->where('is_active', true)->first() : null;
-        $redirectTo = $request->query('redirect', '');
 
         return view('customer.auth.login', compact('store', 'redirectTo'));
     }
@@ -85,13 +89,17 @@ final class CustomerAuthController extends Controller
      */
     public function showRegisterForm(Request $request): View|RedirectResponse
     {
+        $redirectTo = $request->query('redirect', '');
+
         if (Auth::guard('customer')->check()) {
+            if ($redirectTo && (str_starts_with($redirectTo, '/') || str_starts_with($redirectTo, url('/')) || str_starts_with($redirectTo, (string) config('app.url')))) {
+                return redirect($redirectTo);
+            }
             return redirect()->route('customer.dashboard');
         }
 
-        $storeSlug  = $request->query('store');
+        $storeSlug  = $request->query('store') ?: $request->route('slug');
         $store      = $storeSlug ? Business::where('slug', $storeSlug)->where('is_active', true)->first() : null;
-        $redirectTo = $request->query('redirect', '');
 
         return view('customer.auth.register', compact('store', 'redirectTo'));
     }
