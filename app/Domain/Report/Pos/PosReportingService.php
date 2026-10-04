@@ -811,5 +811,20 @@ final class PosReportingService
     {
         return $this->reconciliationService->getShiftReconciliationList($filter);
     }
+
+    /**
+     * Buku Besar / Ledger Transaksi POS Terpaginasi.
+     *
+     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
+     */
+    public function getTransactionLedger(PosReportFilterDTO $filter, int $perPage = 25): \Illuminate\Contracts\Pagination\LengthAwarePaginator
+    {
+        return $this->buildBaseOrdersQuery($filter)
+            ->with(['user', 'location', 'customer', 'items', 'payments', 'shift.register'])
+            ->orderByDesc('order_date')
+            ->orderByDesc('created_at')
+            ->paginate($perPage)
+            ->withQueryString();
+    }
 }
 

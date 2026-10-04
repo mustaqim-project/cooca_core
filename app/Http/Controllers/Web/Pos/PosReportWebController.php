@@ -10,9 +10,12 @@ use App\Domain\Report\SalesReportService;
 use App\Exports\PosReportExport;
 use App\Http\Controllers\Controller;
 use App\Models\Business;
+use App\Models\Location;
 use App\Models\PosOrder;
 use App\Models\PosOrderItem;
 use App\Models\PosOrderPayment;
+use App\Models\PosShift;
+use App\Models\ProductCategory;
 use App\Support\Context;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -33,12 +36,51 @@ final class PosReportWebController extends Controller
     public function index(Request $request): View
     {
         $business = Context::requireBusiness();
-        $filter = PosReportFilterDTO::fromRequest($request, $business->id);
 
+        // 1. Multi-Tenant Anti-IDOR Validation
+        $locationId = $request->query('location_id');
+        if (!empty($locationId) && !Location::where('business_id', $business->id)->where('id', $locationId)->exists()) {
+            $request->merge(['location_id' => null]);
+        }
+
+        $userId = $request->query('user_id');
+        if (!empty($userId) && !$business->users()->where('users.id', $userId)->exists()) {
+            $request->merge(['user_id' => null]);
+        }
+
+        $posShiftId = $request->query('pos_shift_id');
+        if (!empty($posShiftId) && !PosShift::where('business_id', $business->id)->where('id', $posShiftId)->exists()) {
+            $request->merge(['pos_shift_id' => null]);
+        }
+
+        $categoryId = $request->query('category_id');
+        if (!empty($categoryId) && !ProductCategory::where('business_id', $business->id)->where('id', $categoryId)->exists()) {
+            $request->merge(['category_id' => null]);
+        }
+
+        // 2. Build Standardized Filter DTO
+        $filter = PosReportFilterDTO::fromRequest($request, $business->id);
         $startDate = $filter->startDate;
         $endDate = $filter->endDate;
 
-        // 1. KPI Summary (Single Source of Truth)
+        // 3. Tab Routing
+        $validTabs = [
+            'overview', 'transactions', 'products', 'categories', 'cashiers',
+            'outlets', 'payments', 'discounts', 'refunds', 'voids',
+            'shifts', 'hourly', 'customers', 'channels', 'profitability'
+        ];
+        $activeTab = (string) $request->query('tab', 'overview');
+        if (!in_array($activeTab, $validTabs, true)) {
+            $activeTab = 'overview';
+        }
+
+        // 4. Dropdown Filter Options
+        $locations = Location::where('business_id', $business->id)->where('is_active', true)->orderBy('name')->get(['id', 'name']);
+        $cashiers = $business->users()->orderBy('name')->get(['users.id', 'users.name']);
+        $categories = ProductCategory::where('business_id', $business->id)->orderBy('name')->get(['id', 'name']);
+        $shifts = PosShift::where('business_id', $business->id)->with('user')->latest('opened_at')->limit(30)->get(['id', 'user_id', 'opened_at', 'status']);
+
+        // 5. KPI Summary (Single Source of Truth)
         $kpi = $this->reportingService->getKpiSummary($filter);
 
         $totalRevenue = $kpi->netSales;
@@ -63,7 +105,26 @@ final class PosReportWebController extends Controller
         $averageSellingPrice = $kpi->averageSellingPrice;
         $averageCostPrice = $kpi->averageCostPrice;
 
-        // 2. Snapshot average prices (Legacy compatibility)
+        // 6. Sub-aggregations via PosReportingService
+        $dailyTrend = $this->reportingService->getDailySalesTrend($filter);
+        $hourlyData = $this->reportingService->getHourlyHeatmap($filter);
+        $paymentMethods = $this->reportingService->getPaymentMethodBreakdown($filter);
+        $topProducts = $this->reportingService->getProductPerformance($filter, 50);
+        $categoryPerformance = $this->reportingService->getCategoryPerformance($filter);
+        $cashierPerformance = $this->reportingService->getCashierPerformance($filter);
+        $outletPerformance = $this->reportingService->getOutletPerformance($filter);
+        $discountBreakdown = $this->reportingService->getDiscountBreakdown($filter);
+        $discountAnalytics = $this->reportingService->analyzeDiscountsAndPromotions($filter);
+        $refundSummary = $this->reportingService->getRefundSummary($filter);
+        $voidAudit = $this->reportingService->auditVoidsAndFraud($filter);
+        $reconciliation = $this->reportingService->reconcile($filter);
+        $shiftReconciliation = $this->reportingService->getShiftReconciliationList($filter);
+        $channelSales = $this->reportingService->getSalesChannelBreakdown($filter);
+        $customerMatrix = $this->reportingService->getCustomerSalesMatrix($filter, 50);
+        $marginAnalytics = $this->reportingService->analyzeMarginAndProfitability($filter);
+        $transactions = $this->reportingService->getTransactionLedger($filter, 25);
+
+        // 7. Legacy snapshot compatibility
         $snapshotReport = $this->salesReport->summary($business->id, $startDate, $endDate, $filter->locationId);
         $snapshotTotalQty = (float) $snapshotReport['summary']['total_quantity'];
         $snapshotTotalSales = (float) $snapshotReport['summary']['total_sales'];
@@ -72,17 +133,17 @@ final class PosReportWebController extends Controller
         $snapshotMarginPercent = (float) $snapshotReport['summary']['margin_percentage'];
         $productAveragePrices = $snapshotReport['by_product'];
 
-        // 3. Sub-aggregations via PosReportingService
-        $dailyTrend = $this->reportingService->getDailySalesTrend($filter);
-        $hourlyData = $this->reportingService->getHourlyHeatmap($filter);
-        $paymentMethods = $this->reportingService->getPaymentMethodBreakdown($filter);
-        $topProducts = $this->reportingService->getProductPerformance($filter, 10);
-        $cashierPerformance = $this->reportingService->getCashierPerformance($filter);
-
         return view('app.pos.reports', compact(
             'business',
+            'filter',
+            'activeTab',
+            'locations',
+            'cashiers',
+            'categories',
+            'shifts',
             'startDate',
             'endDate',
+            'kpi',
             'totalRevenue',
             'goodsRevenue',
             'goodsQty',
@@ -106,7 +167,19 @@ final class PosReportWebController extends Controller
             'hourlyData',
             'paymentMethods',
             'topProducts',
+            'categoryPerformance',
             'cashierPerformance',
+            'outletPerformance',
+            'discountBreakdown',
+            'discountAnalytics',
+            'refundSummary',
+            'voidAudit',
+            'reconciliation',
+            'shiftReconciliation',
+            'channelSales',
+            'customerMatrix',
+            'marginAnalytics',
+            'transactions',
             'averageSellingPrice',
             'averageCostPrice',
             'snapshotTotalQty',
