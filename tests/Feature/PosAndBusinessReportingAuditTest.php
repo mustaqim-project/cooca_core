@@ -261,7 +261,7 @@ final class PosAndBusinessReportingAuditTest extends TestCase
         ]));
 
         $response->assertOk();
-        $response->assertSee('Laporan &amp; Analitik POS', false);
+        $response->assertSee(__('pos.reports_title'));
         // Assert filtered revenue (96300 + 30000 = 126300)
         $response->assertSee('126.300');
         // Assert outside order is NOT summed into the KPI
@@ -351,6 +351,7 @@ final class PosAndBusinessReportingAuditTest extends TestCase
         $response = $this->actingAs($this->user)->get(route('pos.reports.export-excel', [
             'start_date' => $startDate->toDateString(),
             'end_date' => $endDate->toDateString(),
+            'format' => 'csv',
         ]));
 
         $response->assertOk();

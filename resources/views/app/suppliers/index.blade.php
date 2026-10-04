@@ -1,7 +1,7 @@
 @extends('layouts.app', [
-    'title' => 'Pemasok & Vendor',
-    'headerTitle' => 'Manajemen Pemasok (Suppliers)',
-    'headerSubtitle' => 'Kelola direktori mitra vendor, PIC, informasi perbankan, dan pengadaan bahan baku bisnis',
+    'title' => __('purchasing.supplier.title'),
+    'headerTitle' => __('purchasing.supplier.header_title'),
+    'headerSubtitle' => __('purchasing.supplier.header_subtitle'),
 ])
 
 @section('content')
@@ -58,25 +58,27 @@
         {{-- 1. TOOLBAR / PAGE HEADER                                --}}
         {{-- ===================================================== --}}
         <x-module-header
-            title="Direktori Pemasok & Vendor"
-            subtitle="Kelola direktori mitra vendor, PIC, rekening perbankan, dan histori pengadaan bahan baku">
-            <a href="{{ route('materials.index') }}"
-                class="min-h-[44px] sm:min-h-0 h-11 sm:h-9 px-3.5 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] dark:hover:bg-white/[0.1] active:scale-[0.98] transition-all flex items-center justify-center gap-1.5">
-                <i data-lucide="boxes" class="w-4 h-4 text-black/50 dark:text-white/50"></i>
-                <span>Katalog Bahan</span>
-            </a>
+            :title="__('purchasing.supplier.header_title')"
+            :subtitle="__('purchasing.supplier.header_subtitle')">
+            @if ($business->isModuleEnabled(\App\Domain\Template\ModuleRegistry::MODULE_RECIPE_BOM) && \App\Support\Context::hasPermission('inventory.view'))
+                <a href="{{ route('materials.index') }}"
+                    class="min-h-[44px] sm:min-h-0 h-11 sm:h-9 px-3.5 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] dark:hover:bg-white/[0.1] active:scale-[0.98] transition-all flex items-center justify-center gap-1.5">
+                    <i data-lucide="boxes" class="w-4 h-4 text-black/50 dark:text-white/50"></i>
+                    <span>{{ __('purchasing.supplier.actions.view_materials') }}</span>
+                </a>
+            @endif
 
             <a href="{{ route('purchase-orders.index') }}"
                 class="min-h-[44px] sm:min-h-0 h-11 sm:h-9 px-3.5 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] dark:hover:bg-white/[0.1] active:scale-[0.98] transition-all flex items-center justify-center gap-1.5">
                 <i data-lucide="file-text" class="w-4 h-4 text-black/50 dark:text-white/50"></i>
-                <span>Daftar PO</span>
+                <span>{{ __('purchasing.supplier.actions.view_pos') }}</span>
             </a>
 
-            @if (\App\Support\Context::hasPermission('master_data.suppliers.manage'))
+            @if (\App\Support\Context::hasPermission('master_data.suppliers.manage') || \App\Support\Context::isAdminOrOwner())
                 <button type="button" @click="showAddModal = true"
                     class="min-h-[44px] sm:min-h-0 h-11 sm:h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] transition-all flex items-center justify-center gap-1.5 shadow-[0_1px_2px_rgba(0,122,255,0.25)] cursor-pointer">
                     <i data-lucide="plus" class="w-4 h-4"></i>
-                    <span>Tambah Pemasok</span>
+                    <span>{{ __('purchasing.supplier.actions.add_supplier') }}</span>
                 </button>
             @endif
         </x-module-header>
@@ -113,57 +115,57 @@
             {{-- KPI 1: Total Pemasok --}}
             <div class="rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] p-4 sm:p-5 flex flex-col justify-between shadow-xs">
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Total Pemasok</span>
+                    <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">{{ __('purchasing.supplier.kpis.total_suppliers') }}</span>
                     <div class="w-7 h-7 rounded-[8px] bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 dark:text-slate-400">
                         <i data-lucide="truck" class="w-3.5 h-3.5"></i>
                     </div>
                 </div>
                 <div class="mt-3 flex items-baseline justify-between">
                     <span class="text-2xl font-black tabular-nums text-slate-900 dark:text-white">{{ $suppliers->total() }}</span>
-                    <span class="text-[11px] text-slate-400 dark:text-slate-500 font-medium">Mitra Terdaftar</span>
+                    <span class="text-[11px] text-slate-400 dark:text-slate-500 font-medium">{{ __('purchasing.supplier.kpis.registered_partners') }}</span>
                 </div>
             </div>
 
-            {{-- KPI 2: Pemasok Bahan Aktif --}}
+            {{-- KPI 2: Pemasok Pasokan Aktif --}}
             <div class="rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] p-4 sm:p-5 flex flex-col justify-between shadow-xs">
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Pemasok Pasokan Aktif</span>
+                    <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">{{ __('purchasing.supplier.kpis.active_suppliers') }}</span>
                     <div class="w-7 h-7 rounded-[8px] bg-[#007AFF]/10 flex items-center justify-center text-[#007AFF]">
                         <i data-lucide="package-check" class="w-3.5 h-3.5"></i>
                     </div>
                 </div>
                 <div class="mt-3 flex items-baseline justify-between">
                     <span class="text-2xl font-black tabular-nums text-[#007AFF] dark:text-[#0A84FF]">{{ $suppliedVendorsCount }}</span>
-                    <span class="text-[11px] text-slate-400 dark:text-slate-500 font-medium">Ada Bahan Baku</span>
+                    <span class="text-[11px] text-slate-400 dark:text-slate-500 font-medium">{{ __('purchasing.supplier.kpis.has_materials') }}</span>
                 </div>
             </div>
 
             {{-- KPI 3: Item Bahan Terhubung --}}
             <div class="rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] p-4 sm:p-5 flex flex-col justify-between shadow-xs">
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Bahan Baku Terhubung</span>
+                    <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">{{ __('purchasing.supplier.kpis.linked_materials') }}</span>
                     <div class="w-7 h-7 rounded-[8px] bg-[#FF9500]/10 flex items-center justify-center text-[#FF9500]">
                         <i data-lucide="boxes" class="w-3.5 h-3.5"></i>
                     </div>
                 </div>
                 <div class="mt-3 flex items-baseline justify-between">
                     <span class="text-2xl font-black tabular-nums text-[#FF9500] dark:text-[#FF9F0A]">{{ $activeMaterialsCount }}</span>
-                    <span class="text-[11px] text-slate-400 dark:text-slate-500 font-medium">Item Pasokan</span>
+                    <span class="text-[11px] text-slate-400 dark:text-slate-500 font-medium">{{ __('purchasing.supplier.kpis.supply_items') }}</span>
                 </div>
             </div>
 
             {{-- KPI 4: Shortcut Buat PO Baru --}}
             <div class="rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] p-4 sm:p-5 flex flex-col justify-between shadow-xs">
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Pengadaan Barang</span>
+                    <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">{{ __('purchasing.supplier.kpis.procurement') }}</span>
                     <div class="w-7 h-7 rounded-[8px] bg-[#5856D6]/10 flex items-center justify-center text-[#5856D6]">
                         <i data-lucide="shopping-cart" class="w-3.5 h-3.5"></i>
                     </div>
                 </div>
                 <div class="mt-3 flex items-center justify-between">
                     <a href="{{ route('purchase-orders.create', ['type' => 'supplier']) }}"
-                        class="h-8 px-3 rounded-[8px] text-xs font-bold text-[#5856D6] dark:text-[#5E5CE6] bg-[#5856D6]/10 hover:bg-[#5856D6]/15 active:scale-[0.97] transition-all flex items-center gap-1.5">
-                        <span>+ Buat PO Supplier</span>
+                        class="min-h-[44px] sm:min-h-0 h-9 sm:h-8 px-3 rounded-[8px] text-xs font-bold text-[#5856D6] dark:text-[#5E5CE6] bg-[#5856D6]/10 hover:bg-[#5856D6]/15 active:scale-[0.97] transition-all flex items-center gap-1.5 cursor-pointer">
+                        <span>+ {{ __('purchasing.supplier.actions.create_po') }}</span>
                         <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
                     </a>
                 </div>
@@ -179,24 +181,24 @@
                 <div class="relative flex-1">
                     <i data-lucide="search" class="w-4 h-4 text-slate-400 dark:text-slate-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
                     <input type="text" name="search" value="{{ request('search') }}"
-                        placeholder="Cari nama pemasok, kontak PIC, telepon, email..."
-                        class="w-full h-9 bg-slate-50 dark:bg-[#2C2C2E] border border-black/[0.06] dark:border-white/[0.08] rounded-[10px] pl-9 pr-3 text-[16px] sm:text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
+                        placeholder="{{ __('purchasing.supplier.placeholders.search') }}"
+                        class="w-full h-10 sm:h-9 bg-slate-50 dark:bg-[#2C2C2E] border border-black/[0.06] dark:border-white/[0.08] rounded-[10px] pl-9 pr-3 text-[16px] sm:text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
                 </div>
                 <button type="submit"
-                    class="h-9 px-3.5 rounded-[10px] text-xs font-semibold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 active:scale-[0.98] transition-all cursor-pointer">
-                    Cari
+                    class="min-h-[44px] sm:min-h-0 h-10 sm:h-9 px-4 sm:px-3.5 rounded-[10px] text-xs font-semibold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 active:scale-[0.98] transition-all cursor-pointer">
+                    {{ __('purchasing.supplier.actions.search') }}
                 </button>
                 @if (request('search'))
                     <a href="{{ route('suppliers.index') }}"
-                        class="h-9 px-2.5 rounded-[8px] text-xs font-semibold text-[#FF3B30] hover:bg-[#FF3B30]/10 flex items-center transition">
-                        Reset
+                        class="min-h-[44px] sm:min-h-0 h-10 sm:h-9 px-3 sm:px-2.5 rounded-[8px] text-xs font-semibold text-[#FF3B30] hover:bg-[#FF3B30]/10 flex items-center transition cursor-pointer">
+                        {{ __('purchasing.supplier.actions.reset') }}
                     </a>
                 @endif
             </form>
 
             <div class="text-xs text-slate-500 dark:text-slate-400 font-normal self-start sm:self-auto">
-                Menampilkan <span class="font-bold text-slate-900 dark:text-white tabular-nums">{{ $suppliers->count() }}</span> dari
-                <span class="font-bold text-slate-900 dark:text-white tabular-nums">{{ $suppliers->total() }}</span> pemasok
+                {{ __('purchasing.supplier.pagination.showing') }} <span class="font-bold text-slate-900 dark:text-white tabular-nums">{{ $suppliers->count() }}</span> {{ __('purchasing.supplier.pagination.of') }}
+                <span class="font-bold text-slate-900 dark:text-white tabular-nums">{{ $suppliers->total() }}</span> {{ __('purchasing.supplier.pagination.suppliers') }}
             </div>
         </div>
 
@@ -208,13 +210,13 @@
                 <table class="w-full text-left text-xs">
                     <thead>
                         <tr class="border-b border-black/[0.06] dark:border-white/[0.08] text-[11px] font-bold uppercase tracking-wide text-slate-400 dark:text-slate-500 bg-slate-50/50 dark:bg-[#2C2C2E]/50">
-                            <th class="px-4 py-3">Nama Pemasok / Vendor</th>
-                            <th class="px-4 py-3">Kontak PIC</th>
-                            <th class="px-4 py-3">Telepon &amp; WhatsApp</th>
-                            <th class="px-4 py-3">Rekening Bank</th>
-                            <th class="px-4 py-3">Email &amp; Alamat</th>
-                            <th class="px-4 py-3 text-center">Bahan Baku</th>
-                            <th class="px-4 py-3 text-right">Aksi</th>
+                            <th class="px-4 py-3">{{ __('purchasing.supplier.table.supplier_name') }}</th>
+                            <th class="px-4 py-3">{{ __('purchasing.supplier.table.contact_pic') }}</th>
+                            <th class="px-4 py-3">{{ __('purchasing.supplier.table.phone_wa') }}</th>
+                            <th class="px-4 py-3">{{ __('purchasing.supplier.table.bank_account') }}</th>
+                            <th class="px-4 py-3">{{ __('purchasing.supplier.table.email_address') }}</th>
+                            <th class="px-4 py-3 text-center">{{ __('purchasing.supplier.table.raw_materials') }}</th>
+                            <th class="px-4 py-3 text-right">{{ __('purchasing.supplier.table.action') }}</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-black/[0.04] dark:divide-white/[0.06]">
@@ -254,10 +256,10 @@
                                             </a>
                                             <a href="https://wa.me/{{ $waNumber }}" target="_blank"
                                                 rel="noopener noreferrer"
-                                                class="h-6 px-2 rounded-[6px] bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158] hover:bg-[#34C759]/20 transition flex items-center justify-center gap-1 text-[11px] font-bold"
-                                                title="Chat WhatsApp Pemasok">
+                                                class="min-h-[44px] sm:min-h-0 h-6 px-2 rounded-[6px] bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158] hover:bg-[#34C759]/20 transition flex items-center justify-center gap-1 text-[11px] font-bold cursor-pointer"
+                                                title="{{ __('purchasing.supplier.badges.chat_wa_title') }}">
                                                 <i data-lucide="message-circle" class="w-3 h-3"></i>
-                                                <span>WA</span>
+                                                <span>{{ __('purchasing.supplier.badges.chat_wa') }}</span>
                                             </a>
                                         </div>
                                     @else
@@ -269,12 +271,12 @@
                                 <td class="px-4 py-3.5">
                                     @if ($supplier->bank_name || $supplier->bank_account_number)
                                         <div class="font-medium text-slate-800 dark:text-slate-200">
-                                            <span class="font-bold text-slate-900 dark:text-white">{{ $supplier->bank_name ?? 'Bank' }}</span>:
+                                            <span class="font-bold text-slate-900 dark:text-white">{{ $supplier->bank_name ?? __('purchasing.supplier.fields.bank_name') }}</span>:
                                             <span class="font-mono tabular-nums">{{ $supplier->bank_account_number ?? '-' }}</span>
                                         </div>
                                         @if ($supplier->bank_account_holder)
                                             <div class="text-[11px] text-slate-500 dark:text-slate-400">
-                                                a.n {{ $supplier->bank_account_holder }}
+                                                {{ __('purchasing.supplier.badges.account_holder_prefix') }} {{ $supplier->bank_account_holder }}
                                             </div>
                                         @endif
                                     @else
@@ -302,36 +304,25 @@
                                 {{-- Bahan Baku Count Badge --}}
                                 <td class="px-4 py-3.5 text-center">
                                     <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold tabular-nums {{ $supplier->materials_count > 0 ? 'bg-[#007AFF]/12 text-[#007AFF]' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400' }}">
-                                        {{ $supplier->materials_count }} item
+                                        {{ __('purchasing.supplier.badges.items_count', ['count' => $supplier->materials_count]) }}
                                     </span>
                                 </td>
 
                                 {{-- Action Buttons --}}
                                 <td class="px-4 py-3.5 text-right">
                                     <div class="flex items-center justify-end gap-1.5">
-                                        @if (\App\Support\Context::hasPermission('master_data.suppliers.manage'))
+                                        @if (\App\Support\Context::hasPermission('master_data.suppliers.manage') || \App\Support\Context::isAdminOrOwner())
                                             <button type="button"
-                                                @click="openEditModal({
-                                                    id: '{{ $supplier->id }}',
-                                                    name: '{{ addslashes($supplier->name) }}',
-                                                    contact_person: '{{ addslashes($supplier->contact_person ?? '') }}',
-                                                    phone: '{{ addslashes($supplier->phone ?? '') }}',
-                                                    email: '{{ addslashes($supplier->email ?? '') }}',
-                                                    bank_name: '{{ addslashes($supplier->bank_name ?? '') }}',
-                                                    bank_account_number: '{{ addslashes($supplier->bank_account_number ?? '') }}',
-                                                    bank_account_holder: '{{ addslashes($supplier->bank_account_holder ?? '') }}',
-                                                    address: '{{ addslashes($supplier->address ?? '') }}',
-                                                    notes: '{{ addslashes($supplier->notes ?? '') }}'
-                                                })"
-                                                class="h-7 px-2.5 rounded-[6px] text-xs font-semibold text-[#007AFF] hover:bg-[#007AFF]/10 transition-colors flex items-center gap-1 cursor-pointer">
+                                                @click="openEditModal(@js($supplier))"
+                                                class="min-h-[44px] sm:min-h-0 h-7 px-2.5 rounded-[6px] text-xs font-semibold text-[#007AFF] hover:bg-[#007AFF]/10 transition-colors flex items-center gap-1 cursor-pointer">
                                                 <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
-                                                <span>Edit</span>
+                                                <span>{{ __('purchasing.supplier.actions.edit_supplier') }}</span>
                                             </button>
                                             <button type="button"
-                                                @click="openDelete({{ $supplier->id }}, '{{ addslashes($supplier->name) }}')"
-                                                class="h-7 px-2.5 rounded-[6px] text-xs font-semibold text-[#FF3B30] hover:bg-[#FF3B30]/10 transition-colors flex items-center gap-1 cursor-pointer">
+                                                @click="openDelete(@js($supplier->id), @js($supplier->name))"
+                                                class="min-h-[44px] sm:min-h-0 h-7 px-2.5 rounded-[6px] text-xs font-semibold text-[#FF3B30] hover:bg-[#FF3B30]/10 transition-colors flex items-center gap-1 cursor-pointer">
                                                 <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-                                                <span>Hapus</span>
+                                                <span>{{ __('purchasing.supplier.actions.delete_supplier') }}</span>
                                             </button>
                                             <form id="form-delete-supplier-{{ $supplier->id }}" method="POST"
                                                 action="{{ route('suppliers.destroy', $supplier->id) }}" class="hidden">
@@ -348,15 +339,15 @@
                                     <div class="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mx-auto mb-2.5 text-slate-400 dark:text-slate-500">
                                         <i data-lucide="truck" class="w-6 h-6"></i>
                                     </div>
-                                    <h4 class="text-sm font-bold text-slate-900 dark:text-white">Belum Ada Data Pemasok</h4>
+                                    <h4 class="text-sm font-bold text-slate-900 dark:text-white">{{ __('purchasing.supplier.empty.title') }}</h4>
                                     <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-sm mx-auto">
-                                        Tambahkan pemasok untuk mengelola kontak vendor, rekening bank, riwayat PO, dan pengadaan bahan baku.
+                                        {{ __('purchasing.supplier.empty.subtitle') }}
                                     </p>
-                                    @if (\App\Support\Context::hasPermission('master_data.suppliers.manage'))
+                                    @if (\App\Support\Context::hasPermission('master_data.suppliers.manage') || \App\Support\Context::isAdminOrOwner())
                                         <button type="button" @click="showAddModal = true"
-                                            class="mt-4 h-9 px-4 rounded-[10px] text-xs font-bold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] transition-all inline-flex items-center gap-1.5 cursor-pointer">
+                                            class="mt-4 min-h-[44px] h-11 sm:h-9 px-4 rounded-[10px] text-xs font-bold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] transition-all inline-flex items-center gap-1.5 cursor-pointer shadow-[0_1px_2px_rgba(0,122,255,0.25)]">
                                             <i data-lucide="plus" class="w-4 h-4"></i>
-                                            <span>Tambah Pemasok Pertama</span>
+                                            <span>{{ __('purchasing.supplier.empty.button') }}</span>
                                         </button>
                                     @endif
                                 </td>
@@ -378,8 +369,8 @@
         {{-- ===================================================== --}}
         <div class="sm:hidden space-y-3">
             <div class="flex items-center justify-between px-1">
-                <h2 class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">Daftar Pemasok</h2>
-                <span class="text-xs text-slate-500 dark:text-slate-400 tabular-nums">{{ $suppliers->total() }} Pemasok</span>
+                <h2 class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">{{ __('purchasing.supplier.table.mobile_list_title') }}</h2>
+                <span class="text-xs text-slate-500 dark:text-slate-400 tabular-nums">{{ __('purchasing.supplier.table.mobile_suppliers_count', ['total' => $suppliers->total()]) }}</span>
             </div>
 
             <div class="rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] overflow-hidden divide-y divide-black/[0.04] dark:divide-white/[0.06] shadow-xs">
@@ -396,11 +387,11 @@
                             <div>
                                 <h3 class="text-sm font-bold text-slate-900 dark:text-white">{{ $supplier->name }}</h3>
                                 @if ($supplier->contact_person)
-                                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">PIC: <span class="font-semibold text-slate-700 dark:text-slate-300">{{ $supplier->contact_person }}</span></p>
+                                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{{ __('purchasing.supplier.table.mobile_pic_label') }} <span class="font-semibold text-slate-700 dark:text-slate-300">{{ $supplier->contact_person }}</span></p>
                                 @endif
                             </div>
                             <span class="shrink-0 inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold tabular-nums {{ $supplier->materials_count > 0 ? 'bg-[#007AFF]/12 text-[#007AFF]' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400' }}">
-                                {{ $supplier->materials_count }} item
+                                {{ __('purchasing.supplier.badges.items_count', ['count' => $supplier->materials_count]) }}
                             </span>
                         </div>
 
@@ -408,11 +399,11 @@
                         @if ($supplier->bank_name || $supplier->bank_account_number)
                             <div class="p-2.5 rounded-[10px] bg-slate-50 dark:bg-[#2C2C2E] text-xs space-y-0.5 border border-black/[0.04] dark:border-white/[0.04]">
                                 <div class="font-medium text-slate-800 dark:text-slate-200 flex items-center justify-between">
-                                    <span class="font-bold text-slate-900 dark:text-white">{{ $supplier->bank_name ?? 'Rekening Bank' }}</span>
+                                    <span class="font-bold text-slate-900 dark:text-white">{{ $supplier->bank_name ?? __('purchasing.supplier.table.mobile_bank_default') }}</span>
                                     <span class="font-mono tabular-nums font-semibold">{{ $supplier->bank_account_number ?? '-' }}</span>
                                 </div>
                                 @if ($supplier->bank_account_holder)
-                                    <div class="text-[11px] text-slate-500 dark:text-slate-400">a.n {{ $supplier->bank_account_holder }}</div>
+                                    <div class="text-[11px] text-slate-500 dark:text-slate-400">{{ __('purchasing.supplier.badges.account_holder_prefix') }} {{ $supplier->bank_account_holder }}</div>
                                 @endif
                             </div>
                         @endif
@@ -432,9 +423,9 @@
                                     </a>
                                     @if ($waNumber)
                                         <a href="https://wa.me/{{ $waNumber }}" target="_blank" rel="noopener noreferrer"
-                                            class="h-7 px-2.5 rounded-[8px] bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158] hover:bg-[#34C759]/20 transition flex items-center gap-1 text-xs font-bold">
+                                            class="min-h-[44px] h-10 px-3 rounded-[8px] bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158] hover:bg-[#34C759]/20 transition flex items-center gap-1 text-xs font-bold cursor-pointer">
                                             <i data-lucide="message-circle" class="w-3.5 h-3.5"></i>
-                                            <span>Chat WA</span>
+                                            <span>{{ __('purchasing.supplier.badges.chat_wa') }}</span>
                                         </a>
                                     @endif
                                 </div>
@@ -455,30 +446,19 @@
                             @endif
                         </div>
 
-                        @if (\App\Support\Context::hasPermission('master_data.suppliers.manage'))
+                        @if (\App\Support\Context::hasPermission('master_data.suppliers.manage') || \App\Support\Context::isAdminOrOwner())
                             <div class="flex items-center justify-end gap-2 pt-2 border-t border-black/[0.04] dark:border-white/[0.06]">
                                 <button type="button"
-                                    @click="openEditModal({
-                                        id: '{{ $supplier->id }}',
-                                        name: '{{ addslashes($supplier->name) }}',
-                                        contact_person: '{{ addslashes($supplier->contact_person ?? '') }}',
-                                        phone: '{{ addslashes($supplier->phone ?? '') }}',
-                                        email: '{{ addslashes($supplier->email ?? '') }}',
-                                        bank_name: '{{ addslashes($supplier->bank_name ?? '') }}',
-                                        bank_account_number: '{{ addslashes($supplier->bank_account_number ?? '') }}',
-                                        bank_account_holder: '{{ addslashes($supplier->bank_account_holder ?? '') }}',
-                                        address: '{{ addslashes($supplier->address ?? '') }}',
-                                        notes: '{{ addslashes($supplier->notes ?? '') }}'
-                                    })"
-                                    class="h-8 px-3 rounded-[8px] text-xs font-semibold text-[#007AFF] bg-[#007AFF]/10 hover:bg-[#007AFF]/15 transition flex items-center gap-1.5 cursor-pointer">
+                                    @click="openEditModal(@js($supplier))"
+                                    class="min-h-[44px] h-11 px-3.5 rounded-[8px] text-xs font-semibold text-[#007AFF] bg-[#007AFF]/10 hover:bg-[#007AFF]/15 transition flex items-center gap-1.5 cursor-pointer">
                                     <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
-                                    <span>Edit</span>
+                                    <span>{{ __('purchasing.supplier.actions.edit_supplier') }}</span>
                                 </button>
                                 <button type="button"
-                                    @click="openDelete({{ $supplier->id }}, '{{ addslashes($supplier->name) }}')"
-                                    class="h-8 px-3 rounded-[8px] text-xs font-semibold text-[#FF3B30] bg-[#FF3B30]/10 hover:bg-[#FF3B30]/15 transition flex items-center gap-1.5 cursor-pointer">
+                                    @click="openDelete(@js($supplier->id), @js($supplier->name))"
+                                    class="min-h-[44px] h-11 px-3.5 rounded-[8px] text-xs font-semibold text-[#FF3B30] bg-[#FF3B30]/10 hover:bg-[#FF3B30]/15 transition flex items-center gap-1.5 cursor-pointer">
                                     <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-                                    <span>Hapus</span>
+                                    <span>{{ __('purchasing.supplier.actions.delete_supplier') }}</span>
                                 </button>
                             </div>
                         @endif
@@ -488,9 +468,9 @@
                         <div class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mx-auto mb-2 text-slate-400">
                             <i data-lucide="truck" class="w-5 h-5"></i>
                         </div>
-                        <h4 class="text-sm font-bold text-slate-900 dark:text-white">Belum Ada Data Pemasok</h4>
+                        <h4 class="text-sm font-bold text-slate-900 dark:text-white">{{ __('purchasing.supplier.empty.title') }}</h4>
                         <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-xs mx-auto">
-                            Tambahkan pemasok untuk mengelola kontak vendor dan pengadaan bahan baku.
+                            {{ __('purchasing.supplier.empty.subtitle') }}
                         </p>
                     </div>
                 @endforelse
@@ -504,116 +484,159 @@
         </div>
 
         {{-- ===================================================== --}}
-        {{-- 6. APPLE SHEET: TAMBAH PEMASOK                        --}}
+        {{-- 6. APPLE BENTO XXL SHEET: TAMBAH PEMASOK              --}}
         {{-- ===================================================== --}}
         <div x-show="showAddModal" x-cloak
-            class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4"
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-md p-3 sm:p-6"
             x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0"
             x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150"
             x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
 
-            <div class="w-full max-w-lg rounded-[22px] bg-white dark:bg-[#2C2C2E] border border-black/[0.08] dark:border-white/[0.12] shadow-2xl p-6 space-y-5 max-h-[90vh] overflow-y-auto"
+            <div class="w-full max-w-[94vw] md:max-w-2xl lg:max-w-3xl xl:max-w-4xl max-h-[88vh] rounded-[22px] bg-white/98 dark:bg-[#1C1C1E]/98 backdrop-blur-2xl border border-black/[0.08] dark:border-white/[0.12] shadow-[0_25px_60px_rgba(0,0,0,0.35)] flex flex-col overflow-hidden"
                 @click.outside="showAddModal = false" x-transition:enter="transition ease-out duration-200"
                 x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
                 x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 scale-100"
                 x-transition:leave-end="opacity-0 scale-95">
 
-                <div class="flex items-center justify-between border-b border-black/[0.06] dark:border-white/[0.08] pb-3.5">
-                    <div>
-                        <h3 class="text-base font-bold text-slate-900 dark:text-white">Tambah Pemasok Baru</h3>
-                        <p class="text-xs text-slate-500 dark:text-slate-400">Daftarkan mitra vendor penyedia bahan baku dan rekening pembayaran</p>
+                {{-- Modal Header --}}
+                <div class="px-5 py-4 sm:px-6 sm:py-4.5 border-b border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between gap-3 shrink-0 bg-slate-50/50 dark:bg-white/[0.02]">
+                    <div class="flex items-center gap-3.5">
+                        <div class="w-11 h-11 rounded-[14px] bg-[#007AFF]/12 text-[#007AFF] flex items-center justify-center shrink-0 border border-[#007AFF]/20">
+                            <i data-lucide="truck" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white tracking-tight">
+                                {{ __('purchasing.supplier.create_title') }}
+                            </h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">{{ __('purchasing.supplier.create_subtitle') }}</p>
+                        </div>
                     </div>
                     <button type="button" @click="showAddModal = false"
-                        class="p-1 rounded-[8px] text-slate-400 hover:text-slate-900 dark:hover:text-white transition cursor-pointer">
-                        <i data-lucide="x" class="w-5 h-5"></i>
+                        class="min-w-[44px] min-h-[44px] w-11 h-11 rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition cursor-pointer">
+                        <i data-lucide="x" class="w-4 h-4"></i>
                     </button>
                 </div>
 
-                <form method="POST" action="{{ route('suppliers.store') }}" class="space-y-4 text-xs">
+                {{-- Modal Form --}}
+                <form method="POST" action="{{ route('suppliers.store') }}" x-data="{ submitting: false }" @submit="submitting = true" class="flex flex-col flex-1 overflow-hidden">
                     @csrf
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                            Nama Pemasok / Vendor <span class="text-[#FF3B30]">*</span>
-                        </label>
-                        <input type="text" name="name" required
-                            placeholder="Contoh: PT Sumber Pangan Sejahtera, CV Mitra Tani..."
-                            class="w-full h-10 bg-slate-50 dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3.5 text-[16px] sm:text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
-                    </div>
+                    {{-- Modal Body: 2-Kolom Bento Grid --}}
+                    <div class="p-5 sm:p-6 overflow-y-auto space-y-4 flex-1 text-xs">
+                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                            {{-- Kolom Kiri: Profil Pemasok & Kontak Utama (6 Kolom) --}}
+                            <div class="lg:col-span-6 space-y-4">
+                                <div class="rounded-[18px] bg-slate-50/80 dark:bg-[#2C2C2E]/60 border border-black/[0.06] dark:border-white/[0.08] p-5 space-y-4">
+                                    <div class="flex items-center gap-2">
+                                        <i data-lucide="building" class="w-4 h-4 text-[#007AFF]"></i>
+                                        <span class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">{{ __('purchasing.supplier.sections.company_info') }}</span>
+                                    </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                                Nama Kontak (PIC)
-                            </label>
-                            <input type="text" name="contact_person" placeholder="Mis: Budi Santoso"
-                                class="w-full h-10 bg-slate-50 dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3.5 text-[16px] sm:text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                                No. Telepon / WhatsApp
-                            </label>
-                            <input type="text" name="phone" placeholder="0812-3456-7890"
-                                class="w-full h-10 bg-slate-50 dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3.5 text-[16px] sm:text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
-                        </div>
-                    </div>
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                                            {{ __('purchasing.supplier.fields.name') }}
+                                        </label>
+                                        <input type="text" name="name" required
+                                            placeholder="{{ __('purchasing.supplier.placeholders.name') }}"
+                                            class="w-full h-11 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3.5 text-[16px] sm:text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
+                                    </div>
 
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                            Alamat Email
-                        </label>
-                        <input type="email" name="email" placeholder="sales@sumberpangan.com"
-                            class="w-full h-10 bg-slate-50 dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3.5 text-[16px] sm:text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
-                    </div>
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                        <div>
+                                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                                                {{ __('purchasing.supplier.fields.contact_person') }}
+                                            </label>
+                                            <input type="text" name="contact_person" placeholder="{{ __('purchasing.supplier.placeholders.contact_person') }}"
+                                                class="w-full h-10 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3.5 text-[16px] sm:text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                                                {{ __('purchasing.supplier.fields.phone') }}
+                                            </label>
+                                            <input type="text" name="phone" placeholder="{{ __('purchasing.supplier.placeholders.phone') }}"
+                                                class="w-full h-10 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3.5 text-[16px] sm:text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
+                                        </div>
+                                    </div>
 
-                    {{-- Informasi Rekening Bank --}}
-                    <div class="p-3.5 rounded-[12px] bg-slate-50 dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] space-y-3">
-                        <div class="flex items-center gap-1.5 text-xs font-bold text-slate-800 dark:text-slate-200">
-                            <i data-lucide="credit-card" class="w-3.5 h-3.5 text-[#007AFF]"></i>
-                            <span>Rekening Pembayaran Bank (Transfer Vendor)</span>
-                        </div>
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-                            <div>
-                                <label class="block text-[11px] font-medium text-slate-600 dark:text-slate-400 mb-1">Bank</label>
-                                <input type="text" name="bank_name" placeholder="BCA / Mandiri / BRI"
-                                    class="w-full h-9 bg-white dark:bg-[#2C2C2E] border border-black/[0.08] dark:border-white/[0.12] rounded-[8px] px-2.5 text-[16px] sm:text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                                            {{ __('purchasing.supplier.fields.email') }}
+                                        </label>
+                                        <input type="email" name="email" placeholder="{{ __('purchasing.supplier.placeholders.email') }}"
+                                            class="w-full h-10 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3.5 text-[16px] sm:text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                                            {{ __('purchasing.supplier.fields.address') }}
+                                        </label>
+                                        <textarea name="address" rows="3" placeholder="{{ __('purchasing.supplier.placeholders.address') }}"
+                                            class="w-full bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] p-3 text-[16px] sm:text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition resize-none"></textarea>
+                                    </div>
+                                </div>
                             </div>
-                            <div>
-                                <label class="block text-[11px] font-medium text-slate-600 dark:text-slate-400 mb-1">No. Rekening</label>
-                                <input type="text" name="bank_account_number" placeholder="1234567890"
-                                    class="w-full h-9 bg-white dark:bg-[#2C2C2E] border border-black/[0.08] dark:border-white/[0.12] rounded-[8px] px-2.5 text-[16px] sm:text-xs text-slate-900 dark:text-white font-mono placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
-                            </div>
-                            <div>
-                                <label class="block text-[11px] font-medium text-slate-600 dark:text-slate-400 mb-1">Atas Nama (A.N)</label>
-                                <input type="text" name="bank_account_holder" placeholder="PT Sumber Pangan"
-                                    class="w-full h-9 bg-white dark:bg-[#2C2C2E] border border-black/[0.08] dark:border-white/[0.12] rounded-[8px] px-2.5 text-[16px] sm:text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
+
+                            {{-- Kolom Kanan: Rekening Bank & Administrasi TOP (6 Kolom) --}}
+                            <div class="lg:col-span-6 space-y-4">
+                                <div class="rounded-[18px] bg-slate-50/80 dark:bg-[#2C2C2E]/60 border border-black/[0.06] dark:border-white/[0.08] p-5 space-y-4">
+                                    <div class="flex items-center gap-2">
+                                        <i data-lucide="credit-card" class="w-4 h-4 text-[#5856D6]"></i>
+                                        <span class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">{{ __('purchasing.supplier.sections.bank_info') }}</span>
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                                            {{ __('purchasing.supplier.fields.bank_name') }}
+                                        </label>
+                                        <input type="text" name="bank_name" placeholder="{{ __('purchasing.supplier.placeholders.bank_name') }}"
+                                            class="w-full h-10 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3.5 text-[16px] sm:text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#5856D6] transition">
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                                            {{ __('purchasing.supplier.fields.bank_account_number') }}
+                                        </label>
+                                        <input type="text" name="bank_account_number" placeholder="{{ __('purchasing.supplier.placeholders.bank_account_number') }}"
+                                            class="w-full h-10 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3.5 text-[16px] sm:text-xs text-slate-900 dark:text-white font-mono placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#5856D6] transition">
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                                            {{ __('purchasing.supplier.fields.bank_account_holder') }}
+                                        </label>
+                                        <input type="text" name="bank_account_holder" placeholder="{{ __('purchasing.supplier.placeholders.bank_account_holder') }}"
+                                            class="w-full h-10 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3.5 text-[16px] sm:text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#5856D6] transition">
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                                            {{ __('purchasing.supplier.fields.notes') }}
+                                        </label>
+                                        <textarea name="notes" rows="3" placeholder="{{ __('purchasing.supplier.placeholders.notes') }}"
+                                            class="w-full bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] p-3 text-[16px] sm:text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#5856D6] transition resize-none"></textarea>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                            Alamat Lengkap
-                        </label>
-                        <textarea name="address" rows="2" placeholder="Jl. Pergudangan No. 12, Kawasan Industri..."
-                            class="w-full bg-slate-50 dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] p-3 text-[16px] sm:text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition resize-none"></textarea>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                            Catatan Khusus (Term of Payment / Ketentuan Order)
-                        </label>
-                        <input type="text" name="notes" placeholder="Term pembayaran 14 hari, minimum order 50kg..."
-                            class="w-full h-10 bg-slate-50 dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3.5 text-[16px] sm:text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
-                    </div>
-
-                    <div class="flex items-center justify-end gap-2 pt-3.5 border-t border-black/[0.06] dark:border-white/[0.08]">
+                    {{-- Modal Footer --}}
+                    <div class="px-5 py-3.5 sm:px-6 sm:py-4 border-t border-black/[0.06] dark:border-white/[0.08] flex items-center justify-end gap-3 shrink-0 bg-slate-50/50 dark:bg-white/[0.02]">
                         <button type="button" @click="showAddModal = false"
-                            class="h-9 px-4 rounded-[10px] text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer">
-                            Batal
+                            class="min-h-[44px] h-11 px-5 rounded-[12px] text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer">
+                            {{ __('common.cancel') }}
                         </button>
-                        <button type="submit"
-                            class="h-9 px-4 rounded-[10px] text-xs font-bold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] transition-all shadow-[0_1px_2px_rgba(0,122,255,0.25)] cursor-pointer">
-                            Simpan Pemasok
+                        <button type="submit" :disabled="submitting"
+                            class="min-h-[44px] h-11 px-6 rounded-[12px] text-xs font-bold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] transition-all shadow-[0_2px_4px_rgba(0,122,255,0.25)] cursor-pointer flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                            <template x-if="submitting">
+                                <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                            </template>
+                            <template x-if="!submitting">
+                                <i data-lucide="plus" class="w-4 h-4"></i>
+                            </template>
+                            <span x-text="submitting ? '{{ __('purchasing.supplier.actions.submitting') }}' : '{{ __('purchasing.supplier.actions.save') }}'"></span>
                         </button>
                     </div>
                 </form>
@@ -621,116 +644,160 @@
         </div>
 
         {{-- ===================================================== --}}
-        {{-- 7. APPLE SHEET: EDIT PEMASOK                          --}}
+        {{-- 7. APPLE BENTO XXL SHEET: EDIT PEMASOK                --}}
         {{-- ===================================================== --}}
         <div x-show="showEditModal" x-cloak
-            class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4"
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-md p-3 sm:p-6"
             x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0"
             x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150"
             x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
 
-            <div class="w-full max-w-lg rounded-[22px] bg-white dark:bg-[#2C2C2E] border border-black/[0.08] dark:border-white/[0.12] shadow-2xl p-6 space-y-5 max-h-[90vh] overflow-y-auto"
+            <div class="w-full max-w-[94vw] md:max-w-2xl lg:max-w-3xl xl:max-w-4xl max-h-[88vh] rounded-[22px] bg-white/98 dark:bg-[#1C1C1E]/98 backdrop-blur-2xl border border-black/[0.08] dark:border-white/[0.12] shadow-[0_25px_60px_rgba(0,0,0,0.35)] flex flex-col overflow-hidden"
                 @click.outside="showEditModal = false" x-transition:enter="transition ease-out duration-200"
                 x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
                 x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 scale-100"
                 x-transition:leave-end="opacity-0 scale-95">
 
-                <div class="flex items-center justify-between border-b border-black/[0.06] dark:border-white/[0.08] pb-3.5">
-                    <div>
-                        <h3 class="text-base font-bold text-slate-900 dark:text-white">Edit Data Pemasok</h3>
-                        <p class="text-xs text-slate-500 dark:text-slate-400" x-text="'Memperbarui: ' + editSupplier.name"></p>
+                {{-- Modal Header --}}
+                <div class="px-5 py-4 sm:px-6 sm:py-4.5 border-b border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between gap-3 shrink-0 bg-slate-50/50 dark:bg-white/[0.02]">
+                    <div class="flex items-center gap-3.5">
+                        <div class="w-11 h-11 rounded-[14px] bg-[#007AFF]/12 text-[#007AFF] flex items-center justify-center shrink-0 border border-[#007AFF]/20">
+                            <i data-lucide="pencil" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
+                                <span>{{ __('purchasing.supplier.actions.edit_supplier') }}:</span>
+                                <span class="text-[#007AFF]" x-text="editSupplier.name"></span>
+                            </h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400" x-text="'{{ __('purchasing.supplier.modals.edit_updating', ['name' => '']) }}' + editSupplier.name"></p>
+                        </div>
                     </div>
                     <button type="button" @click="showEditModal = false"
-                        class="p-1 rounded-[8px] text-slate-400 hover:text-slate-900 dark:hover:text-white transition cursor-pointer">
-                        <i data-lucide="x" class="w-5 h-5"></i>
+                        class="min-w-[44px] min-h-[44px] w-11 h-11 rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition cursor-pointer">
+                        <i data-lucide="x" class="w-4 h-4"></i>
                     </button>
                 </div>
 
-                <form :action="'{{ url('/suppliers') }}/' + editSupplier.id" method="POST" class="space-y-4 text-xs">
+                {{-- Modal Form --}}
+                <form :action="'{{ url('/suppliers') }}/' + editSupplier.id" method="POST" x-data="{ submitting: false }" @submit="submitting = true" class="flex flex-col flex-1 overflow-hidden">
                     @csrf
                     @method('PUT')
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                            Nama Pemasok / Vendor <span class="text-[#FF3B30]">*</span>
-                        </label>
-                        <input type="text" name="name" x-model="editSupplier.name" required
-                            class="w-full h-10 bg-slate-50 dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3.5 text-[16px] sm:text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
-                    </div>
+                    {{-- Modal Body: 2-Kolom Bento Grid --}}
+                    <div class="p-5 sm:p-6 overflow-y-auto space-y-4 flex-1 text-xs">
+                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                            {{-- Kolom Kiri: Profil Pemasok & Kontak Utama (6 Kolom) --}}
+                            <div class="lg:col-span-6 space-y-4">
+                                <div class="rounded-[18px] bg-slate-50/80 dark:bg-[#2C2C2E]/60 border border-black/[0.06] dark:border-white/[0.08] p-5 space-y-4">
+                                    <div class="flex items-center gap-2">
+                                        <i data-lucide="building" class="w-4 h-4 text-[#007AFF]"></i>
+                                        <span class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">{{ __('purchasing.supplier.sections.company_info') }}</span>
+                                    </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                                Nama Kontak (PIC)
-                            </label>
-                            <input type="text" name="contact_person" x-model="editSupplier.contact_person"
-                                class="w-full h-10 bg-slate-50 dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3.5 text-[16px] sm:text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                                No. Telepon / WhatsApp
-                            </label>
-                            <input type="text" name="phone" x-model="editSupplier.phone"
-                                class="w-full h-10 bg-slate-50 dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3.5 text-[16px] sm:text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
-                        </div>
-                    </div>
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                                            {{ __('purchasing.supplier.fields.name') }}
+                                        </label>
+                                        <input type="text" name="name" x-model="editSupplier.name" required
+                                            class="w-full h-11 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3.5 text-[16px] sm:text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
+                                    </div>
 
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                            Alamat Email
-                        </label>
-                        <input type="email" name="email" x-model="editSupplier.email"
-                            class="w-full h-10 bg-slate-50 dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3.5 text-[16px] sm:text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
-                    </div>
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                        <div>
+                                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                                                {{ __('purchasing.supplier.fields.contact_person') }}
+                                            </label>
+                                            <input type="text" name="contact_person" x-model="editSupplier.contact_person"
+                                                class="w-full h-10 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3.5 text-[16px] sm:text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                                                {{ __('purchasing.supplier.fields.phone') }}
+                                            </label>
+                                            <input type="text" name="phone" x-model="editSupplier.phone"
+                                                class="w-full h-10 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3.5 text-[16px] sm:text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
+                                        </div>
+                                    </div>
 
-                    {{-- Informasi Rekening Bank --}}
-                    <div class="p-3.5 rounded-[12px] bg-slate-50 dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] space-y-3">
-                        <div class="flex items-center gap-1.5 text-xs font-bold text-slate-800 dark:text-slate-200">
-                            <i data-lucide="credit-card" class="w-3.5 h-3.5 text-[#007AFF]"></i>
-                            <span>Rekening Pembayaran Bank (Transfer Vendor)</span>
-                        </div>
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-                            <div>
-                                <label class="block text-[11px] font-medium text-slate-600 dark:text-slate-400 mb-1">Bank</label>
-                                <input type="text" name="bank_name" x-model="editSupplier.bank_name" placeholder="BCA / Mandiri / BRI"
-                                    class="w-full h-9 bg-white dark:bg-[#2C2C2E] border border-black/[0.08] dark:border-white/[0.12] rounded-[8px] px-2.5 text-[16px] sm:text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                                            {{ __('purchasing.supplier.fields.email') }}
+                                        </label>
+                                        <input type="email" name="email" x-model="editSupplier.email"
+                                            class="w-full h-10 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3.5 text-[16px] sm:text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                                            {{ __('purchasing.supplier.fields.address') }}
+                                        </label>
+                                        <textarea name="address" rows="3" x-model="editSupplier.address"
+                                            class="w-full bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] p-3 text-[16px] sm:text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition resize-none"></textarea>
+                                    </div>
+                                </div>
                             </div>
-                            <div>
-                                <label class="block text-[11px] font-medium text-slate-600 dark:text-slate-400 mb-1">No. Rekening</label>
-                                <input type="text" name="bank_account_number" x-model="editSupplier.bank_account_number" placeholder="1234567890"
-                                    class="w-full h-9 bg-white dark:bg-[#2C2C2E] border border-black/[0.08] dark:border-white/[0.12] rounded-[8px] px-2.5 text-[16px] sm:text-xs text-slate-900 dark:text-white font-mono placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
-                            </div>
-                            <div>
-                                <label class="block text-[11px] font-medium text-slate-600 dark:text-slate-400 mb-1">Atas Nama (A.N)</label>
-                                <input type="text" name="bank_account_holder" x-model="editSupplier.bank_account_holder" placeholder="PT Sumber Pangan"
-                                    class="w-full h-9 bg-white dark:bg-[#2C2C2E] border border-black/[0.08] dark:border-white/[0.12] rounded-[8px] px-2.5 text-[16px] sm:text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
+
+                            {{-- Kolom Kanan: Rekening Bank & Administrasi TOP (6 Kolom) --}}
+                            <div class="lg:col-span-6 space-y-4">
+                                <div class="rounded-[18px] bg-slate-50/80 dark:bg-[#2C2C2E]/60 border border-black/[0.06] dark:border-white/[0.08] p-5 space-y-4">
+                                    <div class="flex items-center gap-2">
+                                        <i data-lucide="credit-card" class="w-4 h-4 text-[#5856D6]"></i>
+                                        <span class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">{{ __('purchasing.supplier.sections.bank_info') }}</span>
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                                            {{ __('purchasing.supplier.fields.bank_name') }}
+                                        </label>
+                                        <input type="text" name="bank_name" x-model="editSupplier.bank_name"
+                                            class="w-full h-10 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3.5 text-[16px] sm:text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#5856D6] transition">
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                                            {{ __('purchasing.supplier.fields.bank_account_number') }}
+                                        </label>
+                                        <input type="text" name="bank_account_number" x-model="editSupplier.bank_account_number"
+                                            class="w-full h-10 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3.5 text-[16px] sm:text-xs text-slate-900 dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-[#5856D6] transition">
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                                            {{ __('purchasing.supplier.fields.bank_account_holder') }}
+                                        </label>
+                                        <input type="text" name="bank_account_holder" x-model="editSupplier.bank_account_holder"
+                                            class="w-full h-10 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3.5 text-[16px] sm:text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#5856D6] transition">
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                                            {{ __('purchasing.supplier.fields.notes') }}
+                                        </label>
+                                        <textarea name="notes" rows="3" x-model="editSupplier.notes"
+                                            class="w-full bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] p-3 text-[16px] sm:text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#5856D6] transition resize-none"></textarea>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                            Alamat Lengkap
-                        </label>
-                        <textarea name="address" rows="2" x-model="editSupplier.address"
-                            class="w-full bg-slate-50 dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] p-3 text-[16px] sm:text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition resize-none"></textarea>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                            Catatan Khusus
-                        </label>
-                        <input type="text" name="notes" x-model="editSupplier.notes"
-                            class="w-full h-10 bg-slate-50 dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3.5 text-[16px] sm:text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
-                    </div>
-
-                    <div class="flex items-center justify-end gap-2 pt-3.5 border-t border-black/[0.06] dark:border-white/[0.08]">
+                    {{-- Modal Footer --}}
+                    <div class="px-5 py-3.5 sm:px-6 sm:py-4 border-t border-black/[0.06] dark:border-white/[0.08] flex items-center justify-end gap-3 shrink-0 bg-slate-50/50 dark:bg-white/[0.02]">
                         <button type="button" @click="showEditModal = false"
-                            class="h-9 px-4 rounded-[10px] text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer">
-                            Batal
+                            class="min-h-[44px] h-11 px-5 rounded-[12px] text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer">
+                            {{ __('common.cancel') }}
                         </button>
-                        <button type="submit"
-                            class="h-9 px-4 rounded-[10px] text-xs font-bold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] transition-all shadow-[0_1px_2px_rgba(0,122,255,0.25)] cursor-pointer">
-                            Simpan Perubahan
+                        <button type="submit" :disabled="submitting"
+                            class="min-h-[44px] h-11 px-6 rounded-[12px] text-xs font-bold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] transition-all shadow-[0_2px_4px_rgba(0,122,255,0.25)] cursor-pointer flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                            <template x-if="submitting">
+                                <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                            </template>
+                            <template x-if="!submitting">
+                                <i data-lucide="check" class="w-4 h-4"></i>
+                            </template>
+                            <span x-text="submitting ? '{{ __('purchasing.supplier.actions.updating') }}' : '{{ __('purchasing.supplier.actions.update') }}'"></span>
                         </button>
                     </div>
                 </form>
@@ -746,30 +813,30 @@
             x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150"
             x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
 
-            <div class="w-[300px] rounded-[18px] bg-white/95 dark:bg-[#2C2C2E]/95 backdrop-blur-xl overflow-hidden text-center shadow-2xl border border-black/[0.08] dark:border-white/[0.12]"
+            <div class="w-full max-w-[340px] rounded-[20px] bg-white/95 dark:bg-[#2C2C2E]/95 backdrop-blur-xl overflow-hidden text-center shadow-2xl border border-black/[0.08] dark:border-white/[0.12]"
                 @click.away="closeDelete()" x-transition:enter="transition ease-out duration-200"
                 x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
                 x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 scale-100"
                 x-transition:leave-end="opacity-0 scale-95">
 
-                <div class="px-5 pt-5 pb-4">
-                    <div class="w-10 h-10 rounded-full bg-[#FF3B30]/10 text-[#FF3B30] flex items-center justify-center mx-auto mb-3">
-                        <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+                <div class="px-5 pt-6 pb-4">
+                    <div class="w-12 h-12 rounded-full bg-[#FF3B30]/10 text-[#FF3B30] flex items-center justify-center mx-auto mb-3 border border-[#FF3B30]/20">
+                        <i data-lucide="alert-triangle" class="w-6 h-6"></i>
                     </div>
-                    <p class="text-base font-bold text-slate-900 dark:text-white">Hapus Pemasok?</p>
-                    <p class="text-xs text-slate-600 dark:text-slate-400 mt-1 leading-snug">
-                        <span x-text="deleteTarget.name" class="font-semibold text-slate-900 dark:text-white"></span> akan dihapus dari sistem. Pastikan tidak ada PO aktif terkait.
+                    <p class="text-base font-bold text-slate-900 dark:text-white">{{ __('purchasing.supplier.modals.delete_title') }}</p>
+                    <p class="text-xs text-slate-600 dark:text-slate-400 mt-1.5 leading-relaxed">
+                        <span x-text="deleteTarget.name" class="font-semibold text-slate-900 dark:text-white"></span> {{ __('purchasing.supplier.modals.delete_reassurance') }}
                     </p>
                 </div>
 
                 <div class="grid grid-cols-2 border-t border-black/[0.08] dark:border-white/[0.12] text-sm font-semibold">
                     <button type="button" @click="closeDelete()"
-                        class="py-3 text-[#007AFF] border-r border-black/[0.08] dark:border-white/[0.12] active:bg-black/5 dark:active:bg-white/5 transition-colors cursor-pointer">
-                        Batal
+                        class="min-h-[44px] py-3.5 text-[#007AFF] border-r border-black/[0.08] dark:border-white/[0.12] active:bg-black/5 dark:active:bg-white/5 transition-colors cursor-pointer flex items-center justify-center">
+                        {{ __('common.cancel') }}
                     </button>
                     <button type="button" @click="submitDelete()"
-                        class="py-3 text-[#FF3B30] font-bold active:bg-black/5 dark:active:bg-white/5 transition-colors cursor-pointer">
-                        Hapus
+                        class="min-h-[44px] py-3.5 text-[#FF3B30] font-bold active:bg-black/5 dark:active:bg-white/5 transition-colors cursor-pointer flex items-center justify-center">
+                        {{ __('common.delete') }}
                     </button>
                 </div>
             </div>

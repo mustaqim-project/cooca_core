@@ -290,6 +290,7 @@
         .floating-wa-fab {
             bottom: calc(5.75rem + env(safe-area-inset-bottom, 0px)) !important;
         }
+
         @media (min-width: 1024px) {
             .floating-wa-fab {
                 bottom: 1.5rem !important;
@@ -298,35 +299,59 @@
 
         /* Hero Ecosystem Hub Animations */
         @keyframes cableFlow {
-            0% { stroke-dashoffset: 0; }
-            100% { stroke-dashoffset: -20; }
+            0% {
+                stroke-dashoffset: 0;
+            }
+
+            100% {
+                stroke-dashoffset: -20;
+            }
         }
+
         .hero-cable-flow {
             animation: cableFlow 1.5s linear infinite;
         }
+
         @keyframes scanlineBeam {
-            0% { transform: translateY(-100%); }
-            100% { transform: translateY(200%); }
+            0% {
+                transform: translateY(-100%);
+            }
+
+            100% {
+                transform: translateY(200%);
+            }
         }
+
         .hero-scanline-beam {
             animation: scanlineBeam 3s ease-in-out infinite;
         }
+
         @keyframes holoBeamPulse {
-            0%, 100% { opacity: 0.6; }
-            50% { opacity: 1; }
+
+            0%,
+            100% {
+                opacity: 0.6;
+            }
+
+            50% {
+                opacity: 1;
+            }
         }
+
         .hero-holo-beam {
             animation: holoBeamPulse 2.5s ease-in-out infinite;
         }
 
         /* Accessibility: Respect prefers-reduced-motion */
         @media (prefers-reduced-motion: reduce) {
+
             .hero-cable-flow,
             .hero-scanline-beam,
             .hero-holo-beam,
             .animate-pulse {
                 animation: none !important;
             }
+
             * {
                 transition-duration: 0.01ms !important;
                 animation-duration: 0.01ms !important;
@@ -342,14 +367,17 @@
                 mobileSection: null,
                 toggleMobileSection(sec) {
                     this.mobileSection = this.mobileSection === sec ? null : sec;
-                    this.$nextTick(() => { if (typeof lucide !== 'undefined' && lucide.createIcons) lucide.createIcons(); });
+                    this.$nextTick(() => {
+                        if (typeof lucide !== 'undefined' && lucide.createIcons) lucide.createIcons();
+                    });
                 },
                 platformDropdown: false,
                 solutionDropdown: false,
                 omniDropdown: false,
                 resourceDropdown: false,
                 marketplaceDropdown: false,
-                isDark: typeof document !== 'undefined' && document.documentElement ? document.documentElement.classList.contains('dark') : false,
+                isDark: typeof document !== 'undefined' && document.documentElement ? document.documentElement.classList
+                    .contains('dark') : false,
                 toggleTheme() {
                     this.isDark = !this.isDark;
                     if (this.isDark) {
@@ -493,14 +521,14 @@
                         class="hidden sm:flex w-10 h-10 sm:w-11 sm:h-11 lg:w-10 lg:h-10 rounded-full items-center justify-center text-slate-300 hover:text-white hover:bg-white/10 active:scale-[0.95] transition-all"
                         title="Ganti Mode Terang/Gelap" aria-label="Toggle Theme">
                         <!-- Sun Icon for Dark Mode (Switch to Light) -->
-                        <svg x-show="isDark" x-cloak class="w-5 h-5 sm:w-5.5 sm:h-5.5 lg:w-5 lg:h-5 text-[#FFD60A]" fill="none" stroke="currentColor"
-                            stroke-width="2" viewBox="0 0 24 24">
+                        <svg x-show="isDark" x-cloak class="w-5 h-5 sm:w-5.5 sm:h-5.5 lg:w-5 lg:h-5 text-[#FFD60A]"
+                            fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
                         </svg>
                         <!-- Moon Icon for Light Mode (Switch to Dark) -->
-                        <svg x-show="!isDark" class="w-5 h-5 sm:w-5.5 sm:h-5.5 lg:w-5 lg:h-5 text-slate-300" fill="none" stroke="currentColor"
-                            stroke-width="2" viewBox="0 0 24 24">
+                        <svg x-show="!isDark" class="w-5 h-5 sm:w-5.5 sm:h-5.5 lg:w-5 lg:h-5 text-slate-300"
+                            fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
                         </svg>
@@ -559,15 +587,18 @@
                     </div>
 
                     <!-- Mobile Hamburger Button (Apple HIG Touch Target & Clean Responsive SVG) -->
-                    <button type="button" @click="mobileMenu = !mobileMenu; $nextTick(() => { if (typeof lucide !== 'undefined' && lucide.createIcons) lucide.createIcons(); })"
+                    <button type="button"
+                        @click="mobileMenu = !mobileMenu; $nextTick(() => { if (typeof lucide !== 'undefined' && lucide.createIcons) lucide.createIcons(); })"
                         class="lg:hidden w-9 h-9 sm:w-10 sm:h-10 rounded-[11px] sm:rounded-[12px] bg-white/10 hover:bg-white/15 text-slate-200 hover:text-white active:scale-95 transition-all flex items-center justify-center shadow-xs focus:outline-none shrink-0 border border-white/10"
                         :class="mobileMenu ? 'bg-white/20 text-[#00C2FF] border-[#00C2FF]/40 ring-2 ring-[#00C2FF]/30' : ''"
-                        aria-label="Toggle Mobile Navigation"
-                        :aria-expanded="mobileMenu ? 'true' : 'false'">
-                        <svg x-show="!mobileMenu" class="w-5 h-5 stroke-current stroke-2" fill="none" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                        aria-label="Toggle Mobile Navigation" :aria-expanded="mobileMenu ? 'true' : 'false'">
+                        <svg x-show="!mobileMenu" class="w-5 h-5 stroke-current stroke-2" fill="none"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
                         </svg>
-                        <svg x-show="mobileMenu" x-cloak class="w-5 h-5 stroke-current stroke-2" fill="none" viewBox="0 0 24 24">
+                        <svg x-show="mobileMenu" x-cloak class="w-5 h-5 stroke-current stroke-2" fill="none"
+                            viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </button>
@@ -1309,24 +1340,24 @@
             </div>
 
             <!-- Mobile Drawer Menu (Full Width Absolute Sheet Attached Under Header Line) -->
-            <div x-show="mobileMenu" x-cloak
-                x-transition:enter="transition ease-out duration-200"
-                x-transition:enter-start="opacity-0 -translate-y-2"
-                x-transition:enter-end="opacity-100 translate-y-0"
+            <div x-show="mobileMenu" x-cloak x-transition:enter="transition ease-out duration-200"
+                x-transition:enter-start="opacity-0 -translate-y-2" x-transition:enter-end="opacity-100 translate-y-0"
                 x-transition:leave="transition ease-in duration-150"
-                x-transition:leave-start="opacity-100 translate-y-0"
-                x-transition:leave-end="opacity-0 -translate-y-2"
+                x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-2"
                 class="absolute top-full inset-x-0 w-full lg:hidden bg-[#060913] text-slate-200 border-t border-b border-white/10 shadow-[0_30px_60px_rgba(0,0,0,0.95)] max-h-[calc(100dvh-4rem)] sm:max-h-[calc(100dvh-5rem)] overflow-y-auto overscroll-contain p-3.5 sm:p-5 space-y-3 pb-28 z-50">
 
                 <!-- 1. Top Auth & User Profile Card -->
                 @if (auth('admin')->check())
-                    <div class="p-3.5 rounded-[16px] bg-gradient-to-r from-[#00C2FF]/15 via-white/[0.04] to-transparent border border-[#00C2FF]/30 flex items-center justify-between gap-3">
+                    <div
+                        class="p-3.5 rounded-[16px] bg-gradient-to-r from-[#00C2FF]/15 via-white/[0.04] to-transparent border border-[#00C2FF]/30 flex items-center justify-between gap-3">
                         <div class="flex items-center gap-2.5 min-w-0">
-                            <div class="w-9 h-9 rounded-full bg-[#00C2FF]/20 flex items-center justify-center text-[#00C2FF] shrink-0 font-bold text-xs ring-2 ring-[#00C2FF]/30">
+                            <div
+                                class="w-9 h-9 rounded-full bg-[#00C2FF]/20 flex items-center justify-center text-[#00C2FF] shrink-0 font-bold text-xs ring-2 ring-[#00C2FF]/30">
                                 AD
                             </div>
                             <div class="min-w-0">
-                                <span class="text-xs font-bold text-white tracking-tight truncate block">{{ auth('admin')->user()->name }}</span>
+                                <span
+                                    class="text-xs font-bold text-white tracking-tight truncate block">{{ auth('admin')->user()->name }}</span>
                                 <span class="text-[10px] text-slate-400 block">Superadmin Ekosistem</span>
                             </div>
                         </div>
@@ -1337,13 +1368,16 @@
                         </a>
                     </div>
                 @elseif (auth('web')->check())
-                    <div class="p-3.5 rounded-[16px] bg-gradient-to-r from-[#00C2FF]/15 via-white/[0.04] to-transparent border border-[#00C2FF]/30 flex items-center justify-between gap-3">
+                    <div
+                        class="p-3.5 rounded-[16px] bg-gradient-to-r from-[#00C2FF]/15 via-white/[0.04] to-transparent border border-[#00C2FF]/30 flex items-center justify-between gap-3">
                         <div class="flex items-center gap-2.5 min-w-0">
-                            <div class="w-9 h-9 rounded-full bg-[#00C2FF]/20 flex items-center justify-center text-[#00C2FF] shrink-0 font-bold text-xs ring-2 ring-[#00C2FF]/30">
+                            <div
+                                class="w-9 h-9 rounded-full bg-[#00C2FF]/20 flex items-center justify-center text-[#00C2FF] shrink-0 font-bold text-xs ring-2 ring-[#00C2FF]/30">
                                 {{ strtoupper(substr(auth('web')->user()->name, 0, 2)) }}
                             </div>
                             <div class="min-w-0">
-                                <span class="text-xs font-bold text-white tracking-tight truncate block">{{ auth('web')->user()->name }}</span>
+                                <span
+                                    class="text-xs font-bold text-white tracking-tight truncate block">{{ auth('web')->user()->name }}</span>
                                 <span class="text-[10px] text-slate-400 block">Akun Bisnis Aktif</span>
                             </div>
                         </div>
@@ -1354,10 +1388,13 @@
                         </a>
                     </div>
                 @else
-                    <div class="p-3.5 rounded-[16px] bg-gradient-to-r from-white/[0.08] via-white/[0.04] to-transparent border border-white/10 flex items-center justify-between gap-3">
+                    <div
+                        class="p-3.5 rounded-[16px] bg-gradient-to-r from-white/[0.08] via-white/[0.04] to-transparent border border-white/10 flex items-center justify-between gap-3">
                         <div class="min-w-0">
-                            <span class="text-[10px] font-bold uppercase tracking-wider text-[#00C2FF] block">Ekosistem UMKM</span>
-                            <span class="text-xs font-semibold text-white truncate block">Coba Gratis Tanpa Kartu Kredit</span>
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-[#00C2FF] block">Ekosistem
+                                UMKM</span>
+                            <span class="text-xs font-semibold text-white truncate block">Coba Gratis Tanpa Kartu
+                                Kredit</span>
                         </div>
                         <div class="flex items-center gap-2 shrink-0">
                             <a href="{{ route('login') }}" @click="mobileMenu = false"
@@ -1399,17 +1436,22 @@
                     <button type="button" @click="toggleMobileSection('platform')"
                         class="w-full p-3.5 flex items-center justify-between text-left hover:bg-white/[0.04] transition-colors">
                         <div class="flex items-center gap-2.5">
-                            <div class="w-7 h-7 rounded-lg bg-[#007AFF]/20 text-[#00C2FF] flex items-center justify-center">
+                            <div
+                                class="w-7 h-7 rounded-lg bg-[#007AFF]/20 text-[#00C2FF] flex items-center justify-center">
                                 <i data-lucide="layers" class="w-4 h-4"></i>
                             </div>
                             <div>
                                 <span class="text-xs font-bold text-white block">Platform</span>
-                                <span class="text-[10px] text-slate-400 block">Fitur Operasional, ERP Core &amp; AI</span>
+                                <span class="text-[10px] text-slate-400 block">Fitur Operasional, ERP Core &amp;
+                                    AI</span>
                             </div>
                         </div>
                         <div class="flex items-center gap-1.5">
-                            <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-white/10 text-slate-300">8 Modul</span>
-                            <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transition-transform duration-200"
+                            <span
+                                class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-white/10 text-slate-300">8
+                                Modul</span>
+                            <i data-lucide="chevron-down"
+                                class="w-4 h-4 text-slate-400 transition-transform duration-200"
                                 :class="mobileSection === 'platform' ? 'rotate-180 text-[#00C2FF]' : ''"></i>
                         </div>
                     </button>
@@ -1422,68 +1464,79 @@
                         x-transition:leave-start="opacity-100 translate-y-0"
                         x-transition:leave-end="opacity-0 -translate-y-1"
                         class="p-3 pt-0 border-t border-white/10 space-y-3">
-                        
+
                         <!-- Sub-Section 1: Fitur -->
                         <div class="space-y-2 pt-2.5">
-                            <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-1">Fitur Operasional</p>
+                            <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-1">Fitur
+                                Operasional</p>
                             <div class="space-y-1.5">
                                 <!-- Point of Sale -->
                                 <a href="{{ route('public.erp.pos') }}" @click="mobileMenu = false"
                                     class="p-2 rounded-[12px] bg-white/[0.04] hover:bg-white/[0.08] border border-white/5 flex items-start gap-2.5 text-slate-200 transition-all">
-                                    <div class="w-7 h-7 rounded-lg bg-[#007AFF]/20 text-[#00C2FF] flex items-center justify-center shrink-0 mt-0.5">
+                                    <div
+                                        class="w-7 h-7 rounded-lg bg-[#007AFF]/20 text-[#00C2FF] flex items-center justify-center shrink-0 mt-0.5">
                                         <i data-lucide="monitor" class="w-3.5 h-3.5"></i>
                                     </div>
                                     <div class="min-w-0">
                                         <span class="font-bold block text-white text-xs">Point of Sale</span>
-                                        <span class="text-[10px] text-slate-400 block leading-tight">Hubungkan pesanan, pembayaran, dan pembukuan</span>
+                                        <span class="text-[10px] text-slate-400 block leading-tight">Hubungkan pesanan,
+                                            pembayaran, dan pembukuan</span>
                                     </div>
                                 </a>
 
                                 <!-- Dynamic Budgeting -->
                                 <a href="{{ route('public.erp.accounting') }}" @click="mobileMenu = false"
                                     class="p-2 rounded-[12px] bg-white/[0.04] hover:bg-white/[0.08] border border-white/5 flex items-start gap-2.5 text-slate-200 transition-all">
-                                    <div class="w-7 h-7 rounded-lg bg-[#5856D6]/20 text-[#5856D6] flex items-center justify-center shrink-0 mt-0.5">
+                                    <div
+                                        class="w-7 h-7 rounded-lg bg-[#5856D6]/20 text-[#5856D6] flex items-center justify-center shrink-0 mt-0.5">
                                         <i data-lucide="bar-chart-3" class="w-3.5 h-3.5"></i>
                                     </div>
                                     <div class="min-w-0">
                                         <span class="font-bold block text-white text-xs">Dynamic Budgeting</span>
-                                        <span class="text-[10px] text-slate-400 block leading-tight">Atur dan pantau dana secara real-time</span>
+                                        <span class="text-[10px] text-slate-400 block leading-tight">Atur dan pantau
+                                            dana secara real-time</span>
                                     </div>
                                 </a>
 
                                 <!-- Vendor Spend -->
                                 <a href="{{ route('public.erp.erp') }}" @click="mobileMenu = false"
                                     class="p-2 rounded-[12px] bg-white/[0.04] hover:bg-white/[0.08] border border-white/5 flex items-start gap-2.5 text-slate-200 transition-all">
-                                    <div class="w-7 h-7 rounded-lg bg-[#FF9500]/20 text-[#FF9500] flex items-center justify-center shrink-0 mt-0.5">
+                                    <div
+                                        class="w-7 h-7 rounded-lg bg-[#FF9500]/20 text-[#FF9500] flex items-center justify-center shrink-0 mt-0.5">
                                         <i data-lucide="shopping-bag" class="w-3.5 h-3.5"></i>
                                     </div>
                                     <div class="min-w-0">
                                         <span class="font-bold block text-white text-xs">Vendor Spend</span>
-                                        <span class="text-[10px] text-slate-400 block leading-tight">Kelola pembayaran SaaS &amp; vendor</span>
+                                        <span class="text-[10px] text-slate-400 block leading-tight">Kelola pembayaran
+                                            SaaS &amp; vendor</span>
                                     </div>
                                 </a>
 
                                 <!-- Revenue Sync -->
                                 <a href="{{ route('public.erp.inventory') }}" @click="mobileMenu = false"
                                     class="p-2 rounded-[12px] bg-white/[0.04] hover:bg-white/[0.08] border border-white/5 flex items-start gap-2.5 text-slate-200 transition-all">
-                                    <div class="w-7 h-7 rounded-lg bg-[#30B0C7]/20 text-[#30B0C7] flex items-center justify-center shrink-0 mt-0.5">
+                                    <div
+                                        class="w-7 h-7 rounded-lg bg-[#30B0C7]/20 text-[#30B0C7] flex items-center justify-center shrink-0 mt-0.5">
                                         <i data-lucide="arrow-left-right" class="w-3.5 h-3.5"></i>
                                     </div>
                                     <div class="min-w-0">
                                         <span class="font-bold block text-white text-xs">Revenue Sync</span>
-                                        <span class="text-[10px] text-slate-400 block leading-tight">Tarik data retainer &amp; POS otomatis</span>
+                                        <span class="text-[10px] text-slate-400 block leading-tight">Tarik data
+                                            retainer &amp; POS otomatis</span>
                                     </div>
                                 </a>
 
                                 <!-- Receipt Capture -->
                                 <a href="{{ route('public.omnichannel.orders') }}" @click="mobileMenu = false"
                                     class="p-2 rounded-[12px] bg-white/[0.04] hover:bg-white/[0.08] border border-white/5 flex items-start gap-2.5 text-slate-200 transition-all">
-                                    <div class="w-7 h-7 rounded-lg bg-[#34C759]/20 text-[#34C759] flex items-center justify-center shrink-0 mt-0.5">
+                                    <div
+                                        class="w-7 h-7 rounded-lg bg-[#34C759]/20 text-[#34C759] flex items-center justify-center shrink-0 mt-0.5">
                                         <i data-lucide="receipt" class="w-3.5 h-3.5"></i>
                                     </div>
                                     <div class="min-w-0">
                                         <span class="font-bold block text-white text-xs">Receipt Capture</span>
-                                        <span class="text-[10px] text-slate-400 block leading-tight">Otomatiskan urusan struk</span>
+                                        <span class="text-[10px] text-slate-400 block leading-tight">Otomatiskan urusan
+                                            struk</span>
                                     </div>
                                 </a>
                             </div>
@@ -1491,41 +1544,48 @@
 
                         <!-- Sub-Section 2: Platform Core -->
                         <div class="space-y-2 pt-1 border-t border-white/5">
-                            <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-1">Platform Core</p>
+                            <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-1">Platform Core
+                            </p>
                             <div class="space-y-1.5">
                                 <!-- COOCA AI Agents -->
                                 <a href="{{ route('public.content.creation') }}" @click="mobileMenu = false"
                                     class="p-2 rounded-[12px] bg-[#00C2FF]/10 hover:bg-[#00C2FF]/15 border border-[#00C2FF]/30 flex items-start gap-2.5 text-slate-200 transition-all">
-                                    <div class="w-7 h-7 rounded-lg bg-[#00C2FF]/20 text-[#00C2FF] flex items-center justify-center shrink-0 mt-0.5">
+                                    <div
+                                        class="w-7 h-7 rounded-lg bg-[#00C2FF]/20 text-[#00C2FF] flex items-center justify-center shrink-0 mt-0.5">
                                         <i data-lucide="zap" class="w-3.5 h-3.5"></i>
                                     </div>
                                     <div class="min-w-0">
                                         <span class="font-bold block text-[#00C2FF] text-xs">COOCA AI Agents</span>
-                                        <span class="text-[10px] text-slate-400 block leading-tight">Lipat-gandakan efisiensi keuangan</span>
+                                        <span class="text-[10px] text-slate-400 block leading-tight">Lipat-gandakan
+                                            efisiensi keuangan</span>
                                     </div>
                                 </a>
 
                                 <!-- Siap Global -->
                                 <a href="{{ route('public.bos.overview') }}" @click="mobileMenu = false"
                                     class="p-2 rounded-[12px] bg-white/[0.04] hover:bg-white/[0.08] border border-white/5 flex items-start gap-2.5 text-slate-200 transition-all">
-                                    <div class="w-7 h-7 rounded-lg bg-[#007AFF]/20 text-[#00C2FF] flex items-center justify-center shrink-0 mt-0.5">
+                                    <div
+                                        class="w-7 h-7 rounded-lg bg-[#007AFF]/20 text-[#00C2FF] flex items-center justify-center shrink-0 mt-0.5">
                                         <i data-lucide="globe" class="w-3.5 h-3.5"></i>
                                     </div>
                                     <div class="min-w-0">
                                         <span class="font-bold block text-white text-xs">Siap Global</span>
-                                        <span class="text-[10px] text-slate-400 block leading-tight">Invoice dalam IDR, USD, dan SGD</span>
+                                        <span class="text-[10px] text-slate-400 block leading-tight">Invoice dalam IDR,
+                                            USD, dan SGD</span>
                                     </div>
                                 </a>
 
                                 <!-- Integrasi Bawaan -->
                                 <a href="{{ route('public.bos.how-it-works') }}" @click="mobileMenu = false"
                                     class="p-2 rounded-[12px] bg-white/[0.04] hover:bg-white/[0.08] border border-white/5 flex items-start gap-2.5 text-slate-200 transition-all">
-                                    <div class="w-7 h-7 rounded-lg bg-[#AF52DE]/20 text-[#AF52DE] flex items-center justify-center shrink-0 mt-0.5">
+                                    <div
+                                        class="w-7 h-7 rounded-lg bg-[#AF52DE]/20 text-[#AF52DE] flex items-center justify-center shrink-0 mt-0.5">
                                         <i data-lucide="code-2" class="w-3.5 h-3.5"></i>
                                     </div>
                                     <div class="min-w-0">
                                         <span class="font-bold block text-white text-xs">Integrasi Bawaan</span>
-                                        <span class="text-[10px] text-slate-400 block leading-tight">Hubungkan ERP, HRIS &amp; tools</span>
+                                        <span class="text-[10px] text-slate-400 block leading-tight">Hubungkan ERP,
+                                            HRIS &amp; tools</span>
                                     </div>
                                 </a>
                             </div>
@@ -1537,11 +1597,15 @@
                                 class="block relative rounded-xl overflow-hidden bg-[#0A0E1A] border border-slate-800 p-3 shadow-xs">
                                 <div class="flex items-center justify-between gap-2">
                                     <div>
-                                        <span class="text-[9px] font-bold uppercase tracking-wider text-[#00C2FF] block">Rilis Terbaru</span>
+                                        <span
+                                            class="text-[9px] font-bold uppercase tracking-wider text-[#00C2FF] block">Rilis
+                                            Terbaru</span>
                                         <span class="text-xs font-bold text-white block">WhatsApp AI Agents</span>
-                                        <span class="text-[10px] text-slate-400 block leading-tight mt-0.5">Chat langsung dengan ledger pembukuan Anda</span>
+                                        <span class="text-[10px] text-slate-400 block leading-tight mt-0.5">Chat
+                                            langsung dengan ledger pembukuan Anda</span>
                                     </div>
-                                    <div class="w-6 h-6 rounded-full bg-[#00C2FF]/20 text-[#00C2FF] flex items-center justify-center shrink-0">
+                                    <div
+                                        class="w-6 h-6 rounded-full bg-[#00C2FF]/20 text-[#00C2FF] flex items-center justify-center shrink-0">
                                         <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
                                     </div>
                                 </div>
@@ -1557,7 +1621,8 @@
                     <button type="button" @click="toggleMobileSection('solutions')"
                         class="w-full p-3.5 flex items-center justify-between text-left hover:bg-white/[0.04] transition-colors">
                         <div class="flex items-center gap-2.5">
-                            <div class="w-7 h-7 rounded-lg bg-[#34C759]/20 text-[#34C759] flex items-center justify-center">
+                            <div
+                                class="w-7 h-7 rounded-lg bg-[#34C759]/20 text-[#34C759] flex items-center justify-center">
                                 <i data-lucide="store" class="w-4 h-4"></i>
                             </div>
                             <div>
@@ -1566,8 +1631,11 @@
                             </div>
                         </div>
                         <div class="flex items-center gap-1.5">
-                            <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-white/10 text-slate-300">6 Industri</span>
-                            <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transition-transform duration-200"
+                            <span
+                                class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-white/10 text-slate-300">6
+                                Industri</span>
+                            <i data-lucide="chevron-down"
+                                class="w-4 h-4 text-slate-400 transition-transform duration-200"
                                 :class="mobileSection === 'solutions' ? 'rotate-180 text-[#34C759]' : ''"></i>
                         </div>
                     </button>
@@ -1580,79 +1648,94 @@
                         x-transition:leave-start="opacity-100 translate-y-0"
                         x-transition:leave-end="opacity-0 -translate-y-1"
                         class="p-3 pt-0 border-t border-white/10 space-y-3">
-                        
+
                         <div class="space-y-2 pt-2.5">
-                            <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-1">Solusi Sektor Industri</p>
+                            <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-1">Solusi Sektor
+                                Industri</p>
                             <div class="grid grid-cols-1 gap-1.5">
                                 <!-- F&B & Resto -->
                                 <a href="{{ route('public.solutions.fnb') }}" @click="mobileMenu = false"
                                     class="p-2 rounded-[12px] bg-white/[0.04] hover:bg-white/[0.08] border border-white/5 flex items-start gap-2.5 text-slate-200 transition-all">
-                                    <div class="w-7 h-7 rounded-lg bg-[#FF9500]/20 text-[#FF9500] flex items-center justify-center shrink-0 mt-0.5">
+                                    <div
+                                        class="w-7 h-7 rounded-lg bg-[#FF9500]/20 text-[#FF9500] flex items-center justify-center shrink-0 mt-0.5">
                                         <i data-lucide="utensils" class="w-3.5 h-3.5"></i>
                                     </div>
                                     <div class="min-w-0">
                                         <span class="font-bold block text-white text-xs">F&amp;B &amp; Resto</span>
-                                        <span class="text-[10px] text-slate-400 block leading-tight">Meja, menu QR, dapur, &amp; split bill</span>
+                                        <span class="text-[10px] text-slate-400 block leading-tight">Meja, menu QR,
+                                            dapur, &amp; split bill</span>
                                     </div>
                                 </a>
 
                                 <!-- Retail & Toko -->
                                 <a href="{{ route('public.solutions.retail') }}" @click="mobileMenu = false"
                                     class="p-2 rounded-[12px] bg-white/[0.04] hover:bg-white/[0.08] border border-white/5 flex items-start gap-2.5 text-slate-200 transition-all">
-                                    <div class="w-7 h-7 rounded-lg bg-[#00C2FF]/20 text-[#00C2FF] flex items-center justify-center shrink-0 mt-0.5">
+                                    <div
+                                        class="w-7 h-7 rounded-lg bg-[#00C2FF]/20 text-[#00C2FF] flex items-center justify-center shrink-0 mt-0.5">
                                         <i data-lucide="store" class="w-3.5 h-3.5"></i>
                                     </div>
                                     <div class="min-w-0">
                                         <span class="font-bold block text-white text-xs">Retail &amp; Toko</span>
-                                        <span class="text-[10px] text-slate-400 block leading-tight">Barcode scanner, varian, &amp; multi-cabang</span>
+                                        <span class="text-[10px] text-slate-400 block leading-tight">Barcode scanner,
+                                            varian, &amp; multi-cabang</span>
                                     </div>
                                 </a>
 
                                 <!-- Bengkel & Otomotif -->
                                 <a href="{{ route('public.solutions.workshop') }}" @click="mobileMenu = false"
                                     class="p-2 rounded-[12px] bg-white/[0.04] hover:bg-white/[0.08] border border-white/5 flex items-start gap-2.5 text-slate-200 transition-all">
-                                    <div class="w-7 h-7 rounded-lg bg-[#FF3B30]/20 text-[#FF3B30] flex items-center justify-center shrink-0 mt-0.5">
+                                    <div
+                                        class="w-7 h-7 rounded-lg bg-[#FF3B30]/20 text-[#FF3B30] flex items-center justify-center shrink-0 mt-0.5">
                                         <i data-lucide="wrench" class="w-3.5 h-3.5"></i>
                                     </div>
                                     <div class="min-w-0">
                                         <span class="font-bold block text-white text-xs">Bengkel &amp; Otomotif</span>
-                                        <span class="text-[10px] text-slate-400 block leading-tight">SPK, antrean servis, part &amp; mekanik</span>
+                                        <span class="text-[10px] text-slate-400 block leading-tight">SPK, antrean
+                                            servis, part &amp; mekanik</span>
                                     </div>
                                 </a>
 
                                 <!-- Laundry -->
                                 <a href="{{ route('public.solutions.laundry') }}" @click="mobileMenu = false"
                                     class="p-2 rounded-[12px] bg-white/[0.04] hover:bg-white/[0.08] border border-white/5 flex items-start gap-2.5 text-slate-200 transition-all">
-                                    <div class="w-7 h-7 rounded-lg bg-[#34C759]/20 text-[#34C759] flex items-center justify-center shrink-0 mt-0.5">
+                                    <div
+                                        class="w-7 h-7 rounded-lg bg-[#34C759]/20 text-[#34C759] flex items-center justify-center shrink-0 mt-0.5">
                                         <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
                                     </div>
                                     <div class="min-w-0">
-                                        <span class="font-bold block text-white text-xs">Laundry Kiloan &amp; Satuan</span>
-                                        <span class="text-[10px] text-slate-400 block leading-tight">Kiloan, satuan, barcode rak &amp; status cuci</span>
+                                        <span class="font-bold block text-white text-xs">Laundry Kiloan &amp;
+                                            Satuan</span>
+                                        <span class="text-[10px] text-slate-400 block leading-tight">Kiloan, satuan,
+                                            barcode rak &amp; status cuci</span>
                                     </div>
                                 </a>
 
                                 <!-- Manufacturing -->
                                 <a href="{{ route('public.solutions.manufacturing') }}" @click="mobileMenu = false"
                                     class="p-2 rounded-[12px] bg-white/[0.04] hover:bg-white/[0.08] border border-white/5 flex items-start gap-2.5 text-slate-200 transition-all">
-                                    <div class="w-7 h-7 rounded-lg bg-[#AF52DE]/20 text-[#AF52DE] flex items-center justify-center shrink-0 mt-0.5">
+                                    <div
+                                        class="w-7 h-7 rounded-lg bg-[#AF52DE]/20 text-[#AF52DE] flex items-center justify-center shrink-0 mt-0.5">
                                         <i data-lucide="factory" class="w-3.5 h-3.5"></i>
                                     </div>
                                     <div class="min-w-0">
-                                        <span class="font-bold block text-white text-xs">Manufaktur &amp; Produksi</span>
-                                        <span class="text-[10px] text-slate-400 block leading-tight">BOM, work order, &amp; alokasi bahan baku</span>
+                                        <span class="font-bold block text-white text-xs">Manufaktur &amp;
+                                            Produksi</span>
+                                        <span class="text-[10px] text-slate-400 block leading-tight">BOM, work order,
+                                            &amp; alokasi bahan baku</span>
                                     </div>
                                 </a>
 
                                 <!-- Services & Jasa -->
                                 <a href="{{ route('public.solutions.services') }}" @click="mobileMenu = false"
                                     class="p-2 rounded-[12px] bg-white/[0.04] hover:bg-white/[0.08] border border-white/5 flex items-start gap-2.5 text-slate-200 transition-all">
-                                    <div class="w-7 h-7 rounded-lg bg-[#007AFF]/20 text-[#007AFF] flex items-center justify-center shrink-0 mt-0.5">
+                                    <div
+                                        class="w-7 h-7 rounded-lg bg-[#007AFF]/20 text-[#007AFF] flex items-center justify-center shrink-0 mt-0.5">
                                         <i data-lucide="briefcase" class="w-3.5 h-3.5"></i>
                                     </div>
                                     <div class="min-w-0">
                                         <span class="font-bold block text-white text-xs">Services &amp; Jasa</span>
-                                        <span class="text-[10px] text-slate-400 block leading-tight">Booking appointment, termin, &amp; invoicing</span>
+                                        <span class="text-[10px] text-slate-400 block leading-tight">Booking
+                                            appointment, termin, &amp; invoicing</span>
                                     </div>
                                 </a>
                             </div>
@@ -1664,11 +1747,16 @@
                                 class="block relative rounded-xl overflow-hidden bg-[#0A0E1A] border border-slate-800 p-3 shadow-xs">
                                 <div class="flex items-center justify-between gap-2">
                                     <div>
-                                        <span class="text-[9px] font-bold uppercase tracking-wider text-[#FF9500] block">Konsultasi Solusi</span>
-                                        <span class="text-xs font-bold text-white block">Jadwalkan Konsultasi Demo</span>
-                                        <span class="text-[10px] text-slate-400 block leading-tight mt-0.5">Sistem khusus sesuai SOP industri Anda</span>
+                                        <span
+                                            class="text-[9px] font-bold uppercase tracking-wider text-[#FF9500] block">Konsultasi
+                                            Solusi</span>
+                                        <span class="text-xs font-bold text-white block">Jadwalkan Konsultasi
+                                            Demo</span>
+                                        <span class="text-[10px] text-slate-400 block leading-tight mt-0.5">Sistem
+                                            khusus sesuai SOP industri Anda</span>
                                     </div>
-                                    <div class="w-6 h-6 rounded-full bg-[#FF9500]/20 text-[#FF9500] flex items-center justify-center shrink-0">
+                                    <div
+                                        class="w-6 h-6 rounded-full bg-[#FF9500]/20 text-[#FF9500] flex items-center justify-center shrink-0">
                                         <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
                                     </div>
                                 </div>
@@ -1684,17 +1772,22 @@
                     <button type="button" @click="toggleMobileSection('omnichannel')"
                         class="w-full p-3.5 flex items-center justify-between text-left hover:bg-white/[0.04] transition-colors">
                         <div class="flex items-center gap-2.5">
-                            <div class="w-7 h-7 rounded-lg bg-[#FF2D55]/20 text-[#FF2D55] flex items-center justify-center">
+                            <div
+                                class="w-7 h-7 rounded-lg bg-[#FF2D55]/20 text-[#FF2D55] flex items-center justify-center">
                                 <i data-lucide="share-2" class="w-4 h-4"></i>
                             </div>
                             <div>
                                 <span class="text-xs font-bold text-white block">Omnichannel</span>
-                                <span class="text-[10px] text-slate-400 block">Kanal Penjualan, WhatsApp &amp; CRM</span>
+                                <span class="text-[10px] text-slate-400 block">Kanal Penjualan, WhatsApp &amp;
+                                    CRM</span>
                             </div>
                         </div>
                         <div class="flex items-center gap-1.5">
-                            <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-white/10 text-slate-300">5 Kanal</span>
-                            <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transition-transform duration-200"
+                            <span
+                                class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-white/10 text-slate-300">5
+                                Kanal</span>
+                            <i data-lucide="chevron-down"
+                                class="w-4 h-4 text-slate-400 transition-transform duration-200"
                                 :class="mobileSection === 'omnichannel' ? 'rotate-180 text-[#FF2D55]' : ''"></i>
                         </div>
                     </button>
@@ -1707,67 +1800,79 @@
                         x-transition:leave-start="opacity-100 translate-y-0"
                         x-transition:leave-end="opacity-0 -translate-y-1"
                         class="p-3 pt-0 border-t border-white/10 space-y-3">
-                        
+
                         <div class="space-y-2 pt-2.5">
-                            <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-1">Kanal Penjualan &amp; CRM Terpadu</p>
+                            <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-1">Kanal
+                                Penjualan &amp; CRM Terpadu</p>
                             <div class="space-y-1.5">
                                 <!-- Social Media -->
                                 <a href="{{ route('public.omnichannel.social-media') }}" @click="mobileMenu = false"
                                     class="p-2 rounded-[12px] bg-white/[0.04] hover:bg-white/[0.08] border border-white/5 flex items-start gap-2.5 text-slate-200 transition-all">
-                                    <div class="w-7 h-7 rounded-lg bg-[#FF2D55]/20 text-[#FF2D55] flex items-center justify-center shrink-0 mt-0.5">
+                                    <div
+                                        class="w-7 h-7 rounded-lg bg-[#FF2D55]/20 text-[#FF2D55] flex items-center justify-center shrink-0 mt-0.5">
                                         <i data-lucide="share-2" class="w-3.5 h-3.5"></i>
                                     </div>
                                     <div class="min-w-0">
                                         <span class="font-bold block text-white text-xs">Social Media Commerce</span>
-                                        <span class="text-[10px] text-slate-400 block leading-tight">Jadwal konten, auto-reply, &amp; katalog multi-channel</span>
+                                        <span class="text-[10px] text-slate-400 block leading-tight">Jadwal konten,
+                                            auto-reply, &amp; katalog multi-channel</span>
                                     </div>
                                 </a>
 
                                 <!-- WhatsApp -->
                                 <a href="{{ route('public.omnichannel.whatsapp') }}" @click="mobileMenu = false"
                                     class="p-2 rounded-[12px] bg-white/[0.04] hover:bg-white/[0.08] border border-white/5 flex items-start gap-2.5 text-slate-200 transition-all">
-                                    <div class="w-7 h-7 rounded-lg bg-[#34C759]/20 text-[#34C759] flex items-center justify-center shrink-0 mt-0.5">
+                                    <div
+                                        class="w-7 h-7 rounded-lg bg-[#34C759]/20 text-[#34C759] flex items-center justify-center shrink-0 mt-0.5">
                                         <i data-lucide="message-square" class="w-3.5 h-3.5"></i>
                                     </div>
                                     <div class="min-w-0">
                                         <span class="font-bold block text-white text-xs">WhatsApp Official API</span>
-                                        <span class="text-[10px] text-slate-400 block leading-tight">Broadcast pesan massal &amp; multi-agent live chat</span>
+                                        <span class="text-[10px] text-slate-400 block leading-tight">Broadcast pesan
+                                            massal &amp; multi-agent live chat</span>
                                     </div>
                                 </a>
 
                                 <!-- Marketplace Hub -->
                                 <a href="{{ route('public.omnichannel.marketplace') }}" @click="mobileMenu = false"
                                     class="p-2 rounded-[12px] bg-white/[0.04] hover:bg-white/[0.08] border border-white/5 flex items-start gap-2.5 text-slate-200 transition-all">
-                                    <div class="w-7 h-7 rounded-lg bg-[#FF9500]/20 text-[#FF9500] flex items-center justify-center shrink-0 mt-0.5">
+                                    <div
+                                        class="w-7 h-7 rounded-lg bg-[#FF9500]/20 text-[#FF9500] flex items-center justify-center shrink-0 mt-0.5">
                                         <i data-lucide="shopping-bag" class="w-3.5 h-3.5"></i>
                                     </div>
                                     <div class="min-w-0">
                                         <span class="font-bold block text-white text-xs">Marketplace Hub</span>
-                                        <span class="text-[10px] text-slate-400 block leading-tight">Sinkronisasi stok Shopee, Tokopedia, &amp; TikTok</span>
+                                        <span class="text-[10px] text-slate-400 block leading-tight">Sinkronisasi stok
+                                            Shopee, Tokopedia, &amp; TikTok</span>
                                     </div>
                                 </a>
 
                                 <!-- Central Orders -->
                                 <a href="{{ route('public.omnichannel.orders') }}" @click="mobileMenu = false"
                                     class="p-2 rounded-[12px] bg-white/[0.04] hover:bg-white/[0.08] border border-white/5 flex items-start gap-2.5 text-slate-200 transition-all">
-                                    <div class="w-7 h-7 rounded-lg bg-[#007AFF]/20 text-[#007AFF] flex items-center justify-center shrink-0 mt-0.5">
+                                    <div
+                                        class="w-7 h-7 rounded-lg bg-[#007AFF]/20 text-[#007AFF] flex items-center justify-center shrink-0 mt-0.5">
                                         <i data-lucide="clipboard-list" class="w-3.5 h-3.5"></i>
                                     </div>
                                     <div class="min-w-0">
                                         <span class="font-bold block text-white text-xs">Central Orders</span>
-                                        <span class="text-[10px] text-slate-400 block leading-tight">Satu inbox pesanan terpadu untuk semua saluran</span>
+                                        <span class="text-[10px] text-slate-400 block leading-tight">Satu inbox pesanan
+                                            terpadu untuk semua saluran</span>
                                     </div>
                                 </a>
 
                                 <!-- Customer Portal -->
                                 <a href="{{ route('public.omnichannel.customer') }}" @click="mobileMenu = false"
                                     class="p-2 rounded-[12px] bg-white/[0.04] hover:bg-white/[0.08] border border-white/5 flex items-start gap-2.5 text-slate-200 transition-all">
-                                    <div class="w-7 h-7 rounded-lg bg-[#5856D6]/20 text-[#5856D6] flex items-center justify-center shrink-0 mt-0.5">
+                                    <div
+                                        class="w-7 h-7 rounded-lg bg-[#5856D6]/20 text-[#5856D6] flex items-center justify-center shrink-0 mt-0.5">
                                         <i data-lucide="user-check" class="w-3.5 h-3.5"></i>
                                     </div>
                                     <div class="min-w-0">
-                                        <span class="font-bold block text-white text-xs">Customer Portal &amp; CRM</span>
-                                        <span class="text-[10px] text-slate-400 block leading-tight">Program loyalty, membership tier, &amp; poin belanja</span>
+                                        <span class="font-bold block text-white text-xs">Customer Portal &amp;
+                                            CRM</span>
+                                        <span class="text-[10px] text-slate-400 block leading-tight">Program loyalty,
+                                            membership tier, &amp; poin belanja</span>
                                     </div>
                                 </a>
                             </div>
@@ -1779,11 +1884,16 @@
                                 class="block relative rounded-xl overflow-hidden bg-[#0A0E1A] border border-slate-800 p-3 shadow-xs">
                                 <div class="flex items-center justify-between gap-2">
                                     <div>
-                                        <span class="text-[9px] font-bold uppercase tracking-wider text-[#34C759] block">Automasi WhatsApp &amp; POS</span>
-                                        <span class="text-xs font-bold text-white block">Eksplorasi Fitur WhatsApp</span>
-                                        <span class="text-[10px] text-slate-400 block leading-tight mt-0.5">Semua Chat &amp; Order Terhubung Otomatis</span>
+                                        <span
+                                            class="text-[9px] font-bold uppercase tracking-wider text-[#34C759] block">Automasi
+                                            WhatsApp &amp; POS</span>
+                                        <span class="text-xs font-bold text-white block">Eksplorasi Fitur
+                                            WhatsApp</span>
+                                        <span class="text-[10px] text-slate-400 block leading-tight mt-0.5">Semua Chat
+                                            &amp; Order Terhubung Otomatis</span>
                                     </div>
-                                    <div class="w-6 h-6 rounded-full bg-[#34C759]/20 text-[#34C759] flex items-center justify-center shrink-0">
+                                    <div
+                                        class="w-6 h-6 rounded-full bg-[#34C759]/20 text-[#34C759] flex items-center justify-center shrink-0">
                                         <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
                                     </div>
                                 </div>
@@ -1799,17 +1909,22 @@
                     <button type="button" @click="toggleMobileSection('resources')"
                         class="w-full p-3.5 flex items-center justify-between text-left hover:bg-white/[0.04] transition-colors">
                         <div class="flex items-center gap-2.5">
-                            <div class="w-7 h-7 rounded-lg bg-[#AF52DE]/20 text-[#AF52DE] flex items-center justify-center">
+                            <div
+                                class="w-7 h-7 rounded-lg bg-[#AF52DE]/20 text-[#AF52DE] flex items-center justify-center">
                                 <i data-lucide="book-open" class="w-4 h-4"></i>
                             </div>
                             <div>
                                 <span class="text-xs font-bold text-white block">Resources</span>
-                                <span class="text-[10px] text-slate-400 block">Blog, Panduan, Studi Kasus &amp; FAQ</span>
+                                <span class="text-[10px] text-slate-400 block">Blog, Panduan, Studi Kasus &amp;
+                                    FAQ</span>
                             </div>
                         </div>
                         <div class="flex items-center gap-1.5">
-                            <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-white/10 text-slate-300">4 Edukasi</span>
-                            <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transition-transform duration-200"
+                            <span
+                                class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-white/10 text-slate-300">4
+                                Edukasi</span>
+                            <i data-lucide="chevron-down"
+                                class="w-4 h-4 text-slate-400 transition-transform duration-200"
                                 :class="mobileSection === 'resources' ? 'rotate-180 text-[#AF52DE]' : ''"></i>
                         </div>
                     </button>
@@ -1822,55 +1937,65 @@
                         x-transition:leave-start="opacity-100 translate-y-0"
                         x-transition:leave-end="opacity-0 -translate-y-1"
                         class="p-3 pt-0 border-t border-white/10 space-y-3">
-                        
+
                         <div class="space-y-2 pt-2.5">
-                            <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-1">Pusat Edukasi &amp; Dokumentasi</p>
+                            <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-1">Pusat Edukasi
+                                &amp; Dokumentasi</p>
                             <div class="space-y-1.5">
                                 <!-- Blog -->
                                 <a href="{{ route('blog.index') }}" @click="mobileMenu = false"
                                     class="p-2 rounded-[12px] bg-white/[0.04] hover:bg-white/[0.08] border border-white/5 flex items-start gap-2.5 text-slate-200 transition-all">
-                                    <div class="w-7 h-7 rounded-lg bg-[#007AFF]/20 text-[#00C2FF] flex items-center justify-center shrink-0 mt-0.5">
+                                    <div
+                                        class="w-7 h-7 rounded-lg bg-[#007AFF]/20 text-[#00C2FF] flex items-center justify-center shrink-0 mt-0.5">
                                         <i data-lucide="book-open" class="w-3.5 h-3.5"></i>
                                     </div>
                                     <div class="min-w-0">
-                                        <span class="font-bold block text-white text-xs">Blog &amp; Insight Bisnis</span>
-                                        <span class="text-[10px] text-slate-400 block leading-tight">Artikel edukasi, tren pasar, &amp; strategi</span>
+                                        <span class="font-bold block text-white text-xs">Blog &amp; Insight
+                                            Bisnis</span>
+                                        <span class="text-[10px] text-slate-400 block leading-tight">Artikel edukasi,
+                                            tren pasar, &amp; strategi</span>
                                     </div>
                                 </a>
 
                                 <!-- Guides -->
                                 <a href="{{ route('public.resources.guides') }}" @click="mobileMenu = false"
                                     class="p-2 rounded-[12px] bg-white/[0.04] hover:bg-white/[0.08] border border-white/5 flex items-start gap-2.5 text-slate-200 transition-all">
-                                    <div class="w-7 h-7 rounded-lg bg-[#34C759]/20 text-[#34C759] flex items-center justify-center shrink-0 mt-0.5">
+                                    <div
+                                        class="w-7 h-7 rounded-lg bg-[#34C759]/20 text-[#34C759] flex items-center justify-center shrink-0 mt-0.5">
                                         <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
                                     </div>
                                     <div class="min-w-0">
                                         <span class="font-bold block text-white text-xs">Panduan &amp; Tutorial</span>
-                                        <span class="text-[10px] text-slate-400 block leading-tight">Tutorial step-by-step implementasi SOP dan POS</span>
+                                        <span class="text-[10px] text-slate-400 block leading-tight">Tutorial
+                                            step-by-step implementasi SOP dan POS</span>
                                     </div>
                                 </a>
 
                                 <!-- Case Studies -->
                                 <a href="{{ route('public.resources.case-studies') }}" @click="mobileMenu = false"
                                     class="p-2 rounded-[12px] bg-white/[0.04] hover:bg-white/[0.08] border border-white/5 flex items-start gap-2.5 text-slate-200 transition-all">
-                                    <div class="w-7 h-7 rounded-lg bg-[#FF9500]/20 text-[#FF9500] flex items-center justify-center shrink-0 mt-0.5">
+                                    <div
+                                        class="w-7 h-7 rounded-lg bg-[#FF9500]/20 text-[#FF9500] flex items-center justify-center shrink-0 mt-0.5">
                                         <i data-lucide="award" class="w-3.5 h-3.5"></i>
                                     </div>
                                     <div class="min-w-0">
                                         <span class="font-bold block text-white text-xs">Studi Kasus UMKM</span>
-                                        <span class="text-[10px] text-slate-400 block leading-tight">Kisah nyata pebisnis Indonesia scaling bersama COOCA</span>
+                                        <span class="text-[10px] text-slate-400 block leading-tight">Kisah nyata
+                                            pebisnis Indonesia scaling bersama COOCA</span>
                                     </div>
                                 </a>
 
                                 <!-- FAQ -->
                                 <a href="{{ route('public.resources.faq') }}" @click="mobileMenu = false"
                                     class="p-2 rounded-[12px] bg-white/[0.04] hover:bg-white/[0.08] border border-white/5 flex items-start gap-2.5 text-slate-200 transition-all">
-                                    <div class="w-7 h-7 rounded-lg bg-[#AF52DE]/20 text-[#AF52DE] flex items-center justify-center shrink-0 mt-0.5">
+                                    <div
+                                        class="w-7 h-7 rounded-lg bg-[#AF52DE]/20 text-[#AF52DE] flex items-center justify-center shrink-0 mt-0.5">
                                         <i data-lucide="help-circle" class="w-3.5 h-3.5"></i>
                                     </div>
                                     <div class="min-w-0">
                                         <span class="font-bold block text-white text-xs">Pusat Bantuan &amp; FAQ</span>
-                                        <span class="text-[10px] text-slate-400 block leading-tight">Jawaban cepat pertanyaan teknis &amp; langganan</span>
+                                        <span class="text-[10px] text-slate-400 block leading-tight">Jawaban cepat
+                                            pertanyaan teknis &amp; langganan</span>
                                     </div>
                                 </a>
                             </div>
@@ -1882,11 +2007,16 @@
                                 class="block relative rounded-xl overflow-hidden bg-[#0A0E1A] border border-slate-800 p-3 shadow-xs">
                                 <div class="flex items-center justify-between gap-2">
                                     <div>
-                                        <span class="text-[9px] font-bold uppercase tracking-wider text-[#AF52DE] block">Knowledge Hub</span>
-                                        <span class="text-xs font-bold text-white block">Baca Panduan Operasional</span>
-                                        <span class="text-[10px] text-slate-400 block leading-tight mt-0.5">Kuasai Operasional Bisnis Bersama COOCA</span>
+                                        <span
+                                            class="text-[9px] font-bold uppercase tracking-wider text-[#AF52DE] block">Knowledge
+                                            Hub</span>
+                                        <span class="text-xs font-bold text-white block">Baca Panduan
+                                            Operasional</span>
+                                        <span class="text-[10px] text-slate-400 block leading-tight mt-0.5">Kuasai
+                                            Operasional Bisnis Bersama COOCA</span>
                                     </div>
-                                    <div class="w-6 h-6 rounded-full bg-[#AF52DE]/20 text-[#AF52DE] flex items-center justify-center shrink-0">
+                                    <div
+                                        class="w-6 h-6 rounded-full bg-[#AF52DE]/20 text-[#AF52DE] flex items-center justify-center shrink-0">
                                         <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
                                     </div>
                                 </div>
@@ -1943,19 +2073,25 @@
                 <!-- ════════════════════════════════════════════════════════════════════════ -->
                 <!-- ═══ 8. THEME TOGGLE ROW (APPLE INSET SETTING STYLE) ══════════════════════ -->
                 <!-- ════════════════════════════════════════════════════════════════════════ -->
-                <div class="p-3 rounded-[14px] bg-white/[0.03] border border-white/10 flex items-center justify-between">
+                <div
+                    class="p-3 rounded-[14px] bg-white/[0.03] border border-white/10 flex items-center justify-between">
                     <div class="flex items-center gap-2.5">
                         <div class="w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center text-[#FFD60A]">
-                            <svg x-show="isDark" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
+                            <svg x-show="isDark" class="w-4 h-4" fill="none" stroke="currentColor"
+                                stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
                             </svg>
-                            <svg x-show="!isDark" class="w-4 h-4 text-slate-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+                            <svg x-show="!isDark" class="w-4 h-4 text-slate-300" fill="none"
+                                stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
                             </svg>
                         </div>
                         <div>
                             <span class="text-xs font-semibold text-white block">Tema Tampilan</span>
-                            <span class="text-[10px] text-slate-400 block" x-text="isDark ? 'Mode Gelap Aktif' : 'Mode Terang Aktif'"></span>
+                            <span class="text-[10px] text-slate-400 block"
+                                x-text="isDark ? 'Mode Gelap Aktif' : 'Mode Terang Aktif'"></span>
                         </div>
                     </div>
                     <button type="button" @click="toggleTheme()"
@@ -1967,14 +2103,10 @@
         </header>
 
         <!-- Mobile Navigation Backdrop Scrim (Outside header for clean full viewport coverage) -->
-        <div x-show="mobileMenu" x-cloak
-            x-transition:enter="transition ease-out duration-200"
-            x-transition:enter-start="opacity-0"
-            x-transition:enter-end="opacity-100"
-            x-transition:leave="transition ease-in duration-150"
-            x-transition:leave-start="opacity-100"
-            x-transition:leave-end="opacity-0"
-            @click="mobileMenu = false"
+        <div x-show="mobileMenu" x-cloak x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+            x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0" @click="mobileMenu = false"
             class="fixed inset-0 top-16 sm:top-20 lg:hidden z-40 bg-black/75 backdrop-blur-sm pointer-events-auto">
         </div>
     @endif
@@ -2229,25 +2361,49 @@
                 </div>
 
                 <!-- Bottom Copyright & Links -->
+
                 <div
                     class="border-t border-white/10 text-slate-400 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs sm:text-[13px]">
-                    <p class="text-center sm:text-left">© {{ date('Y') }} COOCA. All rights reserved.</p>
+
+                    <div class="text-center sm:text-left space-y-1">
+                        <p>© {{ date('Y') }} Cooca. All rights reserved.</p>
+                        <p>
+                            Founded by
+                            <a href="https://www.linkedin.com/in/agung-mustaqim" target="_blank"
+                                rel="noopener noreferrer"
+                                class="text-slate-300 hover:text-white transition-colors font-medium">
+                                Agung Mustaqim
+                            </a>
+                        </p>
+                    </div>
+
                     <div class="flex flex-wrap items-center justify-center sm:justify-end gap-x-6 gap-y-2">
                         <a href="{{ route('public.privacy') }}"
-                            class="text-slate-400 hover:text-white transition-colors">Privacy</a>
+                            class="text-slate-400 hover:text-white transition-colors">
+                            Privacy
+                        </a>
+
                         <a href="{{ route('public.terms') }}"
-                            class="text-slate-400 hover:text-white transition-colors">Terms</a>
+                            class="text-slate-400 hover:text-white transition-colors">
+                            Terms
+                        </a>
+
                         <a href="{{ route('public.support') }}"
-                            class="text-slate-400 hover:text-white transition-colors">Support</a>
+                            class="text-slate-400 hover:text-white transition-colors">
+                            Support
+                        </a>
                     </div>
+
                 </div>
+
             </div>
         </footer>
     @endif
 
     @if (!($hideBottomNav ?? false))
         <!-- ═══ APPLE FLOATING DOCK BOTTOM NAVBAR (MOBILE ONLY) ═══ -->
-        <nav x-show="!mobileMenu" x-cloak class="fixed bottom-0 inset-x-0 z-40 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] px-4 sm:px-6 lg:px-8 pointer-events-none lg:hidden"
+        <nav x-show="!mobileMenu" x-cloak
+            class="fixed bottom-0 inset-x-0 z-40 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] px-4 sm:px-6 lg:px-8 pointer-events-none lg:hidden"
             aria-label="Navigasi Bawah">
             <div class="max-w-[1250px] mx-auto pointer-events-auto">
                 <div
@@ -2428,10 +2584,10 @@
 
         @if ($waIsActive)
             <!-- Floating WhatsApp Button (Pure Icon FAB, Elevated safely above Mobile Floating Dock Navbar) -->
-            <div x-show="!mobileMenu" x-cloak class="fixed floating-wa-fab right-4 sm:right-6 lg:right-6 z-50 print:hidden">
+            <div x-show="!mobileMenu" x-cloak
+                class="fixed floating-wa-fab right-4 sm:right-6 lg:right-6 z-50 print:hidden">
                 <a href="{{ $waTargetUrl }}" target="_blank" rel="noopener noreferrer"
-                    aria-label="Chat WhatsApp Tim COOCA"
-                    title="Chat WhatsApp Tim COOCA"
+                    aria-label="Chat WhatsApp Tim COOCA" title="Chat WhatsApp Tim COOCA"
                     class="group relative w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[#25D366] hover:bg-[#20BD5A] text-white flex items-center justify-center shadow-[0_8px_30px_rgba(37,211,102,0.45)] hover:shadow-[0_12px_35px_rgba(37,211,102,0.65)] hover:scale-105 active:scale-95 transition-all">
                     <!-- Official WhatsApp SVG Icon -->
                     <svg class="w-7 h-7 sm:w-8.5 sm:h-8.5 fill-current" viewBox="0 0 24 24">

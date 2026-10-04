@@ -105,6 +105,14 @@ final class AutoJournalService
             return null;
         }
 
+        $existing = JournalEntry::where('business_id', $business->id)
+            ->where('reference_type', JournalEntry::REF_POS_ORDER)
+            ->where('reference_id', $order->id)
+            ->first();
+        if ($existing) {
+            return $existing;
+        }
+
         return DB::transaction(function () use (
             $business,
             $order,

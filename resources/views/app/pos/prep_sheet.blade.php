@@ -13,12 +13,12 @@
                 <a href="{{ route('pos.kitchen.index') }}"
                    class="min-h-[44px] sm:min-h-0 sm:h-9 px-4 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] dark:hover:bg-white/[0.12] active:scale-[0.97] transition-all flex items-center justify-center gap-1.5 w-full sm:w-auto">
                     <i data-lucide="tv" class="w-4 h-4 text-black/60 dark:text-white/60"></i>
-                    <span>Monitor KDS</span>
+                    <span>{{ __('pos.kitchen_title') }}</span>
                 </a>
                 <button type="button" onclick="window.print()"
                         class="min-h-[44px] sm:min-h-0 sm:h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] transition-all flex items-center justify-center gap-1.5 shadow-sm cursor-pointer w-full sm:w-auto">
                     <i data-lucide="printer" class="w-4 h-4"></i>
-                    <span>Cetak Lembar Prep</span>
+                    <span>{{ __('pos.print_prep_sheet') }}</span>
                 </button>
             </x-slot:actions>
         </x-module-header>
@@ -33,15 +33,15 @@
             <div class="flex items-center gap-1.5 bg-black/[0.05] dark:bg-white/[0.06] p-1 rounded-[12px] border border-black/5 dark:border-white/5">
                 <a href="{{ route('pos.kitchen.prep_sheet', ['date' => now()->toDateString(), 'location_id' => $locationId]) }}"
                    class="min-h-[36px] px-3 py-1.5 text-[12px] font-semibold rounded-[8px] flex items-center transition {{ $targetDate === now()->toDateString() ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-xs' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white' }}">
-                    Hari Ini
+                    {{ __('pos.today') }}
                 </a>
                 <a href="{{ route('pos.kitchen.prep_sheet', ['date' => now()->addDay()->toDateString(), 'location_id' => $locationId]) }}"
                    class="min-h-[36px] px-3 py-1.5 text-[12px] font-semibold rounded-[8px] flex items-center transition {{ $targetDate === now()->addDay()->toDateString() ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-xs' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white' }}">
-                    Besok
+                    {{ __('pos.tomorrow') }}
                 </a>
                 <a href="{{ route('pos.kitchen.prep_sheet', ['date' => now()->addDays(2)->toDateString(), 'location_id' => $locationId]) }}"
                    class="min-h-[36px] px-3 py-1.5 text-[12px] font-semibold rounded-[8px] flex items-center transition {{ $targetDate === now()->addDays(2)->toDateString() ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-xs' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white' }}">
-                    Lusa
+                    {{ __('pos.day_after_tomorrow') }}
                 </a>
                 <input type="date" name="date" value="{{ $targetDate }}" onchange="this.form.submit()"
                        class="min-h-[36px] px-2.5 py-1 text-[13px] bg-white dark:bg-[#2C2C2E] rounded-[8px] border-none text-black dark:text-white focus:ring-2 focus:ring-[#007AFF] font-medium">
@@ -51,10 +51,10 @@
             @if($locations->count() > 1)
                 <select name="location_id" onchange="this.form.submit()"
                         class="min-h-[40px] h-10 px-3.5 rounded-[10px] bg-black/[0.05] dark:bg-white/[0.06] text-[13px] font-semibold border border-black/5 dark:border-white/10 text-black dark:text-white focus:ring-2 focus:ring-[#007AFF]">
-                    <option value="">Semua Lokasi / Dapur</option>
+                    <option value="">{{ __('pos.all_locations') }}</option>
                     @foreach($locations as $loc)
                         <option value="{{ $loc->id }}" {{ $locationId === $loc->id ? 'selected' : '' }}>
-                            {{ $loc->name }} ({{ $loc->type === 'central_kitchen' ? 'Dapur Pusat' : ($loc->type === 'outlet' ? 'Cabang' : 'Gudang') }})
+                            {{ $loc->name }} ({{ $loc->type === 'central_kitchen' ? __('pos.central_kitchen_label') : ($loc->type === 'outlet' ? __('pos.outlet_kitchen_label') : __('pos.warehouse_label')) }})
                         </option>
                     @endforeach
                 </select>
@@ -67,11 +67,11 @@
         <div class="flex justify-between items-start">
             <div>
                 <h1 class="text-2xl font-bold text-black">{{ $business->name }}</h1>
-                <p class="text-sm text-neutral-600">Lembar Kerja Persiapan Dapur (Daily Kitchen Batch Prep Sheet)</p>
+                <p class="text-sm text-neutral-600">{{ __('pos.daily_prep_sheet_title') }}</p>
             </div>
             <div class="text-right text-xs text-neutral-600">
-                <p class="font-bold text-sm text-black">Tanggal Target: {{ \Carbon\Carbon::parse($targetDate)->translatedFormat('l, d F Y') }}</p>
-                <p>Dicetak: {{ now()->translatedFormat('d/m/Y H:i') }} WIB</p>
+                <p class="font-bold text-sm text-black">{{ __('pos.target_date') }}: {{ \Carbon\Carbon::parse($targetDate)->translatedFormat('l, d F Y') }}</p>
+                <p>{{ __('pos.printed_at') }}: {{ now()->translatedFormat('d/m/Y H:i') }} WIB</p>
             </div>
         </div>
     </div>
@@ -81,52 +81,52 @@
         <!-- Metric 1: Total Orders -->
         <div class="p-4 rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-sm">
             <div class="flex items-center justify-between">
-                <span class="text-xs font-medium text-neutral-500 dark:text-neutral-400">Total Pesanan</span>
+                <span class="text-xs font-medium text-neutral-500 dark:text-neutral-400">{{ __('pos.prep_orders_metric') }}</span>
                 <span class="w-8 h-8 rounded-xl bg-blue-500/10 text-blue-600 flex items-center justify-center">
                     <i data-lucide="shopping-bag" class="w-4 h-4"></i>
                 </span>
             </div>
             <div class="mt-2 flex items-baseline gap-2">
                 <span class="text-2xl font-bold text-neutral-900 dark:text-white tabular-nums">{{ $totalOrdersCount }}</span>
-                <span class="text-xs text-neutral-500">transaksi</span>
+                <span class="text-xs text-neutral-500">{{ __('pos.transactions_count_header') }}</span>
             </div>
-            <p class="text-[11px] text-neutral-400 mt-1">Batch online &amp; POS pada tanggal ini</p>
+            <p class="text-[11px] text-neutral-400 mt-1">{{ __('pos.prep_batch_online_pos_desc') }}</p>
         </div>
 
         <!-- Metric 2: Total Menu Portions -->
         <div class="p-4 rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-sm">
             <div class="flex items-center justify-between">
-                <span class="text-xs font-medium text-neutral-500 dark:text-neutral-400">Total Porsi Menu</span>
+                <span class="text-xs font-medium text-neutral-500 dark:text-neutral-400">{{ __('pos.prep_portions_metric') }}</span>
                 <span class="w-8 h-8 rounded-xl bg-[#34C759]/10 text-[#34C759] dark:text-[#30D158] flex items-center justify-center">
                     <i data-lucide="utensils" class="w-4 h-4"></i>
                 </span>
             </div>
             <div class="mt-2 flex items-baseline gap-2">
                 <span class="text-2xl font-bold text-neutral-900 dark:text-white tabular-nums">{{ number_format($totalPortionsCount, 0, ',', '.') }}</span>
-                <span class="text-xs text-neutral-500">porsi disiapkan</span>
+                <span class="text-xs text-neutral-500">{{ __('pos.prep_portions_to_prepare') }}</span>
             </div>
-            <p class="text-[11px] text-neutral-400 mt-1">{{ count($menuPortions) }} varian menu berbeda</p>
+            <p class="text-[11px] text-neutral-400 mt-1">{{ __('pos.prep_menu_variants_count', ['count' => count($menuPortions)]) }}</p>
         </div>
 
         <!-- Metric 3: Raw Materials Required -->
         <div class="p-4 rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-sm">
             <div class="flex items-center justify-between">
-                <span class="text-xs font-medium text-neutral-500 dark:text-neutral-400">Bahan Baku (BOM)</span>
+                <span class="text-xs font-medium text-neutral-500 dark:text-neutral-400">{{ __('pos.prep_bom_materials_metric') }}</span>
                 <span class="w-8 h-8 rounded-xl bg-[#AF52DE]/10 text-[#AF52DE] flex items-center justify-center">
                     <i data-lucide="boxes" class="w-4 h-4"></i>
                 </span>
             </div>
             <div class="mt-2 flex items-baseline gap-2">
                 <span class="text-2xl font-bold text-neutral-900 dark:text-white tabular-nums">{{ count($materialRequirements) }}</span>
-                <span class="text-xs text-neutral-500">jenis bahan baku</span>
+                <span class="text-xs text-neutral-500">{{ __('pos.prep_raw_materials_count') }}</span>
             </div>
-            <p class="text-[11px] text-neutral-400 mt-1">Dihitung otomatis via resep</p>
+            <p class="text-[11px] text-neutral-400 mt-1">{{ __('pos.prep_bom_calculated_desc') }}</p>
         </div>
 
         <!-- Metric 4: Shortages Alert -->
         <div class="p-4 rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-sm">
             <div class="flex items-center justify-between">
-                <span class="text-xs font-medium text-neutral-500 dark:text-neutral-400">Kesiapan Stok</span>
+                <span class="text-xs font-medium text-neutral-500 dark:text-neutral-400">{{ __('pos.prep_stock_readiness_metric') }}</span>
                 <span class="w-8 h-8 rounded-xl {{ $shortageCount > 0 ? 'bg-[#FF3B30]/10 text-[#FF3B30] dark:text-[#FF453A]' : 'bg-[#34C759]/10 text-[#34C759] dark:text-[#30D158]' }} flex items-center justify-center">
                     <i data-lucide="{{ $shortageCount > 0 ? 'alert-triangle' : 'check-circle' }}" class="w-4 h-4"></i>
                 </span>
@@ -134,14 +134,14 @@
             <div class="mt-2 flex items-baseline gap-2">
                 @if($shortageCount > 0)
                     <span class="text-2xl font-bold text-[#FF3B30] dark:text-[#FF453A] tabular-nums">{{ $shortageCount }}</span>
-                    <span class="text-xs font-bold text-[#FF3B30] dark:text-[#FF453A]">Bahan Kurang!</span>
+                    <span class="text-xs font-bold text-[#FF3B30] dark:text-[#FF453A]">{{ __('pos.stock_deficit_alert') }}</span>
                 @else
-                    <span class="text-2xl font-bold text-[#34C759] dark:text-[#30D158]">Aman</span>
-                    <span class="text-xs text-[#34C759] dark:text-[#30D158]">100% Cukup</span>
+                    <span class="text-2xl font-bold text-[#34C759] dark:text-[#30D158]">{{ __('pos.stock_safe') }}</span>
+                    <span class="text-xs text-[#34C759] dark:text-[#30D158]">{{ __('pos.prep_stock_100_percent') }}</span>
                 @endif
             </div>
             <p class="text-[11px] text-neutral-400 mt-1">
-                {{ $shortageCount > 0 ? 'Segera lakukan PO bahan baku' : 'Stok gudang mencukupi seluruh porsi' }}
+                {{ $shortageCount > 0 ? __('pos.stock_deficit_action_hint') : __('pos.stock_sufficient_hint') }}
             </p>
         </div>
     </div>
@@ -157,12 +157,12 @@
                         <i data-lucide="chef-hat" class="w-4 h-4"></i>
                     </div>
                     <div>
-                        <h2 class="text-sm font-bold text-neutral-900 dark:text-white">Rencana Produksi Menu</h2>
-                        <p class="text-[11px] text-neutral-500">Porsi makanan/minuman yang harus disiapkan</p>
+                        <h2 class="text-sm font-bold text-neutral-900 dark:text-white">{{ __('pos.prep_production_plan_title') }}</h2>
+                        <p class="text-[11px] text-neutral-500">{{ __('pos.prep_production_plan_desc') }}</p>
                     </div>
                 </div>
                 <span class="text-xs font-bold px-2 py-0.5 rounded-full bg-orange-100 text-orange-800 dark:bg-orange-950/60 dark:text-orange-300">
-                    {{ count($menuPortions) }} Menu
+                    {{ __('pos.prep_menu_count_badge', ['count' => count($menuPortions)]) }}
                 </span>
             </div>
 
@@ -194,7 +194,7 @@
                                 <span class="text-lg font-extrabold text-neutral-900 dark:text-white tabular-nums">
                                     {{ number_format($portion['total_quantity'], 0, ',', '.') }}
                                 </span>
-                                <span class="block text-[11px] text-neutral-400">porsi</span>
+                                <span class="block text-[11px] text-neutral-400">{{ __('pos.prep_portions_to_prepare') }}</span>
                             </div>
                         </div>
                     </div>
@@ -203,8 +203,8 @@
                         <div class="w-12 h-12 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center mx-auto text-neutral-400 mb-2">
                             <i data-lucide="calendar-x" class="w-6 h-6"></i>
                         </div>
-                        <p class="text-sm font-semibold text-neutral-700 dark:text-neutral-300">Tidak ada pesanan terjadwal</p>
-                        <p class="text-xs text-neutral-400 mt-0.5">Pilih tanggal lain atau pastikan pesanan katering sudah berstatus aktif.</p>
+                        <p class="text-sm font-semibold text-neutral-700 dark:text-neutral-300">{{ __('pos.prep_no_scheduled_orders') }}</p>
+                        <p class="text-xs text-neutral-400 mt-0.5">{{ __('pos.prep_no_scheduled_orders_hint') }}</p>
                     </div>
                 @endforelse
             </div>
@@ -218,18 +218,18 @@
                         <i data-lucide="scale" class="w-4 h-4"></i>
                     </div>
                     <div>
-                        <h2 class="text-sm font-bold text-neutral-900 dark:text-white">Lembar Pengambilan Bahan Baku</h2>
-                        <p class="text-[11px] text-neutral-500">Breakdown kebutuhan bahan mentah dari resep BOM</p>
+                        <h2 class="text-sm font-bold text-neutral-900 dark:text-white">{{ __('pos.prep_material_picking_title') }}</h2>
+                        <p class="text-[11px] text-neutral-500">{{ __('pos.prep_material_picking_desc') }}</p>
                     </div>
                 </div>
 
                 @if($shortageCount > 0)
                     <span class="text-xs font-bold px-2 py-0.5 rounded-full bg-[#FF3B30]/15 text-[#C41E17] dark:text-[#FF453A]">
-                        {{ $shortageCount }} Bahan Kurang
+                        {{ __('pos.prep_materials_shortage_badge', ['count' => $shortageCount]) }}
                     </span>
                 @else
                     <span class="text-xs font-bold px-2 py-0.5 rounded-full bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158]">
-                        Stok Memadai
+                        {{ __('pos.prep_stock_sufficient_badge') }}
                     </span>
                 @endif
             </div>
@@ -238,10 +238,10 @@
                 <table class="w-full text-left text-xs">
                     <thead>
                         <tr class="bg-neutral-50/80 dark:bg-neutral-800/50 text-neutral-500 dark:text-neutral-400 font-semibold border-b border-black/[0.04] dark:border-white/[0.04]">
-                            <th class="px-4 py-3">Nama Bahan Baku</th>
-                            <th class="px-3 py-3 text-right">Dibutuhkan</th>
-                            <th class="px-3 py-3 text-right">Stok Fisik</th>
-                            <th class="px-4 py-3 text-center">Status Kesiapan</th>
+                            <th class="px-4 py-3">{{ __('pos.material_name') }}</th>
+                            <th class="px-3 py-3 text-right">{{ __('pos.estimated_requirement') }}</th>
+                            <th class="px-3 py-3 text-right">{{ __('pos.current_stock') }}</th>
+                            <th class="px-4 py-3 text-center">{{ __('pos.prep_stock_readiness_metric') }}</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-black/[0.04] dark:divide-white/[0.04]">
@@ -280,12 +280,12 @@
                                     @if($mat['is_sufficient'])
                                         <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-[#34C759]/10 text-[#248A3D] dark:text-[#30D158] border border-[#34C759]/25">
                                             <i data-lucide="check" class="w-3 h-3"></i>
-                                            Cukup (+{{ number_format($mat['stock_on_hand'] - $mat['required_quantity'], 1, ',', '.') }})
+                                            {{ __('pos.prep_readiness_sufficient') }} (+{{ number_format($mat['stock_on_hand'] - $mat['required_quantity'], 1, ',', '.') }})
                                         </span>
                                     @else
                                         <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-[#FF3B30]/10 text-[#C41E17] dark:text-[#FF453A] border border-[#FF3B30]/25">
                                             <i data-lucide="alert-circle" class="w-3 h-3"></i>
-                                            Kurang {{ number_format($mat['shortage'], 2, ',', '.') }} {{ $mat['unit'] }}
+                                            {{ __('pos.prep_readiness_shortage', ['amount' => number_format($mat['shortage'], 2, ',', '.'), 'unit' => $mat['unit']]) }}
                                         </span>
                                     @endif
                                 </td>
@@ -294,9 +294,9 @@
                             <tr>
                                 <td colspan="4" class="p-8 text-center text-neutral-400">
                                     @if(empty($menuPortions))
-                                        Tidak ada pesanan pada tanggal ini untuk dihitung kebutuhan bahannya.
+                                        {{ __('pos.prep_no_materials_needed') }}
                                     @else
-                                        Menu pada pesanan ini belum memiliki konfigurasi resep BOM (Cost Model).
+                                        {{ __('pos.prep_no_bom_configured') }}
                                     @endif
                                 </td>
                             </tr>
@@ -307,8 +307,8 @@
 
             <!-- Panel Footer Note -->
             <div class="p-3.5 bg-neutral-50 dark:bg-neutral-800/40 border-t border-black/[0.04] dark:border-white/[0.04] text-[11px] text-neutral-500 dark:text-neutral-400 flex items-center justify-between">
-                <span>* Angka kebutuhan sudah memperhitungkan persentase toleransi waste pada resep BOM.</span>
-                <span class="hidden sm:inline">Gunakan form penerimaan barang (PO) untuk mengisi kekurangan bahan.</span>
+                <span>{{ __('pos.prep_waste_tolerance_note') }}</span>
+                <span class="hidden sm:inline">{{ __('pos.prep_po_advice_note') }}</span>
             </div>
         </div>
 
@@ -320,21 +320,21 @@
             <div class="flex items-center justify-between mb-4">
                 <div class="flex items-center gap-2">
                     <i data-lucide="truck" class="w-4 h-4 text-neutral-500"></i>
-                    <h2 class="text-sm font-bold text-neutral-900 dark:text-white">Daftar Pengiriman / Pengambilan Pesanan</h2>
+                    <h2 class="text-sm font-bold text-neutral-900 dark:text-white">{{ __('pos.prep_deliveries_title') }}</h2>
                 </div>
-                <span class="text-xs text-neutral-500">{{ $scheduledOrders->count() }} pesanan terdaftar</span>
+                <span class="text-xs text-neutral-500">{{ __('pos.prep_scheduled_orders_count', ['count' => $scheduledOrders->count()]) }}</span>
             </div>
 
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-xs">
                     <thead>
                         <tr class="bg-neutral-50 dark:bg-neutral-800/50 text-neutral-500 font-semibold border-b border-black/[0.04] dark:border-white/[0.04]">
-                            <th class="px-3 py-2">No. Order</th>
-                            <th class="px-3 py-2">Pelanggan</th>
-                            <th class="px-3 py-2">Slot Waktu</th>
-                            <th class="px-3 py-2">Menu &amp; Porsi</th>
-                            <th class="px-3 py-2">Metode</th>
-                            <th class="px-3 py-2">Status</th>
+                            <th class="px-3 py-2">{{ __('pos.order_number') }}</th>
+                            <th class="px-3 py-2">{{ __('pos.customer_label') }}</th>
+                            <th class="px-3 py-2">{{ __('pos.prep_time_slot') }}</th>
+                            <th class="px-3 py-2">{{ __('pos.prep_menu_and_portions') }}</th>
+                            <th class="px-3 py-2">{{ __('pos.prep_fulfillment_method') }}</th>
+                            <th class="px-3 py-2">{{ __('pos.status') }}</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-black/[0.04] dark:divide-white/[0.04]">
@@ -348,7 +348,7 @@
                                     <div class="text-[10px] text-neutral-400">{{ $ord->customer_phone }}</div>
                                 </td>
                                 <td class="px-3 py-2.5 font-medium text-neutral-700 dark:text-neutral-300">
-                                    {{ $ord->scheduled_time_slot ?: 'Reguler' }}
+                                    {{ $ord->scheduled_time_slot ?: __('pos.prep_regular_slot') }}
                                 </td>
                                 <td class="px-3 py-2.5">
                                     @foreach($ord->items as $it)

@@ -137,4 +137,10 @@ class PosAuditPhase5BladeLocalizationTest extends TestCase
         // Reset to default
         App::setLocale('id');
     }
+
+    protected function tearDown(): void
+    {
+        App::setLocale('id');
+        parent::tearDown();
+    }
 }

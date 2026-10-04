@@ -13,13 +13,13 @@
                 <a id="btnPosExportExcel" href="{{ route('pos.reports.export-excel', ['start_date' => $startDate->toDateString(), 'end_date' => $endDate->toDateString()]) }}"
                     class="min-h-[44px] sm:min-h-0 sm:h-9 px-4 rounded-[10px] text-[13px] font-semibold text-black/80 dark:text-white/80 bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] dark:hover:bg-white/[0.12] active:scale-[0.97] transition-all flex items-center justify-center gap-2 flex-1 sm:flex-none">
                     <i data-lucide="file-spreadsheet" class="w-4 h-4 text-[#34C759]"></i>
-                    <span>Ekspor Excel</span>
+                    <span>{{ __('pos.reports_export_excel') }}</span>
                 </a>
 
                 <button type="button" onclick="window.print()"
                     class="min-h-[44px] sm:min-h-0 sm:h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] transition-all flex items-center justify-center gap-2 shadow-sm flex-1 sm:flex-none cursor-pointer">
                     <i data-lucide="printer" class="w-4 h-4"></i>
-                    <span>Cetak / PDF</span>
+                    <span>{{ __('pos.reports_print_pdf') }}</span>
                 </button>
             @endif
         </x-slot:actions>
@@ -33,17 +33,17 @@
     <div class="rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-4 sm:p-5 shadow-xs">
         <form method="GET" action="{{ route('pos.reports.index') }}" class="flex flex-wrap items-center gap-3 text-[13px]">
             <div class="flex items-center gap-2 flex-wrap sm:flex-nowrap w-full sm:w-auto">
-                <span class="text-[13px] font-semibold text-black/70 dark:text-white/70">Rentang Tanggal:</span>
+                <span class="text-[13px] font-semibold text-black/70 dark:text-white/70">{{ __('pos.date_range_label') }}</span>
                 <input type="date" id="posStartDate" name="start_date" value="{{ $startDate->toDateString() }}"
                     class="min-h-[44px] h-11 bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 rounded-[12px] px-3.5 text-[16px] sm:text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
-                <span class="text-black/40 dark:text-white/40 font-medium">s/d</span>
+                <span class="text-black/40 dark:text-white/40 font-medium">{{ __('pos.date_to_label') }}</span>
                 <input type="date" id="posEndDate" name="end_date" value="{{ $endDate->toDateString() }}"
                     class="min-h-[44px] h-11 bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 rounded-[12px] px-3.5 text-[16px] sm:text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
             </div>
             <button type="submit"
                 class="min-h-[44px] h-11 px-5 rounded-[12px] bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] text-black dark:text-white font-semibold active:scale-[0.97] transition-all flex items-center justify-center gap-2">
                 <i data-lucide="filter" class="w-4 h-4"></i>
-                <span>Terapkan Filter</span>
+                <span>{{ __('pos.apply_filter_action') }}</span>
             </button>
         </form>
     </div>
@@ -54,55 +54,55 @@
     <div class="grid grid-cols-2 lg:grid-cols-6 gap-3 sm:gap-4">
         <!-- Tile 1: Total Revenue -->
         <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-4 flex flex-col justify-between">
-            <span class="text-[11px] font-medium text-black/50 dark:text-white/50">Total Penjualan</span>
+            <span class="text-[11px] font-medium text-black/50 dark:text-white/50">{{ __('pos.total_sales') }}</span>
             <div class="mt-2">
                 <div class="text-[20px] sm:text-[22px] font-bold tabular-nums text-black dark:text-white">Rp {{ number_format($totalRevenue, 0, ',', '.') }}</div>
-                <div class="text-[11px] text-[#34C759] dark:text-[#30D158] font-medium mt-1 tabular-nums">Hari Ini: Rp {{ number_format($todayRevenue, 0, ',', '.') }}</div>
+                <div class="text-[11px] text-[#34C759] dark:text-[#30D158] font-medium mt-1 tabular-nums">{{ __('pos.today_revenue_label', ['amount' => number_format($todayRevenue, 0, ',', '.')]) }}</div>
             </div>
         </div>
 
         <!-- Tile 2: Total HPP Modal -->
         <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-4 flex flex-col justify-between">
-            <span class="text-[11px] font-medium text-black/50 dark:text-white/50">Total Modal HPP</span>
+            <span class="text-[11px] font-medium text-black/50 dark:text-white/50">{{ __('pos.total_hpp_kpi') }}</span>
             <div class="mt-2">
                 <div class="text-[20px] sm:text-[22px] font-bold tabular-nums text-[#FF9500] dark:text-[#FF9F0A]">Rp {{ number_format($totalHpp, 0, ',', '.') }}</div>
-                <div class="text-[11px] text-black/40 dark:text-white/40 mt-1">Akumulasi BOM Recipe</div>
+                <div class="text-[11px] text-black/40 dark:text-white/40 mt-1">{{ __('pos.bom_recipe_accumulation') }}</div>
             </div>
         </div>
 
         <!-- Tile 3: Gross Profit -->
         <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-4 flex flex-col justify-between">
-            <span class="text-[11px] font-medium text-black/50 dark:text-white/50">Laba Kotor</span>
+            <span class="text-[11px] font-medium text-black/50 dark:text-white/50">{{ __('pos.gross_profit_kpi') }}</span>
             <div class="mt-2">
                 <div class="text-[20px] sm:text-[22px] font-bold tabular-nums text-[#34C759] dark:text-[#30D158]">Rp {{ number_format($totalGrossProfit, 0, ',', '.') }}</div>
-                <div class="text-[11px] text-[#34C759] dark:text-[#30D158] font-medium mt-1 tabular-nums">Margin: {{ number_format($grossMarginPercent, 1) }}%</div>
+                <div class="text-[11px] text-[#34C759] dark:text-[#30D158] font-medium mt-1 tabular-nums">{{ __('pos.gross_margin_percent', ['percent' => number_format($grossMarginPercent, 1)]) }}</div>
             </div>
         </div>
 
         <!-- Tile 4: Transaksi & AOV -->
         <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-4 flex flex-col justify-between">
-            <span class="text-[11px] font-medium text-black/50 dark:text-white/50">Transaksi &amp; AOV</span>
+            <span class="text-[11px] font-medium text-black/50 dark:text-white/50">{{ __('pos.transactions_and_aov_kpi') }}</span>
             <div class="mt-2">
-                <div class="text-[20px] sm:text-[22px] font-bold tabular-nums text-[#007AFF]">{{ number_format($ordersCount, 0, ',', '.') }} Order</div>
-                <div class="text-[11px] text-black/50 dark:text-white/50 mt-1 tabular-nums">AOV: Rp {{ number_format($averageOrderValue, 0, ',', '.') }}</div>
+                <div class="text-[20px] sm:text-[22px] font-bold tabular-nums text-[#007AFF]">{{ __('pos.orders_count_badge', ['count' => number_format($ordersCount, 0, ',', '.')]) }}</div>
+                <div class="text-[11px] text-black/50 dark:text-white/50 mt-1 tabular-nums">{{ __('pos.average_order_value_label', ['amount' => number_format($averageOrderValue, 0, ',', '.')]) }}</div>
             </div>
         </div>
 
         <!-- Tile 5: Total Diskon -->
         <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-4 flex flex-col justify-between">
-            <span class="text-[11px] font-medium text-black/50 dark:text-white/50">Total Diskon</span>
+            <span class="text-[11px] font-medium text-black/50 dark:text-white/50">{{ __('pos.total_discount_kpi') }}</span>
             <div class="mt-2">
                 <div class="text-[20px] sm:text-[22px] font-bold tabular-nums text-[#FF3B30] dark:text-[#FF453A]">Rp {{ number_format($totalDiscount + ($totalVoucherDiscount ?? 0) + ($totalPointsDiscount ?? 0), 0, ',', '.') }}</div>
-                <div class="text-[11px] text-black/40 dark:text-white/40 mt-1 tabular-nums truncate">Voucher: Rp {{ number_format($totalVoucherDiscount ?? 0, 0, ',', '.') }}</div>
+                <div class="text-[11px] text-black/40 dark:text-white/40 mt-1 tabular-nums truncate">{{ __('pos.voucher_discount_label', ['amount' => number_format($totalVoucherDiscount ?? 0, 0, ',', '.')]) }}</div>
             </div>
         </div>
 
         <!-- Tile 6: Pajak / PPN -->
         <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-4 flex flex-col justify-between">
-            <span class="text-[11px] font-medium text-black/50 dark:text-white/50">Total Pajak / PPN</span>
+            <span class="text-[11px] font-medium text-black/50 dark:text-white/50">{{ __('pos.total_tax_kpi') }}</span>
             <div class="mt-2">
                 <div class="text-[20px] sm:text-[22px] font-bold tabular-nums text-black/80 dark:text-white/80">Rp {{ number_format($totalTax, 0, ',', '.') }}</div>
-                <div class="text-[11px] text-black/40 dark:text-white/40 mt-1 tabular-nums truncate">Service: Rp {{ number_format($totalServiceCharge ?? 0, 0, ',', '.') }}</div>
+                <div class="text-[11px] text-black/40 dark:text-white/40 mt-1 tabular-nums truncate">{{ __('pos.service_charge_label', ['amount' => number_format($totalServiceCharge ?? 0, 0, ',', '.')]) }}</div>
             </div>
         </div>
     </div>
@@ -114,37 +114,37 @@
         <div class="space-y-1">
             <div class="flex items-center gap-2">
                 <span class="w-2.5 h-2.5 rounded-full bg-[#007AFF]"></span>
-                <h3 class="text-[15px] font-bold text-black dark:text-white">Komposisi Omzet: Barang Fisik vs Jasa &amp; Layanan</h3>
+                <h3 class="text-[15px] font-bold text-black dark:text-white">{{ __('pos.revenue_composition_title') }}</h3>
             </div>
-            <p class="text-[12px] text-black/55 dark:text-white/55">Pemisahan otomatis antara omzet penjualan barang berstok dan omzet jasa/layanan bebas stok.</p>
+            <p class="text-[12px] text-black/55 dark:text-white/55">{{ __('pos.revenue_composition_subtitle') }}</p>
         </div>
 
         <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
             <!-- Card Barang Fisik -->
             <div class="flex-1 md:flex-none min-w-[170px] p-3 rounded-[12px] bg-blue-500/10 border border-blue-500/20">
                 <div class="flex items-center justify-between gap-2 text-[11px] font-semibold text-blue-800 dark:text-blue-300 uppercase tracking-wider">
-                    <span>Barang Fisik</span>
-                    <span class="text-[10.5px] px-1.5 py-0.5 rounded bg-blue-500/20 tabular-nums">{{ number_format($goodsQty, 0, ',', '.') }} unit</span>
+                    <span>{{ __('pos.physical_goods_label') }}</span>
+                    <span class="text-[10.5px] px-1.5 py-0.5 rounded bg-blue-500/20 tabular-nums">{{ __('pos.goods_units_count', ['count' => number_format($goodsQty, 0, ',', '.')]) }}</span>
                 </div>
                 <div class="mt-1 text-[17px] sm:text-[19px] font-bold tabular-nums text-blue-900 dark:text-blue-200">
                     Rp {{ number_format($goodsRevenue, 0, ',', '.') }}
                 </div>
                 <div class="mt-0.5 text-[11px] text-blue-700/80 dark:text-blue-300/80">
-                    {{ $totalRevenue > 0 ? number_format(($goodsRevenue / $totalRevenue) * 100, 1) : 0 }}% dari total omzet
+                    {{ __('pos.percent_of_total_revenue', ['percent' => $totalRevenue > 0 ? number_format(($goodsRevenue / $totalRevenue) * 100, 1) : 0]) }}
                 </div>
             </div>
 
             <!-- Card Jasa / Layanan -->
             <div class="flex-1 md:flex-none min-w-[170px] p-3 rounded-[12px] bg-purple-500/10 border border-purple-500/20">
                 <div class="flex items-center justify-between gap-2 text-[11px] font-semibold text-purple-800 dark:text-purple-300 uppercase tracking-wider">
-                    <span>Jasa &amp; Layanan</span>
-                    <span class="text-[10.5px] px-1.5 py-0.5 rounded bg-purple-500/20 tabular-nums">{{ number_format($servicesQty, 0, ',', '.') }} order</span>
+                    <span>{{ __('pos.services_and_labour_label') }}</span>
+                    <span class="text-[10.5px] px-1.5 py-0.5 rounded bg-purple-500/20 tabular-nums">{{ __('pos.services_orders_count', ['count' => number_format($servicesQty, 0, ',', '.')]) }}</span>
                 </div>
                 <div class="mt-1 text-[17px] sm:text-[19px] font-bold tabular-nums text-purple-900 dark:text-purple-200">
                     Rp {{ number_format($servicesRevenue, 0, ',', '.') }}
                 </div>
                 <div class="mt-0.5 text-[11px] text-purple-700/80 dark:text-purple-300/80">
-                    {{ $totalRevenue > 0 ? number_format(($servicesRevenue / $totalRevenue) * 100, 1) : 0 }}% dari total omzet
+                    {{ __('pos.percent_of_total_revenue', ['percent' => $totalRevenue > 0 ? number_format(($servicesRevenue / $totalRevenue) * 100, 1) : 0]) }}
                 </div>
             </div>
         </div>
@@ -159,7 +159,7 @@
             <div class="flex items-center justify-between mb-4">
                 <h3 class="text-[15px] font-semibold text-black dark:text-white flex items-center gap-2">
                     <span class="w-2 h-2 rounded-full bg-[#007AFF]"></span>
-                    <span>Tren Penjualan &amp; Laba Harian</span>
+                    <span>{{ __('pos.daily_sales_trend') }}</span>
                 </h3>
             </div>
             <div class="relative h-64 w-full">
@@ -172,7 +172,7 @@
             <div class="flex items-center justify-between mb-4">
                 <h3 class="text-[15px] font-semibold text-black dark:text-white flex items-center gap-2">
                     <span class="w-2 h-2 rounded-full bg-[#FF9500]"></span>
-                    <span>Analisis Jam Ramai (Peak Hours)</span>
+                    <span>{{ __('pos.peak_hours_analysis') }}</span>
                 </h3>
             </div>
             <div class="relative h-64 w-full">
@@ -189,7 +189,7 @@
         <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-4 sm:p-5">
             <h3 class="text-[15px] font-semibold text-black dark:text-white mb-3 flex items-center gap-2">
                 <span class="w-2 h-2 rounded-full bg-[#34C759]"></span>
-                <span>Top Produk Paling Laris</span>
+                <span>{{ __('pos.top_selling_products_title') }}</span>
             </h3>
 
             {{-- Desktop Top Products Table --}}
@@ -197,10 +197,10 @@
                 <table class="w-full text-left text-[13px]">
                     <thead>
                         <tr class="border-b border-black/5 dark:border-white/10">
-                            <th class="py-2.5 px-3 text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40">Nama Produk</th>
-                            <th class="py-2.5 px-3 text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40 text-right">Terjual</th>
-                            <th class="py-2.5 px-3 text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40 text-right">Total Penjualan</th>
-                            <th class="py-2.5 px-3 text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40 text-right">Laba Kotor</th>
+                            <th class="py-2.5 px-3 text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40">{{ __('pos.product_name_header') }}</th>
+                            <th class="py-2.5 px-3 text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40 text-right">{{ __('pos.qty_sold_header') }}</th>
+                            <th class="py-2.5 px-3 text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40 text-right">{{ __('pos.total_sales_header') }}</th>
+                            <th class="py-2.5 px-3 text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40 text-right">{{ __('pos.gross_profit_header') }}</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-black/[0.04] dark:divide-white/[0.06]">
@@ -211,11 +211,11 @@
                                     <span class="font-medium text-black dark:text-white">{{ $tp->product_name }}</span>
                                     @if(($tp->item_type ?? 'goods') === 'service')
                                         <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-purple-500/15 text-purple-700 dark:text-purple-300">
-                                            Jasa
+                                            {{ __('pos.service_type_badge') }}
                                         </span>
                                     @else
                                         <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium text-black/50 dark:text-white/50 bg-black/[0.04] dark:bg-white/[0.06]">
-                                            Barang
+                                            {{ __('pos.goods_type_badge') }}
                                         </span>
                                     @endif
                                 </div>
@@ -226,7 +226,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="4" class="py-6 text-center text-black/40 dark:text-white/40">Belum ada data produk terjual.</td>
+                            <td colspan="4" class="py-6 text-center text-black/40 dark:text-white/40">{{ __('pos.no_products_sold_yet') }}</td>
                         </tr>
                         @endforelse
                     </tbody>
@@ -242,31 +242,31 @@
                             <span class="font-semibold text-[13px] text-black dark:text-white">{{ $tp->product_name }}</span>
                             @if(($tp->item_type ?? 'goods') === 'service')
                                 <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-purple-500/15 text-purple-700 dark:text-purple-300">
-                                    Jasa
+                                    {{ __('pos.service_type_badge') }}
                                 </span>
                             @else
                                 <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium text-black/50 dark:text-white/50 bg-black/[0.04] dark:bg-white/[0.06]">
-                                    Barang
+                                    {{ __('pos.goods_type_badge') }}
                                 </span>
                             @endif
                         </div>
                         <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-[#007AFF]/10 text-[#007AFF] tabular-nums shrink-0">
-                            {{ rtrim(rtrim((string)$tp->total_qty, '0'), '.') }} Terjual
+                            {{ __('pos.units_sold_label', ['count' => rtrim(rtrim((string)$tp->total_qty, '0'), '.')]) }}
                         </span>
                     </div>
                     <div class="flex items-center justify-between text-[12px] pt-1">
                         <div>
-                            <span class="text-[10px] uppercase font-semibold text-black/40 dark:text-white/40 block">Omzet</span>
+                            <span class="text-[10px] uppercase font-semibold text-black/40 dark:text-white/40 block">{{ __('pos.revenue_label') }}</span>
                             <span class="font-semibold tabular-nums text-black dark:text-white">Rp {{ number_format($tp->total_revenue, 0, ',', '.') }}</span>
                         </div>
                         <div class="text-right">
-                            <span class="text-[10px] uppercase font-semibold text-black/40 dark:text-white/40 block">Laba Kotor</span>
+                            <span class="text-[10px] uppercase font-semibold text-black/40 dark:text-white/40 block">{{ __('pos.gross_profit_header') }}</span>
                             <span class="font-bold tabular-nums text-[#34C759] dark:text-[#30D158]">Rp {{ number_format($tp->total_revenue - $tp->total_cost, 0, ',', '.') }}</span>
                         </div>
                     </div>
                 </div>
                 @empty
-                <div class="py-6 text-center text-black/40 dark:text-white/40 text-[13px]">Belum ada data produk terjual.</div>
+                <div class="py-6 text-center text-black/40 dark:text-white/40 text-[13px]">{{ __('pos.no_products_sold_yet') }}</div>
                 @endforelse
             </div>
         </div>
@@ -275,27 +275,27 @@
         <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-4 sm:p-5">
             <h3 class="text-[15px] font-semibold text-black dark:text-white mb-3 flex items-center gap-2">
                 <span class="w-2 h-2 rounded-full bg-[#007AFF]"></span>
-                <span>Performa Metode Pembayaran</span>
+                <span>{{ __('pos.payment_methods_performance_title') }}</span>
             </h3>
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-[13px]">
                     <thead>
                         <tr class="border-b border-black/5 dark:border-white/10">
-                            <th class="py-2.5 px-3 text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40">Metode Bayar</th>
-                            <th class="py-2.5 px-3 text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40 text-center">Transaksi</th>
-                            <th class="py-2.5 px-3 text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40 text-right">Total Nominal</th>
+                            <th class="py-2.5 px-3 text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40">{{ __('pos.payment_method_header') }}</th>
+                            <th class="py-2.5 px-3 text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40 text-center">{{ __('pos.transactions_count_header') }}</th>
+                            <th class="py-2.5 px-3 text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40 text-right">{{ __('pos.total_amount_header') }}</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-black/[0.04] dark:divide-white/[0.06]">
                         @forelse($paymentMethods as $pm)
                         <tr class="hover:bg-black/[0.02] dark:hover:bg-white/[0.03] transition-colors">
                             <td class="py-2.5 px-3 font-semibold uppercase text-black dark:text-white">{{ str_replace('_', ' ', $pm->payment_method) }}</td>
-                            <td class="py-2.5 px-3 text-center tabular-nums text-black/70 dark:text-white/70">{{ $pm->tx_count }} Transaksi</td>
+                            <td class="py-2.5 px-3 text-center tabular-nums text-black/70 dark:text-white/70">{{ __('pos.transactions_count_badge', ['count' => $pm->tx_count]) }}</td>
                             <td class="py-2.5 px-3 text-right tabular-nums font-semibold text-[#34C759] dark:text-[#30D158]">Rp {{ number_format($pm->total_amount, 0, ',', '.') }}</td>
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="3" class="py-6 text-center text-black/40 dark:text-white/40">Belum ada data pembayaran.</td>
+                            <td colspan="3" class="py-6 text-center text-black/40 dark:text-white/40">{{ __('pos.no_payment_data_yet') }}</td>
                         </tr>
                         @endforelse
                     </tbody>
@@ -311,36 +311,36 @@
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
             <h3 class="text-[15px] font-semibold text-black dark:text-white flex items-center gap-2">
                 <span class="w-2 h-2 rounded-full bg-[#FF9500]"></span>
-                <span>Average Harga dari Snapshot Transaksi</span>
+                <span>{{ __('pos.avg_price_snapshot_title') }}</span>
             </h3>
             <span class="text-[10px] px-2.5 py-0.5 rounded-full bg-[#FF9500]/12 text-[#B25E00] dark:text-[#FF9F0A] font-semibold uppercase self-start sm:self-auto">
-                Source: Transaction Snapshot
+                {{ __('pos.source_tx_snapshot') }}
             </span>
         </div>
         <p class="text-[12px] text-black/50 dark:text-white/50 mb-4 leading-relaxed">
-            Average harga dihitung dari snapshot harga yang tersimpan pada tiap detail transaksi (HPP &amp; harga jual saat transaksi), bukan dari harga master saat ini.
+            {{ __('pos.avg_price_snapshot_desc') }}
         </p>
 
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4">
             <div class="rounded-[12px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5 p-3.5">
-                <div class="text-[10px] font-semibold text-black/50 dark:text-white/50 uppercase tracking-wider">Avg Harga Jual</div>
+                <div class="text-[10px] font-semibold text-black/50 dark:text-white/50 uppercase tracking-wider">{{ __('pos.avg_selling_price') }}</div>
                 <div class="text-[18px] font-bold tabular-nums text-black dark:text-white mt-1">Rp {{ number_format($averageSellingPrice, 0, ',', '.') }}</div>
-                <div class="text-[11px] text-black/45 dark:text-white/45 mt-0.5 tabular-nums">{{ number_format($snapshotTotalQty, 0, ',', '.') }} unit terjual</div>
+                <div class="text-[11px] text-black/45 dark:text-white/45 mt-0.5 tabular-nums">{{ __('pos.units_sold_label', ['count' => number_format($snapshotTotalQty, 0, ',', '.')]) }}</div>
             </div>
             <div class="rounded-[12px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5 p-3.5">
-                <div class="text-[10px] font-semibold text-black/50 dark:text-white/50 uppercase tracking-wider">Avg Harga Modal (HPP)</div>
+                <div class="text-[10px] font-semibold text-black/50 dark:text-white/50 uppercase tracking-wider">{{ __('pos.avg_cost_price') }}</div>
                 <div class="text-[18px] font-bold tabular-nums text-[#FF9500] dark:text-[#FF9F0A] mt-1">Rp {{ number_format($averageCostPrice, 0, ',', '.') }}</div>
-                <div class="text-[11px] text-black/45 dark:text-white/45 mt-0.5">Weighted average by qty</div>
+                <div class="text-[11px] text-black/45 dark:text-white/45 mt-0.5">{{ __('pos.weighted_avg_by_qty') }}</div>
             </div>
             <div class="rounded-[12px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5 p-3.5">
-                <div class="text-[10px] font-semibold text-black/50 dark:text-white/50 uppercase tracking-wider">Total Modal (Snapshot)</div>
+                <div class="text-[10px] font-semibold text-black/50 dark:text-white/50 uppercase tracking-wider">{{ __('pos.total_modal_snapshot') }}</div>
                 <div class="text-[18px] font-bold tabular-nums text-black dark:text-white mt-1">Rp {{ number_format($snapshotTotalModal, 0, ',', '.') }}</div>
-                <div class="text-[11px] text-black/45 dark:text-white/45 mt-0.5 tabular-nums">Omzet: Rp {{ number_format($snapshotTotalSales, 0, ',', '.') }}</div>
+                <div class="text-[11px] text-black/45 dark:text-white/45 mt-0.5 tabular-nums">{{ __('pos.omzet_label', ['amount' => number_format($snapshotTotalSales, 0, ',', '.')]) }}</div>
             </div>
             <div class="rounded-[12px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5 p-3.5">
-                <div class="text-[10px] font-semibold text-black/50 dark:text-white/50 uppercase tracking-wider">Gross Profit &amp; Margin</div>
+                <div class="text-[10px] font-semibold text-black/50 dark:text-white/50 uppercase tracking-wider">{{ __('pos.gross_profit_and_margin') }}</div>
                 <div class="text-[18px] font-bold tabular-nums text-[#34C759] dark:text-[#30D158] mt-1">Rp {{ number_format($snapshotGrossProfit, 0, ',', '.') }}</div>
-                <div class="text-[11px] text-[#34C759] dark:text-[#30D158] font-medium mt-0.5 tabular-nums">Margin: {{ number_format($snapshotMarginPercent, 1) }}%</div>
+                <div class="text-[11px] text-[#34C759] dark:text-[#30D158] font-medium mt-0.5 tabular-nums">{{ __('pos.gross_margin_percent', ['percent' => number_format($snapshotMarginPercent, 1)]) }}</div>
             </div>
         </div>
 
@@ -350,12 +350,12 @@
             <table class="w-full text-left text-[13px]">
                 <thead>
                     <tr class="border-b border-black/5 dark:border-white/10">
-                        <th class="py-2.5 px-3 text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40">Produk</th>
-                        <th class="py-2.5 px-3 text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40 text-center">Qty Terjual</th>
-                        <th class="py-2.5 px-3 text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40 text-right">Avg Harga Jual</th>
-                        <th class="py-2.5 px-3 text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40 text-right">Avg Harga Modal</th>
-                        <th class="py-2.5 px-3 text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40 text-right">Gross Profit</th>
-                        <th class="py-2.5 px-3 text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40 text-right">Margin</th>
+                        <th class="py-2.5 px-3 text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40">{{ __('pos.product_name_header') }}</th>
+                        <th class="py-2.5 px-3 text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40 text-center">{{ __('pos.qty_sold_header') }}</th>
+                        <th class="py-2.5 px-3 text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40 text-right">{{ __('pos.avg_selling_price') }}</th>
+                        <th class="py-2.5 px-3 text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40 text-right">{{ __('pos.avg_cost_price') }}</th>
+                        <th class="py-2.5 px-3 text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40 text-right">{{ __('pos.gross_profit_header') }}</th>
+                        <th class="py-2.5 px-3 text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40 text-right">{{ __('pos.gross_margin_header') }}</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-black/[0.04] dark:divide-white/[0.06]">
@@ -380,24 +380,24 @@
                 <div class="flex items-start justify-between gap-2">
                     <span class="font-semibold text-[13px] text-black dark:text-white">{{ $prod['product_name'] }}</span>
                     <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158] tabular-nums shrink-0">
-                        Margin {{ number_format($prod['margin_percentage'], 1) }}%
+                        {{ __('pos.gross_margin_percent', ['percent' => number_format($prod['margin_percentage'], 1)]) }}
                     </span>
                 </div>
                 <div class="grid grid-cols-2 gap-2 text-[12px] bg-black/[0.02] dark:bg-white/[0.02] p-2.5 rounded-[8px]">
                     <div>
-                        <span class="text-[10px] uppercase font-semibold text-black/40 dark:text-white/40 block">Qty Terjual</span>
-                        <span class="tabular-nums font-semibold text-black dark:text-white">{{ number_format($prod['total_quantity'], 0, ',', '.') }} unit</span>
+                        <span class="text-[10px] uppercase font-semibold text-black/40 dark:text-white/40 block">{{ __('pos.qty_sold_header') }}</span>
+                        <span class="tabular-nums font-semibold text-black dark:text-white">{{ __('pos.goods_units_count', ['count' => number_format($prod['total_quantity'], 0, ',', '.')]) }}</span>
                     </div>
                     <div>
-                        <span class="text-[10px] uppercase font-semibold text-black/40 dark:text-white/40 block">Avg Harga Jual</span>
+                        <span class="text-[10px] uppercase font-semibold text-black/40 dark:text-white/40 block">{{ __('pos.avg_selling_price') }}</span>
                         <span class="tabular-nums font-semibold text-black dark:text-white">Rp {{ number_format($prod['average_selling_price'], 0, ',', '.') }}</span>
                     </div>
                     <div>
-                        <span class="text-[10px] uppercase font-semibold text-black/40 dark:text-white/40 block">Avg HPP Modal</span>
+                        <span class="text-[10px] uppercase font-semibold text-black/40 dark:text-white/40 block">{{ __('pos.avg_cost_price') }}</span>
                         <span class="tabular-nums text-black/60 dark:text-white/60">Rp {{ number_format($prod['average_cost_price'], 0, ',', '.') }}</span>
                     </div>
                     <div>
-                        <span class="text-[10px] uppercase font-semibold text-black/40 dark:text-white/40 block">Gross Profit</span>
+                        <span class="text-[10px] uppercase font-semibold text-black/40 dark:text-white/40 block">{{ __('pos.gross_profit_header') }}</span>
                         <span class="tabular-nums font-bold text-[#34C759] dark:text-[#30D158]">Rp {{ number_format($prod['gross_profit'], 0, ',', '.') }}</span>
                     </div>
                 </div>
@@ -423,7 +423,7 @@
                     labels: dailyData.map(d => d.order_date),
                     datasets: [
                         {
-                            label: 'Penjualan (Revenue)',
+                            label: {{ Js::from(__('pos.chart_sales_revenue')) }},
                             data: dailyData.map(d => d.revenue),
                             borderColor: '#007AFF',
                             backgroundColor: 'rgba(0, 122, 255, 0.08)',
@@ -432,7 +432,7 @@
                             borderWidth: 2
                         },
                         {
-                            label: 'Laba Kotor (Profit)',
+                            label: {{ Js::from(__('pos.chart_gross_profit')) }},
                             data: dailyData.map(d => d.profit),
                             borderColor: '#34C759',
                             backgroundColor: 'transparent',
@@ -469,7 +469,7 @@
                 data: {
                     labels: hours.map(h => String(h).padStart(2, '0') + ':00'),
                     datasets: [{
-                        label: 'Jumlah Order',
+                        label: {{ Js::from(__('pos.chart_orders_count')) }},
                         data: hours.map(h => hourMap[h] || 0),
                         backgroundColor: 'rgba(255, 149, 0, 0.75)',
                         borderColor: '#FF9500',

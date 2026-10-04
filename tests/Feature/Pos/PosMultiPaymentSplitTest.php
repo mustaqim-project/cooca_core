@@ -49,6 +49,7 @@ final class PosMultiPaymentSplitTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        app()->setLocale('id');
         Context::flush();
 
         $this->orderService = app(PosOrderService::class);
@@ -437,7 +438,7 @@ final class PosMultiPaymentSplitTest extends TestCase
 
         $this->assertStringContainsString('MULTI-PAYMENT (SPLIT)', $rendered);
         $this->assertStringContainsString('Tunai (Cash)', $rendered);
-        $this->assertStringContainsString('EDC Debit', $rendered);
+        $this->assertStringContainsString('Kartu Debit (EDC)', $rendered);
         $this->assertStringContainsString('BCA-GI-88991', $rendered);
         $this->assertStringContainsString('APPR-7700', $rendered);
     }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\V1\Payment;
 
+use App\Domain\Accounting\AutoJournalService;
 use App\Domain\Billing\EntitlementService;
 use App\Domain\Inventory\StockService;
 use App\Domain\Payment\TripayService;
@@ -30,7 +31,8 @@ final class TripayCallbackController extends Controller
         private readonly TripayService $tripayService = new TripayService(),
         private readonly StockService $stockService = new StockService(),
         private readonly WhatsAppGatewayService $waGateway = new WhatsAppGatewayService(),
-        private readonly EntitlementService $entitlementService = new EntitlementService()
+        private readonly EntitlementService $entitlementService = new EntitlementService(),
+        private readonly AutoJournalService $journalService = new AutoJournalService()
     ) {}
 
     /**
@@ -413,6 +415,13 @@ final class TripayCallbackController extends Controller
                         "Penjualan QR Meja #{$order->order_number} ({$paymentChannel})",
                         $order->id
                     );
+
+                    // Automatic Double-Entry Accounting Journal
+                    try {
+                        $this->journalService->recordPosSaleJournal($order->fresh(['business', 'payments', 'items']));
+                    } catch (Throwable $e) {
+                        Log::warning("[TripayCallback] Auto-journal POS order failed: " . $e->getMessage());
+                    }
                 });
 
                 $this->sendPosTablePaymentWhatsApp($order);

@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Web\Pos;
 
+use App\Domain\Report\Pos\DTOs\PosReportFilterDTO;
+use App\Domain\Report\Pos\PosReportingService;
 use App\Domain\Report\SalesReportService;
+use App\Exports\PosReportExport;
 use App\Http\Controllers\Controller;
 use App\Models\Business;
 use App\Models\PosOrder;
@@ -20,6 +23,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 final class PosReportWebController extends Controller
 {
     public function __construct(
+        private readonly PosReportingService $reportingService = new PosReportingService,
         private readonly SalesReportService $salesReport = new SalesReportService
     ) {}
 
@@ -29,43 +33,38 @@ final class PosReportWebController extends Controller
     public function index(Request $request): View
     {
         $business = Context::requireBusiness();
+        $filter = PosReportFilterDTO::fromRequest($request, $business->id);
 
-        $startDate = $request->filled('start_date') ? Carbon::parse($request->get('start_date'))->startOfDay() : Carbon::today()->subDays(29)->startOfDay();
-        $endDate = $request->filled('end_date') ? Carbon::parse($request->get('end_date'))->endOfDay() : Carbon::today()->endOfDay();
+        $startDate = $filter->startDate;
+        $endDate = $filter->endDate;
 
-        if ($startDate->gt($endDate)) {
-            [$startDate, $endDate] = [$endDate, $startDate];
-        }
+        // 1. KPI Summary (Single Source of Truth)
+        $kpi = $this->reportingService->getKpiSummary($filter);
 
-        $startStr = $startDate->toDateTimeString();
-        $endStr = $endDate->toDateTimeString();
+        $totalRevenue = $kpi->netSales;
+        $totalSubtotal = $kpi->subtotal;
+        $totalDiscount = $kpi->orderDiscount;
+        $totalVoucherDiscount = $kpi->voucherDiscount;
+        $totalPointsDiscount = $kpi->pointsDiscount;
+        $totalTax = $kpi->taxAmount;
+        $totalServiceCharge = $kpi->serviceChargeAmount;
+        $totalRounding = $kpi->roundingAmount;
+        $totalHpp = $kpi->totalHpp;
+        $totalGrossProfit = $kpi->grossProfit;
+        $grossMarginPercent = $kpi->grossMarginPercent;
+        $ordersCount = $kpi->totalOrders;
+        $averageOrderValue = $kpi->averageOrderValue;
+        $goodsRevenue = $kpi->goodsRevenue;
+        $goodsQty = $kpi->goodsQuantity;
+        $servicesRevenue = $kpi->servicesRevenue;
+        $servicesQty = $kpi->servicesQuantity;
+        $todayRevenue = $kpi->todayRevenue;
+        $todayOrders = $kpi->todayOrders;
+        $averageSellingPrice = $kpi->averageSellingPrice;
+        $averageCostPrice = $kpi->averageCostPrice;
 
-        $baseOrdersQuery = PosOrder::where('business_id', $business->id)
-            ->whereIn('status', [PosOrder::STATUS_COMPLETED, PosOrder::STATUS_PARTIAL_REFUND]);
-
-        // Filtered range
-        $rangeOrders = (clone $baseOrdersQuery)
-            ->whereBetween('order_date', [$startStr, $endStr]);
-
-        // Key KPI metrics
-        $totalRevenue = (float) (clone $rangeOrders)->sum('total_amount');
-        $totalSubtotal = (float) (clone $rangeOrders)->sum('subtotal');
-        $totalDiscount = (float) (clone $rangeOrders)->sum('discount_amount');
-        $totalVoucherDiscount = (float) (clone $rangeOrders)->sum('voucher_discount_amount');
-        $totalPointsDiscount = (float) (clone $rangeOrders)->sum('points_discount_amount');
-        $totalTax = (float) (clone $rangeOrders)->sum('tax_amount');
-        $totalServiceCharge = (float) (clone $rangeOrders)->sum('service_charge_amount');
-        $totalRounding = (float) (clone $rangeOrders)->sum('rounding_amount');
-        $totalHpp = (float) (clone $rangeOrders)->sum('total_hpp_cost');
-        $totalGrossProfit = (float) (clone $rangeOrders)->sum('total_gross_profit');
-        $ordersCount = (clone $rangeOrders)->count();
-        $averageOrderValue = $ordersCount > 0 ? $totalRevenue / $ordersCount : 0.0;
-        $grossMarginPercent = $totalRevenue > 0 ? ($totalGrossProfit / $totalRevenue) * 100 : 0.0;
-
-        // ── Snapshot average prices (weighted average dari detail transaksi) ──
-        $snapshotReport = $this->salesReport->summary($business->id, $startDate, $endDate);
-        $averageSellingPrice = (float) $snapshotReport['summary']['average_selling_price'];
-        $averageCostPrice = (float) $snapshotReport['summary']['average_cost_price'];
+        // 2. Snapshot average prices (Legacy compatibility)
+        $snapshotReport = $this->salesReport->summary($business->id, $startDate, $endDate, $filter->locationId);
         $snapshotTotalQty = (float) $snapshotReport['summary']['total_quantity'];
         $snapshotTotalSales = (float) $snapshotReport['summary']['total_sales'];
         $snapshotTotalModal = (float) $snapshotReport['summary']['total_modal'];
@@ -73,74 +72,12 @@ final class PosReportWebController extends Controller
         $snapshotMarginPercent = (float) $snapshotReport['summary']['margin_percentage'];
         $productAveragePrices = $snapshotReport['by_product'];
 
-        // Today's summary
-        $todayRevenue = (float) (clone $baseOrdersQuery)->whereDate('order_date', Carbon::today())->sum('total_amount');
-        $todayOrders = (clone $baseOrdersQuery)->whereDate('order_date', Carbon::today())->count();
-
-        // 1. Daily Sales Trend (Last 14 days)
-        $dailyTrend = (clone $rangeOrders)
-            ->selectRaw('order_date, SUM(total_amount) as revenue, SUM(total_hpp_cost) as hpp, SUM(total_gross_profit) as profit')
-            ->groupBy('order_date')
-            ->orderBy('order_date')
-            ->get();
-
-        // 2. Peak Hours Analysis (Hourly Sales)
-        $hourExpression = DB::connection()->getDriverName() === 'sqlite'
-            ? "CAST(strftime('%H', created_at) AS INTEGER)"
-            : 'HOUR(created_at)';
-
-        $hourlyData = (clone $rangeOrders)
-            ->selectRaw("{$hourExpression} as order_hour, COUNT(*) as orders_count, SUM(total_amount) as total_sales")
-            ->groupBy('order_hour')
-            ->orderBy('order_hour')
-            ->get();
-
-        // 3. Payment Method Breakdown
-        $paymentMethods = PosOrderPayment::whereHas('order', function ($q) use ($business, $startStr, $endStr) {
-            $q->where('business_id', $business->id)
-                ->whereIn('status', [PosOrder::STATUS_COMPLETED, PosOrder::STATUS_PARTIAL_REFUND])
-                ->whereBetween('order_date', [$startStr, $endStr]);
-        })
-            ->selectRaw('payment_method, SUM(amount) as total_amount, COUNT(*) as tx_count')
-            ->groupBy('payment_method')
-            ->get();
-
-        // 4a. Komposisi Omzet: Barang Fisik vs Jasa / Layanan
-        $salesByType = PosOrderItem::whereHas('order', function ($q) use ($business, $startStr, $endStr) {
-            $q->where('business_id', $business->id)
-                ->whereIn('status', [PosOrder::STATUS_COMPLETED, PosOrder::STATUS_PARTIAL_REFUND])
-                ->whereBetween('order_date', [$startStr, $endStr]);
-        })
-            ->leftJoin('products', 'pos_order_items.product_id', '=', 'products.id')
-            ->selectRaw("COALESCE(products.type, 'goods') as item_type, SUM(pos_order_items.total_price) as revenue, SUM(pos_order_items.quantity) as qty")
-            ->groupBy(DB::raw("COALESCE(products.type, 'goods')"))
-            ->get()
-            ->keyBy('item_type');
-
-        $goodsRevenue = (float) ($salesByType->get('goods')?->revenue ?? 0);
-        $goodsQty = (float) ($salesByType->get('goods')?->qty ?? 0);
-        $servicesRevenue = (float) ($salesByType->get('service')?->revenue ?? 0);
-        $servicesQty = (float) ($salesByType->get('service')?->qty ?? 0);
-
-        // 4b. Top Selling Products & Services (termasuk tipe item)
-        $topProducts = PosOrderItem::whereHas('order', function ($q) use ($business, $startStr, $endStr) {
-            $q->where('business_id', $business->id)
-                ->whereIn('status', [PosOrder::STATUS_COMPLETED, PosOrder::STATUS_PARTIAL_REFUND])
-                ->whereBetween('order_date', [$startStr, $endStr]);
-        })
-            ->leftJoin('products', 'pos_order_items.product_id', '=', 'products.id')
-            ->selectRaw("pos_order_items.product_name, COALESCE(products.type, 'goods') as item_type, SUM(pos_order_items.quantity) as total_qty, SUM(pos_order_items.total_price) as total_revenue, SUM(pos_order_items.total_hpp) as total_cost")
-            ->groupBy('pos_order_items.product_name', DB::raw("COALESCE(products.type, 'goods')"))
-            ->orderByDesc('total_revenue')
-            ->limit(10)
-            ->get();
-
-        // 5. Sales by Cashier
-        $cashierPerformance = (clone $rangeOrders)
-            ->with('user')
-            ->selectRaw('user_id, COUNT(*) as orders_count, SUM(total_amount) as total_sales')
-            ->groupBy('user_id')
-            ->get();
+        // 3. Sub-aggregations via PosReportingService
+        $dailyTrend = $this->reportingService->getDailySalesTrend($filter);
+        $hourlyData = $this->reportingService->getHourlyHeatmap($filter);
+        $paymentMethods = $this->reportingService->getPaymentMethodBreakdown($filter);
+        $topProducts = $this->reportingService->getProductPerformance($filter, 10);
+        $cashierPerformance = $this->reportingService->getCashierPerformance($filter);
 
         return view('app.pos.reports', compact(
             'business',
@@ -182,27 +119,19 @@ final class PosReportWebController extends Controller
     }
 
     /**
-     * Export POS Sales ke file Excel-compatible CSV.
+     * Export POS Sales ke file Excel (XLSX) multi-sheet standar COOCA.
      *
-     * Menghasilkan CSV ber-UTF8-BOM yang memuat:
-     *   - Ringkasan KPI periode (konsisten dengan ringkasan di halaman)
-     *   - 1. Rincian Transaksi per Order (tipe & nilai diskon, persentase pajak, rounding, pembayaran)
-     *   - 2. Detail Item per Transaksi
-     *   - 3. Rincian Pembayaran per Metode
-     *   - 4. Ringkasan Metode Pembayaran
-     *   - 5. Ringkasan Penjualan per Produk
-     *
-     * Filter tanggal diberikan lewat query param `start_date` & `end_date`
-     * (sama seperti halaman laporan) sehingga export menghormati rentang
-     * yang sedang dilihat user, bukan seluruh histori transaksi.
+     * Menghasilkan file Excel XLSX profesional 2-Bagian:
+     *   - Sheet 1: Ringkasan Eksekutif & Bento KPI Cards
+     *   - Sheet 2: Rincian Transaksi Transaksional (Transaction Ledger)
      */
     public function exportExcel(Request $request): StreamedResponse
     {
         $business = Context::requireBusiness();
 
         // Filter tanggal default mengikuti ringkasan di halaman (30 hari terakhir).
-        $startDate = $request->filled('start_date') ? Carbon::parse($request->get('start_date')) : Carbon::today()->subDays(29);
-        $endDate = $request->filled('end_date') ? Carbon::parse($request->get('end_date')) : Carbon::today();
+        $startDate = $request->filled('start_date') ? Carbon::parse($request->get('start_date'))->startOfDay() : Carbon::today()->subDays(29)->startOfDay();
+        $endDate = $request->filled('end_date') ? Carbon::parse($request->get('end_date'))->endOfDay() : Carbon::today()->endOfDay();
 
         if ($startDate->gt($endDate)) {
             [$startDate, $endDate] = [$endDate, $startDate];
@@ -216,24 +145,26 @@ final class PosReportWebController extends Controller
             ->orderBy('created_at')
             ->get();
 
-        $filename = 'laporan-penjualan-pos-' . $startDate->format('Ymd') . '-' . $endDate->format('Ymd') . '.csv';
+        if ($request->get('format') === 'csv') {
+            $filename = 'laporan-penjualan-pos-' . $startDate->format('Ymd') . '-' . $endDate->format('Ymd') . '.csv';
+            $headers = [
+                'Content-Type'        => 'text/csv; charset=UTF-8',
+                'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+                'Pragma'              => 'no-cache',
+                'Cache-Control'       => 'must-revalidate, post-check=0, pre-check=0',
+                'Expires'             => '0',
+            ];
 
-        $headers = [
-            'Content-Type'        => 'text/csv; charset=UTF-8',
-            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
-            'Pragma'              => 'no-cache',
-            'Cache-Control'       => 'must-revalidate, post-check=0, pre-check=0',
-            'Expires'             => '0',
-        ];
+            return response()->stream(function () use ($orders, $business, $startDate, $endDate): void {
+                $file = fopen('php://output', 'w');
+                fputs($file, "\xEF\xBB\xBF");
+                $this->exportPosDetailCsv($file, $orders, $business, $startDate, $endDate);
+                fclose($file);
+            }, 200, $headers);
+        }
 
-        return response()->stream(function () use ($orders, $business, $startDate, $endDate): void {
-            $file = fopen('php://output', 'w');
-            fputs($file, "\xEF\xBB\xBF"); // UTF-8 BOM agar terbuka rapi di Microsoft Excel
-
-            $this->exportPosDetailCsv($file, $orders, $business, $startDate, $endDate);
-
-            fclose($file);
-        }, 200, $headers);
+        $exporter = new PosReportExport();
+        return $exporter->download($business, $orders, $startDate, $endDate);
     }
 
     /**

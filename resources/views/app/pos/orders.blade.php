@@ -78,7 +78,7 @@
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <!-- Tile 1: Total Transaksi -->
         <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-4 flex flex-col justify-between">
-            <span class="text-[12px] font-medium text-black/50 dark:text-white/50">Total Transaksi</span>
+            <span class="text-[12px] font-medium text-black/50 dark:text-white/50">{{ __('pos.total_transactions') }}</span>
             <div class="mt-2 flex items-baseline justify-between">
                 <span class="text-[24px] font-bold tabular-nums text-black dark:text-white">{{ number_format($orders->total(), 0, ',', '.') }}</span>
                 <span class="text-[11px] text-black/40 dark:text-white/40 font-medium">Order</span>
@@ -87,7 +87,7 @@
 
         <!-- Tile 2: Total Penjualan (Omzet) -->
         <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-4 flex flex-col justify-between">
-            <span class="text-[12px] font-medium text-black/50 dark:text-white/50">Penjualan Halaman Ini</span>
+            <span class="text-[12px] font-medium text-black/50 dark:text-white/50">{{ __('pos.page_sales_total') }}</span>
             <div class="mt-2 flex items-baseline justify-between">
                 <span class="text-[24px] font-bold tabular-nums text-[#34C759] dark:text-[#30D158]">Rp {{ number_format($orders->sum('total_amount'), 0, ',', '.') }}</span>
                 <span class="text-[11px] text-[#34C759] dark:text-[#30D158] font-medium">Gross</span>
@@ -96,7 +96,7 @@
 
         <!-- Tile 3: Total HPP Modal -->
         <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-4 flex flex-col justify-between">
-            <span class="text-[12px] font-medium text-black/50 dark:text-white/50">Total Modal HPP</span>
+            <span class="text-[12px] font-medium text-black/50 dark:text-white/50">{{ __('pos.total_cogs') }}</span>
             <div class="mt-2 flex items-baseline justify-between">
                 <span class="text-[24px] font-bold tabular-nums text-[#FF9500] dark:text-[#FF9F0A]">Rp {{ number_format($orders->sum('total_hpp_cost'), 0, ',', '.') }}</span>
                 <span class="text-[11px] text-[#FF9500] dark:text-[#FF9F0A] font-medium">BOM / Recipe</span>
@@ -105,7 +105,7 @@
 
         <!-- Tile 4: Laba Kotor -->
         <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-4 flex flex-col justify-between">
-            <span class="text-[12px] font-medium text-black/50 dark:text-white/50">Total Laba Kotor</span>
+            <span class="text-[12px] font-medium text-black/50 dark:text-white/50">{{ __('pos.total_gross_profit') }}</span>
             <div class="mt-2 flex items-baseline justify-between">
                 <span class="text-[24px] font-bold tabular-nums text-[#007AFF]">Rp {{ number_format($orders->sum('total_gross_profit'), 0, ',', '.') }}</span>
                 <span class="text-[11px] text-[#007AFF] font-medium">Profit</span>
@@ -127,7 +127,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
                 </svg>
                 <input type="text" name="search" value="{{ request('search') }}"
-                    placeholder="Cari No. Order atau Nama Pelanggan..."
+                    placeholder="{{ __('pos.search_order_placeholder') }}"
                     class="w-full h-9 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] pl-9 pr-3 text-[13px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
             </div>
 
@@ -140,11 +140,11 @@
             <!-- Submit & Reset Actions -->
             <div class="flex items-center gap-1.5">
                 <button type="submit" class="h-9 px-3.5 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] dark:hover:bg-white/[0.12] active:scale-[0.97] transition-all flex items-center justify-center">
-                    Filter
+                    {{ __('pos.filter') }}
                 </button>
                 @if(request()->hasAny(['search', 'status', 'date']))
                 <a href="{{ route('pos.orders.index') }}" class="h-9 px-3 rounded-[10px] text-[13px] font-medium text-[#007AFF] hover:bg-[#007AFF]/8 active:scale-[0.97] transition-all flex items-center justify-center">
-                    Reset
+                    {{ __('pos.reset') }}
                 </a>
                 @endif
             </div>
@@ -155,22 +155,22 @@
             <button type="button" @click="filterByStatus('')"
                 :class="statusFilter === '' ? 'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)]' : 'text-black/55 dark:text-white/55'"
                 class="px-3 py-1 rounded-[7px] transition-all">
-                Semua
+                {{ __('pos.all') }}
             </button>
             <button type="button" @click="filterByStatus('completed')"
                 :class="statusFilter === 'completed' ? 'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)]' : 'text-black/55 dark:text-white/55'"
                 class="px-3 py-1 rounded-[7px] transition-all">
-                Selesai
+                {{ __('pos.completed') }}
             </button>
             <button type="button" @click="filterByStatus('voided')"
                 :class="statusFilter === 'voided' ? 'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)]' : 'text-black/55 dark:text-white/55'"
                 class="px-3 py-1 rounded-[7px] transition-all">
-                Void
+                {{ __('pos.void') }}
             </button>
             <button type="button" @click="filterByStatus('refunded')"
                 :class="statusFilter === 'refunded' ? 'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)]' : 'text-black/55 dark:text-white/55'"
                 class="px-3 py-1 rounded-[7px] transition-all">
-                Retur
+                {{ __('pos.refund') }}
             </button>
         </div>
     </div>
@@ -183,14 +183,14 @@
             <table class="w-full text-left text-[13px]">
                 <thead>
                     <tr class="border-b border-black/5 dark:border-white/10">
-                        <th class="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40">No. Order &amp; Tipe</th>
-                        <th class="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40">Waktu &amp; Kasir</th>
-                        <th class="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40">Pelanggan</th>
-                        <th class="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40 text-right">Total Bayar</th>
-                        <th class="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40 text-right">HPP (Modal)</th>
-                        <th class="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40 text-right">Laba Kotor</th>
-                        <th class="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40 text-center">Status</th>
-                        <th class="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40 text-right">Aksi</th>
+                        <th class="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40">{{ __('pos.order_number_and_type') }}</th>
+                        <th class="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40">{{ __('pos.time_and_cashier') }}</th>
+                        <th class="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40">{{ __('pos.customer') }}</th>
+                        <th class="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40 text-right">{{ __('pos.total_paid') }}</th>
+                        <th class="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40 text-right">{{ __('pos.cogs_modal') }}</th>
+                        <th class="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40 text-right">{{ __('pos.gross_profit') }}</th>
+                        <th class="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40 text-center">{{ __('pos.status') }}</th>
+                        <th class="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40 text-right">{{ __('pos.actions') }}</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-black/[0.04] dark:divide-white/[0.06]">
@@ -209,7 +209,7 @@
                                     </span>
                                 @elseif($o->table_or_reference)
                                     <span class="inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-semibold bg-[#FF9500]/10 text-[#B25E00] dark:text-[#FF9F0A]">
-                                        Meja {{ $o->table_or_reference }}
+                                        {{ __('pos.table_number_display', ['number' => $o->table_or_reference]) }}
                                     </span>
                                 @endif
                             </div>
@@ -221,19 +221,19 @@
                                         {{ $o->sales_channel }}{{ $o->external_order_ref ? ' #' . $o->external_order_ref : '' }}
                                     </span>
                                 @endif
-                                <span>• {{ $o->location->name ?? 'Outlet' }}</span>
+                                <span>• {{ $o->location->name ?? __('pos.outlet_label') }}</span>
                             </div>
                         </td>
                         <td class="px-4 py-3">
                             <div class="tabular-nums text-black/80 dark:text-white/80">{{ $o->order_date->format('d/m/Y') }} {{ $o->created_at->format('H:i') }}</div>
-                            <div class="text-[11px] text-black/45 dark:text-white/45">{{ $o->user->name ?? 'Kasir' }}</div>
+                            <div class="text-[11px] text-black/45 dark:text-white/45">{{ $o->user->name ?? __('pos.cashier_label') }}</div>
                         </td>
                         <td class="px-4 py-3">
                             @if($o->customer)
                                 <div class="font-medium text-black dark:text-white">{{ $o->customer->name }}</div>
                                 <span class="inline-flex items-center px-1.5 py-0.2 rounded-full text-[10px] font-medium bg-[#FF9500]/12 text-[#B25E00] dark:text-[#FF9F0A] uppercase">{{ $o->customer->membership_tier ?? 'Bronze' }}</span>
                             @else
-                                <div class="text-black/60 dark:text-white/60">{{ $o->customer_name_guest ?? 'Pelanggan Umum' }}</div>
+                                <div class="text-black/60 dark:text-white/60">{{ $o->customer_name_guest ?? __('pos.guest_customer') }}</div>
                             @endif
                         </td>
                         <td class="px-4 py-3 text-right tabular-nums font-semibold text-black dark:text-white">
@@ -248,27 +248,27 @@
                         <td class="px-4 py-3 text-center">
                             @if($o->status === 'completed')
                                 <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158]">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-[#34C759]"></span> Selesai
+                                    <span class="w-1.5 h-1.5 rounded-full bg-[#34C759]"></span> {{ __('pos.completed') }}
                                 </span>
                             @elseif($o->status === 'voided')
                                 <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-[#FF3B30]/12 text-[#C41E17] dark:text-[#FF453A]">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-[#FF3B30]"></span> Void
+                                    <span class="w-1.5 h-1.5 rounded-full bg-[#FF3B30]"></span> {{ __('pos.void') }}
                                 </span>
                             @elseif($o->status === 'refunded')
                                 <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-[#FF9500]/12 text-[#B25E00] dark:text-[#FF9F0A]">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-[#FF9500]"></span> Retur
+                                    <span class="w-1.5 h-1.5 rounded-full bg-[#FF9500]"></span> {{ __('pos.refund') }}
                                 </span>
                             @endif
                             <div class="mt-1">
                                 @if(($o->print_count ?? 0) === 0)
-                                    <span class="text-[10px] text-black/40 dark:text-white/40">Belum cetak</span>
+                                    <span class="text-[10px] text-black/40 dark:text-white/40">{{ __('pos.not_printed_yet') }}</span>
                                 @elseif($o->print_count === 1)
-                                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-[#34C759]/10 text-[#248A3D] dark:text-[#30D158]" title="Cetakan Asli">
-                                        1x Cetak (Asli)
+                                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-[#34C759]/10 text-[#248A3D] dark:text-[#30D158]" title="{{ __('pos.original_print') }}">
+                                        {{ __('pos.original_print_count') }}
                                     </span>
                                 @else
-                                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#FF9500]/12 text-[#B25E00] dark:text-[#FF9F0A]" title="Telah dicetak ulang {{ $o->print_count }} kali (Salinan ke-{{ $o->reprint_count }})">
-                                        {{ $o->print_count }}x Cetak
+                                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#FF9500]/12 text-[#B25E00] dark:text-[#FF9F0A]">
+                                        {{ __('pos.reprinted_count', ['count' => $o->print_count]) }}
                                     </span>
                                 @endif
                             </div>
@@ -278,31 +278,31 @@
                                 @if(($o->print_count ?? 0) > 0)
                                     <button type="button"
                                         @click="confirmReprint('{{ route('pos.receipt', $o->id) }}?reprint=1', {{ (int)$o->print_count }})"
-                                        title="Cetak Ulang (Salinan ke-{{ $o->print_count }})"
+                                        title="{{ __('pos.reprint_badge_count', ['count' => $o->print_count]) }}"
                                         class="h-7 px-2 rounded-[6px] text-[12px] font-medium text-[#FF9500] hover:bg-[#FF9500]/10 transition-colors flex items-center">
-                                        Re-Print
+                                        {{ __('pos.reprint_action') }}
                                     </button>
                                 @else
-                                    <a href="{{ route('pos.receipt', $o->id) }}" target="_blank" title="Cetak Bill Pertama Kali"
+                                    <a href="{{ route('pos.receipt', $o->id) }}" target="_blank"
                                         class="h-7 px-2 rounded-[6px] text-[12px] font-medium text-black/70 dark:text-white/70 hover:bg-black/5 dark:hover:bg-white/5 transition-colors flex items-center">
-                                        Struk
+                                        {{ __('pos.receipt_action') }}
                                     </a>
                                 @endif
-                                <button type="button" @click="viewDetail('{{ $o->id }}')" title="Lihat Detail"
+                                <button type="button" @click="viewDetail('{{ $o->id }}')"
                                     class="h-7 px-2 rounded-[6px] text-[12px] font-medium text-[#007AFF] hover:bg-[#007AFF]/8 transition-colors flex items-center">
-                                    Detail
+                                    {{ __('pos.detail_action') }}
                                 </button>
                                 @if($o->status === 'completed')
                                     @if(\App\Support\Context::hasPermission('pos.supervisor_pin') || \App\Support\Context::hasPermission('pos.orders'))
-                                    <button type="button" @click="openVoid('{{ $o->id }}')" title="Batalkan (Void)"
+                                    <button type="button" @click="openVoid('{{ $o->id }}')"
                                         class="h-7 px-2 rounded-[6px] text-[12px] font-medium text-[#FF3B30] hover:bg-[#FF3B30]/8 transition-colors flex items-center">
-                                        Void
+                                        {{ __('pos.void_action') }}
                                     </button>
                                     @endif
                                     @if(\App\Support\Context::hasPermission('sales.returns') || \App\Support\Context::hasPermission('pos.orders'))
-                                    <button type="button" @click="openRefund('{{ $o->id }}')" title="Retur / Refund"
+                                    <button type="button" @click="openRefund('{{ $o->id }}')"
                                         class="h-7 px-2 rounded-[6px] text-[12px] font-medium text-[#FF9500] hover:bg-[#FF9500]/8 transition-colors flex items-center">
-                                        Retur
+                                        {{ __('pos.refund_action') }}
                                     </button>
                                     @endif
                                 @endif
@@ -311,7 +311,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="8" class="py-10 text-center text-black/40 dark:text-white/40">Belum ada transaksi POS yang tercatat.</td>
+                        <td colspan="8" class="py-10 text-center text-black/40 dark:text-white/40">{{ __('pos.no_orders_found') }}</td>
                     </tr>
                     @endforelse
                 </tbody>
@@ -571,7 +571,7 @@
                     <button type="submit"
                         class="w-full min-h-[44px] h-11 rounded-[12px] bg-[#007AFF]/10 hover:bg-[#007AFF]/20 text-[#007AFF] text-[13px] font-semibold flex items-center justify-center gap-2 transition active:scale-[0.98]">
                         <i data-lucide="refresh-cw" class="w-4 h-4"></i>
-                        <span>Cek &amp; Sinkronkan Status TriPay</span>
+                        <span>{{ __('pos.sync_gateway_action') }}</span>
                     </button>
                 </form>
             </template>
@@ -579,7 +579,7 @@
             <div class="flex justify-end pt-2">
                 <button type="button" @click="showDetailModal = false"
                     class="min-h-[44px] h-11 px-5 rounded-[12px] bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] text-black/80 dark:text-white/80 font-medium text-[13px] transition">
-                    Tutup
+                    {{ __('pos.close_button') }}
                 </button>
             </div>
         </div>
@@ -598,39 +598,39 @@
                 <div class="w-9 h-9 rounded-xl bg-[#FF3B30]/15 flex items-center justify-center">
                     <i data-lucide="alert-octagon" class="w-5 h-5"></i>
                 </div>
-                <h3 class="text-[17px] font-bold">Batalkan Transaksi (Void)</h3>
+                <h3 class="text-[17px] font-bold">{{ __('pos.void_order') }}</h3>
             </div>
             <p class="text-[13px] text-black/60 dark:text-white/60 leading-relaxed">
-                Void akan membatalkan transaksi dan otomatis mengembalikan kuantitas produk ke stok inventori secara akurat.
+                {{ __('pos.void_modal_explanation') }}
             </p>
             <form :action="'{{ url('/pos/orders') }}/' + selectedOrderId + '/void'" method="POST" @submit="isSubmitting = true" class="space-y-3.5 text-[13px]">
                 @csrf
                 <div>
-                    <label class="block text-[12px] font-bold uppercase tracking-wider text-black/60 dark:text-white/60 mb-1">Alasan Pembatalan <span class="text-red-500">*</span></label>
-                    <input type="text" name="reason" required placeholder="Misal: Salah input kasir, pelanggan batal..."
+                    <label class="block text-[12px] font-bold uppercase tracking-wider text-black/60 dark:text-white/60 mb-1">{{ __('pos.reason') }} <span class="text-red-500">*</span></label>
+                    <input type="text" name="reason" required placeholder="{{ __('pos.void_reason_placeholder') }}"
                         class="w-full min-h-[48px] sm:min-h-0 sm:h-11 bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 rounded-[12px] px-3.5 text-[16px] sm:text-[13px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#FF3B30]">
                 </div>
                 @if($business->pos_require_pin_for_void && !($canBypassSupervisor ?? false))
                 <div>
                     <label class="block text-[12px] font-bold uppercase tracking-wider text-[#FF3B30] mb-1 flex items-center justify-between">
-                        <span>PIN Otorisasi Supervisor</span>
-                        <span class="text-[11px] text-black/40 dark:text-white/40 font-normal">Wajib</span>
+                        <span>{{ __('pos.supervisor_pin_title') }}</span>
+                        <span class="text-[11px] text-black/40 dark:text-white/40 font-normal">{{ __('pos.supervisor_pin_mandatory_label') }}</span>
                     </label>
-                    <input type="password" name="pin" required inputmode="numeric" maxlength="8" placeholder="Masukkan 4-8 digit PIN..."
+                    <input type="password" name="pin" required inputmode="numeric" maxlength="8" placeholder="{{ __('pos.enter_supervisor_pin') }}"
                         class="w-full min-h-[48px] sm:min-h-0 sm:h-11 bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 rounded-[12px] px-3.5 text-[16px] font-mono tracking-widest text-black dark:text-white placeholder:font-sans placeholder:tracking-normal placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#FF3B30]">
                 </div>
                 @endif
                 <div class="flex justify-end gap-2.5 pt-3 border-t border-black/[0.06] dark:border-white/[0.08]">
                     <button type="button" @click="showVoidModal = false" :disabled="isSubmitting"
                         class="min-h-[48px] sm:min-h-0 sm:h-11 px-4 rounded-[12px] text-[13px] font-medium text-black/70 dark:text-white/70 hover:bg-black/5 dark:hover:bg-white/5 transition">
-                        Batal
+                        {{ __('pos.cancel') }}
                     </button>
                     <button type="submit" :disabled="isSubmitting"
                         class="min-h-[48px] sm:min-h-0 sm:h-11 px-6 rounded-[12px] bg-[#FF3B30] hover:bg-[#E0352B] text-white font-semibold text-[13px] active:scale-[0.97] transition shadow-sm flex items-center gap-1.5 disabled:opacity-50">
                         <template x-if="isSubmitting">
                             <i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i>
                         </template>
-                        <span x-text="isSubmitting ? 'Memproses...' : 'Void'"></span>
+                        <span x-text="isSubmitting ? '{{ __('pos.processing_action') }}' : '{{ __('pos.void_action') }}'"></span>
                     </button>
                 </div>
             </form>
@@ -651,25 +651,25 @@
                 <div class="w-9 h-9 rounded-xl bg-[#FF9500]/15 flex items-center justify-center">
                     <i data-lucide="rotate-ccw" class="w-5 h-5"></i>
                 </div>
-                <h3 class="text-[17px] font-bold">Pengembalian / Retur (Refund)</h3>
+                <h3 class="text-[17px] font-bold">{{ __('pos.refund_order') }}</h3>
             </div>
             <p class="text-[13px] text-black/60 dark:text-white/60 leading-relaxed">
-                Catat pengembalian barang transaksi pelanggan ke sistem penjualan secara resmi.
+                {{ __('pos.refund_modal_explanation') }}
             </p>
             <form :action="'{{ url('/pos/orders') }}/' + selectedOrderId + '/refund'" method="POST" @submit="isSubmitting = true" class="space-y-3.5 text-[13px]">
                 @csrf
                 <div>
-                    <label class="block text-[12px] font-bold uppercase tracking-wider text-black/60 dark:text-white/60 mb-1">Alasan Retur <span class="text-red-500">*</span></label>
-                    <input type="text" name="reason" required placeholder="Misal: Barang cacat, komplain rasa..."
+                    <label class="block text-[12px] font-bold uppercase tracking-wider text-black/60 dark:text-white/60 mb-1">{{ __('pos.reason') }} <span class="text-red-500">*</span></label>
+                    <input type="text" name="reason" required placeholder="{{ __('pos.refund_reason_placeholder') }}"
                         class="w-full min-h-[48px] sm:min-h-0 sm:h-11 bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 rounded-[12px] px-3.5 text-[16px] sm:text-[13px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#FF9500]">
                 </div>
                 @if($business->pos_require_pin_for_refund && !($canBypassSupervisor ?? false))
                 <div>
                     <label class="block text-[12px] font-bold uppercase tracking-wider text-[#FF9500] mb-1 flex items-center justify-between">
-                        <span>PIN Otorisasi Supervisor</span>
-                        <span class="text-[11px] text-black/40 dark:text-white/40 font-normal">Wajib</span>
+                        <span>{{ __('pos.supervisor_pin_title') }}</span>
+                        <span class="text-[11px] text-black/40 dark:text-white/40 font-normal">{{ __('pos.supervisor_pin_mandatory_label') }}</span>
                     </label>
-                    <input type="password" name="pin" required inputmode="numeric" maxlength="8" placeholder="Masukkan 4-8 digit PIN..."
+                    <input type="password" name="pin" required inputmode="numeric" maxlength="8" placeholder="{{ __('pos.enter_supervisor_pin') }}"
                         class="w-full min-h-[48px] sm:min-h-0 sm:h-11 bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 rounded-[12px] px-3.5 text-[16px] font-mono tracking-widest text-black dark:text-white placeholder:font-sans placeholder:tracking-normal placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#FF9500]">
                 </div>
                 @endif
@@ -677,20 +677,20 @@
                     <input type="checkbox" name="restore_stock" value="1" checked id="restore_stock"
                         class="w-4 h-4 rounded-[4px] border-black/20 text-[#007AFF] focus:ring-[#007AFF]">
                     <label for="restore_stock" class="text-[13px] text-black/80 dark:text-white/80 cursor-pointer">
-                        Kembalikan produk ke stok inventori (jika masih layak)
+                        {{ __('pos.restore_stock_label') }}
                     </label>
                 </div>
                 <div class="flex justify-end gap-2.5 pt-3 border-t border-black/[0.06] dark:border-white/[0.08]">
                     <button type="button" @click="showRefundModal = false" :disabled="isSubmitting"
                         class="min-h-[48px] sm:min-h-0 sm:h-11 px-4 rounded-[12px] text-[13px] font-medium text-black/70 dark:text-white/70 hover:bg-black/5 dark:hover:bg-white/5 transition">
-                        Batal
+                        {{ __('pos.cancel') }}
                     </button>
                     <button type="submit" :disabled="isSubmitting"
                         class="min-h-[48px] sm:min-h-0 sm:h-11 px-6 rounded-[12px] bg-[#FF9500] hover:bg-[#E08600] text-white font-semibold text-[13px] active:scale-[0.97] transition shadow-sm flex items-center gap-1.5 disabled:opacity-50">
                         <template x-if="isSubmitting">
                             <i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i>
                         </template>
-                        <span x-text="isSubmitting ? 'Memproses...' : 'Retur'"></span>
+                        <span x-text="isSubmitting ? '{{ __('pos.processing_action') }}' : '{{ __('pos.refund_action') }}'"></span>
                     </button>
                 </div>
             </form>

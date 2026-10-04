@@ -40,6 +40,7 @@ class IndustryVerticalGapAndPrepSheetTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        app()->setLocale('id');
         Context::flush();
         $this->seed(DefaultUnitSeeder::class);
         $this->seed(DefaultCostCategorySeeder::class);

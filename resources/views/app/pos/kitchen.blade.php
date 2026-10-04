@@ -12,31 +12,31 @@
             <!-- Audio chime toggle -->
             <button type="button" @click="toggleSound()" class="min-h-[48px] sm:min-h-0 sm:h-9 px-3.5 rounded-[10px] text-[13px] font-semibold flex items-center gap-2 transition cursor-pointer" :class="soundEnabled ? 'bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158] border border-[#34C759]/30 shadow-xs' : 'bg-black/[0.05] dark:bg-white/[0.08] text-black/70 dark:text-white/70 hover:bg-black/[0.08] dark:hover:bg-white/[0.12]'">
                 <i :data-lucide="soundEnabled ? 'volume-2' : 'volume-x'" class="w-4 h-4"></i>
-                <span x-text="soundEnabled ? 'Suara Aktif' : 'Suara Mati'"></span>
+                <span x-text="soundEnabled ? '{{ __('pos.sound_enabled_label') }}' : '{{ __('pos.sound_disabled_label') }}'"></span>
             </button>
 
             <!-- Refresh button -->
             <button type="button" @click="fetchOrders(true)" class="min-h-[48px] sm:min-h-0 sm:h-9 px-3.5 rounded-[10px] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] text-black dark:text-white text-[13px] font-semibold flex items-center gap-2 transition active:scale-[0.98] cursor-pointer">
                 <i data-lucide="refresh-cw" class="w-4 h-4" :class="isLoading ? 'animate-spin' : ''"></i>
-                <span>Segarkan</span>
+                <span>{{ __('pos.refresh_action') }}</span>
             </button>
 
             <!-- Fullscreen toggle -->
             <button type="button" @click="toggleFullscreen()" class="min-h-[48px] sm:min-h-0 sm:h-9 px-3.5 rounded-[10px] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] text-black dark:text-white text-[13px] font-semibold flex items-center gap-2 transition active:scale-[0.98] cursor-pointer">
                 <i data-lucide="maximize" class="w-4 h-4"></i>
-                <span>Layar Penuh</span>
+                <span>{{ __('pos.fullscreen_action') }}</span>
             </button>
 
             <!-- Prep Sheet Link -->
             <a href="{{ route('pos.kitchen.prep_sheet') }}" class="min-h-[48px] sm:min-h-0 sm:h-9 px-3.5 rounded-[10px] bg-[#34C759] hover:bg-[#28A745] active:scale-[0.98] text-white text-[13px] font-semibold flex items-center gap-2 transition shadow-sm">
                 <i data-lucide="clipboard-list" class="w-4 h-4"></i>
-                <span>Lembar Prep</span>
+                <span>{{ __('pos.prep_sheet_action') }}</span>
             </a>
 
             @if(\App\Support\Context::hasPermission('pos.terminal') || \App\Support\Context::hasPermission('pos.orders'))
                 <a href="{{ route('pos.terminal') }}" class="min-h-[48px] sm:min-h-0 sm:h-9 px-4 rounded-[10px] bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] text-white text-[13px] font-semibold flex items-center gap-2 transition shadow-sm">
                     <i data-lucide="layout-grid" class="w-4 h-4"></i>
-                    <span>Terminal Kasir</span>
+                    <span>{{ __('pos.terminal_title') }}</span>
                 </a>
             @endif
         </x-slot:actions>
@@ -52,7 +52,7 @@
             <div class="flex items-center justify-between pb-3.5 border-b border-black/[0.06] dark:border-white/[0.08] mb-3">
                 <div class="flex items-center gap-2.5">
                     <span class="w-3.5 h-3.5 rounded-full bg-[#007AFF] shadow-xs"></span>
-                    <h2 class="text-[15px] font-bold tracking-tight text-black dark:text-white">Pesanan Baru Masuk</h2>
+                    <h2 class="text-[15px] font-bold tracking-tight text-black dark:text-white">{{ __('pos.kds_column_incoming') }}</h2>
                 </div>
                 <span class="text-[12px] font-bold px-2.5 py-0.5 rounded-full bg-[#007AFF]/15 text-[#007AFF]" x-text="confirmedOrders.length"></span>
             </div>
@@ -64,7 +64,7 @@
                         <div class="flex items-start justify-between gap-2">
                             <div>
                                 <div class="flex items-center gap-2">
-                                    <span class="px-2.5 py-1 rounded-[8px] text-[12px] font-bold bg-[#007AFF]/15 text-[#007AFF]" x-text="order.pos_table ? ('Meja ' + order.pos_table.table_number) : 'Kasir / Takeaway'"></span>
+                                    <span class="px-2.5 py-1 rounded-[8px] text-[12px] font-bold bg-[#007AFF]/15 text-[#007AFF]" x-text="order.pos_table ? ('{{ __('pos.table_label') }} ' + order.pos_table.table_number) : '{{ __('pos.takeaway_or_cashier') }}'"></span>
                                     <template x-if="order.sales_channel && order.sales_channel !== 'dine_in'">
                                         <span class="px-2 py-0.5 rounded-[6px] text-[10.5px] font-black uppercase tracking-wider text-white shadow-xs"
                                             :class="order.sales_channel === 'gofood' ? 'bg-[#00AA13]' : (order.sales_channel === 'grabfood' ? 'bg-[#00B14F]' : (order.sales_channel === 'shopeefood' ? 'bg-[#EE4D2D]' : 'bg-[#5856D6]'))"
@@ -72,7 +72,7 @@
                                     </template>
                                     <span class="text-[12px] font-mono text-black/50 dark:text-white/50" x-text="'#' + (order.order_number || order.id)"></span>
                                 </div>
-                                <div class="text-[13px] font-bold text-black dark:text-white mt-1.5" x-text="(order.customer_name_guest || (order.customer ? order.customer.name : 'Pelanggan')) + (order.customer_phone_guest ? ' (' + order.customer_phone_guest + ')' : '')"></div>
+                                <div class="text-[13px] font-bold text-black dark:text-white mt-1.5" x-text="(order.customer_name_guest || (order.customer ? order.customer.name : '{{ __('pos.customer_label') }}')) + (order.customer_phone_guest ? ' (' + order.customer_phone_guest + ')' : '')"></div>
                             </div>
                             <span class="text-[11px] font-semibold px-2.5 py-1 rounded-[8px]" :class="getTimeUrgencyClass(order.created_at)" x-text="formatTimeAgo(order.created_at)"></span>
                         </div>
@@ -81,7 +81,7 @@
                         <div x-show="order.notes" class="p-2.5 rounded-[12px] bg-[#FF9500]/10 border border-[#FF9500]/30 text-[12px] text-[#FF9500] font-medium flex items-start gap-2">
                             <i data-lucide="message-square" class="w-4 h-4 shrink-0 mt-0.5"></i>
                             <div>
-                                <span class="font-bold">Catatan: </span>
+                                <span class="font-bold">{{ __('pos.order_note_label') }} </span>
                                 <span x-text="order.notes"></span>
                             </div>
                         </div>
@@ -109,7 +109,7 @@
 
                                     <!-- Item Note -->
                                     <div x-show="item.notes" class="pl-6">
-                                        <span class="inline-block px-2 py-0.5 rounded-[6px] text-[11px] font-bold bg-[#FF9500]/15 text-[#FF9500] border border-[#FF9500]/30" x-text="'Catatan: ' + item.notes"></span>
+                                        <span class="inline-block px-2 py-0.5 rounded-[6px] text-[11px] font-bold bg-[#FF9500]/15 text-[#FF9500] border border-[#FF9500]/30" x-text="'{{ __('pos.order_note_label') }} ' + item.notes"></span>
                                     </div>
                                 </div>
                             </template>
@@ -119,7 +119,7 @@
                         @if(\App\Support\Context::hasPermission('pos.kitchen'))
                         <button type="button" @click="updateStatus(order.id, 'preparing')" class="w-full min-h-[48px] h-12 rounded-[12px] bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] text-white text-[13px] font-bold flex items-center justify-center gap-2 transition shadow-sm cursor-pointer">
                             <i data-lucide="chef-hat" class="w-4 h-4"></i>
-                            <span>Mulai Siapkan / Masak</span>
+                            <span>{{ __('pos.start_cooking_action') }}</span>
                         </button>
                         @endif
                     </div>
@@ -127,7 +127,7 @@
 
                 <div x-show="confirmedOrders.length === 0" class="text-center py-20 text-black/40 dark:text-white/40 text-[13px] space-y-2">
                     <i data-lucide="check-circle-2" class="w-8 h-8 mx-auto opacity-40"></i>
-                    <div>Tidak ada antrean pesanan baru</div>
+                    <div>{{ __('pos.no_incoming_orders') }}</div>
                 </div>
             </div>
         </div>
@@ -137,7 +137,7 @@
             <div class="flex items-center justify-between pb-3.5 border-b border-black/[0.06] dark:border-white/[0.08] mb-3">
                 <div class="flex items-center gap-2.5">
                     <span class="w-3.5 h-3.5 rounded-full bg-[#FF9500] shadow-xs"></span>
-                    <h2 class="text-[15px] font-bold tracking-tight text-black dark:text-white">Sedang Dimasak / Diproses</h2>
+                    <h2 class="text-[15px] font-bold tracking-tight text-black dark:text-white">{{ __('pos.kds_column_cooking') }}</h2>
                 </div>
                 <span class="text-[12px] font-bold px-2.5 py-0.5 rounded-full bg-[#FF9500]/15 text-[#FF9500]" x-text="preparingOrders.length"></span>
             </div>
@@ -149,7 +149,7 @@
                         <div class="flex items-start justify-between gap-2">
                             <div>
                                 <div class="flex items-center gap-2">
-                                    <span class="px-2.5 py-1 rounded-[8px] text-[12px] font-bold bg-[#FF9500]/15 text-[#FF9500]" x-text="order.pos_table ? ('Meja ' + order.pos_table.table_number) : 'Kasir / Takeaway'"></span>
+                                    <span class="px-2.5 py-1 rounded-[8px] text-[12px] font-bold bg-[#FF9500]/15 text-[#FF9500]" x-text="order.pos_table ? ('{{ __('pos.table_label') }} ' + order.pos_table.table_number) : '{{ __('pos.takeaway_or_cashier') }}'"></span>
                                     <template x-if="order.sales_channel && order.sales_channel !== 'dine_in'">
                                         <span class="px-2 py-0.5 rounded-[6px] text-[10.5px] font-black uppercase tracking-wider text-white shadow-xs"
                                             :class="order.sales_channel === 'gofood' ? 'bg-[#00AA13]' : (order.sales_channel === 'grabfood' ? 'bg-[#00B14F]' : (order.sales_channel === 'shopeefood' ? 'bg-[#EE4D2D]' : 'bg-[#5856D6]'))"
@@ -157,7 +157,7 @@
                                     </template>
                                     <span class="text-[12px] font-mono text-black/50 dark:text-white/50" x-text="'#' + (order.order_number || order.id)"></span>
                                 </div>
-                                <div class="text-[13px] font-bold text-black dark:text-white mt-1.5" x-text="(order.customer_name_guest || (order.customer ? order.customer.name : 'Pelanggan'))"></div>
+                                <div class="text-[13px] font-bold text-black dark:text-white mt-1.5" x-text="(order.customer_name_guest || (order.customer ? order.customer.name : '{{ __('pos.customer_label') }}'))"></div>
                             </div>
                             <span class="text-[11px] font-semibold px-2.5 py-1 rounded-[8px]" :class="getTimeUrgencyClass(order.created_at)" x-text="formatTimeAgo(order.created_at)"></span>
                         </div>
@@ -166,7 +166,7 @@
                         <div x-show="order.notes" class="p-2.5 rounded-[12px] bg-[#FF9500]/10 border border-[#FF9500]/30 text-[12px] text-[#FF9500] font-medium flex items-start gap-2">
                             <i data-lucide="message-square" class="w-4 h-4 shrink-0 mt-0.5"></i>
                             <div>
-                                <span class="font-bold">Catatan: </span>
+                                <span class="font-bold">{{ __('pos.order_note_label') }} </span>
                                 <span x-text="order.notes"></span>
                             </div>
                         </div>
@@ -194,7 +194,7 @@
 
                                     <!-- Item Note -->
                                     <div x-show="item.notes" class="pl-6">
-                                        <span class="inline-block px-2 py-0.5 rounded-[6px] text-[11px] font-bold bg-[#FF9500]/15 text-[#FF9500] border border-[#FF9500]/30" x-text="'Catatan: ' + item.notes"></span>
+                                        <span class="inline-block px-2 py-0.5 rounded-[6px] text-[11px] font-bold bg-[#FF9500]/15 text-[#FF9500] border border-[#FF9500]/30" x-text="'{{ __('pos.order_note_label') }} ' + item.notes"></span>
                                     </div>
                                 </div>
                             </template>
@@ -204,7 +204,7 @@
                         @if(\App\Support\Context::hasPermission('pos.kitchen'))
                         <button type="button" @click="updateStatus(order.id, 'ready')" class="w-full min-h-[48px] h-12 rounded-[12px] bg-[#34C759] hover:bg-[#28A745] active:scale-[0.98] text-white text-[13px] font-bold flex items-center justify-center gap-2 transition shadow-sm cursor-pointer">
                             <i data-lucide="bell-ring" class="w-4 h-4"></i>
-                            <span>Pesanan Siap Saji (Ready)</span>
+                            <span>{{ __('pos.mark_ready_action') }}</span>
                         </button>
                         @endif
                     </div>
@@ -212,7 +212,7 @@
 
                 <div x-show="preparingOrders.length === 0" class="text-center py-20 text-black/40 dark:text-white/40 text-[13px] space-y-2">
                     <i data-lucide="coffee" class="w-8 h-8 mx-auto opacity-40"></i>
-                    <div>Tidak ada pesanan yang sedang disiapkan</div>
+                    <div>{{ __('pos.no_cooking_orders') }}</div>
                 </div>
             </div>
         </div>
@@ -222,7 +222,7 @@
             <div class="flex items-center justify-between pb-3.5 border-b border-black/[0.06] dark:border-white/[0.08] mb-3">
                 <div class="flex items-center gap-2.5">
                     <span class="w-3.5 h-3.5 rounded-full bg-[#34C759] shadow-xs"></span>
-                    <h2 class="text-[15px] font-bold tracking-tight text-black dark:text-white">Siap Disajikan ke Meja</h2>
+                    <h2 class="text-[15px] font-bold tracking-tight text-black dark:text-white">{{ __('pos.kds_column_ready') }}</h2>
                 </div>
                 <span class="text-[12px] font-bold px-2.5 py-0.5 rounded-full bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158]" x-text="readyOrders.length"></span>
             </div>
@@ -234,7 +234,7 @@
                         <div class="flex items-start justify-between gap-2">
                             <div>
                                 <div class="flex items-center gap-2">
-                                    <span class="px-2.5 py-1 rounded-[8px] text-[12px] font-bold bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158]" x-text="order.pos_table ? ('Meja ' + order.pos_table.table_number) : 'Kasir / Takeaway'"></span>
+                                    <span class="px-2.5 py-1 rounded-[8px] text-[12px] font-bold bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158]" x-text="order.pos_table ? ('{{ __('pos.table_label') }} ' + order.pos_table.table_number) : '{{ __('pos.takeaway_or_cashier') }}'"></span>
                                     <template x-if="order.sales_channel && order.sales_channel !== 'dine_in'">
                                         <span class="px-2 py-0.5 rounded-[6px] text-[10.5px] font-black uppercase tracking-wider text-white shadow-xs"
                                             :class="order.sales_channel === 'gofood' ? 'bg-[#00AA13]' : (order.sales_channel === 'grabfood' ? 'bg-[#00B14F]' : (order.sales_channel === 'shopeefood' ? 'bg-[#EE4D2D]' : 'bg-[#5856D6]'))"
@@ -242,7 +242,7 @@
                                     </template>
                                     <span class="text-[12px] font-mono text-black/50 dark:text-white/50" x-text="'#' + (order.order_number || order.id)"></span>
                                 </div>
-                                <div class="text-[13px] font-bold text-black dark:text-white mt-1.5" x-text="(order.customer_name_guest || (order.customer ? order.customer.name : 'Pelanggan'))"></div>
+                                <div class="text-[13px] font-bold text-black dark:text-white mt-1.5" x-text="(order.customer_name_guest || (order.customer ? order.customer.name : '{{ __('pos.customer_label') }}'))"></div>
                             </div>
                             <span class="text-[11px] font-semibold px-2.5 py-1 rounded-[8px] bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158]" x-text="formatTimeAgo(order.created_at)"></span>
                         </div>
@@ -261,7 +261,7 @@
                         @if(\App\Support\Context::hasPermission('pos.kitchen'))
                         <button type="button" @click="updateStatus(order.id, 'served')" class="w-full min-h-[48px] h-12 rounded-[12px] bg-black/[0.08] dark:bg-white/[0.12] hover:bg-black/[0.15] dark:hover:bg-white/[0.2] active:scale-[0.98] text-black dark:text-white text-[13px] font-bold flex items-center justify-center gap-2 transition cursor-pointer">
                             <i data-lucide="check-check" class="w-4 h-4 text-[#34C759]"></i>
-                            <span>Tandai Sudah Disajikan (Served)</span>
+                            <span>{{ __('pos.mark_served_action') }}</span>
                         </button>
                         @endif
                     </div>
@@ -269,7 +269,7 @@
 
                 <div x-show="readyOrders.length === 0" class="text-center py-20 text-black/40 dark:text-white/40 text-[13px] space-y-2">
                     <i data-lucide="sparkles" class="w-8 h-8 mx-auto opacity-40"></i>
-                    <div>Belum ada pesanan siap saji</div>
+                    <div>{{ __('pos.no_ready_orders') }}</div>
                 </div>
             </div>
         </div>
@@ -433,9 +433,9 @@ function kitchenDisplay() {
                     this.$nextTick(() => { if (window.lucide) window.lucide.createIcons(); });
                 } else {
                     if (typeof AppAlert !== 'undefined') {
-                        AppAlert.error(data.message || 'Gagal memperbarui status pesanan');
+                        AppAlert.error(data.message || '{{ __('pos.failed_to_update_status') }}');
                     } else if (window.AppAlert) {
-                        window.AppAlert.error(data.message || 'Gagal memperbarui status pesanan');
+                        window.AppAlert.error(data.message || '{{ __('pos.failed_to_update_status') }}');
                     } else {
                         console.error('Kitchen update error:', data.message);
                     }
@@ -443,7 +443,7 @@ function kitchenDisplay() {
             } catch (e) {
                 console.error('Update status error:', e);
                 if (typeof AppAlert !== 'undefined') {
-                    AppAlert.error('Terjadi gangguan jaringan saat memperbarui status');
+                    AppAlert.error('{{ __('pos.network_error_status') }}');
                 }
             }
         },
@@ -452,7 +452,7 @@ function kitchenDisplay() {
             if (!dateStr) return '';
             const diffMs = new Date() - new Date(dateStr);
             const diffMins = Math.floor(diffMs / 60000);
-            if (diffMins < 1) return 'Baru saja';
+            if (diffMins < 1) return '{{ __('pos.just_now') }}';
             if (diffMins < 60) return `${diffMins} m lalu`;
             const hours = Math.floor(diffMins / 60);
             return `${hours} jam lalu`;

@@ -345,7 +345,7 @@ class BranchWarehouseHierarchyTest extends TestCase
             'name' => 'Bakpia Kukus Premium',
             'slug' => 'bakpia-kukus-premium',
             'type' => Product::TYPE_GOODS,
-            'price' => 50000,
+            'selling_price' => 50000,
             'base_cost' => 30000,
             'output_unit_id' => $this->pieceUnit->id,
             'is_active' => true,

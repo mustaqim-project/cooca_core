@@ -123,9 +123,9 @@ final class PosTerminalIndustryGatingTest extends TestCase
         $response->assertDontSee('Bungkus / Takeaway');
 
         // 3. Multi-channel online delivery selector bar must NOT exist
-        $response->assertDontSee('gofood');
-        $response->assertDontSee('grabfood');
-        $response->assertDontSee('shopeefood');
+        $response->assertDontSee('Harga Khusus GoFood');
+        $response->assertDontSee('Harga Khusus GrabFood');
+        $response->assertDontSee('Harga Khusus ShopeeFood');
 
         // 4. Modals for F&B must NOT be rendered in HTML
         $response->assertDontSee('MODAL: INCOMING QR TABLE ORDERS DRAWER', false);
@@ -281,9 +281,9 @@ final class PosTerminalIndustryGatingTest extends TestCase
         $response->assertSee('Bungkus / Takeaway');
 
         // 3. Multi-channel online delivery selector bar must exist
-        $response->assertSee('gofood');
-        $response->assertSee('grabfood');
-        $response->assertSee('shopeefood');
+        $response->assertSee('Harga Khusus GoFood');
+        $response->assertSee('Harga Khusus GrabFood');
+        $response->assertSee('Harga Khusus ShopeeFood');
 
         // 4. Modals for F&B must be rendered in HTML
         $response->assertSee('MODAL: INCOMING QR TABLE ORDERS DRAWER', false);

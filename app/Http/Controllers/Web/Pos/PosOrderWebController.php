@@ -4,17 +4,27 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Web\Pos;
 
+use App\Domain\Accounting\AutoJournalService;
 use App\Domain\Commerce\SalesReturnService;
+use App\Domain\Finance\CashLedgerService;
+use App\Domain\Inventory\StockService;
+use App\Domain\Payment\TripayService;
 use App\Domain\Pos\PosOrderService;
 use App\Domain\System\AuditLogService;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Pos\PosRefundOrderRequest;
 use App\Http\Requests\Pos\PosVoidOrderRequest;
+use App\Models\Business;
 use App\Models\PosOrder;
+use App\Models\PosOrderPayment;
+use App\Models\Product;
+use App\Models\StockMovement;
 use App\Support\Context;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\View\View;
 use Throwable;
@@ -23,7 +33,9 @@ final class PosOrderWebController extends Controller
 {
     public function __construct(
         private readonly PosOrderService $orderService = new PosOrderService,
-        private readonly SalesReturnService $salesReturnService = new SalesReturnService
+        private readonly SalesReturnService $salesReturnService = new SalesReturnService,
+        private readonly AutoJournalService $journalService = new AutoJournalService,
+        private readonly CashLedgerService $cashLedgerService = new CashLedgerService
     ) {}
 
     /**
@@ -289,7 +301,7 @@ final class PosOrderWebController extends Controller
         }
 
         try {
-            $tripayService = new \App\Domain\Payment\TripayService();
+            $tripayService = new TripayService();
             $detail = $tripayService->getTransactionDetail($reference);
             $status = strtoupper(trim((string) ($detail['status'] ?? '')));
 
@@ -300,7 +312,7 @@ final class PosOrderWebController extends Controller
                     ? $tripayService->calculateQrisFee((float) $order->total_amount)
                     : ($totalFee > 0 ? $totalFee : (float) ($order->gateway_fee ?? 0.0));
 
-                \Illuminate\Support\Facades\DB::transaction(function () use ($order, $reference, $paymentChannel, $calculatedFee) {
+                DB::transaction(function () use ($order, $reference, $paymentChannel, $calculatedFee) {
                     $order->update([
                         'status' => PosOrder::STATUS_CONFIRMED,
                         'paid_amount' => $order->total_amount,
@@ -311,7 +323,7 @@ final class PosOrderWebController extends Controller
                         'gateway_fee' => $calculatedFee,
                     ]);
 
-                    \App\Models\PosOrderPayment::firstOrCreate(
+                    $payment = PosOrderPayment::firstOrCreate(
                         [
                             'pos_order_id' => $order->id,
                             'reference_number' => $reference,
@@ -327,10 +339,10 @@ final class PosOrderWebController extends Controller
                     );
 
                     // Commit recipe / BOM material stock for each item
-                    $stockService = new \App\Domain\Inventory\StockService();
+                    $stockService = new StockService();
                     foreach ($order->items as $item) {
                         if ($item->product_id) {
-                            $product = \App\Models\Product::find($item->product_id);
+                            $product = Product::find($item->product_id);
                             if ($product && ! $product->isService()) {
                                 $stockService->deductForProductSale(
                                     businessId: $order->business_id,
@@ -341,11 +353,36 @@ final class PosOrderWebController extends Controller
                                     orderId: $order->id,
                                     orderNumber: $order->order_number,
                                     userId: auth()->id(),
-                                    movementType: \App\Models\StockMovement::TYPE_POS_SALE,
+                                    movementType: StockMovement::TYPE_POS_SALE,
                                     notes: "Penjualan QR Meja #{$order->order_number} (Re-sync)"
                                 );
                             }
                         }
+                    }
+
+                    // Record Cash Ledger Inflow
+                    $netCashIn = max(0.0, (float) ($payment->net_amount ?? ($order->total_amount - $calculatedFee)));
+                    if ($netCashIn > 0) {
+                        try {
+                            $this->cashLedgerService->recordInflow(
+                                business: $order->business ?? Business::find($order->business_id),
+                                amount: $netCashIn,
+                                referenceType: 'pos_order',
+                                referenceId: (string) $payment->id,
+                                description: "Penerimaan POS TriPay #{$order->order_number} ({$paymentChannel})",
+                                method: 'qris',
+                                userId: auth()->id()
+                            );
+                        } catch (Throwable $e) {
+                            Log::warning("Cash ledger POS TriPay Resync failed: " . $e->getMessage());
+                        }
+                    }
+
+                    // Record Automated Double-Entry Journal
+                    try {
+                        $this->journalService->recordPosSaleJournal($order->fresh(['business', 'payments', 'items']));
+                    } catch (Throwable $e) {
+                        Log::warning("Auto-journal POS TriPay Resync failed: " . $e->getMessage());
                     }
                 });
 

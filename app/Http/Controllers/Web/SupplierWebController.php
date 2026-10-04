@@ -74,12 +74,12 @@ final class SupplierWebController extends Controller
         if ($request->wantsJson() || $request->ajax()) {
             return response()->json([
                 'success' => true,
-                'message' => 'Supplier berhasil ditambahkan.',
+                'message' => __('purchasing.supplier.messages.created_success'),
                 'supplier' => $supplier,
             ], 201);
         }
 
-        return back()->with('success', 'Supplier berhasil ditambahkan.');
+        return back()->with('success', __('purchasing.supplier.messages.created_success'));
     }
 
     /**
@@ -107,24 +107,31 @@ final class SupplierWebController extends Controller
         if ($request->wantsJson() || $request->ajax()) {
             return response()->json([
                 'success' => true,
-                'message' => 'Data supplier berhasil diperbarui.',
+                'message' => __('purchasing.supplier.messages.updated_success', ['name' => $supplier->name]),
                 'supplier' => $supplier,
             ]);
         }
 
-        return redirect()->route('suppliers.index')->with('success', "Supplier '{$supplier->name}' berhasil diperbarui.");
+        return redirect()->route('suppliers.index')->with('success', __('purchasing.supplier.messages.updated_success', ['name' => $supplier->name]));
     }
 
     /**
      * Delete a supplier.
      */
-    public function destroy(Supplier $supplier): RedirectResponse
+    public function destroy(Supplier $supplier): RedirectResponse|JsonResponse
     {
         $business = Context::requireBusiness();
         abort_unless($supplier->business_id === $business->id, 403);
 
         $supplier->delete();
 
-        return back()->with('success', 'Supplier berhasil dihapus.');
+        if (request()->wantsJson() || request()->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => __('purchasing.supplier.messages.deleted_success'),
+            ]);
+        }
+
+        return back()->with('success', __('purchasing.supplier.messages.deleted_success'));
     }
 }

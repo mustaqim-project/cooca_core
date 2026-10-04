@@ -67,7 +67,7 @@
             });
             const data = await res.json();
             this.testFeedbackSuccess = data.success;
-            this.testFeedback = data.message || (data.success ? 'Tes cetak berhasil dikirim.' : 'Tes cetak gagal.');
+            this.testFeedback = data.message || (data.success ? {{ Js::from(__('pos.test_print_success_msg')) }} : {{ Js::from(__('pos.test_print_failed_msg')) }});
             if (window.AppAlert) {
                 if (data.success) {
                     window.AppAlert.success(this.testFeedback);
@@ -77,7 +77,7 @@
             }
         } catch (e) {
             this.testFeedbackSuccess = false;
-            this.testFeedback = 'Gagal mengirim perintah tes cetak: ' + e.message;
+            this.testFeedback = {{ Js::from(__('pos.test_print_failed_msg')) }} + ': ' + e.message;
             if (window.AppAlert) {
                 window.AppAlert.error(this.testFeedback);
             }
@@ -88,11 +88,11 @@
     async runTestDrawer(printerId) {
         if (window.AppAlert) {
             const confirmed = await window.AppAlert.confirm({
-                title: 'Uji Sinyal Laci Kas',
-                message: 'Kirim sinyal pulse pembukaan laci kas fisik (Cash Drawer Pulse)? Pastikan laci uang terhubung dengan kabel RJ11/RJ12 ke printer.',
+                title: {{ Js::from(__('pos.test_drawer_confirm_title')) }},
+                message: {{ Js::from(__('pos.test_drawer_confirm_msg')) }},
                 type: 'warning',
-                confirmText: 'Kirim Sinyal Laci',
-                cancelText: 'Batal'
+                confirmText: {{ Js::from(__('pos.test_drawer_short')) }},
+                cancelText: {{ Js::from(__('pos.cancel')) }}
             });
             if (!confirmed) return;
         }
@@ -109,7 +109,7 @@
             });
             const data = await res.json();
             this.testFeedbackSuccess = data.success;
-            this.testFeedback = data.message || (data.success ? 'Sinyal pulse laci kas berhasil dikirim.' : 'Gagal membuka laci kas.');
+            this.testFeedback = data.message || (data.success ? {{ Js::from(__('pos.test_drawer_success_msg')) }} : {{ Js::from(__('pos.test_drawer_failed_msg')) }});
             if (window.AppAlert) {
                 if (data.success) {
                     window.AppAlert.success(this.testFeedback);
@@ -119,7 +119,7 @@
             }
         } catch (e) {
             this.testFeedbackSuccess = false;
-            this.testFeedback = 'Kesalahan uji coba laci kas: ' + e.message;
+            this.testFeedback = {{ Js::from(__('pos.test_drawer_failed_msg')) }} + ': ' + e.message;
             if (window.AppAlert) {
                 window.AppAlert.error(this.testFeedback);
             }
@@ -144,14 +144,14 @@
             this.testFeedback = data.message;
             if (window.AppAlert) {
                 if (data.connected) {
-                    window.AppAlert.success(data.message || 'Diagnostik sukses: Printer terhubung.');
+                    window.AppAlert.success(data.message || {{ Js::from(__('pos.diagnose_success_msg')) }});
                 } else {
-                    window.AppAlert.error(data.message || 'Diagnostik gagal: Printer tidak merespons.');
+                    window.AppAlert.error(data.message || {{ Js::from(__('pos.diagnose_failed_msg')) }});
                 }
             }
         } catch (e) {
             this.testFeedbackSuccess = false;
-            this.testFeedback = 'Gagal melakukan diagnostik: ' + e.message;
+            this.testFeedback = {{ Js::from(__('pos.diagnose_failed_msg')) }} + ': ' + e.message;
             if (window.AppAlert) {
                 window.AppAlert.error(this.testFeedback);
             }
@@ -162,7 +162,7 @@
     async submitManualDrawer() {
         if (!this.manualDrawer.supervisor_pin || !this.manualDrawer.reason) {
             if (window.AppAlert) {
-                window.AppAlert.error('PIN Supervisor dan Alasan pembukaan laci kas wajib diisi.');
+                window.AppAlert.error({{ Js::from(__('pos.supervisor_pin_required')) }});
             }
             return;
         }
@@ -181,18 +181,18 @@
             if (data.success) {
                 this.showManualDrawerModal = false;
                 this.testFeedbackSuccess = true;
-                this.testFeedback = 'Laci kas berhasil dibuka secara manual (Tercatat di Audit Log).';
+                this.testFeedback = data.message || {{ Js::from(__('pos.drawer_opened_success')) }};
                 if (window.AppAlert) {
                     window.AppAlert.success(this.testFeedback);
                 }
             } else {
                 if (window.AppAlert) {
-                    window.AppAlert.error(data.message || 'Gagal membuka laci kas.');
+                    window.AppAlert.error(data.message || {{ Js::from(__('pos.test_drawer_failed_msg')) }});
                 }
             }
         } catch (e) {
             if (window.AppAlert) {
-                window.AppAlert.error('Terjadi kesalahan: ' + e.message);
+                window.AppAlert.error(e.message);
             }
         } finally {
             this.isTesting = false;
@@ -209,13 +209,13 @@
             @if(\App\Support\Context::hasPermission('pos.terminal'))
                 <a href="{{ route('pos.terminal') }}" class="min-h-[44px] sm:min-h-0 sm:h-9 px-4 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] dark:hover:bg-white/[0.12] active:scale-[0.97] transition-all flex items-center justify-center gap-1.5 w-full sm:w-auto">
                     <i data-lucide="layout-grid" class="w-4 h-4 text-black/60 dark:text-white/60"></i>
-                    <span>Terminal POS</span>
+                    <span>{{ __('pos.pos_terminal') }}</span>
                 </a>
             @endif
 
             <button type="button" @click="showAddModal = true" class="min-h-[44px] sm:min-h-0 sm:h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] transition-all flex items-center justify-center gap-1.5 shadow-sm cursor-pointer w-full sm:w-auto">
                 <i data-lucide="plus" class="w-4 h-4"></i>
-                <span>Tambah Printer</span>
+                <span>{{ __('pos.add_printer') }}</span>
             </button>
         </x-slot:actions>
     </x-module-header>
@@ -250,56 +250,56 @@
         <!-- Total Printers -->
         <div class="p-4 rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 shadow-xs flex flex-col justify-between">
             <div class="flex items-center justify-between text-black/50 dark:text-white/50">
-                <span class="text-[12px] font-medium">Total Terdaftar</span>
+                <span class="text-[12px] font-medium">{{ __('pos.printers_total_kpi') }}</span>
                 <div class="w-8 h-8 rounded-xl bg-black/[0.04] dark:bg-white/[0.06] flex items-center justify-center">
                     <i data-lucide="printer" class="w-4 h-4 text-black/70 dark:text-white/70"></i>
                 </div>
             </div>
             <div class="mt-2">
                 <div class="text-[22px] sm:text-[24px] font-bold text-black dark:text-white tabular-nums">{{ $totalPrinters }}</div>
-                <div class="text-[11px] text-black/45 dark:text-white/45 mt-0.5">Perangkat aktif</div>
+                <div class="text-[11px] text-black/45 dark:text-white/45 mt-0.5">{{ __('pos.active_devices_subtitle') }}</div>
             </div>
         </div>
 
         <!-- Online Printers -->
         <div class="p-4 rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 shadow-xs flex flex-col justify-between">
             <div class="flex items-center justify-between text-[#34C759]">
-                <span class="text-[12px] font-medium text-black/50 dark:text-white/50">Status Terhubung</span>
+                <span class="text-[12px] font-medium text-black/50 dark:text-white/50">{{ __('pos.online_status_kpi') }}</span>
                 <div class="w-8 h-8 rounded-xl bg-[#34C759]/15 flex items-center justify-center">
                     <i data-lucide="wifi" class="w-4 h-4 text-[#34C759]"></i>
                 </div>
             </div>
             <div class="mt-2">
                 <div class="text-[22px] sm:text-[24px] font-bold text-[#34C759] tabular-nums">{{ $onlinePrinters }}</div>
-                <div class="text-[11px] text-black/45 dark:text-white/45 mt-0.5">Siap mencetak instan</div>
+                <div class="text-[11px] text-black/45 dark:text-white/45 mt-0.5">{{ __('pos.ready_instant_print') }}</div>
             </div>
         </div>
 
         <!-- Cashier Printers -->
         <div class="p-4 rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 shadow-xs flex flex-col justify-between">
             <div class="flex items-center justify-between text-[#007AFF]">
-                <span class="text-[12px] font-medium text-black/50 dark:text-white/50">Printer Kasir</span>
+                <span class="text-[12px] font-medium text-black/50 dark:text-white/50">{{ __('pos.cashier_printers_kpi') }}</span>
                 <div class="w-8 h-8 rounded-xl bg-[#007AFF]/15 flex items-center justify-center">
                     <i data-lucide="receipt" class="w-4 h-4 text-[#007AFF]"></i>
                 </div>
             </div>
             <div class="mt-2">
                 <div class="text-[22px] sm:text-[24px] font-bold text-[#007AFF] tabular-nums">{{ $cashierPrinters }}</div>
-                <div class="text-[11px] text-black/45 dark:text-white/45 mt-0.5">Struk &amp; Laci Uang</div>
+                <div class="text-[11px] text-black/45 dark:text-white/45 mt-0.5">{{ __('pos.receipt_and_drawer') }}</div>
             </div>
         </div>
 
         <!-- Kitchen / Bar Printers -->
         <div class="p-4 rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 shadow-xs flex flex-col justify-between">
             <div class="flex items-center justify-between text-[#FF9500]">
-                <span class="text-[12px] font-medium text-black/50 dark:text-white/50">Printer Dapur &amp; Bar</span>
+                <span class="text-[12px] font-medium text-black/50 dark:text-white/50">{{ __('pos.kitchen_bar_printers_kpi') }}</span>
                 <div class="w-8 h-8 rounded-xl bg-[#FF9500]/15 flex items-center justify-center">
                     <i data-lucide="utensils" class="w-4 h-4 text-[#FF9500]"></i>
                 </div>
             </div>
             <div class="mt-2">
                 <div class="text-[22px] sm:text-[24px] font-bold text-[#FF9500] tabular-nums">{{ $kitchenPrinters }}</div>
-                <div class="text-[11px] text-black/45 dark:text-white/45 mt-0.5">KOT pesanan ter-routing</div>
+                <div class="text-[11px] text-black/45 dark:text-white/45 mt-0.5">{{ __('pos.kot_routed_orders') }}</div>
             </div>
         </div>
     </div>
@@ -313,7 +313,7 @@
             <div class="flex flex-wrap items-center gap-1.5 p-1 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.04]">
                 <a href="{{ route('pos.printers.index') }}"
                     class="px-3 py-1.5 rounded-[9px] text-[12px] font-medium transition {{ empty($selectedLocationId) ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-xs font-semibold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white' }}">
-                    Semua Outlet
+                    {{ __('pos.all_outlets_tab') }}
                 </a>
                 @foreach($locations as $loc)
                 <a href="{{ route('pos.printers.index', ['location_id' => $loc->id]) }}"
@@ -335,12 +335,12 @@
                 <i data-lucide="printer" class="w-7 h-7"></i>
             </div>
             <div class="space-y-1">
-                <h3 class="text-[15px] font-bold text-black dark:text-white">Belum Ada Printer Terdaftar</h3>
-                <p class="text-[13px] text-black/50 dark:text-white/50 max-w-sm mx-auto">Tambahkan printer thermal kasir (USB, LAN, Bluetooth) atau printer dapur untuk mulai mencetak struk secara instan.</p>
+                <h3 class="text-[15px] font-bold text-black dark:text-white">{{ __('pos.no_printers_registered_title') }}</h3>
+                <p class="text-[13px] text-black/50 dark:text-white/50 max-w-sm mx-auto">{{ __('pos.no_printers_registered_desc') }}</p>
             </div>
             <button type="button" @click="showAddModal = true" class="h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] transition-all inline-flex items-center gap-1.5 shadow-sm">
                 <i data-lucide="plus" class="w-4 h-4"></i>
-                <span>Tambah Printer Pertama</span>
+                <span>{{ __('pos.add_first_printer_action') }}</span>
             </button>
         </div>
         @else
@@ -350,12 +350,12 @@
             <table class="w-full text-left text-[13px]">
                 <thead>
                     <tr class="border-b border-black/[0.06] dark:border-white/[0.08] text-black/45 dark:text-white/45 text-[11px] uppercase tracking-wider font-semibold">
-                        <th class="pb-3 pl-1">Perangkat / Nama</th>
-                        <th class="pb-3">Koneksi &amp; Alamat</th>
-                        <th class="pb-3">Fungsi / Pos</th>
-                        <th class="pb-3">Lebar Kertas</th>
-                        <th class="pb-3">Status</th>
-                        <th class="pb-3 text-right pr-1">Aksi &amp; Diagnostik</th>
+                        <th class="pb-3 pl-1">{{ __('pos.device_name_header') }}</th>
+                        <th class="pb-3">{{ __('pos.connection_address_header') }}</th>
+                        <th class="pb-3">{{ __('pos.purpose_routing_header') }}</th>
+                        <th class="pb-3">{{ __('pos.paper_width_header') }}</th>
+                        <th class="pb-3">{{ __('pos.status_header') }}</th>
+                        <th class="pb-3 text-right pr-1">{{ __('pos.actions_diagnostics_header') }}</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-black/[0.04] dark:divide-white/[0.04]">
@@ -373,7 +373,7 @@
                                         <span class="text-[9px] font-bold px-1.5 py-0.2 rounded bg-[#007AFF]/15 text-[#007AFF]">Default</span>
                                         @endif
                                     </div>
-                                    <div class="text-[11px] text-black/45 dark:text-white/45">{{ $p->location?->name ?? 'Semua Outlet' }}</div>
+                                    <div class="text-[11px] text-black/45 dark:text-white/45">{{ $p->location?->name ?? __('pos.all_outlets_global') }}</div>
                                 </div>
                             </div>
                         </td>
@@ -386,16 +386,16 @@
                         <td class="py-3.5">
                             <div class="flex flex-wrap gap-1">
                                 @if($p->supportsUsage('cashier_receipt'))
-                                <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#007AFF]/12 text-[#007AFF]">Kasir Struk</span>
+                                <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#007AFF]/12 text-[#007AFF]">{{ __('pos.routing_cashier') }}</span>
                                 @endif
                                 @if($p->supportsUsage('kitchen_order'))
-                                <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#FF9500]/12 text-[#FF9500]">Dapur (KOT)</span>
+                                <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#FF9500]/12 text-[#FF9500]">{{ __('pos.routing_kitchen') }}</span>
                                 @endif
                                 @if($p->supportsUsage('bar_order'))
-                                <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#AF52DE]/12 text-[#AF52DE]">Bar Minuman</span>
+                                <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#AF52DE]/12 text-[#AF52DE]">{{ __('pos.routing_bar') }}</span>
                                 @endif
                                 @if($p->supportsUsage('shift_report'))
-                                <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#34C759]/12 text-[#34C759]">Tutup Shift</span>
+                                <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#34C759]/12 text-[#34C759]">{{ __('pos.routing_shift') }}</span>
                                 @endif
                             </div>
                         </td>
@@ -406,17 +406,17 @@
                             @if($p->last_status === 'online')
                             <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158]">
                                 <span class="w-1.5 h-1.5 rounded-full bg-[#34C759]"></span>
-                                Online
+                                {{ __('pos.status_online') }}
                             </span>
                             @elseif($p->last_status === 'offline')
                             <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[#FF3B30]/15 text-[#C41E17] dark:text-[#FF453A]">
                                 <span class="w-1.5 h-1.5 rounded-full bg-[#FF3B30]"></span>
-                                Offline
+                                {{ __('pos.status_offline') }}
                             </span>
                             @else
                             <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-black/[0.06] dark:bg-white/[0.08] text-black/60 dark:text-white/60">
                                 <span class="w-1.5 h-1.5 rounded-full bg-black/40 dark:bg-white/40"></span>
-                                Belum Dicek
+                                {{ __('pos.status_untested') }}
                             </span>
                             @endif
                         </td>
@@ -425,38 +425,38 @@
                                 <!-- Test Print -->
                                 <button type="button" @click="runTestPrint('{{ $p->id }}')" :disabled="isTesting"
                                     class="h-8 px-2.5 rounded-[8px] text-[12px] font-medium bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.09] dark:hover:bg-white/[0.12] text-black/80 dark:text-white/80 active:scale-[0.97] transition flex items-center gap-1"
-                                    title="Tes Cetak Sampel ESC/POS">
+                                    title="{{ __('pos.test_print') }}">
                                     <i data-lucide="printer" class="w-3.5 h-3.5 text-[#007AFF]"></i>
-                                    <span>Tes Cetak</span>
+                                    <span>{{ __('pos.test_print_short') }}</span>
                                 </button>
 
                                 <!-- Test Drawer (if supported) -->
                                 @if($p->hasCapability('cash_drawer'))
                                 <button type="button" @click="runTestDrawer('{{ $p->id }}')" :disabled="isTesting"
                                     class="h-8 px-2.5 rounded-[8px] text-[12px] font-medium bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.09] dark:hover:bg-white/[0.12] text-black/80 dark:text-white/80 active:scale-[0.97] transition flex items-center gap-1"
-                                    title="Uji Sinyal Laci Kas (Cash Drawer Pulse)">
+                                    title="{{ __('pos.test_drawer') }}">
                                     <i data-lucide="inbox" class="w-3.5 h-3.5 text-[#34C759]"></i>
-                                    <span>Tes Laci</span>
+                                    <span>{{ __('pos.test_drawer_short') }}</span>
                                 </button>
                                 <button type="button" @click="openManualDrawer({{ json_encode($p) }})"
                                     class="h-8 px-2.5 rounded-[8px] text-[12px] font-medium bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.09] dark:hover:bg-white/[0.12] text-black/80 dark:text-white/80 active:scale-[0.97] transition flex items-center gap-1"
-                                    title="Buka Laci Kas Manual (Wajib PIN Supervisor)">
+                                    title="{{ __('pos.manual_drawer_title') }}">
                                     <i data-lucide="key" class="w-3.5 h-3.5 text-[#FF9500]"></i>
-                                    <span>Buka Manual</span>
+                                    <span>{{ __('pos.manual_pop_short') }}</span>
                                 </button>
                                 @endif
 
                                 <!-- Ping Diagnostic -->
                                 <button type="button" @click="runDiagnose('{{ $p->id }}')" :disabled="isTesting"
                                     class="h-8 w-8 rounded-[8px] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.09] dark:hover:bg-white/[0.12] text-black/70 dark:text-white/70 flex items-center justify-center transition"
-                                    title="Diagnosa Ping Koneksi">
+                                    title="{{ __('pos.diagnose_printer') }}">
                                     <i data-lucide="activity" class="w-3.5 h-3.5"></i>
                                 </button>
 
                                 <!-- Edit -->
                                 <button type="button" @click="openEdit({{ json_encode($p) }})"
                                     class="h-8 w-8 rounded-[8px] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.09] dark:hover:bg-white/[0.12] text-black/70 dark:text-white/70 flex items-center justify-center transition"
-                                    title="Edit Pengaturan">
+                                    title="{{ __('pos.edit_printer') }}">
                                     <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
                                 </button>
 
@@ -465,7 +465,7 @@
                                     onsubmit="return typeof AppAlert !== 'undefined' ? AppAlert.confirmSubmit(event, this, 'Hapus printer \'{{ addslashes($p->name) }}\'?', 'Hapus Printer?', 'danger') : true">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="h-8 w-8 rounded-[8px] bg-[#FF3B30]/10 hover:bg-[#FF3B30]/20 text-[#FF3B30] flex items-center justify-center transition" title="Hapus Printer">
+                                    <button type="submit" class="h-8 w-8 rounded-[8px] bg-[#FF3B30]/10 hover:bg-[#FF3B30]/20 text-[#FF3B30] flex items-center justify-center transition" title="{{ __('pos.delete_printer') }}">
                                         <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
                                     </button>
                                 </form>
@@ -489,14 +489,14 @@
                             <span class="text-[9px] font-bold px-1.5 py-0.2 rounded bg-[#007AFF]/15 text-[#007AFF] shrink-0">Default</span>
                             @endif
                         </div>
-                        <div class="text-[11px] text-black/45 dark:text-white/45 mt-0.5">{{ $p->location?->name ?? 'Semua Outlet' }} • {{ $p->paper_width }}</div>
+                        <div class="text-[11px] text-black/45 dark:text-white/45 mt-0.5">{{ $p->location?->name ?? __('pos.all_outlets_global') }} • {{ $p->paper_width }}</div>
                     </div>
                     @if($p->last_status === 'online')
-                    <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158] shrink-0">Online</span>
+                    <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158] shrink-0">{{ __('pos.status_online') }}</span>
                     @elseif($p->last_status === 'offline')
-                    <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#FF3B30]/15 text-[#C41E17] dark:text-[#FF453A] shrink-0">Offline</span>
+                    <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#FF3B30]/15 text-[#C41E17] dark:text-[#FF453A] shrink-0">{{ __('pos.status_offline') }}</span>
                     @else
-                    <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-black/[0.06] text-black/60 shrink-0">Belum Dicek</span>
+                    <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-black/[0.06] text-black/60 shrink-0">{{ __('pos.status_untested') }}</span>
                     @endif
                 </div>
 
@@ -506,13 +506,13 @@
 
                 <div class="flex flex-wrap gap-1.5">
                     @if($p->supportsUsage('cashier_receipt'))
-                    <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-[#007AFF]/12 text-[#007AFF]">Kasir</span>
+                    <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-[#007AFF]/12 text-[#007AFF]">{{ __('pos.routing_cashier') }}</span>
                     @endif
                     @if($p->supportsUsage('kitchen_order'))
-                    <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-[#FF9500]/12 text-[#FF9500]">Dapur (KOT)</span>
+                    <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-[#FF9500]/12 text-[#FF9500]">{{ __('pos.routing_kitchen') }}</span>
                     @endif
                     @if($p->supportsUsage('bar_order'))
-                    <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-[#AF52DE]/12 text-[#AF52DE]">Bar</span>
+                    <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-[#AF52DE]/12 text-[#AF52DE]">{{ __('pos.routing_bar') }}</span>
                     @endif
                 </div>
 
@@ -520,30 +520,30 @@
                     <div class="flex items-center gap-1.5">
                         <button type="button" @click="runTestPrint('{{ $p->id }}')" class="h-8 px-2.5 rounded-lg text-[12px] font-medium bg-black/[0.05] dark:bg-white/[0.08] text-black/80 dark:text-white/80 flex items-center gap-1">
                             <i data-lucide="printer" class="w-3.5 h-3.5 text-[#007AFF]"></i>
-                            <span>Tes</span>
+                            <span>{{ __('pos.test_print_short') }}</span>
                         </button>
                         @if($p->hasCapability('cash_drawer'))
                         <button type="button" @click="runTestDrawer('{{ $p->id }}')" class="min-h-[36px] px-2.5 rounded-lg text-[12px] font-medium bg-black/[0.05] dark:bg-white/[0.08] text-black/80 dark:text-white/80 flex items-center gap-1">
                             <i data-lucide="inbox" class="w-3.5 h-3.5 text-[#34C759]"></i>
-                            <span>Laci</span>
+                            <span>{{ __('pos.test_drawer_short') }}</span>
                         </button>
                         <button type="button" @click="openManualDrawer({{ json_encode($p) }})" class="min-h-[36px] px-2.5 rounded-lg text-[12px] font-medium bg-black/[0.05] dark:bg-white/[0.08] text-black/80 dark:text-white/80 flex items-center gap-1">
                             <i data-lucide="key" class="w-3.5 h-3.5 text-[#FF9500]"></i>
-                            <span>Buka</span>
+                            <span>{{ __('pos.manual_pop_short') }}</span>
                         </button>
                         @endif
                     </div>
 
                     <div class="flex items-center gap-1.5">
                         <button type="button" @click="openEdit({{ json_encode($p) }})" class="h-8 px-2.5 rounded-lg text-[12px] font-medium bg-black/[0.05] dark:bg-white/[0.08] text-black/80 dark:text-white/80">
-                            Edit
+                            {{ __('pos.edit_printer') }}
                         </button>
                         <form method="POST" action="{{ route('pos.printers.destroy', $p->id) }}" class="inline"
                             onsubmit="return typeof AppAlert !== 'undefined' ? AppAlert.confirmSubmit(event, this, 'Hapus printer \'{{ addslashes($p->name) }}\'?', 'Hapus Printer?', 'danger') : true">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="h-8 px-2.5 rounded-lg text-[12px] font-medium bg-[#FF3B30]/10 text-[#FF3B30]">
-                                Hapus
+                                {{ __('pos.delete_printer') }}
                             </button>
                         </form>
                     </div>
@@ -563,31 +563,31 @@
                 <i data-lucide="cpu" class="w-4 h-4"></i>
             </div>
             <div>
-                <h3 class="text-[14px] font-bold text-black dark:text-white">COOCA Local POS Hardware Agent (Bridge USB &amp; Bluetooth)</h3>
-                <p class="text-[12px] text-black/50 dark:text-white/50">Hubungkan printer USB lokal atau Bluetooth portable langsung dari browser tanpa pop-up dialog.</p>
+                <h3 class="text-[14px] font-bold text-black dark:text-white">{{ __('pos.local_agent_banner_title') }}</h3>
+                <p class="text-[12px] text-black/50 dark:text-white/50">{{ __('pos.local_agent_banner_desc') }}</p>
             </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-3 pt-1 text-[12px]">
             <div class="p-3 rounded-[12px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 space-y-1">
                 <div class="font-bold text-[#007AFF] flex items-center gap-1">
-                    <span>1. Printer LAN / Wi-Fi</span>
+                    <span>{{ __('pos.lan_wifi_card_title') }}</span>
                 </div>
-                <p class="text-black/60 dark:text-white/60 text-[11px]">Server COOCA langsung mencetak via raw socket port 9100 tanpa perlu instalasi aplikasi tambahan.</p>
+                <p class="text-black/60 dark:text-white/60 text-[11px]">{{ __('pos.lan_wifi_card_desc') }}</p>
             </div>
 
             <div class="p-3 rounded-[12px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 space-y-1">
                 <div class="font-bold text-[#34C759] flex items-center gap-1">
-                    <span>2. Printer USB / Windows</span>
+                    <span>{{ __('pos.usb_windows_card_title') }}</span>
                 </div>
-                <p class="text-black/60 dark:text-white/60 text-[11px]">Gunakan Windows Spooler Share (contoh: <code>POS-80</code>) atau jalankan COOCA Local POS Agent di port <code>9898</code>.</p>
+                <p class="text-black/60 dark:text-white/60 text-[11px]">{{ __('pos.usb_windows_card_desc') }}</p>
             </div>
 
             <div class="p-3 rounded-[12px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 space-y-1">
                 <div class="font-bold text-[#FF9500] flex items-center gap-1">
-                    <span>3. Bluetooth Portable</span>
+                    <span>{{ __('pos.bluetooth_card_title') }}</span>
                 </div>
-                <p class="text-black/60 dark:text-white/60 text-[11px]">Pairing printer Bluetooth di Windows/Android, lalu petakan ke Virtual COM port atau kirim via Web Bluetooth.</p>
+                <p class="text-black/60 dark:text-white/60 text-[11px]">{{ __('pos.bluetooth_card_desc') }}</p>
             </div>
         </div>
     </div>
@@ -607,8 +607,8 @@
                         <i data-lucide="printer" class="w-5 h-5"></i>
                     </div>
                     <div>
-                        <h3 class="font-bold text-[19px] tracking-tight">Tambah Printer &amp; Perangkat Keras Baru</h3>
-                        <p class="text-[13px] text-black/50 dark:text-white/50">Konfigurasikan printer thermal ESC/POS, cash drawer, atau KOT routing</p>
+                        <h3 class="font-bold text-[19px] tracking-tight">{{ __('pos.add_printer_modal_title') }}</h3>
+                        <p class="text-[13px] text-black/50 dark:text-white/50">{{ __('pos.add_printer_modal_desc') }}</p>
                     </div>
                 </div>
                 <button type="button" @click="showAddModal = false" class="w-8 h-8 rounded-full bg-black/[0.05] dark:bg-white/[0.08] flex items-center justify-center text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white transition">
@@ -623,16 +623,16 @@
                     <div class="lg:col-span-7 space-y-4">
                         <!-- Nama Printer -->
                         <div>
-                            <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">Nama Printer *</label>
+                            <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">{{ __('pos.printer_name') }} *</label>
                             <input type="text" name="name" required placeholder="Contoh: Kasir Utama, Printer Dapur, Barista"
                                 class="w-full h-11 px-3.5 rounded-[12px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
                         </div>
 
                         <!-- Outlet / Lokasi -->
                         <div>
-                            <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">Outlet / Lokasi Operasional</label>
+                            <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">{{ __('pos.table_location_label') }}</label>
                             <select name="location_id" class="w-full h-11 px-3.5 rounded-[12px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
-                                <option value="">Semua Outlet (Global)</option>
+                                <option value="">{{ __('pos.all_outlets_global') }}</option>
                                 @foreach($locations as $loc)
                                 <option value="{{ $loc->id }}">{{ $loc->name }}</option>
                                 @endforeach
@@ -642,7 +642,7 @@
                         <!-- Tipe Koneksi & Lebar Kertas -->
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                             <div>
-                                <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">Tipe Koneksi *</label>
+                                <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">{{ __('pos.connection_type') }} *</label>
                                 <select name="connection_type" x-model="connType" required class="w-full h-11 px-3.5 rounded-[12px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
                                     <option value="lan">Kabel LAN (Ethernet TCP/IP)</option>
                                     <option value="wifi">Wi-Fi (Wireless TCP/IP)</option>
@@ -655,7 +655,7 @@
                             </div>
 
                             <div>
-                                <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">Lebar Kertas Thermal *</label>
+                                <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">{{ __('pos.paper_width') }} *</label>
                                 <select name="paper_width" required class="w-full h-11 px-3.5 rounded-[12px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
                                     <option value="80mm">80mm (Standar Kasir POS / 48 Kolom)</option>
                                     <option value="58mm">58mm (Mobile Portable / 32 Kolom)</option>
@@ -697,50 +697,50 @@
                     <div class="lg:col-span-5 space-y-4">
                         <!-- Capabilities -->
                         <div class="p-4 rounded-[18px] bg-black/[0.03] dark:bg-white/[0.04] border border-black/5 dark:border-white/10 space-y-2.5">
-                            <label class="block text-[12px] font-bold uppercase tracking-wider text-black/60 dark:text-white/60">Kemampuan Hardware</label>
+                            <label class="block text-[12px] font-bold uppercase tracking-wider text-black/60 dark:text-white/60">{{ __('pos.hardware_capabilities_title') }}</label>
                             <div class="grid grid-cols-2 gap-2 text-[12px]">
                                 <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 cursor-pointer">
                                     <input type="checkbox" name="capabilities[]" value="cut" checked class="rounded text-[#007AFF]">
-                                    <span>Auto-Cut</span>
+                                    <span>{{ __('pos.capability_autocut') }}</span>
                                 </label>
                                 <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 cursor-pointer">
                                     <input type="checkbox" name="capabilities[]" value="cash_drawer" checked class="rounded text-[#007AFF]">
-                                    <span>Laci Uang</span>
+                                    <span>{{ __('pos.capability_drawer') }}</span>
                                 </label>
                                 <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 cursor-pointer">
                                     <input type="checkbox" name="capabilities[]" value="qr_code" checked class="rounded text-[#007AFF]">
-                                    <span>QR Code</span>
+                                    <span>{{ __('pos.capability_qrcode') }}</span>
                                 </label>
                                 <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 cursor-pointer">
                                     <input type="checkbox" name="capabilities[]" value="barcode" checked class="rounded text-[#007AFF]">
-                                    <span>Barcode 1D</span>
+                                    <span>{{ __('pos.capability_barcode') }}</span>
                                 </label>
                                 <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 cursor-pointer col-span-2">
                                     <input type="checkbox" name="capabilities[]" value="beep" class="rounded text-[#007AFF]">
-                                    <span>Buzzer / Audio Beep</span>
+                                    <span>{{ __('pos.capability_buzzer') }}</span>
                                 </label>
                             </div>
                         </div>
 
                         <!-- Assigned Usages -->
                         <div class="p-4 rounded-[18px] bg-black/[0.03] dark:bg-white/[0.04] border border-black/5 dark:border-white/10 space-y-2.5">
-                            <label class="block text-[12px] font-bold uppercase tracking-wider text-black/60 dark:text-white/60">Fungsi / Routing Cetak</label>
+                            <label class="block text-[12px] font-bold uppercase tracking-wider text-black/60 dark:text-white/60">{{ __('pos.assigned_usages') }}</label>
                             <div class="grid grid-cols-2 gap-2 text-[12px]">
                                 <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 cursor-pointer">
                                     <input type="checkbox" name="assigned_usages[]" value="cashier_receipt" checked class="rounded text-[#007AFF]">
-                                    <span>Struk Kasir</span>
+                                    <span>{{ __('pos.routing_cashier') }}</span>
                                 </label>
                                 <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 cursor-pointer">
                                     <input type="checkbox" name="assigned_usages[]" value="kitchen_order" class="rounded text-[#007AFF]">
-                                    <span>Tiket Dapur</span>
+                                    <span>{{ __('pos.routing_kitchen') }}</span>
                                 </label>
                                 <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 cursor-pointer">
                                     <input type="checkbox" name="assigned_usages[]" value="bar_order" class="rounded text-[#007AFF]">
-                                    <span>Tiket Bar</span>
+                                    <span>{{ __('pos.routing_bar') }}</span>
                                 </label>
                                 <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 cursor-pointer">
                                     <input type="checkbox" name="assigned_usages[]" value="shift_report" checked class="rounded text-[#007AFF]">
-                                    <span>Tutup Shift</span>
+                                    <span>{{ __('pos.routing_shift') }}</span>
                                 </label>
                             </div>
                         </div>
@@ -749,20 +749,20 @@
                         <div class="p-3.5 rounded-[14px] bg-[#007AFF]/5 dark:bg-[#007AFF]/10 border border-[#007AFF]/15 text-[11px] text-black/70 dark:text-white/70 space-y-1">
                             <div class="font-bold text-[#007AFF] flex items-center gap-1.5">
                                 <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
-                                <span>Proteksi Keamanan Siber (SSRF Guard)</span>
+                                <span>{{ __('pos.ssrf_guard_title') }}</span>
                             </div>
-                            <p>IP LAN wajib menggunakan subnet privat (192.168.x.x / 10.x.x.x / 172.16-31.x.x) dengan port standar 9100, 9898, 515, 631, atau 8080.</p>
+                            <p>{{ __('pos.ssrf_guard_desc') }}</p>
                         </div>
                     </div>
                 </div>
 
                 <div class="flex items-center justify-end gap-3 pt-4 border-t border-black/10 dark:border-white/10">
-                    <button type="button" @click="showAddModal = false" class="min-h-[44px] px-5 rounded-[12px] text-[13px] font-medium bg-black/[0.05] dark:bg-white/[0.08] text-black/80 dark:text-white/80 hover:bg-black/[0.1] transition">Batal</button>
+                    <button type="button" @click="showAddModal = false" class="min-h-[44px] px-5 rounded-[12px] text-[13px] font-medium bg-black/[0.05] dark:bg-white/[0.08] text-black/80 dark:text-white/80 hover:bg-black/[0.1] transition">{{ __('pos.cancel') }}</button>
                     <button type="submit" :disabled="isSubmitting" class="min-h-[44px] px-6 rounded-[12px] text-[13px] font-semibold bg-[#007AFF] hover:bg-[#0071E3] text-white transition shadow-sm flex items-center gap-2">
                         <template x-if="isSubmitting">
                             <i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i>
                         </template>
-                        <span x-text="isSubmitting ? 'Menyimpan...' : 'Simpan Profil Printer'"></span>
+                        <span x-text="isSubmitting ? {{ Js::from(__('pos.saving')) }} : {{ Js::from(__('pos.save_changes_btn')) }}"></span>
                     </button>
                 </div>
             </form>
@@ -784,8 +784,8 @@
                         <i data-lucide="edit-3" class="w-5 h-5"></i>
                     </div>
                     <div>
-                        <h3 class="font-bold text-[19px] tracking-tight">Edit Profil Printer &amp; Hardware</h3>
-                        <p class="text-[13px] text-black/50 dark:text-white/50">Perbarui konfigurasi interface, kemampuan perangkat, dan penugasan fungsi cetak</p>
+                        <h3 class="font-bold text-[19px] tracking-tight">{{ __('pos.edit_printer_modal_title') }}</h3>
+                        <p class="text-[13px] text-black/50 dark:text-white/50">{{ __('pos.edit_printer_modal_desc') }}</p>
                     </div>
                 </div>
                 <button type="button" @click="showEditModal = false" class="w-8 h-8 rounded-full bg-black/[0.05] dark:bg-white/[0.08] flex items-center justify-center text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white transition">
@@ -801,16 +801,16 @@
                     <div class="lg:col-span-7 space-y-4">
                         <!-- Nama Printer -->
                         <div>
-                            <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">Nama Printer *</label>
+                            <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">{{ __('pos.printer_name') }} *</label>
                             <input type="text" name="name" x-model="editPrinter.name" required
                                 class="w-full h-11 px-3.5 rounded-[12px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
                         </div>
 
                         <!-- Outlet / Lokasi -->
                         <div>
-                            <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">Outlet / Lokasi Operasional</label>
+                            <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">{{ __('pos.table_location_label') }}</label>
                             <select name="location_id" x-model="editPrinter.location_id" class="w-full h-11 px-3.5 rounded-[12px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
-                                <option value="">Semua Outlet (Global)</option>
+                                <option value="">{{ __('pos.all_outlets_global') }}</option>
                                 @foreach($locations as $loc)
                                 <option value="{{ $loc->id }}">{{ $loc->name }}</option>
                                 @endforeach
@@ -820,7 +820,7 @@
                         <!-- Tipe Koneksi & Lebar Kertas -->
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                             <div>
-                                <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">Tipe Koneksi *</label>
+                                <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">{{ __('pos.connection_type') }} *</label>
                                 <select name="connection_type" x-model="editPrinter.connection_type" required class="w-full h-11 px-3.5 rounded-[12px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
                                     <option value="lan">Kabel LAN (Ethernet TCP/IP)</option>
                                     <option value="wifi">Wi-Fi (Wireless TCP/IP)</option>
@@ -833,7 +833,7 @@
                             </div>
 
                             <div>
-                                <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">Lebar Kertas Thermal *</label>
+                                <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">{{ __('pos.paper_width') }} *</label>
                                 <select name="paper_width" x-model="editPrinter.paper_width" required class="w-full h-11 px-3.5 rounded-[12px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
                                     <option value="80mm">80mm (Standar POS / 48 Kolom)</option>
                                     <option value="58mm">58mm (Mobile Portable / 32 Kolom)</option>
@@ -844,7 +844,7 @@
                         <!-- Interface Address & Port -->
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
                             <div class="sm:col-span-2">
-                                <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">Alamat IP / Nama Share / Port *</label>
+                                <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">{{ __('pos.interface_address') }} *</label>
                                 <input type="text" name="interface_address" x-model="editPrinter.interface_address" required
                                     class="w-full h-11 px-3.5 rounded-[12px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 text-[14px] text-black dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
                             </div>
@@ -869,50 +869,50 @@
                     <div class="lg:col-span-5 space-y-4">
                         <!-- Capabilities -->
                         <div class="p-4 rounded-[18px] bg-black/[0.03] dark:bg-white/[0.04] border border-black/5 dark:border-white/10 space-y-2.5">
-                            <label class="block text-[12px] font-bold uppercase tracking-wider text-black/60 dark:text-white/60">Kemampuan Hardware</label>
+                            <label class="block text-[12px] font-bold uppercase tracking-wider text-black/60 dark:text-white/60">{{ __('pos.hardware_capabilities_title') }}</label>
                             <div class="grid grid-cols-2 gap-2 text-[12px]">
                                 <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 cursor-pointer">
                                     <input type="checkbox" name="capabilities[]" value="cut" :checked="editPrinter.capabilities.includes('cut')" class="rounded text-[#007AFF]">
-                                    <span>Auto-Cut</span>
+                                    <span>{{ __('pos.capability_autocut') }}</span>
                                 </label>
                                 <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 cursor-pointer">
                                     <input type="checkbox" name="capabilities[]" value="cash_drawer" :checked="editPrinter.capabilities.includes('cash_drawer')" class="rounded text-[#007AFF]">
-                                    <span>Laci Uang</span>
+                                    <span>{{ __('pos.capability_drawer') }}</span>
                                 </label>
                                 <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 cursor-pointer">
                                     <input type="checkbox" name="capabilities[]" value="qr_code" :checked="editPrinter.capabilities.includes('qr_code')" class="rounded text-[#007AFF]">
-                                    <span>QR Code</span>
+                                    <span>{{ __('pos.capability_qrcode') }}</span>
                                 </label>
                                 <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 cursor-pointer">
                                     <input type="checkbox" name="capabilities[]" value="barcode" :checked="editPrinter.capabilities.includes('barcode')" class="rounded text-[#007AFF]">
-                                    <span>Barcode 1D</span>
+                                    <span>{{ __('pos.capability_barcode') }}</span>
                                 </label>
                                 <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 cursor-pointer col-span-2">
                                     <input type="checkbox" name="capabilities[]" value="beep" :checked="editPrinter.capabilities.includes('beep')" class="rounded text-[#007AFF]">
-                                    <span>Buzzer / Audio Beep</span>
+                                    <span>{{ __('pos.capability_buzzer') }}</span>
                                 </label>
                             </div>
                         </div>
 
                         <!-- Assigned Usages -->
                         <div class="p-4 rounded-[18px] bg-black/[0.03] dark:bg-white/[0.04] border border-black/5 dark:border-white/10 space-y-2.5">
-                            <label class="block text-[12px] font-bold uppercase tracking-wider text-black/60 dark:text-white/60">Fungsi / Routing Cetak</label>
+                            <label class="block text-[12px] font-bold uppercase tracking-wider text-black/60 dark:text-white/60">{{ __('pos.assigned_usages') }}</label>
                             <div class="grid grid-cols-2 gap-2 text-[12px]">
                                 <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 cursor-pointer">
                                     <input type="checkbox" name="assigned_usages[]" value="cashier_receipt" :checked="editPrinter.assigned_usages.includes('cashier_receipt')" class="rounded text-[#007AFF]">
-                                    <span>Struk Kasir</span>
+                                    <span>{{ __('pos.routing_cashier') }}</span>
                                 </label>
                                 <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 cursor-pointer">
                                     <input type="checkbox" name="assigned_usages[]" value="kitchen_order" :checked="editPrinter.assigned_usages.includes('kitchen_order')" class="rounded text-[#007AFF]">
-                                    <span>Tiket Dapur</span>
+                                    <span>{{ __('pos.routing_kitchen') }}</span>
                                 </label>
                                 <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 cursor-pointer">
                                     <input type="checkbox" name="assigned_usages[]" value="bar_order" :checked="editPrinter.assigned_usages.includes('bar_order')" class="rounded text-[#007AFF]">
-                                    <span>Tiket Bar</span>
+                                    <span>{{ __('pos.routing_bar') }}</span>
                                 </label>
                                 <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 cursor-pointer">
                                     <input type="checkbox" name="assigned_usages[]" value="shift_report" :checked="editPrinter.assigned_usages.includes('shift_report')" class="rounded text-[#007AFF]">
-                                    <span>Tutup Shift</span>
+                                    <span>{{ __('pos.routing_shift') }}</span>
                                 </label>
                             </div>
                         </div>
@@ -920,12 +920,12 @@
                 </div>
 
                 <div class="flex items-center justify-end gap-3 pt-4 border-t border-black/10 dark:border-white/10">
-                    <button type="button" @click="showEditModal = false" class="min-h-[44px] px-5 rounded-[12px] text-[13px] font-medium bg-black/[0.05] dark:bg-white/[0.08] text-black/80 dark:text-white/80 hover:bg-black/[0.1] transition">Batal</button>
+                    <button type="button" @click="showEditModal = false" class="min-h-[44px] px-5 rounded-[12px] text-[13px] font-medium bg-black/[0.05] dark:bg-white/[0.08] text-black/80 dark:text-white/80 hover:bg-black/[0.1] transition">{{ __('pos.cancel') }}</button>
                     <button type="submit" :disabled="isSubmitting" class="min-h-[44px] px-6 rounded-[12px] text-[13px] font-semibold bg-[#007AFF] hover:bg-[#0071E3] text-white transition shadow-sm flex items-center gap-2">
                         <template x-if="isSubmitting">
                             <i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i>
                         </template>
-                        <span x-text="isSubmitting ? 'Menyimpan...' : 'Simpan Perubahan'"></span>
+                        <span x-text="isSubmitting ? {{ Js::from(__('pos.saving')) }} : {{ Js::from(__('pos.save_changes_btn')) }}"></span>
                     </button>
                 </div>
             </form>
@@ -946,8 +946,8 @@
                         <i data-lucide="shield-alert" class="w-5 h-5"></i>
                     </div>
                     <div>
-                        <h3 class="text-[19px] font-bold text-black dark:text-white tracking-tight">Buka Laci Kas Manual (No-Sale Pop)</h3>
-                        <p class="text-[13px] text-black/50 dark:text-white/50">Otorisasi Supervisor &amp; Audit Log Anti-Fraud</p>
+                        <h3 class="text-[19px] font-bold text-black dark:text-white tracking-tight">{{ __('pos.manual_drawer_modal_title') }}</h3>
+                        <p class="text-[13px] text-black/50 dark:text-white/50">{{ __('pos.manual_drawer_modal_subtitle') }}</p>
                     </div>
                 </div>
                 <button type="button" @click="showManualDrawerModal = false" class="w-8 h-8 rounded-full bg-black/[0.05] dark:bg-white/[0.08] flex items-center justify-center text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white">
@@ -957,32 +957,32 @@
 
             <div class="p-4 rounded-[16px] bg-[#FF9500]/10 border border-[#FF9500]/25 text-[#995B00] dark:text-[#FFB340] text-[12px] leading-relaxed flex items-start gap-3">
                 <i data-lucide="info" class="w-4 h-4 shrink-0 mt-0.5"></i>
-                <span>Setiap pembukaan laci kas tanpa transaksi penjualan dicatat secara permanen dalam audit log sistem dengan identitas kasir, waktu, dan alasan untuk mencegah selisih kas fisik.</span>
+                <span>{{ __('pos.manual_drawer_warning_note') }}</span>
             </div>
 
             <form @submit.prevent="submitManualDrawer" class="space-y-4">
                 <div>
-                    <label class="block text-[13px] font-semibold text-black/80 dark:text-white/80 mb-1.5">PIN Supervisor / Owner <span class="text-red-500">*</span></label>
+                    <label class="block text-[13px] font-semibold text-black/80 dark:text-white/80 mb-1.5">{{ __('pos.supervisor_owner_pin_label') }} <span class="text-red-500">*</span></label>
                     <input type="password" x-model="manualDrawer.supervisor_pin" required maxlength="8" placeholder="Masukkan 4-8 digit PIN otorisasi"
                         class="w-full h-12 px-4 rounded-[12px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 text-[18px] text-black dark:text-white tracking-widest font-mono focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
                 </div>
 
                 <div>
-                    <label class="block text-[13px] font-semibold text-black/80 dark:text-white/80 mb-1.5">Alasan Pembukaan Laci <span class="text-red-500">*</span></label>
+                    <label class="block text-[13px] font-semibold text-black/80 dark:text-white/80 mb-1.5">{{ __('pos.drawer_pop_reason_label') }} <span class="text-red-500">*</span></label>
                     <textarea x-model="manualDrawer.reason" required rows="3" placeholder="Contoh: Penukaran uang kembalian pecahan kecil dengan kasir sebelah..."
                         class="w-full p-3.5 rounded-[12px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 resize-none transition"></textarea>
                 </div>
 
                 <div class="flex items-center justify-end gap-3 pt-4 border-t border-black/10 dark:border-white/10">
                     <button type="button" @click="showManualDrawerModal = false" class="min-h-[44px] px-5 rounded-[12px] text-[13px] font-medium bg-black/[0.05] dark:bg-white/[0.08] text-black/80 dark:text-white/80 hover:bg-black/[0.1] transition">
-                        Batal
+                        {{ __('pos.cancel') }}
                     </button>
                     <button type="submit" :disabled="isTesting" class="min-h-[44px] px-6 rounded-[12px] text-[13px] font-semibold bg-[#FF9500] hover:bg-[#E08500] text-white transition shadow-sm flex items-center justify-center gap-2">
                         <template x-if="isTesting">
                             <i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i>
                         </template>
                         <i x-show="!isTesting" data-lucide="unlock" class="w-4 h-4"></i>
-                        <span x-text="isTesting ? 'Mengirim Sinyal...' : 'Otorisasi &amp; Buka Laci'"></span>
+                        <span x-text="isTesting ? {{ Js::from(__('pos.sending_signal')) }} : {{ Js::from(__('pos.authorize_and_pop_drawer')) }}"></span>
                     </button>
                 </div>
             </form>

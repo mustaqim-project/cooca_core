@@ -79,7 +79,7 @@ final class WarehouseWebController extends Controller
             ->limit(8)
             ->get();
 
-        $storeSetting = $business->commerceStoreSetting ?? $business->storeSetting;
+        $storeSetting = \App\Models\CommerceStoreSetting::where('business_id', $business->id)->first();
 
         $parentOutlets = Location::where('business_id', $business->id)
             ->whereNull('parent_id')
@@ -105,7 +105,7 @@ final class WarehouseWebController extends Controller
     /**
      * Buat gudang/lokasi baru.
      */
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request): RedirectResponse|JsonResponse
     {
         $business = Context::requireBusiness();
 
@@ -131,11 +131,19 @@ final class WarehouseWebController extends Controller
 
         $locationType = $validated['type'];
         if (! $this->entitlementService->canCreateLocation($business, $locationType)) {
-            $label = in_array($locationType, ['outlet', 'store'], true) ? 'Cabang / Outlet' : ($locationType === 'central_kitchen' ? 'Dapur Pusat' : 'Gudang');
+            $label = in_array($locationType, ['outlet', 'store'], true) ? __('warehouse.types.outlet') : ($locationType === 'central_kitchen' ? __('warehouse.types.central_kitchen') : __('warehouse.types.warehouse'));
+            $quotaMsg = __('warehouse.messages.quota_exceeded', ['type' => $label]);
+
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $quotaMsg,
+                ], 422);
+            }
 
             return redirect()->back()
                 ->withInput()
-                ->with('error', "Batas kuota {$label} untuk paket langganan Anda telah tercapai. Silakan upgrade paket Anda untuk menambah lokasi baru.");
+                ->with('error', $quotaMsg);
         }
 
         // Generate unique slug
@@ -193,10 +201,16 @@ final class WarehouseWebController extends Controller
             ]);
         }
 
-        $label = in_array($validated['type'], ['outlet', 'store']) ? 'Cabang / Outlet' : ($validated['type'] === 'central_kitchen' ? 'Dapur Pusat' : 'Gudang');
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => __('warehouse.messages.created_success'),
+                'location' => $location,
+            ], 201);
+        }
 
         return redirect()->route('warehouse.index')
-            ->with('success', __('warehouse.created_success'));
+            ->with('success', __('warehouse.messages.created_success'));
     }
 
     /**
@@ -274,7 +288,7 @@ final class WarehouseWebController extends Controller
     /**
      * Update data gudang/lokasi.
      */
-    public function update(Request $request, Location $location): RedirectResponse
+    public function update(Request $request, Location $location): RedirectResponse|JsonResponse
     {
         $business = Context::requireBusiness();
         abort_unless($location->business_id === $business->id, 403);
@@ -304,14 +318,19 @@ final class WarehouseWebController extends Controller
         if ($parentId !== null) {
             if ($parentId === $location->id) {
                 throw ValidationException::withMessages([
-                    'parent_id' => 'Lokasi tidak dapat menjadi induk bagi dirinya sendiri.',
+                    'parent_id' => __('warehouse.validation.parent_self'),
                 ]);
             }
-            $descendantIds = $location->children()->pluck('id')->all();
-            if (in_array($parentId, $descendantIds, true)) {
-                throw ValidationException::withMessages([
-                    'parent_id' => 'Lokasi cabang induk tidak boleh berasal dari sub-lokasinya sendiri.',
-                ]);
+            
+            // Check if $parentId is an arbitrary descendant of $location
+            $curr = Location::where('business_id', $business->id)->find($parentId);
+            while ($curr && ! empty($curr->parent_id)) {
+                if ($curr->parent_id === $location->id) {
+                    throw ValidationException::withMessages([
+                        'parent_id' => __('warehouse.validation.parent_descendant'),
+                    ]);
+                }
+                $curr = Location::where('business_id', $business->id)->find($curr->parent_id);
             }
         }
 
@@ -368,10 +387,16 @@ final class WarehouseWebController extends Controller
             ]);
         }
 
-        $label = in_array($validated['type'], ['outlet', 'store']) ? 'Cabang / Outlet' : ($validated['type'] === 'central_kitchen' ? 'Dapur Pusat' : 'Gudang');
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => __('warehouse.messages.updated_success'),
+                'location' => $location,
+            ]);
+        }
 
         return redirect()->route('warehouse.index')
-            ->with('success', __('warehouse.updated_success'));
+            ->with('success', __('warehouse.messages.updated_success'));
     }
 
     /**
@@ -383,7 +408,11 @@ final class WarehouseWebController extends Controller
         abort_unless($location->business_id === $business->id, 403);
 
         if ($location->is_primary) {
-            return back()->with('error', __('warehouse.cannot_delete_primary'));
+            $msg = __('warehouse.cannot_delete_primary');
+            if (request()->wantsJson() || request()->ajax()) {
+                return response()->json(['success' => false, 'message' => $msg], 422);
+            }
+            return back()->with('error', $msg);
         }
 
         $hasStock = InventoryStock::where('business_id', $business->id)
@@ -392,7 +421,11 @@ final class WarehouseWebController extends Controller
             ->exists();
 
         if ($hasStock) {
-            return back()->with('error', __('warehouse.cannot_delete_has_stock'));
+            $msg = __('warehouse.cannot_delete_has_stock');
+            if (request()->wantsJson() || request()->ajax()) {
+                return response()->json(['success' => false, 'message' => $msg], 422);
+            }
+            return back()->with('error', $msg);
         }
 
         // Non-Destructive Location Archival Guard (§FR-05)
@@ -406,9 +439,9 @@ final class WarehouseWebController extends Controller
 
         if ($hasHistory) {
             $location->update(['is_active' => false]);
-            $msg = "Lokasi \"{$location->name}\" memiliki riwayat transaksi masa lalu sehingga telah dinonaktifkan dengan aman untuk melindungi data pembukuan dan audit.";
+            $msg = __('warehouse.messages.deactivated_due_to_history', ['name' => $location->name]);
 
-            if (request()->wantsJson()) {
+            if (request()->wantsJson() || request()->ajax()) {
                 return response()->json(['success' => true, 'message' => $msg, 'deactivated' => true]);
             }
 
@@ -416,14 +449,13 @@ final class WarehouseWebController extends Controller
                 ->with('success', $msg);
         }
 
-        $name = $location->name;
         $location->delete();
 
-        if (request()->wantsJson()) {
-            return response()->json(['success' => true, 'message' => __('warehouse.deleted_success')]);
+        if (request()->wantsJson() || request()->ajax()) {
+            return response()->json(['success' => true, 'message' => __('warehouse.messages.deleted_success')]);
         }
 
         return redirect()->route('warehouse.index')
-            ->with('success', __('warehouse.deleted_success'));
+            ->with('success', __('warehouse.messages.deleted_success'));
     }
 }

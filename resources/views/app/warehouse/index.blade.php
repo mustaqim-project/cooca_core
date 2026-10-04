@@ -1,7 +1,7 @@
 @extends('layouts.app', [
-    'title' => 'Cabang & Gudang',
-    'headerTitle' => 'Cabang & Gudang',
-    'headerSubtitle' => 'Kelola jaringan cabang toko/outlet, titik penyimpanan gudang logistik, dan absensi geofence.'
+    'title' => __('warehouse.title'),
+    'headerTitle' => __('warehouse.header_title'),
+    'headerSubtitle' => __('warehouse.header_subtitle')
 ])
 
 @section('content')
@@ -9,7 +9,7 @@
     showCreateModal: new URLSearchParams(window.location.search).get('add') === 'warehouse',
     showCreateOutletModal: new URLSearchParams(window.location.search).get('add') === 'outlet' || new URLSearchParams(window.location.search).get('add') === 'branch',
     showEditModal: false,
-    filterTab: 'all',
+    filterTab: new URLSearchParams(window.location.search).get('type') || 'all',
     gpsLoading: false,
     gpsSuccess: false,
     gpsError: '',
@@ -92,6 +92,17 @@
     deleteModalOpen: false,
     deleteTarget: { id: null, name: '' },
 
+    setFilter(type) {
+        this.filterTab = type;
+        const url = new URL(window.location.href);
+        if (type === 'all') {
+            url.searchParams.delete('type');
+        } else {
+            url.searchParams.set('type', type);
+        }
+        window.history.replaceState({}, '', url.toString());
+    },
+
     openEdit(loc) {
         this.editData = {
             id: loc.id,
@@ -130,7 +141,7 @@
         this.gpsSuccess = false;
 
         if (!navigator.geolocation) {
-            this.gpsError = 'Browser Anda tidak mendukung Geolocation GPS.';
+            this.gpsError = '{{ __("warehouse.actions.detecting_gps") }}';
             this.gpsLoading = false;
             return;
         }
@@ -182,11 +193,11 @@
             (err) => {
                 this.gpsLoading = false;
                 if (err.code === 1) {
-                    this.gpsError = 'Izin akses lokasi ditolak. Silakan izinkan lokasi di pengaturan browser.';
+                    this.gpsError = '{{ __("warehouse.gps_errors.permission_denied") }}';
                 } else if (err.code === 2) {
-                    this.gpsError = 'Posisi GPS tidak dapat ditentukan. Pastikan GPS/Location device aktif.';
+                    this.gpsError = '{{ __("warehouse.gps_errors.position_unavailable") }}';
                 } else {
-                    this.gpsError = 'Waktu deteksi GPS habis. Coba lagi.';
+                    this.gpsError = '{{ __("warehouse.gps_errors.timeout") }}';
                 }
                 setTimeout(() => { this.gpsError = ''; }, 5000);
             },
@@ -289,29 +300,29 @@
     {{-- 1. TOOLBAR / PAGE HEADER                                --}}
     {{-- ===================================================== --}}
     <x-module-header
-        title="Cabang & Gudang Logistik"
-        subtitle="Kelola jaringan cabang toko/outlet, titik penyimpanan gudang logistik, dan absensi geofence">
+        :title="__('warehouse.header_title')"
+        :subtitle="__('warehouse.header_subtitle')">
         @if($business->isModuleEnabled(\App\Domain\Template\ModuleRegistry::MODULE_RECIPE_BOM) && \App\Support\Context::hasPermission('inventory.view'))
             <a href="{{ route('materials.index') }}"
                class="min-h-[44px] sm:min-h-0 h-11 sm:h-9 px-3.5 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] dark:hover:bg-white/[0.1] active:scale-[0.98] transition-all flex items-center justify-center gap-1.5">
                 <i data-lucide="boxes" class="w-4 h-4 text-black/50 dark:text-white/50"></i>
-                <span>Katalog Bahan</span>
+                <span>{{ __('warehouse.actions.material_catalog') }}</span>
             </a>
         @endif
         @if(\App\Support\Context::hasPermission('inventory.view'))
             <a href="{{ route('products.index') }}"
                class="min-h-[44px] sm:min-h-0 h-11 sm:h-9 px-3.5 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] dark:hover:bg-white/[0.1] active:scale-[0.98] transition-all flex items-center justify-center gap-1.5">
                 <i data-lucide="package" class="w-4 h-4 text-black/50 dark:text-white/50"></i>
-                <span>Katalog Produk</span>
+                <span>{{ __('warehouse.actions.product_catalog') }}</span>
             </a>
         @endif
 
         @if(($business->isModuleEnabled(\App\Domain\Template\ModuleRegistry::MODULE_MERCHANT_SHIPPING) || $business->isModuleEnabled(\App\Domain\Template\ModuleRegistry::MODULE_STOREFRONT_CHECKOUT)) && (\App\Support\Context::hasPermission('storefront.shipping.manage') || \App\Support\Context::isAdminOrOwner()))
             <a href="{{ route('storefront.shipping.index') }}"
                class="min-h-[44px] sm:min-h-0 h-11 sm:h-9 px-3.5 rounded-[10px] text-[13px] font-semibold text-[#5856D6] dark:text-[#A78BFA] bg-[#5856D6]/10 hover:bg-[#5856D6]/15 active:scale-[0.98] transition-all flex items-center justify-center gap-1.5"
-               title="Pengaturan Ongkir & Kurir Toko Online">
+               title="{{ __('warehouse.actions.storefront_shipping') }}">
                 <i data-lucide="truck" class="w-4 h-4 text-[#5856D6] dark:text-[#A78BFA]"></i>
-                <span>Pengiriman Storefront</span>
+                <span>{{ __('warehouse.actions.storefront_shipping') }}</span>
             </a>
         @endif
 
@@ -319,12 +330,12 @@
             <button type="button" @click="showCreateOutletModal = true; gpsError = ''; gpsSuccess = false;"
                     class="min-h-[44px] sm:min-h-0 h-11 sm:h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#34C759] hover:bg-[#28A745] active:scale-[0.98] transition-all flex items-center justify-center gap-1.5 shadow-[0_1px_2px_rgba(52,199,89,0.25)] cursor-pointer">
                 <i data-lucide="store" class="w-4 h-4"></i>
-                <span>+ Cabang / Outlet</span>
+                <span>{{ __('warehouse.actions.add_outlet') }}</span>
             </button>
             <button type="button" @click="showCreateModal = true; gpsError = ''; gpsSuccess = false;"
                     class="min-h-[44px] sm:min-h-0 h-11 sm:h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] transition-all flex items-center justify-center gap-1.5 shadow-[0_1px_2px_rgba(0,122,255,0.25)] cursor-pointer">
                 <i data-lucide="plus" class="w-4 h-4"></i>
-                <span>+ Gudang Logistik</span>
+                <span>{{ __('warehouse.actions.add_warehouse') }}</span>
             </button>
         @endif
     </x-module-header>
@@ -357,35 +368,35 @@
         {{-- Tile 1: Total Lokasi --}}
         <div class="rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] p-4 sm:p-5 flex flex-col justify-between shadow-xs">
             <div class="flex items-center justify-between">
-                <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Total Lokasi</span>
+                <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">{{ __('warehouse.kpis.total_locations') }}</span>
                 <div class="w-7 h-7 rounded-[8px] bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 dark:text-slate-400">
                     <i data-lucide="map-pin" class="w-3.5 h-3.5"></i>
                 </div>
             </div>
             <div class="mt-3 flex items-baseline justify-between">
                 <span class="text-2xl font-black tabular-nums text-slate-900 dark:text-white">{{ $totalWarehouses ?? $locations->count() }}</span>
-                <span class="text-[11px] text-slate-400 dark:text-slate-500 font-medium">Cabang &amp; Gudang</span>
+                <span class="text-[11px] text-slate-400 dark:text-slate-500 font-medium">{{ __('warehouse.kpis.branches_warehouses') }}</span>
             </div>
         </div>
 
         {{-- Tile 2: Lokasi Aktif --}}
         <div class="rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] p-4 sm:p-5 flex flex-col justify-between shadow-xs">
             <div class="flex items-center justify-between">
-                <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Lokasi Aktif</span>
+                <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">{{ __('warehouse.kpis.active_locations') }}</span>
                 <div class="w-7 h-7 rounded-[8px] bg-[#34C759]/10 flex items-center justify-center text-[#34C759]">
                     <i data-lucide="check" class="w-3.5 h-3.5"></i>
                 </div>
             </div>
             <div class="mt-3 flex items-baseline justify-between">
                 <span class="text-2xl font-black tabular-nums text-[#34C759] dark:text-[#30D158]">{{ $activeWarehouses ?? $locations->where('is_active', true)->count() }}</span>
-                <span class="text-[11px] font-semibold text-[#34C759] dark:text-[#30D158]">Siap Operasi</span>
+                <span class="text-[11px] font-semibold text-[#34C759] dark:text-[#30D158]">{{ __('warehouse.kpis.ready_to_operate') }}</span>
             </div>
         </div>
 
         {{-- Tile 3: Total Nilai Aset Stok --}}
         <div class="rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] p-4 sm:p-5 flex flex-col justify-between shadow-xs">
             <div class="flex items-center justify-between">
-                <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Nilai Aset Stok</span>
+                <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">{{ __('warehouse.kpis.stock_asset_value') }}</span>
                 <div class="w-7 h-7 rounded-[8px] bg-[#5856D6]/10 flex items-center justify-center text-[#5856D6]">
                     <i data-lucide="badge-dollar-sign" class="w-3.5 h-3.5"></i>
                 </div>
@@ -394,21 +405,21 @@
                 <span class="text-xl sm:text-2xl font-black tabular-nums text-[#5856D6] dark:text-[#5E5CE6] truncate">
                     Rp {{ number_format($totalValuation ?? 0, 0, ',', '.') }}
                 </span>
-                <span class="text-[11px] text-slate-400 dark:text-slate-500 font-medium">HPP</span>
+                <span class="text-[11px] text-slate-400 dark:text-slate-500 font-medium">{{ __('warehouse.kpis.cogs_valuation') }}</span>
             </div>
         </div>
 
         {{-- Tile 4: Stok Perlu Restock / Total Unit --}}
         <div class="rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] p-4 sm:p-5 flex flex-col justify-between shadow-xs">
             <div class="flex items-center justify-between">
-                <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Stok Menipis</span>
+                <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">{{ __('warehouse.kpis.low_stock') }}</span>
                 <div class="w-7 h-7 rounded-[8px] {{ ($totalLowStock ?? 0) > 0 ? 'bg-[#FF9500]/10 text-[#FF9500]' : 'bg-slate-100 dark:bg-slate-800 text-slate-400' }} flex items-center justify-center">
                     <i data-lucide="alert-circle" class="w-3.5 h-3.5"></i>
                 </div>
             </div>
             <div class="mt-3 flex items-baseline justify-between">
                 <span class="text-2xl font-black tabular-nums {{ ($totalLowStock ?? 0) > 0 ? 'text-[#FF9500] dark:text-[#FF9F0A]' : 'text-slate-900 dark:text-white' }}">{{ $totalLowStock ?? 0 }}</span>
-                <span class="text-[11px] {{ ($totalLowStock ?? 0) > 0 ? 'text-[#FF9500] dark:text-[#FF9F0A] font-bold' : 'text-slate-400 dark:text-slate-500 font-medium' }}">{{ ($totalLowStock ?? 0) > 0 ? 'Perlu Restock' : 'Batas Aman' }}</span>
+                <span class="text-[11px] {{ ($totalLowStock ?? 0) > 0 ? 'text-[#FF9500] dark:text-[#FF9F0A] font-bold' : 'text-slate-400 dark:text-slate-500 font-medium' }}">{{ ($totalLowStock ?? 0) > 0 ? __('warehouse.kpis.need_restock') : __('warehouse.kpis.safe_threshold') }}</span>
             </div>
         </div>
     </div>
@@ -419,29 +430,29 @@
     <div class="space-y-4">
         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <div class="flex items-center gap-2">
-                <h2 class="text-base font-bold text-slate-900 dark:text-white tracking-tight">Daftar Titik Lokasi</h2>
+                <h2 class="text-base font-bold text-slate-900 dark:text-white tracking-tight">{{ __('warehouse.tabs.all_locations') }}</h2>
                 <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 tabular-nums">
                     {{ $locations->count() }}
                 </span>
             </div>
             {{-- Tab Filter: Semua | Cabang & Toko | Gudang Logistik --}}
             <div class="inline-flex p-1 rounded-[12px] bg-black/[0.05] dark:bg-white/[0.07] border border-black/5 dark:border-white/10 text-xs font-medium">
-                <button @click="filterTab = 'all'"
+                <button @click="setFilter('all')"
                         :class="filterTab === 'all' ? 'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] font-bold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white'"
                         class="px-3 py-1.5 rounded-[8px] transition-all flex items-center gap-1.5 cursor-pointer">
-                    Semua Lokasi
+                    {{ __('warehouse.tabs.all_locations') }}
                     <span class="px-1.5 rounded-full text-[11px] tabular-nums font-semibold bg-black/[0.06] dark:bg-white/[0.08]" x-text="{{ $locations->count() }}"></span>
                 </button>
-                <button @click="filterTab = 'outlet'"
+                <button @click="setFilter('outlet')"
                         :class="filterTab === 'outlet' ? 'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] font-bold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white'"
                         class="px-3 py-1.5 rounded-[8px] transition-all flex items-center gap-1.5 cursor-pointer">
-                    <span class="w-2 h-2 rounded-full bg-[#34C759]"></span> Cabang &amp; Toko
+                    <span class="w-2 h-2 rounded-full bg-[#34C759]"></span> {{ __('warehouse.tabs.branches_outlets') }}
                     <span class="px-1.5 rounded-full text-[11px] tabular-nums font-semibold bg-black/[0.06] dark:bg-white/[0.08]">{{ $locations->filter(fn($l) => in_array($l->type, ['outlet', 'store', 'central_kitchen']))->count() }}</span>
                 </button>
-                <button @click="filterTab = 'warehouse'"
+                <button @click="setFilter('warehouse')"
                         :class="filterTab === 'warehouse' ? 'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] font-bold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white'"
                         class="px-3 py-1.5 rounded-[8px] transition-all flex items-center gap-1.5 cursor-pointer">
-                    <span class="w-2 h-2 rounded-full bg-[#007AFF]"></span> Gudang Logistik
+                    <span class="w-2 h-2 rounded-full bg-[#007AFF]"></span> {{ __('warehouse.tabs.logistics_warehouses') }}
                     <span class="px-1.5 rounded-full text-[11px] tabular-nums font-semibold bg-black/[0.06] dark:bg-white/[0.08]">{{ $locations->where('type', 'warehouse')->count() }}</span>
                 </button>
             </div>
@@ -480,37 +491,37 @@
                                     </h3>
                                     @php
                                         $isStorefrontEnabled = ($business->isModuleEnabled(\App\Domain\Template\ModuleRegistry::MODULE_MERCHANT_SHIPPING) || $business->isModuleEnabled(\App\Domain\Template\ModuleRegistry::MODULE_STOREFRONT_CHECKOUT));
-                                        $isActiveStorefrontOrigin = $isStorefrontEnabled && (($storeSetting && $storeSetting->origin_location_id === $loc->id)
-                                            || ($loc->is_primary && empty($storeSetting?->origin_location_id)));
+                                        $isActiveStorefrontOrigin = ($storeSetting && (string)$storeSetting->origin_location_id === (string)$loc->id)
+                                            || ($isStorefrontEnabled && $loc->is_primary && empty($storeSetting?->origin_location_id));
                                     @endphp
                                     @if($isActiveStorefrontOrigin)
-                                        <a href="{{ route('storefront.shipping.index') }}" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/25 transition-colors" title="Titik Asal Penjemputan Storefront Online Aktif">
+                                        <a href="{{ route('storefront.shipping.index') }}" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/25 transition-colors" title="{{ __('warehouse.badges.storefront_shipping') }}">
                                             <i data-lucide="truck" class="w-3 h-3 text-emerald-600 dark:text-emerald-400"></i>
-                                            <span>Asal Kirim Storefront</span>
+                                            <span>{{ __('warehouse.badges.storefront_origin') }}</span>
                                         </a>
                                     @elseif($loc->is_primary)
-                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#FF9500]/15 text-[#D97706] dark:text-[#FBBF24] border border-[#FF9500]/30" title="Cabang Utama Toko">
+                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#FF9500]/15 text-[#D97706] dark:text-[#FBBF24] border border-[#FF9500]/30" title="{{ __('warehouse.badges.primary') }}">
                                             <i data-lucide="building" class="w-3 h-3"></i>
-                                            <span>Cabang Utama</span>
+                                            <span>{{ __('warehouse.badges.primary') }}</span>
                                         </span>
                                     @endif
 
-                                    {{-- Hierarchical Location Badges (Case 5) --}}
+                                    {{-- Hierarchical Location Badges --}}
                                     @if($loc->parent_id && $loc->parent)
-                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#5856D6]/15 text-[#5856D6] dark:text-[#A78BFA] border border-[#5856D6]/30" title="Sub-gudang di bawah cabang {{ $loc->parent->name }}">
+                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#5856D6]/15 text-[#5856D6] dark:text-[#A78BFA] border border-[#5856D6]/30" title="{{ __('warehouse.badges.parent', ['name' => $loc->parent->name]) }}">
                                             <i data-lucide="corner-down-right" class="w-3 h-3"></i>
-                                            <span>Sub-Gudang: {{ $loc->parent->name }}</span>
+                                            <span>{{ __('warehouse.types.sub_warehouse') }}: {{ $loc->parent->name }}</span>
                                         </span>
                                     @elseif($loc->type === 'warehouse' && empty($loc->parent_id))
-                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#007AFF]/15 text-[#007AFF] border border-[#007AFF]/30" title="Gudang Distribusi Pusat (DC) Perusahaan">
+                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#007AFF]/15 text-[#007AFF] border border-[#007AFF]/30" title="{{ __('warehouse.types.central_warehouse') }}">
                                             <i data-lucide="boxes" class="w-3 h-3"></i>
-                                            <span>Gudang Pusat (DC)</span>
+                                            <span>{{ __('warehouse.types.central_warehouse') }}</span>
                                         </span>
                                     @endif
                                     @if($loc->children && $loc->children->isNotEmpty())
                                         <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158] border border-[#34C759]/30" title="{{ $loc->children->pluck('name')->implode(', ') }}">
                                             <i data-lucide="git-branch" class="w-3 h-3"></i>
-                                            <span>{{ $loc->children->count() }} Sub-Gudang</span>
+                                            <span class="tabular-nums">{{ $loc->children->count() }} {{ __('warehouse.types.sub_warehouse') }}</span>
                                         </span>
                                     @endif
                                 </div>
@@ -523,11 +534,17 @@
                                     @endif
                                     <span class="text-xs text-slate-600 dark:text-slate-400 font-medium">
                                         @if($loc->type === 'warehouse')
-                                            Gudang
+                                            {{ __('warehouse.types.warehouse') }}
                                         @elseif($loc->type === 'central_kitchen')
-                                            Dapur Pusat
+                                            @if(str_starts_with($business->template_code ?? '', 'mfg_'))
+                                                {{ __('warehouse.types.central_kitchen_mfg') }}
+                                            @elseif(($business->template_code ?? '') === 'service_contractor')
+                                                {{ __('warehouse.types.central_kitchen_contractor') }}
+                                            @else
+                                                {{ __('warehouse.types.central_kitchen') }}
+                                            @endif
                                         @else
-                                            Outlet
+                                            {{ __('warehouse.types.outlet') }}
                                         @endif
                                     </span>
                                 </div>
@@ -538,11 +555,11 @@
                         <div>
                             @if($loc->is_active)
                                 <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158]">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-[#34C759]"></span> Aktif
+                                    <span class="w-1.5 h-1.5 rounded-full bg-[#34C759]"></span> {{ __('warehouse.badges.active') }}
                                 </span>
                             @else
                                 <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span> Nonaktif
+                                    <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span> {{ __('warehouse.badges.inactive') }}
                                 </span>
                             @endif
                         </div>
@@ -551,35 +568,35 @@
                     {{-- Badges: GPS Geofence, Biteship Logistics, Online Fulfillment, & Store Pickup --}}
                     <div class="mt-3 flex flex-wrap gap-1.5">
                         @if($loc->is_online_fulfillment)
-                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-[6px] text-[11px] font-semibold bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20" title="Cabang ini melayani pengiriman pesanan kurir online">
+                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-[6px] text-[11px] font-semibold bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20" title="{{ __('warehouse.fields.is_online_fulfillment') }}">
                                 <i data-lucide="truck" class="w-3 h-3"></i>
-                                <span>Fulfillment Online</span>
+                                <span>{{ __('warehouse.badges.online_fulfillment') }}</span>
                             </span>
                         @endif
 
                         @if($loc->allow_storefront_pickup)
-                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-[6px] text-[11px] font-semibold bg-[#007AFF]/10 text-[#007AFF] border border-[#007AFF]/20" title="Pelanggan dapat mengambil pesanan langsung di cabang ini">
+                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-[6px] text-[11px] font-semibold bg-[#007AFF]/10 text-[#007AFF] border border-[#007AFF]/20" title="{{ __('warehouse.fields.allow_storefront_pickup') }}">
                                 <i data-lucide="shopping-bag" class="w-3 h-3"></i>
-                                <span>Ambil di Toko</span>
+                                <span>{{ __('warehouse.badges.storefront_pickup') }}</span>
                             </span>
                         @endif
 
                         @if($loc->latitude && $loc->longitude)
-                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-[6px] text-[11px] font-semibold bg-[#007AFF]/10 text-[#007AFF] border border-[#007AFF]/20 font-mono">
+                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-[6px] text-[11px] font-semibold bg-[#007AFF]/10 text-[#007AFF] border border-[#007AFF]/20 font-mono tabular-nums">
                                 <i data-lucide="crosshair" class="w-3 h-3"></i>
                                 <span>GPS: {{ round((float)$loc->latitude, 4) }}, {{ round((float)$loc->longitude, 4) }} (R: {{ $loc->geofence_radius_meters ?? 100 }}m)</span>
                             </span>
                         @else
                             <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-[6px] text-[11px] font-medium bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400">
                                 <i data-lucide="map-pin-off" class="w-3 h-3 text-slate-400"></i>
-                                <span>GPS Belum Diset</span>
+                                <span>{{ __('warehouse.fields.gps_not_set') }}</span>
                             </span>
                         @endif
 
                         @if($loc->biteship_area_id)
                             <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-[6px] text-[11px] font-semibold bg-[#5856D6]/10 text-[#5856D6] dark:text-[#5E5CE6] border border-[#5856D6]/20">
                                 <i data-lucide="package-check" class="w-3 h-3"></i>
-                                <span>Biteship Area Terhubung</span>
+                                <span>{{ __('warehouse.fields.biteship_connected') }}</span>
                             </span>
                         @endif
                     </div>
@@ -619,13 +636,13 @@
                             </span>
                         </div>
                         <div class="rounded-[10px] bg-slate-50 dark:bg-[#2C2C2E] p-2">
-                            <span class="text-[10px] text-slate-400 dark:text-slate-500 block font-semibold uppercase">Unit Stok</span>
+                            <span class="text-[10px] text-slate-400 dark:text-slate-500 block font-semibold uppercase">{{ __('warehouse.kpis.total_qty') }}</span>
                             <span class="text-xs sm:text-sm font-bold tabular-nums text-slate-900 dark:text-white">
                                 {{ number_format($loc->total_stock_units ?? 0, 0, ',', '.') }}
                             </span>
                         </div>
                         <div class="rounded-[10px] bg-slate-50 dark:bg-[#2C2C2E] p-2">
-                            <span class="text-[10px] text-slate-400 dark:text-slate-500 block font-semibold uppercase">Nilai Aset</span>
+                            <span class="text-[10px] text-slate-400 dark:text-slate-500 block font-semibold uppercase">{{ __('warehouse.kpis.stock_asset_value') }}</span>
                             <span class="text-xs sm:text-sm font-bold tabular-nums text-[#34C759] dark:text-[#30D158] truncate block" title="Rp {{ number_format($loc->total_valuation ?? 0, 0, ',', '.') }}">
                                 {{ ($loc->total_valuation ?? 0) >= 1000000 ? number_format(($loc->total_valuation ?? 0) / 1000000, 1) . 'jt' : number_format(($loc->total_valuation ?? 0) / 1000, 0) . 'rb' }}
                             </span>
@@ -635,23 +652,23 @@
                     {{-- Actions --}}
                     <div class="mt-4 flex items-center justify-between gap-2">
                         <a href="{{ route('warehouse.show', $loc) }}"
-                           class="h-8.5 flex-1 rounded-[10px] text-xs font-bold text-[#007AFF] bg-[#007AFF]/10 hover:bg-[#007AFF]/15 active:scale-[0.98] transition-all flex items-center justify-center gap-1.5 cursor-pointer">
-                            <span>Kelola Stok</span>
+                           class="min-h-[44px] h-11 flex-1 rounded-[10px] text-xs font-bold text-[#007AFF] bg-[#007AFF]/10 hover:bg-[#007AFF]/15 active:scale-[0.98] transition-all flex items-center justify-center gap-1.5 cursor-pointer">
+                            <span>{{ __('warehouse.actions.quick_adjust') }}</span>
                             <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
                         </a>
 
                         @if(\App\Support\Context::hasPermission('inventory.manage') || \App\Support\Context::isAdminOrOwner() || \App\Support\Context::hasPermission('warehouse.manage'))
                         <div class="flex items-center gap-1.5 shrink-0">
-                            <button type="button" @click="openEdit({{ json_encode($loc) }})"
-                                    class="h-8.5 px-3 rounded-[10px] text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 active:scale-[0.98] transition-all flex items-center gap-1 cursor-pointer"
-                                    title="Edit Lokasi">
+                            <button type="button" @click="openEdit(@js($loc))"
+                                    class="min-h-[44px] h-11 px-3.5 rounded-[10px] text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 active:scale-[0.98] transition-all flex items-center gap-1 cursor-pointer"
+                                    title="{{ __('warehouse.actions.edit_location') }}">
                                 <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
-                                <span>Edit</span>
+                                <span>{{ __('warehouse.actions.edit_location') }}</span>
                             </button>
 
-                            <button type="button" @click="openDelete({{ $loc->id }}, '{{ addslashes($loc->name) }}')"
-                                    class="h-8.5 w-8.5 rounded-[10px] text-[#FF3B30] hover:bg-[#FF3B30]/10 active:scale-[0.98] transition-all flex items-center justify-center cursor-pointer"
-                                    title="Hapus Lokasi">
+                            <button type="button" @click="openDelete(@js($loc->id), @js($loc->name))"
+                                    class="min-h-[44px] h-11 w-11 rounded-[10px] text-[#FF3B30] hover:bg-[#FF3B30]/10 active:scale-[0.98] transition-all flex items-center justify-center cursor-pointer"
+                                    title="{{ __('warehouse.actions.delete_location') }}">
                                 <i data-lucide="trash-2" class="w-4 h-4"></i>
                             </button>
 
@@ -669,15 +686,15 @@
                 <div class="w-14 h-14 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mx-auto mb-3 text-slate-400">
                     <i data-lucide="warehouse" class="w-7 h-7"></i>
                 </div>
-                <h3 class="text-base font-bold text-slate-900 dark:text-white">Belum Ada Gudang atau Lokasi</h3>
+                <h3 class="text-base font-bold text-slate-900 dark:text-white">{{ __('warehouse.stock_table.empty') }}</h3>
                 <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-sm mx-auto">
-                    Daftarkan gudang utama, dapur produksi, atau cabang outlet untuk mulai mengelola pencatatan stok fisik.
+                    {{ __('warehouse.header_subtitle') }}
                 </p>
                 @if(\App\Support\Context::hasPermission('inventory.manage') || \App\Support\Context::isAdminOrOwner() || \App\Support\Context::hasPermission('warehouse.manage'))
                 <button type="button" @click="showCreateModal = true; gpsError = ''; gpsSuccess = false;"
-                        class="mt-4 h-9 px-4 rounded-[10px] text-xs font-bold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] transition-all inline-flex items-center gap-1.5 cursor-pointer">
+                        class="mt-4 min-h-[44px] h-11 px-5 rounded-[10px] text-xs font-bold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] transition-all inline-flex items-center gap-1.5 cursor-pointer">
                     <i data-lucide="plus" class="w-4 h-4"></i>
-                    <span>Tambah Gudang Pertama</span>
+                    <span>{{ __('warehouse.actions.add_warehouse') }}</span>
                 </button>
                 @endif
             </div>
@@ -691,10 +708,10 @@
     <div class="rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] p-4 sm:p-5 shadow-xs">
         <div class="flex items-center justify-between mb-4">
             <div>
-                <h3 class="text-sm font-bold text-slate-900 dark:text-white">Alur Masuk Barang &amp; Penerimaan PO</h3>
-                <p class="text-xs text-slate-500 dark:text-slate-400">Prosedur operasional standar penerimaan inventori fisik di gudang</p>
+                <h3 class="text-sm font-bold text-slate-900 dark:text-white">{{ __('warehouse.sop.title') }}</h3>
+                <p class="text-xs text-slate-500 dark:text-slate-400">{{ __('warehouse.receipts_table.subtitle') }}</p>
             </div>
-            <span class="text-[11px] font-bold text-[#007AFF] bg-[#007AFF]/10 px-2.5 py-1 rounded-full">SOP Gudang</span>
+            <span class="text-[11px] font-bold text-[#007AFF] bg-[#007AFF]/10 px-2.5 py-1 rounded-full">SOP</span>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
@@ -702,10 +719,10 @@
             <div class="rounded-[12px] bg-slate-50 dark:bg-[#2C2C2E] p-3.5 border border-black/[0.04] dark:border-white/[0.04]">
                 <div class="flex items-center gap-2 mb-1.5">
                     <span class="w-5 h-5 rounded-full bg-[#007AFF] text-white text-[11px] font-bold flex items-center justify-center tabular-nums">1</span>
-                    <span class="text-xs font-bold text-slate-900 dark:text-white">Buat PO Supplier</span>
+                    <span class="text-xs font-bold text-slate-900 dark:text-white">{{ __('warehouse.sop.step_1') }}</span>
                 </div>
                 <p class="text-xs text-slate-600 dark:text-slate-400 leading-snug">
-                    Terbitkan Purchase Order ke vendor melalui menu PO dengan item dan harga acuan.
+                    {{ __('purchasing.receipts.notes_placeholder') }}
                 </p>
             </div>
 
@@ -713,10 +730,10 @@
             <div class="rounded-[12px] bg-slate-50 dark:bg-[#2C2C2E] p-3.5 border border-black/[0.04] dark:border-white/[0.04]">
                 <div class="flex items-center gap-2 mb-1.5">
                     <span class="w-5 h-5 rounded-full bg-[#007AFF] text-white text-[11px] font-bold flex items-center justify-center tabular-nums">2</span>
-                    <span class="text-xs font-bold text-slate-900 dark:text-white">Fisik Tiba di Gudang</span>
+                    <span class="text-xs font-bold text-slate-900 dark:text-white">{{ __('warehouse.sop.step_2') }}</span>
                 </div>
                 <p class="text-xs text-slate-600 dark:text-slate-400 leading-snug">
-                    Vendor mengirim barang. Petugas gudang memeriksa surat jalan dan kondisi packaging.
+                    {{ __('purchasing.receipts.section_items_desc') }}
                 </p>
             </div>
 
@@ -724,10 +741,10 @@
             <div class="rounded-[12px] bg-slate-50 dark:bg-[#2C2C2E] p-3.5 border border-black/[0.04] dark:border-white/[0.04]">
                 <div class="flex items-center gap-2 mb-1.5">
                     <span class="w-5 h-5 rounded-full bg-[#007AFF] text-white text-[11px] font-bold flex items-center justify-center tabular-nums">3</span>
-                    <span class="text-xs font-bold text-slate-900 dark:text-white">Terima &amp; Rekam PO</span>
+                    <span class="text-xs font-bold text-slate-900 dark:text-white">{{ __('warehouse.sop.step_3') }}</span>
                 </div>
                 <p class="text-xs text-slate-600 dark:text-slate-400 leading-snug">
-                    Buka dokumen PO, klik <em>Terima Barang</em>, dan sistem otomatis menambahkan stok fisik.
+                    {{ __('purchasing.receipts.header_subtitle') }}
                 </p>
             </div>
 
@@ -737,10 +754,10 @@
                     <span class="w-5 h-5 rounded-full bg-[#34C759] text-white flex items-center justify-center shrink-0">
                         <i data-lucide="check" class="w-3 h-3"></i>
                     </span>
-                    <span class="text-xs font-bold text-slate-900 dark:text-white">Stok Terdistribusi</span>
+                    <span class="text-xs font-bold text-slate-900 dark:text-white">{{ __('warehouse.sop.step_4') }}</span>
                 </div>
                 <p class="text-xs text-slate-600 dark:text-slate-400 leading-snug">
-                    Stok terupdate real-time dan siap dipakai di POS kasir atau ditransfer antar cabang.
+                    {{ __('inventory.stock_transfer_success') }}
                 </p>
             </div>
         </div>
@@ -753,12 +770,12 @@
     <div class="rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] overflow-hidden shadow-xs">
         <div class="px-4 py-3.5 border-b border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between gap-3">
             <div>
-                <h3 class="text-sm font-bold text-slate-900 dark:text-white">Audit Trail Mutasi Terkini</h3>
-                <p class="text-xs text-slate-500 dark:text-slate-400">Log mutasi real-time dari transaksi POS, PO, dan penyesuaian stok</p>
+                <h3 class="text-sm font-bold text-slate-900 dark:text-white">{{ __('warehouse.movements_table.title') }}</h3>
+                <p class="text-xs text-slate-500 dark:text-slate-400">{{ __('warehouse.movements_table.subtitle') }}</p>
             </div>
             <a href="{{ route('inventory.movements') }}"
                class="text-xs font-bold text-[#007AFF] hover:underline flex items-center gap-1">
-                <span>Lihat Semua Mutasi</span>
+                <span>{{ __('warehouse.tabs.movements') }}</span>
                 <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
             </a>
         </div>
@@ -768,12 +785,12 @@
             <table class="w-full text-left text-xs">
                 <thead>
                     <tr class="border-b border-black/[0.06] dark:border-white/[0.08] text-[11px] font-bold uppercase tracking-wide text-slate-400 dark:text-slate-500 bg-slate-50/50 dark:bg-[#2C2C2E]/50">
-                        <th class="px-4 py-3">Produk</th>
-                        <th class="px-4 py-3">Gudang / Lokasi</th>
-                        <th class="px-4 py-3">Tipe Mutasi</th>
-                        <th class="px-4 py-3 text-right">Perubahan Qty</th>
-                        <th class="px-4 py-3 text-right">Saldo Akhir</th>
-                        <th class="px-4 py-3 text-right">Waktu</th>
+                        <th class="px-4 py-3">{{ __('warehouse.movements_table.col_item') }}</th>
+                        <th class="px-4 py-3">{{ __('warehouse.fields.name') }}</th>
+                        <th class="px-4 py-3">{{ __('warehouse.movements_table.col_type') }}</th>
+                        <th class="px-4 py-3 text-right">{{ __('warehouse.movements_table.col_delta') }}</th>
+                        <th class="px-4 py-3 text-right">{{ __('warehouse.movements_table.col_balance') }}</th>
+                        <th class="px-4 py-3 text-right">{{ __('warehouse.movements_table.col_datetime') }}</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-black/[0.04] dark:divide-white/[0.06]">
@@ -789,12 +806,12 @@
                         <td class="px-4 py-3.5">
                             @php
                                 $mvLabels = [
-                                    'goods_receipt'  => ['label' => 'Penerimaan PO', 'pill' => 'bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158]'],
-                                    'pos_sale'       => ['label' => 'Penjualan POS', 'pill' => 'bg-[#007AFF]/12 text-[#007AFF]'],
-                                    'adjustment'     => ['label' => 'Penyesuaian', 'pill' => 'bg-[#FF9500]/12 text-[#B25E00] dark:text-[#FF9F0A]'],
-                                    'transfer_in'    => ['label' => 'Transfer Masuk', 'pill' => 'bg-[#5856D6]/12 text-[#413FA6] dark:text-[#5E5CE6]'],
-                                    'transfer_out'   => ['label' => 'Transfer Keluar', 'pill' => 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'],
-                                    'opname'         => ['label' => 'Opname Fisik', 'pill' => 'bg-[#AF52DE]/12 text-[#7C3AA6] dark:text-[#BF5AF2]'],
+                                    'goods_receipt'  => ['label' => __('inventory.movement_types.po_receipt'), 'pill' => 'bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158]'],
+                                    'pos_sale'       => ['label' => __('inventory.movement_types.pos_sale'), 'pill' => 'bg-[#007AFF]/12 text-[#007AFF]'],
+                                    'adjustment'     => ['label' => __('inventory.movement_types.opname_variance'), 'pill' => 'bg-[#FF9500]/12 text-[#B25E00] dark:text-[#FF9F0A]'],
+                                    'transfer_in'    => ['label' => __('inventory.movement_types.transfer_in'), 'pill' => 'bg-[#5856D6]/12 text-[#413FA6] dark:text-[#5E5CE6]'],
+                                    'transfer_out'   => ['label' => __('inventory.movement_types.transfer_out'), 'pill' => 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'],
+                                    'opname'         => ['label' => __('inventory.movement_types.opname_variance'), 'pill' => 'bg-[#AF52DE]/12 text-[#7C3AA6] dark:text-[#BF5AF2]'],
                                 ];
                                 $mvInfo = $mvLabels[$mv->movement_type] ?? ['label' => ucfirst(str_replace('_', ' ', $mv->movement_type)), 'pill' => 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'];
                             @endphp
@@ -809,7 +826,7 @@
                         <td class="px-4 py-3.5 text-right tabular-nums font-bold text-slate-900 dark:text-white">
                             {{ number_format($mv->balance_after, 2) }}
                         </td>
-                        <td class="px-4 py-3.5 text-right text-[11px] text-slate-400 dark:text-slate-500 whitespace-nowrap font-medium">
+                        <td class="px-4 py-3.5 text-right text-[11px] text-slate-400 dark:text-slate-500 whitespace-nowrap font-medium tabular-nums">
                             {{ $mv->created_at->diffForHumans() }}
                         </td>
                     </tr>
@@ -823,12 +840,12 @@
             @foreach($recentMovements as $mv)
             @php
                 $mvLabels = [
-                    'goods_receipt'  => ['label' => 'Penerimaan PO', 'pill' => 'bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158]'],
-                    'pos_sale'       => ['label' => 'Penjualan POS', 'pill' => 'bg-[#007AFF]/12 text-[#007AFF]'],
-                    'adjustment'     => ['label' => 'Penyesuaian', 'pill' => 'bg-[#FF9500]/12 text-[#B25E00] dark:text-[#FF9F0A]'],
-                    'transfer_in'    => ['label' => 'Transfer Masuk', 'pill' => 'bg-[#5856D6]/12 text-[#413FA6] dark:text-[#5E5CE6]'],
-                    'transfer_out'   => ['label' => 'Transfer Keluar', 'pill' => 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'],
-                    'opname'         => ['label' => 'Opname Fisik', 'pill' => 'bg-[#AF52DE]/12 text-[#7C3AA6] dark:text-[#BF5AF2]'],
+                    'goods_receipt'  => ['label' => __('inventory.movement_types.po_receipt'), 'pill' => 'bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158]'],
+                    'pos_sale'       => ['label' => __('inventory.movement_types.pos_sale'), 'pill' => 'bg-[#007AFF]/12 text-[#007AFF]'],
+                    'adjustment'     => ['label' => __('inventory.movement_types.opname_variance'), 'pill' => 'bg-[#FF9500]/12 text-[#B25E00] dark:text-[#FF9F0A]'],
+                    'transfer_in'    => ['label' => __('inventory.movement_types.transfer_in'), 'pill' => 'bg-[#5856D6]/12 text-[#413FA6] dark:text-[#5E5CE6]'],
+                    'transfer_out'   => ['label' => __('inventory.movement_types.transfer_out'), 'pill' => 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'],
+                    'opname'         => ['label' => __('inventory.movement_types.opname_variance'), 'pill' => 'bg-[#AF52DE]/12 text-[#7C3AA6] dark:text-[#BF5AF2]'],
                 ];
                 $mvInfo = $mvLabels[$mv->movement_type] ?? ['label' => ucfirst(str_replace('_', ' ', $mv->movement_type)), 'pill' => 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'];
             @endphp
@@ -850,15 +867,17 @@
                     <span class="tabular-nums font-bold {{ $mv->quantity_change >= 0 ? 'text-[#34C759] dark:text-[#30D158]' : 'text-[#FF3B30] dark:text-[#FF453A]' }}">
                         {{ $mv->quantity_change >= 0 ? '+' : '' }}{{ number_format($mv->quantity_change, 2) }} {{ $mv->product?->outputUnit?->symbol }}
                     </span>
-                    <span class="text-slate-500 dark:text-slate-400 text-[11px]">
-                        Saldo: <strong class="text-slate-900 dark:text-white">{{ number_format($mv->balance_after, 2) }}</strong>
+                    <span class="text-slate-500 dark:text-slate-400 text-[11px] tabular-nums">
+                        {{ __('warehouse.movements_table.col_balance') }}: <strong class="text-slate-900 dark:text-white">{{ number_format($mv->balance_after, 2) }}</strong>
                     </span>
                 </div>
             </div>
             @endforeach
         </div>
     </div>
-    @endif    {{-- ===================================================== --}}
+    @endif
+
+    {{-- ===================================================== --}}
     {{-- 7a. APPLE BENTO XXL SHEET: TAMBAH GUDANG LOGISTIK     --}}
     {{-- ===================================================== --}}
     <div x-show="showCreateModal"
@@ -888,13 +907,13 @@
                     </div>
                     <div>
                         <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
-                            <span>Tambah Gudang Logistik &amp; Penyimpanan</span>
-                            <span class="text-[11px] font-semibold text-[#007AFF] bg-[#007AFF]/12 px-2.5 py-0.5 rounded-full">Warehouse Fisik</span>
+                            <span>{{ __('warehouse.actions.create_warehouse_title') }}</span>
+                            <span class="text-[11px] font-semibold text-[#007AFF] bg-[#007AFF]/12 px-2.5 py-0.5 rounded-full">{{ __('warehouse.types.warehouse') }}</span>
                         </h3>
-                        <p class="text-xs text-slate-500 dark:text-slate-400">Titik penyimpanan stok fisik bahan/produk, pengiriman kurir Biteship, dan absensi radius geofence</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">{{ __('warehouse.header_subtitle') }}</p>
                     </div>
                 </div>
-                <button type="button" @click="showCreateModal = false" class="w-9 h-9 rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition cursor-pointer">
+                <button type="button" @click="showCreateModal = false" class="min-w-[44px] min-h-[44px] w-11 h-11 rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition cursor-pointer">
                     <i data-lucide="x" class="w-4 h-4"></i>
                 </button>
             </div>
@@ -918,58 +937,58 @@
                             <div class="rounded-[18px] bg-slate-50/80 dark:bg-[#2C2C2E]/60 border border-black/[0.06] dark:border-white/[0.08] p-5 space-y-4">
                                 <div class="flex items-center gap-2">
                                     <i data-lucide="info" class="w-4 h-4 text-[#007AFF]"></i>
-                                    <span class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Identitas Gudang</span>
+                                    <span class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">{{ __('warehouse.sections.general_info') }}</span>
                                 </div>
 
                                 <div>
                                     <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                                        Nama Gudang <span class="text-[#FF3B30]">*</span>
+                                        {{ __('warehouse.fields.name') }}
                                     </label>
-                                    <input type="text" name="name" x-model="warehouseForm.name" required placeholder="Contoh: Gudang Utama, Gudang Transit Jakarta, Gudang Bahan..."
+                                    <input type="text" name="name" x-model="warehouseForm.name" required placeholder="{{ __('warehouse.placeholders.warehouse_name') }}"
                                            class="w-full h-11 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3.5 text-[16px] sm:text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
                                 </div>
 
-                                {{-- Hierarki Induk Cabang / Outlet (Case 5) --}}
+                                {{-- Hierarki Induk Cabang / Outlet --}}
                                 <div>
                                     <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                                        Induk Cabang / Outlet <span class="text-[10px] font-normal text-slate-400 dark:text-slate-500">(Opsional)</span>
+                                        {{ __('warehouse.fields.parent_location') }}
                                     </label>
                                     <select name="parent_id" x-model="warehouseForm.parent_id"
                                             class="w-full h-11 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3.5 text-[16px] sm:text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
-                                        <option value="">-- Tanpa Induk (Gudang Pusat / Mandiri) --</option>
+                                        <option value="">{{ __('warehouse.fields.no_parent') }}</option>
                                         @if(isset($parentOutlets))
                                             @foreach($parentOutlets as $pOut)
-                                                <option value="{{ $pOut->id }}">{{ $pOut->name }} ({{ $pOut->code ?? 'Cabang' }})</option>
+                                                <option value="{{ $pOut->id }}">{{ $pOut->name }} ({{ $pOut->code ?: __('warehouse.types.outlet') }})</option>
                                             @endforeach
                                         @endif
                                     </select>
                                     <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-                                        Pilih cabang jika gudang ini berlokasi di dalam outlet fisik (seperti Gudang Belakang, Etalase Depan, atau Dapur/Bar). Biarkan kosong jika merupakan Gudang Pusat (DC) mandiri.
+                                        {{ __('warehouse.sections.general_info_desc') }}
                                     </p>
                                 </div>
 
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                     <div>
                                         <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                                            Kode Gudang
+                                            {{ __('warehouse.fields.code') }}
                                         </label>
-                                        <input type="text" name="code" x-model="warehouseForm.code" placeholder="Misal: WH-01, GDG-JKT..."
+                                        <input type="text" name="code" x-model="warehouseForm.code" placeholder="{{ __('warehouse.placeholders.code') }}"
                                                class="w-full h-10 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3.5 text-[16px] sm:text-xs text-slate-900 dark:text-white font-mono placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
                                     </div>
                                     <div>
                                         <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                                            Nomor Telepon
+                                            {{ __('warehouse.fields.phone') }}
                                         </label>
-                                        <input type="text" name="phone" x-model="warehouseForm.phone" placeholder="08xxxxxxxxxx / +62..."
+                                        <input type="text" name="phone" x-model="warehouseForm.phone" placeholder="{{ __('warehouse.placeholders.phone') }}"
                                                class="w-full h-10 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3.5 text-[16px] sm:text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
                                     </div>
                                 </div>
 
                                 <div>
                                     <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                                        Alamat Lengkap Gudang <span class="text-[#FF3B30]">*</span>
+                                        {{ __('warehouse.fields.address') }} <span class="text-[#FF3B30]">*</span>
                                     </label>
-                                    <textarea name="address" x-model="warehouseForm.address" rows="3" required placeholder="Alamat fisik gudang: nomor jalan, blok, RT/RW, kelurahan, kecamatan, kota..."
+                                    <textarea name="address" x-model="warehouseForm.address" rows="3" required placeholder="{{ __('warehouse.placeholders.address') }}"
                                               class="w-full bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] p-3 text-[16px] sm:text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition resize-none"></textarea>
                                 </div>
                             </div>
@@ -985,13 +1004,12 @@
                                         <div class="w-6 h-6 rounded-[6px] bg-[#007AFF]/15 text-[#007AFF] flex items-center justify-center">
                                             <i data-lucide="map-pin" class="w-3.5 h-3.5"></i>
                                         </div>
-                                        <span class="text-xs font-bold text-slate-900 dark:text-white">Geofence Absensi Karyawan</span>
-                                        <span class="text-[10px] font-semibold text-[#007AFF] bg-[#007AFF]/10 px-2 py-0.5 rounded-full">Opsional</span>
+                                        <span class="text-xs font-bold text-slate-900 dark:text-white">{{ __('warehouse.sections.geofence_gps') }}</span>
                                     </div>
 
-                                    {{-- Tombol Live Detect GPS (Zero-Emoji) --}}
+                                    {{-- Tombol Live Detect GPS --}}
                                     <button type="button" @click="detectGps('warehouse')" :disabled="gpsLoading"
-                                            class="min-h-[36px] h-9 px-3.5 rounded-[8px] text-xs font-bold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] transition-all flex items-center gap-1.5 shadow-[0_1px_2px_rgba(0,122,255,0.25)] cursor-pointer disabled:opacity-50">
+                                            class="min-h-[44px] h-11 px-3.5 rounded-[8px] text-xs font-bold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] transition-all flex items-center gap-1.5 shadow-[0_1px_2px_rgba(0,122,255,0.25)] cursor-pointer disabled:opacity-50">
                                         <template x-if="gpsLoading && activeGpsTarget === 'warehouse'">
                                             <svg class="animate-spin -ml-0.5 mr-1 h-3.5 w-3.5 text-white" fill="none" viewBox="0 0 24 24">
                                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -1001,7 +1019,7 @@
                                         <template x-if="!(gpsLoading && activeGpsTarget === 'warehouse')">
                                             <i data-lucide="crosshair" class="w-3.5 h-3.5"></i>
                                         </template>
-                                        <span x-text="(gpsLoading && activeGpsTarget === 'warehouse') ? 'Mencari Titik GPS...' : 'Deteksi GPS Otomatis'"></span>
+                                        <span x-text="(gpsLoading && activeGpsTarget === 'warehouse') ? '{{ __('warehouse.actions.detecting_gps') }}' : '{{ __('warehouse.actions.detect_gps') }}'"></span>
                                     </button>
                                 </div>
 
@@ -1009,7 +1027,7 @@
                                 <template x-if="gpsSuccess && activeGpsTarget === 'warehouse'">
                                     <div class="rounded-[10px] bg-[#34C759]/15 border border-[#34C759]/30 px-3 py-2 text-[11px] text-[#248A3D] dark:text-[#30D158] flex items-center gap-2 font-medium">
                                         <i data-lucide="check-circle-2" class="w-4 h-4 text-[#34C759]"></i>
-                                        <span>Titik koordinat GPS berhasil dideteksi dan alamat wilayah otomatis disinkronkan.</span>
+                                        <span>{{ __('warehouse.actions.gps_detected') }}</span>
                                     </div>
                                 </template>
 
@@ -1022,32 +1040,31 @@
 
                                 <div class="grid grid-cols-2 gap-3">
                                     <div>
-                                        <label class="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">Latitude</label>
-                                        <input type="text" name="latitude" x-model="warehouseForm.latitude" placeholder="-6.2088"
-                                               class="w-full h-9 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[8px] px-2.5 text-[16px] sm:text-xs text-slate-900 dark:text-white font-mono placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#007AFF] transition">
+                                        <label class="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">{{ __('warehouse.fields.latitude') }}</label>
+                                        <input type="text" name="latitude" x-model="warehouseForm.latitude" placeholder="{{ __('warehouse.placeholders.latitude') }}"
+                                               class="w-full h-10 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[8px] px-2.5 text-[16px] sm:text-xs text-slate-900 dark:text-white font-mono placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#007AFF] transition">
                                     </div>
                                     <div>
-                                        <label class="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">Longitude</label>
-                                        <input type="text" name="longitude" x-model="warehouseForm.longitude" placeholder="106.8456"
-                                               class="w-full h-9 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[8px] px-2.5 text-[16px] sm:text-xs text-slate-900 dark:text-white font-mono placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#007AFF] transition">
+                                        <label class="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">{{ __('warehouse.fields.longitude') }}</label>
+                                        <input type="text" name="longitude" x-model="warehouseForm.longitude" placeholder="{{ __('warehouse.placeholders.longitude') }}"
+                                               class="w-full h-10 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[8px] px-2.5 text-[16px] sm:text-xs text-slate-900 dark:text-white font-mono placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#007AFF] transition">
                                     </div>
                                 </div>
 
                                 <div>
                                     <div class="flex items-center justify-between mb-1">
-                                        <label class="block text-[11px] font-semibold text-slate-700 dark:text-slate-300">Radius Geofence (meter)</label>
+                                        <label class="block text-[11px] font-semibold text-slate-700 dark:text-slate-300">{{ __('warehouse.fields.geofence_radius') }}</label>
                                         <span class="text-[11px] font-bold text-[#007AFF] font-mono" x-text="warehouseForm.geofence_radius_meters + ' m'"></span>
                                     </div>
-                                    <input type="number" name="geofence_radius_meters" x-model="warehouseForm.geofence_radius_meters" placeholder="100" min="10" max="5000"
-                                           class="w-full h-9 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[8px] px-2.5 text-[16px] sm:text-xs text-slate-900 dark:text-white font-mono placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#007AFF] transition">
+                                    <input type="number" name="geofence_radius_meters" x-model="warehouseForm.geofence_radius_meters" placeholder="{{ __('warehouse.placeholders.radius') }}" min="10" max="5000"
+                                           class="w-full h-10 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[8px] px-2.5 text-[16px] sm:text-xs text-slate-900 dark:text-white font-mono placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#007AFF] transition">
                                     
                                     {{-- Quick Presets --}}
                                     <div class="flex items-center gap-1.5 mt-2 flex-wrap">
-                                        <span class="text-[10px] text-slate-400">Pilihan Cepat:</span>
-                                        <button type="button" @click="warehouseForm.geofence_radius_meters = 50" class="px-2 py-0.5 rounded-[6px] text-[10px] font-semibold bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 hover:border-[#007AFF] text-slate-700 dark:text-slate-300 cursor-pointer">50m</button>
-                                        <button type="button" @click="warehouseForm.geofence_radius_meters = 100" class="px-2 py-0.5 rounded-[6px] text-[10px] font-semibold bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 hover:border-[#007AFF] text-slate-700 dark:text-slate-300 cursor-pointer">100m (Default)</button>
-                                        <button type="button" @click="warehouseForm.geofence_radius_meters = 200" class="px-2 py-0.5 rounded-[6px] text-[10px] font-semibold bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 hover:border-[#007AFF] text-slate-700 dark:text-slate-300 cursor-pointer">200m</button>
-                                        <button type="button" @click="warehouseForm.geofence_radius_meters = 500" class="px-2 py-0.5 rounded-[6px] text-[10px] font-semibold bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 hover:border-[#007AFF] text-slate-700 dark:text-slate-300 cursor-pointer">500m</button>
+                                        <button type="button" @click="warehouseForm.geofence_radius_meters = 50" class="min-h-[44px] sm:min-h-0 px-2.5 py-1 rounded-[6px] text-[10px] font-semibold bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 hover:border-[#007AFF] text-slate-700 dark:text-slate-300 cursor-pointer">50m</button>
+                                        <button type="button" @click="warehouseForm.geofence_radius_meters = 100" class="min-h-[44px] sm:min-h-0 px-2.5 py-1 rounded-[6px] text-[10px] font-semibold bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 hover:border-[#007AFF] text-slate-700 dark:text-slate-300 cursor-pointer">100m (Default)</button>
+                                        <button type="button" @click="warehouseForm.geofence_radius_meters = 200" class="min-h-[44px] sm:min-h-0 px-2.5 py-1 rounded-[6px] text-[10px] font-semibold bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 hover:border-[#007AFF] text-slate-700 dark:text-slate-300 cursor-pointer">200m</button>
+                                        <button type="button" @click="warehouseForm.geofence_radius_meters = 500" class="min-h-[44px] sm:min-h-0 px-2.5 py-1 rounded-[6px] text-[10px] font-semibold bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 hover:border-[#007AFF] text-slate-700 dark:text-slate-300 cursor-pointer">500m</button>
                                     </div>
                                 </div>
                             </div>
@@ -1059,24 +1076,19 @@
                                         <div class="w-6 h-6 rounded-[6px] bg-[#5856D6]/15 text-[#5856D6] flex items-center justify-center">
                                             <i data-lucide="truck" class="w-3.5 h-3.5"></i>
                                         </div>
-                                        <span class="text-xs font-bold text-slate-900 dark:text-white">Integrasi Biteship &amp; Pickup Toko Online</span>
+                                        <span class="text-xs font-bold text-slate-900 dark:text-white">{{ __('warehouse.fields.biteship_area') }}</span>
                                     </div>
-                                    <span class="text-[10px] font-bold text-[#5856D6] bg-[#5856D6]/10 px-2 py-0.5 rounded-full">Logistics</span>
                                 </div>
 
                                 {{-- Area Search Box for Biteship --}}
                                 <div class="relative">
-                                    <label class="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                                        Hubungkan Wilayah Biteship (Kelurahan / Kecamatan / Kode Pos)
-                                    </label>
-
                                     <template x-if="!warehouseForm.biteship_area_id">
                                         <div class="relative">
                                             <input type="text"
-                                                   placeholder="Ketik min. 2 huruf (contoh: Tebet, Senayan, 12810)..."
+                                                   placeholder="{{ __('warehouse.placeholders.biteship_search') }}"
                                                    @input.debounce.300ms="searchBiteship('warehouse', $event.target.value)"
-                                                   class="w-full h-9 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[8px] pl-8 pr-3 text-[16px] sm:text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#5856D6] transition">
-                                            <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5"></i>
+                                                   class="w-full h-10 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[8px] pl-8 pr-3 text-[16px] sm:text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#5856D6] transition">
+                                            <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-3"></i>
                                         </div>
                                     </template>
 
@@ -1087,11 +1099,11 @@
                                                 <i data-lucide="check-circle" class="w-4 h-4 text-[#34C759] shrink-0"></i>
                                                 <div class="min-w-0">
                                                     <span class="text-xs font-bold text-slate-900 dark:text-white block truncate" x-text="warehouseForm.biteship_area_label || warehouseForm.biteship_area_id"></span>
-                                                    <span class="text-[10px] text-slate-500 dark:text-slate-400 font-mono">Biteship ID: <span x-text="warehouseForm.biteship_area_id"></span></span>
+                                                    <span class="text-[10px] text-slate-500 dark:text-slate-400 font-mono">ID: <span x-text="warehouseForm.biteship_area_id"></span></span>
                                                 </div>
                                             </div>
-                                            <button type="button" @click="clearBiteshipArea('warehouse')" class="text-xs text-[#FF3B30] hover:underline font-semibold shrink-0 ml-2 cursor-pointer">
-                                                Ganti
+                                            <button type="button" @click="clearBiteshipArea('warehouse')" class="min-h-[44px] sm:min-h-0 text-xs text-[#FF3B30] hover:underline font-semibold shrink-0 ml-2 cursor-pointer">
+                                                {{ __('warehouse.actions.change') }}
                                             </button>
                                         </div>
                                     </template>
@@ -1107,7 +1119,7 @@
                                                     <span class="text-xs font-bold text-slate-900 dark:text-white block" x-text="item.label || (item.village + ', ' + item.district + ', ' + item.city)"></span>
                                                     <span class="text-[10px] text-slate-500 dark:text-slate-400" x-text="(item.province || '') + (item.postal_code ? ' • Kode Pos: ' + item.postal_code : '')"></span>
                                                 </div>
-                                                <span class="text-[10px] font-mono text-[#5856D6] font-bold shrink-0 bg-[#5856D6]/10 px-1.5 py-0.5 rounded">Pilih</span>
+                                                <span class="text-[10px] font-mono text-[#5856D6] font-bold shrink-0 bg-[#5856D6]/10 px-1.5 py-0.5 rounded">{{ __('warehouse.actions.select') }}</span>
                                             </button>
                                         </template>
                                     </div>
@@ -1118,19 +1130,19 @@
                                     <label class="flex items-start gap-2.5 p-3 rounded-[12px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] cursor-pointer hover:border-[#5856D6]/40 transition">
                                         <input type="checkbox" name="is_primary" value="1" x-model="warehouseForm.is_primary" class="mt-0.5 w-4 h-4 rounded text-[#5856D6] focus:ring-[#5856D6]">
                                         <div class="text-xs">
-                                            <span class="font-bold text-slate-900 dark:text-white block">Jadikan Titik Pickup Utama Toko Online</span>
-                                            <span class="text-[11px] text-slate-500 dark:text-slate-400 block">Pesanan online pengiriman kurir (JNE, SiCepat, J&T, GoSend, GrabExpress via Biteship) akan dipickup kurir dari lokasi ini.</span>
+                                            <span class="font-bold text-slate-900 dark:text-white block">{{ __('warehouse.fields.is_primary') }}</span>
+                                            <span class="text-[11px] text-slate-500 dark:text-slate-400 block">{{ __('warehouse.sections.operational_settings_desc') }}</span>
                                         </div>
                                     </label>
 
                                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                         <label class="flex items-start gap-2 p-2.5 rounded-[10px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] cursor-pointer">
                                             <input type="checkbox" name="is_online_fulfillment" value="1" x-model="warehouseForm.is_online_fulfillment" class="mt-0.5 w-3.5 h-3.5 rounded text-[#007AFF] focus:ring-[#007AFF]">
-                                            <span class="text-[11px] font-medium text-slate-800 dark:text-slate-200">Titik Kirim Kurir Online</span>
+                                            <span class="text-[11px] font-medium text-slate-800 dark:text-slate-200">{{ __('warehouse.fields.is_online_fulfillment') }}</span>
                                         </label>
                                         <label class="flex items-start gap-2 p-2.5 rounded-[10px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] cursor-pointer">
                                             <input type="checkbox" name="allow_storefront_pickup" value="1" x-model="warehouseForm.allow_storefront_pickup" class="mt-0.5 w-3.5 h-3.5 rounded text-[#007AFF] focus:ring-[#007AFF]">
-                                            <span class="text-[11px] font-medium text-slate-800 dark:text-slate-200">Izinkan Ambil di Toko</span>
+                                            <span class="text-[11px] font-medium text-slate-800 dark:text-slate-200">{{ __('warehouse.fields.allow_storefront_pickup') }}</span>
                                         </label>
                                     </div>
                                 </div>
@@ -1143,7 +1155,7 @@
                 <div class="px-5 py-3.5 sm:px-6 sm:py-4 border-t border-black/[0.06] dark:border-white/[0.08] flex items-center justify-end gap-3 shrink-0 bg-slate-50/50 dark:bg-white/[0.02]">
                     <button type="button" @click="showCreateModal = false"
                             class="min-h-[44px] h-11 px-5 rounded-[12px] text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer">
-                        Batal
+                        {{ __('warehouse.actions.cancel') }}
                     </button>
                     <button type="submit" :disabled="submitting"
                             class="min-h-[44px] h-11 px-6 rounded-[12px] text-xs font-bold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] transition-all shadow-[0_2px_4px_rgba(0,122,255,0.25)] cursor-pointer flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
@@ -1156,7 +1168,7 @@
                         <template x-if="!submitting">
                             <i data-lucide="plus" class="w-4 h-4"></i>
                         </template>
-                        <span x-text="submitting ? 'Menyimpan...' : 'Simpan Gudang Logistik'"></span>
+                        <span x-text="submitting ? '{{ __('warehouse.actions.submitting') }}' : '{{ __('warehouse.actions.save') }}'"></span>
                     </button>
                 </div>
             </form>
@@ -1193,13 +1205,13 @@
                     </div>
                     <div>
                         <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
-                            <span>Tambah Cabang / Outlet Retail</span>
-                            <span class="text-[11px] font-semibold text-[#34C759] bg-[#34C759]/12 px-2.5 py-0.5 rounded-full">Toko Aktif</span>
+                            <span>{{ __('warehouse.actions.create_outlet_title') }}</span>
+                            <span class="text-[11px] font-semibold text-[#34C759] bg-[#34C759]/12 px-2.5 py-0.5 rounded-full">{{ __('warehouse.types.outlet') }}</span>
                         </h3>
-                        <p class="text-xs text-slate-500 dark:text-slate-400">Daftarkan cabang toko, outlet retail, titik pickup kurir, dan absensi geofence karyawan</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">{{ __('warehouse.header_subtitle') }}</p>
                     </div>
                 </div>
-                <button type="button" @click="showCreateOutletModal = false" class="w-9 h-9 rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition cursor-pointer">
+                <button type="button" @click="showCreateOutletModal = false" class="min-w-[44px] min-h-[44px] w-11 h-11 rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition cursor-pointer">
                     <i data-lucide="x" class="w-4 h-4"></i>
                 </button>
             </div>
@@ -1223,39 +1235,39 @@
                             <div class="rounded-[18px] bg-slate-50/80 dark:bg-[#2C2C2E]/60 border border-black/[0.06] dark:border-white/[0.08] p-5 space-y-4">
                                 <div class="flex items-center gap-2">
                                     <i data-lucide="store" class="w-4 h-4 text-[#34C759]"></i>
-                                    <span class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Identitas Cabang / Outlet</span>
+                                    <span class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">{{ __('warehouse.sections.general_info') }}</span>
                                 </div>
 
                                 <div>
                                     <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                                        Nama Cabang / Outlet <span class="text-[#FF3B30]">*</span>
+                                        {{ __('warehouse.fields.name') }}
                                     </label>
-                                    <input type="text" name="name" x-model="outletForm.name" required placeholder="Contoh: Outlet Senopati, Cabang Bandung, Toko Pondok Indah..."
+                                    <input type="text" name="name" x-model="outletForm.name" required placeholder="{{ __('warehouse.placeholders.outlet_name') }}"
                                            class="w-full h-11 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3.5 text-[16px] sm:text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#34C759] transition">
                                 </div>
 
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                     <div>
                                         <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                                            Kode Cabang
+                                            {{ __('warehouse.fields.code') }}
                                         </label>
-                                        <input type="text" name="code" x-model="outletForm.code" placeholder="Misal: OTL-01, CBG-BDG..."
+                                        <input type="text" name="code" x-model="outletForm.code" placeholder="{{ __('warehouse.placeholders.code') }}"
                                                class="w-full h-10 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3.5 text-[16px] sm:text-xs text-slate-900 dark:text-white font-mono placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#34C759] transition">
                                     </div>
                                     <div>
                                         <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                                            Nomor Telepon Cabang
+                                            {{ __('warehouse.fields.phone') }}
                                         </label>
-                                        <input type="text" name="phone" x-model="outletForm.phone" placeholder="08xxxxxxxxxx / +62..."
+                                        <input type="text" name="phone" x-model="outletForm.phone" placeholder="{{ __('warehouse.placeholders.phone') }}"
                                                class="w-full h-10 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3.5 text-[16px] sm:text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#34C759] transition">
                                     </div>
                                 </div>
 
                                 <div>
                                     <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                                        Alamat Lengkap Cabang <span class="text-[#FF3B30]">*</span>
+                                        {{ __('warehouse.fields.address') }} <span class="text-[#FF3B30]">*</span>
                                     </label>
-                                    <textarea name="address" x-model="outletForm.address" rows="3" required placeholder="Alamat fisik cabang: jalan, nomor, RT/RW, kelurahan, kecamatan, kota..."
+                                    <textarea name="address" x-model="outletForm.address" rows="3" required placeholder="{{ __('warehouse.placeholders.address') }}"
                                               class="w-full bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] p-3 text-[16px] sm:text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#34C759] transition resize-none"></textarea>
                                 </div>
                             </div>
@@ -1271,13 +1283,12 @@
                                         <div class="w-6 h-6 rounded-[6px] bg-[#34C759]/15 text-[#34C759] flex items-center justify-center">
                                             <i data-lucide="map-pin" class="w-3.5 h-3.5"></i>
                                         </div>
-                                        <span class="text-xs font-bold text-slate-900 dark:text-white">Geofence Absensi Karyawan</span>
-                                        <span class="text-[10px] font-semibold text-[#34C759] bg-[#34C759]/10 px-2 py-0.5 rounded-full">Opsional</span>
+                                        <span class="text-xs font-bold text-slate-900 dark:text-white">{{ __('warehouse.sections.geofence_gps') }}</span>
                                     </div>
 
-                                    {{-- Tombol Live Detect GPS (Zero-Emoji) --}}
+                                    {{-- Tombol Live Detect GPS --}}
                                     <button type="button" @click="detectGps('outlet')" :disabled="gpsLoading"
-                                            class="min-h-[36px] h-9 px-3.5 rounded-[8px] text-xs font-bold text-white bg-[#34C759] hover:bg-[#28A745] active:scale-[0.98] transition-all flex items-center gap-1.5 shadow-[0_1px_2px_rgba(52,199,89,0.25)] cursor-pointer disabled:opacity-50">
+                                            class="min-h-[44px] h-11 px-3.5 rounded-[8px] text-xs font-bold text-white bg-[#34C759] hover:bg-[#28A745] active:scale-[0.98] transition-all flex items-center gap-1.5 shadow-[0_1px_2px_rgba(52,199,89,0.25)] cursor-pointer disabled:opacity-50">
                                         <template x-if="gpsLoading && activeGpsTarget === 'outlet'">
                                             <svg class="animate-spin -ml-0.5 mr-1 h-3.5 w-3.5 text-white" fill="none" viewBox="0 0 24 24">
                                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -1287,7 +1298,7 @@
                                         <template x-if="!(gpsLoading && activeGpsTarget === 'outlet')">
                                             <i data-lucide="crosshair" class="w-3.5 h-3.5"></i>
                                         </template>
-                                        <span x-text="(gpsLoading && activeGpsTarget === 'outlet') ? 'Mencari Titik GPS...' : 'Deteksi GPS Otomatis'"></span>
+                                        <span x-text="(gpsLoading && activeGpsTarget === 'outlet') ? '{{ __('warehouse.actions.detecting_gps') }}' : '{{ __('warehouse.actions.detect_gps') }}'"></span>
                                     </button>
                                 </div>
 
@@ -1295,7 +1306,7 @@
                                 <template x-if="gpsSuccess && activeGpsTarget === 'outlet'">
                                     <div class="rounded-[10px] bg-[#34C759]/15 border border-[#34C759]/30 px-3 py-2 text-[11px] text-[#248A3D] dark:text-[#30D158] flex items-center gap-2 font-medium">
                                         <i data-lucide="check-circle-2" class="w-4 h-4 text-[#34C759]"></i>
-                                        <span>Titik koordinat GPS berhasil dideteksi dan alamat wilayah otomatis disinkronkan.</span>
+                                        <span>{{ __('warehouse.actions.gps_detected') }}</span>
                                     </div>
                                 </template>
 
@@ -1308,32 +1319,31 @@
 
                                 <div class="grid grid-cols-2 gap-3">
                                     <div>
-                                        <label class="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">Latitude</label>
-                                        <input type="text" name="latitude" x-model="outletForm.latitude" placeholder="-6.2088"
-                                               class="w-full h-9 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[8px] px-2.5 text-[16px] sm:text-xs text-slate-900 dark:text-white font-mono placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#34C759] transition">
+                                        <label class="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">{{ __('warehouse.fields.latitude') }}</label>
+                                        <input type="text" name="latitude" x-model="outletForm.latitude" placeholder="{{ __('warehouse.placeholders.latitude') }}"
+                                               class="w-full h-10 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[8px] px-2.5 text-[16px] sm:text-xs text-slate-900 dark:text-white font-mono placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#34C759] transition">
                                     </div>
                                     <div>
-                                        <label class="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">Longitude</label>
-                                        <input type="text" name="longitude" x-model="outletForm.longitude" placeholder="106.8456"
-                                               class="w-full h-9 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[8px] px-2.5 text-[16px] sm:text-xs text-slate-900 dark:text-white font-mono placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#34C759] transition">
+                                        <label class="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">{{ __('warehouse.fields.longitude') }}</label>
+                                        <input type="text" name="longitude" x-model="outletForm.longitude" placeholder="{{ __('warehouse.placeholders.longitude') }}"
+                                               class="w-full h-10 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[8px] px-2.5 text-[16px] sm:text-xs text-slate-900 dark:text-white font-mono placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#34C759] transition">
                                     </div>
                                 </div>
 
                                 <div>
                                     <div class="flex items-center justify-between mb-1">
-                                        <label class="block text-[11px] font-semibold text-slate-700 dark:text-slate-300">Radius Geofence (meter)</label>
+                                        <label class="block text-[11px] font-semibold text-slate-700 dark:text-slate-300">{{ __('warehouse.fields.geofence_radius') }}</label>
                                         <span class="text-[11px] font-bold text-[#34C759] font-mono" x-text="outletForm.geofence_radius_meters + ' m'"></span>
                                     </div>
-                                    <input type="number" name="geofence_radius_meters" x-model="outletForm.geofence_radius_meters" placeholder="100" min="10" max="5000"
-                                           class="w-full h-9 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[8px] px-2.5 text-[16px] sm:text-xs text-slate-900 dark:text-white font-mono placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#34C759] transition">
+                                    <input type="number" name="geofence_radius_meters" x-model="outletForm.geofence_radius_meters" placeholder="{{ __('warehouse.placeholders.radius') }}" min="10" max="5000"
+                                           class="w-full h-10 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[8px] px-2.5 text-[16px] sm:text-xs text-slate-900 dark:text-white font-mono placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#34C759] transition">
                                     
                                     {{-- Quick Presets --}}
                                     <div class="flex items-center gap-1.5 mt-2 flex-wrap">
-                                        <span class="text-[10px] text-slate-400">Pilihan Cepat:</span>
-                                        <button type="button" @click="outletForm.geofence_radius_meters = 50" class="px-2 py-0.5 rounded-[6px] text-[10px] font-semibold bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 hover:border-[#34C759] text-slate-700 dark:text-slate-300 cursor-pointer">50m</button>
-                                        <button type="button" @click="outletForm.geofence_radius_meters = 100" class="px-2 py-0.5 rounded-[6px] text-[10px] font-semibold bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 hover:border-[#34C759] text-slate-700 dark:text-slate-300 cursor-pointer">100m (Default)</button>
-                                        <button type="button" @click="outletForm.geofence_radius_meters = 200" class="px-2 py-0.5 rounded-[6px] text-[10px] font-semibold bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 hover:border-[#34C759] text-slate-700 dark:text-slate-300 cursor-pointer">200m</button>
-                                        <button type="button" @click="outletForm.geofence_radius_meters = 500" class="px-2 py-0.5 rounded-[6px] text-[10px] font-semibold bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 hover:border-[#34C759] text-slate-700 dark:text-slate-300 cursor-pointer">500m</button>
+                                        <button type="button" @click="outletForm.geofence_radius_meters = 50" class="min-h-[44px] sm:min-h-0 px-2.5 py-1 rounded-[6px] text-[10px] font-semibold bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 hover:border-[#34C759] text-slate-700 dark:text-slate-300 cursor-pointer">50m</button>
+                                        <button type="button" @click="outletForm.geofence_radius_meters = 100" class="min-h-[44px] sm:min-h-0 px-2.5 py-1 rounded-[6px] text-[10px] font-semibold bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 hover:border-[#34C759] text-slate-700 dark:text-slate-300 cursor-pointer">100m (Default)</button>
+                                        <button type="button" @click="outletForm.geofence_radius_meters = 200" class="min-h-[44px] sm:min-h-0 px-2.5 py-1 rounded-[6px] text-[10px] font-semibold bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 hover:border-[#34C759] text-slate-700 dark:text-slate-300 cursor-pointer">200m</button>
+                                        <button type="button" @click="outletForm.geofence_radius_meters = 500" class="min-h-[44px] sm:min-h-0 px-2.5 py-1 rounded-[6px] text-[10px] font-semibold bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 hover:border-[#34C759] text-slate-700 dark:text-slate-300 cursor-pointer">500m</button>
                                     </div>
                                 </div>
                             </div>
@@ -1345,24 +1355,19 @@
                                         <div class="w-6 h-6 rounded-[6px] bg-[#5856D6]/15 text-[#5856D6] flex items-center justify-center">
                                             <i data-lucide="truck" class="w-3.5 h-3.5"></i>
                                         </div>
-                                        <span class="text-xs font-bold text-slate-900 dark:text-white">Integrasi Biteship &amp; Pickup Toko Online</span>
+                                        <span class="text-xs font-bold text-slate-900 dark:text-white">{{ __('warehouse.fields.biteship_area') }}</span>
                                     </div>
-                                    <span class="text-[10px] font-bold text-[#5856D6] bg-[#5856D6]/10 px-2 py-0.5 rounded-full">Logistics</span>
                                 </div>
 
                                 {{-- Area Search Box for Biteship --}}
                                 <div class="relative">
-                                    <label class="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                                        Hubungkan Wilayah Biteship (Kelurahan / Kecamatan / Kode Pos)
-                                    </label>
-
                                     <template x-if="!outletForm.biteship_area_id">
                                         <div class="relative">
                                             <input type="text"
-                                                   placeholder="Ketik min. 2 huruf (contoh: Tebet, Senayan, 12810)..."
+                                                   placeholder="{{ __('warehouse.placeholders.biteship_search') }}"
                                                    @input.debounce.300ms="searchBiteship('outlet', $event.target.value)"
-                                                   class="w-full h-9 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[8px] pl-8 pr-3 text-[16px] sm:text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#5856D6] transition">
-                                            <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5"></i>
+                                                   class="w-full h-10 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[8px] pl-8 pr-3 text-[16px] sm:text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#5856D6] transition">
+                                            <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-3"></i>
                                         </div>
                                     </template>
 
@@ -1373,11 +1378,11 @@
                                                 <i data-lucide="check-circle" class="w-4 h-4 text-[#34C759] shrink-0"></i>
                                                 <div class="min-w-0">
                                                     <span class="text-xs font-bold text-slate-900 dark:text-white block truncate" x-text="outletForm.biteship_area_label || outletForm.biteship_area_id"></span>
-                                                    <span class="text-[10px] text-slate-500 dark:text-slate-400 font-mono">Biteship ID: <span x-text="outletForm.biteship_area_id"></span></span>
+                                                    <span class="text-[10px] text-slate-500 dark:text-slate-400 font-mono">ID: <span x-text="outletForm.biteship_area_id"></span></span>
                                                 </div>
                                             </div>
-                                            <button type="button" @click="clearBiteshipArea('outlet')" class="text-xs text-[#FF3B30] hover:underline font-semibold shrink-0 ml-2 cursor-pointer">
-                                                Ganti
+                                            <button type="button" @click="clearBiteshipArea('outlet')" class="min-h-[44px] sm:min-h-0 text-xs text-[#FF3B30] hover:underline font-semibold shrink-0 ml-2 cursor-pointer">
+                                                {{ __('warehouse.actions.change') }}
                                             </button>
                                         </div>
                                     </template>
@@ -1393,7 +1398,7 @@
                                                     <span class="text-xs font-bold text-slate-900 dark:text-white block" x-text="item.label || (item.village + ', ' + item.district + ', ' + item.city)"></span>
                                                     <span class="text-[10px] text-slate-500 dark:text-slate-400" x-text="(item.province || '') + (item.postal_code ? ' • Kode Pos: ' + item.postal_code : '')"></span>
                                                 </div>
-                                                <span class="text-[10px] font-mono text-[#5856D6] font-bold shrink-0 bg-[#5856D6]/10 px-1.5 py-0.5 rounded">Pilih</span>
+                                                <span class="text-[10px] font-mono text-[#5856D6] font-bold shrink-0 bg-[#5856D6]/10 px-1.5 py-0.5 rounded">{{ __('warehouse.actions.select') }}</span>
                                             </button>
                                         </template>
                                     </div>
@@ -1404,19 +1409,19 @@
                                     <label class="flex items-start gap-2.5 p-3 rounded-[12px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] cursor-pointer hover:border-[#5856D6]/40 transition">
                                         <input type="checkbox" name="is_primary" value="1" x-model="outletForm.is_primary" class="mt-0.5 w-4 h-4 rounded text-[#5856D6] focus:ring-[#5856D6]">
                                         <div class="text-xs">
-                                            <span class="font-bold text-slate-900 dark:text-white block">Jadikan Titik Pickup Utama Toko Online</span>
-                                            <span class="text-[11px] text-slate-500 dark:text-slate-400 block">Pesanan online pengiriman kurir (JNE, SiCepat, J&T, GoSend, GrabExpress via Biteship) akan dipickup kurir dari lokasi ini.</span>
+                                            <span class="font-bold text-slate-900 dark:text-white block">{{ __('warehouse.fields.is_primary') }}</span>
+                                            <span class="text-[11px] text-slate-500 dark:text-slate-400 block">{{ __('warehouse.sections.operational_settings_desc') }}</span>
                                         </div>
                                     </label>
 
                                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                         <label class="flex items-start gap-2 p-2.5 rounded-[10px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] cursor-pointer">
                                             <input type="checkbox" name="is_online_fulfillment" value="1" x-model="outletForm.is_online_fulfillment" class="mt-0.5 w-3.5 h-3.5 rounded text-[#34C759] focus:ring-[#34C759]">
-                                            <span class="text-[11px] font-medium text-slate-800 dark:text-slate-200">Titik Kirim Kurir Online</span>
+                                            <span class="text-[11px] font-medium text-slate-800 dark:text-slate-200">{{ __('warehouse.fields.is_online_fulfillment') }}</span>
                                         </label>
                                         <label class="flex items-start gap-2 p-2.5 rounded-[10px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] cursor-pointer">
                                             <input type="checkbox" name="allow_storefront_pickup" value="1" x-model="outletForm.allow_storefront_pickup" class="mt-0.5 w-3.5 h-3.5 rounded text-[#34C759] focus:ring-[#34C759]">
-                                            <span class="text-[11px] font-medium text-slate-800 dark:text-slate-200">Izinkan Ambil di Toko</span>
+                                            <span class="text-[11px] font-medium text-slate-800 dark:text-slate-200">{{ __('warehouse.fields.allow_storefront_pickup') }}</span>
                                         </label>
                                     </div>
                                 </div>
@@ -1429,7 +1434,7 @@
                 <div class="px-5 py-3.5 sm:px-6 sm:py-4 border-t border-black/[0.06] dark:border-white/[0.08] flex items-center justify-end gap-3 shrink-0 bg-slate-50/50 dark:bg-white/[0.02]">
                     <button type="button" @click="showCreateOutletModal = false"
                             class="min-h-[44px] h-11 px-5 rounded-[12px] text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer">
-                        Batal
+                        {{ __('warehouse.actions.cancel') }}
                     </button>
                     <button type="submit" :disabled="submitting"
                             class="min-h-[44px] h-11 px-6 rounded-[12px] text-xs font-bold text-white bg-[#34C759] hover:bg-[#28A745] active:scale-[0.98] transition-all shadow-[0_2px_4px_rgba(52,199,89,0.25)] cursor-pointer flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
@@ -1442,7 +1447,7 @@
                         <template x-if="!submitting">
                             <i data-lucide="plus" class="w-4 h-4"></i>
                         </template>
-                        <span x-text="submitting ? 'Menyimpan...' : 'Simpan Cabang / Outlet'"></span>
+                        <span x-text="submitting ? '{{ __('warehouse.actions.submitting') }}' : '{{ __('warehouse.actions.save') }}'"></span>
                     </button>
                 </div>
             </form>
@@ -1479,13 +1484,13 @@
                     </div>
                     <div>
                         <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
-                            <span>Edit Informasi Gudang / Cabang</span>
+                            <span>{{ __('warehouse.actions.edit_location') }}</span>
                             <span class="text-[11px] font-semibold text-[#007AFF] bg-[#007AFF]/12 px-2.5 py-0.5 rounded-full" x-text="editData.name"></span>
                         </h3>
-                        <p class="text-xs text-slate-500 dark:text-slate-400">Perbarui alamat fisik, geofence absensi, status aktif, dan integrasi kurir</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">{{ __('warehouse.header_subtitle') }}</p>
                     </div>
                 </div>
-                <button type="button" @click="showEditModal = false" class="w-9 h-9 rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition cursor-pointer">
+                <button type="button" @click="showEditModal = false" class="min-w-[44px] min-h-[44px] w-11 h-11 rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition cursor-pointer">
                     <i data-lucide="x" class="w-4 h-4"></i>
                 </button>
             </div>
@@ -1509,12 +1514,12 @@
                             <div class="rounded-[18px] bg-slate-50/80 dark:bg-[#2C2C2E]/60 border border-black/[0.06] dark:border-white/[0.08] p-5 space-y-4">
                                 <div class="flex items-center gap-2">
                                     <i data-lucide="info" class="w-4 h-4 text-[#007AFF]"></i>
-                                    <span class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Identitas Lokasi</span>
+                                    <span class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">{{ __('warehouse.sections.general_info') }}</span>
                                 </div>
 
                                 <div>
                                     <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                                        Nama Gudang / Cabang <span class="text-[#FF3B30]">*</span>
+                                        {{ __('warehouse.fields.name') }}
                                     </label>
                                     <input type="text" name="name" x-model="editData.name" required
                                            class="w-full h-11 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3.5 text-[16px] sm:text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
@@ -1523,55 +1528,53 @@
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                     <div>
                                         <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                                            Tipe Lokasi
+                                            {{ __('warehouse.fields.type') }}
                                         </label>
                                         <select name="type" x-model="editData.type" class="w-full h-10 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3 text-[16px] sm:text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
-                                            <option value="warehouse">Gudang Penyimpanan</option>
-                                            <option value="outlet">Cabang / Outlet</option>
+                                            <option value="warehouse">{{ __('warehouse.types.warehouse') }}</option>
+                                            <option value="outlet">{{ __('warehouse.types.outlet') }}</option>
                                             @if(str_starts_with($business->template_code ?? '', 'fnb_'))
-                                                <option value="central_kitchen">Dapur Pusat (Central Kitchen)</option>
+                                                <option value="central_kitchen">{{ __('warehouse.types.central_kitchen') }}</option>
                                             @elseif(str_starts_with($business->template_code ?? '', 'mfg_'))
-                                                <option value="central_kitchen">Pabrik / Workshop Produksi</option>
+                                                <option value="central_kitchen">{{ __('warehouse.types.central_kitchen_mfg') }}</option>
                                             @elseif(($business->template_code ?? '') === 'service_contractor')
-                                                <option value="central_kitchen">Basecamp / Workshop Proyek</option>
-                                            @else
-                                                <template x-if="editData.type === 'central_kitchen'">
-                                                    <option value="central_kitchen">Pusat Operasional / Central Kitchen</option>
-                                                </template>
+                                                <option value="central_kitchen">{{ __('warehouse.types.central_kitchen_contractor') }}</option>
+                                            @elseif(($locations ?? collect())->contains('type', 'central_kitchen'))
+                                                <option value="central_kitchen">{{ __('warehouse.types.central_kitchen') }}</option>
                                             @endif
                                         </select>
                                     </div>
                                     <div>
                                         <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                                            Kode Lokasi
+                                            {{ __('warehouse.fields.code') }}
                                         </label>
                                         <input type="text" name="code" x-model="editData.code"
                                                class="w-full h-10 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3.5 text-[16px] sm:text-xs text-slate-900 dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
                                     </div>
                                 </div>
 
-                                {{-- Hierarki Induk Cabang / Outlet (Case 5) --}}
+                                {{-- Hierarki Induk Cabang / Outlet --}}
                                 <div x-show="editData.type === 'warehouse'">
                                     <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                                        Induk Cabang / Outlet <span class="text-[10px] font-normal text-slate-400 dark:text-slate-500">(Opsional)</span>
+                                        {{ __('warehouse.fields.parent_location') }}
                                     </label>
                                     <select name="parent_id" x-model="editData.parent_id"
                                             class="w-full h-11 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3.5 text-[16px] sm:text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
-                                        <option value="">-- Tanpa Induk (Gudang Pusat / Mandiri) --</option>
+                                        <option value="">{{ __('warehouse.fields.no_parent') }}</option>
                                         @if(isset($parentOutlets))
                                             @foreach($parentOutlets as $pOut)
-                                                <option value="{{ $pOut->id }}" x-show="editData.id !== '{{ $pOut->id }}'">{{ $pOut->name }} ({{ $pOut->code ?? 'Cabang' }})</option>
+                                                <option value="{{ $pOut->id }}" x-show="editData.id !== '{{ $pOut->id }}'">{{ $pOut->name }} ({{ $pOut->code ?: __('warehouse.types.outlet') }})</option>
                                             @endforeach
                                         @endif
                                     </select>
                                     <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-                                        Kosongkan jika merupakan Gudang Pusat mandiri. Pilih cabang jika merupakan sub-gudang internal di dalam outlet.
+                                        {{ __('warehouse.sections.general_info_desc') }}
                                     </p>
                                 </div>
 
                                 <div>
                                     <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                                        Nomor Telepon
+                                        {{ __('warehouse.fields.phone') }}
                                     </label>
                                     <input type="text" name="phone" x-model="editData.phone"
                                            class="w-full h-10 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3.5 text-[16px] sm:text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
@@ -1579,7 +1582,7 @@
 
                                 <div>
                                     <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                                        Alamat Lengkap
+                                        {{ __('warehouse.fields.address') }}
                                     </label>
                                     <textarea name="address" rows="3" x-model="editData.address"
                                               class="w-full bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] p-3 text-[16px] sm:text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition resize-none"></textarea>
@@ -1589,7 +1592,7 @@
                                     <input type="checkbox" name="is_active" id="edit_is_active" value="1"
                                            x-model="editData.is_active" class="w-4 h-4 rounded text-[#007AFF] focus:ring-[#007AFF]">
                                     <label for="edit_is_active" class="text-xs text-slate-800 dark:text-slate-200 font-semibold cursor-pointer">
-                                        Lokasi beroperasi aktif (dapat menerima PO, kasir, transfer stok, dan alokasi produk)
+                                        {{ __('warehouse.fields.is_active') }}
                                     </label>
                                 </div>
                             </div>
@@ -1605,13 +1608,12 @@
                                         <div class="w-6 h-6 rounded-[6px] bg-[#007AFF]/15 text-[#007AFF] flex items-center justify-center">
                                             <i data-lucide="map-pin" class="w-3.5 h-3.5"></i>
                                         </div>
-                                        <span class="text-xs font-bold text-[#007AFF]">Koordinat GPS &amp; Geofence Absensi</span>
-                                        <span class="text-[10px] font-semibold text-slate-500 dark:text-slate-400">(Opsional)</span>
+                                        <span class="text-xs font-bold text-[#007AFF]">{{ __('warehouse.sections.geofence_gps') }}</span>
                                     </div>
 
-                                    {{-- Tombol Live Detect GPS (Zero-Emoji) --}}
+                                    {{-- Tombol Live Detect GPS --}}
                                     <button type="button" @click="detectGps('edit')" :disabled="gpsLoading"
-                                            class="min-h-[36px] h-9 px-3.5 rounded-[8px] text-xs font-bold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] transition-all flex items-center gap-1.5 shadow-[0_1px_2px_rgba(0,122,255,0.25)] cursor-pointer disabled:opacity-50">
+                                            class="min-h-[44px] h-11 px-3.5 rounded-[8px] text-xs font-bold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] transition-all flex items-center gap-1.5 shadow-[0_1px_2px_rgba(0,122,255,0.25)] cursor-pointer disabled:opacity-50">
                                         <template x-if="gpsLoading && activeGpsTarget === 'edit'">
                                             <svg class="animate-spin -ml-0.5 mr-1 h-3.5 w-3.5 text-white" fill="none" viewBox="0 0 24 24">
                                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -1621,7 +1623,7 @@
                                         <template x-if="!(gpsLoading && activeGpsTarget === 'edit')">
                                             <i data-lucide="crosshair" class="w-3.5 h-3.5"></i>
                                         </template>
-                                        <span x-text="(gpsLoading && activeGpsTarget === 'edit') ? 'Mencari Titik GPS...' : 'Deteksi GPS Otomatis'"></span>
+                                        <span x-text="(gpsLoading && activeGpsTarget === 'edit') ? '{{ __('warehouse.actions.detecting_gps') }}' : '{{ __('warehouse.actions.detect_gps') }}'"></span>
                                     </button>
                                 </div>
 
@@ -1629,7 +1631,7 @@
                                 <template x-if="gpsSuccess && activeGpsTarget === 'edit'">
                                     <div class="rounded-[10px] bg-[#34C759]/15 border border-[#34C759]/30 px-3 py-2 text-[11px] text-[#248A3D] dark:text-[#30D158] flex items-center gap-2 font-medium">
                                         <i data-lucide="check-circle-2" class="w-4 h-4 text-[#34C759]"></i>
-                                        <span>Titik koordinat GPS berhasil dideteksi dan alamat wilayah otomatis disinkronkan.</span>
+                                        <span>{{ __('warehouse.actions.gps_detected') }}</span>
                                     </div>
                                 </template>
 
@@ -1642,32 +1644,31 @@
 
                                 <div class="grid grid-cols-2 gap-3">
                                     <div>
-                                        <label class="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">Latitude</label>
-                                        <input type="text" name="latitude" x-model="editData.latitude" placeholder="-6.2088"
-                                               class="w-full h-9 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[8px] px-2.5 text-[16px] sm:text-xs text-slate-900 dark:text-white font-mono placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#007AFF] transition">
+                                        <label class="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">{{ __('warehouse.fields.latitude') }}</label>
+                                        <input type="text" name="latitude" x-model="editData.latitude" placeholder="{{ __('warehouse.placeholders.latitude') }}"
+                                               class="w-full h-10 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[8px] px-2.5 text-[16px] sm:text-xs text-slate-900 dark:text-white font-mono placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#007AFF] transition">
                                     </div>
                                     <div>
-                                        <label class="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">Longitude</label>
-                                        <input type="text" name="longitude" x-model="editData.longitude" placeholder="106.8456"
-                                               class="w-full h-9 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[8px] px-2.5 text-[16px] sm:text-xs text-slate-900 dark:text-white font-mono placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#007AFF] transition">
+                                        <label class="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">{{ __('warehouse.fields.longitude') }}</label>
+                                        <input type="text" name="longitude" x-model="editData.longitude" placeholder="{{ __('warehouse.placeholders.longitude') }}"
+                                               class="w-full h-10 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[8px] px-2.5 text-[16px] sm:text-xs text-slate-900 dark:text-white font-mono placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#007AFF] transition">
                                     </div>
                                 </div>
 
                                 <div>
                                     <div class="flex items-center justify-between mb-1">
-                                        <label class="block text-[11px] font-semibold text-slate-700 dark:text-slate-300">Radius Geofence (meter)</label>
+                                        <label class="block text-[11px] font-semibold text-slate-700 dark:text-slate-300">{{ __('warehouse.fields.geofence_radius') }}</label>
                                         <span class="text-[11px] font-bold text-[#007AFF] font-mono" x-text="editData.geofence_radius_meters + ' m'"></span>
                                     </div>
-                                    <input type="number" name="geofence_radius_meters" x-model="editData.geofence_radius_meters" placeholder="100" min="10" max="5000"
-                                           class="w-full h-9 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[8px] px-2.5 text-[16px] sm:text-xs text-slate-900 dark:text-white font-mono placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#007AFF] transition">
+                                    <input type="number" name="geofence_radius_meters" x-model="editData.geofence_radius_meters" placeholder="{{ __('warehouse.placeholders.radius') }}" min="10" max="5000"
+                                           class="w-full h-10 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[8px] px-2.5 text-[16px] sm:text-xs text-slate-900 dark:text-white font-mono placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#007AFF] transition">
                                     
                                     {{-- Quick Presets --}}
                                     <div class="flex items-center gap-1.5 mt-2 flex-wrap">
-                                        <span class="text-[10px] text-slate-400">Pilihan Cepat:</span>
-                                        <button type="button" @click="editData.geofence_radius_meters = 50" class="px-2 py-0.5 rounded-[6px] text-[10px] font-semibold bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 hover:border-[#007AFF] text-slate-700 dark:text-slate-300 cursor-pointer">50m</button>
-                                        <button type="button" @click="editData.geofence_radius_meters = 100" class="px-2 py-0.5 rounded-[6px] text-[10px] font-semibold bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 hover:border-[#007AFF] text-slate-700 dark:text-slate-300 cursor-pointer">100m (Default)</button>
-                                        <button type="button" @click="editData.geofence_radius_meters = 200" class="px-2 py-0.5 rounded-[6px] text-[10px] font-semibold bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 hover:border-[#007AFF] text-slate-700 dark:text-slate-300 cursor-pointer">200m</button>
-                                        <button type="button" @click="editData.geofence_radius_meters = 500" class="px-2 py-0.5 rounded-[6px] text-[10px] font-semibold bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 hover:border-[#007AFF] text-slate-700 dark:text-slate-300 cursor-pointer">500m</button>
+                                        <button type="button" @click="editData.geofence_radius_meters = 50" class="min-h-[44px] sm:min-h-0 px-2.5 py-1 rounded-[6px] text-[10px] font-semibold bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 hover:border-[#007AFF] text-slate-700 dark:text-slate-300 cursor-pointer">50m</button>
+                                        <button type="button" @click="editData.geofence_radius_meters = 100" class="min-h-[44px] sm:min-h-0 px-2.5 py-1 rounded-[6px] text-[10px] font-semibold bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 hover:border-[#007AFF] text-slate-700 dark:text-slate-300 cursor-pointer">100m (Default)</button>
+                                        <button type="button" @click="editData.geofence_radius_meters = 200" class="min-h-[44px] sm:min-h-0 px-2.5 py-1 rounded-[6px] text-[10px] font-semibold bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 hover:border-[#007AFF] text-slate-700 dark:text-slate-300 cursor-pointer">200m</button>
+                                        <button type="button" @click="editData.geofence_radius_meters = 500" class="min-h-[44px] sm:min-h-0 px-2.5 py-1 rounded-[6px] text-[10px] font-semibold bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 hover:border-[#007AFF] text-slate-700 dark:text-slate-300 cursor-pointer">500m</button>
                                     </div>
                                 </div>
                             </div>
@@ -1679,24 +1680,19 @@
                                         <div class="w-6 h-6 rounded-[6px] bg-[#5856D6]/15 text-[#5856D6] flex items-center justify-center">
                                             <i data-lucide="truck" class="w-3.5 h-3.5"></i>
                                         </div>
-                                        <span class="text-xs font-bold text-slate-900 dark:text-white">Integrasi Biteship &amp; Pickup Toko Online</span>
+                                        <span class="text-xs font-bold text-slate-900 dark:text-white">{{ __('warehouse.fields.biteship_area') }}</span>
                                     </div>
-                                    <span class="text-[10px] font-bold text-[#5856D6] bg-[#5856D6]/10 px-2 py-0.5 rounded-full">Logistics</span>
                                 </div>
 
                                 {{-- Area Search Box for Biteship --}}
                                 <div class="relative">
-                                    <label class="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                                        Hubungkan Wilayah Biteship (Kelurahan / Kecamatan / Kode Pos)
-                                    </label>
-
                                     <template x-if="!editData.biteship_area_id">
                                         <div class="relative">
                                             <input type="text"
-                                                   placeholder="Ketik min. 2 huruf (contoh: Tebet, Senayan, 12810)..."
+                                                   placeholder="{{ __('warehouse.placeholders.biteship_search') }}"
                                                    @input.debounce.300ms="searchBiteship('edit', $event.target.value)"
-                                                   class="w-full h-9 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[8px] pl-8 pr-3 text-[16px] sm:text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#5856D6] transition">
-                                            <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5"></i>
+                                                   class="w-full h-10 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[8px] pl-8 pr-3 text-[16px] sm:text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#5856D6] transition">
+                                            <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-3"></i>
                                         </div>
                                     </template>
 
@@ -1707,11 +1703,11 @@
                                                 <i data-lucide="check-circle" class="w-4 h-4 text-[#34C759] shrink-0"></i>
                                                 <div class="min-w-0">
                                                     <span class="text-xs font-bold text-slate-900 dark:text-white block truncate" x-text="editData.biteship_area_label || editData.biteship_area_id"></span>
-                                                    <span class="text-[10px] text-slate-500 dark:text-slate-400 font-mono">Biteship ID: <span x-text="editData.biteship_area_id"></span></span>
+                                                    <span class="text-[10px] text-slate-500 dark:text-slate-400 font-mono">ID: <span x-text="editData.biteship_area_id"></span></span>
                                                 </div>
                                             </div>
-                                            <button type="button" @click="clearBiteshipArea('edit')" class="text-xs text-[#FF3B30] hover:underline font-semibold shrink-0 ml-2 cursor-pointer">
-                                                Ganti
+                                            <button type="button" @click="clearBiteshipArea('edit')" class="min-h-[44px] sm:min-h-0 text-xs text-[#FF3B30] hover:underline font-semibold shrink-0 ml-2 cursor-pointer">
+                                                {{ __('warehouse.actions.change') }}
                                             </button>
                                         </div>
                                     </template>
@@ -1727,7 +1723,7 @@
                                                     <span class="text-xs font-bold text-slate-900 dark:text-white block" x-text="item.label || (item.village + ', ' + item.district + ', ' + item.city)"></span>
                                                     <span class="text-[10px] text-slate-500 dark:text-slate-400" x-text="(item.province || '') + (item.postal_code ? ' • Kode Pos: ' + item.postal_code : '')"></span>
                                                 </div>
-                                                <span class="text-[10px] font-mono text-[#5856D6] font-bold shrink-0 bg-[#5856D6]/10 px-1.5 py-0.5 rounded">Pilih</span>
+                                                <span class="text-[10px] font-mono text-[#5856D6] font-bold shrink-0 bg-[#5856D6]/10 px-1.5 py-0.5 rounded">{{ __('warehouse.actions.select') }}</span>
                                             </button>
                                         </template>
                                     </div>
@@ -1738,19 +1734,19 @@
                                     <label class="flex items-start gap-2.5 p-3 rounded-[12px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] cursor-pointer hover:border-[#5856D6]/40 transition">
                                         <input type="checkbox" name="is_primary" value="1" x-model="editData.is_primary" class="mt-0.5 w-4 h-4 rounded text-[#5856D6] focus:ring-[#5856D6]">
                                         <div class="text-xs">
-                                            <span class="font-bold text-slate-900 dark:text-white block">Jadikan Titik Pickup Utama Toko Online</span>
-                                            <span class="text-[11px] text-slate-500 dark:text-slate-400 block">Pesanan online pengiriman kurir (JNE, SiCepat, J&T, GoSend, GrabExpress via Biteship) akan dipickup kurir dari lokasi ini.</span>
+                                            <span class="font-bold text-slate-900 dark:text-white block">{{ __('warehouse.fields.is_primary') }}</span>
+                                            <span class="text-[11px] text-slate-500 dark:text-slate-400 block">{{ __('warehouse.sections.operational_settings_desc') }}</span>
                                         </div>
                                     </label>
 
                                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                         <label class="flex items-start gap-2 p-2.5 rounded-[10px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] cursor-pointer">
                                             <input type="checkbox" name="is_online_fulfillment" value="1" x-model="editData.is_online_fulfillment" class="mt-0.5 w-3.5 h-3.5 rounded text-[#007AFF] focus:ring-[#007AFF]">
-                                            <span class="text-[11px] font-medium text-slate-800 dark:text-slate-200">Titik Kirim Kurir Online</span>
+                                            <span class="text-[11px] font-medium text-slate-800 dark:text-slate-200">{{ __('warehouse.fields.is_online_fulfillment') }}</span>
                                         </label>
                                         <label class="flex items-start gap-2 p-2.5 rounded-[10px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] cursor-pointer">
                                             <input type="checkbox" name="allow_storefront_pickup" value="1" x-model="editData.allow_storefront_pickup" class="mt-0.5 w-3.5 h-3.5 rounded text-[#007AFF] focus:ring-[#007AFF]">
-                                            <span class="text-[11px] font-medium text-slate-800 dark:text-slate-200">Izinkan Ambil di Toko</span>
+                                            <span class="text-[11px] font-medium text-slate-800 dark:text-slate-200">{{ __('warehouse.fields.allow_storefront_pickup') }}</span>
                                         </label>
                                     </div>
                                 </div>
@@ -1763,7 +1759,7 @@
                 <div class="px-5 py-3.5 sm:px-6 sm:py-4 border-t border-black/[0.06] dark:border-white/[0.08] flex items-center justify-end gap-3 shrink-0 bg-slate-50/50 dark:bg-white/[0.02]">
                     <button type="button" @click="showEditModal = false"
                             class="min-h-[44px] h-11 px-5 rounded-[12px] text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer">
-                        Batal
+                        {{ __('warehouse.actions.cancel') }}
                     </button>
                     <button type="submit" :disabled="submitting"
                             class="min-h-[44px] h-11 px-6 rounded-[12px] text-xs font-bold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] transition-all shadow-[0_2px_4px_rgba(0,122,255,0.25)] cursor-pointer flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
@@ -1776,7 +1772,7 @@
                         <template x-if="!submitting">
                             <i data-lucide="check" class="w-4 h-4"></i>
                         </template>
-                        <span x-text="submitting ? 'Menyimpan...' : 'Simpan Perubahan Lokasi'"></span>
+                        <span x-text="submitting ? '{{ __('warehouse.actions.submitting') }}' : '{{ __('warehouse.actions.save_changes') }}'"></span>
                     </button>
                 </div>
             </form>
@@ -1809,20 +1805,20 @@
                 <div class="w-12 h-12 rounded-full bg-[#FF3B30]/10 text-[#FF3B30] flex items-center justify-center mx-auto mb-3.5">
                     <i data-lucide="alert-triangle" class="w-6 h-6"></i>
                 </div>
-                <p class="text-base font-bold text-slate-900 dark:text-white">Hapus Lokasi?</p>
+                <p class="text-base font-bold text-slate-900 dark:text-white">{{ __('warehouse.delete_modal.title') }}</p>
                 <p class="text-xs text-slate-600 dark:text-slate-400 mt-1.5 leading-relaxed">
-                    <span x-text="deleteTarget.name" class="font-bold text-slate-900 dark:text-white"></span> akan dihapus dari sistem. Pastikan tidak ada saldo stok atau mutasi aktif.
+                    <span x-text="deleteTarget.name" class="font-bold text-slate-900 dark:text-white"></span>. {{ __('warehouse.delete_modal.has_stock_warning') }}
                 </p>
             </div>
 
             <div class="grid grid-cols-2 border-t border-black/[0.08] dark:border-white/[0.12] text-xs font-semibold">
                 <button type="button" @click="closeDelete()"
-                        class="py-3.5 text-slate-600 dark:text-slate-300 border-r border-black/[0.08] dark:border-white/[0.12] active:bg-black/5 dark:active:bg-white/5 transition-colors cursor-pointer">
-                    Batal
+                        class="min-h-[44px] py-3.5 text-slate-600 dark:text-slate-300 border-r border-black/[0.08] dark:border-white/[0.12] active:bg-black/5 dark:active:bg-white/5 transition-colors cursor-pointer flex items-center justify-center">
+                    {{ __('warehouse.actions.cancel') }}
                 </button>
                 <button type="button" @click="submitDelete()"
-                        class="py-3.5 text-[#FF3B30] font-bold active:bg-black/5 dark:active:bg-white/5 transition-colors cursor-pointer">
-                    Hapus
+                        class="min-h-[44px] py-3.5 text-[#FF3B30] font-bold active:bg-black/5 dark:active:bg-white/5 transition-colors cursor-pointer flex items-center justify-center">
+                    {{ __('warehouse.actions.delete') }}
                 </button>
             </div>
         </div>

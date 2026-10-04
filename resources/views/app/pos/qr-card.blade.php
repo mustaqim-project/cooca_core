@@ -9,7 +9,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>
-        {{ $isMultiple ? 'Cetak Semua Kartu QR Meja (' . count($cardList) . ' Meja)' : 'Kartu QR ' . $cardList[0]['table']->table_number }}
+        {{ $isMultiple ? __('pos.print_all_qr_cards_title', ['count' => count($cardList)]) : __('pos.single_qr_card_title', ['table' => $cardList[0]['table']->table_number]) }}
         - {{ $business->name }}</title>
     <!-- Google Fonts (Inter) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -61,12 +61,12 @@
             <a href="{{ route('pos.tables.index') }}"
                 class="min-h-[44px] h-11 px-4 rounded-[12px] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.09] dark:hover:bg-white/[0.12] text-[13px] font-semibold text-black/80 dark:text-white/80 hover:text-black dark:hover:text-white flex items-center gap-2 transition active:scale-[0.98]">
                 <i data-lucide="arrow-left" class="w-4 h-4"></i>
-                <span>Daftar Meja</span>
+                <span>{{ __('pos.table_list_back_action') }}</span>
             </a>
 
             @if ($isMultiple)
                 <span class="text-[12px] font-bold text-black/60 dark:text-white/60 bg-black/[0.05] dark:bg-white/[0.08] px-3.5 py-1.5 rounded-full">
-                    Total: {{ count($cardList) }} Meja
+                    Total: {{ count($cardList) }} {{ __('pos.table_number_display', ['number' => '']) }}
                 </span>
             @endif
         </div>
@@ -76,14 +76,14 @@
                 <a href="{{ route('pos.tables.qr-svg', $cardList[0]['table']->id) }}"
                     class="min-h-[44px] h-11 px-4 rounded-[12px] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.09] dark:hover:bg-white/[0.12] text-[13px] font-semibold text-[#007AFF] flex items-center gap-2 transition active:scale-[0.98]">
                     <i data-lucide="download" class="w-4 h-4"></i>
-                    <span>Unduh SVG</span>
+                    <span>{{ __('pos.download_svg') }}</span>
                 </a>
             @endif
 
             <button type="button" onclick="window.print()"
                 class="min-h-[44px] h-11 px-5 rounded-[12px] bg-[#007AFF] hover:bg-[#0071E3] text-white text-[13px] font-semibold flex items-center gap-2 shadow-sm transition active:scale-[0.98]">
                 <i data-lucide="printer" class="w-4 h-4"></i>
-                <span>{{ $isMultiple ? 'Cetak Semua Standee' : 'Cetak Standee' }}</span>
+                <span>{{ $isMultiple ? __('pos.print_all_standees') : __('pos.print_standee') }}</span>
             </button>
         </div>
     </div>
@@ -115,9 +115,8 @@
                     </div>
 
                     <div>
-                        <div class="text-[10px] font-bold text-[#007AFF] tracking-[0.18em] uppercase">Scan to Order
-                        </div>
-                        <h2 class="text-xs font-medium text-black/60 mt-0.5">Pindai untuk Pesan Menu</h2>
+                        <div class="text-[10px] font-bold text-[#007AFF] tracking-[0.18em] uppercase">{{ __('pos.scan_to_order_title') }}</div>
+                        <h2 class="text-xs font-medium text-black/60 mt-0.5">{{ __('pos.scan_to_order_subtitle') }}</h2>
                     </div>
                 </div>
 
@@ -132,7 +131,7 @@
                 <!-- Table Identifier & Instructions -->
                 <div class="space-y-2">
                     <div>
-                        <div class="text-[11px] font-semibold text-black/40 uppercase tracking-wider">Nomor Meja</div>
+                        <div class="text-[11px] font-semibold text-black/40 uppercase tracking-wider">{{ __('pos.table_code_label') }}</div>
                         <div class="text-3xl font-extrabold text-black tracking-tight tabular-nums mt-0.5">
                             {{ $tbl->table_number }}</div>
                         @if ($tbl->name)
@@ -141,14 +140,14 @@
                     </div>
 
                     <p class="text-[11px] text-black/60 leading-relaxed max-w-[280px] mx-auto pt-1">
-                        Arahkan kamera HP ke QR Code untuk melihat katalog menu, memilih varian, dan memesan langsung.
+                        {{ __('pos.scan_instruction_text') }}
                     </p>
 
                     <div
                         class="pt-3 border-t border-black/5 flex items-center justify-center gap-1.5 text-[10px] text-black/35 font-medium tracking-wide">
-                        <span>Self-Ordering System</span>
+                        <span>{{ __('pos.self_ordering_system_brand') }}</span>
                         <span>•</span>
-                        <span>Powered by COOCA</span>
+                        <span>{{ __('pos.powered_by') }}</span>
                     </div>
                 </div>
             </div>

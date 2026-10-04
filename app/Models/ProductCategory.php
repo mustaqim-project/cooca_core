@@ -27,13 +27,14 @@ class ProductCategory extends Model
     ];
 
     /**
-     * Resolve route binding by either UUID id or slug.
+     * Resolve route binding by either UUID id or slug safely scoped to tenant.
      */
     public function resolveRouteBinding($value, $field = null)
     {
-        return $this->where('id', $value)
-            ->orWhere('slug', $value)
-            ->firstOrFail();
+        return $this->where(function ($query) use ($value): void {
+            $query->where('id', $value)
+                ->orWhere('slug', $value);
+        })->firstOrFail();
     }
 
     /**

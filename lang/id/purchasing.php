@@ -337,4 +337,141 @@ return [
         'supervisor_pin_prompt' => 'Masukkan PIN Supervisor untuk mengotorisasi aksi ini:',
         'available_items_to_return' => 'Daftar Item Tersedia untuk Diretur',
     ],
+
+    'supplier' => [
+        'title' => 'Pemasok & Vendor',
+        'header_title' => 'Manajemen Pemasok (Suppliers)',
+        'header_subtitle' => 'Kelola direktori mitra vendor, PIC, informasi perbankan, dan pengadaan bahan baku bisnis.',
+        'create_title' => 'Tambah Mitra Pemasok Baru',
+        'create_subtitle' => 'Daftarkan vendor penyedia bahan baku atau produk dagang untuk alur pengadaan PO.',
+        'edit_title' => 'Edit Data Pemasok: :name',
+        'edit_subtitle' => 'Perbarui informasi kontak PIC, nomor rekening bank, dan alamat vendor.',
+
+        'breadcrumbs' => [
+            'dashboard' => 'Dashboard',
+            'purchasing' => 'Pengadaan & PO',
+            'suppliers' => 'Direktori Pemasok',
+            'create' => 'Tambah Pemasok',
+            'edit' => 'Edit Pemasok',
+        ],
+
+        'kpis' => [
+            'total_suppliers' => 'Total Pemasok',
+            'registered_partners' => 'Mitra Terdaftar',
+            'active_suppliers' => 'Pemasok Pasokan Aktif',
+            'has_materials' => 'Ada Bahan Baku',
+            'linked_materials' => 'Bahan Baku Terhubung',
+            'supply_items' => 'Item Pasokan',
+            'procurement' => 'Pengadaan Barang',
+            'direct_po' => 'Buat Purchase Order',
+        ],
+
+        'tabs' => [
+            'all' => 'Semua Pemasok',
+            'active' => 'Aktif Pasok',
+            'with_bank' => 'Rekening Lengkap',
+        ],
+
+        'fields' => [
+            'name' => 'Nama Perusahaan / Toko Pemasok *',
+            'contact_person' => 'Nama Kontak PIC',
+            'phone' => 'No. Telepon / WhatsApp',
+            'email' => 'Alamat Email',
+            'address' => 'Alamat Lengkap Kantor / Gudang',
+            'bank_name' => 'Nama Bank',
+            'bank_account_number' => 'Nomor Rekening',
+            'bank_account_holder' => 'Atas Nama Rekening',
+            'notes' => 'Catatan Tambahan / Ketentuan TOP',
+            'actions' => 'Aksi',
+            'status' => 'Status',
+            'materials_count' => 'Item Pasokan',
+        ],
+
+        'placeholders' => [
+            'search' => 'Cari nama pemasok, kontak PIC, atau nomor telepon...',
+            'name' => 'Contoh: PT Sumber Pangan Makmur / Toko Berkah Jaya',
+            'contact_person' => 'Contoh: Bpk. Bambang Sutrisno',
+            'phone' => 'Contoh: 081234567890',
+            'email' => 'Contoh: sales@sumberpangan.com',
+            'address' => 'Alamat lengkap jalan, gedung, kota...',
+            'bank_name' => 'Contoh: BCA / Mandiri / BRI / BNI',
+            'bank_account_number' => 'Contoh: 8830192831',
+            'bank_account_holder' => 'Contoh: PT SUMBER PANGAN MAKMUR',
+            'notes' => 'Contoh: Termin TOP 30 hari, diskon 5% untuk pembayaran tunai...',
+        ],
+
+        'sections' => [
+            'company_info' => '1. Profil Pemasok & Kontak Utama',
+            'company_info_desc' => 'Informasi legal usaha dan kontak penanggung jawab pengadaan.',
+            'bank_info' => '2. Rekening Pembayaran & Administrasi',
+            'bank_info_desc' => 'Rekening bank tujuan transfer pencairan invoice tagihan supplier.',
+            'bank_section_title' => 'Rekening Pembayaran Bank (Transfer Vendor)',
+        ],
+
+        'table' => [
+            'supplier_name' => 'Nama Pemasok / Vendor',
+            'contact_pic' => 'Kontak PIC',
+            'phone_wa' => 'Telepon & WhatsApp',
+            'bank_account' => 'Rekening Bank',
+            'email_address' => 'Email & Alamat',
+            'raw_materials' => 'Bahan Baku',
+            'action' => 'Aksi',
+            'mobile_list_title' => 'Daftar Pemasok',
+            'mobile_suppliers_count' => ':total Pemasok',
+            'mobile_pic_label' => 'PIC:',
+            'mobile_bank_default' => 'Rekening Bank',
+        ],
+
+        'badges' => [
+            'items_count' => ':count item',
+            'account_holder_prefix' => 'a.n',
+            'chat_wa' => 'Chat WA',
+            'chat_wa_title' => 'Chat WhatsApp Pemasok',
+        ],
+
+        'pagination' => [
+            'showing' => 'Menampilkan',
+            'of' => 'dari',
+            'suppliers' => 'pemasok',
+            'info' => 'Menampilkan :count dari :total pemasok',
+        ],
+
+        'actions' => [
+            'add_supplier' => 'Tambah Pemasok',
+            'edit_supplier' => 'Edit Pemasok',
+            'delete_supplier' => 'Hapus Pemasok',
+            'create_po' => 'Buat PO Pengadaan',
+            'view_materials' => 'Katalog Bahan',
+            'view_pos' => 'Daftar PO',
+            'save' => 'Simpan Pemasok',
+            'update' => 'Simpan Perubahan',
+            'cancel' => 'Batal',
+            'delete' => 'Hapus',
+            'search' => 'Cari',
+            'reset' => 'Reset',
+            'submitting' => 'Menyimpan...',
+            'updating' => 'Memperbarui...',
+        ],
+
+        'modals' => [
+            'delete_title' => 'Hapus Pemasok?',
+            'delete_confirm' => 'Apakah Anda yakin ingin menghapus data pemasok :name?',
+            'delete_reassurance' => 'akan dihapus dari sistem. Data historis PO dan transaksi masa lalu tetap tersimpan secara aman dalam arsip sistem.',
+            'edit_updating' => 'Memperbarui: :name',
+        ],
+
+        'empty' => [
+            'title' => 'Belum Ada Data Pemasok',
+            'subtitle' => 'Tambahkan pemasok untuk mengelola kontak vendor, rekening bank, riwayat PO, dan pengadaan bahan baku.',
+            'button' => 'Tambah Pemasok Pertama',
+            'search_empty' => 'Tidak ditemukan pemasok yang sesuai dengan kata kunci pencarian.',
+        ],
+
+        'messages' => [
+            'created_success' => 'Pemasok baru berhasil ditambahkan ke direktori.',
+            'updated_success' => 'Data pemasok :name berhasil diperbarui.',
+            'deleted_success' => 'Pemasok berhasil dihapus dari sistem.',
+            'cannot_delete_has_po' => 'Pemasok tidak dapat dihapus karena memiliki riwayat transaksi Purchase Order aktif.',
+        ],
+    ],
 ];

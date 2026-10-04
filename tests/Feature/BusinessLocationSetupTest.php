@@ -26,6 +26,7 @@ final class BusinessLocationSetupTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        app()->setLocale('id');
         Context::flush();
         $this->seed(RbacSeeder::class);
         $this->seed(DefaultUnitSeeder::class);

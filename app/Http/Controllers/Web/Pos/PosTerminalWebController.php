@@ -97,6 +97,12 @@ final class PosTerminalWebController extends Controller
             ?? $locations->where('is_primary', true)->first()?->id
             ?? $locations->first()?->id;
 
+        if ($selectedLocationId && ! $locations->contains('id', $selectedLocationId)) {
+            $selectedLocationId = $primaryLocationId
+                ?? $locations->where('is_primary', true)->first()?->id
+                ?? $locations->first()?->id;
+        }
+
         if ($selectedLocationId) {
             session(['pos_location_id' => $selectedLocationId]);
         }
@@ -162,13 +168,17 @@ final class PosTerminalWebController extends Controller
                         $p->modifier_groups = [];
                     }
 
-                    $channelPricesMap = [
-                        'dine_in' => (float) $p->selling_price,
-                        'takeaway' => (float) $p->selling_price,
-                        'gofood' => (float) $p->selling_price,
-                        'grabfood' => (float) $p->selling_price,
-                        'shopeefood' => (float) $p->selling_price,
-                    ];
+                    $channelPricesMap = $business->isFoodIndustry()
+                        ? [
+                            'dine_in' => (float) $p->selling_price,
+                            'takeaway' => (float) $p->selling_price,
+                            'gofood' => (float) $p->selling_price,
+                            'grabfood' => (float) $p->selling_price,
+                            'shopeefood' => (float) $p->selling_price,
+                        ]
+                        : [
+                            'standard' => (float) $p->selling_price,
+                        ];
                     if ($p->relationLoaded('channelPrices')) {
                         foreach ($p->channelPrices as $cp) {
                             $channelPricesMap[$cp->channel] = max((float) $cp->price, (float) $p->selling_price);
@@ -442,13 +452,17 @@ final class PosTerminalWebController extends Controller
             ->map(function ($p) use ($branchPrices) {
                 $locStock = $p->stocks->first();
                 $price = isset($branchPrices[$p->id]) ? (float) $branchPrices[$p->id] : (float) $p->selling_price;
-                $channelPricesMap = [
-                    'dine_in' => $price,
-                    'takeaway' => $price,
-                    'gofood' => $price,
-                    'grabfood' => $price,
-                    'shopeefood' => $price,
-                ];
+                $channelPricesMap = $business->isFoodIndustry()
+                    ? [
+                        'dine_in' => $price,
+                        'takeaway' => $price,
+                        'gofood' => $price,
+                        'grabfood' => $price,
+                        'shopeefood' => $price,
+                    ]
+                    : [
+                        'standard' => $price,
+                    ];
                 if ($p->relationLoaded('channelPrices')) {
                     foreach ($p->channelPrices as $cp) {
                         $channelPricesMap[$cp->channel] = max((float) $cp->price, $price);

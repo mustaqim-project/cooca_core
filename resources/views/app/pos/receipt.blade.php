@@ -92,15 +92,15 @@
                 <a href="{{ route('pos.terminal') }}"
                     class="min-h-[36px] h-9 px-3 rounded-[10px] bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] text-black/80 dark:text-white/80 text-[13px] font-sans font-medium transition flex items-center gap-1.5 active:scale-[0.98]">
                     <i data-lucide="arrow-left" class="w-4 h-4"></i>
-                    <span>Terminal</span>
+                    <span>{{ __('pos.pos_terminal') }}</span>
                 </a>
                 @if ($order->print_count > 1)
                     <span class="px-2.5 py-1 rounded-[8px] text-[11px] font-sans font-bold bg-[#FF9500]/15 text-[#B25E00] dark:text-[#FF9F0A] border border-[#FF9500]/30 shrink-0">
-                        Salinan (Ke-{{ $order->print_count }})
+                        {{ __('pos.reprint_badge_count', ['count' => $order->print_count]) }}
                     </span>
                 @else
                     <span class="px-2.5 py-1 rounded-[8px] text-[11px] font-sans font-bold bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158] border border-[#34C759]/30 shrink-0">
-                        Cetakan Asli
+                        {{ __('pos.original_print') }}
                     </span>
                 @endif
             </div>
@@ -110,25 +110,25 @@
                 <button type="button" id="btn-direct-escpos" onclick="directPrintEscpos()"
                     class="min-h-[36px] h-9 px-3 rounded-[10px] bg-[#34C759] hover:bg-[#2EB34E] text-white text-[12px] font-sans font-semibold active:scale-[0.97] transition flex items-center gap-1.5 shadow-sm">
                     <i data-lucide="printer" class="w-3.5 h-3.5"></i>
-                    <span id="txt-direct-escpos">Cetak ESC/POS</span>
+                    <span id="txt-direct-escpos">{{ __('pos.escpos_print') }}</span>
                 </button>
 
                 <!-- Standard Browser Print Fallback -->
                 <button type="button" onclick="window.print()"
                     class="min-h-[36px] h-9 px-3 rounded-[10px] {{ $order->print_count > 1 ? 'bg-[#FF9500] hover:bg-[#E08500]' : 'bg-[#007AFF] hover:bg-[#0071E3]' }} text-white text-[12px] font-sans font-semibold active:scale-[0.97] transition flex items-center gap-1.5 shadow-sm">
                     <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
-                    <span>{{ $order->print_count > 1 ? 'Cetak Ulang' : 'Cetak Bill' }}</span>
+                    <span>{{ $order->print_count > 1 ? __('pos.reprint_bill') : __('pos.print_bill') }}</span>
                 </button>
 
                 <!-- Re-Print Trigger Action -->
                 <form method="POST" action="{{ route('pos.receipt.reprint', $order->id) }}" class="inline"
-                    onsubmit="return typeof AppAlert !== 'undefined' ? AppAlert.confirmSubmit(event, this, 'Cetak Ulang (Re-Print) Bill ini? Tindakan ini akan dicatat dalam Jejak Audit & Anti-Fraud sebagai Salinan ke-{{ $order->print_count + 1 }}.', 'Cetak Ulang Bill?', 'warning') : confirm('Cetak Ulang (Re-Print) Bill ini?');">
+                    onsubmit="return typeof AppAlert !== 'undefined' ? AppAlert.confirmSubmit(event, this, {{ Js::from(__('pos.reprint_confirm_msg', ['count' => $order->print_count + 1])) }}, {{ Js::from(__('pos.reprint_confirm_title')) }}, 'warning') : confirm({{ Js::from(__('pos.reprint_confirm_title')) }});">
                     @csrf
                     <button type="submit"
                         class="min-h-[36px] h-9 px-2.5 rounded-[10px] bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.1] dark:hover:bg-white/[0.12] text-black/85 dark:text-white/85 text-[12px] font-sans font-medium active:scale-[0.97] transition flex items-center gap-1"
-                        title="Cetak Salinan Tambahan & Catat Log Forensik">
+                        title="{{ __('pos.reprint_action') }}">
                         <i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-[#FF9500]"></i>
-                        <span>Re-Print</span>
+                        <span>{{ __('pos.reprint_action') }}</span>
                     </button>
                 </form>
 
@@ -142,22 +142,22 @@
             <!-- Public Guest / Customer Action Bar -->
             <div class="flex items-center gap-2">
                 <span class="text-[13px] font-sans font-semibold text-black/80 dark:text-white/80">
-                    Struk Digital Transaksi
+                    {{ __('pos.digital_receipt') }}
                 </span>
                 <span class="px-2 py-0.5 rounded-[6px] text-[11px] font-sans font-semibold bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158]">
-                    {{ $order->payment_status_label ?? 'Lunas' }}
+                    {{ $order->payment_status_label ?? __('pos.payment_status_paid') }}
                 </span>
             </div>
             <div class="flex items-center gap-1.5">
                 <a href="{{ route('public.receipt.image', $order->id) }}" download="struk-{{ $order->order_number }}.png"
                     class="min-h-[36px] h-9 px-3 rounded-[10px] bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] text-black/80 dark:text-white/80 text-[12px] font-sans font-medium transition flex items-center gap-1.5 active:scale-[0.98]">
                     <i data-lucide="download" class="w-3.5 h-3.5"></i>
-                    <span>Simpan Gambar</span>
+                    <span>{{ __('pos.save_image') }}</span>
                 </a>
                 <button type="button" onclick="window.print()"
                     class="min-h-[36px] h-9 px-3 rounded-[10px] bg-[#007AFF] hover:bg-[#0071E3] text-white text-[12px] font-sans font-semibold active:scale-[0.97] transition flex items-center gap-1.5 shadow-sm">
                     <i data-lucide="printer" class="w-3.5 h-3.5"></i>
-                    <span>Cetak Struk</span>
+                    <span>{{ __('pos.print_receipt') }}</span>
                 </button>
             </div>
         @endauth
@@ -184,7 +184,7 @@
         {{-- JIKA RE-PRINT (print_count > 1), TERCANTUM WATERMARK SALINAN & CETAKAN KE-N --}}
         @if ($order->print_count > 1)
             <div class="my-2 py-1 px-1.5 border-2 border-dashed border-black dark:border-white text-center font-bold text-[11px] tracking-wider uppercase bg-black/[0.04] dark:bg-white/[0.04]">
-                *** SALINAN (CETAKAN KE-{{ $order->print_count }}) ***
+                *** {{ __('pos.reprint_badge_count', ['count' => $order->print_count]) }} ***
             </div>
         @endif
 
@@ -192,55 +192,55 @@
         <div class="py-2 text-[10px] border-b border-dashed border-gray-400 space-y-0.5">
             @if ($order->print_count > 1)
                 <div class="flex justify-between font-bold text-[#FF3B30] dark:text-[#FF453A]">
-                    <span>Status Dokumen:</span>
-                    <span>SALINAN (CETAKAN KE-{{ $order->print_count }})</span>
+                    <span>{{ __('pos.document_status_label') }}</span>
+                    <span>{{ __('pos.reprint_badge_count', ['count' => $order->print_count]) }}</span>
                 </div>
                 @if ($order->last_printed_at)
                     <div class="flex justify-between text-[9px] text-gray-600">
-                        <span>Waktu Re-Print:</span>
+                        <span>{{ __('pos.reprint_time_label') }}</span>
                         <span>{{ $order->last_printed_at->format('d/m/Y H:i') }}</span>
                     </div>
                 @endif
                 @if ($order->lastPrintedBy)
                     <div class="flex justify-between text-[9px] text-gray-600">
-                        <span>Operator:</span>
+                        <span>{{ __('pos.operator_label') }}</span>
                         <span>{{ $order->lastPrintedBy->name }}</span>
                     </div>
                 @endif
             @endif
             <div class="flex justify-between">
-                <span>No. Order:</span>
+                <span>{{ __('pos.order_number_label') }}</span>
                 <span class="font-bold tabular-nums">#{{ $order->order_number }}</span>
             </div>
             <div class="flex justify-between">
-                <span>Tanggal:</span>
+                <span>{{ __('pos.date_label') }}</span>
                 <span class="tabular-nums">{{ $order->order_date->format('d/m/Y') }}
                     {{ $order->created_at->format('H:i') }}</span>
             </div>
             <div class="flex justify-between">
-                <span>Kasir:</span>
+                <span>{{ __('pos.cashier_label') }}</span>
                 <span>{{ $order->user->name ?? 'Kasir' }}</span>
             </div>
             @if ($order->customer)
                 <div class="flex justify-between">
-                    <span>Member:</span>
+                    <span>{{ __('pos.member_label') }}</span>
                     <span class="font-bold">{{ $order->customer->name }}
                         ({{ strtoupper($order->customer->membership_tier ?? 'Bronze') }})</span>
                 </div>
             @elseif($order->customer_name_guest)
                 <div class="flex justify-between">
-                    <span>Pelanggan:</span>
+                    <span>{{ __('pos.customer_label') }}</span>
                     <span>{{ $order->customer_name_guest }}</span>
                 </div>
             @endif
             @if ($order->table_or_reference)
                 <div class="flex justify-between">
-                    <span>Meja / Ref:</span>
+                    <span>{{ __('pos.table_or_ref_label') }}</span>
                     <span>{{ $order->table_or_reference }}</span>
                 </div>
             @endif
             <div class="flex justify-between">
-                <span>Tipe:</span>
+                <span>{{ __('pos.order_type_label') }}</span>
                 <span class="uppercase font-semibold">{{ $order->order_type }}</span>
             </div>
             @if ($order->sales_channel && $order->sales_channel !== 'dine_in')
@@ -259,44 +259,44 @@
             {{-- Bengkel Otomotif Metadata --}}
             @if ($order->vehicle_license_plate)
                 <div class="flex justify-between font-bold text-[10px] pt-1 border-t border-dotted border-gray-300">
-                    <span>No. Kendaraan:</span>
+                    <span>{{ __('pos.vehicle_plate_label') }}</span>
                     <span>{{ $order->vehicle_license_plate }} {{ $order->vehicle_model ? '(' . $order->vehicle_model . ')' : '' }}</span>
                 </div>
             @endif
             @if ($order->vehicle_mileage)
                 <div class="flex justify-between text-[10px]">
-                    <span>Odometer:</span>
+                    <span>{{ __('pos.odometer_label') }}</span>
                     <span class="tabular-nums">{{ number_format($order->vehicle_mileage, 0, ',', '.') }} KM</span>
                 </div>
             @endif
             @if ($order->technician)
                 <div class="flex justify-between text-[10px]">
-                    <span>Mekanik / Teknisi:</span>
+                    <span>{{ __('pos.technician_label') }}</span>
                     <span>{{ $order->technician->name }}</span>
                 </div>
             @endif
             @if ($order->service_notes)
                 <div class="text-[9px] text-gray-600 italic">
-                    <span>Catatan: {{ $order->service_notes }}</span>
+                    <span>{{ __('pos.order_note_label') }} {{ $order->service_notes }}</span>
                 </div>
             @endif
 
             {{-- Laundry Metadata --}}
             @if ($order->laundry_weight_kg)
                 <div class="flex justify-between font-bold text-[10px] pt-1 border-t border-dotted border-gray-300">
-                    <span>Berat Timbangan:</span>
+                    <span>{{ __('pos.laundry_scale_label') }}</span>
                     <span class="tabular-nums">{{ number_format($order->laundry_weight_kg, 2, ',', '.') }} kg</span>
                 </div>
             @endif
             @if ($order->rack_location)
                 <div class="flex justify-between text-[10px]">
-                    <span>Loker / Rak:</span>
+                    <span>{{ __('pos.locker_rack_label') }}</span>
                     <span class="font-bold">{{ $order->rack_location }}</span>
                 </div>
             @endif
             @if ($order->estimated_completion_at)
                 <div class="flex justify-between text-[10px]">
-                    <span>Est. Selesai:</span>
+                    <span>{{ __('pos.est_completion_label') }}</span>
                     <span class="tabular-nums">{{ $order->estimated_completion_at->format('d/m/Y H:i') }}</span>
                 </div>
             @endif
@@ -327,7 +327,7 @@
                     @endif
                     @if ($item->dosage_instructions)
                         <div class="text-[9px] font-medium text-blue-900 bg-blue-50 px-1 py-0.5 rounded mt-0.5 inline-block">
-                            Dosis: {{ $item->dosage_instructions }}
+                            {{ __('pos.dosage_instructions') }}: {{ $item->dosage_instructions }}
                         </div>
                     @endif
                 </div>
@@ -337,20 +337,20 @@
         <!-- Totals -->
         <div class="py-2 border-b border-dashed border-gray-400 space-y-0.5 text-[10px] tabular-nums">
             <div class="flex justify-between">
-                <span>Subtotal:</span>
+                <span>{{ __('pos.subtotal_label') }}</span>
                 <span>{{ number_format($order->subtotal, 0, ',', '.') }}</span>
             </div>
 
             @if ($order->discount_amount > 0 || $order->voucher_discount_amount > 0)
                 <div class="flex justify-between text-gray-700">
-                    <span>Diskon:</span>
+                    <span>{{ __('pos.discount') }}:</span>
                     <span>-{{ number_format($order->discount_amount + $order->voucher_discount_amount, 0, ',', '.') }}</span>
                 </div>
             @endif
 
             @if ($order->points_discount_amount > 0)
                 <div class="flex justify-between text-gray-700">
-                    <span>Tukar Poin:</span>
+                    <span>{{ __('pos.points_redemption_label') }}</span>
                     <span>-{{ number_format($order->points_discount_amount, 0, ',', '.') }}</span>
                 </div>
             @endif
@@ -371,13 +371,13 @@
 
             @if ($order->rounding_amount != 0)
                 <div class="flex justify-between">
-                    <span>Pembulatan:</span>
+                    <span>{{ __('pos.rounding_label') }}</span>
                     <span>{{ number_format($order->rounding_amount, 0, ',', '.') }}</span>
                 </div>
             @endif
 
             <div class="flex justify-between font-bold text-[12px] pt-1 border-t border-gray-300">
-                <span>TOTAL:</span>
+                <span>{{ __('pos.total_payment_label') }}</span>
                 <span>Rp {{ number_format($order->total_amount, 0, ',', '.') }}</span>
             </div>
         </div>
@@ -392,14 +392,14 @@
             @foreach ($order->payments as $payment)
                 @php
                     $methodLabel = match ($payment->payment_method) {
-                        'cash' => 'Tunai (Cash)',
+                        'cash' => __('pos.method_cash'),
                         'qris' => 'QRIS Cooca Pay',
-                        'qris_dynamic' => 'QRIS Dinamis',
-                        'transfer' => 'Transfer Bank',
-                        'edc_debit' => 'EDC Debit' . ($payment->edcTerminal ? ' ' . $payment->edcTerminal->bank_name : ''),
-                        'edc_credit' => 'EDC Kredit' . ($payment->edcTerminal ? ' ' . $payment->edcTerminal->bank_name : ''),
-                        'customer_credit' => 'Kasbon (Piutang)',
-                        'loyalty_points' => 'Tukar Poin',
+                        'qris_dynamic' => __('pos.method_qris'),
+                        'transfer' => __('pos.method_transfer'),
+                        'edc_debit' => __('pos.method_edc_debit') . ($payment->edcTerminal ? ' ' . $payment->edcTerminal->bank_name : ''),
+                        'edc_credit' => __('pos.method_edc_credit') . ($payment->edcTerminal ? ' ' . $payment->edcTerminal->bank_name : ''),
+                        'customer_credit' => __('pos.method_customer_credit'),
+                        'loyalty_points' => __('pos.method_loyalty_points'),
                         default => strtoupper($payment->payment_method)
                     };
                 @endphp
@@ -417,7 +417,7 @@
                 </div>
             @endforeach
             <div class="flex justify-between font-bold pt-1 border-t border-dotted border-gray-300">
-                <span>Kembalian:</span>
+                <span>{{ __('pos.change_due_label') }}</span>
                 <span>Rp {{ number_format($order->change_amount, 0, ',', '.') }}</span>
             </div>
         </div>
@@ -427,18 +427,18 @@
             <div
                 class="py-1.5 border-b border-dashed border-gray-400 text-center text-[9px] text-gray-700 tabular-nums">
                 @if ($order->points_earned > 0)
-                    <div>Poin Baru Didapat: +{{ $order->points_earned }} Poin</div>
+                    <div>{{ __('pos.new_points_earned', ['points' => $order->points_earned]) }}</div>
                 @endif
                 @if ($order->customer)
-                    <div>Total Saldo Poin: {{ $order->customer->points_balance }} Poin</div>
+                    <div>{{ __('pos.total_points_balance', ['points' => $order->customer->points_balance]) }}</div>
                 @endif
             </div>
         @endif
 
         <!-- Footer Message -->
         <div class="pt-3 text-center text-[10px] text-gray-600 space-y-0.5">
-            <div>{{ $business->pos_receipt_footer_note ?? 'Terima Kasih Atas Kunjungan Anda!' }}</div>
-            <div class="text-[8px] text-gray-400">Powered by Cooca (cooca.id)</div>
+            <div>{{ $business->pos_receipt_footer_note ?? __('pos.default_receipt_footer') }}</div>
+            <div class="text-[8px] text-gray-400">{{ __('pos.powered_by_cooca') }}</div>
         </div>
     </div>
 
@@ -449,7 +449,7 @@
                 <span id="escpos-toast-icon" class="flex items-center justify-center">
                     <i data-lucide="printer" class="w-4 h-4"></i>
                 </span>
-                <span id="escpos-toast-msg" class="truncate font-medium">Mengirim ke printer...</span>
+                <span id="escpos-toast-msg" class="truncate font-medium">{{ __('pos.processing') }}</span>
             </div>
             <button type="button" onclick="hideEscposToast()" class="p-1 rounded-md text-white/70 hover:text-white hover:bg-white/10 shrink-0">
                 <i data-lucide="x" class="w-3.5 h-3.5"></i>
@@ -507,7 +507,7 @@
             const originalText = txt.textContent;
 
             btn.disabled = true;
-            txt.textContent = 'Mencetak...';
+            txt.textContent = {{ Js::from(__('pos.processing')) }};
 
             try {
                 const response = await fetch("{{ route('pos.orders.direct-print', $order->id) }}", {
@@ -545,14 +545,14 @@
                             showEscposToast(data.message || 'Job antrean printer berhasil dibuat', true);
                         }
                     } else {
-                        showEscposToast(data.message || 'Struk berhasil dikirim ke printer hardware (ESC/POS)', true);
+                        showEscposToast(data.message || {{ Js::from(__('pos.test_print_success_msg')) }}, true);
                     }
                 } else {
-                    showEscposToast(data.message || 'Gagal mengirim ke printer hardware', false);
+                    showEscposToast(data.message || {{ Js::from(__('pos.test_print_failed_msg')) }}, false);
                 }
             } catch (err) {
                 console.error('Direct print error:', err);
-                showEscposToast('Terjadi gangguan jaringan saat menghubungi printer', false);
+                showEscposToast({{ Js::from(__('pos.printer_disconnected')) }}, false);
             } finally {
                 btn.disabled = false;
                 txt.textContent = originalText;

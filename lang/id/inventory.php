@@ -3,6 +3,61 @@
 declare(strict_types=1);
 
 return [
+    'title' => 'Inventori & Stok',
+    'header_title' => 'Manajemen Persediaan & Stok',
+    'header_subtitle' => 'Kelola stok fisik produk, bahan baku, penyesuaian opname, dan histori mutasi kartu stok.',
+
+    'breadcrumbs' => [
+        'dashboard' => 'Dashboard',
+        'inventory' => 'Inventori',
+        'stocks' => 'Stok Gudang',
+        'movements' => 'Mutasi Stok',
+        'adjustments' => 'Penyesuaian Stok',
+        'transfers' => 'Transfer Antar-Gudang',
+        'opname' => 'Stok Opname',
+    ],
+
+    'kpis' => [
+        'total_sku' => 'Total SKU / Komoditas',
+        'total_valuation' => 'Total Nilai Aset Stok',
+        'low_stock_items' => 'Item Perlu Restock',
+        'pending_approvals' => 'Menunggu Otorisasi',
+    ],
+
+    'tabs' => [
+        'stocks' => 'Saldo Stok Aktual',
+        'receipts' => 'Penerimaan Barang (GRN)',
+        'movements' => 'Riwayat Mutasi Stok',
+        'adjustments' => 'Penyesuaian & Opname',
+        'transfers' => 'Transfer Antar-Gudang',
+    ],
+
+    'movement_types' => [
+        'po_receipt' => 'Penerimaan PO (GRN)',
+        'pos_sale' => 'Penjualan Kasir (POS)',
+        'sales_order' => 'Pengiriman Pesanan B2B',
+        'adjustment_in' => 'Koreksi Tambah Stok',
+        'adjustment_out' => 'Koreksi Kurang Stok',
+        'transfer_in' => 'Transfer Masuk',
+        'transfer_out' => 'Transfer Keluar',
+        'opname_variance' => 'Penyesuaian Stok Opname',
+        'bom_production_in' => 'Hasil Produksi Jadi (BOM)',
+        'bom_production_out' => 'Pemakaian Bahan Baku (BOM)',
+        'return_vendor' => 'Retur Pembelian ke Vendor',
+        'return_customer' => 'Retur Masuk dari Pelanggan',
+    ],
+
+    'reasons' => [
+        'variance' => 'Selisih Opname Fisik Rutin',
+        'damaged' => 'Barang Rusak / Cacat',
+        'expired' => 'Barang Kadaluwarsa',
+        'shrinkage' => 'Penyusutan / Tumpah',
+        'sample' => 'Pemakaian Sampel / Promosi',
+        'opening' => 'Saldo Awal Pembukuan',
+        'production_loss' => 'Susut / Rusak Proses Produksi',
+        'other' => 'Lainnya (Wajib Catatan)',
+    ],
+
     'supervisor_pin_not_configured' => 'PIN Supervisor belum diatur oleh pemilik bisnis. Silakan atur PIN di Pengaturan Bisnis terlebih dahulu.',
     'supervisor_pin_shrinkage_required' => 'Penyesuaian pengurangan stok melebihi batas toleransi (kuantitas > 10 unit atau nilai > Rp 100.000). PIN Supervisor 6-digit wajib diisi dengan benar.',
     'quick_adjustment_success' => 'Penyesuaian stok cepat berhasil disimpan.',

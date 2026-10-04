@@ -49,6 +49,7 @@
    - [4.20 Arsitektur Shell Navigasi Sidebar Bento Apple HIG, Invisible Hover Bridge & RBAC Paritas](#420-arsitektur-shell-navigasi-sidebar-bento-apple-hig-invisible-hover-bridge--rbac-paritas)
    - [4.21 Arsitektur Otomasi Pengingat Termin Pembayaran Pelanggan (WhatsApp & Email Tri-Channel, Scheduler 08:30 WIB & Anti-Spam Guard)](#421-arsitektur-otomasi-pengingat-termin-pembayaran-pelanggan-whatsapp--email-tri-channel-scheduler-0830-wib--anti-spam-guard)
    - [4.22 Arsitektur COOCA AI Digital Company (Autonomous Workforce, Executive Hierarchy C-Level, Multi-Provider BYOAI, Maker-Checker Gate & Bento AI Office)](#422-arsitektur-cooca-ai-digital-company-autonomous-workforce-executive-hierarchy-c-level-multi-provider-byoai-maker-checker-gate--bento-ai-office)
+   - [4.23 Arsitektur Hardening Modul Gudang & Pemasok (Bento Apple HIG, IDOR Precedence Shield, N-Tier Cycle Traversal, & 100% i18n Parity - PRD-32)](#423-arsitektur-hardening-modul-gudang--pemasok-bento-apple-hig-idor-precedence-shield-n-tier-cycle-traversal--100-i18n-parity---prd-32)
 
 ---
 
@@ -596,6 +597,50 @@ COOCA AI Digital Company mentransformasikan AI dari sekadar asisten percakapan t
 
 *Dokumentasi Lengkap:* [`docs/system/modules/ai-digital-company.md`](file:///c:/laragon/www/cooca_core/docs/system/modules/ai-digital-company.md) | Folder Arsitektur AI: [`docs/ai/`](file:///c:/laragon/www/cooca_core/docs/ai/)
 
+### 4.23 Arsitektur Hardening Modul Gudang & Pemasok (Bento Apple HIG, IDOR Precedence Shield, N-Tier Cycle Traversal, & 100% i18n Parity - PRD-32)
+
+1. **Proteksi IDOR & SQL Precedence Shield:**
+   - Method `resolveRouteBinding()` pada model Eloquent `Supplier`, `Product`, `ProductCategory`, `Material`, dan `MaterialCategory` mengisolasi klausa `where` dan `orWhere` dalam closure callback terpisah:
+     ```php
+     public function resolveRouteBinding($value, $field = null)
+     {
+         return $this->where(function ($query) use ($value): void {
+             $query->where('id', $value)
+                   ->orWhere('slug', $value);
+         })->firstOrFail();
+     }
+     ```
+   - Menghasilkan query SQL deterministik: `WHERE business_id = ? AND (id = ? OR slug = ?)`, mencegah eskalasi akses data lintas tenant secara mutlak.
+2. **Algoritma Pencegahan Siklus Hirarki Gudang Bertingkat (N-Tier Ancestor Traversal):**
+   - Penataan cabang/gudang (`parent_id`) pada `WarehouseWebController::update` dilengkapi penelusuran rantai leluhur (*ancestor chain traversal*) ke atas:
+     ```php
+     $curr = Location::where('business_id', $business->id)->find($validated['parent_id']);
+     while ($curr && ! empty($curr->parent_id)) {
+         if ((string) $curr->parent_id === (string) $location->id) {
+             throw ValidationException::withMessages([
+                 'parent_id' => [__('warehouse.validation.parent_descendant')],
+             ]);
+         }
+         $curr = Location::where('business_id', $business->id)->find($curr->parent_id);
+     }
+     ```
+   - Mencegah infinite loop dan kerusakan pohon struktur organisasi cabang pada kedalaman bertingkat bebas.
+3. **Arsitektur Antarmuka Bento Apple HIG & Deep-Linking Tabs:**
+   - **Warehouse Index (`/warehouse`):** Segmented Control Filter (`filterTab`) tersinkronisasi dua arah dengan parameter URL `?type=all|outlet|warehouse` via `window.history.replaceState()`.
+   - **Warehouse Show (`/warehouse/{location}`):** 4 Underline Tabs Bento HIG (`stocks`, `receipts`, `movements`, `approvals`) terhubung URL `?tab=...`.
+   - **Suppliers Index (`/suppliers`):** Bento XXL 2-Kolom Modal Sheet (`max-w-[94vw] md:max-w-2xl lg:max-w-3xl xl:max-w-4xl`) dengan pemisahan Profil/Kontak PIC (kiri) dan Rekening Bank/Ketentuan TOP (kanan).
+   - **Eliminasi Native Confirm:** Mengganti 100% dialog native browser `confirm()` dengan Bento Confirmation Modal Sheet yang elegan.
+4. **Adaptasi 20 Template Industri & Auto-Hiding BOM:**
+   - Label Central Kitchen beradaptasi otomatis berdasarkan `$business->template_code`: *"Dapur Pusat"* (F&B), *"Pabrik / Workshop Produksi"* (Manufaktur), *"Basecamp / Workshop Proyek"* (Kontraktor).
+   - Tombol "Katalog Bahan Baku" disembunyikan otomatis pada industri non-BOM dengan evaluasi `isModuleEnabled(ModuleRegistry::MODULE_RECIPE_BOM)`.
+5. **Kamus Bahasa Multi-Locale & Dual-Mode Controller:**
+   - Paritas 1-to-1 antara `lang/id/` dan `lang/en/` untuk kamus `warehouse.php`, `purchasing.php`, dan `inventory.php`.
+   - Controller menyediakan dual response: Web standard redirect dengan flash message terlocalisasi dan AJAX JSON payload `{ success: true, message: string, location/supplier: model }`.
+6. **Non-Destructive Archival Guard:**
+   - Penghapusan cabang/gudang yang telah memiliki histori mutasi/transaksi (`StockMovement`, `GoodsReceipt`, `PosOrder`, dll.) secara otomatis dialihkan ke penonaktifan aman (`is_active = false`) dengan payload `deactivated: true`.
+
+*Dokumentasi Lengkap:* [`docs/prd/PRD-32-WAREHOUSE-AND-SUPPLIERS-HARDENING-MULTI-INDUSTRY-I18N.md`](file:///c:/laragon/www/cooca_core/docs/prd/PRD-32-WAREHOUSE-AND-SUPPLIERS-HARDENING-MULTI-INDUSTRY-I18N.md) | Audit Plan: [`docs/system/audits/warehouse-and-suppliers-master-implementation-plan.md`](file:///c:/laragon/www/cooca_core/docs/system/audits/warehouse-and-suppliers-master-implementation-plan.md)
+
 ---
 
 ## 5. Matriks Penelusuran Pengetahuan (Traceability Matrix)
@@ -697,11 +742,14 @@ Dokumentasi Cooca saling terhubung secara dua arah untuk memudahkan penelusuran 
    │                                                                                                                                        └──► AUDIT-2026-09-29-001
    │
    ├──► Audit & Remediasi POS ─────► docs/system/audits/pos-master-implementation-plan.md ──► resources/views/app/pos/ & app/Domain/Pos/
-   │                                                                                               └──► WORK-2026-09-30-256
+   │                                                                                               └──► WORK-2026-09-30-256 / WORK-2026-10-04-292 (Fase 1 - 10 Remediasi Penuh)
    │
    ├──► Notifikasi Termin Pelanggan ──► docs/system/audits/customer-payment-terms-auto-reminder-plan.md ──► app/Domain/Crm/ & routes/console.php
                                                                                                            └──► WORK-2026-10-01-273
    │
-   └──► AI Digital Company ────────► docs/system/modules/ai-digital-company.md ─────────► app/Domain/Ai/ & resources/views/app/ai/
-                                                                                               └──► WORK-2026-10-01-274 / WORK-2026-10-01-275 / WORK-2026-10-01-277 / WORK-2026-10-01-278 / WORK-2026-10-02-280 (BYOAI Providers, Claude 4.5/5 & Dynamic Discovery)
+   ├──► AI Digital Company ────────► docs/system/modules/ai-digital-company.md ─────────► app/Domain/Ai/ & resources/views/app/ai/
+   │                                                                                                └──► WORK-2026-10-01-274 / WORK-2026-10-01-275 / WORK-2026-10-01-277 / WORK-2026-10-01-278 / WORK-2026-10-02-280 (BYOAI Providers, Claude 4.5/5 & Dynamic Discovery)
+   │
+   └──► Hardening Gudang & Pemasok ──► docs/prd/PRD-32-WAREHOUSE-AND-SUPPLIERS-HARDENING-MULTI-INDUSTRY-I18N.md ──► resources/views/app/warehouse/ & suppliers/
+                                                                                                                   └──► WORK-2026-10-04-289 / WORK-2026-10-04-290 / WORK-2026-10-04-291
 ```

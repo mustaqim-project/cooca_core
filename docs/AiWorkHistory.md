@@ -38,7 +38,549 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 
 - **Workflow Impact:** Bagaimana alur kerja operasional berubah?
 - **Business Rule Impact:** Aturan bisnis baru atau penyesuaian logika validasi.
-- **Permission Impact:** Hak akses peran (Superadmin, Owner, Kasir, Customer) yang terdampak.
+
+### [WORK-2026-10-04-292] Eksekusi & Remediasi Komprehensif Ekosistem POS & Kasir Multi-Tenant COOCA (Fase 1 s/d 10 Terpadu)
+
+- **Date:** 2026-10-04
+- **Status:** COMPLETED
+- **Module:** POS & Cashier Multi-Tenant Ecosystem (`resources/views/app/pos/`, `app/Domain/Pos/`, `app/Http/Controllers/Web/Pos/`, `lang/id/pos.php`, `lang/en/pos.php`, `tests/Feature/Pos/`)
+- **Feature:** Comprehensive POS Master Remediation (Fase 1 – 10), Net Cash Shift Reconciliation, Financial Reversal Auto-Journal, FormRequest 422 JSON Handler, Dynamic Context-Aware Auto-Hiding 20 Sektor Industri, 100% Bilingual Dictionary Parity (580+ keys), 3-Row Header & NavigationRegistry Sub-Tabs, Mobile-First iOS Safari Anti-Zoom & 48px Thumb Zone, Bento Apple HIG System Palette (#34C759), Online/Offline Detection & Visibility-Aware Smart Polling, Anti-Double Submit & Split Amount Clamping, No-Panic Supervisor PIN Microcopy, dan Master Acceptance Test Suite (89 tests, 3.594 assertions).
+- **Work Type:** Security | Architecture | Refactoring | UI/UX | i18n | Anti-Fraud | QA & Automated Testing | Documentation
+
+#### 1. Business Context & Objective
+- **Konteks:** Menuntaskan seluruh rencana implementasi master 10 fase remediasi ekosistem POS COOCA berbasis 22 temuan audit faktual (`F-01` s/d `F-22`) untuk menghadirkan terminal kasir kelas dunia bagi UMKM Indonesia yang aman dari fraud internal, intuitif tanpa manual book tebal, patuh terhadap 20 sektor industri, dan responsif di seluruh perangkat kasir (desktop, tablet, mobile).
+- **Masalah/Target:**
+  1. Mengeliminasi phantom cash deficit saat penutupan shift (`F-01`) dan memastikan pembalikan kas ledger serta jurnal akuntansi saat void/refund (`F-02`).
+  2. Menstandardisasi validasi checkout ke FormRequest terdedikasi dan mengembalikan HTTP 422 JSON terstruktur saat AJAX error (`F-08`, `F-11`).
+  3. Menyembunyikan form SPK bengkel, laundry kiloan, apotek/farmasi, dan pesanan meja secara dinamis pada tenant yang tidak mengaktifkan modul industri terkait (`F-05`, `F-19`).
+  4. Menyediakan kamus terjemahan dwibahasa penuh (`lang/id/pos.php` & `lang/en/pos.php`) dengan 100% paritas kunci (580+ kunci terjemahan) dan injeksi `window.COOCA_I18N` pada 10 view Blade POS (`F-03`, `F-13`, `F-20`).
+  5. Menyelaraskan layout 3-baris Apple HIG page header, navigasi sub-tab printer di `NavigationRegistry` (`F-06`, `F-07`, `F-16`), dan ergonomi mobile-first 48px dengan pencegahan auto-zoom Safari iOS (`F-09`, `F-15`).
+  6. Menstandarisasi palet warna Apple HIG `#34C759`, indikator status online/offline, dan optimasi baterai/kuota via Page Visibility API (`F-10`, `F-14`, `F-22`).
+  7. Mencegah mutasi ganda akibat keyboard enter spamming (`F-12`), menerapkan sanitasi auto-clamping pada split payment (`F-17`), dan meredakan kepanikan kasir via No-Panic Supervisor PIN Microcopy (`F-21`).
+  8. Memverifikasi seluruh sistem dengan Acceptance Test Suite otomatis (89 passed tests, 3.594 assertions) dan sinkronisasi dokumentasi 3-layer.
+
+#### 2. What Was Done
+- **Fase 1:** Kalkulasi net cash sales pada `PosShiftService`, pembalikan kas keluar dan jurnal void/refund pada `PosOrderService`, dan perbaikan optimistic error handling pada `tables.blade.php`.
+- **Fase 2:** Pembuatan FormRequests (`PosCheckoutRequest`, `PosOpenShiftRequest`, `PosCloseShiftRequest`, `PosVoidOrderRequest`, `PosRefundOrderRequest`) dan standarisasi HTTP 422 JSON error responses.
+- **Fase 3:** Gating dinamis 20 sektor industri pada `terminal.blade.php` (`isWorkshop`, `isLaundry`, `isPharmacy`, `isFoodIndustry`).
+- **Fase 4:** Ekstraksi kamus dwibahasa komprehensif `lang/id/pos.php` dan `lang/en/pos.php` (769 baris, 580+ kunci, 100% paritas 1-to-1).
+- **Fase 5:** Refactor lokalisasi 10 berkas Blade POS (`terminal`, `orders`, `shifts`, `kitchen`, `tables`, `reports`, `printers`, `receipt`, `prep_sheet`, `qr-card`), injeksi `window.COOCA_I18N`, dan tag `<html lang="...">` dinamis.
+- **Fase 6:** Pemasangan 3-baris `<x-module-header>` dan `<x-module-tabs>` pada seluruh submodul POS serta pendaftaran sub-tab `printers` di `NavigationRegistry.php`.
+- **Fase 7:** Penerapan CSS anti auto-zoom Safari iOS (`font-size: 16px !important` pada mobile), responsive modal panel `max-width: min(calc(100vw - 1rem), 42rem)`, dan target sentuh minimal 48px.
+- **Fase 8:** Standarisasi palet Apple HIG `#34C759` pada `prep_sheet.blade.php`, indikator koneksi online/offline di topbar `terminal.blade.php`, dan Visibility-Aware Smart Polling `document.hidden` pada terminal dan kitchen KDS.
+- **Fase 9:** Direktif `@keydown.enter.prevent` dan guard `isProcessing` anti double-submit, fungsi `sanitizeSplitAmount()` auto-clamping non-negatif dengan batas 5 baris, No-Panic Supervisor PIN Microcopy, dan memory sanitasi variabel PIN.
+- **Fase 10:** Eksekusi 17 feature test suite di `tests/Feature/Pos/` (89 tests, 3.594 assertions, 100% PASS, 0 failures) dan sinkronisasi dokumentasi 3-layer (`docs/system/audits/`, `docs/system/INDEX.md`, `docs/AiWorkHistory.md`).
+
+#### 3. Technical Changes
+- **Files Affected:**
+  - `app/Domain/Pos/PosShiftService.php`
+  - `app/Domain/Pos/PosOrderService.php`
+  - `app/Http/Controllers/Web/Pos/PosTerminalWebController.php`
+  - `app/Http/Controllers/Web/Pos/PosOrderWebController.php`
+  - `app/Http/Requests/Pos/PosCheckoutRequest.php` & 4 Pos Request classes lainnya
+  - `app/Support/Navigation/NavigationRegistry.php`
+  - `lang/id/pos.php` & `lang/en/pos.php`
+  - `resources/views/app/pos/` (10 berkas Blade)
+  - `tests/Feature/Pos/` (17 test suite files)
+  - `docs/system/audits/pos-master-implementation-plan.md`
+  - `docs/system/audits/pos-comprehensive-audit.md`
+  - `docs/system/INDEX.md` & `docs/AiWorkHistory.md`
+- **Database Changes:** Tidak ada perubahan skema baru; penegakan integritas data eksisting pada `pos_shifts`, `pos_orders`, `pos_payments`, `pos_cash_movements`.
+- **API / Route Changes:** Standardisasi response AJAX error ke format HTTP 422 JSON terstruktur `{ success: false, message: ... }`.
+
+#### 4. System Impacts
+- **Workflow Impact:** Alur kasir hulu-ke-hilir menjadi stabil, cepat, ramah multi-bahasa, aman dari kegagalan jaringan maupun klik ganda, serta secara otomatis menyembunyikan field industri yang tidak relevan.
+- **Business Rule Impact:** Integritas pembukuan kasir (kas & jurnal) terjaga 100% tanpa risiko manipulasi void/refund, rekonsiliasi shift akurat hingga rupiah terkecil.
+
+### [WORK-2026-10-04-291] Eksekusi Fase 10: Dokumentasi 3-Layer & Final Consolidation Modul Gudang & Pemasok (Sinkronisasi AiWorkHistory, docs/system/INDEX, SYSTEM_GUIDE, dan Final Comprehensive Audit)
+
+- **Date:** 2026-10-04
+- **Status:** COMPLETED
+- **Module:** Warehouse & Purchasing (Suppliers) Ecosystem (`docs/system/audits/warehouse-and-suppliers-master-implementation-plan.md`, `docs/system/INDEX.md`, `docs/SYSTEM_GUIDE.md`, `docs/AiWorkHistory.md`)
+- **Feature:** Layer 1-3 Documentation Synchronization, Knowledge Matrix Upgrades, Traceability Linking, & Comprehensive 10-Phase Final Audit
+- **Work Type:** Documentation | Architecture | Governance | Final Audit & Consolidation
+
+#### 1. Business Context & Objective
+- **Konteks:** Menjalankan dan menuntaskan Fase 10 (Fase Terakhir) dari Rencana Master Implementasi Remediasi Modul Gudang & Pemasok (PRD-32) melalui sinkronisasi dokumentasi 3-layer (Layer 1: AiWorkHistory, Layer 2: system/INDEX & master-implementation-plan, Layer 3: SYSTEM_GUIDE), serta menjalankan audit final komprehensif hulu-ke-hilir untuk memastikan seluruh 10 fase telah tercapai 100% tanpa celah dan tanpa regresi.
+- **Masalah/Target:**
+  1. Melengkapi pencatatan riwayat kerja historis di Layer 1 (`docs/AiWorkHistory.md`) sesuai standar baku 7 komponen wajib.
+  2. Memutakhirkan Knowledge Base Layer 2 (`docs/system/INDEX.md`) dan Master Implementation Plan (`docs/system/audits/warehouse-and-suppliers-master-implementation-plan.md`) ke status `100% COMPLETED & PRODUCTION READY`.
+  3. Memperbarui Layer 3 Master Manual (`docs/SYSTEM_GUIDE.md`) dengan penambahan Sub-bab 4.23 (*Arsitektur Hardening Modul Gudang & Pemasok*), pembaruan Daftar Isi (TOC), dan sinkronisasi diagram Matriks Penelusuran Pengetahuan (*Traceability Matrix*).
+  4. Menjalankan audit akhir (*final sanity check*): validasi test suite (73 passed, 577 assertions), ketiadaan residu debug, linting bebas error, dan kelulusan cache Blade template.
+
+#### 2. What Was Done
+- **Sinkronisasi Dokumentasi Layer 1 (`docs/AiWorkHistory.md`):**
+  - Mencatat entri riwayat pekerjaan komprehensif `[WORK-2026-10-04-291]` yang merekam konsolidasi hulu-ke-hilir seluruh 10 fase remediasi modul gudang dan pemasok.
+- **Pemutakhiran Layer 2 (`docs/system/INDEX.md` & `docs/system/audits/warehouse-and-suppliers-master-implementation-plan.md`):
+  - Memperbarui roadmap 10 fase menjadi 100% selesai (`✅`) dan mengubah status master plan menjadi `100% COMPLETED & PRODUCTION READY`.
+  - Menambahkan tautan PRD-32 dan Audit Plan pada Knowledge Map.
+  - Memutakhirkan baris *Warehouse & Suppliers Management Hub* pada tabel Matriks Kematangan Dokumentasi (*Maturity Matrix*) ke status `COMPLETE` dengan tanggal verifikasi `2026-10-04`.
+- **Pemutakhiran Layer 3 (`docs/SYSTEM_GUIDE.md`):**
+  - Menambahkan Sub-bab 4.23 (*Arsitektur Hardening Modul Gudang & Pemasok (Bento Apple HIG, IDOR Precedence Shield, N-Tier Cycle Traversal, & 100% i18n Parity - PRD-32)*).
+  - Memperbarui Daftar Isi Cepat (TOC) pada bagian 4.
+  - Memperbarui diagram pohon Traceability Matrix menghubungkan PRD-32 ke `WORK-2026-10-04-289`, `WORK-2026-10-04-290`, dan `WORK-2026-10-04-291`.
+- **Audit Akhir & Verifikasi Konsolidasi 10 Fase:**
+  - Validasi eksekusi seluruh automated test suite: `WarehouseAndSupplierAuditTest` (32 tests, 385 assertions) dan `WarehouseSecurityAndEntitlementHardeningTest` (24 tests, 73 assertions) serta test terkait lainnya (total 73 tests, 577 assertions, 100% PASS).
+  - Validasi sintaks PHP via `php -l` pada 13 berkas target (100% No syntax errors detected).
+  - Validasi kompilasi Blade templates via `php artisan view:cache` (100% cached successfully).
+
+#### 3. Technical Changes
+- **Files Affected:**
+  - `docs/AiWorkHistory.md` (Ditambahkan entri WORK-291)
+  - `docs/system/INDEX.md` (Dimutakhirkan Knowledge Map & Maturity Matrix)
+  - `docs/SYSTEM_GUIDE.md` (Ditambahkan Bab 4.23, TOC & Traceability Matrix)
+  - `docs/system/audits/warehouse-and-suppliers-master-implementation-plan.md` (Dimutakhirkan status 100% COMPLETED)
+- **Database Changes:** Tidak ada perubahan skema basis data baru.
+- **API / Route Changes:** Tidak ada perubahan signature rute.
+
+#### 4. System Impacts
+- **Workflow Impact:** Ekosistem pergudangan dan pengadaan pemasok terintegrasi penuh secara dokumentatif dan operasional. Pengembang, auditor, maupun AI agent di masa depan memiliki panduan arsitektur yang akurat dan terverifikasi.
+- **Business Rule Impact:** Seluruh aturan bisnis (IDOR isolation, Maker-Checker threshold, N-Tier cycle traversal loop guard, Safe `@js()` rendering, Auto-hiding resep BOM pada 20 industri) terdokumentasi rapi dan memiliki traceability lengkap.
+- **Documentation Integrity:** 100% sinkron lintas Layer 1, Layer 2, dan Layer 3 tanpa kontradiksi.
+
+### [WORK-2026-10-04-290] Eksekusi Fase 9: Residue Cleanup & Production Hardening Modul Gudang & Pemasok (Eliminasi Debug Residue, PHP Linting, Blade View Caching, & 100% Zero-Error Regression Audit)
+
+- **Date:** 2026-10-04
+- **Status:** COMPLETED
+- **Module:** Warehouse & Purchasing (Suppliers) Ecosystem (`resources/views/app/warehouse/`, `resources/views/app/suppliers/`, `app/Http/Controllers/Web/Warehouse/WarehouseWebController.php`, `app/Http/Controllers/Web/SupplierWebController.php`, `app/Models/Supplier.php`, `app/Models/Location.php`, `app/Models/Product.php`)
+- **Feature:** Production Hardening, Static Residue Analysis, Blade View Compilation & Zero Regression Audit
+- **Work Type:** QA | Security | Production Hardening | Code Quality
+
+#### 1. Business Context & Objective
+- **Konteks:** Menjalankan Fase 9 dari Master Implementation Plan Modul Gudang & Pemasok (PRD-32) untuk menyisir dan membersihkan seluruh sisa kode debugging, memverifikasi integritas kompilasi Blade templates, menjalankan PHP linting menyeluruh, dan mengaudit ketiadaan regresi sebelum perilisan produksi.
+- **Masalah/Target:**
+  1. Memastikan tidak ada sisa kode debugging (`dd()`, `dump()`, `var_dump()`, `print_r()`, `console.log()`) di seluruh berkas controller, model, view, maupun kamus bahasa yang disentuh pada Fase 1 hingga Fase 8.
+  2. Memverifikasi sintaks seluruh berkas PHP dengan PHP linter (`php -l`) bebas dari *syntax error* maupun *parse error*.
+  3. Memastikan seluruh Blade view dapat dikompilasi dengan sukses (`php artisan view:cache`) tanpa ada tag/direktif yang rusak atau tidak tertutup.
+  4. Menjalankan pengujian regresi menyeluruh (`php artisan test --filter="Warehouse"`) untuk membuktikan 100% kelulusan test suite.
+
+#### 2. What Was Done
+- **Penyisiran Statis Residu Debug:**
+  - Melakukan grep search intensif pada seluruh berkas yang disentuh; mengonfirmasi nol sisa `dd()`, `dump()`, `var_dump()`, `print_r()`, dan `console.log()`.
+- **Validasi Sintaks PHP (Linting):**
+  - Menjalankan `php -l` pada 13 berkas target: seluruh controller, model, kamus bahasa (`lang/id/` dan `lang/en/`), serta file test suite. Seluruh berkas berstatus *No syntax errors detected*.
+- **Validasi Kompilasi Blade Template:**
+  - Menjalankan `php artisan view:cache` yang mengonfirmasi seluruh template Blade di dalam repositori dapat dikompilasi dengan sukses (*Blade templates cached successfully*), diikuti dengan `php artisan view:clear`.
+- **Pengujian Regresi Menyeluruh:**
+  - Menjalankan test suite lengkap `php artisan test --filter="Warehouse"` yang mengeksekusi 73 pengujian (577 assertions) dengan status 100% lulus (0 failure, 0 error).
+
+#### 3. Technical Changes
+- **Files Affected:**
+  - `docs/system/audits/warehouse-and-suppliers-master-implementation-plan.md`
+  - `docs/AiWorkHistory.md`
+- **Database Changes:** Tidak ada perubahan skema database tambahan.
+- **API / Route Changes:** Tidak ada perubahan signature rute.
+
+#### 4. System Impacts
+- **Workflow Impact:** Modul Gudang dan Pemasok berada dalam status *production-ready*, aman dari kebocoran informasi debugging dan bebas dari kesalahan runtime kompilasi Blade.
+- **Business Rule Impact:** Seluruh aturan bisnis (proteksi IDOR, Maker-Checker, pencegahan siklus hirarki bertingkat, auto-hiding 20 industri) teruji stabil dan deterministik.
+- **Permission Impact:** Tetap mematuhi matriks RBAC Cooca (`inventory.manage`, `inventory.view`, `purchasing.manage`, `purchasing.view`).
+
+### [WORK-2026-10-04-289] Pembuatan & Finalisasi Automated Feature Test Suite Modul Gudang & Pemasok (Regresi 20 Industri, Proteksi IDOR, Gating Permission, Deep Hierarchy Loop Traversal, & 100% i18n Verification)
+
+- **Date:** 2026-10-04
+- **Status:** COMPLETED
+- **Module:** Warehouse & Supplier Test Suite (`tests/Feature/WarehouseAndSupplierAuditTest.php`, `tests/Feature/WarehouseSecurityAndEntitlementHardeningTest.php`)
+- **Feature:** Automated Testing Suite, 20 Industry Templates Regression, Cross-Tenant IDOR Security Guard, Maker-Checker Authorization, Deep Loop Cycle Traversal, & i18n Zero-Leak Audits
+- **Work Type:** QA | Automated Testing | Security | Architecture | Refactoring
+
+#### 1. Business Context & Objective
+- **Konteks:** Menjalankan Fase 8 dari Master Implementation Plan Modul Gudang & Pemasok (PRD-32) untuk menyusun dan mengeksekusi test suite otomatis yang lengkap, komprehensif, dan independen. Test suite ini memvalidasi seluruh perbaikan dari Fase 1 hingga Fase 7: mulai dari proteksi IDOR query scoping, kepatuhan kamus dwibahasa ID/EN, adaptasi cerdas pada 20 industri UMKM, auto-hiding resep BOM, pencegahan infinite loop hierarki gudang dengan algoritma penelusuran siklus leluhur, hingga otorisasi Maker-Checker dan ergonomi Apple HIG.
+- **Masalah/Target:**
+  1. Memastikan setiap perubahan yang diimplementasikan pada model `Supplier`, view `warehouse.index`, `warehouse.show`, `suppliers.index`, serta controller `WarehouseWebController` dan `SupplierWebController` terlindungi oleh automated test cases yang solid dan anti-regresi.
+  2. Menguji stabilitas rendering visual dan logika bisnis lintas 20 template industri (`fnb_resto`, `fnb_bakery`, `mfg_craft`, `service_repair`, `retail_grocery`, dll.) dengan modul aktif/non-aktif yang dinamis.
+  3. Memastikan tidak ada celah keamanan IDOR lintas tenant pada form penyesuaian stok, manipulasi detail lokasi gudang, atau penghapusan supplier.
+  4. Memvalidasi algoritma deteksi loop hierarki cabang/gudang untuk mencegah referensi sirkular pada struktur cabang multi-level (N-tier).
+
+#### 2. What Was Done
+- **Penyusunan & Ekspansi Test Suite Otomatis:**
+  - Menambahkan pengujian regresi 20 template industri (`test_twenty_industry_templates_regression_rendering_cleanly_without_errors`): mengiterasi 20 template industri, memeriksa modul `MODULE_INVENTORY_WAREHOUSE`, `MODULE_PROCUREMENT`, dan `MODULE_RECIPE_BOM`, memvalidasi bahwa halaman dirender sempurna pada status HTTP 200 dalam locale `id` dan `en` tanpa kebocoran string kamus mentah.
+  - Menambahkan pengujian proteksi isolasi tenant & hak akses (`test_warehouse_and_supplier_permission_gating_and_security_isolation`): memvalidasi bahwa akses unauthenticated dialihkan ke login, serta upaya akses/edit/hapus lokasi atau pemasok milik tenant lain ditolak dengan respon 404 Not Found.
+  - Menambahkan pengujian proteksi IDOR pada penyesuaian stok (`test_stock_adjustment_cross_tenant_idor_security_guard`): memvalidasi bahwa pengiriman data penyesuaian stok menggunakan `product_id` atau `location_id` milik tenant lain ditolak secara tegas.
+  - Menambahkan pengujian deteksi loop hierarki sirkular mendalam (`test_warehouse_hierarchy_descendant_loop_prevention_exhaustive`): memvalidasi pencegahan penetapan lokasi induk ke anak langsung maupun turunan bertingkat (deep descendant cycle traversal).
+- **Peningkatan Algoritma Cycle Detection pada `WarehouseWebController`:**
+  - Mengganti pengecekan child satu tingkat dengan algoritma penelusuran rantai leluhur (`while ($curr && !empty($curr->parent_id))`) untuk mencegah loop sirkular pada hierarki kedalaman tak terbatas.
+
+#### 3. Technical Changes
+- **Files Modified:**
+  - `tests/Feature/WarehouseAndSupplierAuditTest.php` (Expanded to 32 test methods with 385 assertions covering all operational & security scenarios)
+  - `app/Http/Controllers/Web/Warehouse/WarehouseWebController.php` (Upgraded ancestor cycle traversal logic for hierarchical location updates)
+  - `docs/system/audits/warehouse-and-suppliers-master-implementation-plan.md` (Updated status for Phase 8)
+
+#### 4. Verification & Automated Test Results
+- **Automated Tests Executed:**
+  - `tests/Feature/WarehouseAndSupplierAuditTest.php`: **32 passed, 385 assertions, 0 errors, 0 failures**
+  - `tests/Feature/WarehouseSecurityAndEntitlementHardeningTest.php`: **24 passed, 73 assertions, 0 errors, 0 failures**
+  - **Total Suite:** **56 feature tests, 458 assertions, 100% PASS rate, 0 regressions, duration: 27.46s**.
+
+---
+
+### [WORK-2026-10-04-288] Standarisasi Touch Targets & Ergonomi Mobile Anti-Slop Modul Gudang & Pemasok (44px+ Touch Targets, Anti-Auto-Zoom 16px Mobile Typography, 320px Viewport Safety, & Test Suite Verification)
+
+- **Date:** 2026-10-04
+- **Status:** COMPLETED
+- **Module:** Warehouse & Suppliers UI/UX (`resources/views/app/warehouse/index.blade.php`, `resources/views/app/warehouse/show.blade.php`, `resources/views/app/suppliers/index.blade.php`)
+- **Feature:** Standarisasi Touch Targets 44px+, Tipografi Input Mobile Anti-Auto-Zoom (16px), Fluid Modal Sheets, Zero Overflow Viewport 320px, & Automated Test Suite
+- **Work Type:** UI/UX | Ergonomics | Mobile-First | Security | QA
+
+#### 1. Business Context & Objective
+- **Konteks:** Menjalankan Fase 7 dari Master Implementation Plan Modul Gudang & Pemasok (PRD-32) untuk menyempurnakan ergonomi antarmuka mobile di seluruh layar operasional gudang dan direktori pemasok, mencegah auto-zooming agresif browser mobile (iOS Safari & Chrome Android) saat pengguna menyentuh field form, serta menstandarisasi target sentuh (touch targets) minimum 44×44px sesuai pedoman Apple Human Interface Guidelines (HIG).
+- **Masalah/Target:**
+  1. Tombol close modal ('X') sebelumnya berdimensi 36×36px (`w-9 h-9`), di bawah standar ergonomi jari sentuh 44×44px.
+  2. Input field tertentu (dropdown `reason_code` dan input `supervisor_pin` pada modal penyesuaian stok) menggunakan class font `text-xs` (12px) tanpa prefix mobile `text-[16px] sm:text-xs`, yang memicu browser mobile melakukan auto-zoom otomatis sehingga memecah layout visual bento.
+  3. Tombol aksi tabel desktop (`quick_adjust`) pada form detail gudang perlu dipastikan memiliki touch target `min-h-[44px]` pada perangkat layar sentuh (`min-h-[44px] sm:min-h-[32px]`).
+  4. Memvalidasi bahwa seluruh komponen aman dari overflow horizontal pada viewport 320px.
+
+#### 2. What Was Done
+- **Standarisasi Touch Targets 44px+ pada Seluruh Tombol & Kontrol:**
+  - Meng-upgrade seluruh tombol close modal ('X') pada 5 modal sheet (`showCreateModal`, `showCreateOutletModal`, `showEditModal`, `showAdjustModal`, `showAddModal`) menjadi `min-w-[44px] min-h-[44px] w-11 h-11 rounded-full flex items-center justify-center`.
+  - Memastikan seluruh tombol aksi tabel (`quick_adjust`, `edit_location`, `delete_location`, `edit_supplier`, `delete_supplier`) menggunakan `min-h-[44px]` pada mobile dan responsif `sm:min-h-0` / `sm:min-h-[32px]` pada desktop.
+  - Memastikan seluruh quick preset button (radius geofence 50m, 100m, 200m, 500m) menggunakan `min-h-[44px] sm:min-h-0`.
+- **Penetapan Tipografi Input Mobile Anti-Auto-Zoom:**
+  - Menetapkan class `text-[16px] sm:text-xs` pada seluruh elemen `<input>`, `<select>`, dan `<textarea>` di ketiga view (`warehouse.index`, `warehouse.show`, `suppliers.index`).
+  - Meng-upgrade dropdown `reason_code` dan input `supervisor_pin` pada `warehouse/show.blade.php` ke `text-[16px] sm:text-xs`.
+- **Penyempurnaan Ergonomi & Viewport 320px Safety:**
+  - Mempertahankan pembungkus tabel desktop responsif `overflow-x-auto` dan alternatif list card mobile `sm:hidden`.
+  - Menjaga kontainer modal sheet Bento XXL fluid `w-full max-w-[94vw] md:max-w-2xl lg:max-w-3xl xl:max-w-4xl` dengan `max-h-[88vh]` dan scrolling body independen.
+  - Mempertahankan padding bawah aman `pb-28 lg:pb-12` agar terhindar dari tab bar bottom navigation.
+- **Ekspansi Test Suite Otomatis:**
+  - Menambahkan pengujian otomatis `test_views_strictly_enforce_mobile_anti_autozoom_input_typography()` dan `test_views_strictly_enforce_apple_hig_touch_targets_44px_minimum()` di `tests/Feature/WarehouseAndSupplierAuditTest.php`.
+
+#### 3. Technical Changes
+- **Files Modified:**
+  - `resources/views/app/warehouse/index.blade.php` (Upgraded modal close button touch targets to `min-w-[44px] min-h-[44px] w-11 h-11`)
+  - `resources/views/app/warehouse/show.blade.php` (Upgraded modal close buttons, quick adjust table action button, and reason_code / supervisor_pin mobile typography to `text-[16px] sm:text-xs`)
+  - `resources/views/app/suppliers/index.blade.php` (Upgraded modal close button touch targets to `min-w-[44px] min-h-[44px] w-11 h-11`)
+  - `tests/Feature/WarehouseAndSupplierAuditTest.php` (Added Phase 7 automated assertions)
+
+#### 4. Verification & Automated Test Results
+- **Automated Tests Executed:**
+  - `tests/Feature/WarehouseAndSupplierAuditTest.php`: **28 passed, 198 assertions, 0 errors, 0 failures**
+  - `tests/Feature/WarehouseSecurityAndEntitlementHardeningTest.php`: **24 passed, 73 assertions, 0 errors, 0 failures**
+  - **Total:** **52 feature tests, 271 assertions, 100% PASS rate, 0 regressions**.
+
+---
+
+### [WORK-2026-10-04-287] Hardening Controller & FormRequest Modul Gudang & Pemasok (Translatable Flash Messages, Optimistic AJAX JSON Responses, Prevention of Circular Hierarchy Loops, & Non-Destructive Archival Guard)
+
+- **Date:** 2026-10-04
+- **Status:** COMPLETED
+- **Module:** Warehouse & Supplier Controllers (`SupplierWebController`, `WarehouseWebController`)
+- **Feature:** Controller Hardening, Translatable Flash Messages, Structured AJAX JSON Payloads, Hierarchy Loop Prevention, & Non-Destructive Archival Guard
+- **Work Type:** Security | Refactoring | Architecture | QA
+
+#### 1. Business Context & Objective
+- **Konteks:** Menjalankan Fase 6 dari Master Implementation Plan Audit Modul Gudang & Pemasok (PRD-32) untuk memperkuat controller `SupplierWebController` dan `WarehouseWebController`, mengeliminasi seluruh string notifikasi hardcoded, menyediakan respon AJAX JSON berformat standar (`201` pada create, standard payload pada update/destroy) guna mendukung optimistic UI updates, mencegah infinite loops pada hierarki cabang/gudang, serta menerapkan Non-Destructive Archival Guard saat penghapusan lokasi yang memiliki riwayat mutasi transaksi masa lalu.
+- **Masalah/Target:**
+  1. String pesan status (flash message) pada controller pemasok dan gudang sebelumnya berupa teks mentah bahasa Indonesia tanpa memanfaatkan helper kamus terjemahan `__()`.
+  2. Form modal berbasis AJAX membutuhkan respon JSON terstruktur dengan payload model terbaru untuk memperbarui state client tanpa reload penuh.
+  3. Relasi hierarki induk-anak (`parent_id`) pada lokasi gudang/cabang rawan membentuk infinite circular reference jika parent diset ke dirinya sendiri atau turunannya.
+  4. Penghapusan gudang yang pernah memiliki riwayat mutasi kartu stok, penerimaan barang (GRN), transaksi kasir POS, atau rekonsiliasi stok rawan merusak integritas audit trail jika di-hard-delete.
+
+#### 2. What Was Done
+- **Migrasi 100% Pesan Flash ke Helper Translatable:**
+  - Mengganti seluruh pesan status pada `SupplierWebController` (`store`, `update`, `destroy`) dengan helper `__('purchasing.supplier.messages.created_success')`, `__('purchasing.supplier.messages.updated_success')`, dan `__('purchasing.supplier.messages.deleted_success')`.
+  - Mengganti seluruh pesan status pada `WarehouseWebController` (`store`, `update`, `destroy`) dengan helper `__('warehouse.messages.created_success')`, `__('warehouse.messages.updated_success')`, `__('warehouse.messages.deleted_success')`, `__('warehouse.messages.deactivated_due_to_history')`, dan `__('warehouse.messages.quota_exceeded')`.
+- **Dukungan Respon Dual-Mode (Standard Web Redirect + AJAX JSON 201/200):**
+  - Menyesuaikan signature return type kedua controller menjadi `RedirectResponse|JsonResponse`.
+  - Mengembalikan status HTTP 201 dengan payload terstruktur `{ success: true, message: string, supplier/location: model }` pada operasi pembuatan baru.
+  - Mengembalikan status HTTP 200 dengan payload terstruktur pada operasi update dan destroy.
+  - Mengembalikan status HTTP 422 dengan pesan JSON ramah pengguna pada skenario kuota terlampaui atau pelanggaran integritas bisnis.
+- **Validasi Anti-Loop Hierarki Induk-Cabang:**
+  - Menerapkan pengecekan `parent_id !== $location->id` dan pencegahan relasi circular ke sub-lokasi turunannya (`$location->children()->pluck('id')`) dengan melempar `ValidationException` terlocalisasi (`__('warehouse.validation.parent_self')` dan `__('warehouse.validation.parent_descendant')`).
+- **Non-Destructive Archival Guard:**
+  - Mendeteksi keterkaitan historis (`StockMovement`, `GoodsReceipt`, `PosOrder`, `StockTransfer`, `StockOpname`, `StockAdjustment`, `Attendance`) sebelum lokasi dihapus.
+  - Mengubah status operasional menjadi `is_active = false` (soft-deactivation) dan mengembalikan notifikasi penonaktifan aman dengan atribut `deactivated: true`.
+- **Ekspansi Test Suite Otomatis:**
+  - Menambahkan 5 metode pengujian komprehensif pada `tests/Feature/WarehouseAndSupplierAuditTest.php` untuk memverifikasi AJAX JSON responses, pencegahan circular hierarchy, penonaktifan non-destruktif, dan dwibahasa flash message.
+
+#### 3. Technical Changes
+- **Files Modified:**
+  - `app/Http/Controllers/Web/SupplierWebController.php` (Refactored return types, translatable messages, structured JSON responses)
+  - `app/Http/Controllers/Web/Warehouse/WarehouseWebController.php` (Refactored return types, translatable messages, quota 422 JSON, hierarchy loop validation, non-destructive guard)
+  - `lang/id/warehouse.php` & `lang/en/warehouse.php` (Added `messages` and `validation` sub-arrays with exact 1-to-1 parity)
+  - `tests/Feature/WarehouseAndSupplierAuditTest.php` (Expanded to 26 feature tests covering all Phase 6 operations)
+  - `tests/Feature/WarehouseSecurityAndEntitlementHardeningTest.php` (Synchronized locale in session for graceful deactivation test)
+
+#### 4. Verification & Automated Test Results
+- **Automated Tests Executed:**
+  - `tests/Feature/WarehouseAndSupplierAuditTest.php`: **26 passed, 189 assertions, 0 errors, 0 failures**
+  - `tests/Feature/WarehouseSecurityAndEntitlementHardeningTest.php`: **24 passed, 73 assertions, 0 errors, 0 failures**
+  - **Total:** **50 feature tests, 262 assertions, 100% PASS rate, 0 regressions**.
+
+---
+
+### [WORK-2026-10-04-286] Refactor & Standardisasi Suppliers Directory Index View (Bento Modal Sheet XXL 2-Kolom, Safe @js Data Binding, Auto-Hiding BOM, & 100% i18n)
+
+- **Date:** 2026-10-04
+- **Status:** COMPLETED
+- **Module:** Suppliers & Purchasing UI (`resources/views/app/suppliers/index.blade.php`)
+- **Feature:** Suppliers Index Bento Apple HIG Refactor, 2-Column XXL Modal Sheet, Safe Data Binding, & i18n Parity
+- **Work Type:** UI/UX | Refactoring | Security | Feature
+
+#### 1. Business Context & Objective
+- **Konteks:** Menjalankan Fase 5 dari Master Implementation Plan Audit Modul Gudang & Pemasok (PRD-32) untuk menstandarisasi direktori mitra pemasok (`suppliers.index`) ke desain Bento Apple HIG, mengubah form modal tambah/edit menjadi Bento Modal Sheet XXL 2-Kolom, mengamankan binding parameter Alpine dengan Blade directive `@js()`, menerapkan auto-hiding cerdas tombol katalog bahan baku berbasis status modul BOM industri, serta migrasi 100% kamus dwibahasa ID/EN.
+- **Masalah/Target:**
+  1. Halaman pemasok sebelumnya memiliki puluhan teks bahasa Indonesia hardcoded di tabel, toolbar pencarian, kartu ringkasan KPI, empty state, dan modal form.
+  2. Modal penambahan dan pembaruan pemasok masih sempit (1-kolom) dan tidak memisahkan antara data legal usaha/PIC dengan data rekening perbankan.
+  3. Passing data JavaScript pada tombol Edit dan Delete menggunakan konkatenasi string mentah `addslashes(...)` yang berisiko error sintaks dan celana XSS jika nama pemasok memuat tanda kutip atau simbol khusus.
+  4. Tombol "Katalog Bahan" ditampilkan secara statis tanpa memeriksa apakah modul Recipe/BOM diizinkan pada template industri bisnis tenant.
+  5. Form modal belum memiliki proteksi double-submit saat tombol simpan ditekan berulang kali.
+
+#### 2. What Was Done
+1. **100% Migrasi Kamus Multi-Bahasa Dwibahasa (`lang/id/` & `lang/en/`):**
+   - Mengganti seluruh teks statis dengan helper `{{ __('purchasing.supplier....') }}`, `{{ __('common....') }}`, dan `{{ __('purchasing....') }}`.
+   - Menambahkan dictionary keys terstruktur pada `lang/id/purchasing.php` dan `lang/en/purchasing.php`: `table`, `badges`, `pagination`, `actions`, `modals`, `sections`, dan `empty`.
+2. **Upgrade Bento Modal Sheet XXL 2-Kolom:**
+   - Mendesain ulang modal Tambah dan Edit Pemasok menjadi **Bento Modal Sheet XXL 2-Kolom** (`max-w-[94vw] md:max-w-2xl lg:max-w-3xl xl:max-w-4xl`) dengan backdrop frosted glass `backdrop-blur-2xl`.
+   - Membagi tata letak secara ergonomis:
+     - **Kolom Kiri (6 Kolom):** Profil Usaha & Kontak PIC (Nama Pemasok, PIC, Telepon/WA, Email, Alamat Lengkap).
+     - **Kolom Kanan (6 Kolom):** Rekening Bank Pembayaran & Ketentuan Kerjasama / Syarat TOP (Nama Bank, Nomor Rekening, Atas Nama Rekening, Catatan Khusus/Termin Pembayaran).
+3. **Pengamanan Data Binding Alpine (@js Directive):**
+   - Menghapus total `addslashes(...)` dan konkatenasi inline.
+   - Menggunakan directive Blade `@js($supplier)` pada `openEditModal(@js($supplier))` dan `@js($supplier->id)`, `@js($supplier->name)` pada `openDelete(...)`.
+4. **Auto-Hiding Cerdas Tombol Katalog Bahan BOM:**
+   - Membungkus tombol "Katalog Bahan" dengan kondisional modul:
+     `@if($business->isModuleEnabled(\App\Domain\Template\ModuleRegistry::MODULE_RECIPE_BOM) && \App\Support\Context::hasPermission('inventory.view'))`
+5. **Double-Submit Protection & Submitting Indicator:**
+   - Memasang Alpine state `x-data="{ submitting: false }" @submit="submitting = true"` pada form Tambah dan Edit.
+   - Mengunci tombol simpan dengan `:disabled="submitting"` disertai animasi loading spinner SVG.
+6. **Standarisasi Ergonomi & Touch Targets (44px+):**
+   - Memastikan tombol primary, secondary, aksi tabel, pencarian, dan tautan chat WhatsApp memenuhi tinggi minimum sentuh 44px (`min-h-[44px]`).
+   - Menerapkan format tipografi `tabular-nums` pada seluruh angka counter, kuantitas bahan, nomor telepon, dan nomor rekening.
+7. **Automated Feature Test Validation:**
+   - Menambahkan 5 metode pengujian baru di `tests/Feature/WarehouseAndSupplierAuditTest.php`:
+     - `test_suppliers_index_view_renders_cleanly_for_authenticated_tenant`
+     - `test_suppliers_index_view_renders_cleanly_in_both_id_and_en_locales` (termasuk verifikasi zero unrendered key regex)
+     - `test_suppliers_page_hides_raw_materials_button_when_bom_disabled`
+     - `test_suppliers_modals_use_safe_blade_js_directives_and_xxl_sheet`
+     - `test_suppliers_search_filters_results_accurately`
+   - Seluruh 21 tests di `WarehouseAndSupplierAuditTest` (141 assertions) dan 24 tests di `WarehouseSecurityAndEntitlementHardeningTest` (73 assertions) lulus 100% tanpa regresi (total 45 tests, 214 assertions).
+
+#### 3. Technical Changes
+- **Files Affected:**
+  - `resources/views/app/suppliers/index.blade.php` (Refactor UI Bento Apple HIG XXL Modal 2-Kolom, safe `@js()`, 100% i18n, double-submit protection).
+  - `lang/id/purchasing.php` (Penambahan key table, badges, pagination, actions, modals).
+  - `lang/en/purchasing.php` (Sinkronisasi paritas 1-to-1 dalam bahasa Inggris).
+  - `tests/Feature/WarehouseAndSupplierAuditTest.php` (Penambahan 5 unit feature test untuk Phase 5).
+  - `docs/system/audits/warehouse-and-suppliers-master-implementation-plan.md` (Update status Fase 5 ke COMPLETED).
+- **Database Changes:** None (UI / Frontend refactoring, localization, & testing).
+- **API / Route Changes:** None.
+
+#### 4. System Impacts
+- **Workflow Impact:** Input dan editing data pemasok kini jauh lebih lapang dan terstruktur antara profil bisnis dengan data perbankan pencairan dana. Tombol chat WhatsApp instan mempercepat komunikasi dengan PIC vendor.
+- **Business Rule Impact:** Tenant non-manufaktur/non-F&B yang menonaktifkan modul Recipe BOM tidak lagi melihat shortcut bahan baku yang tidak relevan.
+- **Permission Impact:** Hak akses tetap terlindungi di bawah `master_data.suppliers.manage` dan `inventory.view`.
+
+### [WORK-2026-10-04-285] Refactor & Standardisasi Warehouse Detail View (Bento Apple HIG 4 Underline Tabs, Eliminasi Browser Confirm, 100% i18n, & Safe Data Binding)
+
+- **Date:** 2026-10-04
+- **Status:** COMPLETED
+- **Module:** Warehouse & Inventory UI (`resources/views/app/warehouse/show.blade.php`)
+- **Feature:** Warehouse Detail Bento Apple HIG Refactor, 4 Underline Tabs Deep-Linking, i18n Migration, & Safe Apple Confirmation Modal Sheet
+- **Work Type:** UI/UX | Refactoring | Security | Feature
+
+#### 1. Business Context & Objective
+- **Konteks:** Menjalankan Fase 4 dari Master Implementation Plan Audit Modul Gudang & Pemasok (PRD-32) untuk menyempurnakan halaman detail lokasi gudang (`warehouse.show`) dengan standar Bento Apple HIG, navigasi 4 Underline Tabs dengan URL deep-linking reaktif, eliminasi popup native browser `confirm()` pada alur Maker-Checker penyesuaian stok bernilai tinggi, 100% migrasi kamus i18n dwibahasa ID/EN, serta pengamanan penuh data binding JavaScript `@js()`.
+- **Masalah/Target:**
+  1. Halaman detail gudang sebelumnya memiliki teks bahasa Indonesia hardcoded pada tabel stok, riwayat penerimaan barang (GRN), mutasi kartu stok, pending approval, inspector sidebar, dan modal penyesuaian cepat.
+  2. Navigasi tab konten belum terintegrasi dengan URL query parameter (`?tab=stocks|receipts|movements|approvals`), menyebabkan hilangnya state tab aktif saat halaman di-refresh.
+  3. Form persetujuan dan penolakan Maker-Checker penyesuaian stok menggunakan `onclick="return confirm(...)"` native browser yang rentan terhadap popup blocking dan tidak ramah layar sentuh mobile.
+  4. Passing data JavaScript pada modal penyesuaian stok belum menggunakan directive `@js()`, menyisakan potensi error format string.
+  5. Seluruh angka metrik kuantitas, harga, dan tanggal belum distandarisasi ke font `tabular-nums`.
+
+#### 2. What Was Done
+1. **100% Migrasi Kamus Multi-Bahasa Dwibahasa (`lang/id/` & `lang/en/`):**
+   - Mengganti seluruh teks statis dengan helper `{{ __('warehouse....') }}`, `{{ __('inventory....') }}`, dan `{{ __('common....') }}`.
+   - Menambahkan dictionary keys terstruktur pada `lang/id/warehouse.php` dan `lang/en/warehouse.php`: `inspector`, `shortcuts`, `stock_table`, `receipts_table`, `movements_table`, `approvals`, dan `adjust_modal`.
+2. **4 Bento Apple HIG Underline Tabs & URL Deep-Linking:**
+   - Menyusun konten tab: `stocks` (Stok Komoditas & Bahan), `receipts` (Penerimaan Barang / GRN), `movements` (Mutasi Kartu Stok), dan `approvals` (Persetujuan Stok Bernilai Tinggi / Maker-Checker).
+   - Inisialisasi Alpine reaktif: `activeTab: new URLSearchParams(window.location.search).get('tab') || 'stocks'`.
+   - Method `setTab(tab)` memperbarui URL secara mulus menggunakan `window.history.replaceState`.
+3. **Eliminasi Native `confirm()` & Penggantian Apple Confirmation Modal Sheet:**
+   - Menghapus seluruh inline `onclick="return confirm(...)"` pada form `approve` dan `reject` Maker-Checker.
+   - Mengimplementasikan komponen Alpine Modal Sheet terpusat `openConfirm(formId, title, desc, isDanger)` dengan visual icon Apple HIG, backdrop blur, dan animasi smooth.
+4. **Pengamanan Data Binding Alpine (@js Directive):**
+   - Mengamankan pemanggilan modal Quick Adjust dengan `@js($stock->id)`, `@js($stock->product->name ?? 'Item')`, `@js($stock->quantity)`, `@js($stock->product->outputUnit->code ?? 'Unit')`, `@js($stock->product->price ?? 0)`.
+   - Melengkapi modal penyesuaian dengan kalkulator visual selisih stok (delta +/-) dan format nominal `tabular-nums`.
+5. **Standarisasi Ergonomi & Touch Targets (44px+):**
+   - Memastikan tombol aksi tabel, tombol modal, dan link shortcut memenuhi tinggi minimum 44px (`min-h-[44px]`).
+   - Menerapkan Bento squircle radius (`rounded-[18px]`, `rounded-[20px]`) dan palette warna Apple HIG.
+6. **Automated Feature Test Validation:**
+   - Menambahkan 5 metode pengujian baru di `tests/Feature/WarehouseAndSupplierAuditTest.php`:
+     - `test_warehouse_show_view_renders_cleanly_for_authenticated_tenant()`
+     - `test_warehouse_show_view_renders_cleanly_in_both_id_and_en_locales()` (termasuk verifikasi zero unrendered key regex)
+     - `test_warehouse_show_underline_tabs_support_url_query_parameters()`
+     - `test_warehouse_show_quick_adjust_modal_uses_safe_blade_js_directives()`
+     - `test_warehouse_show_eliminates_native_browser_confirm_in_favor_of_apple_modal()`
+   - Seluruh 16 tests di `WarehouseAndSupplierAuditTest` (106 assertions) dan 24 tests di `WarehouseSecurityAndEntitlementHardeningTest` (73 assertions) lulus 100% tanpa regresi.
+
+#### 3. Technical Changes
+- **Files Affected:**
+  - `resources/views/app/warehouse/show.blade.php` (Refactor UI Bento Apple HIG, 4 Underline Tabs, safe modal confirm, `@js()`, 100% i18n).
+  - `lang/id/warehouse.php` (Penambahan key inspector, shortcuts, stock_table, receipts_table, movements_table, approvals, adjust_modal).
+  - `lang/en/warehouse.php` (Penambahan key paritas 1-to-1 dalam bahasa Inggris).
+  - `tests/Feature/WarehouseAndSupplierAuditTest.php` (Penambahan 5 unit feature test untuk Phase 4).
+  - `tests/Feature/WarehouseSecurityAndEntitlementHardeningTest.php` (Penyesuaian fixture template dan mitigasi template condition).
+  - `docs/system/audits/warehouse-and-suppliers-master-implementation-plan.md` (Update status Fase 4 ke COMPLETED).
+- **Database Changes:** None (UI / Frontend refactoring, localization, & testing).
+- **API / Route Changes:** None.
+
+#### 4. System Impacts
+- **Workflow Impact:** Navigasi antar tab detail stok, penerimaan barang, mutasi, dan persetujuan stok dapat diakses langsung via URL deep-linking (`?tab=approvals`, dsb.).
+- **Business Rule Impact:** Maker-Checker persetujuan penyesuaian stok bernilai tinggi kini memiliki alur konfirmasi visual Apple Modal Sheet yang mencegah kekeliruan klik/touch tanpa bergantung pada popup browser native.
+- **Permission Impact:** Hak akses tetap terlindungi di bawah `inventory.view`, `inventory.manage`, `purchasing.view`, `warehouse.manage`.
+
+### [WORK-2026-10-04-284] Refactor & Standardisasi Warehouse Hub Index View (Bento Apple HIG, 100% i18n, Multi-Industry Adaptive, & Alpine Safe Data Binding)
+
+- **Date:** 2026-10-04
+- **Status:** COMPLETED
+- **Module:** Warehouse & Inventory UI (`resources/views/app/warehouse/index.blade.php`)
+- **Feature:** Warehouse Index Bento Apple HIG Refactor, i18n Migration, & Multi-Industry Adaptation
+- **Work Type:** UI/UX | Refactoring | Security | Feature
+
+#### 1. Business Context & Objective
+- **Konteks:** Menjalankan Fase 3 dari Master Implementation Plan Audit Modul Gudang & Pemasok (PRD-32) untuk menstandarisasi halaman indeks gudang (`warehouse.index`) ke desain Bento Apple HIG, mendukung deep-linking URL tab & modal, adaptasi label multi-industri dinamis, eliminasi 100% string hardcoded, serta pengamanan payload JavaScript Alpine.js.
+- **Masalah/Target:**
+  1. Halaman indeks sebelumnya memiliki string bahasa Indonesia hardcoded di puluhan tombol, alert GPS, badge, dan modal.
+  2. Tab filter dan modal penambahan tidak mendukung URL deep-linking (`?type=all|outlet|warehouse`, `?add=warehouse`, `?add=outlet`).
+  3. Payload JavaScript pada modal edit dan delete menggunakan raw concatenation / `json_encode()` tanpa pengamanan directive `@js()`, rentan terhadap XSS atau pemutusan syntax akibat kutip string.
+  4. Label tipe sentral produksi/dapur (`central_kitchen`) belum beradaptasi dengan template industri bisnis (misal F&B -> Dapur Pusat, Manufaktur -> Pabrik/Workshop, Kontraktor -> Basecamp/Proyek).
+  5. Touch targets tombol aksi di perangkat mobile masih di bawah standar ergonomi 44px.
+
+#### 2. What Was Done
+1. **100% Migrasi String Hardcoded ke Kamus i18n:**
+   - Mengganti seluruh teks statis dengan `{{ __('warehouse....') }}` dan namespace terkait (`common`, `purchasing`, `inventory`).
+   - Menambahkan key penanganan GPS (`gps_errors.permission_denied`, `position_unavailable`, `timeout`, `fields.gps_not_set`, `fields.biteship_connected`, `actions.change`, `actions.select`) pada `lang/id/warehouse.php` dan `lang/en/warehouse.php`.
+2. **Segmented Control URL Deep-Linking & History State:**
+   - Menginisialisasi `filterTab` dengan `new URLSearchParams(window.location.search).get('type') || 'all'`.
+   - Menambahkan method Alpine `setFilter(type)` yang memperbarui URL secara reaktif menggunakan `window.history.replaceState`.
+   - Mendukung pembukaan modal otomatis via URL parameter `?add=warehouse` dan `?add=outlet`.
+3. **Multi-Industry Dynamic Adaptation:**
+   - Menghubungkan label tipe `central_kitchen` dengan `$business->template_code` (`fnb_` -> Dapur Pusat / Central Kitchen, `mfg_` -> Pabrik / Workshop / Factory / Workshop, `service_contractor` -> Basecamp / Proyek / Basecamp / Project).
+4. **Pengamanan Data Binding Alpine.js (@js Directive):**
+   - Mengganti seluruh pemanggilan raw JSON inline dengan directive Blade `@js($loc)`, `@js($loc->id)`, dan `@js($loc->name)` untuk mencegah XSS dan syntax error akibat tanda kutip pada nama lokasi.
+5. **Penerapan Standar Desain Bento Apple HIG:**
+   - 4 Bento KPI summary cards dengan `tabular-nums`, squircle styling `rounded-[18px]`, dan status pills terkalibrasi.
+   - 2-Kolom Bento Apple XXL Modal Sheet untuk form Tambah Gudang, Tambah Cabang/Outlet, dan Edit Lokasi.
+   - Minimal 44px touch targets (`min-h-[44px]`) untuk seluruh elemen interaktif tombol dan form di perangkat mobile.
+6. **Automated Feature Test Validation:**
+   - Menambahkan metode pengujian di `tests/Feature/WarehouseAndSupplierAuditTest.php`:
+     - `test_warehouse_index_view_renders_cleanly_for_authenticated_tenant()`
+     - `test_warehouse_index_view_renders_cleanly_in_both_id_and_en_locales()` (termasuk verifikasi zero unrendered key regex).
+     - `test_warehouse_central_kitchen_label_adapts_to_industry_templates()`
+     - `test_warehouse_creation_and_update_modals_render_safely_with_alpine_js_directives()`
+     - `test_warehouse_filter_tabs_and_deep_links_support_query_parameters()`
+   - Seluruh 11 tests (69 assertions) PASS 100%.
+
+#### 3. Technical Changes
+- **Files Affected:**
+  - `resources/views/app/warehouse/index.blade.php` (Refactor UI Bento Apple HIG, 100% i18n, `@js()`, deep-linking).
+  - `lang/id/warehouse.php` (Tambahan key GPS, badges, action buttons).
+  - `lang/en/warehouse.php` (Tambahan key GPS, badges, action buttons paritas 1-to-1).
+  - `tests/Feature/WarehouseAndSupplierAuditTest.php` (5 automated test suite baru untuk Phase 3).
+- **Database Changes:** None (UI / Frontend refactoring & localization).
+- **API / Route Changes:** None.
+
+#### 4. System Impacts
+- **Workflow Impact:** Navigasi antar tipe lokasi lebih mulus dan dapat dibagikan melalui tautan URL yang menyertakan query parameter filter. Modal pembuatan lokasi dapat dipicu langsung dari eksternal shortcut.
+- **Business Rule Impact:** Penamaan lokasi dan tipe sentral produksi otomatis menyesuaikan dengan karakter industri pengguna tanpa perlu konfigurasi manual.
+- **Permission Impact:** Hak akses tetap terjaga di bawah `warehouse.view` dan `warehouse.manage`.
+
+### [WORK-2026-10-04-283] Ekspansi Kamus Multi-Bahasa (i18n & l10n ID/EN): Sinkronisasi 10 Domain Warehouse, Supplier Directory, dan Inventory Movements
+
+- **Date:** 2026-10-04
+- **Status:** COMPLETED
+- **Module:** Multi-Language / Localization (`lang/id/`, `lang/en/`)
+- **Feature:** Multi-Language Dictionary Expansion for Warehouse, Suppliers, & Inventory
+- **Work Type:** Architecture | Localization | Feature
+
+#### 1. Business Context & Objective
+- **Konteks:** Menjalankan Fase 2 dari Master Implementation Plan Audit Modul Gudang & Pemasok (PRD-32) untuk menyediakan 100% kamus multi-bahasa dwibahasa (Bahasa Indonesia `id` dan English `en`) bagi antarmuka gudang, direktori supplier, mutasi kartu stok, dan approval maker-checker.
+- **Masalah/Target:**
+  1. Berkas `lang/id/warehouse.php` dan `lang/en/warehouse.php` sebelumnya hanya memuat 13 baris pesan flash, belum memiliki translasi untuk page header, breadcrumbs, 4 KPI cards, segmented control tabs, tabel stok, tabel penerimaan GRN, mutasi stok, approval modal, dan form modal.
+  2. Modul direktori supplier pada `resources/views/app/suppliers/index.blade.php` belum memiliki kamus translasi di `lang/id/purchasing.php` dan `lang/en/purchasing.php`.
+  3. Mengembangkan kamus lengkap dengan paritas 1-to-1 mutlak (zero missing key) antara `id` dan `en` serta memvalidasinya dengan automated feature testing.
+
+#### 2. What Was Done
+1. **Ekspansi Kamus Warehouse (`lang/id/warehouse.php` & `lang/en/warehouse.php`):**
+   - Menambahkan 10 domain key: `title`, `header_title`, `header_subtitle`, `detail_title`, `breadcrumbs`, `kpis` (11 keys), `tabs` (7 keys), `types` (8 keys termasuk adaptif industri), `badges` (7 keys), `actions` (26 keys), `fields` (18 keys), `placeholders` (14 keys), `sections` (4 sections & deskripsi), `stock_table` (11 keys), `receipts_table` (8 keys), `movements_table` (9 keys), `approvals` (8 keys), `adjust_modal` (13 keys), `delete_modal` (4 keys), `sop` (5 keys), dan `messages` (13 keys).
+2. **Ekspansi Kamus Supplier (`lang/id/purchasing.php` & `lang/en/purchasing.php`):**
+   - Menambahkan namespace `supplier` lengkap: `title`, `header_title`, `header_subtitle`, `create_title`, `edit_title`, `breadcrumbs`, `kpis` (8 keys), `tabs` (3 keys), `fields` (12 keys), `placeholders` (10 keys), `sections` (4 keys), `actions` (10 keys), `modals` (3 keys), `empty` (4 keys), dan `messages` (4 keys).
+3. **Ekspansi Kamus Inventory (`lang/id/inventory.php` & `lang/en/inventory.php`):**
+   - Menambahkan `title`, `header_title`, `header_subtitle`, `breadcrumbs` (7 keys), `kpis` (4 keys), `tabs` (5 keys), `movement_types` (12 keys), `reasons` (8 keys), dan pesan validasi PIN supervisor.
+4. **Automated Parity Test Suite:**
+   - Memperkaya `tests/Feature/WarehouseAndSupplierAuditTest.php` dengan metode pengujian rekursif `test_warehouse_purchasing_inventory_language_dictionaries_have_exact_parity()` dan `test_translations_render_correctly_in_both_locales_without_fallback_key()`.
+   - Seluruh 6 tests dan 32 assertions lulus 100% (0 errors, 0 failures).
+
+#### 3. Technical Changes
+- **Files Affected:**
+  - `lang/id/warehouse.php`
+  - `lang/en/warehouse.php`
+  - `lang/id/purchasing.php`
+  - `lang/en/purchasing.php`
+  - `lang/id/inventory.php`
+  - `lang/en/inventory.php`
+  - `tests/Feature/WarehouseAndSupplierAuditTest.php`
+  - `docs/AiWorkHistory.md`
+- **Database Changes:** Tidak ada perubahan database.
+- **API / Route Changes:** Tidak ada perubahan route.
+
+#### 4. System Impacts
+- **i18n Readiness:** Seluruh teks antarmuka untuk modul Cabang & Gudang, Detail Gudang, dan Pemasok kini siap digunakan pada tahap refactoring view (Fase 3, 4, 5) tanpa string hardcoded.
+- **Zero Fallback Failure:** Kamus bahasa Indonesia dan Inggris memiliki paritas 100% tanpa perbedaan kunci array.
+
+---
+
+### [WORK-2026-10-04-282] Hotfix Keamanan IDOR Multi-Tenant: SQL Precedence Grouping pada Model Supplier, Product, ProductCategory, Material, dan MaterialCategory
+
+- **Date:** 2026-10-04
+- **Status:** COMPLETED
+- **Module:** Security / Multi-Tenant Isolation / Purchasing & Inventory (`app/Models/`)
+- **Feature:** Route Model Binding Query Isolation (`resolveRouteBinding`)
+- **Work Type:** Security | Bug Fix | Architecture
+
+#### 1. Business Context & Objective
+- **Konteks:** Menjalankan Fase 1 dari Master Implementation Plan Audit Modul Gudang & Pemasok (PRD-32) untuk mengeliminasi celah kerentanan multi-tenant IDOR pada proses Route Model Binding.
+- **Masalah/Target:**
+  1. Pada `app/Models/Supplier.php`, metode `resolveRouteBinding($value, $field = null)` sebelumnya memanggil `$this->where('id', $value)->orWhere('slug', $value)->firstOrFail();`.
+  2. Ketika digabungkan dengan `BusinessScope` (`WHERE business_id = 'tenant-A'`), ketiadaan kurung pengelompokan (*closure grouping*) menghasilkan query: `WHERE (business_id = 'tenant-A' AND id = ?) OR (slug = ?)`. Operator `AND` memiliki presedensi lebih tinggi daripada `OR`, sehingga klausa `slug = ?` dievaluasi secara global tanpa isolasi tenant, membuka potensi kebocoran data (*IDOR data leakage*) jika tenant A mengakses slug milik tenant B.
+  3. Mengelompokkan kondisi `id` dan `slug` ke dalam closure query builder: `$this->where(function ($query) use ($value) { $query->where('id', $value)->orWhere('slug', $value); })->firstOrFail();`.
+  4. Menerapkan penguatan (*hardening*) yang sama pada model-model terkait (`Product`, `ProductCategory`, `Material`, `MaterialCategory`).
+
+#### 2. What Was Done
+1. **Surgical Refactoring pada `Supplier.php`:**
+   - Memperbarui `resolveRouteBinding()` agar menggunakan query closure grouping eksplisit.
+   - Menghasilkan SQL yang valid: `WHERE business_id = ? AND (id = ? OR slug = ?) AND deleted_at IS NULL`.
+2. **Proactive Security Hardening pada Model Terkait:**
+   - Menyelaraskan implementasi `resolveRouteBinding()` pada `app/Models/Product.php`, `app/Models/ProductCategory.php`, `app/Models/Material.php`, dan `app/Models/MaterialCategory.php`.
+3. **Pembuatan Automated Feature Test Suite:**
+   - Membuat `tests/Feature/WarehouseAndSupplierAuditTest.php` untuk memvalidasi:
+     - Tenant A dapat mengakses supplier miliknya via UUID ID dan Slug.
+     - Tenant A dilarang keras (wajib melempar `ModelNotFoundException` / 404) mengakses supplier milik Tenant B baik melalui UUID ID maupun Slug.
+     - Struktur SQL query terbukti menghasilkan tanda kurung pengelompokan `(id = ? or slug = ?)`.
+     - Kategori produk dan material juga terisolasi penuh lintas tenant.
+4. **Verifikasi Pengujian Otomatis:**
+   - Menjalankan `php artisan test --filter=WarehouseAndSupplierAuditTest` (4 tests, 8 assertions, 0 errors, 0 failures, 100% PASS).
+   - Memverifikasi sintaks `php -l` pada seluruh berkas yang disentuh.
+
+#### 3. Technical Changes
+- **Files Affected:**
+  - `app/Models/Supplier.php`
+  - `app/Models/Product.php`
+  - `app/Models/ProductCategory.php`
+  - `app/Models/Material.php`
+  - `app/Models/MaterialCategory.php`
+  - `tests/Feature/WarehouseAndSupplierAuditTest.php`
+  - `docs/AiWorkHistory.md`
+- **Database Changes:** Tidak ada perubahan struktur database.
+- **API / Route Changes:** Tidak ada perubahan endpoint atau signature rute.
+
+#### 4. System Impacts
+- **Security & Multi-Tenant Isolation:** 100% IDOR-safe. Tidak ada celah bagi pengguna tenant mana pun untuk mengakses data master supplier, produk, atau material milik tenant lain melalui manipulasi route parameter slug.
+- **Backward Compatibility:** Zero breaking change, seluruh rute web dan API yang mengandalkan route binding ID atau slug tetap berfungsi secara normal.
+
+---
 
 ### [WORK-2026-10-02-281] Perluasan Eksekusi AI Action Proposals (Cost Structure Audit, Revenue Acceleration, System Maintenance, Strategic Directives), Eliminasi Browser Alert/Confirm ke AppAlert, dan Resolusi Error Eksekusi PT Mahakarya Artisan Roastery & Coffee
 

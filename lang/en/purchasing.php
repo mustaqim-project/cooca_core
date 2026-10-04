@@ -337,4 +337,141 @@ return [
         'supervisor_pin_prompt' => 'Enter Supervisor PIN to authorize this action:',
         'available_items_to_return' => 'Available Items to Return',
     ],
+
+    'supplier' => [
+        'title' => 'Suppliers & Vendors',
+        'header_title' => 'Supplier Management (Suppliers)',
+        'header_subtitle' => 'Manage supplier directory, PIC contacts, banking information, and procurement supplies.',
+        'create_title' => 'Add New Supplier Partner',
+        'create_subtitle' => 'Register raw material or commercial product vendors for PO procurement workflows.',
+        'edit_title' => 'Edit Supplier Data: :name',
+        'edit_subtitle' => 'Update PIC contact details, bank accounts, and vendor facilities.',
+
+        'breadcrumbs' => [
+            'dashboard' => 'Dashboard',
+            'purchasing' => 'Purchasing & PO',
+            'suppliers' => 'Supplier Directory',
+            'create' => 'Add Supplier',
+            'edit' => 'Edit Supplier',
+        ],
+
+        'kpis' => [
+            'total_suppliers' => 'Total Suppliers',
+            'registered_partners' => 'Registered Partners',
+            'active_suppliers' => 'Active Supply Vendors',
+            'has_materials' => 'Supplying Materials',
+            'linked_materials' => 'Linked Raw Materials',
+            'supply_items' => 'Supply Items',
+            'procurement' => 'Procurement',
+            'direct_po' => 'New Purchase Order',
+        ],
+
+        'tabs' => [
+            'all' => 'All Suppliers',
+            'active' => 'Active Suppliers',
+            'with_bank' => 'Complete Banking',
+        ],
+
+        'fields' => [
+            'name' => 'Company / Supplier Name *',
+            'contact_person' => 'PIC Contact Person',
+            'phone' => 'Phone / WhatsApp Number',
+            'email' => 'Email Address',
+            'address' => 'Full Office / Warehouse Address',
+            'bank_name' => 'Bank Name',
+            'bank_account_number' => 'Bank Account Number',
+            'bank_account_holder' => 'Account Holder Name',
+            'notes' => 'Additional Notes / Terms of Payment',
+            'actions' => 'Actions',
+            'status' => 'Status',
+            'materials_count' => 'Supply Items',
+        ],
+
+        'placeholders' => [
+            'search' => 'Search supplier name, PIC contact, or phone number...',
+            'name' => 'e.g. PT Global Agro Foods / Jaya Store',
+            'contact_person' => 'e.g. John Doe / Jane Smith',
+            'phone' => 'e.g. 081234567890',
+            'email' => 'e.g. sales@globalagro.com',
+            'address' => 'Full street address, building, city...',
+            'bank_name' => 'e.g. BCA / Mandiri / Chase / Citibank',
+            'bank_account_number' => 'e.g. 8830192831',
+            'bank_account_holder' => 'e.g. PT GLOBAL AGRO FOODS',
+            'notes' => 'e.g. Payment terms Net 30, 5% cash discount...',
+        ],
+
+        'sections' => [
+            'company_info' => '1. Supplier Profile & Primary Contact',
+            'company_info_desc' => 'Legal entity identity and procurement representative contacts.',
+            'bank_info' => '2. Banking & Payment Settlement',
+            'bank_info_desc' => 'Bank account for supplier invoice settlement transfers.',
+            'bank_section_title' => 'Bank Payment Account (Vendor Transfer)',
+        ],
+
+        'table' => [
+            'supplier_name' => 'Supplier / Vendor Name',
+            'contact_pic' => 'PIC Contact',
+            'phone_wa' => 'Phone & WhatsApp',
+            'bank_account' => 'Bank Account',
+            'email_address' => 'Email & Address',
+            'raw_materials' => 'Raw Materials',
+            'action' => 'Action',
+            'mobile_list_title' => 'Supplier Directory',
+            'mobile_suppliers_count' => ':total Suppliers',
+            'mobile_pic_label' => 'PIC:',
+            'mobile_bank_default' => 'Bank Account',
+        ],
+
+        'badges' => [
+            'items_count' => ':count items',
+            'account_holder_prefix' => 'a/n',
+            'chat_wa' => 'Chat WA',
+            'chat_wa_title' => 'Chat Supplier WhatsApp',
+        ],
+
+        'pagination' => [
+            'showing' => 'Showing',
+            'of' => 'of',
+            'suppliers' => 'suppliers',
+            'info' => 'Showing :count of :total suppliers',
+        ],
+
+        'actions' => [
+            'add_supplier' => 'Add Supplier',
+            'edit_supplier' => 'Edit Supplier',
+            'delete_supplier' => 'Delete Supplier',
+            'create_po' => 'New Purchase Order',
+            'view_materials' => 'Materials Catalog',
+            'view_pos' => 'PO List',
+            'save' => 'Save Supplier',
+            'update' => 'Save Changes',
+            'cancel' => 'Cancel',
+            'delete' => 'Delete',
+            'search' => 'Search',
+            'reset' => 'Reset',
+            'submitting' => 'Saving...',
+            'updating' => 'Updating...',
+        ],
+
+        'modals' => [
+            'delete_title' => 'Delete Supplier?',
+            'delete_confirm' => 'Are you sure you want to delete supplier :name?',
+            'delete_reassurance' => 'will be removed from the system. Historical PO and transaction archives remain safely intact.',
+            'edit_updating' => 'Updating: :name',
+        ],
+
+        'empty' => [
+            'title' => 'No Supplier Data Available',
+            'subtitle' => 'Add suppliers to manage vendor contacts, bank accounts, PO records, and raw material procurement.',
+            'button' => 'Add First Supplier',
+            'search_empty' => 'No suppliers match your search criteria.',
+        ],
+
+        'messages' => [
+            'created_success' => 'New supplier has been added successfully.',
+            'updated_success' => 'Supplier details for :name have been updated.',
+            'deleted_success' => 'Supplier has been deleted successfully.',
+            'cannot_delete_has_po' => 'Supplier cannot be deleted because active Purchase Order transactions exist.',
+        ],
+    ],
 ];
