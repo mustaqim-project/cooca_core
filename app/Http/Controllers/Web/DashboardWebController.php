@@ -29,7 +29,9 @@ use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -81,6 +83,34 @@ final class DashboardWebController extends Controller
     }
 
     /**
+     * Get list of materials for Quick Stock-In modal via AJAX (Lazy-loaded, tenant cached).
+     */
+    public function quickMaterialsList(Request $request): JsonResponse
+    {
+        $business = Context::requireBusiness();
+        $materials = Cache::remember("quick_materials_list_{$business->id}", 60, function () use ($business) {
+            return Material::where('business_id', $business->id)
+                ->whereNull('discontinued_at')
+                ->with(['unit:id,name,code', 'latestPrice:id,material_id,purchase_price'])
+                ->orderBy('name')
+                ->get(['id', 'business_id', 'name', 'code', 'unit_id'])
+                ->map(fn($m) => [
+                    'id' => (string) $m->id,
+                    'name' => (string) $m->name,
+                    'code' => (string) ($m->code ?? ''),
+                    'unit' => (string) ($m->unit?->code ?? 'satuan'),
+                    'price' => (float) ($m->latestPrice?->purchase_price ?? 0),
+                ])
+                ->all();
+        });
+
+        return response()->json([
+            'success' => true,
+            'materials' => $materials,
+        ]);
+    }
+
+    /**
      * Quick Record Expense (Beban Operasional Cepat) via AJAX.
      */
     public function quickExpense(Request $request): JsonResponse
@@ -88,15 +118,45 @@ final class DashboardWebController extends Controller
         $business = Context::requireBusiness();
         $user = auth()->user();
 
+        // Idempotency Key check to prevent double-submit
+        $idempotencyKey = $request->header('X-Idempotency-Key');
+        if ($idempotencyKey) {
+            $cacheKey = "idemp_exp_{$business->id}_{$idempotencyKey}";
+            if (Cache::has($cacheKey)) {
+                return response()->json(Cache::get($cacheKey));
+            }
+        }
+
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'amount' => ['required', 'numeric', 'min:100'],
             'category' => ['nullable', 'string', 'max:100'],
             'payment_method' => ['nullable', 'string', 'in:cash,bank,qris,petty_cash'],
             'notes' => ['nullable', 'string', 'max:500'],
+            'supervisor_pin' => ['nullable', 'string', 'max:10'],
         ]);
 
         $amount = (float) $validated['amount'];
+
+        // Maker-Checker Threshold: If amount >= 500,000 and business has supervisor PIN configured
+        if ($amount >= 500000 && ! empty($business->pos_supervisor_pin)) {
+            $pin = $request->input('supervisor_pin');
+            if (empty($pin)) {
+                return response()->json([
+                    'success' => false,
+                    'requires_pin' => true,
+                    'message' => 'Pengeluaran nominal besar (>= Rp 500.000) memerlukan verifikasi PIN Supervisor.',
+                ], 422);
+            }
+            if (! Hash::check((string) $pin, $business->pos_supervisor_pin)) {
+                return response()->json([
+                    'success' => false,
+                    'requires_pin' => true,
+                    'message' => 'PIN Supervisor tidak valid. Silakan periksa kembali.',
+                ], 422);
+            }
+        }
+
         $location = \App\Models\Location::where('business_id', $business->id)->first();
         $locationId = $location?->id;
         $expenseNumber = 'EXP-' . date('Ymd') . '-' . rand(1000, 9999);
@@ -127,7 +187,7 @@ final class DashboardWebController extends Controller
 
         $overview = $this->getOverviewData($business);
 
-        return response()->json([
+        $responseData = [
             'success' => true,
             'message' => "Beban '{$expense->description}' sebesar Rp " . number_format($amount, 0, ',', '.') . " berhasil dicatat.",
             'expense' => [
@@ -138,7 +198,13 @@ final class DashboardWebController extends Controller
                 'date' => $expense->expense_date,
             ],
             'stats' => $overview['stats'],
-        ]);
+        ];
+
+        if ($idempotencyKey) {
+            Cache::put("idemp_exp_{$business->id}_{$idempotencyKey}", $responseData, 60);
+        }
+
+        return response()->json($responseData);
     }
 
     /**
@@ -148,6 +214,15 @@ final class DashboardWebController extends Controller
     {
         $business = Context::requireBusiness();
         $user = auth()->user();
+
+        // Idempotency Key check to prevent double-submit
+        $idempotencyKey = $request->header('X-Idempotency-Key');
+        if ($idempotencyKey) {
+            $cacheKey = "idemp_stock_{$business->id}_{$idempotencyKey}";
+            if (Cache::has($cacheKey)) {
+                return response()->json(Cache::get($cacheKey));
+            }
+        }
 
         $validated = $request->validate([
             'material_id' => ['nullable', 'exists:materials,id'],
@@ -294,13 +369,23 @@ final class DashboardWebController extends Controller
             return response()->json(['success' => false, 'message' => 'Pilih bahan baku atau produk yang akan ditambah stoknya.'], 422);
         }
 
+        // Invalidate cached material list
+        Cache::forget("quick_materials_list_{$business->id}");
+        Cache::forget("layout_modal_mat_{$business->id}");
+
         $overview = $this->getOverviewData($business);
 
-        return response()->json([
+        $responseData = [
             'success' => true,
             'message' => "Stok {$targetName} bertambah +{$qty} {$unitCode} (Total Rp " . number_format($totalCost, 0, ',', '.') . ").",
             'stats' => $overview['stats'],
-        ]);
+        ];
+
+        if ($idempotencyKey) {
+            Cache::put("idemp_stock_{$business->id}_{$idempotencyKey}", $responseData, 60);
+        }
+
+        return response()->json($responseData);
     }
 
     /**
@@ -309,6 +394,15 @@ final class DashboardWebController extends Controller
     public function quickMaterial(Request $request): JsonResponse
     {
         $business = Context::requireBusiness();
+
+        // Idempotency Key check
+        $idempotencyKey = $request->header('X-Idempotency-Key');
+        if ($idempotencyKey) {
+            $cacheKey = "idemp_mat_{$business->id}_{$idempotencyKey}";
+            if (Cache::has($cacheKey)) {
+                return response()->json(Cache::get($cacheKey));
+            }
+        }
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -350,7 +444,12 @@ final class DashboardWebController extends Controller
 
         $material->load('unit', 'category');
 
-        return response()->json([
+        // Invalidate cached material list
+        Cache::forget("quick_materials_list_{$business->id}");
+        Cache::forget("layout_modal_mat_{$business->id}");
+        Cache::forget("layout_modal_units_{$business->id}");
+
+        $responseData = [
             'success' => true,
             'message' => "Bahan baku '{$material->name}' berhasil ditambahkan (Rp " . number_format((float) $validated['cost_per_unit'], 0, ',', '.') . " / {$material->unit?->code}).",
             'material' => [
@@ -362,7 +461,13 @@ final class DashboardWebController extends Controller
                 'unit_code' => $material->unit?->code ?? 'satuan',
                 'category_name' => $material->category?->name ?? 'Umum',
             ],
-        ]);
+        ];
+
+        if ($idempotencyKey) {
+            Cache::put("idemp_mat_{$business->id}_{$idempotencyKey}", $responseData, 60);
+        }
+
+        return response()->json($responseData);
     }
 
     /**

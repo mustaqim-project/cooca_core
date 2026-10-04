@@ -49,12 +49,22 @@ final class BillingAndLimitWebController extends Controller
     }
 
     /**
-     * Activate or simulate upgrade to Core Plan.
+     * Activate or simulate upgrade to Core Plan (Available for local/testing or authorized billing managers).
      */
     public function upgrade(Request $request): RedirectResponse
     {
         $business = Context::requireBusiness();
-        $cycle    = $request->input('cycle', 'monthly');
+
+        // Simulasi upgrade hanya diizinkan di lingkungan lokal atau pengujian otomatis
+        abort_unless(
+            app()->environment('local', 'testing'),
+            403,
+            __('billing.upgrade_simulation_local_only')
+        );
+
+        $cycle = in_array($request->input('cycle'), ['monthly', 'annual'], true)
+            ? $request->input('cycle')
+            : 'monthly';
 
         $this->entitlementService->upgradeToCore($business, $cycle);
 
@@ -65,7 +75,7 @@ final class BillingAndLimitWebController extends Controller
             : "Core Monthly (Rp{$monthlyPriceFormatted}/bln)";
 
         return redirect()->route('billing.limits')
-            ->with('success', "Selamat! Bisnis Anda kini aktif pada paket {$cycleName}. Seluruh kuota transaksi, produk, dan token AI telah terbuka penuh.");
+            ->with('success', __('billing.upgrade_success', ['cycle' => $cycleName]));
     }
 
     /**
@@ -75,11 +85,13 @@ final class BillingAndLimitWebController extends Controller
     public function recalculateStorage(): RedirectResponse
     {
         $business = Context::requireBusiness();
+        abort_unless(Context::isOwner() || Context::hasPermission('billing.manage'), 403, __('billing.only_owner_recalculate_storage'));
+
         $owner    = $business->users()->wherePivot('role', 'owner')->first() ?? auth()->user();
 
         if (! $owner) {
             return redirect()->route('billing.limits')
-                ->with('error', 'Owner akun tidak ditemukan. Tidak dapat menghitung ulang storage.');
+                ->with('error', __('billing.owner_not_found'));
         }
 
         // Strictly recalculate storage for this active business
@@ -89,11 +101,14 @@ final class BillingAndLimitWebController extends Controller
         $this->entitlementService->clearUsageCache($business);
 
         $bizMb = $result['business_used_mb'] ?? $result['total_used_mb'];
-        $message = "Kalkulasi storage bisnis '{$business->name}' selesai. "
-            . "File dipindai: {$result['scanned_files']} | "
-            . "Baru ditambah: {$result['untracked_added']} | "
-            . "Orphan dibersihkan: {$result['orphaned_cleaned']} | "
-            . "Digunakan bisnis ini: {$bizMb} MB / {$result['limit_gb']} GB.";
+        $message = __('billing.storage_recalculated_success', [
+            'business' => $business->name,
+            'scanned'  => $result['scanned_files'],
+            'added'    => $result['untracked_added'],
+            'cleaned'  => $result['orphaned_cleaned'],
+            'used'     => $bizMb,
+            'limit'    => $result['limit_gb'],
+        ]);
 
         return redirect()->route('billing.limits')->with('success', $message);
     }
@@ -108,10 +123,10 @@ final class BillingAndLimitWebController extends Controller
         $isOwner = Context::isOwner();
         $hasBillingPerm = Context::hasPermission('billing.manage');
 
-        abort_unless($isOwner || $hasBillingPerm, 403, 'Hanya Owner atau pengelola billing yang dapat menghapus berkas penyimpanan.');
+        abort_unless($isOwner || $hasBillingPerm, 403, __('billing.only_owner_delete_storage'));
 
         // Strict Multi-Tenant Guard: Storage file MUST strictly belong to this active business_id
-        abort_unless($storageFile->business_id === $business->id, 403, 'Akses ditolak. Berkas ini bukan milik bisnis yang sedang aktif.');
+        abort_unless($storageFile->business_id === $business->id, 403, __('billing.storage_file_not_owned'));
 
         $fileName = $storageFile->file_name;
         $fileSizeMb = round($storageFile->file_size / 1048576, 2);
@@ -126,7 +141,10 @@ final class BillingAndLimitWebController extends Controller
         // Clear quota and entitlement cache
         $this->entitlementService->clearUsageCache($business);
 
-        $successMessage = "Berkas '{$fileName}' ({$fileSizeMb} MB) berhasil dihapus. Kapasitas penyimpanan bisnis Anda telah diperbarui.";
+        $successMessage = __('billing.storage_file_deleted_named', [
+            'name' => $fileName,
+            'size' => $fileSizeMb,
+        ]);
 
         if ($request->wantsJson() || $request->ajax()) {
             return response()->json([

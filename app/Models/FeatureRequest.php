@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Models\Traits\BelongsToBusiness;
 use App\Models\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -12,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class FeatureRequest extends Model
 {
-    use HasFactory, HasUuid;
+    use BelongsToBusiness, HasFactory, HasUuid;
 
     public const STATUSES = ['submitted', 'reviewing', 'planned', 'in_progress', 'released', 'declined'];
     public const CATEGORIES = ['reporting', 'inventory', 'sales', 'finance', 'ai', 'integration', 'mobile', 'other'];
@@ -24,7 +25,6 @@ class FeatureRequest extends Model
         return ['progress_percent' => 'integer', 'released_at' => 'datetime'];
     }
 
-    public function business(): BelongsTo { return $this->belongsTo(Business::class); }
     public function requester(): BelongsTo { return $this->belongsTo(User::class, 'requester_id'); }
     public function assignedAdmin(): BelongsTo { return $this->belongsTo(Admin::class, 'assigned_admin_id'); }
     public function updates(): MorphMany { return $this->morphMany(FeedbackUpdate::class, 'trackable')->latest(); }

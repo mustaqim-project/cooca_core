@@ -247,7 +247,7 @@ class TikTokOAuthTest extends TestCase
         $response->assertOk();
         $response->assertJson([
             'success' => false,
-            'message' => 'Akun tidak ditemukan.',
+            'message' => __('social_media.account_not_found'),
         ]);
 
         // Confirm account B remains active in database

@@ -1,4 +1,4 @@
-@extends('layouts.app', ['title' => 'Riwayat Transaksi POS'])
+@extends('layouts.app', ['title' => __('pos.orders_title')])
 
 @section('content')
 <div class="max-w-[1360px] mx-auto space-y-6 pb-12" x-data="{
@@ -51,11 +51,11 @@
     {{-- MODULE HEADER & PERSISTENT POS TABS --}}
     <x-module-header
         module="pos"
-        title="Riwayat Transaksi POS"
-        subtitle="Daftar transaksi kasir, margin HPP terintegrasi, cetak ulang struk, void, dan retur.">
+        :title="__('pos.orders_title')"
+        :subtitle="__('pos.orders_subtitle')">
         <x-slot:actions>
             @if(\App\Support\Context::hasPermission('pos.terminal'))
-                <a href="{{ route('pos.terminal') }}" class="min-h-[44px] sm:min-h-0 sm:h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] transition-all flex items-center justify-center gap-2 shadow-sm w-full sm:w-auto">
+                <a href="{{ route('pos.terminal') }}" class="min-h-[48px] sm:min-h-0 sm:h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] transition-all flex items-center justify-center gap-2 shadow-sm w-full sm:w-auto">
                     <i data-lucide="layout-grid" class="w-4 h-4"></i>
                     <span>Buka Terminal Kasir</span>
                 </a>
@@ -207,6 +207,10 @@
                                     <span class="inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-semibold bg-[#34C759]/10 text-[#248A3D] dark:text-[#30D158]">
                                         {{ $o->laundry_weight_kg }} kg
                                     </span>
+                                @elseif($o->table_or_reference)
+                                    <span class="inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-semibold bg-[#FF9500]/10 text-[#B25E00] dark:text-[#FF9F0A]">
+                                        Meja {{ $o->table_or_reference }}
+                                    </span>
                                 @endif
                             </div>
                             <div class="text-[11px] text-black/45 dark:text-white/45 flex items-center gap-1.5 flex-wrap">
@@ -339,6 +343,10 @@
                             <span class="inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-semibold bg-[#34C759]/10 text-[#248A3D] dark:text-[#30D158]">
                                 {{ $o->laundry_weight_kg }} kg
                             </span>
+                        @elseif($o->table_or_reference)
+                            <span class="inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-semibold bg-[#FF9500]/10 text-[#B25E00] dark:text-[#FF9F0A]">
+                                Meja {{ $o->table_or_reference }}
+                            </span>
                         @endif
                         @if($o->status === 'completed')
                             <span class="w-1.5 h-1.5 rounded-full bg-[#34C759]"></span>
@@ -434,9 +442,25 @@
                 </button>
             </div>
 
-            <!-- Industry Specific Attributes (Bengkel / Laundry) -->
-            <template x-if="selectedOrder && (selectedOrder.vehicle_license_plate || selectedOrder.laundry_weight_kg)">
+            <!-- Industry Specific Attributes (Bengkel / Laundry / Resto Meja) -->
+            <template x-if="selectedOrder && (selectedOrder.vehicle_license_plate || selectedOrder.laundry_weight_kg || selectedOrder.table_or_reference)">
                 <div class="space-y-2">
+                    <!-- Resto Dine-In Table Card -->
+                    <template x-if="selectedOrder.table_or_reference">
+                        <div class="p-3.5 rounded-[14px] bg-[#FF9500]/10 border border-[#FF9500]/20 space-y-2 text-[13px]">
+                            <div class="flex items-center justify-between">
+                                <span class="font-bold text-[#FF9500] uppercase text-[11px] tracking-wider flex items-center gap-1.5">
+                                    <i data-lucide="utensils" class="w-3.5 h-3.5"></i>
+                                    <span>Restoran &amp; Dine-In</span>
+                                </span>
+                                <span class="px-2.5 py-0.5 rounded-md font-bold bg-[#FF9500] text-white text-[12px]" x-text="'Meja ' + selectedOrder.table_or_reference"></span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2 text-black/80 dark:text-white/80">
+                                <div><span class="text-black/50 dark:text-white/50">Tipe Pesanan:</span> <span class="font-semibold uppercase text-black dark:text-white" x-text="selectedOrder.order_type || 'Dine-In'"></span></div>
+                                <div><span class="text-black/50 dark:text-white/50">Channel:</span> <span class="font-bold uppercase text-[#FF9500]" x-text="selectedOrder.sales_channel || 'Dine-In'"></span></div>
+                            </div>
+                        </div>
+                    </template>
                     <!-- Bengkel SPK Card -->
                     <template x-if="selectedOrder.vehicle_license_plate">
                         <div class="p-3.5 rounded-[14px] bg-[#007AFF]/10 border border-[#007AFF]/20 space-y-2 text-[13px]">
@@ -584,7 +608,7 @@
                 <div>
                     <label class="block text-[12px] font-bold uppercase tracking-wider text-black/60 dark:text-white/60 mb-1">Alasan Pembatalan <span class="text-red-500">*</span></label>
                     <input type="text" name="reason" required placeholder="Misal: Salah input kasir, pelanggan batal..."
-                        class="w-full min-h-[44px] h-11 bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 rounded-[12px] px-3.5 text-[16px] sm:text-[13px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#FF3B30]">
+                        class="w-full min-h-[48px] sm:min-h-0 sm:h-11 bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 rounded-[12px] px-3.5 text-[16px] sm:text-[13px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#FF3B30]">
                 </div>
                 @if($business->pos_require_pin_for_void && !($canBypassSupervisor ?? false))
                 <div>
@@ -593,16 +617,16 @@
                         <span class="text-[11px] text-black/40 dark:text-white/40 font-normal">Wajib</span>
                     </label>
                     <input type="password" name="pin" required inputmode="numeric" maxlength="8" placeholder="Masukkan 4-8 digit PIN..."
-                        class="w-full min-h-[44px] h-11 bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 rounded-[12px] px-3.5 text-[16px] font-mono tracking-widest text-black dark:text-white placeholder:font-sans placeholder:tracking-normal placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#FF3B30]">
+                        class="w-full min-h-[48px] sm:min-h-0 sm:h-11 bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 rounded-[12px] px-3.5 text-[16px] font-mono tracking-widest text-black dark:text-white placeholder:font-sans placeholder:tracking-normal placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#FF3B30]">
                 </div>
                 @endif
                 <div class="flex justify-end gap-2.5 pt-3 border-t border-black/[0.06] dark:border-white/[0.08]">
                     <button type="button" @click="showVoidModal = false" :disabled="isSubmitting"
-                        class="min-h-[44px] h-11 px-4 rounded-[12px] text-[13px] font-medium text-black/70 dark:text-white/70 hover:bg-black/5 dark:hover:bg-white/5 transition">
+                        class="min-h-[48px] sm:min-h-0 sm:h-11 px-4 rounded-[12px] text-[13px] font-medium text-black/70 dark:text-white/70 hover:bg-black/5 dark:hover:bg-white/5 transition">
                         Batal
                     </button>
                     <button type="submit" :disabled="isSubmitting"
-                        class="min-h-[44px] h-11 px-6 rounded-[12px] bg-[#FF3B30] hover:bg-[#E0352B] text-white font-semibold text-[13px] active:scale-[0.97] transition shadow-sm flex items-center gap-1.5 disabled:opacity-50">
+                        class="min-h-[48px] sm:min-h-0 sm:h-11 px-6 rounded-[12px] bg-[#FF3B30] hover:bg-[#E0352B] text-white font-semibold text-[13px] active:scale-[0.97] transition shadow-sm flex items-center gap-1.5 disabled:opacity-50">
                         <template x-if="isSubmitting">
                             <i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i>
                         </template>
@@ -637,7 +661,7 @@
                 <div>
                     <label class="block text-[12px] font-bold uppercase tracking-wider text-black/60 dark:text-white/60 mb-1">Alasan Retur <span class="text-red-500">*</span></label>
                     <input type="text" name="reason" required placeholder="Misal: Barang cacat, komplain rasa..."
-                        class="w-full min-h-[44px] h-11 bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 rounded-[12px] px-3.5 text-[16px] sm:text-[13px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#FF9500]">
+                        class="w-full min-h-[48px] sm:min-h-0 sm:h-11 bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 rounded-[12px] px-3.5 text-[16px] sm:text-[13px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#FF9500]">
                 </div>
                 @if($business->pos_require_pin_for_refund && !($canBypassSupervisor ?? false))
                 <div>
@@ -646,7 +670,7 @@
                         <span class="text-[11px] text-black/40 dark:text-white/40 font-normal">Wajib</span>
                     </label>
                     <input type="password" name="pin" required inputmode="numeric" maxlength="8" placeholder="Masukkan 4-8 digit PIN..."
-                        class="w-full min-h-[44px] h-11 bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 rounded-[12px] px-3.5 text-[16px] font-mono tracking-widest text-black dark:text-white placeholder:font-sans placeholder:tracking-normal placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#FF9500]">
+                        class="w-full min-h-[48px] sm:min-h-0 sm:h-11 bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 rounded-[12px] px-3.5 text-[16px] font-mono tracking-widest text-black dark:text-white placeholder:font-sans placeholder:tracking-normal placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#FF9500]">
                 </div>
                 @endif
                 <div class="flex items-center gap-2 pt-1">
@@ -658,11 +682,11 @@
                 </div>
                 <div class="flex justify-end gap-2.5 pt-3 border-t border-black/[0.06] dark:border-white/[0.08]">
                     <button type="button" @click="showRefundModal = false" :disabled="isSubmitting"
-                        class="min-h-[44px] h-11 px-4 rounded-[12px] text-[13px] font-medium text-black/70 dark:text-white/70 hover:bg-black/5 dark:hover:bg-white/5 transition">
+                        class="min-h-[48px] sm:min-h-0 sm:h-11 px-4 rounded-[12px] text-[13px] font-medium text-black/70 dark:text-white/70 hover:bg-black/5 dark:hover:bg-white/5 transition">
                         Batal
                     </button>
                     <button type="submit" :disabled="isSubmitting"
-                        class="min-h-[44px] h-11 px-6 rounded-[12px] bg-[#FF9500] hover:bg-[#E08600] text-white font-semibold text-[13px] active:scale-[0.97] transition shadow-sm flex items-center gap-1.5 disabled:opacity-50">
+                        class="min-h-[48px] sm:min-h-0 sm:h-11 px-6 rounded-[12px] bg-[#FF9500] hover:bg-[#E08600] text-white font-semibold text-[13px] active:scale-[0.97] transition shadow-sm flex items-center gap-1.5 disabled:opacity-50">
                         <template x-if="isSubmitting">
                             <i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i>
                         </template>

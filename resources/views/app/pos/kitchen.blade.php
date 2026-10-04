@@ -1,4 +1,4 @@
-@extends('layouts.app', ['title' => 'Kitchen & Bar Display System'])
+@extends('layouts.app', ['title' => __('pos.kitchen_title')])
 
 @section('content')
 <div class="max-w-[1600px] mx-auto space-y-5 pb-16" x-data="kitchenDisplay()">
@@ -6,35 +6,35 @@
     {{-- MODULE HEADER & PERSISTENT POS TABS --}}
     <x-module-header
         module="pos"
-        title="Kitchen &amp; Bar Display System"
-        subtitle="Pantau antrean pesanan dapur &amp; bar secara real-time dengan modifier dan catatan pesanan tamu.">
+        :title="__('pos.kitchen_title')"
+        :subtitle="__('pos.kitchen_subtitle')">
         <x-slot:actions>
             <!-- Audio chime toggle -->
-            <button type="button" @click="toggleSound()" class="min-h-[44px] sm:min-h-0 sm:h-9 px-3.5 rounded-[10px] text-[13px] font-semibold flex items-center gap-2 transition cursor-pointer" :class="soundEnabled ? 'bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158] border border-[#34C759]/30 shadow-xs' : 'bg-black/[0.05] dark:bg-white/[0.08] text-black/70 dark:text-white/70 hover:bg-black/[0.08] dark:hover:bg-white/[0.12]'">
+            <button type="button" @click="toggleSound()" class="min-h-[48px] sm:min-h-0 sm:h-9 px-3.5 rounded-[10px] text-[13px] font-semibold flex items-center gap-2 transition cursor-pointer" :class="soundEnabled ? 'bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158] border border-[#34C759]/30 shadow-xs' : 'bg-black/[0.05] dark:bg-white/[0.08] text-black/70 dark:text-white/70 hover:bg-black/[0.08] dark:hover:bg-white/[0.12]'">
                 <i :data-lucide="soundEnabled ? 'volume-2' : 'volume-x'" class="w-4 h-4"></i>
                 <span x-text="soundEnabled ? 'Suara Aktif' : 'Suara Mati'"></span>
             </button>
 
             <!-- Refresh button -->
-            <button type="button" @click="fetchOrders(true)" class="min-h-[44px] sm:min-h-0 sm:h-9 px-3.5 rounded-[10px] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] text-black dark:text-white text-[13px] font-semibold flex items-center gap-2 transition active:scale-[0.98] cursor-pointer">
+            <button type="button" @click="fetchOrders(true)" class="min-h-[48px] sm:min-h-0 sm:h-9 px-3.5 rounded-[10px] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] text-black dark:text-white text-[13px] font-semibold flex items-center gap-2 transition active:scale-[0.98] cursor-pointer">
                 <i data-lucide="refresh-cw" class="w-4 h-4" :class="isLoading ? 'animate-spin' : ''"></i>
                 <span>Segarkan</span>
             </button>
 
             <!-- Fullscreen toggle -->
-            <button type="button" @click="toggleFullscreen()" class="min-h-[44px] sm:min-h-0 sm:h-9 px-3.5 rounded-[10px] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] text-black dark:text-white text-[13px] font-semibold flex items-center gap-2 transition active:scale-[0.98] cursor-pointer">
+            <button type="button" @click="toggleFullscreen()" class="min-h-[48px] sm:min-h-0 sm:h-9 px-3.5 rounded-[10px] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] text-black dark:text-white text-[13px] font-semibold flex items-center gap-2 transition active:scale-[0.98] cursor-pointer">
                 <i data-lucide="maximize" class="w-4 h-4"></i>
                 <span>Layar Penuh</span>
             </button>
 
             <!-- Prep Sheet Link -->
-            <a href="{{ route('pos.kitchen.prep_sheet') }}" class="min-h-[44px] sm:min-h-0 sm:h-9 px-3.5 rounded-[10px] bg-[#34C759] hover:bg-[#28A745] active:scale-[0.98] text-white text-[13px] font-semibold flex items-center gap-2 transition shadow-sm">
+            <a href="{{ route('pos.kitchen.prep_sheet') }}" class="min-h-[48px] sm:min-h-0 sm:h-9 px-3.5 rounded-[10px] bg-[#34C759] hover:bg-[#28A745] active:scale-[0.98] text-white text-[13px] font-semibold flex items-center gap-2 transition shadow-sm">
                 <i data-lucide="clipboard-list" class="w-4 h-4"></i>
                 <span>Lembar Prep</span>
             </a>
 
             @if(\App\Support\Context::hasPermission('pos.terminal') || \App\Support\Context::hasPermission('pos.orders'))
-                <a href="{{ route('pos.terminal') }}" class="min-h-[44px] sm:min-h-0 sm:h-9 px-4 rounded-[10px] bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] text-white text-[13px] font-semibold flex items-center gap-2 transition shadow-sm">
+                <a href="{{ route('pos.terminal') }}" class="min-h-[48px] sm:min-h-0 sm:h-9 px-4 rounded-[10px] bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] text-white text-[13px] font-semibold flex items-center gap-2 transition shadow-sm">
                     <i data-lucide="layout-grid" class="w-4 h-4"></i>
                     <span>Terminal Kasir</span>
                 </a>
@@ -117,7 +117,7 @@
 
                         <!-- Action Button -->
                         @if(\App\Support\Context::hasPermission('pos.kitchen'))
-                        <button type="button" @click="updateStatus(order.id, 'preparing')" class="w-full min-h-[44px] h-11 rounded-[12px] bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] text-white text-[13px] font-bold flex items-center justify-center gap-2 transition shadow-sm">
+                        <button type="button" @click="updateStatus(order.id, 'preparing')" class="w-full min-h-[48px] h-12 rounded-[12px] bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] text-white text-[13px] font-bold flex items-center justify-center gap-2 transition shadow-sm cursor-pointer">
                             <i data-lucide="chef-hat" class="w-4 h-4"></i>
                             <span>Mulai Siapkan / Masak</span>
                         </button>
@@ -202,7 +202,7 @@
 
                         <!-- Action Button -->
                         @if(\App\Support\Context::hasPermission('pos.kitchen'))
-                        <button type="button" @click="updateStatus(order.id, 'ready')" class="w-full min-h-[44px] h-11 rounded-[12px] bg-[#34C759] hover:bg-[#28A745] active:scale-[0.98] text-white text-[13px] font-bold flex items-center justify-center gap-2 transition shadow-sm">
+                        <button type="button" @click="updateStatus(order.id, 'ready')" class="w-full min-h-[48px] h-12 rounded-[12px] bg-[#34C759] hover:bg-[#28A745] active:scale-[0.98] text-white text-[13px] font-bold flex items-center justify-center gap-2 transition shadow-sm cursor-pointer">
                             <i data-lucide="bell-ring" class="w-4 h-4"></i>
                             <span>Pesanan Siap Saji (Ready)</span>
                         </button>
@@ -259,7 +259,7 @@
 
                         <!-- Action Button -->
                         @if(\App\Support\Context::hasPermission('pos.kitchen'))
-                        <button type="button" @click="updateStatus(order.id, 'served')" class="w-full min-h-[44px] h-11 rounded-[12px] bg-black/[0.08] dark:bg-white/[0.12] hover:bg-black/[0.15] dark:hover:bg-white/[0.2] active:scale-[0.98] text-black dark:text-white text-[13px] font-bold flex items-center justify-center gap-2 transition">
+                        <button type="button" @click="updateStatus(order.id, 'served')" class="w-full min-h-[48px] h-12 rounded-[12px] bg-black/[0.08] dark:bg-white/[0.12] hover:bg-black/[0.15] dark:hover:bg-white/[0.2] active:scale-[0.98] text-black dark:text-white text-[13px] font-bold flex items-center justify-center gap-2 transition cursor-pointer">
                             <i data-lucide="check-check" class="w-4 h-4 text-[#34C759]"></i>
                             <span>Tandai Sudah Disajikan (Served)</span>
                         </button>
@@ -293,10 +293,28 @@ function kitchenDisplay() {
             this.orders.filter(o => o.status === 'confirmed').forEach(o => this.previousConfirmedIds.add(o.id));
             this.$nextTick(() => { if (window.lucide) window.lucide.createIcons(); });
 
-            // Setup polling every 5 seconds
-            this.pollInterval = setInterval(() => {
-                this.fetchOrders(false);
-            }, 5000);
+            // Setup smart polling every 5 seconds (Page Visibility Aware)
+            const startPolling = () => {
+                if (this.pollInterval) clearInterval(this.pollInterval);
+                this.pollInterval = setInterval(() => {
+                    if (!document.hidden) {
+                        this.fetchOrders(false);
+                    }
+                }, 5000);
+            };
+            startPolling();
+
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden) {
+                    if (this.pollInterval) {
+                        clearInterval(this.pollInterval);
+                        this.pollInterval = null;
+                    }
+                } else {
+                    this.fetchOrders(false);
+                    startPolling();
+                }
+            });
         },
 
         get confirmedOrders() {

@@ -43,37 +43,6 @@
 
         <x-module-tabs module="communication" />
 
-        {{-- 2. MODULE NAVIGATION SUB-TABS --}}
-        <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-2 sm:p-2.5 flex items-center justify-between shadow-sm">
-            <div class="inline-flex p-1 rounded-[12px] bg-black/[0.05] dark:bg-white/[0.08] border border-black/5 dark:border-white/5 w-full sm:w-auto overflow-x-auto text-[13px] font-medium">
-                <a href="{{ route('social-media.index') }}"
-                    class="h-8 px-4 rounded-[9px] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white flex items-center gap-2 whitespace-nowrap transition-colors">
-                    <i data-lucide="link" class="w-4 h-4"></i>
-                    <span>{{ __('social_media.tab_connect') }}</span>
-                </a>
-                <a href="{{ route('social-media.posts.index') }}"
-                    class="h-8 px-4 rounded-[9px] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white flex items-center gap-2 whitespace-nowrap transition-colors">
-                    <i data-lucide="image" class="w-4 h-4"></i>
-                    <span>{{ __('social_media.tab_posts') }}</span>
-                </a>
-                <a href="{{ route('social-media.calendar') }}"
-                    class="h-8 px-4 rounded-[9px] bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-sm flex items-center gap-2 whitespace-nowrap">
-                    <i data-lucide="calendar" class="w-4 h-4 text-[#007AFF]"></i>
-                    <span>{{ __('social_media.tab_calendar') }}</span>
-                </a>
-                <a href="{{ route('social-media.inbox.index') }}"
-                    class="h-8 px-4 rounded-[9px] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white flex items-center gap-2 whitespace-nowrap transition-colors">
-                    <i data-lucide="message-square" class="w-4 h-4"></i>
-                    <span>{{ __('social_media.tab_inbox') }}</span>
-                </a>
-                <a href="{{ route('social-media.insights.index') }}"
-                    class="h-8 px-4 rounded-[9px] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white flex items-center gap-2 whitespace-nowrap transition-colors">
-                    <i data-lucide="bar-chart-3" class="w-4 h-4"></i>
-                    <span>{{ __('social_media.tab_insights') }}</span>
-                </a>
-            </div>
-        </div>
-
         {{-- 3. CALENDAR CONTROLS & NAVIGATION --}}
         <div class="rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm">
             <div class="flex items-center gap-3">
@@ -110,8 +79,8 @@
             </div>
         </div>
 
-        {{-- 4. CALENDAR GRID --}}
-        <div class="rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 overflow-hidden shadow-sm">
+        {{-- 4A. DESKTOP/TABLET CALENDAR GRID (Hidden on Mobile) --}}
+        <div class="hidden sm:block rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 overflow-hidden shadow-sm">
             {{-- Day Header (Mon - Sun) --}}
             <div class="grid grid-cols-7 border-b border-black/5 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.02] text-center text-[12px] font-semibold text-black/60 dark:text-white/60">
                 <div class="py-2.5">{{ __('social_media.day_mon') }}</div>
@@ -210,6 +179,124 @@
                     </div>
                 @endfor
             </div>
+        </div>
+
+        {{-- 4B. MOBILE-FIRST AGENDA VIEW (Visible only on Mobile Screens < 640px) --}}
+        <div class="sm:hidden space-y-3">
+            <div class="flex items-center justify-between px-1">
+                <div class="text-[12px] font-bold text-black/50 dark:text-white/50 uppercase tracking-wider">
+                    {{ __('social_media.mobile_agenda_title') }}
+                </div>
+                <div class="text-[11px] font-semibold text-[#007AFF]">
+                    {{ $monthName }}
+                </div>
+            </div>
+
+            @php $hasScheduledPosts = false; @endphp
+            @for ($day = 1; $day <= $daysInMonth; $day++)
+                @php
+                    $currentDate = sprintf('%04d-%02d-%02d', $year, $month, $day);
+                    $isCurrentDay = ($currentDate === $today);
+                    $dayPosts = $postsByDate[$currentDate] ?? [];
+                @endphp
+                @if (!empty($dayPosts))
+                    @php $hasScheduledPosts = true; @endphp
+                    <div class="p-3.5 rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 shadow-sm space-y-3 {{ $isCurrentDay ? 'ring-1 ring-[#007AFF]/50' : '' }}">
+                        <div class="flex items-center justify-between pb-2 border-b border-black/5 dark:border-white/10">
+                            <div class="flex items-center gap-2">
+                                <span class="inline-flex items-center justify-center w-6 h-6 rounded-full text-[12px] font-bold {{ $isCurrentDay ? 'bg-[#007AFF] text-white' : 'bg-black/5 dark:bg-white/10 text-black dark:text-white' }}">
+                                    {{ $day }}
+                                </span>
+                                <span class="text-[13px] font-bold text-black dark:text-white">
+                                    {{ \Carbon\Carbon::parse($currentDate)->translatedFormat('l, d F Y') }}
+                                </span>
+                            </div>
+                            <span class="text-[10.5px] font-bold px-2 py-0.5 rounded-full bg-[#007AFF]/10 text-[#007AFF]">
+                                {{ __('social_media.post_unit_badge', ['count' => count($dayPosts)]) }}
+                            </span>
+                        </div>
+                        <div class="space-y-2">
+                            @foreach ($dayPosts as $post)
+                                @php
+                                    $time = $post->scheduled_at ? $post->scheduled_at->format('H:i') : '';
+                                    $statusColor = match($post->status) {
+                                        'published' => 'bg-[#34C759]/10 text-[#248A3D] dark:text-[#30D158] border-[#34C759]/20',
+                                        'failed' => 'bg-[#FF3B30]/10 text-[#FF3B30] border-[#FF3B30]/20',
+                                        'publishing' => 'bg-[#007AFF]/10 text-[#007AFF] border-[#007AFF]/20',
+                                        default => 'bg-[#FF9500]/10 text-[#D97706] dark:text-[#FF9F0A] border-[#FF9500]/20'
+                                    };
+                                    $statusLabel = match($post->status) {
+                                        'published' => __('social_media.filter_status_published'),
+                                        'failed' => __('social_media.filter_status_failed'),
+                                        'publishing' => 'Publishing',
+                                        default => __('social_media.filter_status_scheduled')
+                                    };
+                                @endphp
+                                <a href="{{ route('social-media.posts.index') }}"
+                                    class="min-h-[44px] p-3 rounded-[12px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/10 flex items-center justify-between gap-3 hover:bg-black/[0.04] transition-colors">
+                                    <div class="flex items-center gap-2.5 min-w-0">
+                                        <div class="flex items-center gap-1 shrink-0">
+                                            @if ($post->targets->count() > 0)
+                                                @foreach ($post->targets as $target)
+                                                    @if ($target->channel === 'tiktok')
+                                                        <span class="w-4 h-4 rounded-full bg-black text-white inline-flex items-center justify-center text-[9px] font-black" title="TikTok">T</span>
+                                                    @elseif ($target->channel === 'facebook')
+                                                        <i data-lucide="facebook" class="w-4 h-4 text-[#1877F2]"></i>
+                                                    @elseif ($target->channel === 'instagram')
+                                                        <i data-lucide="instagram" class="w-4 h-4 text-[#E4405F]"></i>
+                                                    @elseif ($target->channel === 'threads')
+                                                        <i data-lucide="at-sign" class="w-4 h-4 text-black dark:text-white"></i>
+                                                    @elseif ($target->channel === 'linkedin')
+                                                        <i data-lucide="linkedin" class="w-4 h-4 text-[#0A66C2]"></i>
+                                                    @endif
+                                                @endforeach
+                                            @else
+                                                <i data-lucide="share-2" class="w-4 h-4 text-black/50"></i>
+                                            @endif
+                                        </div>
+                                        <div class="min-w-0">
+                                            <p class="text-[12.5px] font-semibold text-black dark:text-white truncate">
+                                                {{ Str::limit($post->content, 45) }}
+                                            </p>
+                                            <div class="text-[11px] text-black/50 dark:text-white/50 flex items-center gap-2 mt-0.5">
+                                                <span>{{ $time }} WIB</span>
+                                                <span>•</span>
+                                                <span class="font-medium capitalize">{{ $post->media_type ?: 'text' }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <span class="px-2 py-0.5 rounded-full text-[10.5px] font-bold border shrink-0 {{ $statusColor }}">
+                                        {{ $statusLabel }}
+                                    </span>
+                                </a>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+            @endfor
+
+            @if (!$hasScheduledPosts)
+                <div class="rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 p-8 text-center shadow-sm space-y-3">
+                    <div class="w-12 h-12 rounded-[14px] bg-black/[0.04] dark:bg-white/[0.06] text-black/40 dark:text-white/40 flex items-center justify-center mx-auto">
+                        <i data-lucide="calendar-x" class="w-6 h-6"></i>
+                    </div>
+                    <div class="space-y-1">
+                        <h4 class="text-[14px] font-bold text-black dark:text-white">
+                            {{ __('social_media.no_scheduled_posts_this_month') }}
+                        </h4>
+                        <p class="text-[12px] text-black/50 dark:text-white/50">
+                            {{ __('social_media.calendar_subtitle') }}
+                        </p>
+                    </div>
+                    <div class="pt-2">
+                        <a href="{{ route('social-media.posts.index') }}"
+                            class="min-h-[44px] px-4 rounded-[10px] text-[12.5px] font-bold text-white bg-[#007AFF] hover:bg-[#0071E3] inline-flex items-center justify-center gap-1.5 w-full shadow-sm">
+                            <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                            <span>{{ __('social_media.create_schedule_btn') }}</span>
+                        </a>
+                    </div>
+                </div>
+            @endif
         </div>
 
     </div>

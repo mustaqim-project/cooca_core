@@ -21,8 +21,11 @@ final class EmailVerificationWebController extends Controller
     {
         $user = $request->user();
 
-        // Bypass for reviewer, testing accounts, or explicit ?bypass=1 parameter
-        if ($user && ($request->has('bypass') || in_array($user->email, ['reviewer@cooca.id', 'shopee.reviewer@cooca.id', 'testing@cooca.id', 'demo@cooca.id'], true))) {
+        // Bypass for reviewer, testing accounts, or explicit ?bypass=1 parameter (in local/testing only)
+        $canBypass = ($request->has('bypass') && app()->environment('local', 'testing'))
+            || in_array($user?->email, ['reviewer@cooca.id', 'shopee.reviewer@cooca.id', 'testing@cooca.id', 'demo@cooca.id'], true);
+
+        if ($user && $canBypass) {
             if (! $user->hasVerifiedEmail()) {
                 $user->markEmailAsVerified();
             }

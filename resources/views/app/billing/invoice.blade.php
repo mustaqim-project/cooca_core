@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Faktur Tagihan {{ $payment->order_number }} - Cooca</title>
+    <title>{{ __('billing.invoice_title', ['number' => $payment->order_number]) }}</title>
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -116,10 +116,10 @@
         $isApproved = $payment->isApproved();
         $uniqueStr = str_pad((string) $payment->unique_code, 3, '0', STR_PAD_LEFT);
         $durationText = $payment->package_duration_days
-            ? $payment->package_duration_days . ' Hari'
+            ? __('billing.active_duration_days', ['days' => $payment->package_duration_days])
             : ($payment->cycle === 'annual'
-                ? '365 Hari (1 Tahun)'
-                : '30 Hari (1 Bulan)');
+                ? '365 ' . (app()->getLocale() === 'id' ? 'Hari (1 Tahun)' : 'Days (1 Year)')
+                : '30 ' . (app()->getLocale() === 'id' ? 'Hari (1 Bulan)' : 'Days (1 Month)'));
         $methodDetails = $payment->getPaymentMethodDetails();
     @endphp
 
@@ -131,34 +131,33 @@
                 <span
                     class="w-2.5 h-2.5 rounded-full {{ $isApproved ? 'bg-[#34C759]' : ($payment->isRejected() ? 'bg-[#FF3B30]' : 'bg-[#FF9500]') }}"
                     aria-hidden="true"></span>
-                <span class="text-xs font-semibold tracking-tight text-gray-800 dark:text-gray-200">Dokumen Faktur Resmi
-                    Cooca (A4 Siap Cetak)</span>
+                <span class="text-xs font-semibold tracking-tight text-gray-800 dark:text-gray-200">{{ __('billing.invoice_official_title') }}</span>
             </div>
 
-            <div class="flex flex-wrap items-center gap-2">
+            <div class="flex flex-wrap items-center gap-2.5">
                 <a href="{{ route('billing.payment.show', $payment) }}"
-                    class="h-9 px-3.5 rounded-[12px] bg-black/[0.03] hover:bg-black/[0.06] dark:bg-white/[0.06] dark:hover:bg-white/[0.1] text-xs font-semibold active:scale-[0.98] transition-all text-gray-700 dark:text-gray-300 border border-black/[0.06] dark:border-white/[0.08] cursor-pointer flex items-center">
-                    Kembali
+                    class="min-h-[44px] px-4 rounded-[12px] bg-black/[0.03] hover:bg-black/[0.06] dark:bg-white/[0.06] dark:hover:bg-white/[0.1] text-xs font-semibold active:scale-[0.98] transition-all text-gray-700 dark:text-gray-300 border border-black/[0.06] dark:border-white/[0.08] cursor-pointer flex items-center justify-center">
+                    {{ __('billing.back') }}
                 </a>
                 <button type="button" onclick="window.print()"
-                    class="h-9 px-3.5 rounded-[12px] bg-black/[0.03] hover:bg-black/[0.06] dark:bg-white/[0.06] dark:hover:bg-white/[0.1] text-gray-700 dark:text-gray-300 text-xs font-semibold flex items-center gap-1.5 active:scale-[0.98] transition-all border border-black/[0.06] dark:border-white/[0.08] cursor-pointer">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none"
+                    class="min-h-[44px] px-4 rounded-[12px] bg-black/[0.03] hover:bg-black/[0.06] dark:bg-white/[0.06] dark:hover:bg-white/[0.1] text-gray-700 dark:text-gray-300 text-xs font-semibold flex items-center justify-center gap-2 active:scale-[0.98] transition-all border border-black/[0.06] dark:border-white/[0.08] cursor-pointer">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-500 dark:text-gray-400" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
                         <path d="M6 9V3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v6" />
                         <rect x="6" y="14" width="12" height="8" rx="1" />
                     </svg>
-                    <span>Cetak Printer</span>
+                    <span>{{ __('billing.action_print_printer') }}</span>
                 </button>
                 <button id="btnDownloadPdf" type="button" onclick="downloadPDF()"
-                    class="h-9 px-4 rounded-[12px] bg-[#007AFF] hover:bg-[#0071E3] text-white text-xs font-semibold shadow-xs flex items-center gap-2 active:scale-[0.98] transition-all cursor-pointer">
+                    class="min-h-[44px] px-4.5 rounded-[12px] bg-[#007AFF] hover:bg-[#0071E3] text-white text-xs font-bold shadow-xs flex items-center justify-center gap-2 active:scale-[0.98] transition-all cursor-pointer">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
                         <polyline points="7 10 12 15 17 10" />
                         <line x1="12" y1="15" x2="12" y2="3" />
                     </svg>
-                    <span>Download PDF Langsung</span>
+                    <span>{{ __('billing.action_download_pdf') }}</span>
                 </button>
             </div>
         </div>
@@ -170,15 +169,40 @@
                 stroke-linejoin="round">
                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
             </svg>
-            <span>Klik <strong>"Download PDF Langsung"</strong> untuk mengunduh invoice <code>.pdf</code> resmi tanpa dialog printer browser, bebas watermark.</span>
+            <span>{!! __('billing.invoice_download_pdf_hint') !!}</span>
         </div>
     </header>
+
+    <!-- Mobile Fast Summary Bento Card (Visible only on screens < 640px, Hidden in Print) -->
+    <div class="sm:hidden no-print max-w-4xl mx-auto mb-4 bg-white dark:bg-[#1C1C1E] p-4 rounded-[18px] border border-black/[0.08] dark:border-white/[0.08] shadow-xs space-y-3">
+        <div class="flex items-center justify-between">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-gray-500">{{ __('billing.invoice_summary') }}</span>
+            <span class="px-2 py-0.5 rounded-[8px] text-[10px] font-bold font-mono uppercase {{ $badge['class'] ?? ($isApproved ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800') }}">
+                {{ $badge['label'] ?? strtoupper($payment->status) }}
+            </span>
+        </div>
+        <div>
+            <div class="text-xs text-gray-500 font-mono">{{ $payment->order_number }}</div>
+            <div class="text-base font-black text-black dark:text-white">{{ $payment->package_name ?? 'Cooca SaaS Subscription' }}</div>
+            <div class="text-xs text-gray-600 dark:text-gray-300 font-mono mt-0.5">{{ __('billing.duration_label') }} {{ $durationText }}</div>
+        </div>
+        <div class="pt-2 border-t border-black/[0.06] dark:border-white/[0.08] flex items-baseline justify-between">
+            <span class="text-xs text-gray-500">{{ __('billing.total_bill') }}</span>
+            <span class="text-lg font-black font-mono text-black dark:text-white tabular-nums">Rp {{ number_format((float) $payment->total_payable, 0, ',', '.') }}</span>
+        </div>
+        <div class="flex items-center gap-1.5 text-[11px] text-gray-500 dark:text-gray-400 bg-black/[0.02] dark:bg-white/[0.04] p-2 rounded-[10px]">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-[#007AFF] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+            </svg>
+            <span>{{ __('billing.invoice_horizontal_scroll_hint') }}</span>
+        </div>
+    </div>
 
     <!-- Outer responsive wrapper -->
     <div class="max-w-4xl mx-auto overflow-x-auto shadow-xl rounded-[20px]">
         <!-- Paper Sheet Container (Strict A4 Layout on Paper & Screen) -->
         <main class="print-sheet bg-white p-6 sm:p-10 md:p-12 text-black space-y-6 min-w-[620px] sm:min-w-0"
-            aria-label="Faktur Tagihan Resmi">
+            aria-label="{{ __('billing.invoice_official_aria_label') }}">
 
             <!-- Header / Kop Surat Resmi PT Cooca Teknologi Indonesia -->
             <div class="flex justify-between items-start border-b-2 border-black pb-5">
@@ -195,7 +219,7 @@
                         </div>
                     </div>
                     <div class="space-y-0.5 text-xs text-gray-600 leading-relaxed">
-                        <p class="font-medium">Penyedia Platform SaaS Enterprise &amp; Kasir POS Cloud UMKM Indonesia
+                        <p class="font-medium">{{ __('billing.company_tagline') }}
                         </p>
                         <p>Website: https://cooca.id | Email: billing@cooca.id | CS: +62 812-3456-7890</p>
                         <p class="font-mono text-[11px] tabular-nums">NPWP: 01.234.567.8-012.000 | SK Kemenkumham Terdaftar</p>
@@ -203,13 +227,13 @@
                 </div>
 
                 <div class="text-right space-y-0.5">
-                    <div class="text-lg font-black tracking-wider text-black uppercase">INVOICE TAGIHAN</div>
+                    <div class="text-lg font-black tracking-wider text-black uppercase">{{ __('billing.invoice_header_title') }}</div>
                     <div class="text-sm font-mono font-black text-black tabular-nums">{{ $payment->order_number }}</div>
                     <div class="text-xs text-gray-500 font-mono tabular-nums">
-                        ID Transaksi: #{{ $payment->id }}
+                        {{ __('billing.transaction_id') }} #{{ $payment->id }}
                     </div>
                     <div class="text-[11px] font-bold uppercase tracking-wider text-gray-600 mt-1">
-                        STATUS: <span
+                        {{ __('billing.status_label') }} <span
                             class="font-black {{ $isApproved ? 'text-[#34C759]' : ($payment->isRejected() ? 'text-[#FF3B30]' : 'text-[#FF9500]') }}">{{ strtoupper(str_replace('_', ' ', $payment->status)) }}</span>
                     </div>
                 </div>
@@ -218,32 +242,32 @@
             <!-- Detail Pihak Tertagih & Tanggal Tagihan -->
             <div class="grid grid-cols-2 gap-8 text-xs pt-1">
                 <div class="space-y-1.5">
-                    <div class="font-bold text-gray-500 uppercase tracking-wider text-[10px]">Ditagihkan Kepada:</div>
+                    <div class="font-bold text-gray-500 uppercase tracking-wider text-[10px]">{{ __('billing.bill_to') }}</div>
                     <div class="text-sm font-black text-black font-mono">{{ $business->name }}</div>
-                    <div class="font-bold text-gray-800">{{ $payment->user?->name ?? 'Pemilik Bisnis' }}</div>
+                    <div class="font-bold text-gray-800">{{ $payment->user?->name ?? __('billing.business_owner') }}</div>
                     <div class="text-gray-600 font-mono">Email: {{ $payment->user?->email ?? '-' }}</div>
-                    <div class="text-gray-600 font-mono tabular-nums">ID Workspace: {{ $business->id }}</div>
+                    <div class="text-gray-600 font-mono tabular-nums">{{ __('billing.workspace_id') }} {{ $business->id }}</div>
                 </div>
 
                 <div class="space-y-1.5 text-right font-sans">
                     <div class="flex justify-end gap-3">
-                        <span class="text-gray-500">Tanggal Faktur:</span>
+                        <span class="text-gray-500">{{ __('billing.invoice_date') }}</span>
                         <span
                             class="font-mono font-bold text-black tabular-nums">{{ $payment->created_at->translatedFormat('d F Y') }}</span>
                     </div>
                     <div class="flex justify-end gap-3">
-                        <span class="text-gray-500">Jatuh Tempo:</span>
+                        <span class="text-gray-500">{{ __('billing.due_date') }}</span>
                         <span
                             class="font-mono font-bold text-black tabular-nums">{{ $payment->created_at->copy()->addDay()->translatedFormat('d F Y') }}</span>
                     </div>
                     <div class="flex justify-end gap-3">
-                        <span class="text-gray-500">Metode Bayar:</span>
+                        <span class="text-gray-500">{{ __('billing.payment_method_label') }}</span>
                         <span
                             class="font-semibold text-gray-800">{{ $methodDetails['name'] ?? strtoupper($payment->payment_method) }}</span>
                     </div>
                     @if ($payment->approved_at)
                         <div class="flex justify-end gap-3">
-                            <span class="text-gray-500">Waktu Pembayaran:</span>
+                            <span class="text-gray-500">{{ __('billing.payment_time') }}</span>
                             <span
                                 class="font-mono font-bold text-[#34C759] tabular-nums">{{ $payment->approved_at->translatedFormat('d F Y, H:i') }}
                                 WIB</span>
@@ -257,12 +281,12 @@
                 <table class="w-full text-left text-xs border-collapse">
                     <thead>
                         <tr class="border-y-2 border-black bg-gray-50 text-black">
-                            <th class="py-2.5 px-3 font-bold w-10 text-center">No</th>
-                            <th class="py-2.5 px-3 font-bold">Deskripsi Layanan SaaS</th>
-                            <th class="py-2.5 px-3 font-bold text-center w-28">Durasi / Unit</th>
-                            <th class="py-2.5 px-3 font-bold text-right w-14">Qty</th>
-                            <th class="py-2.5 px-3 font-bold text-right w-28 whitespace-nowrap">Tarif Satuan</th>
-                            <th class="py-2.5 px-3 font-bold text-right w-32 whitespace-nowrap">Jumlah</th>
+                            <th class="py-2.5 px-3 font-bold w-10 text-center">{{ __('billing.table_no') }}</th>
+                            <th class="py-2.5 px-3 font-bold">{{ __('billing.table_description') }}</th>
+                            <th class="py-2.5 px-3 font-bold text-center w-28">{{ __('billing.table_duration_unit') }}</th>
+                            <th class="py-2.5 px-3 font-bold text-right w-14">{{ __('billing.table_qty') }}</th>
+                            <th class="py-2.5 px-3 font-bold text-right w-28 whitespace-nowrap">{{ __('billing.table_unit_price') }}</th>
+                            <th class="py-2.5 px-3 font-bold text-right w-32 whitespace-nowrap">{{ __('billing.table_amount') }}</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200">
@@ -270,14 +294,13 @@
                             <td class="py-3 px-3 text-center font-mono text-gray-600 tabular-nums">1</td>
                             <td class="py-3 px-3">
                                 <div class="font-bold text-black leading-tight">
-                                    {{ $payment->package_name ?? ($payment->cycle === 'annual' ? 'Paket Core Cooca (Tahunan)' : ($payment->cycle === 'monthly' ? 'Paket Core Cooca (Bulanan)' : 'Top Up Kuota Bisnis')) }}
+                                    {{ $payment->package_name ?? ($payment->cycle === 'annual' ? __('billing.plan_core_annual') : ($payment->cycle === 'monthly' ? __('billing.plan_core_monthly') : __('billing.topup_business_quota'))) }}
                                 </div>
                                 <div class="text-[10px] text-gray-500 font-mono mt-0.5">
-                                    Kode: {{ $payment->plan_code ?: 'COOCA-SUB' }}
+                                    {{ __('billing.code_label') }} {{ $payment->plan_code ?: 'COOCA-SUB' }}
                                 </div>
                                 <div class="text-[10px] text-gray-600 mt-1 leading-relaxed">
-                                    Lisensi resmi sistem Cloud POS Kasir, Analitik Laporan Akuntansi, Manajemen Resep
-                                    HPP Real-time, Multi-Outlet, dan Integrasi Bot WhatsApp Struk.
+                                    {{ __('billing.service_license_desc') }}
                                 </div>
                             </td>
                             <td class="py-3 px-3 text-center font-mono text-gray-700 uppercase">
@@ -298,12 +321,10 @@
                             <tr class="align-top">
                                 <td class="py-3 px-3 text-center font-mono text-gray-600 tabular-nums">2</td>
                                 <td class="py-3 px-3">
-                                    <div class="font-bold text-black leading-tight">Kode Unik Verifikasi Rekening
-                                        Bank</div>
-                                    <div class="text-[10px] text-gray-500 font-mono mt-0.5">Kode: VERIF-AUTO</div>
+                                    <div class="font-bold text-black leading-tight">{{ __('billing.unique_code_desc_title') }}</div>
+                                    <div class="text-[10px] text-gray-500 font-mono mt-0.5">{{ __('billing.code_label') }} VERIF-AUTO</div>
                                     <div class="text-[10px] text-gray-600 mt-1 leading-relaxed">
-                                        3 digit identifikasi unik perbankan untuk percepatan verifikasi rekonsiliasi
-                                        transfer otomatis.
+                                        {{ __('billing.unique_code_explanation') }}
                                     </div>
                                 </td>
                                 <td class="py-3 px-3 text-center font-mono text-gray-700 uppercase">
@@ -333,33 +354,32 @@
                     <div class="space-y-4 w-1/2">
                         <div
                             class="p-3.5 border-l-2 border-gray-400 bg-gray-50/80 space-y-1.5 text-gray-700 rounded-r-[12px]">
-                            <div class="font-bold text-black text-[11px] uppercase tracking-wider">Rekening Tujuan
-                                Resmi Cooca:</div>
+                            <div class="font-bold text-black text-[11px] uppercase tracking-wider">{{ __('billing.cooca_official_bank_account') }}</div>
                             <div class="pt-1 space-y-1 text-xs">
                                 <div class="flex items-baseline gap-2">
-                                    <span class="w-24 text-gray-500 shrink-0 font-medium">Bank</span>
+                                    <span class="w-24 text-gray-500 shrink-0 font-medium">{{ __('billing.bank_label') }}</span>
                                     <span class="text-gray-400">:</span>
                                     <span class="font-bold text-black">{{ $methodDetails['bank_name'] }}</span>
                                 </div>
                                 <div class="flex items-baseline gap-2">
-                                    <span class="w-24 text-gray-500 shrink-0 font-medium">No. Rekening</span>
+                                    <span class="w-24 text-gray-500 shrink-0 font-medium">{{ __('billing.account_number_label') }}</span>
                                     <span class="text-gray-400">:</span>
                                     <span
                                         class="font-mono font-bold text-black text-sm tracking-wider tabular-nums">{{ $methodDetails['account_number'] }}</span>
                                 </div>
                                 <div class="flex items-baseline gap-2">
-                                    <span class="w-24 text-gray-500 shrink-0 font-medium">Atas Nama</span>
+                                    <span class="w-24 text-gray-500 shrink-0 font-medium">{{ __('billing.account_holder_label') }}</span>
                                     <span class="text-gray-400">:</span>
                                     <span class="font-bold text-black">{{ $methodDetails['account_name'] }}</span>
                                 </div>
                             </div>
                             @if ($payment->sender_account_name)
                                 <div class="pt-2 mt-2 border-t border-gray-200 text-[11px] space-y-0.5">
-                                    <div><span class="text-gray-500">Rekening Pengirim:</span> <strong
+                                    <div><span class="text-gray-500">{{ __('billing.sender_account_label') }}</span> <strong
                                             class="text-black">{{ $payment->sender_account_name }}
                                             ({{ $payment->sender_bank ?? '-' }})</strong></div>
                                     @if ($payment->proof_uploaded_at)
-                                        <div><span class="text-gray-500">Waktu Kirim Struk:</span> <span
+                                        <div><span class="text-gray-500">{{ __('billing.proof_sent_time') }}</span> <span
                                                 class="font-mono text-gray-700 tabular-nums">{{ $payment->proof_uploaded_at->translatedFormat('d F Y, H:i') }}
                                                 WIB</span></div>
                                     @endif
@@ -369,7 +389,7 @@
 
                         @if ($payment->notes)
                             <div>
-                                <div class="font-bold text-black mb-0.5">Catatan Tambahan:</div>
+                                <div class="font-bold text-black mb-0.5">{{ __('billing.additional_notes') }}</div>
                                 <div
                                     class="text-gray-600 whitespace-pre-line bg-gray-50 p-2.5 rounded-[10px] border border-gray-200">
                                     {{ $payment->notes }}</div>
@@ -380,7 +400,7 @@
                     <!-- Right: Financial Ledger Calculation -->
                     <div class="w-72 space-y-2">
                         <div class="flex justify-between text-gray-600">
-                            <span>Subtotal Tagihan:</span>
+                            <span>{{ __('billing.subtotal_bill') }}</span>
                             <span class="font-mono font-semibold text-black tabular-nums">
                                 Rp {{ number_format((float) $payment->amount, 0, ',', '.') }}
                             </span>
@@ -388,7 +408,7 @@
 
                         @if ($payment->unique_code > 0)
                             <div class="flex justify-between text-gray-600">
-                                <span class="text-[#FF9500]">Kode Unik Verifikasi:</span>
+                                <span class="text-[#FF9500]">{{ __('billing.unique_code_verification') }}</span>
                                 <span class="font-mono font-semibold text-[#FF9500] tabular-nums">
                                     +Rp {{ $uniqueStr }}
                                 </span>
@@ -397,14 +417,14 @@
 
                         <div
                             class="pt-2 border-t-2 border-black flex justify-between items-center text-sm font-bold text-black">
-                            <span>Total Tagihan:</span>
+                            <span>{{ __('billing.total_bill') }}</span>
                             <span class="font-mono text-base text-black font-bold tabular-nums">
                                 Rp {{ number_format((float) $payment->total_payable, 0, ',', '.') }}
                             </span>
                         </div>
 
                         <div class="flex justify-between text-gray-600 pt-1">
-                            <span>Sudah Dibayar:</span>
+                            <span>{{ __('billing.paid_amount') }}</span>
                             <span
                                 class="font-mono font-semibold tabular-nums {{ $isApproved ? 'text-[#34C759]' : 'text-gray-500' }}">
                                 Rp
@@ -414,9 +434,9 @@
 
                         <div
                             class="flex justify-between items-center pt-2 border-t border-gray-300 font-bold {{ $isApproved ? 'text-[#34C759]' : 'text-[#FF9500]' }}">
-                            <span>Sisa Tagihan:</span>
+                            <span>{{ __('billing.remaining_bill') }}</span>
                             <span class="font-mono text-base font-bold tabular-nums">
-                                {{ $isApproved ? 'Rp 0 (LUNAS)' : 'Rp ' . number_format((float) $payment->total_payable, 0, ',', '.') }}
+                                {{ $isApproved ? __('billing.paid_full') : 'Rp ' . number_format((float) $payment->total_payable, 0, ',', '.') }}
                             </span>
                         </div>
 
@@ -428,7 +448,7 @@
                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-[#34C759]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
                                         <polyline points="20 6 9 17 4 12"/>
                                     </svg>
-                                    <span>LUNAS / VERIFIED DIGITAL</span>
+                                    <span>{{ __('billing.stamp_paid_verified') }}</span>
                                 </div>
                             </div>
                         @endif
@@ -439,23 +459,23 @@
                 <div class="pt-8 grid grid-cols-2 gap-12 text-center text-xs">
                     <div class="space-y-16">
                         <div>
-                            <div class="text-gray-500">Diterima dan Disetujui Oleh,</div>
+                            <div class="text-gray-500">{{ __('billing.accepted_and_approved_by') }}</div>
                             <div class="font-bold text-black mt-1 font-mono">
                                 {{ $business->name }}
                             </div>
                         </div>
                         <div class="border-t border-gray-400 w-48 mx-auto pt-1 font-semibold text-gray-700">
-                            ( {{ $payment->user?->name ?? 'Pemilik Bisnis' }} )
+                            ( {{ $payment->user?->name ?? __('billing.business_owner') }} )
                         </div>
                     </div>
 
                     <div class="space-y-16">
                         <div>
-                            <div class="text-gray-500">PT Cooca Teknologi Indonesia,</div>
-                            <div class="font-bold text-black mt-1">Bagian Billing &amp; Keuangan</div>
+                            <div class="text-gray-500">{{ __('billing.cooca_company_name') }}</div>
+                            <div class="font-bold text-black mt-1">{{ __('billing.billing_finance_department') }}</div>
                         </div>
                         <div class="border-t border-gray-400 w-48 mx-auto pt-1 font-semibold text-gray-700">
-                            ( Sistem Otorisasi Digital Cooca )
+                            {{ __('billing.cooca_digital_auth_system') }}
                         </div>
                     </div>
                 </div>
@@ -477,7 +497,7 @@
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-                <span>Membuat PDF...</span>
+                <span>{{ __('billing.generating_pdf') }}</span>
             `;
 
             const element = document.querySelector('.print-sheet');
@@ -516,7 +536,7 @@
                     btn.classList.remove('opacity-75', 'cursor-wait');
                     btn.innerHTML = `
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                        <span>Berhasil Diunduh!</span>
+                        <span>{{ __('billing.download_success') }}</span>
                     `;
                     setTimeout(() => {
                         btn.innerHTML = originalHtml;

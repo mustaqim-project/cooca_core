@@ -7,6 +7,8 @@ namespace App\Http\Controllers\Web\Pos;
 use App\Domain\Pos\PosShiftService;
 use App\Domain\Printer\PrinterManager;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Pos\PosCloseShiftRequest;
+use App\Http\Requests\Pos\PosOpenShiftRequest;
 use App\Models\Location;
 use App\Models\PosPrinter;
 use App\Models\PosRegister;
@@ -55,18 +57,12 @@ final class PosShiftWebController extends Controller
     /**
      * Open a new shift.
      */
-    public function open(Request $request): RedirectResponse|JsonResponse
+    public function open(PosOpenShiftRequest $request): RedirectResponse|JsonResponse
     {
         $business = Context::requireBusiness();
         $user = auth()->user();
 
-        $validated = $request->validate([
-            'opening_cash' => ['nullable', 'numeric', 'min:0'],
-            'location_id' => ['nullable', 'string', 'exists:locations,id'],
-            'pos_register_id' => ['nullable', 'string', 'exists:pos_registers,id'],
-            'notes' => ['nullable', 'string', 'max:255'],
-            'opening_denominations' => ['nullable', 'array'],
-        ]);
+        $validated = $request->validated();
 
         $openingCash = (float) ($validated['opening_cash'] ?? 0.0);
         $openingDenominations = (array) ($validated['opening_denominations'] ?? []);
@@ -120,17 +116,12 @@ final class PosShiftWebController extends Controller
     /**
      * Close a shift and record cash reconciliation.
      */
-    public function close(Request $request, PosShift $shift): RedirectResponse|JsonResponse
+    public function close(PosCloseShiftRequest $request, PosShift $shift): RedirectResponse|JsonResponse
     {
         $business = Context::requireBusiness();
         abort_unless($shift->business_id === $business->id, 403);
 
-        $validated = $request->validate([
-            'closing_cash_actual' => ['nullable', 'numeric', 'min:0'],
-            'notes' => ['nullable', 'string', 'max:500'],
-            'cashier_notes' => ['nullable', 'string', 'max:500'],
-            'closing_denominations' => ['nullable', 'array'],
-        ]);
+        $validated = $request->validated();
 
         $actualCash = (float) ($validated['closing_cash_actual'] ?? 0.0);
         $closingDenominations = (array) ($validated['closing_denominations'] ?? []);

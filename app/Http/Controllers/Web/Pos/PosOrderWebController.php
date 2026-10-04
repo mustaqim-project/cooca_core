@@ -8,6 +8,8 @@ use App\Domain\Commerce\SalesReturnService;
 use App\Domain\Pos\PosOrderService;
 use App\Domain\System\AuditLogService;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Pos\PosRefundOrderRequest;
+use App\Http\Requests\Pos\PosVoidOrderRequest;
 use App\Models\PosOrder;
 use App\Support\Context;
 use Illuminate\Http\JsonResponse;
@@ -15,6 +17,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\View\View;
+use Throwable;
 
 final class PosOrderWebController extends Controller
 {
@@ -71,7 +74,7 @@ final class PosOrderWebController extends Controller
     /**
      * Process void transaction.
      */
-    public function void(Request $request, PosOrder $order): RedirectResponse|JsonResponse
+    public function void(PosVoidOrderRequest $request, PosOrder $order): RedirectResponse|JsonResponse
     {
         $business = Context::requireBusiness();
         if ($order->business_id !== $business->id) {
@@ -90,11 +93,19 @@ final class PosOrderWebController extends Controller
             }
         }
 
-        $validated = $request->validate([
-            'reason' => ['required', 'string', 'max:255'],
-        ]);
+        $validated = $request->validated();
 
-        $voided = $this->orderService->voidOrder($order, $user, $validated['reason']);
+        try {
+            $voided = $this->orderService->voidOrder($order, $user, $validated['reason']);
+        } catch (Throwable $exception) {
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $exception->getMessage(),
+                ], 422);
+            }
+            return back()->withErrors(['void' => $exception->getMessage()]);
+        }
 
         if ($request->wantsJson()) {
             return response()->json([
@@ -110,7 +121,7 @@ final class PosOrderWebController extends Controller
     /**
      * Process refund transaction.
      */
-    public function refund(Request $request, PosOrder $order): RedirectResponse|JsonResponse
+    public function refund(PosRefundOrderRequest $request, PosOrder $order): RedirectResponse|JsonResponse
     {
         $business = Context::requireBusiness();
         if ($order->business_id !== $business->id) {
@@ -129,20 +140,20 @@ final class PosOrderWebController extends Controller
             }
         }
 
-        $validated = $request->validate([
-            'reason' => ['required', 'string', 'max:255'],
-            'restore_stock' => ['nullable', 'boolean'],
-            'items' => ['nullable', 'array', 'min:1'],
-            'items.*.pos_order_item_id' => ['required_with:items', 'exists:pos_order_items,id'],
-            'items.*.quantity' => ['required_with:items', 'numeric', 'gt:0'],
-        ]);
+        $validated = $request->validated();
 
         if (! empty($validated['items'])) {
             try {
                 $return = $this->salesReturnService->createFromPosOrder($order, $validated['items'], ['reason' => $validated['reason'], 'created_by' => $user->id]);
                 $return = $this->salesReturnService->approve($return, $user->id);
                 $this->salesReturnService->complete($return, $user->id);
-            } catch (\InvalidArgumentException $exception) {
+            } catch (Throwable $exception) {
+                if ($request->wantsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => $exception->getMessage(),
+                    ], 422);
+                }
                 return back()->withErrors(['refund' => $exception->getMessage()]);
             }
             if ($request->wantsJson()) {
@@ -159,7 +170,13 @@ final class PosOrderWebController extends Controller
         $restoreStock = (bool) ($validated['restore_stock'] ?? true);
         try {
             $refunded = $this->orderService->refundOrder($order, $user, $validated['reason'], $restoreStock);
-        } catch (\InvalidArgumentException $exception) {
+        } catch (Throwable $exception) {
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $exception->getMessage(),
+                ], 422);
+            }
             return back()->withErrors(['refund' => $exception->getMessage()]);
         }
 

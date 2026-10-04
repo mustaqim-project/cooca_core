@@ -158,13 +158,20 @@ final class PosShiftService
         $gatewaySales = 0.0;
 
         foreach ($orders as $order) {
+            $remainingChange = (float) $order->change_amount;
             foreach ($order->payments as $payment) {
                 if ($payment->status !== 'paid') {
                     continue;
                 }
                 $amount = (float) $payment->amount;
                 if ($payment->payment_method === PosOrderPayment::METHOD_CASH) {
-                    $cashSales += $amount;
+                    $netCash = $amount;
+                    if ($remainingChange > 0) {
+                        $deduct = min($netCash, $remainingChange);
+                        $netCash -= $deduct;
+                        $remainingChange -= $deduct;
+                    }
+                    $cashSales += $netCash;
                 } else {
                     $nonCashSales += $amount;
                     if ($payment->payment_method === PosOrderPayment::METHOD_QRIS_DYNAMIC || $order->payment_gateway === PosOrder::GATEWAY_TRIPAY) {

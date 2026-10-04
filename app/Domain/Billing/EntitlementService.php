@@ -1347,11 +1347,27 @@ final class EntitlementService
 
         $freshPayment = $payment->fresh();
 
-        // 1. Send notification email to Administrator (agungmustaqim28@gmail.com)
+        // 1. Send notification email to Administrator (dynamically resolved)
         try {
             \App\Domain\Mail\DynamicMailConfig::bootstrap();
-            \Illuminate\Support\Facades\Mail::to('agungmustaqim28@gmail.com')
-                ->send(new \App\Mail\PaymentUploadedAdminMail($freshPayment));
+            $adminEmails = Admin::where('is_active', true)
+                ->where('role', 'super_admin')
+                ->pluck('email')
+                ->filter()
+                ->values()
+                ->all();
+
+            if (empty($adminEmails)) {
+                $fallback = SystemSetting::get('admin_notification_email', config('mail.from.address', 'admin@cooca.id'));
+                if ($fallback) {
+                    $adminEmails = [$fallback];
+                }
+            }
+
+            if (! empty($adminEmails)) {
+                \Illuminate\Support\Facades\Mail::to($adminEmails)
+                    ->send(new \App\Mail\PaymentUploadedAdminMail($freshPayment));
+            }
         } catch (\Throwable $e) {
             \Illuminate\Support\Facades\Log::warning('Failed to send payment uploaded email to admin: ' . $e->getMessage());
         }
@@ -1434,6 +1450,53 @@ final class EntitlementService
                 $this->clearUsageCache($payment->business);
             }
 
+            // Auto-Journal: Catat Beban Langganan SaaS pada Buku Kas Operasional Tenant
+            try {
+                if ((float) $payment->total_payable > 0) {
+                    $defaultCashAccount = \App\Models\CashAccount::where('business_id', $payment->business_id)
+                        ->where('is_active', true)
+                        ->first();
+
+                    if ($defaultCashAccount) {
+                        $amount = (float) $payment->total_payable;
+                        $balanceAfter = (float) $defaultCashAccount->current_balance - $amount;
+                        \App\Models\CashTransaction::create([
+                            'business_id'      => $payment->business_id,
+                            'cash_account_id'  => $defaultCashAccount->id,
+                            'type'             => \App\Models\CashTransaction::TYPE_OUT,
+                            'amount'           => $amount,
+                            'balance_after'    => $balanceAfter,
+                            'reference_type'   => SubscriptionPayment::class,
+                            'reference_id'     => $payment->id,
+                            'description'      => "Biaya Langganan Cooca SaaS (#{$payment->order_number} - {$payment->plan_code})",
+                            'transaction_date' => Carbon::today()->toDateString(),
+                            'created_by'       => $payment->user_id,
+                        ]);
+
+                        $defaultCashAccount->decrement('current_balance', $amount);
+                    }
+                }
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning("[EntitlementService] Gagal mencatat auto-journal beban langganan: " . $e->getMessage());
+            }
+
+            // Catat Immutable Audit Log
+            try {
+                \App\Models\AuditLog::create([
+                    'business_id'    => $payment->business_id,
+                    'user_id'        => $payment->user_id,
+                    'auditable_type' => SubscriptionPayment::class,
+                    'auditable_id'   => $payment->id,
+                    'action'         => 'subscription.activated',
+                    'risk_level'     => \App\Models\AuditLog::RISK_LOW,
+                    'risk_reason'    => 'Valid payment approved',
+                    'notes'          => "Langganan #{$payment->order_number} ({$payment->plan_code}) berhasil diaktifkan.",
+                    'created_at'     => Carbon::now(),
+                ]);
+            } catch (\Throwable) {
+                // Ignore audit logging errors during activation
+            }
+
             return $payment->fresh();
         });
 
@@ -1450,6 +1513,20 @@ final class EntitlementService
             }
         } catch (\Throwable $e) {
             \Illuminate\Support\Facades\Log::warning('Failed to send payment approved invoice to owner: ' . $e->getMessage());
+        }
+
+        // 3. Send WhatsApp receipt notification to Owner
+        try {
+            $ownerPhone = $owner?->phone ?? $approvedPayment->business?->phone;
+            if ($ownerPhone && class_exists(\App\Domain\WhatsApp\AdminWhatsAppService::class)) {
+                $totalFormatted = number_format((float) $approvedPayment->total_payable, 0, ',', '.');
+                $planName = $approvedPayment->package_name ?? $approvedPayment->plan_code;
+                $ownerName = $owner?->name ?? 'Pemilik Bisnis';
+                $msg = "Halo {$ownerName}, pembayaran langganan Cooca Anda (#{$approvedPayment->order_number}) sebesar Rp {$totalFormatted} untuk paket {$planName} telah berhasil diverifikasi. Seluruh fitur dan kuota bisnis Anda telah aktif seketika. Terima kasih!";
+                app(\App\Domain\WhatsApp\AdminWhatsAppService::class)->sendMessage($ownerPhone, $msg);
+            }
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Failed to send payment approved WA to owner: ' . $e->getMessage());
         }
 
         return $approvedPayment;

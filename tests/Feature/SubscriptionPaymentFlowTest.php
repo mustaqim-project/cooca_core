@@ -70,11 +70,11 @@ class SubscriptionPaymentFlowTest extends TestCase
         $response = $this->get(route('billing.checkout', ['cycle' => 'monthly']));
 
         $response->assertStatus(200);
-        $response->assertSee('Pilih Paket & Metode Pembayaran');
+        $response->assertSee(__('billing.checkout_title'));
         $response->assertSee('Standard Plan');
         $response->assertSee('Premium Plan');
         $response->assertSee('Prestige Plan');
-        $response->assertSee('Pilih Metode Pembayaran');
+        $response->assertSee(__('billing.step_choose_payment'));
         $response->assertSee('QRIS');
     }
 

@@ -386,6 +386,16 @@
 
         // 3. KPI values
         var kpis = analytics.kpis || {};
+        var kpiLabelOmzet = el('[data-kpi-label="omzet"]');
+        if (kpiLabelOmzet && analytics.period_label) {
+            kpiLabelOmzet.textContent = 'Omzet ' + analytics.period_label;
+        }
+
+        var kpiBadgeNet = el('[data-kpi-badge="net"]');
+        if (kpiBadgeNet && analytics.period_label) {
+            kpiBadgeNet.textContent = 'Estimasi Laba (' + analytics.period_label + ')';
+        }
+
         var kpiOmzet = el('[data-kpi="omzet"]');
         if (kpiOmzet) kpiOmzet.textContent = money(kpis.omzet);
 

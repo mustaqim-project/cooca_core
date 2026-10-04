@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Web\Purchasing;
 
+use App\Domain\Finance\CashLedgerService;
 use App\Domain\Inventory\StockService;
 use App\Domain\Purchasing\GoodsReceiptService;
 use App\Http\Controllers\Controller;
+use App\Models\CashAccount;
 use App\Models\GoodsReceipt;
 use App\Models\Location;
 use App\Models\PurchaseOrder;
@@ -15,13 +17,15 @@ use App\Support\Context;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 final class GoodsReceiptWebController extends Controller
 {
     public function __construct(
         private readonly StockService $stockService = new StockService,
-        private readonly GoodsReceiptService $goodsReceiptService = new GoodsReceiptService
+        private readonly GoodsReceiptService $goodsReceiptService = new GoodsReceiptService,
+        private readonly CashLedgerService $cashLedgerService = new CashLedgerService
     ) {}
 
     /**
@@ -79,14 +83,16 @@ final class GoodsReceiptWebController extends Controller
             'Purchase Order belum dapat diterima karena statusnya belum dikonfirmasi.'
         );
 
+        $businessId = $business->id;
+
         $validated = $request->validate([
-            'location_id' => ['required', 'exists:locations,id'],
+            'location_id' => ['required', Rule::exists('locations', 'id')->where('business_id', $businessId)],
             'receipt_number' => ['nullable', 'string', 'max:64'],
             'receipt_date' => ['required', 'date'],
             'notes' => ['nullable', 'string', 'max:1000'],
             'items' => ['required', 'array', 'min:1'],
-            'items.*.product_id' => ['nullable', 'exists:products,id'],
-            'items.*.material_id' => ['nullable', 'exists:materials,id'],
+            'items.*.product_id' => ['nullable', Rule::exists('products', 'id')->where('business_id', $businessId)],
+            'items.*.material_id' => ['nullable', Rule::exists('materials', 'id')->where('business_id', $businessId)],
             'items.*.item_name' => ['nullable', 'string', 'max:255'],
             'items.*.quantity' => ['required', 'numeric', 'min:0'],
             'items.*.unit_cost' => ['required', 'numeric', 'min:0'],
@@ -107,34 +113,60 @@ final class GoodsReceiptWebController extends Controller
     public function instantStockIn(Request $request): RedirectResponse
     {
         $business = Context::requireBusiness();
+        $businessId = $business->id;
 
         $validated = $request->validate([
-            'location_id' => ['required', 'exists:locations,id'],
-            'product_id' => ['required', 'exists:products,id'],
-            'quantity' => ['required', 'numeric', 'min:0.01'],
+            'location_id' => ['required', Rule::exists('locations', 'id')->where('business_id', $businessId)],
+            'product_id' => ['nullable', 'required_without:material_id', Rule::exists('products', 'id')->where('business_id', $businessId)],
+            'material_id' => ['nullable', 'required_without:product_id', Rule::exists('materials', 'id')->where('business_id', $businessId)],
+            'quantity' => ['required', 'numeric', 'min:0.0001'],
             'unit_cost' => ['required', 'numeric', 'min:0'],
-            'supplier_id' => ['nullable', 'exists:suppliers,id'],
+            'supplier_id' => ['nullable', Rule::exists('suppliers', 'id')->where('business_id', $businessId)],
+            'cash_account_id' => ['nullable', Rule::exists('cash_accounts', 'id')->where('business_id', $businessId)],
             'notes' => ['nullable', 'string', 'max:500'],
         ]);
 
         DB::transaction(function () use ($business, $validated) {
             $qty = (float) $validated['quantity'];
             $cost = (float) $validated['unit_cost'];
+            $totalCost = $qty * $cost;
+            $productId = $validated['product_id'] ?? null;
+            $materialId = $validated['material_id'] ?? null;
 
             $this->stockService->recordMovement(
                 businessId: $business->id,
                 locationId: $validated['location_id'],
-                productId: $validated['product_id'],
+                productId: $productId,
                 movementType: StockMovement::TYPE_GOODS_RECEIPT,
                 quantityChange: $qty,
                 unitCost: $cost,
                 referenceId: null,
                 referenceNumber: null,
+                batchNumber: null,
+                expiryDate: null,
                 notes: $validated['notes'] ?? 'Beli langsung ke stok (Solo Mode)',
-                userId: request()->user()?->id
+                userId: request()->user()?->id,
+                materialId: $materialId
             );
+
+            // Record cash outflow if cash account is selected
+            if (!empty($validated['cash_account_id']) && $totalCost > 0) {
+                $cashAccount = CashAccount::where('business_id', $business->id)->find($validated['cash_account_id']);
+                if ($cashAccount) {
+                    $this->cashLedgerService->recordOutflow(
+                        business: $business,
+                        amount: $totalCost,
+                        referenceType: 'instant_stock_in',
+                        referenceId: (string) ($productId ?? $materialId),
+                        description: 'Pembelian langsung stok: ' . ($validated['notes'] ?? 'Belanja pasar/tunai'),
+                        method: $cashAccount->type ?? 'cash',
+                        userId: request()->user()?->id,
+                        account: $cashAccount
+                    );
+                }
+            }
         });
 
-        return back()->with('success', 'Pembelian langsung berhasil dicatat! Stok produk telah bertambah seketika.');
+        return back()->with('success', __('purchasing.messages.stock_in_success'));
     }
 }

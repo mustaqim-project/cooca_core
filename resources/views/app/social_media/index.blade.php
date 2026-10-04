@@ -23,40 +23,6 @@
 
         <x-module-tabs module="communication" />
 
-        {{-- 2. MODULE NAVIGATION SUB-TABS --}}
-        <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-2 sm:p-2.5 flex items-center justify-between shadow-sm">
-            <div class="inline-flex p-1 rounded-[12px] bg-black/[0.05] dark:bg-white/[0.08] border border-black/5 dark:border-white/5 w-full sm:w-auto overflow-x-auto text-[13px] font-medium">
-                <a href="{{ route('social-media.index') }}"
-                    class="h-8 px-4 rounded-[9px] bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-sm flex items-center gap-2 whitespace-nowrap">
-                    <i data-lucide="link" class="w-4 h-4 text-[#007AFF]"></i>
-                    <span>{{ __('social_media.tab_connect') }}</span>
-                </a>
-                <a href="{{ route('social-media.posts.index') }}"
-                    class="h-8 px-4 rounded-[9px] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white flex items-center gap-2 whitespace-nowrap transition-colors">
-                    <i data-lucide="image" class="w-4 h-4"></i>
-                    <span>{{ __('social_media.tab_posts') }}</span>
-                </a>
-                <a href="{{ route('social-media.calendar') }}"
-                    class="h-8 px-4 rounded-[9px] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white flex items-center gap-2 whitespace-nowrap transition-colors">
-                    <i data-lucide="calendar" class="w-4 h-4"></i>
-                    <span>{{ __('social_media.tab_calendar') }}</span>
-                </a>
-                <a href="{{ route('social-media.inbox.index') }}"
-                    class="h-8 px-4 rounded-[9px] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white flex items-center gap-2 whitespace-nowrap transition-colors">
-                    <i data-lucide="message-square" class="w-4 h-4"></i>
-                    <span>{{ __('social_media.tab_inbox') }}</span>
-                    @if($summary['unread_comments'] > 0)
-                        <span class="ml-1 px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-[#FF3B30] text-white">{{ $summary['unread_comments'] }}</span>
-                    @endif
-                </a>
-                <a href="{{ route('social-media.insights.index') }}"
-                    class="h-8 px-4 rounded-[9px] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white flex items-center gap-2 whitespace-nowrap transition-colors">
-                    <i data-lucide="bar-chart-2" class="w-4 h-4"></i>
-                    <span>{{ __('social_media.tab_insights') }}</span>
-                </a>
-            </div>
-        </div>
-
         {{-- 3. MAIN COCKPIT GRID --}}
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
@@ -362,6 +328,27 @@
                     }
                     if (!confirmed) return;
 
+                    let pin = null;
+                    @if(!empty($business->pos_supervisor_pin))
+                    if (window.Swal) {
+                        const { value: inputPin } = await Swal.fire({
+                            title: @js(__('social_media.supervisor_pin_required')),
+                            input: 'password',
+                            inputAttributes: {
+                                inputmode: 'numeric',
+                                pattern: '[0-9]*',
+                                maxlength: 6
+                            },
+                            inputPlaceholder: 'PIN Supervisor (6 digit)',
+                            showCancelButton: true,
+                            confirmButtonText: @js(__('common.confirm')),
+                            cancelButtonText: @js(__('common.cancel'))
+                        });
+                        if (!inputPin) return;
+                        pin = inputPin;
+                    }
+                    @endif
+
                     try {
                         const res = await fetch('{{ route('social-media.disconnect') }}', {
                             method: 'POST',
@@ -370,7 +357,7 @@
                                 'Accept': 'application/json',
                                 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')?.content || ''
                             },
-                            body: JSON.stringify({ account_id: accountId })
+                            body: JSON.stringify({ account_id: accountId, pin: pin })
                         });
 
                         const data = await res.json();

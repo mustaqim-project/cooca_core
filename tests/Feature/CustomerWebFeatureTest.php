@@ -40,6 +40,10 @@ class CustomerWebFeatureTest extends TestCase
         ]);
         $this->owner->update(['active_business_id' => $this->business->id]);
         Context::setBusiness($this->business);
+
+        config(['app.locale' => 'id']);
+        app()->setLocale('id');
+        $this->withSession(['locale' => 'id']);
     }
 
     public function test_owner_can_view_customers_index_page(): void

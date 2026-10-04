@@ -14,8 +14,7 @@
     .heading-1,
     .heading-large-title {
         font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter", system-ui, sans-serif;
-        font-size: 1.5rem;
-        /* 24px Mobile */
+        font-size: clamp(1.25rem, 4vw, 2.125rem);
         line-height: 1.2;
         font-weight: 700;
         letter-spacing: -0.025em;
@@ -27,37 +26,12 @@
         -moz-osx-font-smoothing: grayscale;
     }
 
-    @media (min-width: 640px) {
-
-        h1,
-        .h1,
-        .heading-1,
-        .heading-large-title {
-            font-size: 1.75rem;
-            /* 28px Tablet */
-            line-height: 1.2;
-        }
-    }
-
-    @media (min-width: 1024px) {
-
-        h1,
-        .h1,
-        .heading-1,
-        .heading-large-title {
-            font-size: 2.125rem;
-            /* 34px Desktop Large Title */
-            line-height: 1.18;
-        }
-    }
-
     h2,
     .h2,
     .heading-2,
     .heading-title-1 {
         font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter", system-ui, sans-serif;
-        font-size: 1.25rem;
-        /* 20px Mobile */
+        font-size: clamp(1.125rem, 3vw, 1.625rem);
         line-height: 1.25;
         font-weight: 600;
         letter-spacing: -0.02em;
@@ -67,18 +41,6 @@
         text-rendering: optimizeLegibility;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
-    }
-
-    @media (min-width: 640px) {
-
-        h2,
-        .h2,
-        .heading-2,
-        .heading-title-1 {
-            font-size: 1.5rem;
-            /* 24px Tablet & Desktop Title 1 */
-            line-height: 1.25;
-        }
     }
 
     h3,

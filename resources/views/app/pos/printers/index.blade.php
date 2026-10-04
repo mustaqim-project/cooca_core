@@ -1,8 +1,4 @@
-@extends('layouts.app', [
-    'title' => 'Printer & Perangkat Keras POS',
-    'headerTitle' => 'Printer & Perangkat Keras',
-    'headerSubtitle' => 'Kelola printer thermal ESC/POS, laci uang kasir (cash drawer), dan routing tiket pesanan dapur',
-])
+@extends('layouts.app', ['title' => __('pos.printers_title')])
 
 @section('content')
 <div class="max-w-[1360px] mx-auto space-y-6 pb-28 lg:pb-12" x-data="{
@@ -204,34 +200,27 @@
     }
 }">
 
-    <!-- ===================================================== -->
-    <!-- 1. TOOLBAR / PAGE HEADER (macOS Sonoma Toolbar Style)  -->
-    <!-- ===================================================== -->
-    <header class="rounded-[16px] backdrop-blur-md bg-white/80 dark:bg-[#1C1C1E]/80 border border-black/5 dark:border-white/10 px-4 sm:px-6 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
-        <div>
-            <nav class="flex items-center gap-1.5 text-[12px] text-black/50 dark:text-white/50 mb-1">
-                <a href="{{ route('dashboard') }}" class="hover:text-[#007AFF] transition-colors">Dashboard</a>
-                <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-black/30 dark:text-white/30"></i>
-                <a href="{{ route('pos.terminal') }}" class="hover:text-[#007AFF] transition-colors">POS</a>
-                <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-black/30 dark:text-white/30"></i>
-                <span class="text-black dark:text-white font-medium">Printer &amp; Hardware</span>
-            </nav>
-            <h1 class="text-[20px] font-bold text-black dark:text-white tracking-tight">Printer &amp; Perangkat Keras</h1>
-            <p class="text-[13px] text-black/50 dark:text-white/50 mt-0.5">Integrasi hardware thermal ESC/POS, laci kasir otomatis, dan multi-printer routing</p>
-        </div>
+    {{-- MODULE HEADER & PERSISTENT POS TABS --}}
+    <x-module-header
+        module="pos"
+        :title="__('pos.printers_title')"
+        :subtitle="__('pos.printers_subtitle')">
+        <x-slot:actions>
+            @if(\App\Support\Context::hasPermission('pos.terminal'))
+                <a href="{{ route('pos.terminal') }}" class="min-h-[44px] sm:min-h-0 sm:h-9 px-4 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] dark:hover:bg-white/[0.12] active:scale-[0.97] transition-all flex items-center justify-center gap-1.5 w-full sm:w-auto">
+                    <i data-lucide="layout-grid" class="w-4 h-4 text-black/60 dark:text-white/60"></i>
+                    <span>Terminal POS</span>
+                </a>
+            @endif
 
-        <div class="flex items-center gap-2 w-full sm:w-auto">
-            <a href="{{ route('pos.terminal') }}" class="min-h-[44px] h-11 px-4 rounded-[12px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] dark:hover:bg-white/[0.12] active:scale-[0.97] transition-all flex items-center justify-center gap-2">
-                <i data-lucide="layout-grid" class="w-4 h-4 text-black/60 dark:text-white/60"></i>
-                <span>Terminal POS</span>
-            </a>
-
-            <button type="button" @click="showAddModal = true" class="min-h-[44px] h-11 px-4 rounded-[12px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] transition-all flex items-center justify-center gap-2 shadow-sm">
+            <button type="button" @click="showAddModal = true" class="min-h-[44px] sm:min-h-0 sm:h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] transition-all flex items-center justify-center gap-1.5 shadow-sm cursor-pointer w-full sm:w-auto">
                 <i data-lucide="plus" class="w-4 h-4"></i>
                 <span>Tambah Printer</span>
             </button>
-        </div>
-    </header>
+        </x-slot:actions>
+    </x-module-header>
+
+    <x-module-tabs module="pos" />
 
     <!-- Feedback Toast -->
     <div x-show="testFeedback" x-cloak

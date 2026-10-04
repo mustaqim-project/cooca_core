@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Web\WhatsApp;
 
 use App\Domain\WhatsApp\WhatsAppGatewayService;
+use App\Exports\WhatsAppLogsExport;
 use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
+use App\Models\Business;
 use App\Models\PosOrder;
 use App\Models\WhatsAppMessageLog;
 use App\Models\WhatsAppSession;
@@ -14,7 +16,9 @@ use App\Support\Context;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class WhatsAppWebController extends Controller
 {
@@ -34,7 +38,23 @@ class WhatsAppWebController extends Controller
         $qrDataUrl  = null;
         $liveStatus = strtolower($waSession?->status ?? ($whatsAppAccount?->status ?? 'disconnected'));
 
-        return view('app.whatsapp.index', compact('business', 'waSession', 'whatsAppAccount', 'qrDataUrl', 'liveStatus'));
+        // Pastikan template standar sistem sudah ter-seed jika database masih kosong
+        if (\App\Models\WhatsAppMessageTemplate::count() === 0) {
+            \App\Domain\WhatsApp\CloudApi\Templates\CoocaStandardTemplates::seedLocalTemplates($whatsAppAccount?->waba_id ?: 'platform_default');
+        }
+
+        $approvedTemplates = \App\Models\WhatsAppMessageTemplate::approved()
+            ->where(function ($q) use ($business, $whatsAppAccount) {
+                $q->whereNull('business_id');
+                if ($whatsAppAccount?->waba_id) {
+                    $q->orWhere('waba_id', $whatsAppAccount->waba_id);
+                }
+                $q->orWhere('business_id', $business->id);
+            })
+            ->orderBy('name')
+            ->get();
+
+        return view('app.whatsapp.index', compact('business', 'waSession', 'whatsAppAccount', 'qrDataUrl', 'liveStatus', 'approvedTemplates'));
     }
 
     /**
@@ -125,14 +145,47 @@ class WhatsAppWebController extends Controller
     }
 
     /**
-     * Disconnect from WhatsApp.
+     * Disconnect from WhatsApp. Enforces Supervisor PIN if configured.
      */
-    public function disconnect(): JsonResponse
+    public function disconnect(Request $request): JsonResponse
     {
         $business = Context::requireBusiness();
+
+        if ($business->hasSupervisorPin()) {
+            $pin = (string) $request->input('pin', '');
+            if (empty($pin)) {
+                return response()->json([
+                    'success'      => false,
+                    'pin_required' => true,
+                    'message'      => __('whatsapp.supervisor_pin_required'),
+                ], 422);
+            }
+
+            if (! $business->verifySupervisorPin($pin)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => __('whatsapp.supervisor_pin_invalid'),
+                ], 422);
+            }
+        }
+
         $this->gateway->disconnect($business);
 
-        return response()->json(['success' => true, 'message' => 'Session WhatsApp berhasil diputus.']);
+        AuditLog::create([
+            'business_id'    => $business->id,
+            'user_id'        => auth()->id(),
+            'action'         => 'whatsapp.disconnect',
+            'auditable_type' => Business::class,
+            'auditable_id'   => $business->id,
+            'risk_level'     => AuditLog::RISK_HIGH,
+            'risk_reason'    => 'Pemutusan integrasi WhatsApp Gateway toko.',
+            'notes'          => 'Operator memutuskan koneksi sesi WhatsApp bisnis.',
+            'ip_address'     => $request->ip(),
+            'user_agent'     => $request->userAgent(),
+            'created_at'     => now(),
+        ]);
+
+        return response()->json(['success' => true, 'message' => __('whatsapp.flash_session_disconnected')]);
     }
 
     /**
@@ -197,7 +250,7 @@ class WhatsAppWebController extends Controller
             $session->save();
         }
 
-        return back()->with('success', 'Pengaturan WhatsApp Gateway & Provider berhasil disimpan.');
+        return back()->with('success', __('whatsapp.flash_settings_saved'));
     }
 
     /**
@@ -275,7 +328,7 @@ class WhatsAppWebController extends Controller
         $business = Context::requireBusiness();
 
         // Ensure order belongs to this business (404 to prevent IDOR enumeration)
-        if ((int)$order->business_id !== (int)$business->id) {
+        if ((string) $order->business_id !== (string) $business->id) {
             abort(404);
         }
 
@@ -294,17 +347,32 @@ class WhatsAppWebController extends Controller
             }
 
             if ($normCustom !== $normOriginal) {
+                // Rate-limit pengalihan nomor struk: maks 5 kali per kasir per jam / shift
+                $userKey = 'receipt_override:' . $business->id . ':' . (auth()->id() ?? $request->ip());
+                $attempts = (int) Cache::get($userKey, 0);
+
+                if ($attempts >= 5) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => __('whatsapp.error_rate_limit_override'),
+                    ], 429);
+                }
+
+                Cache::put($userKey, $attempts + 1, 3600);
+
+                $riskLevel = ((float) $order->grand_total >= 500000) ? AuditLog::RISK_HIGH : AuditLog::RISK_MEDIUM;
+
                 AuditLog::create([
                     'business_id'    => $business->id,
                     'user_id'        => auth()->id(),
                     'action'         => 'receipt.phone_override',
                     'auditable_type' => PosOrder::class,
                     'auditable_id'   => $order->id,
-                    'risk_level'     => AuditLog::RISK_MEDIUM,
+                    'risk_level'     => $riskLevel,
                     'risk_reason'    => 'Pengalihan nomor WhatsApp penerima struk transaksi kasir.',
                     'old_values'     => ['phone' => $originalPhone],
                     'new_values'     => ['phone' => $customPhone],
-                    'notes'          => 'Kasir mengalihkan nomor struk digital transaksi.',
+                    'notes'          => 'Kasir mengalihkan nomor struk digital transaksi senilai Rp ' . number_format((float)$order->grand_total, 0, ',', '.'),
                     'ip_address'     => $request->ip(),
                     'user_agent'     => $request->userAgent(),
                     'created_at'     => now(),
@@ -318,21 +386,46 @@ class WhatsAppWebController extends Controller
 
         return response()->json([
             'success' => $ok,
-            'message' => $ok ? 'Struk berhasil dikirim via WhatsApp.' : 'Gagal mengirim struk. Pastikan WhatsApp terhubung.',
+            'message' => $ok ? __('whatsapp.flash_receipt_sent') : __('whatsapp.flash_receipt_failed'),
         ]);
     }
 
     /**
-     * Log history page.
+     * Log history page with server-side filtering and deep-linked pagination.
      */
-    public function logs(): View
+    public function logs(Request $request): View
     {
         $business = Context::requireBusiness();
+        $type = $request->query('type');
 
         $logs = WhatsAppMessageLog::where('business_id', $business->id)
+            ->when(!empty($type) && in_array($type, ['receipt', 'broadcast', 'test'], true), function ($q) use ($type) {
+                return $q->where('type', $type);
+            })
             ->latest()
-            ->paginate(30);
+            ->paginate(30)
+            ->appends($request->query());
 
-        return view('app.whatsapp.logs', compact('business', 'logs'));
+        return view('app.whatsapp.logs', compact('business', 'logs', 'type'));
+    }
+
+    /**
+     * Export message logs as a two-sheet XLSX workbook with Bento KPIs & transactional ledger.
+     */
+    public function exportLogs(Request $request): StreamedResponse
+    {
+        $business = Context::requireBusiness();
+        $isOwner  = Context::isOwner();
+
+        $filters = [
+            'type'       => $request->query('type'),
+            'start_date' => $request->query('start_date'),
+            'end_date'   => $request->query('end_date'),
+        ];
+
+        /** @var WhatsAppLogsExport $export */
+        $export = app(WhatsAppLogsExport::class);
+
+        return $export->download($business, $filters, $isOwner);
     }
 }

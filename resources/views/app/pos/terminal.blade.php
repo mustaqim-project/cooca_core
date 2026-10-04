@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id" class="h-full">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full">
 
 <head>
     <meta charset="UTF-8">
@@ -7,9 +7,9 @@
         content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="robots" content="noindex, nofollow">
-    <title>Terminal Kasir POS - {{ $business->name }}</title>
+    <title>{{ __('pos.terminal_title') }} - {{ $business->name }}</title>
 
-    <!-- Theme Initialization Script (Instant, prevents theme flashing) -->
+    <!-- Theme & I18N Initialization Script (Instant) -->
     <script>
         (function() {
             const savedTheme = localStorage.getItem('cooca-pos-theme');
@@ -19,6 +19,7 @@
                 document.documentElement.classList.remove('dark');
             }
         })();
+        window.COOCA_I18N = @json(__('pos'));
     </script>
 
     <!-- Google Fonts (Inter as Apple SF Pro fallback) -->
@@ -121,13 +122,22 @@
             -webkit-overflow-scrolling: touch;
         }
 
-        /* Modal Adaptive Sizing */
+        /* Modal Adaptive Sizing (Apple Bento Modal Sheet) */
         .pos-modal-panel {
-            max-height: min(90dvh, calc(100vh - 2rem)) !important;
-            max-width: min(calc(100vw - 1.5rem), 42rem) !important;
+            max-height: min(90dvh, calc(100vh - 1.5rem)) !important;
+            max-width: min(calc(100vw - 1rem), 42rem) !important;
             overflow-y: auto !important;
             overscroll-behavior: contain !important;
             -webkit-overflow-scrolling: touch !important;
+        }
+
+        /* Prevent Safari iOS Viewport Auto-Zoom on form inputs */
+        @media screen and (max-width: 768px) {
+            input:not([type="checkbox"]):not([type="radio"]),
+            select,
+            textarea {
+                font-size: 16px !important;
+            }
         }
 
         input,
@@ -262,6 +272,16 @@
 <body class="h-full bg-[#F2F2F7] dark:bg-black text-[#000000] dark:text-[#F2F2F7] antialiased select-none"
     x-data="posApp()" x-init="initPos()">
 
+    @php
+        $isWorkshop = $business && $business->isWorkshop() && ! $business->isLaundry() && ! $business->isPharmacy() && ! $business->isFoodIndustry();
+        $isLaundry = $business && $business->isLaundry();
+        $isPharmacy = $business && $business->isPharmacy();
+        $isFnB = $business && $business->isFoodIndustry();
+        $hasDineIn = $business && $business->hasDineInFeature();
+        $isRetail = ! $isWorkshop && ! $isLaundry && ! $isPharmacy && ! $isFnB;
+    @endphp
+
+    @if ($business && $business->hasDineInFeature())
     <!-- ===================================================== -->
     <!-- DYNAMIC FLOATING NOTIFICATION: NEW QR TABLE ORDER     -->
     <!-- ===================================================== -->
@@ -378,6 +398,7 @@
             </div>
         </div>
     </div>
+    @endif
 
     <div class="pos-shell h-screen flex flex-col overflow-hidden">
 
@@ -499,6 +520,14 @@
 
                 <!-- 2. DESKTOP TOOLBAR (md:flex) -->
                 <div class="hidden md:flex items-center gap-1.5 sm:gap-2 shrink-0">
+                    <!-- Online / Offline Connectivity Indicator Pill (Apple HIG) -->
+                    <div :class="isOnline ? 'bg-[#34C759]/20 border-[#34C759]/30 text-[#30D158]' : 'bg-[#FF3B30]/20 border-[#FF3B30]/30 text-[#FF453A]'"
+                        class="flex items-center gap-1.5 px-2.5 py-1 rounded-[10px] border text-[11px] font-semibold transition-colors shrink-0"
+                        :title="isOnline ? 'Koneksi internet stabil (Online)' : 'Koneksi internet terputus (Offline)'">
+                        <span :class="isOnline ? 'bg-[#34C759]' : 'bg-[#FF3B30]'" class="w-2 h-2 shrink-0 rounded-full animate-pulse"></span>
+                        <span class="hidden lg:inline" x-text="isOnline ? 'Online' : 'Offline'"></span>
+                    </div>
+
                     <!-- Shift Indicator Pill -->
                     <template x-if="activeShift">
                         <div
@@ -519,6 +548,7 @@
                         </div>
                     </template>
 
+                    @if ($business && $business->hasDineInFeature())
                     <!-- QR Table Orders Button -->
                     <button @click="openIncomingOrdersModal()"
                         :class="pendingQrCount > 0 ?
@@ -542,7 +572,7 @@
                             class="px-1.5 py-0.5 rounded-full bg-[#007AFF] text-white font-bold text-[9px] flex items-center justify-center tabular-nums"></span>
                     </button>
 
-                    @if (\App\Support\Context::hasPermission('pos.tables') && (!isset($business) || $business->isModuleEnabled('pos_dinein')))
+                    @if (\App\Support\Context::hasPermission('pos.tables'))
                         <!-- Resto Meja Selector Button -->
                         <button @click="openTablesModal('tables')"
                             class="h-8.5 sm:h-9 px-2.5 sm:px-3 rounded-[10px] bg-white/10 hover:bg-white/15 active:scale-[0.97] text-white text-[12px] font-medium transition flex items-center gap-1.5 border border-white/10"
@@ -571,6 +601,7 @@
                             <span x-show="todayReservations.length > 0" x-text="todayReservations.length"
                                 class="px-1.5 py-0.5 rounded-full bg-white text-[#5856D6] font-bold text-[9px] flex items-center justify-center tabular-nums"></span>
                         </button>
+                    @endif
                     @endif
 
                     <!-- Antrean Hold Button -->
@@ -715,6 +746,16 @@
                 <!-- Drawer Scrollable Content -->
                 <div class="flex-1 overflow-y-auto p-4 space-y-4" style="scrollbar-width: thin;">
 
+                    <!-- 0. Connectivity Status Bento Card -->
+                    <div class="p-3 rounded-[16px] bg-white/[0.04] border border-white/10 flex items-center justify-between">
+                        <span class="text-[11px] font-semibold uppercase tracking-wider text-white/50">Status Koneksi</span>
+                        <span :class="isOnline ? 'bg-[#34C759]/20 border-[#34C759]/30 text-[#30D158]' : 'bg-[#FF3B30]/20 border-[#FF3B30]/30 text-[#FF453A]'"
+                            class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border text-[11px] font-bold">
+                            <span :class="isOnline ? 'bg-[#34C759]' : 'bg-[#FF3B30]'" class="w-1.5 h-1.5 rounded-full animate-pulse"></span>
+                            <span x-text="isOnline ? 'Online' : 'Offline'"></span>
+                        </span>
+                    </div>
+
                     <!-- 1. Shift Status Bento Card -->
                     <div class="p-3.5 rounded-[16px] bg-white/[0.04] border border-white/10 space-y-3">
                         <div class="flex items-center justify-between">
@@ -781,6 +822,7 @@
                     <div class="space-y-1.5">
                         <span class="text-[11px] font-semibold uppercase tracking-wider text-white/50 px-1 block">Fitur Kasir</span>
 
+                        @if ($business && $business->hasDineInFeature())
                         <!-- Pesanan Meja QR -->
                         <button type="button" @click="mobileMenuOpen = false; openIncomingOrdersModal()"
                             class="w-full p-3 rounded-[12px] bg-white/[0.04] hover:bg-white/[0.08] active:scale-[0.98] border border-white/10 text-left transition flex items-center justify-between group">
@@ -804,7 +846,7 @@
                             </div>
                         </button>
 
-                        @if (\App\Support\Context::hasPermission('pos.tables') && (!isset($business) || $business->isModuleEnabled('pos_dinein')))
+                        @if (\App\Support\Context::hasPermission('pos.tables'))
                             <!-- Resto Meja -->
                             <button type="button" @click="mobileMenuOpen = false; openTablesModal('tables')"
                                 class="w-full p-3 rounded-[12px] bg-white/[0.04] hover:bg-white/[0.08] active:scale-[0.98] border border-white/10 text-left transition flex items-center justify-between group">
@@ -850,6 +892,7 @@
                                     </svg>
                                 </div>
                             </button>
+                        @endif
                         @endif
 
                         <!-- Antrean Transaksi (Hold) -->
@@ -973,6 +1016,7 @@
             <!-- Left Area: Catalog & Products Touch Grid -->
             <div class="pos-catalog flex-1 flex flex-col overflow-hidden p-2 sm:p-4 gap-2 sm:gap-3">
 
+                @if ($business && $business->isFoodIndustry())
                 <!-- 0. F&B MULTI-CHANNEL PRICE SELECTOR (APPLE HIG BENTO SEGMENTED) -->
                 <div class="channel-bar flex items-center justify-between gap-2 overflow-x-auto pb-0.5 max-w-full scroll-smooth select-none shrink-0"
                     style="scrollbar-width: none; -ms-overflow-style: none;">
@@ -1050,6 +1094,7 @@
                             class="bg-transparent border-0 p-0 text-[12px] font-semibold focus:ring-0 text-black dark:text-white placeholder:text-black/30 dark:placeholder:text-white/30 w-32 sm:w-44">
                     </div>
                 </div>
+                @endif
 
                 <!-- 1. DESKTOP TOP HORIZONTAL CATEGORY STRIP (ENLARGED) -->
                 <div class="category-bar hidden md:flex items-center gap-2.5 overflow-x-auto pb-1.5 max-w-full scroll-smooth select-none shrink-0"
@@ -1286,10 +1331,12 @@
                                             <div class="flex flex-col min-w-0">
                                                 <span class="font-bold text-[12.5px] sm:text-[15px] text-black dark:text-white tabular-nums truncate"
                                                     x-text="formatRupiah(getProductPrice(product))"></span>
+                                                @if ($business && $business->isFoodIndustry())
                                                 <span x-show="product.channel_prices && salesChannel !== 'dine_in' && Number(product.channel_prices[salesChannel]) !== Number(product.selling_price)"
                                                     class="text-[9.5px] font-black uppercase tracking-wider rounded px-1 w-max"
                                                     :class="salesChannel === 'gofood' ? 'bg-[#00AA13]/15 text-[#00AA13]' : (salesChannel === 'grabfood' ? 'bg-[#00B14F]/15 text-[#00B14F]' : (salesChannel === 'shopeefood' ? 'bg-[#EE4D2D]/15 text-[#EE4D2D]' : 'bg-[#FF9500]/15 text-[#FF9500]'))"
                                                     x-text="salesChannel"></span>
+                                                @endif
                                             </div>
                                             <button type="button" @click.stop="handleProductClick(product)"
                                                 class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#007AFF] hover:bg-[#0062CC] text-white flex items-center justify-center font-bold text-sm sm:text-base shadow-sm shrink-0 active:scale-90 transition-all"
@@ -1538,6 +1585,7 @@
                             </svg>
                         </button>
 
+                        @if ($business && $business->isFoodIndustry())
                         <!-- Bungkus Button -->
                         <button type="button" @click="setSalesChannel('takeaway'); detachTableFromCart()"
                             :class="salesChannel === 'takeaway' ? 'bg-[#007AFF] text-white shadow-xs font-semibold' : 'bg-black/[0.04] dark:bg-white/[0.06] text-black/70 dark:text-white/70 hover:bg-black/[0.07] dark:hover:bg-white/[0.1]'"
@@ -1549,6 +1597,7 @@
                             <span>Bungkus</span>
                         </button>
 
+                        @if ($business->hasDineInFeature())
                         <!-- Dine In Dropdown / Toggle Button -->
                         <div class="relative shrink-0" x-data="{ dineDropdown: false }" @click.outside="dineDropdown = false">
                             <button type="button" @click="setSalesChannel('dine_in'); dineDropdown = !dineDropdown"
@@ -1578,8 +1627,11 @@
                                 </button>
                             </div>
                         </div>
+                        @endif
+                        @endif
                     </div>
 
+                    @if ($business && $business->hasDineInFeature())
                     <!-- Active Restaurant Table Card (Apple HIG Styled) -->
                     <div x-show="selectedTable"
                         class="p-2.5 rounded-[12px] bg-[#007AFF]/[0.08] dark:bg-[#007AFF]/15 border border-[#007AFF]/25 space-y-1.5 transition">
@@ -1590,7 +1642,7 @@
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
                                         viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round"
-                                            d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
+                                             d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
                                     </svg>
                                 </div>
                                 <div class="min-w-0">
@@ -1636,7 +1688,9 @@
                             </div>
                         </div>
                     </div>
+                    @endif
 
+                    @if ($business && $business->isFoodIndustry())
                     <!-- Online Delivery Channel Indicator in Cart -->
                     <div x-show="['gofood', 'grabfood', 'shopeefood'].includes(salesChannel)"
                         class="p-2.5 rounded-[12px] text-white flex items-center justify-between shadow-xs transition"
@@ -1650,6 +1704,7 @@
                         </div>
                         <span class="text-[10px] font-bold uppercase tracking-wider bg-black/20 px-2 py-0.5 rounded-[6px] shrink-0">Harga Khusus Online</span>
                     </div>
+                    @endif
 
                     <!-- Member Loyalty Card Preview -->
                     <div x-show="activeCustomer"
@@ -1678,12 +1733,11 @@
 
                     <!-- Industry Vertical: Dynamic Service Data Trigger (20 Sector Adaptive) -->
                     @php
-                        $templateCode = strtolower((string) ($business->template_code ?? $business->industry_category ?? ''));
-                        $isWorkshop = in_array($templateCode, ['service_workshop', 'service_autodetailing', 'bengkel', 'carwash'], true);
-                        $isLaundry = in_array($templateCode, ['service_laundry', 'laundry'], true);
-                        $isPharmacy = method_exists($business, 'isPharmacy') ? $business->isPharmacy() : ($templateCode === 'retail_pharmacy');
-                        $isFnB = str_starts_with($templateCode, 'fnb_') || in_array($templateCode, ['restaurant', 'cafe', 'fnb'], true);
-                        $isRetail = str_starts_with($templateCode, 'retail_') && !$isPharmacy;
+                        $isWorkshop = $business && $business->isWorkshop() && ! $business->isLaundry() && ! $business->isPharmacy() && ! $business->isFoodIndustry();
+                        $isLaundry = $business && $business->isLaundry();
+                        $isPharmacy = $business && $business->isPharmacy();
+                        $isFnB = $business && $business->isFoodIndustry();
+                        $isRetail = ! $isWorkshop && ! $isLaundry && ! $isPharmacy && ! $isFnB;
                     @endphp
 
                     @if ($isWorkshop)
@@ -2008,7 +2062,7 @@
             </span>
             <span class="flex-1 min-w-0">
                 <span
-                    class="block text-[11px] font-semibold text-black/50 dark:text-white/50 uppercase tracking-wider leading-none mb-1">Keranjang</span>
+                    class="block text-[11px] font-semibold text-black/50 dark:text-white/50 uppercase tracking-wider leading-none mb-1">{{ __('pos.cart_short') }}</span>
                 <span
                     class="block font-extrabold text-black dark:text-white tabular-nums text-[16px] sm:text-[17px] leading-none truncate"
                     x-text="formatRupiah(grandTotal)"></span>
@@ -2016,7 +2070,7 @@
         </button>
         <button @click="openPaymentModal()" :disabled="cart.length === 0" type="button"
             class="h-12 px-6 sm:px-8 rounded-[14px] bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.96] text-white font-bold text-[15px] shadow-[0_4px_16px_rgba(0,122,255,0.35)] disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition shrink-0">
-            <span>Bayar</span>
+            <span>{{ __('pos.pay') }}</span>
             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
             </svg>
@@ -2033,9 +2087,8 @@
             @click.outside="showCustomerModal = false">
             <div class="flex items-center justify-between pb-3 border-b border-black/10 dark:border-white/10">
                 <div>
-                    <h3 class="font-semibold text-[16px] text-black dark:text-white">Tambah Pelanggan Cepat</h3>
-                    <p class="text-[12px] text-black/45 dark:text-white/45 mt-0.5">Simpan nama dan nomor kontak
-                        pelanggan.</p>
+                    <h3 class="font-semibold text-[16px] text-black dark:text-white">{{ __('pos.quick_customer_title') }}</h3>
+                    <p class="text-[12px] text-black/45 dark:text-white/45 mt-0.5">{{ __('pos.quick_customer_desc') }}</p>
                 </div>
                 <button type="button" @click="showCustomerModal = false"
                     class="w-7 h-7 rounded-full bg-black/[0.05] dark:bg-white/[0.08] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white flex items-center justify-center">
@@ -2047,26 +2100,24 @@
 
             <form @submit.prevent="createQuickCustomer" class="space-y-3">
                 <div>
-                    <label class="block text-[12px] font-medium text-black/60 dark:text-white/60 mb-1.5">Nama Pelanggan
-                        *</label>
+                    <label class="block text-[12px] font-medium text-black/60 dark:text-white/60 mb-1.5">{{ __('pos.customer_name') }} *</label>
                     <input x-ref="quickCustomerName" type="text" x-model="newCustomer.name" required
-                        maxlength="255" placeholder="Contoh: Budi Santoso"
+                        maxlength="255" placeholder="{{ __('pos.customer_name_placeholder') }}"
                         class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 rounded-[10px] px-3 text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50">
                 </div>
                 <div>
-                    <label class="block text-[12px] font-medium text-black/60 dark:text-white/60 mb-1.5">Nomor HP
-                        *</label>
+                    <label class="block text-[12px] font-medium text-black/60 dark:text-white/60 mb-1.5">{{ __('pos.customer_phone') }} *</label>
                     <input type="tel" x-model="newCustomer.phone" required maxlength="50" inputmode="tel"
-                        placeholder="08xxxxxxxxxx"
+                        placeholder="{{ __('pos.customer_phone_placeholder') }}"
                         class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 rounded-[10px] px-3 text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50">
                 </div>
                 <p x-show="customerFormError" x-text="customerFormError" class="text-xs text-[#FF3B30]"></p>
                 <div class="flex justify-end gap-2 pt-2 border-t border-black/10 dark:border-white/10">
                     <button type="button" @click="showCustomerModal = false"
-                        class="h-9 px-4 rounded-[10px] text-[13px] font-medium text-black/70 dark:text-white/70 hover:bg-black/[0.06] dark:hover:bg-white/[0.08] transition">Batal</button>
+                        class="h-9 px-4 rounded-[10px] text-[13px] font-medium text-black/70 dark:text-white/70 hover:bg-black/[0.06] dark:hover:bg-white/[0.08] transition">{{ __('pos.cancel') }}</button>
                     <button type="submit" :disabled="isCreatingCustomer"
                         class="h-9 px-4 rounded-[10px] bg-[#007AFF] hover:bg-[#0071E3] text-white font-semibold text-[13px] disabled:opacity-50 transition active:scale-[0.97]">
-                        <span x-text="isCreatingCustomer ? 'Menyimpan...' : 'Simpan Pelanggan'"></span>
+                        <span x-text="isCreatingCustomer ? (window.COOCA_I18N?.saving || '{{ __('pos.saving') }}') : (window.COOCA_I18N?.save_customer || '{{ __('pos.save_customer') }}')"></span>
                     </button>
                 </div>
             </form>
@@ -2079,10 +2130,11 @@
     <div x-show="showPaymentModal"
         class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-[4px] p-3 sm:p-4"
         style="display: none;"
-        @keydown.escape.window="showPaymentModal = false">
+        @keydown.escape.window="if(!isProcessing) showPaymentModal = false"
+        @keydown.enter.prevent="if(!isProcessing && (isSplitPayment ? splitRemainingAmount === 0 : currentTenderAmount >= grandTotal)) submitCheckout()">
         <div
             class="pos-modal-panel w-full max-w-3xl lg:max-w-4xl bg-white dark:bg-[#1C1C1E] rounded-[24px] border border-black/10 dark:border-white/15 p-5 sm:p-6 flex flex-col max-h-[92vh] overflow-y-auto space-y-4 shadow-[0_25px_60px_rgba(0,0,0,0.35)] text-black dark:text-white"
-            @click.outside="showPaymentModal = false">
+            @click.outside="if(!isProcessing) showPaymentModal = false">
             
             {{-- Modal Header & Mode Switcher --}}
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3.5 border-b border-black/5 dark:border-white/10">
@@ -2285,7 +2337,7 @@
                                             + Sisa (<span x-text="formatRupiah(splitRemainingAmount)"></span>)
                                         </button>
                                     </div>
-                                    <input type="number" x-model.number="row.amount"
+                                    <input type="number" min="0" x-model.number="row.amount" @input="sanitizeSplitAmount(idx)"
                                         class="w-full h-10 px-3 rounded-[10px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 text-xs font-bold tabular-nums text-black dark:text-white focus:ring-2 focus:ring-[#007AFF]">
                                 </div>
 
@@ -2314,10 +2366,10 @@
                 </div>
 
                 {{-- Button Tambah Baris Split --}}
-                <button type="button" @click="addSplitRow()"
-                    class="w-full h-10 rounded-[12px] bg-[#007AFF]/10 hover:bg-[#007AFF]/15 text-[#007AFF] text-xs font-bold flex items-center justify-center gap-1.5 transition active:scale-[0.98]">
+                <button type="button" @click="addSplitRow()" :disabled="splitPaymentRows.length >= 5"
+                    class="w-full h-10 rounded-[12px] bg-[#007AFF]/10 hover:bg-[#007AFF]/15 text-[#007AFF] text-xs font-bold flex items-center justify-center gap-1.5 transition active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
-                    <span>+ Tambah Metode Pembayaran Lain</span>
+                    <span>{{ __('pos.add_another_payment_method') }}</span>
                 </button>
             </div>
 
@@ -2342,15 +2394,21 @@
                 </div>
 
                 <div class="flex items-center gap-2">
-                    <button type="button" @click="showPaymentModal = false"
-                        class="h-10 px-4 rounded-[12px] text-xs font-medium text-black/70 dark:text-white/70 hover:bg-black/[0.06] dark:hover:bg-white/[0.08] transition">
-                        Batal
+                    <button type="button" @click="showPaymentModal = false" :disabled="isProcessing"
+                        class="h-10 px-4 rounded-[12px] text-xs font-medium text-black/70 dark:text-white/70 hover:bg-black/[0.06] dark:hover:bg-white/[0.08] transition disabled:opacity-40">
+                        {{ __('pos.cancel') }}
                     </button>
                     <button type="button" @click="submitCheckout()"
                         :disabled="isProcessing || (isSplitPayment ? splitRemainingAmount > 0 : currentTenderAmount < grandTotal)"
                         class="h-10 px-6 rounded-[12px] bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] text-white font-bold text-xs shadow-sm disabled:opacity-35 transition flex items-center gap-2">
-                        <span x-show="!isProcessing" x-text="isSplitPayment ? 'Selesaikan Split Payment' : 'Selesaikan Transaksi'"></span>
-                        <span x-show="isProcessing">Memproses...</span>
+                        <span x-show="!isProcessing" x-text="isSplitPayment ? (window.COOCA_I18N?.finish_split_payment || '{{ __('pos.finish_split_payment') }}') : (window.COOCA_I18N?.finish_transaction || '{{ __('pos.finish_transaction') }}')"></span>
+                        <span x-show="isProcessing" class="flex items-center gap-1.5">
+                            <svg class="animate-spin h-3.5 w-3.5 text-white" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <span>Memproses...</span>
+                        </span>
                     </button>
                 </div>
             </div>
@@ -2700,7 +2758,7 @@
                     </button>
 
                     <!-- 3. Kitchen Display System (KDS) -->
-                    @if (\App\Support\Context::hasPermission('pos.kitchen') && (!isset($business) || $business->isModuleEnabled('pos_dinein')))
+                    @if (\App\Support\Context::hasPermission('pos.kitchen') && (isset($business) && $business->hasDineInFeature()))
                         <a href="{{ route('pos.kitchen.index') }}" target="_blank"
                             class="group p-4 rounded-2xl bg-black/[0.03] dark:bg-white/[0.04] hover:bg-black/[0.06] dark:hover:bg-white/[0.08] border border-black/5 dark:border-white/10 transition-all flex flex-col justify-between hover:scale-[1.01] active:scale-[0.99]">
                             <div>
@@ -2773,7 +2831,7 @@
                     @endif
 
                     <!-- 6. Denah Meja & QR Self-Order -->
-                    @if (\App\Support\Context::hasPermission('pos.tables') && (!isset($business) || $business->isModuleEnabled('pos_dinein')))
+                    @if (\App\Support\Context::hasPermission('pos.tables') && (isset($business) && $business->hasDineInFeature()))
                         <a href="{{ route('pos.tables.index') }}"
                             class="group p-4 rounded-2xl bg-black/[0.03] dark:bg-white/[0.04] hover:bg-black/[0.06] dark:hover:bg-white/[0.08] border border-black/5 dark:border-white/10 transition-all flex flex-col justify-between hover:scale-[1.01] active:scale-[0.99]">
                             <div>
@@ -3044,9 +3102,9 @@
     <!-- ===================================================== -->
     <div x-show="showSupervisorPinModal" x-cloak
         class="fixed inset-0 z-[80] flex items-center justify-center bg-black/50 backdrop-blur-[4px] p-4"
-        @keydown.escape.window="showSupervisorPinModal = false">
+        @keydown.escape.window="if(!supervisorPinLoading) closeSupervisorPinModal()">
         <div class="pos-modal-panel w-full max-w-sm bg-white/95 dark:bg-[#1C1C1E]/95 backdrop-blur-2xl rounded-[18px] border border-black/10 dark:border-white/15 p-5 sm:p-6 space-y-4 shadow-[0_20px_50px_rgba(0,0,0,0.3)] text-black dark:text-white"
-            @click.outside="showSupervisorPinModal = false">
+            @click.outside="if(!supervisorPinLoading) closeSupervisorPinModal()">
             <div class="text-center space-y-2">
                 <div
                     class="w-12 h-12 mx-auto rounded-full bg-[#AF52DE]/15 text-[#AF52DE] flex items-center justify-center">
@@ -3056,11 +3114,9 @@
                             d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
                     </svg>
                 </div>
-                <h3 class="font-bold text-[17px] text-black dark:text-white">Otorisasi Supervisor</h3>
+                <h3 class="font-bold text-[17px] text-black dark:text-white">{{ __('pos.supervisor_pin_title') }}</h3>
                 <p class="text-[12px] text-black/60 dark:text-white/60 leading-relaxed">
-                    Diskon transaksi ini melebihi batas wewenang kasir (<span class="font-semibold text-[#007AFF]"
-                        x-text="maxCashierDiscountPercent + '%'"></span>). Masukkan PIN Supervisor untuk melanjutkan
-                    pembayaran.
+                    {{ __('pos.supervisor_pin_desc') }}
                 </p>
             </div>
 
@@ -3068,21 +3124,35 @@
                 <div>
                     <input x-ref="supervisorPinInputRef" type="password" inputmode="numeric" maxlength="8"
                         x-model="supervisorPinInput" placeholder="••••••" autocomplete="off"
-                        class="w-full h-12 bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/15 rounded-[12px] text-center font-mono text-[22px] tracking-[0.35em] text-black dark:text-white placeholder:tracking-normal placeholder:font-sans placeholder:text-[14px] placeholder:text-black/30 dark:placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#AF52DE]/60 transition">
+                        :disabled="supervisorPinLoading"
+                        class="w-full h-12 bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/15 rounded-[12px] text-center font-mono text-[22px] tracking-[0.35em] text-black dark:text-white placeholder:tracking-normal placeholder:font-sans placeholder:text-[14px] placeholder:text-black/30 dark:placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#AF52DE]/60 transition disabled:opacity-50">
                 </div>
 
                 <div x-show="supervisorPinError"
-                    class="p-2.5 rounded-[10px] bg-[#FF3B30]/10 border border-[#FF3B30]/20 text-[12px] text-[#FF3B30] text-center font-medium"
+                    class="p-2.5 rounded-[10px] bg-[#FF3B30]/10 border border-[#FF3B30]/20 text-[12px] text-[#FF3B30] text-center font-medium leading-relaxed"
                     x-text="supervisorPinError"></div>
 
+                <!-- No-Panic Microcopy & Security Note (Apple HIG Trust Badge) -->
+                <div class="p-2.5 rounded-[12px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5 space-y-1 text-center">
+                    <div class="flex items-center justify-center gap-1.5 text-[11px] font-medium text-[#34C759]">
+                        <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+                        </svg>
+                        <span>{{ __('pos.supervisor_pin_security_note') }}</span>
+                    </div>
+                    <p class="text-[10px] text-black/45 dark:text-white/45 leading-normal">
+                        {{ __('pos.supervisor_pin_no_panic_guide') }}
+                    </p>
+                </div>
+
                 <div class="grid grid-cols-2 gap-2 pt-1">
-                    <button type="button" @click="showSupervisorPinModal = false"
-                        class="h-10 rounded-[10px] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.1] text-black/70 dark:text-white/70 font-semibold text-[13px] transition">
-                        Batal
+                    <button type="button" @click="closeSupervisorPinModal()" :disabled="supervisorPinLoading"
+                        class="h-10 rounded-[10px] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.1] text-black/70 dark:text-white/70 font-semibold text-[13px] transition disabled:opacity-50">
+                        {{ __('pos.cancel') }}
                     </button>
                     <button type="submit" :disabled="supervisorPinLoading || !supervisorPinInput.trim()"
                         class="h-10 rounded-[10px] bg-[#AF52DE] hover:bg-[#9B42C8] active:scale-[0.98] text-white font-semibold text-[13px] transition disabled:opacity-50 flex items-center justify-center gap-1.5 shadow-sm">
-                        <span x-show="!supervisorPinLoading">Otorisasi</span>
+                        <span x-show="!supervisorPinLoading">{{ __('pos.authorize') }}</span>
                         <span x-show="supervisorPinLoading" class="inline-block animate-spin">⏳</span>
                     </button>
                 </div>
@@ -3131,7 +3201,7 @@
             class="pos-modal-panel w-full max-w-lg bg-white dark:bg-[#2C2C2E] rounded-[16px] border border-black/10 dark:border-white/10 p-4 sm:p-5 space-y-3.5 shadow-[0_20px_50px_rgba(0,0,0,0.25)] text-black dark:text-white">
             <div class="flex items-center justify-between gap-3">
                 <div>
-                    <h3 class="font-semibold text-[17px] text-black dark:text-white">Scan Barcode Produk</h3>
+                    <h3 class="font-semibold text-[17px] text-black dark:text-white">{{ __('pos.scan_barcode_title') }}</h3>
                     <p class="text-[12px] text-black/45 dark:text-white/45 mt-0.5">Arahkan kamera ke barcode hingga
                         produk terdeteksi.</p>
                 </div>
@@ -3309,8 +3379,9 @@
         </div>
     </div>
 
+    @if ($isWorkshop || $isLaundry)
     <!-- ===================================================== -->
-    <!-- MODAL: DATA LAYANAN INDUSTRI (BENGKEL & LAUNDRY)       -->
+    <!-- MODAL: DATA LAYANAN INDUSTRI (BENGKEL & LAUNDRY) -->
     <!-- ===================================================== -->
     <div x-show="showServiceVerticalModal" x-cloak
         class="fixed inset-0 z-[65] flex items-center justify-center bg-black/50 backdrop-blur-[2px] p-4"
@@ -3326,8 +3397,24 @@
                         </svg>
                     </div>
                     <div>
-                        <h3 class="font-bold text-[15px] text-black dark:text-white leading-tight">Data Layanan Khusus</h3>
-                        <p class="text-[11px] text-black/50 dark:text-white/50">Formulir SPK Bengkel &amp; Data Cucian Laundry</p>
+                        <h3 class="font-bold text-[15px] text-black dark:text-white leading-tight">
+                            @if ($isWorkshop && !$isLaundry)
+                                SPK Bengkel &amp; Kendaraan
+                            @elseif ($isLaundry && !$isWorkshop)
+                                Layanan Laundry Kiloan
+                            @else
+                                Data Layanan Khusus
+                            @endif
+                        </h3>
+                        <p class="text-[11px] text-black/50 dark:text-white/50">
+                            @if ($isWorkshop && !$isLaundry)
+                                Formulir Surat Perintah Kerja, Kendaraan &amp; Mekanik
+                            @elseif ($isLaundry && !$isWorkshop)
+                                Formulir Timbangan Cucian &amp; Lokasi Rak
+                            @else
+                                Formulir SPK Bengkel &amp; Data Cucian Laundry
+                            @endif
+                        </p>
                     </div>
                 </div>
                 <button type="button" @click="showServiceVerticalModal = false"
@@ -3338,7 +3425,8 @@
                 </button>
             </div>
 
-            <!-- Segmented Tab Selector (Apple HIG) -->
+            <!-- Segmented Tab Selector (Apple HIG) - Displayed only if both or multi-service enabled -->
+            @if (($isWorkshop && $isLaundry) || (!$isFnB && !$isRetail && !$isWorkshop && !$isLaundry))
             <div class="inline-flex w-full p-0.5 rounded-[10px] bg-black/[0.05] dark:bg-white/[0.08] text-[12px] font-medium">
                 <button type="button" @click="serviceVerticalTab = 'workshop'"
                     :class="serviceVerticalTab === 'workshop' ? 'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)]' : 'text-black/60 dark:text-white/60'"
@@ -3357,6 +3445,7 @@
                     <span>Laundry Kiloan</span>
                 </button>
             </div>
+            @endif
 
             <!-- Tab 1 Content: Bengkel Otomotif -->
             <div x-show="serviceVerticalTab === 'workshop'" class="space-y-3">
@@ -3448,6 +3537,7 @@
             </div>
         </div>
     </div>
+    @endif
 
     <!-- ===================================================== -->
     <!-- MODAL: DETAIL ITEM & APOTEK / OBAT (BATCH & DOSIS)    -->
@@ -3459,14 +3549,26 @@
             @click.outside="showItemDetailModal = false">
             <div class="flex items-center justify-between border-b border-black/[0.06] dark:border-white/[0.08] pb-3">
                 <div class="flex items-center gap-2.5">
-                    <div class="w-8 h-8 rounded-[10px] bg-[#34C759]/15 text-[#34C759] flex items-center justify-center">
+                    <div class="w-8 h-8 rounded-[10px] {{ $isPharmacy ? 'bg-[#34C759]/15 text-[#34C759]' : 'bg-[#007AFF]/15 text-[#007AFF]' }} flex items-center justify-center">
+                        @if ($isPharmacy)
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6a7.5 7.5 0 107.5 7.5h-7.5V6z" />
                             <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5H21A7.5 7.5 0 0013.5 3v7.5z" />
                         </svg>
+                        @else
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                        </svg>
+                        @endif
                     </div>
                     <div>
-                        <h3 class="font-bold text-[15px] text-black dark:text-white leading-tight">Detail &amp; Dosis Obat</h3>
+                        <h3 class="font-bold text-[15px] text-black dark:text-white leading-tight">
+                            @if ($isPharmacy)
+                                {{ __('pos.item_detail_pharmacy') ?? 'Detail & Dosis Obat' }}
+                            @else
+                                {{ __('pos.item_detail_notes') ?? 'Detail & Catatan Item' }}
+                            @endif
+                        </h3>
                         <p class="text-[11px] text-black/50 dark:text-white/50" x-text="editingItemIndex !== null && cart[editingItemIndex] ? cart[editingItemIndex].product_name : ''"></p>
                     </div>
                 </div>
@@ -3480,44 +3582,47 @@
 
             <div class="space-y-3">
                 <div class="space-y-1">
-                    <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70">Catatan Khusus Item</label>
-                    <input type="text" x-model="editingItemNotes" placeholder="Cth: Diskon khusus, permintaan khusus..."
+                    <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70">{{ __('pos.item_notes_label') ?? 'Catatan Khusus Item' }}</label>
+                    <input type="text" x-model="editingItemNotes" placeholder="{{ __('pos.item_notes_placeholder') ?? 'Cth: Diskon khusus, permintaan khusus...' }}"
                         class="w-full h-9 rounded-[8px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 px-3 text-[12px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
                 </div>
 
+                @if ($business->isPharmacy() || $business->isModuleEnabled('industry_pharmacy'))
                 <div class="p-3 rounded-[12px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.04] dark:border-white/5 space-y-2.5">
-                    <div class="text-[11px] font-bold uppercase tracking-wider text-[#007AFF]">Atribut Khusus Apotek / Farmasi</div>
+                    <div class="text-[11px] font-bold uppercase tracking-wider text-[#007AFF]">{{ __('pos.pharmacy_mode') }}</div>
                     <div class="grid grid-cols-2 gap-2">
                         <div class="space-y-1">
-                            <label class="block text-[11px] font-medium text-black/60 dark:text-white/60">Nomor Batch</label>
+                            <label class="block text-[11px] font-medium text-black/60 dark:text-white/60">{{ __('pos.batch_number') }}</label>
                             <input type="text" x-model="editingItemBatchNumber" placeholder="Cth: BATCH-2026A"
                                 class="w-full h-8 rounded-[7px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 px-2.5 text-[12px] font-mono text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
                         </div>
                         <div class="space-y-1">
-                            <label class="block text-[11px] font-medium text-black/60 dark:text-white/60">Tanggal ED (Expired)</label>
+                            <label class="block text-[11px] font-medium text-black/60 dark:text-white/60">{{ __('pos.expiry_date') }}</label>
                             <input type="date" x-model="editingItemExpiredDate"
                                 class="w-full h-8 rounded-[7px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 px-2 text-[11px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
                         </div>
                     </div>
                     <div class="space-y-1">
-                        <label class="block text-[11px] font-medium text-black/60 dark:text-white/60">Aturan Pakai / Dosis Obat</label>
+                        <label class="block text-[11px] font-medium text-black/60 dark:text-white/60">{{ __('pos.dosage_instructions') }}</label>
                         <input type="text" x-model="editingItemDosage" placeholder="Cth: 3 x 1 tablet sehari setelah makan"
                             class="w-full h-8 rounded-[7px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 px-2.5 text-[12px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
                     </div>
                 </div>
+                @endif
             </div>
 
             <div class="flex items-center justify-end gap-2 pt-2 border-t border-black/[0.06] dark:border-white/[0.08]">
                 <button type="button" @click="showItemDetailModal = false"
-                    class="h-9 px-3.5 rounded-[10px] text-xs font-semibold text-black/60 dark:text-white/60 hover:bg-black/[0.05] dark:hover:bg-white/[0.08]">Batal</button>
+                    class="h-9 px-3.5 rounded-[10px] text-xs font-semibold text-black/60 dark:text-white/60 hover:bg-black/[0.05] dark:hover:bg-white/[0.08]">{{ __('pos.cancel') }}</button>
                 <button type="button" @click="saveItemDetail()"
                     class="h-9 px-4 rounded-[10px] bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] text-white text-xs font-bold transition shadow-sm">
-                    Simpan Perubahan
+                    {{ __('pos.confirm') }}
                 </button>
             </div>
         </div>
     </div>
 
+    @if ($business && $business->hasDineInFeature())
     <!-- ===================================================== -->
     <!-- MODAL: INCOMING QR TABLE ORDERS DRAWER                -->
     <!-- ===================================================== -->
@@ -3698,7 +3803,7 @@
         <div class="pos-modal-panel w-full max-w-sm bg-white dark:bg-[#2C2C2E] rounded-[20px] border border-black/10 dark:border-white/10 p-5 space-y-4 shadow-[0_20px_50px_rgba(0,0,0,0.3)] text-black dark:text-white"
             @click.outside="showRejectReasonModal = false">
             <div>
-                <h3 class="font-bold text-base text-[#FF3B30]">Tolak Pesanan Meja</h3>
+                <h3 class="font-bold text-base text-[#FF3B30]">{{ __('pos.reject_table_order') }}</h3>
                 <p class="text-xs text-black/60 dark:text-white/60 mt-1">Masukkan alasan penolakan agar tercatat di
                     histori order.</p>
             </div>
@@ -4152,6 +4257,7 @@
             </template>
         </div>
     </div>
+    @endif
 
     <!-- ===================================================== -->
     <!-- 13. ALPINE.JS POS STATE ENGINE (100% PRESERVED)       -->
@@ -4199,15 +4305,18 @@
                 isDarkMode: true,
                 mobileMenuOpen: false,
                 isFullscreen: false,
+                isOnline: typeof navigator !== 'undefined' ? navigator.onLine : true,
 
                 // Cart state
+                hasDineIn: {{ ($business && $business->hasDineInFeature()) ? 'true' : 'false' }},
+                isFoodIndustry: {{ ($business && $business->isFoodIndustry()) ? 'true' : 'false' }},
                 cart: [],
                 selectedCustomerId: '',
                 activeCustomer: null,
                 customerSearchQuery: '',
                 customerDropdownOpen: false,
-                orderType: 'dine_in',
-                salesChannel: 'dine_in',
+                orderType: '{{ ($business && $business->hasDineInFeature()) ? 'dine_in' : 'takeaway' }}',
+                salesChannel: '{{ ($business && $business->hasDineInFeature()) ? 'dine_in' : 'takeaway' }}',
                 externalOrderRef: '',
                 voucherCode: '',
                 voucherDiscount: 0,
@@ -4224,6 +4333,7 @@
                 supervisorPinInput: '',
                 supervisorPinError: '',
                 supervisorPinLoading: false,
+                supervisorAttemptsRemaining: null,
 
                 // F&B Tables & QR state
                 tables: @json($tables ?? []),
@@ -4337,7 +4447,22 @@
                         ];
                     }
                 },
+                sanitizeSplitAmount(idx) {
+                    if (this.splitPaymentRows[idx]) {
+                        const val = Number(this.splitPaymentRows[idx].amount) || 0;
+                        this.splitPaymentRows[idx].amount = Math.max(0, val);
+                    }
+                },
                 addSplitRow() {
+                    if (this.splitPaymentRows.length >= 5) {
+                        const maxMsg = window.COOCA_I18N?.max_split_rows_reached || '{{ __('pos.max_split_rows_reached') }}';
+                        if (typeof AppAlert !== 'undefined') {
+                            AppAlert.warning(maxMsg);
+                        } else if (window.AppAlert) {
+                            window.AppAlert.warning(maxMsg);
+                        }
+                        return;
+                    }
                     const rem = this.splitRemainingAmount;
                     this.splitPaymentRows.push({
                         payment_method: 'cash',
@@ -4353,7 +4478,7 @@
                 },
                 fillRemainingSplit(idx) {
                     if (this.splitPaymentRows[idx]) {
-                        this.splitPaymentRows[idx].amount = (Number(this.splitPaymentRows[idx].amount) || 0) + this.splitRemainingAmount;
+                        this.splitPaymentRows[idx].amount = Math.max(0, (Number(this.splitPaymentRows[idx].amount) || 0) + this.splitRemainingAmount);
                     }
                 },
                 isProcessing: false,
@@ -4399,17 +4524,57 @@
                         if (typeof lucide !== 'undefined') lucide.createIcons();
                     });
 
+                    // Connectivity status listeners (Online / Offline detection)
+                    window.addEventListener('online', () => {
+                        this.isOnline = true;
+                        const onlineMsg = window.COOCA_I18N?.connection_restored || '{{ __('pos.connection_restored') }}';
+                        if (typeof AppAlert !== 'undefined') {
+                            AppAlert.success(onlineMsg);
+                        } else if (window.AppAlert) {
+                            window.AppAlert.success(onlineMsg);
+                        }
+                    });
+                    window.addEventListener('offline', () => {
+                        this.isOnline = false;
+                        const offlineMsg = window.COOCA_I18N?.connection_lost || '{{ __('pos.connection_lost') }}';
+                        if (typeof AppAlert !== 'undefined') {
+                            AppAlert.warning(offlineMsg);
+                        } else if (window.AppAlert) {
+                            window.AppAlert.warning(offlineMsg);
+                        }
+                    });
+
                     // Request desktop notification permission if supported
                     this.requestNotificationPermission();
 
                     // Unlock Web Audio API on first user interaction anywhere
                     this.setupAudioUnlock();
 
-                    // Initial fetch & polling
-                    this.fetchIncomingOrders();
-                    this.incomingPollInterval = setInterval(() => {
+                    // Initial fetch & smart polling (Page Visibility Aware) - F&B Dine-In Only
+                    if (this.hasDineIn) {
                         this.fetchIncomingOrders();
-                    }, 5000);
+                        const startIncomingPolling = () => {
+                            if (this.incomingPollInterval) clearInterval(this.incomingPollInterval);
+                            this.incomingPollInterval = setInterval(() => {
+                                if (!document.hidden) {
+                                    this.fetchIncomingOrders();
+                                }
+                            }, 5000);
+                        };
+                        startIncomingPolling();
+
+                        document.addEventListener('visibilitychange', () => {
+                            if (document.hidden) {
+                                if (this.incomingPollInterval) {
+                                    clearInterval(this.incomingPollInterval);
+                                    this.incomingPollInterval = null;
+                                }
+                            } else {
+                                this.fetchIncomingOrders();
+                                startIncomingPolling();
+                            }
+                        });
+                    }
 
                     // Initialize fullscreen listeners
                     this.initFullscreen();
@@ -4922,11 +5087,11 @@
                 async applyVoucher() {
                     const code = this.voucherCode ? this.voucherCode.trim() : '';
                     if (!code) {
-                        AppAlert.warning("Masukkan kode voucher terlebih dahulu.");
+                        AppAlert.warning(window.COOCA_I18N?.enter_voucher_code_first || '{{ __('pos.enter_voucher_code_first') }}');
                         return;
                     }
                     if (this.subtotal <= 0) {
-                        AppAlert.warning("Keranjang belanja masih kosong.");
+                        AppAlert.warning(window.COOCA_I18N?.empty_cart_warning || '{{ __('pos.empty_cart_warning') }}');
                         return;
                     }
 
@@ -4969,6 +5134,7 @@
                         if (discountPercent > this.maxCashierDiscountPercent) {
                             this.supervisorPinInput = '';
                             this.supervisorPinError = '';
+                            this.supervisorAttemptsRemaining = null;
                             this.showSupervisorPinModal = true;
                             this.$nextTick(() => {
                                 this.$refs.supervisorPinInputRef?.focus();
@@ -4991,8 +5157,9 @@
                 },
 
                 async verifySupervisorPinSubmit() {
+                    if (this.supervisorPinLoading) return;
                     if (!this.supervisorPinInput.trim()) {
-                        this.supervisorPinError = 'Masukkan PIN Supervisor.';
+                        this.supervisorPinError = '{{ __('pos.supervisor_pin_required') }}';
                         return;
                     }
                     this.supervisorPinLoading = true;
@@ -5013,18 +5180,28 @@
 
                         const data = await response.json();
                         if (!response.ok || !data.success) {
-                            throw new Error(data.message || 'PIN Supervisor salah atau otorisasi ditolak.');
+                            if (response.status === 429) {
+                                this.supervisorAttemptsRemaining = 0;
+                            }
+                            throw new Error(data.message || '{{ __('pos.supervisor_pin_invalid') }}');
                         }
 
                         this.supervisorApprovedForOrder = true;
-                        this.showSupervisorPinModal = false;
-                        AppAlert.success('Otorisasi diskon supervisor disetujui!');
+                        this.closeSupervisorPinModal();
+                        AppAlert.success('{{ __('pos.supervisor_auth_verified') }}');
                         this.openPaymentModal();
                     } catch (error) {
-                        this.supervisorPinError = error.message || 'PIN Supervisor salah.';
+                        this.supervisorPinError = error.message || '{{ __('pos.supervisor_pin_invalid') }}';
                     } finally {
                         this.supervisorPinLoading = false;
                     }
+                },
+
+                closeSupervisorPinModal() {
+                    this.showSupervisorPinModal = false;
+                    this.supervisorPinInput = '';
+                    this.supervisorPinError = '';
+                    this.supervisorAttemptsRemaining = null;
                 },
 
                 toggleMobileCart() {
@@ -5036,20 +5213,22 @@
                 },
 
                 async submitCheckout() {
+                    if (this.isProcessing) return;
+
                     if (!this.activeShift) {
                         this.showOpenShiftModal = true;
-                        AppAlert.warning('Shift kasir belum dibuka. Silakan buka shift terlebih dahulu.');
+                        AppAlert.warning(window.COOCA_I18N?.shift_not_open || '{{ __('pos.shift_not_open') }}');
                         return;
                     }
 
                     if (this.isSplitPayment) {
                         if (this.splitRemainingAmount > 0) {
-                            AppAlert.warning('Total alokasi split payment belum mencukupi total tagihan.');
+                            AppAlert.warning(window.COOCA_I18N?.split_allocation_insufficient || '{{ __('pos.split_allocation_insufficient') }}');
                             return;
                         }
                     } else {
                         if (this.currentTenderAmount < this.grandTotal) {
-                            AppAlert.warning('Nominal pembayaran kurang.');
+                            AppAlert.warning(window.COOCA_I18N?.payment_amount_insufficient || '{{ __('pos.payment_amount_insufficient') }}');
                             return;
                         }
                     }

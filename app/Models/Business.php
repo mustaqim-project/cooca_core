@@ -340,7 +340,13 @@ class Business extends Model
      */
     public function isModuleEnabled(string $moduleKey): bool
     {
-        $disabled = $this->disabled_modules ?? [];
+        $disabled = $this->disabled_modules;
+
+        if ($disabled === null && ! empty($this->template_code)) {
+            $disabled = \App\Domain\Template\ModuleRegistry::getDisabledModulesForTemplate($this->template_code);
+        }
+
+        $disabled = $disabled ?? [];
 
         return ! in_array($moduleKey, $disabled, true);
     }
@@ -418,6 +424,37 @@ class Business extends Model
         return ($this->business_scale ?? '') === self::SCALE_CORPORATE;
     }
 
+    public function isFoodIndustry(): bool
+    {
+        $code = strtolower((string) ($this->template_code ?? $this->industry_category ?? ''));
+        if (! empty($code)) {
+            if (str_starts_with($code, 'fnb_') || in_array($code, ['fnb', 'food', 'kuliner', 'restoran', 'cafe', 'resto', 'bakery', 'catering'], true)) {
+                return true;
+            }
+            if (str_starts_with($code, 'service_') || str_starts_with($code, 'mfg_') || str_starts_with($code, 'retail_') || in_array($code, ['distributor_fmcg', 'agri_farming', 'workshop', 'otomotif', 'bengkel', 'laundry', 'pharmacy', 'apotek'], true)) {
+                return false;
+            }
+        }
+
+        $lowerName = strtolower($this->name ?? '');
+        return str_contains($lowerName, 'kopi')
+            || str_contains($lowerName, 'cafe')
+            || str_contains($lowerName, 'resto')
+            || str_contains($lowerName, 'warung');
+    }
+
+    /**
+     * Determine if this business supports full F&B dine-in features (tables, reservations, KDS, order QR).
+     */
+    public function hasDineInFeature(): bool
+    {
+        if (! $this->isFoodIndustry()) {
+            return false;
+        }
+
+        return $this->isModuleEnabled(\App\Domain\Template\ModuleRegistry::MODULE_POS_DINEIN);
+    }
+
     public function isPharmacy(): bool
     {
         $code = strtolower((string) ($this->template_code ?? $this->industry_category ?? ''));
@@ -433,6 +470,38 @@ class Business extends Model
             'service_event', 'bengkel', 'salon', 'laundry', 'carwash',
         ];
         return in_array($code, $serviceCodes, true);
+    }
+
+    public function isWorkshop(): bool
+    {
+        $code = strtolower((string) ($this->template_code ?? $this->industry_category ?? ''));
+        return in_array($code, ['service_workshop', 'service_autodetailing', 'bengkel', 'otomotif', 'carwash', 'servis'], true)
+            || str_contains(strtolower($this->name), 'bengkel')
+            || str_contains(strtolower($this->name), 'motors')
+            || str_contains(strtolower($this->name), 'garage')
+            || str_contains(strtolower($this->name), 'servis');
+    }
+
+    public function isLaundry(): bool
+    {
+        $code = strtolower((string) ($this->template_code ?? $this->industry_category ?? ''));
+        return in_array($code, ['service_laundry', 'laundry', 'cucian'], true)
+            || str_contains(strtolower($this->name), 'laundry')
+            || str_contains(strtolower($this->name), 'cucian');
+    }
+
+    public function isRetailSector(): bool
+    {
+        $code = strtolower((string) ($this->template_code ?? $this->industry_category ?? ''));
+        return str_starts_with($code, 'retail_')
+            || in_array($code, ['retail', 'reseller', 'toko', 'minimarket', 'kelontong', 'distributor_fmcg'], true);
+    }
+
+    public function isManufacturingSector(): bool
+    {
+        $code = strtolower((string) ($this->template_code ?? $this->industry_category ?? ''));
+        return str_starts_with($code, 'mfg_')
+            || in_array($code, ['manufacturing', 'pabrik', 'produksi', 'konveksi'], true);
     }
 
     public function approvalRules(): \Illuminate\Database\Eloquent\Relations\HasMany
@@ -468,5 +537,25 @@ class Business extends Model
         }
 
         return \Illuminate\Support\Facades\Hash::check($pin, (string) $this->pos_supervisor_pin);
+    }
+
+    public function aiProviderConfigs(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(AiProviderConfig::class);
+    }
+
+    public function aiTasks(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(AiTask::class);
+    }
+
+    public function aiActionProposals(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(AiActionProposal::class);
+    }
+
+    public function aiWorkHistories(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(AiWorkHistory::class);
     }
 }

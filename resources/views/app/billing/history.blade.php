@@ -1,13 +1,23 @@
 @extends('layouts.app', [
-    'title' => 'Riwayat Pembayaran Langganan - Cooca',
-    'headerTitle' => 'Riwayat Pembayaran & Tagihan',
-    'headerSubtitle' => 'Daftar seluruh transaksi langganan, top-up kuota, dan status verifikasi bisnis Anda',
+    'title' => __('billing.breadcrumb_history') . ' - Cooca',
+    'headerTitle' => __('billing.history_title'),
+    'headerSubtitle' => __('billing.history_subtitle'),
 ])
 
 @section('content')
     <div class="space-y-6 pb-28 lg:pb-10" x-data="{
-        searchQuery: '',
-        statusFilter: 'all',
+        searchQuery: new URLSearchParams(window.location.search).get('q') || '',
+        statusFilter: new URLSearchParams(window.location.search).get('status') || '{{ request('status', 'all') }}',
+        setStatus(status) {
+            this.statusFilter = status;
+            const url = new URL(window.location.href);
+            if (status === 'all') {
+                url.searchParams.delete('status');
+            } else {
+                url.searchParams.set('status', status);
+            }
+            window.history.replaceState({}, '', url);
+        },
         matchesFilter(orderNumber, packageName, status) {
             const matchesSearch = !this.searchQuery ||
                 (orderNumber && orderNumber.toLowerCase().includes(this.searchQuery.toLowerCase())) ||
@@ -18,58 +28,34 @@
         }
     }">
 
-        <!-- 0. Standard Breadcrumb Bar -->
-        <nav class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 print:hidden" aria-label="Breadcrumb">
-            <a href="{{ route('dashboard') }}"
-                class="hover:text-[#007AFF] dark:hover:text-[#0A84FF] transition-colors flex items-center gap-1.5 font-medium text-black dark:text-white">
-                <i data-lucide="layout-dashboard" class="w-3.5 h-3.5 text-[#007AFF]"></i>
-                <span>Dashboard</span>
-            </a>
-            <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-gray-400 dark:text-gray-600"></i>
-            <a href="{{ route('billing.limits') }}"
-                class="hover:text-[#007AFF] dark:hover:text-[#0A84FF] transition-colors flex items-center gap-1.5 text-gray-500 dark:text-gray-400">
-                <i data-lucide="credit-card" class="w-3.5 h-3.5"></i>
-                <span>Langganan &amp; Billing</span>
-            </a>
-            <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-gray-400 dark:text-gray-600"></i>
-            <span class="text-black dark:text-white font-semibold flex items-center gap-1.5">
-                <span>Riwayat Tagihan</span>
-            </span>
-        </nav>
-
-        <!-- 1. Top Header Banner -->
-        <div
-            class="bg-white dark:bg-[#1C1C1E] p-5 sm:p-6 rounded-[20px] border border-black/[0.06] dark:border-white/[0.08] shadow-[0_2px_8px_rgba(0,0,0,0.04)] flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 transition-all">
-            <div class="space-y-1.5 max-w-3xl">
-                <div class="flex items-center gap-2">
-                    <span
-                        class="rounded-full px-2.5 py-0.5 text-[11px] font-semibold border inline-flex items-center gap-1.5 bg-black/[0.03] dark:bg-white/[0.06] text-gray-700 dark:text-gray-300 border-black/[0.06] dark:border-white/[0.08] font-mono tabular-nums">
-                        <i data-lucide="receipt" class="w-3.5 h-3.5 text-[#007AFF]"></i>
-                        <span>Total: {{ number_format($payments->total(), 0, ',', '.') }} Transaksi</span>
-                    </span>
-                </div>
-                <h1 class="text-xl sm:text-2xl font-bold text-black dark:text-white tracking-tight">
-                    Riwayat Pembayaran &amp; Tagihan Bisnis
-                </h1>
-                <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
-                    Pantau seluruh rekam jejak pesanan langganan SaaS, faktur resmi, dan status verifikasi akun usaha Anda.
-                </p>
-            </div>
-            <div class="flex flex-wrap items-center gap-2.5 w-full lg:w-auto">
+        <!-- Standard 3-Row Module Header Bento Apple HIG -->
+        <x-module-header
+            :title="__('billing.history_title')"
+            :subtitle="__('billing.history_subtitle')"
+            :breadcrumbs="[
+                ['label' => __('billing.breadcrumb_billing'), 'route' => 'billing.limits'],
+                ['label' => __('billing.breadcrumb_history')],
+            ]"
+            :badge="__('billing.total_transactions_count', ['count' => number_format($payments->total(), 0, ',', '.')])"
+        >
+            <x-slot:actions>
                 <a href="{{ route('billing.limits') }}"
-                    class="h-10 px-3.5 rounded-[12px] text-xs font-semibold text-gray-700 dark:text-gray-300 bg-black/[0.03] dark:bg-white/[0.06] border border-black/[0.06] dark:border-white/[0.08] hover:bg-black/[0.06] dark:hover:bg-white/[0.1] active:scale-[0.98] transition cursor-pointer flex items-center justify-center gap-1.5 flex-1 sm:flex-none">
+                    class="h-10 px-4 rounded-[12px] text-xs font-semibold text-slate-700 dark:text-slate-300 bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] dark:hover:bg-white/[0.1] active:scale-[0.98] transition flex items-center gap-2">
                     <i data-lucide="arrow-left" class="w-4 h-4"></i>
-                    <span>Paket &amp; Kuota</span>
+                    <span>{{ __('billing.back') }}</span>
                 </a>
                 @if (\App\Support\Context::hasPermission('billing.manage'))
                     <a href="{{ route('billing.checkout') }}"
-                        class="h-10 px-4 rounded-[12px] text-xs font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] shadow-xs active:scale-[0.98] transition cursor-pointer flex items-center justify-center gap-1.5 flex-1 sm:flex-none">
+                        class="h-10 px-4 rounded-[12px] text-xs font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] shadow-xs active:scale-[0.98] transition flex items-center gap-2">
                         <i data-lucide="sparkles" class="w-4 h-4"></i>
-                        <span>Upgrade / Perpanjang</span>
+                        <span>{{ __('billing.action_choose_plan') }}</span>
                     </a>
                 @endif
-            </div>
-        </div>
+            </x-slot:actions>
+        </x-module-header>
+
+        <!-- Submodule Navigation Tabs -->
+        <x-module-tabs module="billing" class="mt-2 mb-2" />
 
         <!-- 2. 4 Command Pillars KPI Cards (Bento Metric Grid) -->
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-5">
@@ -78,7 +64,7 @@
                 class="bg-white dark:bg-[#1C1C1E] p-4 sm:p-5 rounded-[20px] border border-black/[0.06] dark:border-white/[0.08] shadow-[0_2px_8px_rgba(0,0,0,0.04)] flex flex-col justify-between group hover:border-[#007AFF]/40 transition-all">
                 <div>
                     <div class="flex items-center justify-between mb-2.5">
-                        <span class="text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider font-mono">Total Transaksi</span>
+                        <span class="text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider font-mono">{{ __('billing.total_transactions') }}</span>
                         <div
                             class="w-8 h-8 rounded-[10px] bg-blue-50 dark:bg-blue-900/30 border border-blue-200/60 dark:border-blue-800/60 flex items-center justify-center text-[#007AFF]">
                             <i data-lucide="receipt" class="w-4 h-4"></i>
@@ -91,8 +77,8 @@
                 </div>
                 <div
                     class="mt-3.5 pt-2.5 border-t border-black/[0.06] dark:border-white/[0.08] text-[11px] text-gray-500 dark:text-gray-400 flex items-center justify-between">
-                    <span>Rekam Jejak</span>
-                    <span class="font-semibold text-black dark:text-white font-mono tabular-nums">{{ $payments->count() }} Ditampilkan</span>
+                    <span>{{ __('billing.audit_trail') }}</span>
+                    <span class="font-semibold text-black dark:text-white font-mono tabular-nums">{{ __('billing.displayed_count', ['count' => $payments->count()]) }}</span>
                 </div>
             </div>
 
@@ -101,7 +87,7 @@
                 class="bg-white dark:bg-[#1C1C1E] p-4 sm:p-5 rounded-[20px] border border-black/[0.06] dark:border-white/[0.08] shadow-[0_2px_8px_rgba(0,0,0,0.04)] flex flex-col justify-between group hover:border-[#34C759]/40 transition-all">
                 <div>
                     <div class="flex items-center justify-between mb-2.5">
-                        <span class="text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider font-mono">Status Langganan</span>
+                        <span class="text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider font-mono">{{ __('billing.pillar_plan_status') }}</span>
                         <div
                             class="w-8 h-8 rounded-[10px] bg-green-50 dark:bg-green-900/30 border border-green-200/60 dark:border-green-800/60 flex items-center justify-center text-[#34C759]">
                             <i data-lucide="shield-check" class="w-4 h-4"></i>
@@ -109,14 +95,14 @@
                     </div>
                     <div
                         class="text-xl sm:text-2xl font-bold text-black dark:text-white tracking-tight truncate">
-                        {{ $business->subscription?->isActive() ? 'Aktif' : 'Free Solo' }}
+                        {{ $business->subscription?->isActive() ? 'Aktif' : __('billing.plan_free') }}
                     </div>
                 </div>
                 <div
                     class="mt-3.5 pt-2.5 border-t border-black/[0.06] dark:border-white/[0.08] text-[11px] text-gray-500 dark:text-gray-400 flex items-center justify-between">
-                    <span>Berlaku s/d</span>
+                    <span>{{ __('billing.active_until') }}</span>
                     <span
-                        class="font-bold text-[#34C759] font-mono tabular-nums">{{ $business->subscription?->ends_at?->format('d/m/Y') ?? 'Selamanya' }}</span>
+                        class="font-bold text-[#34C759] font-mono tabular-nums">{{ $business->subscription?->ends_at?->format('d/m/Y') ?? __('billing.forever') }}</span>
                 </div>
             </div>
 
@@ -126,7 +112,7 @@
                 <div>
                     <div class="flex items-center justify-between mb-2.5">
                         <span
-                            class="text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider font-mono">Workspace Bisnis</span>
+                            class="text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider font-mono">{{ __('billing.active_workspace') }}</span>
                         <div
                             class="w-8 h-8 rounded-[10px] bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-200/60 dark:border-indigo-800/60 flex items-center justify-center text-[#5856D6]">
                             <i data-lucide="building-2" class="w-4 h-4"></i>
@@ -138,7 +124,7 @@
                 </div>
                 <div
                     class="mt-3.5 pt-2.5 border-t border-black/[0.06] dark:border-white/[0.08] text-[11px] text-gray-500 dark:text-gray-400 flex items-center justify-between">
-                    <span>Entitas Bisnis</span>
+                    <span>{{ __('billing.resource_businesses') }}</span>
                     <span class="font-semibold text-black dark:text-white font-mono tabular-nums">ID #{{ $business->id }}</span>
                 </div>
             </div>
@@ -149,20 +135,20 @@
                 <div>
                     <div class="flex items-center justify-between mb-2.5">
                         <span
-                            class="text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider font-mono">Gateway Pembayaran</span>
+                            class="text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider font-mono">{{ __('billing.payment_gateway') }}</span>
                         <div
                             class="w-8 h-8 rounded-[10px] bg-amber-50 dark:bg-amber-900/30 border border-amber-200/60 dark:border-amber-800/60 flex items-center justify-center text-[#FF9500]">
                             <i data-lucide="zap" class="w-4 h-4"></i>
                         </div>
                     </div>
                     <div class="text-base sm:text-lg font-bold text-black dark:text-white tracking-tight truncate">
-                        TriPay Indonesia
+                        {{ __('billing.payment_gateway_tripay') }}
                     </div>
                 </div>
                 <div
                     class="mt-3.5 pt-2.5 border-t border-black/[0.06] dark:border-white/[0.08] text-[11px] text-gray-500 dark:text-gray-400 flex items-center justify-between">
-                    <span>Verifikasi</span>
-                    <span class="font-bold text-[#34C759] font-mono">Instan 24/7</span>
+                    <span>{{ __('billing.verification') }}</span>
+                    <span class="font-bold text-[#34C759] font-mono">{{ __('billing.instant_247') }}</span>
                 </div>
             </div>
         </div>
@@ -175,42 +161,42 @@
                 <div class="relative flex-1 max-w-md">
                     <i data-lucide="search" class="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2"
                         aria-hidden="true"></i>
-                    <input type="text" x-model="searchQuery" placeholder="Cari nomor order atau nama paket..."
+                    <input type="text" x-model="searchQuery" placeholder="{{ __('billing.search_placeholder') }}"
                         class="w-full bg-black/[0.03] dark:bg-white/[0.04] border border-black/[0.06] dark:border-white/[0.08] rounded-[12px] pl-9 pr-3.5 py-2 text-[16px] sm:text-[14px] text-black dark:text-white placeholder:text-gray-400 focus:outline-hidden focus:border-[#007AFF] focus:ring-1 focus:ring-[#007AFF] transition">
                 </div>
 
                 <!-- Status Filter: Segmented Control -->
                 <div class="inline-flex p-1 bg-black/[0.04] dark:bg-white/[0.06] rounded-[12px] border border-black/[0.04] dark:border-white/[0.06] overflow-x-auto max-w-full gap-1"
                     role="tablist" aria-label="Filter Status Tagihan">
-                    <button type="button" @click="statusFilter = 'all'"
-                        class="px-3 py-1.5 rounded-[9px] text-xs font-semibold transition cursor-pointer shrink-0 active:scale-[0.98]"
+                    <button type="button" @click="setStatus('all')"
+                        class="min-h-[38px] px-3.5 py-2 rounded-[9px] text-xs font-semibold transition cursor-pointer shrink-0 active:scale-[0.98] flex items-center"
                         :class="statusFilter === 'all' ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-xs' :
                             'text-gray-500 hover:text-black dark:hover:text-white'">
-                        Semua
+                        {{ __('billing.filter_all') }}
                     </button>
-                    <button type="button" @click="statusFilter = 'pending'"
-                        class="px-3 py-1.5 rounded-[9px] text-xs font-semibold transition cursor-pointer shrink-0 active:scale-[0.98]"
+                    <button type="button" @click="setStatus('pending')"
+                        class="min-h-[38px] px-3.5 py-2 rounded-[9px] text-xs font-semibold transition cursor-pointer shrink-0 active:scale-[0.98] flex items-center"
                         :class="statusFilter === 'pending' ? 'bg-white dark:bg-[#2C2C2E] text-[#FF9500] shadow-xs' :
                             'text-gray-500 hover:text-black dark:hover:text-white'">
-                        Menunggu Bayar
+                        {{ __('billing.filter_pending') }}
                     </button>
-                    <button type="button" @click="statusFilter = 'awaiting_approval'"
-                        class="px-3 py-1.5 rounded-[9px] text-xs font-semibold transition cursor-pointer shrink-0 active:scale-[0.98]"
+                    <button type="button" @click="setStatus('awaiting_approval')"
+                        class="min-h-[38px] px-3.5 py-2 rounded-[9px] text-xs font-semibold transition cursor-pointer shrink-0 active:scale-[0.98] flex items-center"
                         :class="statusFilter === 'awaiting_approval' ? 'bg-white dark:bg-[#2C2C2E] text-[#007AFF] shadow-xs' :
                             'text-gray-500 hover:text-black dark:hover:text-white'">
-                        Verifikasi
+                        {{ __('billing.filter_verification') }}
                     </button>
-                    <button type="button" @click="statusFilter = 'approved'"
-                        class="px-3 py-1.5 rounded-[9px] text-xs font-semibold transition cursor-pointer shrink-0 active:scale-[0.98]"
+                    <button type="button" @click="setStatus('approved')"
+                        class="min-h-[38px] px-3.5 py-2 rounded-[9px] text-xs font-semibold transition cursor-pointer shrink-0 active:scale-[0.98] flex items-center"
                         :class="statusFilter === 'approved' ? 'bg-white dark:bg-[#2C2C2E] text-[#34C759] shadow-xs' :
                             'text-gray-500 hover:text-black dark:hover:text-white'">
-                        Berhasil
+                        {{ __('billing.filter_success') }}
                     </button>
-                    <button type="button" @click="statusFilter = 'rejected'"
-                        class="px-3 py-1.5 rounded-[9px] text-xs font-semibold transition cursor-pointer shrink-0 active:scale-[0.98]"
+                    <button type="button" @click="setStatus('rejected')"
+                        class="min-h-[38px] px-3.5 py-2 rounded-[9px] text-xs font-semibold transition cursor-pointer shrink-0 active:scale-[0.98] flex items-center"
                         :class="statusFilter === 'rejected' ? 'bg-white dark:bg-[#2C2C2E] text-[#FF3B30] shadow-xs' :
                             'text-gray-500 hover:text-black dark:hover:text-white'">
-                        Ditolak
+                        {{ __('billing.filter_rejected') }}
                     </button>
                 </div>
             </div>
@@ -227,13 +213,13 @@
                         <thead
                             class="bg-black/[0.02] dark:bg-white/[0.02] text-gray-500 dark:text-gray-400 font-mono uppercase text-[10px] font-semibold border-b border-black/[0.06] dark:border-white/[0.08] tracking-wider whitespace-nowrap">
                             <tr>
-                                <th scope="col" class="py-3.5 px-5">No. Pesanan</th>
-                                <th scope="col" class="py-3.5 px-4">Paket &amp; Siklus</th>
-                                <th scope="col" class="py-3.5 px-4">Metode Bayar</th>
-                                <th scope="col" class="py-3.5 px-4 text-right">Total Bayar</th>
-                                <th scope="col" class="py-3.5 px-4 text-center">Status</th>
-                                <th scope="col" class="py-3.5 px-4">Tanggal Order</th>
-                                <th scope="col" class="py-3.5 px-5 text-right">Tindakan</th>
+                                <th scope="col" class="py-3.5 px-5">{{ __('billing.order_number') }}</th>
+                                <th scope="col" class="py-3.5 px-4">{{ __('billing.package_and_cycle') }}</th>
+                                <th scope="col" class="py-3.5 px-4">{{ __('billing.payment_method') }}</th>
+                                <th scope="col" class="py-3.5 px-4 text-right">{{ __('billing.total_payable') }}</th>
+                                <th scope="col" class="py-3.5 px-4 text-center">{{ __('billing.status') }}</th>
+                                <th scope="col" class="py-3.5 px-4">{{ __('billing.order_date') }}</th>
+                                <th scope="col" class="py-3.5 px-5 text-right">{{ __('billing.actions') }}</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-black/[0.04] dark:divide-white/[0.04] font-sans">
@@ -312,15 +298,15 @@
                                     <td class="py-3.5 px-5 text-right whitespace-nowrap">
                                         <div class="flex items-center justify-end gap-1.5">
                                             <a href="{{ route('billing.payment.invoice', $p) }}" target="_blank"
-                                                title="Cetak / Download Faktur"
-                                                class="w-8 h-8 rounded-[10px] text-gray-500 hover:text-black dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] active:scale-[0.98] transition cursor-pointer flex items-center justify-center">
+                                                title="{{ __('billing.print_receipt') }}"
+                                                class="min-w-[36px] min-h-[36px] rounded-[10px] text-gray-500 hover:text-black dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] active:scale-[0.98] transition cursor-pointer flex items-center justify-center">
                                                 <i data-lucide="printer"
                                                     class="w-4 h-4 text-[#007AFF]"
                                                     aria-hidden="true"></i>
                                             </a>
                                             <a href="{{ route('billing.payment.show', $p) }}"
-                                                class="h-8 px-3 rounded-[10px] text-xs font-semibold text-gray-700 dark:text-gray-300 bg-black/[0.03] hover:bg-black/[0.06] dark:bg-white/[0.06] dark:hover:bg-white/[0.1] active:scale-[0.98] transition cursor-pointer inline-flex items-center gap-1">
-                                                <span>Detail</span>
+                                                class="min-h-[36px] px-3.5 rounded-[10px] text-xs font-semibold text-gray-700 dark:text-gray-300 bg-black/[0.03] hover:bg-black/[0.06] dark:bg-white/[0.06] dark:hover:bg-white/[0.1] active:scale-[0.98] transition cursor-pointer inline-flex items-center gap-1.5">
+                                                <span>{{ __('billing.quick_detail') }}</span>
                                                 <i data-lucide="chevron-right" class="w-3.5 h-3.5"
                                                     aria-hidden="true"></i>
                                             </a>
@@ -367,26 +353,26 @@
                             <div
                                 class="p-3.5 rounded-[14px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.08] space-y-2">
                                 <div class="flex items-center justify-between text-xs">
-                                    <span class="text-gray-500 dark:text-gray-400">Paket:</span>
+                                    <span class="text-gray-500 dark:text-gray-400">{{ __('billing.package_label') }}:</span>
                                     <span class="font-semibold text-black dark:text-white text-right">
                                         {{ $pPackageName }}
                                     </span>
                                 </div>
                                 <div class="flex items-center justify-between text-xs">
-                                    <span class="text-gray-500 dark:text-gray-400">Metode:</span>
+                                    <span class="text-gray-500 dark:text-gray-400">{{ __('billing.method_label') }}:</span>
                                     <span
                                         class="font-medium text-black dark:text-white">{{ $method['name'] ?? strtoupper($p->payment_method) }}</span>
                                 </div>
                                 <div
                                     class="flex items-center justify-between text-xs pt-2 border-t border-black/[0.06] dark:border-white/[0.08]">
-                                    <span class="text-gray-500 dark:text-gray-400">Total Tagihan:</span>
+                                    <span class="text-gray-500 dark:text-gray-400">{{ __('billing.total_payable') }}:</span>
                                     <div class="text-right">
                                         <div class="font-mono font-bold text-sm text-[#007AFF] dark:text-[#0A84FF] tabular-nums">
                                             Rp {{ number_format($p->total_payable, 0, ',', '.') }}
                                         </div>
                                         @if ($p->unique_code > 0)
                                             <div class="text-[10px] text-[#FF9500] font-mono tabular-nums">
-                                                Kode unik: +{{ str_pad((string) $p->unique_code, 3, '0', STR_PAD_LEFT) }}
+                                                {{ __('billing.unique_code_label') }}: +{{ str_pad((string) $p->unique_code, 3, '0', STR_PAD_LEFT) }}
                                             </div>
                                         @endif
                                     </div>
@@ -403,14 +389,14 @@
 
                                 <div class="flex items-center gap-2">
                                     <a href="{{ route('billing.payment.invoice', $p) }}" target="_blank"
-                                        class="h-9 px-2.5 rounded-[10px] bg-black/[0.03] dark:bg-white/[0.06] border border-black/[0.06] dark:border-white/[0.08] text-[#007AFF] text-xs font-semibold transition active:scale-[0.98] flex items-center justify-center"
-                                        title="Cetak Faktur">
+                                        class="min-h-[44px] min-w-[44px] rounded-[12px] bg-black/[0.03] dark:bg-white/[0.06] border border-black/[0.06] dark:border-white/[0.08] text-[#007AFF] text-xs font-semibold transition active:scale-[0.98] flex items-center justify-center"
+                                        title="{{ __('billing.print_receipt') }}">
                                         <i data-lucide="printer" class="w-4 h-4" aria-hidden="true"></i>
                                     </a>
 
                                     <a href="{{ route('billing.payment.show', $p) }}"
-                                        class="h-9 px-3.5 rounded-[10px] text-xs font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] transition cursor-pointer flex items-center gap-1">
-                                        <span>Rincian</span>
+                                        class="min-h-[44px] px-4 rounded-[12px] text-xs font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] transition cursor-pointer flex items-center gap-1.5">
+                                        <span>{{ __('billing.quick_detail') }}</span>
                                         <i data-lucide="chevron-right" class="w-3.5 h-3.5" aria-hidden="true"></i>
                                     </a>
                                 </div>
@@ -427,9 +413,9 @@
                         <i data-lucide="receipt" class="w-7 h-7"></i>
                     </div>
                     <div class="space-y-1 max-w-sm mx-auto">
-                        <h4 class="text-sm font-bold text-black dark:text-white">Belum Ada Riwayat Tagihan</h4>
+                        <h4 class="text-sm font-bold text-black dark:text-white">{{ __('billing.empty_history_title') }}</h4>
                         <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
-                            Saat ini bisnis Anda menggunakan paket standar atau belum memiliki riwayat pesanan langganan.
+                            {{ __('billing.empty_history_desc') }}
                         </p>
                     </div>
                     @if (\App\Support\Context::hasPermission('billing.manage'))
@@ -437,7 +423,7 @@
                             <a href="{{ route('billing.checkout') }}"
                                 class="h-10 px-4 rounded-[12px] text-xs font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] transition cursor-pointer inline-flex items-center gap-1.5">
                                 <i data-lucide="sparkles" class="w-4 h-4" aria-hidden="true"></i>
-                                <span>Pilih Paket Langganan</span>
+                                <span>{{ __('billing.action_choose_plan') }}</span>
                             </a>
                         </div>
                     @endif

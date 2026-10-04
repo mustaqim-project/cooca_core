@@ -6,6 +6,8 @@ namespace App\Http\Controllers\Web\WhatsApp;
 
 use App\Domain\WhatsApp\CloudApi\WhatsAppClient;
 use App\Http\Controllers\Controller;
+use App\Models\AuditLog;
+use App\Models\Business;
 use App\Models\WhatsAppAccount;
 use App\Models\WhatsAppSession;
 use App\Support\Context;
@@ -319,11 +321,29 @@ class MetaWhatsAppOnboardingController extends Controller
     }
 
     /**
-     * Memutuskan integrasi WhatsApp Cloud API merchant secara aman.
+     * Memutuskan integrasi WhatsApp Cloud API merchant secara aman dengan otorisasi Supervisor PIN.
      */
-    public function disconnect(): JsonResponse
+    public function disconnect(Request $request): JsonResponse
     {
         $business = Context::requireBusiness();
+
+        if ($business->hasSupervisorPin()) {
+            $pin = (string) $request->input('pin', '');
+            if (empty($pin)) {
+                return response()->json([
+                    'success'      => false,
+                    'pin_required' => true,
+                    'message'      => __('whatsapp.supervisor_pin_required'),
+                ], 422);
+            }
+
+            if (! $business->verifySupervisorPin($pin)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => __('whatsapp.supervisor_pin_invalid'),
+                ], 422);
+            }
+        }
 
         $account = WhatsAppAccount::where('business_id', $business->id)->first();
         if ($account) {
@@ -339,11 +359,25 @@ class MetaWhatsAppOnboardingController extends Controller
             ]);
         }
 
+        AuditLog::create([
+            'business_id'    => $business->id,
+            'user_id'        => auth()->id(),
+            'action'         => 'whatsapp.meta_disconnect',
+            'auditable_type' => WhatsAppAccount::class,
+            'auditable_id'   => $account?->id ?? $business->id,
+            'risk_level'     => AuditLog::RISK_HIGH,
+            'risk_reason'    => 'Pemutusan integrasi Meta WhatsApp Cloud API resmi.',
+            'notes'          => 'Operator memutuskan koneksi WABA Meta toko.',
+            'ip_address'     => $request->ip(),
+            'user_agent'     => $request->userAgent(),
+            'created_at'     => now(),
+        ]);
+
         Log::channel('daily')->info("[Meta Onboarding] Merchant {$business->id} memutuskan integrasi Meta WhatsApp.");
 
         return response()->json([
             'success' => true,
-            'message' => 'Integrasi WhatsApp Cloud API Meta berhasil dinonaktifkan.',
+            'message' => __('whatsapp.flash_disconnected'),
         ]);
     }
 

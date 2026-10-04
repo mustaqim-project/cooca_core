@@ -1,8 +1,4 @@
-@extends('layouts.app', [
-    'title' => 'Sesi Shift Kasir',
-    'headerTitle' => 'Sesi Shift Kasir',
-    'headerSubtitle' => 'Kelola pembukaan shift kasir, mutasi kas, dan rekonsiliasi laci uang fisik (cash drawer)',
-])
+@extends('layouts.app', ['title' => __('pos.shifts_title')])
 
 @section('content')
 <div class="max-w-[1360px] mx-auto space-y-6 pb-12" x-data="{
@@ -118,8 +114,8 @@
     {{-- MODULE HEADER & PERSISTENT POS TABS --}}
     <x-module-header
         module="pos"
-        title="Sesi Shift Kasir"
-        subtitle="Multi-kasir, multi-terminal POS, penghitungan fisik (blind cash count), dan laporan termal ESC/POS.">
+        :title="__('pos.shifts_title')"
+        :subtitle="__('pos.shifts_subtitle')">
         <x-slot:actions>
             @if(\App\Support\Context::hasPermission('pos.terminal'))
                 <a href="{{ route('pos.terminal') }}" class="min-h-[44px] sm:min-h-0 sm:h-9 px-4 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] dark:hover:bg-white/[0.12] active:scale-[0.97] transition-all flex items-center justify-center gap-1.5 w-full sm:w-auto">

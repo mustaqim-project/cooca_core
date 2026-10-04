@@ -194,4 +194,13 @@ class Invoice extends Model
             'status' => $status,
         ]);
     }
+
+    /**
+     * @return HasMany<CustomerTermReminder, $this>
+     */
+    public function termReminders(): HasMany
+    {
+        return $this->hasMany(CustomerTermReminder::class);
+    }
 }
+

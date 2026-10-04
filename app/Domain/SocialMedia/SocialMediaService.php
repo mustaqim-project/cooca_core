@@ -9,6 +9,7 @@ use App\Models\Business;
 use App\Models\SocialMediaAccount;
 use App\Models\SocialMediaComment;
 use App\Models\SocialMediaPost;
+use App\Domain\Storage\StorageTrackingService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -333,5 +334,45 @@ class SocialMediaService
             'total_posts'     => $postsCount,
             'unread_comments' => $unreadComments,
         ];
+    }
+
+    /**
+     * Purge temporary local media files and record quota reduction in StorageTrackingService.
+     */
+    public function purgePostLocalMedia(SocialMediaPost $post): void
+    {
+        $disk = Storage::disk('public');
+        $trackingService = app(StorageTrackingService::class);
+
+        // 1. Purge from post media relation
+        $post->loadMissing('media');
+        foreach ($post->media as $media) {
+            if (! empty($media->local_path) && $disk->exists($media->local_path)) {
+                try {
+                    $trackingService->recordDeletion($media->local_path);
+                    $disk->delete($media->local_path);
+                    $media->update(['local_path' => null]);
+                    Log::info("[SocialMediaService] Purged local media file: {$media->local_path}");
+                } catch (\Throwable $e) {
+                    Log::warning("[SocialMediaService] Could not delete local media: {$e->getMessage()}");
+                }
+            }
+        }
+
+        // 2. Purge from legacy local_media_paths
+        if (! empty($post->local_media_paths) && is_array($post->local_media_paths)) {
+            foreach ($post->local_media_paths as $localPath) {
+                if (! empty($localPath) && $disk->exists($localPath)) {
+                    try {
+                        $trackingService->recordDeletion($localPath);
+                        $disk->delete($localPath);
+                        Log::info("[SocialMediaService] Purged legacy local path: {$localPath}");
+                    } catch (\Throwable $e) {
+                        Log::warning("[SocialMediaService] Could not delete legacy local path: {$e->getMessage()}");
+                    }
+                }
+            }
+            $post->update(['local_media_paths' => null]);
+        }
     }
 }

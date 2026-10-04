@@ -1666,7 +1666,11 @@ final class CafeKopiSenjaFullSeeder extends Seeder
                     'origin_contact_name' => 'Barista Kopi Senja Dago',
                     'origin_contact_phone' => '081211110002',
                     'origin_address' => $locDago->address,
+                    'origin_postal_code' => $locDago->postal_code ?: '40135',
+                    'origin_latitude' => $locDago->latitude ? (float) $locDago->latitude : -6.8905,
+                    'origin_longitude' => $locDago->longitude ? (float) $locDago->longitude : 107.6100,
                     'origin_location_id' => $locDago->id,
+                    'biteship_enabled_couriers' => ['jne', 'sicepat', 'jnt', 'anteraja', 'gosend', 'grab'],
                 ]
             );
 

@@ -29,13 +29,13 @@
                         }))"
                         class="min-h-[44px] sm:min-h-0 sm:h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-black/80 dark:bg-white/20 hover:bg-black active:scale-[0.97] transition-all flex items-center justify-center gap-1.5 w-full sm:w-auto shadow-sm cursor-pointer">
                         <i data-lucide="lock" class="w-4 h-4 text-[#FF3B30]"></i>
-                        <span>Tulis Postingan (Batas Tercapai)</span>
+                        <span>{{ __('social_media.create_post_quota_reached') }}</span>
                     </button>
                 @else
                     <button @click="openComposerModal = true"
                         class="min-h-[44px] sm:min-h-0 sm:h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] transition-all flex items-center justify-center gap-1.5 w-full sm:w-auto shadow-sm cursor-pointer">
                         <i data-lucide="plus-circle" class="w-4 h-4"></i>
-                        <span>Tulis Postingan Baru</span>
+                        <span>{{ __('social_media.create_post_btn') }}</span>
                     </button>
                 @endif
             </x-slot:actions>
@@ -52,18 +52,18 @@
                     </div>
                     <div>
                         <div class="text-[14px] font-bold text-slate-900 dark:text-white">
-                            Kuota Posting Gratis Bulan Ini Habis ({{ $postsUsedThisMonth ?? 3 }}/{{ $socialPostLimit ?? 3 }} Posting)
+                            {{ __('social_media.quota_banner_title', ['used' => $postsUsedThisMonth ?? 3, 'limit' => $socialPostLimit ?? 3]) }}
                         </div>
                         <div class="text-[12px] text-slate-600 dark:text-slate-400 mt-0.5">
-                            Seluruh riwayat postingan dan analitik tetap aman dapat diakses. Kuota akan otomatis di-reset pada tanggal 1 awal bulan berikutnya.
+                            {{ __('social_media.quota_banner_desc') }}
                         </div>
                     </div>
                 </div>
                 <button type="button"
                     @click="window.dispatchEvent(new CustomEvent('open-quota-modal', {
                         detail: {
-                            title: 'Kuota Posting Media Sosial Terpakai',
-                            desc: 'Anda telah mencapai batas 3 posting gratis bulan ini. Aktifkan Add-On Social Media Management untuk posting & jadwal konten tanpa batas.',
+                            title: '{{ __('social_media.quota_banner_title', ['used' => $postsUsedThisMonth ?? 3, 'limit' => $socialPostLimit ?? 3]) }}',
+                            desc: '{{ __('social_media.quota_exceeded', ['used' => $postsUsedThisMonth ?? 3, 'limit' => $socialPostLimit ?? 3]) }}',
                             used: {{ $postsUsedThisMonth ?? 3 }},
                             limit: {{ $socialPostLimit ?? 3 }},
                             unit: 'posting',
@@ -72,42 +72,11 @@
                             isAddon: true
                         }
                     }))"
-                    class="h-9 px-4 rounded-[10px] text-[12px] font-bold text-white bg-rose-600 hover:bg-rose-500 shadow-sm transition whitespace-nowrap cursor-pointer shrink-0">
-                    Aktifkan Unlimited
+                    class="min-h-[44px] sm:min-h-0 h-9 px-4 rounded-[10px] text-[12px] font-bold text-white bg-rose-600 hover:bg-rose-500 shadow-sm transition whitespace-nowrap cursor-pointer shrink-0">
+                    {{ __('social_media.activate_unlimited') }}
                 </button>
             </div>
         @endif
-
-        {{-- 2. MODULE NAVIGATION SUB-TABS --}}
-        <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-2 sm:p-2.5 flex items-center justify-between shadow-sm">
-            <div class="inline-flex p-1 rounded-[12px] bg-black/[0.05] dark:bg-white/[0.08] border border-black/5 dark:border-white/5 w-full sm:w-auto overflow-x-auto text-[13px] font-medium">
-                <a href="{{ route('social-media.index') }}"
-                    class="h-8 px-4 rounded-[9px] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white flex items-center gap-2 whitespace-nowrap transition-colors">
-                    <i data-lucide="link" class="w-4 h-4"></i>
-                    <span>Koneksi Akun</span>
-                </a>
-                <a href="{{ route('social-media.posts.index') }}"
-                    class="h-8 px-4 rounded-[9px] bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-sm flex items-center gap-2 whitespace-nowrap">
-                    <i data-lucide="image" class="w-4 h-4 text-[#007AFF]"></i>
-                    <span>Posting Konten</span>
-                </a>
-                <a href="{{ route('social-media.calendar') }}"
-                    class="h-8 px-4 rounded-[9px] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white flex items-center gap-2 whitespace-nowrap transition-colors">
-                    <i data-lucide="calendar" class="w-4 h-4"></i>
-                    <span>Kalender Konten</span>
-                </a>
-                <a href="{{ route('social-media.inbox.index') }}"
-                    class="h-8 px-4 rounded-[9px] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white flex items-center gap-2 whitespace-nowrap transition-colors">
-                    <i data-lucide="message-square" class="w-4 h-4"></i>
-                    <span>Kotak Masuk &amp; Komentar</span>
-                </a>
-                <a href="{{ route('social-media.insights.index') }}"
-                    class="h-8 px-4 rounded-[9px] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white flex items-center gap-2 whitespace-nowrap transition-colors">
-                    <i data-lucide="bar-chart-2" class="w-4 h-4"></i>
-                    <span>Analitik &amp; Performa</span>
-                </a>
-            </div>
-        </div>
 
         {{-- FLASH ALERTS --}}
         @if(session('success'))
@@ -129,23 +98,23 @@
                 <span class="text-[12px] font-semibold text-black/50 dark:text-white/50 uppercase tracking-wider mr-1">Status:</span>
                 <a href="{{ route('social-media.posts.index', ['status' => 'all', 'platform' => $platform]) }}"
                     class="h-7 px-3 rounded-full text-[12px] font-medium transition-colors {{ $status === 'all' ? 'bg-[#007AFF] text-white shadow-sm' : 'bg-black/[0.04] dark:bg-white/[0.06] text-black/70 dark:text-white/70 hover:bg-black/[0.08]' }}">
-                    Semua ({{ $posts->total() }})
+                    {{ __('social_media.filter_status_all') }} ({{ $posts->total() }})
                 </a>
                 <a href="{{ route('social-media.posts.index', ['status' => 'published', 'platform' => $platform]) }}"
                     class="h-7 px-3 rounded-full text-[12px] font-medium transition-colors {{ $status === 'published' ? 'bg-[#34C759] text-white shadow-sm' : 'bg-black/[0.04] dark:bg-white/[0.06] text-black/70 dark:text-white/70 hover:bg-black/[0.08]' }}">
-                    Terpublikasi
+                    {{ __('social_media.filter_status_published') }}
                 </a>
                 <a href="{{ route('social-media.posts.index', ['status' => 'scheduled', 'platform' => $platform]) }}"
                     class="h-7 px-3 rounded-full text-[12px] font-medium transition-colors {{ $status === 'scheduled' ? 'bg-[#5856D6] text-white shadow-sm' : 'bg-black/[0.04] dark:bg-white/[0.06] text-black/70 dark:text-white/70 hover:bg-black/[0.08]' }}">
-                    Terjadwal
+                    {{ __('social_media.filter_status_scheduled') }}
                 </a>
                 <a href="{{ route('social-media.posts.index', ['status' => 'pending_review', 'platform' => $platform]) }}"
                     class="h-7 px-3 rounded-full text-[12px] font-medium transition-colors {{ $status === 'pending_review' ? 'bg-[#FF9500] text-white shadow-sm' : 'bg-black/[0.04] dark:bg-white/[0.06] text-black/70 dark:text-white/70 hover:bg-black/[0.08]' }}">
-                    Menunggu Approval
+                    {{ __('social_media.filter_status_pending_review') }}
                 </a>
                 <a href="{{ route('social-media.posts.index', ['status' => 'failed', 'platform' => $platform]) }}"
                     class="h-7 px-3 rounded-full text-[12px] font-medium transition-colors {{ $status === 'failed' ? 'bg-[#FF3B30] text-white shadow-sm' : 'bg-black/[0.04] dark:bg-white/[0.06] text-black/70 dark:text-white/70 hover:bg-black/[0.08]' }}">
-                    Gagal
+                    {{ __('social_media.filter_status_failed') }}
                 </a>
             </div>
 
@@ -153,7 +122,7 @@
                 <span class="text-[12px] font-semibold text-black/50 dark:text-white/50 uppercase tracking-wider">Platform:</span>
                 <select onchange="window.location.href=this.value"
                     class="h-8 px-3 rounded-[10px] text-[12.5px] font-medium bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 text-black dark:text-white focus:outline-none focus:ring-1 focus:ring-[#007AFF]">
-                    <option value="{{ route('social-media.posts.index', ['status' => $status, 'platform' => 'all']) }}" {{ $platform === 'all' ? 'selected' : '' }}>Semua Platform</option>
+                    <option value="{{ route('social-media.posts.index', ['status' => $status, 'platform' => 'all']) }}" {{ $platform === 'all' ? 'selected' : '' }}>{{ __('social_media.filter_platform_all') }}</option>
                     <option value="{{ route('social-media.posts.index', ['status' => $status, 'platform' => 'facebook']) }}" {{ $platform === 'facebook' ? 'selected' : '' }}>Facebook</option>
                     <option value="{{ route('social-media.posts.index', ['status' => $status, 'platform' => 'instagram']) }}" {{ $platform === 'instagram' ? 'selected' : '' }}>Instagram</option>
                     <option value="{{ route('social-media.posts.index', ['status' => $status, 'platform' => 'threads']) }}" {{ $platform === 'threads' ? 'selected' : '' }}>Threads</option>
@@ -170,16 +139,16 @@
                     <i data-lucide="inbox" class="w-8 h-8"></i>
                 </div>
                 <div class="max-w-md mx-auto space-y-1">
-                    <h3 class="text-[16px] font-bold text-black dark:text-white">Belum Ada Postingan</h3>
+                    <h3 class="text-[16px] font-bold text-black dark:text-white">{{ __('social_media.empty_posts_title') }}</h3>
                     <p class="text-[13px] text-black/60 dark:text-white/60">
-                        Mulai bagikan produk baru, promo, atau cerita toko Anda ke pengikut media sosial hari ini.
+                        {{ __('social_media.empty_posts_desc') }}
                     </p>
                 </div>
                 <div>
                     <button @click="openComposerModal = true"
-                        class="h-9 px-5 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] transition-all inline-flex items-center gap-2">
+                        class="min-h-[44px] sm:min-h-0 h-9 px-5 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] transition-all inline-flex items-center gap-2">
                         <i data-lucide="plus" class="w-4 h-4"></i>
-                        <span>Tulis Postingan Sekarang</span>
+                        <span>{{ __('social_media.write_post_now_btn') }}</span>
                     </button>
                 </div>
             </div>
@@ -285,7 +254,7 @@
                             {{-- Multi-Channel Target Breakdown with Retry --}}
                             @if($post->targets->isNotEmpty())
                                 <div class="p-2.5 rounded-[12px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5 space-y-1.5">
-                                    <div class="text-[10.5px] font-bold uppercase tracking-wider text-black/50 dark:text-white/50">Target Saluran:</div>
+                                    <div class="text-[10.5px] font-bold uppercase tracking-wider text-black/50 dark:text-white/50">{{ __('social_media.post_target_channels') }}</div>
                                     <div class="flex flex-wrap gap-1.5">
                                         @foreach($post->targets as $target)
                                             <div class="px-2 py-0.5 rounded-[6px] text-[11px] font-semibold flex items-center gap-1.5 border
@@ -295,10 +264,10 @@
                                                 @if($target->status === 'published')
                                                     <i data-lucide="check" class="w-3 h-3 text-[#34C759]"></i>
                                                 @elseif($target->status === 'failed')
-                                                    <form method="POST" action="{{ route('social-media.targets.retry', $target) }}" class="inline ml-1">
+                                                    <form method="POST" action="{{ route('social-media.targets.retry', $target) }}" class="inline ml-1" x-data="{ isSubmitting: false }" @submit="if(isSubmitting) { $event.preventDefault(); return false; } isSubmitting = true">
                                                         @csrf
-                                                        <button type="submit" class="underline text-[#FF3B30] hover:text-black dark:hover:text-white font-bold inline-flex items-center gap-0.5" title="Retry Target Ini">
-                                                            <i data-lucide="refresh-cw" class="w-2.5 h-2.5"></i>
+                                                        <button type="submit" :disabled="isSubmitting" class="underline text-[#FF3B30] hover:text-black dark:hover:text-white font-bold inline-flex items-center gap-0.5 disabled:opacity-50" title="Retry Target Ini">
+                                                            <i data-lucide="refresh-cw" class="w-2.5 h-2.5" :class="{ 'animate-spin': isSubmitting }"></i>
                                                             <span>Retry</span>
                                                         </button>
                                                     </form>
@@ -316,7 +285,7 @@
                             @if($post->isPartiallyFailed())
                                 <div class="p-2 rounded-[8px] bg-[#FF9500]/10 text-[#FF9500] text-[11.5px] font-semibold flex items-center gap-1.5">
                                     <i data-lucide="alert-circle" class="w-3.5 h-3.5 shrink-0"></i>
-                                    <span>Sebagian target publikasi gagal. Klik Retry untuk mencoba ulang target tersebut.</span>
+                                    <span>{{ __('social_media.partially_failed_alert') }}</span>
                                 </div>
                             @endif
 
@@ -334,11 +303,11 @@
                                 <div class="rounded-[12px] p-3 bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5 flex items-center justify-between text-[11.5px] text-black/60 dark:text-white/60">
                                     <div class="flex items-center gap-2">
                                         <i data-lucide="{{ $post->media_type === 'reels' ? 'film' : ($post->media_type === 'video' ? 'video' : 'image') }}" class="w-4 h-4 text-[#007AFF]"></i>
-                                        <span class="font-medium">Media Terpublikasi di Meta</span>
+                                        <span class="font-medium">{{ __('social_media.media_published_meta') }}</span>
                                     </div>
                                     <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#34C759]/10 text-[#248A3D] dark:text-[#30D158] inline-flex items-center gap-1">
                                         <i data-lucide="shield-check" class="w-3 h-3"></i>
-                                        <span>Server Bersih</span>
+                                        <span>{{ __('social_media.server_clean_badge') }}</span>
                                     </span>
                                 </div>
                             @endif
@@ -350,7 +319,7 @@
 
                             @if($post->status === 'failed' && $post->error_message)
                                 <div class="p-2.5 rounded-[10px] bg-[#FF3B30]/10 border border-[#FF3B30]/20 text-[11.5px] text-[#FF3B30]">
-                                    <strong>Penyebab:</strong> {{ $post->error_message }}
+                                    <strong>{{ __('social_media.cause_label') }}</strong> {{ $post->error_message }}
                                 </div>
                             @endif
 
@@ -358,34 +327,36 @@
                             @if(! empty($post->risk_flags) && in_array('unregistered_bank_account_detected', $post->risk_flags, true))
                                 <div class="p-2.5 rounded-[10px] bg-[#FF9500]/10 border border-[#FF9500]/25 text-[11.5px] text-[#FF9500] flex items-center gap-2">
                                     <i data-lucide="shield-alert" class="w-4 h-4 shrink-0"></i>
-                                    <span><strong>Peringatan Anti-Fraud:</strong> Terdeteksi nomor rekening bank pada caption yang tidak terdaftar di akun resmi toko.</span>
+                                    <span>{{ __('social_media.anti_fraud_warning_bank') }}</span>
                                 </div>
                             @endif
 
                             {{-- Rejection Reason --}}
                             @if(($post->approval_status === 'rejected' || $post->status === 'rejected') && $post->rejection_reason)
                                 <div class="p-2.5 rounded-[10px] bg-[#FF3B30]/10 border border-[#FF3B30]/25 text-[11.5px] text-[#FF3B30]">
-                                    <strong>Alasan Ditolak:</strong> {{ $post->rejection_reason }}
+                                    <strong>{{ __('social_media.rejection_reason_label') }}</strong> {{ $post->rejection_reason }}
                                 </div>
                             @endif
 
                             {{-- Maker-Checker Action Buttons for Owner / Manager --}}
                             @if(($post->approval_status === 'pending_review' || $post->status === 'pending_review') && (\App\Support\Context::isAdminOrOwner() || \App\Support\Context::hasPermission('social_media.manage')))
                                 <div class="pt-2 flex items-center gap-2 justify-end border-t border-black/5 dark:border-white/10">
-                                    <form method="POST" action="{{ route('social-media.posts.approve', $post) }}" class="inline"
-                                        onsubmit="return typeof AppAlert !== 'undefined' ? AppAlert.confirmSubmit(event, this, 'Apakah Anda yakin ingin menyetujui dan mempublikasikan postingan ini?', 'Setujui Postingan?', 'info') : true">
+                                    <form method="POST" action="{{ route('social-media.posts.approve', $post) }}" class="inline" x-data="{ isSubmitting: false }"
+                                        @submit="if(isSubmitting) { $event.preventDefault(); return false; } if(typeof AppAlert !== 'undefined') { if(!AppAlert.confirmSubmit($event, $el, '{{ __('social_media.confirm_approve_msg') }}', '{{ __('social_media.confirm_approve_title') }}', 'info')) return false; } isSubmitting = true">
                                         @csrf
-                                        <button type="submit" class="h-7 px-3 rounded-[8px] text-[11.5px] font-semibold text-white bg-[#34C759] hover:bg-[#2FB34F] active:scale-[0.97] transition-all inline-flex items-center gap-1 shadow-sm">
-                                            <i data-lucide="check" class="w-3.5 h-3.5"></i>
-                                            <span>Setujui &amp; Publikasi</span>
+                                        <button type="submit" :disabled="isSubmitting" class="min-h-[44px] sm:min-h-0 sm:h-8 px-3.5 rounded-[9px] text-[12px] font-semibold text-white bg-[#34C759] hover:bg-[#2FB34F] active:scale-[0.97] transition-all inline-flex items-center gap-1.5 shadow-sm disabled:opacity-50">
+                                            <i data-lucide="check" class="w-3.5 h-3.5" :class="{ 'hidden': isSubmitting }"></i>
+                                            <i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin" :class="{ 'hidden': !isSubmitting }"></i>
+                                            <span>{{ __('social_media.approve_and_publish_btn') }}</span>
                                         </button>
                                     </form>
-                                    <form method="POST" action="{{ route('social-media.posts.reject', $post) }}" class="inline"
-                                        onsubmit="return typeof AppAlert !== 'undefined' ? AppAlert.confirmSubmit(event, this, 'Apakah Anda yakin ingin menolak postingan ini?', 'Tolak Postingan?', 'danger') : true">
+                                    <form method="POST" action="{{ route('social-media.posts.reject', $post) }}" class="inline" x-data="{ isSubmitting: false }"
+                                        @submit="if(isSubmitting) { $event.preventDefault(); return false; } if(typeof AppAlert !== 'undefined') { if(!AppAlert.confirmSubmit($event, $el, '{{ __('social_media.confirm_reject_msg') }}', '{{ __('social_media.confirm_reject_title') }}', 'danger')) return false; } isSubmitting = true">
                                         @csrf
-                                        <button type="submit" class="h-7 px-3 rounded-[8px] text-[11.5px] font-semibold text-white bg-[#FF3B30] hover:bg-[#E0352B] active:scale-[0.97] transition-all inline-flex items-center gap-1 shadow-sm">
-                                            <i data-lucide="x" class="w-3.5 h-3.5"></i>
-                                            <span>Tolak</span>
+                                        <button type="submit" :disabled="isSubmitting" class="min-h-[44px] sm:min-h-0 sm:h-8 px-3.5 rounded-[9px] text-[12px] font-semibold text-white bg-[#FF3B30] hover:bg-[#E0352B] active:scale-[0.97] transition-all inline-flex items-center gap-1.5 shadow-sm disabled:opacity-50">
+                                            <i data-lucide="x" class="w-3.5 h-3.5" :class="{ 'hidden': isSubmitting }"></i>
+                                            <i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin" :class="{ 'hidden': !isSubmitting }"></i>
+                                            <span>{{ __('social_media.reject_post_btn') }}</span>
                                         </button>
                                     </form>
                                 </div>
@@ -437,8 +408,8 @@
                             <i data-lucide="feather" class="w-5 h-5"></i>
                         </div>
                         <div>
-                            <h3 class="text-[17px] font-bold text-black dark:text-white">Unified Social Media Composer</h3>
-                            <p class="text-[12.5px] text-black/55 dark:text-white/55">Buat satu materi promosi dan sebarkan serentak ke Facebook, Instagram, Threads, TikTok, dan LinkedIn</p>
+                            <h3 class="text-[17px] font-bold text-black dark:text-white">{{ __('social_media.composer_title') }}</h3>
+                            <p class="text-[12.5px] text-black/55 dark:text-white/55">{{ __('social_media.composer_subtitle') }}</p>
                         </div>
                     </div>
                     <button type="button" @click="openComposerModal = false" class="text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white p-1 rounded-full hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
@@ -459,10 +430,10 @@
                             <div class="space-y-2">
                                 <div class="flex items-center justify-between">
                                     <label class="text-[12.5px] font-bold text-black/80 dark:text-white/80">
-                                        Pilih Saluran Publikasi <span class="text-[#FF3B30]">*</span>
+                                        {{ __('social_media.select_channels') }} <span class="text-[#FF3B30]">*</span>
                                     </label>
                                     <button type="button" @click="toggleSelectAll()" class="text-[11.5px] font-bold text-[#007AFF] hover:underline">
-                                        <span x-text="selectedAccounts.length === allAccountIds.length ? 'Batalkan Semua' : 'Pilih Semua Saluran'"></span>
+                                        <span x-text="selectedAccounts.length === allAccountIds.length ? '{{ __('social_media.deselect_all_channels') }}' : '{{ __('social_media.select_all_channels') }}'"></span>
                                     </button>
                                 </div>
 
@@ -504,7 +475,7 @@
                                 @if($accounts->isEmpty())
                                     <div class="p-3 rounded-[12px] bg-[#FF9500]/10 border border-[#FF9500]/25 text-[12px] text-[#FF9500] flex items-center gap-2">
                                         <i data-lucide="alert-circle" class="w-4 h-4 shrink-0"></i>
-                                        <span>Belum ada akun media sosial aktif. <a href="{{ route('social-media.index') }}" class="underline font-bold">Hubungkan akun Meta, TikTok, atau LinkedIn terlebih dahulu</a>.</span>
+                                        <span>{{ __('social_media.no_active_accounts_alert') }} <a href="{{ route('social-media.index') }}" class="underline font-bold">{{ __('social_media.connect_now_link') }}</a>.</span>
                                     </div>
                                 @endif
                             </div>
@@ -512,7 +483,7 @@
                             {{-- 2. Format Selector (Bento Segmented Buttons) --}}
                             <div class="space-y-2">
                                 <label class="text-[12.5px] font-bold text-black/80 dark:text-white/80">
-                                    Format Postingan <span class="text-[#FF3B30]">*</span>
+                                    {{ __('social_media.post_format') }} <span class="text-[#FF3B30]">*</span>
                                 </label>
                                 <div class="grid grid-cols-2 sm:grid-cols-5 gap-2">
                                     {{-- Foto Tunggal --}}
@@ -523,8 +494,8 @@
                                             <i data-lucide="image" class="w-4 h-4"></i>
                                             <span class="w-1.5 h-1.5 rounded-full" :class="mediaFormat === 'photo' ? 'bg-white' : 'bg-transparent'"></span>
                                         </div>
-                                        <div class="text-[12px] font-bold leading-tight">Foto</div>
-                                        <div class="text-[10px] opacity-75 truncate">Feed / Album</div>
+                                        <div class="text-[12px] font-bold leading-tight">{{ __('social_media.format_photo') }}</div>
+                                        <div class="text-[10px] opacity-75 truncate">{{ __('social_media.format_photo_sub') }}</div>
                                     </button>
 
                                     {{-- Carousel (Instagram & Multi) --}}
@@ -535,8 +506,8 @@
                                             <i data-lucide="layers" class="w-4 h-4"></i>
                                             <span class="w-1.5 h-1.5 rounded-full" :class="mediaFormat === 'carousel' ? 'bg-white' : 'bg-transparent'"></span>
                                         </div>
-                                        <div class="text-[12px] font-bold leading-tight">Carousel</div>
-                                        <div class="text-[10px] opacity-75 truncate">2-10 Media</div>
+                                        <div class="text-[12px] font-bold leading-tight">{{ __('social_media.format_carousel') }}</div>
+                                        <div class="text-[10px] opacity-75 truncate">{{ __('social_media.format_carousel_sub') }}</div>
                                     </button>
 
                                     {{-- Video --}}
@@ -547,8 +518,8 @@
                                             <i data-lucide="video" class="w-4 h-4"></i>
                                             <span class="w-1.5 h-1.5 rounded-full" :class="mediaFormat === 'video' ? 'bg-white' : 'bg-transparent'"></span>
                                         </div>
-                                        <div class="text-[12px] font-bold leading-tight">Video</div>
-                                        <div class="text-[10px] opacity-75 truncate">MP4 / TikTok</div>
+                                        <div class="text-[12px] font-bold leading-tight">{{ __('social_media.format_video') }}</div>
+                                        <div class="text-[10px] opacity-75 truncate">{{ __('social_media.format_video_sub') }}</div>
                                     </button>
 
                                     {{-- Reels --}}
@@ -559,8 +530,8 @@
                                             <i data-lucide="film" class="w-4 h-4"></i>
                                             <span class="w-1.5 h-1.5 rounded-full" :class="mediaFormat === 'reels' ? 'bg-white' : 'bg-transparent'"></span>
                                         </div>
-                                        <div class="text-[12px] font-bold leading-tight">Reels</div>
-                                        <div class="text-[10px] opacity-75 truncate">9:16 Vertikal</div>
+                                        <div class="text-[12px] font-bold leading-tight">{{ __('social_media.format_reels') }}</div>
+                                        <div class="text-[10px] opacity-75 truncate">{{ __('social_media.format_reels_sub') }}</div>
                                     </button>
 
                                     {{-- Teks --}}
@@ -571,8 +542,8 @@
                                             <i data-lucide="align-left" class="w-4 h-4"></i>
                                             <span class="w-1.5 h-1.5 rounded-full" :class="mediaFormat === 'text' ? 'bg-white' : 'bg-transparent'"></span>
                                         </div>
-                                        <div class="text-[12px] font-bold leading-tight">Teks</div>
-                                        <div class="text-[10px] opacity-75 truncate">FB / Threads</div>
+                                        <div class="text-[12px] font-bold leading-tight">{{ __('social_media.format_text') }}</div>
+                                        <div class="text-[10px] opacity-75 truncate">{{ __('social_media.format_text_sub') }}</div>
                                     </button>
                                 </div>
                             </div>
@@ -581,18 +552,18 @@
                             <div x-show="mediaFormat !== 'text'" class="space-y-3 pt-1">
                                 <div class="flex items-center justify-between">
                                     <label class="text-[12.5px] font-bold text-black/80 dark:text-white/80">
-                                        Berkas Media <span class="text-[#FF3B30]">*</span>
+                                        {{ __('social_media.media_files_label') }} <span class="text-[#FF3B30]">*</span>
                                     </label>
                                     <div class="inline-flex p-0.5 rounded-[9px] bg-black/[0.04] dark:bg-white/[0.06] text-[11.5px] font-medium">
                                         <button type="button" @click="mediaSourceTab = 'upload'"
                                             :class="mediaSourceTab === 'upload' ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-xs' : 'text-black/60 dark:text-white/60'"
                                             class="px-2.5 py-1 rounded-[7px] transition-colors">
-                                            Upload Berkas
+                                            {{ __('social_media.tab_upload_file') }}
                                         </button>
                                         <button type="button" @click="mediaSourceTab = 'url'"
                                             :class="mediaSourceTab === 'url' ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-xs' : 'text-black/60 dark:text-white/60'"
                                             class="px-2.5 py-1 rounded-[7px] transition-colors">
-                                            Tautan URL
+                                            {{ __('social_media.tab_direct_url') }}
                                         </button>
                                     </div>
                                 </div>
@@ -604,12 +575,12 @@
 
                                     <div class="flex items-center justify-between text-[12px]">
                                         <span class="font-bold text-black/70 dark:text-white/70">
-                                            Urutan Media Carousel: <span class="text-[#FF9500]" x-text="carouselItems.length + ' / 10 media'"></span>
+                                            {{ __('social_media.carousel_order_label') }} <span class="text-[#FF9500]" x-text="carouselItems.length + ' / 10 media'"></span>
                                         </span>
                                         <button type="button" @click="$refs.carouselInput.click()"
-                                            class="px-3 py-1 rounded-[8px] bg-[#007AFF]/10 text-[#007AFF] hover:bg-[#007AFF]/20 font-bold text-[11.5px] transition-colors flex items-center gap-1">
+                                            class="min-h-[44px] sm:min-h-0 px-3 py-1 rounded-[8px] bg-[#007AFF]/10 text-[#007AFF] hover:bg-[#007AFF]/20 font-bold text-[11.5px] transition-colors flex items-center gap-1 cursor-pointer">
                                             <i data-lucide="plus" class="w-3.5 h-3.5"></i>
-                                            <span>Tambah Media</span>
+                                            <span>{{ __('social_media.add_media_btn') }}</span>
                                         </button>
                                     </div>
 
@@ -620,10 +591,10 @@
                                             <i data-lucide="layers" class="w-6 h-6"></i>
                                         </div>
                                         <div class="text-[13px] font-bold text-black dark:text-white group-hover:text-[#FF9500]">
-                                            Pilih 2 hingga 10 Foto / Video untuk Carousel
+                                            {{ __('social_media.carousel_empty_title') }}
                                         </div>
                                         <p class="text-[11.5px] text-black/50 dark:text-white/50 mt-0.5">
-                                            Instagram Carousel mendukung campuran foto dan video berurutan.
+                                            {{ __('social_media.carousel_empty_sub') }}
                                         </p>
                                     </div>
 
@@ -681,10 +652,10 @@
                                             <i data-lucide="upload-cloud" class="w-6 h-6"></i>
                                         </div>
                                         <div class="text-[13px] font-bold text-black dark:text-white group-hover:text-[#007AFF] transition-colors">
-                                            Pilih Berkas Media
+                                            {{ __('social_media.single_dropzone_title') }}
                                         </div>
                                         <p class="text-[11.5px] text-black/50 dark:text-white/50 mt-0.5"
-                                           x-text="mediaFormat === 'photo' ? 'Mendukung JPG, PNG, WEBP hingga 100 MB' : 'Mendukung MP4 atau MOV video hingga 100 MB'">
+                                           x-text="mediaFormat === 'photo' ? '{{ __('social_media.single_dropzone_sub_photo') }}' : '{{ __('social_media.single_dropzone_sub_video') }}'">
                                         </p>
                                     </div>
 
@@ -709,11 +680,11 @@
                                         </div>
                                         <div class="flex items-center gap-1.5 shrink-0">
                                             <button type="button" @click="$refs.fileInput.click()"
-                                                class="h-8 px-2.5 rounded-[8px] text-[11.5px] font-semibold text-black/70 dark:text-white/70 hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
-                                                Ganti
+                                                class="min-h-[44px] sm:min-h-0 h-8 px-2.5 rounded-[8px] text-[11.5px] font-semibold text-black/70 dark:text-white/70 hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+                                                {{ __('social_media.change_file_btn') }}
                                             </button>
                                             <button type="button" @click="clearFile()"
-                                                class="h-8 w-8 rounded-[8px] text-[#FF3B30] hover:bg-[#FF3B30]/10 transition-colors flex items-center justify-center">
+                                                class="min-h-[44px] sm:min-h-0 h-8 w-8 rounded-[8px] text-[#FF3B30] hover:bg-[#FF3B30]/10 transition-colors flex items-center justify-center">
                                                 <i data-lucide="trash-2" class="w-4 h-4"></i>
                                             </button>
                                         </div>
@@ -726,10 +697,10 @@
                                         <i data-lucide="link" class="w-4 h-4 absolute left-3 top-3 text-black/40 dark:text-white/40"></i>
                                         <input type="url" name="media_url" x-model="mediaUrl"
                                             placeholder="https://domain-anda.com/media/promo.mp4"
-                                            class="w-full h-10 pl-9 pr-3 rounded-[12px] text-[13px] bg-black/[0.03] dark:bg-white/[0.05] border border-black/10 dark:border-white/10 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                                            class="w-full min-h-[44px] sm:min-h-0 h-10 pl-9 pr-3 rounded-[12px] text-[16px] sm:text-[13px] bg-black/[0.03] dark:bg-white/[0.05] border border-black/10 dark:border-white/10 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
                                     </div>
                                     <p class="text-[11px] text-black/50 dark:text-white/50">
-                                        Pastikan tautan langsung mengarah ke berkas media publik (HTTPS) yang dapat diunduh oleh server Meta atau TikTok.
+                                        {{ __('social_media.direct_url_sub') }}
                                     </p>
                                 </div>
                             </div>
@@ -754,13 +725,13 @@
 
                                 <textarea name="content" rows="4" required x-model="captionText"
                                     :placeholder="mediaFormat === 'reels' ? '{{ __('social_media.main_caption_placeholder_reels') }}' : (mediaFormat === 'video' ? '{{ __('social_media.main_caption_placeholder_video') }}' : '{{ __('social_media.main_caption_placeholder_default') }}')"
-                                    class="w-full p-3.5 rounded-[14px] text-[13px] bg-black/[0.03] dark:bg-white/[0.05] border border-black/10 dark:border-white/10 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] resize-none"></textarea>
+                                    class="w-full p-3.5 rounded-[14px] text-[16px] sm:text-[13px] bg-black/[0.03] dark:bg-white/[0.05] border border-black/10 dark:border-white/10 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] resize-none"></textarea>
 
                                 {{-- Alert Exceeding 5 Hashtags --}}
                                 <div x-show="hashtagCount > 5" style="display: none;" class="p-3 rounded-[12px] bg-[#FF3B30]/10 border border-[#FF3B30]/25 text-[12px] text-[#FF3B30] flex items-start gap-2">
                                     <i data-lucide="alert-triangle" class="w-4 h-4 shrink-0 mt-0.5"></i>
                                     <div>
-                                        <strong>Aturan COOCA:</strong> Maksimal 5 hashtag unik per postingan! Saat ini terdeteksi <strong x-text="hashtagCount"></strong> hashtag. Kurangi <span x-text="hashtagCount - 5"></span> hashtag agar dapat dipublikasikan.
+                                        <span>{!! __('social_media.hashtag_rule_alert', ['count' => '<strong x-text="hashtagCount"></strong>', 'reduce' => '<span x-text="hashtagCount - 5"></span>']) !!}</span>
                                     </div>
                                 </div>
 
@@ -773,16 +744,16 @@
                                         </div>
                                         <div class="space-y-0.5">
                                             <div class="text-[13px] font-bold text-black dark:text-white">
-                                                Batas Karakter Threads Terlampaui (> 500 Karakter)
+                                                {{ __('social_media.threads_over_limit_title') }}
                                             </div>
                                             <div class="text-[11.5px] opacity-90 leading-relaxed text-black/80 dark:text-white/80">
-                                                Caption untuk Threads saat ini berisi <strong x-text="captionText.length"></strong> karakter. Sesuai standar resmi Meta Threads API, panjang postingan maksimal <strong>500 karakter</strong>. Saluran lain (Facebook, Instagram, LinkedIn) tetap dapat menggunakan teks lengkap ini.
+                                                {!! __('social_media.threads_over_limit_desc', ['count' => '<strong x-text="captionText.length"></strong>']) !!}
                                             </div>
                                         </div>
                                     </div>
                                     <div class="pt-1 flex flex-wrap items-center gap-2">
                                         <button type="button" @click="createSeparateThreadsCaption()"
-                                            class="h-8 px-3 rounded-[9px] text-[11.5px] font-bold text-white bg-[#FF9500] hover:bg-[#E08500] active:scale-[0.98] transition-all flex items-center gap-1.5 shadow-xs cursor-pointer">
+                                            class="min-h-[44px] sm:min-h-0 h-9 sm:h-8 px-3 rounded-[9px] text-[12px] sm:text-[11.5px] font-bold text-white bg-[#FF9500] hover:bg-[#E08500] active:scale-[0.98] transition-all flex items-center gap-1.5 shadow-xs cursor-pointer">
                                             <i data-lucide="scissors" class="w-3.5 h-3.5"></i>
                                             <span>{{ __('social_media.threads_create_separate_btn') }}</span>
                                         </button>
@@ -794,10 +765,10 @@
                                     class="p-2.5 rounded-[12px] bg-[#34C759]/10 border border-[#34C759]/25 text-[#248A3D] dark:text-[#30D158] flex items-center justify-between gap-2 text-[12px] font-semibold transition-all">
                                     <div class="flex items-center gap-2">
                                         <i data-lucide="check-circle-2" class="w-4 h-4 shrink-0"></i>
-                                        <span>Caption terpisah khusus Threads aktif (<span x-text="getCaptionLength(threadsAccountId)"></span> / 500 karakter). Postingan siap dipublikasikan serentak.</span>
+                                        <span>{!! __('social_media.threads_separate_active', ['count' => '<span x-text="getCaptionLength(threadsAccountId)"></span>']) !!}</span>
                                     </div>
-                                    <button type="button" @click="showOverrides = true" class="text-[11px] font-bold underline hover:opacity-80">
-                                        Lihat/Edit
+                                    <button type="button" @click="showOverrides = true" class="text-[11px] font-bold underline hover:opacity-80 min-h-[44px] sm:min-h-0 flex items-center">
+                                        {{ __('social_media.threads_view_edit_btn') }}
                                     </button>
                                 </div>
                             </div>
@@ -805,7 +776,7 @@
                             {{-- 5. Collapsible Channel Caption Overrides (Input Caption Terpisah per Saluran) --}}
                             <div class="p-3.5 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5 space-y-3">
                                 <button type="button" @click="showOverrides = !showOverrides"
-                                    class="w-full flex items-center justify-between text-left text-[12.5px] font-bold text-black/80 dark:text-white/80">
+                                    class="w-full flex items-center justify-between text-left text-[12.5px] font-bold text-black/80 dark:text-white/80 min-h-[44px] sm:min-h-0">
                                     <span class="flex items-center gap-2">
                                         <i data-lucide="sliders-horizontal" class="w-4 h-4 text-[#007AFF]"></i>
                                         <span>{{ __('social_media.channel_overrides_toggle') }}</span>
@@ -834,20 +805,20 @@
                                                         </div>
                                                         <span>{{ $acc->account_name }} ({{ ucfirst($acc->platform) }})</span>
                                                         <span class="text-[10.5px] font-normal px-2 py-0.5 rounded-full bg-black/5 dark:bg-white/10 text-black/60 dark:text-white/60">
-                                                            Maks: {{ number_format(\App\Domain\SocialMedia\Validation\SocialMediaContentValidator::CAPTION_LIMITS[$acc->platform] ?? 2200) }} Chars
+                                                            {{ __('social_media.max_chars_badge', ['count' => number_format(\App\Domain\SocialMedia\Validation\SocialMediaContentValidator::CAPTION_LIMITS[$acc->platform] ?? 2200)]) }}
                                                         </span>
                                                     </label>
 
                                                     <div class="flex items-center gap-2">
                                                         <button type="button" @click="copyFromMain('{{ $acc->id }}')"
-                                                            class="text-[11px] font-semibold text-[#007AFF] hover:underline flex items-center gap-1">
+                                                            class="text-[11px] font-semibold text-[#007AFF] hover:underline flex items-center gap-1 min-h-[44px] sm:min-h-0">
                                                             <i data-lucide="copy" class="w-3 h-3"></i>
                                                             <span>{{ __('social_media.copy_from_main_btn') }}</span>
                                                         </button>
                                                         <template x-if="customCaptions['{{ $acc->id }}']">
                                                             <button type="button" @click="resetCustomCaption('{{ $acc->id }}')"
-                                                                class="text-[11px] font-semibold text-[#FF3B30] hover:underline">
-                                                                Reset (Pakai Utama)
+                                                                class="text-[11px] font-semibold text-[#FF3B30] hover:underline min-h-[44px] sm:min-h-0 flex items-center">
+                                                                {{ __('social_media.reset_to_main_caption') }}
                                                             </button>
                                                         </template>
                                                     </div>
@@ -858,20 +829,20 @@
                                                     rows="3"
                                                     x-model="customCaptions['{{ $acc->id }}']"
                                                     placeholder="{{ __('social_media.override_channel_placeholder') }}"
-                                                    class="w-full p-2.5 rounded-[10px] text-[12px] bg-black/[0.02] dark:bg-black/20 border text-black dark:text-white focus:outline-none focus:ring-1 resize-none transition-colors"
+                                                    class="w-full p-2.5 rounded-[10px] text-[16px] sm:text-[12px] bg-black/[0.02] dark:bg-black/20 border text-black dark:text-white focus:outline-none focus:ring-1 resize-none transition-colors"
                                                     :class="getCaptionLength('{{ $acc->id }}') > (accountsMap['{{ $acc->id }}']?.limit || 2200) ? 'border-[#FF3B30] focus:ring-[#FF3B30]' : 'border-black/10 dark:border-white/10 focus:ring-[#007AFF]'"></textarea>
 
                                                 {{-- Live Counters & State per Saluran --}}
                                                 <div class="flex items-center justify-between text-[11px]">
                                                     <div class="flex items-center gap-2">
                                                         <template x-if="!customCaptions['{{ $acc->id }}']">
-                                                            <span class="text-black/50 dark:text-white/50 italic">Menggunakan mapping caption utama</span>
+                                                            <span class="text-black/50 dark:text-white/50 italic">{{ __('social_media.using_main_caption') }}</span>
                                                         </template>
                                                         <template x-if="customCaptions['{{ $acc->id }}']">
-                                                            <span class="text-[#007AFF] font-semibold">Caption terpisah aktif</span>
+                                                            <span class="text-[#007AFF] font-semibold">{{ __('social_media.custom_caption_active') }}</span>
                                                         </template>
                                                         <template x-if="getChannelHashtags('{{ $acc->id }}').length > 5">
-                                                            <span class="text-[#FF3B30] font-bold">Tagar > 5!</span>
+                                                            <span class="text-[#FF3B30] font-bold">{{ __('social_media.tag_over_limit') }}</span>
                                                         </template>
                                                     </div>
                                                     <div class="flex items-center gap-2 font-mono">
@@ -889,7 +860,7 @@
                                                 <template x-if="getCaptionLength('{{ $acc->id }}') > (accountsMap['{{ $acc->id }}']?.limit || 2200)">
                                                     <div class="p-2 rounded-[8px] bg-[#FF3B30]/10 text-[#FF3B30] text-[11px] font-semibold flex items-center gap-1.5">
                                                         <i data-lucide="alert-circle" class="w-3.5 h-3.5 shrink-0"></i>
-                                                        <span>Karakter melebihi batas resmi platform (<span x-text="getCaptionLength('{{ $acc->id }}') - (accountsMap['{{ $acc->id }}']?.limit || 2200)"></span> karakter berlebih).</span>
+                                                        <span>{!! __('social_media.channel_limit_exceeded', ['count' => '<span x-text="getCaptionLength(\'' . $acc->id . '\') - (accountsMap[\'' . $acc->id . '\']?.limit || 2200)"></span>']) !!}</span>
                                                     </div>
                                                 </template>
                                             </div>
@@ -938,13 +909,13 @@
                                 <div x-show="scheduleMode === 'all_same'" style="display: none;" class="pt-2 border-t border-black/5 dark:border-white/5 space-y-1.5">
                                     <label class="block text-[11.5px] font-semibold text-black/70 dark:text-white/70">{{ __('social_media.global_schedule_label') }}</label>
                                     <input type="datetime-local" name="scheduled_at" x-model="globalScheduleTime"
-                                        class="w-full h-9 px-3 rounded-[10px] text-[12.5px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#5856D6]">
+                                        class="w-full h-11 sm:h-9 px-3 rounded-[10px] text-[16px] sm:text-[12.5px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#5856D6]">
                                     <p class="text-[11px] text-black/50 dark:text-white/50">
                                         {{ __('social_media.global_schedule_sub') }}
                                     </p>
                                 </div>
 
-                                {{-- Mode C: Beda Waktu per Saluran (Bento Card per Akun Terpilih) --}}
+                                {{-- Mode C: Beda Waktu per Saluran (Beda Jam per Akun) --}}
                                 <div x-show="scheduleMode === 'per_channel'" style="display: none;" class="pt-2 border-t border-black/5 dark:border-white/5 space-y-2.5">
                                     <p class="text-[11.5px] text-black/60 dark:text-white/60">
                                         {{ __('social_media.per_channel_schedule_sub') }}
@@ -974,12 +945,12 @@
                                                     <div class="inline-flex p-0.5 rounded-[8px] bg-black/[0.04] dark:bg-white/[0.06] text-[11px]">
                                                         <button type="button" @click="channelTiming['{{ $acc->id }}'] = 'now'"
                                                             :class="channelTiming['{{ $acc->id }}'] === 'now' ? 'bg-white dark:bg-[#1C1C1E] text-[#007AFF] font-bold shadow-xs' : 'text-black/60 dark:text-white/60'"
-                                                            class="px-2 py-0.5 rounded-[6px] transition-colors">
+                                                            class="px-2.5 py-1 sm:py-0.5 rounded-[6px] min-h-[36px] sm:min-h-0 transition-colors">
                                                             {{ __('social_media.timing_now') }}
                                                         </button>
                                                         <button type="button" @click="channelTiming['{{ $acc->id }}'] = 'schedule'"
                                                             :class="channelTiming['{{ $acc->id }}'] === 'schedule' ? 'bg-white dark:bg-[#1C1C1E] text-[#FF9500] font-bold shadow-xs' : 'text-black/60 dark:text-white/60'"
-                                                            class="px-2 py-0.5 rounded-[6px] transition-colors">
+                                                            class="px-2.5 py-1 sm:py-0.5 rounded-[6px] min-h-[36px] sm:min-h-0 transition-colors">
                                                             {{ __('social_media.timing_schedule') }}
                                                         </button>
                                                     </div>
@@ -989,7 +960,7 @@
 
                                                 <div x-show="channelTiming['{{ $acc->id }}'] === 'schedule'" class="pt-1.5 border-t border-black/5 dark:border-white/5">
                                                     <input type="datetime-local" :name="'channel_scheduled_at[{{ $acc->id }}]'" x-model="channelScheduledAts['{{ $acc->id }}']"
-                                                        class="w-full h-8 px-2.5 rounded-[8px] text-[12px] bg-black/[0.03] dark:bg-white/[0.05] border border-black/10 dark:border-white/10 text-black dark:text-white focus:outline-none focus:ring-1 focus:ring-[#FF9500]">
+                                                        class="w-full h-11 sm:h-8 px-2.5 rounded-[8px] text-[16px] sm:text-[12px] bg-black/[0.03] dark:bg-white/[0.05] border border-black/10 dark:border-white/10 text-black dark:text-white focus:outline-none focus:ring-1 focus:ring-[#FF9500]">
                                                 </div>
                                             </div>
                                         @endforeach
@@ -1122,17 +1093,17 @@
                                 class="p-3.5 rounded-[16px] bg-[#FF3B30]/10 border border-[#FF3B30]/25 text-[#FF3B30] space-y-1.5 shadow-xs">
                                 <div class="flex items-center gap-2 font-bold text-[12.5px]">
                                     <i data-lucide="smartphone" class="w-4 h-4 shrink-0"></i>
-                                    <span>Peringatan Rasio Video Landscape (<span x-text="videoRatio ? videoRatio + ':1' : ''"></span>)</span>
+                                    <span>{!! __('social_media.landscape_warning_title', ['ratio' => '<span x-text="videoRatio ? videoRatio + \':1\' : \'\'"></span>']) !!}</span>
                                 </div>
                                 <p class="text-[11.5px] leading-relaxed opacity-90">
-                                    Video yang Anda pilih berorientasi horizontal (<span x-text="videoWidth + 'x' + videoHeight"></span> px). Untuk format <strong>Reels &amp; TikTok</strong>, video vertikal 9:16 (1080x1920) sangat disarankan agar video tidak terpotong (crop) otomatis atau memiliki bilah hitam (letterbox).
+                                    {!! __('social_media.landscape_warning_desc', ['dim' => '<span x-text="videoWidth + \'x\' + videoHeight"></span>']) !!}
                                 </p>
                             </div>
 
                             <div x-show="(mediaFormat === 'reels' || mediaFormat === 'video') && !isLandscapeVideo && videoWidth && videoHeight" style="display: none;"
                                 class="p-2.5 rounded-[12px] bg-[#34C759]/10 border border-[#34C759]/25 text-[#248A3D] dark:text-[#30D158] flex items-center gap-2 text-[11.5px] font-semibold">
                                 <i data-lucide="check-circle-2" class="w-4 h-4 shrink-0"></i>
-                                <span>Format Vertikal Terdeteksi: <span x-text="videoWidth + 'x' + videoHeight"></span> px (Optimal untuk Reels &amp; TikTok)</span>
+                                <span>{!! __('social_media.vertical_detected_badge', ['dim' => '<span x-text="videoWidth + \'x\' + videoHeight"></span>']) !!}</span>
                             </div>
 
                             {{-- D. LIVE SMARTPHONE FEED PREVIEW CARD (Apple HIG Style) --}}
@@ -1246,7 +1217,7 @@
                                                         <div class="w-12 h-12 rounded-[14px] bg-black/5 dark:bg-white/10 flex items-center justify-center mx-auto text-black/40 dark:text-white/40">
                                                             <i data-lucide="play" class="w-6 h-6"></i>
                                                         </div>
-                                                        <div class="text-[11.5px] font-medium text-black/50 dark:text-white/50" x-text="mediaFormat === 'reels' ? 'Video Reels (9:16 vertikal)' : 'Video promo MP4'"></div>
+                                                        <div class="text-[11.5px] font-medium text-black/50 dark:text-white/50" x-text="mediaFormat === 'reels' ? '{{ __('social_media.video_reels_preview_hint') }}' : '{{ __('social_media.video_promo_preview_hint') }}'"></div>
                                                     </div>
                                                 </template>
                                             </div>
@@ -1293,11 +1264,11 @@
                     {{-- Modal Footer --}}
                     <div class="pt-4 flex items-center justify-end gap-2.5 border-t border-black/5 dark:border-white/10">
                         <button type="button" @click="openComposerModal = false"
-                            class="h-9 px-4 rounded-[10px] text-[13px] font-semibold text-black/70 dark:text-white/70 hover:bg-black/[0.05] dark:hover:bg-white/[0.08] transition-colors">
+                            class="min-h-[44px] sm:min-h-0 h-10 sm:h-9 px-4 rounded-[10px] text-[13px] font-semibold text-black/70 dark:text-white/70 hover:bg-black/[0.05] dark:hover:bg-white/[0.08] transition-colors flex items-center justify-center">
                             {{ __('social_media.cancel') }}
                         </button>
                         <button type="submit" :disabled="isSubmitDisabled"
-                            class="h-9 px-5 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] disabled:opacity-50 disabled:pointer-events-none transition-all flex items-center gap-1.5 shadow-sm cursor-pointer">
+                            class="min-h-[44px] sm:min-h-0 h-10 sm:h-9 px-5 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] disabled:opacity-50 disabled:pointer-events-none transition-all flex items-center justify-center gap-1.5 shadow-sm cursor-pointer">
                             <template x-if="!isSubmitting">
                                 <i data-lucide="send" class="w-4 h-4"></i>
                             </template>

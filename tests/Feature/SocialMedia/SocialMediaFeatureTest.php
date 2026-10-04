@@ -505,4 +505,38 @@ class SocialMediaFeatureTest extends TestCase
         $disconnectRes->assertJson(['success' => false]);
         $this->assertEquals('active', $accountA->fresh()->status);
     }
+
+    /**
+     * Test all five social media merchant views render successfully with 200 OK.
+     */
+    public function test_merchant_can_render_all_five_social_media_views(): void
+    {
+        [$user, $business] = $this->makeMerchant('Kedai Kopi Harapan');
+
+        // 1. Cockpit / Index View
+        $cockpitRes = $this->actingAs($user)->get(route('social-media.index'));
+        $cockpitRes->assertOk();
+        $cockpitRes->assertSee(__('social_media.cockpit_title'));
+
+        // 2. Posts View
+        $postsRes = $this->actingAs($user)->get(route('social-media.posts.index'));
+        $postsRes->assertOk();
+        $postsRes->assertSee(__('social_media.create_post_btn'));
+
+        // 3. Inbox View
+        $inboxRes = $this->actingAs($user)->get(route('social-media.inbox.index'));
+        $inboxRes->assertOk();
+        $inboxRes->assertSee(__('social_media.refresh_inbox_btn'));
+
+        // 4. Insights View
+        $insightsRes = $this->actingAs($user)->get(route('social-media.insights.index'));
+        $insightsRes->assertOk();
+        $insightsRes->assertSee(__('social_media.refresh_data_btn'));
+
+        // 5. Calendar View
+        $calendarRes = $this->actingAs($user)->get(route('social-media.calendar'));
+        $calendarRes->assertOk();
+        $calendarRes->assertSee(__('social_media.calendar_title'));
+        $calendarRes->assertSee(__('social_media.mobile_agenda_title'));
+    }
 }

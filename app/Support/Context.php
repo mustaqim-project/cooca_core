@@ -48,7 +48,13 @@ final class Context
      */
     public static function membership(): ?BusinessMembership
     {
-        if (self::$membership === null && ($user = self::user()) && ($business = self::business())) {
+        $user = self::user();
+
+        if (self::$membership !== null && $user !== null && self::$membership->user_id !== $user->id) {
+            self::$membership = null;
+        }
+
+        if (self::$membership === null && $user && ($business = self::business())) {
             self::$membership = BusinessMembership::where('business_id', $business->id)
                 ->where('user_id', $user->id)
                 ->first();

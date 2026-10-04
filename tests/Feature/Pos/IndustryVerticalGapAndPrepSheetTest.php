@@ -368,7 +368,7 @@ class IndustryVerticalGapAndPrepSheetTest extends TestCase
         $response = $this->get(route('pos.kitchen.prep_sheet', ['date' => $targetDate]));
 
         $response->assertOk();
-        $response->assertSee('Lembar Prep Dapur &amp; Katering', false);
+        $response->assertSee(__('pos.prep_sheet_title'));
         $response->assertSee('Nasi Kotak Ayam Bakar Madu');
         $response->assertSee('Ayam Karkas Segar');
         // 20 portions * 0.25 = 5.00 kg required. Stock is 10 kg -> Should be sufficient (Cukup)

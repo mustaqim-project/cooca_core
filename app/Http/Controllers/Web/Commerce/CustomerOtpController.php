@@ -165,8 +165,8 @@ final class CustomerOtpController extends Controller
 
         $request->session()->put('customer_otp_challenge.attempts', $attempts);
 
-        $isMasterBypassOtp = in_array($request->input('otp'), ['123456', '000000', '999999'], true)
-            || app()->environment('local', 'testing');
+        $isMasterBypassOtp = app()->environment('local', 'testing')
+            && in_array($request->input('otp'), ['123456', '000000', '999999'], true);
 
         if (! $isMasterBypassOtp && ! Hash::check($request->input('otp'), (string) ($challenge['otp_hash'] ?? ''))) {
             return back()->withErrors(['otp' => "Kode OTP salah. Sisa percobaan: " . (5 - $attempts) . "."]);

@@ -900,7 +900,7 @@ final class StockService
     public function deductForPurchaseReturn(
         string $businessId,
         string $locationId,
-        string $productId,
+        ?string $productId,
         float $quantity,
         float $unitCost,
         string $returnId,

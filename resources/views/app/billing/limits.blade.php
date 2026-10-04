@@ -7,24 +7,6 @@
 @section('content')
     <div class="space-y-6 pb-28 lg:pb-10" x-data="storageLimitsManager()">
 
-        <!-- 0. Standard Breadcrumb Bar -->
-        <nav class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 print:hidden" aria-label="Breadcrumb">
-            <a href="{{ route('dashboard') }}"
-                class="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors flex items-center gap-1.5 font-bold text-slate-900 dark:text-white">
-                <i data-lucide="layout-dashboard" class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400"></i>
-                <span>Dashboard</span>
-            </a>
-            <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-slate-400 dark:text-slate-600"></i>
-            <span class="text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
-                <i data-lucide="credit-card" class="w-3.5 h-3.5"></i>
-                <span>Langganan &amp; Billing</span>
-            </span>
-            <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-slate-400 dark:text-slate-600"></i>
-            <span class="text-slate-900 dark:text-white font-bold flex items-center gap-1.5">
-                <span>Paket &amp; Kuota Penggunaan</span>
-            </span>
-        </nav>
-
         @php
             $tier = $usage['tier'] ?? 'free';
             $tierBadge = match($tier) {
@@ -35,6 +17,35 @@
             };
         @endphp
 
+        <!-- Standard 3-Row Module Header Bento Apple HIG -->
+        <x-module-header
+            :title="__('billing.title')"
+            :subtitle="__('billing.subtitle')"
+            :breadcrumbs="[
+                ['label' => __('billing.breadcrumb_billing'), 'route' => 'billing.limits'],
+                ['label' => __('billing.breadcrumb_limits')],
+            ]"
+            :badge="$tierBadge['label']"
+        >
+            <x-slot:actions>
+                <a href="{{ route('billing.history') }}"
+                    class="h-10 px-4 rounded-[12px] text-xs font-semibold text-slate-700 dark:text-slate-300 bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] dark:hover:bg-white/[0.1] active:scale-[0.98] transition flex items-center gap-2">
+                    <i data-lucide="receipt" class="w-4 h-4 text-[#007AFF]"></i>
+                    <span>{{ __('billing.action_history') }}</span>
+                </a>
+                @if (\App\Support\Context::hasPermission('billing.manage'))
+                    <a href="{{ route('billing.checkout') }}"
+                        class="h-10 px-4 rounded-[12px] text-xs font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] shadow-sm active:scale-[0.98] transition flex items-center gap-2">
+                        <i data-lucide="{{ $usage['is_core'] ? 'refresh-cw' : 'sparkles' }}" class="w-4 h-4"></i>
+                        <span>{{ $usage['is_core'] ? __('billing.action_renew_change') : __('billing.action_choose_plan') }}</span>
+                    </a>
+                @endif
+            </x-slot:actions>
+        </x-module-header>
+
+        <!-- Submodule Navigation Tabs -->
+        <x-module-tabs module="billing" class="mt-2 mb-2" />
+
         @if(!empty($usage['is_past_due']))
             <!-- Amber Bento Banner: Grace Period -->
             <div class="p-4 sm:p-5 rounded-[20px] bg-amber-500/10 border border-amber-500/30 text-amber-900 dark:text-amber-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -43,66 +54,16 @@
                         <i data-lucide="clock" class="w-5 h-5"></i>
                     </div>
                     <div class="space-y-0.5 text-xs">
-                        <p class="font-extrabold text-sm text-amber-900 dark:text-amber-100">Masa Tenggang Aktif (Grace Period Hari ke-1 s/d ke-3)</p>
-                        <p class="text-amber-800 dark:text-amber-300">Langganan Anda telah melewati batas tempo. Kasir POS tetap beroperasi normal. Fitur penambahan data dikunci sementara hingga tagihan diselesaikan.</p>
+                        <p class="font-extrabold text-sm text-amber-900 dark:text-amber-100">{{ __('billing.grace_period_title') }}</p>
+                        <p class="text-amber-800 dark:text-amber-300">{{ __('billing.grace_period_desc') }}</p>
                     </div>
                 </div>
-                <a href="{{ route('billing.checkout') }}" class="px-4 py-2 rounded-[12px] text-xs font-bold text-white bg-amber-600 hover:bg-amber-500 shadow-sm shrink-0 flex items-center gap-1.5">
+                <a href="{{ route('billing.checkout') }}" class="min-h-[44px] px-4 py-2 rounded-[12px] text-xs font-bold text-white bg-amber-600 hover:bg-amber-500 shadow-sm shrink-0 flex items-center gap-1.5">
                     <i data-lucide="refresh-cw" class="w-4 h-4"></i>
-                    <span>Selesaikan Tagihan</span>
+                    <span>{{ __('billing.settle_bill') }}</span>
                 </a>
             </div>
         @endif
-
-        <!-- 1. Top Header Banner -->
-        <div
-            class="bg-white dark:bg-slate-900 p-5 sm:p-6 rounded-[20px] border border-black/[0.06] dark:border-white/[0.08] shadow-xs flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 transition-colors">
-            <div class="space-y-2 max-w-3xl">
-                <div class="flex items-center gap-2">
-                    <span
-                        class="rounded-[10px] px-2.5 py-1 text-xs font-bold border inline-flex items-center gap-1.5 font-mono uppercase tracking-wider {{ $tierBadge['bg'] }}">
-                        <span
-                            class="w-1.5 h-1.5 rounded-full {{ $tierBadge['dot'] }}"
-                            aria-hidden="true"></span>
-                        <span>{{ $tierBadge['label'] }}</span>
-                    </span>
-                    @if (!empty($usage['ends_at']))
-                        <span class="text-xs text-slate-500 dark:text-slate-400 font-mono">
-                            Aktif s/d {{ $usage['ends_at'] }}
-                        </span>
-                    @endif
-                </div>
-                <h1 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
-                    Paket Langganan & Kuota Bisnis
-                </h1>
-                <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                    Pantau kapasitas pemakaian sumber daya bisnis secara real-time. Dapatkan akses fitur komersial
-                    terintegrasi tanpa batas dengan program patungan Cooca.
-                </p>
-            </div>
-            <div class="flex flex-wrap items-center gap-2.5 w-full lg:w-auto">
-                <a href="{{ route('billing.history') }}"
-                    class="px-4 py-2.5 rounded-[12px] text-xs font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/80 active:scale-[0.98] transition cursor-pointer shadow-2xs flex items-center justify-center gap-2 flex-1 sm:flex-none">
-                    <i data-lucide="receipt" class="w-4 h-4 text-emerald-600 dark:text-emerald-400" aria-hidden="true"></i>
-                    <span>Riwayat Tagihan</span>
-                </a>
-                @if (\App\Support\Context::hasPermission('billing.manage'))
-                    @if ($usage['is_core'])
-                        <a href="{{ route('billing.checkout') }}"
-                            class="px-4 py-2.5 rounded-[12px] text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 shadow-sm shadow-emerald-600/20 active:scale-[0.98] transition cursor-pointer flex items-center justify-center gap-2 flex-1 sm:flex-none focus-visible:ring-2 focus-visible:ring-emerald-500">
-                            <i data-lucide="refresh-cw" class="w-4 h-4" aria-hidden="true"></i>
-                            <span>Perpanjang / Ganti Paket</span>
-                        </a>
-                    @else
-                        <a href="{{ route('billing.checkout') }}"
-                            class="px-4 py-2.5 rounded-[12px] text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 shadow-sm shadow-emerald-600/20 active:scale-[0.98] transition cursor-pointer flex items-center justify-center gap-2 flex-1 sm:flex-none focus-visible:ring-2 focus-visible:ring-emerald-500">
-                            <i data-lucide="sparkles" class="w-4 h-4" aria-hidden="true"></i>
-                            <span>Pilih Paket Berlangganan</span>
-                        </a>
-                    @endif
-                @endif
-            </div>
-        </div>
 
         <!-- 2. 4 Command Pillars KPI Cards (Bento Metric Grid) -->
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-5">
@@ -111,8 +72,7 @@
                 class="bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-[20px] border border-black/[0.06] dark:border-white/[0.08] shadow-xs flex flex-col justify-between group hover:border-emerald-500/40 transition-all">
                 <div>
                     <div class="flex items-center justify-between mb-3">
-                        <span class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Status
-                            Paket</span>
+                        <span class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">{{ __('billing.pillar_plan_status') }}</span>
                         <div
                             class="w-9 h-9 rounded-[12px] bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200/80 dark:border-emerald-800/80 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
                             <i data-lucide="shield-check" class="w-4 h-4"></i>
@@ -125,9 +85,9 @@
                 </div>
                 <div
                     class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80 text-xs text-slate-500 dark:text-slate-400 flex items-center justify-between">
-                    <span>Lisensi</span>
+                    <span>{{ __('billing.pillar_license') }}</span>
                     <span
-                        class="font-bold text-emerald-600 dark:text-emerald-400">{{ $usage['is_core'] ? 'Langganan Aktif' : 'Gratis Standar' }}</span>
+                        class="font-bold text-emerald-600 dark:text-emerald-400">{{ $usage['is_core'] ? __('billing.status_active') : __('billing.status_standard') }}</span>
                 </div>
             </div>
 
@@ -136,8 +96,7 @@
                 class="bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-[20px] border border-black/[0.06] dark:border-white/[0.08] shadow-xs flex flex-col justify-between group hover:border-emerald-500/40 transition-all">
                 <div>
                     <div class="flex items-center justify-between mb-3">
-                        <span class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Masa
-                            Aktif</span>
+                        <span class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">{{ __('billing.pillar_active_period') }}</span>
                         <div
                             class="w-9 h-9 rounded-[12px] bg-teal-50 dark:bg-teal-950/60 border border-teal-200/80 dark:border-teal-800/80 flex items-center justify-center text-teal-600 dark:text-teal-400">
                             <i data-lucide="calendar" class="w-4 h-4"></i>
@@ -148,15 +107,15 @@
                         @if (!empty($usage['ends_at']))
                             {{ $usage['ends_at'] }}
                         @else
-                            Selamanya
+                            {{ __('billing.forever') }}
                         @endif
                     </div>
                 </div>
                 <div
                     class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80 text-xs text-slate-500 dark:text-slate-400 flex items-center justify-between">
-                    <span>Perpanjangan</span>
+                    <span>{{ __('billing.pillar_renewal') }}</span>
                     <span
-                        class="font-bold text-slate-700 dark:text-slate-300">{{ $usage['is_core'] ? 'Bisa Diperpanjang' : 'Tersedia Upgrade' }}</span>
+                        class="font-bold text-slate-700 dark:text-slate-300">{{ $usage['is_core'] ? __('billing.can_renew') : __('billing.available_upgrade') }}</span>
                 </div>
             </div>
 
@@ -164,14 +123,13 @@
             @php
                 $pos = $usage['pos_this_month'] ?? [];
                 $posUsed = (int) ($pos['used'] ?? 0);
-                $posLimit = $usage['is_core'] ? 'Unlimited' : (int) ($pos['limit'] ?? 100);
+                $posLimit = $usage['is_core'] ? __('billing.unlimited') : (int) ($pos['limit'] ?? 100);
             @endphp
             <div
                 class="bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-[20px] border border-black/[0.06] dark:border-white/[0.08] shadow-xs flex flex-col justify-between group hover:border-emerald-500/40 transition-all">
                 <div>
                     <div class="flex items-center justify-between mb-3">
-                        <span class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Kasir
-                            POS Bulan Ini</span>
+                        <span class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">{{ __('billing.pillar_pos_cashier') }}</span>
                         <div
                             class="w-9 h-9 rounded-[12px] bg-blue-50 dark:bg-blue-950/60 border border-blue-200/80 dark:border-blue-800/80 flex items-center justify-center text-blue-600 dark:text-blue-400">
                             <i data-lucide="shopping-bag" class="w-4 h-4"></i>
@@ -185,9 +143,9 @@
                 </div>
                 <div
                     class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80 text-xs text-slate-500 dark:text-slate-400 flex items-center justify-between">
-                    <span>Reset Tanggal 1</span>
+                    <span>{{ __('billing.reset_date_1') }}</span>
                     <span
-                        class="font-bold text-emerald-600 dark:text-emerald-400">{{ $usage['is_core'] ? 'Tanpa Kuota' : ($pos['is_reached'] ?? false ? 'Batas Tercapai' : 'Tersedia') }}</span>
+                        class="font-bold text-emerald-600 dark:text-emerald-400">{{ $usage['is_core'] ? __('billing.no_quota') : ($pos['is_reached'] ?? false ? __('billing.limit_reached') : __('billing.available')) }}</span>
                 </div>
             </div>
 
@@ -196,8 +154,7 @@
                 class="bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-[20px] border border-black/[0.06] dark:border-white/[0.08] shadow-xs flex flex-col justify-between group hover:border-emerald-500/40 transition-all">
                 <div>
                     <div class="flex items-center justify-between mb-3">
-                        <span class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Token AI
-                            &amp; Storage</span>
+                        <span class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">{{ __('billing.pillar_ai_storage') }}</span>
                         <div
                             class="w-9 h-9 rounded-[12px] bg-amber-50 dark:bg-amber-950/60 border border-amber-200/80 dark:border-amber-800/80 flex items-center justify-center text-amber-600 dark:text-amber-400">
                             <i data-lucide="bot" class="w-4 h-4"></i>
@@ -211,7 +168,7 @@
                 </div>
                 <div
                     class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80 text-xs text-slate-500 dark:text-slate-400 flex items-center justify-between">
-                    <span>Storage Cloud</span>
+                    <span>{{ __('billing.cloud_storage') }}</span>
                     <span
                         class="font-bold text-slate-700 dark:text-slate-300 font-mono tabular-nums">{{ number_format($usage['storage']['used_mb'] ?? 0, 0) }}
                         MB / {{ $usage['storage']['limit_gb'] ?? 1 }} GB</span>
@@ -234,11 +191,11 @@
                                 class="rounded-[10px] px-2.5 py-1 text-xs font-bold uppercase tracking-wider bg-emerald-100/80 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30 flex items-center gap-1.5 shadow-2xs">
                                 <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400"
                                     aria-hidden="true"></i>
-                                <span>STATUS LANGGANAN AKTIF</span>
+                                <span>{{ __('billing.active_plan_notice') }}</span>
                             </span>
                             @if (!empty($usage['ends_at']))
                                 <span class="text-xs text-slate-600 dark:text-slate-400 font-mono">
-                                    Berlaku s/d <strong
+                                    {{ __('billing.active_until') }} <strong
                                         class="text-slate-900 dark:text-white font-semibold">{{ $usage['ends_at'] }}</strong>
                                 </span>
                             @endif
@@ -246,13 +203,11 @@
 
                         <h2 id="active-plan-heading"
                             class="text-lg sm:text-xl font-black text-slate-900 dark:text-white tracking-tight">
-                            Bisnis Anda Berjalan di Paket <span
-                                class="text-emerald-600 dark:text-emerald-400">{{ $usage['plan_label'] }}</span>
+                            {!! __('billing.business_running_on', ['plan' => '<span class="text-emerald-600 dark:text-emerald-400">' . e($usage['plan_label']) . '</span>']) !!}
                         </h2>
 
                         <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-                            Seluruh limit transaksi POS, faktur penjualan, katalog produk, resep BOM, dan multi-gudang telah
-                            terbuka penuh tanpa batas (Unlimited).
+                            {{ __('billing.active_plan_unlimited_desc') }}
                         </p>
 
                         <div
@@ -261,25 +216,25 @@
                                 <i data-lucide="check-circle-2"
                                     class="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0"
                                     aria-hidden="true"></i>
-                                <span>Multi-Gudang &amp; Cabang</span>
+                                <span>{{ __('billing.feature_multi_warehouse') }}</span>
                             </span>
                             <span class="flex items-center gap-1.5 font-medium text-emerald-700 dark:text-emerald-300">
                                 <i data-lucide="check-circle-2"
                                     class="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0"
                                     aria-hidden="true"></i>
-                                <span>Export / Import Excel Lengkap</span>
+                                <span>{{ __('billing.feature_excel_import_export') }}</span>
                             </span>
                             <span class="flex items-center gap-1.5 font-medium text-emerald-700 dark:text-emerald-300">
                                 <i data-lucide="check-circle-2"
                                     class="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0"
                                     aria-hidden="true"></i>
-                                <span>Transaksi Kasir Unlimited</span>
+                                <span>{{ __('billing.feature_unlimited_pos') }}</span>
                             </span>
                             <span class="flex items-center gap-1.5 font-medium text-emerald-700 dark:text-emerald-300">
                                 <i data-lucide="check-circle-2"
                                     class="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0"
                                     aria-hidden="true"></i>
-                                <span>Bot WhatsApp Struk Kasir</span>
+                                <span>{{ __('billing.feature_wa_bot_receipt') }}</span>
                             </span>
                         </div>
                     </div>
@@ -289,13 +244,13 @@
                             <a href="{{ route('billing.checkout') }}"
                                 class="px-5 py-2.5 rounded-[12px] text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 shadow-sm shadow-emerald-600/20 active:scale-[0.98] transition cursor-pointer flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-emerald-500">
                                 <i data-lucide="refresh-cw" class="w-4 h-4" aria-hidden="true"></i>
-                                <span>Perpanjang Masa Aktif</span>
+                                <span>{{ __('billing.action_renew_active_period') }}</span>
                             </a>
                         @endif
                         <a href="{{ route('billing.history') }}"
                             class="px-4 py-2.5 rounded-[12px] text-xs font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/80 active:scale-[0.98] transition cursor-pointer shadow-2xs flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-emerald-500">
                             <i data-lucide="receipt" class="w-4 h-4 text-slate-400" aria-hidden="true"></i>
-                            <span>Lihat Invoice</span>
+                            <span>{{ __('billing.action_view_invoice') }}</span>
                         </a>
                     </div>
                 </div>
@@ -308,10 +263,10 @@
                 <div>
                     <h2 id="pricing-tiers-heading" class="text-sm sm:text-base font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
                         <i data-lucide="sparkles" class="w-4 h-4 text-emerald-600 dark:text-emerald-400" aria-hidden="true"></i>
-                        <span>Pilihan Paket Langganan Cooca</span>
+                        <span>{{ __('billing.pricing_tiers_heading') }}</span>
                     </h2>
                     <p class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                        Pilih paket sesuai skala operasional bisnis Anda. Bebas berganti paket kapan saja.
+                        {{ __('billing.pricing_tiers_subtitle') }}
                     </p>
                 </div>
 
@@ -320,13 +275,13 @@
                     <button type="button" @click="pricingCycle = 'monthly'"
                         :class="pricingCycle === 'monthly' ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-2xs font-bold' : 'text-slate-500 hover:text-slate-900 dark:hover:text-white font-medium'"
                         class="px-3 py-1.5 rounded-[9px] text-xs transition-all cursor-pointer">
-                        Tagihan Bulanan
+                        {{ __('billing.billing_monthly') }}
                     </button>
                     <button type="button" @click="pricingCycle = 'annual'"
                         :class="pricingCycle === 'annual' ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-2xs font-bold' : 'text-slate-500 hover:text-slate-900 dark:hover:text-white font-medium'"
                         class="px-3 py-1.5 rounded-[9px] text-xs transition-all flex items-center gap-1.5 cursor-pointer">
-                        <span>Tagihan Tahunan</span>
-                        <span class="px-1.5 py-0.5 text-[9px] font-bold rounded-full bg-emerald-600 text-white">Hemat 2 Bln</span>
+                        <span>{{ __('billing.billing_annual') }}</span>
+                        <span class="px-1.5 py-0.5 text-[9px] font-bold rounded-full bg-emerald-600 text-white">{{ __('billing.annual_badge') }}</span>
                     </button>
                 </div>
             </div>
@@ -401,7 +356,9 @@
                             <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 shrink-0"></i><span>1.000 Kasir POS / bln</span></li>
                             <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 shrink-0"></i><span>2 Lokasi (Toko/Gudang)</span></li>
                             <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 shrink-0"></i><span>3 Karyawan / Staf</span></li>
+                            @if($business->hasDineInFeature())
                             <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 shrink-0"></i><span>5 Meja Kasir POS (Dine-In)</span></li>
+                            @endif
                             <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 shrink-0"></i><span>Ekspor / Impor Excel</span></li>
                             <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 shrink-0"></i><span>50 Notifikasi WA / bln</span></li>
                         </ul>
@@ -424,7 +381,7 @@
                 <!-- 3. Premium Plan (Highlighted / Populer) -->
                 <div class="bg-white dark:bg-slate-900 rounded-[20px] border-2 {{ $tier === 'premium' ? 'border-indigo-500 ring-2 ring-indigo-500/30' : 'border-indigo-500 dark:border-indigo-500' }} p-5 shadow-md flex flex-col justify-between relative group hover:border-indigo-600 transition-all">
                     <div class="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 bg-indigo-600 text-white text-[9px] font-bold uppercase tracking-wider rounded-full shadow-xs">
-                        Paling Populer
+                        {{ __('billing.popular') }}
                     </div>
                     <div class="space-y-3 mt-1">
                         <div class="flex items-center justify-between">
@@ -684,7 +641,7 @@
                             aria-hidden="true"></i>
                         <h2 id="storage-detail-heading"
                             class="text-xs sm:text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider">
-                            Detail Penggunaan Storage Cloud
+                            {{ __('billing.storage_detail_heading') }}
                         </h2>
                     </div>
                     <div class="flex items-center gap-2">
@@ -695,7 +652,7 @@
                         <button type="button" @click="openModal()"
                             class="px-2.5 py-1.5 rounded-[8px] text-[10px] font-bold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/80 active:scale-[0.98] transition cursor-pointer flex items-center gap-1.5 shadow-2xs focus-visible:ring-2 focus-visible:ring-cyan-500">
                             <i data-lucide="folder" class="w-3 h-3 text-cyan-600 dark:text-cyan-400" aria-hidden="true"></i>
-                            <span>Kelola Semua Berkas</span>
+                            <span>{{ __('billing.manage_all_files') }}</span>
                         </button>
                         <!-- Recalculate Button -->
                         @if (\App\Support\Context::hasPermission('billing.manage'))
@@ -723,7 +680,7 @@
                                 class="flex items-center gap-2 text-xs font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider">
                                 <i data-lucide="building-2" class="w-3.5 h-3.5 text-violet-600 dark:text-violet-400"
                                     aria-hidden="true"></i>
-                                <span>Pemakaian per Bisnis</span>
+                                <span>{{ __('billing.storage_usage_per_business') }}</span>
                             </div>
                             <div class="space-y-3">
                                 @foreach ($storageDetails['business_breakdown'] as $biz)
@@ -772,7 +729,7 @@
                                 class="flex items-center gap-2 text-xs font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider">
                                 <i data-lucide="pie-chart" class="w-3.5 h-3.5 text-amber-600 dark:text-amber-400"
                                     aria-hidden="true"></i>
-                                <span>Pemakaian per Kategori File</span>
+                                <span>{{ __('billing.storage_usage_per_category') }}</span>
                             </div>
                             <div class="space-y-2.5">
                                 @foreach ($storageDetails['category_breakdown'] as $cat)
@@ -804,7 +761,7 @@
                             class="flex items-center gap-2 text-xs font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider">
                             <i data-lucide="file-search" class="w-3.5 h-3.5 text-rose-500 dark:text-rose-400"
                                 aria-hidden="true"></i>
-                            <span>10 Berkas Terbesar Bisnis Ini</span>
+                            <span>{{ __('billing.largest_files_heading') }}</span>
                         </div>
 
                         <!-- Desktop Table View -->
@@ -813,12 +770,12 @@
                                 <thead>
                                     <tr
                                         class="text-[10px] uppercase tracking-wider font-bold text-slate-500 dark:text-slate-400 border-b border-slate-100 dark:border-slate-800">
-                                        <th scope="col" class="py-2.5 text-left font-semibold">Nama File</th>
-                                        <th scope="col" class="py-2.5 text-left font-semibold">Bisnis</th>
-                                        <th scope="col" class="py-2.5 text-left font-semibold">Kategori</th>
-                                        <th scope="col" class="py-2.5 text-right font-semibold">Ukuran</th>
-                                        <th scope="col" class="py-2.5 text-right font-semibold">Diunggah</th>
-                                        <th scope="col" class="py-2.5 text-center font-semibold w-16">Aksi</th>
+                                        <th scope="col" class="py-2.5 text-left font-semibold">{{ __('billing.table_file_name') }}</th>
+                                        <th scope="col" class="py-2.5 text-left font-semibold">{{ __('billing.table_business') }}</th>
+                                        <th scope="col" class="py-2.5 text-left font-semibold">{{ __('billing.table_category') }}</th>
+                                        <th scope="col" class="py-2.5 text-right font-semibold">{{ __('billing.table_size') }}</th>
+                                        <th scope="col" class="py-2.5 text-right font-semibold">{{ __('billing.table_uploaded') }}</th>
+                                        <th scope="col" class="py-2.5 text-center font-semibold w-16">{{ __('billing.table_action') }}</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-slate-100 dark:divide-slate-800/60">
@@ -848,7 +805,7 @@
                                                         onsubmit="return confirm('Hapus berkas \'{{ addslashes($lf['file_name']) }}\' secara permanen dari server untuk mengurangi kuota storage?')">
                                                         @csrf
                                                         @method('DELETE')
-                                                        <button type="submit" title="Hapus Berkas & Kurangi Storage"
+                                                        <button type="submit" title="{{ __('billing.delete_file_tooltip') }}"
                                                             class="p-1 rounded-[6px] text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition cursor-pointer">
                                                             <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
                                                         </button>
@@ -887,7 +844,7 @@
                                                     onsubmit="return confirm('Hapus berkas \'{{ addslashes($lf['file_name']) }}\' secara permanen dari server untuk mengurangi kuota storage?')">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" title="Hapus Berkas & Kurangi Storage"
+                                                    <button type="submit" title="{{ __('billing.delete_file_tooltip') }}"
                                                         class="text-slate-400 hover:text-rose-600 transition cursor-pointer p-0.5">
                                                         <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
                                                     </button>
@@ -933,11 +890,10 @@
                         aria-hidden="true"></i>
                     <h2 id="monthly-quotas-heading"
                         class="text-xs sm:text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider">
-                        Kuota Transaksi Bulanan
+                        {{ __('billing.monthly_quotas_heading') }}
                     </h2>
                 </div>
-                <span class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 font-mono">Reset otomatis setiap
-                    tanggal 1 awal bulan (00:00 WIB)</span>
+                <span class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 font-mono">{{ __('billing.monthly_quotas_reset_notice') }}</span>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 sm:gap-4 lg:gap-5">
@@ -951,7 +907,7 @@
                     class="bg-white dark:bg-slate-900 rounded-[20px] border {{ $posReached ? 'border-rose-300 dark:border-rose-500/50 bg-rose-50/50 dark:bg-rose-950/15' : 'border-black/[0.06] dark:border-white/[0.08]' }} shadow-xs p-4 sm:p-5 space-y-3 flex flex-col justify-between transition-all">
                     <div>
                         <div class="flex items-center justify-between text-slate-500 dark:text-slate-400">
-                            <span class="text-xs font-bold uppercase tracking-wider">Transaksi Kasir</span>
+                            <span class="text-xs font-bold uppercase tracking-wider">{{ __('billing.pos_cashier_transactions') }}</span>
                             <div class="p-1.5 rounded-[8px] bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
                                 aria-hidden="true">
                                 <i data-lucide="shopping-cart" class="w-4 h-4"></i>
@@ -1001,7 +957,7 @@
                     class="bg-white dark:bg-slate-900 rounded-[20px] border {{ $invReached ? 'border-rose-300 dark:border-rose-500/50 bg-rose-50/50 dark:bg-rose-950/15' : 'border-black/[0.06] dark:border-white/[0.08]' }} shadow-xs p-4 sm:p-5 space-y-3 flex flex-col justify-between transition-all">
                     <div>
                         <div class="flex items-center justify-between text-slate-500 dark:text-slate-400">
-                            <span class="text-xs font-bold uppercase tracking-wider">Faktur B2B</span>
+                            <span class="text-xs font-bold uppercase tracking-wider">{{ __('billing.b2b_invoices') }}</span>
                             <div class="p-1.5 rounded-[8px] bg-purple-50 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400"
                                 aria-hidden="true">
                                 <i data-lucide="receipt" class="w-4 h-4"></i>
@@ -1051,7 +1007,7 @@
                     class="bg-white dark:bg-slate-900 rounded-[20px] border {{ $poReached ? 'border-rose-300 dark:border-rose-500/50 bg-rose-50/50 dark:bg-rose-950/15' : 'border-black/[0.06] dark:border-white/[0.08]' }} shadow-xs p-4 sm:p-5 space-y-3 flex flex-col justify-between transition-all">
                     <div>
                         <div class="flex items-center justify-between text-slate-500 dark:text-slate-400">
-                            <span class="text-xs font-bold uppercase tracking-wider">Purchase Order</span>
+                            <span class="text-xs font-bold uppercase tracking-wider">{{ __('billing.purchase_orders') }}</span>
                             <div class="p-1.5 rounded-[8px] bg-cyan-50 dark:bg-cyan-500/10 text-cyan-600 dark:text-cyan-400"
                                 aria-hidden="true">
                                 <i data-lucide="clipboard-list" class="w-4 h-4"></i>
@@ -1101,7 +1057,7 @@
                     class="bg-white dark:bg-slate-900 rounded-[20px] border {{ $socReached ? 'border-rose-300 dark:border-rose-500/50 bg-rose-50/50 dark:bg-rose-950/15' : 'border-black/[0.06] dark:border-white/[0.08]' }} shadow-xs p-4 sm:p-5 space-y-3 flex flex-col justify-between transition-all">
                     <div>
                         <div class="flex items-center justify-between text-slate-500 dark:text-slate-400">
-                            <span class="text-xs font-bold uppercase tracking-wider">Media Sosial</span>
+                            <span class="text-xs font-bold uppercase tracking-wider">{{ __('billing.social_media') }}</span>
                             <div class="p-1.5 rounded-[8px] bg-pink-50 dark:bg-pink-500/10 text-pink-600 dark:text-pink-400"
                                 aria-hidden="true">
                                 <i data-lucide="share-2" class="w-4 h-4"></i>
@@ -1163,7 +1119,7 @@
                     class="bg-white dark:bg-slate-900 rounded-[20px] border {{ $waReached ? 'border-rose-300 dark:border-rose-500/50 bg-rose-50/50 dark:bg-rose-950/15' : 'border-black/[0.06] dark:border-white/[0.08]' }} shadow-xs p-4 sm:p-5 space-y-3 flex flex-col justify-between transition-all">
                     <div>
                         <div class="flex items-center justify-between text-slate-500 dark:text-slate-400">
-                            <span class="text-xs font-bold uppercase tracking-wider">WhatsApp Gateway</span>
+                            <span class="text-xs font-bold uppercase tracking-wider">{{ __('billing.whatsapp_gateway') }}</span>
                             <div class="p-1.5 rounded-[8px] bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
                                 aria-hidden="true">
                                 <i data-lucide="message-circle" class="w-4 h-4"></i>
@@ -1225,11 +1181,10 @@
                         aria-hidden="true"></i>
                     <h2 id="catalog-capacity-heading"
                         class="text-xs sm:text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider">
-                        Master Data &amp; Kapasitas Entitas Bisnis
+                        {{ __('billing.master_data_capacity_heading') }}
                     </h2>
                 </div>
-                <span class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 font-mono">Penyimpanan basis data
-                    operasional terstruktur</span>
+                <span class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 font-mono">{{ __('billing.master_data_capacity_subtitle') }}</span>
             </div>
 
             <div class="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-5">
@@ -1239,7 +1194,7 @@
                     class="bg-white dark:bg-slate-900 rounded-[20px] border {{ $prd['is_reached'] ?? false ? 'border-rose-300 dark:border-rose-500/50 bg-rose-50/50 dark:bg-rose-950/15' : 'border-black/[0.06] dark:border-white/[0.08]' }} shadow-xs p-4 space-y-2 flex flex-col justify-between transition-all">
                     <div>
                         <div class="flex items-center justify-between text-slate-500 dark:text-slate-400">
-                            <span class="text-xs font-bold uppercase tracking-wider">Katalog Produk</span>
+                            <span class="text-xs font-bold uppercase tracking-wider">{{ __('billing.resource_products') }}</span>
                             <i data-lucide="box" class="w-4 h-4 text-emerald-600 dark:text-emerald-400"
                                 aria-hidden="true"></i>
                         </div>
@@ -1262,12 +1217,13 @@
                 </div>
 
                 <!-- 2. Bahan Baku -->
+                @if($business->isModuleEnabled('recipe_bom') || in_array($business->industry, ['fnb_resto', 'fnb_cafe', 'fnb_bakery', 'fnb_street_food', 'manufacturing']))
                 @php $mat = $usage['materials'] ?? []; @endphp
                 <div
                     class="bg-white dark:bg-slate-900 rounded-[20px] border {{ $mat['is_reached'] ?? false ? 'border-rose-300 dark:border-rose-500/50 bg-rose-50/50 dark:bg-rose-950/15' : 'border-black/[0.06] dark:border-white/[0.08]' }} shadow-xs p-4 space-y-2 flex flex-col justify-between transition-all">
                     <div>
                         <div class="flex items-center justify-between text-slate-500 dark:text-slate-400">
-                            <span class="text-xs font-bold uppercase tracking-wider">Bahan Baku</span>
+                            <span class="text-xs font-bold uppercase tracking-wider">{{ __('billing.resource_materials') }}</span>
                             <i data-lucide="layers" class="w-4 h-4 text-cyan-600 dark:text-cyan-400"
                                 aria-hidden="true"></i>
                         </div>
@@ -1288,14 +1244,16 @@
                     <div class="text-[11px] text-slate-500 dark:text-slate-400 pt-1 font-mono">
                         {{ $usage['is_core'] ? 'Bahan baku tanpa batas' : 'Maks. 10 bahan baku (Free)' }}</div>
                 </div>
+                @endif
 
                 <!-- 3. Resep HPP (BOM) -->
+                @if($business->isModuleEnabled('recipe_bom') || in_array($business->industry, ['fnb_resto', 'fnb_cafe', 'fnb_bakery', 'fnb_street_food', 'manufacturing']))
                 @php $rcp = $usage['recipes'] ?? []; @endphp
                 <div
                     class="bg-white dark:bg-slate-900 rounded-[20px] border {{ $rcp['is_reached'] ?? false ? 'border-rose-300 dark:border-rose-500/50 bg-rose-50/50 dark:bg-rose-950/15' : 'border-black/[0.06] dark:border-white/[0.08]' }} shadow-xs p-4 space-y-2 flex flex-col justify-between transition-all">
                     <div>
                         <div class="flex items-center justify-between text-slate-500 dark:text-slate-400">
-                            <span class="text-xs font-bold uppercase tracking-wider">Resep HPP (BOM)</span>
+                            <span class="text-xs font-bold uppercase tracking-wider">{{ __('billing.resource_recipes') }}</span>
                             <i data-lucide="chef-hat" class="w-4 h-4 text-amber-600 dark:text-amber-400"
                                 aria-hidden="true"></i>
                         </div>
@@ -1316,6 +1274,7 @@
                     <div class="text-[11px] text-slate-500 dark:text-slate-400 pt-1 font-mono">
                         {{ $usage['is_core'] ? 'Resep tanpa batas' : 'Maks. 3 resep (Free)' }}</div>
                 </div>
+                @endif
 
                 <!-- 4. Pelanggan CRM -->
                 @php $cst = $usage['customers'] ?? []; @endphp
@@ -1323,7 +1282,7 @@
                     class="bg-white dark:bg-slate-900 rounded-[20px] border {{ $cst['is_reached'] ?? false ? 'border-rose-300 dark:border-rose-500/50 bg-rose-50/50 dark:bg-rose-950/15' : 'border-black/[0.06] dark:border-white/[0.08]' }} shadow-xs p-4 space-y-2 flex flex-col justify-between transition-all">
                     <div>
                         <div class="flex items-center justify-between text-slate-500 dark:text-slate-400">
-                            <span class="text-xs font-bold uppercase tracking-wider">Pelanggan CRM</span>
+                            <span class="text-xs font-bold uppercase tracking-wider">{{ __('billing.resource_customers') }}</span>
                             <i data-lucide="users" class="w-4 h-4 text-indigo-600 dark:text-indigo-400"
                                 aria-hidden="true"></i>
                         </div>
@@ -1351,7 +1310,7 @@
                     class="bg-white dark:bg-slate-900 rounded-[20px] border {{ $sup['is_reached'] ?? false ? 'border-rose-300 dark:border-rose-500/50 bg-rose-50/50 dark:bg-rose-950/15' : 'border-black/[0.06] dark:border-white/[0.08]' }} shadow-xs p-4 space-y-2 flex flex-col justify-between transition-all">
                     <div>
                         <div class="flex items-center justify-between text-slate-500 dark:text-slate-400">
-                            <span class="text-xs font-bold uppercase tracking-wider">Pemasok / Vendor</span>
+                            <span class="text-xs font-bold uppercase tracking-wider">{{ __('billing.resource_suppliers') }}</span>
                             <i data-lucide="truck" class="w-4 h-4 text-rose-600 dark:text-rose-400"
                                 aria-hidden="true"></i>
                         </div>
@@ -1378,7 +1337,7 @@
                     class="bg-white dark:bg-slate-900 rounded-[20px] border border-black/[0.06] dark:border-white/[0.08] shadow-xs p-4 space-y-2 flex flex-col justify-between transition-all">
                     <div>
                         <div class="flex items-center justify-between text-slate-500 dark:text-slate-400">
-                            <span class="text-xs font-bold uppercase tracking-wider">Outlet &amp; Gudang</span>
+                            <span class="text-xs font-bold uppercase tracking-wider">{{ __('billing.resource_outlets') }}</span>
                             <i data-lucide="store" class="w-4 h-4 text-teal-600 dark:text-teal-400"
                                 aria-hidden="true"></i>
                         </div>
@@ -1406,7 +1365,7 @@
                     class="bg-white dark:bg-slate-900 rounded-[20px] border border-black/[0.06] dark:border-white/[0.08] shadow-xs p-4 space-y-2 flex flex-col justify-between transition-all">
                     <div>
                         <div class="flex items-center justify-between text-slate-500 dark:text-slate-400">
-                            <span class="text-xs font-bold uppercase tracking-wider">Karyawan / Staf</span>
+                            <span class="text-xs font-bold uppercase tracking-wider">{{ __('billing.resource_staff') }}</span>
                             <i data-lucide="user-check" class="w-4 h-4 text-blue-600 dark:text-blue-400"
                                 aria-hidden="true"></i>
                         </div>
@@ -1434,7 +1393,7 @@
                     class="bg-white dark:bg-slate-900 rounded-[20px] border border-black/[0.06] dark:border-white/[0.08] shadow-xs p-4 space-y-2 flex flex-col justify-between transition-all">
                     <div>
                         <div class="flex items-center justify-between text-slate-500 dark:text-slate-400">
-                            <span class="text-xs font-bold uppercase tracking-wider">Entitas Bisnis</span>
+                            <span class="text-xs font-bold uppercase tracking-wider">{{ __('billing.resource_businesses') }}</span>
                             <i data-lucide="building-2" class="w-4 h-4 text-violet-600 dark:text-violet-400"
                                 aria-hidden="true"></i>
                         </div>
@@ -1458,12 +1417,13 @@
                 </div>
 
                 <!-- 9. Meja Kasir POS (Dine-In) -->
+                @if($business->hasDineInFeature())
                 @php $tbl = $usage['tables'] ?? []; @endphp
                 <div
                     class="bg-white dark:bg-slate-900 rounded-[20px] border {{ $tbl['is_reached'] ?? false ? 'border-rose-300 dark:border-rose-500/50 bg-rose-50/50 dark:bg-rose-950/15' : 'border-black/[0.06] dark:border-white/[0.08]' }} shadow-xs p-4 space-y-2 flex flex-col justify-between transition-all">
                     <div>
                         <div class="flex items-center justify-between text-slate-500 dark:text-slate-400">
-                            <span class="text-xs font-bold uppercase tracking-wider">Meja Kasir (Dine-In)</span>
+                            <span class="text-xs font-bold uppercase tracking-wider">{{ __('billing.resource_tables') }}</span>
                             <i data-lucide="layout-grid" class="w-4 h-4 text-emerald-600 dark:text-emerald-400"
                                 aria-hidden="true"></i>
                         </div>
@@ -1484,6 +1444,7 @@
                     <div class="text-[11px] text-slate-500 dark:text-slate-400 pt-1 font-mono">
                         {{ $tbl['limit'] ? 'Maks. ' . $tbl['limit'] . ' meja (Standard: 5)' : ($usage['is_core'] ? 'Meja dine-in tanpa batas' : 'Fitur berbayar (Standard/Premium)') }}</div>
                 </div>
+                @endif
             </div>
         </section>
 
@@ -1497,17 +1458,16 @@
                         class="text-sm sm:text-base font-black text-slate-900 dark:text-white flex items-center gap-2">
                         <i data-lucide="columns-3" class="w-5 h-5 text-emerald-600 dark:text-emerald-400"
                             aria-hidden="true"></i>
-                        <span>Matriks Perbandingan Kemampuan Paket</span>
+                        <span>{{ __('billing.feature_matrix_heading') }}</span>
                     </h3>
-                    <p class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 mt-1">Perbedaan hak akses dan skala
-                        bisnis antara Paket Free Solo dan Program Patungan Cooca.</p>
+                    <p class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 mt-1">{{ __('billing.feature_matrix_subtitle') }}</p>
                 </div>
                 @if (!$usage['is_core'])
                     @if (\App\Support\Context::hasPermission('billing.manage'))
                         <a href="{{ route('billing.checkout') }}"
                             class="px-4 py-2.5 rounded-[12px] text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 shadow-sm shadow-emerald-600/20 active:scale-[0.98] transition cursor-pointer self-start sm:self-auto flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-emerald-500">
                             <i data-lucide="zap" class="w-3.5 h-3.5" aria-hidden="true"></i>
-                            <span>Upgrade Sekarang</span>
+                            <span>{{ __('billing.upgrade_now') }}</span>
                         </a>
                     @endif
                 @endif
@@ -1582,6 +1542,7 @@
                             <td class="py-3 px-3 text-center font-mono font-bold text-indigo-700 dark:text-indigo-300 bg-indigo-50/30 dark:bg-indigo-950/20">10 Staf</td>
                             <td class="py-3 px-3 text-center font-mono font-bold text-purple-700 dark:text-purple-300 bg-purple-50/30 dark:bg-purple-950/20">∞ Unlimited</td>
                         </tr>
+                        @if($business->hasDineInFeature())
                         <!-- Meja Dine-in -->
                         <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors">
                             <td class="py-3 px-4 font-bold text-slate-900 dark:text-white">Meja Kasir POS (Dine-In)</td>
@@ -1590,6 +1551,7 @@
                             <td class="py-3 px-3 text-center font-mono font-bold text-indigo-700 dark:text-indigo-300 bg-indigo-50/30 dark:bg-indigo-950/20">∞ Unlimited</td>
                             <td class="py-3 px-3 text-center font-mono font-bold text-purple-700 dark:text-purple-300 bg-purple-50/30 dark:bg-purple-950/20">∞ Unlimited</td>
                         </tr>
+                        @endif
                         <!-- Transfer Stok Multi-Gudang -->
                         <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors">
                             <td class="py-3 px-4 font-bold text-slate-900 dark:text-white">Transfer Stok Multi-Gudang / Cabang</td>
@@ -1714,13 +1676,9 @@
                 <i data-lucide="heart-handshake" class="w-6 h-6"></i>
             </div>
             <div class="text-xs space-y-1 flex-1">
-                <h4 id="commitment-heading" class="font-extrabold text-slate-900 dark:text-white text-sm">Komitmen
-                    Privasi: Bebas Dari Hukuman Data (No Data Punishment)</h4>
+                <h4 id="commitment-heading" class="font-extrabold text-slate-900 dark:text-white text-sm">{{ __('billing.privacy_commitment_title') }}</h4>
                 <p class="text-slate-600 dark:text-slate-300 leading-relaxed">
-                    Data bisnis Anda adalah aset milik Anda seutuhnya. Jika langganan berakhir atau mencapai kuota
-                    pemakaian, Cooca <strong class="text-emerald-700 dark:text-emerald-300 font-semibold">tidak akan
-                        pernah menghapus, membatasi baca, ataupun mengunci akses data riwayat Anda</strong>. Seluruh laporan
-                    transaksi, pembukuan kas, dan rekam jejak stok tetap dapat diekspor dan dilihat kapan saja.
+                    {{ __('billing.privacy_commitment_desc') }}
                 </p>
             </div>
         </section>
@@ -1741,7 +1699,7 @@
                 x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
                 x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100 scale-100"
                 x-transition:leave-end="opacity-0 scale-95"
-                class="relative w-full max-w-4xl max-h-[90vh] bg-white dark:bg-slate-900 rounded-[24px] border border-black/[0.08] dark:border-white/[0.12] shadow-2xl flex flex-col overflow-hidden z-10">
+                class="relative w-full max-w-[95vw] lg:max-w-5xl xl:max-w-6xl 2xl:max-w-[1350px] max-h-[90vh] bg-white dark:bg-slate-900 rounded-[24px] border border-black/[0.08] dark:border-white/[0.12] shadow-2xl flex flex-col overflow-hidden z-10">
 
                 <!-- Modal Header -->
                 <div class="px-5 py-4 sm:px-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between gap-4">
@@ -1751,16 +1709,16 @@
                         </div>
                         <div>
                             <h3 id="file-manager-title" class="text-sm sm:text-base font-black text-slate-900 dark:text-white tracking-tight">
-                                Manajemen Berkas Penyimpanan ({{ $business->name }})
+                                {{ __('billing.storage_manager_title', ['business' => $business->name]) }}
                             </h3>
                             <p class="text-[11px] text-slate-500 dark:text-slate-400">
-                                Kelola dan hapus berkas milik bisnis ini untuk mengurangi pemakaian storage cloud.
+                                {{ __('billing.storage_manager_subtitle') }}
                             </p>
                         </div>
                     </div>
                     <button type="button" @click="openFileManager = false"
-                        class="p-2 rounded-[10px] text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer">
-                        <i data-lucide="x" class="w-4 h-4"></i>
+                        class="min-h-[44px] min-w-[44px] p-2 rounded-[12px] text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer flex items-center justify-center">
+                        <i data-lucide="x" class="w-5 h-5"></i>
                     </button>
                 </div>
 
@@ -1769,13 +1727,13 @@
                     <div class="relative flex-1 w-full">
                         <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
                         <input type="text" x-model="searchQuery" @input.debounce.300ms="fetchFiles(1)"
-                            placeholder="Cari nama berkas..."
-                            class="w-full pl-9 pr-4 py-2 text-xs rounded-[12px] bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500">
+                            placeholder="{{ __('billing.modal_search_files') }}"
+                            class="w-full pl-9 pr-4 py-2 text-base sm:text-xs rounded-[12px] bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500">
                     </div>
                     <div class="w-full sm:w-56">
                         <select x-model="selectedCategory" @change="fetchFiles(1)"
-                            class="w-full px-3 py-2 text-xs rounded-[12px] bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-cyan-500">
-                            <option value="all">Semua Kategori</option>
+                            class="w-full px-3 py-2 text-base sm:text-xs rounded-[12px] bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-cyan-500">
+                            <option value="all">{{ __('billing.modal_all_categories') }}</option>
                             <option value="product_image">Foto Produk</option>
                             <option value="business_logo">Logo Bisnis</option>
                             <option value="landing_page_image">Landing Page</option>
@@ -1793,13 +1751,13 @@
                     <!-- Loading State -->
                     <div x-show="loadingFiles" class="py-12 text-center text-xs text-slate-500">
                         <i data-lucide="loader" class="w-6 h-6 animate-spin mx-auto text-cyan-600 mb-2"></i>
-                        <span>Memuat daftar berkas...</span>
+                        <span>{{ __('billing.modal_loading_files') }}</span>
                     </div>
 
                     <!-- Empty State -->
                     <div x-show="!loadingFiles && files.length === 0" class="py-12 text-center text-xs text-slate-500">
                         <i data-lucide="file-x" class="w-8 h-8 mx-auto text-slate-400 mb-2"></i>
-                        <span class="font-semibold text-slate-700 dark:text-slate-300">Tidak ada berkas yang ditemukan.</span>
+                        <span class="font-semibold text-slate-700 dark:text-slate-300">{{ __('billing.modal_no_files') }}</span>
                     </div>
 
                     <!-- Files Table (Desktop) -->
@@ -1807,12 +1765,12 @@
                         <table class="w-full text-xs">
                             <thead>
                                 <tr class="text-[10px] uppercase tracking-wider font-bold text-slate-500 dark:text-slate-400 border-b border-slate-100 dark:border-slate-800">
-                                    <th class="py-2.5 text-left font-semibold">Nama File</th>
-                                    <th class="py-2.5 text-left font-semibold">Bisnis</th>
-                                    <th class="py-2.5 text-left font-semibold">Kategori</th>
-                                    <th class="py-2.5 text-right font-semibold">Ukuran</th>
-                                    <th class="py-2.5 text-right font-semibold">Diunggah</th>
-                                    <th class="py-2.5 text-center font-semibold w-20">Aksi</th>
+                                    <th class="py-2.5 text-left font-semibold">{{ __('billing.table_file_name') }}</th>
+                                    <th class="py-2.5 text-left font-semibold">{{ __('billing.table_business') }}</th>
+                                    <th class="py-2.5 text-left font-semibold">{{ __('billing.table_category') }}</th>
+                                    <th class="py-2.5 text-right font-semibold">{{ __('billing.table_size') }}</th>
+                                    <th class="py-2.5 text-right font-semibold">{{ __('billing.table_uploaded') }}</th>
+                                    <th class="py-2.5 text-center font-semibold w-20">{{ __('billing.table_action') }}</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-slate-100 dark:divide-slate-800/60">
@@ -1826,7 +1784,7 @@
                                         <td class="py-2.5 text-right font-mono font-bold text-slate-800 dark:text-slate-200 tabular-nums" x-text="f.formatted_size"></td>
                                         <td class="py-2.5 text-right text-slate-500 dark:text-slate-400 font-mono tabular-nums" x-text="f.uploaded_at"></td>
                                         <td class="py-2.5 text-center">
-                                            <button type="button" @click="deleteFile(f)" title="Hapus Berkas & Reclaim Kuota"
+                                            <button type="button" @click="confirmDelete(f)" title="Hapus Berkas & Reclaim Kuota"
                                                 class="px-2 py-1 rounded-[8px] text-[10px] font-bold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition cursor-pointer flex items-center justify-center gap-1 mx-auto">
                                                 <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
                                                 <span>Hapus</span>
@@ -1854,7 +1812,7 @@
                                     </div>
                                 </div>
                                 <div class="pt-1 flex justify-end">
-                                    <button type="button" @click="deleteFile(f)"
+                                    <button type="button" @click="confirmDelete(f)"
                                         class="text-[11px] font-bold text-rose-600 dark:text-rose-400 hover:underline flex items-center gap-1 cursor-pointer">
                                         <i data-lucide="trash-2" class="w-3 h-3"></i>
                                         <span>Hapus Berkas</span>
@@ -1868,21 +1826,72 @@
                 <!-- Modal Footer with Pagination -->
                 <div class="px-5 py-3 sm:px-6 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/30 flex items-center justify-between text-xs">
                     <span class="text-slate-500 dark:text-slate-400 font-mono tabular-nums">
-                        Menampilkan <strong class="text-slate-800 dark:text-slate-200" x-text="files.length"></strong> dari <strong class="text-slate-800 dark:text-slate-200" x-text="totalFiles"></strong> berkas
+                        {!! __('billing.modal_showing_files', ['count' => '<strong class="text-slate-800 dark:text-slate-200" x-text="files.length"></strong>', 'total' => '<strong class="text-slate-800 dark:text-slate-200" x-text="totalFiles"></strong>']) !!}
                     </span>
                     <div class="flex items-center gap-2">
                         <button type="button" :disabled="currentPage <= 1" @click="fetchFiles(currentPage - 1)"
-                            class="px-2.5 py-1 rounded-[8px] text-[11px] font-medium bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed">
-                            Sebelumnya
+                            class="min-h-[40px] px-3.5 py-2 rounded-[10px] text-xs font-semibold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed transition">
+                            {{ __('billing.modal_prev') }}
                         </button>
-                        <span class="font-mono text-[11px] text-slate-500 tabular-nums" x-text="currentPage + ' / ' + lastPage"></span>
+                        <span class="font-mono text-xs text-slate-500 tabular-nums px-1" x-text="currentPage + ' / ' + lastPage"></span>
                         <button type="button" :disabled="currentPage >= lastPage" @click="fetchFiles(currentPage + 1)"
-                            class="px-2.5 py-1 rounded-[8px] text-[11px] font-medium bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed">
-                            Berikutnya
+                            class="min-h-[40px] px-3.5 py-2 rounded-[10px] text-xs font-semibold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed transition">
+                            {{ __('billing.modal_next') }}
                         </button>
                     </div>
                 </div>
+
+                <!-- 2-Step Bento Confirmation Modal Sheet -->
+                <div x-show="confirmDeleteModal" x-cloak
+                    class="fixed inset-0 z-60 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+                    <div @click.away="if (!deletingFile) confirmDeleteModal = false"
+                        class="bg-white dark:bg-slate-900 rounded-[24px] border border-black/[0.08] dark:border-white/[0.1] shadow-2xl max-w-md w-full p-6 space-y-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-[12px] bg-rose-100 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0">
+                                <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-sm text-slate-900 dark:text-white">{{ __('billing.modal_confirm_delete_title') }}</h3>
+                                <p class="text-[11px] text-slate-500 dark:text-slate-400">{{ __('billing.modal_confirm_delete_desc') }}</p>
+                            </div>
+                        </div>
+                        <template x-if="targetFile">
+                            <div class="p-3.5 rounded-[14px] bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 space-y-1.5 text-xs">
+                                <div class="font-semibold text-slate-900 dark:text-white truncate" x-text="targetFile.file_name"></div>
+                                <div class="flex items-center justify-between text-[11px] text-slate-500 font-mono">
+                                    <span x-text="targetFile.category_label"></span>
+                                    <span class="font-bold text-slate-700 dark:text-slate-300 tabular-nums" x-text="targetFile.formatted_size"></span>
+                                </div>
+                            </div>
+                        </template>
+                        <div class="flex items-center justify-end gap-2.5 pt-2">
+                            <button type="button" :disabled="deletingFile" @click="confirmDeleteModal = false; targetFile = null"
+                                class="min-h-[44px] px-4 py-2.5 rounded-[12px] text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer">
+                                {{ __('billing.modal_cancel') }}
+                            </button>
+                            <button type="button" :disabled="deletingFile" @click="executeDelete()"
+                                class="min-h-[44px] px-4 py-2.5 rounded-[12px] text-xs font-bold text-white bg-rose-600 hover:bg-rose-500 transition cursor-pointer flex items-center gap-1.5 disabled:opacity-60 shadow-xs">
+                                <span x-show="deletingFile" class="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                                <span x-text="deletingFile ? '{{ __('billing.modal_deleting') }}' : '{{ __('billing.modal_delete_permanently') }}'"></span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
             </div>
+        </div>
+
+        <!-- Non-disruptive Toast Notification -->
+        <div x-show="toastMessage" x-cloak
+            x-transition:enter="transition ease-out duration-300"
+            x-transition:enter-start="opacity-0 translate-y-2"
+            x-transition:enter-end="opacity-100 translate-y-0"
+            x-transition:leave="transition ease-in duration-200"
+            x-transition:leave-start="opacity-100 translate-y-0"
+            x-transition:leave-end="opacity-0 translate-y-2"
+            class="fixed bottom-6 right-6 z-70 px-4 py-3 rounded-[16px] bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 border border-slate-700 dark:border-slate-300 shadow-2xl flex items-center gap-2.5 text-xs font-semibold">
+            <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 dark:text-emerald-600"></i>
+            <span x-text="toastMessage"></span>
         </div>
 
     </div>
@@ -1899,6 +1908,19 @@
             currentPage: 1,
             lastPage: 1,
             totalFiles: 0,
+            confirmDeleteModal: false,
+            targetFile: null,
+            deletingFile: false,
+            toastMessage: '',
+            toastTimer: null,
+
+            showToast(msg) {
+                this.toastMessage = msg;
+                if (this.toastTimer) clearTimeout(this.toastTimer);
+                this.toastTimer = setTimeout(() => {
+                    this.toastMessage = '';
+                }, 3500);
+            },
 
             openModal() {
                 this.openFileManager = true;
@@ -1934,12 +1956,19 @@
                 }
             },
 
-            async deleteFile(file) {
-                if (!confirm(`Hapus berkas '${file.file_name}' secara permanen dari server untuk mengurangi kapasitas storage?`)) {
-                    return;
-                }
+            confirmDelete(file) {
+                this.targetFile = file;
+                this.confirmDeleteModal = true;
+                this.$nextTick(() => {
+                    if (window.lucide) { window.lucide.createIcons(); }
+                });
+            },
+
+            async executeDelete() {
+                if (!this.targetFile) return;
+                this.deletingFile = true;
                 try {
-                    const res = await fetch(file.delete_url, {
+                    const res = await fetch(this.targetFile.delete_url, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -1950,16 +1979,21 @@
                     });
                     if (res.ok) {
                         const data = await res.json();
-                        this.files = this.files.filter(f => f.id !== file.id);
+                        const removedId = this.targetFile.id;
+                        this.files = this.files.filter(f => f.id !== removedId);
                         this.totalFiles = Math.max(0, this.totalFiles - 1);
-                        alert(data.message || 'Berkas berhasil dihapus.');
-                        window.location.reload();
+                        this.confirmDeleteModal = false;
+                        this.targetFile = null;
+                        this.showToast(data.message || 'Berkas berhasil dihapus.');
                     } else {
-                        alert('Gagal menghapus berkas. Pastikan Anda memiliki izin.');
+                        const errData = await res.json().catch(() => ({}));
+                        this.showToast(errData.message || 'Gagal menghapus berkas. Pastikan Anda memiliki izin.');
                     }
                 } catch (err) {
                     console.error('Error saat menghapus berkas:', err);
-                    alert('Terjadi kesalahan jaringan.');
+                    this.showToast('Terjadi kesalahan jaringan.');
+                } finally {
+                    this.deletingFile = false;
                 }
             }
         };

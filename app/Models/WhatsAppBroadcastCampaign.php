@@ -26,6 +26,9 @@ class WhatsAppBroadcastCampaign extends Model
         'total_sent',
         'total_failed',
         'status',
+        'template_name',
+        'template_language',
+        'template_params',
     ];
 
     /**
@@ -37,6 +40,7 @@ class WhatsAppBroadcastCampaign extends Model
             'total_recipients' => 'integer',
             'total_sent' => 'integer',
             'total_failed' => 'integer',
+            'template_params' => 'array',
         ];
     }
 

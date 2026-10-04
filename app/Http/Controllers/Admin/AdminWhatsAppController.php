@@ -75,6 +75,7 @@ final class AdminWhatsAppController extends Controller
         $otpDriver   = 'meta_cloud';
         $blastDriver = 'meta_cloud';
         $metaTemplates = $this->adminWa->getLocalTemplates();
+        $standardTemplatesCatalog = $this->adminWa->getStandardTemplatesCatalog();
 
         return view('admin.whatsapp.index', compact(
             'tab',
@@ -92,7 +93,8 @@ final class AdminWhatsAppController extends Controller
             'platformApp',
             'otpDriver',
             'blastDriver',
-            'metaTemplates'
+            'metaTemplates',
+            'standardTemplatesCatalog'
         ));
     }
 
@@ -446,4 +448,40 @@ final class AdminWhatsAppController extends Controller
             'message' => $result['error'] ?? 'Gagal menghapus template pesan.',
         ], 422);
     }
+
+    /**
+     * AJAX: Deploy seluruh template standar sistem Cooca ke Meta Cloud API v26.0.
+     */
+    public function deployStandardTemplates(Request $request): JsonResponse
+    {
+        $wabaId = $request->input('waba_id');
+        $result = $this->adminWa->deployStandardTemplatesToMeta($wabaId ? (string) $wabaId : null);
+
+        return response()->json([
+            'success'   => $result['success'],
+            'message'   => $result['message'],
+            'deployed'  => $result['deployed'],
+            'errors'    => $result['errors'] ?? [],
+            'standards' => $this->adminWa->getStandardTemplatesCatalog(),
+            'templates' => $this->adminWa->getLocalTemplates(),
+        ]);
+    }
+
+    /**
+     * AJAX: Pasang / seed template standar secara instan ke database lokal.
+     */
+    public function seedStandardTemplates(Request $request): JsonResponse
+    {
+        $wabaId = $request->input('waba_id');
+        $count = $this->adminWa->seedStandardTemplatesLocal($wabaId ? (string) $wabaId : null);
+
+        return response()->json([
+            'success'   => true,
+            'message'   => "Berhasil mendaftarkan {$count} template standar resmi Cooca ke database sistem.",
+            'count'     => $count,
+            'standards' => $this->adminWa->getStandardTemplatesCatalog(),
+            'templates' => $this->adminWa->getLocalTemplates(),
+        ]);
+    }
 }
+

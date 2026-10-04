@@ -10,24 +10,29 @@ use App\Support\Context;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 final class CustomerWebController extends Controller
 {
     /**
-     * Display a unified listing of customers, members, and vouchers with segmented tabs.
+     * Display a unified listing of customers with deep-linking to CRM member & voucher submodules.
      */
-    public function index(Request $request): View
+    public function index(Request $request): View|RedirectResponse
     {
         $business = Context::requireBusiness();
-        $tab = (string) $request->get('tab', 'customers');
-        if (! in_array($tab, ['customers', 'members', 'vouchers'], true)) {
-            $tab = 'customers';
+
+        if ($request->get('tab') === 'members') {
+            return redirect()->route('crm.members.index', $request->except('tab'));
         }
 
-        // Tab 1: Commercial & General Customers
+        if ($request->get('tab') === 'vouchers') {
+            return redirect()->route('crm.vouchers.index', $request->except('tab'));
+        }
+
+        // Commercial & General Customers
         $customersQuery = Customer::where('business_id', $business->id)
-            ->withCount(['invoices', 'purchaseOrders'])
+            ->withCount(['invoices', 'purchaseOrders', 'posOrders'])
             ->latest();
 
         if ($request->filled('search')) {
@@ -37,76 +42,31 @@ final class CustomerWebController extends Controller
                     ->orWhere('company_name', 'like', "%{$search}%")
                     ->orWhere('code', 'like', "%{$search}%")
                     ->orWhere('phone', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%");
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('vehicle_license_plate', 'like', "%{$search}%")
+                    ->orWhere('vehicle_model', 'like', "%{$search}%");
             });
         }
-        $customers = $customersQuery->paginate(15, ['*'], 'customers_page')->withQueryString();
+        $customers = $customersQuery->paginate(15)->withQueryString();
 
-        // Tab 2: CRM Members & Loyalty
-        $membersQuery = Customer::where('business_id', $business->id)
-            ->withCount('posOrders')
-            ->latest('total_spent');
-
-        if ($request->filled('tier') && $request->get('tier') !== 'all') {
-            $tierVal = strtolower((string) $request->get('tier'));
-            $membersQuery->whereRaw('LOWER(membership_tier) = ?', [$tierVal]);
-        }
-
-        if ($request->filled('segment') && $request->get('segment') !== 'all') {
-            $membersQuery->where('segment', $request->get('segment'));
-        }
-
-        if ($request->filled('search')) {
-            $search = (string) $request->get('search');
-            $membersQuery->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('company_name', 'like', "%{$search}%")
-                    ->orWhere('phone', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%");
-            });
-        }
-
-        if ($request->filled('member_search')) {
-            $mSearch = (string) $request->get('member_search');
-            $membersQuery->where(function ($q) use ($mSearch) {
-                $q->where('name', 'like', "%{$mSearch}%")
-                    ->orWhere('phone', 'like', "%{$mSearch}%")
-                    ->orWhere('email', 'like', "%{$mSearch}%");
-            });
-        }
-        $members = $membersQuery->paginate(15, ['*'], 'members_page')->withQueryString();
-
-        // Tab 3: Promotional Vouchers
-        $vouchers = \App\Models\Voucher::where('business_id', $business->id)
-            ->latest('created_at')
-            ->paginate(15, ['*'], 'vouchers_page')
-            ->withQueryString();
-
-        // Unified High-Level Bento Metrics
+        // Bento Hero Metrics
         $totalCustomers = Customer::where('business_id', $business->id)->count();
         $totalCorporate = Customer::where('business_id', $business->id)
             ->whereNotNull('company_name')
             ->where('company_name', '!=', '')
             ->count();
         $avgPaymentTerms = (int) round((float) (Customer::where('business_id', $business->id)->avg('payment_terms_days') ?: 30));
-        $totalPointsIssued = (int) Customer::where('business_id', $business->id)->sum('points_balance');
         $totalCreditReceivable = (float) Customer::where('business_id', $business->id)->sum('current_credit_balance');
-        $totalVouchers = \App\Models\Voucher::where('business_id', $business->id)->count();
-        $activeVouchers = \App\Models\Voucher::where('business_id', $business->id)->where('is_active', true)->count();
+        $totalPointsIssued = (int) Customer::where('business_id', $business->id)->sum('points_balance');
 
         return view('app.customers.index', compact(
             'business',
-            'tab',
             'customers',
-            'members',
-            'vouchers',
             'totalCustomers',
             'totalCorporate',
             'avgPaymentTerms',
             'totalPointsIssued',
-            'totalCreditReceivable',
-            'totalVouchers',
-            'activeVouchers'
+            'totalCreditReceivable'
         ));
     }
 
@@ -120,9 +80,12 @@ final class CustomerWebController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'company_name' => ['nullable', 'string', 'max:255'],
-            'code' => ['nullable', 'string', 'max:50'],
+            'code' => ['nullable', 'string', 'max:50', Rule::unique('customers', 'code')->where('business_id', $business->id)],
             'email' => ['nullable', 'email', 'max:150'],
             'phone' => ['nullable', 'string', 'max:50'],
+            'vehicle_license_plate' => ['nullable', 'string', 'max:30'],
+            'vehicle_model' => ['nullable', 'string', 'max:100'],
+            'vehicle_mileage' => ['nullable', 'integer', 'min:0'],
             'billing_address' => ['nullable', 'string', 'max:500'],
             'shipping_address' => ['nullable', 'string', 'max:500'],
             'tax_identification_number' => ['nullable', 'string', 'max:50'],
@@ -137,6 +100,9 @@ final class CustomerWebController extends Controller
             'code' => $validated['code'] ?? null,
             'email' => $validated['email'] ?? null,
             'phone' => $validated['phone'] ?? null,
+            'vehicle_license_plate' => ! empty($validated['vehicle_license_plate']) ? strtoupper(trim($validated['vehicle_license_plate'])) : null,
+            'vehicle_model' => $validated['vehicle_model'] ?? null,
+            'vehicle_mileage' => isset($validated['vehicle_mileage']) ? (int) $validated['vehicle_mileage'] : null,
             'billing_address' => $validated['billing_address'] ?? null,
             'shipping_address' => $validated['shipping_address'] ?? null,
             'tax_identification_number' => $validated['tax_identification_number'] ?? null,
@@ -161,18 +127,28 @@ final class CustomerWebController extends Controller
      */
     public function update(Request $request, Customer $customer): RedirectResponse|JsonResponse
     {
+        $business = Context::requireBusiness();
+        abort_unless($customer->business_id === $business->id, 403);
+
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'company_name' => ['nullable', 'string', 'max:255'],
-            'code' => ['nullable', 'string', 'max:50'],
+            'code' => ['nullable', 'string', 'max:50', Rule::unique('customers', 'code')->where('business_id', $business->id)->ignore($customer->id)],
             'email' => ['nullable', 'email', 'max:150'],
             'phone' => ['nullable', 'string', 'max:50'],
+            'vehicle_license_plate' => ['nullable', 'string', 'max:30'],
+            'vehicle_model' => ['nullable', 'string', 'max:100'],
+            'vehicle_mileage' => ['nullable', 'integer', 'min:0'],
             'billing_address' => ['nullable', 'string', 'max:500'],
             'shipping_address' => ['nullable', 'string', 'max:500'],
             'tax_identification_number' => ['nullable', 'string', 'max:50'],
             'payment_terms_days' => ['nullable', 'integer', 'min:0', 'max:365'],
             'notes' => ['nullable', 'string', 'max:500'],
         ]);
+
+        if (array_key_exists('vehicle_license_plate', $validated) && ! empty($validated['vehicle_license_plate'])) {
+            $validated['vehicle_license_plate'] = strtoupper(trim($validated['vehicle_license_plate']));
+        }
 
         $customer->update($validated);
 
@@ -192,6 +168,9 @@ final class CustomerWebController extends Controller
      */
     public function destroy(Customer $customer): RedirectResponse
     {
+        $business = Context::requireBusiness();
+        abort_unless($customer->business_id === $business->id, 403);
+
         $customer->delete();
 
         return redirect()->route('customers.index')->with('success', 'Pelanggan berhasil dihapus.');

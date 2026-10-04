@@ -24,6 +24,10 @@ require __DIR__ . '/owner.php';
 require __DIR__ . '/customer.php';
 require __DIR__ . '/public.php';
 
+// Global Multi-Language Locale Switcher (ID / EN)
+\Illuminate\Support\Facades\Route::match(['GET', 'POST'], '/locale/{locale}', [\App\Http\Controllers\Web\LocaleController::class, 'switch'])
+    ->name('locale.switch');
+
 // Protected Payout Transfer Proof Document (Authorized Superadmin or Merchant Owner Only)
 \Illuminate\Support\Facades\Route::get('/settlements/{settlement}/proof', [\App\Http\Controllers\Common\SettlementProofController::class, 'show'])
     ->name('settlements.proof');

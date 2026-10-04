@@ -23,6 +23,7 @@ class ComprehensiveLocalizationAndErgonomicsTest extends TestCase
         'tax',
         'marketplace',
         'finance',
+        'whatsapp',
     ];
 
     /**

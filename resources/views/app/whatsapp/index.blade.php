@@ -1,7 +1,7 @@
 @extends('layouts.app', [
-    'title' => 'WhatsApp Gateway - ' . $business->name,
-    'headerTitle' => 'WhatsApp Gateway & Otomasi',
-    'headerSubtitle' => 'Hubungkan nomor WhatsApp bisnis Anda untuk kirim struk digital POS & blast promosi pelanggan',
+    'title' => __('whatsapp.title') . ' - ' . $business->name,
+    'headerTitle' => __('whatsapp.header_title'),
+    'headerSubtitle' => __('whatsapp.header_subtitle'),
 ])
 
 @section('content')
@@ -10,19 +10,19 @@
         {{-- MODULE HEADER & PERSISTENT COMMUNICATION TABS --}}
         <x-module-header
             module="communication"
-            title="WhatsApp Gateway & Otomasi Bisnis"
-            subtitle="Sinkronisasikan nomor WhatsApp {{ $business->name }} untuk pengiriman struk kasir tanpa kertas dan distribusi blast promosi ke pelanggan setia.">
+            :title="__('whatsapp.title')"
+            :subtitle="__('whatsapp.subtitle', ['business' => $business->name])">
             <x-slot:actions>
                 <a href="{{ route('whatsapp.logs.index') }}"
                     class="min-h-[44px] px-4 rounded-[12px] text-[13px] font-semibold text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.98] transition-all flex items-center justify-center gap-2 w-full sm:w-auto">
                     <i data-lucide="history" class="w-4 h-4 text-black/60 dark:text-white/60"></i>
-                    <span>Log Pesan</span>
+                    <span>{{ __('whatsapp.tab_logs') }}</span>
                 </a>
                 @if (\App\Support\Context::hasPermission('pos.terminal'))
                     <a href="{{ route('pos.terminal') }}"
                         class="min-h-[44px] px-4 rounded-[12px] text-[13px] font-semibold text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.98] transition-all flex items-center justify-center gap-2 w-full sm:w-auto">
                         <i data-lucide="calculator" class="w-4 h-4 text-[#007AFF]"></i>
-                        <span>Buka Terminal Kasir POS</span>
+                        <span>{{ __('whatsapp.open_pos') }}</span>
                     </a>
                 @endif
             </x-slot:actions>
@@ -48,8 +48,8 @@
                                 <i data-lucide="shield-check" class="w-6 h-6"></i>
                             </div>
                             <div>
-                                <h2 class="text-[17px] font-bold text-black dark:text-white tracking-tight">Meta WhatsApp Cloud API Resmi</h2>
-                                <p class="text-[12.5px] text-black/55 dark:text-white/55 mt-0.5">Integrasi Tech Provider resmi Meta untuk operasional toko Anda</p>
+                                <h2 class="text-[17px] font-bold text-black dark:text-white tracking-tight">{{ __('whatsapp.meta_official_title') }}</h2>
+                                <p class="text-[12.5px] text-black/55 dark:text-white/55 mt-0.5">{{ __('whatsapp.meta_official_desc') }}</p>
                             </div>
                         </div>
 
@@ -57,7 +57,7 @@
                             <span class="px-3 py-1.5 rounded-full text-[11.5px] font-bold inline-flex items-center gap-1.5"
                                 :class="metaAccount?.is_active ? 'bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158] border border-[#34C759]/25' : 'bg-black/[0.05] dark:bg-white/[0.08] text-black/55 dark:text-white/55 border border-black/10 dark:border-white/10'">
                                 <span class="w-2 h-2 rounded-full" :class="metaAccount?.is_active ? 'bg-[#34C759]' : 'bg-[#FF9500]'"></span>
-                                <span x-text="metaAccount?.is_active ? 'Terhubung & Aktif' : 'Belum Terhubung'"></span>
+                                <span x-text="metaAccount?.is_active ? '{{ __('whatsapp.connected_active') }}' : '{{ __('whatsapp.disconnected') }}'"></span>
                             </span>
                         </div>
                     </div>
@@ -67,11 +67,11 @@
                         <div class="flex items-center justify-between font-bold text-[#007AFF]">
                             <span class="flex items-center gap-1.5">
                                 <i data-lucide="sparkles" class="w-4 h-4"></i>
-                                Kuota Gratis 1.000 Percakapan/Bulan dari Meta
+                                {{ __('whatsapp.free_tier_banner_title') }}
                             </span>
                         </div>
                         <p class="leading-relaxed text-black/65 dark:text-white/65 text-[12px]">
-                            Setiap akun WhatsApp Business resmi (WABA) mendapatkan 1.000 Service Conversation gratis per bulan langsung dari Meta tanpa risiko pemblokiran nomor.
+                            {{ __('whatsapp.free_tier_banner_desc') }}
                         </p>
                     </div>
 
@@ -79,8 +79,8 @@
                     <div class="p-5 sm:p-6 rounded-[18px] bg-gradient-to-br from-[#1877F2]/10 via-white dark:via-[#1C1C1E] to-[#007AFF]/8 border border-[#1877F2]/25 space-y-4">
                         <div class="flex items-center justify-between">
                             <div class="space-y-0.5">
-                                <h3 class="text-[15px] font-bold text-black dark:text-white">Pendaftaran Mandiri (Embedded Signup)</h3>
-                                <p class="text-[12px] text-black/55 dark:text-white/55">Hubungkan nomor WhatsApp toko Anda dalam 1 klik tanpa perlu membuat aplikasi Meta sendiri</p>
+                                <h3 class="text-[15px] font-bold text-black dark:text-white">{{ __('whatsapp.embedded_signup_title') }}</h3>
+                                <p class="text-[12px] text-black/55 dark:text-white/55">{{ __('whatsapp.embedded_signup_desc') }}</p>
                             </div>
                         </div>
 
@@ -89,33 +89,33 @@
                             <div class="space-y-4 pt-1">
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 p-4 rounded-[16px] bg-white/80 dark:bg-black/25 border border-black/5 dark:border-white/10 text-[12.5px]">
                                     <div>
-                                        <span class="text-black/50 dark:text-white/50 text-[11px] font-semibold uppercase">Nama Bisnis Terverifikasi</span>
+                                        <span class="text-black/50 dark:text-white/50 text-[11px] font-semibold uppercase">{{ __('whatsapp.verified_name_label') }}</span>
                                         <p class="font-bold text-black dark:text-white text-[13.5px] mt-0.5" x-text="metaAccount.verified_name || '-'"></p>
                                     </div>
                                     <div>
-                                        <span class="text-black/50 dark:text-white/50 text-[11px] font-semibold uppercase">Nomor WhatsApp Toko</span>
+                                        <span class="text-black/50 dark:text-white/50 text-[11px] font-semibold uppercase">{{ __('whatsapp.phone_number_label') }}</span>
                                         <p class="font-mono font-bold text-[#007AFF] text-[13.5px] mt-0.5 tabular-nums" x-text="metaAccount.display_phone_number || '-'"></p>
                                     </div>
                                     <div>
-                                        <span class="text-black/50 dark:text-white/50 text-[11px] font-semibold uppercase">Kualitas Nomor</span>
+                                        <span class="text-black/50 dark:text-white/50 text-[11px] font-semibold uppercase">{{ __('whatsapp.quality_rating_label') }}</span>
                                         <p class="font-bold text-[#34C759] mt-0.5 flex items-center gap-1.5">
                                             <span class="w-2 h-2 rounded-full bg-[#34C759]"></span>
                                             <span x-text="metaAccount.quality_rating || 'GREEN'"></span>
                                         </p>
                                     </div>
                                     <div>
-                                        <span class="text-black/50 dark:text-white/50 text-[11px] font-semibold uppercase">Kapasitas Pesan (Tier)</span>
+                                        <span class="text-black/50 dark:text-white/50 text-[11px] font-semibold uppercase">{{ __('whatsapp.messaging_limit_label') }}</span>
                                         <p class="font-bold text-black dark:text-white mt-0.5" x-text="metaAccount.messaging_limit_tier || 'TIER_50'"></p>
                                     </div>
                                 </div>
 
-                                <div class="flex items-center justify-between pt-1">
-                                    <span class="text-[11.5px] text-black/50 dark:text-white/50 font-mono">
-                                        WABA ID: <span x-text="metaAccount.waba_id"></span>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-1">
+                                    <span class="text-[11.5px] text-black/50 dark:text-white/50 font-mono truncate max-w-[260px]">
+                                        {{ __('whatsapp.waba_id_label') }}: <span x-text="metaAccount.waba_id"></span>
                                     </span>
                                     <button type="button" @click="disconnectMeta()"
-                                        class="min-h-[40px] px-4 rounded-[10px] text-[12.5px] font-bold text-[#FF3B30] bg-[#FF3B30]/10 hover:bg-[#FF3B30]/15 active:scale-[0.98] transition-all">
-                                        Putuskan Hubungan
+                                        class="min-h-[44px] px-4 rounded-[12px] text-[12.5px] font-bold text-[#FF3B30] bg-[#FF3B30]/10 hover:bg-[#FF3B30]/15 active:scale-[0.98] transition-all flex items-center justify-center">
+                                        {{ __('whatsapp.disconnect_btn') }}
                                     </button>
                                 </div>
                             </div>
@@ -125,22 +125,22 @@
                         <template x-if="!metaAccount?.is_active">
                             <div class="space-y-4">
                                 <p class="text-[12.5px] text-black/70 dark:text-white/70 leading-relaxed">
-                                    Klik tombol di bawah untuk membuka jendela resmi Meta Facebook. Masuk dengan akun Facebook Anda, pilih atau daftarkan nomor telepon WhatsApp bisnis, dan sistem COOCA akan menghubungkannya secara otomatis.
+                                    {{ __('whatsapp.embedded_signup_instruction') }}
                                 </p>
 
                                 {{-- Simple 3-Step Overview --}}
                                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-[11.5px]">
                                     <div class="p-3 rounded-[13px] bg-white/80 dark:bg-black/25 border border-black/5 dark:border-white/5 space-y-1">
-                                        <span class="font-bold text-[#1877F2] block">1. Klik Hubungkan</span>
-                                        <p class="text-black/60 dark:text-white/60">Buka popup resmi Meta</p>
+                                        <span class="font-bold text-[#1877F2] block">{{ __('whatsapp.step_1_title') }}</span>
+                                        <p class="text-black/60 dark:text-white/60">{{ __('whatsapp.step_1_desc') }}</p>
                                     </div>
                                     <div class="p-3 rounded-[13px] bg-white/80 dark:bg-black/25 border border-black/5 dark:border-white/5 space-y-1">
-                                        <span class="font-bold text-[#1877F2] block">2. Masuk Facebook</span>
-                                        <p class="text-black/60 dark:text-white/60">Pilih akun &amp; nomor toko</p>
+                                        <span class="font-bold text-[#1877F2] block">{{ __('whatsapp.step_2_title') }}</span>
+                                        <p class="text-black/60 dark:text-white/60">{{ __('whatsapp.step_2_desc') }}</p>
                                     </div>
                                     <div class="p-3 rounded-[13px] bg-white/80 dark:bg-black/25 border border-black/5 dark:border-white/5 space-y-1">
-                                        <span class="font-bold text-[#34C759] block">3. Langsung Terhubung</span>
-                                        <p class="text-black/60 dark:text-white/60">Siap kirim struk digital</p>
+                                        <span class="font-bold text-[#34C759] block">{{ __('whatsapp.step_3_title') }}</span>
+                                        <p class="text-black/60 dark:text-white/60">{{ __('whatsapp.step_3_desc') }}</p>
                                     </div>
                                 </div>
 
@@ -149,7 +149,7 @@
                                         class="w-full min-h-[48px] rounded-[14px] bg-[#1877F2] hover:bg-[#166FE5] text-white font-bold text-[14px] flex items-center justify-center gap-2 shadow-md shadow-[#1877F2]/25 active:scale-[0.98] transition-all disabled:opacity-50">
                                         <i data-lucide="loader-2" x-show="embeddedLoading" class="w-4 h-4 animate-spin"></i>
                                         <i data-lucide="shield-check" x-show="!embeddedLoading" class="w-4 h-4"></i>
-                                        <span x-text="embeddedLoading ? 'Menghubungkan ke Meta...' : 'Hubungkan dengan WhatsApp Resmi (1-Klik Meta)'"></span>
+                                        <span x-text="embeddedLoading ? '{{ __('whatsapp.connecting_meta') }}' : '{{ __('whatsapp.connect_meta_btn') }}'"></span>
                                     </button>
                                 @endif
 
@@ -169,21 +169,19 @@
                     </div>
 
                     <!-- Status Layanan WhatsApp Toko -->
-                    <form action="{{ route('whatsapp.settings') }}" method="POST" class="pt-1">
-                        @csrf
-                        <input type="hidden" name="provider" value="meta_cloud">
+                    <div class="pt-1">
                         <div class="flex items-center justify-between p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5">
                             <div class="pr-2">
-                                <p class="text-[13.5px] font-bold text-black dark:text-white">Status Layanan WhatsApp Toko</p>
-                                <p class="text-[12px] text-black/50 dark:text-white/50 mt-0.5">Izinkan sistem mengirimkan struk digital kasir dan blast promosi ke pelanggan</p>
+                                <p class="text-[13.5px] font-bold text-black dark:text-white">{{ __('whatsapp.service_status_title') }}</p>
+                                <p class="text-[12px] text-black/50 dark:text-white/50 mt-0.5">{{ __('whatsapp.service_status_desc') }}</p>
                             </div>
                             <label class="relative inline-flex items-center cursor-pointer shrink-0">
-                                <input type="checkbox" name="is_active" value="1" onchange="this.form.submit()" class="sr-only peer"
+                                <input type="checkbox" name="is_active" value="1" @change="toggleServiceStatus($event)" class="sr-only peer"
                                     {{ ($waSession?->is_active ?? true) ? 'checked' : '' }}>
                                 <div class="w-11 h-6 bg-black/[0.12] dark:bg-white/[0.15] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#34C759]"></div>
                             </label>
                         </div>
-                    </form>
+                    </div>
                 </div>
 
             </div>
@@ -202,8 +200,8 @@
                             <i data-lucide="receipt" class="w-5 h-5"></i>
                         </div>
                         <div>
-                            <h2 class="text-[15px] font-bold text-black dark:text-white">Pengaturan Struk Digital POS</h2>
-                            <p class="text-[12px] text-black/50 dark:text-white/50">Otomasi struk belanja ke WA pelanggan saat checkout</p>
+                            <h2 class="text-[15px] font-bold text-black dark:text-white">{{ __('whatsapp.receipt_settings_title') }}</h2>
+                            <p class="text-[12px] text-black/50 dark:text-white/50">{{ __('whatsapp.receipt_settings_desc') }}</p>
                         </div>
                     </div>
 
@@ -214,8 +212,8 @@
                         <div
                             class="flex items-center justify-between p-3.5 rounded-[14px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5">
                             <div class="pr-2">
-                                <p class="text-[13px] font-semibold text-black dark:text-white">Auto-Kirim Struk Checkout</p>
-                                <p class="text-[11.5px] text-black/50 dark:text-white/50 mt-0.5">Kirim struk otomatis jika data pelanggan memiliki nomor HP</p>
+                                <p class="text-[13px] font-semibold text-black dark:text-white">{{ __('whatsapp.auto_send_receipt_label') }}</p>
+                                <p class="text-[11.5px] text-black/50 dark:text-white/50 mt-0.5">{{ __('whatsapp.auto_send_receipt_desc') }}</p>
                             </div>
                             <label class="relative inline-flex items-center cursor-pointer shrink-0">
                                 <input type="checkbox" name="auto_send_receipt" value="1" class="sr-only peer"
@@ -229,17 +227,17 @@
                         <!-- Receipt Footer Note -->
                         <div class="space-y-1.5">
                             <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70">
-                                Catatan Kaki Struk (Opsional)
+                                {{ __('whatsapp.receipt_footer_label') }}
                             </label>
                             <textarea name="receipt_template" rows="2"
-                                placeholder="Contoh: Terima kasih sudah berbelanja! Follow IG kami @tokoukm"
+                                placeholder="{{ __('whatsapp.receipt_footer_placeholder') }}"
                                 class="w-full bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[12px] px-3.5 py-2.5 text-[16px] sm:text-[13.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 resize-none placeholder:text-black/35 dark:placeholder:text-white/35 transition-colors">{{ $waSession?->receipt_template ?? '' }}</textarea>
                         </div>
 
                         @if (\App\Support\Context::hasPermission('whatsapp.manage'))
                             <button type="submit"
                                 class="w-full min-h-[44px] px-4 rounded-[12px] text-[13px] font-semibold text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.98] transition-all flex items-center justify-center">
-                                Simpan Pengaturan Struk
+                                {{ __('whatsapp.save_receipt_settings_btn') }}
                             </button>
                         @endif
                     </form>
@@ -254,21 +252,21 @@
                             <i data-lucide="send" class="w-5 h-5"></i>
                         </div>
                         <div>
-                            <h2 class="text-[15px] font-bold text-black dark:text-white">Uji Coba Kirim Pesan</h2>
-                            <p class="text-[12px] text-black/50 dark:text-white/50">Pastikan bot WhatsApp berfungsi lancar ke nomor tujuan</p>
+                            <h2 class="text-[15px] font-bold text-black dark:text-white">{{ __('whatsapp.test_console_title') }}</h2>
+                            <p class="text-[12px] text-black/50 dark:text-white/50">{{ __('whatsapp.test_console_desc') }}</p>
                         </div>
                     </div>
 
                     <div class="space-y-3">
                         <div class="space-y-1.5">
-                            <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70">Nomor HP Tujuan</label>
-                            <input x-model="testPhone" type="tel" placeholder="08xxxxxxxxxx / 628xxxxxxxxxx"
+                            <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70">{{ __('whatsapp.test_phone_label') }}</label>
+                            <input x-model="testPhone" type="tel" placeholder="{{ __('whatsapp.test_phone_placeholder') }}"
                                 class="w-full min-h-[44px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[12px] px-3.5 text-[16px] sm:text-[13.5px] font-semibold tabular-nums text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 placeholder:text-black/35 dark:placeholder:text-white/35 transition-colors">
                         </div>
 
                         <div class="space-y-1.5">
-                            <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70">Isi Pesan Tes</label>
-                            <input x-model="testMessage" type="text" placeholder="Halo dari COOCA! Terima kasih sudah menghubungi kami."
+                            <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70">{{ __('whatsapp.test_message_label') }}</label>
+                            <input x-model="testMessage" type="text" placeholder="{{ __('whatsapp.test_message_placeholder') }}"
                                 class="w-full min-h-[44px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[12px] px-3.5 text-[16px] sm:text-[13.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 placeholder:text-black/35 dark:placeholder:text-white/35 transition-colors">
                         </div>
 
@@ -278,7 +276,7 @@
                                 :disabled="testLoading">
                                 <i data-lucide="loader-2" x-show="testLoading" class="w-4 h-4 animate-spin"></i>
                                 <i data-lucide="send" x-show="!testLoading" class="w-4 h-4"></i>
-                                <span x-text="testLoading ? 'Sedang Mengirim...' : 'Kirim Pesan Tes Sekarang'"></span>
+                                <span x-text="testLoading ? '{{ __('whatsapp.test_sending') }}' : '{{ __('whatsapp.test_send_btn') }}'"></span>
                             </button>
                         @endif
 
@@ -292,6 +290,161 @@
 
             </div>
 
+        </div>
+
+        <!-- ===================================================== -->
+        <!-- 4. OFFICIAL META MESSAGE TEMPLATES CATALOG (ANTI-BLOKIR) -->
+        <!-- ===================================================== -->
+        <div class="rounded-[22px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 shadow-sm p-5 sm:p-7 space-y-6 transition-colors">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-black/5 dark:border-white/10">
+                <div class="flex items-start gap-3.5">
+                    <div class="w-12 h-12 rounded-[16px] bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158] flex items-center justify-center shrink-0 shadow-sm">
+                        <i data-lucide="shield-check" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <h2 class="text-[17px] font-bold text-black dark:text-white tracking-tight">
+                                {{ __('whatsapp.meta_catalog_title') }}
+                            </h2>
+                            <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158] border border-[#34C759]/25">
+                                {{ __('whatsapp.meta_compliant_badge') }}
+                            </span>
+                        </div>
+                        <p class="text-[12.5px] text-black/55 dark:text-white/55 mt-1 leading-relaxed">
+                            {{ __('whatsapp.meta_catalog_subtitle') }}
+                        </p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2.5 shrink-0">
+                    <a href="{{ route('whatsapp.broadcast.index', ['open_composer' => 1]) }}"
+                        class="min-h-[44px] px-4 rounded-[12px] bg-[#007AFF] hover:bg-[#0071E3] text-white text-[13px] font-bold inline-flex items-center gap-2 shadow-sm transition active:scale-[0.98]">
+                        <i data-lucide="megaphone" class="w-4 h-4"></i>
+                        <span>{{ __('whatsapp.send_blast_with_template') }}</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Bento Grid: 10 Operational System Templates for Store -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                @php
+                    $storeTemplates = [
+                        [
+                            'name' => 'cooca_pos_receipt',
+                            'title' => __('whatsapp.tpl_pos_receipt_title'),
+                            'category' => 'UTILITY',
+                            'badge' => __('whatsapp.tpl_pos_receipt_badge'),
+                            'desc' => __('whatsapp.tpl_pos_receipt_desc'),
+                            'icon' => 'receipt',
+                        ],
+                        [
+                            'name' => 'cooca_reservation_reminder',
+                            'title' => __('whatsapp.tpl_reservation_reminder_title'),
+                            'category' => 'UTILITY',
+                            'badge' => __('whatsapp.tpl_reservation_reminder_badge'),
+                            'desc' => __('whatsapp.tpl_reservation_reminder_desc'),
+                            'icon' => 'calendar-clock',
+                        ],
+                        [
+                            'name' => 'cooca_marketplace_receipt',
+                            'title' => __('whatsapp.tpl_marketplace_receipt_title'),
+                            'category' => 'UTILITY',
+                            'badge' => __('whatsapp.tpl_marketplace_receipt_badge'),
+                            'desc' => __('whatsapp.tpl_marketplace_receipt_desc'),
+                            'icon' => 'shopping-bag',
+                        ],
+                        [
+                            'name' => 'cooca_shipping_tracking',
+                            'title' => __('whatsapp.tpl_shipping_tracking_title'),
+                            'category' => 'UTILITY',
+                            'badge' => __('whatsapp.tpl_shipping_tracking_badge'),
+                            'desc' => __('whatsapp.tpl_shipping_tracking_desc'),
+                            'icon' => 'truck',
+                        ],
+                        [
+                            'name' => 'cooca_cart_reminder',
+                            'title' => __('whatsapp.tpl_cart_reminder_title'),
+                            'category' => 'MARKETING',
+                            'badge' => __('whatsapp.tpl_cart_reminder_badge'),
+                            'desc' => __('whatsapp.tpl_cart_reminder_desc'),
+                            'icon' => 'shopping-cart',
+                        ],
+                        [
+                            'name' => 'cooca_promo_broadcast',
+                            'title' => __('whatsapp.tpl_promo_broadcast_title'),
+                            'category' => 'MARKETING',
+                            'badge' => __('whatsapp.tpl_promo_broadcast_badge'),
+                            'desc' => __('whatsapp.tpl_promo_broadcast_desc'),
+                            'icon' => 'megaphone',
+                        ],
+                        [
+                            'name' => 'cooca_order_status_update',
+                            'title' => __('whatsapp.tpl_order_status_update_title'),
+                            'category' => 'UTILITY',
+                            'badge' => __('whatsapp.tpl_order_status_update_badge'),
+                            'desc' => __('whatsapp.tpl_order_status_update_desc'),
+                            'icon' => 'package-check',
+                        ],
+                        [
+                            'name' => 'cooca_sales_invoice',
+                            'title' => __('whatsapp.tpl_sales_invoice_title'),
+                            'category' => 'UTILITY',
+                            'badge' => __('whatsapp.tpl_sales_invoice_badge'),
+                            'desc' => __('whatsapp.tpl_sales_invoice_desc'),
+                            'icon' => 'file-text',
+                        ],
+                        [
+                            'name' => 'cooca_customer_welcome',
+                            'title' => __('whatsapp.tpl_customer_welcome_title'),
+                            'category' => 'MARKETING',
+                            'badge' => __('whatsapp.tpl_customer_welcome_badge'),
+                            'desc' => __('whatsapp.tpl_customer_welcome_desc'),
+                            'icon' => 'sparkles',
+                        ],
+                        [
+                            'name' => 'cooca_payment_reminder',
+                            'title' => __('whatsapp.tpl_payment_reminder_title'),
+                            'category' => 'UTILITY',
+                            'badge' => __('whatsapp.tpl_payment_reminder_badge'),
+                            'desc' => __('whatsapp.tpl_payment_reminder_desc'),
+                            'icon' => 'bell',
+                        ],
+                    ];
+                @endphp
+
+                @foreach ($storeTemplates as $tpl)
+                    <div class="rounded-[18px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/10 p-4 sm:p-5 flex flex-col justify-between space-y-3.5 hover:border-[#34C759]/30 transition-all">
+                        <div class="space-y-2">
+                            <div class="flex items-center justify-between gap-2">
+                                <span class="px-2.5 py-0.5 rounded-[6px] text-[10.5px] font-bold uppercase tracking-wider
+                                    {{ $tpl['category'] === 'UTILITY' ? 'bg-[#007AFF]/15 text-[#007AFF]' : 'bg-[#34C759]/15 text-[#34C759]' }}">
+                                    {{ $tpl['category'] }}
+                                </span>
+                                <span class="inline-flex items-center gap-1.5 text-[11px] font-bold text-[#34C759]">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-[#34C759]"></span>
+                                    <span>{{ __('whatsapp.approved_meta_badge') }}</span>
+                                </span>
+                            </div>
+
+                            <div class="pt-1">
+                                <h3 class="text-[14.5px] font-bold text-black dark:text-white">{{ $tpl['title'] }}</h3>
+                                <code class="text-[11.5px] font-mono text-[#007AFF] block mt-0.5">{{ $tpl['name'] }}</code>
+                                <p class="text-[12px] text-black/60 dark:text-white/60 mt-1 leading-relaxed">
+                                    {{ $tpl['desc'] }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="pt-2.5 border-t border-black/5 dark:border-white/10 flex items-center justify-between text-[11px]">
+                            <span class="text-black/45 dark:text-white/45 font-medium">{{ $tpl['badge'] }}</span>
+                            <span class="text-[#34C759] font-bold inline-flex items-center gap-1">
+                                <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
+                                <span>{{ __('whatsapp.safe_24h_badge') }}</span>
+                            </span>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
         </div>
 
     </div>
@@ -308,7 +461,7 @@
                 phone: {{ Js::from($whatsAppAccount?->display_phone_number ?? '') }},
                 isLoading: false,
                 testPhone: '',
-                testMessage: 'Halo dari ' + {{ Js::from($business->name) }} + '! Terima kasih sudah menjadi pelanggan setia kami.',
+                testMessage: {{ Js::from(__('whatsapp.default_test_message', ['business' => $business->name])) }},
                 testLoading: false,
                 testResult: '',
                 testOk: false,
@@ -389,14 +542,14 @@
                         });
                         const configData = await configRes.json();
                         if (!configRes.ok || !configData.success) {
-                            this.embeddedError = configData.error || 'Konfigurasi Meta App ID belum tersedia di server.';
+                            this.embeddedError = configData.error || {{ Js::from(__('whatsapp.error_meta_app_id_missing')) }};
                             this.embeddedLoading = false;
                             return;
                         }
 
                         if (!configData.config_id || String(configData.config_id).trim() === '') {
                             this.embeddedLoading = false;
-                            this.embeddedError = 'ID Konfigurasi Meta (META_WA_CONFIG_ID) belum diisi di server COOCA. Silakan buat Konfigurasi di Dasbor Meta dan simpan ID Konfigurasi tersebut di COOCA.';
+                            this.embeddedError = {{ Js::from(__('whatsapp.error_meta_config_id_missing')) }};
                             return;
                         }
 
@@ -426,12 +579,12 @@
                                 );
                             } else {
                                 this.embeddedLoading = false;
-                                this.embeddedError = 'Otorisasi Meta dibatalkan atau tidak diselesaikan.';
+                                this.embeddedError = {{ Js::from(__('whatsapp.error_meta_auth_cancelled')) }};
                             }
                         }, loginOptions);
                     } catch (err) {
                         this.embeddedLoading = false;
-                        this.embeddedError = 'Gagal membuka jendela Meta Embedded Signup: ' + (err.message || err);
+                        this.embeddedError = {{ Js::from(__('whatsapp.error_launch_signup_failed')) }} + ': ' + (err.message || err);
                     }
                 },
 
@@ -453,15 +606,41 @@
                         });
                         const data = await res.json();
                         if (res.ok && data.success) {
-                            this.embeddedSuccess = 'WhatsApp resmi Meta berhasil terhubung!';
-                            setTimeout(() => window.location.reload(), 1200);
+                            this.embeddedSuccess = {{ Js::from(__('whatsapp.meta_connected_success')) }};
+                            this.metaAccount = data.account;
+                            this.isActive = true;
+                            this.status = 'connected';
+                            this.isMetaConfigured = true;
+                            if (window.CoocaBus) {
+                                window.CoocaBus.emitDataMutated('whatsapp', data.account);
+                            }
                         } else {
-                            this.embeddedError = data.error || 'Gagal menukarkan token otorisasi Meta.';
+                            this.embeddedError = data.error || {{ Js::from(__('whatsapp.error_meta_exchange_failed')) }};
                         }
                     } catch (e) {
-                        this.embeddedError = 'Kesalahan koneksi saat menyimpan kredensial Meta.';
+                        this.embeddedError = {{ Js::from(__('whatsapp.error_meta_credentials_save')) }};
                     } finally {
                         this.embeddedLoading = false;
+                    }
+                },
+
+                async toggleServiceStatus(e) {
+                    const isChecked = e.target.checked;
+                    try {
+                        const formData = new FormData();
+                        formData.append('is_active', isChecked ? '1' : '0');
+                        formData.append('provider', 'meta_cloud');
+                        formData.append('_token', document.querySelector('meta[name=csrf-token]')?.content || '');
+                        await fetch('{{ route('whatsapp.settings') }}', {
+                            method: 'POST',
+                            body: formData,
+                            headers: { 'Accept': 'application/json' }
+                        });
+                        if (window.CoocaBus) {
+                            window.CoocaBus.emitDataMutated('whatsapp', { is_active: isChecked });
+                        }
+                    } catch (err) {
+                        console.error('Failed to toggle service status', err);
                     }
                 },
 
@@ -490,19 +669,31 @@
                 },
 
                 async disconnectMeta() {
-                    let confirmed = false;
-                    if (window.AppAlert) {
-                        confirmed = await AppAlert.confirm({
-                            title: 'Putus Koneksi WhatsApp Meta?',
-                            message: 'Yakin ingin menonaktifkan integrasi WhatsApp Cloud API resmi? Pengiriman struk otomatis akan berhenti.',
-                            type: 'danger',
-                            confirmText: 'Ya, Putuskan',
-                            cancelText: 'Batal'
-                        });
+                    let pin = '';
+                    const hasPin = {{ $business->hasSupervisorPin() ? 'true' : 'false' }};
+                    
+                    if (hasPin) {
+                        pin = prompt({{ Js::from(__('whatsapp.disconnect_supervisor_desc')) }});
+                        if (pin === null) return;
+                        if (!pin.trim()) {
+                            alert({{ Js::from(__('whatsapp.supervisor_pin_required')) }});
+                            return;
+                        }
                     } else {
-                        confirmed = confirm('Yakin ingin menonaktifkan integrasi WhatsApp Cloud API resmi?');
+                        let confirmed = false;
+                        if (window.AppAlert) {
+                            confirmed = await AppAlert.confirm({
+                                title: {{ Js::from(__('whatsapp.disconnect_confirm_title')) }},
+                                message: {{ Js::from(__('whatsapp.disconnect_confirm_desc')) }},
+                                type: 'danger',
+                                confirmText: {{ Js::from(__('whatsapp.disconnect_btn')) }},
+                                cancelText: {{ Js::from(__('whatsapp.cancel_btn')) }}
+                            });
+                        } else {
+                            confirmed = confirm({{ Js::from(__('whatsapp.disconnect_confirm_desc')) }});
+                        }
+                        if (!confirmed) return;
                     }
-                    if (!confirmed) return;
 
                     try {
                         const res = await fetch('{{ route('whatsapp.meta.disconnect') }}', {
@@ -511,18 +702,29 @@
                                 'Content-Type': 'application/json',
                                 'Accept': 'application/json',
                                 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')?.content || ''
-                            }
+                            },
+                            body: JSON.stringify({ pin: pin })
                         });
                         const data = await res.json();
-                        if (data.success) {
-                            window.location.reload();
+                        if (res.ok && data.success) {
+                            this.metaAccount = null;
+                            this.isActive = false;
+                            this.status = 'disconnected';
+                            this.isMetaConfigured = false;
+                            if (window.CoocaBus) {
+                                window.CoocaBus.emitDataMutated('whatsapp', { disconnected: true });
+                            }
+                        } else {
+                            alert(data.message || {{ Js::from(__('whatsapp.supervisor_pin_invalid')) }});
                         }
-                    } catch (e) {}
+                    } catch (e) {
+                        console.error('Failed to disconnect Meta account', e);
+                    }
                 },
 
                 async sendTest() {
                     if (!this.testPhone.trim() || !this.testMessage.trim()) {
-                        this.testResult = 'Mohon isi nomor tujuan dan pesan terlebih dahulu.';
+                        this.testResult = {{ Js::from(__('whatsapp.test_validation_error')) }};
                         this.testOk = false;
                         return;
                     }
@@ -543,10 +745,11 @@
                         });
                         const data = await res.json();
                         this.testOk = data.success ?? false;
-                        this.testResult = this.testOk ? 'Pesan tes WhatsApp berhasil terkirim!' : ('Gagal: ' + (data
-                            .error || 'Server error'));
+                        this.testResult = this.testOk 
+                            ? {{ Js::from(__('whatsapp.test_success')) }} 
+                            : ({{ Js::from(__('whatsapp.test_failed_prefix')) }} + ': ' + (data.error || {{ Js::from(__('whatsapp.server_error')) }}));
                     } catch (e) {
-                        this.testResult = 'Kesalahan jaringan saat mengirim pesan.';
+                        this.testResult = {{ Js::from(__('whatsapp.test_network_error')) }};
                         this.testOk = false;
                     } finally {
                         this.testLoading = false;

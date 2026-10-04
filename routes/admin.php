@@ -196,6 +196,8 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
             // Message Template Management (Meta Cloud API)
             Route::post('/meta-templates/sync', [AdminWhatsAppController::class, 'syncMetaTemplates'])->name('meta-templates.sync');
             Route::post('/meta-templates/create', [AdminWhatsAppController::class, 'createMetaTemplate'])->name('meta-templates.create');
+            Route::post('/meta-templates/deploy-standards', [AdminWhatsAppController::class, 'deployStandardTemplates'])->name('meta-templates.deploy-standards');
+            Route::post('/meta-templates/seed-standards', [AdminWhatsAppController::class, 'seedStandardTemplates'])->name('meta-templates.seed-standards');
             Route::delete('/meta-templates/{template}', [AdminWhatsAppController::class, 'deleteMetaTemplate'])->name('meta-templates.delete');
 
             // Legacy stubs for graceful fallback

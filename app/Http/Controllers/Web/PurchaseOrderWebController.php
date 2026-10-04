@@ -7,7 +7,10 @@ namespace App\Http\Controllers\Web;
 use App\Domain\Commerce\InvoiceService;
 use App\Domain\Commerce\PurchaseOrderService;
 use App\Http\Controllers\Controller;
+use App\Models\AuditLog;
+use App\Models\CashAccount;
 use App\Models\Customer;
+use App\Models\Location;
 use App\Models\Material;
 use App\Models\Product;
 use App\Models\PurchaseOrder;
@@ -16,6 +19,9 @@ use App\Models\Unit;
 use App\Support\Context;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 final class PurchaseOrderWebController extends Controller
@@ -32,8 +38,9 @@ final class PurchaseOrderWebController extends Controller
     {
         $business = Context::requireBusiness();
 
-        $query = PurchaseOrder::with(['customer', 'supplier', 'items'])
-            ->latest();
+        $query = PurchaseOrder::where('business_id', $business->id)
+            ->with(['customer', 'supplier', 'items'])
+            ->latest('order_date');
 
         if ($request->filled('search')) {
             $search = (string) $request->get('search');
@@ -55,15 +62,17 @@ final class PurchaseOrderWebController extends Controller
 
         $purchaseOrders = $query->paginate(15)->withQueryString();
 
-        // Status KPIs
-        $totalOrders = PurchaseOrder::count();
-        $totalConfirmed = PurchaseOrder::where('status', PurchaseOrder::STATUS_CONFIRMED)->count();
-        $totalInvoiced = PurchaseOrder::whereIn('status', [PurchaseOrder::STATUS_PARTIALLY_INVOICED, PurchaseOrder::STATUS_FULLY_INVOICED])->count();
-        $totalSum = (float) PurchaseOrder::where('status', '!=', PurchaseOrder::STATUS_CANCELLED)->sum('total_amount');
+        // Status KPIs with strict tenant scoping
+        $totalOrders = PurchaseOrder::where('business_id', $business->id)->count();
+        $totalConfirmed = PurchaseOrder::where('business_id', $business->id)->where('status', PurchaseOrder::STATUS_CONFIRMED)->count();
+        $totalInvoiced = PurchaseOrder::where('business_id', $business->id)->whereIn('status', [PurchaseOrder::STATUS_PARTIALLY_INVOICED, PurchaseOrder::STATUS_FULLY_INVOICED])->count();
+        $totalSum = (float) PurchaseOrder::where('business_id', $business->id)->where('status', '!=', PurchaseOrder::STATUS_CANCELLED)->sum('total_amount');
 
-        $products = \App\Models\Product::where('business_id', $business->id)->where('is_active', true)->orderBy('name')->get();
-        $locations = \App\Models\Location::where('business_id', $business->id)->where('is_active', true)->get();
-        $suppliers = \App\Models\Supplier::where('business_id', $business->id)->orderBy('name')->get();
+        $products = Product::where('business_id', $business->id)->where('is_active', true)->orderBy('name')->get();
+        $materials = Material::where('business_id', $business->id)->orderBy('name')->get();
+        $locations = Location::where('business_id', $business->id)->where('is_active', true)->get();
+        $suppliers = Supplier::where('business_id', $business->id)->orderBy('name')->get();
+        $cashAccounts = CashAccount::where('business_id', $business->id)->where('is_active', true)->orderBy('name')->get();
 
         return view('app.purchase-orders.index', compact(
             'business',
@@ -73,8 +82,10 @@ final class PurchaseOrderWebController extends Controller
             'totalInvoiced',
             'totalSum',
             'products',
+            'materials',
             'locations',
-            'suppliers'
+            'suppliers',
+            'cashAccounts'
         ));
     }
 
@@ -85,13 +96,15 @@ final class PurchaseOrderWebController extends Controller
     {
         $business = Context::requireBusiness();
 
-        $customers = Customer::where('is_active', true)->orderBy('name')->get();
-        $suppliers = Supplier::orderBy('name')->get();
-        $products = Product::where('is_active', true)->with('outputUnit')->orderBy('name')->get();
-        $materials = Material::with(['unit', 'prices'])->orderBy('name')->get();
+        $customers = Customer::where('business_id', $business->id)->where('is_active', true)->orderBy('name')->get();
+        $suppliers = Supplier::where('business_id', $business->id)->orderBy('name')->get();
+        $products = Product::where('business_id', $business->id)->where('is_active', true)->with('outputUnit')->orderBy('name')->get();
+        $materials = Material::where('business_id', $business->id)->with(['unit', 'prices'])->orderBy('name')->get();
         $units = Unit::all();
 
-        $defaultType = $request->get('type', PurchaseOrder::TYPE_CUSTOMER);
+        // Context-aware: jika modul customer_po / b2b_sales mati, default otomatis ke supplier
+        $canCustomerPo = $business->isModuleEnabled('customer_po') || $business->isModuleEnabled('b2b_sales');
+        $defaultType = $canCustomerPo ? $request->get('type', PurchaseOrder::TYPE_CUSTOMER) : PurchaseOrder::TYPE_SUPPLIER;
         $selectedCustomerId = $request->get('customer_id');
 
         return view('app.purchase-orders.create', compact(
@@ -102,7 +115,8 @@ final class PurchaseOrderWebController extends Controller
             'materials',
             'units',
             'defaultType',
-            'selectedCustomerId'
+            'selectedCustomerId',
+            'canCustomerPo'
         ));
     }
 
@@ -112,13 +126,22 @@ final class PurchaseOrderWebController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $business = Context::requireBusiness();
+        $businessId = $business->id;
 
         $validated = $request->validate([
             'po_type' => ['required', 'string', 'in:customer,supplier'],
             'po_number' => ['nullable', 'string', 'max:100'],
             'reference_number' => ['nullable', 'string', 'max:100'],
-            'customer_id' => ['nullable', 'required_if:po_type,customer', 'exists:customers,id'],
-            'supplier_id' => ['nullable', 'required_if:po_type,supplier', 'exists:suppliers,id'],
+            'customer_id' => [
+                'nullable',
+                'required_if:po_type,customer',
+                Rule::exists('customers', 'id')->where('business_id', $businessId),
+            ],
+            'supplier_id' => [
+                'nullable',
+                'required_if:po_type,supplier',
+                Rule::exists('suppliers', 'id')->where('business_id', $businessId),
+            ],
             'order_date' => ['required', 'date'],
             'expected_delivery_date' => ['nullable', 'date'],
             'discount_type' => ['nullable', 'string', 'in:percentage,fixed'],
@@ -127,8 +150,14 @@ final class PurchaseOrderWebController extends Controller
             'terms_and_conditions' => ['nullable', 'string'],
             'notes' => ['nullable', 'string'],
             'items' => ['required', 'array', 'min:1'],
-            'items.*.product_id' => ['nullable', 'exists:products,id'],
-            'items.*.material_id' => ['nullable', 'exists:materials,id'],
+            'items.*.product_id' => [
+                'nullable',
+                Rule::exists('products', 'id')->where('business_id', $businessId),
+            ],
+            'items.*.material_id' => [
+                'nullable',
+                Rule::exists('materials', 'id')->where('business_id', $businessId),
+            ],
             'items.*.item_name' => ['required', 'string', 'max:255'],
             'items.*.sku' => ['nullable', 'string', 'max:100'],
             'items.*.quantity' => ['required', 'numeric', 'gt:0'],
@@ -140,13 +169,17 @@ final class PurchaseOrderWebController extends Controller
         $entitlement = app(\App\Domain\Billing\EntitlementService::class);
         $sub = $entitlement->getSubscription($business);
         if (! $sub->isCorePlan()) {
-            $allowed = $entitlement->incrementMonthlyUsage($business, \App\Models\QuotaMonthlyUsage::TYPE_PO, \App\Domain\Billing\EntitlementService::FREE_PO_MONTHLY_LIMIT);
-            if (! $allowed) {
-                return redirect()->route('billing.limits')->with('error', 'Batas kuota Purchase Order bulanan (maks. 10 PO/bulan untuk Free Plan) telah tercapai. Tingkatkan ke Cooca untuk akses tanpa batas.');
+            if (! $entitlement->canCreatePurchaseOrderThisMonth($business)) {
+                return redirect()->route('billing.limits')->with('error', __('purchasing.limits.monthly_exceeded'));
             }
         }
 
         $po = $this->poService->createPurchaseOrder($business, $validated, $validated['items']);
+
+        // Pemotongan kuota HANYA setelah dokumen sukses terbit 100%
+        if (! $sub->isCorePlan()) {
+            $entitlement->incrementMonthlyUsage($business, \App\Models\QuotaMonthlyUsage::TYPE_PO, \App\Domain\Billing\EntitlementService::FREE_PO_MONTHLY_LIMIT);
+        }
 
         $user = Context::user();
         $approvalService = app(\App\Domain\Approval\ApprovalWorkflowService::class);
@@ -158,9 +191,20 @@ final class PurchaseOrderWebController extends Controller
             $user
         );
 
+        AuditLog::create([
+            'business_id' => $business->id,
+            'user_id' => $user?->id,
+            'auditable_type' => PurchaseOrder::class,
+            'auditable_id' => $po->id,
+            'action' => 'po.created',
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+            'created_at' => now(),
+        ]);
+
         $msg = $approvalRequest
-            ? "Pesanan {$po->po_number} berhasil dibuat dan diajukan ke alur persetujuan ({$approvalRequest->total_levels} Level)."
-            : "Pesanan {$po->po_number} berhasil dibuat.";
+            ? __('purchasing.messages.created_with_approval', ['number' => $po->po_number, 'levels' => $approvalRequest->total_levels])
+            : __('purchasing.messages.created', ['number' => $po->po_number]);
 
         return redirect()->route('purchase-orders.show', $po->id)->with('success', $msg);
     }
@@ -171,7 +215,9 @@ final class PurchaseOrderWebController extends Controller
     public function show(PurchaseOrder $purchaseOrder): View
     {
         $business = Context::requireBusiness();
-        $purchaseOrder->load(['customer', 'supplier', 'items.product', 'items.material', 'items.unit', 'invoices', 'approvalRequest.logs.approver', 'approvalRequest.rule']);
+        abort_unless($purchaseOrder->business_id === $business->id, 403);
+
+        $purchaseOrder->load(['customer', 'supplier', 'items.product', 'items.material', 'items.unit', 'invoices', 'goodsReceipts', 'approvalRequest.logs.approver', 'approvalRequest.rule']);
 
         $approvalData = app(\App\Domain\Approval\ApprovalWorkflowService::class)->getDocumentStepperData(
             \App\Models\ApprovalRule::DOC_PURCHASE_ORDER,
@@ -188,8 +234,13 @@ final class PurchaseOrderWebController extends Controller
     public function confirm(PurchaseOrder $purchaseOrder): RedirectResponse
     {
         $business = Context::requireBusiness();
-        $approvalService = app(\App\Domain\Approval\ApprovalWorkflowService::class);
+        abort_unless($purchaseOrder->business_id === $business->id, 403);
 
+        if ($purchaseOrder->status === PurchaseOrder::STATUS_CANCELLED) {
+            return back()->with('error', 'Pesanan yang dibatalkan tidak dapat dikonfirmasi.');
+        }
+
+        $approvalService = app(\App\Domain\Approval\ApprovalWorkflowService::class);
         $req = $purchaseOrder->approvalRequest;
 
         // Auto-evaluate rule if corporate mode and request doesn't exist yet
@@ -213,17 +264,63 @@ final class PurchaseOrderWebController extends Controller
 
         $this->poService->confirm($purchaseOrder);
 
-        return back()->with('success', "Pesanan {$purchaseOrder->po_number} telah dikonfirmasi.");
+        AuditLog::create([
+            'business_id' => $business->id,
+            'user_id' => Context::user()?->id,
+            'action' => 'po.confirmed',
+            'module' => 'Purchasing',
+            'record_type' => PurchaseOrder::class,
+            'record_id' => $purchaseOrder->id,
+            'reason_notes' => "Pesanan {$purchaseOrder->po_number} dikonfirmasi siap proses.",
+            'ip_address' => request()->ip(),
+            'user_agent' => request()->userAgent(),
+        ]);
+
+        return back()->with('success', __('purchasing.messages.confirmed', ['number' => $purchaseOrder->po_number]));
     }
 
     /**
-     * Cancel a PO.
+     * Cancel a PO with Three-Way Matching Guard and optional Supervisor PIN.
      */
-    public function cancel(PurchaseOrder $purchaseOrder): RedirectResponse
+    public function cancel(Request $request, PurchaseOrder $purchaseOrder): RedirectResponse
     {
-        $this->poService->cancel($purchaseOrder);
+        $business = Context::requireBusiness();
+        abort_unless($purchaseOrder->business_id === $business->id, 403);
 
-        return back()->with('success', "Pesanan {$purchaseOrder->po_number} telah dibatalkan.");
+        // Guard 1: Three-Way Matching Protection
+        if ($purchaseOrder->goodsReceipts()->exists()) {
+            return back()->with('error', __('purchasing.errors.cannot_cancel_received'));
+        }
+
+        // Guard 2: Invoice Integrity Protection
+        if ($purchaseOrder->invoices()->exists()) {
+            return back()->with('error', __('purchasing.errors.cannot_cancel_invoiced'));
+        }
+
+        // Guard 3: Supervisor PIN Verification for Confirmed orders
+        if ($purchaseOrder->status === PurchaseOrder::STATUS_CONFIRMED && ! empty($business->pos_supervisor_pin)) {
+            $pin = (string) $request->input('supervisor_pin', '');
+            if (! Hash::check($pin, $business->pos_supervisor_pin)) {
+                return back()->with('error', __('purchasing.errors.invalid_supervisor_pin'));
+            }
+        }
+
+        DB::transaction(function () use ($purchaseOrder, $business, $request): void {
+            $this->poService->cancel($purchaseOrder);
+
+            AuditLog::create([
+                'business_id' => $business->id,
+                'user_id' => Context::user()?->id,
+                'auditable_type' => PurchaseOrder::class,
+                'auditable_id' => $purchaseOrder->id,
+                'action' => 'po.cancelled',
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'created_at' => now(),
+            ]);
+        });
+
+        return back()->with('success', __('purchasing.messages.cancelled', ['number' => $purchaseOrder->po_number]));
     }
 
     /**
@@ -231,16 +328,30 @@ final class PurchaseOrderWebController extends Controller
      */
     public function generateInvoice(PurchaseOrder $purchaseOrder): RedirectResponse
     {
+        $business = Context::requireBusiness();
+        abort_unless($purchaseOrder->business_id === $business->id, 403);
+
         if ($purchaseOrder->po_type !== PurchaseOrder::TYPE_CUSTOMER) {
-            return back()->with('error', 'Hanya PO Pelanggan yang dapat di-generate menjadi Faktur Penjualan.');
+            return back()->with('error', __('purchasing.errors.only_customer_po_invoice'));
         }
 
         try {
             $invoice = $this->invoiceService->createFromPurchaseOrder($purchaseOrder);
 
-            return redirect()->route('invoices.show', $invoice->id)->with('success', "Faktur {$invoice->invoice_number} berhasil diterbitkan dari PO {$purchaseOrder->po_number}.");
+            AuditLog::create([
+                'business_id' => $business->id,
+                'user_id' => Context::user()?->id,
+                'auditable_type' => PurchaseOrder::class,
+                'auditable_id' => $purchaseOrder->id,
+                'action' => 'po.invoice_generated',
+                'ip_address' => request()->ip(),
+                'user_agent' => request()->userAgent(),
+                'created_at' => now(),
+            ]);
+
+            return redirect()->route('invoices.show', $invoice->id)->with('success', __('purchasing.messages.invoice_generated', ['invoice' => $invoice->invoice_number, 'po' => $purchaseOrder->po_number]));
         } catch (\Throwable $e) {
-            return back()->with('error', 'Gagal menerbitkan faktur: ' . $e->getMessage());
+            return back()->with('error', __('purchasing.errors.invoice_generation_failed', ['error' => $e->getMessage()]));
         }
     }
 
@@ -250,6 +361,8 @@ final class PurchaseOrderWebController extends Controller
     public function print(PurchaseOrder $purchaseOrder): View
     {
         $business = Context::requireBusiness();
+        abort_unless($purchaseOrder->business_id === $business->id, 403);
+
         $purchaseOrder->load(['customer', 'supplier', 'items.unit']);
 
         return view('app.purchase-orders.print', compact('business', 'purchaseOrder'));
@@ -264,16 +377,36 @@ final class PurchaseOrderWebController extends Controller
         abort_unless($purchaseOrder->business_id === $business->id, 403);
 
         if ($purchaseOrder->status !== PurchaseOrder::STATUS_DRAFT) {
-            return back()->with('error', "Pesanan dengan status [{$purchaseOrder->status}] tidak dapat dihapus untuk menjaga integritas riwayat bisnis. Silakan gunakan tombol Batalkan Pesanan.");
+            return back()->with('error', __('purchasing.errors.cannot_delete_non_draft', ['status' => $purchaseOrder->status]));
         }
 
         if ($purchaseOrder->invoices()->exists()) {
-            return back()->with('error', 'Pesanan ini sudah terhubung dengan faktur dan tidak dapat dihapus.');
+            return back()->with('error', __('purchasing.errors.cannot_delete_invoiced'));
         }
 
         $poNumber = $purchaseOrder->po_number;
-        $purchaseOrder->delete();
+        $poId = $purchaseOrder->id;
 
-        return redirect()->route('purchase-orders.index')->with('success', "Draf Pesanan {$poNumber} berhasil dihapus.");
+        DB::transaction(function () use ($purchaseOrder, $business, $poNumber, $poId): void {
+            if ($purchaseOrder->approvalRequest) {
+                $purchaseOrder->approvalRequest->logs()->delete();
+                $purchaseOrder->approvalRequest->delete();
+            }
+
+            $purchaseOrder->delete();
+
+            AuditLog::create([
+                'business_id' => $business->id,
+                'user_id' => Context::user()?->id,
+                'auditable_type' => PurchaseOrder::class,
+                'auditable_id' => $poId,
+                'action' => 'po.deleted',
+                'ip_address' => request()->ip(),
+                'user_agent' => request()->userAgent(),
+                'created_at' => now(),
+            ]);
+        });
+
+        return redirect()->route('purchase-orders.index')->with('success', __('purchasing.messages.deleted', ['number' => $poNumber]));
     }
 }

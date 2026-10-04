@@ -7,8 +7,11 @@
 @section('content')
 <div class="max-w-[1360px] mx-auto space-y-6 pb-28 lg:pb-12" x-data="{
     showPaymentModal: false,
+    showReminderModal: false,
     confirmReleaseModalOpen: false,
     confirmVoidModalOpen: false,
+    reminderChannel: 'both',
+    reminderNotes: '',
     submitRelease() {
         document.getElementById('form-confirm-release').submit();
     },
@@ -50,6 +53,22 @@
                 <i data-lucide="credit-card" class="w-4 h-4"></i>
                 <span>Catat Pembayaran</span>
             </button>
+            @endif
+
+            {{-- Tombol Kirim Pengingat Termin (WA & Email) --}}
+            @if($invoice->balance_due > 0 && !in_array($invoice->status, ['void', 'draft']) && \App\Support\Context::hasPermission('invoices.view'))
+            <button type="button" @click="showReminderModal = true" class="min-h-[44px] sm:min-h-0 h-11 sm:h-9 px-3.5 rounded-[10px] text-[13px] font-semibold text-[#5856D6] dark:text-[#BF5AF2] bg-[#5856D6]/10 dark:bg-[#5856D6]/20 hover:bg-[#5856D6]/15 dark:hover:bg-[#5856D6]/30 active:scale-[0.97] transition-all flex items-center justify-center gap-1.5 cursor-pointer">
+                <i data-lucide="bell-ring" class="w-4 h-4"></i>
+                <span>Kirim Pengingat</span>
+            </button>
+            @endif
+
+            {{-- Tautan Cepat WhatsApp Web jika ada session wa_url --}}
+            @if(session('wa_url'))
+            <a href="{{ session('wa_url') }}" target="_blank" class="min-h-[44px] sm:min-h-0 h-11 sm:h-9 px-3.5 rounded-[10px] text-[13px] font-semibold text-white bg-[#25D366] hover:bg-[#20BA5A] active:scale-[0.97] transition-all flex items-center justify-center gap-1.5 shadow-[0_1px_2px_rgba(37,211,102,0.25)]">
+                <i data-lucide="message-circle" class="w-4 h-4"></i>
+                <span>Buka WhatsApp</span>
+            </a>
             @endif
 
             @if(\App\Support\Context::hasPermission('invoices.export') || \App\Support\Context::hasPermission('invoices.view'))
@@ -528,6 +547,128 @@
         </div>
     </div>
     @endif
+
+    <!-- ===================================================== -->
+    <!-- 6. MODAL: KIRIM PENGINGAT TERMIN (WHATSAPP & EMAIL)   -->
+    <!-- ===================================================== -->
+    <div x-show="showReminderModal"
+        x-cloak
+        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 dark:bg-black/60 backdrop-blur-sm"
+        x-transition:enter="transition ease-out duration-250"
+        x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100"
+        x-transition:leave="transition ease-in duration-200"
+        x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0">
+
+        <div class="w-full max-w-lg rounded-[22px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 shadow-[0_24px_50px_rgba(0,0,0,0.25)] overflow-hidden text-left"
+            @click.away="showReminderModal = false"
+            x-transition:enter="transition cubic-bezier(0.16, 1, 0.3, 1) duration-300"
+            x-transition:enter-start="opacity-0 scale-95 translate-y-3"
+            x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+            x-transition:leave="transition ease-in duration-150"
+            x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+            x-transition:leave-end="opacity-0 scale-95 translate-y-2">
+
+            <!-- Modal Header -->
+            <div class="px-6 pt-6 pb-4 border-b border-black/[0.06] dark:border-white/[0.08] flex items-start justify-between gap-4">
+                <div class="flex items-center gap-3.5">
+                    <div class="w-11 h-11 rounded-[14px] bg-gradient-to-br from-[#5856D6] to-[#007AFF] text-white flex items-center justify-center shadow-md shadow-[#5856D6]/20 shrink-0">
+                        <i data-lucide="bell-ring" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-[17px] font-bold text-black dark:text-white tracking-tight leading-snug">
+                            Kirim Pengingat Tagihan
+                        </h3>
+                        <p class="text-[12.5px] text-black/60 dark:text-white/60">
+                            Faktur #{{ $invoice->invoice_number }} · {{ $invoice->customer?->name }}
+                        </p>
+                    </div>
+                </div>
+                <button type="button" @click="showReminderModal = false"
+                    class="p-1.5 rounded-full text-black/40 hover:text-black dark:text-white/40 dark:hover:text-white hover:bg-black/[0.05] dark:hover:bg-white/[0.08] transition">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+
+            <form action="{{ route('invoices.remind', $invoice->id) }}" method="POST">
+                @csrf
+                <div class="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
+                    <!-- Bento Info Tagihan -->
+                    <div class="p-4 rounded-[16px] bg-black/[0.03] dark:bg-white/[0.04] border border-black/5 dark:border-white/5 space-y-2">
+                        <div class="flex justify-between items-center text-[13px]">
+                            <span class="text-black/60 dark:text-white/60">Sisa Tagihan Belum Lunas:</span>
+                            <span class="font-bold text-[#FF3B30] font-mono text-[15px]">
+                                Rp {{ number_format((float) $invoice->balance_due, 0, ',', '.') }}
+                            </span>
+                        </div>
+                        <div class="flex justify-between items-center text-[12.5px]">
+                            <span class="text-black/60 dark:text-white/60">Jatuh Tempo:</span>
+                            <span class="font-semibold text-black dark:text-white">
+                                {{ $invoice->due_date?->translatedFormat('d F Y') ?? '-' }}
+                            </span>
+                        </div>
+                        <div class="pt-2 border-t border-black/5 dark:border-white/5 flex flex-wrap gap-y-1 justify-between text-[11.5px] text-black/50 dark:text-white/50">
+                            <span>WhatsApp: <strong class="text-black/80 dark:text-white/80 font-mono">{{ $invoice->customer?->phone ?: 'Tidak ada' }}</strong></span>
+                            <span>Email: <strong class="text-black/80 dark:text-white/80">{{ $invoice->customer?->email ?: 'Tidak ada' }}</strong></span>
+                        </div>
+                    </div>
+
+                    <!-- Saluran Notifikasi -->
+                    <div class="space-y-2">
+                        <label class="block text-[13px] font-semibold text-black dark:text-white">
+                            Saluran Notifikasi
+                        </label>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                            <label class="flex items-center gap-2.5 p-3 rounded-[12px] border border-black/10 dark:border-white/10 hover:bg-black/[0.02] dark:hover:bg-white/[0.02] cursor-pointer text-[12.5px] font-medium transition"
+                                :class="reminderChannel === 'both' ? 'border-[#007AFF] bg-[#007AFF]/5 dark:bg-[#007AFF]/10 text-[#007AFF]' : 'text-black/80 dark:text-white/80'">
+                                <input type="radio" name="channel" value="both" x-model="reminderChannel" class="hidden">
+                                <i data-lucide="send" class="w-4 h-4 shrink-0"></i>
+                                <span>WA &amp; Email</span>
+                            </label>
+
+                            <label class="flex items-center gap-2.5 p-3 rounded-[12px] border border-black/10 dark:border-white/10 hover:bg-black/[0.02] dark:hover:bg-white/[0.02] cursor-pointer text-[12.5px] font-medium transition"
+                                :class="reminderChannel === 'whatsapp' ? 'border-[#25D366] bg-[#25D366]/5 dark:bg-[#25D366]/10 text-[#25D366]' : 'text-black/80 dark:text-white/80'">
+                                <input type="radio" name="channel" value="whatsapp" x-model="reminderChannel" class="hidden">
+                                <i data-lucide="message-circle" class="w-4 h-4 shrink-0"></i>
+                                <span>WhatsApp Saja</span>
+                            </label>
+
+                            <label class="flex items-center gap-2.5 p-3 rounded-[12px] border border-black/10 dark:border-white/10 hover:bg-black/[0.02] dark:hover:bg-white/[0.02] cursor-pointer text-[12.5px] font-medium transition"
+                                :class="reminderChannel === 'email' ? 'border-[#007AFF] bg-[#007AFF]/5 dark:bg-[#007AFF]/10 text-[#007AFF]' : 'text-black/80 dark:text-white/80'">
+                                <input type="radio" name="channel" value="email" x-model="reminderChannel" class="hidden">
+                                <i data-lucide="mail" class="w-4 h-4 shrink-0"></i>
+                                <span>Email Saja</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Catatan Tambahan -->
+                    <div class="space-y-1.5">
+                        <label class="block text-[13px] font-semibold text-black dark:text-white">
+                            Catatan Tambahan (Opsional)
+                        </label>
+                        <textarea name="custom_notes" rows="2"
+                            placeholder="Contoh: Mohon abaikan jika baru saja melakukan transfer."
+                            class="w-full px-3.5 py-2.5 rounded-[12px] text-[13px] bg-black/[0.03] dark:bg-white/[0.04] border border-black/10 dark:border-white/10 focus:border-[#007AFF] focus:ring-1 focus:ring-[#007AFF] text-black dark:text-white placeholder-black/35 dark:placeholder-white/35 transition outline-none resize-none"></textarea>
+                    </div>
+                </div>
+
+                <!-- Modal Footer -->
+                <div class="px-6 py-4 border-t border-black/[0.06] dark:border-white/[0.08] bg-black/[0.01] dark:bg-white/[0.02] flex items-center justify-end gap-2.5">
+                    <button type="button" @click="showReminderModal = false"
+                        class="min-h-[44px] px-4 rounded-[12px] text-[13px] font-medium text-black/70 dark:text-white/70 hover:bg-black/[0.05] dark:hover:bg-white/[0.08] transition cursor-pointer">
+                        Batal
+                    </button>
+                    <button type="submit"
+                        class="min-h-[44px] px-5 rounded-[12px] bg-[#007AFF] hover:bg-[#0071E3] text-white text-[13px] font-semibold shadow-md shadow-[#007AFF]/25 active:scale-[0.97] transition flex items-center justify-center gap-2 cursor-pointer">
+                        <i data-lucide="send" class="w-4 h-4"></i>
+                        <span>Kirim Sekarang</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 
 </div>
 @endsection

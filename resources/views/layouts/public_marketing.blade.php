@@ -295,6 +295,44 @@
                 bottom: 1.5rem !important;
             }
         }
+
+        /* Hero Ecosystem Hub Animations */
+        @keyframes cableFlow {
+            0% { stroke-dashoffset: 0; }
+            100% { stroke-dashoffset: -20; }
+        }
+        .hero-cable-flow {
+            animation: cableFlow 1.5s linear infinite;
+        }
+        @keyframes scanlineBeam {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(200%); }
+        }
+        .hero-scanline-beam {
+            animation: scanlineBeam 3s ease-in-out infinite;
+        }
+        @keyframes holoBeamPulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+        .hero-holo-beam {
+            animation: holoBeamPulse 2.5s ease-in-out infinite;
+        }
+
+        /* Accessibility: Respect prefers-reduced-motion */
+        @media (prefers-reduced-motion: reduce) {
+            .hero-cable-flow,
+            .hero-scanline-beam,
+            .hero-holo-beam,
+            .animate-pulse {
+                animation: none !important;
+            }
+            * {
+                transition-duration: 0.01ms !important;
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+            }
+        }
     </style>
 
     <script>

@@ -163,14 +163,14 @@
         <button id="tour-mobile-menu-btn"
             @click="sidebarOpen = true; window.dispatchEvent(new CustomEvent('sidebar-opened'))"
             class="lg:hidden p-2.5 text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white rounded-[9px] hover:bg-black/[0.05] dark:hover:bg-white/[0.06] active:scale-[0.97] shrink-0 transition-all cursor-pointer"
-            title="Buka Menu Navigasi" aria-label="Menu Navigasi">
+            title="{{ __('navigation.toggle_navigation') }}" aria-label="{{ __('navigation.toggle_navigation') }}">
             <i data-lucide="menu" class="w-5 h-5"></i>
         </button>
 
         <!-- Desktop Sidebar Collapse Toggle Button (macOS Window Control Style) -->
         <button @click="toggleSidebarCollapse()" type="button"
             class="hidden lg:flex items-center justify-center w-9 h-9 text-black/50 hover:text-black dark:text-white/50 dark:hover:text-white rounded-[9px] hover:bg-black/[0.05] dark:hover:bg-white/[0.06] active:scale-[0.97] shrink-0 transition-all cursor-pointer"
-            :title="sidebarCollapsed ? 'Perluas Sidebar' : 'Ciutkan Sidebar'" aria-label="Toggle Sidebar">
+            :title="sidebarCollapsed ? '{{ __('navigation.expand_sidebar') }}' : '{{ __('navigation.collapse_sidebar') }}'" aria-label="Toggle Sidebar">
             <i :data-lucide="sidebarCollapsed ? 'panel-left-open' : 'panel-left-close'" class="w-4 h-4"></i>
         </button>
 
@@ -180,9 +180,9 @@
                 class="text-[16px] font-semibold text-black dark:text-white truncate leading-tight tracking-tight">
                 {{ $headerTitle ?? 'Cooca' }}
             </h1>
-            <p title="{{ $headerSubtitle ?? '' }}"
-                class="text-[12px] text-black/55 dark:text-white/55 hidden sm:block truncate leading-tight mt-1">
-                {{ $headerSubtitle ?? 'Sistem Perhitungan HPP & Manajemen Komersial Terintegrasi' }}
+            <p title="{{ $headerSubtitle ?? __('navigation.default_subtitle') }}"
+                class="text-[12px] text-black/55 dark:text-white/55 hidden sm:block max-w-md truncate leading-tight mt-0.5">
+                {{ \Illuminate\Support\Str::words($headerSubtitle ?? __('navigation.default_subtitle'), 15, '...') }}
             </p>
         </div>
     </div>
@@ -192,9 +192,9 @@
         <!-- Global Spotlight Search Trigger Button (Desktop) -->
         <button type="button" @click="$dispatch('open-spotlight')"
             class="hidden md:flex items-center gap-2 px-3 py-1.5 h-8 rounded-[9px] bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.07] dark:hover:bg-white/[0.1] border border-black/5 dark:border-white/10 text-black/55 dark:text-white/55 hover:text-black dark:hover:text-white transition-all cursor-pointer text-[12px] group"
-            title="Cari menu, modul, transaksi... (Ctrl+K)">
+            title="{{ __('navigation.search_placeholder') }}">
             <i data-lucide="search" class="w-3.5 h-3.5 text-black/40 dark:text-white/40 group-hover:text-[#007AFF] dark:group-hover:text-[#0A84FF] transition-colors"></i>
-            <span class="text-[12px] font-normal text-black/50 dark:text-white/50">Cari menu, modul, transaksi...</span>
+            <span class="text-[12px] font-normal text-black/50 dark:text-white/50">{{ __('navigation.search_placeholder') }}</span>
             <kbd class="ml-1.5 inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-[5px] bg-black/[0.06] dark:bg-white/[0.1] text-[10px] font-semibold text-black/60 dark:text-white/60 font-mono tracking-tight shadow-sm">
                 <span>Ctrl K</span>
             </kbd>
@@ -203,7 +203,7 @@
         <!-- Mobile Search Trigger Button -->
         <button type="button" @click="$dispatch('open-spotlight')"
             class="md:hidden h-8 w-8 rounded-[9px] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white hover:bg-black/[0.05] dark:hover:bg-white/[0.06] flex items-center justify-center transition-all cursor-pointer"
-            title="Cari menu, modul, transaksi... (Ctrl+K)" aria-label="Cari">
+            title="{{ __('navigation.search_placeholder') }}" aria-label="{{ __('common.search') }}">
             <i data-lucide="search" class="w-4 h-4"></i>
         </button>
 
@@ -221,13 +221,13 @@
             <!-- Primary Action CTA: Kasir POS -->
             <a href="{{ route('pos.terminal') }}"
                 class="hidden sm:flex h-8 px-3 rounded-[9px] bg-[#007AFF] hover:bg-[#0071E3] text-white text-[12px] font-semibold shadow-[0_1px_2px_rgba(0,122,255,0.25)] active:scale-[0.97] active:opacity-80 items-center gap-1.5 transition-all shrink-0 cursor-pointer"
-                title="Buka Kasir POS">
+                title="{{ __('navigation.open_pos') }}">
                 <i data-lucide="calculator" class="w-3.5 h-3.5 shrink-0"></i>
-                <span>Kasir POS</span>
+                <span>{{ __('navigation.open_pos') }}</span>
             </a>
 
             <!-- Mobile Quick Action CTA: Kasir POS -->
-            <a href="{{ route('pos.terminal') }}" aria-label="Buka Kasir POS" title="Buka Kasir POS"
+            <a href="{{ route('pos.terminal') }}" aria-label="{{ __('navigation.open_pos') }}" title="{{ __('navigation.open_pos') }}"
                 class="sm:hidden h-8 w-9 rounded-[9px] bg-[#007AFF] hover:bg-[#0071E3] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)] active:scale-[0.97] active:opacity-80 inline-flex items-center justify-center transition-all shrink-0 cursor-pointer">
                 <i data-lucide="calculator" class="w-4 h-4"></i>
             </a>
@@ -235,19 +235,28 @@
             <!-- Primary Action CTA: Hitung HPP -->
             <a href="{{ route('calculator.index') }}"
                 class="hidden sm:flex h-8 px-3 rounded-[9px] bg-[#007AFF] hover:bg-[#0071E3] text-white text-[12px] font-semibold shadow-[0_1px_2px_rgba(0,122,255,0.25)] active:scale-[0.97] active:opacity-80 items-center gap-1.5 transition-all shrink-0 cursor-pointer"
-                title="Hitung HPP Produk">
+                title="{{ __('navigation.calc_hpp') }}">
                 <i data-lucide="plus" class="w-3.5 h-3.5 shrink-0"></i>
-                <span>Hitung HPP</span>
+                <span>{{ __('navigation.calc_hpp') }}</span>
             </a>
 
             <!-- Mobile Quick Action CTA: Hitung HPP -->
-            <a href="{{ route('calculator.index') }}" aria-label="Hitung HPP" title="Hitung HPP"
+            <a href="{{ route('calculator.index') }}" aria-label="{{ __('navigation.calc_hpp') }}" title="{{ __('navigation.calc_hpp') }}"
                 class="sm:hidden h-8 w-9 rounded-[9px] bg-[#007AFF] hover:bg-[#0071E3] text-white shadow-[0_1px_2px_rgba(0,122,255,0.25)] active:scale-[0.97] active:opacity-80 inline-flex items-center justify-center transition-all shrink-0 cursor-pointer">
                 <i data-lucide="plus" class="w-4 h-4"></i>
             </a>
         @endif
 
-        <!-- Unified System Controls Capsule (Fullscreen & Theme Switcher) -->
+        <!-- 3D Virtual Office Quick Jump (Header Pill) -->
+        <a href="{{ route('cooca-ai.office.view') }}"
+            class="hidden md:flex h-8 px-3 rounded-[9px] bg-gradient-to-r from-purple-500/10 to-indigo-500/10 hover:from-purple-500/20 hover:to-indigo-500/20 text-[#AF52DE] dark:text-[#BF5AF2] border border-[#AF52DE]/25 text-[12px] font-semibold items-center gap-1.5 transition-all shrink-0 active:scale-[0.97] cursor-pointer"
+            title="Buka 3D Virtual Office & Ruang Kerja AI">
+            <i data-lucide="box" class="w-3.5 h-3.5 shrink-0 text-indigo-500"></i>
+            <span>3D Office</span>
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        </a>
+
+        <!-- Unified System Controls Capsule (Fullscreen, Language, Theme Switcher) -->
         <div class="flex items-center p-0.5 rounded-[8px] bg-black/[0.05] dark:bg-white/[0.08] gap-0.5">
             <!-- Fullscreen Toggle Button -->
             <div x-data="{
@@ -288,13 +297,55 @@
                 }
             }">
                 <button type="button" @click="toggleFullscreen()"
-                    :title="isFullscreen ? 'Keluar Layar Penuh (Esc)' : 'Mode Layar Penuh (Full Screen)'"
+                    :title="isFullscreen ? '{{ __('navigation.fullscreen_exit') }}' : '{{ __('navigation.fullscreen_enter') }}'"
                     aria-label="Toggle Fullscreen"
                     class="h-7 w-7 rounded-[6px] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white hover:bg-white/60 dark:hover:bg-white/10 transition-all flex items-center justify-center shrink-0 active:scale-[0.97] cursor-pointer">
                     <i x-show="!isFullscreen" data-lucide="maximize" class="w-3.5 h-3.5"></i>
                     <i x-show="isFullscreen" data-lucide="minimize" class="w-3.5 h-3.5 text-[#007AFF]"
                         style="display: none;"></i>
                 </button>
+            </div>
+
+            <!-- Bento Apple HIG Language Switcher (ID / EN) -->
+            <div x-data="{
+                langDropdownOpen: false
+            }" class="relative" @click.outside="langDropdownOpen = false"
+                @keydown.esc.window="langDropdownOpen = false">
+                <button type="button" @click="langDropdownOpen = !langDropdownOpen"
+                    :aria-expanded="langDropdownOpen ? 'true' : 'false'" aria-haspopup="menu"
+                    aria-controls="language-menu"
+                    title="{{ __('common.switch_language') }}"
+                    aria-label="{{ __('common.switch_language') }}"
+                    class="h-7 px-1.5 rounded-[6px] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white hover:bg-white/60 dark:hover:bg-white/10 transition-all flex items-center justify-center gap-1 shrink-0 active:scale-[0.97] cursor-pointer text-[11px] font-bold tracking-wider">
+                    <i data-lucide="globe" class="w-3.5 h-3.5 text-black/50 dark:text-white/50"></i>
+                    <span class="uppercase">{{ app()->getLocale() }}</span>
+                </button>
+
+                <!-- Language Dropdown Menu (Apple Glass Squircle) -->
+                <div id="language-menu" x-show="langDropdownOpen" x-transition role="menu" aria-label="{{ __('common.switch_language') }}"
+                    class="absolute right-0 mt-2 w-44 rounded-[12px] bg-white/95 dark:bg-[#2C2C2E]/95 backdrop-blur-xl border border-black/5 dark:border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.15)] p-1 z-50 space-y-0.5 text-[13px]"
+                    style="display: none;">
+                    <a href="{{ route('locale.switch', ['locale' => 'id']) }}" role="menuitem"
+                        class="w-full px-2.5 py-1.5 rounded-[7px] flex items-center justify-between gap-2 text-left font-medium transition active:scale-[0.98] cursor-pointer {{ app()->getLocale() === 'id' ? 'bg-[#007AFF]/10 text-[#007AFF] font-semibold' : 'text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]' }}">
+                        <div class="flex items-center gap-2">
+                            <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-black/5 dark:bg-white/10 text-black/60 dark:text-white/60">ID</span>
+                            <span>{{ __('navigation.lang_id') }}</span>
+                        </div>
+                        @if(app()->getLocale() === 'id')
+                            <i data-lucide="check" class="w-3.5 h-3.5 text-[#007AFF]"></i>
+                        @endif
+                    </a>
+                    <a href="{{ route('locale.switch', ['locale' => 'en']) }}" role="menuitem"
+                        class="w-full px-2.5 py-1.5 rounded-[7px] flex items-center justify-between gap-2 text-left font-medium transition active:scale-[0.98] cursor-pointer {{ app()->getLocale() === 'en' ? 'bg-[#007AFF]/10 text-[#007AFF] font-semibold' : 'text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]' }}">
+                        <div class="flex items-center gap-2">
+                            <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-black/5 dark:bg-white/10 text-black/60 dark:text-white/60">EN</span>
+                            <span>{{ __('navigation.lang_en') }}</span>
+                        </div>
+                        @if(app()->getLocale() === 'en')
+                            <i data-lucide="check" class="w-3.5 h-3.5 text-[#007AFF]"></i>
+                        @endif
+                    </a>
+                </div>
             </div>
 
             <!-- Theme Switcher (Light / Dark / System) -->
@@ -329,8 +380,8 @@
                 <button type="button" @click="themeDropdownOpen = !themeDropdownOpen"
                     :aria-expanded="themeDropdownOpen ? 'true' : 'false'" aria-haspopup="menu"
                     aria-controls="theme-menu"
-                    :title="'Ganti Tema: ' + (theme === 'dark' ? 'Gelap' : (theme === 'system' ? 'Sistem' : 'Terang'))"
-                    aria-label="Theme Switcher"
+                    :title="'{{ __('navigation.theme_toggle') }}: ' + (theme === 'dark' ? '{{ __('navigation.theme_dark') }}' : (theme === 'system' ? '{{ __('navigation.theme_system') }}' : '{{ __('navigation.theme_light') }}'))"
+                    aria-label="{{ __('navigation.theme_toggle') }}"
                     class="h-7 w-7 rounded-[6px] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white hover:bg-white/60 dark:hover:bg-white/10 transition-all flex items-center justify-center shrink-0 active:scale-[0.97] cursor-pointer">
                     <span x-show="theme === 'light'">
                         <i data-lucide="sun" class="w-3.5 h-3.5 text-[#FF9500]"></i>
@@ -344,7 +395,7 @@
                 </button>
 
                 <!-- Theme Dropdown Menu (Apple Glass Squircle) -->
-                <div id="theme-menu" x-show="themeDropdownOpen" x-transition role="menu" aria-label="Pilihan Tema"
+                <div id="theme-menu" x-show="themeDropdownOpen" x-transition role="menu" aria-label="{{ __('navigation.theme_toggle') }}"
                     class="absolute right-0 mt-2 w-40 rounded-[12px] bg-white/95 dark:bg-[#2C2C2E]/95 backdrop-blur-xl border border-black/5 dark:border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.15)] p-1 z-50 space-y-0.5 text-[13px]"
                     style="display: none;">
                     <button type="button" @click="setTheme('light')" role="menuitem"
@@ -352,7 +403,7 @@
                         :class="theme === 'light' ? 'bg-[#FF9500]/10 text-[#FF9500] font-semibold' :
                             'text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]'">
                         <i data-lucide="sun" class="w-3.5 h-3.5 text-[#FF9500]"></i>
-                        <span>Terang</span>
+                        <span>{{ __('navigation.theme_light') }}</span>
                         <span x-show="theme === 'light'" class="ml-auto"><i data-lucide="check"
                                 class="w-3.5 h-3.5"></i></span>
                     </button>
@@ -361,7 +412,7 @@
                         :class="theme === 'dark' ? 'bg-[#5856D6]/10 text-[#5856D6] font-semibold' :
                             'text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]'">
                         <i data-lucide="moon" class="w-3.5 h-3.5 text-[#5856D6]"></i>
-                        <span>Gelap</span>
+                        <span>{{ __('navigation.theme_dark') }}</span>
                         <span x-show="theme === 'dark'" class="ml-auto"><i data-lucide="check"
                                 class="w-3.5 h-3.5"></i></span>
                     </button>
@@ -370,7 +421,7 @@
                         :class="theme === 'system' ? 'bg-[#007AFF]/10 text-[#007AFF] font-semibold' :
                             'text-black/70 dark:text-white/70 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]'">
                         <i data-lucide="monitor" class="w-3.5 h-3.5 text-[#007AFF]"></i>
-                        <span>Sistem</span>
+                        <span>{{ __('navigation.theme_system') }}</span>
                         <span x-show="theme === 'system'" class="ml-auto"><i data-lucide="check"
                                 class="w-3.5 h-3.5"></i></span>
                     </button>
@@ -382,12 +433,12 @@
         <div class="h-5 w-px bg-black/10 dark:bg-white/10 hidden sm:block"></div>
 
         <!-- User Profile Dropdown (Transferred from Sidebar - Apple macOS Account Menu) -->
-        <div class="relative" x-data="{ profileOpen: false }" @click.outside="profileOpen = false"
+        <div class="relative" x-data="{ profileOpen: false, showLogoutConfirm: false }" @click.outside="profileOpen = false"
             @keydown.esc.window="profileOpen = false">
             <button type="button" @click="profileOpen = !profileOpen" :aria-expanded="profileOpen ? 'true' : 'false'"
                 aria-haspopup="menu" aria-controls="profile-menu"
                 class="flex items-center gap-2 p-1 pl-1 pr-2 sm:pr-2.5 rounded-full hover:bg-black/[0.04] dark:hover:bg-white/[0.05] transition-all active:scale-[0.97] cursor-pointer"
-                :title="'Akun: ' + '{{ $currentUser->name ?? 'User' }}'">
+                :title="'{{ __('navigation.user_profile') }}: ' + '{{ $currentUser->name ?? 'User' }}'">
                 <!-- Squircle Avatar -->
                 <div
                     class="w-8 h-8 rounded-full bg-[#007AFF]/12 border border-[#007AFF]/25 flex items-center justify-center font-bold text-xs text-[#007AFF] shrink-0 shadow-2xs">
@@ -413,7 +464,7 @@
                 x-transition:leave="transition ease-in duration-100"
                 x-transition:leave-start="opacity-100 scale-100 translate-y-0"
                 x-transition:leave-end="opacity-0 scale-95 -translate-y-1" id="profile-menu" role="menu"
-                aria-label="Menu Akun"
+                aria-label="{{ __('navigation.user_profile') }}"
                 class="absolute right-0 mt-2 w-64 rounded-[14px] bg-white/95 dark:bg-[#2C2C2E]/95 backdrop-blur-xl border border-black/5 dark:border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.15)] p-1.5 z-50 space-y-1 text-[13px]"
                 style="display: none;">
 
@@ -439,14 +490,14 @@
                     <a href="{{ route('profile.edit') }}" @click="profileOpen = false"
                         class="w-full px-2.5 py-1.5 rounded-[7px] text-black/75 dark:text-white/75 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] hover:text-black dark:hover:text-white flex items-center gap-2 transition active:scale-[0.98]">
                         <i data-lucide="key" class="w-3.5 h-3.5 text-[#007AFF] shrink-0"></i>
-                        <span>Profil &amp; Sandi</span>
+                        <span>{{ __('navigation.user_profile') }}</span>
                     </a>
 
                     @if (\App\Support\Context::isOwner())
                         <a href="{{ route('feedback.bugs.index') }}" @click="profileOpen = false"
                             class="w-full px-2.5 py-1.5 rounded-[7px] text-black/75 dark:text-white/75 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] hover:text-black dark:hover:text-white flex items-center gap-2 transition active:scale-[0.98]">
                             <i data-lucide="life-buoy" class="w-3.5 h-3.5 text-[#007AFF] shrink-0"></i>
-                            <span>Dukungan &amp; Bantuan</span>
+                            <span>{{ __('navigation.support_help') }}</span>
                         </a>
                     @endif
 
@@ -456,23 +507,72 @@
                             class="w-full px-2.5 py-1.5 rounded-[7px] text-black/75 dark:text-white/75 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] hover:text-black dark:hover:text-white flex items-center gap-2 transition active:scale-[0.98] text-left cursor-pointer">
                             <i data-lucide="help-circle"
                                 class="w-3.5 h-3.5 text-black/45 dark:text-white/45 shrink-0"></i>
-                            <span>Ulang Panduan Tour</span>
+                            <span>{{ __('navigation.restart_tour') }}</span>
                         </button>
                     </form>
                 </div>
 
                 <div class="border-t border-black/5 dark:border-white/10 my-1"></div>
 
-                <!-- Logout Option -->
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-                    <button type="submit"
+                <!-- Logout Option with Apple Alert Modal Trigger -->
+                <div>
+                    <button type="button" @click="profileOpen = false; showLogoutConfirm = true"
                         class="w-full px-2.5 py-1.5 rounded-[7px] text-[#FF3B30] dark:text-[#FF453A] hover:bg-[#FF3B30]/10 flex items-center gap-2 transition active:scale-[0.98] text-left font-medium cursor-pointer">
                         <i data-lucide="log-out" class="w-3.5 h-3.5 shrink-0"></i>
-                        <span>Keluar Akun</span>
+                        <span>{{ __('common.logout') }}</span>
                     </button>
-                </form>
+                </div>
             </div>
+
+            <!-- Apple Alert Confirmation Sheet / Modal (No-Panic Microcopy) -->
+            <template x-teleport="body">
+                <div x-show="showLogoutConfirm"
+                    x-transition:enter="transition ease-out duration-200"
+                    x-transition:enter-start="opacity-0"
+                    x-transition:enter-end="opacity-100"
+                    x-transition:leave="transition ease-in duration-150"
+                    x-transition:leave-start="opacity-100"
+                    x-transition:leave-end="opacity-0"
+                    class="fixed inset-0 z-50 bg-black/40 backdrop-blur-md flex items-center justify-center p-4"
+                    style="display: none;"
+                    @click.self="showLogoutConfirm = false"
+                    @keydown.esc.window="showLogoutConfirm = false">
+                    <div @click.stop
+                        x-show="showLogoutConfirm"
+                        x-transition:enter="transition ease-out duration-200 transform"
+                        x-transition:enter-start="opacity-0 scale-95"
+                        x-transition:enter-end="opacity-100 scale-100"
+                        x-transition:leave="transition ease-in duration-150 transform"
+                        x-transition:leave-start="opacity-100 scale-100"
+                        x-transition:leave-end="opacity-0 scale-95"
+                        class="w-full max-w-sm bg-white/95 dark:bg-[#1C1C1E]/95 backdrop-blur-2xl rounded-[20px] shadow-[0_24px_64px_rgba(0,0,0,0.3)] border border-black/10 dark:border-white/15 p-5 text-center transition-all">
+                        
+                        <div class="w-12 h-12 mx-auto rounded-full bg-[#FF3B30]/10 dark:bg-[#FF453A]/15 text-[#FF3B30] dark:text-[#FF453A] flex items-center justify-center mb-3.5">
+                            <i data-lucide="log-out" class="w-6 h-6"></i>
+                        </div>
+                        <h3 class="text-[16px] font-bold text-black dark:text-white leading-snug">
+                            {{ __('common.logout_confirm_title') }}
+                        </h3>
+                        <p class="text-[13px] text-black/60 dark:text-white/60 mt-1.5 leading-relaxed">
+                            {{ __('common.logout_confirm_msg') }}
+                        </p>
+
+                        <div class="flex items-center gap-2.5 mt-5">
+                            <button type="button" @click="showLogoutConfirm = false"
+                                class="flex-1 py-2.5 px-3 rounded-[10px] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] text-[13px] font-semibold text-black/70 dark:text-white/70 transition active:scale-[0.98] cursor-pointer">
+                                {{ __('common.cancel') }}
+                            </button>
+                            <form method="POST" action="{{ route('logout') }}" class="flex-1">
+                                @csrf
+                                <button type="submit"
+                                    class="w-full py-2.5 px-3 rounded-[10px] bg-[#FF3B30] hover:bg-[#D70015] text-[13px] font-bold text-white shadow-[0_2px_8px_rgba(255,59,48,0.3)] transition active:scale-[0.98] cursor-pointer">
+                                    {{ __('common.logout') }}
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </template>
         </div>
     </div>
 </header>
@@ -487,187 +587,201 @@
     category: 'all',
     selectedIndex: 0,
     categories: [
-        { id: 'all', label: 'Semua' },
-        { id: 'Dashboard', label: 'Dashboard' },
+        { id: 'all', label: '{{ __('common.all') }}' },
+        { id: 'Dashboard', label: '{{ __('navigation.clusters.daily_ops') }}' },
         @if ($canAccessSales)
-            { id: 'Kasir & Penjualan', label: 'Kasir & Penjualan' },
+            { id: 'Kasir & Penjualan', label: '{{ ($activeBiz && $activeBiz->isFoodIndustry()) ? __('navigation.pos_resto') : __('navigation.pos_terminal') }}' },
         @endif
         @if ($canAccessInventory)
-            { id: 'Produk & Stok', label: 'Produk & Stok' },
+            { id: 'Produk & Stok', label: '{{ __('navigation.clusters.master_data') }}' },
         @endif
         @if ($canAccessPurchasing)
-            { id: 'Pembelian & Supplier', label: 'Pembelian & Supplier' },
+            { id: 'Pembelian & Supplier', label: '{{ __('navigation.suppliers') }}' },
         @endif
         @if ($canAccessMarketing)
-            { id: 'Pelanggan & Pemasaran', label: 'Pelanggan & Pemasaran' },
+            { id: 'Pelanggan & Pemasaran', label: '{{ __('navigation.crm_customers') }}' },
         @endif
         @if ($canAccessFinance)
-            { id: 'Keuangan & Biaya', label: 'Keuangan & Biaya' },
+            { id: 'Keuangan & Biaya', label: '{{ __('navigation.clusters.reports_finance') }}' },
         @endif
         @if ($canAccessReports)
-            { id: 'Laporan & Analitik', label: 'Laporan & Analitik' },
+            { id: 'Laporan & Analitik', label: '{{ __('navigation.sales_report') }}' },
         @endif
         @if ($canAccessSettings || $canAccessRoles || $canAccessBilling || \App\Support\Context::isOwner())
-            { id: 'Pengaturan Usaha', label: 'Pengaturan Usaha' },
+            { id: 'Pengaturan Usaha', label: '{{ __('navigation.clusters.settings_hub') }}' },
         @endif
     ],
     items: [
         // 1. Dashboards (Overview)
         @if (\App\Support\Context::isOwner() || \App\Support\Context::hasPermission('dashboard.view'))
-        { title: 'Beranda Dashboard', desc: 'Ringkasan performa penjualan, omset, dan laba kotor bisnis', category: 'Dashboard', route: '{{ route('dashboard') }}', icon: 'layout-dashboard', keywords: 'beranda home executive overview penjualan omset laba' },
+        { title: 'Beranda Dashboard', desc: 'Ringkasan performa penjualan, omset, dan laba kotor bisnis', category: 'Dashboard', route: '{{ route('dashboard') }}', icon: 'layout-dashboard', keywords: 'beranda home executive overview penjualan sales omset revenue laba profit summary' },
         @endif
-        { title: 'Portal Karyawan & Presensi', desc: 'Jam kerja real-time, cuaca, dan absensi masuk/pulang', category: 'Dashboard', route: '{{ route('portal') }}', icon: 'clock', keywords: 'portal presensi absen jam kerja kehadiran cuaca wib' },
+        { title: 'Portal Karyawan & Presensi', desc: 'Jam kerja real-time, cuaca, dan absensi masuk/pulang', category: 'Dashboard', route: '{{ route('portal') }}', icon: 'clock', keywords: 'portal presensi absen attendance jam kerja clock in out kehadiran cuaca staff' },
         @if ($canAccessFinance)
-            { title: 'Ringkasan Finansial & Kas', desc: 'Saldo kas, mutasi rekening bank, dan ringkasan arus kas', category: 'Dashboard', route: '{{ route('finance.cash-bank.index') }}', icon: 'wallet', keywords: 'keuangan kas bank accounting overview saldo' },
+            { title: 'Ringkasan Finansial & Kas', desc: 'Saldo kas, mutasi rekening bank, dan ringkasan arus kas', category: 'Dashboard', route: '{{ route('finance.cash-bank.index') }}', icon: 'wallet', keywords: 'keuangan kas bank cash bank accounting overview saldo balance flow' },
         @endif
         @if ($canAccessPos)
-            { title: 'Ringkasan Kasir POS', desc: 'Aktivitas transaksi kasir toko, riwayat shift, dan pesanan kasir', category: 'Dashboard', route: '{{ route('pos.orders.index') }}', icon: 'receipt', keywords: 'pos kasir transaksi shift kas orders meja' },
+            { title: 'Ringkasan Kasir POS', desc: 'Aktivitas transaksi kasir toko, riwayat shift, dan pesanan kasir', category: 'Dashboard', route: '{{ route('pos.orders.index') }}', icon: 'receipt', keywords: 'kasir pos cashier transaksi shift kas orders meja receipt summary' },
         @endif
-        @if ($canAccessB2bSales)
-            { title: 'Ringkasan Penjualan B2B', desc: 'Pesanan penjualan B2B, penawaran harga, dan faktur piutang', category: 'Dashboard', route: '{{ route('sales.orders.index') }}', icon: 'shopping-bag', keywords: 'b2b penjualan sales orders so faktur' },
+        @if ($canAccessB2bSales && ($activeBiz?->isModuleEnabled(\App\Domain\Template\ModuleRegistry::MODULE_B2B_SALES) ?? true))
+            { title: 'Ringkasan Penjualan B2B', desc: 'Pesanan penjualan B2B, penawaran harga, dan faktur piutang', category: 'Dashboard', route: '{{ route('sales.orders.index') }}', icon: 'shopping-bag', keywords: 'b2b penjualan sales orders so faktur invoice pipeline' },
         @endif
-        @if ($canAccessStorefront)
-            { title: 'Ringkasan Pesanan Toko Online', desc: 'Aktivitas pesanan checkout etalase toko online', category: 'Dashboard', route: '{{ route('storefront.orders.index') }}', icon: 'store', keywords: 'toko online etalase pesanan order web' },
+        @if ($canAccessStorefront && ($activeBiz?->isModuleEnabled(\App\Domain\Template\ModuleRegistry::MODULE_STOREFRONT_CHECKOUT) ?? true))
+            { title: 'Ringkasan Pesanan Toko Online', desc: 'Aktivitas pesanan checkout etalase toko online', category: 'Dashboard', route: '{{ route('storefront.orders.index') }}', icon: 'store', keywords: 'toko online etalase pesanan order web storefront checkout' },
         @endif
         @if ($canAccessFinance || \App\Support\Context::isOwner())
-            { title: 'Ringkasan Karyawan & Payroll', desc: 'Daftar pegawai, kasbon, dan ringkasan gaji bulanan', category: 'Dashboard', route: '{{ route('hrm.index') }}', icon: 'users', keywords: 'hrm karyawan pegawai staf payroll gaji upah' },
+            { title: 'Ringkasan Karyawan & Payroll', desc: 'Daftar pegawai, kasbon, dan ringkasan gaji bulanan', category: 'Dashboard', route: '{{ route('hrm.index') }}', icon: 'users', keywords: 'hrm karyawan pegawai staf staff payroll gaji salary upah wages' },
         @endif
-        @if ($canAccessCrm || $canAccessSales)
-            { title: 'Ringkasan Pelanggan & Member', desc: 'Statistik basis pelanggan setia, poin loyalitas, dan piutang', category: 'Dashboard', route: '{{ route('crm.members.index') }}', icon: 'award', keywords: 'crm pelanggan member poin loyalty customer diskon' },
+        @if (($canAccessCrm || $canAccessSales) && ($activeBiz?->isModuleEnabled(\App\Domain\Template\ModuleRegistry::MODULE_CRM_LOYALTY) ?? true))
+            { title: 'Ringkasan Pelanggan & Member', desc: 'Statistik basis pelanggan setia, poin loyalitas, dan piutang', category: 'Dashboard', route: '{{ route('crm.members.index') }}', icon: 'award', keywords: 'crm pelanggan member poin loyalty customer diskon discount reward' },
         @endif
-        @if ($canAccessInventory)
-            { title: 'Ringkasan Gudang & Persediaan', desc: 'Monitoring level stok gudang, lokasi penyimpanan, dan stok kritis', category: 'Dashboard', route: '{{ route('warehouse.index') }}', icon: 'warehouse', keywords: 'gudang stok inventory warehouse persediaan habis' },
+        @if ($canAccessInventory && ($activeBiz?->isModuleEnabled(\App\Domain\Template\ModuleRegistry::MODULE_INVENTORY_WAREHOUSE) ?? true))
+            { title: 'Ringkasan Gudang & Persediaan', desc: 'Monitoring level stok gudang, lokasi penyimpanan, dan stok kritis', category: 'Dashboard', route: '{{ route('warehouse.index') }}', icon: 'warehouse', keywords: 'gudang stok inventory warehouse persediaan stock alert habis' },
         @endif
-        @if (\App\Support\Context::isOwner())
-            { title: 'Ringkasan Pemasaran Digital', desc: 'Jadwal posting media sosial, kalender konten, dan inbox', category: 'Dashboard', route: '{{ route('social-media.index') }}', icon: 'share-2', keywords: 'marketing sosmed instagram tiktok facebook wa broadcast' },
+        @if (\App\Support\Context::isOwner() && ($activeBiz?->isModuleEnabled(\App\Domain\Template\ModuleRegistry::MODULE_CHANNELS_MARKETING) ?? true))
+            { title: 'Ringkasan Pemasaran Digital', desc: 'Jadwal posting media sosial, kalender konten, dan inbox', category: 'Dashboard', route: '{{ route('social-media.index') }}', icon: 'share-2', keywords: 'marketing sosmed instagram tiktok facebook wa broadcast social media' },
         @endif
-        { title: 'Asisten Cerdas AI Cooca', desc: 'Konsultasi bisnis, analisis penjualan, dan rekomendasi otomatis', category: 'Dashboard', route: '{{ route('pos.ai.index') }}', icon: 'bot', keywords: 'ai asisten bot analisa cerdas konsultasi pintar' },
+        { title: 'Asisten Cerdas AI Cooca', desc: 'Konsultasi bisnis, analisis penjualan, dan rekomendasi otomatis', category: 'Dashboard', route: '{{ route('pos.ai.index') }}', icon: 'bot', keywords: 'ai asisten bot analisa cerdas konsultasi pintar assistant intelligence' },
 
         @if ($canAccessSales)
             // 2. Kasir & Penjualan
             @if ($canAccessPos)
-                { title: 'Buka Kasir POS', desc: 'Terminal kasir cepat untuk melayani transaksi kasir harian', category: 'Kasir & Penjualan', route: '{{ route('pos.terminal') }}', icon: 'calculator', keywords: 'kasir pos terminal jualan bayar struk checkout' },
-                { title: 'Riwayat Transaksi Kasir', desc: 'Daftar struk penjualan kasir POS dan rekap shift kasir', category: 'Kasir & Penjualan', route: '{{ route('pos.orders.index') }}', icon: 'receipt', keywords: 'transaksi kasir struk shift nota rekap' },
-                @if (\App\Support\Context::business()?->isModuleEnabled(\App\Domain\Template\ModuleRegistry::MODULE_POS_DINEIN) ?? true)
-                    { title: 'Layar Dapur (KDS)', desc: 'Tampilan pesanan makanan & minuman langsung untuk staf dapur', category: 'Kasir & Penjualan', route: '{{ route('pos.kitchen.index') }}', icon: 'chef-hat', keywords: 'kitchen dapur kds order masak bar makanan resto' },
-                    { title: 'Meja & QR Resto', desc: 'Tata kelola denah meja, nomor meja, dan cetak QR ordering', category: 'Kasir & Penjualan', route: '{{ route('pos.tables.index') }}', icon: 'layout-grid', keywords: 'meja table qr resto cafe dine in pesan' },
+                { title: '{{ ($activeBiz && $activeBiz->isFoodIndustry()) ? __('navigation.pos_resto') : __('navigation.pos_open') }}', desc: 'Terminal kasir cepat untuk melayani transaksi kasir harian', category: 'Kasir & Penjualan', route: '{{ route('pos.terminal') }}', icon: 'calculator', keywords: 'kasir pos cashier terminal jualan sales bayar pay struk receipt checkout register resto resto_pos' },
+                { title: 'Riwayat Transaksi Kasir', desc: 'Daftar struk penjualan kasir POS dan rekap shift kasir', category: 'Kasir & Penjualan', route: '{{ route('pos.orders.index') }}', icon: 'receipt', keywords: 'transaksi transaction kasir cashier struk shift nota rekap history orders' },
+                @if (($activeBiz && $activeBiz->isFoodIndustry()) && ($activeBiz?->isModuleEnabled(\App\Domain\Template\ModuleRegistry::MODULE_POS_DINEIN) ?? true))
+                    { title: 'Layar Dapur (KDS)', desc: 'Tampilan pesanan makanan & minuman langsung untuk staf dapur', category: 'Kasir & Penjualan', route: '{{ route('pos.kitchen.index') }}', icon: 'chef-hat', keywords: 'kitchen dapur kds order masak bar makanan resto food display' },
+                    { title: 'Meja & QR Resto', desc: 'Tata kelola denah meja, nomor meja, dan cetak QR ordering', category: 'Kasir & Penjualan', route: '{{ route('pos.tables.index') }}', icon: 'layout-grid', keywords: 'meja table qr resto cafe dine in pesan self order' },
                 @endif
             @endif
-            @if ($canAccessB2bSales)
-                { title: 'Pesanan Penjualan (Sales Orders)', desc: 'Daftar pesanan penjualan produk ke pelanggan atau klien', category: 'Kasir & Penjualan', route: '{{ route('sales.orders.index') }}', icon: 'shopping-bag', keywords: 'pesanan penjualan so sales order so order' },
-                { title: 'Surat Penawaran (Quotations)', desc: 'Buat dan kelola surat penawaran harga resmi untuk pelanggan', category: 'Kasir & Penjualan', route: '{{ route('sales.quotations.index') }}', icon: 'file-text', keywords: 'penawaran quotation harga proposal penawaran quote' },
-                { title: 'Faktur Penjualan (Invoices)', desc: 'Tagihan faktur resmi, status tempo, dan penerimaan pelunasan piutang', category: 'Kasir & Penjualan', route: '{{ route('invoices.index') }}', icon: 'file-check', keywords: 'faktur invoice piutang tagihan bayar cicil tempo' },
-                { title: 'Retur Penjualan', desc: 'Pencatatan pengembalian barang atau komplain retur pelanggan', category: 'Kasir & Penjualan', route: '{{ route('sales.returns.index') }}', icon: 'rotate-ccw', keywords: 'retur penjualan refund pengembalian komplain ganti' },
+            @if ($canAccessB2bSales && ($activeBiz?->isModuleEnabled(\App\Domain\Template\ModuleRegistry::MODULE_B2B_SALES) ?? true))
+                { title: 'Pesanan Penjualan (Sales Orders)', desc: 'Daftar pesanan penjualan produk ke pelanggan atau klien', category: 'Kasir & Penjualan', route: '{{ route('sales.orders.index') }}', icon: 'shopping-bag', keywords: 'pesanan penjualan so sales order b2b klien customer order' },
+                { title: 'Surat Penawaran (Quotations)', desc: 'Buat dan kelola surat penawaran harga resmi untuk pelanggan', category: 'Kasir & Penjualan', route: '{{ route('sales.quotations.index') }}', icon: 'file-text', keywords: 'penawaran quotation harga proposal quote pricing' },
+                { title: 'Faktur Penjualan (Invoices)', desc: 'Tagihan faktur resmi, status tempo, dan penerimaan pelunasan piutang', category: 'Kasir & Penjualan', route: '{{ route('invoices.index') }}', icon: 'file-check', keywords: 'faktur invoice piutang tagihan bayar cicil tempo due date' },
+                { title: 'Retur Penjualan', desc: 'Pencatatan pengembalian barang atau komplain retur pelanggan', category: 'Kasir & Penjualan', route: '{{ route('sales.returns.index') }}', icon: 'rotate-ccw', keywords: 'retur penjualan sales return refund pengembalian komplain ganti' },
             @endif
         @endif
 
         @if ($canAccessInventory)
             // 3. Produk & Persediaan
-            { title: 'Katalog Produk & Menu', desc: 'Daftar barang dagangan, harga jual, dan resep produk', category: 'Produk & Stok', route: '{{ route('products.index') }}', icon: 'package', keywords: 'produk barang menu katalog makanan minuman sku' },
+            { title: 'Katalog Produk & Menu', desc: 'Daftar barang dagangan, harga jual, dan resep produk', category: 'Produk & Stok', route: '{{ route('products.index') }}', icon: 'package', keywords: 'produk product barang menu katalog catalog makanan minuman sku items' },
             { title: 'Integrasi Marketplace', desc: 'Hub multi-channel Shopee, TikTok Shop, dan Tokopedia dengan sinkronisasi harga & stok', category: 'Produk & Stok', route: '{{ route('marketplace-hub.index') }}', icon: 'shopping-bag', keywords: 'marketplace shopee tiktok shop tokopedia integrasi channel online pesanan sync' },
-            { title: 'Jasa & Layanan', desc: 'Katalog jasa pengerjaan, servis teknis, dan tarif per jam', category: 'Produk & Stok', route: '{{ route('services.index') }}', icon: 'wrench', keywords: 'jasa layanan servis service tarif ongkos kerja' },
-            { title: 'Bahan Baku & Resep (BOM)', desc: 'Master bahan mentah, komponen produksi, dan kartu resep', category: 'Produk & Stok', route: '{{ route('materials.index') }}', icon: 'boxes', keywords: 'bahan baku resep bom material racikan formula bumbu' },
-            { title: 'Varian & Opsi Tambahan', desc: 'Topping, level pedas, ukuran cup, dan modifikasi pesanan', category: 'Produk & Stok', route: '{{ route('pos.modifiers.index') }}', icon: 'layers', keywords: 'varian modifier topping opsi pilihan ekstra add on' },
-            { title: 'Stok Gudang & Saldo', desc: 'Informasi sisa fisik stok produk dan bahan baku di semua gudang', category: 'Produk & Stok', route: '{{ route('inventory.stocks') }}', icon: 'archive', keywords: 'stok gudang saldo inventory fisik sisa kuantitas balance' },
-            { title: 'Lokasi Gudang', desc: 'Pengaturan multi-lokasi gudang, toko, outlet, dan cabang', category: 'Produk & Stok', route: '{{ route('warehouse.index') }}', icon: 'warehouse', keywords: 'lokasi gudang cabang outlet toko simpan' },
-            { title: 'Opname Stok Fisik', desc: 'Penyesuaian stok berkala dan rekonsiliasi selisih fisik gudang', category: 'Produk & Stok', route: '{{ route('inventory.opnames.index') }}', icon: 'clipboard-check', keywords: 'opname stok fisik cek selisih audit gudang cocok' },
-            { title: 'Transfer Stok Gudang', desc: 'Surat jalan perpindahan barang antar cabang atau lokasi gudang', category: 'Produk & Stok', route: '{{ route('inventory.transfers.index') }}', icon: 'arrow-left-right', keywords: 'transfer mutasi antar gudang cabang kirim stok jalan' },
-            { title: 'Kategori Produk', desc: 'Pengelompokan jenis dan kategori barang jualan', category: 'Produk & Stok', route: '{{ route('product-categories.index') }}', icon: 'folder-tree', keywords: 'kategori produk kelompok barang jenis' },
-            { title: 'Kategori Bahan Baku', desc: 'Pengelompokan jenis bahan mentah dan material produksi', category: 'Produk & Stok', route: '{{ route('material-categories.index') }}', icon: 'folder', keywords: 'kategori bahan material mentah produksi' },
-            { title: 'Satuan Ukur & Konversi', desc: 'Master unit satuan (kg, gram, pcs, liter) dan konversi rasio', category: 'Produk & Stok', route: '{{ route('units.index') }}', icon: 'scale', keywords: 'satuan ukur unit konversi kg gram liter pcs dus' },
-            { title: 'Impor & Ekspor Excel', desc: 'Impor massal produk, bahan baku, resep, dan stok via Excel', category: 'Produk & Stok', route: '{{ route('import.index') }}', icon: 'file-spreadsheet', keywords: 'import ekspor excel csv download template massal' },
+            { title: '{{ ($activeBiz && ($activeBiz->isModuleEnabled(\App\Domain\Template\ModuleRegistry::MODULE_SERVICE_WORKSHOP) || $activeBiz->isServiceSector() || $activeBiz->isWorkshop())) ? __('navigation.services_workshop') : __('navigation.services') }}', desc: 'Katalog jasa pengerjaan, servis teknis, dan tarif per jam', category: 'Produk & Stok', route: '{{ route('services.index') }}', icon: 'wrench', keywords: 'jasa service layanan servis technical tarif ongkos kerja hourly spk bengkel workshop pkb' },
+            @if ($activeBiz?->isModuleEnabled(\App\Domain\Template\ModuleRegistry::MODULE_RECIPE_BOM) ?? true)
+                { title: 'Bahan Baku & Resep (BOM)', desc: 'Master bahan mentah, komponen produksi, dan kartu resep', category: 'Produk & Stok', route: '{{ route('materials.index') }}', icon: 'boxes', keywords: 'bahan baku raw materials resep bom formula bumbu recipe ingredients' },
+            @endif
+            { title: 'Varian & Opsi Tambahan', desc: 'Topping, level pedas, ukuran cup, dan modifikasi pesanan', category: 'Produk & Stok', route: '{{ route('pos.modifiers.index') }}', icon: 'layers', keywords: 'varian modifier topping opsi pilihan ekstra add on variants' },
+            { title: 'Stok Gudang & Saldo', desc: 'Informasi sisa fisik stok produk dan bahan baku di semua gudang', category: 'Produk & Stok', route: '{{ route('inventory.stocks') }}', icon: 'archive', keywords: 'stok gudang stock balance saldo inventory fisik sisa kuantitas' },
+            @if ($activeBiz?->isModuleEnabled(\App\Domain\Template\ModuleRegistry::MODULE_INVENTORY_WAREHOUSE) ?? true)
+            { title: 'Lokasi Gudang', desc: 'Pengaturan multi-lokasi gudang, toko, outlet, dan cabang', category: 'Produk & Stok', route: '{{ route('warehouse.index') }}', icon: 'warehouse', keywords: 'lokasi gudang warehouse storage cabang outlet toko simpan location' },
+            @endif
+            { title: 'Opname Stok Fisik', desc: 'Penyesuaian stok berkala dan rekonsiliasi selisih fisik gudang', category: 'Produk & Stok', route: '{{ route('inventory.opnames.index') }}', icon: 'clipboard-check', keywords: 'opname stock opname fisik cek selisih audit gudang cocok count' },
+            { title: 'Transfer Stok Gudang', desc: 'Surat jalan perpindahan barang antar cabang atau lokasi gudang', category: 'Produk & Stok', route: '{{ route('inventory.transfers.index') }}', icon: 'arrow-left-right', keywords: 'transfer mutasi stock transfer antar gudang cabang kirim jalan' },
+            { title: 'Kategori Produk', desc: 'Pengelompokan jenis dan kategori barang jualan', category: 'Produk & Stok', route: '{{ route('product-categories.index') }}', icon: 'folder-tree', keywords: 'kategori produk product category kelompok barang jenis' },
+            @if ($activeBiz?->isModuleEnabled(\App\Domain\Template\ModuleRegistry::MODULE_RECIPE_BOM) ?? true)
+            { title: 'Kategori Bahan Baku', desc: 'Pengelompokan jenis bahan mentah dan material produksi', category: 'Produk & Stok', route: '{{ route('material-categories.index') }}', icon: 'folder', keywords: 'kategori bahan material categories mentah produksi' },
+            @endif
+            { title: 'Satuan Ukur & Konversi', desc: 'Master unit satuan (kg, gram, pcs, liter) dan konversi rasio', category: 'Produk & Stok', route: '{{ route('units.index') }}', icon: 'scale', keywords: 'satuan ukur unit conversion kg gram liter pcs dus uom' },
+            { title: 'Impor & Ekspor Excel', desc: 'Impor massal produk, bahan baku, resep, dan stok via Excel', category: 'Produk & Stok', route: '{{ route('import.index') }}', icon: 'file-spreadsheet', keywords: 'import ekspor excel csv download template massal bulk' },
         @endif
 
-        @if ($canAccessPurchasing)
+        @if ($canAccessPurchasing && ($activeBiz?->isModuleEnabled(\App\Domain\Template\ModuleRegistry::MODULE_PROCUREMENT) ?? true))
             // 4. Pembelian & Supplier
-            { title: 'Pesanan Pembelian (PO)', desc: 'Surat pesanan pembelian pengadaan barang ke supplier pemasok', category: 'Pembelian & Supplier', route: '{{ route('purchase-orders.index') }}', icon: 'truck', keywords: 'po purchase order beli kulak supplier pemasok pengadaan' },
-            { title: 'Tagihan Supplier (Bills)', desc: 'Daftar kewajiban utang dagang pembelian dari pemasok', category: 'Pembelian & Supplier', route: '{{ route('purchasing.bills.index') }}', icon: 'receipt', keywords: 'tagihan bill utang supplier invoice pembelian tempo' },
-            { title: 'Supplier & Pemasok', desc: 'Direktori kontak supplier, alamat, dan syarat pembayaran', category: 'Pembelian & Supplier', route: '{{ route('suppliers.index') }}', icon: 'building-2', keywords: 'supplier vendor pemasok distributor rekanan kulakan' },
-            { title: 'Retur Pembelian', desc: 'Pengembalian barang rusak atau cacat ke pihak supplier', category: 'Pembelian & Supplier', route: '{{ route('purchase.returns.index') }}', icon: 'rotate-ccw', keywords: 'retur beli supplier rusak kembalikan dana potong utang' },
+            { title: 'Pesanan Pembelian (PO)', desc: 'Surat pesanan pembelian pengadaan barang ke supplier pemasok', category: 'Pembelian & Supplier', route: '{{ route('purchase-orders.index') }}', icon: 'truck', keywords: 'po purchase order beli purchasing supplier pemasok pengadaan procurement' },
+            { title: 'Tagihan Supplier (Bills)', desc: 'Daftar kewajiban utang dagang pembelian dari pemasok', category: 'Pembelian & Supplier', route: '{{ route('purchasing.bills.index') }}', icon: 'receipt', keywords: 'tagihan bill supplier bill utang supplier invoice pembelian tempo ap' },
+            { title: 'Supplier & Pemasok', desc: 'Direktori kontak supplier, alamat, dan syarat pembayaran', category: 'Pembelian & Supplier', route: '{{ route('suppliers.index') }}', icon: 'building-2', keywords: 'supplier vendor pemasok distributor rekanan kulakan contacts' },
+            { title: 'Retur Pembelian', desc: 'Pengembalian barang rusak atau cacat ke pihak supplier', category: 'Pembelian & Supplier', route: '{{ route('purchase.returns.index') }}', icon: 'rotate-ccw', keywords: 'retur beli purchase return supplier rusak kembalikan dana potong utang' },
         @endif
 
         @if ($canAccessMarketing)
             // 5. Pelanggan & Pemasaran
-            @if ($canAccessCrm)
-                { title: 'Data Pelanggan (CRM)', desc: 'Buku kontak pelanggan, nomor WhatsApp, riwayat transaksi', category: 'Pelanggan & Pemasaran', route: '{{ route('customers.index') }}', icon: 'users', keywords: 'pelanggan customer kontak wa crm pembeli langganan' },
-                { title: 'Member & Loyalitas Poin', desc: 'Program keanggotaan member, perolehan poin, dan reward loyalitas', category: 'Pelanggan & Pemasaran', route: '{{ route('crm.members.index') }}', icon: 'award', keywords: 'member loyalitas poin loyalty reward kupon program' },
-                { title: 'Voucher Diskon Promosi', desc: 'Kode kupon promosi, diskon persentase, dan voucher potongan harga', category: 'Pelanggan & Pemasaran', route: '{{ route('crm.vouchers.index') }}', icon: 'ticket', keywords: 'voucher diskon promo kupon potongan harga promo' },
+            @if ($canAccessCrm && ($activeBiz?->isModuleEnabled(\App\Domain\Template\ModuleRegistry::MODULE_CRM_LOYALTY) ?? true))
+                { title: 'Data Pelanggan (CRM)', desc: 'Buku kontak pelanggan, nomor WhatsApp, riwayat transaksi', category: 'Pelanggan & Pemasaran', route: '{{ route('customers.index') }}', icon: 'users', keywords: 'pelanggan customer contacts kontak wa crm pembeli langganan' },
+                { title: 'Member & Loyalitas Poin', desc: 'Program keanggotaan member, perolehan poin, dan reward loyalitas', category: 'Pelanggan & Pemasaran', route: '{{ route('crm.members.index') }}', icon: 'award', keywords: 'member loyalitas poin loyalty reward kupon program tier' },
+                { title: 'Voucher Diskon Promosi', desc: 'Kode kupon promosi, diskon persentase, dan voucher potongan harga', category: 'Pelanggan & Pemasaran', route: '{{ route('crm.vouchers.index') }}', icon: 'ticket', keywords: 'voucher diskon promo discount kupon coupon potongan harga promo' },
             @endif
-            @if ($canAccessStorefront)
-                { title: 'Pesanan Toko Online', desc: 'Daftar pesanan masuk dari toko online dan status pembayaran', category: 'Pelanggan & Pemasaran', route: '{{ route('storefront.orders.index') }}', icon: 'shopping-bag', keywords: 'toko online etalase katalog web storefront checkout' },
-                { title: 'Desain Halaman Toko (Mini-Site)', desc: 'Kustomisasi tema, banner, warna, dan tampilan web toko online', category: 'Pelanggan & Pemasaran', route: '{{ route('landing-page.edit') }}', icon: 'globe', keywords: 'landing page website desain tema etalase toko online mini site web' },
-                { title: 'Reservasi & Booking Online', desc: 'Kelola pesanan reservasi meja atau booking layanan pelanggan', category: 'Pelanggan & Pemasaran', route: '{{ route('storefront.reservations.index') }}', icon: 'calendar-check', keywords: 'reservasi booking meja jadwal reservasi janji temu' },
-                { title: 'Pengaturan Ongkos Kirim', desc: 'Aturan ongkir kurir toko dan integrasi ekspedisi logistik pengiriman', category: 'Pelanggan & Pemasaran', route: '{{ route('storefront.shipping.index') }}', icon: 'truck', keywords: 'ongkir pengiriman tarif kurir logistik biteship' },
+            @if ($canAccessStorefront && ($activeBiz?->isModuleEnabled(\App\Domain\Template\ModuleRegistry::MODULE_STOREFRONT_CHECKOUT) ?? true))
+                { title: 'Pesanan Toko Online', desc: 'Daftar pesanan masuk dari toko online dan status pembayaran', category: 'Pelanggan & Pemasaran', route: '{{ route('storefront.orders.index') }}', icon: 'shopping-bag', keywords: 'toko online etalase katalog web storefront checkout online orders' },
+                { title: 'Desain Halaman Toko (Mini-Site)', desc: 'Kustomisasi tema, banner, warna, dan tampilan web toko online', category: 'Pelanggan & Pemasaran', route: '{{ route('landing-page.edit') }}', icon: 'globe', keywords: 'landing page website desain tema etalase toko online mini site web builder' },
+                @if ($activeBiz?->isModuleEnabled(\App\Domain\Template\ModuleRegistry::MODULE_RESERVATION) ?? true)
+                    { title: 'Reservasi & Booking Online', desc: 'Kelola pesanan reservasi meja atau booking layanan pelanggan', category: 'Pelanggan & Pemasaran', route: '{{ route('storefront.reservations.index') }}', icon: 'calendar-check', keywords: 'reservasi booking meja reservation jadwal reservasi janji temu' },
+                @endif
+                @if ($activeBiz?->isModuleEnabled(\App\Domain\Template\ModuleRegistry::MODULE_MERCHANT_SHIPPING) ?? true)
+                    { title: 'Pengaturan Ongkos Kirim', desc: 'Aturan ongkir kurir toko dan integrasi ekspedisi logistik pengiriman', category: 'Pelanggan & Pemasaran', route: '{{ route('storefront.shipping.index') }}', icon: 'truck', keywords: 'ongkir shipping rate pengiriman tarif kurir logistik biteship' },
+                @endif
                 { title: 'Pengaturan Toko Online & Pembayaran', desc: 'Aturan checkout, metode pembayaran transfer/QRIS, dan jam buka etalase', category: 'Pelanggan & Pemasaran', route: '{{ route('storefront.settings.index') }}', icon: 'store', keywords: 'toko online etalase qris transfer manual rekening checkout pengaturan jam buka' },
             @endif
-            @if ($canAccessChannels)
-                { title: 'WhatsApp Bisnis Toko', desc: 'Koneksi perangkat WhatsApp dan pengiriman struk belanja otomatis', category: 'Pelanggan & Pemasaran', route: '{{ route('whatsapp.index') }}', icon: 'message-square', keywords: 'whatsapp wa koneksi qr barcode struk auto sender' },
-                { title: 'Pesan Siaran WhatsApp (Broadcast)', desc: 'Kirim pesan siaran promo massal langsung ke kontak pelanggan', category: 'Pelanggan & Pemasaran', route: '{{ route('whatsapp.broadcast.index') }}', icon: 'radio', keywords: 'broadcast siaran wa promo massal pesan blast pelanggan' },
-                { title: 'Media Sosial Omnichannel', desc: 'Integrasi dan jadwal posting ke Instagram, Facebook, dan TikTok', category: 'Pelanggan & Pemasaran', route: '{{ route('social-media.index') }}', icon: 'share-2', keywords: 'sosmed media sosial instagram tiktok facebook threads posting' },
+            @if ($canAccessChannels && ($activeBiz?->isModuleEnabled(\App\Domain\Template\ModuleRegistry::MODULE_CHANNELS_MARKETING) ?? true))
+                { title: 'WhatsApp Bisnis Toko', desc: 'Koneksi perangkat WhatsApp dan pengiriman struk belanja otomatis', category: 'Pelanggan & Pemasaran', route: '{{ route('whatsapp.index') }}', icon: 'message-square', keywords: 'whatsapp wa koneksi qr barcode struk auto sender messaging' },
+                { title: 'Pesan Siaran WhatsApp (Broadcast)', desc: 'Kirim pesan siaran promo massal langsung ke kontak pelanggan', category: 'Pelanggan & Pemasaran', route: '{{ route('whatsapp.broadcast.index') }}', icon: 'radio', keywords: 'broadcast siaran wa blast massal pesan promosi broadcast' },
+                { title: 'Media Sosial Omnichannel', desc: 'Integrasi dan jadwal posting ke Instagram, Facebook, dan TikTok', category: 'Pelanggan & Pemasaran', route: '{{ route('social-media.index') }}', icon: 'share-2', keywords: 'sosmed media sosial instagram tiktok facebook threads posting schedule' },
             @endif
         @endif
 
         @if ($canAccessFinance)
             // 6. Keuangan & Biaya
-            { title: 'Kas & Rekening Bank', desc: 'Pencatatan mutasi kas masuk, kas keluar, dan saldo bank', category: 'Keuangan & Biaya', route: '{{ route('finance.cash-bank.index') }}', icon: 'wallet', keywords: 'kas bank mutasi uang cash flow rekening tunai masuk keluar' },
-            { title: 'Pengeluaran Operasional', desc: 'Beban biaya operasional toko, listrik, air, sewa, dan konsumsi', category: 'Keuangan & Biaya', route: '{{ route('finance.expenses.index') }}', icon: 'banknote', keywords: 'pengeluaran expense biaya operasional listrik bon sewa gaji' },
-            { title: 'Daftar Piutang Usaha', desc: 'Daftar tagihan yang belum dibayar oleh pelanggan atau rekanan', category: 'Keuangan & Biaya', route: '{{ route('finance.receivables') }}', icon: 'trending-up', keywords: 'piutang ar customer belum bayar tempo tagihan invoice' },
-            { title: 'Daftar Utang Usaha', desc: 'Daftar kewajiban utang jatuh tempo kepada pihak pemasok', category: 'Keuangan & Biaya', route: '{{ route('finance.payables') }}', icon: 'trending-down', keywords: 'utang ap supplier jatuh tempo bayar kewajiban bills' },
-            { title: 'Pencairan Dana Penjualan (Settlement)', desc: 'Rekonsiliasi pencairan saldo gateway pembayaran ke rekening bank', category: 'Keuangan & Biaya', route: '{{ route('finance.settlements.index') }}', icon: 'landmark', keywords: 'settlement pencairan dana qris gateway tripay tarik saldo' },
+            { title: 'Kas & Rekening Bank', desc: 'Pencatatan mutasi kas masuk, kas keluar, dan saldo bank', category: 'Keuangan & Biaya', route: '{{ route('finance.cash-bank.index') }}', icon: 'wallet', keywords: 'kas bank mutasi uang cash flow rekening tunai masuk keluar balance' },
+            { title: 'Pengeluaran Operasional', desc: 'Beban biaya operasional toko, listrik, air, sewa, dan konsumsi', category: 'Keuangan & Biaya', route: '{{ route('finance.expenses.index') }}', icon: 'banknote', keywords: 'pengeluaran expense operational biaya listrik bon sewa gaji opex' },
+            { title: 'Daftar Piutang Usaha', desc: 'Daftar tagihan yang belum dibayar oleh pelanggan atau rekanan', category: 'Keuangan & Biaya', route: '{{ route('finance.receivables') }}', icon: 'trending-up', keywords: 'piutang ar accounts receivable customer belum bayar tempo tagihan invoice' },
+            { title: 'Daftar Utang Usaha', desc: 'Daftar kewajiban utang jatuh tempo kepada pihak pemasok', category: 'Keuangan & Biaya', route: '{{ route('finance.payables') }}', icon: 'trending-down', keywords: 'utang ap accounts payable supplier jatuh tempo bayar kewajiban bills' },
+            { title: 'Pencairan Dana Penjualan (Settlement)', desc: 'Rekonsiliasi pencairan saldo gateway pembayaran ke rekening bank', category: 'Keuangan & Biaya', route: '{{ route('finance.settlements.index') }}', icon: 'landmark', keywords: 'settlement pencairan dana qris gateway tripay tarik saldo payout' },
 
             @php
                 $topbarShowCorporateAccounting = $activeBiz ? $activeBiz->isModuleEnabled(\App\Domain\Template\ModuleRegistry::MODULE_ACCOUNTING_CORPORATE) : true;
             @endphp
             @if ($topbarShowCorporateAccounting)
-                { title: 'Bagan Akun (Chart of Accounts)', desc: 'Daftar struktur akun buku besar hierarki multi-tier standar SAK EMKM', category: 'Keuangan & Biaya', route: '{{ route('finance.coa.index') }}', icon: 'list-tree', keywords: 'coa bagan akun perkiraan kode akun hierarki aktiva kewajiban ekuitas' },
-                { title: 'Buku Jurnal Keuangan', desc: 'Jurnal umum debit-kredit otomatis dari seluruh transaksi usaha', category: 'Keuangan & Biaya', route: '{{ route('finance.journals.index') }}', icon: 'file-text', keywords: 'jurnal akuntansi debit kredit transaksi pembukuan balance' },
+                { title: 'Bagan Akun (Chart of Accounts)', desc: 'Daftar struktur akun buku besar hierarki multi-tier standar SAK EMKM', category: 'Keuangan & Biaya', route: '{{ route('finance.coa.index') }}', icon: 'list-tree', keywords: 'coa bagan akun chart of accounts perkiraan kode akun hierarki aktiva kewajiban ekuitas' },
+                { title: 'Buku Jurnal Keuangan', desc: 'Jurnal umum debit-kredit otomatis dari seluruh transaksi usaha', category: 'Keuangan & Biaya', route: '{{ route('finance.journals.index') }}', icon: 'file-text', keywords: 'jurnal journal entry akuntansi debit kredit transaksi pembukuan balance' },
                 { title: 'Buku Besar Umum (General Ledger)', desc: 'Rincian mutasi kronologis debit-kredit akun dengan audit trail lengkap', category: 'Keuangan & Biaya', route: '{{ route('finance.general-ledger') }}', icon: 'book-open', keywords: 'buku besar general ledger gl akun mutasi rincian saldo running' },
-                { title: 'Rekonsiliasi Bank', desc: 'Pencocokan rekening koran bank dengan catatan kas & bank sistem', category: 'Keuangan & Biaya', route: '{{ route('finance.reconciliations.index') }}', icon: 'git-compare', keywords: 'rekonsiliasi bank rekening koran statement matching pencocokan mutasi' },
+                { title: 'Rekonsiliasi Bank', desc: 'Pencocokan rekening koran bank dengan catatan kas & bank sistem', category: 'Keuangan & Biaya', route: '{{ route('finance.reconciliations.index') }}', icon: 'git-compare', keywords: 'rekonsiliasi bank bank reconciliation rekening koran statement matching' },
             @endif
 
-            { title: 'Hitung HPP & Margin Produk', desc: 'Kalkulator biaya pokok produksi akurat berdasarkan formula ABC', category: 'Keuangan & Biaya', route: '{{ route('calculator.index') }}', icon: 'calculator', keywords: 'hpp hitung biaya pokok margin harga modal abc costing' },
-            { title: 'Simulator Harga Jual', desc: 'Simulasi target margin laba dan analisis sensitivitas harga', category: 'Keuangan & Biaya', route: '{{ route('simulator.index') }}', icon: 'gauge', keywords: 'simulator harga jual margin simulasi skenario what if' },
-            { title: 'Biaya Mesin & Tenaga Kerja', desc: 'Pengaturan tarif kerja per jam dan biaya operasional mesin', category: 'Keuangan & Biaya', route: '{{ route('labor-machines.index') }}', icon: 'cog', keywords: 'tarif mesin tenaga kerja labor upah listrik jam kerja' },
-            { title: 'Data Karyawan & Slip Gaji', desc: 'Penggajian bulanan staf, kasbon pinjaman, dan cetak slip gaji', category: 'Keuangan & Biaya', route: '{{ route('hrm.index') }}', icon: 'badge-cent', keywords: 'gaji payroll slip gaji karyawan upah hrm kasbon pinjaman' },
-            { title: 'Perhitungan Pajak Karyawan', desc: 'Perhitungan tarif efektif rata-rata (TER) PPh 21 gaji karyawan', category: 'Keuangan & Biaya', route: '{{ route('tax.index') }}', icon: 'scale', keywords: 'pajak pph 21 ter karyawan gaji potongan spt bulanan' },
+            { title: 'Hitung HPP & Margin Produk', desc: 'Kalkulator biaya pokok produksi akurat berdasarkan formula ABC', category: 'Keuangan & Biaya', route: '{{ route('calculator.index') }}', icon: 'calculator', keywords: 'hpp cogs cost hitung biaya pokok margin harga modal abc costing' },
+            { title: 'Simulator Harga Jual', desc: 'Simulasi target margin laba dan analisis sensitivitas harga', category: 'Keuangan & Biaya', route: '{{ route('simulator.index') }}', icon: 'gauge', keywords: 'simulator harga jual margin simulasi skenario what if price simulator' },
+            @if ($activeBiz?->isModuleEnabled(\App\Domain\Template\ModuleRegistry::MODULE_LABOR_MACHINES) ?? true)
+                { title: 'Biaya Mesin & Tenaga Kerja', desc: 'Pengaturan tarif kerja per jam dan biaya operasional mesin', category: 'Keuangan & Biaya', route: '{{ route('labor-machines.index') }}', icon: 'cog', keywords: 'tarif mesin machine tenaga kerja labor upah listrik jam kerja overhead' },
+            @endif
+            { title: 'Data Karyawan & Slip Gaji', desc: 'Penggajian bulanan staf, kasbon pinjaman, dan cetak slip gaji', category: 'Keuangan & Biaya', route: '{{ route('hrm.index') }}', icon: 'badge-cent', keywords: 'gaji payroll slip gaji payslip karyawan upah hrm kasbon pinjaman' },
+            { title: 'Perhitungan Pajak Karyawan', desc: 'Perhitungan tarif efektif rata-rata (TER) PPh 21 gaji karyawan', category: 'Keuangan & Biaya', route: '{{ route('tax.index') }}', icon: 'scale', keywords: 'pajak tax pph 21 ter karyawan gaji payroll tax potongan spt' },
         @endif
 
         @if ($canAccessReports)
             // 7. Laporan & Analitik
-            { title: 'Pusat Laporan Bisnis', desc: 'Suite analitik dan ringkasan eksekutif seluruh laporan usaha', category: 'Laporan & Analitik', route: '{{ route('reports.index') }}', icon: 'bar-chart-3', keywords: 'laporan reports pusat report analitik suite bisnis lengkap' },
+            { title: 'Pusat Laporan Bisnis', desc: 'Suite analitik dan ringkasan eksekutif seluruh laporan usaha', category: 'Laporan & Analitik', route: '{{ route('reports.index') }}', icon: 'bar-chart-3', keywords: 'laporan reports pusat report analitik analytics suite bisnis lengkap summary' },
             @if ($topbarShowCorporateAccounting ?? true)
-                { title: 'Neraca Posisi Keuangan (Balance Sheet)', desc: 'Laporan posisi keuangan aset, liabilitas, dan ekuitas standar SAK EMKM', category: 'Laporan & Analitik', route: '{{ route('finance.balance-sheet') }}', icon: 'scale', keywords: 'neraca balance sheet posisi keuangan aset pasiva modal sak emkm ekuitas' },
+                { title: 'Neraca Posisi Keuangan (Balance Sheet)', desc: 'Laporan posisi keuangan aset, liabilitas, dan ekuitas standar SAK EMKM', category: 'Laporan & Analitik', route: '{{ route('finance.balance-sheet') }}', icon: 'scale', keywords: 'neraca balance sheet posisi keuangan aset pasiva modal sak emkm ekuitas assets liabilities' },
                 { title: 'Neraca Saldo (Trial Balance)', desc: 'Daftar saldo debit dan kredit seluruh akun buku besar periode berjalan', category: 'Laporan & Analitik', route: '{{ route('finance.trial-balance') }}', icon: 'table-properties', keywords: 'neraca saldo trial balance debit kredit pembukuan penutupan saldo awal mutasi' },
             @endif
-            { title: 'Laporan Laba Rugi (Profit & Loss)', desc: 'Laporan pendapatan bersih, total beban, dan laba/rugi usaha', category: 'Laporan & Analitik', route: '{{ route('reports.index', ['tab' => 'income_statement']) }}', icon: 'pie-chart', keywords: 'laba rugi income statement profit loss net profit omset beban' },
-            { title: 'Laporan Arus Kas (Cash Flow)', desc: 'Laporan pergerakan kas dari operasional, investasi, dan pendanaan', category: 'Laporan & Analitik', route: '{{ route('reports.index', ['tab' => 'cash_flow']) }}', icon: 'line-chart', keywords: 'arus kas cash flow kas masuk kas keluar net cash aliran dana' },
-            { title: 'Laporan Penjualan Kasir POS', desc: 'Rincian omset kasir, metode pembayaran, kasir bertugas, dan item terlaris', category: 'Laporan & Analitik', route: '{{ route('pos.reports.index') }}', icon: 'receipt', keywords: 'laporan kasir pos penjualan omset struk rekap kasir' },
-            { title: 'Valuasi & Perputaran Stok', desc: 'Nilai aset persediaan gudang dan rasio perputaran barang', category: 'Laporan & Analitik', route: '{{ route('reports.index', ['tab' => 'stock']) }}', icon: 'boxes', keywords: 'valuasi persediaan nilai stok aset turnover gudang perputaran' },
-            { title: 'Kartu Mutasi Stok Gudang', desc: 'Riwayat kronologis masuk, keluar, dan penyesuaian stok produk', category: 'Laporan & Analitik', route: '{{ route('inventory.movements') }}', icon: 'activity', keywords: 'mutasi stok kartu stok log masuk keluar pergerakan kartu' },
-            { title: 'Analisis Margin & Titik Impas (BEP)', desc: 'Perhitungan Break Even Point unit & rupiah dan analisis profitabilitas', category: 'Laporan & Analitik', route: '{{ route('profitability.index') }}', icon: 'target', keywords: 'bep break even point titik impas margin analisa profit balik modal' },
-            { title: 'Kalkulasi & Kepatuhan Pajak', desc: 'Simulasi PPh Final UMKM 0.5%, PPh 21 TER karyawan, dan PPN', category: 'Laporan & Analitik', route: '{{ route('tax.index') }}', icon: 'scale', keywords: 'pajak tax pph final umkm pph 21 ter ppn setoran pajak' },
-            { title: 'Analitik Media Sosial', desc: 'Wawasan jangkauan, impresi, dan engagement konten media sosial', category: 'Laporan & Analitik', route: '{{ route('social-media.insights.index') }}', icon: 'trending-up', keywords: 'analitik medsos insight jangkauan impresi engagement statistik' },
+            { title: 'Laporan Laba Rugi (Profit & Loss)', desc: 'Laporan pendapatan bersih, total beban, dan laba/rugi usaha', category: 'Laporan & Analitik', route: '{{ route('reports.index', ['tab' => 'income_statement']) }}', icon: 'pie-chart', keywords: 'laba rugi income statement profit loss net profit omset beban pnl' },
+            { title: 'Laporan Arus Kas (Cash Flow)', desc: 'Laporan pergerakan kas dari operasional, investasi, dan pendanaan', category: 'Laporan & Analitik', route: '{{ route('reports.index', ['tab' => 'cash_flow']) }}', icon: 'line-chart', keywords: 'arus kas cash flow kas masuk kas keluar net cash aliran dana statement' },
+            { title: 'Laporan Penjualan Kasir POS', desc: 'Rincian omset kasir, metode pembayaran, kasir bertugas, dan item terlaris', category: 'Laporan & Analitik', route: '{{ route('pos.reports.index') }}', icon: 'receipt', keywords: 'laporan kasir pos sales report penjualan omset struk rekap kasir best seller' },
+            { title: 'Valuasi & Perputaran Stok', desc: 'Nilai aset persediaan gudang dan rasio perputaran barang', category: 'Laporan & Analitik', route: '{{ route('reports.index', ['tab' => 'stock']) }}', icon: 'boxes', keywords: 'valuasi inventory valuation persediaan nilai stok aset turnover gudang perputaran' },
+            { title: 'Kartu Mutasi Stok Gudang', desc: 'Riwayat kronologis masuk, keluar, dan penyesuaian stok produk', category: 'Laporan & Analitik', route: '{{ route('inventory.movements') }}', icon: 'activity', keywords: 'mutasi stok stock card movement kartu stok log masuk keluar pergerakan kartu' },
+            { title: 'Analisis Margin & Titik Impas (BEP)', desc: 'Perhitungan Break Even Point unit & rupiah dan analisis profitabilitas', category: 'Laporan & Analitik', route: '{{ route('profitability.index') }}', icon: 'target', keywords: 'bep break even point titik impas margin analisa profit balik modal margin analysis' },
+            { title: 'Kalkulasi & Kepatuhan Pajak', desc: 'Simulasi PPh Final UMKM 0.5%, PPh 21 TER karyawan, dan PPN', category: 'Laporan & Analitik', route: '{{ route('tax.index') }}', icon: 'scale', keywords: 'pajak tax compliance pph final umkm pph 21 ter ppn setoran pajak vat' },
+            @if ($activeBiz?->isModuleEnabled(\App\Domain\Template\ModuleRegistry::MODULE_CHANNELS_MARKETING) ?? true)
+                { title: 'Analitik Media Sosial', desc: 'Wawasan jangkauan, impresi, dan engagement konten media sosial', category: 'Laporan & Analitik', route: '{{ route('social-media.insights.index') }}', icon: 'trending-up', keywords: 'analitik medsos social media insights jangkauan impresi engagement statistik' },
+            @endif
         @endif
 
         @if ($canAccessSettings || $canAccessRoles || $canAccessBilling || \App\Support\Context::isOwner())
             // 8. Pengaturan Usaha
-            { title: 'Profil Pengguna', desc: 'Informasi akun pengguna, ganti password, dan kontak WhatsApp', category: 'Pengaturan Usaha', route: '{{ route('profile.edit') }}', icon: 'user', keywords: 'profil user akun password kontak hp whatsapp sandi' },
+            { title: 'Profil Pengguna', desc: 'Informasi akun pengguna, ganti password, dan kontak WhatsApp', category: 'Pengaturan Usaha', route: '{{ route('profile.edit') }}', icon: 'user', keywords: 'profil user profile akun password kontak hp whatsapp sandi account' },
             @if ($canAccessSettings)
-                { title: 'Pengaturan Usaha & Cabang', desc: 'Identitas bisnis, logo usaha, mata uang, dan alamat toko', category: 'Pengaturan Usaha', route: '{{ route('settings.index') }}', icon: 'settings', keywords: 'pengaturan usaha bisnis cabang toko logo nama alamat mata uang' },
+                { title: 'Pengaturan Usaha & Cabang', desc: 'Identitas bisnis, logo usaha, mata uang, dan alamat toko', category: 'Pengaturan Usaha', route: '{{ route('settings.index') }}', icon: 'settings', keywords: 'pengaturan business settings usaha bisnis cabang toko logo nama alamat mata uang' },
             @endif
             @if ($canAccessRoles)
-                { title: 'Hak Akses & Peran Staf (RBAC)', desc: 'Kelola peran kasir, admin gudang, finance, dan hak akses staf', category: 'Pengaturan Usaha', route: '{{ route('roles.index') }}', icon: 'shield-check', keywords: 'peran role hak akses staf permissions kasir rbac wewenang' },
+                { title: 'Hak Akses & Peran Staf (RBAC)', desc: 'Kelola peran kasir, admin gudang, finance, dan hak akses staf', category: 'Pengaturan Usaha', route: '{{ route('roles.index') }}', icon: 'shield-check', keywords: 'peran role permissions hak akses staf kasir rbac wewenang access control' },
             @endif
             @if (\App\Support\Context::hasPermission('approvals.view') || \App\Support\Context::isOwner())
-                { title: 'Persetujuan Dokumen (MAR)', desc: 'Pusat otorisasi bertingkat Maker-Approver-Releaser dan tiket pengadaan', category: 'Pengaturan Usaha', route: '{{ route('approvals.inbox') }}', icon: 'stamp', keywords: 'approval persetujuan mar otorisasi po expense biaya maker approver releaser' },
+                { title: 'Persetujuan Dokumen (MAR)', desc: 'Pusat otorisasi bertingkat Maker-Approver-Releaser dan tiket pengadaan', category: 'Pengaturan Usaha', route: '{{ route('approvals.inbox') }}', icon: 'stamp', keywords: 'approval persetujuan mar otorisasi po expense biaya maker approver releaser authorization' },
             @endif
             @if (\App\Support\Context::hasPermission('audit_logs.view') || \App\Support\Context::isOwner() || $canAccessSettings)
-                { title: 'Jejak Audit & Anti-Fraud', desc: 'Penjelajah log forensik mutasi data sensitif, visual diff, dan deteksi kecurangan', category: 'Pengaturan Usaha', route: '{{ route('settings.audit-logs.index') }}', icon: 'shield-alert', keywords: 'audit log jejak forensik diff riwayat void fraud anti fraud keamanan ip log' },
+                { title: 'Jejak Audit & Anti-Fraud', desc: 'Penjelajah log forensik mutasi data sensitif, visual diff, dan deteksi kecurangan', category: 'Pengaturan Usaha', route: '{{ route('settings.audit-logs.index') }}', icon: 'shield-alert', keywords: 'audit log jejak forensik diff riwayat void fraud anti fraud keamanan ip log trail security' },
             @endif
             @if ($canAccessBilling)
-                { title: 'Paket Berlangganan & Kuota', desc: 'Status paket langganan aktif, batas pemakaian fitur, dan upgrade', category: 'Pengaturan Usaha', route: '{{ route('billing.limits') }}', icon: 'credit-card', keywords: 'paket langganan kuota billing limit upgrade tagihan perpanjang' },
+                { title: 'Paket Berlangganan & Kuota', desc: 'Status paket langganan aktif, batas pemakaian fitur, dan upgrade', category: 'Pengaturan Usaha', route: '{{ route('billing.limits') }}', icon: 'credit-card', keywords: 'paket langganan subscription kuota billing limit quota upgrade tagihan perpanjang' },
             @endif
-            { title: 'Bantuan & Kontak Dukungan', desc: 'Layanan bantuan teknis dan laporan kendala penggunaan sistem', category: 'Pengaturan Usaha', route: '{{ route('feedback.bugs.index') }}', icon: 'help-circle', keywords: 'bantuan support tiket cs panduan kendala error kontak bug' },
+            { title: 'Bantuan & Kontak Dukungan', desc: 'Layanan bantuan teknis dan laporan kendala penggunaan sistem', category: 'Pengaturan Usaha', route: '{{ route('feedback.bugs.index') }}', icon: 'help-circle', keywords: 'bantuan support help tiket cs panduan kendala error kontak bug tickets' },
         @endif
     ],
     get filteredItems() {
@@ -761,11 +875,11 @@
                     @keydown.enter.prevent="executeSelected()"
                     @keydown.esc="close()"
                     type="text"
-                    placeholder="Cari modul, laporan, atau fitur... (tekan Esc untuk tutup)"
-                    class="flex-1 bg-transparent border-none text-[15px] font-medium text-black dark:text-white placeholder-black/40 dark:placeholder-white/40 focus:outline-none focus:ring-0">
+                    placeholder="{{ __('navigation.search_placeholder') }}"
+                    class="flex-1 bg-transparent border-none text-base sm:text-[15px] font-medium text-black dark:text-white placeholder-black/40 dark:placeholder-white/40 focus:outline-none focus:ring-0">
                 <button type="button" @click="close()"
                     class="p-1.5 rounded-[7px] text-black/40 hover:text-black dark:text-white/40 dark:hover:text-white hover:bg-black/[0.05] dark:hover:bg-white/[0.08] transition-all cursor-pointer"
-                    title="Tutup (Esc)">
+                    title="{{ __('common.close') }} (Esc)">
                     <kbd class="px-1.5 py-0.5 rounded-[5px] bg-black/[0.06] dark:bg-white/[0.1] text-[10px] font-semibold text-black/60 dark:text-white/60 font-mono tracking-tight shadow-sm">Esc</kbd>
                 </button>
             </div>
@@ -811,7 +925,7 @@
                         <div class="flex items-center gap-1.5 shrink-0 pl-2">
                             <span :class="selectedIndex === idx ? 'opacity-100 text-white' : 'opacity-0'"
                                 class="text-[11px] font-medium transition-opacity flex items-center gap-1">
-                                <span>Buka</span>
+                                <span>{{ __('navigation.spotlight_open') }}</span>
                                 <kbd class="px-1.5 py-0.5 rounded bg-white/25 text-[10px] font-mono">↵</kbd>
                             </span>
                         </div>
@@ -824,9 +938,9 @@
                     <div class="w-12 h-12 mx-auto rounded-[14px] bg-black/[0.04] dark:bg-white/[0.06] flex items-center justify-center text-black/40 dark:text-white/40">
                         <i data-lucide="search-x" class="w-6 h-6"></i>
                     </div>
-                    <div class="text-[14px] font-semibold text-black dark:text-white">Tidak Ada Hasil Ditemukan</div>
+                    <div class="text-[14px] font-semibold text-black dark:text-white">{{ __('navigation.search_no_results') }}</div>
                     <p class="text-[12px] text-black/50 dark:text-white/50 max-w-sm mx-auto">
-                        Tidak ada modul atau laporan yang cocok dengan kata kunci <span class="font-semibold text-black dark:text-white" x-text="'&quot;' + query + '&quot;'"></span>.
+                        <span x-text="'&quot;' + query + '&quot;'"></span>
                     </p>
                 </div>
             </div>
@@ -837,16 +951,16 @@
                     <span class="flex items-center gap-1">
                         <kbd class="px-1 py-0.5 rounded bg-black/[0.05] dark:bg-white/[0.1] font-mono text-[10px]">↑</kbd>
                         <kbd class="px-1 py-0.5 rounded bg-black/[0.05] dark:bg-white/[0.1] font-mono text-[10px]">↓</kbd>
-                        <span>Pilih</span>
+                        <span>{{ __('navigation.spotlight_navigate') }}</span>
                     </span>
                     <span class="flex items-center gap-1">
                         <kbd class="px-1 py-0.5 rounded bg-black/[0.05] dark:bg-white/[0.1] font-mono text-[10px]">↵</kbd>
-                        <span>Buka</span>
+                        <span>{{ __('navigation.spotlight_open') }}</span>
                     </span>
                 </div>
                 <div class="flex items-center gap-1">
                     <kbd class="px-1 py-0.5 rounded bg-black/[0.05] dark:bg-white/[0.1] font-mono text-[10px]">Esc</kbd>
-                    <span>Tutup</span>
+                    <span>{{ __('navigation.spotlight_close') }}</span>
                 </div>
             </div>
         </div>

@@ -7,6 +7,8 @@ namespace Tests\Feature\WhatsApp;
 use App\Domain\WhatsApp\WhatsAppGatewayService;
 use App\Models\AuditLog;
 use App\Models\Business;
+use App\Models\Customer;
+use App\Models\Location;
 use App\Models\PosOrder;
 use App\Models\User;
 use App\Models\WhatsAppAccount;
@@ -32,13 +34,15 @@ class MerchantWhatsAppWebFeatureTest extends TestCase
         Config::set('services.meta_whatsapp.app_secret', 'test_meta_app_secret_12345');
         Config::set('services.meta_whatsapp.config_id', 'test_embedded_config_id_99');
         Config::set('services.meta_whatsapp.webhook_verify_token', 'test_verify_token_secure');
+
+        app()->setLocale('id');
     }
 
-    private function createMerchant(): array
+    private function createMerchant(?string $email = null): array
     {
         $user = User::factory()->create([
             'name'  => 'Pemilik Toko',
-            'email' => 'toko@cooca.id',
+            'email' => $email ?? ('toko_' . Str::random(8) . '@cooca.id'),
         ]);
 
         $business = Business::create([
@@ -70,15 +74,24 @@ class MerchantWhatsAppWebFeatureTest extends TestCase
     {
         [$user, $business] = $this->createMerchant();
 
+        app()->setLocale('id');
         $response = $this->actingAs($user)->get(route('whatsapp.index'));
 
         $response->assertOk();
         $response->assertSee('WhatsApp Gateway &amp; Otomasi Bisnis', false);
         $response->assertSee('Meta WhatsApp Cloud API Resmi');
         $response->assertSee('Pendaftaran Mandiri (Embedded Signup)');
-        $response->assertSee('WhatsApp Inbox');
-        $response->assertSee('WhatsApp Broadcast');
+        $response->assertSee('WhatsApp Gateway');
+        $response->assertSee('Siaran Pesan (Broadcast)');
         $response->assertSee('Log Pesan');
+
+        // Verify English locale rendering
+        app()->setLocale('en');
+        $responseEn = $this->actingAs($user)->get(route('whatsapp.index'));
+        $responseEn->assertOk();
+        $responseEn->assertSee('WhatsApp Gateway &amp; Business Automation', false);
+        $responseEn->assertSee('Official Meta WhatsApp Cloud API');
+        $responseEn->assertSee('Self-Service Embedded Signup');
     }
 
     public function test_merchant_can_view_whatsapp_dashboard_when_connected(): void
@@ -104,7 +117,7 @@ class MerchantWhatsAppWebFeatureTest extends TestCase
         $response->assertSee('Kopi Kenangan Sejahtera Official');
         $response->assertSee('+62 812-3456-7890');
         $response->assertSee('TIER_1K');
-        $response->assertSee('Putuskan Hubungan');
+        $response->assertSee(__('whatsapp.disconnect_btn'));
     }
 
     public function test_merchant_can_view_whatsapp_logs_page(): void
@@ -120,6 +133,8 @@ class MerchantWhatsAppWebFeatureTest extends TestCase
             'status'          => 'sent',
         ]);
 
+        // 1. Indonesian View
+        app()->setLocale('id');
         $response = $this->actingAs($user)->get(route('whatsapp.logs.index'));
 
         $response->assertOk();
@@ -127,6 +142,20 @@ class MerchantWhatsAppWebFeatureTest extends TestCase
         $response->assertSee('Budi Santoso');
         $response->assertSee('Struk POS');
         $response->assertSee('Terkirim');
+        $response->assertSee('Log Komunikasi WhatsApp');
+
+        // 2. English View
+        app()->setLocale('en');
+        $responseEn = $this->actingAs($user)->get(route('whatsapp.logs.index'));
+
+        $responseEn->assertOk();
+        $responseEn->assertSee('Outgoing Communication History');
+        $responseEn->assertSee('Budi Santoso');
+        $responseEn->assertSee('POS Receipt');
+        $responseEn->assertSee('Delivered');
+        $responseEn->assertSee('WhatsApp Communication Logs');
+
+        app()->setLocale('id');
     }
 
     public function test_merchant_can_view_broadcast_index_and_create(): void
@@ -159,6 +188,15 @@ class MerchantWhatsAppWebFeatureTest extends TestCase
         $composerResponse->assertOk();
         $composerResponse->assertSee('createModalOpen: true', false);
         $composerResponse->assertSee('Buat Kampanye Blast Promosi');
+
+        // Verify English locale rendering
+        app()->setLocale('en');
+        $indexResponseEn = $this->actingAs($user)->get(route('whatsapp.broadcast.index'));
+        $indexResponseEn->assertOk();
+        $indexResponseEn->assertSee('Promo Diskon Kopi 50%');
+        $indexResponseEn->assertSee('Create New Broadcast');
+        $indexResponseEn->assertSee('Broadcast Campaign History');
+        app()->setLocale('id');
     }
 
     public function test_merchant_can_fetch_meta_onboarding_config(): void
@@ -674,5 +712,394 @@ class MerchantWhatsAppWebFeatureTest extends TestCase
         $response->assertSee('isQuietHours: false', false);
         $response->assertSee('report spam', false);
     }
+
+    public function test_broadcast_show_and_receipt_enforce_string_uuid_idor_protection(): void
+    {
+        [$userA, $businessA] = $this->createMerchant();
+        [$userB, $businessB] = $this->createMerchant();
+
+        // Buat kampanye milik bisnis B
+        $campaignB = WhatsAppBroadcastCampaign::create([
+            'business_id'   => $businessB->id,
+            'title'         => 'Promo Rahasia Bisnis B',
+            'message'       => 'Pesan rahasia',
+            'target_filter' => 'all',
+            'status'        => 'completed',
+        ]);
+
+        // Merchant A mencoba mengakses detail kampanye bisnis B -> Wajib HTTP 404
+        Context::setBusiness($businessA);
+        $response = $this->actingAs($userA)->get(route('whatsapp.broadcast.show', $campaignB));
+        $response->assertNotFound();
+    }
+
+    public function test_disconnect_requires_supervisor_pin_when_configured(): void
+    {
+        [$user, $business] = $this->createMerchant();
+        $business->update([
+            'pos_supervisor_pin' => \Illuminate\Support\Facades\Hash::make('8899'),
+        ]);
+        Context::setBusiness($business->fresh());
+
+        // Disconnect tanpa PIN -> HTTP 422
+        $response = $this->actingAs($user)->postJson(route('whatsapp.meta.disconnect'), []);
+        $response->assertStatus(422);
+        $response->assertJson(['pin_required' => true]);
+
+        // Disconnect dengan PIN salah -> HTTP 422
+        $responseWrong = $this->actingAs($user)->postJson(route('whatsapp.meta.disconnect'), ['pin' => '1234']);
+        $responseWrong->assertStatus(422);
+
+        // Disconnect dengan PIN benar -> HTTP 200
+        $responseOk = $this->actingAs($user)->postJson(route('whatsapp.meta.disconnect'), ['pin' => '8899']);
+        $responseOk->assertOk();
+        $responseOk->assertJson(['success' => true]);
+    }
+
+    public function test_whatsapp_session_meta_access_token_is_encrypted_and_hidden(): void
+    {
+        [$user, $business] = $this->createMerchant();
+
+        $rawToken = 'EAABwzLixnjYBA_secret_meta_cloud_token_999888';
+
+        $session = \App\Models\WhatsAppSession::create([
+            'business_id'          => $business->id,
+            'session_id'           => 'cooca_' . $business->id,
+            'provider'             => 'meta_cloud',
+            'meta_access_token'    => $rawToken,
+            'meta_phone_number_id' => '1000999888777',
+            'is_active'            => true,
+        ]);
+
+        // 1. Verifikasi token terdekripsi dengan benar saat diakses via Eloquent getter
+        $this->assertEquals($rawToken, $session->meta_access_token);
+
+        // 2. Verifikasi ciphertext tersimpan di database mentah (bukan plaintext)
+        $rawDbValue = \Illuminate\Support\Facades\DB::table('whatsapp_sessions')
+            ->where('id', $session->id)
+            ->value('meta_access_token');
+
+        $this->assertNotEmpty($rawDbValue);
+        $this->assertNotEquals($rawToken, $rawDbValue, 'Raw DB value must be encrypted and not match the plaintext token.');
+
+        // 3. Verifikasi token disembunyikan (hidden) dari array dan JSON serialization
+        $arrayData = $session->toArray();
+        $this->assertArrayNotHasKey('meta_access_token', $arrayData, 'meta_access_token must not be exposed in toArray().');
+
+        $jsonString = $session->toJson();
+        $this->assertStringNotContainsString($rawToken, $jsonString, 'Plaintext token must never appear in JSON serialization.');
+    }
+
+    public function test_merchant_can_view_broadcast_detail_in_both_locales(): void
+    {
+        [$user, $business] = $this->createMerchant();
+
+        $campaign = WhatsAppBroadcastCampaign::create([
+            'business_id'      => $business->id,
+            'title'            => 'Detail Promo Lebaran',
+            'message'          => 'Halo pelanggan setia, nikmati diskon lebaran!',
+            'target_filter'    => 'all',
+            'total_recipients' => 20,
+            'total_sent'       => 19,
+            'total_failed'     => 1,
+            'status'           => 'completed',
+        ]);
+
+        \App\Models\WhatsAppBroadcastRecipient::create([
+            'campaign_id'    => $campaign->id,
+            'customer_name'  => 'Ahmad Fauzi',
+            'phone_number'   => '081234567890',
+            'status'         => 'sent',
+            'sent_at'        => now(),
+        ]);
+
+        // 1. Indonesian View
+        app()->setLocale('id');
+        $responseId = $this->actingAs($user)->get(route('whatsapp.broadcast.show', $campaign));
+        $responseId->assertOk();
+        $responseId->assertSee('Detail Promo Lebaran');
+        $responseId->assertSee('Audit Log Penerima Pesan');
+        $responseId->assertSee('Template Pesan Promosi Yang Dikirim');
+        $responseId->assertSee('Ahmad Fauzi');
+
+        // 2. English View
+        app()->setLocale('en');
+        $responseEn = $this->actingAs($user)->get(route('whatsapp.broadcast.show', $campaign));
+        $responseEn->assertOk();
+        $responseEn->assertSee('Detail Promo Lebaran');
+        $responseEn->assertSee('Recipient Message Audit Log');
+        $responseEn->assertSee('Promotional Message Template Sent');
+        $responseEn->assertSee('Ahmad Fauzi');
+
+        app()->setLocale('id');
+    }
+
+    public function test_merchant_can_estimate_and_target_broadcast_to_specific_outlet(): void
+    {
+        [$user, $business] = $this->createMerchant();
+
+        // Connect WhatsApp
+        WhatsAppAccount::create([
+            'business_id'          => $business->id,
+            'waba_id'              => '109876543210',
+            'phone_number_id'      => '100012345678',
+            'phone_number'         => '6281234567890',
+            'display_phone_number' => '+62 812-3456-7890',
+            'verified_name'        => 'Kopi Kenangan Sejahtera Official',
+            'quality_rating'       => 'GREEN',
+            'messaging_limit_tier' => 'TIER_1K',
+            'access_token'         => 'EAABwzLixnjYBA_test_token',
+            'status'               => 'active',
+        ]);
+
+        $locSenopati = Location::create([
+            'business_id' => $business->id,
+            'name'        => 'Outlet Senopati',
+            'type'        => 'outlet',
+            'is_active'   => true,
+        ]);
+
+        $locKemang = Location::create([
+            'business_id' => $business->id,
+            'name'        => 'Outlet Kemang',
+            'type'        => 'outlet',
+            'is_active'   => true,
+        ]);
+
+        $cust1 = Customer::create([
+            'business_id' => $business->id,
+            'name'        => 'Pelanggan Senopati 1',
+            'phone'       => '081299990001',
+            'is_active'   => true,
+        ]);
+
+        $cust2 = Customer::create([
+            'business_id' => $business->id,
+            'name'        => 'Pelanggan Senopati 2',
+            'phone'       => '081299990002',
+            'is_active'   => true,
+        ]);
+
+        $cust3 = Customer::create([
+            'business_id' => $business->id,
+            'name'        => 'Pelanggan Kemang',
+            'phone'       => '081299990003',
+            'is_active'   => true,
+        ]);
+
+        // Attach orders to locations
+        PosOrder::create([
+            'business_id'  => $business->id,
+            'user_id'      => $user->id,
+            'location_id'  => $locSenopati->id,
+            'customer_id'  => $cust1->id,
+            'order_number' => 'ORD-SENO-001',
+            'order_date'   => now(),
+            'status'       => 'completed',
+        ]);
+
+        PosOrder::create([
+            'business_id'  => $business->id,
+            'user_id'      => $user->id,
+            'location_id'  => $locSenopati->id,
+            'customer_id'  => $cust2->id,
+            'order_number' => 'ORD-SENO-002',
+            'order_date'   => now(),
+            'status'       => 'completed',
+        ]);
+
+        PosOrder::create([
+            'business_id'  => $business->id,
+            'user_id'      => $user->id,
+            'location_id'  => $locKemang->id,
+            'customer_id'  => $cust3->id,
+            'order_number' => 'ORD-KEM-001',
+            'order_date'   => now(),
+            'status'       => 'completed',
+        ]);
+
+        // 1. Estimate Senopati: must return count 2
+        $responseEstSeno = $this->actingAs($user)->getJson(route('whatsapp.broadcast.estimate', [
+            'filter' => "outlet:{$locSenopati->id}",
+        ]));
+        $responseEstSeno->assertOk();
+        $responseEstSeno->assertJson(['count' => 2]);
+
+        // 2. Estimate Kemang: must return count 1
+        $responseEstKem = $this->actingAs($user)->getJson(route('whatsapp.broadcast.estimate', [
+            'filter' => "outlet:{$locKemang->id}",
+        ]));
+        $responseEstKem->assertOk();
+        $responseEstKem->assertJson(['count' => 1]);
+
+        // 3. Dispatch broadcast to outlet Senopati
+        $storeResponse = $this->actingAs($user)->post(route('whatsapp.broadcast.store'), [
+            'title'         => 'Promo Khusus Outlet Senopati',
+            'message'       => 'Halo {nama}, nikmati diskon khusus di Senopati!',
+            'target_filter' => "outlet:{$locSenopati->id}",
+        ]);
+
+        $campaign = WhatsAppBroadcastCampaign::where('business_id', $business->id)
+            ->where('title', 'Promo Khusus Outlet Senopati')
+            ->first();
+
+        $this->assertNotNull($campaign);
+        $this->assertEquals("outlet:{$locSenopati->id}", $campaign->target_filter);
+        $storeResponse->assertRedirect(route('whatsapp.broadcast.show', $campaign));
+    }
+
+    public function test_merchant_cannot_target_outlet_of_another_business(): void
+    {
+        [$userA, $businessA] = $this->createMerchant('merchant_a@cooca.id');
+        [$userB, $businessB] = $this->createMerchant('merchant_b@cooca.id');
+
+        // Connect WhatsApp for Merchant A
+        WhatsAppAccount::create([
+            'business_id'          => $businessA->id,
+            'waba_id'              => '109876543211',
+            'phone_number_id'      => '100012345679',
+            'phone_number'         => '6281234567891',
+            'display_phone_number' => '+62 812-3456-7891',
+            'verified_name'        => 'Toko A Official',
+            'quality_rating'       => 'GREEN',
+            'messaging_limit_tier' => 'TIER_1K',
+            'access_token'         => 'EAABwzLixnjYBA_test_token_a',
+            'status'               => 'active',
+        ]);
+
+        $locB = Location::create([
+            'business_id' => $businessB->id,
+            'name'        => 'Outlet Milik Toko B',
+            'type'        => 'outlet',
+            'is_active'   => true,
+        ]);
+
+        // Merchant A attempts to estimate using Merchant B's outlet -> must fail validation
+        $responseEstimate = $this->actingAs($userA)->getJson(route('whatsapp.broadcast.estimate', [
+            'filter' => "outlet:{$locB->id}",
+        ]));
+        $responseEstimate->assertStatus(422);
+
+        // Merchant A attempts to store campaign targeting Merchant B's outlet -> must fail validation
+        $responseStore = $this->actingAs($userA)->post(route('whatsapp.broadcast.store'), [
+            'title'         => 'Attacking Store B Outlet',
+            'message'       => 'Invalid broadcast attempt',
+            'target_filter' => "outlet:{$locB->id}",
+        ]);
+        $responseStore->assertSessionHasErrors(['target_filter']);
+    }
+
+    public function test_broadcast_ui_renders_multi_outlet_selector_and_detail_badge(): void
+    {
+        [$user, $business] = $this->createMerchant();
+
+        $loc = Location::create([
+            'business_id' => $business->id,
+            'name'        => 'Outlet Menteng Premium',
+            'type'        => 'outlet',
+            'is_active'   => true,
+        ]);
+
+        $customer = Customer::create([
+            'business_id' => $business->id,
+            'name'        => 'Siti Menteng',
+            'phone'       => '081277778888',
+            'is_active'   => true,
+        ]);
+
+        PosOrder::create([
+            'business_id'  => $business->id,
+            'user_id'      => $user->id,
+            'location_id'  => $loc->id,
+            'customer_id'  => $customer->id,
+            'order_number' => 'ORD-MNT-001',
+            'order_date'   => now(),
+            'status'       => 'completed',
+        ]);
+
+        // 1. Index page in Indonesian
+        app()->setLocale('id');
+        $responseIndexId = $this->actingAs($user)->get(route('whatsapp.broadcast.index'));
+        $responseIndexId->assertOk();
+        $responseIndexId->assertSee('Outlet Menteng Premium');
+        $responseIndexId->assertSee('Berdasarkan Cabang / Outlet');
+
+        // 2. Index page in English
+        app()->setLocale('en');
+        $responseIndexEn = $this->actingAs($user)->get(route('whatsapp.broadcast.index'));
+        $responseIndexEn->assertOk();
+        $responseIndexEn->assertSee('Outlet Menteng Premium');
+        $responseIndexEn->assertSee('By Branch / Outlet');
+
+        // 3. Campaign Detail badge rendering
+        $campaign = WhatsAppBroadcastCampaign::create([
+            'business_id'      => $business->id,
+            'title'            => 'Promo Spesial Menteng',
+            'message'          => 'Diskon 20% di Menteng',
+            'target_filter'    => "outlet:{$loc->id}",
+            'total_recipients' => 1,
+            'total_sent'       => 1,
+            'total_failed'     => 0,
+            'status'           => 'completed',
+        ]);
+
+        app()->setLocale('id');
+        $responseDetailId = $this->actingAs($user)->get(route('whatsapp.broadcast.show', $campaign));
+        $responseDetailId->assertOk();
+        $responseDetailId->assertSee('Cabang Outlet Menteng Premium');
+
+        app()->setLocale('en');
+        $responseDetailEn = $this->actingAs($user)->get(route('whatsapp.broadcast.show', $campaign));
+        $responseDetailEn->assertOk();
+        $responseDetailEn->assertSee('Outlet Menteng Premium Branch');
+
+        app()->setLocale('id');
+    }
+
+    public function test_whatsapp_views_satisfy_mobile_touch_targets_and_wcag_a11y(): void
+    {
+        [$user, $business] = $this->createMerchant();
+
+        // 1. WhatsApp Index View
+        $responseIndex = $this->actingAs($user)->get(route('whatsapp.index'));
+        $responseIndex->assertOk();
+        $responseIndex->assertSee('min-h-[44px]', false);
+
+        // 2. Broadcast Hub & Modal Sheet View
+        $responseBroadcast = $this->actingAs($user)->get(route('whatsapp.broadcast.index'));
+        $responseBroadcast->assertOk();
+        $responseBroadcast->assertSee('role="dialog"', false);
+        $responseBroadcast->assertSee('aria-modal="true"', false);
+        $responseBroadcast->assertSee('aria-labelledby="broadcastModalTitle"', false);
+        $responseBroadcast->assertSee('aria-label="' . __('whatsapp.close_btn') . '"', false);
+        $responseBroadcast->assertSee('min-h-[44px]', false);
+
+        // 3. Message Logs & Inspector View
+        $responseLogs = $this->actingAs($user)->get(route('whatsapp.logs.index'));
+        $responseLogs->assertOk();
+        $responseLogs->assertSee('role="dialog"', false);
+        $responseLogs->assertSee('aria-modal="true"', false);
+        $responseLogs->assertSee('aria-labelledby="inspectorModalTitle"', false);
+        $responseLogs->assertSee('aria-labelledby="pruneModalTitle"', false);
+        $responseLogs->assertSee('min-h-[44px]', false);
+
+        // 4. Broadcast Detail View
+        $campaign = WhatsAppBroadcastCampaign::create([
+            'business_id'      => $business->id,
+            'title'            => 'Ergonomics Test Campaign',
+            'message'          => 'Test message ergonomics',
+            'target_filter'    => 'all',
+            'total_recipients' => 5,
+            'total_sent'       => 5,
+            'total_failed'     => 0,
+            'status'           => 'completed',
+        ]);
+
+        $responseDetail = $this->actingAs($user)->get(route('whatsapp.broadcast.show', $campaign));
+        $responseDetail->assertOk();
+        $responseDetail->assertSee('min-h-[44px]', false);
+        $responseDetail->assertSee('min-w-[44px]', false);
+    }
 }
+
 

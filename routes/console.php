@@ -44,5 +44,14 @@ Schedule::command('whatsapp:sync-templates')
     ->withoutOverlapping()
     ->appendOutputTo(storage_path('logs/cron-wa.log'));
 
+// 7. Schedule daily customer payment term reminders (WA & Email) for unpaid/overdue terms (Setiap pukul 08:30 WIB)
+Schedule::command('customers:send-term-reminders')
+    ->dailyAt('08:30')
+    ->withoutOverlapping()
+    ->appendOutputTo(storage_path('logs/cron-term-reminders.log'));
 
-
+// 8. Schedule daily AI Digital Company business health check (Setiap pukul 07:00 WIB)
+Schedule::command('cooca:ai-daily-business-check')
+    ->dailyAt('07:00')
+    ->withoutOverlapping()
+    ->appendOutputTo(storage_path('logs/cron-ai.log'));

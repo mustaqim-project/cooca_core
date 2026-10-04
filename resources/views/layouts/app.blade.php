@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id" class="h-full">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full">
 
 <head>
     <!-- No-Flash Theme Bootstrap (Eliminates FOUC) -->
@@ -15,6 +15,163 @@
                 }
                 document.documentElement.setAttribute('data-theme', theme);
             } catch (e) {}
+        })();
+    </script>
+
+    <!-- Multi-Language i18n & l10n Dictionary Injection -->
+    <script>
+        window.COOCA_LOCALE = '{{ app()->getLocale() }}';
+        window.COOCA_I18N = {
+            common: @json(__('common')),
+            quick_actions: @json(__('quick_actions')),
+            navigation: @json(__('navigation')),
+        };
+
+        // Global Reactive Event Bus (CoocaBus)
+        window.CoocaBus = {
+            emit(event, detail = {}) {
+                window.dispatchEvent(new CustomEvent(event, { detail }));
+            },
+            on(event, handler) {
+                window.addEventListener(event, handler);
+                return () => window.removeEventListener(event, handler);
+            },
+            emitDataMutated(type, data = {}) {
+                this.emit('cooca-data-mutated', { type, data, timestamp: Date.now() });
+            }
+        };
+
+        // Smart AJAX Polling Engine (Page Visibility Aware)
+        window.CoocaPoller = (function() {
+            const subscribers = new Map();
+            let isVisible = typeof document !== 'undefined' ? document.visibilityState === 'visible' : true;
+
+            function executeSubscriber(sub) {
+                if (typeof sub.callback === 'function') {
+                    try {
+                        sub.callback();
+                    } catch (err) {
+                        console.error('[CoocaPoller] Poller execution error for:', sub.key, err);
+                    }
+                }
+            }
+
+            function startTimer(sub) {
+                stopTimer(sub);
+                if (sub.isPaused) return;
+
+                const interval = isVisible ? sub.activeInterval : sub.bgInterval;
+                if (interval <= 0) return;
+
+                sub.timerId = setTimeout(function tick() {
+                    if (!sub.isPaused) {
+                        executeSubscriber(sub);
+                        const nextInterval = isVisible ? sub.activeInterval : sub.bgInterval;
+                        if (nextInterval > 0) {
+                            sub.timerId = setTimeout(tick, nextInterval);
+                        }
+                    }
+                }, interval);
+            }
+
+            function stopTimer(sub) {
+                if (sub.timerId) {
+                    clearTimeout(sub.timerId);
+                    sub.timerId = null;
+                }
+            }
+
+            if (typeof document !== 'undefined') {
+                document.addEventListener('visibilitychange', () => {
+                    const wasVisible = isVisible;
+                    isVisible = document.visibilityState === 'visible';
+
+                    subscribers.forEach((sub) => {
+                        if (sub.isPaused) return;
+
+                        if (isVisible && !wasVisible) {
+                            if (sub.immediateOnResume) {
+                                executeSubscriber(sub);
+                            }
+                            startTimer(sub);
+                        } else if (!isVisible && wasVisible) {
+                            startTimer(sub);
+                        }
+                    });
+                });
+
+                window.addEventListener('cooca-data-mutated', (e) => {
+                    subscribers.forEach((sub) => {
+                        if (sub.autoSyncOnMutation && !sub.isPaused) {
+                            executeSubscriber(sub);
+                        }
+                    });
+                });
+            }
+
+            return {
+                register(key, callback, options = {}) {
+                    const config = typeof options === 'number' ? { activeInterval: options } : options;
+                    const activeInterval = config.activeInterval || 5000;
+                    const bgInterval = config.bgInterval !== undefined ? config.bgInterval : 30000;
+                    const immediateOnResume = config.immediateOnResume !== false;
+                    const autoSyncOnMutation = config.autoSyncOnMutation !== false;
+
+                    const sub = {
+                        key,
+                        callback,
+                        activeInterval,
+                        bgInterval,
+                        immediateOnResume,
+                        autoSyncOnMutation,
+                        isPaused: false,
+                        timerId: null
+                    };
+
+                    this.unregister(key);
+                    subscribers.set(key, sub);
+                    startTimer(sub);
+                    return sub;
+                },
+                unregister(key) {
+                    if (subscribers.has(key)) {
+                        stopTimer(subscribers.get(key));
+                        subscribers.delete(key);
+                    }
+                },
+                pause(key) {
+                    const sub = subscribers.get(key);
+                    if (sub) {
+                        sub.isPaused = true;
+                        stopTimer(sub);
+                    }
+                },
+                resume(key) {
+                    const sub = subscribers.get(key);
+                    if (sub) {
+                        sub.isPaused = false;
+                        if (isVisible && sub.immediateOnResume) {
+                            executeSubscriber(sub);
+                        }
+                        startTimer(sub);
+                    }
+                },
+                trigger(key) {
+                    const sub = subscribers.get(key);
+                    if (sub) executeSubscriber(sub);
+                },
+                triggerAll() {
+                    subscribers.forEach((sub) => {
+                        if (!sub.isPaused) executeSubscriber(sub);
+                    });
+                },
+                getSubscribers() {
+                    return Array.from(subscribers.keys());
+                },
+                isDocumentVisible() {
+                    return isVisible;
+                }
+            };
         })();
     </script>
 
@@ -36,6 +193,15 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <!-- Tailwind CSS CDN -->
+    <script>
+        (function() {
+            const _origWarn = console.warn;
+            console.warn = function(...args) {
+                if (typeof args[0] === 'string' && args[0].indexOf('cdn.tailwindcss.com') !== -1) return;
+                _origWarn.apply(console, args);
+            };
+        })();
+    </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -403,16 +569,49 @@
             -moz-osx-font-smoothing: grayscale;
         }
 
-        /* Universal Adaptive Modal Dialogs */
-        .fixed.inset-0 .glass-card,
-        .fixed.inset-0 .glass-panel,
+        /* Universal Adaptive Modal Dialog Engine (Bento Apple HIG v2.0) */
         .app-modal-dialog {
-            width: 100% !important;
-            max-width: min(calc(100vw - 1.5rem), var(--modal-max-width, 32rem)) !important;
-            max-height: min(92dvh, calc(100vh - 2rem)) !important;
-            overflow-y: auto !important;
-            overscroll-behavior: contain !important;
-            -webkit-overflow-scrolling: touch !important;
+            width: 100%;
+            max-width: min(calc(100vw - 1.5rem), var(--modal-max-width, 32rem));
+            max-height: min(92dvh, calc(100vh - 2rem));
+            overflow-y: auto;
+            overscroll-behavior: contain;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .app-modal-dialog-sm {
+            --modal-max-width: 28rem; /* 448px */
+        }
+
+        .app-modal-dialog-md {
+            --modal-max-width: 36rem; /* 576px */
+        }
+
+        .app-modal-dialog-lg {
+            --modal-max-width: 48rem; /* 768px */
+        }
+
+        .app-modal-dialog-xl {
+            --modal-max-width: 64rem; /* 1024px */
+        }
+
+        .app-modal-dialog-xxl,
+        .app-modal-dialog-2xl {
+            --modal-max-width: min(95vw, 84.375rem); /* 1350px / 95vw */
+        }
+
+        /* iOS Safari Input Auto-Zoom Prevention (Ensures 16px minimum font on mobile viewports) */
+        @media screen and (max-width: 639px) {
+            input[type="text"],
+            input[type="number"],
+            input[type="search"],
+            input[type="tel"],
+            input[type="email"],
+            input[type="password"],
+            select,
+            textarea {
+                font-size: 16px !important;
+            }
         }
 
         /* Universal Responsive Table Utilities */
@@ -822,6 +1021,7 @@
             };
             this.comingSoonOpen = true;
         },
+        storagePruningOpen: false,
         init() {
             window.addEventListener('tour-open-sidebar', () => {
                 this.sidebarOpen = true;
@@ -829,6 +1029,7 @@
             });
             window.addEventListener('tour-close-sidebar', () => { this.sidebarOpen = false; });
             window.addEventListener('cooca-coming-soon', (e) => { this.openComingSoon(e.detail); });
+            window.addEventListener('open-storage-pruning-modal', () => { this.storagePruningOpen = true; });
         }
     }">
     @php
@@ -859,8 +1060,8 @@
                 compact('activeBiz', 'navEntitlement', 'navUsage', 'isCorePlan'))
 
             <!-- Main Page Content -->
-            <main
-                class="flex-1 p-3.5 sm:p-5 md:p-6 lg:p-7 space-y-5 sm:space-y-6 min-w-0 pb-28 lg:pb-10 max-w-[1400px] w-full mx-auto">
+            <main id="main-content"
+                class="flex-1 min-w-0 pb-28 lg:pb-10 {{ (request()->routeIs('cooca-ai.*') || request()->routeIs('ai.*')) ? 'p-2 sm:p-4 lg:p-6 max-w-none w-full space-y-4' : 'p-3.5 sm:p-5 md:p-6 lg:p-7 space-y-5 sm:space-y-6 max-w-[1440px] w-full mx-auto' }}">
                 {{-- Flash success & error notifications are handled by AppAlert floating toasts in footer scripts to avoid duplicate UI banners --}}
                 @if (isset($errors) && $errors->any())
                     <div
@@ -884,27 +1085,104 @@
             <!-- ========================================== -->
             <!-- GLOBAL ZERO-NAVIGATION AJAX MODALS & TOASTS -->
             <!-- ========================================== -->
-            <div x-data="{
+            <div id="global-modals-container" x-data="{
                 toastList: [],
                 showExpenseModal: false,
                 showStockInModal: false,
                 showMaterialModal: false,
                 showMobileActionSheet: false,
+                isSubmitting: false,
+                materialsList: [],
+                isLoadingMaterials: false,
+                requiresExpenseSupervisorPin: false,
+                supervisorPin: '',
+                displayExpenseAmount: '',
+                displayStockInUnitCost: '',
+                displayMaterialCost: '',
                 expenseForm: { name: '', amount: '', category: 'Operasional Toko', payment_method: 'cash', notes: '' },
                 stockInForm: { material_id: '', product_id: '', quantity: 1, unit_cost: '', supplier_name: '', notes: '' },
                 materialForm: { name: '', cost_per_unit: '', unit_id: '', category_id: '', sku: '' },
-                isSubmitting: false,
-            
+
                 init() {
                     window.addEventListener('cooca-toast', (e) => {
                         this.addToast(e.detail.message, e.detail.type || 'success');
                     });
-                    window.addEventListener('open-quick-expense', () => { this.showExpenseModal = true; });
-                    window.addEventListener('open-quick-stockin', () => { this.showStockInModal = true; });
-                    window.addEventListener('open-quick-material', () => { this.showMaterialModal = true; });
-                    window.addEventListener('open-mobile-actions', () => { this.showMobileActionSheet = true; });
+                    window.addEventListener('open-quick-expense', () => { 
+                        this.showExpenseModal = true; 
+                    });
+                    window.addEventListener('open-quick-stockin', () => { 
+                        this.openStockInModal(); 
+                    });
+                    window.addEventListener('open-quick-material', () => { 
+                        this.showMaterialModal = true; 
+                    });
+                    window.addEventListener('open-mobile-actions', () => { 
+                        this.showMobileActionSheet = true; 
+                    });
                 },
-            
+
+                formatRupiah(val) {
+                    if (val === undefined || val === null || val === '') return '';
+                    const loc = (window.COOCA_LOCALE === 'en') ? 'en-US' : 'id-ID';
+                    return new Intl.NumberFormat(loc).format(val);
+                },
+
+                parseNumber(str) {
+                    if (!str) return 0;
+                    return parseFloat(String(str).replace(/[^0-9]/g, '')) || 0;
+                },
+
+                handleExpenseAmountInput(e) {
+                    const raw = this.parseNumber(e.target.value);
+                    this.expenseForm.amount = raw;
+                    this.displayExpenseAmount = raw > 0 ? this.formatRupiah(raw) : '';
+                    this.requiresExpenseSupervisorPin = raw >= 500000;
+                },
+
+                handleStockInCostInput(e) {
+                    const raw = this.parseNumber(e.target.value);
+                    this.stockInForm.unit_cost = raw;
+                    this.displayStockInUnitCost = raw > 0 ? this.formatRupiah(raw) : '';
+                },
+
+                handleMaterialCostInput(e) {
+                    const raw = this.parseNumber(e.target.value);
+                    this.materialForm.cost_per_unit = raw;
+                    this.displayMaterialCost = raw > 0 ? this.formatRupiah(raw) : '';
+                },
+
+                getIdempotencyKey() {
+                    return typeof crypto !== 'undefined' && crypto.randomUUID 
+                        ? crypto.randomUUID() 
+                        : 'idemp-' + Date.now() + '-' + Math.random().toString(36).substring(2, 9);
+                },
+
+                async fetchMaterials() {
+                    if (this.materialsList.length > 0) return;
+                    this.isLoadingMaterials = true;
+                    try {
+                        const res = await fetch('{{ route('dashboard.quick-materials-list') }}', {
+                            headers: { 
+                                'Accept': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
+                        });
+                        const data = await res.json();
+                        if (data.success) {
+                            this.materialsList = data.materials || [];
+                        }
+                    } catch (e) {
+                        console.error('Failed to load materials', e);
+                    } finally {
+                        this.isLoadingMaterials = false;
+                    }
+                },
+
+                openStockInModal() {
+                    this.showStockInModal = true;
+                    this.fetchMaterials();
+                },
+
                 addToast(msg, type = 'success') {
                     const id = Date.now();
                     this.toastList.push({ id, msg, type });
@@ -912,113 +1190,145 @@
                         this.toastList = this.toastList.filter(t => t.id !== id);
                     }, 4000);
                 },
-            
+
                 async submitQuickExpense() {
+                    if (this.isSubmitting) return;
                     if (!this.expenseForm.name || !this.expenseForm.amount) return;
                     this.isSubmitting = true;
+                    const idempotencyKey = this.getIdempotencyKey();
                     try {
+                        const payload = {
+                            ...this.expenseForm,
+                            supervisor_pin: this.supervisorPin
+                        };
                         const res = await fetch('{{ route('dashboard.quick-expense') }}', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
                                 'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'X-Idempotency-Key': idempotencyKey,
                                 'Accept': 'application/json'
                             },
-                            body: JSON.stringify(this.expenseForm)
+                            body: JSON.stringify(payload)
                         });
                         const data = await res.json();
-                        if (data.success) {
-                            this.addToast(data.message, 'success');
+                        if (res.ok && data.success) {
+                            this.addToast(data.message || (window.COOCA_I18N?.quick_actions?.expense?.success_msg || 'Pengeluaran kas berhasil dicatat.'), 'success');
                             this.showExpenseModal = false;
                             this.expenseForm = { name: '', amount: '', category: 'Operasional Toko', payment_method: 'cash', notes: '' };
+                            this.displayExpenseAmount = '';
+                            this.supervisorPin = '';
+                            this.requiresExpenseSupervisorPin = false;
                             window.dispatchEvent(new CustomEvent('expense-added', { detail: data }));
+                            window.dispatchEvent(new CustomEvent('cooca-data-mutated', { detail: { type: 'expense', data } }));
                         } else {
-                            this.addToast(data.message || 'Gagal menyimpan pengeluaran', 'error');
+                            if (data.requires_pin) {
+                                this.requiresExpenseSupervisorPin = true;
+                            }
+                            this.addToast(data.message || (window.COOCA_I18N?.quick_actions?.expense?.error_msg || 'Gagal menyimpan pengeluaran'), 'error');
                         }
                     } catch (err) {
-                        this.addToast('Terjadi kesalahan koneksi', 'error');
+                        this.addToast(window.COOCA_I18N?.common?.connection_error || 'Terjadi kesalahan koneksi', 'error');
                     } finally {
                         this.isSubmitting = false;
                     }
                 },
-            
+
                 async submitQuickStockIn() {
+                    if (this.isSubmitting) return;
                     if (!this.stockInForm.quantity || !this.stockInForm.unit_cost) return;
                     this.isSubmitting = true;
+                    const idempotencyKey = this.getIdempotencyKey();
                     try {
                         const res = await fetch('{{ route('dashboard.quick-stock-in') }}', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
                                 'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'X-Idempotency-Key': idempotencyKey,
                                 'Accept': 'application/json'
                             },
                             body: JSON.stringify(this.stockInForm)
                         });
                         const data = await res.json();
-                        if (data.success) {
-                            this.addToast(data.message, 'success');
+                        if (res.ok && data.success) {
+                            this.addToast(data.message || (window.COOCA_I18N?.quick_actions?.stock_in?.success_msg || 'Stok masuk berhasil dicatat.'), 'success');
                             this.showStockInModal = false;
                             this.stockInForm = { material_id: '', product_id: '', quantity: 1, unit_cost: '', supplier_name: '', notes: '' };
+                            this.displayStockInUnitCost = '';
                             window.dispatchEvent(new CustomEvent('stock-in-added', { detail: data }));
+                            window.dispatchEvent(new CustomEvent('cooca-data-mutated', { detail: { type: 'stock', data } }));
                         } else {
-                            this.addToast(data.message || 'Gagal menambah stok', 'error');
+                            this.addToast(data.message || (window.COOCA_I18N?.quick_actions?.stock_in?.error_msg || 'Gagal menambah stok'), 'error');
                         }
                     } catch (err) {
-                        this.addToast('Terjadi kesalahan koneksi', 'error');
+                        this.addToast(window.COOCA_I18N?.common?.connection_error || 'Terjadi kesalahan koneksi', 'error');
                     } finally {
                         this.isSubmitting = false;
                     }
                 },
-            
+
                 async submitQuickMaterial() {
+                    if (this.isSubmitting) return;
                     if (!this.materialForm.name || !this.materialForm.cost_per_unit) return;
                     this.isSubmitting = true;
+                    const idempotencyKey = this.getIdempotencyKey();
                     try {
                         const res = await fetch('{{ route('dashboard.quick-material') }}', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
                                 'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'X-Idempotency-Key': idempotencyKey,
                                 'Accept': 'application/json'
                             },
                             body: JSON.stringify(this.materialForm)
                         });
                         const data = await res.json();
-                        if (data.success) {
-                            this.addToast(data.message, 'success');
+                        if (res.ok && data.success) {
+                            this.addToast(data.message || (window.COOCA_I18N?.quick_actions?.material?.success_msg || 'Bahan baku baru berhasil didaftarkan.'), 'success');
                             this.showMaterialModal = false;
                             this.materialForm = { name: '', cost_per_unit: '', unit_id: '', category_id: '', sku: '' };
+                            this.displayMaterialCost = '';
+                            this.materialsList = []; // Invalidate cached list
                             window.dispatchEvent(new CustomEvent('material-added', { detail: data.material }));
+                            window.dispatchEvent(new CustomEvent('cooca-data-mutated', { detail: { type: 'material', data: data.material } }));
                         } else {
-                            this.addToast(data.message || 'Gagal menambah bahan baku', 'error');
+                            this.addToast(data.message || (window.COOCA_I18N?.quick_actions?.material?.error_msg || 'Gagal menambah bahan baku'), 'error');
                         }
                     } catch (err) {
-                        this.addToast('Terjadi kesalahan koneksi', 'error');
+                        this.addToast(window.COOCA_I18N?.common?.connection_error || 'Terjadi kesalahan koneksi', 'error');
                     } finally {
                         this.isSubmitting = false;
                     }
                 }
             }">
 
-                <!-- Floating Toasts Container (Apple Centered Top Banner) -->
-                <div
+                <!-- Floating Toasts Container (Apple Centered Top Banner with Tap & Swipe-Up Dismiss) -->
+                <div id="alpine-toast-container"
                     class="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-2 pointer-events-none w-full max-w-sm px-4">
                     <template x-for="t in toastList" :key="t.id">
-                        <div x-transition:enter="transition ease-out duration-250"
+                        <div x-data="{ touchStartY: 0 }"
+                            @touchstart="touchStartY = $event.touches[0].clientY"
+                            @touchend="if (touchStartY - $event.changedTouches[0].clientY > 25) { toastList = toastList.filter(item => item.id !== t.id); }"
+                            x-transition:enter="transition ease-out duration-250"
                             x-transition:enter-start="opacity-0 -translate-y-3 scale-95"
                             x-transition:enter-end="opacity-100 translate-y-0 scale-100"
                             x-transition:leave="transition ease-in duration-150"
                             x-transition:leave-start="opacity-100 scale-100"
                             x-transition:leave-end="opacity-0 -translate-y-2 scale-90"
-                            class="p-3 px-4 rounded-[14px] border border-black/5 dark:border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.12)] backdrop-blur-xl pointer-events-auto flex items-center gap-2.5 text-[13px] font-medium bg-white/95 dark:bg-[#2C2C2E]/95 text-black dark:text-white">
+                            class="p-3 px-4 rounded-[14px] border border-black/5 dark:border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.12)] backdrop-blur-xl pointer-events-auto flex items-center gap-2.5 text-[13px] font-medium bg-white/95 dark:bg-[#2C2C2E]/95 text-black dark:text-white transition-all select-none">
                             <span class="w-2 h-2 rounded-full shrink-0"
                                 :class="t.type === 'error' ? 'bg-[#FF3B30]' : 'bg-[#34C759]'"></span>
                             <span x-text="t.msg" class="flex-1 leading-snug"></span>
+                            <button type="button" @click="toastList = toastList.filter(item => item.id !== t.id)"
+                                class="p-1 -mr-1 rounded-md text-black/40 hover:text-black/70 dark:text-white/40 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
+                                aria-label="{{ __('common.close') }}">
+                                <i data-lucide="x" class="w-3.5 h-3.5" x-init="$nextTick(() => { if (window.lucide) lucide.createIcons(); })"></i>
+                            </button>
                         </div>
                     </template>
                 </div>
-
                 <!-- Modal 1: Quick Expense (Apple Centered Floating Sheet) -->
                 <div x-show="showExpenseModal" x-transition:enter="transition ease-out duration-200"
                     x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
@@ -1027,7 +1337,7 @@
                     class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/25 backdrop-blur-[2px]"
                     style="display: none;">
                     <div class="w-full max-w-md rounded-[16px] bg-white/95 dark:bg-[#2C2C2E]/95 backdrop-blur-xl border border-black/5 dark:border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.2)] p-5 space-y-4"
-                        @click.outside="showExpenseModal = false">
+                        @click.outside="if (!isSubmitting) showExpenseModal = false">
                         <div
                             class="flex items-center justify-between border-b border-black/5 dark:border-white/10 pb-3">
                             <div class="flex items-center gap-2.5">
@@ -1037,75 +1347,88 @@
                                 </div>
                                 <div>
                                     <h3 class="text-[16px] font-semibold text-black dark:text-white tracking-tight">
-                                        Catat Pengeluaran Cepat</h3>
-                                    <p class="text-[12px] text-black/50 dark:text-white/50">Jurnal otomatis operasional
-                                        bisnis</p>
+                                        {{ __('quick_actions.expense.title') }}</h3>
+                                    <p class="text-[12px] text-black/50 dark:text-white/50">{{ __('quick_actions.expense.subtitle') }}</p>
                                 </div>
                             </div>
-                            <button type="button" @click="showExpenseModal = false"
-                                class="w-7 h-7 rounded-full flex items-center justify-center text-black/40 hover:text-black/70 dark:text-white/40 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+                            <button type="button" @click="showExpenseModal = false" :disabled="isSubmitting"
+                                class="w-7 h-7 rounded-full flex items-center justify-center text-black/40 hover:text-black/70 dark:text-white/40 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 transition-colors disabled:opacity-40"
+                                aria-label="{{ __('common.close') }}">
                                 <i data-lucide="x" class="w-4 h-4"></i>
                             </button>
                         </div>
 
                         <form @submit.prevent="submitQuickExpense" class="space-y-3 text-[13px]">
                             <div>
-                                <label class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">Nama
-                                    / Keterangan Biaya *</label>
-                                <input type="text" x-model="expenseForm.name" required
-                                    placeholder="Contoh: Gas Elpiji 3kg, Plastik Kresek"
-                                    class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-[14px] text-black dark:text-white placeholder:text-black/30 dark:placeholder:text-white/30 focus:ring-2 focus:ring-[#007AFF]/50 outline-none transition">
+                                <label class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">{{ __('quick_actions.expense.name_label') }}</label>
+                                <input type="text" x-model="expenseForm.name" required :disabled="isSubmitting"
+                                    placeholder="{{ __('quick_actions.expense.name_placeholder') }}"
+                                    class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-base sm:text-sm text-black dark:text-white placeholder:text-black/30 dark:placeholder:text-white/30 focus:ring-2 focus:ring-[#007AFF]/50 outline-none transition disabled:opacity-50">
                             </div>
 
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
                                     <label
-                                        class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">Nominal
-                                        (Rp) *</label>
-                                    <input type="number" x-model.number="expenseForm.amount" required min="100"
-                                        placeholder="25000"
-                                        class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-[14px] text-black dark:text-white tabular-nums placeholder:text-black/30 dark:placeholder:text-white/30 focus:ring-2 focus:ring-[#007AFF]/50 outline-none transition">
+                                        class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">{{ __('quick_actions.expense.amount_label') }}</label>
+                                    <div class="relative">
+                                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-[13px] font-bold text-black/40 dark:text-white/40">Rp</span>
+                                        <input type="text" inputmode="numeric"
+                                            x-model="displayExpenseAmount"
+                                            @input="handleExpenseAmountInput($event)"
+                                            required :disabled="isSubmitting"
+                                            placeholder="{{ __('quick_actions.expense.amount_placeholder') }}"
+                                            class="w-full h-10 pl-9 pr-3 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] text-base sm:text-sm font-semibold text-black dark:text-white tabular-nums placeholder:text-black/30 dark:placeholder:text-white/30 focus:ring-2 focus:ring-[#007AFF]/50 outline-none transition disabled:opacity-50">
+                                    </div>
                                 </div>
                                 <div>
                                     <label
-                                        class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">Metode
-                                        Bayar</label>
-                                    <select x-model="expenseForm.payment_method"
-                                        class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-[13px] text-black dark:text-white focus:ring-2 focus:ring-[#007AFF]/50 outline-none transition">
-                                        <option value="cash">Kas Tunai (Laci)</option>
-                                        <option value="bank">Transfer Bank</option>
-                                        <option value="qris">QRIS / e-Wallet</option>
+                                        class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">{{ __('quick_actions.expense.payment_method_label') }}</label>
+                                    <select x-model="expenseForm.payment_method" :disabled="isSubmitting"
+                                        class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-base sm:text-sm text-black dark:text-white focus:ring-2 focus:ring-[#007AFF]/50 outline-none transition disabled:opacity-50">
+                                        <option value="cash">{{ __('quick_actions.expense.method_cash') }}</option>
+                                        <option value="bank">{{ __('quick_actions.expense.method_bank') }}</option>
+                                        <option value="qris">{{ __('quick_actions.expense.method_qris') }}</option>
                                     </select>
                                 </div>
                             </div>
 
                             <div>
                                 <label
-                                    class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">Kategori
-                                    Biaya</label>
-                                <select x-model="expenseForm.category"
-                                    class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-[13px] text-black dark:text-white focus:ring-2 focus:ring-[#007AFF]/50 outline-none transition">
-                                    <option value="Operasional Toko">Operasional Toko</option>
-                                    <option value="Bahan Habis Pakai">Bahan Habis Pakai (Plastik/Kemasan)</option>
-                                    <option value="Listrik, Air & Gas">Listrik, Air & Gas</option>
-                                    <option value="Transportasi & Logistik">Transportasi & Logistik</option>
-                                    <option value="Lainnya">Lainnya</option>
+                                    class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">{{ __('quick_actions.expense.category_label') }}</label>
+                                <select x-model="expenseForm.category" :disabled="isSubmitting"
+                                    class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-base sm:text-sm text-black dark:text-white focus:ring-2 focus:ring-[#007AFF]/50 outline-none transition disabled:opacity-50">
+                                    <option value="Operasional Toko">{{ __('quick_actions.expense.cat_operational') }}</option>
+                                    <option value="Bahan Habis Pakai">{{ __('quick_actions.expense.cat_consumables') }}</option>
+                                    <option value="Listrik, Air & Gas">{{ __('quick_actions.expense.cat_utilities') }}</option>
+                                    <option value="Transportasi & Logistik">{{ __('quick_actions.expense.cat_logistics') }}</option>
+                                    <option value="Lainnya">{{ __('quick_actions.expense.cat_other') }}</option>
                                 </select>
                             </div>
 
+                            <!-- Supervisor PIN Guard (Maker-Checker Threshold >= Rp 500.000) -->
+                            <div x-show="requiresExpenseSupervisorPin || (expenseForm.amount >= 500000)" x-transition class="p-3 bg-amber-500/10 dark:bg-amber-500/15 border border-amber-500/20 rounded-[12px] space-y-1.5">
+                                <div class="flex items-center justify-between">
+                                    <label class="block text-[11px] font-bold text-amber-700 dark:text-amber-300">{{ __('quick_actions.expense.supervisor_pin_label') }}</label>
+                                    <span class="text-[10px] text-amber-600 dark:text-amber-400 font-medium">{{ __('quick_actions.expense.supervisor_pin_hint') }}</span>
+                                </div>
+                                <input type="password" maxlength="6" x-model="supervisorPin" :disabled="isSubmitting" placeholder="{{ __('quick_actions.expense.supervisor_pin_placeholder') }}"
+                                    class="w-full h-9 bg-white dark:bg-[#1C1C1E] border border-amber-500/30 rounded-[8px] px-3 text-center tracking-widest text-base sm:text-sm font-bold text-black dark:text-white outline-none focus:ring-2 focus:ring-amber-500/50 disabled:opacity-50">
+                            </div>
+
                             <div class="flex justify-end gap-2 pt-2 border-t border-black/5 dark:border-white/10">
-                                <button type="button" @click="showExpenseModal = false" class="btn-apple-gray">
-                                    Batal
+                                <button type="button" @click="showExpenseModal = false" :disabled="isSubmitting" class="btn-apple-gray disabled:opacity-40">
+                                    {{ __('common.cancel') }}
                                 </button>
-                                <button type="submit" :disabled="isSubmitting" class="btn-apple-filled">
-                                    <span x-text="isSubmitting ? 'Menyimpan...' : 'Simpan Pengeluaran'"></span>
+                                <button type="submit" :disabled="isSubmitting" class="btn-apple-filled flex items-center gap-2">
+                                    <svg x-show="isSubmitting" class="animate-spin h-3.5 w-3.5 text-white" viewBox="0 0 24 24" fill="none"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                    <span x-text="isSubmitting ? '{{ __('common.saving') }}' : '{{ __('quick_actions.expense.submit_btn') }}'"></span>
                                 </button>
                             </div>
                         </form>
                     </div>
                 </div>
 
-                <!-- Modal 2: Quick Instant Stock-In (Apple Sheet) -->
+                <!-- Modal 2: Quick Instant Stock-In (Apple Sheet with Lazy-Loaded Materials) -->
                 <div x-show="showStockInModal" x-transition:enter="transition ease-out duration-200"
                     x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
                     x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100"
@@ -1113,7 +1436,7 @@
                     class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/25 backdrop-blur-[2px]"
                     style="display: none;">
                     <div class="w-full max-w-md rounded-[16px] bg-white/95 dark:bg-[#2C2C2E]/95 backdrop-blur-xl border border-black/5 dark:border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.2)] p-5 space-y-4"
-                        @click.outside="showStockInModal = false">
+                        @click.outside="if (!isSubmitting) showStockInModal = false">
                         <div
                             class="flex items-center justify-between border-b border-black/5 dark:border-white/10 pb-3">
                             <div class="flex items-center gap-2.5">
@@ -1123,13 +1446,13 @@
                                 </div>
                                 <div>
                                     <h3 class="text-[16px] font-semibold text-black dark:text-white tracking-tight">
-                                        Beli Stok Masuk Cepat</h3>
-                                    <p class="text-[12px] text-black/50 dark:text-white/50">Tambah persediaan &amp;
-                                        valuasi aset</p>
+                                        {{ __('quick_actions.stock_in.title') }}</h3>
+                                    <p class="text-[12px] text-black/50 dark:text-white/50">{{ __('quick_actions.stock_in.subtitle') }}</p>
                                 </div>
                             </div>
-                            <button type="button" @click="showStockInModal = false"
-                                class="w-7 h-7 rounded-full flex items-center justify-center text-black/40 hover:text-black/70 dark:text-white/40 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+                            <button type="button" @click="showStockInModal = false" :disabled="isSubmitting"
+                                class="w-7 h-7 rounded-full flex items-center justify-center text-black/40 hover:text-black/70 dark:text-white/40 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 transition-colors disabled:opacity-40"
+                                aria-label="{{ __('common.close') }}">
                                 <i data-lucide="x" class="w-4 h-4"></i>
                             </button>
                         </div>
@@ -1137,74 +1460,54 @@
                         <form @submit.prevent="submitQuickStockIn" class="space-y-3 text-[13px]">
                             <div>
                                 <label
-                                    class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">Bahan
-                                    Baku / Produk *</label>
-                                <select x-model="stockInForm.material_id" required
-                                    class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-[13px] text-black dark:text-white focus:ring-2 focus:ring-[#007AFF]/50 outline-none transition">
-                                    <option value="">-- Pilih Bahan Baku --</option>
-                                    @php
-                                        $modalMaterials = $activeBiz
-                                            ? \Illuminate\Support\Facades\Cache::remember(
-                                                "layout_modal_mat_{$activeBiz->id}",
-                                                60,
-                                                function () use ($activeBiz) {
-                                                    return \App\Models\Material::where('business_id', $activeBiz->id)
-                                                        ->with('latestPrice')
-                                                        ->orderBy('name')
-                                                        ->get()
-                                                        ->map(
-                                                            fn($m) => [
-                                                                'id' => (string) $m->id,
-                                                                'name' => (string) $m->name,
-                                                                'price' =>
-                                                                    (float) ($m->latestPrice?->purchase_price ?? 0),
-                                                            ],
-                                                        )
-                                                        ->all();
-                                                },
-                                            )
-                                            : [];
-                                    @endphp
-                                    @foreach ($modalMaterials as $m)
-                                        <option value="{{ $m['id'] }}">{{ $m['name'] }} (HPP: Rp
-                                            {{ number_format((float) $m['price'], 0, ',', '.') }})</option>
-                                    @endforeach
+                                    class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">{{ __('quick_actions.stock_in.material_label') }}</label>
+                                <select x-model="stockInForm.material_id" required :disabled="isSubmitting || isLoadingMaterials"
+                                    class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-base sm:text-sm text-black dark:text-white focus:ring-2 focus:ring-[#007AFF]/50 outline-none transition disabled:opacity-50">
+                                    <option value="">{{ __('quick_actions.stock_in.select_material') }}</option>
+                                    <option value="" disabled x-show="isLoadingMaterials">{{ __('quick_actions.stock_in.loading_materials') }}</option>
+                                    <template x-for="m in materialsList" :key="m.id">
+                                        <option :value="m.id" x-text="`${m.name} (HPP: Rp ${formatRupiah(m.price)})`"></option>
+                                    </template>
                                 </select>
                             </div>
 
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
                                     <label
-                                        class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">Jumlah
-                                        Masuk *</label>
-                                    <input type="number" x-model.number="stockInForm.quantity" required
-                                        min="0.01" step="any" placeholder="10"
-                                        class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-[14px] text-black dark:text-white tabular-nums focus:ring-2 focus:ring-[#007AFF]/50 outline-none transition">
+                                        class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">{{ __('quick_actions.stock_in.qty_label') }}</label>
+                                    <input type="number" x-model.number="stockInForm.quantity" required :disabled="isSubmitting"
+                                        min="0.01" step="any" placeholder="{{ __('quick_actions.stock_in.qty_placeholder') }}"
+                                        class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-base sm:text-sm text-black dark:text-white tabular-nums focus:ring-2 focus:ring-[#007AFF]/50 outline-none transition disabled:opacity-50">
                                 </div>
                                 <div>
                                     <label
-                                        class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">Harga
-                                        Beli / Satuan (Rp) *</label>
-                                    <input type="number" x-model.number="stockInForm.unit_cost" required
-                                        min="0" placeholder="15000"
-                                        class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-[14px] text-black dark:text-white tabular-nums focus:ring-2 focus:ring-[#007AFF]/50 outline-none transition">
+                                        class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">{{ __('quick_actions.stock_in.unit_cost_label') }}</label>
+                                    <div class="relative">
+                                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-[13px] font-bold text-black/40 dark:text-white/40">Rp</span>
+                                        <input type="text" inputmode="numeric"
+                                            x-model="displayStockInUnitCost"
+                                            @input="handleStockInCostInput($event)"
+                                            required :disabled="isSubmitting"
+                                            placeholder="{{ __('quick_actions.stock_in.unit_cost_placeholder') }}"
+                                            class="w-full h-10 pl-9 pr-3 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] text-base sm:text-sm font-semibold text-black dark:text-white tabular-nums focus:ring-2 focus:ring-[#007AFF]/50 outline-none transition disabled:opacity-50">
+                                    </div>
                                 </div>
                             </div>
 
                             <div>
-                                <label class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">Nama
-                                    Pemasok / Toko Beli</label>
-                                <input type="text" x-model="stockInForm.supplier_name"
-                                    placeholder="Contoh: Pasar Induk, Toko Bahan Kue Maju"
-                                    class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-[14px] text-black dark:text-white focus:ring-2 focus:ring-[#007AFF]/50 outline-none transition">
+                                <label class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">{{ __('quick_actions.stock_in.supplier_label') }}</label>
+                                <input type="text" x-model="stockInForm.supplier_name" :disabled="isSubmitting"
+                                    placeholder="{{ __('quick_actions.stock_in.supplier_placeholder') }}"
+                                    class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-base sm:text-sm text-black dark:text-white focus:ring-2 focus:ring-[#007AFF]/50 outline-none transition disabled:opacity-50">
                             </div>
 
                             <div class="flex justify-end gap-2 pt-2 border-t border-black/5 dark:border-white/10">
-                                <button type="button" @click="showStockInModal = false" class="btn-apple-gray">
-                                    Batal
+                                <button type="button" @click="showStockInModal = false" :disabled="isSubmitting" class="btn-apple-gray disabled:opacity-40">
+                                    {{ __('common.cancel') }}
                                 </button>
-                                <button type="submit" :disabled="isSubmitting" class="btn-apple-filled">
-                                    <span x-text="isSubmitting ? 'Memproses...' : 'Tambah Stok Masuk'"></span>
+                                <button type="submit" :disabled="isSubmitting" class="btn-apple-filled flex items-center gap-2">
+                                    <svg x-show="isSubmitting" class="animate-spin h-3.5 w-3.5 text-white" viewBox="0 0 24 24" fill="none"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                    <span x-text="isSubmitting ? '{{ __('common.processing') }}' : '{{ __('quick_actions.stock_in.submit_btn') }}'"></span>
                                 </button>
                             </div>
                         </form>
@@ -1219,7 +1522,7 @@
                     class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/25 backdrop-blur-[2px]"
                     style="display: none;">
                     <div class="w-full max-w-md rounded-[16px] bg-white/95 dark:bg-[#2C2C2E]/95 backdrop-blur-xl border border-black/5 dark:border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.2)] p-5 space-y-4"
-                        @click.outside="showMaterialModal = false">
+                        @click.outside="if (!isSubmitting) showMaterialModal = false">
                         <div
                             class="flex items-center justify-between border-b border-black/5 dark:border-white/10 pb-3">
                             <div class="flex items-center gap-2.5">
@@ -1229,42 +1532,45 @@
                                 </div>
                                 <div>
                                     <h3 class="text-[16px] font-semibold text-black dark:text-white tracking-tight">
-                                        Tambah Bahan Baku Cepat</h3>
-                                    <p class="text-[12px] text-black/50 dark:text-white/50">Daftarkan bahan baku baru
-                                        tanpa pindah layar</p>
+                                        {{ __('quick_actions.material.title') }}</h3>
+                                    <p class="text-[12px] text-black/50 dark:text-white/50">{{ __('quick_actions.material.subtitle') }}</p>
                                 </div>
                             </div>
-                            <button type="button" @click="showMaterialModal = false"
-                                class="w-7 h-7 rounded-full flex items-center justify-center text-black/40 hover:text-black/70 dark:text-white/40 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+                            <button type="button" @click="showMaterialModal = false" :disabled="isSubmitting"
+                                class="w-7 h-7 rounded-full flex items-center justify-center text-black/40 hover:text-black/70 dark:text-white/40 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 transition-colors disabled:opacity-40"
+                                aria-label="{{ __('common.close') }}">
                                 <i data-lucide="x" class="w-4 h-4"></i>
                             </button>
                         </div>
 
                         <form @submit.prevent="submitQuickMaterial" class="space-y-3 text-[13px]">
                             <div>
-                                <label class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">Nama
-                                    Bahan Baku *</label>
-                                <input type="text" x-model="materialForm.name" required
-                                    placeholder="Contoh: Tepung Terigu Segitiga Biru"
-                                    class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-[14px] text-black dark:text-white focus:ring-2 focus:ring-[#007AFF]/50 outline-none transition">
+                                <label class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">{{ __('quick_actions.material.name_label') }}</label>
+                                <input type="text" x-model="materialForm.name" required :disabled="isSubmitting"
+                                    placeholder="{{ __('quick_actions.material.name_placeholder') }}"
+                                    class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-base sm:text-sm text-black dark:text-white focus:ring-2 focus:ring-[#007AFF]/50 outline-none transition disabled:opacity-50">
                             </div>
 
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
                                     <label
-                                        class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">Harga
-                                        Beli Dasar (Rp) *</label>
-                                    <input type="number" x-model.number="materialForm.cost_per_unit" required
-                                        min="0" placeholder="12000"
-                                        class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-[14px] text-black dark:text-white tabular-nums focus:ring-2 focus:ring-[#007AFF]/50 outline-none transition">
+                                        class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">{{ __('quick_actions.material.cost_label') }}</label>
+                                    <div class="relative">
+                                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-[13px] font-bold text-black/40 dark:text-white/40">Rp</span>
+                                        <input type="text" inputmode="numeric"
+                                            x-model="displayMaterialCost"
+                                            @input="handleMaterialCostInput($event)"
+                                            required :disabled="isSubmitting"
+                                            placeholder="{{ __('quick_actions.material.cost_placeholder') }}"
+                                            class="w-full h-10 pl-9 pr-3 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] text-base sm:text-sm font-semibold text-black dark:text-white tabular-nums focus:ring-2 focus:ring-[#007AFF]/50 outline-none transition disabled:opacity-50">
+                                    </div>
                                 </div>
                                 <div>
                                     <label
-                                        class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">Satuan
-                                        Ukur</label>
-                                    <select x-model="materialForm.unit_id"
-                                        class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-[13px] text-black dark:text-white focus:ring-2 focus:ring-[#007AFF]/50 outline-none transition">
-                                        <option value="">Pilih Satuan</option>
+                                        class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">{{ __('quick_actions.material.unit_label') }}</label>
+                                    <select x-model="materialForm.unit_id" :disabled="isSubmitting"
+                                        class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-base sm:text-sm text-black dark:text-white focus:ring-2 focus:ring-[#007AFF]/50 outline-none transition disabled:opacity-50">
+                                        <option value="">{{ __('quick_actions.material.select_unit') }}</option>
                                         @php
                                             $modalUnits = $activeBiz
                                                 ? \Illuminate\Support\Facades\Cache::remember(
@@ -1297,11 +1603,12 @@
                             </div>
 
                             <div class="flex justify-end gap-2 pt-2 border-t border-black/5 dark:border-white/10">
-                                <button type="button" @click="showMaterialModal = false" class="btn-apple-gray">
-                                    Batal
+                                <button type="button" @click="showMaterialModal = false" :disabled="isSubmitting" class="btn-apple-gray disabled:opacity-40">
+                                    {{ __('common.cancel') }}
                                 </button>
-                                <button type="submit" :disabled="isSubmitting" class="btn-apple-filled">
-                                    <span x-text="isSubmitting ? 'Menyimpan...' : 'Tambah Bahan'"></span>
+                                <button type="submit" :disabled="isSubmitting" class="btn-apple-filled flex items-center gap-2">
+                                    <svg x-show="isSubmitting" class="animate-spin h-3.5 w-3.5 text-white" viewBox="0 0 24 24" fill="none"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                    <span x-text="isSubmitting ? '{{ __('common.saving') }}' : '{{ __('quick_actions.material.submit_btn') }}'"></span>
                                 </button>
                             </div>
                         </form>
@@ -1327,85 +1634,112 @@
 
                         <div
                             class="flex items-center justify-between border-b border-black/5 dark:border-white/10 pb-2">
-                            <h3 class="text-[15px] font-semibold text-black dark:text-white">Aksi Cepat Instan</h3>
+                            <h3 class="text-[15px] font-semibold text-black dark:text-white">{{ __('quick_actions.sheet.title') }}</h3>
                             <button type="button" @click="showMobileActionSheet = false"
-                                class="text-black/40 dark:text-white/40 p-1">
+                                class="text-black/40 dark:text-white/40 p-1"
+                                aria-label="{{ __('common.close') }}">
                                 <i data-lucide="x" class="w-4 h-4"></i>
                             </button>
                         </div>
 
                         <div class="grid grid-cols-2 gap-2.5 text-[13px]">
-                            <button type="button" @click="showMobileActionSheet = false; showExpenseModal = true"
-                                class="p-3.5 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.04] active:bg-black/[0.06] dark:active:bg-white/[0.08] text-left space-y-1.5 transition active:scale-[0.97]">
-                                <div
-                                    class="w-8 h-8 rounded-[8px] bg-[#FF9500]/12 text-[#FF9500] dark:text-[#FF9F0A] flex items-center justify-center">
-                                    <i data-lucide="receipt" class="w-4 h-4"></i>
-                                </div>
-                                <div>
-                                    <div class="font-medium text-black dark:text-white">Catat Beban</div>
-                                    <div class="text-[11px] text-black/45 dark:text-white/45">Biaya operasional</div>
-                                </div>
-                            </button>
+                            @if (\App\Support\Context::hasPermission('expenses.manage') || \App\Support\Context::hasPermission('expenses.view') || \App\Support\Context::isOwner())
+                                <button type="button" @click="showMobileActionSheet = false; showExpenseModal = true"
+                                    class="p-3.5 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.04] active:bg-black/[0.06] dark:active:bg-white/[0.08] text-left space-y-1.5 transition active:scale-[0.97]">
+                                    <div
+                                        class="w-8 h-8 rounded-[8px] bg-[#FF9500]/12 text-[#FF9500] dark:text-[#FF9F0A] flex items-center justify-center">
+                                        <i data-lucide="receipt" class="w-4 h-4"></i>
+                                    </div>
+                                    <div>
+                                        <div class="font-medium text-black dark:text-white">{{ __('quick_actions.sheet.expense_title') }}</div>
+                                        <div class="text-[11px] text-black/45 dark:text-white/45">{{ __('quick_actions.sheet.expense_desc') }}</div>
+                                    </div>
+                                </button>
+                            @endif
 
-                            <button type="button" @click="showMobileActionSheet = false; showStockInModal = true"
-                                class="p-3.5 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.04] active:bg-black/[0.06] dark:active:bg-white/[0.08] text-left space-y-1.5 transition active:scale-[0.97]">
-                                <div
-                                    class="w-8 h-8 rounded-[8px] bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158] flex items-center justify-center">
-                                    <i data-lucide="package-plus" class="w-4 h-4"></i>
-                                </div>
-                                <div>
-                                    <div class="font-medium text-black dark:text-white">Beli Stok</div>
-                                    <div class="text-[11px] text-black/45 dark:text-white/45">Tambah persediaan</div>
-                                </div>
-                            </button>
+                            @if (\App\Support\Context::hasPermission('inventory.manage') || \App\Support\Context::hasPermission('inventory.view') || \App\Support\Context::isOwner())
+                                <button type="button" @click="showMobileActionSheet = false; showStockInModal = true"
+                                    class="p-3.5 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.04] active:bg-black/[0.06] dark:active:bg-white/[0.08] text-left space-y-1.5 transition active:scale-[0.97]">
+                                    <div
+                                        class="w-8 h-8 rounded-[8px] bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158] flex items-center justify-center">
+                                        <i data-lucide="package-plus" class="w-4 h-4"></i>
+                                    </div>
+                                    <div>
+                                        <div class="font-medium text-black dark:text-white">{{ __('quick_actions.sheet.stock_title') }}</div>
+                                        <div class="text-[11px] text-black/45 dark:text-white/45">{{ __('quick_actions.sheet.stock_desc') }}</div>
+                                    </div>
+                                </button>
+                            @endif
 
-                            <button type="button" @click="showMobileActionSheet = false; showMaterialModal = true"
-                                class="p-3.5 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.04] active:bg-black/[0.06] dark:active:bg-white/[0.08] text-left space-y-1.5 transition active:scale-[0.97]">
-                                <div
-                                    class="w-8 h-8 rounded-[8px] bg-[#007AFF]/12 text-[#007AFF] dark:text-[#0A84FF] flex items-center justify-center">
-                                    <i data-lucide="boxes" class="w-4 h-4"></i>
-                                </div>
-                                <div>
-                                    <div class="font-medium text-black dark:text-white">Bahan Baku</div>
-                                    <div class="text-[11px] text-black/45 dark:text-white/45">Master bahan resep</div>
-                                </div>
-                            </button>
+                            @if ((\App\Support\Context::hasPermission('materials.create') || \App\Support\Context::hasPermission('materials.view') || \App\Support\Context::isOwner()) && ($activeBiz?->isModuleEnabled(\App\Domain\Template\ModuleRegistry::MODULE_RECIPE_BOM) ?? true))
+                                <button type="button" @click="showMobileActionSheet = false; showMaterialModal = true"
+                                    class="p-3.5 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.04] active:bg-black/[0.06] dark:active:bg-white/[0.08] text-left space-y-1.5 transition active:scale-[0.97]">
+                                    <div
+                                        class="w-8 h-8 rounded-[8px] bg-[#007AFF]/12 text-[#007AFF] dark:text-[#0A84FF] flex items-center justify-center">
+                                        <i data-lucide="boxes" class="w-4 h-4"></i>
+                                    </div>
+                                    <div>
+                                        <div class="font-medium text-black dark:text-white">{{ __('quick_actions.sheet.material_title') }}</div>
+                                        <div class="text-[11px] text-black/45 dark:text-white/45">{{ __('quick_actions.sheet.material_desc') }}</div>
+                                    </div>
+                                </button>
+                            @endif
 
-                            <a href="{{ route('calculator.index') }}"
-                                class="p-3.5 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.04] active:bg-black/[0.06] dark:active:bg-white/[0.08] text-left space-y-1.5 transition block active:scale-[0.97]">
-                                <div
-                                    class="w-8 h-8 rounded-[8px] bg-[#AF52DE]/12 text-[#AF52DE] dark:text-[#BF5AF2] flex items-center justify-center">
-                                    <i data-lucide="sparkles" class="w-4 h-4"></i>
-                                </div>
-                                <div>
-                                    <div class="font-medium text-black dark:text-white">Hitung HPP</div>
-                                    <div class="text-[11px] text-black/45 dark:text-white/45">3-Pilar harga jual</div>
-                                </div>
-                            </a>
+                            @if (\App\Support\Context::hasPermission('costing.view_margin') || \App\Support\Context::hasPermission('costing.manage') || \App\Support\Context::isOwner())
+                                <a href="{{ route('calculator.index') }}"
+                                    class="p-3.5 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.04] active:bg-black/[0.06] dark:active:bg-white/[0.08] text-left space-y-1.5 transition block active:scale-[0.97]">
+                                    <div
+                                        class="w-8 h-8 rounded-[8px] bg-[#AF52DE]/12 text-[#AF52DE] dark:text-[#BF5AF2] flex items-center justify-center">
+                                        <i data-lucide="sparkles" class="w-4 h-4"></i>
+                                    </div>
+                                    <div>
+                                        <div class="font-medium text-black dark:text-white">{{ __('quick_actions.sheet.hpp_title') }}</div>
+                                        <div class="text-[11px] text-black/45 dark:text-white/45">{{ __('quick_actions.sheet.hpp_desc') }}</div>
+                                    </div>
+                                </a>
+                            @endif
 
-                            <a href="{{ route('pos.kitchen.index') }}"
-                                class="p-3.5 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.04] active:bg-black/[0.06] dark:active:bg-white/[0.08] text-left space-y-1.5 transition block active:scale-[0.97]">
-                                <div
-                                    class="w-8 h-8 rounded-[8px] bg-[#FF9500]/12 text-[#FF9500] dark:text-[#FF9F0A] flex items-center justify-center">
-                                    <i data-lucide="chef-hat" class="w-4 h-4"></i>
-                                </div>
-                                <div>
-                                    <div class="font-medium text-black dark:text-white">Kitchen (KDS)</div>
-                                    <div class="text-[11px] text-black/45 dark:text-white/45">Pesanan dapur live</div>
-                                </div>
-                            </a>
+                            @if ($activeBiz && $activeBiz->hasDineInFeature() && $activeBiz->isModuleEnabled(\App\Domain\Template\ModuleRegistry::MODULE_POS_DINEIN) && (\App\Support\Context::hasPermission('pos.kitchen') || \App\Support\Context::isOwner()))
+                                <a href="{{ route('pos.kitchen.index') }}"
+                                    class="p-3.5 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.04] active:bg-black/[0.06] dark:active:bg-white/[0.08] text-left space-y-1.5 transition block active:scale-[0.97]">
+                                    <div
+                                        class="w-8 h-8 rounded-[8px] bg-[#FF9500]/12 text-[#FF9500] dark:text-[#FF9F0A] flex items-center justify-center">
+                                        <i data-lucide="chef-hat" class="w-4 h-4"></i>
+                                    </div>
+                                    <div>
+                                        <div class="font-medium text-black dark:text-white">{{ __('quick_actions.sheet.kds_title') }}</div>
+                                        <div class="text-[11px] text-black/45 dark:text-white/45">{{ __('quick_actions.sheet.kds_desc') }}</div>
+                                    </div>
+                                </a>
+                            @endif
 
-                            <a href="{{ route('pos.tables.index') }}"
-                                class="p-3.5 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.04] active:bg-black/[0.06] dark:active:bg-white/[0.08] text-left space-y-1.5 transition block active:scale-[0.97]">
-                                <div
-                                    class="w-8 h-8 rounded-[8px] bg-[#007AFF]/12 text-[#007AFF] dark:text-[#0A84FF] flex items-center justify-center">
-                                    <i data-lucide="layout-grid" class="w-4 h-4"></i>
-                                </div>
-                                <div>
-                                    <div class="font-medium text-black dark:text-white">Meja &amp; QR</div>
-                                    <div class="text-[11px] text-black/45 dark:text-white/45">Dine-in self order</div>
-                                </div>
-                            </a>
+                            @if ($activeBiz && $activeBiz->hasDineInFeature() && $activeBiz->isModuleEnabled(\App\Domain\Template\ModuleRegistry::MODULE_POS_DINEIN) && (\App\Support\Context::hasPermission('pos.tables') || \App\Support\Context::isOwner()))
+                                <a href="{{ route('pos.tables.index') }}"
+                                    class="p-3.5 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.04] active:bg-black/[0.06] dark:active:bg-white/[0.08] text-left space-y-1.5 transition block active:scale-[0.97]">
+                                    <div
+                                        class="w-8 h-8 rounded-[8px] bg-[#007AFF]/12 text-[#007AFF] dark:text-[#0A84FF] flex items-center justify-center">
+                                        <i data-lucide="layout-grid" class="w-4 h-4"></i>
+                                    </div>
+                                    <div>
+                                        <div class="font-medium text-black dark:text-white">{{ __('quick_actions.sheet.tables_title') }}</div>
+                                        <div class="text-[11px] text-black/45 dark:text-white/45">{{ __('quick_actions.sheet.tables_desc') }}</div>
+                                    </div>
+                                </a>
+                            @endif
+
+                            @if ($activeBiz && ($activeBiz->isModuleEnabled(\App\Domain\Template\ModuleRegistry::MODULE_SERVICE_WORKSHOP) || $activeBiz->isServiceSector() || $activeBiz->isWorkshop()) && (\App\Support\Context::hasPermission('products.view') || \App\Support\Context::hasPermission('products.create') || \App\Support\Context::isOwner()))
+                                <a href="{{ route('services.index') }}"
+                                    class="p-3.5 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.04] active:bg-black/[0.06] dark:active:bg-white/[0.08] text-left space-y-1.5 transition block active:scale-[0.97]">
+                                    <div
+                                        class="w-8 h-8 rounded-[8px] bg-[#34C759]/12 text-[#34C759] dark:text-[#30D158] flex items-center justify-center">
+                                        <i data-lucide="wrench" class="w-4 h-4"></i>
+                                    </div>
+                                    <div>
+                                        <div class="font-medium text-black dark:text-white">{{ __('quick_actions.sheet.services_title') }}</div>
+                                        <div class="text-[11px] text-black/45 dark:text-white/45">{{ __('quick_actions.sheet.services_desc') }}</div>
+                                    </div>
+                                </a>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -1426,7 +1760,7 @@
                         {{ $isHomeActive ? 'aria-current="page"' : '' }}
                         class="flex flex-col items-center gap-0.5 py-1 px-2.5 rounded-[8px] transition active:scale-[0.97] {{ $isHomeActive ? 'text-[#007AFF] font-semibold' : 'text-black/45 dark:text-white/45 hover:text-black/70 dark:hover:text-white/70' }}">
                         <i data-lucide="{{ $canSeeDashboard ? 'layout-dashboard' : 'clock' }}" class="w-5 h-5"></i>
-                        <span class="text-[10px]">{{ $canSeeDashboard ? 'Home' : 'Portal' }}</span>
+                        <span class="text-[10px]">{{ $canSeeDashboard ? __('navigation.home_short') : __('navigation.portal_short') }}</span>
                     </a>
 
                     <!-- 2. Kasir POS -->
@@ -1434,14 +1768,14 @@
                         {{ request()->routeIs('pos.terminal') ? 'aria-current="page"' : '' }}
                         class="flex flex-col items-center gap-0.5 py-1 px-2.5 rounded-[8px] transition active:scale-[0.97] {{ request()->routeIs('pos.terminal') ? 'text-[#007AFF] font-semibold' : 'text-black/45 dark:text-white/45 hover:text-black/70 dark:hover:text-white/70' }}">
                         <i data-lucide="calculator" class="w-5 h-5"></i>
-                        <span class="text-[10px]">Kasir</span>
+                        <span class="text-[10px]">{{ __('navigation.pos_terminal_short') }}</span>
                     </a>
 
-                    <!-- 3. Center Action Trigger (iOS Action Capsule) -->
+                    <!-- 3. Center Action Trigger (iOS Action Capsule - 48x48px Touch Target) -->
                     <button type="button" @click="$dispatch('open-mobile-actions')"
-                        class="w-10 h-10 -mt-4 rounded-full bg-[#007AFF] hover:bg-[#0071E3] text-white flex items-center justify-center shadow-[0_4px_14px_rgba(0,122,255,0.35)] ring-4 ring-white dark:ring-[#1C1C1E] active:scale-[0.93] transition-all"
-                        aria-label="Aksi Cepat">
-                        <i data-lucide="plus" class="w-5 h-5"></i>
+                        class="w-12 h-12 -mt-5 rounded-full bg-[#007AFF] hover:bg-[#0071E3] text-white flex items-center justify-center shadow-[0_6px_20px_rgba(0,122,255,0.4)] ring-4 ring-white dark:ring-[#1C1C1E] active:scale-[0.93] transition-all shrink-0 cursor-pointer"
+                        aria-label="{{ __('quick_actions.sheet.title') }}">
+                        <i data-lucide="plus" class="w-6 h-6 stroke-[2.5]"></i>
                     </button>
 
                     <!-- 4. Katalog Produk & Stok -->
@@ -1450,16 +1784,16 @@
                             {{ request()->routeIs('products.*') || request()->routeIs('inventory.*') ? 'aria-current="page"' : '' }}
                             class="flex flex-col items-center gap-0.5 py-1 px-2.5 rounded-[8px] transition active:scale-[0.97] {{ request()->routeIs('products.*') || request()->routeIs('inventory.*') ? 'text-[#007AFF] font-semibold' : 'text-black/45 dark:text-white/45 hover:text-black/70 dark:hover:text-white/70' }}">
                             <i data-lucide="package" class="w-5 h-5"></i>
-                            <span class="text-[10px]">Produk</span>
+                            <span class="text-[10px]">{{ __('navigation.products_short') }}</span>
                         </a>
                     @endif
 
                     <!-- 5. Menu Drawer Trigger -->
                     <button type="button" @click="sidebarOpen = true"
                         class="flex flex-col items-center gap-0.5 py-1 px-2.5 rounded-[8px] text-black/45 dark:text-white/45 hover:text-black/70 dark:hover:text-white/70 transition active:scale-[0.97]"
-                        aria-label="Buka Menu">
+                        aria-label="{{ __('navigation.menu_short') }}">
                         <i data-lucide="menu" class="w-5 h-5"></i>
-                        <span class="text-[10px]">Menu</span>
+                        <span class="text-[10px]">{{ __('navigation.menu_short') }}</span>
                     </button>
                 </div>
             </div>
@@ -1467,13 +1801,12 @@
             <!-- Footer (macOS Minimalist Footnote) -->
             <footer
                 class="px-6 lg:px-10 py-4 border-t border-black/5 dark:border-white/5 text-black/45 dark:text-white/45 text-[12px] flex flex-col sm:flex-row items-center justify-between gap-2 mb-16 lg:mb-0">
-                <div>&copy; {{ date('Y') }} Cooca (cooca.id). Business Operating System.</div>
+                <div>&copy; {{ date('Y') }} Cooca (cooca.id). {{ __('common.copyright_footer') ?? 'Business Operating System.' }}</div>
                 <div class="flex items-center gap-3">
                     <a href="{{ url('/api/v1/docs') }}" target="_blank"
-                        class="hover:text-[#007AFF] transition-colors">API Docs</a>
+                        class="hover:text-[#007AFF] transition-colors">{{ __('common.api_docs') }}</a>
                     <span>•</span>
-                    <a href="{{ route('settings.index') }}" class="hover:text-[#007AFF] transition-colors">20
-                        Template Bisnis</a>
+                    <a href="{{ route('settings.index') }}" class="hover:text-[#007AFF] transition-colors">{{ __('navigation.templates_business') }}</a>
                 </div>
             </footer>
         </div>
@@ -1481,41 +1814,65 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            lucide.createIcons();
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
         });
+
         // Targeted Lucide icon creator to avoid runaway MutationObserver CPU throttling
         let _lucideDebounce = null;
         window.createCoocaIcons = function() {
             if (_lucideDebounce) clearTimeout(_lucideDebounce);
             _lucideDebounce = setTimeout(() => {
-                if (document.querySelector('i[data-lucide]')) {
+                if (typeof lucide !== 'undefined' && document.querySelector('i[data-lucide]')) {
                     lucide.createIcons();
                 }
-            }, 60);
+            }, 50);
         };
-        if (window.MutationObserver) {
-            new MutationObserver((mutations) => {
-                let hasNewIcons = false;
-                for (const m of mutations) {
-                    if (m.addedNodes && m.addedNodes.length > 0) {
-                        for (const node of m.addedNodes) {
-                            if (node.nodeType === 1 && (node.matches?.('i[data-lucide]') || node.querySelector?.(
-                                    'i[data-lucide]'))) {
-                                hasNewIcons = true;
-                                break;
+
+        // Scoped MutationObserver targeting dynamic container nodes instead of whole document.body
+        if (typeof window !== 'undefined' && window.MutationObserver) {
+            const observeTarget = function() {
+                const targetNodes = [
+                    document.getElementById('main-content'),
+                    document.querySelector('main'),
+                    document.getElementById('global-modals-container'),
+                    document.getElementById('alpine-toast-container')
+                ].filter(Boolean);
+
+                const observer = new MutationObserver((mutations) => {
+                    let hasNewIcons = false;
+                    for (const m of mutations) {
+                        if (m.addedNodes && m.addedNodes.length > 0) {
+                            for (const node of m.addedNodes) {
+                                if (node.nodeType === 1 && (node.matches?.('i[data-lucide]') || node.querySelector?.('i[data-lucide]'))) {
+                                    hasNewIcons = true;
+                                    break;
+                                }
                             }
                         }
+                        if (hasNewIcons) break;
                     }
-                    if (hasNewIcons) break;
+                    if (hasNewIcons) {
+                        window.createCoocaIcons();
+                    }
+                });
+
+                if (targetNodes.length > 0) {
+                    targetNodes.forEach(node => observer.observe(node, { childList: true, subtree: true }));
+                } else {
+                    const fallbackRoot = document.getElementById('main-content') || document.querySelector('main') || document.body;
+                    observer.observe(fallbackRoot, { childList: true, subtree: true });
                 }
-                if (hasNewIcons) {
-                    window.createCoocaIcons();
-                }
-            }).observe(document.body, {
-                childList: true,
-                subtree: true
-            });
+            };
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', observeTarget);
+            } else {
+                observeTarget();
+            }
         }
+
         window.coocaToast = function(msg, type = 'success') {
             window.dispatchEvent(new CustomEvent('cooca-toast', {
                 detail: {
@@ -1526,7 +1883,7 @@
         };
     </script>
 
-    <!-- Coming Soon Modal -->
+    <!-- Coming Soon Modal (Bento Apple HIG v2.0 - Authentic Roadmap Preview) -->
     <div x-show="comingSoonOpen" x-transition:enter="transition ease-out duration-200"
         x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
         x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100"
@@ -1534,203 +1891,229 @@
         style="display: none;" @click.self="comingSoonOpen = false" @keydown.escape.window="comingSoonOpen = false">
 
         <!-- Backdrop -->
-        <div class="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
+        <div class="absolute inset-0 bg-black/60 dark:bg-black/75 backdrop-blur-md"></div>
 
         <!-- Modal Panel -->
-        <div x-show="comingSoonOpen" x-transition:enter="transition ease-out duration-250"
-            x-transition:enter-start="opacity-0 scale-90 translate-y-4"
+        <div x-show="comingSoonOpen" x-transition:enter="transition cubic-bezier(0.16, 1, 0.3, 1) duration-300"
+            x-transition:enter-start="opacity-0 scale-95 translate-y-3"
             x-transition:enter-end="opacity-100 scale-100 translate-y-0"
             x-transition:leave="transition ease-in duration-150"
             x-transition:leave-start="opacity-100 scale-100 translate-y-0"
-            x-transition:leave-end="opacity-0 scale-90 translate-y-4"
-            class="relative w-full max-w-md mx-auto rounded-3xl overflow-hidden shadow-2xl" style="display: none;">
+            x-transition:leave-end="opacity-0 scale-95 translate-y-2"
+            class="app-modal-dialog app-modal-dialog-md relative w-full mx-auto bg-white dark:bg-[#1C1C1E] border border-slate-200/80 dark:border-white/10 rounded-[24px] shadow-2xl overflow-hidden z-10"
+            style="display: none;">
 
-            <!-- Gradient top strip -->
-            <div class="h-1.5 w-full"
+            <!-- Subtle Apple Accent Header Glow -->
+            <div class="h-1.5 w-full transition-colors duration-300"
                 :class="{
-                    'bg-gradient-to-r from-purple-500 via-indigo-500 to-purple-600': comingSoonFeature
-                        .color === 'purple',
-                    'bg-gradient-to-r from-amber-400 via-orange-400 to-amber-500': comingSoonFeature
-                        .color === 'amber',
-                    'bg-gradient-to-r from-emerald-400 via-teal-400 to-emerald-500': comingSoonFeature
-                        .color === 'emerald'
+                    'bg-gradient-to-r from-purple-500 via-indigo-500 to-purple-600': comingSoonFeature.color === 'purple',
+                    'bg-gradient-to-r from-amber-400 via-orange-400 to-amber-500': comingSoonFeature.color === 'amber',
+                    'bg-gradient-to-r from-emerald-400 via-teal-400 to-emerald-500': comingSoonFeature.color === 'emerald',
+                    'bg-gradient-to-r from-blue-500 via-indigo-500 to-blue-600': !comingSoonFeature.color || comingSoonFeature.color === 'blue'
                 }">
             </div>
 
-            <div
-                class="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 border-t-0 rounded-b-3xl p-8 space-y-6">
-
-                <!-- Close button -->
-                <button @click="comingSoonOpen = false"
-                    class="absolute top-5 right-5 p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition">
-                    <i data-lucide="x" class="w-4 h-4"></i>
-                </button>
-
-                <!-- Icon + Title -->
-                <div class="flex flex-col items-center text-center space-y-3">
-                    <!-- Animated icon ring -->
-                    <div class="relative">
-                        <div class="absolute inset-0 rounded-full animate-ping opacity-20"
+            <div class="p-6 sm:p-7 space-y-6">
+                <!-- Header with Close Button -->
+                <div class="flex items-start justify-between gap-4">
+                    <div class="flex items-center gap-3.5">
+                        <div class="w-12 h-12 rounded-[16px] flex items-center justify-center border shadow-sm transition-all duration-300 shrink-0"
                             :class="{
-                                'bg-purple-500': comingSoonFeature.color === 'purple',
-                                'bg-amber-400': comingSoonFeature.color === 'amber',
-                                'bg-emerald-500': comingSoonFeature.color === 'emerald'
+                                'bg-purple-500/10 border-purple-500/20 text-purple-600 dark:text-purple-400': comingSoonFeature.color === 'purple',
+                                'bg-amber-500/10 border-amber-500/20 text-amber-600 dark:text-amber-400': comingSoonFeature.color === 'amber',
+                                'bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-400': comingSoonFeature.color === 'emerald',
+                                'bg-blue-500/10 border-blue-500/20 text-blue-600 dark:text-blue-400': !comingSoonFeature.color || comingSoonFeature.color === 'blue'
                             }">
-                        </div>
-                        <div class="relative w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg"
-                            :class="{
-                                'bg-purple-500/20 border border-purple-500/40 shadow-purple-500/20': comingSoonFeature
-                                    .color === 'purple',
-                                'bg-amber-500/20 border border-amber-500/40 shadow-amber-500/20': comingSoonFeature
-                                    .color === 'amber',
-                                'bg-emerald-500/20 border border-emerald-500/40 shadow-emerald-500/20': comingSoonFeature
-                                    .color === 'emerald'
-                            }">
-                            <i :data-lucide="comingSoonFeature.icon" class="w-7 h-7"
-                                :class="{
-                                    'text-purple-600 dark:text-purple-400': comingSoonFeature.color === 'purple',
-                                    'text-amber-600 dark:text-amber-400': comingSoonFeature.color === 'amber',
-                                    'text-emerald-600 dark:text-emerald-400': comingSoonFeature.color === 'emerald'
-                                }"
+                            <i :data-lucide="comingSoonFeature.icon || 'sparkles'" class="w-6 h-6"
                                 x-init="$watch('comingSoonOpen', v => { if (v) { $nextTick(() => lucide.createIcons()); } })"></i>
                         </div>
-                    </div>
-
-                    <!-- Badge -->
-                    <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest"
-                        :class="{
-                            'bg-purple-500/20 text-purple-700 dark:text-purple-300 border border-purple-500/30': comingSoonFeature
-                                .color === 'purple',
-                            'bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30': comingSoonFeature
-                                .color === 'amber',
-                            'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30': comingSoonFeature
-                                .color === 'emerald'
-                        }">
-                        <i data-lucide="sparkles" class="w-3 h-3 inline-block mr-1"></i>Segera Hadir
-                    </span>
-
-                    <h2 class="text-xl font-black text-slate-900 dark:text-white" x-text="comingSoonFeature.title">
-                    </h2>
-                    <p class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed"
-                        x-text="comingSoonFeature.desc"></p>
-                </div>
-
-                <!-- Countdown Timer -->
-                <div x-data="coocaCountdown()" x-init="start()" class="space-y-3">
-                    <p
-                        class="text-center text-[11px] text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wider">
-                        Hitung Mundur Peluncuran</p>
-                    <div class="grid grid-cols-4 gap-2">
-                        <div class="flex flex-col items-center gap-1">
-                            <div
-                                class="w-full py-3 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-center">
-                                <span class="text-2xl font-black font-mono text-slate-900 dark:text-white"
-                                    x-text="String(days).padStart(2,'0')">00</span>
+                        <div>
+                            <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold tracking-wide"
+                                :class="{
+                                    'bg-purple-500/15 text-purple-700 dark:text-purple-300 border border-purple-500/20': comingSoonFeature.color === 'purple',
+                                    'bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/20': comingSoonFeature.color === 'amber',
+                                    'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20': comingSoonFeature.color === 'emerald',
+                                    'bg-blue-500/15 text-blue-700 dark:text-blue-300 border border-blue-500/20': !comingSoonFeature.color || comingSoonFeature.color === 'blue'
+                                }">
+                                <span class="w-1.5 h-1.5 rounded-full animate-pulse"
+                                    :class="{
+                                        'bg-purple-500': comingSoonFeature.color === 'purple',
+                                        'bg-amber-500': comingSoonFeature.color === 'amber',
+                                        'bg-emerald-500': comingSoonFeature.color === 'emerald',
+                                        'bg-blue-500': !comingSoonFeature.color || comingSoonFeature.color === 'blue'
+                                    }"></span>
+                                <span>{{ __('common.in_development') }}</span>
                             </div>
-                            <span
-                                class="text-[10px] text-slate-500 dark:text-slate-400 font-semibold uppercase">Hari</span>
-                        </div>
-                        <div class="flex flex-col items-center gap-1">
-                            <div
-                                class="w-full py-3 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-center">
-                                <span class="text-2xl font-black font-mono text-slate-900 dark:text-white"
-                                    x-text="String(hours).padStart(2,'0')">00</span>
-                            </div>
-                            <span
-                                class="text-[10px] text-slate-500 dark:text-slate-400 font-semibold uppercase">Jam</span>
-                        </div>
-                        <div class="flex flex-col items-center gap-1">
-                            <div
-                                class="w-full py-3 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-center">
-                                <span class="text-2xl font-black font-mono text-slate-900 dark:text-white"
-                                    x-text="String(minutes).padStart(2,'0')">00</span>
-                            </div>
-                            <span
-                                class="text-[10px] text-slate-500 dark:text-slate-400 font-semibold uppercase">Menit</span>
-                        </div>
-                        <div class="flex flex-col items-center gap-1">
-                            <div
-                                class="w-full py-3 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-center">
-                                <span class="text-2xl font-black font-mono text-slate-900 dark:text-white"
-                                    x-text="String(seconds).padStart(2,'0')">00</span>
-                            </div>
-                            <span
-                                class="text-[10px] text-slate-500 dark:text-slate-400 font-semibold uppercase">Detik</span>
+                            <h3 class="text-lg font-bold text-slate-900 dark:text-white mt-1 leading-snug" x-text="comingSoonFeature.title"></h3>
                         </div>
                     </div>
-                    <!-- Progress bar -->
-                    <div class="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                        <div class="h-full rounded-full transition-all duration-1000 bg-gradient-to-r from-emerald-500 to-teal-400"
-                            :style="'width:' + progress + '%'"></div>
-                    </div>
-                    <p class="text-center text-[10px] text-slate-500 dark:text-slate-400" x-text="launchDate"></p>
-                </div>
-
-                <!-- CTA -->
-                <div class="flex flex-col gap-2">
-                    <a href="{{ route('billing.limits') }}"
-                        class="flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 text-sm font-black shadow-lg shadow-emerald-500/20 transition-all hover:scale-[1.02] active:scale-95">
-                        <i data-lucide="sparkles" class="w-4 h-4"></i>
-                        <span>Lihat Paket & Kuota Saya</span>
-                    </a>
-                    <button @click="comingSoonOpen = false"
-                        class="px-5 py-2.5 rounded-2xl text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white text-sm font-semibold transition hover:bg-slate-100 dark:hover:bg-slate-800">
-                        Tutup
+                    <button @click="comingSoonOpen = false" type="button"
+                        class="p-2 rounded-[10px] text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10 transition-colors">
+                        <i data-lucide="x" class="w-4 h-4"></i>
                     </button>
+                </div>
+
+                <!-- Description & Value Highlight Bento Card -->
+                <div class="p-4 rounded-[16px] bg-slate-50 dark:bg-white/[0.03] border border-slate-200/70 dark:border-white/5 space-y-3">
+                    <p class="text-[13px] text-slate-600 dark:text-slate-300 leading-relaxed" x-text="comingSoonFeature.desc || '{{ __('common.in_development_desc') }}'"></p>
+                    
+                    <div class="pt-2 border-t border-slate-200/60 dark:border-white/5 flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
+                        <span class="inline-flex items-center gap-1.5 font-medium">
+                            <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-500 shrink-0"></i>
+                            <span>Enterprise Quality & Safety</span>
+                        </span>
+                        <span class="font-semibold text-slate-700 dark:text-slate-300">Cooca Roadmap</span>
+                    </div>
+                </div>
+
+                <!-- Action CTAs -->
+                <div class="flex flex-col-reverse sm:flex-row items-center justify-end gap-2.5 pt-2">
+                    <button @click="comingSoonOpen = false" type="button"
+                        class="w-full sm:w-auto px-4 py-2.5 rounded-[12px] text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white text-[13px] font-semibold transition-colors hover:bg-slate-100 dark:hover:bg-white/5">
+                        {{ __('common.close') }}
+                    </button>
+                    <a href="{{ route('billing.limits') }}"
+                        class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-[12px] bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 text-[13px] font-semibold shadow-sm transition-all active:scale-95">
+                        <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-400 dark:text-amber-500"></i>
+                        <span>{{ __('common.view_plans_quota') }}</span>
+                    </a>
+                </div>
+            </div>
+    <!-- Storage & Audit Pruning Preview Modal (Bento Apple HIG v2.0) -->
+    <div x-show="storagePruningOpen" x-transition:enter="transition ease-out duration-200"
+        x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+        x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0" class="fixed inset-0 z-[200] flex items-center justify-center p-4"
+        style="display: none;" @click.self="storagePruningOpen = false" @keydown.escape.window="storagePruningOpen = false">
+
+        <!-- Backdrop -->
+        <div class="absolute inset-0 bg-black/60 dark:bg-black/75 backdrop-blur-md"></div>
+
+        <!-- Modal Panel -->
+        <div x-show="storagePruningOpen" x-transition:enter="transition cubic-bezier(0.16, 1, 0.3, 1) duration-300"
+            x-transition:enter-start="opacity-0 scale-95 translate-y-3"
+            x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+            x-transition:leave="transition ease-in duration-150"
+            x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+            x-transition:leave-end="opacity-0 scale-95 translate-y-2"
+            class="app-modal-dialog app-modal-dialog-md relative w-full mx-auto bg-white dark:bg-[#1C1C1E] border border-slate-200/80 dark:border-white/10 rounded-[24px] shadow-2xl overflow-hidden z-10"
+            style="display: none;">
+
+            <!-- Apple Blue Accent Header Glow -->
+            <div class="h-1.5 w-full bg-gradient-to-r from-[#007AFF] via-[#5856D6] to-[#007AFF]"></div>
+
+            <div class="p-6 sm:p-7 space-y-5">
+                <!-- Header with Close Button -->
+                <div class="flex items-start justify-between gap-4">
+                    <div class="flex items-center gap-3.5">
+                        <div class="w-12 h-12 rounded-[16px] bg-[#007AFF]/10 dark:bg-[#0A84FF]/15 border border-[#007AFF]/20 text-[#007AFF] dark:text-[#0A84FF] flex items-center justify-center shadow-sm shrink-0">
+                            <i data-lucide="hard-drive" class="w-6 h-6" x-init="$watch('storagePruningOpen', v => { if (v) { $nextTick(() => { if (window.createCoocaIcons) window.createCoocaIcons(); else if (window.lucide) lucide.createIcons(); }); } })"></i>
+                        </div>
+                        <div>
+                            <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold tracking-wide bg-[#007AFF]/10 text-[#007AFF] dark:text-[#0A84FF] border border-[#007AFF]/20">
+                                <i data-lucide="database" class="w-3 h-3"></i>
+                                <span>{{ __('common.storage_pruning_title') }}</span>
+                            </div>
+                            <h3 class="text-lg font-bold text-slate-900 dark:text-white mt-1 leading-snug">{{ __('common.storage_pruning_title') }}</h3>
+                        </div>
+                    </div>
+                    <button @click="storagePruningOpen = false" type="button"
+                        class="p-2 rounded-[10px] text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10 transition-colors"
+                        aria-label="{{ __('common.close') }}">
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                    </button>
+                </div>
+
+                <p class="text-[13px] text-slate-600 dark:text-slate-300 leading-relaxed">
+                    {{ __('common.storage_pruning_subtitle') }}
+                </p>
+
+                <!-- 3 Bento Cards for Pruning Categories -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <!-- Bento Card 1: Historical Audit Logs (>90 Days) -->
+                    <div class="p-3.5 rounded-[16px] bg-slate-50 dark:bg-white/[0.03] border border-slate-200/70 dark:border-white/5 space-y-1.5 flex flex-col justify-between">
+                        <div class="space-y-1">
+                            <div class="w-7 h-7 rounded-[8px] bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+                                <i data-lucide="history" class="w-4 h-4"></i>
+                            </div>
+                            <div class="font-bold text-[12px] text-slate-900 dark:text-white">
+                                {{ __('common.storage_audit_logs_title') }}
+                            </div>
+                            <div class="text-[11px] text-slate-500 dark:text-slate-400 leading-snug">
+                                {{ __('common.storage_audit_logs_desc') }}
+                            </div>
+                        </div>
+                        <div class="pt-2 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                            <i data-lucide="check-circle" class="w-3 h-3"></i>
+                            <span>Aman Dipangkas</span>
+                        </div>
+                    </div>
+
+                    <!-- Bento Card 2: Sync & Webhook Logs -->
+                    <div class="p-3.5 rounded-[16px] bg-slate-50 dark:bg-white/[0.03] border border-slate-200/70 dark:border-white/5 space-y-1.5 flex flex-col justify-between">
+                        <div class="space-y-1">
+                            <div class="w-7 h-7 rounded-[8px] bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+                                <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                            </div>
+                            <div class="font-bold text-[12px] text-slate-900 dark:text-white">
+                                {{ __('common.storage_sync_logs_title') }}
+                            </div>
+                            <div class="text-[11px] text-slate-500 dark:text-slate-400 leading-snug">
+                                {{ __('common.storage_sync_logs_desc') }}
+                            </div>
+                        </div>
+                        <div class="pt-2 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                            <i data-lucide="check-circle" class="w-3 h-3"></i>
+                            <span>Aman Dipangkas</span>
+                        </div>
+                    </div>
+
+                    <!-- Bento Card 3: Temporary Cache & Indexes -->
+                    <div class="p-3.5 rounded-[16px] bg-slate-50 dark:bg-white/[0.03] border border-slate-200/70 dark:border-white/5 space-y-1.5 flex flex-col justify-between">
+                        <div class="space-y-1">
+                            <div class="w-7 h-7 rounded-[8px] bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center">
+                                <i data-lucide="cpu" class="w-4 h-4"></i>
+                            </div>
+                            <div class="font-bold text-[12px] text-slate-900 dark:text-white">
+                                {{ __('common.storage_cache_index_title') }}
+                            </div>
+                            <div class="text-[11px] text-slate-500 dark:text-slate-400 leading-snug">
+                                {{ __('common.storage_cache_index_desc') }}
+                            </div>
+                        </div>
+                        <div class="pt-2 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                            <i data-lucide="check-circle" class="w-3 h-3"></i>
+                            <span>Auto Rebuilt</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Safety Protection Guarantee Banner -->
+                <div class="p-3.5 rounded-[14px] bg-emerald-500/10 border border-emerald-500/20 flex items-start gap-2.5 text-[12px] text-emerald-800 dark:text-emerald-300">
+                    <i data-lucide="shield-check" class="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5"></i>
+                    <span class="leading-relaxed">{{ __('common.storage_safe_guarantee') }}</span>
+                </div>
+
+                <!-- Modal Actions -->
+                <div class="flex flex-col-reverse sm:flex-row items-center justify-end gap-2.5 pt-2">
+                    <button @click="storagePruningOpen = false" type="button"
+                        class="w-full sm:w-auto px-4 py-2.5 rounded-[12px] text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white text-[13px] font-semibold transition-colors hover:bg-slate-100 dark:hover:bg-white/5">
+                        {{ __('common.close') }}
+                    </button>
+                    <a href="{{ route('settings.index') }}"
+                        class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-[12px] bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 text-[13px] font-semibold shadow-sm transition-all active:scale-95">
+                        <i data-lucide="settings" class="w-3.5 h-3.5"></i>
+                        <span>{{ __('common.storage_open_settings') }}</span>
+                    </a>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Coming Soon: intercept ai_token checkout links globally -->
+    <!-- Coming Soon: intercept development feature links globally -->
     <script>
         (function() {
-            // Countdown component
-            window.coocaCountdown = function() {
-                // Launch date: 1 month from now, stored in localStorage so it's stable per browser
-                const KEY = 'cooca_coming_soon_launch';
-                let launch = localStorage.getItem(KEY);
-                if (!launch) {
-                    const d = new Date();
-                    d.setMonth(d.getMonth() + 1);
-                    launch = d.toISOString();
-                    localStorage.setItem(KEY, launch);
-                }
-                const launchTime = new Date(launch).getTime();
-                const totalDuration = launchTime - (launchTime - 30 * 24 * 60 * 60 * 1000); // 30 days in ms
-
-                return {
-                    days: 0,
-                    hours: 0,
-                    minutes: 0,
-                    seconds: 0,
-                    progress: 0,
-                    launchDate: '',
-                    _timer: null,
-                    start() {
-                        const ldate = new Date(launchTime);
-                        this.launchDate = 'Target peluncuran: ' + ldate.toLocaleDateString('id-ID', {
-                            day: 'numeric',
-                            month: 'long',
-                            year: 'numeric'
-                        });
-                        this.tick();
-                        this._timer = setInterval(() => this.tick(), 1000);
-                    },
-                    tick() {
-                        const now = Date.now();
-                        const diff = Math.max(0, launchTime - now);
-                        this.days = Math.floor(diff / 86400000);
-                        this.hours = Math.floor((diff % 86400000) / 3600000);
-                        this.minutes = Math.floor((diff % 3600000) / 60000);
-                        this.seconds = Math.floor((diff % 60000) / 1000);
-                        const elapsed = totalDuration - diff;
-                        this.progress = Math.min(100, Math.round((elapsed / totalDuration) * 100));
-                    }
-                };
-            };
-
-            // Intercept all anchor clicks that go to ai_token checkout, pos/ai, or community
+            // Intercept all anchor clicks that go to ai_token checkout, pos/ai, or preview routes
             document.addEventListener('click', function(e) {
                 const a = e.target.closest('a');
                 if (!a) return;
@@ -1772,26 +2155,28 @@
     <script src="{{ asset('js/onboarding/tour-config.js') }}"></script>
     <script src="{{ asset('js/onboarding/product-tour.js') }}"></script>
 
-    <!-- AppAlert Session Flash Notifications -->
+    <!-- AppAlert Session Flash Notifications (Deduplicated) -->
     @php
-        $flashSuccess = session()->pull('success');
-        $flashError = session()->pull('error');
-        $flashWarning = session()->pull('warning');
-        $flashInfo = session()->pull('info');
+        $flashSuccess = session('success');
+        $flashError = session('error');
+        $flashWarning = session('warning');
+        $flashInfo = session('info');
     @endphp
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            if (window.__coocaFlashHandled) return;
+            window.__coocaFlashHandled = true;
             @if ($flashSuccess)
-                AppAlert.success(@json($flashSuccess));
+                if (typeof AppAlert !== 'undefined') AppAlert.success(@json($flashSuccess));
             @endif
             @if ($flashError)
-                AppAlert.error(@json($flashError));
+                if (typeof AppAlert !== 'undefined') AppAlert.error(@json($flashError));
             @endif
             @if ($flashWarning)
-                AppAlert.warning(@json($flashWarning));
+                if (typeof AppAlert !== 'undefined') AppAlert.warning(@json($flashWarning));
             @endif
             @if ($flashInfo)
-                AppAlert.info(@json($flashInfo));
+                if (typeof AppAlert !== 'undefined') AppAlert.info(@json($flashInfo));
             @endif
         });
     </script>

@@ -5,10 +5,113 @@
 ])
 
 @section('content')
-    <div class="max-w-[1360px] mx-auto space-y-6 pb-28 lg:pb-12"
-        x-data="masterDataManager({
-            categories: {{ Js::from($marketplaceCategories ?? []) }}
-        })">
+    <div class="max-w-[1360px] mx-auto space-y-6 pb-28 lg:pb-12" x-data="{
+        showAddModal: false,
+        showEditModal: false,
+        activeTab: 'units',
+        filterSource: 'all',
+        searchQuery: '',
+        marketplaceCategories: {{ Js::from($marketplaceCategories ?? []) }},
+        addItem: { name: '', description: '', marketplace_category_id: '', marketplace_category_name: '' },
+        editItem: { id: '', code: '', name: '', category: 'quantity', description: '', marketplace_category_id: '', marketplace_category_name: '', cascade_to_products: true },
+        categorySearchAdd: '',
+        categorySearchEdit: '',
+        categoryDropdownOpenAdd: false,
+        categoryDropdownOpenEdit: false,
+        deleteModalOpen: false,
+        deleteTarget: { url: '', name: '' },
+        openDelete(url, name) {
+            this.deleteTarget = { url, name };
+            this.deleteModalOpen = true;
+        },
+        closeDelete() {
+            this.deleteModalOpen = false;
+            this.deleteTarget = { url: '', name: '' };
+        },
+        submitDelete() {
+            if (this.deleteTarget.url) {
+                const form = document.getElementById('form-delete-master');
+                form.action = this.deleteTarget.url;
+                form.submit();
+            }
+        },
+        openAdd() {
+            this.addItem = { name: '', description: '', marketplace_category_id: '', marketplace_category_name: '' };
+            this.categorySearchAdd = '';
+            this.categoryDropdownOpenAdd = false;
+            this.showAddModal = true;
+        },
+        openEdit(item) {
+            this.editItem = {
+                id: item.id || '',
+                code: item.code || '',
+                name: item.name || '',
+                category: item.category || 'quantity',
+                description: item.description || '',
+                marketplace_category_id: item.marketplace_category_id || '',
+                marketplace_category_name: item.marketplace_category_name || '',
+                cascade_to_products: true
+            };
+            this.categorySearchEdit = '';
+            this.categoryDropdownOpenEdit = false;
+            this.showEditModal = true;
+        },
+        selectMarketplaceCategoryAdd(cat) {
+            this.addItem.marketplace_category_id = cat.id;
+            this.addItem.marketplace_category_name = cat.name;
+            this.categoryDropdownOpenAdd = false;
+            this.categorySearchAdd = '';
+        },
+        clearMarketplaceCategoryAdd() {
+            this.addItem.marketplace_category_id = '';
+            this.addItem.marketplace_category_name = '';
+            this.categoryDropdownOpenAdd = false;
+            this.categorySearchAdd = '';
+        },
+        selectMarketplaceCategoryEdit(cat) {
+            this.editItem.marketplace_category_id = cat.id;
+            this.editItem.marketplace_category_name = cat.name;
+            this.categoryDropdownOpenEdit = false;
+            this.categorySearchEdit = '';
+        },
+        clearMarketplaceCategoryEdit() {
+            this.editItem.marketplace_category_id = '';
+            this.editItem.marketplace_category_name = '';
+            this.categoryDropdownOpenEdit = false;
+            this.categorySearchEdit = '';
+        },
+        filteredCategories(query) {
+            if (!query || !query.trim()) return this.marketplaceCategories;
+            const q = query.toLowerCase().trim();
+            return this.marketplaceCategories.filter(c =>
+                c.name.toLowerCase().includes(q) ||
+                (c.id && c.id.includes(q)) ||
+                (c.description && c.description.toLowerCase().includes(q)) ||
+                (c.keywords && c.keywords.some(k => k.toLowerCase().includes(q)))
+            );
+        },
+        get selectedAddCategoryObj() {
+            return this.marketplaceCategories.find(c => c.id === this.addItem.marketplace_category_id) || null;
+        },
+        get selectedEditCategoryObj() {
+            return this.marketplaceCategories.find(c => c.id === this.editItem.marketplace_category_id) || null;
+        },
+        matchesSearch(code, name, category, desc, mpName) {
+            if (!this.searchQuery) return true;
+            const q = this.searchQuery.toLowerCase();
+            return (code && code.toLowerCase().includes(q)) ||
+                (name && name.toLowerCase().includes(q)) ||
+                (category && category.toLowerCase().includes(q)) ||
+                (desc && desc.toLowerCase().includes(q)) ||
+                (mpName && mpName.toLowerCase().includes(q));
+        },
+        matchesSource(isBusiness) {
+            if (this.filterSource === 'all') return true;
+            if (this.filterSource === 'business') return !!isBusiness;
+            if (this.filterSource === 'system') return !isBusiness;
+            return true;
+        }
+    }">
 
         @php
             $activeModule = $module ?? ($type === 'product-categories' ? 'products' : 'materials');
@@ -20,6 +123,7 @@
                 ['label' => $parentLabel, 'url' => route($parentRoute)],
                 ['label' => $title, 'url' => null],
             ];
+            $managePermission = 'master_data.' . str_replace('-', '_', $type) . '.manage';
         @endphp
 
         <!-- ===================================================== -->
@@ -27,9 +131,9 @@
         <!-- ===================================================== -->
         <x-module-header :title="$title" :subtitle="$subtitle" :breadcrumbs="$breadcrumbs">
             @if (in_array($type, ['material-categories', 'product-categories', 'units'], true) &&
-                    \App\Support\Context::hasPermission("master_data.{$type}.manage"))
-                <button type="button" @click="openAdd()"
-                    class="h-10 px-4 rounded-[12px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5 shadow-sm shadow-[#007AFF]/25">
+                    \App\Support\Context::hasPermission($managePermission))
+                <button type="button" @click.stop="openAdd()"
+                    class="h-10 px-4 rounded-[12px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5 shadow-sm shadow-[#007AFF]/25 cursor-pointer">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                     </svg>
@@ -308,13 +412,18 @@
                                         </td>
                                         <td class="py-3 px-4">
                                             @if($item->marketplace_category_id)
-                                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[10px] text-[11.5px] font-semibold bg-[#007AFF]/10 text-[#007AFF] border border-[#007AFF]/20">
-                                                    <i data-lucide="layers" class="w-3.5 h-3.5"></i>
+                                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[10px] text-[11.5px] font-semibold bg-[#34C759]/10 text-[#34C759] border border-[#34C759]/20">
+                                                    <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                                                    </svg>
                                                     <span>{{ $item->marketplace_category_name ?? $item->marketplace_category_id }}</span>
-                                                    <span class="font-mono text-[10.5px] opacity-75">({{ $item->marketplace_category_id }})</span>
+                                                    <span class="font-mono text-[10px] opacity-75">({{ $item->marketplace_category_id }})</span>
                                                 </span>
                                             @else
-                                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-[10px] text-[11px] font-medium text-black/40 dark:text-white/40 bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/5">
+                                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-[10px] text-[11px] font-medium text-amber-600 dark:text-amber-400 bg-amber-500/10 border border-amber-500/20">
+                                                    <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
+                                                    </svg>
                                                     <span>Belum Dipetakan</span>
                                                 </span>
                                             @endif
@@ -338,15 +447,15 @@
                                     <td class="py-3 px-4 text-right">
                                         @if (
                                             ($item->business_id || !in_array($type, ['units'], true)) &&
-                                                \App\Support\Context::hasPermission("master_data.{$type}.manage"))
+                                                \App\Support\Context::hasPermission($managePermission))
                                             <div class="flex items-center justify-end gap-1">
                                                 <button type="button" title="Edit"
-                                                    @click="openEdit(@js(['id' => $item->id, 'code' => $item->code ?? '', 'name' => $item->name ?? '', 'category' => $item->category ?? 'quantity', 'description' => $item->description ?? '', 'marketplace_category_id' => $item->marketplace_category_id ?? '', 'marketplace_category_name' => $item->marketplace_category_name ?? '']))"
+                                                    @click.stop="openEdit(@js(['id' => $item->id, 'code' => $item->code ?? '', 'name' => $item->name ?? '', 'category' => $item->category ?? 'quantity', 'description' => $item->description ?? '', 'marketplace_category_id' => $item->marketplace_category_id ?? '', 'marketplace_category_name' => $item->marketplace_category_name ?? '']))"
                                                     class="h-7 px-2 rounded-[6px] text-[12px] font-medium text-[#007AFF] hover:bg-[#007AFF]/8 transition-colors flex items-center cursor-pointer">
                                                     Edit
                                                 </button>
                                                 <button type="button" title="Hapus"
-                                                    @click="openDelete('{{ route($type . '.destroy', $item->id) }}', '{{ addslashes($item->name ?? $item->code) }}')"
+                                                    @click.stop="openDelete('{{ route($type . '.destroy', $item->id) }}', '{{ addslashes($item->name ?? $item->code) }}')"
                                                     class="h-7 px-2 rounded-[6px] text-[12px] font-medium text-[#FF3B30] hover:bg-[#FF3B30]/8 transition-colors flex items-center cursor-pointer">
                                                     Hapus
                                                 </button>
@@ -393,11 +502,22 @@
                                         class="text-[11px] px-1.5 py-0.2 rounded-full font-semibold {{ $item->business_id ? 'bg-[#007AFF]/12 text-[#007AFF]' : 'bg-black/[0.06] dark:bg-white/[0.08] text-black/55 dark:text-white/55' }}">
                                         {{ $item->business_id ? 'Bisnis' : 'Sistem' }}
                                     </span>
-                                @elseif ($type === 'product-categories' && $item->marketplace_category_id)
-                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10.5px] font-semibold bg-[#007AFF]/10 text-[#007AFF]">
-                                        <i data-lucide="layers" class="w-3 h-3"></i>
-                                        <span>{{ $item->marketplace_category_name ?? $item->marketplace_category_id }}</span>
-                                    </span>
+                                @elseif ($type === 'product-categories')
+                                    @if($item->marketplace_category_id)
+                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10.5px] font-semibold bg-[#34C759]/10 text-[#34C759]">
+                                            <svg class="w-3 h-3 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                                            </svg>
+                                            <span>{{ $item->marketplace_category_name ?? $item->marketplace_category_id }}</span>
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10.5px] font-semibold bg-amber-500/10 text-amber-600 dark:text-amber-400">
+                                            <svg class="w-3 h-3 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
+                                            </svg>
+                                            <span>Belum Dipetakan</span>
+                                        </span>
+                                    @endif
                                 @endif
                             </div>
                             <p class="text-[13px] text-black/50 dark:text-white/50 truncate">
@@ -411,13 +531,13 @@
                         <div class="flex items-center gap-1.5 shrink-0">
                             @if (
                                 ($item->business_id || !in_array($type, ['units'], true)) &&
-                                    \App\Support\Context::hasPermission("master_data.{$type}.manage"))
-                                <button type="button" @click="openEdit(@js(['id' => $item->id, 'code' => $item->code ?? '', 'name' => $item->name ?? '', 'category' => $item->category ?? 'quantity', 'description' => $item->description ?? '', 'marketplace_category_id' => $item->marketplace_category_id ?? '', 'marketplace_category_name' => $item->marketplace_category_name ?? '']))"
+                                    \App\Support\Context::hasPermission($managePermission))
+                                <button type="button" @click.stop="openEdit(@js(['id' => $item->id, 'code' => $item->code ?? '', 'name' => $item->name ?? '', 'category' => $item->category ?? 'quantity', 'description' => $item->description ?? '', 'marketplace_category_id' => $item->marketplace_category_id ?? '', 'marketplace_category_name' => $item->marketplace_category_name ?? '']))"
                                     class="h-8 px-2.5 rounded-[8px] text-[12px] font-medium text-[#007AFF] bg-[#007AFF]/10 flex items-center cursor-pointer">
                                     Edit
                                 </button>
                                 <button type="button"
-                                    @click="openDelete('{{ route($type . '.destroy', $item->id) }}', '{{ addslashes($item->name ?? $item->code) }}')"
+                                    @click.stop="openDelete('{{ route($type . '.destroy', $item->id) }}', '{{ addslashes($item->name ?? $item->code) }}')"
                                     class="h-8 w-8 rounded-[8px] text-[#FF3B30] bg-[#FF3B30]/10 flex items-center justify-center cursor-pointer">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
                                         viewBox="0 0 24 24">
@@ -426,6 +546,7 @@
                                 </button>
                             @endif
                         </div>
+                    </div>
                 @empty
                     <div class="p-8 text-center text-black/40 dark:text-white/40 text-[13px]">
                         {{ $emptyLabel }}
@@ -593,9 +714,10 @@
         <!-- 6. MODAL: TAMBAH DATA (Apple Sheet)                   -->
         <!-- ===================================================== -->
         @if (in_array($type, ['material-categories', 'product-categories', 'units'], true) &&
-                \App\Support\Context::hasPermission("master_data.{$type}.manage"))
-            <div x-show="showAddModal" style="display: none"
+                \App\Support\Context::hasPermission($managePermission))
+            <div x-show="showAddModal" x-cloak
                 class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/25 backdrop-blur-[2px]"
+                @click.self="showAddModal = false"
                 x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0"
                 x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150"
                 x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
@@ -665,14 +787,22 @@
                                                 Kategori Resmi Marketplace
                                             </label>
                                             <p class="text-[11px] text-black/50 dark:text-white/50">
-                                                Otomatis terwariskan ke seluruh produk dalam kategori ini
+                                                Pilih 1 taksonomi resmi marketplace yang otomatis terwariskan ke produk
                                             </p>
                                         </div>
-                                        <template x-if="selectedAddCategoryObj">
-                                            <span class="text-[10.5px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#007AFF]/10 text-[#007AFF]">
-                                                ID: <span x-text="addItem.marketplace_category_id"></span>
-                                            </span>
-                                        </template>
+                                        <div class="flex items-center gap-1.5">
+                                            <template x-if="selectedAddCategoryObj">
+                                                <div class="flex items-center gap-1">
+                                                    <span class="text-[10.5px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#007AFF]/10 text-[#007AFF]">
+                                                        ID: <span x-text="addItem.marketplace_category_id"></span>
+                                                    </span>
+                                                    <button type="button" @click.stop="clearMarketplaceCategoryAdd()" title="Kosongkan pemetaan"
+                                                        class="w-5 h-5 rounded-full text-black/40 hover:text-[#FF3B30] hover:bg-black/5 flex items-center justify-center text-[11px] cursor-pointer">
+                                                        ✕
+                                                    </button>
+                                                </div>
+                                            </template>
+                                        </div>
                                     </div>
 
                                     <!-- Active Selection Card / Trigger Button -->
@@ -680,17 +810,22 @@
                                         <button type="button" @click="categoryDropdownOpenAdd = !categoryDropdownOpenAdd"
                                             class="w-full p-3 rounded-[12px] bg-white dark:bg-[#1C1C1E] border border-black/[0.1] dark:border-white/[0.12] hover:border-[#007AFF] transition-all flex items-center justify-between text-left gap-2.5 shadow-2xs cursor-pointer">
                                             <div class="flex items-center gap-2.5 min-w-0">
-                                                <div class="w-8 h-8 rounded-[8px] bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center shrink-0">
-                                                    <i data-lucide="layers" class="w-4 h-4"></i>
+                                                <div class="w-8 h-8 rounded-[8px] flex items-center justify-center shrink-0 transition-colors"
+                                                    :class="selectedAddCategoryObj ? 'bg-[#007AFF]/10 text-[#007AFF]' : 'bg-black/[0.05] dark:bg-white/[0.08] text-black/40 dark:text-white/40'">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                                                    </svg>
                                                 </div>
                                                 <div class="min-w-0">
-                                                    <div class="text-[12.5px] font-bold text-black dark:text-white truncate" x-text="selectedAddCategoryObj ? selectedAddCategoryObj.name : 'Pilih Kategori Marketplace...'"></div>
-                                                    <div class="text-[10.5px] text-black/50 dark:text-white/50 truncate max-w-[240px] sm:max-w-xs" x-text="selectedAddCategoryObj ? selectedAddCategoryObj.description : 'Klik untuk mencari atau memilih kategori resmi'"></div>
+                                                    <div class="text-[12.5px] font-bold text-black dark:text-white truncate" x-text="selectedAddCategoryObj ? selectedAddCategoryObj.name : 'Pilih 1 Kategori Marketplace...'"></div>
+                                                    <div class="text-[10.5px] text-black/50 dark:text-white/50 truncate max-w-[240px] sm:max-w-xs" x-text="selectedAddCategoryObj ? selectedAddCategoryObj.description : 'Klik untuk memilih taksonomi resmi TikTok / Tokopedia / Shopee'"></div>
                                                 </div>
                                             </div>
                                             <div class="flex items-center gap-1 shrink-0 text-black/40 dark:text-white/40">
-                                                <span class="text-[11px] font-medium hidden sm:inline" x-text="categoryDropdownOpenAdd ? 'Tutup' : 'Pilih'"></span>
-                                                <i data-lucide="chevron-down" class="w-3.5 h-3.5 transition-transform duration-200" :class="categoryDropdownOpenAdd ? 'rotate-180' : ''"></i>
+                                                <span class="text-[11px] font-medium hidden sm:inline" x-text="categoryDropdownOpenAdd ? 'Tutup' : (selectedAddCategoryObj ? 'Ganti' : 'Pilih')"></span>
+                                                <svg class="w-3.5 h-3.5 transition-transform duration-200" :class="categoryDropdownOpenAdd ? 'rotate-180' : ''" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                                                </svg>
                                             </div>
                                         </button>
 
@@ -702,18 +837,35 @@
                                             x-transition:enter="transition ease-out duration-150"
                                             x-transition:enter-start="opacity-0 translate-y-2 scale-95"
                                             x-transition:enter-end="opacity-100 translate-y-0 scale-100"
-                                            x-transition:exit="transition ease-in duration-100"
-                                            x-transition:exit-start="opacity-100 translate-y-0 scale-100"
-                                            x-transition:exit-end="opacity-0 translate-y-2 scale-95"
+                                            x-transition:leave="transition ease-in duration-100"
+                                            x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+                                            x-transition:leave-end="opacity-0 translate-y-2 scale-95"
                                             class="absolute z-50 left-0 right-0 top-full mt-1.5 p-2.5 rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/15 shadow-xl max-h-[300px] flex flex-col space-y-2">
                                             
                                             <div class="relative">
-                                                <i data-lucide="search" class="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-black/40 dark:text-white/40"></i>
+                                                <svg class="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-black/40 dark:text-white/40 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                                                </svg>
                                                 <input type="text" x-model="categorySearchAdd" placeholder="Cari nama atau id kategori..."
                                                     class="w-full h-8 pl-8 pr-3 rounded-[8px] bg-black/[0.03] dark:bg-white/[0.05] border border-black/[0.08] dark:border-white/[0.1] text-[12px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/30">
                                             </div>
 
                                             <div class="overflow-y-auto space-y-1 pr-1 flex-1 max-h-[200px] custom-scrollbar">
+                                                <!-- Optional: Option to clear selection -->
+                                                <button type="button" @click="clearMarketplaceCategoryAdd()"
+                                                    :class="!addItem.marketplace_category_id ? 'bg-[#007AFF]/10 border-[#007AFF]/30 text-[#007AFF]' : 'hover:bg-black/[0.03] dark:hover:bg-white/[0.05] border-transparent text-black/70 dark:text-white/70'"
+                                                    class="w-full p-2 rounded-[10px] border text-left flex items-center justify-between gap-2 transition-colors cursor-pointer group">
+                                                    <div class="min-w-0 flex-1">
+                                                        <div class="text-[12px] font-semibold">Tanpa Kategori Marketplace</div>
+                                                        <p class="text-[10.5px] text-black/40 dark:text-white/40">Hanya untuk operasional internal / kasir fisik</p>
+                                                    </div>
+                                                    <template x-if="!addItem.marketplace_category_id">
+                                                        <svg class="w-4 h-4 text-[#007AFF] shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                                                        </svg>
+                                                    </template>
+                                                </button>
+
                                                 <template x-for="cat in filteredCategories(categorySearchAdd)" :key="cat.id">
                                                     <button type="button" @click="selectMarketplaceCategoryAdd(cat)"
                                                         :class="addItem.marketplace_category_id === cat.id ? 'bg-[#007AFF]/10 border-[#007AFF]/30 text-[#007AFF]' : 'hover:bg-black/[0.03] dark:hover:bg-white/[0.05] border-transparent text-black dark:text-white'"
@@ -726,7 +878,9 @@
                                                             <p class="text-[10.5px] text-black/50 dark:text-white/50 truncate mt-0.5" x-text="cat.description"></p>
                                                         </div>
                                                         <template x-if="addItem.marketplace_category_id === cat.id">
-                                                            <i data-lucide="check" class="w-3.5 h-3.5 text-[#007AFF] shrink-0"></i>
+                                                            <svg class="w-4 h-4 text-[#007AFF] shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                                                            </svg>
                                                         </template>
                                                     </button>
                                                 </template>
@@ -764,9 +918,10 @@
         <!-- 7. MODAL: EDIT DATA (Apple Sheet)                     -->
         <!-- ===================================================== -->
         @if (in_array($type, ['material-categories', 'product-categories', 'units'], true) &&
-                \App\Support\Context::hasPermission("master_data.{$type}.manage"))
-            <div x-show="showEditModal" style="display: none"
+                \App\Support\Context::hasPermission($managePermission))
+            <div x-show="showEditModal" x-cloak
                 class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/25 backdrop-blur-[2px]"
+                @click.self="showEditModal = false"
                 x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0"
                 x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150"
                 x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
@@ -840,14 +995,22 @@
                                                 Kategori Resmi Marketplace
                                             </label>
                                             <p class="text-[11px] text-black/50 dark:text-white/50">
-                                                Otomatis terwariskan ke seluruh produk dalam kategori ini
+                                                Pilih 1 taksonomi resmi marketplace yang otomatis terwariskan ke produk
                                             </p>
                                         </div>
-                                        <template x-if="selectedEditCategoryObj">
-                                            <span class="text-[10.5px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#007AFF]/10 text-[#007AFF]">
-                                                ID: <span x-text="editItem.marketplace_category_id"></span>
-                                            </span>
-                                        </template>
+                                        <div class="flex items-center gap-1.5">
+                                            <template x-if="selectedEditCategoryObj">
+                                                <div class="flex items-center gap-1">
+                                                    <span class="text-[10.5px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#007AFF]/10 text-[#007AFF]">
+                                                        ID: <span x-text="editItem.marketplace_category_id"></span>
+                                                    </span>
+                                                    <button type="button" @click.stop="clearMarketplaceCategoryEdit()" title="Kosongkan pemetaan"
+                                                        class="w-5 h-5 rounded-full text-black/40 hover:text-[#FF3B30] hover:bg-black/5 flex items-center justify-center text-[11px] cursor-pointer">
+                                                        ✕
+                                                    </button>
+                                                </div>
+                                            </template>
+                                        </div>
                                     </div>
 
                                     <!-- Active Selection Card / Trigger Button -->
@@ -855,17 +1018,22 @@
                                         <button type="button" @click="categoryDropdownOpenEdit = !categoryDropdownOpenEdit"
                                             class="w-full p-3 rounded-[12px] bg-white dark:bg-[#1C1C1E] border border-black/[0.1] dark:border-white/[0.12] hover:border-[#007AFF] transition-all flex items-center justify-between text-left gap-2.5 shadow-2xs cursor-pointer">
                                             <div class="flex items-center gap-2.5 min-w-0">
-                                                <div class="w-8 h-8 rounded-[8px] bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center shrink-0">
-                                                    <i data-lucide="layers" class="w-4 h-4"></i>
+                                                <div class="w-8 h-8 rounded-[8px] flex items-center justify-center shrink-0 transition-colors"
+                                                    :class="selectedEditCategoryObj ? 'bg-[#007AFF]/10 text-[#007AFF]' : 'bg-black/[0.05] dark:bg-white/[0.08] text-black/40 dark:text-white/40'">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                                                    </svg>
                                                 </div>
                                                 <div class="min-w-0">
-                                                    <div class="text-[12.5px] font-bold text-black dark:text-white truncate" x-text="selectedEditCategoryObj ? selectedEditCategoryObj.name : 'Pilih Kategori Marketplace...'"></div>
+                                                    <div class="text-[12.5px] font-bold text-black dark:text-white truncate" x-text="selectedEditCategoryObj ? selectedEditCategoryObj.name : 'Pilih 1 Kategori Marketplace...'"></div>
                                                     <div class="text-[10.5px] text-black/50 dark:text-white/50 truncate max-w-[240px] sm:max-w-xs" x-text="selectedEditCategoryObj ? selectedEditCategoryObj.description : 'Klik untuk mencari atau memilih kategori resmi'"></div>
                                                 </div>
                                             </div>
                                             <div class="flex items-center gap-1 shrink-0 text-black/40 dark:text-white/40">
-                                                <span class="text-[11px] font-medium hidden sm:inline" x-text="categoryDropdownOpenEdit ? 'Tutup' : 'Ubah'"></span>
-                                                <i data-lucide="chevron-down" class="w-3.5 h-3.5 transition-transform duration-200" :class="categoryDropdownOpenEdit ? 'rotate-180' : ''"></i>
+                                                <span class="text-[11px] font-medium hidden sm:inline" x-text="categoryDropdownOpenEdit ? 'Tutup' : (selectedEditCategoryObj ? 'Ganti' : 'Pilih')"></span>
+                                                <svg class="w-3.5 h-3.5 transition-transform duration-200" :class="categoryDropdownOpenEdit ? 'rotate-180' : ''" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                                                </svg>
                                             </div>
                                         </button>
 
@@ -877,18 +1045,35 @@
                                             x-transition:enter="transition ease-out duration-150"
                                             x-transition:enter-start="opacity-0 translate-y-2 scale-95"
                                             x-transition:enter-end="opacity-100 translate-y-0 scale-100"
-                                            x-transition:exit="transition ease-in duration-100"
-                                            x-transition:exit-start="opacity-100 translate-y-0 scale-100"
-                                            x-transition:exit-end="opacity-0 translate-y-2 scale-95"
+                                            x-transition:leave="transition ease-in duration-100"
+                                            x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+                                            x-transition:leave-end="opacity-0 translate-y-2 scale-95"
                                             class="absolute z-50 left-0 right-0 top-full mt-1.5 p-2.5 rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/15 shadow-xl max-h-[300px] flex flex-col space-y-2">
                                             
                                             <div class="relative">
-                                                <i data-lucide="search" class="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-black/40 dark:text-white/40"></i>
+                                                <svg class="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-black/40 dark:text-white/40 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                                                </svg>
                                                 <input type="text" x-model="categorySearchEdit" placeholder="Cari nama atau id kategori..."
                                                     class="w-full h-8 pl-8 pr-3 rounded-[8px] bg-black/[0.03] dark:bg-white/[0.05] border border-black/[0.08] dark:border-white/[0.1] text-[12px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/30">
                                             </div>
 
                                             <div class="overflow-y-auto space-y-1 pr-1 flex-1 max-h-[200px] custom-scrollbar">
+                                                <!-- Optional: Option to clear selection -->
+                                                <button type="button" @click="clearMarketplaceCategoryEdit()"
+                                                    :class="!editItem.marketplace_category_id ? 'bg-[#007AFF]/10 border-[#007AFF]/30 text-[#007AFF]' : 'hover:bg-black/[0.03] dark:hover:bg-white/[0.05] border-transparent text-black/70 dark:text-white/70'"
+                                                    class="w-full p-2 rounded-[10px] border text-left flex items-center justify-between gap-2 transition-colors cursor-pointer group">
+                                                    <div class="min-w-0 flex-1">
+                                                        <div class="text-[12px] font-semibold">Tanpa Kategori Marketplace</div>
+                                                        <p class="text-[10.5px] text-black/40 dark:text-white/40">Hanya untuk operasional internal / kasir fisik</p>
+                                                    </div>
+                                                    <template x-if="!editItem.marketplace_category_id">
+                                                        <svg class="w-4 h-4 text-[#007AFF] shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                                                        </svg>
+                                                    </template>
+                                                </button>
+
                                                 <template x-for="cat in filteredCategories(categorySearchEdit)" :key="cat.id">
                                                     <button type="button" @click="selectMarketplaceCategoryEdit(cat)"
                                                         :class="editItem.marketplace_category_id === cat.id ? 'bg-[#007AFF]/10 border-[#007AFF]/30 text-[#007AFF]' : 'hover:bg-black/[0.03] dark:hover:bg-white/[0.05] border-transparent text-black dark:text-white'"
@@ -901,7 +1086,9 @@
                                                             <p class="text-[10.5px] text-black/50 dark:text-white/50 truncate mt-0.5" x-text="cat.description"></p>
                                                         </div>
                                                         <template x-if="editItem.marketplace_category_id === cat.id">
-                                                            <i data-lucide="check" class="w-3.5 h-3.5 text-[#007AFF] shrink-0"></i>
+                                                            <svg class="w-4 h-4 text-[#007AFF] shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                                                            </svg>
                                                         </template>
                                                     </button>
                                                 </template>
@@ -989,118 +1176,3 @@
 
     </div>
 @endsection
-
-@push('scripts')
-<script>
-(function() {
-    function initMasterDataAlpine() {
-        if (typeof Alpine !== 'undefined') {
-            registerComponent();
-        } else {
-            document.addEventListener('alpine:init', registerComponent);
-        }
-    }
-
-    function registerComponent() {
-        if (!window.Alpine) return;
-        Alpine.data('masterDataManager', (config = {}) => ({
-            showAddModal: false,
-            showEditModal: false,
-            activeTab: 'units',
-            filterSource: 'all',
-            searchQuery: '',
-            marketplaceCategories: config.categories || [],
-            addItem: { name: '', description: '', marketplace_category_id: '', marketplace_category_name: '' },
-            editItem: { id: '', code: '', name: '', category: 'quantity', description: '', marketplace_category_id: '', marketplace_category_name: '', cascade_to_products: true },
-            categorySearchAdd: '',
-            categorySearchEdit: '',
-            categoryDropdownOpenAdd: false,
-            categoryDropdownOpenEdit: false,
-            deleteModalOpen: false,
-            deleteTarget: { url: '', name: '' },
-            openDelete(url, name) {
-                this.deleteTarget = { url, name };
-                this.deleteModalOpen = true;
-            },
-            closeDelete() {
-                this.deleteModalOpen = false;
-                this.deleteTarget = { url: '', name: '' };
-            },
-            submitDelete() {
-                if (this.deleteTarget.url) {
-                    const form = document.getElementById('form-delete-master');
-                    form.action = this.deleteTarget.url;
-                    form.submit();
-                }
-            },
-            openAdd() {
-                this.addItem = { name: '', description: '', marketplace_category_id: '', marketplace_category_name: '' };
-                this.categorySearchAdd = '';
-                this.categoryDropdownOpenAdd = false;
-                this.showAddModal = true;
-            },
-            openEdit(item) {
-                this.editItem = {
-                    id: item.id || '',
-                    code: item.code || '',
-                    name: item.name || '',
-                    category: item.category || 'quantity',
-                    description: item.description || '',
-                    marketplace_category_id: item.marketplace_category_id || '',
-                    marketplace_category_name: item.marketplace_category_name || '',
-                    cascade_to_products: true
-                };
-                this.categorySearchEdit = '';
-                this.categoryDropdownOpenEdit = false;
-                this.showEditModal = true;
-            },
-            selectMarketplaceCategoryAdd(cat) {
-                this.addItem.marketplace_category_id = cat.id;
-                this.addItem.marketplace_category_name = cat.name;
-                this.categoryDropdownOpenAdd = false;
-                this.categorySearchAdd = '';
-            },
-            selectMarketplaceCategoryEdit(cat) {
-                this.editItem.marketplace_category_id = cat.id;
-                this.editItem.marketplace_category_name = cat.name;
-                this.categoryDropdownOpenEdit = false;
-                this.categorySearchEdit = '';
-            },
-            filteredCategories(query) {
-                if (!query || !query.trim()) return this.marketplaceCategories;
-                const q = query.toLowerCase().trim();
-                return this.marketplaceCategories.filter(c =>
-                    c.name.toLowerCase().includes(q) ||
-                    (c.id && c.id.includes(q)) ||
-                    (c.description && c.description.toLowerCase().includes(q)) ||
-                    (c.keywords && c.keywords.some(k => k.toLowerCase().includes(q)))
-                );
-            },
-            get selectedAddCategoryObj() {
-                return this.marketplaceCategories.find(c => c.id === this.addItem.marketplace_category_id) || null;
-            },
-            get selectedEditCategoryObj() {
-                return this.marketplaceCategories.find(c => c.id === this.editItem.marketplace_category_id) || null;
-            },
-            matchesSearch(code, name, category, desc, mpName) {
-                if (!this.searchQuery) return true;
-                const q = this.searchQuery.toLowerCase();
-                return (code && code.toLowerCase().includes(q)) ||
-                    (name && name.toLowerCase().includes(q)) ||
-                    (category && category.toLowerCase().includes(q)) ||
-                    (desc && desc.toLowerCase().includes(q)) ||
-                    (mpName && mpName.toLowerCase().includes(q));
-            },
-            matchesSource(isBusiness) {
-                if (this.filterSource === 'all') return true;
-                if (this.filterSource === 'business') return !!isBusiness;
-                if (this.filterSource === 'system') return !isBusiness;
-                return true;
-            }
-        }));
-    }
-
-    initMasterDataAlpine();
-})();
-</script>
-@endpush

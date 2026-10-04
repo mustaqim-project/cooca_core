@@ -709,9 +709,14 @@ final class BiteshipService
                 $formatted = [];
 
                 $serviceFee = $this->getServiceFee();
+                $allowedCouriers = ! empty($couriers) ? array_map('strtolower', $couriers) : null;
 
                 foreach ($rawPricing as $item) {
-                    $cCode = (string) ($item['courier_code'] ?? $item['courier_company'] ?? 'courier');
+                    $cCode = strtolower((string) ($item['courier_code'] ?? $item['courier_company'] ?? 'courier'));
+                    if ($allowedCouriers !== null && ! in_array($cCode, $allowedCouriers, true)) {
+                        continue;
+                    }
+
                     $sCode = (string) ($item['courier_service_code'] ?? $item['service_type'] ?? 'reg');
                     $cName = (string) ($item['courier_name'] ?? strtoupper($cCode));
                     $sName = (string) ($item['courier_service_name'] ?? ucfirst($sCode));
@@ -733,15 +738,17 @@ final class BiteshipService
                     ];
                 }
 
-                // Sort by price ascending
-                usort($formatted, fn($a, $b) => $a['price'] <=> $b['price']);
+                if (! empty($formatted)) {
+                    // Sort by price ascending
+                    usort($formatted, fn($a, $b) => $a['price'] <=> $b['price']);
 
-                return [
-                    'success'     => true,
-                    'pricing'     => $formatted,
-                    'service_fee' => $serviceFee,
-                    'raw'         => $data,
-                ];
+                    return [
+                        'success'     => true,
+                        'pricing'     => $formatted,
+                        'service_fee' => $serviceFee,
+                        'raw'         => $data,
+                    ];
+                }
             }
 
             $errMsg = $data['error'] ?? $data['message'] ?? 'Gagal menghitung tarif pengiriman Biteship.';
@@ -751,11 +758,11 @@ final class BiteshipService
             ]);
 
             // Resilient fallback so calculation never silently returns empty
-            return $this->generateFallbackRates($couriers ?: ['jne', 'sicepat', 'jnt'], $payload);
+            return $this->generateFallbackRates($couriers ?: ['jne', 'sicepat', 'jnt', 'anteraja', 'gosend', 'grab'], $payload);
         } catch (Throwable $e) {
             Log::error('[BiteshipService::getRates] Exception: ' . $e->getMessage());
 
-            return $this->generateFallbackRates($couriers ?: ['jne', 'sicepat', 'jnt'], $payload);
+            return $this->generateFallbackRates($couriers ?: ['jne', 'sicepat', 'jnt', 'anteraja', 'gosend', 'grab'], $payload);
         }
     }
 
@@ -786,48 +793,71 @@ final class BiteshipService
         $courierCodes = is_array($courierInput) ? $courierInput : explode(',', (string) $courierInput);
         $courierCodes = array_filter(array_map('trim', $courierCodes));
         if (empty($courierCodes)) {
-            $courierCodes = ['jne', 'sicepat', 'jnt'];
+            $courierCodes = ['jne', 'sicepat', 'jnt', 'anteraja', 'gosend', 'grab'];
         }
 
         $allCouriers = [
             'jne' => [
-                'name' => 'JNE',
+                'name' => 'JNE Express',
                 'services' => [
-                    ['code' => 'reg', 'name' => 'Reguler', 'duration' => '1-2 hari', 'price' => 12000, 'type' => 'standard'],
+                    ['code' => 'reg', 'name' => 'Reguler', 'duration' => '1 - 2 hari', 'price' => 12000, 'type' => 'standard'],
                     ['code' => 'yes', 'name' => 'Yakin Esok Sampai (YES)', 'duration' => '1 hari', 'price' => 24000, 'type' => 'express'],
+                    ['code' => 'jtr', 'name' => 'JTR (Trucking Cargo)', 'duration' => '3 - 4 hari', 'price' => 45000, 'type' => 'cargo'],
                 ],
             ],
             'sicepat' => [
-                'name' => 'SiCepat',
+                'name' => 'SiCepat Ekspres',
                 'services' => [
-                    ['code' => 'sicepat_reg', 'name' => 'Regular Package', 'duration' => '1-2 hari', 'price' => 11000, 'type' => 'standard'],
-                    ['code' => 'best', 'name' => 'Besok Sampai Tujuan (BEST)', 'duration' => '1 hari', 'price' => 22000, 'type' => 'express'],
+                    ['code' => 'reg', 'name' => 'SIUNTUNG (Reguler)', 'duration' => '1 - 2 hari', 'price' => 11000, 'type' => 'standard'],
+                    ['code' => 'best', 'name' => 'Besok Sampai Tujuan (BEST)', 'duration' => '1 hari', 'price' => 18000, 'type' => 'express'],
+                    ['code' => 'gokil', 'name' => 'GOKIL (Cargo)', 'duration' => '3 - 4 hari', 'price' => 40000, 'type' => 'cargo'],
                 ],
             ],
             'jnt' => [
                 'name' => 'J&T Express',
                 'services' => [
-                    ['code' => 'ez', 'name' => 'EZ (Reguler)', 'duration' => '1-3 hari', 'price' => 12000, 'type' => 'standard'],
+                    ['code' => 'ez', 'name' => 'EZ (Reguler)', 'duration' => '1 - 3 hari', 'price' => 12000, 'type' => 'standard'],
+                    ['code' => 'super', 'name' => 'Super Fast', 'duration' => '1 hari', 'price' => 22000, 'type' => 'express'],
                 ],
             ],
             'anteraja' => [
                 'name' => 'AnterAja',
                 'services' => [
-                    ['code' => 'reg', 'name' => 'Reguler Service', 'duration' => '1-2 hari', 'price' => 10000, 'type' => 'standard'],
-                    ['code' => 'next_day', 'name' => 'Next Day', 'duration' => '1 hari', 'price' => 20000, 'type' => 'express'],
+                    ['code' => 'reg', 'name' => 'Reguler', 'duration' => '1 - 2 hari', 'price' => 10000, 'type' => 'standard'],
+                    ['code' => 'same_day', 'name' => 'Same Day (8-12 jam)', 'duration' => '8 - 12 jam', 'price' => 20000, 'type' => 'sameday'],
+                    ['code' => 'next_day', 'name' => 'Next Day', 'duration' => '1 hari', 'price' => 18000, 'type' => 'express'],
                 ],
             ],
             'gosend' => [
-                'name' => 'GoSend',
+                'name' => 'GoSend (Gojek)',
                 'services' => [
-                    ['code' => 'instant', 'name' => 'Instant Bike', 'duration' => '1-3 jam', 'price' => 25000, 'type' => 'instant'],
-                    ['code' => 'sameday', 'name' => 'SameDay Delivery', 'duration' => '6-8 jam', 'price' => 19000, 'type' => 'sameday'],
+                    ['code' => 'instant', 'name' => 'Instant Bike', 'duration' => '1 - 2 jam', 'price' => 20000, 'type' => 'instant'],
+                    ['code' => 'same_day', 'name' => 'Same Day', 'duration' => '6 - 8 jam', 'price' => 15000, 'type' => 'sameday'],
                 ],
             ],
             'grab' => [
                 'name' => 'GrabExpress',
                 'services' => [
-                    ['code' => 'instant', 'name' => 'Instant Courier', 'duration' => '1-3 jam', 'price' => 26000, 'type' => 'instant'],
+                    ['code' => 'instant', 'name' => 'Instant Bike', 'duration' => '1 - 2 jam', 'price' => 22000, 'type' => 'instant'],
+                    ['code' => 'same_day', 'name' => 'Same Day', 'duration' => '6 - 8 jam', 'price' => 16000, 'type' => 'sameday'],
+                ],
+            ],
+            'ninja' => [
+                'name' => 'Ninja Xpress',
+                'services' => [
+                    ['code' => 'standard', 'name' => 'Standard', 'duration' => '1 - 2 hari', 'price' => 11500, 'type' => 'standard'],
+                ],
+            ],
+            'lion' => [
+                'name' => 'Lion Parcel',
+                'services' => [
+                    ['code' => 'regpack', 'name' => 'REGPACK', 'duration' => '1 - 2 hari', 'price' => 11000, 'type' => 'standard'],
+                ],
+            ],
+            'pos' => [
+                'name' => 'POS Indonesia',
+                'services' => [
+                    ['code' => 'pos_reguler', 'name' => 'Pos Reguler', 'duration' => '2 - 3 hari', 'price' => 10000, 'type' => 'standard'],
                 ],
             ],
         ];

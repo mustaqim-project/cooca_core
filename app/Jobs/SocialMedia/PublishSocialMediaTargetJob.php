@@ -177,36 +177,10 @@ class PublishSocialMediaTargetJob implements ShouldQueue
      */
     protected function purgeLocalMedia(SocialMediaPost $post): void
     {
-        $disk = Storage::disk('public');
-
-        // 1. Purge from post media relation
-        if ($post->relationLoaded('media')) {
-            foreach ($post->media as $media) {
-                if (! empty($media->local_path) && $disk->exists($media->local_path)) {
-                    try {
-                        $disk->delete($media->local_path);
-                        $media->update(['local_path' => null]);
-                        Log::info("[PublishSocialMediaTargetJob] Purged local media file: {$media->local_path}");
-                    } catch (\Throwable $e) {
-                        Log::warning("[PublishSocialMediaTargetJob] Could not delete local media: {$e->getMessage()}");
-                    }
-                }
-            }
-        }
-
-        // 2. Purge from legacy local_media_paths
-        if (! empty($post->local_media_paths) && is_array($post->local_media_paths)) {
-            foreach ($post->local_media_paths as $localPath) {
-                if (! empty($localPath) && $disk->exists($localPath)) {
-                    try {
-                        $disk->delete($localPath);
-                        Log::info("[PublishSocialMediaTargetJob] Purged legacy local path: {$localPath}");
-                    } catch (\Throwable $e) {
-                        Log::warning("[PublishSocialMediaTargetJob] Could not delete legacy local path: {$e->getMessage()}");
-                    }
-                }
-            }
-            $post->update(['local_media_paths' => null]);
+        try {
+            app(\App\Domain\SocialMedia\SocialMediaService::class)->purgePostLocalMedia($post);
+        } catch (\Throwable $e) {
+            Log::warning("[PublishSocialMediaTargetJob] Error delegating purgePostLocalMedia: {$e->getMessage()}");
         }
     }
 

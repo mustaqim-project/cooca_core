@@ -13,6 +13,7 @@ use App\Support\Context;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 final class CrmWebController extends Controller
@@ -70,34 +71,61 @@ final class CrmWebController extends Controller
      */
     public function pointHistories(Customer $customer): JsonResponse
     {
+        $business = Context::requireBusiness();
+        abort_unless($customer->business_id === $business->id, 403);
+
         $histories = $customer->pointHistories()->latest()->limit(50)->get();
         return response()->json(['success' => true, 'histories' => $histories]);
     }
 
     /**
-     * Record customer credit repayment (piutang).
+     * Record customer credit repayment (piutang & Anti-Lapping Shield).
      */
     public function recordCreditPayment(Request $request, Customer $customer): RedirectResponse|JsonResponse
     {
+        $business = Context::requireBusiness();
+        abort_unless($customer->business_id === $business->id, 403);
+
+        $currentBalance = (float) $customer->current_credit_balance;
+        if ($currentBalance <= 0) {
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Pelanggan tidak memiliki saldo piutang aktif.',
+                ], 422);
+            }
+
+            return redirect()->back()->withErrors(['amount' => 'Pelanggan tidak memiliki saldo piutang aktif.']);
+        }
+
         $user = auth()->user();
 
         $validated = $request->validate([
-            'amount' => ['required', 'numeric', 'min:1'],
+            'amount' => ['required', 'numeric', 'min:1', "max:{$currentBalance}"],
             'notes' => ['nullable', 'string', 'max:255'],
         ]);
 
-        $this->loyaltyService->recordCustomerCreditPayment(
+        $transaction = $this->loyaltyService->recordCustomerCreditPayment(
             customer: $customer,
             amount: (float) $validated['amount'],
             notes: $validated['notes'] ?? 'Pelunasan piutang pelanggan',
             user: $user
         );
 
+        $waReceiptUrl = $this->loyaltyService->generateCreditPaymentWhatsAppReceiptUrl($customer, $transaction);
+
         if ($request->wantsJson()) {
-            return response()->json(['success' => true, 'message' => 'Pembayaran piutang berhasil dicatat.']);
+            return response()->json([
+                'success' => true,
+                'message' => 'Pembayaran piutang berhasil dicatat.',
+                'wa_receipt_url' => $waReceiptUrl,
+                'transaction' => $transaction,
+            ]);
         }
 
-        return redirect()->back()->with('success', 'Pembayaran piutang pelanggan berhasil dicatat!');
+        return redirect()->back()
+            ->with('success', 'Pembayaran piutang pelanggan berhasil dicatat!')
+            ->with('wa_receipt_url', $waReceiptUrl);
     }
 
     /**
@@ -126,7 +154,7 @@ final class CrmWebController extends Controller
         $business = Context::requireBusiness();
 
         $validated = $request->validate([
-            'code' => ['required', 'string', 'max:50'],
+            'code' => ['required', 'string', 'max:50', Rule::unique('vouchers', 'code')->where('business_id', $business->id)],
             'name' => ['required', 'string', 'max:100'],
             'discount_type' => ['required', 'in:percentage,fixed'],
             'discount_value' => ['required', 'numeric', 'min:0'],
@@ -161,6 +189,9 @@ final class CrmWebController extends Controller
      */
     public function toggleVoucher(Voucher $voucher): RedirectResponse
     {
+        $business = Context::requireBusiness();
+        abort_unless($voucher->business_id === $business->id, 403);
+
         $voucher->update(['is_active' => ! $voucher->is_active]);
         $status = $voucher->is_active ? 'diaktifkan' : 'dinonaktifkan';
         return redirect()->back()->with('success', "Voucher {$voucher->code} berhasil {$status}.");

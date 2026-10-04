@@ -1,4 +1,4 @@
-@extends('layouts.app', ['title' => 'Manajemen Meja & QR Restoran'])
+@extends('layouts.app', ['title' => __('pos.tables_title')])
 
 @section('content')
 <div class="max-w-[1360px] mx-auto space-y-6 pb-12" x-data="{
@@ -58,16 +58,21 @@
                         _method: 'DELETE'
                     })
                 });
-                this.deletedTableIds.push(tableId);
-                this.showEditModal = false;
-                if (typeof AppAlert !== 'undefined') {
-                    AppAlert.success('Meja #' + tableNumber + ' berhasil dihapus.');
+                const data = await res.json().catch(() => ({}));
+                if (res.ok && data.success !== false) {
+                    this.deletedTableIds.push(tableId);
+                    this.showEditModal = false;
+                    if (typeof AppAlert !== 'undefined') {
+                        AppAlert.success('Meja #' + tableNumber + ' berhasil dihapus.');
+                    }
+                } else {
+                    if (typeof AppAlert !== 'undefined') {
+                        AppAlert.error(data.message || 'Gagal menghapus meja #' + tableNumber + '.');
+                    }
                 }
             } catch (e) {
-                this.deletedTableIds.push(tableId);
-                this.showEditModal = false;
                 if (typeof AppAlert !== 'undefined') {
-                    AppAlert.success('Meja #' + tableNumber + ' berhasil dihapus.');
+                    AppAlert.error('Terjadi kesalahan jaringan saat menghapus meja.');
                 }
             } finally {
                 this.isSubmitting = false;
@@ -79,8 +84,8 @@
     {{-- MODULE HEADER & PERSISTENT POS TABS --}}
     <x-module-header
         module="pos"
-        title="Manajemen Meja &amp; QR Restoran"
-        subtitle="Kelola tata letak meja, cetak kartu QR akrilik meja, dan pantau sesi pesanan tamu aktif.">
+        :title="__('pos.tables_title')"
+        :subtitle="__('pos.tables_subtitle')">
         <x-slot:actions>
             @if(\App\Support\Context::hasPermission('pos.kitchen'))
                 <a href="{{ route('pos.kitchen.index') }}" class="min-h-[44px] sm:min-h-0 sm:h-9 px-3.5 rounded-[10px] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] text-black dark:text-white text-[13px] font-semibold flex items-center justify-center gap-1.5 transition">

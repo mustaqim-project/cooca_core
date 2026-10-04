@@ -114,7 +114,7 @@ final class SubscriptionCheckoutWebController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $business = Context::requireBusiness();
-        abort_unless(Context::isOwner() || Context::hasPermission('billing.manage'), 403, 'Hanya Owner atau pengelola billing yang dapat melakukan pemesanan paket langganan.');
+        abort_unless(Context::isOwner() || Context::hasPermission('billing.manage'), 403, __('billing.only_owner_order_subscription'));
         $user = auth()->user();
 
         $orderType = $request->input('order_type', 'subscription');
@@ -147,7 +147,10 @@ final class SubscriptionCheckoutWebController extends Controller
             $payment = $this->entitlementService->activateFreePackage($business, $user, $package);
 
             return redirect()->route('dashboard')
-                ->with('success', "Selamat! Paket promo '{$package->name}' ({$payment->package_duration_days} Hari Trial Pro) berhasil diaktifkan secara instan tanpa perlu transfer pembayaran.");
+                ->with('success', __('billing.free_package_activated_success', [
+                    'name' => $package->name,
+                    'days' => $payment->package_duration_days,
+                ]));
         }
 
         $paymentMethod = $validated['payment_method'] ?? SubscriptionPayment::METHOD_QRIS;
@@ -211,7 +214,7 @@ final class SubscriptionCheckoutWebController extends Controller
         }
 
         return redirect()->route('billing.payment.show', $payment)
-            ->with('success', "Pesanan #{$payment->order_number} berhasil dibuat. Silakan selesaikan pembayaran.");
+            ->with('success', __('billing.order_created_success', ['order' => $payment->order_number]));
     }
 
     /**
@@ -333,7 +336,7 @@ final class SubscriptionCheckoutWebController extends Controller
         $business = Context::requireBusiness();
         abort_unless($payment->business_id === $business->id, 403);
 
-        return redirect()->route('billing.payment.show', $payment)->with('info', 'Pembayaran langganan diverifikasi otomatis secara instan oleh TriPay Payment Gateway. Anda tidak perlu mengunggah bukti bayar.');
+        return redirect()->route('billing.payment.show', $payment)->with('info', __('billing.upload_proof_unnecessary'));
     }
 
     /**
@@ -343,8 +346,22 @@ final class SubscriptionCheckoutWebController extends Controller
     {
         $business = Context::requireBusiness();
 
-        $payments = SubscriptionPayment::where('business_id', $business->id)
-            ->orderByDesc('created_at')
+        $query = SubscriptionPayment::where('business_id', $business->id);
+
+        $status = $request->query('status');
+        if ($status && in_array($status, ['pending', 'awaiting_approval', 'approved', 'rejected'], true)) {
+            $query->where('status', $status);
+        }
+
+        $search = trim((string) $request->query('q', ''));
+        if ($search !== '') {
+            $query->where(function ($q) use ($search) {
+                $q->where('order_number', 'like', "%{$search}%")
+                  ->orWhere('package_name', 'like', "%{$search}%");
+            });
+        }
+
+        $payments = $query->orderByDesc('created_at')
             ->paginate(15)
             ->withQueryString();
 

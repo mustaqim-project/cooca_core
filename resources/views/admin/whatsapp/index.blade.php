@@ -1338,16 +1338,25 @@
                     </div>
 
                     <div class="flex flex-wrap items-center gap-2.5">
+                        <button type="button" @click="deployStandardTemplates()" :disabled="standardsDeploying"
+                            class="min-h-[42px] px-4 rounded-[12px] bg-[#34C759] hover:bg-[#2DB34F] text-white text-[13px] font-bold inline-flex items-center gap-2 shadow-sm active:scale-[0.98] transition-all disabled:opacity-50">
+                            <i data-lucide="cloud-upload" class="w-4 h-4" :class="{ 'animate-bounce': standardsDeploying }"></i>
+                            <span x-text="standardsDeploying ? 'Mengajukan ke Meta...' : 'Ajukan Template Standar ke Meta'">Ajukan Template Standar ke Meta</span>
+                        </button>
+                        <button type="button" @click="seedStandardTemplates()" :disabled="standardsSeeding"
+                            class="min-h-[42px] px-3.5 rounded-[12px] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/10 dark:hover:bg-white/12 text-black dark:text-white text-[13px] font-semibold inline-flex items-center gap-1.5 transition-all disabled:opacity-50">
+                            <i data-lucide="database" class="w-4 h-4"></i>
+                            <span>Pasang di Lokal</span>
+                        </button>
                         <button type="button" @click="syncMetaTemplates()" :disabled="templateSyncing"
                             class="min-h-[42px] px-4 rounded-[12px] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/10 dark:hover:bg-white/12 text-black dark:text-white text-[13px] font-semibold inline-flex items-center gap-2 transition-all disabled:opacity-50">
                             <i data-lucide="refresh-cw" class="w-4 h-4" :class="{ 'animate-spin': templateSyncing }"></i>
-                            <span x-text="templateSyncing ? 'Menyinkronkan...' : 'Sinkronkan dari Meta'">Sinkronkan dari
-                                Meta</span>
+                            <span x-text="templateSyncing ? 'Menyinkronkan...' : 'Sinkronkan dari Meta'">Sinkronkan dari Meta</span>
                         </button>
                         <button type="button" @click="openCreateTemplateModal()"
                             class="min-h-[42px] px-4 rounded-[12px] bg-[#007AFF] hover:bg-[#0071E3] text-white text-[13px] font-bold inline-flex items-center gap-2 shadow-sm active:scale-[0.98] transition-all">
                             <i data-lucide="plus" class="w-4 h-4"></i>
-                            <span>Buat Template</span>
+                            <span>Buat Template Custom</span>
                         </button>
                     </div>
                 </div>
@@ -1416,6 +1425,209 @@
                             class="w-9 h-9 rounded-[10px] bg-[#FF3B30]/15 flex items-center justify-center text-[#FF3B30]">
                             <i data-lucide="alert-circle" class="w-4 h-4"></i>
                         </div>
+                    </div>
+                </div>
+
+                {{-- ----------------------------------------------------------------- --}}
+                {{-- BENTO SHOWCASE: 7 TEMPLATE STANDAR RESMI META (ANTI-BLOKIR SYSTEM)--}}
+                {{-- ----------------------------------------------------------------- --}}
+                <div class="rounded-[20px] bg-gradient-to-br from-[#1877F2]/[0.06] via-white dark:via-[#1C1C1E] to-[#34C759]/[0.06] border border-[#1877F2]/20 dark:border-white/10 p-5 sm:p-6 space-y-5 shadow-sm">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-black/[0.06] dark:border-white/[0.08]">
+                        <div class="flex items-start gap-3.5">
+                            <div class="w-11 h-11 rounded-[14px] bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158] flex items-center justify-center shrink-0 shadow-sm">
+                                <i data-lucide="shield-check" class="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <h3 class="text-[16px] font-bold text-black dark:text-white">11 Template Standar Resmi Meta (Cooca Anti-Blokir Architecture)</h3>
+                                    <span class="px-2 py-0.5 rounded-full text-[10.5px] font-bold bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158] border border-[#34C759]/25">
+                                        Graph API v26.0 Compliant
+                                    </span>
+                                </div>
+                                <p class="text-[12px] text-black/60 dark:text-white/60 mt-0.5 leading-relaxed">
+                                    Template terkurasi yang wajib digunakan oleh aplikasi kasir POS, faktur penjualan, blast promosi toko, dan OTP keamanan agar terhindar dari pemblokiran Meta (Error 131047 di luar jendela 24 jam).
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-2 shrink-0">
+                            <button type="button" @click="deployStandardTemplates()" :disabled="standardsDeploying"
+                                class="min-h-[40px] px-3.5 rounded-[11px] bg-[#34C759] hover:bg-[#2DB34F] text-white text-[12.5px] font-bold inline-flex items-center gap-1.5 shadow-sm active:scale-[0.98] transition-all disabled:opacity-50">
+                                <i data-lucide="cloud-upload" class="w-3.5 h-3.5" :class="{ 'animate-bounce': standardsDeploying }"></i>
+                                <span>Ajukan 11 Template ke Meta</span>
+                            </button>
+                            <button type="button" @click="seedStandardTemplates()" :disabled="standardsSeeding"
+                                class="min-h-[40px] px-3 rounded-[11px] bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/10 text-black dark:text-white text-[12.5px] font-semibold inline-flex items-center gap-1.5 transition-all disabled:opacity-50">
+                                <i data-lucide="database" class="w-3.5 h-3.5"></i>
+                                <span>Pasang di Database</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    {{-- 11 Standard Templates Grid --}}
+                    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3.5 sm:gap-4">
+                        @php
+                            $standards = [
+                                [
+                                    'name' => 'cooca_pos_receipt',
+                                    'category' => 'UTILITY',
+                                    'title' => 'Struk Kasir POS Digital',
+                                    'desc' => 'Digunakan otomatis kasir saat checkout POS untuk struk digital tanpa kertas.',
+                                    'header' => 'Struk Pembelian Kasir',
+                                    'body' => "Halo {{1}}! Terima kasih telah berbelanja di {{2}}.\n\nRincian transaksi Anda:\n• No. Struk: {{3}}\n• Waktu: {{4}}\n• Total Bayar: {{5}}.",
+                                    'footer' => 'Layanan Kasir Resmi Cooca POS',
+                                    'btn' => 'Buka Struk Digital',
+                                ],
+                                [
+                                    'name' => 'cooca_reservation_reminder',
+                                    'category' => 'UTILITY',
+                                    'title' => 'Pengingat Reservasi Meja & Booking',
+                                    'desc' => 'Pengingat otomatis jadwal reservasi meja restoran F&B, booking servis bengkel, klinik, salon.',
+                                    'header' => 'Pengingat Reservasi Anda',
+                                    'body' => "Halo {{1}}! Mengingatkan kembali jadwal reservasi Anda di {{2}}:\n• Kode Booking: {{3}}\n• Jadwal: {{4}}\n• Detail: {{5}}.",
+                                    'footer' => 'Layanan Reservasi Resmi Cooca',
+                                    'btn' => 'Lihat Reservasi',
+                                ],
+                                [
+                                    'name' => 'cooca_marketplace_receipt',
+                                    'category' => 'UTILITY',
+                                    'title' => 'Bukti Bayar Toko Online & Marketplace',
+                                    'desc' => 'Notifikasi instan konfirmasi pembayaran pesanan marketplace / web storefront yang berhasil diverifikasi.',
+                                    'header' => 'Bukti Pembayaran Berhasil',
+                                    'body' => "Halo {{1}}! Pembayaran Anda untuk pesanan {{2}} di {{3}} sebesar {{4}} via {{5}} telah berhasil diverifikasi.",
+                                    'footer' => 'Konfirmasi Otomatis Cooca Storefront',
+                                    'btn' => 'Pantau Pesanan',
+                                ],
+                                [
+                                    'name' => 'cooca_shipping_tracking',
+                                    'category' => 'UTILITY',
+                                    'title' => 'Resi Pengiriman Kurir Ekspedisi',
+                                    'desc' => 'Notifikasi pesanan telah diserahkan ke kurir (J&T, SiCepat, JNE) beserta nomor resi pelacakan online.',
+                                    'header' => 'Pesanan Telah Dikirim',
+                                    'body' => "Halo {{1}}! Paket pesanan nomor {{2}} dari {{3}} telah diserahkan ke ekspedisi {{4}} dengan nomor resi: {{5}}.",
+                                    'footer' => 'Integrasi Logistik Resmi Cooca',
+                                    'btn' => 'Lacak Resi Pengiriman',
+                                ],
+                                [
+                                    'name' => 'cooca_cart_reminder',
+                                    'category' => 'MARKETING',
+                                    'title' => 'Pengingat Keranjang Belanja (Abandoned Cart)',
+                                    'desc' => 'Follow-up otomatis ke pembeli yang belum checkout keranjang belanja toko online dilengkapi insentif kupon.',
+                                    'header' => 'Ada Item Menunggumu di Keranjang!',
+                                    'body' => "Halo {{1}}! Anda masih memiliki produk di keranjang belanja {{2}}:\n• Item: {{3}}\n• Promo: {{4}}\n• Batas Waktu: {{5}}.",
+                                    'footer' => 'Balas STOP untuk berhenti berlangganan info promo.',
+                                    'btn' => 'Lanjutkan Pembayaran',
+                                ],
+                                [
+                                    'name' => 'cooca_sales_invoice',
+                                    'category' => 'UTILITY',
+                                    'title' => 'Faktur & Tagihan Penjualan',
+                                    'desc' => 'Dikirim saat menerbitkan invoice atau tagihan penjualan kepada pelanggan/klien.',
+                                    'header' => 'Faktur Tagihan Resmi',
+                                    'body' => "Yth. {{1}},\n\nFaktur tagihan dari {{2}}:\n• No. Invoice: {{3}}\n• Jatuh Tempo: {{4}}\n• Total Tagihan: {{5}}.",
+                                    'footer' => 'Sistem Akuntansi Terpadu Cooca',
+                                    'btn' => 'Lihat / Bayar Invoice',
+                                ],
+                                [
+                                    'name' => 'cooca_order_status_update',
+                                    'category' => 'UTILITY',
+                                    'title' => 'Pembaruan Status Pesanan',
+                                    'desc' => 'Notifikasi real-time update progres pesanan (F&B, Bengkel, Laundry, Manufaktur).',
+                                    'header' => 'Status Pesanan: {{1}}',
+                                    'body' => "Halo {{1}}!\n\nPesanan Anda nomor {{2}} di {{3}} telah diperbarui statusnya menjadi: {{4}}.\nCatatan: {{5}}.",
+                                    'footer' => 'Terima kasih telah mempercayai layanan kami.',
+                                    'btn' => 'Cek Status Pesanan',
+                                ],
+                                [
+                                    'name' => 'cooca_promo_broadcast',
+                                    'category' => 'MARKETING',
+                                    'title' => 'Blast Promosi & Diskon',
+                                    'desc' => 'Template resmi kirim broadcast penawaran massal ke pelanggan setia tanpa risiko blokir.',
+                                    'header' => 'MEDIA: Banner / Gambar Promo',
+                                    'body' => "Halo {{1}}! Ada kabar gembira dari {{2}}.\n\nNikmati penawaran spesial: {{3}}.\nGunakan kode voucher: {{4}} saat bertransaksi.\nBerlaku hingga: {{5}}.",
+                                    'footer' => 'Balas STOP untuk berhenti berlangganan info promo.',
+                                    'btn' => 'Klaim Penawaran',
+                                ],
+                                [
+                                    'name' => 'cooca_customer_welcome',
+                                    'category' => 'MARKETING',
+                                    'title' => 'Sambutan Pelanggan Baru',
+                                    'desc' => 'Ucapan selamat datang saat customer mendaftar member atau transaksi pertama.',
+                                    'header' => 'Selamat Datang di {{1}}!',
+                                    'body' => "Halo {{1}},\n\nTerima kasih telah menjadi bagian dari keluarga besar {{2}}! Anda terdaftar sebagai {{3}} dengan {{4}} poin awal.",
+                                    'footer' => 'Balas STOP untuk berhenti berlangganan info promo.',
+                                    'btn' => 'Jelajahi Produk Kami',
+                                ],
+                                [
+                                    'name' => 'cooca_payment_reminder',
+                                    'category' => 'UTILITY',
+                                    'title' => 'Pengingat Jatuh Tempo Tagihan',
+                                    'desc' => 'Pengingat sopan H-7, H-3, H-1 jatuh tempo tagihan langganan atau piutang toko.',
+                                    'header' => 'Pengingat Tagihan: {{1}}',
+                                    'body' => "Yth. {{1}},\n\nMengingatkan kembali bahwa tagihan {{2}} untuk {{3}} sebesar {{4}} akan jatuh tempo pada {{5}}.",
+                                    'footer' => 'Abaikan pesan ini jika Anda telah menyelesaikan pembayaran.',
+                                    'btn' => 'Bayar Sekarang',
+                                ],
+                                [
+                                    'name' => 'cooca_otp',
+                                    'category' => 'AUTHENTICATION',
+                                    'title' => 'Kode Keamanan & Verifikasi OTP',
+                                    'desc' => 'Autentikasi login, reset PIN kasir, dan verifikasi verifikasi transaksi sensitif.',
+                                    'header' => null,
+                                    'body' => "Kode verifikasi COOCA Anda adalah: {{1}}.\n\nDemi keamanan akun Anda, jangan pernah membagikan kode rahasia ini kepada siapa pun termasuk staf kasir atau admin.",
+                                    'footer' => 'Kode ini hanya berlaku selama 10 menit.',
+                                    'btn' => 'Salin Kode',
+                                ],
+                            ];
+                        @endphp
+
+                        @foreach ($standards as $std)
+                            <div class="rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] p-4 flex flex-col justify-between space-y-3 shadow-xs hover:border-[#1877F2]/40 transition-all">
+                                <div class="space-y-2">
+                                    <div class="flex items-center justify-between gap-1.5">
+                                        <span class="px-2 py-0.5 rounded-[5px] text-[10px] font-bold uppercase tracking-wide
+                                            {{ $std['category'] === 'UTILITY' ? 'bg-[#007AFF]/15 text-[#007AFF]' : ($std['category'] === 'MARKETING' ? 'bg-[#34C759]/15 text-[#34C759]' : 'bg-[#AF52DE]/15 text-[#AF52DE]') }}">
+                                            {{ $std['category'] }}
+                                        </span>
+
+                                        <span class="inline-flex items-center gap-1 text-[10.5px] font-semibold"
+                                            :class="(metaTemplates || []).some(t => t.name === '{{ $std['name'] }}') ? 'text-[#34C759]' : 'text-black/40 dark:text-white/40'">
+                                            <i data-lucide="check-circle" class="w-3 h-3" x-show="(metaTemplates || []).some(t => t.name === '{{ $std['name'] }}')"></i>
+                                            <span x-text="(metaTemplates || []).some(t => t.name === '{{ $std['name'] }}') ? 'Terpasang' : 'Belum Ada'"></span>
+                                        </span>
+                                    </div>
+
+                                    <div>
+                                        <h4 class="text-[13.5px] font-bold text-black dark:text-white leading-snug">{{ $std['title'] }}</h4>
+                                        <code class="text-[11px] text-[#007AFF] font-mono mt-0.5 block">{{ $std['name'] }}</code>
+                                        <p class="text-[11.5px] text-black/55 dark:text-white/55 mt-1 leading-relaxed">{{ $std['desc'] }}</p>
+                                    </div>
+
+                                    {{-- Mini Chat Bubble --}}
+                                    <div class="rounded-[12px] bg-[#EFEAE2] dark:bg-[#0B141A] p-2.5 text-[11px] space-y-1">
+                                        @if ($std['header'])
+                                            <div class="font-bold text-black/70 dark:text-white/70 text-[10.5px] border-b border-black/5 dark:border-white/5 pb-0.5">
+                                                {{ $std['header'] }}
+                                            </div>
+                                        @endif
+                                        <div class="text-black/85 dark:text-white/90 leading-relaxed font-sans whitespace-pre-line text-[11px]">
+                                            {!! preg_replace('/(\{\{\d+\}\})/', '<span class="px-1 py-0.2 rounded bg-[#007AFF]/15 text-[#007AFF] font-mono font-semibold">$1</span>', e($std['body'])) !!}
+                                        </div>
+                                        <div class="text-[9.5px] text-black/45 dark:text-white/45 pt-0.5 border-t border-black/5 dark:border-white/5">
+                                            {{ $std['footer'] }}
+                                        </div>
+                                        <div class="w-full py-1 px-2 rounded-[6px] bg-white dark:bg-[#1F2C34] text-center text-[10px] font-semibold text-[#007AFF] shadow-xs mt-1">
+                                            {{ $std['btn'] }}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="pt-2 border-t border-black/[0.04] dark:border-white/[0.06] flex items-center justify-between text-[11px] text-black/50 dark:text-white/50">
+                                    <span>Bahasa: <strong class="font-mono text-black dark:text-white">ID (Indonesia)</strong></span>
+                                    <span class="text-[10px] font-medium text-[#34C759]">Opt-out Guarded</span>
+                                </div>
+                            </div>
+                        @endforeach
                     </div>
                 </div>
 
@@ -2300,6 +2512,9 @@
                     },
 
                     metaTemplates: @json($metaTemplates ?? []),
+                    standardTemplatesCatalog: @json($standardTemplatesCatalog ?? []),
+                    standardsDeploying: false,
+                    standardsSeeding: false,
                     templateSyncing: false,
                     templateCreating: false,
                     showCreateTemplateModal: false,
@@ -2404,6 +2619,79 @@
 
                     closeCreateTemplateModal() {
                         this.showCreateTemplateModal = false;
+                    },
+
+                    async deployStandardTemplates() {
+                        if (!confirm('Ajukan seluruh template standar resmi Cooca (7 template) ke Meta Cloud API v26.0 sekarang?')) {
+                            return;
+                        }
+                        this.standardsDeploying = true;
+                        try {
+                            const response = await fetch('{{ route('admin.whatsapp.meta-templates.deploy-standards') }}', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Accept': 'application/json',
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')?.content || ''
+                                }
+                            });
+                            const data = await response.json();
+                            if (response.ok && data.success) {
+                                if (data.templates) {
+                                    this.metaTemplates = data.templates;
+                                }
+                                if (data.standards) {
+                                    this.standardTemplatesCatalog = data.standards;
+                                }
+                                this.copyToastMessage = data.message || 'Template standar berhasil diajukan ke Meta!';
+                                this.copyToast = true;
+                                setTimeout(() => {
+                                    this.copyToast = false;
+                                }, 4000);
+                            } else {
+                                alert(data.message || 'Gagal mengajukan template standar ke Meta.');
+                            }
+                        } catch (err) {
+                            alert('Terjadi kesalahan jaringan saat mengajukan template standar ke Meta.');
+                        } finally {
+                            this.standardsDeploying = false;
+                            this.refreshIcons();
+                        }
+                    },
+
+                    async seedStandardTemplates() {
+                        this.standardsSeeding = true;
+                        try {
+                            const response = await fetch('{{ route('admin.whatsapp.meta-templates.seed-standards') }}', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Accept': 'application/json',
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')?.content || ''
+                                }
+                            });
+                            const data = await response.json();
+                            if (response.ok && data.success) {
+                                if (data.templates) {
+                                    this.metaTemplates = data.templates;
+                                }
+                                if (data.standards) {
+                                    this.standardTemplatesCatalog = data.standards;
+                                }
+                                this.copyToastMessage = data.message || 'Template standar berhasil dipasang di database!';
+                                this.copyToast = true;
+                                setTimeout(() => {
+                                    this.copyToast = false;
+                                }, 3500);
+                            } else {
+                                alert(data.message || 'Gagal memasang template standar.');
+                            }
+                        } catch (err) {
+                            alert('Terjadi kesalahan jaringan saat mendaftarkan template.');
+                        } finally {
+                            this.standardsSeeding = false;
+                            this.refreshIcons();
+                        }
                     },
 
                     async syncMetaTemplates() {

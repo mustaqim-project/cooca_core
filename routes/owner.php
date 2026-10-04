@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\Web\Ai\AiCompanyWebController;
 use App\Http\Controllers\Web\Ai\PosAiWebController;
 use App\Http\Controllers\Web\AnalyticsWebController;
 use App\Http\Controllers\Web\Billing\BillingAndLimitWebController;
@@ -124,6 +125,7 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
         // Executive Dashboard & Quick Actions
         Route::get('/dashboard', [DashboardWebController::class, 'index'])->middleware('require.permission:dashboard.view')->name('dashboard');
         Route::get('/dashboard/quick-stats', [DashboardWebController::class, 'quickStats'])->middleware('require.permission:dashboard.view')->name('dashboard.quick-stats');
+        Route::get('/dashboard/quick-materials-list', [DashboardWebController::class, 'quickMaterialsList'])->middleware('require.permission:inventory.manage')->name('dashboard.quick-materials-list');
         Route::post('/dashboard/quick-expense', [DashboardWebController::class, 'quickExpense'])->middleware('require.permission:expenses.manage')->name('dashboard.quick-expense');
         Route::post('/dashboard/quick-stock-in', [DashboardWebController::class, 'quickStockIn'])->middleware('require.permission:inventory.manage')->name('dashboard.quick-stock-in');
         Route::post('/dashboard/quick-material', [DashboardWebController::class, 'quickMaterial'])->middleware('require.permission:materials.create')->name('dashboard.quick-material');
@@ -292,6 +294,7 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
         });
         Route::post('/invoices/{invoice}/payments', [InvoiceWebController::class, 'recordPayment'])->middleware('require.permission:invoices.record_payment')->name('invoices.payments.store');
         Route::post('/invoices/{invoice}/confirm', [InvoiceWebController::class, 'confirm'])->middleware('require.permission:invoices.create')->name('invoices.confirm');
+        Route::post('/invoices/{invoice}/remind', [InvoiceWebController::class, 'sendTermReminder'])->middleware('require.permission:invoices.view')->name('invoices.remind');
         Route::post('/invoices/{invoice}/void', [InvoiceWebController::class, 'void'])->middleware('require.permission:invoices.edit')->name('invoices.void');
         Route::delete('/invoices/{invoice}', [InvoiceWebController::class, 'destroy'])->middleware('require.permission:invoices.delete')->name('invoices.destroy');
 
@@ -431,20 +434,20 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
             Route::delete('/community/{post}', [CommunityWebController::class, 'destroy'])->name('community.destroy');
         });
 
-        // Dedicated SaaS Billing & Limits
+        // Dedicated SaaS Billing & Limits (RBAC & Multi-Tenant Secured)
         Route::get('/billing', [BillingAndLimitWebController::class, 'index'])->middleware('require.permission:billing.view')->name('billing');
         Route::get('/billing/limits', [BillingAndLimitWebController::class, 'index'])->middleware('require.permission:billing.view')->name('billing.limits');
-        Route::get('/patungan', [SubscriptionCheckoutWebController::class, 'checkout'])->name('billing.patungan');
-        Route::post('/billing/upgrade', [BillingAndLimitWebController::class, 'upgrade'])->name('billing.upgrade');
-        Route::get('/billing/checkout', [SubscriptionCheckoutWebController::class, 'checkout'])->name('billing.checkout');
-        Route::post('/billing/order', [SubscriptionCheckoutWebController::class, 'store'])->name('billing.order.store');
-        Route::match(['GET', 'POST'], '/billing/payments/{payment}', [SubscriptionCheckoutWebController::class, 'payment'])->name('billing.payment.show');
-        Route::get('/billing/payments/{payment}/status', [SubscriptionCheckoutWebController::class, 'checkStatus'])->name('billing.payment.status');
-        Route::get('/billing/payments/{payment}/invoice', [SubscriptionCheckoutWebController::class, 'invoice'])->name('billing.payment.invoice');
-        Route::post('/billing/payments/{payment}/upload-proof', [SubscriptionCheckoutWebController::class, 'uploadProof'])->name('billing.payment.upload');
-        Route::get('/billing/payments/{payment}/proof', [SubscriptionCheckoutWebController::class, 'viewProof'])->name('billing.payment.proof');
-        Route::get('/billing/history', [SubscriptionCheckoutWebController::class, 'history'])->name('billing.history');
-        Route::post('/billing/storage/recalculate', [BillingAndLimitWebController::class, 'recalculateStorage'])->name('billing.storage.recalculate');
+        Route::get('/patungan', [SubscriptionCheckoutWebController::class, 'checkout'])->middleware('require.permission:billing.manage')->name('billing.patungan');
+        Route::post('/billing/upgrade', [BillingAndLimitWebController::class, 'upgrade'])->middleware('require.permission:billing.manage')->name('billing.upgrade');
+        Route::get('/billing/checkout', [SubscriptionCheckoutWebController::class, 'checkout'])->middleware('require.permission:billing.manage')->name('billing.checkout');
+        Route::post('/billing/order', [SubscriptionCheckoutWebController::class, 'store'])->middleware('require.permission:billing.manage')->name('billing.order.store');
+        Route::match(['GET', 'POST'], '/billing/payments/{payment}', [SubscriptionCheckoutWebController::class, 'payment'])->middleware('require.permission:billing.view')->name('billing.payment.show');
+        Route::get('/billing/payments/{payment}/status', [SubscriptionCheckoutWebController::class, 'checkStatus'])->middleware('require.permission:billing.view')->name('billing.payment.status');
+        Route::get('/billing/payments/{payment}/invoice', [SubscriptionCheckoutWebController::class, 'invoice'])->middleware('require.permission:billing.view')->name('billing.payment.invoice');
+        Route::post('/billing/payments/{payment}/upload-proof', [SubscriptionCheckoutWebController::class, 'uploadProof'])->middleware('require.permission:billing.manage')->name('billing.payment.upload');
+        Route::get('/billing/payments/{payment}/proof', [SubscriptionCheckoutWebController::class, 'viewProof'])->middleware('require.permission:billing.view')->name('billing.payment.proof');
+        Route::get('/billing/history', [SubscriptionCheckoutWebController::class, 'history'])->middleware('require.permission:billing.view')->name('billing.history');
+        Route::post('/billing/storage/recalculate', [BillingAndLimitWebController::class, 'recalculateStorage'])->middleware('require.permission:billing.manage')->name('billing.storage.recalculate');
         Route::get('/billing/storage/files', [BillingAndLimitWebController::class, 'listFiles'])->middleware('require.permission:billing.view')->name('billing.storage.files');
         Route::delete('/billing/storage/files/{storageFile}', [BillingAndLimitWebController::class, 'destroyStorageFile'])->middleware('require.permission:billing.manage')->name('billing.storage.files.destroy');
 
@@ -487,11 +490,58 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
             Route::get('/pos/reports/export-excel', [PosReportWebController::class, 'exportExcel'])->middleware(['require.permission:pos.reports_export', 'entitlement:export'])->name('pos.reports.export-excel');
         });
 
-        // AI POS & Predictive Analytics
+        // AI POS & Predictive Analytics (Legacy compatibility)
         Route::middleware('require.permission:ai.access')->group(function (): void {
             Route::get('/pos/ai', [PosAiWebController::class, 'index'])->name('pos.ai.index');
             Route::post('/pos/ai/ask', [PosAiWebController::class, 'ask'])->middleware('entitlement:ai')->name('pos.ai.ask');
             Route::post('/pos/ai/execute-action', [PosAiWebController::class, 'executeAction'])->middleware('entitlement:ai')->name('pos.ai.execute-action');
+        });
+
+        // COOCA AI Digital Company Command Center & 3 Distinct AI Office Environments
+        Route::middleware(['require.permission:ai.access', 'entitlement:ai'])->prefix('cooca-ai')->name('cooca-ai.')->group(function (): void {
+            Route::get('/', [AiCompanyWebController::class, 'lobby'])->name('index');
+            Route::get('/office', [AiCompanyWebController::class, 'lobby'])->name('office.view');
+            Route::get('/office/executive', [AiCompanyWebController::class, 'executiveOffice'])->name('office.executive');
+            Route::get('/office/operations', [AiCompanyWebController::class, 'operationsOffice'])->name('office.operations');
+            Route::get('/office/growth', [AiCompanyWebController::class, 'growthOffice'])->name('office.growth');
+            Route::post('/ask', [AiCompanyWebController::class, 'ask'])->name('ask');
+            Route::post('/daily-check', [AiCompanyWebController::class, 'triggerDailyCheck'])->name('daily-check');
+            Route::get('/actions', [AiCompanyWebController::class, 'actions'])->name('actions');
+            Route::post('/actions/{proposal}/approve', [AiCompanyWebController::class, 'approveAction'])->name('actions.approve');
+            Route::post('/actions/{proposal}/revise', [AiCompanyWebController::class, 'reviseAction'])->name('actions.revise');
+            Route::post('/actions/{proposal}/reject', [AiCompanyWebController::class, 'rejectAction'])->name('actions.reject');
+            Route::get('/history', [AiCompanyWebController::class, 'history'])->name('history');
+            Route::get('/providers', [AiCompanyWebController::class, 'providers'])->name('providers');
+            Route::post('/providers', [AiCompanyWebController::class, 'storeProvider'])->name('providers.store');
+            Route::post('/providers/test', [AiCompanyWebController::class, 'testProvider'])->name('providers.test');
+            Route::post('/providers/detect-models', [AiCompanyWebController::class, 'detectModels'])->name('providers.detect-models');
+            // AI Agent Avatar Customization
+            Route::get('/agents/avatars', [AiCompanyWebController::class, 'getAgentAvatars'])->name('agents.avatars');
+            Route::post('/agents/{role}/avatar', [AiCompanyWebController::class, 'updateAgentAvatar'])->name('agents.avatar.update');
+            Route::get('/live-metrics', [AiCompanyWebController::class, 'liveMetrics'])->name('live-metrics');
+        });
+
+        // Legacy /ai Compatibility Redirects & Named Route Fallbacks
+        Route::middleware(['require.permission:ai.access', 'entitlement:ai'])->prefix('ai')->name('ai.')->group(function (): void {
+            Route::get('/', fn() => redirect()->route('cooca-ai.index'))->name('office');
+            Route::get('/office', [AiCompanyWebController::class, 'lobby'])->name('office.view');
+            Route::get('/office/executive', [AiCompanyWebController::class, 'executiveOffice'])->name('office.executive');
+            Route::get('/office/operations', [AiCompanyWebController::class, 'operationsOffice'])->name('office.operations');
+            Route::get('/office/growth', [AiCompanyWebController::class, 'growthOffice'])->name('office.growth');
+            Route::post('/ask', [AiCompanyWebController::class, 'ask'])->name('ask');
+            Route::post('/daily-check', [AiCompanyWebController::class, 'triggerDailyCheck'])->name('daily-check');
+            Route::get('/actions', [AiCompanyWebController::class, 'actions'])->name('actions');
+            Route::post('/actions/{proposal}/approve', [AiCompanyWebController::class, 'approveAction'])->name('actions.approve');
+            Route::post('/actions/{proposal}/revise', [AiCompanyWebController::class, 'reviseAction'])->name('actions.revise');
+            Route::post('/actions/{proposal}/reject', [AiCompanyWebController::class, 'rejectAction'])->name('actions.reject');
+            Route::get('/history', [AiCompanyWebController::class, 'history'])->name('history');
+            Route::get('/providers', [AiCompanyWebController::class, 'providers'])->name('providers');
+            Route::post('/providers', [AiCompanyWebController::class, 'storeProvider'])->name('providers.store');
+            Route::post('/providers/test', [AiCompanyWebController::class, 'testProvider'])->name('providers.test');
+            Route::post('/providers/detect-models', [AiCompanyWebController::class, 'detectModels'])->name('providers.detect-models');
+            Route::get('/agents/avatars', [AiCompanyWebController::class, 'getAgentAvatars'])->name('agents.avatars');
+            Route::post('/agents/{role}/avatar', [AiCompanyWebController::class, 'updateAgentAvatar'])->name('agents.avatar.update');
+            Route::get('/live-metrics', [AiCompanyWebController::class, 'liveMetrics'])->name('live-metrics');
         });
 
         // POS Incoming Online/QR Orders
@@ -650,11 +700,12 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
 
 
         // WhatsApp Gateway Toko
-        Route::prefix('whatsapp')->name('whatsapp.')->middleware('require.permission:whatsapp.view')->group(function (): void {
+        Route::prefix('whatsapp')->name('whatsapp.')->middleware(['module:channels_marketing', 'require.permission:whatsapp.view'])->group(function (): void {
             Route::get('/', [WhatsAppWebController::class, 'index'])->name('index');
             Route::get('/qr', [WhatsAppWebController::class, 'getQr'])->name('qr');
             Route::get('/status', [WhatsAppWebController::class, 'checkStatus'])->name('status');
             Route::get('/logs', [WhatsAppWebController::class, 'logs'])->name('logs.index');
+            Route::get('/logs/export', [WhatsAppWebController::class, 'exportLogs'])->name('logs.export');
             Route::post('/orders/{order}/receipt', [WhatsAppWebController::class, 'sendOrderReceipt'])->name('orders.receipt');
 
             Route::middleware('require.permission:whatsapp.manage')->group(function (): void {
@@ -687,7 +738,7 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
         });
 
         // Integrasi Media Sosial (Meta Facebook, Instagram, Threads, TikTok, & LinkedIn)
-        Route::prefix('social-media')->name('social-media.')->middleware('require.permission:social_media.view')->group(function (): void {
+        Route::prefix('social-media')->name('social-media.')->middleware(['module:channels_marketing', 'require.permission:social_media.view'])->group(function (): void {
             Route::get('/', [SocialMediaWebController::class, 'index'])->name('index');
             Route::get('/config', [SocialMediaWebController::class, 'getOAuthConfig'])->name('config');
             Route::post('/exchange-token', [SocialMediaWebController::class, 'exchangeToken'])->middleware('require.permission:social_media.manage')->name('exchange-token');

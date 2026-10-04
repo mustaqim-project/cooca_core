@@ -858,6 +858,7 @@ class SocialMediaWebController extends Controller
     public function replyComment(Request $request, SocialMediaComment $comment): JsonResponse
     {
         $business = Context::requireBusiness();
+        abort_unless($comment->business_id === $business->id, 404);
 
         $validated = $request->validate([
             'message' => ['required', 'string', 'max:1000'],
@@ -924,6 +925,7 @@ class SocialMediaWebController extends Controller
     public function syncInsights(Request $request, SocialMediaPost $post): JsonResponse
     {
         $business = Context::requireBusiness();
+        abort_unless($post->business_id === $business->id, 404);
 
         try {
             $metrics = $this->socialService->syncPostMetrics($business, $post);
@@ -949,7 +951,26 @@ class SocialMediaWebController extends Controller
 
         $validated = $request->validate([
             'account_id' => ['required', 'uuid'],
+            'pin'        => ['nullable', 'string'],
         ]);
+
+        // Enforce Supervisor PIN if configured for this business
+        if (! empty($business->pos_supervisor_pin)) {
+            if (empty($validated['pin'])) {
+                return response()->json([
+                    'success'      => false,
+                    'pin_required' => true,
+                    'message'      => __('social_media.supervisor_pin_required'),
+                ], 422);
+            }
+
+            if (! \Illuminate\Support\Facades\Hash::check($validated['pin'], $business->pos_supervisor_pin)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => __('social_media.supervisor_pin_invalid'),
+                ], 422);
+            }
+        }
 
         $ok = $this->socialService->disconnectAccount($business, $validated['account_id']);
 
@@ -1050,6 +1071,8 @@ class SocialMediaWebController extends Controller
         ]);
 
         $post->targets()->update(['status' => 'cancelled']);
+
+        $this->socialService->purgePostLocalMedia($post);
 
         return redirect()->route('social-media.posts.index')
             ->with('info', __('social_media.post_rejected_info'));

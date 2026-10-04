@@ -1,4 +1,4 @@
-@extends('layouts.app', ['title' => 'Laporan & Analitik POS'])
+@extends('layouts.app', ['title' => __('pos.reports_title')])
 
 @section('content')
 <div class="max-w-[1360px] mx-auto space-y-6 pb-12">
@@ -6,8 +6,8 @@
     {{-- MODULE HEADER & PERSISTENT POS TABS --}}
     <x-module-header
         module="pos"
-        title="Laporan &amp; Analitik POS"
-        subtitle="Analisis performa penjualan kasir terintegrasi HPP (BOM / Recipe), laba kotor, jam ramai, dan metode bayar.">
+        :title="__('pos.reports_title')"
+        :subtitle="__('pos.reports_subtitle')">
         <x-slot:actions>
             @if(\App\Support\Context::hasPermission('pos.reports_export') || \App\Support\Context::hasPermission('pos.reports'))
                 <a id="btnPosExportExcel" href="{{ route('pos.reports.export-excel', ['start_date' => $startDate->toDateString(), 'end_date' => $endDate->toDateString()]) }}"

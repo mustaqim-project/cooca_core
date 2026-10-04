@@ -1,7 +1,7 @@
 @extends('layouts.app', [
-    'title' => 'Detail Hutang Supplier ' . $invoice->invoice_number,
-    'headerTitle' => 'Detail Hutang Supplier',
-    'headerSubtitle' => 'Rincian faktur masuk pemasok dan riwayat pembayaran'
+    'title' => __('purchasing.bills.detail_title', ['number' => $invoice->invoice_number]),
+    'headerTitle' => __('purchasing.bills.title'),
+    'headerSubtitle' => __('purchasing.bills.detail_subtitle')
 ])
 
 @section('content')
@@ -9,171 +9,187 @@
     <!-- ===================================================== -->
     <!-- 1. TOOLBAR / HEADER (macOS Sonoma Style)              -->
     <!-- ===================================================== -->
-    <header class="rounded-[14px] backdrop-blur-md bg-white/75 dark:bg-[#1C1C1E]/75 border border-black/5 dark:border-white/10 px-4 sm:px-6 py-3.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div>
-            <!-- Breadcrumb minimal -->
-            <nav class="flex items-center gap-1.5 text-[12px] text-black/50 dark:text-white/50 mb-1" aria-label="Breadcrumb">
-                <a href="{{ route('dashboard') }}" class="hover:text-[#007AFF] transition-colors">Dashboard</a>
-                <i data-lucide="chevron-right" class="w-3.5 h-3.5 opacity-40"></i>
-                <a href="{{ route('purchasing.bills.index') }}" class="hover:text-[#007AFF] transition-colors">Tagihan &amp; Hutang</a>
-                <i data-lucide="chevron-right" class="w-3.5 h-3.5 opacity-40"></i>
-                <span class="text-black dark:text-white font-medium">{{ $invoice->invoice_number }}</span>
-            </nav>
-            <div class="flex items-center gap-2.5">
-                <h1 class="text-[20px] font-semibold text-black dark:text-white tracking-tight">{{ $invoice->invoice_number }}</h1>
-                @if($invoice->status === 'paid')
-                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158]">
-                        <span class="w-1.5 h-1.5 rounded-full bg-[#34C759]"></span> Lunas
-                    </span>
-                @elseif($invoice->status === 'partial')
-                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-[#FF9500]/12 text-[#B25E00] dark:text-[#FF9F0A]">
-                        <span class="w-1.5 h-1.5 rounded-full bg-[#FF9500]"></span> Sebagian
-                    </span>
-                @else
-                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-[#FF3B30]/12 text-[#C41E17] dark:text-[#FF453A]">
-                        <span class="w-1.5 h-1.5 rounded-full bg-[#FF3B30]"></span> Belum Bayar
-                    </span>
-                @endif
-            </div>
-            <p class="text-[13px] text-black/50 dark:text-white/50 mt-0.5">
-                {{ $invoice->supplier->name }} &bull; GR {{ $invoice->goodsReceipt->receipt_number ?? '-' }}
-            </p>
-        </div>
-
+    <x-module-header
+        title="{{ $invoice->invoice_number }}"
+        subtitle="{{ $invoice->supplier->name }} &bull; GR: {{ $invoice->goodsReceipt->receipt_number ?? '-' }}">
         <div class="flex items-center gap-2">
+            @if($invoice->status === 'paid')
+                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[12px] font-semibold bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158]">
+                    <span class="w-1.5 h-1.5 rounded-full bg-[#34C759]"></span> {{ __('purchasing.bills.status_paid') }}
+                </span>
+            @elseif($invoice->status === 'partial')
+                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[12px] font-semibold bg-[#FF9500]/12 text-[#B25E00] dark:text-[#FF9F0A]">
+                    <span class="w-1.5 h-1.5 rounded-full bg-[#FF9500]"></span> {{ __('purchasing.bills.status_partial') }}
+                </span>
+            @else
+                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[12px] font-semibold bg-[#FF3B30]/12 text-[#C41E17] dark:text-[#FF453A]">
+                    <span class="w-1.5 h-1.5 rounded-full bg-[#FF3B30]"></span> {{ __('purchasing.bills.status_unpaid') }}
+                </span>
+            @endif
+
             <a href="{{ route('purchasing.bills.index') }}" class="min-h-[44px] sm:min-h-0 h-11 sm:h-9 px-4 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5">
                 <i data-lucide="arrow-left" class="w-4 h-4 text-black/60 dark:text-white/60"></i>
-                <span>Kembali ke Daftar</span>
+                <span>{{ __('purchasing.bills.back_to_bills') }}</span>
             </a>
         </div>
-    </header>
+    </x-module-header>
+
+    {{-- 2. MODULE TABS (SSOT) --}}
+    <x-module-tabs module="purchasing" />
 
     @if(session('success'))
     <div class="rounded-[12px] bg-[#34C759]/12 border border-[#34C759]/20 px-4 py-3 text-[13px] text-[#248A3D] dark:text-[#30D158] flex items-center gap-2">
-        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
+        <i data-lucide="check-circle-2" class="w-4 h-4 shrink-0 text-[#34C759]"></i>
         <span>{{ session('success') }}</span>
     </div>
     @endif
 
     <!-- ===================================================== -->
-    <!-- 2. FINANCIAL KPI CARDS                                -->
+    <!-- 3. FINANCIAL KPI CARDS                                -->
     <!-- ===================================================== -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
         <!-- Total Tagihan (Neutral) -->
         <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-4 flex flex-col justify-between">
-            <span class="text-[12px] font-medium text-black/50 dark:text-white/50">Total Tagihan</span>
+            <span class="text-[12px] font-medium text-black/50 dark:text-white/50">{{ __('purchasing.bills.col_total_amount') }}</span>
             <div class="mt-2 flex items-baseline justify-between">
                 <span class="text-[22px] font-bold tabular-nums text-black dark:text-white">
                     Rp {{ number_format($invoice->total_amount, 0, ',', '.') }}
                 </span>
-                <span class="text-[11px] text-black/40 dark:text-white/40">Kewajiban</span>
+                <span class="text-[11px] text-black/40 dark:text-white/40">{{ __('purchasing.bills.kpi_obligations') }}</span>
             </div>
         </div>
 
         <!-- Terbayar (System Green) -->
         <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-4 flex flex-col justify-between">
-            <span class="text-[12px] font-medium text-black/50 dark:text-white/50">Sudah Terbayar</span>
+            <span class="text-[12px] font-medium text-black/50 dark:text-white/50">{{ __('purchasing.bills.kpi_paid') }}</span>
             <div class="mt-2 flex items-baseline justify-between">
                 <span class="text-[22px] font-bold tabular-nums text-[#34C759] dark:text-[#30D158]">
                     Rp {{ number_format($invoice->paid_amount, 0, ',', '.') }}
                 </span>
-                <span class="text-[11px] font-semibold text-[#34C759] dark:text-[#30D158]">Selesai</span>
+                <span class="text-[11px] font-semibold text-[#34C759] dark:text-[#30D158]">{{ __('purchasing.bills.kpi_paid_done') }}</span>
             </div>
         </div>
 
         <!-- Sisa Hutang (System Orange) -->
         <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-4 flex flex-col justify-between">
-            <span class="text-[12px] font-medium text-black/50 dark:text-white/50">Sisa Hutang</span>
+            <span class="text-[12px] font-medium text-black/50 dark:text-white/50">{{ __('purchasing.bills.col_balance_due') }}</span>
             <div class="mt-2 flex items-baseline justify-between">
                 <span class="text-[22px] font-bold tabular-nums {{ $invoice->balance_due > 0 ? 'text-[#FF9500] dark:text-[#FF9F0A]' : 'text-black dark:text-white' }}">
                     Rp {{ number_format($invoice->balance_due, 0, ',', '.') }}
                 </span>
                 <span class="text-[11px] font-semibold {{ $invoice->balance_due > 0 ? 'text-[#FF9500] dark:text-[#FF9F0A]' : 'text-black/40 dark:text-white/40' }}">
-                    {{ $invoice->balance_due > 0 ? 'Tertunggak' : 'Nol' }}
+                    {{ $invoice->balance_due > 0 ? __('purchasing.bills.kpi_overdue') : __('purchasing.bills.kpi_zero') }}
                 </span>
             </div>
         </div>
     </div>
 
     <!-- ===================================================== -->
-    <!-- 3. PAYMENT RECORD FORM                                -->
+    <!-- 4. PAYMENT RECORD FORM (PROTECTED & MULTI-ACCOUNT)   -->
     <!-- ===================================================== -->
     @if($invoice->balance_due > 0 && (\App\Support\Context::hasPermission('purchasing.bills') || \App\Support\Context::hasPermission('purchasing.manage') || \App\Support\Context::hasPermission('invoices.record_payment')))
-    <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-5 space-y-4">
-        <div class="border-b border-black/5 dark:border-white/10 pb-3 flex items-center justify-between">
+    <div x-data="{ isSubmitting: false, amount: {{ old('amount', '') ?: 'null' }} }" class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-5 sm:p-6 space-y-4">
+        <div class="border-b border-black/5 dark:border-white/10 pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>
-                <h2 class="text-[15px] font-semibold text-black dark:text-white">Catat Pembayaran Hutang</h2>
-                <p class="text-[12px] text-black/50 dark:text-white/50">Simpan pelunasan kas atau transfer bank untuk mengurangi saldo hutang vendor ini.</p>
+                <h2 class="text-[15px] font-semibold text-black dark:text-white">{{ __('purchasing.bills.record_payment_title') }}</h2>
+                <p class="text-[12px] text-black/50 dark:text-white/50">{{ __('purchasing.bills.record_payment_subtitle') }}</p>
             </div>
             <span class="text-[12px] font-medium text-[#FF9500] dark:text-[#FF9F0A] tabular-nums">
                 Maks: Rp {{ number_format($invoice->balance_due, 0, ',', '.') }}
             </span>
         </div>
 
-        @error('amount')
-            <p class="text-[12px] font-medium text-[#FF3B30] dark:text-[#FF453A]">{{ $message }}</p>
-        @enderror
+        @if($errors->any())
+        <div class="rounded-[10px] bg-[#FF3B30]/12 border border-[#FF3B30]/20 p-3 text-[12px] text-[#C41E17] dark:text-[#FF453A] space-y-1">
+            @foreach($errors->all() as $error)
+                <p>&bull; {{ $error }}</p>
+            @endforeach
+        </div>
+        @endif
 
-        <form method="POST" action="{{ route('purchasing.bills.payments.store', $invoice) }}" class="space-y-4">
+        <form method="POST" action="{{ route('purchasing.bills.payments.store', $invoice) }}" @submit="isSubmitting = true" class="space-y-4">
             @csrf
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 <div>
-                    <label class="block text-[12px] font-medium text-black/60 dark:text-white/60 mb-1">Nominal Pembayaran (Rp) *</label>
-                    <input name="amount" type="number" min="0.01" max="{{ $invoice->balance_due }}" step="0.01" placeholder="Contoh: 500000" required value="{{ old('amount') }}"
-                           class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-[14px] font-medium tabular-nums text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                    <label class="block text-[12px] font-medium text-black/60 dark:text-white/60 mb-1">{{ __('purchasing.bills.field_payment_amount') }}</label>
+                    <input name="amount" type="number" min="0.01" max="{{ $invoice->balance_due }}" step="0.01" placeholder="Contoh: 500000" required
+                           x-model="amount"
+                           class="w-full h-11 sm:h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-[16px] sm:text-[13px] font-medium tabular-nums text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
                 </div>
 
                 <div>
-                    <label class="block text-[12px] font-medium text-black/60 dark:text-white/60 mb-1">Tanggal Bayar *</label>
+                    <label class="block text-[12px] font-medium text-black/60 dark:text-white/60 mb-1">{{ __('purchasing.bills.field_payment_date') }}</label>
                     <input name="payment_date" type="date" value="{{ old('payment_date', now()->format('Y-m-d')) }}" required
-                           class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                           class="w-full h-11 sm:h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-[16px] sm:text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
                 </div>
 
                 <div>
-                    <label class="block text-[12px] font-medium text-black/60 dark:text-white/60 mb-1">Metode Pembayaran *</label>
-                    <select name="payment_method" class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
-                        <option value="bank_transfer">Transfer Bank</option>
-                        <option value="cash">Kas Tunai</option>
-                        <option value="qris">QRIS</option>
+                    <label class="block text-[12px] font-medium text-black/60 dark:text-white/60 mb-1">{{ __('purchasing.bills.field_payment_method') }}</label>
+                    <select name="payment_method" class="w-full h-11 sm:h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-[16px] sm:text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                        <option value="bank_transfer">{{ __('purchasing.bills.method_bank_transfer') }}</option>
+                        <option value="cash">{{ __('purchasing.bills.method_cash') }}</option>
+                        <option value="qris">{{ __('purchasing.bills.method_qris') }}</option>
                     </select>
-                </div>
-
-                <div class="flex items-end">
-                    <button type="submit" class="w-full h-10 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5 shadow-[0_1px_2px_rgba(0,122,255,0.25)]">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                        </svg>
-                        <span>Simpan Pembayaran</span>
-                    </button>
                 </div>
             </div>
 
-            <div>
-                <input name="reference_number" placeholder="Nomor referensi / bukti transfer bank (opsional)"
-                       class="w-full h-9 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-[13px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-[12px] font-medium text-black/60 dark:text-white/60 mb-1">{{ __('purchasing.bills.field_cash_account') }}</label>
+                    <select name="cash_account_id" class="w-full h-11 sm:h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-[16px] sm:text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                        <option value="">{{ __('purchasing.bills.field_cash_account_placeholder') }}</option>
+                        @foreach($cashAccounts as $account)
+                            <option value="{{ $account->id }}" {{ old('cash_account_id') === $account->id ? 'selected' : '' }}>
+                                {{ $account->name }} (Saldo: Rp {{ number_format($account->current_balance ?? 0, 0, ',', '.') }})
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-[12px] font-medium text-black/60 dark:text-white/60 mb-1">{{ __('purchasing.bills.field_reference_number') }}</label>
+                    <input name="reference_number" value="{{ old('reference_number') }}" placeholder="Contoh: REF-BCA-9821..."
+                           class="w-full h-11 sm:h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-[16px] sm:text-[13px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                </div>
+            </div>
+
+            <!-- Supervisor PIN conditional display if amount >= 5.000.000 -->
+            <div x-show="amount >= 5000000" x-cloak class="rounded-[10px] bg-[#FF9500]/10 border border-[#FF9500]/20 p-3 space-y-1">
+                <label class="block text-[12px] font-semibold text-[#B25E00] dark:text-[#FF9F0A]">
+                    {{ __('purchasing.bills.field_supervisor_pin') }}
+                </label>
+                <input name="supervisor_pin" type="password" maxlength="8" placeholder="••••••"
+                       class="w-full sm:w-64 h-10 bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 rounded-[8px] px-3 text-[16px] sm:text-[13px] tracking-widest text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+            </div>
+
+            <div class="flex items-center justify-end pt-2">
+                <button type="submit" :disabled="isSubmitting"
+                        class="min-h-[44px] w-full sm:w-auto h-11 sm:h-10 px-5 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-2 shadow-[0_1px_2px_rgba(0,122,255,0.25)] disabled:opacity-50 disabled:pointer-events-none">
+                    <span x-show="isSubmitting" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                    <i x-show="!isSubmitting" data-lucide="check" class="w-4 h-4"></i>
+                    <span>{{ __('purchasing.bills.btn_save_payment') }}</span>
+                </button>
             </div>
         </form>
     </div>
     @endif
 
     <!-- ===================================================== -->
-    <!-- 4. PAYMENT HISTORY TABLE                              -->
+    <!-- 5. PAYMENT HISTORY TABLE                              -->
     <!-- ===================================================== -->
     <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 overflow-hidden">
-        <div class="px-4 py-3 border-b border-black/5 dark:border-white/10 flex items-center justify-between">
-            <h3 class="text-[14px] font-semibold text-black dark:text-white">Riwayat Pembayaran Faktur</h3>
-            <span class="text-[12px] text-black/50 dark:text-white/50 tabular-nums">{{ count($invoice->payments) }} Pembayaran</span>
+        <div class="px-5 py-3.5 border-b border-black/5 dark:border-white/10 flex items-center justify-between">
+            <h3 class="text-[14px] font-semibold text-black dark:text-white">{{ __('purchasing.bills.payment_history_title') }}</h3>
+            <span class="text-[12px] text-black/50 dark:text-white/50 tabular-nums">{{ __('purchasing.bills.payment_history_count', ['count' => count($invoice->payments)]) }}</span>
         </div>
         <div class="overflow-x-auto">
             <table class="w-full text-left text-[13px]">
                 <thead>
                     <tr class="border-b border-black/5 dark:border-white/10">
-                        <th class="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40">Nomor Transaksi</th>
-                        <th class="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40">Tanggal</th>
-                        <th class="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40">Metode</th>
-                        <th class="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40 text-right">Nominal Terbayar</th>
+                        <th class="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40">{{ __('purchasing.bills.col_payment_number') }}</th>
+                        <th class="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40">{{ __('purchasing.bills.col_payment_date') }}</th>
+                        <th class="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40">{{ __('purchasing.bills.col_payment_method') }}</th>
+                        <th class="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40 text-right">{{ __('purchasing.bills.col_payment_amount') }}</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-black/[0.04] dark:divide-white/[0.06]">
@@ -197,7 +213,7 @@
                     @empty
                     <tr>
                         <td colspan="4" class="px-4 py-10 text-center text-[13px] text-black/40 dark:text-white/40">
-                            Belum ada riwayat pembayaran yang tercatat untuk faktur ini.
+                            {{ __('purchasing.bills.empty_payments') }}
                         </td>
                     </tr>
                     @endforelse

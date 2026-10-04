@@ -112,6 +112,20 @@ final class SharedNavigationComponentsTest extends TestCase
         $this->assertStringContainsString('Jurnal Akuntansi', $rendered);
         $this->assertStringContainsString('Piutang (AR)', $rendered);
         $this->assertStringContainsString('Hutang (AP)', $rendered);
-        $this->assertStringContainsString('Settlement Gateway', $rendered);
+        $this->assertStringContainsString('Payout Hub', $rendered);
+    }
+
+    public function test_module_tabs_component_renders_persistent_tabs_for_communication(): void
+    {
+        $rendered = Blade::render('<x-module-tabs module="communication" />');
+
+        $this->assertStringContainsString('Koneksi Akun', $rendered);
+        $this->assertStringContainsString('Postingan Konten', $rendered);
+        $this->assertStringContainsString('Kalender Jadwal', $rendered);
+        $this->assertStringContainsString('Kotak Masuk', $rendered);
+        $this->assertStringContainsString('Analitik Metrik', $rendered);
+        $this->assertStringContainsString('WhatsApp Gateway', $rendered);
+        $this->assertStringContainsString('Siaran Pesan (Broadcast)', $rendered);
     }
 }
+

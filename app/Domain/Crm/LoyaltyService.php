@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Domain\Crm;
 
+use App\Models\AuditLog;
+use App\Models\CashAccount;
+use App\Models\CashTransaction;
 use App\Models\Customer;
 use App\Models\CustomerCreditTransaction;
 use App\Models\CustomerPointHistory;
@@ -41,6 +44,8 @@ final class LoyaltyService
      */
     public function awardPointsForOrder(Customer $customer, PosOrder $order): int
     {
+        abort_unless($customer->business_id === $order->business_id, 403, 'Customer and order must belong to the same business.');
+
         $earned = $this->calculatePointsEarned((float) $order->total_amount);
 
         DB::transaction(function () use ($customer, $order, $earned) {
@@ -86,6 +91,8 @@ final class LoyaltyService
      */
     public function redeemPointsForOrder(Customer $customer, PosOrder $order, int $pointsToRedeem): float
     {
+        abort_unless($customer->business_id === $order->business_id, 403, 'Customer and order must belong to the same business.');
+
         if ($pointsToRedeem <= 0 || (int) $customer->points_balance < $pointsToRedeem) {
             return 0.0;
         }
@@ -123,6 +130,8 @@ final class LoyaltyService
      */
     public function recordCustomerCreditCharge(Customer $customer, PosOrder $order, float $amount, ?User $user = null): void
     {
+        abort_unless($customer->business_id === $order->business_id, 403, 'Customer and order must belong to the same business.');
+
         DB::transaction(function () use ($customer, $order, $amount, $user) {
             $newCredit = (float) $customer->current_credit_balance + $amount;
 
@@ -145,18 +154,26 @@ final class LoyaltyService
     }
 
     /**
-     * Record customer credit repayment.
+     * Record customer credit repayment (Anti-Lapping Shield & Ledger Integration).
      */
-    public function recordCustomerCreditPayment(Customer $customer, float $amount, ?string $notes = null, ?User $user = null): void
+    public function recordCustomerCreditPayment(Customer $customer, float $amount, ?string $notes = null, ?User $user = null): CustomerCreditTransaction
     {
-        DB::transaction(function () use ($customer, $amount, $notes, $user) {
+        if ($user && ! empty($user->active_business_id)) {
+            abort_unless($customer->business_id === $user->active_business_id, 403, 'Customer and user active business must match.');
+        }
+
+        if ($amount > (float) $customer->current_credit_balance) {
+            throw new \InvalidArgumentException('Jumlah pembayaran piutang (Rp ' . number_format($amount, 0, ',', '.') . ') tidak boleh melebihi sisa piutang aktif (Rp ' . number_format((float) $customer->current_credit_balance, 0, ',', '.') . ').');
+        }
+
+        return DB::transaction(function () use ($customer, $amount, $notes, $user) {
             $newCredit = max(0.0, (float) $customer->current_credit_balance - $amount);
 
             $customer->update([
                 'current_credit_balance' => $newCredit,
             ]);
 
-            CustomerCreditTransaction::create([
+            $transaction = CustomerCreditTransaction::create([
                 'business_id' => $customer->business_id,
                 'customer_id' => $customer->id,
                 'type' => CustomerCreditTransaction::TYPE_PAYMENT,
@@ -167,6 +184,52 @@ final class LoyaltyService
                 'notes' => $notes ?? 'Pelunasan piutang pelanggan',
                 'created_by' => $user?->id,
             ]);
+
+            // Auto-Journal ke Buku Kas Aktif Tenant (Anti-Lapping & Ledger Sync)
+            $cashAccount = CashAccount::where('business_id', $customer->business_id)->first();
+            if (! $cashAccount) {
+                $cashAccount = CashAccount::create([
+                    'business_id' => $customer->business_id,
+                    'name' => 'Kas Utama',
+                    'type' => 'cash',
+                    'current_balance' => 0,
+                    'is_active' => true,
+                ]);
+            }
+            $newCashBalance = (float) $cashAccount->current_balance + $amount;
+            $cashAccount->update(['current_balance' => $newCashBalance]);
+
+            CashTransaction::create([
+                'business_id' => $customer->business_id,
+                'cash_account_id' => $cashAccount->id,
+                'type' => CashTransaction::TYPE_IN,
+                'amount' => $amount,
+                'balance_after' => $newCashBalance,
+                'reference_type' => 'customer_credit_repayment',
+                'reference_id' => $transaction->id,
+                'description' => "Pelunasan piutang pelanggan: {$customer->name}" . ($notes ? " ({$notes})" : ''),
+                'transaction_date' => now(),
+                'created_by' => $user?->id,
+            ]);
+
+            // Pencatatan Audit Trail Immutable
+            AuditLog::create([
+                'business_id' => $customer->business_id,
+                'user_id' => $user?->id,
+                'auditable_type' => Customer::class,
+                'auditable_id' => $customer->id,
+                'action' => 'customer.credit_payment_recorded',
+                'risk_level' => AuditLog::RISK_LOW,
+                'notes' => "Pelunasan piutang pelanggan {$customer->name} sebesar Rp " . number_format($amount, 0, ',', '.'),
+                'new_values' => [
+                    'customer_id' => $customer->id,
+                    'amount' => $amount,
+                    'balance_after' => $newCredit,
+                ],
+                'created_at' => now(),
+            ]);
+
+            return $transaction;
         });
     }
 
@@ -226,6 +289,42 @@ final class LoyaltyService
 
             $text .= "Semoga hari Anda menyenangkan! ✨";
         }
+
+        return 'https://wa.me/' . $cleanPhone . '?text=' . rawurlencode($text);
+    }
+
+    /**
+     * Generate an official WhatsApp digital receipt URL for customer credit repayment (Anti-Lapping Shield).
+     */
+    public function generateCreditPaymentWhatsAppReceiptUrl(Customer $customer, CustomerCreditTransaction $transaction, ?string $phone = null): string
+    {
+        $targetPhone = $phone ?? $customer->phone ?? '';
+        $cleanPhone = preg_replace('/[^0-9]/', '', (string) $targetPhone);
+        if (str_starts_with($cleanPhone, '0')) {
+            $cleanPhone = '62' . substr($cleanPhone, 1);
+        }
+
+        $business = $customer->business;
+        $bizName = $business?->name ?? 'COOCA';
+        $custName = $customer->name;
+        $date = $transaction->created_at ? $transaction->created_at->format('d/m/Y H:i') : now()->format('d/m/Y H:i');
+        $amountFormatted = number_format((float) $transaction->amount, 0, ',', '.');
+        $balanceFormatted = number_format((float) $transaction->balance_after, 0, ',', '.');
+        $notes = $transaction->notes ?? 'Pelunasan piutang';
+
+        $text = "*BUKTI PEMBAYARAN PIUTANG*\n";
+        $text .= "*{$bizName}*\n\n";
+        $text .= "Yth. *{$custName}*,\n";
+        $text .= "Pembayaran piutang Anda telah berhasil kami terima dan dibukukan secara resmi.\n\n";
+        $text .= "Detail Pembayaran:\n";
+        $text .= "• Tanggal: {$date}\n";
+        $text .= "• Jumlah Dibayar: Rp {$amountFormatted}\n";
+        $text .= "• Sisa Saldo Piutang: Rp {$balanceFormatted}\n";
+        if (! empty($notes)) {
+            $text .= "• Catatan: {$notes}\n";
+        }
+        $text .= "\nTerima kasih atas kerja sama dan kepercayaan Anda kepada *{$bizName}*.\n";
+        $text .= "Bukti ini sah dan diterbitkan secara digital oleh sistem COOCA.";
 
         return 'https://wa.me/' . $cleanPhone . '?text=' . rawurlencode($text);
     }

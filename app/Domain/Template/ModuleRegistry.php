@@ -22,6 +22,7 @@ final class ModuleRegistry
     public const MODULE_RESERVATION = 'reservation';
     public const MODULE_MERCHANT_SHIPPING = 'merchant_shipping';
     public const MODULE_ACCOUNTING_CORPORATE = 'accounting_corporate';
+    public const MODULE_SERVICE_WORKSHOP = 'service_workshop';
 
     /**
      * Complete definition of all modular features in Cooca.
@@ -223,6 +224,17 @@ final class ModuleRegistry
                 'permissions' => [
                     'accounting.view',
                     'accounting.manage',
+                ],
+            ],
+            self::MODULE_SERVICE_WORKSHOP => [
+                'name' => 'Layanan Servis & Bengkel (PKB/SPK)',
+                'description' => 'Surat Perintah Kerja (SPK), estimasi biaya servis, pendaftaran kendaraan/nopol, dan riwayat pekerjaan mekanik.',
+                'icon' => 'wrench',
+                'category' => 'Layanan Servis',
+                'permissions' => [
+                    'products.view',
+                    'products.create',
+                    'products.edit',
                 ],
             ],
         ];

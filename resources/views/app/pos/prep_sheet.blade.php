@@ -1,51 +1,56 @@
-@extends('layouts.app', ['title' => 'Lembar Prep Dapur (Kitchen Batch Prep Sheet)'])
+@extends('layouts.app', ['title' => __('pos.prep_sheet_title')])
 
 @section('content')
 <div class="max-w-[1600px] mx-auto space-y-6 pb-16">
 
-    <!-- Top Action & Filter Header -->
-    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white/80 dark:bg-[#1C1C1E]/80 backdrop-blur-md p-4 sm:p-5 rounded-[20px] border border-black/[0.06] dark:border-white/[0.08] shadow-sm print:hidden">
-        <div class="flex items-center gap-3.5">
-            <div class="w-11 h-11 rounded-[14px] bg-emerald-500/15 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
-                <i data-lucide="clipboard-list" class="w-6 h-6"></i>
-            </div>
-            <div>
-                <div class="flex items-center gap-2.5">
-                    <h1 class="text-[20px] font-bold tracking-tight text-neutral-900 dark:text-white">Lembar Prep Dapur &amp; Katering</h1>
-                    <span class="text-[11px] font-bold tracking-[0.14em] uppercase text-emerald-600 dark:text-emerald-400">
-                        BOM AGGREGATION
-                    </span>
-                </div>
-                <p class="text-[13px] text-neutral-500 dark:text-neutral-400 mt-0.5">
-                    Agregasi porsi menu &amp; kalkulasi kebutuhan bahan baku otomatis berdasarkan resep BOM untuk produksi harian.
-                </p>
-            </div>
-        </div>
+    {{-- MODULE HEADER & PERSISTENT POS TABS --}}
+    <div class="space-y-4 print:hidden">
+        <x-module-header
+            module="pos"
+            :title="__('pos.prep_sheet_title')"
+            :subtitle="__('pos.prep_sheet_subtitle')">
+            <x-slot:actions>
+                <a href="{{ route('pos.kitchen.index') }}"
+                   class="min-h-[44px] sm:min-h-0 sm:h-9 px-4 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] dark:hover:bg-white/[0.12] active:scale-[0.97] transition-all flex items-center justify-center gap-1.5 w-full sm:w-auto">
+                    <i data-lucide="tv" class="w-4 h-4 text-black/60 dark:text-white/60"></i>
+                    <span>Monitor KDS</span>
+                </a>
+                <button type="button" onclick="window.print()"
+                        class="min-h-[44px] sm:min-h-0 sm:h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] transition-all flex items-center justify-center gap-1.5 shadow-sm cursor-pointer w-full sm:w-auto">
+                    <i data-lucide="printer" class="w-4 h-4"></i>
+                    <span>Cetak Lembar Prep</span>
+                </button>
+            </x-slot:actions>
+        </x-module-header>
 
-        <!-- Filter Controls & Actions -->
-        <form method="GET" action="{{ route('pos.kitchen.prep_sheet') }}" class="flex flex-wrap items-center gap-2.5">
+        <x-module-tabs module="pos" />
+    </div>
+
+    <!-- Filter Controls Bar -->
+    <div class="bg-white/80 dark:bg-[#1C1C1E]/80 backdrop-blur-md p-4 sm:p-5 rounded-[16px] border border-black/5 dark:border-white/10 shadow-xs print:hidden">
+        <form method="GET" action="{{ route('pos.kitchen.prep_sheet') }}" class="flex flex-wrap items-center justify-between gap-3">
             <!-- Date Filter -->
-            <div class="flex items-center gap-1.5 bg-neutral-100 dark:bg-neutral-800/80 p-1 rounded-[14px] border border-black/5 dark:border-white/5">
+            <div class="flex items-center gap-1.5 bg-black/[0.05] dark:bg-white/[0.06] p-1 rounded-[12px] border border-black/5 dark:border-white/5">
                 <a href="{{ route('pos.kitchen.prep_sheet', ['date' => now()->toDateString(), 'location_id' => $locationId]) }}"
-                   class="min-h-[38px] px-3 py-1.5 text-[12px] font-semibold rounded-[10px] flex items-center transition {{ $targetDate === now()->toDateString() ? 'bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white shadow-xs' : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900' }}">
+                   class="min-h-[36px] px-3 py-1.5 text-[12px] font-semibold rounded-[8px] flex items-center transition {{ $targetDate === now()->toDateString() ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-xs' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white' }}">
                     Hari Ini
                 </a>
                 <a href="{{ route('pos.kitchen.prep_sheet', ['date' => now()->addDay()->toDateString(), 'location_id' => $locationId]) }}"
-                   class="min-h-[38px] px-3 py-1.5 text-[12px] font-semibold rounded-[10px] flex items-center transition {{ $targetDate === now()->addDay()->toDateString() ? 'bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white shadow-xs' : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900' }}">
+                   class="min-h-[36px] px-3 py-1.5 text-[12px] font-semibold rounded-[8px] flex items-center transition {{ $targetDate === now()->addDay()->toDateString() ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-xs' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white' }}">
                     Besok
                 </a>
                 <a href="{{ route('pos.kitchen.prep_sheet', ['date' => now()->addDays(2)->toDateString(), 'location_id' => $locationId]) }}"
-                   class="min-h-[38px] px-3 py-1.5 text-[12px] font-semibold rounded-[10px] flex items-center transition {{ $targetDate === now()->addDays(2)->toDateString() ? 'bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white shadow-xs' : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900' }}">
+                   class="min-h-[36px] px-3 py-1.5 text-[12px] font-semibold rounded-[8px] flex items-center transition {{ $targetDate === now()->addDays(2)->toDateString() ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-xs' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white' }}">
                     Lusa
                 </a>
                 <input type="date" name="date" value="{{ $targetDate }}" onchange="this.form.submit()"
-                       class="min-h-[38px] px-2.5 py-1 text-[13px] bg-white dark:bg-neutral-700 rounded-[10px] border-none text-neutral-800 dark:text-neutral-200 focus:ring-2 focus:ring-emerald-500 font-medium">
+                       class="min-h-[36px] px-2.5 py-1 text-[13px] bg-white dark:bg-[#2C2C2E] rounded-[8px] border-none text-black dark:text-white focus:ring-2 focus:ring-[#007AFF] font-medium">
             </div>
 
             <!-- Location Selector -->
             @if($locations->count() > 1)
                 <select name="location_id" onchange="this.form.submit()"
-                        class="min-h-[44px] h-11 px-3.5 rounded-[12px] bg-neutral-100 dark:bg-neutral-800 text-[13px] font-semibold border border-black/5 dark:border-white/10 text-neutral-800 dark:text-neutral-200 focus:ring-2 focus:ring-emerald-500">
+                        class="min-h-[40px] h-10 px-3.5 rounded-[10px] bg-black/[0.05] dark:bg-white/[0.06] text-[13px] font-semibold border border-black/5 dark:border-white/10 text-black dark:text-white focus:ring-2 focus:ring-[#007AFF]">
                     <option value="">Semua Lokasi / Dapur</option>
                     @foreach($locations as $loc)
                         <option value="{{ $loc->id }}" {{ $locationId === $loc->id ? 'selected' : '' }}>
@@ -54,20 +59,6 @@
                     @endforeach
                 </select>
             @endif
-
-            <!-- Print Button -->
-            <button type="button" onclick="window.print()"
-                    class="min-h-[44px] h-11 px-4 rounded-[12px] bg-neutral-900 hover:bg-neutral-800 dark:bg-white dark:hover:bg-neutral-100 text-white dark:text-neutral-900 text-[13px] font-semibold flex items-center gap-2 transition shadow-sm active:scale-[0.98]">
-                <i data-lucide="printer" class="w-4 h-4"></i>
-                <span>Cetak Lembar Prep</span>
-            </button>
-
-            <!-- Back to KDS Link -->
-            <a href="{{ route('pos.kitchen.index') }}"
-               class="min-h-[44px] h-11 px-4 rounded-[12px] bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 text-[13px] font-semibold text-neutral-700 dark:text-neutral-300 flex items-center gap-2 transition active:scale-[0.98]">
-                <i data-lucide="tv" class="w-4 h-4"></i>
-                <span>Monitor KDS</span>
-            </a>
         </form>
     </div>
 
@@ -106,7 +97,7 @@
         <div class="p-4 rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-sm">
             <div class="flex items-center justify-between">
                 <span class="text-xs font-medium text-neutral-500 dark:text-neutral-400">Total Porsi Menu</span>
-                <span class="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center">
+                <span class="w-8 h-8 rounded-xl bg-[#34C759]/10 text-[#34C759] dark:text-[#30D158] flex items-center justify-center">
                     <i data-lucide="utensils" class="w-4 h-4"></i>
                 </span>
             </div>
@@ -121,7 +112,7 @@
         <div class="p-4 rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-sm">
             <div class="flex items-center justify-between">
                 <span class="text-xs font-medium text-neutral-500 dark:text-neutral-400">Bahan Baku (BOM)</span>
-                <span class="w-8 h-8 rounded-xl bg-purple-500/10 text-purple-600 flex items-center justify-center">
+                <span class="w-8 h-8 rounded-xl bg-[#AF52DE]/10 text-[#AF52DE] flex items-center justify-center">
                     <i data-lucide="boxes" class="w-4 h-4"></i>
                 </span>
             </div>
@@ -136,17 +127,17 @@
         <div class="p-4 rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] shadow-sm">
             <div class="flex items-center justify-between">
                 <span class="text-xs font-medium text-neutral-500 dark:text-neutral-400">Kesiapan Stok</span>
-                <span class="w-8 h-8 rounded-xl {{ $shortageCount > 0 ? 'bg-red-500/10 text-red-600' : 'bg-emerald-500/10 text-emerald-600' }} flex items-center justify-center">
+                <span class="w-8 h-8 rounded-xl {{ $shortageCount > 0 ? 'bg-[#FF3B30]/10 text-[#FF3B30] dark:text-[#FF453A]' : 'bg-[#34C759]/10 text-[#34C759] dark:text-[#30D158]' }} flex items-center justify-center">
                     <i data-lucide="{{ $shortageCount > 0 ? 'alert-triangle' : 'check-circle' }}" class="w-4 h-4"></i>
                 </span>
             </div>
             <div class="mt-2 flex items-baseline gap-2">
                 @if($shortageCount > 0)
-                    <span class="text-2xl font-bold text-red-600 dark:text-red-400 tabular-nums">{{ $shortageCount }}</span>
-                    <span class="text-xs font-bold text-red-600 dark:text-red-400">Bahan Kurang!</span>
+                    <span class="text-2xl font-bold text-[#FF3B30] dark:text-[#FF453A] tabular-nums">{{ $shortageCount }}</span>
+                    <span class="text-xs font-bold text-[#FF3B30] dark:text-[#FF453A]">Bahan Kurang!</span>
                 @else
-                    <span class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">Aman</span>
-                    <span class="text-xs text-emerald-600 dark:text-emerald-400">100% Cukup</span>
+                    <span class="text-2xl font-bold text-[#34C759] dark:text-[#30D158]">Aman</span>
+                    <span class="text-xs text-[#34C759] dark:text-[#30D158]">100% Cukup</span>
                 @endif
             </div>
             <p class="text-[11px] text-neutral-400 mt-1">
@@ -223,7 +214,7 @@
         <div class="lg:col-span-7 bg-white dark:bg-[#1C1C1E] rounded-[20px] border border-black/[0.06] dark:border-white/[0.08] shadow-sm overflow-hidden">
             <div class="p-4 sm:p-5 border-b border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between">
                 <div class="flex items-center gap-2.5">
-                    <div class="w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-600 flex items-center justify-center">
+                    <div class="w-7 h-7 rounded-lg bg-[#34C759]/10 text-[#34C759] dark:text-[#30D158] flex items-center justify-center">
                         <i data-lucide="scale" class="w-4 h-4"></i>
                     </div>
                     <div>
@@ -233,11 +224,11 @@
                 </div>
 
                 @if($shortageCount > 0)
-                    <span class="text-xs font-bold px-2 py-0.5 rounded-full bg-red-100 text-red-800 dark:bg-red-950/60 dark:text-red-300">
+                    <span class="text-xs font-bold px-2 py-0.5 rounded-full bg-[#FF3B30]/15 text-[#C41E17] dark:text-[#FF453A]">
                         {{ $shortageCount }} Bahan Kurang
                     </span>
                 @else
-                    <span class="text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300">
+                    <span class="text-xs font-bold px-2 py-0.5 rounded-full bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158]">
                         Stok Memadai
                     </span>
                 @endif
@@ -287,12 +278,12 @@
 
                                 <td class="px-4 py-3.5 text-center whitespace-nowrap">
                                     @if($mat['is_sufficient'])
-                                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-[#34C759]/10 text-[#248A3D] dark:text-[#30D158] border border-[#34C759]/25">
                                             <i data-lucide="check" class="w-3 h-3"></i>
                                             Cukup (+{{ number_format($mat['stock_on_hand'] - $mat['required_quantity'], 1, ',', '.') }})
                                         </span>
                                     @else
-                                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-red-100 text-red-800 dark:bg-red-950/80 dark:text-red-300 border border-red-200 dark:border-red-800">
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-[#FF3B30]/10 text-[#C41E17] dark:text-[#FF453A] border border-[#FF3B30]/25">
                                             <i data-lucide="alert-circle" class="w-3 h-3"></i>
                                             Kurang {{ number_format($mat['shortage'], 2, ',', '.') }} {{ $mat['unit'] }}
                                         </span>

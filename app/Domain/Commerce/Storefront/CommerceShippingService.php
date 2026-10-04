@@ -139,8 +139,16 @@ final class CommerceShippingService
             $totalWeightGrams = 250;
         }
 
-        // Try Biteship Rates calculation first if destination is given
-        if (! empty($destinationPostalCode) || ! empty($destinationCoordinates['latitude'])) {
+        $hasOrigin = ! empty($storeSetting?->origin_postal_code) || ! empty($storeSetting?->origin_latitude);
+        $hasDestination = ! empty($destinationPostalCode) || ! empty($destinationCoordinates['latitude']);
+
+        $couriers = $storeSetting?->biteship_enabled_couriers;
+        if ($couriers === null) {
+            $couriers = ['jne', 'sicepat', 'jnt', 'anteraja', 'gosend', 'grab'];
+        }
+
+        // Try Biteship Rates calculation first if destination is given or origin is configured with active couriers
+        if (! empty($couriers) && ($hasDestination || $hasOrigin)) {
             try {
                 /** @var \App\Models\Location|null $originLocation */
                 $originLocation = null;
@@ -193,71 +201,100 @@ final class CommerceShippingService
                     'address'     => $originLocation?->address ?? $storeSetting?->origin_address,
                 ];
 
-                $destination = [
-                    'postal_code' => $destinationPostalCode,
-                    'latitude'    => $destinationCoordinates['latitude'] ?? null,
-                    'longitude'   => $destinationCoordinates['longitude'] ?? null,
-                    'address'     => $destinationAddress,
-                ];
+                $destPostal = ! empty($destinationPostalCode) ? $destinationPostalCode : ($origin['postal_code'] ?? null);
+                $destLat = ! empty($destinationCoordinates['latitude']) ? (float) $destinationCoordinates['latitude'] : ($origin['latitude'] ?? null);
+                $destLng = ! empty($destinationCoordinates['longitude']) ? (float) $destinationCoordinates['longitude'] : ($origin['longitude'] ?? null);
 
-                $couriers = $storeSetting?->biteship_enabled_couriers ?? ['jne', 'sicepat', 'jnt', 'anteraja', 'gosend', 'grab'];
+                if (! empty($destPostal) || ! empty($destLat)) {
+                    $destination = [
+                        'postal_code' => $destPostal,
+                        'latitude'    => $destLat,
+                        'longitude'   => $destLng,
+                        'address'     => $destinationAddress,
+                    ];
 
-                $rateRes = $this->biteshipService->getRates($origin, $destination, $orderItems, $couriers);
+                    $rateRes = $this->biteshipService->getRates($origin, $destination, $orderItems, $couriers);
 
-                if (($rateRes['success'] ?? false) && ! empty($rateRes['pricing'])) {
-                    $options = [];
-                    $selectedOption = null;
-                    $biteshipFee = (float) ($rateRes['service_fee'] ?? $serviceFee);
+                    if (($rateRes['success'] ?? false) && ! empty($rateRes['pricing'])) {
+                        $options = [];
+                        $selectedOption = null;
+                        $biteshipFee = (float) ($rateRes['service_fee'] ?? $serviceFee);
 
-                    foreach ($rateRes['pricing'] as $pricing) {
-                        $fee = (float) ($pricing['price'] ?? 0);
-                        $isFree = ($fee <= 0.0);
+                        // Calculate origin-to-destination distance for instant courier eligibility
+                        $instantCouriers = ['grab', 'gosend'];
+                        $instantMaxDistanceKm = 20;
+                        $instantMaxWeightGrams = 10000; // 10 kg
+                        $distanceMeters = null;
 
-                        $opt = [
-                            'id'                   => $pricing['id'],
-                            'name'                 => $pricing['description'],
-                            'rule_type'            => 'biteship',
-                            'fee'                  => $fee,
-                            'service_fee'          => $biteshipFee,
-                            'total_fee'            => $fee + $biteshipFee,
-                            'is_free'              => $isFree,
-                            'description'          => $pricing['description'],
-                            'courier_code'         => $pricing['courier_code'],
-                            'courier_name'         => $pricing['courier_name'],
-                            'courier_service_code' => $pricing['courier_service_code'],
-                            'courier_service_name' => $pricing['courier_service_name'],
-                            'duration'             => $pricing['duration'],
-                        ];
-
-                        $options[] = $opt;
-
-                        if ($preferredRuleId !== null && $pricing['id'] === $preferredRuleId) {
-                            $selectedOption = $opt;
+                        if ($originLocation && ! empty($destLat) && ! empty($destLng)) {
+                            $distanceMeters = $originLocation->distanceTo((float) $destLat, (float) $destLng);
                         }
-                    }
 
-                    if ($selectedOption === null && ! empty($options)) {
-                        $selectedOption = $options[0];
-                    }
+                        $distanceKmActual = $distanceMeters !== null ? ($distanceMeters / 1000) : null;
 
-                    if ($selectedOption !== null) {
-                        return [
-                            'applied_rule_id'      => $selectedOption['id'],
-                            'applied_rule_name'    => $selectedOption['name'],
-                            'shipping_fee'         => (float) $selectedOption['fee'],
-                            'service_fee'          => (float) ($selectedOption['service_fee'] ?? $biteshipFee),
-                            'total_shipping_fee'   => (float) $selectedOption['fee'] + (float) ($selectedOption['service_fee'] ?? $biteshipFee),
-                            'total_weight_grams'   => $totalWeightGrams,
-                            'is_free'              => $selectedOption['is_free'],
-                            'courier_code'         => $selectedOption['courier_code'] ?? null,
-                            'courier_service_code' => $selectedOption['courier_service_code'] ?? null,
-                            'courier_name'         => $selectedOption['courier_name'] ?? null,
-                            'service_name'         => $selectedOption['courier_service_name'] ?? null,
-                            'duration'             => $selectedOption['duration'] ?? null,
-                            'origin_location_id'   => $originLocation?->id,
-                            'origin_location_name' => $originLocation?->name,
-                            'options'              => $options,
-                        ];
+                        foreach ($rateRes['pricing'] as $pricing) {
+                            $courierCode = strtolower($pricing['courier_code'] ?? '');
+
+                            // Filter instant couriers: max 20 km distance and max 10 kg weight
+                            if (in_array($courierCode, $instantCouriers, true)) {
+                                if ($totalWeightGrams > $instantMaxWeightGrams) {
+                                    continue; // Skip: package too heavy for instant delivery
+                                }
+                                if ($distanceKmActual !== null && $distanceKmActual > $instantMaxDistanceKm) {
+                                    continue; // Skip: destination too far for instant delivery
+                                }
+                            }
+
+                            $fee = (float) ($pricing['price'] ?? 0);
+                            $isFree = ($fee <= 0.0);
+
+                            $opt = [
+                                'id'                   => $pricing['id'],
+                                'name'                 => $pricing['description'],
+                                'rule_type'            => 'biteship',
+                                'fee'                  => $fee,
+                                'service_fee'          => $biteshipFee,
+                                'total_fee'            => $fee + $biteshipFee,
+                                'is_free'              => $isFree,
+                                'description'          => $pricing['description'],
+                                'courier_code'         => $pricing['courier_code'],
+                                'courier_name'         => $pricing['courier_name'],
+                                'courier_service_code' => $pricing['courier_service_code'],
+                                'courier_service_name' => $pricing['courier_service_name'],
+                                'duration'             => $pricing['duration'],
+                            ];
+
+                            $options[] = $opt;
+
+                            if ($preferredRuleId !== null && $pricing['id'] === $preferredRuleId) {
+                                $selectedOption = $opt;
+                            }
+                        }
+
+                        if ($selectedOption === null && ! empty($options)) {
+                            $selectedOption = $options[0];
+                        }
+
+                        if ($selectedOption !== null) {
+                            return [
+                                'applied_rule_id'      => $selectedOption['id'],
+                                'applied_rule_name'    => $selectedOption['name'],
+                                'shipping_fee'         => (float) $selectedOption['fee'],
+                                'service_fee'          => (float) ($selectedOption['service_fee'] ?? $biteshipFee),
+                                'total_shipping_fee'   => (float) $selectedOption['fee'] + (float) ($selectedOption['service_fee'] ?? $biteshipFee),
+                                'total_weight_grams'   => $totalWeightGrams,
+                                'is_free'              => $selectedOption['is_free'],
+                                'courier_code'         => $selectedOption['courier_code'] ?? null,
+                                'courier_service_code' => $selectedOption['courier_service_code'] ?? null,
+                                'courier_name'         => $selectedOption['courier_name'] ?? null,
+                                'service_name'         => $selectedOption['courier_service_name'] ?? null,
+                                'duration'             => $selectedOption['duration'] ?? null,
+                                'origin_location_id'   => $originLocation?->id,
+                                'origin_location_name' => $originLocation?->name,
+                                'distance_km'          => $distanceKmActual !== null ? round($distanceKmActual, 1) : null,
+                                'options'              => $options,
+                            ];
+                        }
                     }
                 }
             } catch (Throwable) {

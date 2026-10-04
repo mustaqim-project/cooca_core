@@ -298,12 +298,12 @@ class UnifiedPostingAndCarouselTest extends TestCase
             'platform'                => 'facebook',
             'content'                 => 'Postingan Kalender Terjadwal #agenda',
             'status'                  => 'scheduled',
-            'scheduled_at'            => now()->addDays(2),
+            'scheduled_at'            => now()->startOfMonth()->addDay(),
         ]);
 
         $response = $this->actingAs($user)->get(route('social-media.calendar'));
         $response->assertOk();
-        $response->assertSee('Kalender Jadwal Konten');
+        $response->assertSee(__('social_media.calendar_title'));
         $response->assertSee('Postingan Kalender Terjadwal');
     }
 }

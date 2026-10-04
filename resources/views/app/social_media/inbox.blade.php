@@ -23,37 +23,6 @@
 
         <x-module-tabs module="communication" />
 
-        {{-- 2. MODULE NAVIGATION SUB-TABS --}}
-        <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-2 sm:p-2.5 flex items-center justify-between shadow-sm">
-            <div class="inline-flex p-1 rounded-[12px] bg-black/[0.05] dark:bg-white/[0.08] border border-black/5 dark:border-white/5 w-full sm:w-auto overflow-x-auto text-[13px] font-medium">
-                <a href="{{ route('social-media.index') }}"
-                    class="h-8 px-4 rounded-[9px] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white flex items-center gap-2 whitespace-nowrap transition-colors">
-                    <i data-lucide="link" class="w-4 h-4"></i>
-                    <span>{{ __('social_media.tab_connect') }}</span>
-                </a>
-                <a href="{{ route('social-media.posts.index') }}"
-                    class="h-8 px-4 rounded-[9px] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white flex items-center gap-2 whitespace-nowrap transition-colors">
-                    <i data-lucide="image" class="w-4 h-4"></i>
-                    <span>{{ __('social_media.tab_posts') }}</span>
-                </a>
-                <a href="{{ route('social-media.calendar.index') }}"
-                    class="h-8 px-4 rounded-[9px] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white flex items-center gap-2 whitespace-nowrap transition-colors">
-                    <i data-lucide="calendar" class="w-4 h-4"></i>
-                    <span>{{ __('social_media.tab_calendar') }}</span>
-                </a>
-                <a href="{{ route('social-media.inbox.index') }}"
-                    class="h-8 px-4 rounded-[9px] bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-sm flex items-center gap-2 whitespace-nowrap">
-                    <i data-lucide="message-square" class="w-4 h-4 text-[#007AFF]"></i>
-                    <span>{{ __('social_media.tab_inbox') }}</span>
-                </a>
-                <a href="{{ route('social-media.insights.index') }}"
-                    class="h-8 px-4 rounded-[9px] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white flex items-center gap-2 whitespace-nowrap transition-colors">
-                    <i data-lucide="bar-chart-2" class="w-4 h-4"></i>
-                    <span>{{ __('social_media.tab_insights') }}</span>
-                </a>
-            </div>
-        </div>
-
         {{-- 3. FILTER PILLS --}}
         <div class="rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 p-4 shadow-sm flex flex-wrap items-center justify-between gap-4">
             <div class="flex items-center gap-2">
@@ -290,7 +259,7 @@
                         }
                     } catch (e) {
                         if (showNotification && window.AppAlert) {
-                            AppAlert.error('Gagal memperbarui pesan.');
+                            AppAlert.error(@js(__('social_media.error_refresh_messages')));
                         }
                     } finally {
                         this.isRefreshing = false;
@@ -345,13 +314,13 @@
                                 AppAlert.success('{{ __('social_media.comment_replied', ['platform' => '']) }}');
                             }
                         } else {
-                            this.errorMessage = data.error || 'Gagal mengirim balasan.';
+                            this.errorMessage = data.error || @js(__('social_media.error_send_reply'));
                             if (window.AppAlert) {
                                 AppAlert.error(this.errorMessage);
                             }
                         }
                     } catch (err) {
-                        this.errorMessage = 'Terjadi kesalahan jaringan atau server.';
+                        this.errorMessage = @js(__('common.network_timeout'));
                         if (window.AppAlert) {
                             AppAlert.error(this.errorMessage);
                         }

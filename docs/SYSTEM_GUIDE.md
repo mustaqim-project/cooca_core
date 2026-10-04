@@ -46,6 +46,9 @@
    - [4.17 Arsitektur Limitasi Subscription, Downgrade Auto-Gating, Pelacakan Storage & Data Pruning Previewer](#417-arsitektur-limitasi-subscription-downgrade-auto-gating-pelacakan-storage--data-pruning-previewer)
    - [4.18 Hardening Keamanan Siber POS Hardware, SSRF Guardrail & Otorisasi PIN (PRD-17)](#418-hardening-keamanan-siber-pos-hardware-ssrf-guardrail--otorisasi-pin-prd-17)
    - [4.19 Hardening Komprehensif 7 Modul View & Remediasi 20 Sektor Industri (PRD-18)](#419-hardening-komprehensif-7-modul-view--remediasi-20-sektor-industri-prd-18)
+   - [4.20 Arsitektur Shell Navigasi Sidebar Bento Apple HIG, Invisible Hover Bridge & RBAC Paritas](#420-arsitektur-shell-navigasi-sidebar-bento-apple-hig-invisible-hover-bridge--rbac-paritas)
+   - [4.21 Arsitektur Otomasi Pengingat Termin Pembayaran Pelanggan (WhatsApp & Email Tri-Channel, Scheduler 08:30 WIB & Anti-Spam Guard)](#421-arsitektur-otomasi-pengingat-termin-pembayaran-pelanggan-whatsapp--email-tri-channel-scheduler-0830-wib--anti-spam-guard)
+   - [4.22 Arsitektur COOCA AI Digital Company (Autonomous Workforce, Executive Hierarchy C-Level, Multi-Provider BYOAI, Maker-Checker Gate & Bento AI Office)](#422-arsitektur-cooca-ai-digital-company-autonomous-workforce-executive-hierarchy-c-level-multi-provider-byoai-maker-checker-gate--bento-ai-office)
 
 ---
 
@@ -111,7 +114,13 @@ Aplikasi ini dirancang untuk dapat dioperasikan secara percaya diri oleh **gener
   3. **Transaksi Cepat & Paket Kombo:** Sentuh foto produk atau paket kombo di katalog bento, pilih topping/level pedas (modifier), dan pilih metode bayar (Tunai, QRIS, atau Kasbon).
   4. **Cetak Struk & Kirim WA:** Tekan `[ 📄 Simpan & Cetak Struk ]`. Printer thermal mencetak struk fisik seketika (mencantumkan saluran & nomor referensi aplikasi), pesanan dapur KDS menampilkan lencana warna kontras, dan WhatsApp pelanggan menerima tautan struk digital resmi.
   5. **Tutup Shift:** Hitung uang fisik di laci kasir di akhir hari. Sistem membandingkannya dengan catatan sistem dan mencatat selisih kas secara transparan.
-* **Dampak ke Bisnis:** Kasir tidak bisa membatalkan transaksi (void) atau mengambil uang secara diam-diam karena tindakan berisiko dilindungi **PIN Supervisor**. Pemotongan stok paket kombo merekursi seluruh komponen anak secara atomik tanpa duplikasi.
+* **Isolasi Konteks 25 Sektor Industri (*Zero Feature Leakage*):**
+  - **Retail & Non-Food:** Antarmuka kasir secara otomatis mengeliminasi pemilih saluran ojol, nomor meja, order QR, dan KDS dapur. Tombol detail item menggunakan label "Detail & Catatan Item" (bukan dosis obat).
+  - **F&B Restoran:** Menampilkan badge nomor meja tamu (`Meja {{ table_or_reference }}`) pada kolom transaksi kasir, detail pesanan modal sheet, dan struk kasir.
+  - **Bengkel / Otomotif:** Menyajikan pemicu kartu dan modal SPK Kendaraan (nomor polisi, odometer, model, dan mekanik bertugas).
+  - **Laundry Kiloan:** Menyajikan pemicu timbangan cucian (berat kg, nomor rak/loker, dan estimasi waktu selesai).
+  - **Farmasi / Apotek:** Mengaktifkan mode apotek dengan pelacakan nomor batch dan tanggal kadaluarsa (ED) pada item obat.
+* **Dampak ke Bisnis:** Kasir tidak bisa membatalkan transaksi (void) atau mengambil uang secara diam-diam karena tindakan berisiko dilindungi **PIN Supervisor**. Pemotongan stok paket kombo merekursi seluruh komponen anak secara atomik tanpa duplikasi. Tampilan antarmuka 100% fokus pada proses bisnis spesifik UMKM tanpa kebocoran fitur industri lain.
 
 ### 3.3 Manajemen Jaringan Cabang, Gudang Logistik & Penerimaan Bahan (Warehouse Hub)
 * **Kapan Digunakan?** Saat Anda ingin mengelola titik fisik toko/outlet, mengatur hierarki gudang penyimpanan (Gudang Pusat vs Sub-Gudang Cabang), menentukan titik jemput ekspedisi online, membatasi radius geofence absensi karyawan, menerima pasokan PO supplier, atau melakukan penyesuaian stok fisik (Stock Adjustment).
@@ -407,6 +416,27 @@ Berdasarkan dokumen arsitektur `docs/BLUEPRINT_TIER_PRICING_DAN_LIMITASI_COOCA.m
   - **Asynchronous Task Offloading:** Proses berat (PDF invoice, email digest, WhatsApp API, rekapitulasi data besar) dialirkan ke antrean worker latar belakang (*Laravel Queue*).
   - **Smart Workflows:** Global Barcode Scanner listener, Self-Service QR Table Ordering dengan Customer CRM Auto-Connect & akumulasi poin loyalitas otomatis, validasi nomor HP standar Indonesia (10–15 digit), dinamisasi pemicu layanan POS adaptif untuk 20 sektor industri (`service_workshop`, `service_laundry`, `retail_pharmacy`), Auto-Reorder PO saat stok menyentuh Reorder Point (ROP), dan Interactive Customer WhatsApp Bot.
 
+### 4.16 Arsitektur AI Digital Company, Bring Your Own AI (BYOAI), dan Eksekutor Multi-Aksi Maker-Checker
+Pusat Komando AI Digital Company (`/cooca-ai`) mengoperasikan 17 agen AI spesialis dalam struktur hirarki terkelola (AI CEO, COO, CFO, CMO) dengan kantor virtual 3D Three.js dan ruang komando Bento Apple HIG:
+* **Multi-Provider BYOAI & Dynamic Model Discovery:**
+  - Mendukung kunci API Anthropic Claude, OpenAI, Google Gemini, OpenRouter, serta Rule-Based Fallback Engine 100% Offline.
+  - Model Anthropic terintegrasi langsung dengan Discovery API (`GET /v1/models`) untuk mendeteksi katalog model aktif (Claude 4.5/5 series) secara dinamis dengan pelacakan latensi real-time (~1.280ms).
+  - Keamanan AES-256-CBC pada penyimpanan kunci API (`api_key` encrypted cast) dan penyamaran (*masking*) `••••••••` di UI.
+* **Pipeline Eksekusi Multi-Aksi Terpadu (`AiActionExecutor`):**
+  - **Prinsip Maker-Checker Mutlak:** AI tidak dapat langsung memutasi database operasional tanpa otorisasi manusia. Seluruh proposal dicatat dengan status `PENDING` pada tabel `ai_action_proposals` dan diverifikasi sebelum eksekusi.
+  - **Dukungan Spektrum Aksi Nyata:**
+    1. *Sales & Billing:* `create_invoice`, `create_quotation` otomatis menerbitkan dokumen penjualan di tabel `invoices` / `quotations`.
+    2. *Supply Chain:* `create_purchase_order` menyiapkan draf pengadaan bahan baku ke tabel `purchase_orders`.
+    3. *Finance & Cost Control:* `cost_structure_audit`, `cost_audit_and_optimization`, `financial_audit` menghitung beban OPEX aktual dari tabel `expenses`, mengkalkulasi rasio efisiensi beban terhadap pendapatan POS, menyusun target omzet break-even minimum, dan mencatat laporan audit berkode `AUD-COST-xxxx`.
+    4. *Growth & Marketing:* `revenue_acceleration`, `revenue_growth_initiative`, `launch_marketing_campaign` mengaktifkan inisiatif kampanye percepatan omzet dan materi promosi WhatsApp/Medsos.
+    5. *System Maintenance:* `system_maintenance`, `data_integrity_check` menjalankan diagnostik performa query dan integritas tabel POS.
+    6. *Strategic Directive Fallback:* Setiap usulan aksi baru yang dirumuskan LLM ditangani secara aman dengan mencatat direktif resmi ke dalam `audit_logs` dan snapshot `result` tanpa melempar fatal exception.
+  - **Idempotensi & Transaksi Atomik:** Setiap proposal memegang `idempotency_key` dan dieksekusi di dalam `DB::transaction` ber-lock pesimistik (`lockForUpdate`). Upaya eksekusi berulang mengembalikan status sukses secara idempotent tanpa duplikasi aksi.
+* **Kepatuhan Bento Apple HIG & Zero Native Dialogs:**
+  - Halaman Action Center (`/cooca-ai/actions`) dan UI AI Office bebas dari dialog browser `alert()`, `confirm()`, dan `prompt()`.
+  - Mengadopsi suite modal dan frosted-glass toast terpusat `AppAlert` (`AppAlert.confirm`, `AppAlert.success`, `AppAlert.error`).
+  - Modal Review Sheet menyajikan 6 pilar analisis lengkap: *WHY*, *WHAT*, *IMPACT & RISK*, *CHANGES/PAYLOAD*, *EXECUTION RESULT*, dan *ERROR FEEDBACK*.
+
 ### 4.17 Arsitektur Limitasi Subscription, Downgrade Auto-Gating, Pelacakan Storage & Data Pruning Previewer
 * **Transparansi Limitasi Paket pada UI:** Setiap batas kuota fitur (produk, staf, cabang, storage, transaksi bulanan, kuota WhatsApp) disajikan secara jelas dan transparan melalui meter progress bar dan badge status berwarna semantik.
 * **Mitigasi Downgrade Non-Destruktif (*No Data Punishment*):**
@@ -512,6 +542,60 @@ Sistem mengimplementasikan cetak biru pembersihan menyeluruh pada 7 folder antar
 
 *Rencana Implementasi 9 Fase Terstruktur:* [`docs/IMPLEMENTATION_PLAN_COMPREHENSIVE_7_MODULES_REMEDIATION.md`](file:///c:/laragon/www/cooca_core/docs/IMPLEMENTATION_PLAN_COMPREHENSIVE_7_MODULES_REMEDIATION.md)
 
+### 4.21 Arsitektur Otomasi Pengingat Termin Pembayaran Pelanggan (WhatsApp & Email Tri-Channel, Scheduler 08:30 WIB & Anti-Spam Guard)
+
+Sistem mengimplementasikan mesin otomasi pengingat piutang dagang dan termin invoice pelanggan (*Customer Payment Term Reminder Engine*) yang beroperasi secara terjadwal dan manual:
+1. **Tri-Channel Dispatcher Terpadu (`CustomerPaymentTermReminderService`):**
+   - Mendukung pengiriman melalui 3 kanal: WhatsApp, Email HTML responsif Apple HIG, atau keduanya secara simultan (`channel: both`).
+   - Saluran WhatsApp memanfaatkan WhatsApp Cloud API terverifikasi Meta dengan fallback ke gateway/tautan interaktif `https://wa.me/...`.
+   - Saluran Email menggunakan mailable terisolasi (`CustomerPaymentTermReminderMail`) dengan template Blade bertema Bento Apple HIG, kartu ringkasan piutang, status lencana dinamis, rincian rekening bank transfer usaha, dan tombol aksi bayar instan.
+2. **Interval Waktu Cerdas (Upcoming H-3, Hari H, & Overdue Cadence):**
+   - **H-3 Mendekati Jatuh Tempo (`upcoming_h3`):** Pengingat santun untuk membantu pelanggan mempersiapkan kas tanpa merasa tertekan.
+   - **Hari H Jatuh Tempo (`due_date`):** Notifikasi formal pada tanggal jatuh tempo.
+   - **Terlambat / Overdue (`overdue`):** Eskalasi berkala bertahap pada Hari ke-1 terlambat, Hari ke-3, Hari ke-7, dan setiap kelipatan 7 hari berikutnya untuk menjaga penagihan konsisten tanpa spam harian yang mengganggu.
+3. **Guard Anti-Spam & Deduplikasi Harian Deterministik:**
+   - Tabel audit log terisolasi `customer_term_reminders` mencatat riwayat pengiriman per `(business_id, invoice_id, reminder_type, sent_date)`.
+   - Menggunakan query dialek aman `whereDate('sent_date', $today->toDateString())` untuk mencegah pengiriman ganda pada hari yang sama meskipun scheduler cron dieksekusi berkali-kali.
+4. **Artisan Console Scheduler (`customers:send-term-reminders`):**
+   - Dijadwalkan otomatis setiap hari kerja pukul 08:30 WIB (`routes/console.php`) menggunakan opsi `--business=` opsional untuk batching per tenant atau menyeluruh.
+5. **Aksi Cepat Interaktif pada Antarmuka Pemilik (Web UI Trigger):**
+   - **Halaman Detail Invoice (`invoices.show`):** Tombol aksi *"Kirim Pengingat"* memunculkan Sheet Modal Bento dengan pratinjau teks WhatsApp, pilihan kanal (WhatsApp / Email / Keduanya), catatan khusus pengirim, serta tautan langsung klik `wa.me`.
+   - **Tabel Pelanggan (`customers.index`):** Aksi cepat *"Tagih via WhatsApp"* langsung membuka modal atau tautan wa.me untuk pelanggan yang memiliki saldo piutang tertunggak (`unpaid_invoices_count > 0`).
+
+*Dokumen Audit & Rencana Kerja:* [`docs/system/audits/customer-payment-terms-auto-reminder-plan.md`](file:///c:/laragon/www/cooca_core/docs/system/audits/customer-payment-terms-auto-reminder-plan.md)
+
+### 4.22 Arsitektur COOCA AI Digital Company (Autonomous Workforce, Executive Hierarchy C-Level, Multi-Provider BYOAI, Maker-Checker Gate & Bento AI Office)
+
+COOCA AI Digital Company mentransformasikan AI dari sekadar asisten percakapan teks pasif menjadi **angkatan kerja digital otonom (*Digital Workforce Layer*)** yang bekerja terstruktur mendampingi pemilik usaha:
+1. **Prinsip Utama: "LLM May Reason, But Laravel Remains The Authority":**
+   - AI dilarang melakukan eksekusi raw SQL liar atau mutasi database langsung. Seluruh aksi bisnis (pembuatan faktur, PO belanja supplier, penyesuaian stok, broadcast kampanye) diperlakukan sebagai **Proposal Aksi (`ai_action_proposals`)** dengan status `PENDING`.
+   - Manusia (Owner/Supervisor) memegang kendali penuh di **Action Center (`/ai/actions`)** untuk meninjau *WHY, WHAT, IMPACT, COST, dan CHANGES* sebelum menyetujui atau menolak.
+2. **Dewan Eksekutif (C-Level AI Suite) & 5 Departemen Fungsional:**
+   - **AI CEO:** Evaluasi kesehatan makro bisnis, health-check harian otomatis pukul 07:00 WIB (`cooca:ai-daily-business-check`), rekomendasi strategis.
+   - **AI COO:** Pengawas rantai pasok stok pergudangan, purchase order, dan deteksi anomali transaksi kasir/fraud.
+   - **AI CFO:** Pengendali keuangan, likuiditas kas & bank, rasio piutang tertunggak (*AR aging*).
+   - **AI CMO:** Perancang strategi promosi, efektivitas broadcast WhatsApp, dan keterlibatan pelanggan.
+   - **AI HR Lead:** Pengawas kehadiran karyawan, kepatuhan jam kerja, dan beban shift.
+   - **12 Agen Spesialis:** Terdistribusi di 5 squad fungsional (Executive, Sales, Operations, Finance, Marketing, People) dengan routing otomatis berbasis kata kunci intensi.
+3. **Multi-Provider BYOAI (Bring Your Own AI):**
+   - Mendukung multi-vendor terkemuka: OpenAI (`gpt-4o`, `gpt-4o-mini`), Google Gemini (`gemini-1.5-pro`, `gemini-1.5-flash`), Anthropic Claude (`claude-3-5-sonnet`), dan OpenRouter.
+   - **Offline Deterministic Fallback:** Mesin inferensi bisnis deterministik berbasis data lokal yang dapat beroperasi 100% tanpa internet atau saat kuota API habis.
+   - Kunci API dienkripsi di basis data menggunakan AES-256-CBC, disembunyikan (`$hidden`), dan hanya ditampilkan bertopeng (`••••••••`).
+4. **Idempotensi & Transaksi Database Atomik:**
+   - Setiap proposal dilengkapi `idempotency_key` (`ACT-xxxx`). Proposal yang telah dieksekusi terlindungi dari re-eksekusi tidak disengaja (*idempotency guard*).
+   - Eksekusi diselimuti `DB::transaction` atomik dengan verifikasi keanggotaan pengguna dan pencatatan jejak audit permanen ke `audit_logs` dan `ai_work_histories`.
+5. **Antarmuka Bento Apple HIG AI Office:**
+   - Dashboard modular di `/ai` dengan Executive Suites, Department Pods, status tim, dan modal konsultasi interaktif multi-agen.
+   - Kepatuhan total terhadap standar desain Apple HIG: sudut membulat proporsional, border hairline halus, dan **Zero Emoji Policy** (100% menggunakan ikon vektor Lucide SVG).
+6. **Arsitektur RAG Multi-Tenant & Zero-Hallucination Guardrails:**
+   - 4 Sumber Pengetahuan: `TenantMasterDataKnowledgeSource` (produk, stok fisik via `stocks`, supplier, pelanggan, rekening kas), `TenantOperationalHistoryKnowledgeSource` (faktur piutang, POS orders, PO, mutasi kas, audit log), `UmkmRegulationsKnowledgeSource` (Pajak PP 55 0,5%, PPh 21 TER PP 58/2023, PPN 11%, SOP Anti-Fraud kasir toleransi Rp 10.000, rumus Safety Stock & ROP), dan `AiSystemCapabilitiesKnowledgeSource`.
+   - Mengharuskan sitasi faktual (misal `[Katalog Produk: #KGA-001]`) dan kewajiban menjawab *"Data tidak ditemukan dalam sistem"* jika fakta tidak terverifikasi.
+7. **Context Engineering Pipeline 5-Layer & Dual-Monitor Real Data di 3D Virtual Office:**
+   - Menyusun prompt sistem dinamis: Identity & Meta-Directives, Role Directives untuk 17 peran agen, Profil Tenant, Injeksi Pengetahuan RAG, serta Anti-Hallucination & Token Budgeting.
+   - Tiap meja kerja di 3D Virtual Office memiliki **dua monitor real-time**: Monitor 1 (Strategic KPI & Bar/Line Chart 7 hari) dan Monitor 2 (Live Operational Feed tabel 3 kolom faktual) dengan pembaruan otomatis latar belakang (*background polling 30s*) tanpa reload halaman.
+
+*Dokumentasi Lengkap:* [`docs/system/modules/ai-digital-company.md`](file:///c:/laragon/www/cooca_core/docs/system/modules/ai-digital-company.md) | Folder Arsitektur AI: [`docs/ai/`](file:///c:/laragon/www/cooca_core/docs/ai/)
+
 ---
 
 ## 5. Matriks Penelusuran Pengetahuan (Traceability Matrix)
@@ -609,6 +693,15 @@ Dokumentasi Cooca saling terhubung secara dua arah untuk memudahkan penelusuran 
    ├──► Shell Navigasi Sidebar ────► docs/prd/PRD-14-SIDEBAR-NAVIGATION-REMEDIATION-UX-STABILITY.md ──► resources/views/layouts/partials/sidebar.blade.php
    │                                                                                                     └──► WORK-2026-09-28-206
    │
-   └──► Hardening 7 Modul View ────► docs/prd/PRD-18-COMPREHENSIVE-SYSTEM-HARDENING-7-MODULES-AND-MULTI-INDUSTRY-REMEDIATION.md ──► 7 Core View Modules
-                                                                                                                                       └──► AUDIT-2026-09-29-001
+   ├──► Hardening 7 Modul View ────► docs/prd/PRD-18-COMPREHENSIVE-SYSTEM-HARDENING-7-MODULES-AND-MULTI-INDUSTRY-REMEDIATION.md ──► 7 Core View Modules
+   │                                                                                                                                        └──► AUDIT-2026-09-29-001
+   │
+   ├──► Audit & Remediasi POS ─────► docs/system/audits/pos-master-implementation-plan.md ──► resources/views/app/pos/ & app/Domain/Pos/
+   │                                                                                               └──► WORK-2026-09-30-256
+   │
+   ├──► Notifikasi Termin Pelanggan ──► docs/system/audits/customer-payment-terms-auto-reminder-plan.md ──► app/Domain/Crm/ & routes/console.php
+                                                                                                           └──► WORK-2026-10-01-273
+   │
+   └──► AI Digital Company ────────► docs/system/modules/ai-digital-company.md ─────────► app/Domain/Ai/ & resources/views/app/ai/
+                                                                                               └──► WORK-2026-10-01-274 / WORK-2026-10-01-275 / WORK-2026-10-01-277 / WORK-2026-10-01-278 / WORK-2026-10-02-280 (BYOAI Providers, Claude 4.5/5 & Dynamic Discovery)
 ```

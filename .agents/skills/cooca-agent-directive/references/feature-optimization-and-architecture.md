@@ -428,69 +428,49 @@ Untuk mendukung ekspansi bisnis ke pasar global, turis mancanegara pada pemesana
 
 ---
 
-### 7.1 Protokol Audit Teks (Hardcoded String Audit Protocol)
+### 7.1 Protokol Audit Teks Menyeluruh 10 Domain (Zero Hardcoded Text Mandate)
 
-Setiap kali AI Agent menyentuh view, controller, service, atau script JavaScript, **WAJIB** melakukan audit teks untuk memastikan tidak ada string bahasa Indonesia mentah (*hardcoded text*) yang tertinggal. Audit teks mencakup 5 layer aplikasi:
+Setiap kali AI Agent menyentuh view, controller, service, atau script JavaScript, **WAJIB** melakukan audit teks menyeluruh untuk memastikan **TIDAK ADA SATUPUN STRING BAHASA INDONESIA MENTAH YANG TERTINGGAL**. Audit teks mencakup 10 domain sasaran:
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────────────────────┐
-│                            5 LAYER AUDIT TEKS MULTI-BAHASA                                  │
+│                        10 DOMAIN SASARAN AUDIT TEKS MULTI-BAHASA                            │
 ├─────────────────────────────────────────────────────────────────────────────────────────────┤
-│ Layer 1: Blade Views & Layouts                                                              │
-│ • Dilarang keras teks statis mentah (misal: <h1>Daftar Produk</h1>).                        │
-│ • Wajib menggunakan helper: <h1>{{ __('inventory.products.title') }}</h1>.                 │
-│ • Hindari perangkaian string manual: gunakan {{ __('pos.shift.by', ['name' => $user]) }}.  │
-├─────────────────────────────────────────────────────────────────────────────────────────────┤
-│ Layer 2: JavaScript & Alpine.js Microcopy                                                   │
-│ • Seluruh alert toast, modal konfirmasi, dan placeholder input di Alpine.js / JS dilarang   │
-│   hardcoded bahasa Indonesia.                                                               │
-│ • Injeksi dictionary via Blade: <script>window.COOCA_I18N = @json(__('pos'));</script>     │
-│ • Panggil via helper: AppAlert.confirm(t('confirm_void', 'Yakin ingin membatalkan nota?')). │
-├─────────────────────────────────────────────────────────────────────────────────────────────┤
-│ Layer 3: Controller & Service Responses (Flash Messages & JSON API)                         │
-│ • Seluruh respon notifikasi backend wajib dilokalisasi:                                     │
-│   return back()->with('success', __('pos.orders.void_success'));                            │
-│   return response()->json(['message' => __('common.saved_successfully')]);                  │
-├─────────────────────────────────────────────────────────────────────────────────────────────┤
-│ Layer 4: Form Request Validation Messages                                                   │
-│ • Pesan validasi form didefinisikan pada lang/id/validation.php dan lang/en/validation.php  │
-│   atau method messages() menggunakan key translatable: __('validation.required').          │
-├─────────────────────────────────────────────────────────────────────────────────────────────┤
-│ Layer 5: Format Moneter, Tanggal, dan Angka (Locale-Aware Formatting)                       │
-│ • Format Mata Uang:                                                                         │
-│   - id: Rp 250.000 (Pemisah ribuan titik ., desimal koma ,)                                 │
-│   - en: IDR 250,000 atau Rp 250,000 (Pemisah ribuan koma ,, desimal titik .)               │
-│ • Format Tanggal:                                                                           │
-│   - id: 29 September 2026 / 29/09/2026 (WIB/WITA/WIT)                                       │
-│   - en: September 29, 2026 / 09/29/2026 (AM/PM)                                             │
-│ • Wajib menyertakan class Tailwind tabular-nums pada seluruh angka moneter & kuantitas.     │
+│ 1. Page Title & Meta Tags   │ @extends('layouts.app', ['title' => __('auth.otp_title')])    │
+│ 2. Breadcrumbs & Overlines  │ Overline Kategori, Breadcrumb items, Active Route label       │
+│ 3. Headers, H1, & Subtitles │ <x-module-header :title="__('...')" :subtitle="__('...')">    │
+│ 4. Forms, Labels, & Hints   │ <label>, placeholder="", helper hint text, dropzone upload    │
+│ 5. Dev / Test Alerts        │ Banner bypass dev/testing, sandbox notice, warning alerts     │
+│ 6. Error Lists & Summary    │ Header "Verifikasi Belum Berhasil:", daftar pesan validasi    │
+│ 7. Buttons & Action Links   │ Primary CTA, Ghost buttons, dropdown menu items, tooltips     │
+│ 8. Modals, Sheets, Dialogs  │ Modal title, body text, "Hapus meja ini?", tombol Batal/Simpan│
+│ 9. Tables, Badges, & Empty  │ Thead columns, Status badges, Empty state "Belum ada produk"  │
+│ 10. Backend Exceptions & Log│ DomainException, Flash messages, WA & Email templates, Audit  │
 └─────────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-### 7.2 Struktur Standar Berkas Bahasa Modular (`lang/`)
+### 7.2 Struktur Standar 12 Berkas Bahasa Modular (`lang/`)
 
 Seluruh kamus terjemahan dipisahkan berdasarkan domain bisnis untuk menjaga kerapian dan performa loading:
 
 ```
 lang/
-├── id/
-│   ├── common.php        → Aksi umum: Simpan, Batal, Hapus, Edit, Cetak, Kirim, Cari, Unduh, Tutup
-│   ├── pos.php           → Terminal, Meja/Dine-In, Dapur KDS, Tutup Shift, Laci Kas, Struk, Void, Retur
-│   ├── inventory.php     → Katalog Produk, Bahan Baku, Resep BOM, Mutasi Stok, Gudang, Pemasok
-│   ├── finance.php       → Kas & Bank, Jurnal Umum, Piutang, Hutang, Pajak UMKM, Penggajian
-│   ├── crm.php           → Pelanggan, Member, Poin Loyalitas, Toko Online Storefront, Pre-Order
-│   ├── validation.php    → Pesan error validasi form kustom bahasa Indonesia
-│   └── notifications.php → Template email, notifikasi in-app, pesan WhatsApp otomatis
-└── en/
-    ├── common.php        → General actions: Save, Cancel, Delete, Edit, Print, Send, Search, Download, Close
-    ├── pos.php           → Terminal, Tables/Dine-In, Kitchen KDS, Close Shift, Cash Drawer, Receipt, Void, Refund
-    ├── inventory.php     → Product Catalog, Raw Materials, BOM Recipes, Stock Movements, Warehouse, Suppliers
-    ├── finance.php       → Cash & Bank, General Journal, Receivables, Payables, Taxes, Payroll
-    ├── crm.php           → Customers, Members, Loyalty Points, Online Storefront, Pre-Order
-    ├── validation.php    → Custom English validation error messages
-    └── notifications.php → Email templates, in-app notifications, automated WhatsApp messages
+├── id/                                 lang/en/
+│   ├── common.php        ───────────►  ├── common.php        (Aksi umum: Simpan, Batal, Hapus, Edit, Cari, Status)
+│   ├── nav.php           ───────────►  ├── nav.php           (Sidebar, Topbar, Breadcrumb, Overline Menu)
+│   ├── auth.php          ───────────►  ├── auth.php          (Login, Register, OTP WA, Reset Password, Dev Bypass)
+│   ├── messages.php      ───────────►  ├── messages.php      (Flash session alerts: created, updated, deleted)
+│   ├── exceptions.php    ───────────►  ├── exceptions.php    (Domain business rule exceptions: stock, auth, tenant)
+│   ├── notifications.php ───────────►  ├── notifications.php (Template pesan WhatsApp Meta API & Email HTML)
+│   ├── validation.php    ───────────►  ├── validation.php    (Error messages & Heading "Verifikasi Belum Berhasil")
+│   ├── audit.php         ───────────►  ├── audit.php         (Deskripsi audit trail & system event logs)
+│   ├── pos.php           ───────────►  ├── pos.php           (Terminal, Meja, KDS, Shift, Struk, Void, Prep Sheet)
+│   ├── inventory.php     ───────────►  ├── inventory.php     (Produk, Stok, Gudang, Resep BOM, Supplier, Opname)
+│   ├── finance.php       ───────────►  ├── finance.php       (Buku Kas, Akun Bank, Laba Rugi, Pajak, Beban)
+│   ├── settings.php      ───────────►  ├── settings.php      (Profil Usaha, Printer, Integrasi, Role, Langganan)
+│   └── storefront.php    ───────────►  └── storefront.php    (Katalog Online, Keranjang, Checkout, Resi, Tracking)
 ```
 
 #### Contoh Perbandingan Berkas `common.php`:

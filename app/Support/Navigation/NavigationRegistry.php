@@ -656,6 +656,138 @@ final class NavigationRegistry
                         'active_routes' => ['pos.modifiers.*'],
                         'permission'    => 'pos.modifiers',
                     ],
+                    [
+                        'key'           => 'printers',
+                        'label'         => 'Printer & Hardware',
+                        'icon'          => 'printer',
+                        'route'         => 'pos.printers.index',
+                        'active_routes' => ['pos.printers.*', 'settings.pos.printers.*'],
+                        'permission'    => 'pos.terminal',
+                    ],
+                ],
+            ],
+
+            'communication' => [
+                'key'               => 'communication',
+                'label'             => 'Pemasaran & Komunikasi',
+                'icon'              => 'share-2',
+                'parent_breadcrumb' => ['label' => 'Saluran Pemasaran', 'route' => 'social-media.index'],
+                'module'            => ModuleRegistry::MODULE_CHANNELS_MARKETING,
+                'tabs'              => [
+                    [
+                        'key'           => 'social-connect',
+                        'label'         => 'Koneksi Akun',
+                        'icon'          => 'link',
+                        'route'         => 'social-media.index',
+                        'active_routes' => ['social-media.index'],
+                        'permission'    => 'social_media.view',
+                    ],
+                    [
+                        'key'           => 'social-posts',
+                        'label'         => 'Postingan Konten',
+                        'icon'          => 'image',
+                        'route'         => 'social-media.posts.index',
+                        'active_routes' => ['social-media.posts.*'],
+                        'permission'    => 'social_media.view',
+                    ],
+                    [
+                        'key'           => 'social-calendar',
+                        'label'         => 'Kalender Jadwal',
+                        'icon'          => 'calendar',
+                        'route'         => 'social-media.calendar',
+                        'active_routes' => ['social-media.calendar'],
+                        'permission'    => 'social_media.view',
+                    ],
+                    [
+                        'key'           => 'social-inbox',
+                        'label'         => 'Kotak Masuk',
+                        'icon'          => 'message-square',
+                        'route'         => 'social-media.inbox.index',
+                        'active_routes' => ['social-media.inbox.*'],
+                        'permission'    => 'social_media.view',
+                    ],
+                    [
+                        'key'           => 'social-insights',
+                        'label'         => 'Analitik Metrik',
+                        'icon'          => 'bar-chart-2',
+                        'route'         => 'social-media.insights.index',
+                        'active_routes' => ['social-media.insights.*'],
+                        'permission'    => 'social_media.view',
+                    ],
+                    [
+                        'key'           => 'whatsapp-gateway',
+                        'label'         => 'WhatsApp Gateway',
+                        'icon'          => 'message-circle',
+                        'route'         => 'whatsapp.index',
+                        'active_routes' => ['whatsapp.index', 'whatsapp.status', 'whatsapp.qr', 'whatsapp.logs.*'],
+                        'permission'    => 'whatsapp.manage',
+                    ],
+                    [
+                        'key'           => 'whatsapp-broadcast',
+                        'label'         => 'Siaran Pesan (Broadcast)',
+                        'icon'          => 'send',
+                        'route'         => 'whatsapp.broadcast.index',
+                        'active_routes' => ['whatsapp.broadcast.*'],
+                        'permission'    => 'whatsapp.manage',
+                    ],
+                ],
+            ],
+
+            'billing' => [
+                'key'               => 'billing',
+                'label'             => 'Langganan & Kuota',
+                'icon'              => 'credit-card',
+                'parent_breadcrumb' => ['label' => 'Langganan & Billing', 'route' => 'billing.limits'],
+                'module'            => null,
+                'tabs'              => [
+                    [
+                        'key'           => 'limits',
+                        'label'         => 'Paket & Kuota',
+                        'icon'          => 'gauge',
+                        'route'         => 'billing.limits',
+                        'active_routes' => ['billing', 'billing.limits', 'billing.storage.*'],
+                        'permission'    => 'billing.view',
+                    ],
+                    [
+                        'key'           => 'checkout',
+                        'label'         => 'Pilih Paket & Upgrade',
+                        'icon'          => 'sparkles',
+                        'route'         => 'billing.checkout',
+                        'active_routes' => ['billing.checkout', 'billing.patungan'],
+                        'permission'    => 'billing.manage',
+                    ],
+                    [
+                        'key'           => 'history',
+                        'label'         => 'Riwayat Tagihan',
+                        'icon'          => 'receipt',
+                        'route'         => 'billing.history',
+                        'active_routes' => ['billing.history', 'billing.payment.*'],
+                        'permission'    => 'billing.view',
+                    ],
+                ],
+            ],
+
+            'feedback' => [
+                'key'               => 'feedback',
+                'label'             => 'Pusat Bantuan & Tiket',
+                'icon'              => 'life-buoy',
+                'parent_breadcrumb' => ['label' => 'Pusat Feedback', 'route' => 'feedback.bugs.index'],
+                'module'            => null,
+                'tabs'              => [
+                    [
+                        'key'           => 'bugs',
+                        'label'         => 'Laporan Kendala (Bugs)',
+                        'icon'          => 'bug',
+                        'route'         => 'feedback.bugs.index',
+                        'active_routes' => ['feedback.bugs.*'],
+                    ],
+                    [
+                        'key'           => 'features',
+                        'label'         => 'Request Fitur',
+                        'icon'          => 'sparkles',
+                        'route'         => 'feedback.features.index',
+                        'active_routes' => ['feedback.features.*'],
+                    ],
                 ],
             ],
         ];
@@ -720,7 +852,11 @@ final class NavigationRegistry
 
         // 1. Module requirement check
         if (! empty($tabConfig['module']) && $business) {
-            if ($business->isModuleDisabled($tabConfig['module'])) {
+            if ($tabConfig['module'] === ModuleRegistry::MODULE_POS_DINEIN) {
+                if (! $business->hasDineInFeature()) {
+                    return false;
+                }
+            } elseif ($business->isModuleDisabled($tabConfig['module'])) {
                 return false;
             }
         }

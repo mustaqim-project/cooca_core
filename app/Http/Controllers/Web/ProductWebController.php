@@ -40,7 +40,7 @@ final class ProductWebController extends Controller
         $business = Context::requireBusiness();
 
         $query = Product::goods()
-            ->with(['category', 'outputUnit', 'costModels.latestVersion', 'bundleItems.childProduct', 'channelPrices', 'images'])
+            ->with(['category', 'outputUnit', 'costModels.latestVersion', 'bundleItems.childProduct', 'channelPrices', 'images', 'marketplaceMappings'])
             ->latest();
 
         if ($request->filled('search')) {
@@ -65,11 +65,15 @@ final class ProductWebController extends Controller
             ->orderBy('name')
             ->get(['id', 'name', 'code', 'selling_price', 'base_cost']);
 
+        $marketplaceCategories = \App\Domain\Marketplace\MarketplaceCategoryRegistry::all();
+        $isPharmacy = $business->isPharmacy();
+        $isServiceSector = $business->isServiceSector();
+
         // Optional preselect for edit modal (?edit=<id>) - used when arriving from calculator.
         $editProductId = $request->get('edit');
         $editProduct = null;
         if ($editProductId) {
-            $editProduct = Product::with(['category', 'outputUnit', 'bundleItems.childProduct', 'channelPrices'])
+            $editProduct = Product::with(['category', 'outputUnit', 'bundleItems.childProduct', 'channelPrices', 'marketplaceMappings'])
                 ->where('id', $editProductId)
                 ->where('business_id', $business->id)
                 ->first();
@@ -78,7 +82,18 @@ final class ProductWebController extends Controller
             }
         }
 
-        return view('app.products.index', compact('business', 'products', 'categories', 'units', 'editProductId', 'editProduct', 'allProducts'));
+        return view('app.products.index', compact(
+            'business',
+            'products',
+            'categories',
+            'units',
+            'editProductId',
+            'editProduct',
+            'allProducts',
+            'marketplaceCategories',
+            'isPharmacy',
+            'isServiceSector'
+        ));
     }
 
     /**

@@ -1,7 +1,7 @@
 @extends('layouts.app', [
-    'title' => 'Blast Promosi WhatsApp - ' . $business->name,
-    'headerTitle' => 'Blast Promosi WhatsApp',
-    'headerSubtitle' => 'Kirim promosi massal & notifikasi spesial ke pelanggan terdaftar',
+    'title' => __('whatsapp.broadcast_title') . ' - ' . $business->name,
+    'headerTitle' => __('whatsapp.broadcast_header_title'),
+    'headerSubtitle' => __('whatsapp.broadcast_header_subtitle'),
 ])
 
 @section('content')
@@ -10,19 +10,19 @@
         {{-- MODULE HEADER & PERSISTENT COMMUNICATION TABS --}}
         <x-module-header
             module="communication"
-            title="Blast Promosi WhatsApp"
-            subtitle="Kirim promosi massal & notifikasi spesial ke seluruh pelanggan terdaftar">
+            :title="__('whatsapp.broadcast_title')"
+            :subtitle="__('whatsapp.broadcast_subtitle')">
             <x-slot:actions>
                 <a href="{{ route('whatsapp.logs.index') }}"
                     class="min-h-[44px] px-4 rounded-[12px] text-[13px] font-semibold text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.98] transition-all flex items-center justify-center gap-2 w-full sm:w-auto">
                     <i data-lucide="history" class="w-4 h-4 text-black/60 dark:text-white/60"></i>
-                    <span>Log Pesan</span>
+                    <span>{{ __('whatsapp.tab_logs') }}</span>
                 </a>
                 @if (\App\Support\Context::hasPermission('whatsapp.manage'))
                     <button type="button" @click="openCreateModal()"
                         class="min-h-[44px] px-5 rounded-[12px] bg-[#007AFF] hover:bg-[#0071E3] text-white font-bold text-[13.5px] shadow-md shadow-[#007AFF]/25 flex items-center justify-center gap-2 transition-all active:scale-[0.98] w-full sm:w-auto">
                         <i data-lucide="plus" class="w-4 h-4"></i>
-                        <span>Buat Blast Promosi Baru</span>
+                        <span>{{ __('whatsapp.new_broadcast_btn') }}</span>
                     </button>
                 @endif
             </x-slot:actions>
@@ -38,7 +38,7 @@
             <div
                 class="rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-4 sm:p-5 flex flex-col justify-between shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
                 <div class="flex items-center justify-between mb-2">
-                    <span class="text-[12px] font-semibold text-black/50 dark:text-white/50">Total Kampanye</span>
+                    <span class="text-[12px] font-semibold text-black/50 dark:text-white/50">{{ __('whatsapp.total_campaigns') }}</span>
                     <div
                         class="w-8 h-8 rounded-[10px] bg-black/[0.04] dark:bg-white/[0.08] flex items-center justify-center text-black/60 dark:text-white/60">
                         <i data-lucide="layers" class="w-4 h-4"></i>
@@ -47,14 +47,14 @@
                 <div class="text-[22px] sm:text-[28px] font-bold tabular-nums text-black dark:text-white tracking-tight">
                     {{ number_format($stats['total_campaigns'], 0, ',', '.') }}
                 </div>
-                <div class="mt-2 text-[11px] text-black/40 dark:text-white/40">Riwayat broadcast</div>
+                <div class="mt-2 text-[11px] text-black/40 dark:text-white/40">{{ __('whatsapp.kpi_broadcast_history') }}</div>
             </div>
 
             <!-- Metric 2: Pesan Terkirim (System Green) -->
             <div
                 class="rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-4 sm:p-5 flex flex-col justify-between shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
                 <div class="flex items-center justify-between mb-2">
-                    <span class="text-[12px] font-semibold text-black/50 dark:text-white/50">Pesan Terkirim</span>
+                    <span class="text-[12px] font-semibold text-black/50 dark:text-white/50">{{ __('whatsapp.total_sent') }}</span>
                     <div
                         class="w-8 h-8 rounded-[10px] bg-[#34C759]/12 flex items-center justify-center text-[#34C759] dark:text-[#30D158]">
                         <i data-lucide="send" class="w-4 h-4"></i>
@@ -64,14 +64,14 @@
                     class="text-[22px] sm:text-[28px] font-bold tabular-nums text-[#34C759] dark:text-[#30D158] tracking-tight">
                     {{ number_format($stats['total_sent'], 0, ',', '.') }}
                 </div>
-                <div class="mt-2 text-[11px] text-black/40 dark:text-white/40">Berhasil masuk ke WhatsApp</div>
+                <div class="mt-2 text-[11px] text-black/40 dark:text-white/40">{{ __('whatsapp.kpi_delivered_to_wa') }}</div>
             </div>
 
             <!-- Metric 3: Total Target (System Indigo) -->
             <div
                 class="rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-4 sm:p-5 flex flex-col justify-between shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
                 <div class="flex items-center justify-between mb-2">
-                    <span class="text-[12px] font-semibold text-black/50 dark:text-white/50">Total Target</span>
+                    <span class="text-[12px] font-semibold text-black/50 dark:text-white/50">{{ __('whatsapp.total_target') }}</span>
                     <div
                         class="w-8 h-8 rounded-[10px] bg-[#5856D6]/10 flex items-center justify-center text-[#5856D6] dark:text-[#5E5CE6]">
                         <i data-lucide="users" class="w-4 h-4"></i>
@@ -80,14 +80,14 @@
                 <div class="text-[22px] sm:text-[28px] font-bold tabular-nums text-black dark:text-white tracking-tight">
                     {{ number_format($stats['total_recipients'], 0, ',', '.') }}
                 </div>
-                <div class="mt-2 text-[11px] text-black/40 dark:text-white/40">Penerima ditargetkan</div>
+                <div class="mt-2 text-[11px] text-black/40 dark:text-white/40">{{ __('whatsapp.kpi_recipients_targeted') }}</div>
             </div>
 
             <!-- Metric 4: Keberhasilan (System Blue/Green) -->
             <div
                 class="rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-4 sm:p-5 flex flex-col justify-between shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
                 <div class="flex items-center justify-between mb-2">
-                    <span class="text-[12px] font-semibold text-black/50 dark:text-white/50">Tingkat Sukses</span>
+                    <span class="text-[12px] font-semibold text-black/50 dark:text-white/50">{{ __('whatsapp.success_rate') }}</span>
                     <div
                         class="w-8 h-8 rounded-[10px] bg-[#34C759]/12 flex items-center justify-center text-[#34C759] dark:text-[#30D158]">
                         <i data-lucide="check-circle-2" class="w-4 h-4"></i>
@@ -97,7 +97,7 @@
                     class="text-[22px] sm:text-[28px] font-bold tabular-nums text-[#34C759] dark:text-[#30D158] tracking-tight">
                     {{ $stats['success_rate'] }}%
                 </div>
-                <div class="mt-2 text-[11px] text-black/40 dark:text-white/40">Delivery rate sukses</div>
+                <div class="mt-2 text-[11px] text-black/40 dark:text-white/40">{{ __('whatsapp.kpi_delivery_rate_success') }}</div>
             </div>
         </div>
 
@@ -108,8 +108,8 @@
             class="rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 shadow-[0_1px_2px_rgba(0,0,0,0.02)] overflow-hidden transition-colors">
             <div class="p-4 sm:p-5 border-b border-black/5 dark:border-white/10 flex items-center justify-between">
                 <div>
-                    <h2 class="text-[15px] font-bold text-black dark:text-white">Riwayat Kampanye Broadcast</h2>
-                    <p class="text-[12px] text-black/50 dark:text-white/50">Daftar seluruh pesan promosi massal yang telah dijadwalkan</p>
+                    <h2 class="text-[15px] font-bold text-black dark:text-white">{{ __('whatsapp.campaign_history_title') }}</h2>
+                    <p class="text-[12px] text-black/50 dark:text-white/50">{{ __('whatsapp.campaign_history_subtitle') }}</p>
                 </div>
             </div>
 
@@ -120,16 +120,16 @@
                         <i data-lucide="megaphone-off" class="w-8 h-8"></i>
                     </div>
                     <div>
-                        <h3 class="text-black dark:text-white font-bold text-[16px]">Belum Ada Kampanye Blast Promosi</h3>
+                        <h3 class="text-black dark:text-white font-bold text-[16px]">{{ __('whatsapp.empty_campaigns_title') }}</h3>
                         <p class="text-black/50 dark:text-white/50 text-[13px] mt-1 max-w-sm mx-auto leading-relaxed">
-                            Buat pesan promosi massal pertama Anda untuk mengabarkan diskon atau info produk terbaru ke pelanggan setia.
+                            {{ __('whatsapp.empty_campaigns_desc') }}
                         </p>
                     </div>
                     @if (\App\Support\Context::hasPermission('whatsapp.manage'))
                         <button type="button" @click="openCreateModal()"
                             class="inline-flex items-center gap-2 mt-3 min-h-[44px] px-5 rounded-[12px] bg-[#007AFF] hover:bg-[#0071E3] text-white font-bold text-[13px] shadow-md shadow-[#007AFF]/25 transition-all active:scale-[0.98]">
                             <i data-lucide="plus" class="w-4 h-4"></i>
-                            <span>Buat Blast Pertama Sekarang</span>
+                            <span>{{ __('whatsapp.create_first_broadcast_btn') }}</span>
                         </button>
                     @endif
                 </div>
@@ -140,13 +140,13 @@
                         <thead>
                             <tr
                                 class="border-b border-black/5 dark:border-white/10 text-black/40 dark:text-white/40 uppercase tracking-wide text-[11px] font-semibold">
-                                <th class="px-5 py-3">Judul Kampanye</th>
-                                <th class="px-4 py-3">Target Audiens</th>
-                                <th class="px-4 py-3 text-center">Penerima</th>
-                                <th class="px-4 py-3 text-center">Terkirim</th>
-                                <th class="px-4 py-3 text-center">Status</th>
-                                <th class="px-4 py-3">Waktu Kirim</th>
-                                <th class="px-5 py-3 text-right">Aksi</th>
+                                <th class="px-5 py-3">{{ __('whatsapp.campaign_name') }}</th>
+                                <th class="px-4 py-3">{{ __('whatsapp.target_segment') }}</th>
+                                <th class="px-4 py-3 text-center">{{ __('whatsapp.total_recipients') }}</th>
+                                <th class="px-4 py-3 text-center">{{ __('whatsapp.col_sent') }}</th>
+                                <th class="px-4 py-3 text-center">{{ __('whatsapp.status_label') }}</th>
+                                <th class="px-4 py-3">{{ __('whatsapp.sent_date') }}</th>
+                                <th class="px-5 py-3 text-right">{{ __('whatsapp.action_label') }}</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-black/[0.04] dark:divide-white/[0.06]">
@@ -164,7 +164,7 @@
                                         {{ $campaign->target_filter === 'all'
                                             ? 'bg-black/6 dark:bg-white/8 text-black/60 dark:text-white/60'
                                             : 'bg-[#007AFF]/10 text-[#007AFF]' }}">
-                                            {{ $campaign->target_filter === 'all' ? 'Semua Pelanggan' : ucfirst($campaign->target_filter) }}
+                                            {{ $campaign->target_filter === 'all' ? __('whatsapp.filter_all_members') : ucfirst($campaign->target_filter) }}
                                         </span>
                                     </td>
                                     <td
@@ -176,7 +176,7 @@
                                             class="text-[#34C759] dark:text-[#30D158] font-bold">{{ number_format($campaign->total_sent, 0, ',', '.') }}</span>
                                         @if ($campaign->total_failed > 0)
                                             <span class="text-[#FF3B30] dark:text-[#FF453A] font-medium text-[11px]">
-                                                ({{ $campaign->total_failed }} gagal)
+                                                ({{ $campaign->total_failed }} {{ __('whatsapp.status_failed_lower') }})
                                             </span>
                                         @endif
                                     </td>
@@ -185,22 +185,22 @@
                                             $statusBadge = match ($campaign->status) {
                                                 'completed' => [
                                                     'bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158]',
-                                                    'Selesai',
+                                                    __('whatsapp.status_completed'),
                                                     'bg-[#34C759]',
                                                 ],
                                                 'processing' => [
                                                     'bg-[#FF9500]/12 text-[#B25E00] dark:text-[#FF9F0A]',
-                                                    'Memproses',
+                                                    __('whatsapp.status_processing'),
                                                     'bg-[#FF9500]',
                                                 ],
                                                 'failed' => [
                                                     'bg-[#FF3B30]/12 text-[#C41E17] dark:text-[#FF453A]',
-                                                    'Gagal',
+                                                    __('whatsapp.status_failed'),
                                                     'bg-[#FF3B30]',
                                                 ],
                                                 default => [
                                                     'bg-black/6 dark:bg-white/8 text-black/60 dark:text-white/60',
-                                                    'Draft',
+                                                    __('whatsapp.status_draft'),
                                                     'bg-black/40',
                                                 ],
                                             };
@@ -217,8 +217,8 @@
                                     </td>
                                     <td class="px-5 py-3.5 text-right">
                                         <a href="{{ route('whatsapp.broadcast.show', $campaign) }}"
-                                            class="min-h-[32px] px-3 rounded-[8px] text-[12px] font-semibold text-[#007AFF] hover:bg-[#007AFF]/10 transition-colors inline-flex items-center gap-1">
-                                            <span>Rincian</span>
+                                            class="min-h-[36px] sm:min-h-[32px] px-3.5 rounded-[8px] text-[12px] font-semibold text-[#007AFF] hover:bg-[#007AFF]/10 transition-colors inline-flex items-center gap-1">
+                                            <span>{{ __('whatsapp.view_detail_action') }}</span>
                                             <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
                                         </a>
                                     </td>
@@ -235,22 +235,22 @@
                             $statusBadge = match ($campaign->status) {
                                 'completed' => [
                                     'bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158]',
-                                    'Selesai',
+                                    __('whatsapp.status_completed'),
                                     'bg-[#34C759]',
                                 ],
                                 'processing' => [
                                     'bg-[#FF9500]/12 text-[#B25E00] dark:text-[#FF9F0A]',
-                                    'Memproses',
+                                    __('whatsapp.status_processing'),
                                     'bg-[#FF9500]',
                                 ],
                                 'failed' => [
                                     'bg-[#FF3B30]/12 text-[#C41E17] dark:text-[#FF453A]',
-                                    'Gagal',
+                                    __('whatsapp.status_failed'),
                                     'bg-[#FF3B30]',
                                 ],
                                 default => [
                                     'bg-black/6 dark:bg-white/8 text-black/60 dark:text-white/60',
-                                    'Draft',
+                                    __('whatsapp.status_draft'),
                                     'bg-black/40',
                                 ],
                             };
@@ -266,7 +266,7 @@
                                 {{ $campaign->target_filter === 'all'
                                     ? 'bg-black/6 dark:bg-white/8 text-black/60 dark:text-white/60'
                                     : 'bg-[#007AFF]/10 text-[#007AFF]' }}">
-                                        {{ $campaign->target_filter === 'all' ? 'Semua Pelanggan' : ucfirst($campaign->target_filter) }}
+                                        {{ $campaign->target_filter === 'all' ? __('whatsapp.filter_all_members') : ucfirst($campaign->target_filter) }}
                                     </span>
                                 </div>
                                 <span
@@ -284,7 +284,7 @@
                             <div class="flex items-center justify-between text-[12px] pt-1">
                                 <div>
                                     <span
-                                        class="text-[10px] uppercase font-semibold text-black/40 dark:text-white/40 block">Terkirim</span>
+                                        class="text-[10px] uppercase font-semibold text-black/40 dark:text-white/40 block">{{ __('whatsapp.col_sent') }}</span>
                                     <span
                                         class="font-bold tabular-nums text-[#34C759] dark:text-[#30D158]">{{ number_format($campaign->total_sent, 0, ',', '.') }}</span>
                                     <span class="text-black/40 dark:text-white/40 text-[11px]">/
@@ -292,12 +292,12 @@
                                     @if ($campaign->total_failed > 0)
                                         <span
                                             class="text-[#FF3B30] dark:text-[#FF453A] font-medium text-[10.5px]">({{ $campaign->total_failed }}
-                                            gagal)</span>
+                                            {{ __('whatsapp.status_failed_lower') }})</span>
                                     @endif
                                 </div>
                                 <div class="text-right">
                                     <span
-                                        class="text-[10px] uppercase font-semibold text-black/40 dark:text-white/40 block">Waktu</span>
+                                        class="text-[10px] uppercase font-semibold text-black/40 dark:text-white/40 block">{{ __('whatsapp.sent_date') }}</span>
                                     <span
                                         class="text-black/50 dark:text-white/50 text-[11px] tabular-nums">{{ $campaign->created_at->format('d/m/y H:i') }}</span>
                                 </div>
@@ -306,8 +306,8 @@
                             <div
                                 class="flex items-center justify-end pt-1 border-t border-black/[0.04] dark:border-white/[0.06]">
                                 <a href="{{ route('whatsapp.broadcast.show', $campaign) }}"
-                                    class="min-h-[36px] px-3.5 rounded-[8px] text-[12px] font-bold text-[#007AFF] bg-[#007AFF]/10 hover:bg-[#007AFF]/15 transition-colors inline-flex items-center gap-1">
-                                    <span>Lihat Rincian Laporan</span>
+                                    class="min-h-[44px] px-4 rounded-[10px] text-[13px] font-bold text-[#007AFF] bg-[#007AFF]/10 hover:bg-[#007AFF]/15 transition-colors inline-flex items-center gap-1">
+                                    <span>{{ __('whatsapp.view_detail_report') }}</span>
                                     <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
                                 </a>
                             </div>
@@ -344,6 +344,7 @@
                 x-transition:leave="ease-in duration-150"
                 x-transition:leave-start="opacity-100 scale-100 translate-y-0"
                 x-transition:leave-end="opacity-0 scale-95 translate-y-4 sm:translate-y-0"
+                role="dialog" aria-modal="true" aria-labelledby="broadcastModalTitle"
                 class="relative w-full max-w-[95vw] lg:max-w-5xl xl:max-w-6xl 2xl:max-w-[1350px] bg-[#F2F2F7] dark:bg-[#000000] sm:rounded-[24px] rounded-t-[28px] max-h-[95vh] sm:max-h-[92vh] flex flex-col overflow-hidden shadow-2xl border border-black/10 dark:border-white/10 z-10">
 
                 <!-- Mobile Grab Bar -->
@@ -358,17 +359,18 @@
                             <i data-lucide="megaphone" class="w-5 h-5"></i>
                         </div>
                         <div>
-                            <h2 class="text-[17px] sm:text-[19px] font-bold text-black dark:text-white tracking-tight">
-                                Buat Kampanye Blast Promosi
+                            <h2 id="broadcastModalTitle" class="text-[17px] sm:text-[19px] font-bold text-black dark:text-white tracking-tight">
+                                {{ __('whatsapp.modal_create_title') }}
                             </h2>
                             <p class="text-[12px] text-black/50 dark:text-white/50">
-                                Kirim pesan otomatis ke kontak pelanggan dengan live simulator WhatsApp
+                                {{ __('whatsapp.modal_create_subtitle') }}
                             </p>
                         </div>
                     </div>
 
                     <button type="button" @click="closeCreateModal()"
-                        class="w-9 h-9 rounded-full bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.1] dark:hover:bg-white/[0.15] text-black/60 dark:text-white/60 flex items-center justify-center transition active:scale-[0.96]">
+                        aria-label="{{ __('whatsapp.close_btn') }}"
+                        class="min-w-[44px] min-h-[44px] w-10 h-10 rounded-full bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.1] dark:hover:bg-white/[0.15] text-black/60 dark:text-white/60 flex items-center justify-center transition active:scale-[0.96]">
                         <i data-lucide="x" class="w-4 h-4"></i>
                     </button>
                 </header>
@@ -412,9 +414,9 @@
                         <div class="p-4 rounded-[16px] bg-[#5856D6]/10 border border-[#5856D6]/20 text-[#5856D6] dark:text-[#5E5CE6] text-[12.5px] flex items-center gap-3">
                             <i data-lucide="moon" class="w-5 h-5 shrink-0 text-[#5856D6] dark:text-[#5E5CE6]"></i>
                             <div>
-                                <strong class="font-bold">Peringatan Jam Istirahat Pelanggan (Quiet Hours 21:00 &ndash; 08:00 WIB):</strong>
+                                <strong class="font-bold">{!! __('whatsapp.quiet_hours_warning') !!}:</strong>
                                 <p class="text-[12px] text-black/70 dark:text-white/70 mt-0.5 leading-relaxed">
-                                    Saat ini berada di luar jam operasional wajar pelanggan. Mengirim pesan promosi massal pada malam atau dini hari berisiko tinggi memicu komplain (report spam) dan dapat menurunkan skor kualitas (Quality Rating) nomor WhatsApp bisnis Anda di Meta.
+                                    {{ __('whatsapp.quiet_hours_desc') }}
                                 </p>
                             </div>
                         </div>
@@ -425,10 +427,10 @@
                         <div class="p-4 rounded-[16px] bg-[#FF9500]/12 border border-[#FF9500]/25 text-[#B25E00] dark:text-[#FF9F0A] text-[12.5px] space-y-1">
                             <div class="font-bold flex items-center gap-1.5">
                                 <i data-lucide="shield-alert" class="w-4 h-4"></i>
-                                <span>Peringatan Kebijakan Farmasi Meta &amp; BPOM:</span>
+                                <span>{{ __('whatsapp.pharmacy_policy_warning') }}</span>
                             </div>
                             <p class="leading-relaxed">
-                                Dilarang mempromosikan obat keras (Daftar G), antibiotik, atau obat resep dokter via broadcast WhatsApp. Pelanggaran dapat mengakibatkan nomor WhatsApp toko diblokir permanen oleh Meta.
+                                {{ __('whatsapp.pharmacy_policy_desc') }}
                             </p>
                         </div>
                     @endif
@@ -437,16 +439,16 @@
                         <div class="p-4 rounded-[16px] bg-[#FF9500]/12 border border-[#FF9500]/20 text-[#B25E00] dark:text-[#FF9F0A] text-[13px] font-medium flex items-center gap-3">
                             <i data-lucide="alert-triangle" class="w-5 h-5 shrink-0 text-[#FF9500]"></i>
                             <div>
-                                <strong class="font-bold">WhatsApp Resmi Belum Terhubung!</strong>
-                                <span class="ml-1">Silakan hubungkan akun WhatsApp bisnis Anda di <a href="{{ route('whatsapp.index') }}" class="underline font-bold hover:opacity-80">Integrasi WhatsApp</a> agar blast promosi dapat dikirim.</span>
+                                <strong class="font-bold">{{ __('whatsapp.modal_wa_not_connected_title') }}</strong>
+                                <span class="ml-1">{{ __('whatsapp.modal_wa_not_connected_desc') }}</span>
                             </div>
                         </div>
                     @else
                         <div class="p-4 rounded-[16px] bg-[#34C759]/10 border border-[#34C759]/20 text-[#248A3D] dark:text-[#30D158] text-[12.5px] font-medium flex items-center gap-3">
                             <i data-lucide="shield-check" class="w-4 h-4 shrink-0 text-[#34C759]"></i>
                             <div>
-                                <span class="font-bold">Meta WhatsApp Cloud API Aktif:</span>
-                                <span class="ml-1 text-black/70 dark:text-white/70">Pesan blast promosi akan diproses melalui antrean resmi ({{ $whatsAppAccount?->display_phone_number ?? 'Nomor Toko' }}).</span>
+                                <span class="font-bold">{{ __('whatsapp.modal_wa_connected_title') }}</span>
+                                <span class="ml-1 text-black/70 dark:text-white/70">{{ __('whatsapp.modal_wa_connected_desc', ['phone' => $whatsAppAccount?->display_phone_number ?? __('whatsapp.store_phone_fallback')]) }}</span>
                             </div>
                         </div>
                     @endif
@@ -455,89 +457,261 @@
                         @submit.prevent="submitBlast">
                         @csrf
 
+                        {{-- Mode Selector (Apple HIG Segmented Control) --}}
+                        <div class="p-1.5 bg-black/[0.05] dark:bg-white/[0.07] rounded-[16px] flex flex-col sm:flex-row items-center gap-1.5 shadow-inner mb-6">
+                            <button type="button" @click="setBroadcastMode('template')"
+                                :class="broadcastMode === 'template' ? 'bg-white dark:bg-[#1C1C1E] text-black dark:text-white shadow-sm font-bold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white font-medium'"
+                                class="w-full sm:flex-1 min-h-[44px] px-4 rounded-[12px] text-[13px] flex items-center justify-center gap-2 transition-all">
+                                <i data-lucide="shield-check" class="w-4 h-4 text-[#34C759]"></i>
+                                <span>{{ __('whatsapp.mode_template_title') }}</span>
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158]">{{ __('whatsapp.recommended_badge') }}</span>
+                            </button>
+                            <button type="button" @click="setBroadcastMode('free_text')"
+                                :class="broadcastMode === 'free_text' ? 'bg-white dark:bg-[#1C1C1E] text-black dark:text-white shadow-sm font-bold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white font-medium'"
+                                class="w-full sm:flex-1 min-h-[44px] px-4 rounded-[12px] text-[13px] flex items-center justify-center gap-2 transition-all">
+                                <i data-lucide="message-square" class="w-4 h-4 text-[#FF9500]"></i>
+                                <span>{{ __('whatsapp.mode_freetext_title') }}</span>
+                            </button>
+                        </div>
+
                         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
                             <!-- LEFT FORM COLUMN (7 cols) -->
                             <div class="lg:col-span-7 space-y-5">
 
-                                <!-- Card: Identitas -->
+                                <!-- Card: Identitas Kampanye -->
                                 <div class="rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 p-5 space-y-3">
-                                    <label class="block text-[12.5px] font-bold text-black/70 dark:text-white/70">Judul Kampanye *</label>
+                                    <label class="block text-[12.5px] font-bold text-black/70 dark:text-white/70">{{ __('whatsapp.field_title_label') }} *</label>
                                     <input type="text" name="title" x-model="title" required
-                                        placeholder="Contoh: Promo Gajian Weekend Diskon 20%"
+                                        placeholder="{{ __('whatsapp.field_title_placeholder') }}"
                                         class="w-full min-h-[44px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[12px] px-3.5 text-[16px] sm:text-[14px] font-medium text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 transition-colors">
                                 </div>
 
-                                <!-- Card: Target Audiens -->
-                                <div class="rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 p-5 space-y-3">
+                                <!-- Card: Target Audiens (Membership Tiers & Multi-Outlet Targeting) -->
+                                <div class="rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 p-5 space-y-4">
                                     <div class="flex items-center justify-between">
-                                        <label class="block text-[12.5px] font-bold text-black/70 dark:text-white/70">Pilih Target Audiens Pelanggan</label>
+                                        <label class="block text-[12.5px] font-bold text-black/70 dark:text-white/70">{{ __('whatsapp.field_target_label') }}</label>
                                         <span class="text-[12px] font-bold text-[#007AFF] tabular-nums"
-                                            x-text="estimatedCount.toLocaleString('id-ID') + ' Kontak Siap'"></span>
+                                            x-text="estimatedCount.toLocaleString(localeCode) + ' ' + {{ Js::from(__('whatsapp.contacts_ready')) }}"></span>
                                     </div>
 
-                                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 pt-1">
-                                        @php
-                                            $modalFilters = [
-                                                'all' => ['label' => 'Semua Pelanggan', 'count' => $customerCount],
-                                                'bronze' => ['label' => 'Bronze Tier', 'count' => $tierCounts['bronze'] ?? 0],
-                                                'silver' => ['label' => 'Silver Tier', 'count' => $tierCounts['silver'] ?? 0],
-                                                'gold' => ['label' => 'Gold Tier', 'count' => $tierCounts['gold'] ?? 0],
-                                                'vip' => ['label' => 'VIP Member', 'count' => $tierCounts['vip'] ?? 0],
-                                            ];
-                                        @endphp
-                                        @foreach ($modalFilters as $key => $filter)
-                                            <label class="cursor-pointer select-none">
-                                                <input type="radio" name="target_filter" value="{{ $key }}"
-                                                    x-model="targetFilter" class="sr-only">
-                                                <div class="p-3 rounded-[12px] border transition-all text-center"
-                                                    :class="targetFilter === '{{ $key }}'
-                                                        ? 'border-[#007AFF] bg-[#007AFF]/10 text-[#007AFF] font-bold shadow-sm'
-                                                        : 'border-black/5 dark:border-white/5 bg-black/[0.02] dark:bg-white/[0.03] text-black/70 dark:text-white/70 hover:border-black/10'">
-                                                    <div class="text-[13px] font-medium">{{ $filter['label'] }}</div>
-                                                    <div class="text-[11px] opacity-70 mt-0.5 tabular-nums">
-                                                        {{ number_format($filter['count'], 0, ',', '.') }} Kontak
+                                    {{-- Group 1: General & Membership Tiers --}}
+                                    <div>
+                                        <span class="text-[11px] font-semibold text-black/40 dark:text-white/40 uppercase tracking-wide block mb-2">{{ __('whatsapp.target_group_memberships') }}</span>
+                                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                                            @php
+                                                $modalFilters = [
+                                                    'all' => ['label' => __('whatsapp.filter_all_members'), 'count' => $customerCount],
+                                                    'bronze' => ['label' => __('whatsapp.filter_bronze'), 'count' => $tierCounts['bronze'] ?? 0],
+                                                    'silver' => ['label' => __('whatsapp.filter_silver'), 'count' => $tierCounts['silver'] ?? 0],
+                                                    'gold' => ['label' => __('whatsapp.filter_gold'), 'count' => $tierCounts['gold'] ?? 0],
+                                                    'vip' => ['label' => __('whatsapp.filter_vip'), 'count' => $tierCounts['vip'] ?? 0],
+                                                ];
+                                            @endphp
+                                            @foreach ($modalFilters as $key => $filter)
+                                                <label class="cursor-pointer select-none">
+                                                    <input type="radio" name="target_filter" value="{{ $key }}"
+                                                        x-model="targetFilter" class="sr-only">
+                                                    <div class="p-3 rounded-[12px] border transition-all text-center"
+                                                        :class="targetFilter === '{{ $key }}'
+                                                            ? 'border-[#007AFF] bg-[#007AFF]/10 text-[#007AFF] font-bold shadow-sm'
+                                                            : 'border-black/5 dark:border-white/5 bg-black/[0.02] dark:bg-white/[0.03] text-black/70 dark:text-white/70 hover:border-black/10'">
+                                                        <div class="text-[13px] font-medium">{{ $filter['label'] }}</div>
+                                                        <div class="text-[11px] opacity-70 mt-0.5 tabular-nums">
+                                                            {{ number_format($filter['count'], 0, ',', '.') }} {{ __('whatsapp.contacts_unit') }}
+                                                        </div>
                                                     </div>
+                                                </label>
+                                            @endforeach
+                                        </div>
+                                    </div>
+
+                                    {{-- Group 2: Multi-Outlet / Multi-Branch Targeting --}}
+                                    @if (!empty($locations) && $locations->isNotEmpty())
+                                        <div class="pt-2 border-t border-black/5 dark:border-white/5">
+                                            <span class="text-[11px] font-semibold text-black/40 dark:text-white/40 uppercase tracking-wide block mb-2 flex items-center gap-1.5">
+                                                <i data-lucide="store" class="w-3.5 h-3.5 text-[#007AFF]"></i>
+                                                <span>{{ __('whatsapp.target_group_outlets') }}</span>
+                                            </span>
+                                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                                                @foreach ($locations as $loc)
+                                                    @php
+                                                        $locFilterKey = 'outlet:' . $loc->id;
+                                                        $locCount = $outletCounts[$loc->id] ?? 0;
+                                                    @endphp
+                                                    <label class="cursor-pointer select-none">
+                                                        <input type="radio" name="target_filter" value="{{ $locFilterKey }}"
+                                                            x-model="targetFilter" class="sr-only">
+                                                        <div class="p-3 rounded-[12px] border transition-all flex items-center justify-between gap-2"
+                                                            :class="targetFilter === '{{ $locFilterKey }}'
+                                                                ? 'border-[#007AFF] bg-[#007AFF]/10 text-[#007AFF] font-bold shadow-sm'
+                                                                : 'border-black/5 dark:border-white/5 bg-black/[0.02] dark:bg-white/[0.03] text-black/70 dark:text-white/70 hover:border-black/10'">
+                                                            <div class="truncate text-left">
+                                                                <div class="text-[13px] font-medium truncate">{{ $loc->name }}</div>
+                                                                <div class="text-[11px] opacity-60 capitalize">{{ $loc->type ?? 'Outlet' }}</div>
+                                                            </div>
+                                                            <div class="text-right shrink-0">
+                                                                <span class="text-[11.5px] font-bold tabular-nums">
+                                                                    {{ number_format($locCount, 0, ',', '.') }}
+                                                                </span>
+                                                                <span class="text-[10px] opacity-70 block">{{ __('whatsapp.contacts_unit') }}</span>
+                                                            </div>
+                                                        </div>
+                                                    </label>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                    @endif
+                                </div>
+
+                                <!-- ============================================================== -->
+                                <!-- MODE 1: TEMPLATE RESMI META (ANTI-BLOKIR SYSTEM)               -->
+                                <!-- ============================================================== -->
+                                <div x-show="broadcastMode === 'template'" class="space-y-5">
+                                    <input type="hidden" name="template_name" :value="selectedTemplateName">
+                                    <input type="hidden" name="template_language" value="id">
+                                    <input type="hidden" name="template_params[offer]" :value="templateParams.offer">
+                                    <input type="hidden" name="template_params[voucher_code]" :value="templateParams.voucher_code">
+                                    <input type="hidden" name="template_params[valid_until]" :value="templateParams.valid_until">
+                                    <input type="hidden" name="message" :value="message">
+
+                                    {{-- Card: Pilih Template --}}
+                                    <div class="rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 p-5 space-y-3">
+                                        <div class="flex items-center justify-between">
+                                            <label class="block text-[12.5px] font-bold text-black/70 dark:text-white/70">{{ __('whatsapp.field_select_template_label') }} *</label>
+                                            <span class="inline-flex items-center gap-1 text-[11px] font-bold text-[#34C759]">
+                                                <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
+                                                <span>{{ __('whatsapp.safe_24h_badge') }}</span>
+                                            </span>
+                                        </div>
+
+                                        <select x-model="selectedTemplateName" @change="onTemplateChange()"
+                                            class="w-full min-h-[44px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[12px] px-3.5 text-[14px] font-semibold text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40">
+                                            @if (isset($approvedTemplates) && $approvedTemplates->isNotEmpty())
+                                                @foreach ($approvedTemplates as $tpl)
+                                                    <option value="{{ $tpl->name }}">{{ $tpl->name }} ({{ strtoupper($tpl->category) }}) - {{ $tpl->status }}</option>
+                                                @endforeach
+                                            @else
+                                                <option value="cooca_promo_broadcast">cooca_promo_broadcast (MARKETING) - APPROVED</option>
+                                                <option value="cooca_reservation_reminder">cooca_reservation_reminder (UTILITY) - APPROVED</option>
+                                                <option value="cooca_marketplace_receipt">cooca_marketplace_receipt (UTILITY) - APPROVED</option>
+                                                <option value="cooca_shipping_tracking">cooca_shipping_tracking (UTILITY) - APPROVED</option>
+                                                <option value="cooca_cart_reminder">cooca_cart_reminder (MARKETING) - APPROVED</option>
+                                                <option value="cooca_customer_welcome">cooca_customer_welcome (MARKETING) - APPROVED</option>
+                                                <option value="cooca_order_status_update">cooca_order_status_update (UTILITY) - APPROVED</option>
+                                            @endif
+                                        </select>
+                                        <p class="text-[11.5px] text-black/50 dark:text-white/50 leading-relaxed">
+                                            {{ __('whatsapp.template_help_text') }}
+                                        </p>
+                                    </div>
+
+                                    {{-- Card: Parameter Dinamis Template --}}
+                                    <div class="rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 p-5 space-y-4">
+                                        <div class="flex items-center justify-between border-b border-black/5 dark:border-white/10 pb-3">
+                                            <label class="block text-[13px] font-bold text-black dark:text-white">{{ __('whatsapp.template_vars_header') }}</label>
+                                            <span class="text-[11.5px] font-mono text-black/45 dark:text-white/45">{{ __('whatsapp.template_language_label') }}</span>
+                                        </div>
+
+                                        <div class="space-y-3.5">
+                                            <div>
+                                                <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">
+                                                    {{ __('whatsapp.template_offer_label') }} *
+                                                </label>
+                                                <input type="text" x-model="templateParams.offer" @input="updateTemplatePreview()"
+                                                    placeholder="{{ __('whatsapp.template_offer_placeholder') }}"
+                                                    class="w-full min-h-[44px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[12px] px-3.5 text-[14px] font-medium text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 transition-colors">
+                                            </div>
+
+                                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                                <div>
+                                                    <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">
+                                                        {{ __('whatsapp.template_voucher_label') }} *
+                                                    </label>
+                                                    <input type="text" x-model="templateParams.voucher_code" @input="updateTemplatePreview()"
+                                                        placeholder="{{ __('whatsapp.template_voucher_placeholder') }}"
+                                                        class="w-full min-h-[44px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[12px] px-3.5 text-[14px] font-mono font-bold uppercase text-[#007AFF] focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 transition-colors">
                                                 </div>
-                                            </label>
-                                        @endforeach
+
+                                                <div>
+                                                    <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1">
+                                                        {{ __('whatsapp.template_valid_label') }} *
+                                                    </label>
+                                                    <input type="text" x-model="templateParams.valid_until" @input="updateTemplatePreview()"
+                                                        placeholder="{{ __('whatsapp.template_valid_placeholder') }}"
+                                                        class="w-full min-h-[44px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[12px] px-3.5 text-[14px] font-medium text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 transition-colors">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {{-- Anti-Blokir Assurance Badge --}}
+                                        <div class="p-3.5 rounded-[14px] bg-[#34C759]/10 border border-[#34C759]/25 text-[#248A3D] dark:text-[#30D158] text-[12px] flex items-start gap-2.5">
+                                            <i data-lucide="shield-check" class="w-4 h-4 shrink-0 mt-0.5"></i>
+                                            <div class="leading-relaxed">
+                                                <strong>{{ __('whatsapp.anti_ban_active_title') }}</strong> {{ __('whatsapp.anti_ban_active_desc') }}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Card: Banner URL -->
+                                    <div class="rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 p-5 space-y-2">
+                                        <label class="block text-[12.5px] font-bold text-black/70 dark:text-white/70">{{ __('whatsapp.field_media_label') }} <span class="text-black/40 dark:text-white/40 font-normal text-[11.5px]">{{ __('whatsapp.field_media_sublabel') }}</span></label>
+                                        <input type="url" name="media_url" x-model="mediaUrl" @input="updateTemplatePreview()"
+                                            placeholder="{{ __('whatsapp.field_media_placeholder') }}"
+                                            class="w-full min-h-[44px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[12px] px-3.5 text-[16px] sm:text-[13.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 placeholder:text-black/35 dark:placeholder:text-white/35 transition-colors">
                                     </div>
                                 </div>
 
-                                <!-- Card: Pesan -->
-                                <div class="rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 p-5 space-y-3">
-                                    <div class="flex items-center justify-between">
-                                        <label class="block text-[12.5px] font-bold text-black/70 dark:text-white/70">Konten Pesan Promosi</label>
+                                <!-- ============================================================== -->
+                                <!-- MODE 2: TEKS BEBAS (HANYA UNTUK PELANGGAN AKTIF 24 JAM)        -->
+                                <!-- ============================================================== -->
+                                <div x-show="broadcastMode === 'free_text'" class="space-y-5">
+                                    {{-- 24-Hour Policy Alert --}}
+                                    <div class="p-4 rounded-[16px] bg-[#FF9500]/12 border border-[#FF9500]/25 text-[#B25E00] dark:text-[#FF9F0A] text-[12.5px] space-y-1">
+                                        <div class="font-bold flex items-center gap-1.5">
+                                            <i data-lucide="alert-triangle" class="w-4 h-4 shrink-0"></i>
+                                            <span>{{ __('whatsapp.window_24h_warning_title') }}</span>
+                                        </div>
+                                        <p class="leading-relaxed">
+                                            {{ __('whatsapp.window_24h_warning_desc') }}
+                                        </p>
                                     </div>
 
-                                    <!-- Variable insertion chips (Context-Aware 20 Industri) -->
-                                    <div class="flex flex-wrap items-center gap-1.5 pt-1">
-                                        <span class="text-[11.5px] text-black/50 dark:text-white/50 font-semibold mr-1">Tag Personal:</span>
-                                        @foreach ($contextVars as $var)
-                                            <button type="button" @click="insertVar('{{ $var }}')"
-                                                class="min-h-[28px] px-2.5 rounded-[8px] bg-black/[0.05] hover:bg-black/[0.08] dark:bg-white/[0.08] dark:hover:bg-white/[0.12] text-black/80 dark:text-white/80 text-[12px] font-mono transition active:scale-[0.97]">
-                                                {{ $var }}
-                                            </button>
-                                        @endforeach
+                                    <!-- Card: Pesan Bebas -->
+                                    <div class="rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 p-5 space-y-3">
+                                        <div class="flex items-center justify-between">
+                                            <label class="block text-[12.5px] font-bold text-black/70 dark:text-white/70">{{ __('whatsapp.field_free_text_label') }}</label>
+                                        </div>
+
+                                        <!-- Variable insertion chips (Context-Aware 20 Industri) -->
+                                        <div class="flex flex-wrap items-center gap-1.5 pt-1">
+                                            <span class="text-[11.5px] text-black/50 dark:text-white/50 font-semibold mr-1">{{ __('whatsapp.personal_tags_header') }}</span>
+                                            @foreach ($contextVars as $var)
+                                                <button type="button" @click="insertVar('{{ $var }}')"
+                                                    class="min-h-[28px] px-2.5 rounded-[8px] bg-black/[0.05] hover:bg-black/[0.08] dark:bg-white/[0.08] dark:hover:bg-white/[0.12] text-black/80 dark:text-white/80 text-[12px] font-mono transition active:scale-[0.97]">
+                                                    {{ $var }}
+                                                </button>
+                                            @endforeach
+                                        </div>
+
+                                        <textarea id="modalMsgTextarea" x-model="freeTextMessage" rows="5"
+                                            placeholder="{{ $contextPlaceholder }}"
+                                            @input="updateFreeTextPreview()"
+                                            class="w-full bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[12px] p-3.5 text-[16px] sm:text-[13.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 resize-none font-sans placeholder:text-black/35 dark:placeholder:text-white/35 leading-relaxed transition-colors"></textarea>
+
+                                        <div class="flex items-center justify-between text-[11px] text-black/40 dark:text-white/40">
+                                            <span>{{ __('whatsapp.formatting_hint') }}</span>
+                                            <span x-text="freeTextMessage.length + ' / 2000 ' + {{ Js::from(__('whatsapp.chars_unit')) }}" class="tabular-nums font-semibold"></span>
+                                        </div>
                                     </div>
 
-                                    <textarea name="message" id="modalMsgTextarea" x-model="message" rows="5" required
-                                        placeholder="{{ $contextPlaceholder }}"
-                                        @input="updatePreview()"
-                                        class="w-full bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[12px] p-3.5 text-[16px] sm:text-[13.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 resize-none font-sans placeholder:text-black/35 dark:placeholder:text-white/35 leading-relaxed transition-colors"></textarea>
-
-                                    <div class="flex items-center justify-between text-[11px] text-black/40 dark:text-white/40">
-                                        <span>Gunakan *teks* untuk tebal, _teks_ untuk miring</span>
-                                        <span x-text="message.length + ' / 2000 Karakter'" class="tabular-nums font-semibold"></span>
+                                    <!-- Card: Banner URL -->
+                                    <div class="rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 p-5 space-y-2">
+                                        <label class="block text-[12.5px] font-bold text-black/70 dark:text-white/70">{{ __('whatsapp.field_media_label') }} <span class="text-black/40 dark:text-white/40 font-normal text-[11.5px]">{{ __('whatsapp.field_media_sublabel') }}</span></label>
+                                        <input type="url" x-model="mediaUrl" @input="updateFreeTextPreview()"
+                                            placeholder="{{ __('whatsapp.field_media_placeholder') }}"
+                                            class="w-full min-h-[44px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[12px] px-3.5 text-[16px] sm:text-[13.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 placeholder:text-black/35 dark:placeholder:text-white/35 transition-colors">
                                     </div>
-                                </div>
-
-                                <!-- Card: Banner URL -->
-                                <div class="rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 p-5 space-y-2">
-                                    <label class="block text-[12.5px] font-bold text-black/70 dark:text-white/70">Banner Gambar Promosi <span class="text-black/40 dark:text-white/40 font-normal text-[11.5px]">(Opsional)</span></label>
-                                    <input type="url" name="media_url" x-model="mediaUrl" @input="updatePreview()"
-                                        placeholder="https://example.com/banner-promo.jpg"
-                                        class="w-full min-h-[44px] bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[12px] px-3.5 text-[16px] sm:text-[13.5px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/40 placeholder:text-black/35 dark:placeholder:text-white/35 transition-colors">
                                 </div>
 
                             </div>
@@ -546,13 +720,16 @@
                             <div class="lg:col-span-5">
                                 <div class="lg:sticky lg:top-2 space-y-3">
                                     <div class="flex items-center justify-between text-[12px] font-bold text-black/50 dark:text-white/50 uppercase tracking-wide px-1">
-                                        <span>Live Smartphone Simulator</span>
-                                        <span class="text-[#007AFF] lowercase font-normal">WYSIWYG</span>
+                                        <span>{{ __('whatsapp.simulator_header') }}</span>
+                                        <span class="text-[#34C759] lowercase font-semibold flex items-center gap-1" x-show="broadcastMode === 'template'">
+                                            <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
+                                            <span>{{ __('whatsapp.meta_verified_badge') }}</span>
+                                        </span>
                                     </div>
 
                                     <!-- Phone Mockup Frame -->
                                     <div class="relative mx-auto max-w-[280px] rounded-[32px] bg-[#1C1C1E] border-[4px] border-black/80 dark:border-white/10 shadow-2xl overflow-hidden"
-                                        style="height: 480px;">
+                                        style="height: 500px;">
 
                                         <!-- Top Notch -->
                                         <div class="absolute top-2 left-1/2 -translate-x-1/2 w-20 h-3.5 bg-black rounded-full z-20"></div>
@@ -563,28 +740,54 @@
                                                 <i data-lucide="bot" class="w-3.5 h-3.5"></i>
                                             </div>
                                             <div class="min-w-0 flex-1">
-                                                <div class="text-[11.5px] font-bold text-white truncate">{{ $business->name }}</div>
+                                                <div class="text-[11.5px] font-bold text-white truncate flex items-center gap-1">
+                                                    <span class="truncate">{{ $business->name }}</span>
+                                                    <i data-lucide="check-circle" class="w-3 h-3 text-[#34C759] shrink-0"></i>
+                                                </div>
                                                 <div class="text-[9.5px] text-white/75 flex items-center gap-1">
                                                     <span class="w-1.5 h-1.5 rounded-full bg-[#34C759]"></span>
-                                                    <span>online</span>
+                                                    <span>{{ __('whatsapp.official_business_badge') }}</span>
                                                 </div>
                                             </div>
                                         </div>
 
                                         <!-- Chat Message Area -->
-                                        <div class="bg-[#ECE5DD] dark:bg-[#0b141a] h-full overflow-y-auto px-2.5 pt-2.5 pb-20">
+                                        <div class="bg-[#ECE5DD] dark:bg-[#0b141a] h-full overflow-y-auto px-2.5 pt-2.5 pb-24">
                                             <div class="flex justify-end mb-2">
-                                                <div class="max-w-[90%] rounded-[12px] rounded-tr-[3px] bg-[#DCF8C6] dark:bg-[#005c4b] p-3 shadow-sm text-black dark:text-white">
-                                                    <div x-show="mediaUrl" class="mb-2 rounded-[6px] overflow-hidden bg-black/10">
+                                                <div class="max-w-[92%] rounded-[14px] rounded-tr-[3px] bg-[#DCF8C6] dark:bg-[#005c4b] p-3 shadow-sm text-black dark:text-white space-y-1.5">
+                                                    
+                                                    {{-- Meta Standard Badge in Preview --}}
+                                                    <div x-show="broadcastMode === 'template'" class="flex items-center gap-1 px-1.5 py-0.5 rounded-[5px] bg-[#34C759]/20 text-[#248A3D] dark:text-[#30D158] text-[9px] font-bold w-fit">
+                                                        <i data-lucide="shield-check" class="w-2.5 h-2.5"></i>
+                                                        <span x-text="selectedTemplateName || 'cooca_promo_broadcast'"></span>
+                                                    </div>
+
+                                                    <div x-show="mediaUrl" class="rounded-[8px] overflow-hidden bg-black/10">
                                                         <img :src="mediaUrl" alt="banner"
-                                                            class="w-full max-h-28 object-cover rounded-[6px]"
+                                                            class="w-full max-h-28 object-cover rounded-[8px]"
                                                             onerror="this.style.display='none'">
                                                     </div>
+
                                                     <p class="text-[11.5px] whitespace-pre-wrap break-words leading-relaxed text-black/90 dark:text-white/95"
-                                                        x-text="previewMessage || 'Ketik judul dan pesan di formulir untuk melihat live simulasi tampilan...'"></p>
+                                                        x-html="formatSimulatorText(previewMessage)"></p>
+
+                                                    {{-- Opt-Out Footer Preview for Marketing Template --}}
+                                                    <div x-show="broadcastMode === 'template'"
+                                                        class="text-[9.5px] text-black/50 dark:text-white/60 pt-1 border-t border-black/10 dark:border-white/10 italic">
+                                                        {{ __('whatsapp.opt_out_footer_text') }}
+                                                    </div>
+
                                                     <div class="text-[9.5px] text-black/45 dark:text-white/60 text-right mt-1 flex items-center justify-end gap-1">
                                                         <span class="tabular-nums">{{ now()->format('H:i') }}</span>
                                                         <i data-lucide="check-check" class="w-3 h-3 text-[#007AFF]"></i>
+                                                    </div>
+
+                                                    {{-- Action Button Preview --}}
+                                                    <div x-show="broadcastMode === 'template'" class="pt-1">
+                                                        <div class="w-full py-1.5 px-3 rounded-[8px] bg-white dark:bg-[#1F2C34] text-center text-[10.5px] font-bold text-[#007AFF] shadow-xs flex items-center justify-center gap-1">
+                                                            <i data-lucide="tag" class="w-3 h-3"></i>
+                                                            <span>{{ __('whatsapp.claim_offer_btn') }}</span>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -593,13 +796,13 @@
 
                                     @php
                                         $previewExampleNote = match (true) {
-                                            $isFnb => 'Simulasi data pelanggan contoh: Budi Santoso (Meja 08, 1.250 Poin).',
-                                            $isWorkshop => 'Simulasi data pelanggan contoh: Budi Santoso (B 1234 XYZ, Servis: Ganti Oli & Filter).',
-                                            $isLaundry => 'Simulasi data pelanggan contoh: Budi Santoso (No. Rak: RAK-B3, 4.5 kg).',
-                                            $isMfg => 'Simulasi data pelanggan contoh: Budi Santoso (SPK-2026/09/042, Kemeja Katun Bordir).',
-                                            $isContractor => 'Simulasi data pelanggan contoh: Budi Santoso (Proyek: Renovasi Ruko Blok A).',
-                                            $isPharmacy => 'Simulasi data pelanggan contoh: Budi Santoso (No. Resep: RSP-8821).',
-                                            default => 'Simulasi data pelanggan contoh: Budi Santoso (Gold Tier, 1.250 Poin).',
+                                            $isFnb => __('whatsapp.preview_note_fnb'),
+                                            $isWorkshop => __('whatsapp.preview_note_workshop'),
+                                            $isLaundry => __('whatsapp.preview_note_laundry'),
+                                            $isMfg => __('whatsapp.preview_note_mfg'),
+                                            $isContractor => __('whatsapp.preview_note_contractor'),
+                                            $isPharmacy => __('whatsapp.preview_note_pharmacy'),
+                                            default => __('whatsapp.preview_note_default'),
                                         };
                                     @endphp
                                     <p class="text-center text-[11px] text-black/50 dark:text-white/50">
@@ -616,13 +819,13 @@
                 <footer
                     class="px-5 sm:px-7 py-4 bg-white/95 dark:bg-[#1C1C1E]/95 backdrop-blur-md border-t border-black/5 dark:border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0">
                     <div class="text-[12px] text-black/50 dark:text-white/50 hidden sm:block">
-                        Total penerima terhitung: <strong class="text-black dark:text-white font-bold" x-text="estimatedCount.toLocaleString('id-ID') + ' Kontak'"></strong>
+                        {{ __('whatsapp.total_recipients_computed') }} <strong class="text-black dark:text-white font-bold" x-text="estimatedCount.toLocaleString(localeCode) + ' ' + {{ Js::from(__('whatsapp.contacts_unit')) }}"></strong>
                     </div>
 
                     <div class="flex items-center gap-3 w-full sm:w-auto">
                         <button type="button" @click="closeCreateModal()"
                             class="min-h-[44px] px-4 rounded-[12px] text-[13px] font-semibold text-black/70 dark:text-white/70 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.98] transition-all w-full sm:w-auto">
-                            Batal
+                            {{ __('whatsapp.cancel_btn') }}
                         </button>
 
                         @if (\App\Support\Context::hasPermission('whatsapp.manage'))
@@ -635,7 +838,7 @@
                                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                 </svg>
                                 <i data-lucide="send" x-show="!submitting" class="w-4 h-4"></i>
-                                <span x-text="submitting ? 'Menjadwalkan...' : 'Kirim Blast ke ' + estimatedCount.toLocaleString('id-ID') + ' Pelanggan'"></span>
+                                <span x-text="submitting ? {{ Js::from(__('whatsapp.scheduling_btn')) }} : ({{ Js::from(__('whatsapp.send_blast_to_btn_prefix')) }} + ' ' + estimatedCount.toLocaleString(localeCode) + ' ' + {{ Js::from(__('whatsapp.send_blast_to_btn_suffix')) }})"></span>
                             </button>
                         @endif
                     </div>
@@ -653,7 +856,16 @@
             return {
                 createModalOpen: {{ (request()->boolean('open_composer') || request()->boolean('create')) ? 'true' : 'false' }},
                 isQuietHours: false,
-                title: '',
+                broadcastMode: 'template',
+                selectedTemplateName: 'cooca_promo_broadcast',
+                localeCode: '{{ app()->getLocale() === 'en' ? 'en-US' : 'id-ID' }}',
+                templateParams: {
+                    offer: {{ Js::from(__('whatsapp.default_tpl_offer')) }},
+                    voucher_code: 'HEMAT25',
+                    valid_until: {{ Js::from(__('whatsapp.default_tpl_valid')) }}
+                },
+                freeTextMessage: '',
+                title: {{ Js::from(__('whatsapp.default_campaign_title')) }},
                 targetFilter: 'all',
                 message: '',
                 mediaUrl: '',
@@ -665,13 +877,130 @@
                 init() {
                     const currentHour = new Date().getHours();
                     this.isQuietHours = (currentHour >= 21 || currentHour < 8);
-                    this.updatePreview();
+                    this.updateTemplatePreview();
                     this.$watch('targetFilter', (val) => {
                         this.estimatedCount = this.tierCounts[val] ?? 0;
                     });
                     this.$nextTick(() => {
                         if (window.lucide) lucide.createIcons();
                     });
+                },
+
+                setBroadcastMode(mode) {
+                    this.broadcastMode = mode;
+                    if (mode === 'template') {
+                        this.updateTemplatePreview();
+                    } else {
+                        if (!this.freeTextMessage) {
+                            this.freeTextMessage = "Halo {nama},\nAda penawaran spesial dari " + {{ Js::from($business->name) }} + "!\n\nDapatkan diskon menarik khusus hari ini. Tunjukkan pesan ini ke kasir kami.";
+                        }
+                        this.updateFreeTextPreview();
+                    }
+                    this.$nextTick(() => {
+                        if (window.lucide) lucide.createIcons();
+                    });
+                },
+
+                onTemplateChange() {
+                    if (this.selectedTemplateName === 'cooca_customer_welcome') {
+                        this.templateParams.offer = 'Member Baru & Bonus 50 Poin';
+                        this.templateParams.voucher_code = 'WELCOME';
+                        this.templateParams.valid_until = '30 Hari';
+                    } else if (this.selectedTemplateName === 'cooca_order_status_update') {
+                        this.templateParams.offer = 'Pesanan Selesai Diproses';
+                        this.templateParams.voucher_code = 'SIAP_AMBIL';
+                        this.templateParams.valid_until = 'ORD-2026/10/012';
+                    } else if (this.selectedTemplateName === 'cooca_reservation_reminder') {
+                        this.templateParams.offer = 'Meja VIP 4 Orang';
+                        this.templateParams.voucher_code = 'RSV-8821';
+                        this.templateParams.valid_until = 'Jumat, 02/10/2026 19:00 WIB';
+                    } else if (this.selectedTemplateName === 'cooca_marketplace_receipt') {
+                        this.templateParams.offer = 'Rp 175.000';
+                        this.templateParams.voucher_code = 'ORD-2026/10/088';
+                        this.templateParams.valid_until = 'QRIS Mandiri';
+                    } else if (this.selectedTemplateName === 'cooca_shipping_tracking') {
+                        this.templateParams.offer = 'J&T Express';
+                        this.templateParams.voucher_code = 'JT9988221100';
+                        this.templateParams.valid_until = 'ORD-2026/10/088';
+                    } else if (this.selectedTemplateName === 'cooca_cart_reminder') {
+                        this.templateParams.offer = 'Paket Roti Gandum & Croissant';
+                        this.templateParams.voucher_code = 'ONGKIRFREE';
+                        this.templateParams.valid_until = 'Hari ini 23:59 WIB';
+                    } else {
+                        this.templateParams.offer = {{ Js::from(__('whatsapp.default_tpl_offer')) }};
+                        this.templateParams.voucher_code = 'PROMO25';
+                        this.templateParams.valid_until = {{ Js::from(__('whatsapp.default_tpl_valid')) }};
+                    }
+                    this.updateTemplatePreview();
+                },
+
+                updateTemplatePreview() {
+                    const bizName = {{ Js::from($business->name) }};
+                    const offer = this.templateParams.offer || 'Diskon Spesial';
+                    const code = (this.templateParams.voucher_code || 'HEMAT').toUpperCase();
+                    const valid = this.templateParams.valid_until || 'akhir pekan';
+
+                    if (this.selectedTemplateName === 'cooca_customer_welcome') {
+                        this.previewMessage = `Halo Budi Santoso,\n\nTerima kasih telah menjadi bagian dari keluarga besar *${bizName}*! Anda terdaftar sebagai *Gold Member* dengan *1.250* poin loyalitas awal.\n\nKunjungi toko kami dan nikmati berbagai keuntungan eksklusif.`;
+                        this.message = `Halo {nama},\n\nTerima kasih telah menjadi bagian dari keluarga besar ${bizName}! Anda terdaftar sebagai {tier} Member dengan {poin} poin loyalitas awal.\n\nKunjungi toko kami dan nikmati berbagai keuntungan eksklusif.`;
+                    } else if (this.selectedTemplateName === 'cooca_order_status_update') {
+                        this.previewMessage = `Halo Budi Santoso!\n\nPesanan Anda nomor *ORD-2026/10/012* di *${bizName}* telah diperbarui statusnya menjadi: *${offer}*.\n\nCatatan: Silakan menunjukkan nomor pesanan ini saat pengambilan atau konfirmasi ke kasir.`;
+                        this.message = `Halo {nama}!\n\nPesanan Anda nomor {no_spk} di ${bizName} telah diperbarui statusnya menjadi: ${offer}.\n\nCatatan: Silakan menunjukkan nomor pesanan ini saat pengambilan.`;
+                    } else if (this.selectedTemplateName === 'cooca_reservation_reminder') {
+                        this.previewMessage = `Halo *Budi Santoso*! Mengingatkan kembali jadwal reservasi Anda di *${bizName}*:\n• Kode Booking: *${code}*\n• Jadwal: *${valid}*\n• Detail: *${offer}*\n\nMohon hadir 10 menit sebelum waktu reservasi. Hubungi kami jika ingin melakukan perubahan jadwal.`;
+                        this.message = `Halo {nama}! Mengingatkan kembali jadwal reservasi Anda di ${bizName}:\n• Kode Booking: ${code}\n• Jadwal: ${valid}\n• Detail: ${offer}.`;
+                    } else if (this.selectedTemplateName === 'cooca_marketplace_receipt') {
+                        this.previewMessage = `Halo *Budi Santoso*! Pembayaran Anda untuk pesanan *${code}* di *${bizName}* sebesar *${offer}* via *${valid}* telah berhasil diverifikasi.\n\nPesanan Anda saat ini sedang dikemas dan dipersiapkan oleh tim toko kami. Terima kasih atas pesanan Anda!`;
+                        this.message = `Halo {nama}! Pembayaran Anda untuk pesanan ${code} di ${bizName} sebesar ${offer} via ${valid} telah berhasil diverifikasi.`;
+                    } else if (this.selectedTemplateName === 'cooca_shipping_tracking') {
+                        this.previewMessage = `Halo *Budi Santoso*! Paket pesanan nomor *${valid}* dari *${bizName}* telah diserahkan ke ekspedisi *${offer}* dengan nomor resi: *${code}*.\n\nEstimasi pengiriman 1-3 hari kerja. Lacak pergerakan kurir secara langsung melalui tautan di bawah.`;
+                        this.message = `Halo {nama}! Paket pesanan nomor ${valid} dari ${bizName} telah diserahkan ke ekspedisi ${offer} dengan nomor resi: ${code}.`;
+                    } else if (this.selectedTemplateName === 'cooca_cart_reminder') {
+                        this.previewMessage = `Halo *Budi Santoso*! Anda masih memiliki item produk di keranjang belanja *${bizName}*:\n• Produk: *${offer}*\n• Penawaran Spesial: Kupon *${code}*\n• Batas Waktu: *${valid}*\n\nSelesaikan pesanan Anda sebelum kehabisan stok!`;
+                        this.message = `Halo {nama}! Anda masih memiliki produk di keranjang belanja ${bizName}:\n• Produk: ${offer}\n• Kupon: ${code}\n• Batas Waktu: ${valid}.`;
+                    } else {
+                        // Default cooca_promo_broadcast
+                        this.previewMessage = `Halo Budi Santoso! Ada kabar gembira dari *${bizName}*.\n\nNikmati penawaran spesial: *${offer}*.\nGunakan kode voucher: *${code}* saat bertransaksi.\nBerlaku hingga: *${valid}*.\n\n_Tunjukkan pesan ini kepada kasir kami._`;
+                        this.message = `Halo {nama}! Ada kabar gembira dari ${bizName}.\n\nNikmati penawaran spesial: ${offer}.\nGunakan kode voucher: ${code} saat bertransaksi.\nBerlaku hingga: ${valid}.`;
+                    }
+
+                    this.$nextTick(() => {
+                        if (window.lucide) lucide.createIcons();
+                    });
+                },
+
+                updateFreeTextPreview() {
+                    this.message = this.freeTextMessage;
+                    this.previewMessage = this.freeTextMessage
+                        .replace(/\{nama\}/g, 'Budi Santoso')
+                        .replace(/\{poin\}/g, '1.250')
+                        .replace(/\{tier\}/g, 'Gold')
+                        .replace(/\{bisnis\}/g, {{ Js::from($business->name) }})
+                        .replace(/\{meja\}/g, 'Meja 08')
+                        .replace(/\{nopol\}/g, 'B 1234 XYZ')
+                        .replace(/\{servis_terakhir\}/g, 'Ganti Oli & Filter')
+                        .replace(/\{no_rak\}/g, 'RAK-B3')
+                        .replace(/\{berat_kg\}/g, '4.5 kg')
+                        .replace(/\{no_spk\}/g, 'SPK-2026/09/042')
+                        .replace(/\{produk\}/g, 'Kemeja Katun Bordir')
+                        .replace(/\{proyek\}/g, 'Renovasi Ruko Blok A')
+                        .replace(/\{termin\}/g, 'Termin 2')
+                        .replace(/\{no_resep\}/g, 'RSP-8821');
+
+                    this.$nextTick(() => {
+                        if (window.lucide) lucide.createIcons();
+                    });
+                },
+
+                formatSimulatorText(text) {
+                    if (!text) return '<span class="text-black/35 dark:text-white/35 italic">' + {{ Js::from(__('whatsapp.simulator_empty_placeholder')) }} + '</span>';
+                    const escaped = String(text)
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;');
+                    return escaped
+                        .replace(/\*(.*?)\*/g, '<strong class="font-bold text-black dark:text-white">$1</strong>')
+                        .replace(/_(.*?)_/g, '<em class="italic opacity-90">$1</em>');
                 },
 
                 openCreateModal() {
@@ -691,48 +1020,47 @@
                     if (!ta) return;
                     const start = ta.selectionStart;
                     const end = ta.selectionEnd;
-                    this.message = this.message.substring(0, start) + v + this.message.substring(end);
+                    this.freeTextMessage = this.freeTextMessage.substring(0, start) + v + this.freeTextMessage.substring(end);
                     this.$nextTick(() => {
                         ta.selectionStart = ta.selectionEnd = start + v.length;
                         ta.focus();
-                        this.updatePreview();
-                    });
-                },
-
-                updatePreview() {
-                    this.previewMessage = this.message
-                        .replace(/\{nama\}/g, 'Budi Santoso')
-                        .replace(/\{poin\}/g, '1.250')
-                        .replace(/\{tier\}/g, 'Gold')
-                        .replace(/\{bisnis\}/g, {{ Js::from($business->name) }})
-                        .replace(/\{meja\}/g, 'Meja 08')
-                        .replace(/\{nopol\}/g, 'B 1234 XYZ')
-                        .replace(/\{servis_terakhir\}/g, 'Ganti Oli & Filter')
-                        .replace(/\{no_rak\}/g, 'RAK-B3')
-                        .replace(/\{berat_kg\}/g, '4.5 kg')
-                        .replace(/\{no_spk\}/g, 'SPK-2026/09/042')
-                        .replace(/\{produk\}/g, 'Kemeja Katun Bordir')
-                        .replace(/\{proyek\}/g, 'Renovasi Ruko Blok A')
-                        .replace(/\{termin\}/g, 'Termin 2')
-                        .replace(/\{no_resep\}/g, 'RSP-8821');
-                    this.$nextTick(() => {
-                        if (window.lucide) lucide.createIcons();
+                        this.updateFreeTextPreview();
                     });
                 },
 
                 async submitBlast() {
-                    if (this.submitting || !this.title.trim() || !this.message.trim()) return;
+                    if (this.submitting || !this.title.trim()) return;
+
+                    if (this.broadcastMode === 'template') {
+                        if (!this.templateParams.offer.trim() || !this.templateParams.voucher_code.trim()) {
+                            alert({{ Js::from(__('whatsapp.alert_template_fields_required')) }});
+                            return;
+                        }
+                    } else {
+                        if (!this.freeTextMessage.trim()) {
+                            alert({{ Js::from(__('whatsapp.alert_freetext_field_required')) }});
+                            return;
+                        }
+                    }
+
                     let confirmed = false;
+                    const modeDesc = this.broadcastMode === 'template' 
+                        ? {{ Js::from(__('whatsapp.mode_template_title')) }} 
+                        : {{ Js::from(__('whatsapp.mode_freetext_title')) }};
+
+                    const msgTemplate = {{ Js::from(__('whatsapp.confirm_send_broadcast_msg')) }};
+                    const confirmMsg = msgTemplate.replace(':mode', modeDesc).replace(':count', this.estimatedCount.toLocaleString(this.localeCode));
+
                     if (window.AppAlert) {
                         confirmed = await AppAlert.confirm({
-                            title: 'Kirim WhatsApp Broadcast?',
-                            message: `Yakin ingin mengirim pesan massal ke ${this.estimatedCount.toLocaleString('id-ID')} pelanggan? Pesan akan didistribusikan di latar belakang secara aman.`,
+                            title: {{ Js::from(__('whatsapp.confirm_send_broadcast_title')) }},
+                            message: confirmMsg,
                             type: 'info',
-                            confirmText: 'Ya, Kirim Sekarang',
-                            cancelText: 'Batal'
+                            confirmText: {{ Js::from(__('whatsapp.confirm_send_now')) }},
+                            cancelText: {{ Js::from(__('whatsapp.cancel_btn')) }}
                         });
                     } else {
-                        confirmed = confirm(`Yakin ingin mengirim pesan massal ke ${this.estimatedCount} pelanggan?`);
+                        confirmed = confirm(confirmMsg);
                     }
                     if (!confirmed) return;
                     this.submitting = true;

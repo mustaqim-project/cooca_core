@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Starter — App Shell Responsif</title>
+<!-- Swap fonts to match the chosen aesthetic direction. Keep fallbacks. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ---------- Tokens: replace values to change the whole look ---------- */
+:root {
+  --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --font-text: "Plus Jakarta Sans", "Segoe UI", system-ui, sans-serif;
+
+  --bg: #F6F1E9;          /* warm paper */
+  --surface: #FFFDF9;
+  --text: #1B1A17;
+  --text-muted: #5B564D;  /* >= 4.5:1 on --bg */
+  --border: #DDD5C7;
+  --accent: #C2410C;      /* single sharp accent */
+  --accent-contrast: #FFFFFF;
+  --success: #17603A;
+  --danger: #B42318;
+  --focus: #1D4ED8;
+
+  --radius: 12px;
+  --space-1: .25rem; --space-2: .5rem; --space-3: .75rem; --space-4: 1rem;
+  --space-6: 1.5rem; --space-8: 2rem; --space-12: 3rem;
+  --gutter: clamp(1rem, 4vw, 2.5rem);
+  --content-max: 72rem;
+  --nav-h: 4rem;
+
+  --step-0: clamp(1rem, .96rem + .2vw, 1.125rem);
+  --step-1: clamp(1.25rem, 1.1rem + .7vw, 1.625rem);
+  --step-2: clamp(1.6rem, 1.3rem + 1.4vw, 2.4rem);
+  --step-3: clamp(2rem, 1.5rem + 2.6vw, 3.4rem);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #14130F; --surface: #1D1B16; --text: #F1ECE2; --text-muted: #B4AC9C;
+    --border: #35312A; --accent: #FB923C; --accent-contrast: #1B1A17; --focus: #93C5FD;
+  }
+}
+
+/* ---------- Base (mobile) ---------- */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; min-height: 100vh; min-height: 100dvh;
+  background: var(--bg); color: var(--text);
+  font: 400 var(--step-0)/1.5 var(--font-text);
+  padding-bottom: calc(var(--nav-h) + env(safe-area-inset-bottom, 0px));
+}
+h1, h2, h3 { font-family: var(--font-display); line-height: 1.15; margin: 0; letter-spacing: -.01em; }
+h1 { font-size: var(--step-3); font-weight: 800; }
+h2 { font-size: var(--step-2); font-weight: 800; }
+h3 { font-size: var(--step-1); font-weight: 600; }
+p { margin: 0; max-width: 65ch; }
+img { max-width: 100%; height: auto; display: block; }
+button, input, select { font: inherit; color: inherit; }
+button { touch-action: manipulation; cursor: pointer; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.tnum { font-variant-numeric: tabular-nums; }
+
+.container { width: min(100% - 2*var(--gutter), var(--content-max)); margin-inline: auto; }
+main { padding-block: var(--space-6) var(--space-12); display: grid; gap: var(--space-8); }
+
+/* ---------- Navigation: bottom bar -> rail -> sidebar ---------- */
+.nav {
+  position: fixed; inset: auto 0 0 0; z-index: 20;
+  display: flex; background: var(--surface); border-top: 1px solid var(--border);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.nav a {
+  flex: 1; min-height: var(--nav-h); min-width: 44px;
+  display: grid; place-items: center; align-content: center; gap: 2px;
+  color: var(--text-muted); text-decoration: none; font-size: .75rem; font-weight: 500;
+}
+.nav svg { width: 24px; height: 24px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.nav a[aria-current="page"] { color: var(--accent); font-weight: 600; }
+.brand { display: none; }
+
+/* Tablet: left rail */
+@media (min-width: 48em) {
+  body { padding-bottom: 0; padding-left: 5rem; }
+  .nav {
+    inset: 0 auto 0 0; width: 5rem; flex-direction: column; justify-content: flex-start;
+    border-top: 0; border-right: 1px solid var(--border); padding: var(--space-4) 0;
+  }
+  .nav a { flex: 0 0 auto; min-height: 4.25rem; }
+}
+/* Desktop: full sidebar */
+@media (min-width: 75em) {
+  body { padding-left: 15rem; }
+  .nav { width: 15rem; padding: var(--space-6) var(--space-3); gap: var(--space-1); }
+  .brand { display: block; font: 800 1.35rem var(--font-display); padding: 0 var(--space-3) var(--space-6); }
+  .nav a { grid-auto-flow: column; justify-content: start; align-content: center; gap: var(--space-3);
+           min-height: 3rem; padding-inline: var(--space-3); border-radius: 10px; font-size: .95rem; }
+  .nav a[aria-current="page"] { background: color-mix(in srgb, var(--accent) 12%, transparent); }
+}
+
+/* ---------- Components ---------- */
+.header { display: grid; gap: var(--space-2); }
+.eyebrow { font-size: .8125rem; letter-spacing: .08em; text-transform: uppercase; color: var(--text-muted); font-weight: 600; }
+
+.btn {
+  min-height: 48px; padding: 0 var(--space-6); border-radius: var(--radius); border: 1px solid transparent;
+  background: var(--accent); color: var(--accent-contrast); font-weight: 600; width: 100%;
+  transition: transform .12s ease, filter .12s ease;
+}
+.btn:active { transform: scale(.98); filter: brightness(.92); }
+.btn--ghost { background: transparent; color: var(--text); border-color: var(--border); }
+@media (min-width: 48em) { .btn { width: auto; } }
+@media (hover: hover) and (pointer: fine) { .btn:hover { filter: brightness(1.06); } }
+
+/* Glanceable metrics: 2x2 on phone, 4-up on desktop */
+.metrics { display: grid; gap: var(--space-3); grid-template-columns: repeat(2, 1fr); }
+@media (min-width: 64em) { .metrics { grid-template-columns: repeat(4, 1fr); } }
+.metric { padding: var(--space-4); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
+.metric b { display: block; font: 800 var(--step-2)/1.1 var(--font-display); margin-top: var(--space-1); }
+.metric span { color: var(--text-muted); font-size: .875rem; }
+
+/* List rows: whole row is the tap target. Table on tablet+ */
+.list { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.row { display: grid; grid-template-columns: 1fr auto; gap: var(--space-1) var(--space-4); align-items: center;
+       min-height: 64px; padding: var(--space-3) var(--space-4); border-top: 1px solid var(--border); text-decoration: none; color: inherit; }
+.row:first-child { border-top: 0; }
+.row small { color: var(--text-muted); grid-column: 1; }
+.row .amount { grid-row: 1 / span 2; grid-column: 2; text-align: right; font-weight: 600; }
+.chip { display: inline-block; justify-self: start; grid-column: 1; padding: 2px 10px; border-radius: 999px; font-size: .75rem; font-weight: 600; border: 1px solid currentColor; }
+.chip--ok { color: var(--success); } .chip--due { color: var(--danger); }
+
+@media (min-width: 48em) {
+  .row { grid-template-columns: 2fr 1fr 1fr 1fr; }
+  .row small, .chip { grid-column: auto; }
+  .row .amount { grid-row: auto; grid-column: auto; }
+}
+
+/* Two-column page layout appears only when there is room */
+.split { display: grid; gap: var(--space-8); }
+@media (min-width: 64em) { .split { grid-template-columns: 2fr 1fr; align-items: start; } }
+
+/* Sticky primary action inside the thumb zone (phone only) */
+.sticky-cta { position: sticky; bottom: calc(var(--nav-h) + env(safe-area-inset-bottom, 0px) + var(--space-3)); z-index: 10; }
+@media (min-width: 48em) { .sticky-cta { position: static; } }
+
+@media (prefers-reduced-motion: no-preference) {
+  .reveal { animation: rise .5s ease-out both; }
+  .reveal:nth-child(2) { animation-delay: .06s; } .reveal:nth-child(3) { animation-delay: .12s; }
+  @keyframes rise { from { opacity: 0; transform: translateY(8px); } }
+}
+</style>
+</head>
+<body>
+
+<nav class="nav" aria-label="Navigasi utama">
+  <div class="brand">Bengkelku</div>
+  <a href="#" aria-current="page">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg><span>Beranda</span>
+  </a>
+  <a href="#">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16M4 12h16M4 19h10"/></svg><span>Transaksi</span>
+  </a>
+  <a href="#">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7l-8-4-8 4 8 4 8-4zM4 7v10l8 4 8-4V7"/></svg><span>Stok</span>
+  </a>
+  <a href="#">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg><span>Lainnya</span>
+  </a>
+</nav>
+
+<div class="container">
+  <main>
+    <header class="header reveal">
+      <span class="eyebrow">Rabu, 30 September 2026</span>
+      <h1>Hari ini di bengkel</h1>
+      <p>Ringkasan yang perlu dilihat tanpa menekan apa pun.</p>
+    </header>
+
+    <section class="metrics" aria-label="Ringkasan">
+      <div class="metric reveal"><span>Pendapatan</span><b class="tnum">Rp 4,2 jt</b></div>
+      <div class="metric reveal"><span>Servis berjalan</span><b class="tnum">7</b></div>
+      <div class="metric reveal"><span>Belum bayar</span><b class="tnum">3</b></div>
+      <div class="metric reveal"><span>Stok menipis</span><b class="tnum">5</b></div>
+    </section>
+
+    <div class="split">
+      <section aria-labelledby="tx-title" style="display:grid;gap:var(--space-3)">
+        <h2 id="tx-title">Transaksi terbaru</h2>
+        <div class="list">
+          <a class="row" href="#"><span>Ganti oli — B 1234 XYZ</span><small>Budi Santoso · 10.42</small><span class="chip chip--ok">Lunas</span><span class="amount tnum">Rp 185.000</span></a>
+          <a class="row" href="#"><span>Servis rem depan — D 5678 AB</span><small>Siti Rahma · 09.15</small><span class="chip chip--due">Belum bayar</span><span class="amount tnum">Rp 420.000</span></a>
+          <a class="row" href="#"><span>Tune-up — F 9012 CD</span><small>Agus Wijaya · 08.30</small><span class="chip chip--ok">Lunas</span><span class="amount tnum">Rp 350.000</span></a>
+        </div>
+      </section>
+
+      <aside aria-labelledby="need-title" style="display:grid;gap:var(--space-3)">
+        <h3 id="need-title">Perlu perhatian</h3>
+        <div class="list">
+          <a class="row" href="#" style="grid-template-columns:1fr auto"><span>Kampas rem tinggal 2 pcs</span><small>Stok</small></a>
+          <a class="row" href="#" style="grid-template-columns:1fr auto"><span>Tagihan Siti Rahma lewat 3 hari</span><small>Piutang</small></a>
+        </div>
+      </aside>
+    </div>
+
+    <div class="sticky-cta">
+      <button class="btn" type="button">Buat transaksi baru</button>
+    </div>
+  </main>
+</div>
+
+</body>
+</html>

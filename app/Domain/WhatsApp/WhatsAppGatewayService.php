@@ -188,6 +188,18 @@ class WhatsAppGatewayService
         $account = WhatsAppAccount::where('business_id', $business->id)->first();
         if ($account && $account->isConnected()) {
             $client = WhatsAppClient::forAccount($account);
+
+            // A. Mode Template Resmi Meta (Mandatori Anti-Blokir untuk Outbound Proaktif)
+            if (! empty($options['template_name'])) {
+                $components = $options['components'] ?? $this->buildTemplateComponentsFromParams($options['template_params'] ?? [], $options);
+                return $client->sendTemplateMessage(
+                    $phone,
+                    $options['template_name'],
+                    $options['template_language'] ?? 'id',
+                    $components
+                );
+            }
+
             if (! empty($options['url'])) {
                 return $client->sendMediaMessage(
                     $phone,
@@ -464,6 +476,15 @@ class WhatsAppGatewayService
                 $options['url'] = $campaign->media_url;
             }
 
+            // Meta Official Template Enforcement to prevent account ban
+            $metaAccount = WhatsAppAccount::where('business_id', $business->id)->where('status', 'active')->first();
+            if ($metaAccount && $metaAccount->isActive()) {
+                $templateName = $campaign->template_name ?: \App\Domain\WhatsApp\CloudApi\Templates\CoocaStandardTemplates::PROMO_BROADCAST;
+                $options['template_name']     = $templateName;
+                $options['template_language'] = $campaign->template_language ?? 'id';
+                $options['template_params']   = $this->resolveBroadcastTemplateParams($campaign, $customer, $business, $templateName);
+            }
+
             $result = $this->sendMessage($business, $phone, $personalizedMsg, $options);
             $ok     = $result['success'] ?? false;
 
@@ -491,20 +512,80 @@ class WhatsAppGatewayService
     }
 
     /**
-     * Personalize a broadcast message with customer-specific variables.
+     * Personalize a broadcast message with customer-specific and multi-industry contextual variables.
      */
     protected function personalizeMessage(string $template, Customer $customer, Business $business): string
     {
-        return str_replace(
-            ['{nama}', '{poin}', '{tier}', '{bisnis}'],
-            [
-                $customer->name,
-                number_format($customer->points_balance, 0, ',', '.'),
-                $customer->membership_tier ?? 'Pelanggan',
-                $business->name,
-            ],
-            $template
-        );
+        $templateCode = (string) ($business->template_code ?? 'retail_general');
+        $extraReplacements = [];
+
+        // Check if customer has latest POS order for contextual details
+        $lastOrder = $customer->posOrders()->latest()->first();
+
+        // 1. F&B & Culinary ({meja})
+        if (str_starts_with($templateCode, 'fnb_')) {
+            $extraReplacements['{meja}'] = $lastOrder?->posTable?->table_number 
+                ?? $lastOrder?->table_or_reference 
+                ?? 'Meja Pelanggan';
+        }
+
+        // 2. Bengkel / Otomotif ({nopol}, {servis_terakhir})
+        if ($templateCode === 'service_workshop') {
+            $extraReplacements['{nopol}'] = $lastOrder?->vehicle_license_plate 
+                ?? ($lastOrder?->vehicle_model ? $lastOrder->vehicle_model : 'Kendaraan Anda');
+            $extraReplacements['{servis_terakhir}'] = $lastOrder?->created_at 
+                ? $lastOrder->created_at->format('d/m/Y') 
+                : 'Servis Berkala';
+        }
+
+        // 3. Laundry / Jasa Cuci ({no_rak}, {berat_kg})
+        if ($templateCode === 'service_laundry') {
+            $extraReplacements['{no_rak}'] = 'Rak Penyimpanan';
+            $extraReplacements['{berat_kg}'] = 'Cucian Anda';
+        }
+
+        // 4. Manufaktur, Konveksi & Tailor ({no_spk}, {produk})
+        if (str_starts_with($templateCode, 'mfg_') || $templateCode === 'tailor') {
+            $extraReplacements['{no_spk}'] = 'SPK Produksi';
+            $extraReplacements['{produk}'] = $lastOrder?->items()->first()?->product_name ?? 'Pesanan Khusus';
+        }
+
+        // 5. Kontraktor & Desain Interior ({proyek}, {termin})
+        if ($templateCode === 'service_contractor') {
+            $extraReplacements['{proyek}'] = 'Proyek Berjalan';
+            $extraReplacements['{termin}'] = 'Termin Saat Ini';
+        }
+
+        // 6. Apotek & Klinik Farmasi ({no_resep})
+        if ($templateCode === 'retail_pharmacy') {
+            $extraReplacements['{no_resep}'] = 'Resep Obat';
+        }
+
+        // Default fallbacks for all tags if still present in template regardless of template_code
+        $defaultFallbacks = [
+            '{meja}'            => $lastOrder?->posTable?->table_number ?? $lastOrder?->table_or_reference ?? 'Meja',
+            '{nopol}'           => $lastOrder?->vehicle_license_plate ?? 'Kendaraan Anda',
+            '{servis_terakhir}' => $lastOrder?->created_at ? $lastOrder->created_at->format('d/m/Y') : 'Servis Berkala',
+            '{no_rak}'          => 'Rak Penyimpanan',
+            '{berat_kg}'        => 'Cucian Anda',
+            '{no_spk}'          => 'SPK Produksi',
+            '{produk}'          => $lastOrder?->items()->first()?->product_name ?? 'Pesanan Khusus',
+            '{proyek}'          => 'Proyek Anda',
+            '{termin}'          => 'Termin Berjalan',
+            '{no_resep}'        => 'Resep Obat',
+        ];
+
+        $mergedExtras = array_merge($defaultFallbacks, $extraReplacements);
+
+        $search = array_merge(['{nama}', '{poin}', '{tier}', '{bisnis}'], array_keys($mergedExtras));
+        $replace = array_merge([
+            $customer->name,
+            number_format($customer->points_balance, 0, ',', '.'),
+            $customer->membership_tier ?? 'Pelanggan',
+            $business->name,
+        ], array_values($mergedExtras));
+
+        return str_replace($search, $replace, $template);
     }
 
     /**
@@ -517,7 +598,16 @@ class WhatsAppGatewayService
             ->whereNotNull('phone')
             ->where('phone', '!=', '');
 
-        if (! in_array($filter, ['all', 'custom'], true)) {
+        if (str_starts_with($filter, 'outlet:')) {
+            $locationId = substr($filter, 7);
+            $customerIds = \App\Models\PosOrder::where('business_id', $business->id)
+                ->where('location_id', $locationId)
+                ->whereNotNull('customer_id')
+                ->pluck('customer_id')
+                ->unique();
+
+            $query->whereIn('id', $customerIds);
+        } elseif (! in_array($filter, ['all', 'custom'], true)) {
             $query->whereRaw('LOWER(membership_tier) = ?', [strtolower($filter)]);
         }
 
@@ -551,4 +641,108 @@ class WhatsAppGatewayService
             ]
         );
     }
+
+    /**
+     * Susun komponen parameter template untuk Meta Cloud API.
+     */
+    protected function buildTemplateComponentsFromParams(array $params, array $options = []): array
+    {
+        $components = [];
+
+        if (! empty($options['url'])) {
+            $type = $options['type'] ?? 'image';
+            $components[] = [
+                'type'       => 'header',
+                'parameters' => [
+                    [
+                        'type' => $type,
+                        $type  => ['link' => $options['url']],
+                    ],
+                ],
+            ];
+        }
+
+        if (! empty($params)) {
+            $bodyParams = [];
+            foreach ($params as $val) {
+                $bodyParams[] = [
+                    'type' => 'text',
+                    'text' => (string) $val,
+                ];
+            }
+            $components[] = [
+                'type'       => 'body',
+                'parameters' => $bodyParams,
+            ];
+        }
+
+        return $components;
+    }
+
+    /**
+     * Resolusi parameter dinamis untuk template siaran promosi & notifikasi.
+     */
+    protected function resolveBroadcastTemplateParams(
+        WhatsAppBroadcastCampaign $campaign,
+        Customer $customer,
+        Business $business,
+        string $templateName
+    ): array {
+        $customerName = (string) ($customer->name ?: 'Pelanggan Setia');
+        $storeName    = (string) ($business->name ?: 'Toko Kami');
+        $lastOrder    = $customer->posOrders()->latest()->first();
+
+        return match ($templateName) {
+            \App\Domain\WhatsApp\CloudApi\Templates\CoocaStandardTemplates::PROMO_BROADCAST => [
+                $customerName,
+                $storeName,
+                (string) ($campaign->template_params['offer'] ?? $campaign->message),
+                (string) ($campaign->template_params['voucher_code'] ?? 'HEMAT'),
+                (string) ($campaign->template_params['valid_until'] ?? now()->addDays(7)->format('d/m/Y')),
+            ],
+            \App\Domain\WhatsApp\CloudApi\Templates\CoocaStandardTemplates::CUSTOMER_WELCOME => [
+                $customerName,
+                $storeName,
+                $customer->membership_tier ? ucfirst((string) $customer->membership_tier) . ' Member' : 'Member Setia',
+                (string) ($customer->loyalty_points ?? 0),
+            ],
+            \App\Domain\WhatsApp\CloudApi\Templates\CoocaStandardTemplates::ORDER_STATUS => [
+                $customerName,
+                $storeName,
+                (string) ($campaign->template_params['reference'] ?? ($lastOrder?->order_number ?? 'Pesanan')),
+                (string) ($campaign->template_params['status'] ?? 'Diproses'),
+                (string) ($campaign->template_params['notes'] ?? 'Terima kasih atas pesanan Anda'),
+            ],
+            \App\Domain\WhatsApp\CloudApi\Templates\CoocaStandardTemplates::RESERVATION_REMINDER => [
+                $customerName,
+                $storeName,
+                (string) ($campaign->template_params['booking_code'] ?? 'RSV-' . rand(1000, 9999)),
+                (string) ($campaign->template_params['schedule'] ?? now()->addDay()->format('d/m/Y H:i') . ' WIB'),
+                (string) ($campaign->template_params['details'] ?? 'Reservasi Layanan Pelanggan'),
+            ],
+            \App\Domain\WhatsApp\CloudApi\Templates\CoocaStandardTemplates::MARKETPLACE_RECEIPT => [
+                $customerName,
+                (string) ($campaign->template_params['order_number'] ?? ($lastOrder?->order_number ?? 'ORD-' . date('YmdHis'))),
+                $storeName,
+                (string) ($campaign->template_params['amount'] ?? 'Rp ' . number_format((float) ($lastOrder?->total_amount ?? 0), 0, ',', '.')),
+                (string) ($campaign->template_params['payment_method'] ?? 'QRIS / Transfer Bank'),
+            ],
+            \App\Domain\WhatsApp\CloudApi\Templates\CoocaStandardTemplates::SHIPPING_TRACKING => [
+                $customerName,
+                (string) ($campaign->template_params['order_number'] ?? ($lastOrder?->order_number ?? 'ORD-' . date('YmdHis'))),
+                $storeName,
+                (string) ($campaign->template_params['courier'] ?? 'J&T Express'),
+                (string) ($campaign->template_params['tracking_number'] ?? 'JT' . rand(1000000000, 9999999999)),
+            ],
+            \App\Domain\WhatsApp\CloudApi\Templates\CoocaStandardTemplates::CART_REMINDER => [
+                $customerName,
+                $storeName,
+                (string) ($campaign->template_params['items_summary'] ?? 'Item di keranjang Anda'),
+                (string) ($campaign->template_params['offer'] ?? 'Diskon 10% kupon HEMAT'),
+                (string) ($campaign->template_params['valid_until'] ?? 'Hari ini 23:59 WIB'),
+            ],
+            default => array_values($campaign->template_params ?? [$customerName, $storeName, $campaign->title, $campaign->message]),
+        };
+    }
 }
+

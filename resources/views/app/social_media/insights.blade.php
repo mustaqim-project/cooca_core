@@ -23,37 +23,6 @@
 
         <x-module-tabs module="communication" />
 
-        {{-- 2. MODULE NAVIGATION SUB-TABS --}}
-        <div class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-2 sm:p-2.5 flex items-center justify-between shadow-sm">
-            <div class="inline-flex p-1 rounded-[12px] bg-black/[0.05] dark:bg-white/[0.08] border border-black/5 dark:border-white/5 w-full sm:w-auto overflow-x-auto text-[13px] font-medium">
-                <a href="{{ route('social-media.index') }}"
-                    class="h-8 px-4 rounded-[9px] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white flex items-center gap-2 whitespace-nowrap transition-colors">
-                    <i data-lucide="link" class="w-4 h-4"></i>
-                    <span>{{ __('social_media.tab_connect') }}</span>
-                </a>
-                <a href="{{ route('social-media.posts.index') }}"
-                    class="h-8 px-4 rounded-[9px] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white flex items-center gap-2 whitespace-nowrap transition-colors">
-                    <i data-lucide="image" class="w-4 h-4"></i>
-                    <span>{{ __('social_media.tab_posts') }}</span>
-                </a>
-                <a href="{{ route('social-media.calendar.index') }}"
-                    class="h-8 px-4 rounded-[9px] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white flex items-center gap-2 whitespace-nowrap transition-colors">
-                    <i data-lucide="calendar" class="w-4 h-4"></i>
-                    <span>{{ __('social_media.tab_calendar') }}</span>
-                </a>
-                <a href="{{ route('social-media.inbox.index') }}"
-                    class="h-8 px-4 rounded-[9px] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white flex items-center gap-2 whitespace-nowrap transition-colors">
-                    <i data-lucide="message-square" class="w-4 h-4"></i>
-                    <span>{{ __('social_media.tab_inbox') }}</span>
-                </a>
-                <a href="{{ route('social-media.insights.index') }}"
-                    class="h-8 px-4 rounded-[9px] bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-sm flex items-center gap-2 whitespace-nowrap">
-                    <i data-lucide="bar-chart-2" class="w-4 h-4 text-[#007AFF]"></i>
-                    <span>{{ __('social_media.tab_insights') }}</span>
-                </a>
-            </div>
-        </div>
-
         {{-- 3. BENTO KPI GRID --}}
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
             {{-- Impressions --}}
@@ -149,7 +118,8 @@
                     </p>
                 </div>
             @else
-                <div class="overflow-x-auto">
+                {{-- Desktop View: Table Layout --}}
+                <div class="hidden md:block overflow-x-auto">
                     <table class="w-full text-left border-collapse">
                         <thead>
                             <tr class="border-b border-black/5 dark:border-white/10 text-[11.5px] font-semibold text-black/50 dark:text-white/50 uppercase tracking-wider">
@@ -197,8 +167,8 @@
                                     </td>
                                     <td class="py-3.5 pr-2 text-right whitespace-nowrap">
                                         <button @click="syncPostInsights('{{ $post->id }}')"
-                                            class="h-7 px-2.5 rounded-[8px] text-[11.5px] font-semibold text-[#007AFF] bg-[#007AFF]/10 hover:bg-[#007AFF]/20 active:scale-[0.97] transition-all inline-flex items-center gap-1">
-                                            <i data-lucide="refresh-cw" class="w-3 h-3" id="icon-sync-{{ $post->id }}"></i>
+                                            class="min-h-[32px] px-3 rounded-[8px] text-[11.5px] font-semibold text-[#007AFF] bg-[#007AFF]/10 hover:bg-[#007AFF]/20 active:scale-[0.97] transition-all inline-flex items-center gap-1.5 cursor-pointer">
+                                            <i data-lucide="refresh-cw" class="w-3.5 h-3.5" id="icon-sync-{{ $post->id }}"></i>
                                             <span>{{ __('social_media.fetch_live_btn') }}</span>
                                         </button>
                                     </td>
@@ -206,6 +176,60 @@
                             @endforeach
                         </tbody>
                     </table>
+                </div>
+
+                {{-- Mobile View: Stacked Cards (Apple HIG Standard) --}}
+                <div class="md:hidden space-y-3">
+                    @foreach($posts as $post)
+                        <div class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/10 space-y-3">
+                            <div class="flex items-start justify-between gap-3">
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold
+                                    {{ $post->platform === 'facebook' ? 'bg-[#1877F2]/10 text-[#1877F2]' : ($post->platform === 'instagram' ? 'bg-[#E1306C]/10 text-[#E1306C]' : ($post->platform === 'linkedin' ? 'bg-[#0A66C2]/10 text-[#0A66C2]' : 'bg-black/10 dark:bg-white/10 text-black dark:text-white')) }}">
+                                    <span>{{ ucfirst($post->platform) }}</span>
+                                </span>
+                                <span class="text-[11px] text-black/45 dark:text-white/45">
+                                    {{ $post->published_at ? $post->published_at->format('d M Y, H:i') : $post->created_at->format('d M Y, H:i') }}
+                                </span>
+                            </div>
+
+                            <p class="text-[13px] font-medium text-black dark:text-white line-clamp-2">
+                                {{ $post->content }}
+                            </p>
+
+                            <div class="grid grid-cols-4 gap-2 pt-2 border-t border-black/5 dark:border-white/5 text-center">
+                                <div class="p-1.5 rounded-[10px] bg-white dark:bg-[#2C2C2E] border border-black/5 dark:border-white/5">
+                                    <div class="text-[10px] text-black/50 dark:text-white/50 uppercase font-semibold">Imp</div>
+                                    <div class="text-[12.5px] font-bold tabular-nums text-black dark:text-white" id="mobile-metric-impressions-{{ $post->id }}">
+                                        {{ number_format($post->getMetric('impressions')) }}
+                                    </div>
+                                </div>
+                                <div class="p-1.5 rounded-[10px] bg-white dark:bg-[#2C2C2E] border border-black/5 dark:border-white/5">
+                                    <div class="text-[10px] text-black/50 dark:text-white/50 uppercase font-semibold">Reach</div>
+                                    <div class="text-[12.5px] font-bold tabular-nums text-black dark:text-white" id="mobile-metric-reach-{{ $post->id }}">
+                                        {{ number_format($post->getMetric('reach')) }}
+                                    </div>
+                                </div>
+                                <div class="p-1.5 rounded-[10px] bg-white dark:bg-[#2C2C2E] border border-black/5 dark:border-white/5">
+                                    <div class="text-[10px] text-black/50 dark:text-white/50 uppercase font-semibold">Likes</div>
+                                    <div class="text-[12.5px] font-bold tabular-nums text-[#FF2D55]" id="mobile-metric-likes-{{ $post->id }}">
+                                        {{ number_format($post->getMetric('likes')) }}
+                                    </div>
+                                </div>
+                                <div class="p-1.5 rounded-[10px] bg-white dark:bg-[#2C2C2E] border border-black/5 dark:border-white/5">
+                                    <div class="text-[10px] text-black/50 dark:text-white/50 uppercase font-semibold">Comments</div>
+                                    <div class="text-[12.5px] font-bold tabular-nums text-[#007AFF]" id="mobile-metric-comments-{{ $post->id }}">
+                                        {{ number_format($post->getMetric('comments')) }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button @click="syncPostInsights('{{ $post->id }}')"
+                                class="w-full min-h-[44px] rounded-[12px] text-[12.5px] font-bold text-[#007AFF] bg-[#007AFF]/10 hover:bg-[#007AFF]/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer">
+                                <i data-lucide="refresh-cw" class="w-3.5 h-3.5" id="mobile-icon-sync-{{ $post->id }}"></i>
+                                <span>{{ __('social_media.fetch_live_btn') }}</span>
+                            </button>
+                        </div>
+                    @endforeach
                 </div>
             @endif
         </div>
@@ -233,7 +257,7 @@
                         }
                     } catch (e) {
                         if (window.AppAlert) {
-                            AppAlert.error('Gagal memperbarui beberapa metrik.');
+                            AppAlert.error(@js(__('social_media.error_refresh_metrics_partial')));
                         }
                     } finally {
                         this.isRefreshingAll = false;
@@ -241,7 +265,9 @@
                 },
                 async syncPostInsights(postId) {
                     const icon = document.getElementById(`icon-sync-${postId}`);
+                    const mobileIcon = document.getElementById(`mobile-icon-sync-${postId}`);
                     if (icon) icon.classList.add('animate-spin');
+                    if (mobileIcon) mobileIcon.classList.add('animate-spin');
 
                     try {
                         const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
@@ -257,36 +283,35 @@
                         const data = await res.json();
                         if (data.success && data.metrics) {
                             const m = data.metrics;
-                            if (document.getElementById(`metric-impressions-${postId}`)) {
-                                document.getElementById(`metric-impressions-${postId}`).textContent = (m.impressions || 0).toLocaleString();
-                            }
-                            if (document.getElementById(`metric-reach-${postId}`)) {
-                                document.getElementById(`metric-reach-${postId}`).textContent = (m.reach || 0).toLocaleString();
-                            }
-                            if (document.getElementById(`metric-likes-${postId}`)) {
-                                document.getElementById(`metric-likes-${postId}`).textContent = (m.likes || 0).toLocaleString();
-                            }
-                            if (document.getElementById(`metric-comments-${postId}`)) {
-                                document.getElementById(`metric-comments-${postId}`).textContent = (m.comments || 0).toLocaleString();
-                            }
-                            if (document.getElementById(`metric-shares-${postId}`)) {
-                                document.getElementById(`metric-shares-${postId}`).textContent = (m.shares || 0).toLocaleString();
-                            }
+                            const updateEl = (id, val) => {
+                                const el = document.getElementById(id);
+                                if (el) el.textContent = (val || 0).toLocaleString();
+                            };
+                            updateEl(`metric-impressions-${postId}`, m.impressions);
+                            updateEl(`mobile-metric-impressions-${postId}`, m.impressions);
+                            updateEl(`metric-reach-${postId}`, m.reach);
+                            updateEl(`mobile-metric-reach-${postId}`, m.reach);
+                            updateEl(`metric-likes-${postId}`, m.likes);
+                            updateEl(`mobile-metric-likes-${postId}`, m.likes);
+                            updateEl(`metric-comments-${postId}`, m.comments);
+                            updateEl(`mobile-metric-comments-${postId}`, m.comments);
+                            updateEl(`metric-shares-${postId}`, m.shares);
                             if (window.AppAlert) {
                                 AppAlert.success('{{ __('social_media.insights_refreshed') }}');
                             }
                         } else {
-                            const errorMsg = data.error || 'Gagal memperbarui metrik.';
+                            const errorMsg = data.error || @js(__('social_media.error_refresh_metrics'));
                             if (window.AppAlert) {
                                 AppAlert.error(errorMsg);
                             }
                         }
                     } catch (e) {
                         if (window.AppAlert) {
-                            AppAlert.error('Terjadi kesalahan saat menyinkronkan data.');
+                            AppAlert.error(@js(__('social_media.error_sync_data')));
                         }
                     } finally {
                         if (icon) icon.classList.remove('animate-spin');
+                        if (mobileIcon) mobileIcon.classList.remove('animate-spin');
                     }
                 }
             };

@@ -402,13 +402,13 @@
         {{-- ===================================================== --}}
         <div class="overflow-x-auto pb-1 scrollbar-none">
             <div class="inline-flex p-1 rounded-[14px] bg-black/[0.05] dark:bg-white/[0.07] border border-black/5 dark:border-white/10 text-[13px] font-medium whitespace-nowrap">
-                <a href="{{ route('calculator') }}"
+                <a href="{{ route('calculator.index') }}"
                     class="px-3.5 py-1.5 rounded-[10px] {{ request()->routeIs('calculator*') ? 'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] font-semibold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white' }} flex items-center gap-2 transition-all">
                     <i data-lucide="calculator" class="w-4 h-4 {{ request()->routeIs('calculator*') ? 'text-[#007AFF]' : 'text-black/40 dark:text-white/40' }}"></i>
                     <span>Kalkulator HPP &amp; Harga</span>
                 </a>
 
-                @if(\App\Support\Context::hasPermission('labor_machines.view') || \App\Support\Context::hasPermission('costing.manage'))
+                @if((\App\Support\Context::hasPermission('labor_machines.view') || \App\Support\Context::hasPermission('costing.manage')) && (request()->routeIs('labor-machines.*') || (\App\Support\Context::business()?->isModuleEnabled(\App\Domain\Template\ModuleRegistry::MODULE_LABOR_MACHINES) ?? true)))
                 <a href="{{ route('labor-machines.index') }}"
                     class="px-3.5 py-1.5 rounded-[10px] {{ request()->routeIs('labor-machines.*') ? 'bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] font-semibold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white' }} flex items-center gap-2 transition-all">
                     <i data-lucide="cog" class="w-4 h-4 {{ request()->routeIs('labor-machines.*') ? 'text-[#FF9500]' : 'text-black/40 dark:text-white/40' }}"></i>

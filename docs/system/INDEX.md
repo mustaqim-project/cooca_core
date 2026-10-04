@@ -23,13 +23,20 @@
 * [`docs/system/modules/social-media.md`](file:///c:/laragon/www/cooca_core/docs/system/modules/social-media.md) - Modul Media Sosial & Integrasi Platform Meta, TikTok & LinkedIn, Provider Matrix, Zero Meta Ads Policy. `[COMPLETE]`
 * [`docs/system/modules/marketplace.md`](file:///c:/laragon/www/cooca_core/docs/system/modules/marketplace.md) - Modul Integrasi Marketplace Omnichannel (Shopee, TikTok Shop, Tokopedia), Multi-Harga, Safety Buffer & Feed Pesanan. `[COMPLETE]`
 * [`docs/system/modules/system-diagnostics.md`](file:///c:/laragon/www/cooca_core/docs/system/modules/system-diagnostics.md) - Pemantauan Error Log & Diagnostik Sistem Real-Time (SplFileObject Streaming, IDOR Shield, & Apple Bento UI). `[COMPLETE]`
+* [`docs/system/modules/ai-digital-company.md`](file:///c:/laragon/www/cooca_core/docs/system/modules/ai-digital-company.md) - COOCA AI Digital Company (Autonomous Workforce, Executive Hierarchy C-Level, 5 Departments, 12 Specialized Agents, Maker-Checker Gate, Multi-Provider BYOAI, & Bento Apple HIG AI Office). `[COMPLETE]`
 
 ### 3. Alur Kerja End-to-End (Workflows)
 * [`docs/system/workflows/pos-sales-flow.md`](file:///c:/laragon/www/cooca_core/docs/system/workflows/pos-sales-flow.md) - Alur Lengkap Penjualan Kasir ➔ Potong Stok BOM ➔ Kas Ledger ➔ Auto-Journal ➔ Nota WhatsApp. `[COMPLETE]`
 * [`docs/system/workflows/pos-channel-pricing-and-delivery-flow.md`](file:///c:/laragon/www/cooca_core/docs/system/workflows/pos-channel-pricing-and-delivery-flow.md) - Alur Multi-Harga Saluran POS & Online Delivery (Dine In, Takeaway, GoFood, GrabFood, ShopeeFood) ➔ Nomor Order Ref Eksternal ➔ Lencana KDS Dapur ➔ Struk Thermal ESC/POS. `[COMPLETE]`
 * [`docs/system/workflows/product-bundling-and-combo-flow.md`](file:///c:/laragon/www/cooca_core/docs/system/workflows/product-bundling-and-combo-flow.md) - Alur Paket Kombo & Bundling Produk ➔ Konfigurasi Item Anak ➔ Aturan Stok Bottleneck ➔ Akumulasi HPP ➔ Pemotongan & Pengembalian Rekursif. `[COMPLETE]`
 * [`docs/system/workflows/staff-portal-and-attendance-flow.md`](file:///c:/laragon/www/cooca_core/docs/system/workflows/staff-portal-and-attendance-flow.md) - Alur Portal Karyawan & Presensi Mandiri ➔ Pengalihan Aman Dashboard ➔ Penyaringan Ketat Modul Cepat RBAC ➔ Bento Empty-State. `[COMPLETE]`
-* [`docs/system/workflows/purchasing-goods-receipt-flow.md`](file:///c:/laragon/www/cooca_core/docs/system/workflows/purchasing-goods-receipt-flow.md) - Alur Pengadaan PO ➔ Penerimaan Fisik Barang (GR) ➔ Update Stok & HPP ➔ Tagihan Vendor (AP) ➔ Jurnal Akuntansi. `[COMPLETE]`
+* [`docs/system/workflows/purchase-order-lifecycle.md`](file:///c:/laragon/www/cooca_core/docs/system/workflows/purchase-order-lifecycle.md) - Alur Kerja Siklus Hidup Purchase Order ➔ 11 Simpul Eksekusi ➔ State Machine ➔ Three-Way Matching ➔ PIN Supervisor. `[COMPLETE]`
+* [`docs/system/workflows/purchasing_receiving_bills_returns.md`](file:///c:/laragon/www/cooca_core/docs/system/workflows/purchasing_receiving_bills_returns.md) - Alur Kerja Penerimaan Barang (GR), Tagihan Vendor (Bills), dan Retur Pembelian ➔ 11 Simpul Eksekusi ➔ Dual FK Product & Material ➔ Otorisasi PIN Bcrypt $\ge$ 5M ➔ Jurnal & Stok Otomatis. `[COMPLETE]`
+* [`docs/system/workflows/billing-subscription-and-entitlement-flow.md`](file:///c:/laragon/www/cooca_core/docs/system/workflows/billing-subscription-and-entitlement-flow.md) - Alur Kerja SaaS Billing, Pembayaran Gateway TriPay, & Entitlement Kuota ➔ 11 Simpul Eksekusi ➔ State Machine Lisensi ➔ Auto-Journal Beban ➔ Anti-Reload Reaktivitas ➔ Do's & Don'ts 20 Sektor Industri. `[COMPLETE]`
+
+
+* [`docs/system/workflows/customer-crm-and-feedback-flow.md`](file:///c:/laragon/www/cooca_core/docs/system/workflows/customer-crm-and-feedback-flow.md) - Alur Manajemen Kontak Pelanggan, Loyalitas, & Feedback ➔ 11 Simpul Eksekusi ➔ Validasi Telepon E.164 ➔ Audit Trail & Anti-IDOR. `[COMPLETE]`
+* [`docs/system/audits/customer-payment-terms-auto-reminder-plan.md`](file:///c:/laragon/www/cooca_core/docs/system/audits/customer-payment-terms-auto-reminder-plan.md) - Rencana Master & Spesifikasi Teknis Otomasi Notifikasi Termin Piutang Pelanggan ke WhatsApp & Email (Scheduler 08:30 WIB & Anti-Spam Guard). `[COMPLETE]`
 * [`docs/system/workflows/customer-storefront-flow.md`](file:///c:/laragon/www/cooca_core/docs/system/workflows/customer-storefront-flow.md) - Alur Pembelian Pelanggan ➔ Gated Checkout ➔ Upload Bukti Bayar ➔ Konfirmasi Merchant ➔ Pelacakan Pesanan. `[VERIFIED]`
 * [`docs/system/workflows/branch-assortment-and-pricing-flow.md`](file:///c:/laragon/www/cooca_core/docs/system/workflows/branch-assortment-and-pricing-flow.md) - Alur Ketersediaan Produk & Multi-Harga Cabang (Rest Area / Bandara vs Kota) ➔ Pemisahan Toggle Mandiri ➔ Penyaringan Etalase POS ➔ Hierarki Resolusi Harga Kasir. `[COMPLETE]`
 * [`docs/system/workflows/multi-hierarchy-branch-and-warehouse-flow.md`](file:///c:/laragon/www/cooca_core/docs/system/workflows/multi-hierarchy-branch-and-warehouse-flow.md) - Alur Hubungan Cabang, Outlet, dan Gudang Multi-Hierarki ➔ Model Self-Referencing `parent_id` ➔ Gudang Pusat vs Sub-Gudang Cabang ➔ Agregasi Stok Efektif POS Terminal ➔ Auto-Routing Pemotongan Stok. `[COMPLETE]`
@@ -43,12 +50,14 @@
 * [`docs/system/business-rules/inventory-rules.md`](file:///c:/laragon/www/cooca_core/docs/system/business-rules/inventory-rules.md) - Aturan Pengurangan Bahan Baku, Kebijakan Stok Minus, Bottleneck Stok Paket Kombo, & Pemotongan Rekursif. `[COMPLETE]`
 * [`docs/system/business-rules/security-rules.md`](file:///c:/laragon/www/cooca_core/docs/system/business-rules/security-rules.md) - Scoping Multi-Tenant, Proteksi IDOR, PIN Supervisor, Proteksi Akun, Staff Portal RBAC Guard, & Proteksi Circular Bundle. `[COMPLETE]`
 * [`docs/system/business-rules/multi-branch-pricing-and-inventory-cases.md`](file:///c:/laragon/www/cooca_core/docs/system/business-rules/multi-branch-pricing-and-inventory-cases.md) - Kompilasi Studi Kasus Bisnis: Paket Bundling, Multi-Harga Saluran Ojol, Portal Karyawan, Do's & Don'ts Lintas Industri, Hierarki Cabang-Gudang, & Diferensiasi Rest Area. `[COMPLETE]`
+* [`docs/system/business-rules/multi-industry-ui-isolation-and-gating.md`](file:///c:/laragon/www/cooca_core/docs/system/business-rules/multi-industry-ui-isolation-and-gating.md) - Aturan Isolasi Antarmuka 25 Sektor Industri (*Zero Feature Leakage*): Gating Modul Dinamis POS, Orders Meja, Sidebar Navigasi, Costing HPP & Spotlight. `[COMPLETE]`
 
 ### 5. Hak Akses & Peran (Permissions)
 * [`docs/system/permissions/permission-matrix.md`](file:///c:/laragon/www/cooca_core/docs/system/permissions/permission-matrix.md) - Matriks Wewenang Lintas Peran: Superadmin, Business Owner, Manajer Toko, Kasir, Staf Dapur/Gudang, Pelanggan, & Otomasi Sistem. `[COMPLETE]`
 
 ### 6. Arsitektur Teknis (Architecture)
 * [`docs/system/architecture/multi-tenancy.md`](file:///c:/laragon/www/cooca_core/docs/system/architecture/multi-tenancy.md) - Isolasi Basis Data Multi-Tenant, Context Resolver (`Context::requireBusiness()`), dan Tenant Lifecycle. `[COMPLETE]`
+* [`docs/system/architecture/product-pos-vs-marketplace-analysis.md`](file:///c:/laragon/www/cooca_core/docs/system/architecture/product-pos-vs-marketplace-analysis.md) - Analisis Arsitektur Single Master Product vs 3-Tier Taxonomy Mapping Marketplace, Mitigasi Human Error & Anti-Margin Bleed Guard. `[COMPLETE]`
 * [`docs/system/architecture/ui-ux-design-system.md`](file:///c:/laragon/www/cooca_core/docs/system/architecture/ui-ux-design-system.md) - Desain Sistem Bento Apple HIG v2.0, Keseragaman Konsep Mobile/Tablet, Floating Bottom Navbar, Pop-Up First Index, & Inline Quick-Add. `[COMPLETE]`
 * [`docs/system/architecture/financial-engine-multi-payment-and-settlement-audit.md`](file:///c:/laragon/www/cooca_core/docs/system/architecture/financial-engine-multi-payment-and-settlement-audit.md) - Audit Sistem Keuangan, Analisis Kesenjangan (*Gap Analysis*), & Cetak Biru Finansial Multi-Payment, Multi-Cabang, Multi-EDC, Payout Hub, & Rekonsiliasi Omnichannel. `[COMPLETE]`
 * [`docs/AUDIT_KOMPREHENSIF_7_MODUL_COOCA.md`](file:///c:/laragon/www/cooca_core/docs/AUDIT_KOMPREHENSIF_7_MODUL_COOCA.md) - Laporan Audit Komprehensif 5 Dimensi Hulu-ke-Hilir pada 7 Modul View Utama (POS, Products, Social Media, Warehouse, Tax, Marketplace, Finance). `[COMPLETE]`
@@ -63,6 +72,21 @@
 * [`docs/prd/PRD-24-STOREFRONT-THEMES-MANUFACTURING-CRAFT-AGRI.md`](file:///c:/laragon/www/cooca_core/docs/prd/PRD-24-STOREFRONT-THEMES-MANUFACTURING-CRAFT-AGRI.md) - PRD 9 Tema Klaster Manufaktur, Konstruksi & Agribisnis (Garment, Tailor, Mebel, Print, Skincare, Plastik, Frozen, Kontraktor, Agri). `[READY]`
 * [`docs/IMPLEMENTATION_PLAN_25_INDUSTRY_STOREFRONT_THEMES_AND_SECURITY.md`](file:///c:/laragon/www/cooca_core/docs/IMPLEMENTATION_PLAN_25_INDUSTRY_STOREFRONT_THEMES_AND_SECURITY.md) - Rencana Implementasi Teknis Super Lengkap 22 Fase Storefront Publik COOCA & 25 Tema Industri. `[READY]`
 * [`docs/prd/PRD-14-SIDEBAR-NAVIGATION-REMEDIATION-UX-STABILITY.md`](file:///c:/laragon/www/cooca_core/docs/prd/PRD-14-SIDEBAR-NAVIGATION-REMEDIATION-UX-STABILITY.md) - Remediasi Navigasi Sidebar, Invisible Hover Bridge (Anti-Flicker), Paritas Flyout 100%, & RBAC Zero-Error. `[COMPLETE]`
+* [`docs/system/audits/layout-and-partials-comprehensive-audit.md`](file:///c:/laragon/www/cooca_core/docs/system/audits/layout-and-partials-comprehensive-audit.md) - Laporan Audit Komprehensif 7 Dimensi pada Layout Utama & Partials (`layouts/app.blade.php`, `sidebar`, `topbar`, `typography`). `[COMPLETE]`
+* [`docs/system/audits/layout-and-partials-master-implementation-plan.md`](file:///c:/laragon/www/cooca_core/docs/system/audits/layout-and-partials-master-implementation-plan.md) - Rencana Implementasi Master 10 Fase Remediasi Layout Utama, Keamanan Anti-Fraud, Multi-Industry & Multi-Language. `[COMPLETE]`
+* [`docs/system/audits/pos-comprehensive-audit.md`](file:///c:/laragon/www/cooca_core/docs/system/audits/pos-comprehensive-audit.md) - Laporan Audit Komprehensif 7 Dimensi pada Ekosistem POS & Kasir Multi-Tenant COOCA (10 Berkas View Blade, Rantai Eksekusi Backend, Anti-Fraud & i18n). `[COMPLETE]`
+* [`docs/system/audits/pos-master-implementation-plan.md`](file:///c:/laragon/www/cooca_core/docs/system/audits/pos-master-implementation-plan.md) - Rencana Implementasi Master 10 Fase Remediasi Modul POS & Kasir Multi-Tenant (Integritas Shift, FormRequest, Multi-Industry & Multi-Language). `[COMPLETE]`
+* [`docs/system/audits/purchase-orders-comprehensive-audit.md`](file:///c:/laragon/www/cooca_core/docs/system/audits/purchase-orders-comprehensive-audit.md) - Laporan Audit Komprehensif 7 Dimensi pada Ekosistem Purchase Orders & Pengadaan Multi-Tenant COOCA (11 Simpul Eksekusi, Three-Way Matching, IDOR Hardening, Bento HIG & i18n). `[COMPLETE]`
+* [`docs/system/audits/purchase-orders-master-implementation-plan.md`](file:///c:/laragon/www/cooca_core/docs/system/audits/purchase-orders-master-implementation-plan.md) - Rencana Implementasi Master 10 Fase Remediasi Ekosistem Purchase Orders Multi-Tenant (Integritas Transaksi, Anti-Fraud, Multi-Industry & i18n). `[COMPLETE]`
+* [`docs/system/workflows/billing-subscription-and-entitlement-flow.md`](file:///c:/laragon/www/cooca_core/docs/system/workflows/billing-subscription-and-entitlement-flow.md) - Alur Kerja SaaS Billing, Pembayaran Gateway TriPay, & Entitlement Kuota ➔ 11 Simpul Eksekusi ➔ State Machine Lisensi ➔ Auto-Journal Beban ➔ Anti-Reload Reaktivitas ➔ Do's & Don'ts 20 Sektor Industri. `[COMPLETE]`
+* [`docs/system/workflows/customer-crm-and-feedback-flow.md`](file:///c:/laragon/www/cooca_core/docs/system/workflows/customer-crm-and-feedback-flow.md) - Alur Kerja Pelanggan, Loyalitas CRM, Kupon Voucher, & Tiket Feedback ➔ 11 Simpul Eksekusi ➔ State Machine ➔ Anti-Lapping Kasbon ➔ Bento HIG Dual-Theme. `[COMPLETE]`
+
+* [`docs/AUDIT_KOMPREHENSIF_CRM_CUSTOMERS_FEEDBACK_7_SKILL.md`](file:///c:/laragon/www/cooca_core/docs/AUDIT_KOMPREHENSIF_CRM_CUSTOMERS_FEEDBACK_7_SKILL.md) - Laporan Audit Komprehensif 7 Dimensi pada Ekosistem Pelanggan, CRM Loyalitas & Pusat Bantuan Feedback COOCA (11 Simpul Eksekusi, Celah IDOR SQL Precedence, Anti-Lapping Kasbon, & Bento HIG Dual-Theme). `[COMPLETE]`
+* [`docs/prd/PRD-28-CRM-CUSTOMERS-FEEDBACK-REMEDIATION.md`](file:///c:/laragon/www/cooca_core/docs/prd/PRD-28-CRM-CUSTOMERS-FEEDBACK-REMEDIATION.md) - PRD Remediasi Komprehensif Ekosistem Pelanggan, CRM Loyalitas & Pusat Bantuan Feedback. `[READY]`
+* [`docs/IMPLEMENTATION_PLAN_CRM_CUSTOMERS_FEEDBACK_REMEDIATION.md`](file:///c:/laragon/www/cooca_core/docs/IMPLEMENTATION_PLAN_CRM_CUSTOMERS_FEEDBACK_REMEDIATION.md) - Rencana Implementasi Master 10 Fase Remediasi CRM, Customers, & Feedback. `[READY]`
+
+
+
 
 ---
 
@@ -70,8 +94,9 @@
 
 | Modul / Domain | Status | Referensi Source Code / Migrasi | Terakhir Diverifikasi |
 | :--- | :---: | :--- | :---: |
+| **Layout Shell & Partials Architecture** | `COMPLETE` | `resources/views/layouts/app.blade.php`, `sidebar`, `topbar`, `typography`, 10 Test Suites | 2026-09-30 |
 | **Costing & HPP Engine** | `COMPLETE` | `app/Domain/Costing/`, `app/Domain/Calculation/`, Migrasi `000014`-`000029` | 2026-09-26 |
-| **Point of Sale (POS)** | `COMPLETE` | `app/Domain/Pos/`, Migrasi `000040`-`000045`, `2026_09_26_110000` (Channel Pricing) | 2026-09-27 |
+| **Point of Sale (POS)** | `COMPLETE` | `app/Domain/Pos/`, Migrasi `000040`-`000045`, `2026_09_26_110000` (Channel Pricing), 11 POS Test Suites (71 Tests, 575 Assertions) | 2026-09-30 |
 | **Branch Assortment & Pricing** | `COMPLETE` | `branch_product_prices`, `ProductWebController`, `PosTerminalWebController`, Migrasi `2026_09_27_103000` | 2026-09-27 |
 | **Multi-Hierarchy Branch & Warehouse** | `COMPLETE` | `locations.parent_id`, `Location`, `WarehouseWebController`, `StockService`, Migrasi `2026_09_27_123000` | 2026-09-27 |
 | **Warehouse Management Hub** | `COMPLETE` | `resources/views/app/warehouse/`, `WarehouseWebController`, `InventoryWebController`, `Location` | 2026-09-27 |
@@ -80,8 +105,8 @@
 | **Finance & Accounting** | `COMPLETE` | `app/Domain/Finance/`, `app/Domain/Accounting/`, Migrasi `000044`, `000080`-`000081` | 2026-09-15 |
 | **Customer & CRM Loyalty** | `COMPLETE` | `app/Domain/Customer/`, `app/Domain/Crm/`, `routes/web.php`, Views `customers/` & `crm/` | 2026-09-15 |
 | **Commerce & Storefront** | `VERIFIED` | `app/Domain/Commerce/`, Migrasi `2026_09_15_000001`-`063500`, `routes/customer.php` | 2026-09-15 |
-| **SaaS Billing & Quotas** | `VERIFIED` | `app/Domain/Billing/`, Migrasi `000047`-`000048`, `000002` (2026-09-02) | 2026-09-15 |
-| **WhatsApp Gateway & Broadcast** | `COMPLETE` | `app/Domain/WhatsApp/`, `WhatsAppWebController`, `WhatsAppBroadcastWebController`, `MetaWhatsAppOnboardingController`, Views `resources/views/app/whatsapp/` | 2026-09-27 |
+| **SaaS Billing & Quotas** | `COMPLETE` | `app/Domain/Billing/`, `resources/views/app/billing/`, `BillingSubmoduleSecurityAndErgonomicsTest`, `SubscriptionPaymentFlowTest`, `TierLimitsAndQuotasTest` | 2026-10-01 |
+| **WhatsApp Gateway & Broadcast** | `COMPLETE` | `app/Domain/WhatsApp/`, `WhatsAppWebController`, `WhatsAppBroadcastWebController`, `MetaWhatsAppOnboardingController`, `WhatsAppLogsExport`, Views `resources/views/app/whatsapp/`, 61 Feature Tests | 2026-10-04 |
 | **Social Media Omnichannel Hub** | `COMPLETE` | `app/Domain/SocialMedia/`, `SocialMediaWebController`, Views `resources/views/app/social_media/` | 2026-09-28 |
 | **Multi-Tenant & Security** | `COMPLETE` | `app/Support/Context.php`, Middleware, Migrasi `000001`-`000004` | 2026-09-26 |
 | **Sidebar Navigation & Flyout System** | `COMPLETE` | `resources/views/layouts/partials/sidebar.blade.php`, `routes/owner.php`, PRD-14 | 2026-09-28 |

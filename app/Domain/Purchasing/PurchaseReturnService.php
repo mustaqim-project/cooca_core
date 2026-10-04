@@ -26,7 +26,7 @@ final class PurchaseReturnService
     public function createFromGoodsReceipt(GoodsReceipt $receipt, array $items, array $attributes = []): PurchaseReturnModel
     {
         return DB::transaction(function () use ($receipt, $items, $attributes): PurchaseReturnModel {
-            $receipt = GoodsReceipt::with(['items', 'supplierInvoice'])->lockForUpdate()->findOrFail($receipt->id);
+            $receipt = GoodsReceipt::with(['items.product', 'items.material', 'supplierInvoice'])->lockForUpdate()->findOrFail($receipt->id);
             if ($receipt->status !== 'completed' || ! $receipt->supplier_id) {
                 throw new InvalidArgumentException('Goods Receipt belum selesai atau tidak memiliki supplier.');
             }
@@ -60,15 +60,23 @@ final class PurchaseReturnService
                     ->whereHas('purchaseReturn', fn ($query) => $query->where('status', PurchaseReturnModel::STATUS_COMPLETED))
                     ->sum('quantity');
                 if ($quantity > (float) $source->quantity - $returned + 0.00005) {
-                    throw new InvalidArgumentException("Quantity retur melebihi sisa item {$source->product_id}.");
+                    $name = $source->item_name ?? $source->product?->name ?? $source->material?->name ?? 'item';
+                    throw new InvalidArgumentException("Quantity retur melebihi sisa item {$name}.");
                 }
                 $subtotal = $quantity * (float) $source->unit_cost;
                 $total += $subtotal;
+
+                $itemName = $source->item_name
+                    ?? $source->product?->name
+                    ?? $source->material?->name
+                    ?? 'Item';
+
                 PurchaseReturnItem::create([
                     'purchase_return_id' => $return->id,
                     'goods_receipt_item_id' => $source->id,
                     'product_id' => $source->product_id,
-                    'item_name' => $source->product?->name ?? 'Produk',
+                    'material_id' => $source->material_id,
+                    'item_name' => $itemName,
                     'quantity' => $quantity,
                     'unit_cost' => $source->unit_cost,
                     'subtotal' => $subtotal,
@@ -105,7 +113,17 @@ final class PurchaseReturnService
                 throw new InvalidArgumentException('Retur harus disetujui sebelum diselesaikan.');
             }
             foreach ($return->items as $item) {
-                $this->stockService->deductForPurchaseReturn($return->business_id, $return->location_id, $item->product_id, $item->quantity, $item->unit_cost, $return->id, $return->return_number, $userId);
+                $this->stockService->deductForPurchaseReturn(
+                    businessId: $return->business_id,
+                    locationId: $return->location_id,
+                    productId: $item->product_id,
+                    quantity: $item->quantity,
+                    unitCost: $item->unit_cost,
+                    returnId: $return->id,
+                    returnNumber: $return->return_number,
+                    userId: $userId,
+                    materialId: $item->material_id
+                );
             }
             if ($return->supplierInvoice) {
                 $invoice = SupplierInvoice::lockForUpdate()->findOrFail($return->supplierInvoice->id);

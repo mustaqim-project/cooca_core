@@ -240,7 +240,7 @@
                     </div>
                     <div class="kpi-body min-w-0 flex-1">
                         <div class="flex items-center justify-between gap-1">
-                            <span class="kpi-label">Omzet Hari Ini</span>
+                            <span class="kpi-label" data-kpi-label="omzet">Omzet {{ $analytics['period_label'] ?? 'Hari Ini' }}</span>
                             <span
                                 class="text-[10px] font-semibold text-[#34C759] dark:text-[#30D158] bg-[#34C759]/10 px-2 py-0.5 rounded-full shrink-0">Penjualan</span>
                         </div>
@@ -261,7 +261,8 @@
                         <div class="flex items-center justify-between gap-1">
                             <span class="kpi-label truncate">Estimasi Untung Bersih</span>
                             <span
-                                class="text-[9.5px] sm:text-[10px] font-semibold text-[#30B0C7] dark:text-[#40C8E0] bg-[#30B0C7]/10 px-1.5 sm:px-2 py-0.5 rounded-full shrink-0 truncate max-w-[65px] sm:max-w-none">Estimasi Laba Bersih (MTD)</span>
+                                class="text-[9.5px] sm:text-[10px] font-semibold text-[#30B0C7] dark:text-[#40C8E0] bg-[#30B0C7]/10 px-1.5 sm:px-2 py-0.5 rounded-full shrink-0 truncate max-w-[65px] sm:max-w-none"
+                                data-kpi-badge="net">Estimasi Laba ({{ $analytics['period_label'] ?? 'MTD' }})</span>
                         </div>
                         <div class="kpi-value tabular-nums font-bold {{ $analytics['kpis']['net'] >= 0 ? 'text-[#34C759] dark:text-[#30D158]' : 'text-[#FF3B30] dark:text-[#FF453A]' }} tracking-tight"
                             data-kpi-value data-kpi="net">

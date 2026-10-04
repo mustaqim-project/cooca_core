@@ -1,7 +1,7 @@
 @extends('layouts.app', [
-    'title' => 'Checkout Paket & Pembayaran - Cooca',
-    'headerTitle' => 'Pilih Paket & Metode Pembayaran',
-    'headerSubtitle' => 'Ikut program Patungan Cooca untuk akses fitur tanpa batas dan kolaborasi bisnis',
+    'title' => __('billing.checkout_title') . ' - Cooca',
+    'headerTitle' => __('billing.breadcrumb_checkout'),
+    'headerSubtitle' => __('billing.checkout_subtitle'),
 ])
 
 @section('content')
@@ -194,66 +194,44 @@
         }
     }">
 
-        <!-- 0. Standard Breadcrumb Bar -->
-        <nav class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 print:hidden" aria-label="Breadcrumb">
-            <a href="{{ route('dashboard') }}"
-                class="hover:text-[#007AFF] dark:hover:text-[#0A84FF] transition-colors flex items-center gap-1.5 font-medium text-black dark:text-white">
-                <i data-lucide="layout-dashboard" class="w-3.5 h-3.5 text-[#007AFF]"></i>
-                <span>Dashboard</span>
-            </a>
-            <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-gray-400 dark:text-gray-600"></i>
-            <a href="{{ route('billing.limits') }}"
-                class="hover:text-[#007AFF] dark:hover:text-[#0A84FF] transition-colors flex items-center gap-1.5 text-gray-500 dark:text-gray-400">
-                <i data-lucide="credit-card" class="w-3.5 h-3.5"></i>
-                <span>Langganan &amp; Billing</span>
-            </a>
-            <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-gray-400 dark:text-gray-600"></i>
-            <span class="text-black dark:text-white font-semibold flex items-center gap-1.5">
-                <span>Checkout Pembayaran</span>
-            </span>
-        </nav>
-
-        <!-- 1. Top Header Banner -->
-        <div
-            class="bg-white dark:bg-[#1C1C1E] p-5 sm:p-6 rounded-[20px] border border-black/[0.06] dark:border-white/[0.08] shadow-[0_2px_8px_rgba(0,0,0,0.04)] flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 transition-all">
-            <div class="space-y-1 max-w-3xl">
-                <div
-                    class="text-[11px] sm:text-[12px] font-semibold uppercase tracking-wider text-black/40 dark:text-white/40 font-mono">
-                    Workspace: {{ $business->name }}
-                </div>
-                <h1 class="text-xl sm:text-2xl font-bold text-black dark:text-white tracking-tight">
-                    Pilih Paket &amp; Metode Pembayaran
-                </h1>
-                <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
-                    Aktivasi paket Cooca resmi melalui Gateway TriPay terverifikasi otomatis dalam hitungan detik.
-                </p>
-            </div>
-            <div class="flex flex-wrap items-center gap-2.5 w-full lg:w-auto">
+        <!-- Standard 3-Row Module Header Bento Apple HIG -->
+        <x-module-header
+            :title="__('billing.checkout_title')"
+            :subtitle="__('billing.checkout_subtitle')"
+            :breadcrumbs="[
+                ['label' => __('billing.breadcrumb_billing'), 'route' => 'billing.limits'],
+                ['label' => __('billing.breadcrumb_checkout')],
+            ]"
+            :badge="$business->name"
+        >
+            <x-slot:actions>
                 <a href="{{ route('billing.limits') }}"
-                    class="h-10 px-3.5 rounded-[12px] text-xs font-semibold text-gray-700 dark:text-gray-300 bg-black/[0.03] dark:bg-white/[0.06] border border-black/[0.06] dark:border-white/[0.08] hover:bg-black/[0.06] dark:hover:bg-white/[0.1] active:scale-[0.98] transition cursor-pointer flex items-center justify-center gap-1.5 flex-1 sm:flex-none">
+                    class="h-10 px-4 rounded-[12px] text-xs font-semibold text-slate-700 dark:text-slate-300 bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] dark:hover:bg-white/[0.1] active:scale-[0.98] transition flex items-center gap-2">
                     <i data-lucide="arrow-left" class="w-4 h-4"></i>
-                    <span>Kembali</span>
+                    <span>{{ __('billing.back') }}</span>
                 </a>
                 <a href="{{ route('billing.history') }}"
-                    class="h-10 px-3.5 rounded-[12px] text-xs font-semibold text-gray-700 dark:text-gray-300 bg-black/[0.03] dark:bg-white/[0.06] border border-black/[0.06] dark:border-white/[0.08] hover:bg-black/[0.06] dark:hover:bg-white/[0.1] active:scale-[0.98] transition cursor-pointer flex items-center justify-center gap-1.5 flex-1 sm:flex-none">
+                    class="h-10 px-4 rounded-[12px] text-xs font-semibold text-slate-700 dark:text-slate-300 bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] dark:hover:bg-white/[0.1] active:scale-[0.98] transition flex items-center gap-2">
                     <i data-lucide="receipt" class="w-4 h-4 text-[#007AFF]"></i>
-                    <span>Riwayat Tagihan</span>
+                    <span>{{ __('billing.action_history') }}</span>
                 </a>
-            </div>
-        </div>
+            </x-slot:actions>
+        </x-module-header>
+
+        <!-- Submodule Navigation Tabs -->
+        <x-module-tabs module="billing" class="mt-2 mb-2" />
 
         <!-- Mobile Sticky Price Bar -->
         <div
             class="lg:hidden rounded-[16px] p-4 border border-black/[0.06] dark:border-white/[0.08] bg-white/90 dark:bg-[#1C1C1E]/90 flex items-center justify-between shadow-[0_2px_8px_rgba(0,0,0,0.04)] backdrop-blur-md">
             <div>
                 <span
-                    class="text-[10px] uppercase font-semibold text-gray-500 dark:text-gray-400 block tracking-wider font-mono">Estimasi
-                    Total Tagihan</span>
+                    class="text-[10px] uppercase font-semibold text-gray-500 dark:text-gray-400 block tracking-wider font-mono">{{ __('billing.estimated_bill') }}</span>
                 <span class="text-lg font-bold tabular-nums text-[#007AFF] dark:text-[#0A84FF]"
                     x-text="'Rp ' + formatRupiah(currentPrice)"></span>
             </div>
             <div class="text-right">
-                <span class="text-[10px] font-medium text-gray-500 dark:text-gray-400 block">Workspace Aktif</span>
+                <span class="text-[10px] font-medium text-gray-500 dark:text-gray-400 block">{{ __('billing.active_workspace') }}</span>
                 <span
                     class="text-xs font-semibold text-black dark:text-white truncate max-w-[140px] block font-mono">{{ $business->name }}</span>
             </div>
@@ -287,10 +265,9 @@
                                     <h3 id="tier-selection-heading"
                                         class="text-sm sm:text-base font-bold text-black dark:text-white flex items-center gap-2">
                                         <i data-lucide="layers" class="w-4 h-4 text-[#007AFF]" aria-hidden="true"></i>
-                                        <span>Pilih Paket Langganan Cooca</span>
+                                        <span>{{ __('billing.tier_selection_heading') }}</span>
                                     </h3>
-                                    <p class="text-[11px] sm:text-xs text-gray-500 dark:text-gray-400 mt-0.5">Pilih tier
-                                        yang sesuai skala operasional bisnis Anda saat ini.</p>
+                                    <p class="text-[11px] sm:text-xs text-gray-500 dark:text-gray-400 mt-0.5">{{ __('billing.choose_plan_subtitle') }}</p>
                                 </div>
                             </div>
 
@@ -302,17 +279,16 @@
                                         'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-xs' :
                                         'text-gray-500 hover:text-black dark:hover:text-white'"
                                     class="px-3 py-1.5 rounded-[9px] text-xs font-semibold transition-all">
-                                    Bulanan
+                                    {{ __('billing.monthly') }}
                                 </button>
                                 <button type="button" @click="cycle = 'annual'"
                                     :class="cycle === 'annual' ?
                                         'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-xs' :
                                         'text-gray-500 hover:text-black dark:hover:text-white'"
                                     class="px-3 py-1.5 rounded-[9px] text-xs font-semibold transition-all flex items-center gap-1.5">
-                                    <span>Tahunan</span>
+                                    <span>{{ __('billing.annual') }}</span>
                                     <span
-                                        class="px-1.5 py-0.5 text-[9px] font-bold rounded-full bg-[#34C759] text-white">Hemat
-                                        2 Bln</span>
+                                        class="px-1.5 py-0.5 text-[9px] font-bold rounded-full bg-[#34C759] text-white">{{ __('billing.annual_badge') }}</span>
                                 </button>
                             </div>
                         </div>
@@ -322,7 +298,7 @@
                             <div class="space-y-3">
                                 <div class="text-xs font-bold text-[#FF9500] uppercase tracking-wider font-mono flex items-center gap-1.5">
                                     <i data-lucide="sparkles" class="w-4 h-4"></i>
-                                    <span>Penawaran Promo Spesial Tersedia</span>
+                                    <span>{{ __('billing.free_promo_offer_title') }}</span>
                                 </div>
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                                     @foreach ($packages->where('price', '<=', 0) as $promoPkg)
@@ -338,7 +314,7 @@
                                             <div class="space-y-2.5">
                                                 <div class="flex items-center justify-between">
                                                     <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono tracking-wider border uppercase bg-green-100 text-green-800 dark:bg-green-900/60 dark:text-green-300 border-green-300 dark:border-green-700">
-                                                        PROMO TRIAL GRATIS
+                                                        {{ __('billing.free_promo_badge') }}
                                                     </span>
                                                     <div class="w-5 h-5 rounded-full border border-gray-300 dark:border-gray-600 flex items-center justify-center shrink-0 transition"
                                                         :class="packageId === '{{ $promoPkg->id }}' ? 'border-[#34C759] bg-[#34C759] text-white' : ''">
@@ -350,8 +326,8 @@
                                                     <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{{ $promoPkg->description ?: 'Akses seluruh fitur Pro tanpa biaya.' }}</p>
                                                 </div>
                                                 <div class="pt-2 border-t border-black/[0.06] dark:border-white/[0.08] flex items-baseline justify-between">
-                                                    <div class="text-lg font-bold font-mono tabular-nums text-[#34C759]">Rp 0 (Gratis)</div>
-                                                    <span class="text-[11px] font-mono text-gray-500 dark:text-gray-400">{{ $promoPkg->duration_days }} Hari Masa Aktif</span>
+                                                    <div class="text-lg font-bold font-mono tabular-nums text-[#34C759]">{{ __('billing.free_rp_zero') }}</div>
+                                                    <span class="text-[11px] font-mono text-gray-500 dark:text-gray-400">{{ __('billing.active_duration_days', ['days' => $promoPkg->duration_days]) }}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -656,18 +632,17 @@
                                 <h3 id="payment-channels-heading"
                                     class="text-sm sm:text-base font-bold text-black dark:text-white flex items-center gap-2">
                                     <i data-lucide="wallet" class="w-4 h-4 text-[#007AFF]" aria-hidden="true"></i>
-                                    <span>Pilih Metode Pembayaran</span>
+                                    <span>{{ __('billing.step_choose_payment') }}</span>
                                 </h3>
                                 <p class="text-[11px] sm:text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                                    Pembayaran terverifikasi otomatis seketika melalui TriPay Indonesia (QRIS Dinamis &amp;
-                                    Virtual Account).
+                                    {{ __('billing.step_choose_payment_subtitle') }}
                                 </p>
                             </div>
                         </div>
                         <span
                             class="text-xs text-[#34C759] font-mono font-semibold self-start sm:self-auto flex items-center gap-1">
                             <i data-lucide="zap" class="w-3.5 h-3.5"></i>
-                            <span>Verifikasi Instan 24/7</span>
+                            <span>{{ __('billing.instant_verification_247') }}</span>
                         </span>
                     </div>
 
@@ -679,9 +654,9 @@
                             <i data-lucide="sparkles" class="w-5 h-5"></i>
                         </div>
                         <div class="space-y-1 text-xs">
-                            <h4 class="font-bold text-black dark:text-white text-sm">Paket Bebas Biaya - Promo Trial Aktif Otomatis</h4>
+                            <h4 class="font-bold text-black dark:text-white text-sm">{{ __('billing.free_promo_banner_title') }}</h4>
                             <p class="text-gray-600 dark:text-gray-300 leading-relaxed">
-                                Anda memilih paket promo khusus (Rp 0). Bisnis Anda <strong>tidak perlu melakukan transfer dana</strong> maupun mengunggah bukti bayar. Fitur Cooca akan langsung aktif seketika setelah menekan tombol konfirmasi.
+                                {{ __('billing.free_promo_banner_desc') }}
                             </p>
                         </div>
                     </div>
@@ -744,7 +719,7 @@
                                             @endif
                                         </div>
                                         <div class="text-xs text-gray-500 dark:text-gray-400 mt-0.5 font-mono truncate">
-                                            <span>TriPay Gateway Resmi</span> · a.n. <strong
+                                            <span>{{ __('billing.official_tripay_gateway') }}</span> · a.n. <strong
                                                 class="text-gray-800 dark:text-gray-200 font-semibold">{{ $account->account_name ?: 'Cooca ID' }}</strong>
                                         </div>
                                     </div>
@@ -763,9 +738,9 @@
                                 class="p-6 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.08] text-gray-500 dark:text-gray-400 text-xs text-center space-y-1">
                                 <i data-lucide="alert-circle" class="w-6 h-6 text-gray-400 mx-auto mb-1"
                                     aria-hidden="true"></i>
-                                <div class="font-bold text-black dark:text-white">Saluran TriPay sedang diinisialisasi.
+                                <div class="font-bold text-black dark:text-white">{{ __('billing.channel_initializing') }}
                                 </div>
-                                <div>Silakan muat ulang halaman atau hubungi tim support Cooca.</div>
+                                <div>{{ __('billing.channel_initializing_sub') }}</div>
                             </div>
                         @endforelse
                     </div>
@@ -779,14 +754,13 @@
                     class="bg-white dark:bg-[#1C1C1E] rounded-[20px] border border-black/[0.06] dark:border-white/[0.08] shadow-[0_2px_8px_rgba(0,0,0,0.04)] p-5 sm:p-6 space-y-5">
                     <div class="border-b border-black/[0.06] dark:border-white/[0.08] pb-4">
                         <span
-                            class="text-[10px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 font-mono">Ringkasan
-                            Pesanan</span>
+                            class="text-[10px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 font-mono">{{ __('billing.order_summary') }}</span>
                         <h4 class="text-base sm:text-lg font-bold text-black dark:text-white mt-1"
                             x-text="orderType === 'subscription' ? (tierPlans[selectedTier]?.name || 'Cooca Subscription') : 'Top Up Kuota Cooca'">
                         </h4>
                         <p class="text-xs text-[#007AFF] font-medium mt-0.5 flex items-center gap-1.5">
                             <i data-lucide="store" class="w-3.5 h-3.5" aria-hidden="true"></i>
-                            <span class="truncate font-mono">Workspace: {{ $business->name }}</span>
+                            <span class="truncate font-mono">{{ __('billing.active_workspace') }}: {{ $business->name }}</span>
                         </p>
                     </div>
 
@@ -797,10 +771,10 @@
                             <div class="flex items-center gap-2 text-gray-600 dark:text-gray-400">
                                 <i data-lucide="calendar-check" class="w-3.5 h-3.5 text-[#007AFF] shrink-0"
                                     aria-hidden="true"></i>
-                                <span>Siklus Pembayaran</span>
+                                <span>{{ __('billing.payment_cycle') }}</span>
                             </div>
                             <span class="font-bold text-[#007AFF] font-mono"
-                                x-text="cycle === 'annual' ? 'Tahunan (Hemat 2 Bln)' : 'Bulanan'"></span>
+                                x-text="cycle === 'annual' ? '{{ __('billing.annual') }} ({{ __('billing.annual_badge') }})' : '{{ __('billing.monthly') }}'"></span>
                         </div>
                     </template>
 
@@ -824,7 +798,7 @@
                                 <div class="flex items-center gap-2 text-gray-500 dark:text-gray-400">
                                     <i data-lucide="shield-check" class="w-4 h-4 text-[#34C759] shrink-0"
                                         aria-hidden="true"></i>
-                                    <span>Jaminan No Data Punishment</span>
+                                    <span>{{ __('billing.guarantee_no_data_punishment') }}</span>
                                 </div>
                             </div>
                         </template>
@@ -833,12 +807,12 @@
                                 <div class="flex items-center gap-2">
                                     <i data-lucide="check" class="w-4 h-4 text-[#34C759] shrink-0"
                                         aria-hidden="true"></i>
-                                    <span>Penambahan Kuota Otomatis</span>
+                                    <span>{{ __('billing.auto_quota_addition') }}</span>
                                 </div>
                                 <div class="flex items-center gap-2">
                                     <i data-lucide="check" class="w-4 h-4 text-[#34C759] shrink-0"
                                         aria-hidden="true"></i>
-                                    <span>Masa Aktif Kuota Permanen</span>
+                                    <span>{{ __('billing.permanent_quota_duration') }}</span>
                                 </div>
                             </div>
                         </template>
@@ -847,20 +821,19 @@
                     <!-- Price Breakdown -->
                     <div class="border-t border-black/[0.06] dark:border-white/[0.08] pt-4 space-y-2 text-xs">
                         <div class="flex items-center justify-between text-gray-500 dark:text-gray-400">
-                            <span>Nominal Tagihan:</span>
+                            <span>{{ __('billing.estimated_bill') }}:</span>
                             <span class="font-mono tabular-nums text-black dark:text-white font-bold"
-                                x-text="currentPrice <= 0 ? 'Rp 0 (Gratis Promo)' : ('Rp ' + formatRupiah(currentPrice))">
+                                x-text="currentPrice <= 0 ? '{{ __('billing.free_rp_zero') }}' : ('Rp ' + formatRupiah(currentPrice))">
                             </span>
                         </div>
                         <div x-show="currentPrice > 0"
                             class="flex items-center justify-between text-gray-500 dark:text-gray-400">
-                            <span>Gateway Pembayaran:</span>
-                            <span class="font-mono text-[#007AFF] text-[11px] font-semibold">TriPay Indonesia
-                                (Otomatis)</span>
+                            <span>{{ __('billing.payment_gateway') }}</span>
+                            <span class="font-mono text-[#007AFF] text-[11px] font-semibold">{{ __('billing.payment_gateway_tripay') }}</span>
                         </div>
                         <div
                             class="border-t border-black/[0.06] dark:border-white/[0.08] pt-3 flex items-baseline justify-between">
-                            <span class="font-bold text-black dark:text-white text-sm">Total Bayar:</span>
+                            <span class="font-bold text-black dark:text-white text-sm">{{ __('billing.total_pay') }}:</span>
                             <span
                                 class="font-bold text-xl sm:text-2xl text-[#007AFF] dark:text-[#0A84FF] font-mono tabular-nums"
                                 x-text="currentPrice <= 0 ? 'Rp 0' : ('Rp ' + formatRupiah(currentPrice))"></span>
@@ -879,19 +852,18 @@
                             <i data-lucide="sparkles" class="w-4 h-4" x-show="!isSubmitting && currentPrice <= 0"
                                 aria-hidden="true"></i>
                             <span
-                                x-text="isSubmitting ? 'Memproses Pesanan...' : (currentPrice <= 0 ? 'Aktifkan Promo Trial Sekarang' : 'Lanjutkan Pembayaran via TriPay')"></span>
+                                x-text="isSubmitting ? '{{ __('billing.process_order') }}' : (currentPrice <= 0 ? '{{ __('billing.activate_promo_now') }}' : '{{ __('billing.proceed_payment_tripay') }}')"></span>
                             <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"
                                 x-show="!isSubmitting && currentPrice > 0" aria-hidden="true"></i>
                         </button>
 
                         <p class="text-[11px] text-center text-gray-500 dark:text-gray-400 leading-relaxed">
-                            Invoice resmi TriPay diterbitkan otomatis. Anda dapat langsung membayar via QRIS Dinamis atau
-                            nomor Virtual Account terdedikasi.
+                            {{ __('billing.invoice_auto_notice') }}
                         </p>
                     @else
                         <div
                             class="p-3 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-[#FF9500] text-xs rounded-[12px] text-center font-medium">
-                            Anda hanya memiliki hak akses melihat (read-only). Hubungi Owner untuk melakukan upgrade paket.
+                            {{ __('billing.readonly_warning') }}
                         </div>
                     @endif
 
@@ -900,15 +872,15 @@
                         class="pt-3 border-t border-black/[0.06] dark:border-white/[0.08] flex items-center justify-center gap-4 text-[10px] text-gray-500 dark:text-gray-400">
                         <span class="flex items-center gap-1">
                             <i data-lucide="lock" class="w-3.5 h-3.5 text-[#34C759]" aria-hidden="true"></i>
-                            <span>Aman Terenkripsi</span>
+                            <span>{{ __('billing.encrypted_safe') }}</span>
                         </span>
                         <span class="flex items-center gap-1">
                             <i data-lucide="shield-check" class="w-3.5 h-3.5 text-[#007AFF]" aria-hidden="true"></i>
-                            <span>Data Terlindungi</span>
+                            <span>{{ __('billing.data_protected') }}</span>
                         </span>
                         <span class="flex items-center gap-1">
                             <i data-lucide="zap" class="w-3.5 h-3.5 text-[#FF9500]" aria-hidden="true"></i>
-                            <span>Aktivasi Instan</span>
+                            <span>{{ __('billing.instant_activation') }}</span>
                         </span>
                     </div>
                 </div>

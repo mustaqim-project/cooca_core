@@ -63,7 +63,49 @@ class WhatsAppBroadcastWebController extends Controller
             ->pluck('count', 'tier')
             ->toArray();
 
-        return view('app.whatsapp.broadcast', compact('business', 'campaigns', 'stats', 'waSession', 'whatsAppAccount', 'customerCount', 'tierCounts'));
+        $locations = \App\Models\Location::where('business_id', $business->id)
+            ->whereIn('type', ['outlet', 'store', 'central_kitchen'])
+            ->orderBy('name')
+            ->get();
+
+        if ($locations->isEmpty()) {
+            $locations = \App\Models\Location::where('business_id', $business->id)->orderBy('name')->get();
+        }
+
+        $outletCounts = [];
+        foreach ($locations as $loc) {
+            $customerIds = \App\Models\PosOrder::where('business_id', $business->id)
+                ->where('location_id', $loc->id)
+                ->whereNotNull('customer_id')
+                ->pluck('customer_id')
+                ->unique();
+
+            $outletCounts[$loc->id] = Customer::where('business_id', $business->id)
+                ->whereIn('id', $customerIds)
+                ->where('is_active', true)
+                ->whereNotNull('phone')
+                ->where('phone', '!=', '')
+                ->count();
+        }
+
+        // Pastikan template standar sistem sudah ter-seed jika database masih kosong
+        if (\App\Models\WhatsAppMessageTemplate::count() === 0) {
+            \App\Domain\WhatsApp\CloudApi\Templates\CoocaStandardTemplates::seedLocalTemplates($whatsAppAccount?->waba_id ?: 'platform_default');
+        }
+
+        // Ambil template Meta resmi yang disetujui (APPROVED) untuk bisnis ini atau global platform
+        $approvedTemplates = \App\Models\WhatsAppMessageTemplate::approved()
+            ->where(function ($q) use ($business, $whatsAppAccount) {
+                $q->whereNull('business_id');
+                if ($whatsAppAccount?->waba_id) {
+                    $q->orWhere('waba_id', $whatsAppAccount->waba_id);
+                }
+                $q->orWhere('business_id', $business->id);
+            })
+            ->orderBy('name')
+            ->get();
+
+        return view('app.whatsapp.broadcast', compact('business', 'campaigns', 'stats', 'waSession', 'whatsAppAccount', 'customerCount', 'tierCounts', 'locations', 'outletCounts', 'approvedTemplates'));
     }
 
     /**
@@ -82,10 +124,28 @@ class WhatsAppBroadcastWebController extends Controller
         $business = Context::requireBusiness();
 
         $validated = $request->validate([
-            'title'         => 'required|string|max:255',
-            'message'       => 'required|string|max:2000',
-            'media_url'     => 'nullable|url|max:500',
-            'target_filter' => 'required|in:all,bronze,silver,gold,vip',
+            'title'             => 'required|string|max:255',
+            'message'           => 'required|string|max:2000',
+            'media_url'         => 'nullable|url|max:500',
+            'target_filter'     => [
+                'required',
+                'string',
+                function ($attribute, $value, $fail) use ($business) {
+                    if (in_array($value, ['all', 'bronze', 'silver', 'gold', 'vip'], true)) {
+                        return;
+                    }
+                    if (str_starts_with($value, 'outlet:')) {
+                        $locId = substr($value, 7);
+                        if (\App\Models\Location::where('business_id', $business->id)->where('id', $locId)->exists()) {
+                            return;
+                        }
+                    }
+                    $fail('Target audiens yang dipilih tidak valid.');
+                },
+            ],
+            'template_name'     => 'nullable|string|max:128',
+            'template_language' => 'nullable|string|max:16',
+            'template_params'   => 'nullable|array',
         ]);
 
         $mediaUrl = trim((string) ($validated['media_url'] ?? ''));
@@ -119,7 +179,7 @@ class WhatsAppBroadcastWebController extends Controller
         $isConnected     = ($whatsAppAccount && $whatsAppAccount->isConnected()) || ($waSession && $waSession->isConnected());
 
         if (! $isConnected) {
-            return back()->withErrors(['whatsapp' => 'Akun WhatsApp resmi Meta belum terhubung. Harap hubungkan nomor WhatsApp bisnis Anda di halaman Integrasi WhatsApp.'])->withInput();
+            return back()->withErrors(['whatsapp' => __('whatsapp.error_whatsapp_not_connected')])->withInput();
         }
 
         // Idempotency Lock: Mencegah penembakan broadcast duplikat dalam kurun waktu 300 detik (5 menit)
@@ -133,12 +193,15 @@ class WhatsAppBroadcastWebController extends Controller
 
         $campaign = DB::transaction(function () use ($business, $validated) {
             return WhatsAppBroadcastCampaign::create([
-                'business_id'   => $business->id,
-                'title'         => trim($validated['title']),
-                'message'       => trim($validated['message']),
-                'media_url'     => !empty($validated['media_url']) ? trim($validated['media_url']) : null,
-                'target_filter' => $validated['target_filter'],
-                'status'        => 'processing',
+                'business_id'       => $business->id,
+                'title'             => trim($validated['title']),
+                'message'           => trim($validated['message']),
+                'media_url'         => !empty($validated['media_url']) ? trim($validated['media_url']) : null,
+                'target_filter'     => $validated['target_filter'],
+                'template_name'     => !empty($validated['template_name']) ? trim($validated['template_name']) : null,
+                'template_language' => !empty($validated['template_language']) ? trim($validated['template_language']) : 'id',
+                'template_params'   => $validated['template_params'] ?? null,
+                'status'            => 'processing',
             ]);
         });
 
@@ -146,7 +209,7 @@ class WhatsAppBroadcastWebController extends Controller
         SendWhatsAppBroadcastJob::dispatch((string) $business->id, (string) $campaign->id);
 
         return redirect()->route('whatsapp.broadcast.show', $campaign)
-            ->with('success', "Blast promosi \"{$campaign->title}\" berhasil dijadwalkan dan sedang diproses di latar belakang.");
+            ->with('success', __('whatsapp.flash_broadcast_scheduled', ['title' => $campaign->title]));
     }
 
     /**
@@ -156,7 +219,7 @@ class WhatsAppBroadcastWebController extends Controller
     {
         $business = Context::requireBusiness();
 
-        if ((int)$campaign->business_id !== (int)$business->id) {
+        if ((string) $campaign->business_id !== (string) $business->id) {
             abort(404);
         }
 
@@ -182,16 +245,40 @@ class WhatsAppBroadcastWebController extends Controller
     {
         $business = Context::requireBusiness();
         $validated = $request->validate([
-            'filter' => ['nullable', 'string', 'in:all,bronze,silver,gold,vip,custom'],
+            'filter' => [
+                'nullable',
+                'string',
+                function ($attribute, $value, $fail) use ($business) {
+                    if (in_array($value, ['all', 'bronze', 'silver', 'gold', 'vip', 'custom'], true)) {
+                        return;
+                    }
+                    if (str_starts_with($value, 'outlet:')) {
+                        $locId = substr($value, 7);
+                        if (\App\Models\Location::where('business_id', $business->id)->where('id', $locId)->exists()) {
+                            return;
+                        }
+                    }
+                    $fail('Filter target audiens tidak valid.');
+                },
+            ],
         ]);
-        $filter   = $validated['filter'] ?? 'all';
+        $filter = $validated['filter'] ?? 'all';
 
         $query = Customer::where('business_id', $business->id)
             ->where('is_active', true)
             ->whereNotNull('phone')
             ->where('phone', '!=', '');
 
-        if (! in_array($filter, ['all', 'custom'], true)) {
+        if (str_starts_with($filter, 'outlet:')) {
+            $locationId = substr($filter, 7);
+            $customerIds = \App\Models\PosOrder::where('business_id', $business->id)
+                ->where('location_id', $locationId)
+                ->whereNotNull('customer_id')
+                ->pluck('customer_id')
+                ->unique();
+
+            $query->whereIn('id', $customerIds);
+        } elseif (! in_array($filter, ['all', 'custom'], true)) {
             $query->whereRaw('LOWER(membership_tier) = ?', [strtolower($filter)]);
         }
 

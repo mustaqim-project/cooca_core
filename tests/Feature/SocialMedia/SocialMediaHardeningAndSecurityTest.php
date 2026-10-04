@@ -109,7 +109,7 @@ class SocialMediaHardeningAndSecurityTest extends TestCase
 
         $response = $this->actingAs($owner)->post(route('social-media.posts.store'), $payload);
 
-        $response->assertSessionHas('error', 'URL media wajib menggunakan protokol aman https://');
+        $response->assertSessionHas('error', __('social_media.media_url_https_required'));
         $this->assertDatabaseMissing('social_media_posts', [
             'business_id' => $business->id,
         ]);
@@ -647,4 +647,88 @@ class SocialMediaHardeningAndSecurityTest extends TestCase
         $insightsResponse->assertDontSee('alert(', false);
         $insightsResponse->assertDontSee('confirm(', false);
     }
+
+    /**
+     * Test 5.1.7: Cross-tenant protection for replyComment and syncInsights returns 404.
+     */
+    public function test_reply_comment_and_sync_insights_reject_cross_tenant_access_with_404(): void
+    {
+        [$ownerA, $businessA] = $this->createMerchant('Merchant One');
+        [$ownerB, $businessB] = $this->createMerchant('Merchant Two');
+
+        $accountA = $this->createAccount($businessA, 'facebook');
+        $postA = SocialMediaPost::create([
+            'business_id'             => $businessA->id,
+            'social_media_account_id' => $accountA->id,
+            'platform'                => 'facebook',
+            'content'                 => 'Postingan Merchant A',
+            'status'                  => 'published',
+            'approval_status'         => 'approved',
+        ]);
+
+        $commentA = \App\Models\SocialMediaComment::create([
+            'business_id'             => $businessA->id,
+            'social_media_account_id' => $accountA->id,
+            'social_media_post_id'    => $postA->id,
+            'platform'                => 'facebook',
+            'platform_post_id'        => 'post_meta_123',
+            'platform_comment_id'     => 'comment_meta_123',
+            'from_name'               => 'Pelanggan Toko A',
+            'message'                 => 'Halo ready?',
+            'status'                  => 'unread',
+        ]);
+
+        // Tenant B attempts to reply to Tenant A's comment -> 404
+        $responseReply = $this->actingAs($ownerB)->postJson(route('social-media.comments.reply', $commentA), [
+            'message' => 'Balasan eksploitasi cross-tenant',
+        ]);
+        $responseReply->assertStatus(404);
+
+        // Tenant B attempts to sync insights of Tenant A's post -> 404
+        $responseSync = $this->actingAs($ownerB)->postJson(route('social-media.insights.sync', $postA));
+        $responseSync->assertStatus(404);
+    }
+
+    /**
+     * Test 5.1.8: Disconnecting account enforces supervisor PIN when configured on business.
+     */
+    public function test_disconnect_account_enforces_supervisor_pin_when_configured(): void
+    {
+        [$owner, $business] = $this->createMerchant('Merchant Proteksi PIN');
+        $business->update([
+            'pos_supervisor_pin' => \Illuminate\Support\Facades\Hash::make('654321'),
+        ]);
+
+        $account = $this->createAccount($business, 'facebook');
+
+        // Attempt disconnect without PIN -> 422 pin_required
+        $responseNoPin = $this->actingAs($owner)->postJson(route('social-media.disconnect'), [
+            'account_id' => $account->id,
+        ]);
+        $responseNoPin->assertStatus(422);
+        $responseNoPin->assertJson([
+            'success'      => false,
+            'pin_required' => true,
+        ]);
+
+        // Attempt disconnect with wrong PIN -> 422 invalid
+        $responseWrongPin = $this->actingAs($owner)->postJson(route('social-media.disconnect'), [
+            'account_id' => $account->id,
+            'pin'        => '000000',
+        ]);
+        $responseWrongPin->assertStatus(422);
+        $responseWrongPin->assertJson([
+            'success' => false,
+            'message' => __('social_media.supervisor_pin_invalid'),
+        ]);
+
+        // Attempt disconnect with correct PIN -> 200 OK
+        $responseOk = $this->actingAs($owner)->postJson(route('social-media.disconnect'), [
+            'account_id' => $account->id,
+            'pin'        => '654321',
+        ]);
+        $responseOk->assertOk();
+        $responseOk->assertJson(['success' => true]);
+    }
 }
+

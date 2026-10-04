@@ -105,8 +105,21 @@ final class SupplierInvoiceService
                     : SupplierInvoice::STATUS_PARTIAL,
             ]);
 
+            $cashAccount = ! empty($paymentData['cash_account_id'])
+                ? \App\Models\CashAccount::where('business_id', $invoice->business_id)->find($paymentData['cash_account_id'])
+                : null;
+
             $this->journalService->recordSupplierPaymentJournal($payment);
-            $this->cashLedgerService->recordOutflow($invoice->business, $amount, 'supplier_payment', $payment->id, "Pembayaran hutang #{$invoice->invoice_number}", $payment->payment_method, $payment->created_by);
+            $this->cashLedgerService->recordOutflow(
+                business: $invoice->business,
+                amount: $amount,
+                referenceType: 'supplier_payment',
+                referenceId: $payment->id,
+                description: "Pembayaran hutang #{$invoice->invoice_number}",
+                method: $payment->payment_method,
+                userId: $payment->created_by,
+                account: $cashAccount
+            );
 
             return $payment;
         });

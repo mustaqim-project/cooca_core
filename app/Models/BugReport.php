@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Models\Traits\BelongsToBusiness;
 use App\Models\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -12,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class BugReport extends Model
 {
-    use HasFactory, HasUuid;
+    use BelongsToBusiness, HasFactory, HasUuid;
 
     public const STATUSES = ['open', 'triaged', 'in_progress', 'resolved', 'closed', 'rejected'];
     public const SEVERITIES = ['low', 'normal', 'high', 'critical'];
@@ -25,7 +26,6 @@ class BugReport extends Model
         return ['progress_percent' => 'integer', 'resolved_at' => 'datetime', 'closed_at' => 'datetime'];
     }
 
-    public function business(): BelongsTo { return $this->belongsTo(Business::class); }
     public function reporter(): BelongsTo { return $this->belongsTo(User::class, 'reporter_id'); }
     public function assignedAdmin(): BelongsTo { return $this->belongsTo(Admin::class, 'assigned_admin_id'); }
     public function updates(): MorphMany { return $this->morphMany(FeedbackUpdate::class, 'trackable')->latest(); }

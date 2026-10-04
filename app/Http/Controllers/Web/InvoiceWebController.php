@@ -348,4 +348,44 @@ final class InvoiceWebController extends Controller
             return back()->with('error', "Gagal membatalkan faktur: {$e->getMessage()}");
         }
     }
+
+    /**
+     * Send payment term reminder to customer via WhatsApp and/or Email.
+     */
+    public function sendTermReminder(
+        Request $request,
+        Invoice $invoice,
+        \App\Domain\Crm\CustomerPaymentTermReminderService $reminderService
+    ): RedirectResponse {
+        $business = Context::requireBusiness();
+        abort_unless($invoice->business_id === $business->id, 403);
+
+        if ($invoice->balance_due <= 0 || $invoice->status === Invoice::STATUS_VOID || $invoice->status === Invoice::STATUS_DRAFT) {
+            return back()->with('error', 'Pengingat hanya dapat dikirim untuk faktur aktif yang masih memiliki sisa tagihan.');
+        }
+
+        $validated = $request->validate([
+            'channel' => ['nullable', 'string', 'in:whatsapp,email,both'],
+            'custom_notes' => ['nullable', 'string', 'max:500'],
+        ]);
+
+        $channel = $validated['channel'] ?? 'both';
+        $customNotes = $validated['custom_notes'] ?? null;
+
+        $result = $reminderService->dispatchInvoiceReminder(
+            $invoice,
+            \App\Models\CustomerTermReminder::TYPE_MANUAL,
+            $channel,
+            $customNotes
+        );
+
+        if ($result['success']) {
+            $msg = "Pengingat termin faktur {$invoice->invoice_number} berhasil dikirim ke pelanggan.";
+            return back()->with('success', $msg)->with('wa_url', $result['wa_url'] ?? null);
+        }
+
+        $errorMsg = $result['error'] ?: 'Gagal mengirim pengingat ke saluran terpilih.';
+        return back()->with('error', $errorMsg)->with('wa_url', $result['wa_url'] ?? null);
+    }
 }
+

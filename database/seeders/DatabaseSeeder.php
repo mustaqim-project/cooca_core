@@ -24,9 +24,10 @@ class DatabaseSeeder extends Seeder
             CommerceSeeder::class,
             TwentyIndustriesShowcaseSeeder::class,
             CafeKopiSenjaFullSeeder::class,
-            CustomerSeeder::class,
             DapurSedapRasaSeeder::class,
             PostSeeder::class,
+            ServicesAndAutomotiveClusterSeeder::class,
+            AiPrestigeTestingAccountSeeder::class,
         ]);
     }
 }

@@ -502,9 +502,9 @@
                                     x-transition:enter="transition ease-out duration-150"
                                     x-transition:enter-start="opacity-0 translate-y-2 scale-95"
                                     x-transition:enter-end="opacity-100 translate-y-0 scale-100"
-                                    x-transition:exit="transition ease-in duration-100"
-                                    x-transition:exit-start="opacity-100 translate-y-0 scale-100"
-                                    x-transition:exit-end="opacity-0 translate-y-2 scale-95"
+                                    x-transition:leave="transition ease-in duration-100"
+                                    x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+                                    x-transition:leave-end="opacity-0 translate-y-2 scale-95"
                                     class="absolute z-50 left-0 right-0 top-full mt-2 p-3 rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/15 shadow-xl max-h-[340px] flex flex-col space-y-2.5">
                                     
                                     <!-- Search bar -->

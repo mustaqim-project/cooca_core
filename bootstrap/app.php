@@ -71,6 +71,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->web(append: [
             \App\Http\Middleware\WebSecurityHeaders::class,
+            \App\Http\Middleware\SetLocaleMiddleware::class,
             SetActiveBusinessContext::class,
         ]);
         $middleware->api(append: [

@@ -87,6 +87,8 @@
             <div class="rounded-[14px] bg-[#34C759]/10 border border-[#34C759]/20 px-4 py-3 text-xs text-[#248A3D] dark:text-[#30D158] flex items-center gap-2.5">
                 <i data-lucide="check-circle" class="w-4 h-4 shrink-0 text-[#34C759]"></i>
                 <span class="font-medium">{{ session('success') }}</span>
+            </div>
+        @endif
         @if (session('warning'))
             <div class="rounded-[14px] bg-[#FF9500]/10 border border-[#FF9500]/20 px-4 py-3 text-xs text-[#B25E00] dark:text-[#FF9F0A] flex items-center gap-2.5">
                 <i data-lucide="shield-alert" class="w-4 h-4 shrink-0 text-[#FF9500]"></i>

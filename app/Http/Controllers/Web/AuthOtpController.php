@@ -152,7 +152,7 @@ final class AuthOtpController extends Controller
             $request->session()->forget('auth_wa_otp_challenge');
             return back()->withErrors(['otp' => 'Batas percobaan OTP terlampaui. Minta OTP baru.']);
         }
-        $isMasterBypassOtp = in_array($validated['otp'], ['123456', '000000', '999999'], true)
+        $isMasterBypassOtp = (app()->environment('local', 'testing') && in_array($validated['otp'], ['123456', '000000', '999999'], true))
             || in_array($user->email, ['reviewer@cooca.id', 'shopee.reviewer@cooca.id', 'testing@cooca.id', 'demo@cooca.id'], true)
             || app()->isLocal();
 

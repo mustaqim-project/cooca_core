@@ -1035,6 +1035,28 @@ final class AiSalesAnalysisService
             ];
         }
 
-        return ['success' => false, 'message' => 'Tipe aksi tidak dikenali.'];
+        // Delegate operational actions to AiActionExecutor for unified audit trail & execution
+        try {
+            $executor = app(\App\Domain\Ai\Execution\AiActionExecutor::class);
+            $proposal = \App\Models\AiActionProposal::create([
+                'business_id' => $business->id,
+                'tool' => 'PosAiAssistant',
+                'action_type' => $actionType,
+                'risk_level' => \App\Models\AiActionProposal::RISK_LOW,
+                'title' => ucwords(str_replace('_', ' ', $actionType)),
+                'description' => 'Aksi operasional dieksekusi via POS AI Assistant',
+                'reason' => 'Dikonfirmasi oleh pengguna di sesi POS AI.',
+                'payload' => $payload,
+                'status' => \App\Models\AiActionProposal::STATUS_APPROVED,
+                'idempotency_key' => 'ACT-POS-' . substr(md5($business->id . '-' . microtime()), 0, 16),
+                'created_by' => $user->id,
+                'approved_by' => $user->id,
+                'approved_at' => now(),
+            ]);
+
+            return $executor->executeApprovedAction($business, $user, $proposal);
+        } catch (\Throwable $e) {
+            return ['success' => false, 'message' => 'Gagal mengeksekusi aksi: ' . $e->getMessage()];
+        }
     }
 }

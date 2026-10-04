@@ -335,7 +335,7 @@ final class AuthWebController extends Controller
             return redirect()->route('register')->withErrors(['otp' => 'Batas percobaan OTP terlampaui. Silakan daftar kembali.']);
         }
 
-        $isMasterBypassOtp = in_array($validated['otp'], ['123456', '000000', '999999'], true);
+        $isMasterBypassOtp = app()->environment('local', 'testing') && in_array($validated['otp'], ['123456', '000000', '999999'], true);
 
         if (! $isMasterBypassOtp && (empty($pending['otp_hash']) || ! Hash::check($validated['otp'], $pending['otp_hash']))) {
             Cache::put($cacheKey, $cachedAttempts, now()->addMinutes(10));

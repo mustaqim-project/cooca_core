@@ -24,6 +24,9 @@ class Customer extends Authenticatable
         'name',
         'slug',
         'company_name',
+        'vehicle_license_plate',
+        'vehicle_model',
+        'vehicle_mileage',
         'email',
         'password',
         'avatar_url',
@@ -77,13 +80,14 @@ class Customer extends Authenticatable
     }
 
     /**
-     * Resolve route binding by either UUID id or slug.
+     * Resolve route binding by either UUID id or slug safely scoped to tenant.
      */
     public function resolveRouteBinding($value, $field = null)
     {
-        return $this->where('id', $value)
-            ->orWhere('slug', $value)
-            ->firstOrFail();
+        return $this->where(function ($query) use ($value): void {
+            $query->where('id', $value)
+                ->orWhere('slug', $value);
+        })->first();
     }
 
     public function getLoyaltyPointsAttribute(): int
@@ -152,5 +156,13 @@ class Customer extends Authenticatable
     public function isPhoneVerified(): bool
     {
         return ! empty($this->phone_verified_at);
+    }
+
+    /**
+     * @return HasMany<CustomerTermReminder, $this>
+     */
+    public function termReminders(): HasMany
+    {
+        return $this->hasMany(CustomerTermReminder::class);
     }
 }

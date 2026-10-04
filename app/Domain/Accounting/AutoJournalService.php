@@ -731,6 +731,232 @@ final class AutoJournalService
         });
     }
 
+    /**
+     * Automatically generate double-entry reversing journal for a voided POS Order.
+     */
+    public function recordPosVoidJournal(PosOrder $order, ?User $user = null, string $reason = ''): ?JournalEntry
+    {
+        return $this->createPosOrderReversalJournal($order, JournalEntry::REF_POS_VOID, 'Void', $user, $reason);
+    }
+
+    /**
+     * Automatically generate double-entry reversing journal for a refunded POS Order.
+     */
+    public function recordPosOrderRefundJournal(PosOrder $order, ?User $user = null, string $reason = ''): ?JournalEntry
+    {
+        return $this->createPosOrderReversalJournal($order, JournalEntry::REF_POS_REFUND, 'Refund', $user, $reason);
+    }
+
+    /**
+     * Helper to create double-entry reversal journal for void or full refund of PosOrder.
+     */
+    private function createPosOrderReversalJournal(
+        PosOrder $order,
+        string $referenceType,
+        string $actionLabel,
+        ?User $user = null,
+        string $reason = ''
+    ): ?JournalEntry {
+        $business = $order->business;
+        if (! $business) {
+            return null;
+        }
+
+        $existing = JournalEntry::where('business_id', $business->id)
+            ->where('reference_type', $referenceType)
+            ->where('reference_id', $order->id)
+            ->first();
+
+        if ($existing) {
+            return $existing;
+        }
+
+        $this->ensureStandardAccounts($business);
+
+        $kasAccount = $this->getAccount($business, '1-1001');
+        $bankAccount = $this->getAccount($business, '1-1002');
+        $piutangAccount = $this->getAccount($business, '1-1003');
+        $persediaanAccount = $this->getAccount($business, '1-1004');
+        $clearingGatewayAccount = $this->getAccount($business, '1-1005');
+        $edcClearingAccount = $this->getAccount($business, '1-1008');
+        $ppnAccount = $this->getAccount($business, '2-2002');
+        $serviceAccount = $this->getAccount($business, '2-2003');
+        $revenueAccount = $this->getAccount($business, '4-4001');
+        $hppAccount = $this->getAccount($business, '5-5001');
+        $diskonAccount = $this->getAccount($business, '6-6001');
+
+        if (! $kasAccount || ! $revenueAccount || ! $persediaanAccount || ! $hppAccount) {
+            return null;
+        }
+
+        return DB::transaction(function () use (
+            $business,
+            $order,
+            $referenceType,
+            $actionLabel,
+            $user,
+            $reason,
+            $kasAccount,
+            $bankAccount,
+            $piutangAccount,
+            $persediaanAccount,
+            $clearingGatewayAccount,
+            $edcClearingAccount,
+            $ppnAccount,
+            $serviceAccount,
+            $revenueAccount,
+            $hppAccount,
+            $diskonAccount
+        ) {
+            $entry = JournalEntry::create([
+                'business_id' => $business->id,
+                'entry_number' => 'JRN-' . strtoupper($actionLabel) . '-' . $order->order_number,
+                'entry_date' => now()->toDateString(),
+                'reference_type' => $referenceType,
+                'reference_id' => $order->id,
+                'description' => "Pembalikan Jurnal {$actionLabel} POS #{$order->order_number}" . ($reason ? " ({$reason})" : ''),
+                'total_debit' => 0.0,
+                'total_credit' => 0.0,
+                'created_by' => $user?->id ?? $order->user_id,
+            ]);
+
+            $totalDebit = 0.0;
+            $totalCredit = 0.0;
+
+            // 1. Debits: Reverse Revenue (Gross Subtotal)
+            $subtotal = (float) $order->subtotal;
+            if ($subtotal > 0) {
+                JournalEntryLine::create([
+                    'journal_entry_id' => $entry->id,
+                    'account_id' => $revenueAccount->id,
+                    'type' => JournalEntryLine::TYPE_DEBIT,
+                    'amount' => $subtotal,
+                    'notes' => "Pembalikan Pendapatan Penjualan Kasir ({$actionLabel})",
+                ]);
+                $totalDebit += $subtotal;
+            }
+
+            // 2. Debits: Reverse PPN Tax (if any)
+            $tax = (float) $order->tax_amount;
+            if ($tax > 0 && $ppnAccount) {
+                JournalEntryLine::create([
+                    'journal_entry_id' => $entry->id,
+                    'account_id' => $ppnAccount->id,
+                    'type' => JournalEntryLine::TYPE_DEBIT,
+                    'amount' => $tax,
+                    'notes' => "Pembalikan Hutang PPN Keluaran ({$actionLabel})",
+                ]);
+                $totalDebit += $tax;
+            }
+
+            // 3. Debits: Reverse Service Charge (if any)
+            $service = (float) $order->service_charge_amount;
+            if ($service > 0 && $serviceAccount) {
+                JournalEntryLine::create([
+                    'journal_entry_id' => $entry->id,
+                    'account_id' => $serviceAccount->id,
+                    'type' => JournalEntryLine::TYPE_DEBIT,
+                    'amount' => $service,
+                    'notes' => "Pembalikan Hutang Service Charge ({$actionLabel})",
+                ]);
+                $totalDebit += $service;
+            }
+
+            // 4. Debits: Restore Inventory / Persediaan (if HPP exists)
+            $hpp = (float) $order->total_hpp_cost;
+            if ($hpp > 0) {
+                JournalEntryLine::create([
+                    'journal_entry_id' => $entry->id,
+                    'account_id' => $persediaanAccount->id,
+                    'type' => JournalEntryLine::TYPE_DEBIT,
+                    'amount' => $hpp,
+                    'notes' => "Restorasi Persediaan Barang Dagang ({$actionLabel})",
+                ]);
+                $totalDebit += $hpp;
+            }
+
+            // 5. Credits: Reverse Payments (Cash, Bank/QRIS, EDC, Piutang)
+            $remainingChange = (float) $order->change_amount;
+            foreach ($order->payments as $payment) {
+                if ($payment->status !== 'paid') {
+                    continue;
+                }
+                $payMethod = $payment->payment_method;
+                $payAmount = (float) $payment->amount;
+
+                if ($payMethod === PosOrderPayment::METHOD_CASH && $remainingChange > 0) {
+                    $deduct = min($payAmount, $remainingChange);
+                    $payAmount -= $deduct;
+                    $remainingChange -= $deduct;
+                }
+
+                if ($payAmount <= 0) {
+                    continue;
+                }
+
+                $targetAccount = match ($payMethod) {
+                    PosOrderPayment::METHOD_CASH => $kasAccount,
+                    PosOrderPayment::METHOD_CUSTOMER_CREDIT => $piutangAccount,
+                    PosOrderPayment::METHOD_QRIS, PosOrderPayment::METHOD_QRIS_DYNAMIC => $clearingGatewayAccount ?? $bankAccount,
+                    PosOrderPayment::METHOD_EDC_DEBIT, PosOrderPayment::METHOD_EDC_CREDIT => $edcClearingAccount ?? $bankAccount,
+                    default => $bankAccount,
+                };
+
+                $payLabel = match ($payMethod) {
+                    PosOrderPayment::METHOD_CASH => 'Kasir Tunai (Cash)',
+                    PosOrderPayment::METHOD_QRIS => 'QRIS Cooca Pay',
+                    PosOrderPayment::METHOD_QRIS_DYNAMIC => 'QRIS Dinamis Cooca Pay',
+                    PosOrderPayment::METHOD_TRANSFER => 'Transfer Bank',
+                    PosOrderPayment::METHOD_EDC_DEBIT => 'EDC Debit ' . ($payment->edcTerminal ? "({$payment->edcTerminal->terminal_name})" : ''),
+                    PosOrderPayment::METHOD_EDC_CREDIT => 'EDC Kredit ' . ($payment->edcTerminal ? "({$payment->edcTerminal->terminal_name})" : ''),
+                    PosOrderPayment::METHOD_CUSTOMER_CREDIT => 'Piutang Pelanggan (Kasbon)',
+                    default => ucfirst(str_replace('_', ' ', $payMethod)),
+                };
+
+                JournalEntryLine::create([
+                    'journal_entry_id' => $entry->id,
+                    'account_id' => $targetAccount->id,
+                    'type' => JournalEntryLine::TYPE_CREDIT,
+                    'amount' => $payAmount,
+                    'notes' => "Pengembalian/Pembalikan Penerimaan: " . $payLabel . " ({$actionLabel})",
+                ]);
+                $totalCredit += $payAmount;
+            }
+
+            // 6. Credits: Reverse Discount (if any)
+            $totalDiscount = (float) $order->discount_amount + (float) $order->voucher_discount_amount + (float) $order->points_discount_amount;
+            if ($totalDiscount > 0 && $diskonAccount) {
+                JournalEntryLine::create([
+                    'journal_entry_id' => $entry->id,
+                    'account_id' => $diskonAccount->id,
+                    'type' => JournalEntryLine::TYPE_CREDIT,
+                    'amount' => $totalDiscount,
+                    'notes' => "Pembalikan Beban Diskon & Voucher POS ({$actionLabel})",
+                ]);
+                $totalCredit += $totalDiscount;
+            }
+
+            // 7. Credits: Reverse HPP
+            if ($hpp > 0) {
+                JournalEntryLine::create([
+                    'journal_entry_id' => $entry->id,
+                    'account_id' => $hppAccount->id,
+                    'type' => JournalEntryLine::TYPE_CREDIT,
+                    'amount' => $hpp,
+                    'notes' => "Pembalikan Beban Pokok Penjualan (HPP) ({$actionLabel})",
+                ]);
+                $totalCredit += $hpp;
+            }
+
+            $entry->update([
+                'total_debit' => $totalDebit,
+                'total_credit' => $totalCredit,
+            ]);
+
+            return $entry;
+        });
+    }
+
     public function recordPurchaseReturnJournal(PurchaseReturnModel $purchaseReturn): ?JournalEntry
     {
         $business = $purchaseReturn->business;

@@ -18,9 +18,46 @@
         quickUnitName: '',
         quickUnitCategory: 'quantity',
         quickUnitLoading: false,
-        categoryList: {{ Js::from($categories->map(fn($c) => ['id' => (string) $c->id, 'name' => $c->name])) }},
+        categoryList: {{ Js::from($categories->map(fn($c) => ['id' => (string) $c->id, 'name' => $c->name, 'marketplace_category_id' => $c->marketplace_category_id, 'marketplace_category_name' => $c->marketplace_category_name])) }},
         unitList: {{ Js::from($units->map(fn($u) => ['id' => (string) $u->id, 'name' => $u->name, 'code' => $u->code])) }},
         allProductsList: {{ Js::from($allProducts->map(fn($p) => ['id' => (string) $p->id, 'name' => $p->name, 'code' => $p->code, 'price' => (float)$p->selling_price, 'cost' => (float)$p->base_cost])) }},
+        marketplaceCategories: {{ Js::from($marketplaceCategories ?? []) }},
+        isPharmacy: {{ $isPharmacy ? 'true' : 'false' }},
+        isServiceSector: {{ $isServiceSector ? 'true' : 'false' }},
+        newIsMarketplaceEnabled: false,
+        newSelectedCategoryId: '',
+        getInheritedMarketplaceCategory(catId) {
+            if (!catId) return null;
+            const cat = this.categoryList.find(c => String(c.id) === String(catId));
+            if (cat && cat.marketplace_category_id) {
+                return {
+                    id: cat.marketplace_category_id,
+                    name: cat.marketplace_category_name || cat.marketplace_category_id
+                };
+            }
+            return null;
+        },
+        suggestMarketplaceCategory(prodName, catId) {
+            if (!this.marketplaceCategories || !this.marketplaceCategories.length) return null;
+            const cat = this.categoryList.find(c => String(c.id) === String(catId));
+            const searchStr = ((prodName || '') + ' ' + (cat ? cat.name : '')).toLowerCase();
+            let best = null;
+            let maxScore = 0;
+            for (const mc of this.marketplaceCategories) {
+                let score = 0;
+                if (searchStr.includes(mc.name.toLowerCase())) score += 10;
+                if (mc.keywords && Array.isArray(mc.keywords)) {
+                    for (const kw of mc.keywords) {
+                        if (searchStr.includes(kw.toLowerCase())) score += 3;
+                    }
+                }
+                if (score > maxScore) {
+                    maxScore = score;
+                    best = mc;
+                }
+            }
+            return (best && maxScore > 0) ? best : (this.marketplaceCategories[0] || null);
+        },
         newIsBundle: false,
         newBundleItems: [],
         newChannelPrices: { dine_in: '', takeaway: '', gofood: '', grabfood: '', shopeefood: '' },
@@ -392,6 +429,10 @@
                     'base_cost' => (float) $editProduct->base_cost,
                     'selling_price' => (float) $editProduct->selling_price,
                     'min_stock' => (float) $editProduct->min_stock,
+                    'weight' => (float) ($editProduct->weight ?? 200),
+                    'length' => $editProduct->length,
+                    'width' => $editProduct->width,
+                    'height' => $editProduct->height,
                     'is_active' => (bool) $editProduct->is_active,
                     'show_in_website' => (bool) ($editProduct->show_in_website ?? true),
                     'show_in_pos' => (bool) ($editProduct->show_in_pos ?? true),
@@ -406,10 +447,12 @@
                     'description' => $editProduct->description ?? '',
                     'image_url' => $editProduct->image_url,
                     'images' => $editProduct->images->map(fn($img) => ['id' => $img->id, 'image_url' => $img->image_url, 'caption' => $img->caption])->values()->all(),
+                    'is_marketplace_enabled' => (bool) ($editProduct->marketplaceMappings->where('is_active', true)->isNotEmpty()),
+                    'marketplace_mappings_count' => (int) $editProduct->marketplaceMappings->count(),
                 ],
                 JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE,
             )
-            : "{ id: '', slug: '', name: '', sku: '', category_id: '', output_unit_id: '', base_cost: 0, selling_price: 0, min_stock: 0, weight: 200, length: '', width: '', height: '', is_active: true, show_in_website: true, show_in_pos: true, show_in_sales_order: true, show_price_on_web: true, is_preorder: false, preorder_mode: 'customer_schedule', preorder_lead_days: 1, is_bundle: false, bundle_items: [], channel_prices: {}, description: '', image_url: '', images: [] }" !!},
+            : "{ id: '', slug: '', name: '', sku: '', category_id: '', output_unit_id: '', base_cost: 0, selling_price: 0, min_stock: 0, weight: 200, length: '', width: '', height: '', is_active: true, show_in_website: true, show_in_pos: true, show_in_sales_order: true, show_price_on_web: true, is_preorder: false, preorder_mode: 'customer_schedule', preorder_lead_days: 1, is_bundle: false, bundle_items: [], channel_prices: {}, description: '', image_url: '', images: [], is_marketplace_enabled: false, marketplace_mappings_count: 0 }" !!},
     
         productToggles: {
             @foreach($products as $p)
@@ -1467,7 +1510,7 @@
                                                     <span>+ Kategori</span>
                                                 </button>
                                             </div>
-                                            <select name="category_id" x-ref="newProductCategory"
+                                            <select name="category_id" x-ref="newProductCategory" x-model="newSelectedCategoryId"
                                                 class="w-full h-11 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] rounded-[12px] px-3 text-[16px] sm:text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
                                                 <option value="">-- Tanpa Kategori --</option>
                                                 <template x-for="c in categoryList" :key="c.id">
@@ -1646,7 +1689,7 @@
                                     </div>
                                 </div>
 
-                                @if ($business?->isModuleEnabled(\App\Domain\Template\ModuleRegistry::MODULE_POS_DINEIN) ?? true)
+                                @if ($business && ($business->isFoodIndustry() || $business->hasDineInFeature()))
                                 <!-- Bento Box: Multi-Harga Saluran (F&B / Online) -->
                                 <div class="p-5 rounded-[18px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.08] space-y-3.5">
                                     <div class="flex items-center justify-between">
@@ -1912,6 +1955,93 @@
                                                 <span class="absolute right-3 top-2.5 text-[11px] font-medium text-black/40 dark:text-white/40">cm</span>
                                             </div>
                                             <p class="text-[10px] text-black/45 dark:text-white/45 mt-1">Opsional (volumetrik)</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Bento Box 5: Integrasi Marketplace Omnichannel & Taxonomy Guardrail -->
+                                <div class="p-5 rounded-[18px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.08] space-y-4">
+                                    <div class="flex items-start justify-between gap-3">
+                                        <div class="space-y-0.5">
+                                            <div class="flex items-center gap-2 flex-wrap">
+                                                <i data-lucide="shopping-bag" class="w-4 h-4 text-[#007AFF]"></i>
+                                                <h3 class="text-[14px] font-bold text-black dark:text-white tracking-tight">Integrasi Marketplace</h3>
+                                                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#007AFF]/10 text-[#007AFF]">Shopee · TikTok · Tokopedia</span>
+                                            </div>
+                                            <p class="text-[11.5px] text-black/50 dark:text-white/50">
+                                                Hubungkan produk fisik ini ke saluran marketplace dengan taksonomi resmi dan sinkronisasi stok satu pintu.
+                                            </p>
+                                        </div>
+                                        <label class="relative inline-flex items-center cursor-pointer shrink-0 mt-0.5" title="Aktifkan atau sembunyikan pengaturan marketplace untuk produk ini">
+                                            <input type="checkbox" x-model="newIsMarketplaceEnabled" class="sr-only peer">
+                                            <div class="w-11 h-6 bg-black/15 peer-focus:outline-none rounded-full peer dark:bg-white/20 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#007AFF]"></div>
+                                        </label>
+                                    </div>
+
+                                    <!-- Hidden State: Minimal Info for POS only -->
+                                    <div x-show="!newIsMarketplaceEnabled" class="p-3 rounded-[12px] bg-black/[0.02] dark:bg-white/[0.02] border border-black/[0.04] dark:border-white/[0.04] text-[11.5px] text-black/55 dark:text-white/55 flex items-center gap-2">
+                                        <i data-lucide="info" class="w-4 h-4 text-black/40 dark:text-white/40 shrink-0"></i>
+                                        <span>Produk ini aktif untuk <strong>Kasir POS &amp; Toko Lokal</strong>. Aktifkan saklar di atas jika ingin memetakan dan menjual produk ini ke Shopee/TikTok/Tokopedia.</span>
+                                    </div>
+
+                                    <!-- Active State: Progressive Disclosure of Taxonomy & Marketplace Mapping -->
+                                    <div x-show="newIsMarketplaceEnabled" x-cloak class="space-y-3.5 pt-1">
+                                        <!-- Kategori Taksonomi Marketplace Status Banner -->
+                                        <div class="p-3.5 rounded-[14px] border transition-all"
+                                            :class="getInheritedMarketplaceCategory(newSelectedCategoryId)
+                                                ? 'bg-[#34C759]/8 border-[#34C759]/25'
+                                                : 'bg-amber-500/8 border-amber-500/25'">
+                                            <div class="flex items-start gap-2.5">
+                                                <div class="w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5"
+                                                    :class="getInheritedMarketplaceCategory(newSelectedCategoryId) ? 'bg-[#34C759]/15 text-[#34C759]' : 'bg-amber-500/15 text-amber-600 dark:text-amber-400'">
+                                                    <i :data-lucide="getInheritedMarketplaceCategory(newSelectedCategoryId) ? 'check' : 'alert-triangle'" class="w-3.5 h-3.5"></i>
+                                                </div>
+                                                <div class="space-y-1 min-w-0 flex-1 text-[12px]">
+                                                    <template x-if="getInheritedMarketplaceCategory(newSelectedCategoryId)">
+                                                        <div>
+                                                            <p class="font-bold text-black dark:text-white flex items-center gap-1.5 flex-wrap">
+                                                                <span>Kategori Resmi Terpetakan:</span>
+                                                                <span class="px-2 py-0.5 rounded-full bg-[#34C759]/15 text-[#34C759] text-[11px] font-mono font-bold"
+                                                                    x-text="getInheritedMarketplaceCategory(newSelectedCategoryId).name + ' (ID: ' + getInheritedMarketplaceCategory(newSelectedCategoryId).id + ')'"></span>
+                                                            </p>
+                                                            <p class="text-black/60 dark:text-white/60 text-[11px]">
+                                                                Diwariskan otomatis dari Master Kategori produk. Sesuai standar indexing Shopee, TikTok Shop, dan Tokopedia.
+                                                            </p>
+                                                        </div>
+                                                    </template>
+                                                    <template x-if="!getInheritedMarketplaceCategory(newSelectedCategoryId)">
+                                                        <div>
+                                                            <p class="font-bold text-black dark:text-white">
+                                                                Kategori Internal Belum Terpetakan
+                                                            </p>
+                                                            <p class="text-black/60 dark:text-white/60 text-[11px]">
+                                                                Kategori internal yang dipilih belum memiliki tautan taksonomi resmi marketplace. Saat diterbitkan, sistem akan menggunakan saran pintar:
+                                                            </p>
+                                                            <div class="pt-1.5 flex items-center gap-2 flex-wrap">
+                                                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-[8px] bg-amber-500/15 text-amber-700 dark:text-amber-300 font-semibold text-[11px]">
+                                                                    <i data-lucide="sparkles" class="w-3 h-3"></i>
+                                                                    <span x-text="'Saran AI: ' + (suggestMarketplaceCategory('', newSelectedCategoryId)?.name || 'Makanan & Minuman')"></span>
+                                                                </span>
+                                                                <a href="{{ route('product-categories.index') }}" target="_blank" class="text-[11px] font-semibold text-[#007AFF] hover:underline flex items-center gap-0.5">
+                                                                    <span>Atur di Master Kategori</span>
+                                                                    <i data-lucide="external-link" class="w-3 h-3"></i>
+                                                                </a>
+                                                            </div>
+                                                        </div>
+                                                    </template>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Guardrail & Anti-Margin Bleed Info -->
+                                        <div class="p-3 rounded-[12px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.08] text-[11.5px] space-y-1.5">
+                                            <div class="flex items-center justify-between font-medium text-black/70 dark:text-white/70">
+                                                <span>Proteksi Stok &amp; Biaya Admin Platform:</span>
+                                                <span class="text-[#007AFF] font-semibold">Estimasi Fee ~8%</span>
+                                            </div>
+                                            <p class="text-black/50 dark:text-white/50 text-[11px] leading-relaxed">
+                                                Stok akan disinkronkan satu pintu dari saldo gudang COOCA. Anda dapat mengatur markup harga dan kuota cadangan pengaman (<em>safety buffer</em>) pada <a href="{{ route('marketplace-hub.products') }}" class="text-[#007AFF] hover:underline font-semibold">Marketplace Hub</a> setelah produk disimpan.
+                                            </p>
                                         </div>
                                     </div>
                                 </div>
@@ -2196,7 +2326,7 @@
                                     </div>
                                 </div>
 
-                                @if ($business?->isModuleEnabled(\App\Domain\Template\ModuleRegistry::MODULE_POS_DINEIN) ?? true)
+                                @if ($business && ($business->isFoodIndustry() || $business->hasDineInFeature()))
                                 <!-- Bento Box: Multi-Harga Saluran (F&B / Online) -->
                                 <div class="p-5 rounded-[18px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.08] space-y-3.5">
                                     <div class="flex items-center justify-between">
@@ -2516,6 +2646,94 @@
                                             <span class="text-black/80 dark:text-white/80 font-semibold text-[13px]">Status
                                                 Produk Aktif Secara Global</span>
                                         </label>
+                                    </div>
+                                </div>
+
+                                <!-- Bento Box 5: Integrasi Marketplace Omnichannel & Taxonomy Guardrail -->
+                                <div class="p-5 rounded-[18px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.08] space-y-4">
+                                    <div class="flex items-start justify-between gap-3">
+                                        <div class="space-y-0.5">
+                                            <div class="flex items-center gap-2 flex-wrap">
+                                                <i data-lucide="shopping-bag" class="w-4 h-4 text-[#007AFF]"></i>
+                                                <h3 class="text-[14px] font-bold text-black dark:text-white tracking-tight">Integrasi Marketplace</h3>
+                                                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#007AFF]/10 text-[#007AFF]">Shopee · TikTok · Tokopedia</span>
+                                            </div>
+                                            <p class="text-[11.5px] text-black/50 dark:text-white/50">
+                                                Status pemetaan taksonomi dan kesiapan produk untuk penjualan omnichannel.
+                                            </p>
+                                        </div>
+                                        <label class="relative inline-flex items-center cursor-pointer shrink-0 mt-0.5" title="Aktifkan atau sembunyikan pengaturan marketplace untuk produk ini">
+                                            <input type="checkbox" x-model="editProduct.is_marketplace_enabled" class="sr-only peer">
+                                            <div class="w-11 h-6 bg-black/15 peer-focus:outline-none rounded-full peer dark:bg-white/20 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#007AFF]"></div>
+                                        </label>
+                                    </div>
+
+                                    <!-- Hidden State: Minimal Info for POS only -->
+                                    <div x-show="!editProduct.is_marketplace_enabled" class="p-3 rounded-[12px] bg-black/[0.02] dark:bg-white/[0.02] border border-black/[0.04] dark:border-white/[0.04] text-[11.5px] text-black/55 dark:text-white/55 flex items-center gap-2">
+                                        <i data-lucide="info" class="w-4 h-4 text-black/40 dark:text-white/40 shrink-0"></i>
+                                        <span>Produk ini aktif untuk <strong>Kasir POS &amp; Toko Lokal</strong>. Aktifkan saklar di atas jika ingin memetakan dan menjual produk ini ke Shopee/TikTok/Tokopedia.</span>
+                                    </div>
+
+                                    <!-- Active State: Progressive Disclosure of Taxonomy & Marketplace Mapping -->
+                                    <div x-show="editProduct.is_marketplace_enabled" x-cloak class="space-y-3.5 pt-1">
+                                        <!-- Kategori Taksonomi Marketplace Status Banner -->
+                                        <div class="p-3.5 rounded-[14px] border transition-all"
+                                            :class="getInheritedMarketplaceCategory(editProduct.category_id)
+                                                ? 'bg-[#34C759]/8 border-[#34C759]/25'
+                                                : 'bg-amber-500/8 border-amber-500/25'">
+                                            <div class="flex items-start gap-2.5">
+                                                <div class="w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5"
+                                                    :class="getInheritedMarketplaceCategory(editProduct.category_id) ? 'bg-[#34C759]/15 text-[#34C759]' : 'bg-amber-500/15 text-amber-600 dark:text-amber-400'">
+                                                    <i :data-lucide="getInheritedMarketplaceCategory(editProduct.category_id) ? 'check' : 'alert-triangle'" class="w-3.5 h-3.5"></i>
+                                                </div>
+                                                <div class="space-y-1 min-w-0 flex-1 text-[12px]">
+                                                    <template x-if="getInheritedMarketplaceCategory(editProduct.category_id)">
+                                                        <div>
+                                                            <p class="font-bold text-black dark:text-white flex items-center gap-1.5 flex-wrap">
+                                                                <span>Kategori Resmi Terpetakan:</span>
+                                                                <span class="px-2 py-0.5 rounded-full bg-[#34C759]/15 text-[#34C759] text-[11px] font-mono font-bold"
+                                                                    x-text="getInheritedMarketplaceCategory(editProduct.category_id).name + ' (ID: ' + getInheritedMarketplaceCategory(editProduct.category_id).id + ')'"></span>
+                                                            </p>
+                                                            <p class="text-black/60 dark:text-white/60 text-[11px]">
+                                                                Diwariskan otomatis dari Master Kategori produk. Sesuai standar indexing Shopee, TikTok Shop, dan Tokopedia.
+                                                            </p>
+                                                        </div>
+                                                    </template>
+                                                    <template x-if="!getInheritedMarketplaceCategory(editProduct.category_id)">
+                                                        <div>
+                                                            <p class="font-bold text-black dark:text-white">
+                                                                Kategori Internal Belum Terpetakan
+                                                            </p>
+                                                            <p class="text-black/60 dark:text-white/60 text-[11px]">
+                                                                Kategori internal yang dipilih belum memiliki tautan taksonomi resmi marketplace. Saat diterbitkan, sistem akan menggunakan saran pintar:
+                                                            </p>
+                                                            <div class="pt-1.5 flex items-center gap-2 flex-wrap">
+                                                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-[8px] bg-amber-500/15 text-amber-700 dark:text-amber-300 font-semibold text-[11px]">
+                                                                    <i data-lucide="sparkles" class="w-3 h-3"></i>
+                                                                    <span x-text="'Saran AI: ' + (suggestMarketplaceCategory(editProduct.name, editProduct.category_id)?.name || 'Makanan & Minuman')"></span>
+                                                                </span>
+                                                                <a href="{{ route('product-categories.index') }}" target="_blank" class="text-[11px] font-semibold text-[#007AFF] hover:underline flex items-center gap-0.5">
+                                                                    <span>Atur di Master Kategori</span>
+                                                                    <i data-lucide="external-link" class="w-3 h-3"></i>
+                                                                </a>
+                                                            </div>
+                                                        </div>
+                                                    </template>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Cockpit Shortcut Card -->
+                                        <div class="p-3.5 rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.1] flex items-center justify-between gap-3 shadow-2xs">
+                                            <div class="space-y-0.5 min-w-0">
+                                                <span class="text-[12px] font-bold text-black dark:text-white block truncate">Cockpit Multi-Harga &amp; Stok Kanal</span>
+                                                <span class="text-[11px] text-black/50 dark:text-white/50 block truncate">Atur harga spesifik per Shopee, TikTok Shop, Tokopedia &amp; safety buffer.</span>
+                                            </div>
+                                            <a href="{{ route('marketplace-hub.products') }}" class="h-8 px-3 rounded-[8px] text-[12px] font-semibold text-[#007AFF] bg-[#007AFF]/10 hover:bg-[#007AFF]/15 transition flex items-center gap-1 shrink-0">
+                                                <span>Buka Hub</span>
+                                                <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                                            </a>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

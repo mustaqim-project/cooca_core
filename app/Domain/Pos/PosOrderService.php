@@ -1056,6 +1056,7 @@ final class PosOrderService
     public function voidOrder(PosOrder $order, User $user, string $reason): PosOrder
     {
         return DB::transaction(function () use ($order, $user, $reason) {
+            $order = PosOrder::with(['items.modifiers', 'payments', 'business', 'customer'])->lockForUpdate()->findOrFail($order->id);
             $order->update([
                 'status' => PosOrder::STATUS_VOIDED,
                 'void_reason' => $reason,
@@ -1063,7 +1064,7 @@ final class PosOrderService
                 'voided_at' => now(),
             ]);
 
-            // Restore inventory
+            // 1. Restore inventory
             if ($order->location_id) {
                 foreach ($order->items as $item) {
                     // Restore modifier materials
@@ -1106,6 +1107,50 @@ final class PosOrderService
                 }
             }
 
+            // 2. Reverse Cash Ledger & Payments
+            $remainingChange = (float) $order->change_amount;
+            foreach ($order->payments as $payment) {
+                if ($payment->status !== 'paid') {
+                    continue;
+                }
+                $payMethod = $payment->payment_method;
+                $payAmount = (float) $payment->amount;
+
+                if ($payMethod !== PosOrderPayment::METHOD_LOYALTY_POINTS && $payMethod !== PosOrderPayment::METHOD_CUSTOMER_CREDIT) {
+                    $netCashOut = $payAmount;
+                    if ($payMethod === PosOrderPayment::METHOD_CASH && $remainingChange > 0) {
+                        $deduct = min($payAmount, $remainingChange);
+                        $netCashOut -= $deduct;
+                        $remainingChange -= $deduct;
+                    }
+
+                    if ($netCashOut > 0 && $order->business) {
+                        $methodLabel = match ($payMethod) {
+                            PosOrderPayment::METHOD_CASH => 'Tunai',
+                            PosOrderPayment::METHOD_QRIS => 'QRIS Cooca Pay',
+                            PosOrderPayment::METHOD_TRANSFER => 'Transfer Bank',
+                            PosOrderPayment::METHOD_EDC_DEBIT => 'EDC Debit',
+                            PosOrderPayment::METHOD_EDC_CREDIT => 'EDC Kredit',
+                            default => ucfirst(str_replace('_', ' ', $payMethod)),
+                        };
+
+                        $this->cashLedgerService->recordOutflow(
+                            business: $order->business,
+                            amount: $netCashOut,
+                            referenceType: 'pos_void',
+                            referenceId: $payment->id,
+                            description: "Pembalik Pembayaran POS (Void) #{$order->order_number} ({$methodLabel}) - {$reason}",
+                            method: $payMethod,
+                            userId: $user->id
+                        );
+                    }
+                }
+            }
+
+            // 3. Automatic Reversing Accounting Journal
+            $this->journalService->recordPosVoidJournal($order, $user, $reason);
+
+            // 4. Sync Table Status
             if ($order->posTable) {
                 $this->tableService->syncTableStatus($order->posTable);
             }
@@ -1120,7 +1165,7 @@ final class PosOrderService
     public function refundOrder(PosOrder $order, User $user, string $reason, bool $restoreStock = true): PosOrder
     {
         return DB::transaction(function () use ($order, $user, $reason, $restoreStock) {
-            $order = PosOrder::with(['items.modifiers', 'payments'])->lockForUpdate()->findOrFail($order->id);
+            $order = PosOrder::with(['items.modifiers', 'payments', 'business', 'customer'])->lockForUpdate()->findOrFail($order->id);
             if ($order->status !== PosOrder::STATUS_COMPLETED) {
                 throw new InvalidArgumentException('Hanya transaksi POS completed yang dapat direfund penuh.');
             }
@@ -1132,6 +1177,7 @@ final class PosOrderService
                 'refunded_at' => now(),
             ]);
 
+            // 1. Restore Inventory (if requested)
             if ($restoreStock && $order->location_id) {
                 foreach ($order->items as $item) {
                     // Restore modifier materials
@@ -1173,6 +1219,49 @@ final class PosOrderService
                     }
                 }
             }
+
+            // 2. Reverse Cash Ledger & Payments
+            $remainingChange = (float) $order->change_amount;
+            foreach ($order->payments as $payment) {
+                if ($payment->status !== 'paid') {
+                    continue;
+                }
+                $payMethod = $payment->payment_method;
+                $payAmount = (float) $payment->amount;
+
+                if ($payMethod !== PosOrderPayment::METHOD_LOYALTY_POINTS && $payMethod !== PosOrderPayment::METHOD_CUSTOMER_CREDIT) {
+                    $netCashOut = $payAmount;
+                    if ($payMethod === PosOrderPayment::METHOD_CASH && $remainingChange > 0) {
+                        $deduct = min($payAmount, $remainingChange);
+                        $netCashOut -= $deduct;
+                        $remainingChange -= $deduct;
+                    }
+
+                    if ($netCashOut > 0 && $order->business) {
+                        $methodLabel = match ($payMethod) {
+                            PosOrderPayment::METHOD_CASH => 'Tunai',
+                            PosOrderPayment::METHOD_QRIS => 'QRIS Cooca Pay',
+                            PosOrderPayment::METHOD_TRANSFER => 'Transfer Bank',
+                            PosOrderPayment::METHOD_EDC_DEBIT => 'EDC Debit',
+                            PosOrderPayment::METHOD_EDC_CREDIT => 'EDC Kredit',
+                            default => ucfirst(str_replace('_', ' ', $payMethod)),
+                        };
+
+                        $this->cashLedgerService->recordOutflow(
+                            business: $order->business,
+                            amount: $netCashOut,
+                            referenceType: 'pos_refund',
+                            referenceId: $payment->id,
+                            description: "Pembalik Pembayaran POS (Refund) #{$order->order_number} ({$methodLabel}) - {$reason}",
+                            method: $payMethod,
+                            userId: $user->id
+                        );
+                    }
+                }
+            }
+
+            // 3. Automatic Reversing Accounting Journal
+            $this->journalService->recordPosOrderRefundJournal($order, $user, $reason);
 
             return $order;
         });
