@@ -877,6 +877,7 @@
             @endphp
             return {
                 createModalOpen: {{ (request()->boolean('open_composer') || request()->boolean('create')) ? 'true' : 'false' }},
+                mobileModalView: 'editor',
                 showMobilePreview: false,
                 isQuietHours: false,
                 broadcastMode: 'template',
@@ -915,7 +916,7 @@
                         this.updateTemplatePreview();
                     } else {
                         if (!this.freeTextMessage) {
-                            this.freeTextMessage = "Halo {nama},\nAda penawaran spesial dari " + {{ Js::from($business->name) }} + "!\n\nDapatkan diskon menarik khusus hari ini. Tunjukkan pesan ini ke kasir kami.";
+                            this.freeTextMessage = {{ Js::from(__('whatsapp.default_freetext_template', ['business' => $business->name])) }};
                         }
                         this.updateFreeTextPreview();
                     }
@@ -926,29 +927,29 @@
 
                 onTemplateChange() {
                     if (this.selectedTemplateName === 'cooca_customer_welcome') {
-                        this.templateParams.offer = 'Member Baru & Bonus 50 Poin';
+                        this.templateParams.offer = {{ Js::from(__('whatsapp.tpl_welcome_offer')) }};
                         this.templateParams.voucher_code = 'WELCOME';
-                        this.templateParams.valid_until = '30 Hari';
+                        this.templateParams.valid_until = {{ Js::from(__('whatsapp.tpl_welcome_valid')) }};
                     } else if (this.selectedTemplateName === 'cooca_order_status_update') {
-                        this.templateParams.offer = 'Pesanan Selesai Diproses';
+                        this.templateParams.offer = {{ Js::from(__('whatsapp.tpl_order_offer')) }};
                         this.templateParams.voucher_code = 'SIAP_AMBIL';
                         this.templateParams.valid_until = 'ORD-2026/10/012';
                     } else if (this.selectedTemplateName === 'cooca_reservation_reminder') {
-                        this.templateParams.offer = 'Meja VIP 4 Orang';
+                        this.templateParams.offer = {{ Js::from(__('whatsapp.tpl_reservation_offer')) }};
                         this.templateParams.voucher_code = 'RSV-8821';
-                        this.templateParams.valid_until = 'Jumat, 02/10/2026 19:00 WIB';
+                        this.templateParams.valid_until = {{ Js::from(__('whatsapp.tpl_reservation_valid')) }};
                     } else if (this.selectedTemplateName === 'cooca_marketplace_receipt') {
-                        this.templateParams.offer = 'Rp 175.000';
+                        this.templateParams.offer = {{ Js::from(__('whatsapp.tpl_receipt_offer')) }};
                         this.templateParams.voucher_code = 'ORD-2026/10/088';
-                        this.templateParams.valid_until = 'QRIS Mandiri';
+                        this.templateParams.valid_until = {{ Js::from(__('whatsapp.tpl_receipt_valid')) }};
                     } else if (this.selectedTemplateName === 'cooca_shipping_tracking') {
-                        this.templateParams.offer = 'J&T Express';
+                        this.templateParams.offer = {{ Js::from(__('whatsapp.tpl_shipping_offer')) }};
                         this.templateParams.voucher_code = 'JT9988221100';
                         this.templateParams.valid_until = 'ORD-2026/10/088';
                     } else if (this.selectedTemplateName === 'cooca_cart_reminder') {
-                        this.templateParams.offer = 'Paket Roti Gandum & Croissant';
+                        this.templateParams.offer = {{ Js::from(__('whatsapp.tpl_cart_offer')) }};
                         this.templateParams.voucher_code = 'ONGKIRFREE';
-                        this.templateParams.valid_until = 'Hari ini 23:59 WIB';
+                        this.templateParams.valid_until = {{ Js::from(__('whatsapp.tpl_cart_valid')) }};
                     } else {
                         this.templateParams.offer = {{ Js::from(__('whatsapp.default_tpl_offer')) }};
                         this.templateParams.voucher_code = 'PROMO25';
@@ -959,32 +960,32 @@
 
                 updateTemplatePreview() {
                     const bizName = {{ Js::from($business->name) }};
-                    const offer = this.templateParams.offer || 'Diskon Spesial';
+                    const offer = this.templateParams.offer || {{ Js::from(__('whatsapp.default_tpl_offer')) }};
                     const code = (this.templateParams.voucher_code || 'HEMAT').toUpperCase();
-                    const valid = this.templateParams.valid_until || 'akhir pekan';
+                    const valid = this.templateParams.valid_until || {{ Js::from(__('whatsapp.default_tpl_valid')) }};
 
                     if (this.selectedTemplateName === 'cooca_customer_welcome') {
-                        this.previewMessage = `Halo Budi Santoso,\n\nTerima kasih telah menjadi bagian dari keluarga besar *${bizName}*! Anda terdaftar sebagai *Gold Member* dengan *1.250* poin loyalitas awal.\n\nKunjungi toko kami dan nikmati berbagai keuntungan eksklusif.`;
-                        this.message = `Halo {nama},\n\nTerima kasih telah menjadi bagian dari keluarga besar ${bizName}! Anda terdaftar sebagai {tier} Member dengan {poin} poin loyalitas awal.\n\nKunjungi toko kami dan nikmati berbagai keuntungan eksklusif.`;
+                        this.previewMessage = {{ Js::from(__('whatsapp.tpl_welcome_preview', ['business' => ':business'])) }}.replace(':business', bizName);
+                        this.message = {{ Js::from(__('whatsapp.tpl_welcome_message', ['business' => ':business'])) }}.replace(':business', bizName);
                     } else if (this.selectedTemplateName === 'cooca_order_status_update') {
-                        this.previewMessage = `Halo Budi Santoso!\n\nPesanan Anda nomor *ORD-2026/10/012* di *${bizName}* telah diperbarui statusnya menjadi: *${offer}*.\n\nCatatan: Silakan menunjukkan nomor pesanan ini saat pengambilan atau konfirmasi ke kasir.`;
-                        this.message = `Halo {nama}!\n\nPesanan Anda nomor {no_spk} di ${bizName} telah diperbarui statusnya menjadi: ${offer}.\n\nCatatan: Silakan menunjukkan nomor pesanan ini saat pengambilan.`;
+                        this.previewMessage = {{ Js::from(__('whatsapp.tpl_order_preview', ['business' => ':business', 'offer' => ':offer'])) }}.replace(':business', bizName).replace(':offer', offer);
+                        this.message = {{ Js::from(__('whatsapp.tpl_order_message', ['business' => ':business', 'offer' => ':offer'])) }}.replace(':business', bizName).replace(':offer', offer);
                     } else if (this.selectedTemplateName === 'cooca_reservation_reminder') {
-                        this.previewMessage = `Halo *Budi Santoso*! Mengingatkan kembali jadwal reservasi Anda di *${bizName}*:\n• Kode Booking: *${code}*\n• Jadwal: *${valid}*\n• Detail: *${offer}*\n\nMohon hadir 10 menit sebelum waktu reservasi. Hubungi kami jika ingin melakukan perubahan jadwal.`;
-                        this.message = `Halo {nama}! Mengingatkan kembali jadwal reservasi Anda di ${bizName}:\n• Kode Booking: ${code}\n• Jadwal: ${valid}\n• Detail: ${offer}.`;
+                        this.previewMessage = {{ Js::from(__('whatsapp.tpl_reservation_preview', ['business' => ':business', 'code' => ':code', 'valid' => ':valid', 'offer' => ':offer'])) }}.replace(':business', bizName).replace(':code', code).replace(':valid', valid).replace(':offer', offer);
+                        this.message = {{ Js::from(__('whatsapp.tpl_reservation_message', ['business' => ':business', 'code' => ':code', 'valid' => ':valid', 'offer' => ':offer'])) }}.replace(':business', bizName).replace(':code', code).replace(':valid', valid).replace(':offer', offer);
                     } else if (this.selectedTemplateName === 'cooca_marketplace_receipt') {
-                        this.previewMessage = `Halo *Budi Santoso*! Pembayaran Anda untuk pesanan *${code}* di *${bizName}* sebesar *${offer}* via *${valid}* telah berhasil diverifikasi.\n\nPesanan Anda saat ini sedang dikemas dan dipersiapkan oleh tim toko kami. Terima kasih atas pesanan Anda!`;
-                        this.message = `Halo {nama}! Pembayaran Anda untuk pesanan ${code} di ${bizName} sebesar ${offer} via ${valid} telah berhasil diverifikasi.`;
+                        this.previewMessage = {{ Js::from(__('whatsapp.tpl_receipt_preview', ['business' => ':business', 'code' => ':code', 'offer' => ':offer', 'valid' => ':valid'])) }}.replace(':business', bizName).replace(':code', code).replace(':offer', offer).replace(':valid', valid);
+                        this.message = {{ Js::from(__('whatsapp.tpl_receipt_message', ['business' => ':business', 'code' => ':code', 'offer' => ':offer', 'valid' => ':valid'])) }}.replace(':business', bizName).replace(':code', code).replace(':offer', offer).replace(':valid', valid);
                     } else if (this.selectedTemplateName === 'cooca_shipping_tracking') {
-                        this.previewMessage = `Halo *Budi Santoso*! Paket pesanan nomor *${valid}* dari *${bizName}* telah diserahkan ke ekspedisi *${offer}* dengan nomor resi: *${code}*.\n\nEstimasi pengiriman 1-3 hari kerja. Lacak pergerakan kurir secara langsung melalui tautan di bawah.`;
-                        this.message = `Halo {nama}! Paket pesanan nomor ${valid} dari ${bizName} telah diserahkan ke ekspedisi ${offer} dengan nomor resi: ${code}.`;
+                        this.previewMessage = {{ Js::from(__('whatsapp.tpl_shipping_preview', ['business' => ':business', 'valid' => ':valid', 'offer' => ':offer', 'code' => ':code'])) }}.replace(':business', bizName).replace(':valid', valid).replace(':offer', offer).replace(':code', code);
+                        this.message = {{ Js::from(__('whatsapp.tpl_shipping_message', ['business' => ':business', 'valid' => ':valid', 'offer' => ':offer', 'code' => ':code'])) }}.replace(':business', bizName).replace(':valid', valid).replace(':offer', offer).replace(':code', code);
                     } else if (this.selectedTemplateName === 'cooca_cart_reminder') {
-                        this.previewMessage = `Halo *Budi Santoso*! Anda masih memiliki item produk di keranjang belanja *${bizName}*:\n• Produk: *${offer}*\n• Penawaran Spesial: Kupon *${code}*\n• Batas Waktu: *${valid}*\n\nSelesaikan pesanan Anda sebelum kehabisan stok!`;
-                        this.message = `Halo {nama}! Anda masih memiliki produk di keranjang belanja ${bizName}:\n• Produk: ${offer}\n• Kupon: ${code}\n• Batas Waktu: ${valid}.`;
+                        this.previewMessage = {{ Js::from(__('whatsapp.tpl_cart_preview', ['business' => ':business', 'offer' => ':offer', 'code' => ':code', 'valid' => ':valid'])) }}.replace(':business', bizName).replace(':offer', offer).replace(':code', code).replace(':valid', valid);
+                        this.message = {{ Js::from(__('whatsapp.tpl_cart_message', ['business' => ':business', 'offer' => ':offer', 'code' => ':code', 'valid' => ':valid'])) }}.replace(':business', bizName).replace(':offer', offer).replace(':code', code).replace(':valid', valid);
                     } else {
                         // Default cooca_promo_broadcast
-                        this.previewMessage = `Halo Budi Santoso! Ada kabar gembira dari *${bizName}*.\n\nNikmati penawaran spesial: *${offer}*.\nGunakan kode voucher: *${code}* saat bertransaksi.\nBerlaku hingga: *${valid}*.\n\n_Tunjukkan pesan ini kepada kasir kami._`;
-                        this.message = `Halo {nama}! Ada kabar gembira dari ${bizName}.\n\nNikmati penawaran spesial: ${offer}.\nGunakan kode voucher: ${code} saat bertransaksi.\nBerlaku hingga: ${valid}.`;
+                        this.previewMessage = {{ Js::from(__('whatsapp.tpl_promo_preview', ['business' => ':business', 'offer' => ':offer', 'code' => ':code', 'valid' => ':valid'])) }}.replace(':business', bizName).replace(':offer', offer).replace(':code', code).replace(':valid', valid);
+                        this.message = {{ Js::from(__('whatsapp.tpl_promo_message', ['business' => ':business', 'offer' => ':offer', 'code' => ':code', 'valid' => ':valid'])) }}.replace(':business', bizName).replace(':offer', offer).replace(':code', code).replace(':valid', valid);
                     }
 
                     this.$nextTick(() => {

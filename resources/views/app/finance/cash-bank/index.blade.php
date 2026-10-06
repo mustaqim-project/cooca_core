@@ -549,9 +549,9 @@
                                     <label class="block text-[13px] font-bold text-black/80 dark:text-white/80 mb-1.5">Tipe Akun Keuangan *</label>
                                     <select name="type" x-model="accountType" required
                                         class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[12px] px-3.5 text-[16px] sm:text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
-                                        <option value="bank">Rekening Bank (BCA, Mandiri, BRI, BNI, dll.)</option>
-                                        <option value="cash">Kas Tunai / Kasir Toko Fisik</option>
-                                        <option value="ewallet">E-Wallet / Saldo QRIS Gateway (Midtrans, Tripay)</option>
+                                        <option value="bank">{{ __('finance.account_type_bank') }}</option>
+                                        <option value="cash">{{ __('finance.account_type_cash') }}</option>
+                                        <option value="ewallet">{{ __('finance.account_type_ewallet') }}</option>
                                     </select>
                                 </div>
                             </div>
@@ -559,28 +559,28 @@
                             {{-- Kolom Kanan: Saldo Awal --}}
                             <div class="space-y-4">
                                 <div>
-                                    <label class="block text-[13px] font-bold text-black/80 dark:text-white/80 mb-1.5">Saldo Awal Pembukaan (Rp)</label>
+                                    <label class="block text-[13px] font-bold text-black/80 dark:text-white/80 mb-1.5">{{ __('finance.opening_balance_label') }}</label>
                                     <div class="relative">
                                         <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-black/40 dark:text-white/40 font-bold text-[14px]">Rp</span>
                                         <input name="opening_balance" type="number" min="0" step="1" x-model="openingBalance" placeholder="0"
                                             class="w-full h-11 pl-11 pr-3.5 bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[12px] text-[16px] sm:text-[15px] font-bold tabular-nums text-black dark:text-white placeholder:text-black/30 dark:placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
                                     </div>
-                                    <p class="text-[11.5px] text-black/45 dark:text-white/45 mt-1.5">Kosongkan jika akun baru dimulai dari saldo nol.</p>
+                                    <p class="text-[11.5px] text-black/45 dark:text-white/45 mt-1.5">{{ __('finance.opening_balance_hint') }}</p>
                                 </div>
 
                                 <div class="p-4 rounded-[16px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.08] space-y-1 text-[12px] text-black/65 dark:text-white/65">
                                     <div class="flex items-center gap-1.5 font-bold text-black dark:text-white">
                                         <i data-lucide="shield-check" class="w-4 h-4 text-[#34C759]"></i>
-                                        <span>Terintegrasi Buku Kas & Jurnal</span>
+                                        <span>{{ __('finance.integrated_ledger_title') }}</span>
                                     </div>
-                                    <p class="text-[11.5px] leading-relaxed">Setiap saldo awal akan otomatis terjurnal sebagai setoran modal / ekuitas awal pembukaan.</p>
+                                    <p class="text-[11.5px] leading-relaxed">{{ __('finance.integrated_ledger_desc') }}</p>
                                 </div>
                             </div>
                         </div>
 
                         <div class="flex flex-col-reverse sm:flex-row items-center justify-end gap-3 pt-5 border-t border-black/5 dark:border-white/10">
                             <button type="button" @click="showAccountModal = false" :disabled="isSubmitting"
-                                class="w-full sm:w-auto min-h-[48px] px-6 rounded-[14px] text-[14px] font-semibold text-black/60 dark:text-white/60 hover:bg-black/5 dark:hover:bg-white/5 transition-all cursor-pointer">Batal</button>
+                                class="w-full sm:w-auto min-h-[48px] px-6 rounded-[14px] text-[14px] font-semibold text-black/60 dark:text-white/60 hover:bg-black/5 dark:hover:bg-white/5 transition-all cursor-pointer">{{ __('common.cancel') }}</button>
                             <button type="submit" :disabled="isSubmitting"
                                 class="w-full sm:w-auto min-h-[48px] px-8 rounded-[14px] text-[14.5px] font-bold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] transition-all shadow-[0_4px_16px_rgba(0,122,255,0.3)] flex items-center justify-center gap-2 cursor-pointer">
                                 <template x-if="isSubmitting">
@@ -590,7 +590,7 @@
                                     </svg>
                                 </template>
                                 <i data-lucide="check" class="w-4 h-4" x-show="!isSubmitting"></i>
-                                <span x-text="isSubmitting ? 'Menyimpan...' : 'Simpan Rekening'">Simpan Rekening</span>
+                                <span x-text="isSubmitting ? '{{ __('common.saving') }}' : '{{ __('finance.save_account') }}'">{{ __('finance.save_account') }}</span>
                             </button>
                         </div>
                     </form>
@@ -621,8 +621,8 @@
                                 <i data-lucide="pencil" class="w-5 h-5"></i>
                             </div>
                             <div>
-                                <h3 class="text-[18px] sm:text-[20px] font-bold text-black dark:text-white tracking-tight">Ubah Data Rekening</h3>
-                                <p class="text-[12.5px] text-black/50 dark:text-white/50">Perbarui nama atau klasifikasi jenis rekening kas & bank</p>
+                                <h3 class="text-[18px] sm:text-[20px] font-bold text-black dark:text-white tracking-tight">{{ __('finance.edit_account_title') }}</h3>
+                                <p class="text-[12.5px] text-black/50 dark:text-white/50">{{ __('finance.edit_account_desc') }}</p>
                             </div>
                         </div>
                         <button type="button" @click="editAccountModal = false"
@@ -637,24 +637,24 @@
                         @method('PUT')
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                             <div>
-                                <label class="block text-[13px] font-bold text-black/80 dark:text-white/80 mb-1.5">Nama Rekening / Akun Kas *</label>
+                                <label class="block text-[13px] font-bold text-black/80 dark:text-white/80 mb-1.5">{{ __('finance.account_name_label') }}</label>
                                 <input name="name" x-model="currentAccount.name" required
                                     class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[12px] px-3.5 text-[16px] sm:text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
                             </div>
                             <div>
-                                <label class="block text-[13px] font-bold text-black/80 dark:text-white/80 mb-1.5">Tipe Akun Keuangan *</label>
+                                <label class="block text-[13px] font-bold text-black/80 dark:text-white/80 mb-1.5">{{ __('finance.account_type_label') }}</label>
                                 <select name="type" x-model="currentAccount.type" required
                                     class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[12px] px-3.5 text-[16px] sm:text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
-                                    <option value="bank">Rekening Bank</option>
-                                    <option value="cash">Kas Tunai / Kasir Toko</option>
-                                    <option value="ewallet">E-Wallet / QRIS</option>
+                                    <option value="bank">{{ __('finance.account_type_bank') }}</option>
+                                    <option value="cash">{{ __('finance.account_type_cash') }}</option>
+                                    <option value="ewallet">{{ __('finance.account_type_ewallet') }}</option>
                                 </select>
                             </div>
                         </div>
 
                         <div class="flex flex-col-reverse sm:flex-row items-center justify-end gap-3 pt-5 border-t border-black/5 dark:border-white/10">
                             <button type="button" @click="editAccountModal = false" :disabled="isSubmitting"
-                                class="w-full sm:w-auto min-h-[48px] px-6 rounded-[14px] text-[14px] font-semibold text-black/60 dark:text-white/60 hover:bg-black/5 dark:hover:bg-white/5 transition-all cursor-pointer">Batal</button>
+                                class="w-full sm:w-auto min-h-[48px] px-6 rounded-[14px] text-[14px] font-semibold text-black/60 dark:text-white/60 hover:bg-black/5 dark:hover:bg-white/5 transition-all cursor-pointer">{{ __('common.cancel') }}</button>
                             <button type="submit" :disabled="isSubmitting"
                                 class="w-full sm:w-auto min-h-[48px] px-8 rounded-[14px] text-[14.5px] font-bold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] transition-all shadow-[0_4px_16px_rgba(0,122,255,0.3)] flex items-center justify-center gap-2 cursor-pointer">
                                 <template x-if="isSubmitting">
@@ -664,7 +664,7 @@
                                     </svg>
                                 </template>
                                 <i data-lucide="check" class="w-4 h-4" x-show="!isSubmitting"></i>
-                                <span x-text="isSubmitting ? 'Menyimpan...' : 'Simpan Perubahan'">Simpan Perubahan</span>
+                                <span x-text="isSubmitting ? '{{ __('common.saving') }}' : '{{ __('finance.save_changes') }}'">{{ __('finance.save_changes') }}</span>
                             </button>
                         </div>
                     </form>
@@ -688,15 +688,15 @@
                     x-transition:leave="transition ease-in duration-150"
                     x-transition:leave-start="opacity-100 scale-100 translate-y-0"
                     x-transition:leave-end="opacity-0 scale-95 translate-y-2"
-                    x-data="{ isSubmitting: false, amount: '', setQuickAmount(val) { this.amount = val; } }">
+                    x-data="{ isSubmitting: false, amount: '', category: 'sales_revenue', otherDescription: '', setQuickAmount(val) { this.amount = val; } }">
                     <div class="flex items-center justify-between px-6 sm:px-8 py-5 border-b border-black/5 dark:border-white/10 bg-black/[0.01] dark:bg-white/[0.02]">
                         <div class="flex items-center gap-3.5">
                             <div class="w-11 h-11 rounded-[14px] bg-[#34C759]/15 text-[#34C759] flex items-center justify-center shrink-0 shadow-sm">
                                 <i data-lucide="arrow-down-left" class="w-5 h-5"></i>
                             </div>
                             <div>
-                                <h3 class="text-[18px] sm:text-[20px] font-bold text-black dark:text-white tracking-tight">Catat Kas Masuk</h3>
-                                <p class="text-[12.5px] text-black/50 dark:text-white/50">Penerimaan kas non-POS (setoran modal, pendapatan lain-lain, penerimaan tunai)</p>
+                                <h3 class="text-[18px] sm:text-[20px] font-bold text-black dark:text-white tracking-tight">{{ __('finance.record_inflow_title') }}</h3>
+                                <p class="text-[12.5px] text-black/50 dark:text-white/50">{{ __('finance.record_inflow_desc') }}</p>
                             </div>
                         </div>
                         <button type="button" @click="showInflowModal = false"
@@ -709,30 +709,49 @@
                         class="flex-1 overflow-y-auto p-5 sm:p-8 space-y-6">
                         @csrf
                         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                            {{-- Kolom Kiri: Detail Akun (6/12) --}}
+                            {{-- Kolom Kiri: Detail Akun & Kategori (6/12) --}}
                             <div class="lg:col-span-6 space-y-4">
                                 <div>
-                                    <label class="block text-[13px] font-bold text-black/80 dark:text-white/80 mb-1.5">Rekening Kas / Bank Penerima</label>
+                                    <label class="block text-[13px] font-bold text-black/80 dark:text-white/80 mb-1.5">{{ __('finance.recipient_account') }}</label>
                                     <select name="account_id"
                                         class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[12px] px-3.5 text-[16px] sm:text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#34C759]">
-                                        <option value="">Otomatis (Berdasarkan Metode)</option>
+                                        <option value="">{{ __('finance.auto_by_method') }}</option>
                                         @foreach ($accounts as $acc)
                                             <option value="{{ $acc->id }}">{{ $acc->name }} ({{ strtoupper($acc->type) }}) - Saldo: Rp {{ number_format($acc->current_balance, 0, ',', '.') }}</option>
                                         @endforeach
                                     </select>
                                 </div>
                                 <div>
-                                    <label class="block text-[13px] font-bold text-black/80 dark:text-white/80 mb-1.5">Metode Pembayaran</label>
+                                    <label class="block text-[13px] font-bold text-black/80 dark:text-white/80 mb-1.5">{{ __('finance.payment_method') }}</label>
                                     <select name="account_method"
                                         class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[12px] px-3.5 text-[16px] sm:text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#34C759]">
-                                        <option value="cash">Kas Tunai (Cash)</option>
-                                        <option value="bank_transfer">Transfer Rekening Bank</option>
-                                        <option value="qris">QRIS / E-Wallet</option>
+                                        <option value="cash">{{ __('finance.method_cash') }}</option>
+                                        <option value="bank_transfer">{{ __('finance.method_bank_transfer') }}</option>
+                                        <option value="qris">{{ __('finance.method_qris') }}</option>
                                     </select>
                                 </div>
                                 <div>
-                                    <label class="block text-[13px] font-bold text-black/80 dark:text-white/80 mb-1.5">Keterangan Penerimaan *</label>
-                                    <input name="description" required placeholder="Contoh: Setoran modal awal atau pendapatan non-POS"
+                                    <label class="block text-[13px] font-bold text-black/80 dark:text-white/80 mb-1.5">{{ __('finance.inflow_category_label') }}</label>
+                                    <select name="category" x-model="category" required
+                                        class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[12px] px-3.5 text-[16px] sm:text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#34C759]">
+                                        @foreach (['sales_revenue', 'capital_injection', 'receivable_payment', 'bank_interest', 'investment', 'asset_sale', 'cash_refund', 'tax_refund', 'other'] as $inflowCat)
+                                            <option value="{{ $inflowCat }}">{{ __('finance.inflow_categories.' . $inflowCat) }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div x-show="category === 'other'" x-transition class="p-3.5 rounded-[14px] bg-[#FF9500]/10 border border-[#FF9500]/30 space-y-1.5">
+                                    <label class="block text-[12.5px] font-bold text-[#FF9500] dark:text-[#FF9F0A] flex items-center gap-1.5">
+                                        <i data-lucide="alert-circle" class="w-3.5 h-3.5"></i>
+                                        <span>{{ __('finance.other_desc_label') }}</span>
+                                    </label>
+                                    <input name="other_description" x-model="otherDescription" :required="category === 'other'"
+                                        placeholder="{{ __('finance.other_desc_inflow_placeholder') }}"
+                                        class="w-full h-11 bg-white dark:bg-[#2C2C2E] border border-[#FF9500]/30 rounded-[10px] px-3.5 text-[16px] sm:text-[14px] text-black dark:text-white placeholder:text-black/30 dark:placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#FF9500]">
+                                    <p class="text-[11px] text-[#FF9500]/80">{{ __('finance.other_desc_inflow_hint') }}</p>
+                                </div>
+                                <div>
+                                    <label class="block text-[13px] font-bold text-black/80 dark:text-white/80 mb-1.5">{{ __('finance.notes_optional') }}</label>
+                                    <input name="description" placeholder="{{ __('finance.notes_inflow_placeholder') }}"
                                         class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[12px] px-3.5 text-[16px] sm:text-[14px] text-black dark:text-white placeholder:text-black/30 dark:placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#34C759]">
                                 </div>
                             </div>
@@ -740,14 +759,14 @@
                             {{-- Kolom Kanan: Nominal XXL (6/12) --}}
                             <div class="lg:col-span-6 space-y-4">
                                 <div class="p-5 rounded-[20px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.08] space-y-3.5">
-                                    <label class="block text-[13px] font-bold text-black/80 dark:text-white/80">Nominal Masuk (Rp) *</label>
+                                    <label class="block text-[13px] font-bold text-black/80 dark:text-white/80">{{ __('finance.amount_in_label') }}</label>
                                     <div class="relative">
                                         <span class="absolute left-4 top-1/2 -translate-y-1/2 text-black/40 dark:text-white/40 font-bold text-lg sm:text-xl">Rp</span>
                                         <input name="amount" type="number" min="1" step="any" x-model="amount" required placeholder="0"
                                             class="w-full h-14 pl-14 pr-4 bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 rounded-[14px] text-2xl sm:text-3xl font-extrabold tabular-nums text-black dark:text-white placeholder:text-black/20 dark:placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-[#34C759] transition-all shadow-inner">
                                     </div>
                                     <div class="flex flex-wrap items-center gap-2 pt-1">
-                                        <span class="text-[11.5px] text-black/45 dark:text-white/45 font-medium">Nominal Cepat:</span>
+                                        <span class="text-[11.5px] text-black/45 dark:text-white/45 font-medium">{{ __('finance.quick_amount') }}</span>
                                         <button type="button" @click="setQuickAmount(100000)" class="px-2.5 py-1 rounded-[8px] bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] text-[12px] font-semibold text-black/75 dark:text-white/75 transition cursor-pointer">Rp 100 rb</button>
                                         <button type="button" @click="setQuickAmount(500000)" class="px-2.5 py-1 rounded-[8px] bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] text-[12px] font-semibold text-black/75 dark:text-white/75 transition cursor-pointer">Rp 500 rb</button>
                                         <button type="button" @click="setQuickAmount(1000000)" class="px-2.5 py-1 rounded-[8px] bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] text-[12px] font-semibold text-black/75 dark:text-white/75 transition cursor-pointer">Rp 1 jt</button>
@@ -759,7 +778,7 @@
 
                         <div class="flex flex-col-reverse sm:flex-row items-center justify-end gap-3 pt-5 border-t border-black/5 dark:border-white/10">
                             <button type="button" @click="showInflowModal = false" :disabled="isSubmitting"
-                                class="w-full sm:w-auto min-h-[48px] px-6 rounded-[14px] text-[14px] font-semibold text-black/60 dark:text-white/60 hover:bg-black/5 dark:hover:bg-white/5 transition-all cursor-pointer">Batal</button>
+                                class="w-full sm:w-auto min-h-[48px] px-6 rounded-[14px] text-[14px] font-semibold text-black/60 dark:text-white/60 hover:bg-black/5 dark:hover:bg-white/5 transition-all cursor-pointer">{{ __('common.cancel') }}</button>
                             <button type="submit" :disabled="isSubmitting"
                                 class="w-full sm:w-auto min-h-[48px] px-8 rounded-[14px] text-[14.5px] font-bold text-white bg-[#34C759] hover:bg-[#2DBE50] active:scale-[0.98] transition-all shadow-[0_4px_16px_rgba(52,199,89,0.3)] flex items-center justify-center gap-2 cursor-pointer">
                                 <template x-if="isSubmitting">
@@ -769,7 +788,7 @@
                                     </svg>
                                 </template>
                                 <i data-lucide="check" class="w-4 h-4" x-show="!isSubmitting"></i>
-                                <span x-text="isSubmitting ? 'Menyimpan...' : 'Simpan Kas Masuk'">Simpan Kas Masuk</span>
+                                <span x-text="isSubmitting ? '{{ __('common.saving') }}' : '{{ __('finance.save_inflow') }}'">{{ __('finance.save_inflow') }}</span>
                             </button>
                         </div>
                     </form>
@@ -793,15 +812,15 @@
                     x-transition:leave="transition ease-in duration-150"
                     x-transition:leave-start="opacity-100 scale-100 translate-y-0"
                     x-transition:leave-end="opacity-0 scale-95 translate-y-2"
-                    x-data="{ isSubmitting: false, amount: '', setQuickAmount(val) { this.amount = val; } }">
+                    x-data="{ isSubmitting: false, amount: '', category: 'operational', otherDescription: '', setQuickAmount(val) { this.amount = val; } }">
                     <div class="flex items-center justify-between px-6 sm:px-8 py-5 border-b border-black/5 dark:border-white/10 bg-black/[0.01] dark:bg-white/[0.02]">
                         <div class="flex items-center gap-3.5">
                             <div class="w-11 h-11 rounded-[14px] bg-[#FF3B30]/12 text-[#FF3B30] flex items-center justify-center shrink-0 shadow-sm">
                                 <i data-lucide="arrow-up-right" class="w-5 h-5"></i>
                             </div>
                             <div>
-                                <h3 class="text-[18px] sm:text-[20px] font-bold text-black dark:text-white tracking-tight">Catat Pengeluaran Kas Keluar</h3>
-                                <p class="text-[12.5px] text-black/50 dark:text-white/50">Pengeluaran kas non-beban (pengambilan prive pemilik, pengembalian modal, titipan dana)</p>
+                                <h3 class="text-[18px] sm:text-[20px] font-bold text-black dark:text-white tracking-tight">{{ __('finance.record_outflow_title') }}</h3>
+                                <p class="text-[12.5px] text-black/50 dark:text-white/50">{{ __('finance.record_outflow_desc') }}</p>
                             </div>
                         </div>
                         <button type="button" @click="showOutflowModal = false"
@@ -814,30 +833,49 @@
                         class="flex-1 overflow-y-auto p-5 sm:p-8 space-y-6">
                         @csrf
                         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                            {{-- Kolom Kiri: Detail Akun (6/12) --}}
+                            {{-- Kolom Kiri: Detail Akun & Kategori (6/12) --}}
                             <div class="lg:col-span-6 space-y-4">
                                 <div>
-                                    <label class="block text-[13px] font-bold text-black/80 dark:text-white/80 mb-1.5">Sumber Rekening Kas / Bank</label>
+                                    <label class="block text-[13px] font-bold text-black/80 dark:text-white/80 mb-1.5">{{ __('finance.source_account') }}</label>
                                     <select name="account_id"
                                         class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[12px] px-3.5 text-[16px] sm:text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#FF3B30]">
-                                        <option value="">Otomatis (Berdasarkan Metode)</option>
+                                        <option value="">{{ __('finance.auto_by_method') }}</option>
                                         @foreach ($accounts as $acc)
                                             <option value="{{ $acc->id }}">{{ $acc->name }} ({{ strtoupper($acc->type) }}) - Saldo: Rp {{ number_format($acc->current_balance, 0, ',', '.') }}</option>
                                         @endforeach
                                     </select>
                                 </div>
                                 <div>
-                                    <label class="block text-[13px] font-bold text-black/80 dark:text-white/80 mb-1.5">Metode Pembayaran</label>
+                                    <label class="block text-[13px] font-bold text-black/80 dark:text-white/80 mb-1.5">{{ __('finance.payment_method') }}</label>
                                     <select name="account_method"
                                         class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[12px] px-3.5 text-[16px] sm:text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#FF3B30]">
-                                        <option value="cash">Kas Tunai (Cash)</option>
-                                        <option value="bank_transfer">Rekening Bank</option>
-                                        <option value="qris">QRIS / E-Wallet</option>
+                                        <option value="cash">{{ __('finance.method_cash') }}</option>
+                                        <option value="bank_transfer">{{ __('finance.method_bank_transfer') }}</option>
+                                        <option value="qris">{{ __('finance.method_qris') }}</option>
                                     </select>
                                 </div>
                                 <div>
-                                    <label class="block text-[13px] font-bold text-black/80 dark:text-white/80 mb-1.5">Keterangan Pengeluaran *</label>
-                                    <input name="description" required placeholder="Contoh: Pengambilan prive pemilik atau mutasi dana khusus"
+                                    <label class="block text-[13px] font-bold text-black/80 dark:text-white/80 mb-1.5">{{ __('finance.outflow_category_label') }}</label>
+                                    <select name="category" x-model="category" required
+                                        class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[12px] px-3.5 text-[16px] sm:text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#FF3B30]">
+                                        @foreach (['operational', 'utilities', 'internet_phone', 'supplies', 'salaries', 'consumption', 'logistics', 'rent', 'maintenance', 'marketing', 'taxes_legal', 'bank_admin', 'cash_advance', 'other'] as $outflowCat)
+                                            <option value="{{ $outflowCat }}">{{ __('finance.categories.' . $outflowCat) }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div x-show="category === 'other'" x-transition class="p-3.5 rounded-[14px] bg-[#FF3B30]/10 border border-[#FF3B30]/30 space-y-1.5">
+                                    <label class="block text-[12.5px] font-bold text-[#FF3B30] dark:text-[#FF453A] flex items-center gap-1.5">
+                                        <i data-lucide="alert-circle" class="w-3.5 h-3.5"></i>
+                                        <span>{{ __('finance.other_desc_label') }}</span>
+                                    </label>
+                                    <input name="other_description" x-model="otherDescription" :required="category === 'other'"
+                                        placeholder="{{ __('finance.other_desc_outflow_placeholder') }}"
+                                        class="w-full h-11 bg-white dark:bg-[#2C2C2E] border border-[#FF3B30]/30 rounded-[10px] px-3.5 text-[16px] sm:text-[14px] text-black dark:text-white placeholder:text-black/30 dark:placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#FF3B30]">
+                                    <p class="text-[11px] text-[#FF3B30]/80">{{ __('finance.other_desc_outflow_hint') }}</p>
+                                </div>
+                                <div>
+                                    <label class="block text-[13px] font-bold text-black/80 dark:text-white/80 mb-1.5">{{ __('finance.notes_optional') }}</label>
+                                    <input name="description" placeholder="{{ __('finance.notes_outflow_placeholder') }}"
                                         class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border border-black/5 dark:border-white/10 rounded-[12px] px-3.5 text-[16px] sm:text-[14px] text-black dark:text-white placeholder:text-black/30 dark:placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#FF3B30]">
                                 </div>
                             </div>
@@ -845,14 +883,14 @@
                             {{-- Kolom Kanan: Nominal XXL (6/12) --}}
                             <div class="lg:col-span-6 space-y-4">
                                 <div class="p-5 rounded-[20px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.08] space-y-3.5">
-                                    <label class="block text-[13px] font-bold text-black/80 dark:text-white/80">Nominal Keluar (Rp) *</label>
+                                    <label class="block text-[13px] font-bold text-black/80 dark:text-white/80">{{ __('finance.amount_out_label') }}</label>
                                     <div class="relative">
                                         <span class="absolute left-4 top-1/2 -translate-y-1/2 text-black/40 dark:text-white/40 font-bold text-lg sm:text-xl">Rp</span>
                                         <input name="amount" type="number" min="1" step="any" x-model="amount" required placeholder="0"
                                             class="w-full h-14 pl-14 pr-4 bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 rounded-[14px] text-2xl sm:text-3xl font-extrabold tabular-nums text-black dark:text-white placeholder:text-black/20 dark:placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-[#FF3B30] transition-all shadow-inner">
                                     </div>
                                     <div class="flex flex-wrap items-center gap-2 pt-1">
-                                        <span class="text-[11.5px] text-black/45 dark:text-white/45 font-medium">Nominal Cepat:</span>
+                                        <span class="text-[11.5px] text-black/45 dark:text-white/45 font-medium">{{ __('finance.quick_amount') }}</span>
                                         <button type="button" @click="setQuickAmount(50000)" class="px-2.5 py-1 rounded-[8px] bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] text-[12px] font-semibold text-black/75 dark:text-white/75 transition cursor-pointer">Rp 50 rb</button>
                                         <button type="button" @click="setQuickAmount(100000)" class="px-2.5 py-1 rounded-[8px] bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] text-[12px] font-semibold text-black/75 dark:text-white/75 transition cursor-pointer">Rp 100 rb</button>
                                         <button type="button" @click="setQuickAmount(250000)" class="px-2.5 py-1 rounded-[8px] bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] text-[12px] font-semibold text-black/75 dark:text-white/75 transition cursor-pointer">Rp 250 rb</button>
@@ -865,7 +903,7 @@
 
                         <div class="flex flex-col-reverse sm:flex-row items-center justify-end gap-3 pt-5 border-t border-black/5 dark:border-white/10">
                             <button type="button" @click="showOutflowModal = false" :disabled="isSubmitting"
-                                class="w-full sm:w-auto min-h-[48px] px-6 rounded-[14px] text-[14px] font-semibold text-black/60 dark:text-white/60 hover:bg-black/5 dark:hover:bg-white/5 transition-all cursor-pointer">Batal</button>
+                                class="w-full sm:w-auto min-h-[48px] px-6 rounded-[14px] text-[14px] font-semibold text-black/60 dark:text-white/60 hover:bg-black/5 dark:hover:bg-white/5 transition-all cursor-pointer">{{ __('common.cancel') }}</button>
                             <button type="submit" :disabled="isSubmitting"
                                 class="w-full sm:w-auto min-h-[48px] px-8 rounded-[14px] text-[14.5px] font-bold text-white bg-[#FF3B30] hover:bg-[#E0352B] active:scale-[0.98] transition-all shadow-[0_4px_16px_rgba(255,59,48,0.3)] flex items-center justify-center gap-2 cursor-pointer">
                                 <template x-if="isSubmitting">
@@ -875,7 +913,7 @@
                                     </svg>
                                 </template>
                                 <i data-lucide="check" class="w-4 h-4" x-show="!isSubmitting"></i>
-                                <span x-text="isSubmitting ? 'Menyimpan...' : 'Simpan Kas Keluar'">Simpan Kas Keluar</span>
+                                <span x-text="isSubmitting ? '{{ __('common.saving') }}' : '{{ __('finance.save_outflow') }}'">{{ __('finance.save_outflow') }}</span>
                             </button>
                         </div>
                     </form>

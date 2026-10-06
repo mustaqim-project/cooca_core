@@ -40,13 +40,37 @@ What typically changes per step:
 | Element | Phone | Tablet (≥768) | Desktop (≥1024/1280) |
 |---|---|---|---|
 | Navigation | Bottom bar (3-5 items) + "More" | Left rail (icons + small labels) | Full sidebar with labels, or top nav for content sites |
-| Layout | Single column, stacked | 2 columns, master-detail where useful | 12-col grid, max content width, side panels |
-| Data tables | Cards / key-value rows, or tables in scroll container with sticky first column | Compact table | Full table with sorting, filters inline |
-| Forms | One field per row, sticky submit | Two-column groups | Two-column + inline help/preview |
-| Modals | Full-height or bottom sheet | Centered dialog | Centered dialog or side drawer |
-| Density | Generous spacing | Medium | Can be denser; still respect 44px on touch-capable laptops |
+| Layout | **Pola Adaptif**: Horizontal Snap Slider untuk kumpulan KPI/langkah, Grouped Inset List untuk pengaturan/form, single-column untuk konten panjang (DILARANG tumpuk 5 kartu vertikal kaku) | 2 columns, master-detail where useful | 12-col grid, max content width, side panels |
+| Data tables | Cards / key-value rows, atau tabel dengan container scroll + kolom pertama sticky | Compact table | Full table dengan sorting & filter inline |
+| Forms | One field per row atau Grouped Inset List padat (`divide-y`), sticky submit | Two-column groups | Two-column + inline help/preview |
+| Modals | **Adaptive Full Bottom Sheet** (`rounded-t-[28px] max-h-[96vh] w-full`, sticky footer, safe-area `pb-28`) | **Centered Responsive Modal** (`max-w-[94vw] max-h-[90vh] rounded-[20px]`) | **Full-Size Canvas XXL Bento Dialog** (`max-w-5xl xl:max-w-6xl 2xl:max-w-[1350px] max-h-[92vh] rounded-[24px]`, multi-kolom lapang) |
+| Density | Generous spacing / Compact touch list | Medium | Can be denser; still respect 44px on touch-capable laptops |
 
 Tablets are touch devices even at desktop widths. Use `pointer: coarse` (not width) to decide touch sizing, and never assume "wide = mouse".
+
+## Mandat Mutlak: Form Pop-Up Modal Full-Size Lintas Device, Dual-Mode & Zero-Gap Backdrop ($y=0$)
+
+Setiap pop-up modal formulir (Create, Edit, Show, Setting, Detail) **DILARANG KERAS** menggunakan ukuran sempit (`max-w-md` / `max-w-lg`) yang memicu sesak visual dan scroll vertikal melelahkan. Seluruh modal form wajib:
+
+1. **Ukuran Maksimal Lintas Device (Full-Size Canvas)**:
+   - **Desktop (≥ 1024px, 1280px, 1440px, 1920px)**: `w-full max-w-[96vw] lg:max-w-5xl xl:max-w-6xl 2xl:max-w-[1350px] max-h-[92vh] sm:rounded-[24px] flex flex-col overflow-hidden` dengan grid 12-kolom Bento 2-kolom (7:5 atau 6:6).
+   - **Tablet (640px – 1023px)**: `max-w-[94vw] max-h-[90vh] rounded-[20px]`.
+   - **Mobile (< 640px)**: `fixed inset-x-0 bottom-0 max-h-[96vh] w-full rounded-t-[28px] rounded-b-none flex flex-col overflow-hidden` + handle pill + scroll safe-area `pb-28`.
+2. **Arsitektur Backdrop Zero-Gap Edge-to-Edge ($y=0$ Full Viewport Coverage)**:
+   - **Dilarang menaruh background gelap langsung pada wrapper flex** (`class="fixed inset-0 flex ... bg-black/40"`), karena memicu kebocoran bilah header/topbar di belakang modal.
+   - **Wajib gunakan elemen backdrop mandiri**: `<div class="fixed inset-0 bg-black/60 dark:bg-black/75 backdrop-blur-md" @click="..."></div>`.
+   - **Kontainer luar wajib `z-[200]`** (atau CSS global `z-index: 99999 !important`), sub-modal `z-[210]`, alert confirm `z-[220]`, dan card dialog `relative z-10`.
+   - Background transparan gelap wajib menyelimuti 100% layar dari batas paling atas ($y=0$ di bawah address bar browser) sampai dasar layar tanpa celah putih header.
+3. **Anti-Whitespace Atas & Larangan Duplikasi Header**:
+   - Dilarang menduplikasi subtitle/deskripsi header modal sebagai `H4` di dalam kotak kartu form.
+   - Gunakan overline tipografis 1 baris yang padat (`text-[12px] font-bold uppercase tracking-wider text-[#8E8E93] dark:text-[#98989D] pb-1 border-b border-black/[0.04] dark:border-white/[0.06]`) dan pastikan kolom kiri/kanan rata atas (*flush top-aligned*).
+4. **100% Kompatibel Light Mode & Dark Mode**:
+   - Modal Shell: `bg-white/98 dark:bg-[#1C1C1E]/98 border border-black/[0.08] dark:border-white/[0.12] backdrop-blur-2xl text-[#1C1C1E] dark:text-[#F2F2F7]`
+   - Header Bar: `bg-[#F2F2F7]/50 dark:bg-white/[0.02] border-b border-black/[0.06] dark:border-white/[0.08]`
+   - Sub-Cards: `bg-black/[0.02] dark:bg-white/[0.02] border border-black/[0.04] dark:border-white/[0.06] rounded-[20px] p-4 sm:p-5`
+   - Inputs/Selects: `bg-white dark:bg-[#2C2C2E] border border-black/[0.08] dark:border-white/[0.1] text-[#1C1C1E] dark:text-[#F2F2F7] placeholder:text-black/30 dark:placeholder:text-white/30 focus:ring-2 focus:ring-[#007AFF]/50`
+   - Sticky Action Footer: `bg-white dark:bg-[#1C1C1E] border-t border-black/[0.06] dark:border-white/[0.08]`
+   - Action Buttons: Primary `bg-[#007AFF] hover:bg-[#0071E3] text-white min-h-[44px]`, Secondary `bg-black/[0.05] dark:bg-white/[0.08] text-[#1C1C1E] dark:text-[#F2F2F7] min-h-[44px]`
 
 ## Where to go deeper
 

@@ -130,9 +130,30 @@ final class PosFinanceWebController extends Controller
             'cash_account_id' => ['nullable', 'string', 'exists:cash_accounts,id'],
             'account_id' => ['nullable', 'string', 'exists:chart_of_accounts,id'],
             'location_id' => ['nullable', 'string'],
-            'description' => ['required', 'string', 'max:255'],
+            'description' => ['nullable', 'string', 'max:255'],
+            'other_description' => ['nullable', 'string', 'max:255'],
             'receipt_image' => ['nullable', 'file', 'mimes:jpeg,png,jpg,webp,pdf', 'max:5120'],
         ]);
+
+        $category = trim((string) $validated['category']);
+        $otherDesc = trim((string) ($validated['other_description'] ?? ''));
+        $mainDesc = trim((string) ($validated['description'] ?? ''));
+
+        if ($category === 'other' || $category === 'Lainnya') {
+            if ($otherDesc === '' && $mainDesc === '') {
+                return redirect()->back()->withInput()->withErrors([
+                    'other_description' => __('finance.category_other_required'),
+                    'description' => __('finance.category_other_required'),
+                ]);
+            }
+            $finalDescription = $otherDesc !== '' ? "[Lainnya] {$otherDesc}" : "[Lainnya] {$mainDesc}";
+        } else {
+            $catLabel = __('finance.categories.' . $category);
+            if (is_array($catLabel) || str_starts_with((string) $catLabel, 'finance.categories.')) {
+                $catLabel = ucfirst(str_replace('_', ' ', $category));
+            }
+            $finalDescription = $mainDesc !== '' ? $mainDesc : "Beban {$catLabel}";
+        }
 
         $receiptPath = null;
         if ($request->hasFile('receipt_image')) {
@@ -161,7 +182,7 @@ final class PosFinanceWebController extends Controller
         }
 
         try {
-            $expense = DB::transaction(function () use ($business, $user, $validated, $receiptPath) {
+            $expense = DB::transaction(function () use ($business, $user, $validated, $category, $finalDescription, $receiptPath) {
                 $expenseNumber = 'EXP-' . date('Ymd') . '-' . rand(100, 999);
 
                 $expense = Expense::create([
@@ -169,11 +190,11 @@ final class PosFinanceWebController extends Controller
                     'location_id' => $validated['location_id'] ?? null,
                     'expense_number' => $expenseNumber,
                     'expense_date' => $validated['expense_date'],
-                    'category' => $validated['category'],
+                    'category' => $category,
                     'amount' => (float) $validated['amount'],
                     'payment_method' => $validated['payment_method'],
                     'account_id' => $validated['account_id'] ?? null,
-                    'description' => $validated['description'],
+                    'description' => $finalDescription,
                     'receipt_image_path' => $receiptPath,
                     'recorded_by' => $user->id,
                 ]);

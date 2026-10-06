@@ -765,24 +765,69 @@
                 </button>
             </div>
 
-            <form :action="'{{ url('/pos/shifts') }}/' + selectedShiftId + '/cash-movement'" method="POST" @submit="isSubmitting = true" class="space-y-6">
+            <form :action="'{{ url('/pos/shifts') }}/' + selectedShiftId + '/cash-movement'" method="POST" @submit="isSubmitting = true"
+                x-data="{ movementType: 'cash_in', category: 'capital_injection', otherDescription: '' }"
+                class="space-y-6">
                 @csrf
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
                     <div class="lg:col-span-7 space-y-4">
                         <div>
                             <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">{{ __('pos.movement_type') }}</label>
-                            <select name="type" class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 rounded-[12px] px-3.5 text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                            <select name="type" x-model="movementType" @change="category = (movementType === 'cash_out' ? 'operational' : 'capital_injection')"
+                                class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 rounded-[12px] px-3.5 text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
                                 <option value="cash_in">{{ __('pos.movement_cash_in_desc') }}</option>
                                 <option value="cash_out">{{ __('pos.movement_cash_out_desc') }}</option>
                             </select>
                         </div>
                         <div>
+                            <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">
+                                <span x-text="movementType === 'cash_out' ? '{{ __('pos.expense_category_label') }}' : '{{ __('pos.inflow_category_label') }}'"></span>
+                            </label>
+                            <template x-if="movementType === 'cash_out'">
+                                <select name="category" x-model="category"
+                                    class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 rounded-[12px] px-3.5 text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                                    <option value="operational">{{ __('finance.categories.operational') }}</option>
+                                    <option value="consumption">{{ __('finance.categories.consumption') }}</option>
+                                    <option value="supplies">{{ __('finance.categories.supplies') }}</option>
+                                    <option value="logistics">{{ __('finance.categories.logistics') }}</option>
+                                    <option value="utilities">{{ __('finance.categories.utilities') }}</option>
+                                    <option value="maintenance">{{ __('finance.categories.maintenance') }}</option>
+                                    <option value="bank_admin">{{ __('finance.categories.bank_admin') }}</option>
+                                    <option value="other">{{ __('finance.categories.other') }}</option>
+                                </select>
+                            </template>
+                            <template x-if="movementType === 'cash_in'">
+                                <select name="category" x-model="category"
+                                    class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 rounded-[12px] px-3.5 text-[14px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                                    <option value="capital_injection">{{ __('finance.inflow_categories.capital_injection') }}</option>
+                                    <option value="sales_revenue">{{ __('finance.inflow_categories.sales_revenue') }}</option>
+                                    <option value="cash_refund">{{ __('finance.inflow_categories.cash_refund') }}</option>
+                                    <option value="receivable_payment">{{ __('finance.inflow_categories.receivable_payment') }}</option>
+                                    <option value="other">{{ __('finance.inflow_categories.other') }}</option>
+                                </select>
+                            </template>
+                        </div>
+
+                        {{-- Alert Callout Khusus Kategori Lainnya (Wajib Diisi) --}}
+                        <div x-show="category === 'other'" x-transition
+                            class="p-3.5 rounded-[14px] bg-[#FF9500]/10 border border-[#FF9500]/30 space-y-1.5">
+                            <label class="block text-[12px] font-bold text-[#FF9500] dark:text-[#FF9F0A] flex items-center gap-1.5">
+                                <i data-lucide="alert-circle" class="w-3.5 h-3.5"></i>
+                                <span>{{ __('pos.other_desc_label') }}</span>
+                            </label>
+                            <input type="text" name="other_description" x-model="otherDescription" :required="category === 'other'"
+                                placeholder="{{ __('pos.other_desc_placeholder') }}"
+                                class="w-full h-10 bg-white dark:bg-[#1C1C1E] border border-[#FF9500]/30 rounded-[10px] px-3 text-[13px] text-black dark:text-white placeholder:text-black/30 dark:placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#FF9500]">
+                            <p class="text-[11px] text-[#FF9500]/80">{{ __('pos.other_desc_hint') }}</p>
+                        </div>
+
+                        <div>
                             <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">{{ __('pos.movement_amount') }}</label>
                             <input type="number" name="amount" min="1" required placeholder="0" class="w-full h-12 bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 rounded-[12px] px-4 text-[18px] font-bold tabular-nums text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
                         </div>
                         <div>
-                            <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">{{ __('pos.movement_reason') }}</label>
-                            <input type="text" name="reason" placeholder="{{ __('pos.movement_reason_placeholder') }}" required class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 rounded-[12px] px-3.5 text-[14px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
+                            <label class="block text-[12px] font-semibold text-black/70 dark:text-white/70 mb-1.5">{{ __('pos.movement_reason_optional') }}</label>
+                            <input type="text" name="reason" placeholder="{{ __('pos.movement_reason_placeholder') }}" class="w-full h-11 bg-black/[0.04] dark:bg-white/[0.06] border border-black/10 dark:border-white/10 rounded-[12px] px-3.5 text-[14px] text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
                         </div>
                     </div>
 

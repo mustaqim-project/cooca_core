@@ -120,7 +120,7 @@
         </header>
 
         <!-- Governance & Security Fast Links -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
             <a href="{{ route('settings.audit-logs.index') }}"
                 class="p-4 rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 hover:border-[#FF3B30]/30 transition-all flex items-center justify-between group shadow-sm active:scale-[0.99]">
                 <div class="flex items-center gap-3">
@@ -156,6 +156,19 @@
                     <div>
                         <p class="text-[13px] font-semibold text-black dark:text-white group-hover:text-[#34C759] transition-colors">{{ __('settings.link_roles_title') }}</p>
                         <p class="text-[11px] text-black/50 dark:text-white/50">{{ __('settings.link_roles_desc') }}</p>
+                    </div>
+                </div>
+                <i data-lucide="chevron-right" class="w-4 h-4 text-black/30 dark:text-white/30 group-hover:translate-x-0.5 transition-transform"></i>
+            </a>
+            <a href="{{ route('settings.integrations.mcp.index') }}"
+                class="p-4 rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 hover:border-[#AF52DE]/30 transition-all flex items-center justify-between group shadow-sm active:scale-[0.99]">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-[10px] bg-[#AF52DE]/10 text-[#AF52DE] flex items-center justify-center shrink-0">
+                        <i data-lucide="bot" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <p class="text-[13px] font-semibold text-black dark:text-white group-hover:text-[#AF52DE] transition-colors">Integrasi AI (MCP)</p>
+                        <p class="text-[11px] text-black/50 dark:text-white/50">Claude, ChatGPT, Gemini, Cursor</p>
                     </div>
                 </div>
                 <i data-lucide="chevron-right" class="w-4 h-4 text-black/30 dark:text-white/30 group-hover:translate-x-0.5 transition-transform"></i>

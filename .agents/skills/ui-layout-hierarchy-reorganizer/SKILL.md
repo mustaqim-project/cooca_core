@@ -44,17 +44,20 @@ Setiap antarmuka (Dashboard, Halaman Index, Form Input, Detail Entity, atau Moda
 │    • Overline Breadcrumb / Domain Identifier (teks abu-abu netral 11pt, tanpa pill).   │
 │    • Baris Utama: H1 Title tebal + Status Badge + Primary Action Button kanan atas.    │
 │    • Subtitle Padat: 1 baris penjelasan tujuan halaman (maks 10-15 kata).              │
-│ 2. Bento KPI Cards Row:                                                                │
-│    • 4 Kartu Bento Metrik Kunci (Angka besar tabular-nums, label semantik, delta growth)│
+│ 2. Metrik Kunci KPI (Adaptif Lintas Perangkat):                                         │
+│    • Desktop: Bento Grid 4-Kolom sejajar.                                              │
+│    • Mobile: Horizontal Snap Slider (swipe jempol, hemat 75% scroll) ATAU Grid 2x2.   │
+│      ⚠️ DILARANG menumpuk 4 kartu vertikal satu per satu di mobile (Infinite Bloat)!   │
 ├────────────────────────────────────────────────────────────────────────────────────────┤
 │ 📊 ZONA 2: ANALYTICAL & TACTICAL WORKFLOWS (Tengah Layar - 2nd Fold)                   │
 │ 1. Filter & Period Selector Toolbar: Berada tepat di atas grafik/tabel yang dipengaruhi│
-│ 2. Asymmetric Bento Grid (Desktop: 8-Kolom vs 4-Kolom / Mobile: Full Width Stack):     │
-│    • Kiri (8 Kolom): Visualisasi Tren Utama (Line / Bar Chart) atau Data Utama.        │
-│    • Kanan (4 Kolom): Komposisi Donut Chart / Ringkasan Kategori / Quick Action Tiles. │
+│ 2. Presentasi Analitikal & Alur Kerja:                                                 │
+│    • Desktop: Asymmetric Bento Grid (8-Kolom Tren vs 4-Kolom Komposisi/Quick Actions). │
+│    • Mobile: 1 Grafik Aktif + Segmented Control Tab (BUKAN multi-grafik bertumpuk).    │
+│    • Alur Langkah/Onboarding di Mobile: Horizontal Snap Slider / Compact Inline Stepper│
 ├────────────────────────────────────────────────────────────────────────────────────────┤
 │ 📑 ZONA 3: DETAILED LEDGER & OPERATIONAL FEED (Bawah Layar - 3rd Fold)                 │
-│ 1. Tabel Data Interaktif Lengkap / List Card View dengan fitur Drill-Down Modal.       │
+│ 1. Tabel Data Interaktif Lengkap (Desktop) / Grouped Card List Ringkas (Mobile).       │
 │ 2. Pagination & Sorting Toolbar.                                                       │
 │ 3. Audit Log / Timeline Aktivitas Terakhir (Secondary Supporting Data).               │
 └────────────────────────────────────────────────────────────────────────────────────────┘
@@ -62,15 +65,112 @@ Setiap antarmuka (Dashboard, Halaman Index, Form Input, Detail Entity, atau Moda
 
 ---
 
-## 🔍 2. Protokol Analisa Tampilan (5 Langkah Evaluasi)
+## 🔍 2. Protokol Analisa Tampilan (7 Langkah Evaluasi)
 
 Sebelum melakukan modifikasi susunan HTML/Blade, lakukan audit visual terhadap tampilan yang ada:
 
 1. **Evaluasi F-Pattern & Scannability:** Apakah mata pengguna langsung menangkap angka/status paling penting dalam 3 detik pertama tanpa harus menggulir ke bawah?
 2. **Evaluasi Posisi Tombol & CTA:** Apakah tombol aksi utama (*Primary Action*) berada di lokasi alami (Kanan atas pada desktop, Thumb Zone bawah pada mobile) atau justru tercecer di tengah-tengah kartu?
-3. **Evaluasi Kedekatan Kontrol dengan Target (*Proximity*):** Apakah filter tanggal dan dropdown cabang berada tepat di atas grafik/tabel yang dikendalikannya, atau terisolasi jauh di tempat lain?
-4. **Evaluasi Kepadatan Visual (*Density & Clutter*):** Apakah ada kartu kecil yang terpisah-pisah tanpa alasan yang seharusnya dapat digabungkan menjadi satu Bento Box yang kohesif?
-5. **Evaluasi Proporsi Grid Desktop vs Mobile:** Apakah tata letak desktop memanfaatkan lebar layar 12-kolom dengan seimbang (tidak ada ruang kosong raksasa yang mubazir), dan apakah tampilan otomatis runtuh (*collapse*) secara anggun di mobile tanpa overflow horizontal?
+3. **Evaluasi Card-Level Micro-Hierarchy & Action Proximity:** Apakah tombol aksi di dalam kartu langsung menyusul teks ajakannya (*Action Proximity*), atau terputus/terlempar ke bawah karena terhalang kartu-kartu panduan langkah?
+4. **Evaluasi Anti-Bento-Dogmatism di Mobile:** **TIDAK SEMUA HARUS BENTO!** Apakah di mobile terdapat tumpukan kartu Bento raksasa yang membuat halaman terlalu panjang (*Infinite Card Bloat*)? Jika ada deretan KPI, alur onboarding, atau pengaturan, gunakan **Horizontal Snap Slider** (`snap-x snap-mandatory`), **Grouped Inset List**, atau **Compact Stepper**.
+5. **Evaluasi Kedekatan Kontrol dengan Target (*Proximity*):** Apakah filter tanggal dan dropdown cabang berada tepat di atas grafik/tabel yang dikendalikannya, atau terisolasi jauh di tempat lain?
+6. **Evaluasi Kepadatan Visual & Affordance (*Density & False Affordance*):** Apakah ada kartu kecil yang terpisah-pisah tanpa alasan? Apakah ada elemen panduan langkah (*stepper/onboarding*) yang memakai style tombol interaktif sehingga membingungkan pengguna?
+7. **Evaluasi Proporsi Grid Desktop vs Mobile:** Apakah tata letak desktop memanfaatkan lebar layar 12-kolom dengan seimbang, dan apakah tampilan otomatis runtuh (*collapse*) secara anggun di mobile tanpa overflow horizontal?
+
+---
+
+### 📱 2.2 Panduan Pola Alternatif Mobile (Kapan Pakai Bento vs Slider vs Grouped List)
+
+```
+┌─────────────────────────────────────────────────────────────────────────────────────────┐
+│                       PILIH POLA SESUAI PERANGKAT & KEBUTUHAN DATA                      │
+├──────────────────────────┬─────────────────────────────┬────────────────────────────────┤
+│ Pola Tampilan            │ Kapan Digunakan             │ Keunggulan di Mobile           │
+├──────────────────────────┼─────────────────────────────┼────────────────────────────────┤
+│ 1. Horizontal Slider     │ • Kartu KPI (3-4 metrik)    │ • Hemat 75% scroll vertikal    │
+│    (Snap Carousel)       │ • Panduan Onboarding        │ • Cukup digeser dengan jempol  │
+│    `snap-x snap-mandatory`│ • Shortcut aksi cepat      │ • Terlihat rapi & modern       │
+├──────────────────────────┼─────────────────────────────┼────────────────────────────────┤
+│ 2. Grouped Inset List    │ • Menu Pengaturan / Form    │ • Menggabungkan 5 kartu jadi 1 │
+│    (iOS Settings Style)  │ • Konfigurasi Integrasi     │ • Baris sentuh 48px divide-y   │
+│    `divide-y` 1 kontainer│ • Detail Master-Data        │ • Tanpa padding berulang boros │
+├──────────────────────────┼─────────────────────────────┼────────────────────────────────┤
+│ 3. Compact Stepper Line  │ • Alur 1-Klik / Verifikasi  │ • 1 baris titik/angka minimalis│
+│    `1 ── 2 ── 3`         │ • Panduan ringkas wizard    │ • Tidak mengalihkan fokus CTA  │
+├──────────────────────────┼─────────────────────────────┼────────────────────────────────┤
+│ 4. Segmented Control Tab │ • Filter periode (7d/30d)   │ • Menghindari multi-grafik     │
+│    Pill Switcher         │ • Switch Omzet vs Laba      │ • Hanya 1 grafik aktif tampil  │
+└──────────────────────────┴─────────────────────────────┴────────────────────────────────┘
+```
+
+---
+
+### 🎛️ 2.1 Standar Alur Mikro Kartu Aksi & Integrasi (Card-Level Action Flow)
+
+Untuk kartu dengan aksi tunggal (seperti Onboarding 1-Klik, Integrasi WABA/Marketplace, atau Pengaturan Modul), terapkan hierarki vertikal ketat:
+
+```
+┌────────────────────────────────────────────────────────────────────────┐
+│ [Icon Squircle]  Judul Kartu + Subtitle Ringkas        [Status Badge]  │
+├────────────────────────────────────────────────────────────────────────┤
+│ 💡 Banner Ringkas Kuota/Benefit (Padding aman py-3.5 px-4)             │
+├────────────────────────────────────────────────────────────────────────┤
+│ Teks Pengantar Aksi (Lugas, padat, tanpa kata kaku "klik tombol di bawah")│
+│                                                                        │
+│ [Primary CTA Button: min-h-[44px] px-6 rounded-[14px] sm:w-auto]       │
+│  • Label padat (2-4 kata, whitespace-nowrap, TANPA kata yatim)         │
+│  • Ikon shrink-0 sejajar di tengah (inline-flex gap-2.5)               │
+├────────────────────────────────────────────────────────────────────────┤
+│ Quiet Informational Stepper (Bukan kartu tombol palsu!):               │
+│  ① Langkah 1 (Teks abu-abu redup)  ② Langkah 2   ③ Selesai (Hijau)     │
+├────────────────────────────────────────────────────────────────────────┤
+│ Status Operasional / Toggle Sekunder (Di footer kartu)                 │
+└────────────────────────────────────────────────────────────────────────┘
+```
+
+> **DILARANG:** Menaruh kartu langkah 1-2-3 di antara teks ajakan dan tombol aksi. Posisi ini memutus alur kognitif (*Action Proximity Inversion*) dan membuat tombol terasing di dasar kartu.
+
+---
+
+### 🪟 2.3 Standar Pop-Up Modal Form Full-Size Lintas Device & Dual Light/Dark Mode
+
+Setiap pop-up modal formulir (Create, Edit, Show, Setting, Detail) **DILARANG KERAS** menggunakan ukuran sempit (`max-w-md` / `max-w-lg`) yang memicu sesak visual dan scroll sempit:
+
+```
+┌────────────────────────────────────────────────────────────────────────┐
+│ [Overline]  Judul Modal (H3) + Deskripsi Singkat               [ (X) ] │
+├────────────────────────────────────────────────────────────────────────┤
+│ ┌───────────────────────────┐ ┌──────────────────────────────────────┐ │
+│ │ 🔲 KARTU KIRI (7-KOLOM)    │ │ 🔲 KARTU KANAN (5-KOLOM)              │ │
+│ │ • Overline seksi 1 baris  │ │ • Overline seksi 1 baris             │ │
+│ │   (DILARANG duplikasi H3!)│ │ • Input harga/biaya, status switch,   │ │
+│ │ • Input nama, kode, unit  │ │   kanal tampil & konfigurasi          │ │
+│ │ • Deskripsi / catatan     │ │                                      │ │
+│ └───────────────────────────┘ └──────────────────────────────────────┘ │
+├────────────────────────────────────────────────────────────────────────┤
+│ [Sticky Footer Bar]                       [ Batal ] [ Simpan / Update ]│
+└────────────────────────────────────────────────────────────────────────┘
+```
+
+1. **Ukuran Maksimal (Full-Size Canvas Lintas Device)**:
+   - **Desktop (≥ 1024px, 1280px, 1440px, 1920px)**: `w-full max-w-[96vw] lg:max-w-5xl xl:max-w-6xl 2xl:max-w-[1350px] max-h-[92vh] sm:rounded-[24px] flex flex-col overflow-hidden` (Bento 2-Kolom 7:5 atau 6:6).
+   - **Tablet (640px – 1023px)**: `max-w-[94vw] max-h-[90vh] rounded-[20px]`.
+   - **Mobile (< 640px)**: `fixed inset-x-0 bottom-0 max-h-[96vh] w-full rounded-t-[28px] rounded-b-none flex flex-col overflow-hidden` + handle pill + scroll safe-area `pb-28`.
+2. **Arsitektur Backdrop Zero-Gap Edge-to-Edge ($y=0$ Full Viewport Overlay)**:
+   - **Dilarang menaruh background gelap langsung pada wrapper flex** (`class="fixed inset-0 flex ... bg-black/40"`), karena memicu kebocoran bilah header/topbar di belakang modal.
+   - **Wajib gunakan elemen backdrop mandiri**: `<div class="fixed inset-0 bg-black/60 dark:bg-black/75 backdrop-blur-md" @click="..."></div>`.
+   - **Kontainer luar wajib `z-[200]`** (atau CSS global `z-index: 99999 !important`), sub-modal `z-[210]`, alert confirm `z-[220]`, dan card dialog `relative z-10`.
+   - Background transparan gelap wajib menyelimuti 100% layar dari batas paling atas ($y=0$ di bawah address bar browser) sampai dasar layar tanpa celah putih header.
+3. **Anti-Whitespace Atas & Larangan Duplikasi Header**:
+   - Dilarang menduplikasi subtitle/deskripsi header modal sebagai `H4 uppercase` di dalam kotak kartu form.
+   - Sub-card form menggunakan overline tipografis 1 baris yang padat (`text-[12px] font-bold uppercase tracking-wider text-[#8E8E93] dark:text-[#98989D] pb-1 border-b border-black/[0.04] dark:border-white/[0.06]`), dengan kolom kiri dan kanan rata atas (*flush top-aligned*).
+4. **100% Kompatibel Light Mode & Dark Mode**:
+   - Modal Shell: `bg-white/98 dark:bg-[#1C1C1E]/98 border border-black/[0.08] dark:border-white/[0.12] backdrop-blur-2xl text-[#1C1C1E] dark:text-[#F2F2F7]`
+   - Header Bar: `bg-[#F2F2F7]/50 dark:bg-white/[0.02] border-b border-black/[0.06] dark:border-white/[0.08]`
+   - Sub-Cards: `bg-black/[0.02] dark:bg-white/[0.02] border border-black/[0.04] dark:border-white/[0.06] rounded-[20px] p-4 sm:p-5`
+   - Inputs/Selects: `bg-white dark:bg-[#2C2C2E] border border-black/[0.08] dark:border-white/[0.1] text-[#1C1C1E] dark:text-[#F2F2F7] placeholder:text-black/30 dark:placeholder:text-white/30 focus:ring-2 focus:ring-[#007AFF]/50`
+   - Sticky Action Footer: `bg-white dark:bg-[#1C1C1E] border-t border-black/[0.06] dark:border-white/[0.08]`
+   - Action Buttons: Primary `bg-[#007AFF] hover:bg-[#0071E3] text-white min-h-[44px]`, Secondary `bg-black/[0.05] dark:bg-white/[0.08] text-[#1C1C1E] dark:text-[#F2F2F7] min-h-[44px]`
 
 ---
 

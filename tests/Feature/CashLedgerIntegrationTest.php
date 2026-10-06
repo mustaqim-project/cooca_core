@@ -119,5 +119,128 @@ final class CashLedgerIntegrationTest extends TestCase
         $responseJournals = $this->actingAs($this->user)->get(route('finance.journals.index'));
         $responseJournals->assertOk();
     }
+
+    public function test_expense_store_requires_other_description_when_category_is_other(): void
+    {
+        $ledger = new CashLedgerService;
+        $cash = $ledger->accountFor($this->business, 'cash');
+        $ledger->recordInflow($this->business, 500000, 'test', 'seed-exp-other', 'Saldo kas', 'cash', $this->user->id);
+
+        // 1. Gagal jika category = other tapi other_description kosong
+        $failResp = $this->actingAs($this->user)->post(route('finance.expenses.store'), [
+            'expense_date' => now()->toDateString(),
+            'category' => 'other',
+            'amount' => 50000,
+            'payment_method' => 'cash',
+            'cash_account_id' => $cash->id,
+            'other_description' => '',
+        ]);
+        $failResp->assertSessionHasErrors('other_description');
+
+        // 2. Berhasil jika other_description terisi
+        $successResp = $this->actingAs($this->user)->post(route('finance.expenses.store'), [
+            'expense_date' => now()->toDateString(),
+            'category' => 'other',
+            'amount' => 50000,
+            'payment_method' => 'cash',
+            'cash_account_id' => $cash->id,
+            'other_description' => 'Iuran kebersihan lingkungan toko',
+        ]);
+        $successResp->assertRedirect();
+        $this->assertDatabaseHas('expenses', [
+            'business_id' => $this->business->id,
+            'category' => 'other',
+            'amount' => 50000,
+            'description' => '[Lainnya] Iuran kebersihan lingkungan toko',
+        ]);
+    }
+
+    public function test_manual_inflow_and_outflow_require_other_description_when_category_is_other(): void
+    {
+        $ledger = new CashLedgerService;
+        $cash = $ledger->accountFor($this->business, 'cash');
+        $ledger->recordInflow($this->business, 100000, 'test', 'seed-cash-test', 'Saldo awal', 'cash', $this->user->id);
+
+        // Outflow validation
+        $failOut = $this->actingAs($this->user)->post(route('finance.cash-bank.outflow'), [
+            'account_id' => $cash->id,
+            'amount' => 25000,
+            'category' => 'other',
+            'other_description' => '',
+        ]);
+        $failOut->assertSessionHasErrors('other_description');
+
+        // Outflow success
+        $successOut = $this->actingAs($this->user)->post(route('finance.cash-bank.outflow'), [
+            'account_id' => $cash->id,
+            'amount' => 25000,
+            'category' => 'other',
+            'other_description' => 'Biaya parkir tahunan',
+        ]);
+        $successOut->assertRedirect();
+        $this->assertDatabaseHas('cash_transactions', [
+            'business_id' => $this->business->id,
+            'description' => '[Lainnya] Biaya parkir tahunan',
+        ]);
+
+        // Inflow validation
+        $failIn = $this->actingAs($this->user)->post(route('finance.cash-bank.inflow'), [
+            'account_id' => $cash->id,
+            'amount' => 100000,
+            'category' => 'other',
+            'other_description' => '',
+        ]);
+        $failIn->assertSessionHasErrors('other_description');
+
+        // Inflow success
+        $successIn = $this->actingAs($this->user)->post(route('finance.cash-bank.inflow'), [
+            'account_id' => $cash->id,
+            'amount' => 100000,
+            'category' => 'other',
+            'other_description' => 'Kompensasi titipan barang rekanan',
+        ]);
+        $successIn->assertRedirect();
+        $this->assertDatabaseHas('cash_transactions', [
+            'business_id' => $this->business->id,
+            'description' => '[Lainnya] Kompensasi titipan barang rekanan',
+        ]);
+    }
+
+    public function test_dashboard_quick_expense_and_inflow_require_other_description_when_category_is_other(): void
+    {
+        // 1. Quick Expense (JSON)
+        $failExp = $this->actingAs($this->user)->postJson(route('dashboard.quick-expense'), [
+            'name' => 'Biaya mendadak',
+            'amount' => 35000,
+            'category' => 'Lainnya',
+            'other_description' => '',
+        ]);
+        $failExp->assertStatus(422)->assertJsonValidationErrors('other_description');
+
+        $successExp = $this->actingAs($this->user)->postJson(route('dashboard.quick-expense'), [
+            'name' => 'Biaya mendadak',
+            'amount' => 35000,
+            'category' => 'Lainnya',
+            'other_description' => 'Beli baterai jam dinding toko',
+        ]);
+        $successExp->assertStatus(200)->assertJsonPath('success', true);
+
+        // 2. Quick Inflow (JSON)
+        $failIn = $this->actingAs($this->user)->postJson(route('dashboard.quick-inflow'), [
+            'name' => 'Uang masuk tak terduga',
+            'amount' => 75000,
+            'category' => 'Lainnya',
+            'other_description' => '',
+        ]);
+        $failIn->assertStatus(422)->assertJsonValidationErrors('other_description');
+
+        $successIn = $this->actingAs($this->user)->postJson(route('dashboard.quick-inflow'), [
+            'name' => 'Uang masuk tak terduga',
+            'amount' => 75000,
+            'category' => 'Lainnya',
+            'other_description' => 'Hadiah doorprize dari supplier',
+        ]);
+        $successIn->assertStatus(200)->assertJsonPath('success', true);
+    }
 }
 

@@ -20,13 +20,26 @@ use App\Support\Context;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
-final class WarehouseWebController extends Controller
+final class WarehouseWebController extends Controller implements HasMiddleware
 {
+    /**
+     * Get the middleware that should be assigned to the controller.
+     */
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('require.permission:warehouse.view', only: ['index', 'show']),
+            new Middleware('require.permission:warehouse.manage', only: ['store', 'edit', 'update', 'destroy']),
+        ];
+    }
+
     public function __construct(
         private readonly EntitlementService $entitlementService = new EntitlementService
     ) {}

@@ -271,8 +271,17 @@ final class CashLedgerWebController extends Controller
             'account_id' => ['nullable', 'exists:cash_accounts,id'],
             'account_method' => ['nullable', 'in:cash,bank_transfer,qris'],
             'amount' => ['required', 'numeric', 'gt:0'],
-            'description' => ['required', 'string', 'max:255'],
+            'category' => ['nullable', 'string', 'max:50'],
+            'other_description' => ['nullable', 'string', 'max:255'],
+            'description' => ['nullable', 'string', 'max:255'],
         ]);
+
+        $cat = $validated['category'] ?? null;
+        if ($cat === 'other' && empty(trim($validated['other_description'] ?? ''))) {
+            return back()->withInput()->withErrors([
+                'other_description' => __('finance.category_other_required', [], null) ?: 'Keterangan rincian wajib diisi ketika kategori Lainnya dipilih.',
+            ]);
+        }
 
         $account = null;
         if (! empty($validated['account_id'])) {
@@ -282,10 +291,24 @@ final class CashLedgerWebController extends Controller
         $method = $validated['account_method'] ?? ($account?->type === CashAccount::TYPE_CASH ? 'cash' : 'bank_transfer');
         $referenceId = (string) str()->uuid();
 
+        // Build SSOT audit description with category badge
+        $desc = trim($validated['description'] ?? '');
+        if ($cat === 'other') {
+            $otherDesc = trim($validated['other_description'] ?? '');
+            $finalDescription = $otherDesc ? "[Lainnya] {$otherDesc}" : ($desc ? "[Lainnya] {$desc}" : '[Lainnya]');
+        } elseif ($cat) {
+            $label = $inflow
+                ? (__("finance.inflow_categories.{$cat}") !== "finance.inflow_categories.{$cat}" ? __("finance.inflow_categories.{$cat}") : ucfirst(str_replace('_', ' ', $cat)))
+                : (__("finance.categories.{$cat}") !== "finance.categories.{$cat}" ? __("finance.categories.{$cat}") : ucfirst(str_replace('_', ' ', $cat)));
+            $finalDescription = $desc ? "[{$label}] {$desc}" : "[{$label}]";
+        } else {
+            $finalDescription = $desc ?: ($inflow ? 'Penerimaan Kas Manual' : 'Pengeluaran Kas Manual');
+        }
+
         try {
             $inflow
-                ? $this->service->recordInflow($business, (float) $validated['amount'], 'manual_cash', $referenceId, $validated['description'], $method, auth()->id(), $account)
-                : $this->service->recordOutflow($business, (float) $validated['amount'], 'manual_cash', $referenceId, $validated['description'], $method, auth()->id(), $account);
+                ? $this->service->recordInflow($business, (float) $validated['amount'], 'manual_cash', $referenceId, $finalDescription, $method, auth()->id(), $account)
+                : $this->service->recordOutflow($business, (float) $validated['amount'], 'manual_cash', $referenceId, $finalDescription, $method, auth()->id(), $account);
         } catch (InvalidArgumentException $exception) {
             return back()->withInput()->withErrors(['amount' => $exception->getMessage()]);
         }

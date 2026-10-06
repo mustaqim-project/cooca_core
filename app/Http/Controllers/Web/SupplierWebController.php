@@ -10,10 +10,23 @@ use App\Support\Context;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\View\View;
 
-final class SupplierWebController extends Controller
+final class SupplierWebController extends Controller implements HasMiddleware
 {
+    /**
+     * Get the middleware that should be assigned to the controller.
+     */
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('require.permission:master_data.suppliers.view', only: ['index']),
+            new Middleware(['require.permission:master_data.suppliers.manage', 'entitlement:supplier'], only: ['store']),
+            new Middleware('require.permission:master_data.suppliers.manage', only: ['update', 'destroy']),
+        ];
+    }
     /**
      * Display a listing of suppliers with search and material counts.
      */
@@ -122,6 +135,24 @@ final class SupplierWebController extends Controller
     {
         $business = Context::requireBusiness();
         abort_unless($supplier->business_id === $business->id, 403);
+
+        // Deletion Guard: Check active transactions (Invoices, POs, Goods Receipts)
+        $hasInvoices = $supplier->invoices()->exists();
+        $hasPurchaseOrders = method_exists($supplier, 'purchaseOrders') && $supplier->purchaseOrders()->exists();
+        $hasGoodsReceipts = $supplier->goodsReceipts()->exists();
+
+        if ($hasInvoices || $hasPurchaseOrders || $hasGoodsReceipts) {
+            $msg = __('purchasing.supplier.messages.cannot_delete_has_po');
+
+            if (request()->wantsJson() || request()->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $msg,
+                ], 422);
+            }
+
+            return back()->with('error', $msg);
+        }
 
         $supplier->delete();
 

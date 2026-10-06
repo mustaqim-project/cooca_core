@@ -29,14 +29,26 @@ use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
-final class DashboardWebController extends Controller
+final class DashboardWebController extends Controller implements HasMiddleware
 {
+    /**
+     * Get the middleware that should be assigned to the controller.
+     */
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('require.permission:dashboard.view', only: ['index']),
+        ];
+    }
+
     public function index(Request $request): View|JsonResponse|RedirectResponse
     {
         $business = Context::requireBusiness();
@@ -131,10 +143,20 @@ final class DashboardWebController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'amount' => ['required', 'numeric', 'min:100'],
             'category' => ['nullable', 'string', 'max:100'],
+            'other_description' => ['nullable', 'string', 'max:255'],
             'payment_method' => ['nullable', 'string', 'in:cash,bank,qris,petty_cash'],
             'notes' => ['nullable', 'string', 'max:500'],
             'supervisor_pin' => ['nullable', 'string', 'max:10'],
         ]);
+
+        $cat = $validated['category'] ?? 'Operasional Toko';
+        if (in_array(strtolower($cat), ['lainnya', 'other']) && empty(trim($validated['other_description'] ?? ''))) {
+            return response()->json([
+                'success' => false,
+                'message' => __('finance.category_other_required', [], null) ?: 'Keterangan rincian wajib diisi ketika kategori Lainnya dipilih.',
+                'errors' => ['other_description' => [__('finance.category_other_required', [], null) ?: 'Keterangan rincian wajib diisi ketika kategori Lainnya dipilih.']],
+            ], 422);
+        }
 
         $amount = (float) $validated['amount'];
 
@@ -145,14 +167,14 @@ final class DashboardWebController extends Controller
                 return response()->json([
                     'success' => false,
                     'requires_pin' => true,
-                    'message' => 'Pengeluaran nominal besar (>= Rp 500.000) memerlukan verifikasi PIN Supervisor.',
+                    'message' => __('quick_actions.expense.pin_required_msg'),
                 ], 422);
             }
             if (! Hash::check((string) $pin, $business->pos_supervisor_pin)) {
                 return response()->json([
                     'success' => false,
                     'requires_pin' => true,
-                    'message' => 'PIN Supervisor tidak valid. Silakan periksa kembali.',
+                    'message' => __('quick_actions.expense.pin_invalid_msg'),
                 ], 422);
             }
         }
@@ -161,16 +183,25 @@ final class DashboardWebController extends Controller
         $locationId = $location?->id;
         $expenseNumber = 'EXP-' . date('Ymd') . '-' . rand(1000, 9999);
 
-        $expense = DB::transaction(function () use ($business, $locationId, $expenseNumber, $validated, $amount, $user) {
+        // Format description
+        $rawName = trim($validated['name']);
+        if (in_array(strtolower($cat), ['lainnya', 'other'])) {
+            $otherDesc = trim($validated['other_description'] ?? '') ?: $rawName;
+            $finalDescription = "[Lainnya] {$otherDesc}";
+        } else {
+            $finalDescription = $rawName;
+        }
+
+        $expense = DB::transaction(function () use ($business, $locationId, $expenseNumber, $validated, $cat, $finalDescription, $amount, $user) {
             $createdExpense = Expense::create([
                 'business_id' => $business->id,
                 'location_id' => $locationId,
                 'expense_number' => $expenseNumber,
                 'expense_date' => Carbon::today()->toDateString(),
-                'category' => $validated['category'] ?? 'Operasional Toko',
+                'category' => $cat,
                 'amount' => $amount,
                 'payment_method' => $validated['payment_method'] ?? 'cash',
-                'description' => $validated['name'] ?? 'Biaya Operasional Toko',
+                'description' => $finalDescription,
                 'recorded_by' => $user?->id,
             ]);
 
@@ -189,7 +220,10 @@ final class DashboardWebController extends Controller
 
         $responseData = [
             'success' => true,
-            'message' => "Beban '{$expense->description}' sebesar Rp " . number_format($amount, 0, ',', '.') . " berhasil dicatat.",
+            'message' => __('quick_actions.expense.recorded_success_with_amount', [
+                'name' => $expense->description,
+                'amount' => number_format($amount, 0, ',', '.'),
+            ]),
             'expense' => [
                 'id' => $expense->id,
                 'name' => $expense->description,
@@ -202,6 +236,96 @@ final class DashboardWebController extends Controller
 
         if ($idempotencyKey) {
             Cache::put("idemp_exp_{$business->id}_{$idempotencyKey}", $responseData, 60);
+        }
+
+        return response()->json($responseData);
+    }
+
+    /**
+     * Quick Instant Income (Catat Pemasukan Kas Cepat) via AJAX.
+     */
+    public function quickInflow(Request $request): JsonResponse
+    {
+        $business = Context::requireBusiness();
+        $user = auth()->user();
+
+        // Idempotency Key check to prevent double-submit
+        $idempotencyKey = $request->header('X-Idempotency-Key');
+        if ($idempotencyKey) {
+            $cacheKey = "idemp_inflow_{$business->id}_{$idempotencyKey}";
+            if (Cache::has($cacheKey)) {
+                return response()->json(Cache::get($cacheKey));
+            }
+        }
+
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'amount' => ['required', 'numeric', 'min:100'],
+            'category' => ['nullable', 'string', 'max:100'],
+            'other_description' => ['nullable', 'string', 'max:255'],
+            'payment_method' => ['nullable', 'string', 'in:cash,bank,qris'],
+            'notes' => ['nullable', 'string', 'max:500'],
+        ]);
+
+        $cat = $validated['category'] ?? 'Penjualan / Pendapatan Usaha';
+        if (in_array(strtolower($cat), ['lainnya', 'other']) && empty(trim($validated['other_description'] ?? ''))) {
+            return response()->json([
+                'success' => false,
+                'message' => __('finance.category_other_required', [], null) ?: 'Keterangan rincian wajib diisi ketika kategori Lainnya dipilih.',
+                'errors' => ['other_description' => [__('finance.category_other_required', [], null) ?: 'Keterangan rincian wajib diisi ketika kategori Lainnya dipilih.']],
+            ], 422);
+        }
+
+        $amount = (float) $validated['amount'];
+        $method = match ($validated['payment_method'] ?? 'cash') {
+            'bank' => 'bank_transfer',
+            'qris' => 'qris',
+            default => 'cash',
+        };
+
+        $rawName = trim($validated['name']);
+        if (in_array(strtolower($cat), ['lainnya', 'other'])) {
+            $otherDesc = trim($validated['other_description'] ?? '') ?: $rawName;
+            $finalDesc = "[Lainnya] {$otherDesc}";
+        } else {
+            $finalDesc = "[{$cat}] {$rawName}";
+        }
+
+        $ledger = app(\App\Domain\Finance\CashLedgerService::class);
+        $account = $ledger->accountFor($business, $method);
+        $referenceId = (string) Str::uuid();
+
+        $trx = $ledger->recordInflow(
+            $business,
+            $amount,
+            'quick_income',
+            $referenceId,
+            $finalDesc,
+            $method,
+            $user?->id,
+            $account
+        );
+
+        $overview = $this->getOverviewData($business);
+
+        $responseData = [
+            'success' => true,
+            'message' => __('quick_actions.income.recorded_success_with_amount', [
+                'name' => $finalDesc,
+                'amount' => number_format($amount, 0, ',', '.'),
+            ]),
+            'transaction' => [
+                'id' => $trx->id,
+                'name' => $finalDesc,
+                'amount' => $amount,
+                'category' => $cat,
+                'date' => Carbon::today()->toDateString(),
+            ],
+            'stats' => $overview['stats'] ?? [],
+        ];
+
+        if ($idempotencyKey) {
+            Cache::put("idemp_inflow_{$business->id}_{$idempotencyKey}", $responseData, 60);
         }
 
         return response()->json($responseData);
@@ -366,7 +490,7 @@ final class DashboardWebController extends Controller
                 return true;
             });
         } else {
-            return response()->json(['success' => false, 'message' => 'Pilih bahan baku atau produk yang akan ditambah stoknya.'], 422);
+            return response()->json(['success' => false, 'message' => __('quick_actions.stock_in.select_item_required')], 422);
         }
 
         // Invalidate cached material list
@@ -377,7 +501,12 @@ final class DashboardWebController extends Controller
 
         $responseData = [
             'success' => true,
-            'message' => "Stok {$targetName} bertambah +{$qty} {$unitCode} (Total Rp " . number_format($totalCost, 0, ',', '.') . ").",
+            'message' => __('quick_actions.stock_in.stock_added_success', [
+                'name' => $targetName,
+                'qty' => $qty,
+                'unit' => $unitCode,
+                'total' => number_format($totalCost, 0, ',', '.'),
+            ]),
             'stats' => $overview['stats'],
         ];
 
@@ -451,7 +580,11 @@ final class DashboardWebController extends Controller
 
         $responseData = [
             'success' => true,
-            'message' => "Bahan baku '{$material->name}' berhasil ditambahkan (Rp " . number_format((float) $validated['cost_per_unit'], 0, ',', '.') . " / {$material->unit?->code}).",
+            'message' => __('quick_actions.material.material_added_success', [
+                'name' => $material->name,
+                'cost' => number_format((float) $validated['cost_per_unit'], 0, ',', '.'),
+                'unit' => $material->unit?->code ?? 'satuan',
+            ]),
             'material' => [
                 'id' => $material->id,
                 'name' => $material->name,

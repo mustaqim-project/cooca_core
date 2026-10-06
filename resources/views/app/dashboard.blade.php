@@ -7,35 +7,17 @@
 @section('content')
     <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
 
-    <div class="space-y-6 pb-28 sm:pb-32 lg:pb-12" x-data="{
-        stats: {{ json_encode($stats ?? []) }},
-        // Quick Calc Widget Data
-        quickHpp: 15000,
-        quickMargin: 40,
-        get calculatedPrice() {
-            if (this.quickMargin >= 100) return 0;
-            return Math.round(this.quickHpp / (1 - (this.quickMargin / 100)));
-        },
-        get grossProfit() {
-            return this.calculatedPrice - this.quickHpp;
-        },
-        get markupEquivalent() {
-            if (this.quickHpp <= 0) return 0;
-            return ((this.grossProfit / this.quickHpp) * 100).toFixed(1);
-        },
-        init() {
-            window.addEventListener('expense-added', (e) => {
-                if (e.detail && e.detail.stats) {
-                    this.stats = e.detail.stats;
-                }
-            });
-            window.addEventListener('stock-in-added', (e) => {
-                if (e.detail && e.detail.stats) {
-                    this.stats = e.detail.stats;
-                }
-            });
-        }
-    }">
+    @php
+        $defaultHpp = match (true) {
+            $business?->isWorkshop() => 45000,
+            $business?->isRetailSector() => 35000,
+            $business?->isPharmacy() => 25000,
+            $business?->isLaundry() => 5000,
+            default => 15000,
+        };
+    @endphp
+
+    <div class="space-y-6 pb-28 sm:pb-32 lg:pb-12" x-data="dashboardCockpit()">
 
         <!-- ========================================== -->
         <!-- 0. BREADCRUMB BAR (APPLE MINIMALIST)       -->
@@ -55,7 +37,7 @@
             <div class="space-y-1.5 z-10 max-w-2xl">
                 <div class="flex items-center gap-2">
                     <span class="text-[11px] sm:text-[12px] font-semibold uppercase tracking-wider text-black/40 dark:text-white/40">
-                        {!! __('dashboard.cockpit_tag', ['business' => $business->name ?? 'Usaha']) !!}
+                        {{ __('dashboard.cockpit_tag', ['business' => $business->name ?? 'Usaha']) }}
                     </span>
                 </div>
 
@@ -106,6 +88,14 @@
                         class="col-span-1 h-10 sm:h-9 px-3.5 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5 shrink-0">
                         <i data-lucide="receipt" class="w-4 h-4 text-[#FF3B30] dark:text-[#FF453A]"></i>
                         <span>{{ __('dashboard.action_record_expense') }}</span>
+                    </button>
+                @endif
+
+                @if (\App\Support\Context::hasPermission('finance.cash_bank') || \App\Support\Context::hasPermission('expenses.manage') || \App\Support\Context::isOwner())
+                    <button type="button" @click="$dispatch('open-quick-income')"
+                        class="col-span-1 h-10 sm:h-9 px-3.5 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all flex items-center justify-center gap-1.5 shrink-0">
+                        <i data-lucide="arrow-down-left" class="w-4 h-4 text-[#34C759] dark:text-[#30D158]"></i>
+                        <span>{{ __('dashboard.action_record_income') }}</span>
                     </button>
                 @endif
 
@@ -461,7 +451,7 @@
                         $isFoodBiz = $business?->isFoodIndustry() ?? true;
                         $orderChartTitle = $isFoodBiz ? __('dashboard.order_method_food') : __('dashboard.order_method_general');
                         $orderChartSub   = $isFoodBiz ? __('dashboard.order_method_food_sub') : __('dashboard.order_method_general_sub');
-                        $orderChartIcon  = $isFoodBiz ? 'utensils' : ($business?->isWorkshop() ? 'wrench' : ($business?->isLaundry() ? 'shirt' : 'tag'));
+                        $orderChartIcon  = $isFoodBiz ? 'utensils' : ($business?->isWorkshop() ? 'wrench' : ($business?->isLaundry() ? 'shirt' : ($business?->isPharmacy() ? 'pill' : 'tag')));
                     @endphp
                     <div class="chart-wrap chart-card-md" data-chart="orders">
                         <div class="chart-head">
@@ -805,7 +795,7 @@
                                         <span>{{ __('dashboard.alert_thin_margin_title') }}</span>
                                     </div>
                                     <p class="text-[11px] text-black/70 dark:text-white/70 leading-normal">
-                                        {!! __('dashboard.alert_thin_margin_desc', ['count' => $stats['low_margin_count']]) !!}
+                                        {{ __('dashboard.alert_thin_margin_desc', ['count' => $stats['low_margin_count']]) }}
                                     </p>
                                 </div>
                             @endif
@@ -818,7 +808,7 @@
                                         <span>{{ __('dashboard.alert_low_stock_title') }}</span>
                                     </div>
                                     <p class="text-[11px] text-black/70 dark:text-white/70 leading-normal">
-                                        {!! __('dashboard.alert_low_stock_desc', ['count' => $stats['low_stock_count']]) !!}
+                                        {{ __('dashboard.alert_low_stock_desc', ['count' => $stats['low_stock_count']]) }}
                                     </p>
                                 </div>
                             @endif
@@ -1099,6 +1089,7 @@
                                 Rp
                             </div>
                             <input type="number" x-model.number="quickHpp" min="0" step="1000"
+                                aria-label="{{ __('dashboard.est_base_cogs') }}"
                                 class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] pl-10 pr-3.5 text-[16px] sm:text-[14px] font-medium tabular-nums text-black dark:text-white placeholder:text-black/30 dark:placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/50 transition">
                         </div>
                     </div>
@@ -1110,6 +1101,7 @@
                                 x-text="quickMargin + '%'"></span>
                         </div>
                         <input type="range" x-model.number="quickMargin" min="5" max="80" step="1"
+                            aria-label="{{ __('dashboard.target_gross_margin') }}"
                             class="w-full h-1.5 bg-black/[0.06] dark:bg-white/[0.08] rounded-full appearance-none cursor-pointer accent-[#007AFF]">
 
                         <!-- Quick Margin Presets (Apple Segmented Control Style) -->
@@ -1122,7 +1114,7 @@
                                         :class="quickMargin === preset ?
                                             'bg-white dark:bg-[#3A3A3C] text-[#007AFF] shadow-[0_1px_2px_rgba(0,0,0,0.08)]' :
                                             'text-black/55 dark:text-white/55 hover:text-black dark:hover:text-white'"
-                                        class="px-2.5 py-0.5 rounded-[6px] transition-all cursor-pointer tabular-nums"
+                                        class="min-h-[32px] sm:min-h-[28px] px-2.5 py-1 rounded-[6px] transition-all cursor-pointer tabular-nums flex items-center justify-center"
                                         x-text="preset + '%'"></button>
                                 </template>
                             </div>
@@ -1235,6 +1227,39 @@
     </div>
 
     @push('scripts')
+        <script>
+            function dashboardCockpit() {
+                return {
+                    stats: @json($stats ?? []),
+                    // Quick Calc Widget Data
+                    quickHpp: {{ $defaultHpp }},
+                    quickMargin: 40,
+                    get calculatedPrice() {
+                        if (this.quickMargin >= 100) return 0;
+                        return Math.round(this.quickHpp / (1 - (this.quickMargin / 100)));
+                    },
+                    get grossProfit() {
+                        return this.calculatedPrice - this.quickHpp;
+                    },
+                    get markupEquivalent() {
+                        if (this.quickHpp <= 0) return 0;
+                        return ((this.grossProfit / this.quickHpp) * 100).toFixed(1);
+                    },
+                    init() {
+                        window.addEventListener('expense-added', (e) => {
+                            if (e.detail && e.detail.stats) {
+                                this.stats = e.detail.stats;
+                            }
+                        });
+                        window.addEventListener('stock-in-added', (e) => {
+                            if (e.detail && e.detail.stats) {
+                                this.stats = e.detail.stats;
+                            }
+                        });
+                    }
+                };
+            }
+        </script>
         <script src="{{ asset('js/dashboard.js') }}"></script>
     @endpush
 @endsection

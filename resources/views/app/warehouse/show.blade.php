@@ -784,14 +784,14 @@
                             @forelse ($recentMovements as $mv)
                                 @php
                                     $mvLabels = [
-                                        'goods_receipt' => ['label' => __('warehouse.receipts_table.status_received'), 'pill' => 'bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158]'],
-                                        'pos_sale' => ['label' => 'Penjualan POS', 'pill' => 'bg-[#007AFF]/12 text-[#007AFF]'],
-                                        'adjustment' => ['label' => __('warehouse.actions.quick_adjust'), 'pill' => 'bg-[#FF9500]/12 text-[#B25E00] dark:text-[#FF9F0A]'],
-                                        'transfer_in' => ['label' => 'Transfer In', 'pill' => 'bg-[#5856D6]/12 text-[#413FA6] dark:text-[#5E5CE6]'],
-                                        'transfer_out' => ['label' => 'Transfer Out', 'pill' => 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'],
-                                        'opname' => ['label' => 'Opname', 'pill' => 'bg-[#AF52DE]/12 text-[#7C3AA6] dark:text-[#BF5AF2]'],
-                                        'initial' => ['label' => 'Initial Stock', 'pill' => 'bg-[#007AFF]/12 text-[#007AFF]'],
-                                        'pos_refund' => ['label' => 'Refund POS', 'pill' => 'bg-[#FF3B30]/12 text-[#C41E17] dark:text-[#FF453A]'],
+                                        'goods_receipt' => ['label' => __('warehouse.movements_table.type_goods_receipt'), 'pill' => 'bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158]'],
+                                        'pos_sale' => ['label' => __('warehouse.movements_table.type_pos_sale'), 'pill' => 'bg-[#007AFF]/12 text-[#007AFF]'],
+                                        'adjustment' => ['label' => __('warehouse.movements_table.type_adjustment'), 'pill' => 'bg-[#FF9500]/12 text-[#B25E00] dark:text-[#FF9F0A]'],
+                                        'transfer_in' => ['label' => __('warehouse.movements_table.type_transfer_in'), 'pill' => 'bg-[#5856D6]/12 text-[#413FA6] dark:text-[#5E5CE6]'],
+                                        'transfer_out' => ['label' => __('warehouse.movements_table.type_transfer_out'), 'pill' => 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'],
+                                        'opname' => ['label' => __('warehouse.movements_table.type_opname'), 'pill' => 'bg-[#AF52DE]/12 text-[#7C3AA6] dark:text-[#BF5AF2]'],
+                                        'initial' => ['label' => __('warehouse.movements_table.type_initial'), 'pill' => 'bg-[#007AFF]/12 text-[#007AFF]'],
+                                        'pos_refund' => ['label' => __('warehouse.movements_table.type_pos_refund'), 'pill' => 'bg-[#FF3B30]/12 text-[#C41E17] dark:text-[#FF453A]'],
                                     ];
                                     $mvInfo = $mvLabels[$mv->movement_type] ?? ['label' => ucfirst(str_replace('_', ' ', $mv->movement_type)), 'pill' => 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'];
                                 @endphp
@@ -845,14 +845,14 @@
                     @forelse ($recentMovements as $mv)
                         @php
                             $mvLabels = [
-                                'goods_receipt' => ['label' => __('warehouse.receipts_table.status_received'), 'pill' => 'bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158]'],
-                                'pos_sale' => ['label' => 'POS Sale', 'pill' => 'bg-[#007AFF]/12 text-[#007AFF]'],
-                                'adjustment' => ['label' => __('warehouse.actions.quick_adjust'), 'pill' => 'bg-[#FF9500]/12 text-[#B25E00] dark:text-[#FF9F0A]'],
-                                'transfer_in' => ['label' => 'Transfer In', 'pill' => 'bg-[#5856D6]/12 text-[#413FA6] dark:text-[#5E5CE6]'],
-                                'transfer_out' => ['label' => 'Transfer Out', 'pill' => 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'],
-                                'opname' => ['label' => 'Opname', 'pill' => 'bg-[#AF52DE]/12 text-[#7C3AA6] dark:text-[#BF5AF2]'],
-                                'initial' => ['label' => 'Initial Stock', 'pill' => 'bg-[#007AFF]/12 text-[#007AFF]'],
-                                'pos_refund' => ['label' => 'Refund POS', 'pill' => 'bg-[#FF3B30]/12 text-[#C41E17] dark:text-[#FF453A]'],
+                                'goods_receipt' => ['label' => __('warehouse.movements_table.type_goods_receipt'), 'pill' => 'bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158]'],
+                                'pos_sale' => ['label' => __('warehouse.movements_table.type_pos_sale'), 'pill' => 'bg-[#007AFF]/12 text-[#007AFF]'],
+                                'adjustment' => ['label' => __('warehouse.movements_table.type_adjustment'), 'pill' => 'bg-[#FF9500]/12 text-[#B25E00] dark:text-[#FF9F0A]'],
+                                'transfer_in' => ['label' => __('warehouse.movements_table.type_transfer_in'), 'pill' => 'bg-[#5856D6]/12 text-[#413FA6] dark:text-[#5E5CE6]'],
+                                'transfer_out' => ['label' => __('warehouse.movements_table.type_transfer_out'), 'pill' => 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'],
+                                'opname' => ['label' => __('warehouse.movements_table.type_opname'), 'pill' => 'bg-[#AF52DE]/12 text-[#7C3AA6] dark:text-[#BF5AF2]'],
+                                'initial' => ['label' => __('warehouse.movements_table.type_initial'), 'pill' => 'bg-[#007AFF]/12 text-[#007AFF]'],
+                                'pos_refund' => ['label' => __('warehouse.movements_table.type_pos_refund'), 'pill' => 'bg-[#FF3B30]/12 text-[#C41E17] dark:text-[#FF453A]'],
                             ];
                             $mvInfo = $mvLabels[$mv->movement_type] ?? ['label' => ucfirst(str_replace('_', ' ', $mv->movement_type)), 'pill' => 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'];
                         @endphp
@@ -1453,7 +1453,7 @@
                                                 {{ __('warehouse.adjust_modal.field_notes') }} <span x-show="reasonCode === 'other'" class="text-[#FF3B30]">*</span>
                                             </label>
                                             <input type="text" name="notes" x-model="notes"
-                                                :placeholder="reasonCode === 'other' ? 'Wajib tulis alasan detail (min. 10 karakter)...' : 'Contoh: Selisih fisik stock opname, barang rusak/kadaluarsa...'"
+                                                :placeholder="reasonCode === 'other' ? '{{ __('warehouse.adjust_modal.placeholder_other') }}' : '{{ __('warehouse.adjust_modal.placeholder_example') }}'"
                                                 :required="reasonCode === 'other'"
                                                 class="w-full h-10 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3.5 text-[16px] sm:text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
                                             <p x-show="reasonCode === 'other'" class="text-[10px] text-amber-600 dark:text-amber-400 mt-1">

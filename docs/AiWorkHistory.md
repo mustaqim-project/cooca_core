@@ -36,6 +36,279 @@ Setiap tugas pengembangan yang diselesaikan wajib mencatat entri baru dengan str
 
 #### 4. System Impacts
 
+### [WORK-2026-10-07-319] Implementasi Universal Multi-Tenant Model Context Protocol (MCP) Server & Multi-Provider AI Gateway (Claude, Cursor, ChatGPT Actions, Gemini, Ollama, LangChain, n8n)
+
+- **Date:** 2026-10-07
+- **Status:** COMPLETED
+- **Module:** Integrasi AI, MCP Server, Finance, Inventory, Social Media, Reports, CRM, WhatsApp, Settings
+- **Feature:** Universal Multi-Tenant MCP Server, 10 Production Domain Tools, Multi-Transport (Stdio & Remote SSE), Dynamic OpenAPI 3.1 Spec, REST Direct Execution Bridge, dan Bento Apple HIG Settings Hub
+- **Work Type:** Architecture | Feature | Security | Multi-Tenant | Protocol | UI/UX
+
+#### 1. Business Context & Objective
+- **Konteks:** Pemilik usaha UMKM dan staf kini mengadopsi berbagai jenis asisten kecerdasan buatan (AI) untuk produktivitas operasional harian: mulai dari Claude Desktop (Anthropic), Cursor IDE, Antigravity IDE, ChatGPT (Custom GPT Actions oleh OpenAI), Google Gemini, hingga model lokal open-source via Ollama, LangChain, n8n, dan Dify. Tanpa integrasi resmi terstandarisasi, pengguna harus menyalin-tempel data secara manual yang rentan kesalahan dan membocorkan data rahasia.
+- **Masalah/Target:**
+  1. Membangun Server Model Context Protocol (MCP) resmi COOCA yang mematuhi spesifikasi terbuka MCP (2024-11-05) serta mendukung seluruh provider AI populer (*Universal Multi-Provider Support*).
+  2. Menjaga isolasi multi-tenant yang ketat (*Strict Zero-Leak Isolation*): AI Client dilarang keras mengoper `business_id` sebagai argumen. Identitas tenant murni diikat pada level Bearer Token (`Context::requireBusiness()`).
+  3. Menjamin integritas akuntansi pembukuan berpasangan (*double-entry*) dan mutasi kas: pencatatan biaya dari struk/receipt fisik wajib mengeksekusi `AutoJournalService` dan `CashLedgerService` secara atomik.
+  4. Menyediakan antarmuka panel pemilik usaha (Backoffice Owner Settings) berstandar Bento Apple HIG v2.0 (Zero-Emoji, Lucide icons, modal sheet-first, dan panduan konfigurasi copy-paste interaktif 6 provider).
+
+#### 2. What Was Done
+1. **Pondasi Basis Data & Manajemen Token Terenkripsi**:
+   - Membuat migrasi `database/migrations/2026_10_07_000001_create_mcp_access_tokens_and_activity_logs_tables.php`.
+   - Membuat model `App\Models\McpAccessToken` dengan hashing SHA-256 (`token_hash`), evaluasi ability scope (`hasAbility`), serta pelacakan provider hint.
+   - Membuat model `App\Models\McpActivityLog` untuk merekam audit log eksekusi tool, waktu eksekusi (latency ms), provider hint, IP address, dan error message dengan sanitasi payload gambar sensitif.
+2. **Keamanan & Middleware Otentikasi Multi-Tenant**:
+   - `App\Domain\Mcp\Auth\McpTokenAuthenticator`: Memvalidasi token plaintext, memverifikasi status keaktifan dan tanggal kedaluwarsa, serta mengikat tenant secara otomatis melalui `Context::setBusiness($token->business)`.
+   - `App\Http\Middleware\EnsureMcpTokenValid`: Middleware pelindung endpoint dengan penanganan respon JSON-RPC 2.0 (`-32000` unauthorized, `-32001` forbidden) dan REST format. Didaftarkan sebagai alias middleware `'mcp.auth'` di `bootstrap/app.php` dengan pengecualian CSRF pada `api/v1/mcp/*`.
+3. **Katalog 10 Domain Tools Terpadu**:
+   - `McpToolInterface` & `McpToolRegistry`: Kontrak baku dan registri sentral dengan pemfilteran berbasis ability token.
+   - `FinanceRecordExpenseTool` (`mcp:expenses:write`): Pencatatan biaya operasional lengkap dengan unggah/preview struk, auto-journal memorial berimbang, dan mutasi kas keluar atomik.
+   - `FinanceGetCashAndBankBalancesTool` (`mcp:finance:read`): Laporan likuiditas kas tunai, rekening bank, dan ringkasan mutasi kasir.
+   - `InventoryCreateProductTool` (`mcp:products:write`): Pendaftaran master produk baru, auto-resolve/create satuan unit & kategori, penetapan HPP, harga jual, dan stok awal.
+   - `InventoryCheckStockTool` (`mcp:products:read`): Pencarian stok barang real-time dan deteksi peringatan stok kritis (*low stock warning*).
+   - `SocialSchedulePostTool` (`mcp:social:manage`): Penjadwalan posting materi promosi ke Instagram, TikTok, Facebook, dan X via `SocialMediaPost` & `SocialPostTarget`.
+   - `SocialGetInsightsTool` (`mcp:social:read`): Ringkasan insight performa kampanye media sosial.
+   - `ReportGetProfitLossTool` (`mcp:reports:read`): Ringkasan laba rugi bisnis (omzet, HPP, laba kotor, beban operasional, dan laba bersih).
+   - `AnalyticsGetSalesForecastTool` (`mcp:reports:read`): Proyeksi penjualan masa depan menggunakan `AiSalesAnalysisService`.
+   - `CrmSearchCustomerTool` (`mcp:crm:read`): Pencarian profil pelanggan loyal berdasarkan nama, nomor telepon, atau plat nomor kendaraan.
+   - `WhatsappSendNotificationTool` (`mcp:whatsapp:send`): Pengiriman notifikasi dan pengingat resmi melalui `WhatsAppService` (Meta Cloud API).
+4. **Universal Multi-Provider Adapters & Transports**:
+   - `App\Domain\Mcp\Formatters\McpSchemaFormatter`: Adapter konversi skema tool katalog otomatis ke Native MCP 2024-11-05 (`toMcp`), OpenAI Function Calling (`toOpenAi`), Google Gemini `FunctionDeclaration` (`toGemini`), dan dynamic OpenAPI 3.1.0 (`toOpenApi3`).
+   - `App\Domain\Mcp\Protocol\McpProtocolEngine`: Mesin protokol JSON-RPC 2.0 untuk menangani `initialize`, `notifications/initialized`, `ping`, `tools/list`, dan `tools/call` dengan audit trail otomatis.
+   - `App\Console\Commands\McpServeCommand`: Transport CLI lokal berbasis standard input/output (`php artisan mcp:serve --token=...`) untuk Claude Desktop, Cursor IDE, dan Antigravity IDE.
+   - `App\Http\Controllers\Api\V1/Mcp/McpSseController`:
+     - `GET /api/v1/mcp/sse`: Server-Sent Events endpoint dengan Session ID generator.
+     - `POST /api/v1/mcp/message`: Endpoint pesan JSON-RPC 2.0.
+     - `GET /api/v1/mcp/openapi.json`: Dynamic OpenAPI 3.1.0 schema untuk integrasi 1-klik ChatGPT Custom GPT Actions, n8n, Dify, dan LangChain.
+     - `POST /api/v1/mcp/tools/{tool}/execute`: REST Direct Bridge untuk Google Gemini Python SDK dan webhook otomatis.
+5. **Panel Pengaturan Integrasi AI di Web Backoffice (Bento Apple HIG v2.0)**:
+   - `App\Http\Controllers\Web\Mcp\McpIntegrationWebController`: Controller manajemen token (generate, revoke, master toggle) dan audit logs.
+   - View `resources/views/app/settings/integrations/mcp.blade.php`: Antarmuka Bento Apple HIG v2.0 dengan selector 6 provider AI interaktif (Claude Desktop, Cursor/Antigravity, ChatGPT Actions, Gemini, Ollama, LangChain/n8n), kartu status realtime, modal pembuatan token aman (one-time copy), dan tabel riwayat interaksi AI.
+   - Integrasi navigasi: Menambahkan kartu cepat "Integrasi AI & Model Context Protocol" pada `resources/views/app/settings/index.blade.php`.
+   - Lokalisasi dwibahasa: Berkas kamus `lang/id/mcp.php` dan `lang/en/mcp.php`.
+6. **Automated Testing & Verifikasi Penuh**:
+   - `tests/Feature/McpProtocolTest.php`: 11 pengujian otomatis komprehensif (53 assertions, 100% lulus):
+     - `test_unauthenticated_request_is_rejected`
+     - `test_initialize_handshake_returns_protocol_capabilities`
+     - `test_tools_list_returns_all_registered_tools`
+     - `test_finance_record_expense_creates_expense_and_activity_log`
+     - `test_inventory_create_product_and_check_stock`
+     - `test_openapi_schema_endpoint_returns_valid_specification`
+     - `test_direct_rest_tool_execution_bridge`
+     - `test_multi_tenant_isolation_prevents_cross_tenant_access_and_mutation`
+     - `test_token_scope_ability_enforces_least_privilege`
+     - `test_social_schedule_post_and_report_tools`
+     - `test_owner_panel_mcp_settings_view_is_accessible`
+
+#### 3. Technical Changes
+- **Files Affected:**
+  - `database/migrations/2026_10_07_000001_create_mcp_access_tokens_and_activity_logs_tables.php`
+  - `app/Models/McpAccessToken.php`
+  - `app/Models/McpActivityLog.php`
+  - `app/Domain/Mcp/Auth/McpTokenAuthenticator.php`
+  - `app/Domain/Mcp/Formatters/McpSchemaFormatter.php`
+  - `app/Domain/Mcp/Protocol/McpProtocolEngine.php`
+  - `app/Domain/Mcp/Tools/McpToolInterface.php`
+  - `app/Domain/Mcp/Tools/McpToolRegistry.php`
+  - `app/Domain/Mcp/Tools/FinanceRecordExpenseTool.php`
+  - `app/Domain/Mcp/Tools/FinanceGetCashAndBankBalancesTool.php`
+  - `app/Domain/Mcp/Tools/InventoryCreateProductTool.php`
+  - `app/Domain/Mcp/Tools/InventoryCheckStockTool.php`
+  - `app/Domain/Mcp/Tools/SocialSchedulePostTool.php`
+  - `app/Domain/Mcp/Tools/SocialGetInsightsTool.php`
+  - `app/Domain/Mcp/Tools/ReportGetProfitLossTool.php`
+  - `app/Domain/Mcp/Tools/AnalyticsGetSalesForecastTool.php`
+  - `app/Domain/Mcp/Tools/CrmSearchCustomerTool.php`
+  - `app/Domain/Mcp/Tools/WhatsappSendNotificationTool.php`
+  - `app/Console/Commands/McpServeCommand.php`
+  - `app/Http/Middleware/EnsureMcpTokenValid.php`
+  - `app/Http/Controllers/Api/V1/Mcp/McpSseController.php`
+  - `app/Http/Controllers/Web/Mcp/McpIntegrationWebController.php`
+  - `resources/views/app/settings/integrations/mcp.blade.php`
+  - `resources/views/app/settings/index.blade.php`
+  - `lang/id/mcp.php` & `lang/en/mcp.php`
+  - `routes/api.php`
+  - `routes/owner.php`
+  - `bootstrap/app.php`
+  - `tests/Feature/McpProtocolTest.php`
+- **Database Changes:**
+  - Tabel baru `mcp_access_tokens`: `id`, `business_id`, `user_id`, `name`, `token_hash`, `abilities`, `provider_hint`, `last_used_at`, `expires_at`, `is_active`.
+  - Tabel baru `mcp_activity_logs`: `id`, `business_id`, `token_id`, `tool_name`, `client_provider`, `arguments_payload`, `response_status`, `execution_time_ms`, `ip_address`, `error_message`.
+- **API / Route Changes:**
+  - `GET /api/v1/mcp/sse` (Remote SSE Server)
+  - `POST /api/v1/mcp/message` (JSON-RPC 2.0 Message Dispatcher)
+  - `GET /api/v1/mcp/openapi.json` (OpenAPI 3.1.0 Dynamic Schema)
+  - `POST /api/v1/mcp/tools/{tool}/execute` (REST Direct Tool Bridge)
+  - `GET /settings/integrations/mcp` (Owner Web Settings View)
+  - `POST /settings/integrations/mcp/tokens` (Create Token)
+  - `DELETE /settings/integrations/mcp/tokens/{id}` (Revoke Token)
+  - `POST /settings/integrations/mcp/toggle` (Master Toggle)
+
+#### 4. System Impacts
+- Seluruh ekosistem COOCA kini terhubung secara instan dan aman dengan AI clients tanpa risiko kebocoran multi-tenant.
+- Transaksi pengeluaran dari struk fisik via AI otomatis terjurnal secara akuntabel tanpa membebani pemilik usaha.
+- Kepatuhan penuh terhadap 3-layer dokumentasi (`AiWorkHistory.md`, `docs/system/modules/`, `docs/SYSTEM_GUIDE.md`) dan standar Bento Apple HIG v2.0.
+
+### [WORK-2026-10-07-318] Audit Sistem Finance: Perluasan 14 Kategori Pengeluaran & 9 Kategori Pemasukan, Validasi Wajib Input Kategori Lainnya (Others), dan Standardisasi Seluruh Fast Button Finansial (POS, Cash & Bank, Quick Action Hub)
+
+- **Date:** 2026-10-07
+- **Status:** COMPLETED
+- **Module:** Finance, POS, Dashboard Quick Actions, Accounting
+- **Feature:** Finance Category Expansion, Dynamic Required Others Specification, and Universal Fast Action Modernization
+- **Work Type:** Feature | UI/UX | Business Logic | Audit
+
+#### 1. Business Context & Objective
+- **Konteks:** Pencatatan arus keuangan (uang keluar & uang masuk) pada UMKM memerlukan kategori biaya yang granular agar laporan laba rugi dan analisa beban operasional tidak menumpuk ke kategori umum. Selain itu, jika kasir atau staf memilih opsi "Lainnya" (Others), mereka kerap membiarkannya kosong sehingga pemilik usaha kehilangan visibilitas pengeluaran.
+- **Masalah/Target:**
+  1. Perbanyak pilihan kategori pengeluaran dan pemasukan standar akuntansi UMKM Indonesia.
+  2. Ketika kategori `Lainnya / Others` dipilih, form input spesifikasi wajib muncul secara reaktif dan berstatus **wajib diisi (`required`)**, baik di sisi front-end maupun back-end validation.
+  3. Perbaiki seluruh titik yang menyediakan tombol aksi cepat (*fast button*) pencatatan uang masuk dan keluar: Cash & Bank Header, POS Terminal, Shift Management, Global Modal Hub, dan Mobile Action Sheet.
+
+#### 2. What Was Done
+1. **Perluasan Kamus Kategori I18n Multibahasa (`id` & `en`)**:
+   - `lang/id/finance.php` & `lang/en/finance.php`: Ditambahkan 14 kategori pengeluaran standar (`operational`, `utilities`, `internet_phone`, `supplies`, `salaries`, `consumption`, `logistics`, `rent`, `maintenance`, `marketing`, `taxes_legal`, `bank_admin`, `cash_advance`, `other`) dan 9 kategori pemasukan kas (`sales_revenue`, `capital_injection`, `receivable_payment`, `bank_interest`, `investment`, `asset_sale`, `cash_refund`, `tax_refund`, `other`).
+   - `lang/id/quick_actions.php` & `lang/en/quick_actions.php`: Kamus kategori beban cepat diperluas, ditambahkan kamus kategori uang masuk cepat (`income`), dan pesan validasi `other_desc_label`, `other_desc_placeholder`, `other_desc_required`.
+   - `lang/id/dashboard.php` & `lang/en/dashboard.php`: Ditambahkan kunci `action_record_income`.
+2. **Peningkatan Logika Controller & Proteksi Back-End**:
+   - `app/Http/Controllers/Web/Finance/PosFinanceWebController.php`: Method `storeExpense()` memvalidasi `other_description` jika `category === 'other'`. Jika dipilih `other`, format deskripsi otomatis diberi prefix `[Lainnya]`.
+   - `app/Http/Controllers/Web/Finance/CashLedgerWebController.php`: Method `storeManual()` mendukung penerimaan parameter `category` & `other_description`. Wajib mengisi `other_description` jika `category === 'other'`, dan mencatat transaksi kas dengan label kategori `"[Kategori] Keterangan"`.
+   - `app/Http/Controllers/Web/Pos/PosShiftWebController.php`: Method `recordCashMovement()` memvalidasi kategori mutasi kas, mewajibkan rincian pada kategori `other`, dan mencatat riwayat pergerakan kasir dengan badge format `"[Kategori] Alasan"`.
+   - `app/Http/Controllers/Web/DashboardWebController.php`: Method `quickExpense()` diperkuat dengan validasi `other_description`. Disediakan endpoint baru `quickInflow()` untuk mencatat pemasukan kas instan via AJAX dengan dukungan proteksi Idempotency Key dan integrasi otomatis ke `CashLedgerService`.
+   - `routes/owner.php`: Mendaftarkan endpoint POST `/dashboard/quick-inflow`.
+3. **Redesign Antarmuka Bento Apple HIG & Form Input Interaktif**:
+   - `resources/views/app/finance/expenses.blade.php`: Modal Create diperkaya dengan 14 tombol visual kategori Bento Apple HIG bersertifikasi tabular numbers. Callout dinamis reaktif muncul saat `category === 'other'` dengan input rincian wajib diisi. Filter tabel & pemetaan desktop/mobile list diselaraskan mencakup seluruh 14 kategori.
+   - `resources/views/app/finance/cash-bank/index.blade.php`: Modal `showInflowModal` dan `showOutflowModal` dilengkapi pemilih kategori (9 kategori pemasukan & 14 kategori pengeluaran) lengkap dengan callout wajib isi saat `category === 'other'` dan nominal cepat.
+   - `resources/views/app/pos/terminal.blade.php`: Modal `showCashMovementModal` didesain ulang dengan Segmented Control Apple HIG (Kas Keluar vs Kas Masuk), tombol nominal cepat, pemilih kategori kontekstual, dan callout rincian wajib isi jika memilih Lainnya.
+   - `resources/views/app/pos/shifts.blade.php`: Modal `showMovementModal` pada histori shift dilengkapi pemilihan kategori dinamis dan validasi kondisional.
+   - `resources/views/layouts/app.blade.php`: Modal Quick Expense diperluas 14 kategori dengan callout required lainnya. Ditambahkan Modal Quick Inflow (Uang Masuk Cepat) dengan listener `open-quick-income` dan tombol cepat di Mobile Action Sheet (iOS 18 Bottom Sheet).
+   - `resources/views/app/dashboard.blade.php`: Menambahkan tombol cepat `+ Catat Kas Masuk` di toolbar cockpit berdampingan dengan `+ Catat Biaya`.
+4. **Verifikasi & Automated Testing**:
+   - Menambahkan pengujian otomatis komprehensif pada `tests/Feature/CashLedgerIntegrationTest.php` (8 tests, 41 assertions, 100% passed).
+   - Menambahkan pengujian otomatis validasi kategori pada `tests/Feature/PosTerminalFeatureTest.php` (100% passed).
+   - Seluruh berkas PHP dinyatakan bebas dari lint syntax error (`php -l`).
+
+#### 3. Technical Changes
+- **Files Affected:**
+  - `lang/id/finance.php` & `lang/en/finance.php`
+  - `lang/id/quick_actions.php` & `lang/en/quick_actions.php`
+  - `lang/id/dashboard.php` & `lang/en/dashboard.php`
+  - `app/Http/Controllers/Web/Finance/PosFinanceWebController.php`
+  - `app/Http/Controllers/Web/Finance/CashLedgerWebController.php`
+  - `app/Http/Controllers/Web/Pos/PosShiftWebController.php`
+  - `app/Http/Controllers/Web/DashboardWebController.php`
+  - `routes/owner.php`
+  - `resources/views/app/finance/expenses.blade.php`
+  - `resources/views/app/finance/cash-bank/index.blade.php`
+  - `resources/views/app/pos/terminal.blade.php`
+  - `resources/views/app/pos/shifts.blade.php`
+  - `resources/views/layouts/app.blade.php`
+  - `resources/views/app/dashboard.blade.php`
+  - `tests/Feature/CashLedgerIntegrationTest.php`
+  - `tests/Feature/PosTerminalFeatureTest.php`
+- **Database Changes:** Tidak ada perubahan skema tabel (100% backward compatible).
+- **API / Route Changes:**
+  - `POST /dashboard/quick-inflow` (Route name: `dashboard.quick-inflow`)
+
+#### 4. System Impacts
+- Mencegah kebocoran pencatatan dana tak bernama pada operasional UMKM karena sistem secara tegas menolak submission jika kategori "Lainnya" dipilih tanpa rincian alasan.
+- Mempercepat pencatatan uang masuk dan kas keluar kasir di semua modul dengan akses satu klik.
+
+### [WORK-2026-10-06-317] Standarisasi Skill Beyond Bento: Pola Adaptif Mobile-First (Horizontal Snap Slider, Grouped Inset List, Compact Stepper) & Eliminasi Dogmatisme Bento
+
+- **Date:** 2026-10-06
+- **Status:** COMPLETED
+- **Module:** UI/UX & AI Agent Skill System, Design System Reference, Responsive Layout Engine
+- **Feature:** Rekayasa Sistem & Standarisasi Pola Antarmuka Adaptif Mobile:
+  1. **Mandat Anti "Bento-Dogmatism"**:
+     - Menghapus kewajiban kaku bahwa semua elemen antarmuka harus berupa Bento Grid bertumpuk.
+     - Mengidentifikasi anti-pola *"Infinite Card Bloat"* pada smartphone di mana memaksakan kotak-kotak Bento bertumpuk vertikal memboroskan ruang layar hingga 70% dan melelahkan jari pengguna (*scroll fatigue*).
+     - Menetapkan aturan emas: Desktop bebas memakai Bento Grid asimetris 12-kolom, sedangkan Mobile BERALIH KE POLA ADAPTIF: **Horizontal Snap Slider**, **Grouped Inset List**, **Segmented Control**, atau **Compact Stepper**.
+  2. **Pembaruan Berkas Desain & Skill**:
+     - [`.agents/skills/cooca-agent-directive/references/design-system.md`](file:///c:/laragon/www/cooca_core/.agents/skills/cooca-agent-directive/references/design-system.md): Memperluas Section 11 menjadi *"Blueprint Responsivitas Adaptif: Beyond Bento"* dengan panduan implementasi Tailwind, code snippet, dan *Form-Factor Matrix* per komponen.
+     - [`.agents/skills/ui-layout-hierarchy-reorganizer/SKILL.md`](file:///c:/laragon/www/cooca_core/.agents/skills/ui-layout-hierarchy-reorganizer/SKILL.md): Memperbarui Zona 1 & Zona 2 untuk mendukung Horizontal Snap Slider pada KPI/workflow multi-item di mobile, serta menambahkan Langkah Audit ke-4: Evaluasi Anti-Bento-Dogmatism.
+     - [`.agents/skills/ui-simplify-layout/SKILL.md`](file:///c:/laragon/www/cooca_core/.agents/skills/ui-simplify-layout/SKILL.md): Menambahkan pola siap pakai *Horizontal Snap Slider* (`snap-x snap-mandatory overflow-x-auto no-scrollbar`) dan *Grouped Inset List* (`divide-y`), serta menambahkan checklist audit mobile ergonomis.
+     - [`.agents/skills/responsive-ui-ux/SKILL.md`](file:///c:/laragon/www/cooca_core/.agents/skills/responsive-ui-ux/SKILL.md): Menyelaraskan tabel layout mobile agar mengutamakan slider horizontal untuk kumpulan metrik/langkah dan grouped inset list untuk form.
+     - [`.agents/skills/cooca-agent-directive/SKILL.md`](file:///c:/laragon/www/cooca_core/.agents/skills/cooca-agent-directive/SKILL.md): Menegaskan bahwa Bento bukan satu-satunya pilihan dan mobile wajib adaptif.
+  3. **Penyempurnaan Nyata pada Kode Blade**:
+     - [`resources/views/app/whatsapp/index.blade.php`](file:///c:/laragon/www/cooca_core/resources/views/app/whatsapp/index.blade.php): Mengubah 3 langkah panduan onboarding Meta menjadi *Horizontal Slider* yang dapat digeser secara mulus pada mobile (`flex overflow-x-auto sm:grid sm:grid-cols-3 no-scrollbar pb-1`), menghemat 65% ruang vertikal kartu di HP.
+
+### [WORK-2026-10-06-316] Peningkatan Skill Audit UI (Protokol Deteksi 6 Anomali Tombol & Layout) & Redesign Bento Apple HIG Kartu Onboarding WhatsApp Meta
+
+- **Date:** 2026-10-06
+- **Status:** COMPLETED
+- **Module:** UI/UX & AI Agent Skill System, WhatsApp Suite (`resources/views/app/whatsapp/index.blade.php`), Localization (`lang/*/whatsapp.php`)
+- **Feature:** Standarisasi Deteksi Anomali Tombol & Penyempurnaan Tampilan Onboarding:
+  1. **Peningkatan Skill `.agents/skills/ui-simplify-layout/SKILL.md`**:
+     - Menambahkan tabel **Audit Khusus: Deteksi 6 Anomali Tombol & CTA (Button Flaws & Placement Checklist)** yang mendeteksi:
+       - Anomali 1: *Orphan Word Wrap* (teks melipat menyisakan satu kata terisolasi seperti `(1-Click \n Meta)`).
+       - Anomali 2: *Action Proximity Inversion* (ajakan aksi terpisah jauh dari tombol karena terhalang kartu langkah).
+       - Anomali 3: *False Affordance Confusion* (kotak langkah 1-2-3 didesain mirip tombol interaktif).
+       - Anomali 4: *Bloated Full-Width Button* (tombol desktop melar kaku 100% tanpa proporsi responsif).
+       - Anomali 5: *Squished / Edge-Pinned Icon* (ikon terhimpit di tepi tombol atau lepas penjajaran).
+       - Anomali 6: *Boundary Clipping* pada banner/header kartu.
+     - Memperluas Checklist Audit Tombol agar wajib mengecek 6 parameter tersebut.
+  2. **Peningkatan Skill `.agents/skills/ui-layout-hierarchy-reorganizer/SKILL.md`**:
+     - Menambahkan protokol **2.1 Card-Level Action Flow & Action Proximity**, memastikan tata letak mikro kartu mengikuti alur: `Header` → `Konteks/Deskripsi` → `Tombol CTA Utama` → `Quiet Informational Stepper` → `Status/Toggle`.
+  3. **Penyelarasan Master Design System `.agents/skills/cooca-agent-directive/references/design-system.md`**:
+     - Mempertegas aturan *No Orphan Word Wrapping*, *Action Proximity Rule*, dan *Quiet Stepper vs Action Buttons*.
+  4. **Redesign Nyata Kartu Onboarding WhatsApp Meta (`whatsapp/index.blade.php`)**:
+     - Memposisikan tombol CTA tepat di bawah kalimat instruksi dengan ukuran proporsional `w-full sm:w-auto min-h-[46px] px-6 rounded-[14px]` dan ikon sejajar rapi di tengah.
+     - Menambahkan proteksi `whitespace-nowrap` pada teks tombol dan mendampinginya dengan micro-badge `Setup 1-Klik Resmi Meta`.
+     - Mengubah 3 kotak langkah yang tadinya mirip tombol menjadi **Quiet Informational Stepper Apple HIG** (nomor bulat halus `w-5 h-5 rounded-full bg-[#1877F2]/10 text-[11px] font-bold`, teks panduan subtil tanpa background kartu).
+     - Menghilangkan kata kaku *"Klik tombol di bawah"* pada dictionary terjemahan (`lang/id/whatsapp.php`, `lang/en/whatsapp.php`) dan meringkas label tombol menjadi `"Hubungkan WhatsApp Resmi"` / `"Connect Official WhatsApp"` tanpa tanda kurung panjang.
+     - Merapikan padding dan jarak vertikal callout info kuota gratis agar tidak terpotong tepi atas.
+
+### [WORK-2026-10-06-315] Audit Terpadu & Penyelarasan Arsitektur: Controller-Level RBAC HasMiddleware, Anti-Fraud Price AuditLog, I18n Template Extraction, Multi-Industri Adaptif, & Mobile 360px Touch Target (Dashboard, Kalkulator HPP, WhatsApp Suite)
+
+- **Date:** 2026-10-06
+- **Status:** COMPLETED
+- **Module:** Security & Controller RBAC, Core Views, WhatsApp Suite, Localization
+- **Feature:** Audit Terpadu dan Eksekusi Perbaikan Hulu-ke-Hilir:
+  1. **Keamanan & Controller-Level RBAC (`CalculatorWebController`, `DashboardWebController`, `WhatsAppWebController`, `WhatsAppBroadcastWebController`)**:
+     - Mengimplementasikan interface `Illuminate\Routing\Controllers\HasMiddleware` pada seluruh controller terkait sesuai kaidah clean routing Laravel 11.
+     - Mengenkapsulasi penjagaan permission `costing.view_margin`, `costing.manage`, `products.create`, `products.manage`, `products.edit`, dan `entitlement:export` pada method `CalculatorWebController`.
+     - Mengeliminasi deklarasi middleware redundan pada `routes/owner.php` sehingga route definition bersih dan terlindungi secara terpusat.
+  2. **Anti-Fraud & Audit Logging (`CalculatorWebController`)**:
+     - Menambahkan pencatatan `AuditLog::create` pada method `applyToProduct` dengan risk level `RISK_MEDIUM` dan rekaman forensik perbandingan harga lama (`old_cost`, `old_price`) ke harga baru.
+     - Menambahkan pencatatan `AuditLog::create` pada `quickCreateProduct` untuk mencegah fraud produk siluman atau pembuatan produk tanpa jejak operator.
+  3. **Multi-Language (i18n) & Zero Hardcoded Text (`lang/*/whatsapp.php`, `lang/*/calculator.php`, `broadcast.blade.php`, `calculator.blade.php`)**:
+     - Mengekstrak 100% template fallback, data contoh preview dummy (nama, offer, valid, opt-out, pesan utuh), dan label tab modal mobile pada WhatsApp Broadcast ke dictionary bahasa (`lang/id/whatsapp.php` dan `lang/en/whatsapp.php`).
+     - Mengekstrak string `'Model Terpilih'` pada Kalkulator HPP ke key `calculator.selected_model_fallback`.
+  4. **Multi-Industry Adaptation (`calculator.blade.php`, `dashboard.blade.php`)**:
+     - Menjadikan simulator potongan fee online pada Kalkulator HPP adaptif terhadap industri aktif: menampilkan terminologi dan ikon delivery/ojol untuk F&B (`sell_online_switch`) dan marketplace/ekspedisi untuk non-kuliner (`sell_marketplace_switch`).
+     - Menginisialisasi default HPP simulator cepat dashboard secara cerdas berdasarkan sektor industri tenant (Bengkel: Rp 45.000, Retail: Rp 35.000, Apotek: Rp 25.000, Laundry: Rp 5.000, F&B: Rp 15.000).
+  5. **UI/UX Bento Apple HIG & Mobile 360px Touch Targets**:
+     - Menjamin touch target seluruh preset chip tombol dan tab filter memenuhi standar Apple HIG (`min-h-[40px] sm:min-h-[36px]` / `min-h-[32px] sm:min-h-[28px]`).
+     - Menambahkan `no-scrollbar` pada scroll container segmented control di `whatsapp/logs.blade.php` dan `module-tabs.blade.php`.
+     - Memastikan layout komposer modal WhatsApp broadcast memiliki drawer/toggle simulator yang responsif dan bebas tumpang tindih.
+
+### [WORK-2026-10-06-314] Hardening Keamanan XSS, Resolusi Broken Syntax Alpine, I18n Locale-Aware Formatting, Multi-Industri Farmasi, & Accessibility A11y (Dashboard, Kalkulator HPP, WhatsApp Suite)
+
+- **Date:** 2026-10-06
+- **Status:** COMPLETED
+- **Module:** Core Views & Localization (`resources/views/app/dashboard.blade.php`, `resources/views/app/calculator.blade.php`, `lang/id/dashboard.php`, `lang/en/dashboard.php`)
+- **Feature:** Hardening Keamanan Frontend, Perbaikan Bug Sintaks Alpine, Dynamic Locale Formatting, Multi-Industry Pharmacy Support, dan A11y Accessibility:
+  1. **Keamanan & XSS Prevention (`dashboard.blade.php`, `lang/*/dashboard.php`)**:
+     - Mengubah unescaped raw Blade `{!! __('dashboard.cockpit_tag', ...) !!}` menjadi escaped `{{ __('dashboard.cockpit_tag', ...) }}` untuk mencegah serangan stored XSS melalui input nama bisnis tenant.
+     - Mengubah translation `cockpit_tag` di `lang/id/dashboard.php` dan `lang/en/dashboard.php` dari HTML entity `&bull;` ke karakter unicode bullet `•`.
+     - Mengganti `json_encode($stats ?? [])` di Alpine root initialization menjadi direktif aman `@json($stats ?? [])`.
+     - Mengekstrak definisi inline Alpine `x-data="{ ... }"` pada container root dashboard menjadi fungsi JavaScript terpisah `dashboardCockpit()` di `@push('scripts')`. Hal ini mencegah karakter pembanding HTML (`>=` dan `<=`) menutup tag `<div>` secara prematur pada parser browser yang sebelumnya menyebabkan kode JavaScript bocor sebagai raw text di UI.
+     - Mengubah raw `{!! alert_thin_margin_desc !!}` dan `{!! alert_low_stock_desc !!}` menjadi aman `{{ ... }}`.
+  2. **Resolusi Syntax Error Alpine.js (`calculator.blade.php`)**:
+     - Memperbaiki broken token `'Dark: border-transparent': false }">` pada binding `:class` Margin Health Indicator (line 921) yang merusak parsing DOM script Alpine.
+  3. **Multi-Language (i18n) & Dynamic Locale Number Formatting (`calculator.blade.php`)**:
+     - Mengeliminasi hardcoded `'id-ID'` pada pemanggilan `.toLocaleString('id-ID')` di 18 lokasi (KPI cards, composition bar, narrative summary, online price box, modal preview) menjadi reaktif `localeCode` (`en-US` atau `id-ID` berdasarkan `app()->getLocale()`).
+     - Mengubah render Blade pada narasi ringkasan HPP `cogs_summary_desc` dari `{{ ... }}` menjadi `{!! ... !!}` agar tag HTML `<strong>`, `<span>`, dan Alpine binding `x-text` dievaluasi sebagai elemen DOM murni dan tidak di-escape menjadi string mentah HTML di layar pengguna.
+     - Menghubungkan placeholder input nama produk di Quick Save Modal ke translation key resmi `{{ __('calculator.input_product_name_placeholder') }}` menggantikan teks bahasa Indonesia hardcoded.
+     - Menghubungkan link navigasi breadcrumbs Dashboard ke `{{ __('dashboard.breadcrumb_dashboard') }}`.
+  4. **Multi-Industry Enhancement (`dashboard.blade.php`)**:
+     - Menambahkan dukungan industri Farmasi/Apotek (`$business?->isPharmacy()`) dengan ikon kontekstual `pill` pada Donut 2 Layanan Kasir.
+  5. **Accessibility / A11y (`dashboard.blade.php`)**:
+     - Menambahkan atribut eksplisit `aria-label` pada input kalkulator cepat (`quickHpp` dan `quickMargin`).
+- **Verification & Test Suite**:
+  - `php artisan view:clear`: Sukses membersihkan cache compiled Blade views.
+  - Test Suite PHPUnit Feature: 77 tests passed, 467 assertions (100% pass rate).
+
 ### [WORK-2026-10-06-313] Audit Komprehensif Sistem Penuh & Implementasi Refactoring UI/UX Apple Bento HIG, Anti-Slop, Multi-Industri, dan Perlindungan Fraud (Dashboard, Kalkulator HPP, WhatsApp Suite)
 
 - **Date:** 2026-10-06
@@ -19713,3 +19986,48 @@ Business Owner / Merchant UMKM COOCA memerlukan satu pusat pengelolaan (_Single 
 - `php artisan tinker` Blade compilation check → **BLADE_OK**.
 - Multi-Language Parity Audit (ID & EN) → **0 untranslated `settings.*` keys found across both locales**.
 - `php artisan test --filter=SettingWebTest` → **7 passed, 49 assertions (100% Success)**.
+
+### [WORK-2026-10-06-297] Comprehensive Audit, Architectural Alignment, Bento Apple HIG v2.0 & 100% i18n Remediation of 6 Core Views
+
+- **Date:** 2026-10-06
+- **Status:** COMPLETED
+- **Module:** Core View Suite (`resources/views/app/services/index.blade.php`, `resources/views/app/warehouse/index.blade.php`, `resources/views/app/warehouse/show.blade.php`, `resources/views/app/suppliers/index.blade.php`, `resources/views/app/simulator/index.blade.php`, `resources/views/app/tax/index.blade.php`, `lang/id/*.php`, `lang/en/*.php`)
+- **Feature:** Comprehensive View Remediation across 6 Core Workspaces:
+  1. `services/index.blade.php`: Zero-hardcoded-text i18n keys for Add, Edit, Delete, Quick-Add Category modals, and AJAX error handlers.
+  2. `warehouse/index.blade.php`: Mobile horizontal scroll snap for KPI bento cards, multi-branch education banner and movements table localized.
+  3. `warehouse/show.blade.php`: Stock movements table headers, badges, and modal placeholders localized with touch targets >= 44px.
+  4. `suppliers/index.blade.php`: Touch targets and button heights normalized to min 44px, session warning handler & KPI mobile snap-slider optimized.
+  5. `simulator/index.blade.php`: Dynamic Chart.js datasets & labels localized via `@json(__('simulator.chart.*'))`, header subtitle, empty states, preset buttons, live comparison cards, and AI recommendations localized into `lang/id/simulator.php` and `lang/en/simulator.php`.
+  6. `tax/index.blade.php`: 100% localization across all 5 segmented tabs (Net Income, UMKM 0.5%, PPh 21 TER, Payroll/BPJS/THR, Sales Tax PB1/PPN), 12-month fiscal consolidation table, and all 4 Modal Sheets (Brackets Pasal 17, BPJS 2024, Norma NPPN Pasal 14, e-Bupot & CSV export hub).
+- **Work Type:** UI/UX (Bento Apple HIG v2.0) | Architecture | i18n Zero Hardcode | Responsive Mobile | QA & Linting
+
+#### 1. Business Context & Objective
+- **Konteks:** Menjalankan audit menyeluruh dan remediasi arsitektural terpadu pada 6 berkas tampilan inti Cooca sesuai direktif `cooca-agent-directive`, `design-system`, `responsive-ui-ux`, dan `ui-ux-pro-max`. Menjamin zero hardcoded string, full bilingual dictionary parity (`lang/id/` & `lang/en/`), ergonomi Apple HIG (touch targets >= 44px, rounded-3xl cards), serta responsivitas mobile-first bebas overflow.
+
+#### 2. What Was Done
+- **Pembersihan String Mentah & Lokalisasi Penuh (Zero Hardcode):**
+  - Menerapkan kamus terjemahan dwibahasa komprehensif di `lang/id/services.php`, `lang/en/services.php`, `lang/id/simulator.php`, `lang/en/simulator.php`, `lang/id/tax.php`, dan `lang/en/tax.php`.
+  - Mengeliminasi string hardcoded dari seluruh form, dropdown, badge, modal sheet, dan tooltip pada 6 tampilan.
+- **Bento Apple HIG v2.0 & Mobile Ergonomics:**
+  - Menstandarisasi kartu ringkasan KPI dengan horizontal scroll snap pada mobile (`flex sm:grid overflow-x-auto snap-x`).
+  - Menetapkan dimensi target sentuh minimal 44px (`min-h-[44px]` dan `min-w-[44px]`) untuk seluruh tombol aksi, tab bar, dan modal dismiss.
+  - Mencegah auto-zoom iOS Safari dengan menetapkan tipografi input responsif (`text-[16px] sm:text-xs`).
+- **Verifikasi Sintaks & Kualitas Kode:**
+  - Menjalankan `php -l` pada seluruh berkas Blade dan kamus bahasa yang disentuh.
+  - Memverifikasi ketiadaan syntax regression di server lokal yang aktif.
+
+#### 3. Verification & Testing
+- Refactor Alpine component di `simulator/index.blade.php`: Memindahkan inline object JS dari atribut HTML `x-data="{ ... }"` ke fungsi JavaScript `simulatorComponent()` di blok `@push('scripts')`, mengeliminasi konflik quote HTML parser pada `@json()` dan Chart.js options.
+- Penyelarasan label KPI pajak di `lang/id/tax.php` dan `tax/index.blade.php`.
+- `php -l resources/views/app/services/index.blade.php` → **0 syntax errors**.
+- `php -l resources/views/app/warehouse/index.blade.php` → **0 syntax errors**.
+- `php -l resources/views/app/warehouse/show.blade.php` → **0 syntax errors**.
+- `php -l resources/views/app/suppliers/index.blade.php` → **0 syntax errors**.
+- `php -l resources/views/app/simulator/index.blade.php` → **0 syntax errors**.
+- `php -l resources/views/app/tax/index.blade.php` → **0 syntax errors**.
+- `php -l lang/id/*.php` & `php -l lang/en/*.php` → **0 syntax errors**.
+- `php artisan test --filter=Simulation` → **9 passed, 76 assertions (100% Success)**.
+- `php artisan test --filter=NetIncomeTaxComplianceTest` → **7 passed, 59 assertions (100% Success)**.
+- `php artisan view:cache` → **Blade templates cached successfully**.
+
+

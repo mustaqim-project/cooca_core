@@ -1,0 +1,128 @@
+<?php
+
+declare(strict_types=1);
+
+return [
+    'title' => 'Jasa & Layanan',
+    'header_title' => 'Jasa & Layanan',
+    'header_subtitle' => 'Kelola tarif ongkos jasa, biaya servis, atau perawatan tanpa repot mengatur stok gudang',
+
+    'actions' => [
+        'add_new' => 'Tambah Layanan Baru',
+        'search_placeholder' => 'Cari nama layanan atau kode...',
+        'filter_all_categories' => 'Semua Kategori',
+        'filter_all_status' => 'Semua Status',
+        'status_active' => 'Aktif',
+        'status_inactive' => 'Nonaktif',
+        'reset_filter' => 'Reset Filter',
+        'edit' => 'Edit',
+        'delete' => 'Hapus',
+        'quick_add_category' => '+ Tambah Kategori Cepat',
+        'cancel' => 'Batal',
+        'save' => 'Simpan Layanan',
+        'update' => 'Perbarui Layanan',
+        'saving' => 'Menyimpan...',
+    ],
+
+    'kpis' => [
+        'total_services' => 'Total Layanan',
+        'active_services' => 'Layanan Aktif',
+        'visible_pos' => 'Tampil di Kasir & Web',
+        'total_suffix' => 'layanan terdaftar',
+        'active_suffix' => 'siap ditransaksikan',
+        'visible_suffix' => 'saluran omnichannel',
+    ],
+
+    'table' => [
+        'col_service' => 'Layanan & Kode',
+        'col_category' => 'Kategori',
+        'col_unit' => 'Satuan',
+        'col_base_cost' => 'Biaya Pokok (Modal)',
+        'col_price' => 'Tarif / Harga Jual',
+        'col_channels' => 'Kanal Tampil',
+        'col_status' => 'Status',
+        'col_actions' => 'Aksi',
+        'no_code' => 'Tanpa Kode',
+        'uncategorized' => 'Tanpa Kategori',
+        'unit_fallback' => 'Kali / Sesi',
+        'mobile_list_title' => 'Daftar Layanan',
+        'mobile_count' => ':total Layanan',
+    ],
+
+    'channels' => [
+        'pos' => 'Kasir POS',
+        'sales_order' => 'Pesanan SO',
+        'website' => 'Toko Online',
+        'web_price' => 'Harga di Web',
+    ],
+
+    'form' => [
+        'add_title' => 'Tambah Layanan Baru',
+        'add_subtitle' => 'Daftarkan tarif jasa baru untuk kasir POS, pesanan penjualan, atau etalase toko online.',
+        'edit_title' => 'Edit Layanan',
+        'edit_subtitle' => 'Perbarui rincian tarif jasa, kategori, atau pengaturan saluran tampil.',
+        'section_identity' => 'Identitas & Spesifikasi Layanan',
+        'section_pricing' => 'Tarif & Biaya Pokok',
+        'field_name' => 'Nama Jasa / Layanan',
+        'placeholder_name' => 'Contoh: Jasa Servis Ringan, Cuci Kendaraan, Desain Custom...',
+        'field_code' => 'Kode / SKU (Opsional)',
+        'placeholder_code' => 'Contoh: SRV-001',
+        'field_category' => 'Kategori Layanan',
+        'select_category' => '-- Pilih Kategori --',
+        'field_unit' => 'Satuan Hasil / Billing',
+        'select_unit' => '-- Pilih Satuan --',
+        'field_price' => 'Tarif / Ongkos Jasa (Rp)',
+        'placeholder_price' => '0',
+        'field_cost' => 'Biaya Pokok Jasa (Modal Dasar Rp)',
+        'placeholder_cost' => '0',
+        'cost_hint' => 'Opsional: Masukkan jika layanan ini memerlukan biaya bahan habis pakai, operasional alat, atau ongkos transport teknisi.',
+        'field_description' => 'Deskripsi / Catatan Pekerjaan',
+        'placeholder_description' => 'Tulis cakupan pekerjaan atau instruksi khusus untuk staf kasir/operasional...',
+        'section_channels' => 'Kanal Penjualan & Tampilan',
+        'show_in_pos' => 'Tampilkan di Kasir POS',
+        'show_in_pos_desc' => 'Dapat dipilih langsung oleh kasir saat melayani pelanggan di outlet.',
+        'show_in_sales_order' => 'Tampilkan di Pesanan Penjualan (SO)',
+        'show_in_sales_order_desc' => 'Dapat dimasukkan ke invoice faktur penawaran atau surat jalan B2B.',
+        'show_in_website' => 'Tampilkan di Toko Online Publik',
+        'show_in_website_desc' => 'Dapat dilihat oleh pelanggan pada etalase katalog web bisnis.',
+        'show_price_on_web' => 'Tampilkan Nominal Tarif di Website',
+        'show_price_on_web_desc' => 'Jika dinonaktifkan, web akan menampilkan label "Hubungi Kami / Konsultasi".',
+        'section_status' => 'Status Layanan',
+        'is_active' => 'Layanan Aktif',
+        'is_active_desc' => 'Nonaktifkan jika layanan sedang dihentikan sementara tanpa menghapus riwayat transaksi.',
+    ],
+
+    'quick_category' => [
+        'title' => 'Tambah Kategori Cepat',
+        'subtitle' => 'Kategori baru akan langsung tersimpan dan otomatis dipilih pada formulir layanan.',
+        'field_name' => 'Nama Kategori',
+        'placeholder_name' => 'Contoh: Servis Berkala, Konsultasi, Perawatan...',
+        'cancel' => 'Batal',
+        'save' => 'Simpan Kategori',
+        'saving' => 'Menyimpan...',
+        'error_empty' => 'Nama kategori tidak boleh kosong.',
+    ],
+
+    'delete_modal' => [
+        'title' => 'Hapus Layanan',
+        'message' => 'Apakah Anda yakin ingin menghapus layanan <strong class="text-slate-900 dark:text-white">:name</strong>?',
+        'notice' => 'Catatan: Jika layanan ini memiliki riwayat transaksi pada kasir POS atau faktur penjualan, sistem akan otomatis menonaktifkannya alih-alih menghapus permanen demi menjaga laporan pembukuan.',
+        'cancel' => 'Batal',
+        'confirm' => 'Ya, Hapus Layanan',
+    ],
+
+    'empty' => [
+        'title' => 'Belum Ada Layanan Tersedia',
+        'subtitle' => 'Mulai daftarkan jasa servis, biaya pengerjaan, ongkos kirim internal, atau jasa konsultasi tanpa perlu mengatur stok gudang.',
+        'button' => 'Tambah Layanan Pertama',
+        'search_empty_title' => 'Layanan Tidak Ditemukan',
+        'search_empty_subtitle' => 'Tidak ada layanan yang sesuai dengan kata kunci pencarian atau filter yang dipilih.',
+    ],
+
+    'messages' => [
+        'created_success' => 'Layanan \':name\' berhasil ditambahkan dan siap digunakan di Kasir POS & Faktur.',
+        'updated_success' => 'Layanan \':name\' berhasil diperbarui.',
+        'deleted_success' => 'Layanan \':name\' telah dihapus.',
+        'archived_due_to_transactions' => 'Layanan \':name\' memiliki riwayat transaksi aktif, status dialihkan menjadi Nonaktif untuk menjaga integritas laporan keuangan.',
+    ],
+];

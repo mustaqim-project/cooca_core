@@ -15,13 +15,26 @@ use App\Support\Context;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
-class WhatsAppBroadcastWebController extends Controller
+class WhatsAppBroadcastWebController extends Controller implements HasMiddleware
 {
+    /**
+     * Get the middleware that should be assigned to the controller.
+     */
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('require.permission:whatsapp.manage'),
+            new Middleware('entitlement:whatsapp', only: ['store']),
+        ];
+    }
+
     public function __construct(protected WhatsAppGatewayService $gateway) {}
 
     /**

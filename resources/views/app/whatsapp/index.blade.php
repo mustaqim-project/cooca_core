@@ -63,11 +63,11 @@
                     </div>
 
                     <!-- Meta Free Tier Info Callout -->
-                    <div class="p-4 rounded-[16px] bg-[#007AFF]/8 border border-[#007AFF]/20 text-[12.5px] text-black/75 dark:text-white/75 space-y-1">
+                    <div class="p-4 rounded-[16px] bg-[#007AFF]/8 border border-[#007AFF]/20 text-[12.5px] text-black/75 dark:text-white/75 space-y-1.5">
                         <div class="flex items-center justify-between font-bold text-[#007AFF]">
                             <span class="flex items-center gap-1.5">
-                                <i data-lucide="sparkles" class="w-4 h-4"></i>
-                                {{ __('whatsapp.free_tier_banner_title') }}
+                                <i data-lucide="sparkles" class="w-4 h-4 shrink-0"></i>
+                                <span>{{ __('whatsapp.free_tier_banner_title') }}</span>
                             </span>
                         </div>
                         <p class="leading-relaxed text-black/65 dark:text-white/65 text-[12px]">
@@ -79,7 +79,7 @@
                     <div class="p-5 sm:p-6 rounded-[18px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/10 space-y-4">
                         <div class="flex items-center justify-between">
                             <div class="space-y-0.5">
-                                <h3 class="text-[15px] font-bold text-black dark:text-white">{{ __('whatsapp.embedded_signup_title') }}</h3>
+                                <h3 class="text-[15px] font-bold text-black dark:text-white tracking-tight">{{ __('whatsapp.embedded_signup_title') }}</h3>
                                 <p class="text-[12px] text-black/55 dark:text-white/55">{{ __('whatsapp.embedded_signup_desc') }}</p>
                             </div>
                         </div>
@@ -128,30 +128,44 @@
                                     {{ __('whatsapp.embedded_signup_instruction') }}
                                 </p>
 
-                                {{-- Simple 3-Step Overview --}}
-                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-[11.5px]">
-                                    <div class="p-3 rounded-[13px] bg-white/80 dark:bg-black/25 border border-black/5 dark:border-white/5 space-y-1">
-                                        <span class="font-bold text-[#1877F2] block">{{ __('whatsapp.step_1_title') }}</span>
-                                        <p class="text-black/60 dark:text-white/60">{{ __('whatsapp.step_1_desc') }}</p>
+                                @if (\App\Support\Context::hasPermission('whatsapp.manage'))
+                                    <!-- Action Row: Button CTA directly follows instruction, with proportional width & centered icon -->
+                                    <div class="flex flex-col sm:flex-row sm:items-center gap-3 pt-0.5">
+                                        <button type="button" @click="launchEmbeddedSignup()" :disabled="embeddedLoading"
+                                            class="min-h-[46px] px-6 rounded-[14px] bg-[#1877F2] hover:bg-[#166FE5] text-white font-semibold text-[13.5px] inline-flex items-center justify-center gap-2.5 shadow-sm active:scale-[0.98] transition-all disabled:opacity-50 w-full sm:w-auto">
+                                            <i data-lucide="loader-2" x-show="embeddedLoading" class="w-4 h-4 animate-spin shrink-0"></i>
+                                            <i data-lucide="shield-check" x-show="!embeddedLoading" class="w-4 h-4 shrink-0"></i>
+                                            <span class="whitespace-nowrap" x-text="embeddedLoading ? '{{ __('whatsapp.connecting_meta') }}' : '{{ __('whatsapp.connect_meta_btn') }}'"></span>
+                                        </button>
                                     </div>
-                                    <div class="p-3 rounded-[13px] bg-white/80 dark:bg-black/25 border border-black/5 dark:border-white/5 space-y-1">
-                                        <span class="font-bold text-[#1877F2] block">{{ __('whatsapp.step_2_title') }}</span>
-                                        <p class="text-black/60 dark:text-white/60">{{ __('whatsapp.step_2_desc') }}</p>
-                                    </div>
-                                    <div class="p-3 rounded-[13px] bg-white/80 dark:bg-black/25 border border-black/5 dark:border-white/5 space-y-1">
-                                        <span class="font-bold text-[#34C759] block">{{ __('whatsapp.step_3_title') }}</span>
-                                        <p class="text-black/60 dark:text-white/60">{{ __('whatsapp.step_3_desc') }}</p>
+                                @endif
+
+                                <!-- Quiet Informational Stepper (Apple HIG - NOT Button-like Cards) -->
+                                <div class="pt-3 border-t border-black/5 dark:border-white/10">
+                                    <div class="flex overflow-x-auto sm:grid sm:grid-cols-3 gap-3 no-scrollbar pb-1">
+                                        <div class="flex items-start gap-2.5 shrink-0 w-[190px] sm:w-auto">
+                                            <span class="w-5 h-5 rounded-full bg-[#1877F2]/10 text-[#1877F2] text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">1</span>
+                                            <div class="space-y-0.5 min-w-0">
+                                                <p class="font-semibold text-black dark:text-white text-[12px] leading-tight">{{ __('whatsapp.step_1_title') }}</p>
+                                                <p class="text-[11px] text-black/55 dark:text-white/55 leading-normal">{{ __('whatsapp.step_1_desc') }}</p>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-start gap-2.5 shrink-0 w-[190px] sm:w-auto">
+                                            <span class="w-5 h-5 rounded-full bg-[#1877F2]/10 text-[#1877F2] text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">2</span>
+                                            <div class="space-y-0.5 min-w-0">
+                                                <p class="font-semibold text-black dark:text-white text-[12px] leading-tight">{{ __('whatsapp.step_2_title') }}</p>
+                                                <p class="text-[11px] text-black/55 dark:text-white/55 leading-normal">{{ __('whatsapp.step_2_desc') }}</p>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-start gap-2.5 shrink-0 w-[190px] sm:w-auto">
+                                            <span class="w-5 h-5 rounded-full bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158] text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">3</span>
+                                            <div class="space-y-0.5 min-w-0">
+                                                <p class="font-semibold text-[#248A3D] dark:text-[#30D158] text-[12px] leading-tight">{{ __('whatsapp.step_3_title') }}</p>
+                                                <p class="text-[11px] text-black/55 dark:text-white/55 leading-normal">{{ __('whatsapp.step_3_desc') }}</p>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-
-                                @if (\App\Support\Context::hasPermission('whatsapp.manage'))
-                                    <button type="button" @click="launchEmbeddedSignup()" :disabled="embeddedLoading"
-                                        class="w-full min-h-[48px] rounded-[14px] bg-[#1877F2] hover:bg-[#166FE5] text-white font-bold text-[14px] flex items-center justify-center gap-2 shadow-md shadow-[#1877F2]/25 active:scale-[0.98] transition-all disabled:opacity-50">
-                                        <i data-lucide="loader-2" x-show="embeddedLoading" class="w-4 h-4 animate-spin"></i>
-                                        <i data-lucide="shield-check" x-show="!embeddedLoading" class="w-4 h-4"></i>
-                                        <span x-text="embeddedLoading ? '{{ __('whatsapp.connecting_meta') }}' : '{{ __('whatsapp.connect_meta_btn') }}'"></span>
-                                    </button>
-                                @endif
 
                                 <!-- Feedback Error -->
                                 <div x-show="embeddedError" x-transition class="p-3.5 rounded-[12px] bg-[#FF3B30]/10 border border-[#FF3B30]/25 text-[12px] text-[#C41E17] dark:text-[#FF453A] flex items-center gap-2">

@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Web;
 
 use App\Domain\Product\BomExplosionService;
 use App\Http\Controllers\Controller;
+use App\Models\AuditLog;
 use App\Models\BomHeader;
 use App\Models\BomItem;
 use App\Models\CostModel;
@@ -24,12 +25,27 @@ use App\Domain\Storage\TenantStorage;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
-final class ProductWebController extends Controller
+final class ProductWebController extends Controller implements HasMiddleware
 {
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('require.permission:products.view', only: ['index', 'bom', 'branchPrices']),
+            new Middleware(['require.permission:products.create', 'entitlement:product'], only: ['store']),
+            new Middleware('require.permission:products.edit', only: ['update', 'toggleSetting', 'togglePosImageVisibility', 'deleteGalleryImage']),
+            new Middleware(['require.permission:products.edit', 'entitlement:recipe'], only: ['addBomItem', 'removeBomItem']),
+            new Middleware(['require.permission:products.edit', 'entitlement:branch_pricing'], only: ['updateBranchPrices']),
+            new Middleware('entitlement:branch_pricing', only: ['branchPrices']),
+            new Middleware('require.permission:products.delete', only: ['destroy']),
+        ];
+    }
+
     public function __construct(private readonly BomExplosionService $bomService = new BomExplosionService) {}
 
     /**
@@ -335,6 +351,26 @@ final class ProductWebController extends Controller
             'is_active' => true,
         ]);
 
+        AuditLog::create([
+            'business_id' => $business->id,
+            'user_id' => $request->user()?->id,
+            'auditable_type' => Product::class,
+            'auditable_id' => $product->id,
+            'action' => 'product.created',
+            'risk_level' => AuditLog::RISK_LOW,
+            'new_values' => [
+                'name' => $product->name,
+                'code' => $product->code,
+                'selling_price' => (float) $product->selling_price,
+                'base_cost' => (float) $product->base_cost,
+                'is_bundle' => (bool) $product->is_bundle,
+                'is_preorder' => (bool) $product->is_preorder,
+            ],
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+            'created_at' => now(),
+        ]);
+
         return redirect()->route('products.index')->with('success', __('products.created_success'));
     }
 
@@ -404,6 +440,14 @@ final class ProductWebController extends Controller
             'remove_gallery_ids' => ['nullable', 'array'],
             'remove_gallery_ids.*' => ['string'],
         ]);
+
+        $oldValues = [
+            'name' => $product->name,
+            'code' => $product->code,
+            'selling_price' => (float) $product->selling_price,
+            'base_cost' => (float) $product->base_cost,
+            'is_active' => (bool) $product->is_active,
+        ];
 
         $product->update([
             'name' => $validated['name'],
@@ -530,6 +574,31 @@ final class ProductWebController extends Controller
             }
         }
 
+        $newSellingPrice = (float) ($validated['selling_price'] ?? $product->selling_price);
+        $newBaseCost = (float) ($validated['base_cost'] ?? $product->base_cost);
+        $isPriceChanged = ($oldValues['selling_price'] !== $newSellingPrice || $oldValues['base_cost'] !== $newBaseCost);
+
+        AuditLog::create([
+            'business_id' => $business->id,
+            'user_id' => $request->user()?->id,
+            'auditable_type' => Product::class,
+            'auditable_id' => $product->id,
+            'action' => $isPriceChanged ? 'product.price_updated' : 'product.updated',
+            'risk_level' => $isPriceChanged ? AuditLog::RISK_MEDIUM : AuditLog::RISK_LOW,
+            'risk_reason' => $isPriceChanged ? 'Perubahan harga jual atau HPP produk katalog' : null,
+            'old_values' => $oldValues,
+            'new_values' => [
+                'name' => $product->name,
+                'code' => $product->code,
+                'selling_price' => (float) $product->selling_price,
+                'base_cost' => (float) $product->base_cost,
+                'is_active' => (bool) $product->is_active,
+            ],
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+            'created_at' => now(),
+        ]);
+
         return redirect()->route('products.index')->with('success', __('products.updated_success'));
     }
 
@@ -654,7 +723,28 @@ final class ProductWebController extends Controller
             $img->delete();
         }
 
+        $oldData = [
+            'name' => $product->name,
+            'code' => $product->code,
+            'selling_price' => (float) $product->selling_price,
+            'base_cost' => (float) $product->base_cost,
+        ];
+
         $product->delete();
+
+        AuditLog::create([
+            'business_id' => $business->id,
+            'user_id' => request()->user()?->id,
+            'auditable_type' => Product::class,
+            'auditable_id' => $product->id,
+            'action' => 'product.deleted',
+            'risk_level' => AuditLog::RISK_MEDIUM,
+            'risk_reason' => 'Penghapusan produk katalog',
+            'old_values' => $oldData,
+            'ip_address' => request()->ip(),
+            'user_agent' => request()->userAgent(),
+            'created_at' => now(),
+        ]);
 
         return redirect()->route('products.index')->with('success', __('products.deleted_success'));
     }
@@ -790,6 +880,22 @@ final class ProductWebController extends Controller
                     ->delete();
             }
         }
+
+        AuditLog::create([
+            'business_id' => $business->id,
+            'user_id' => $request->user()?->id,
+            'auditable_type' => Product::class,
+            'auditable_id' => $product->id,
+            'action' => 'product.branch_prices_updated',
+            'risk_level' => AuditLog::RISK_MEDIUM,
+            'risk_reason' => 'Perubahan harga khusus cabang/outlet untuk produk',
+            'new_values' => [
+                'prices' => $validated['prices'],
+            ],
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+            'created_at' => now(),
+        ]);
 
         if ($request->wantsJson()) {
             return response()->json([

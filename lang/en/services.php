@@ -1,0 +1,128 @@
+<?php
+
+declare(strict_types=1);
+
+return [
+    'title' => 'Services & Labor',
+    'header_title' => 'Services & Labor',
+    'header_subtitle' => 'Manage service fees, labor costs, and maintenance rates without inventory stock tracking',
+
+    'actions' => [
+        'add_new' => 'Add New Service',
+        'search_placeholder' => 'Search service name or code...',
+        'filter_all_categories' => 'All Categories',
+        'filter_all_status' => 'All Statuses',
+        'status_active' => 'Active',
+        'status_inactive' => 'Inactive',
+        'reset_filter' => 'Reset Filter',
+        'edit' => 'Edit',
+        'delete' => 'Delete',
+        'quick_add_category' => '+ Quick Add Category',
+        'cancel' => 'Cancel',
+        'save' => 'Save Service',
+        'update' => 'Update Service',
+        'saving' => 'Saving...',
+    ],
+
+    'kpis' => [
+        'total_services' => 'Total Services',
+        'active_services' => 'Active Services',
+        'visible_pos' => 'Visible in POS & Web',
+        'total_suffix' => 'registered services',
+        'active_suffix' => 'ready for sale',
+        'visible_suffix' => 'omnichannel active',
+    ],
+
+    'table' => [
+        'col_service' => 'Service & Code',
+        'col_category' => 'Category',
+        'col_unit' => 'Unit',
+        'col_base_cost' => 'Base Cost (COGS)',
+        'col_price' => 'Rate / Selling Price',
+        'col_channels' => 'Display Channels',
+        'col_status' => 'Status',
+        'col_actions' => 'Actions',
+        'no_code' => 'No Code',
+        'uncategorized' => 'Uncategorized',
+        'unit_fallback' => 'Time / Session',
+        'mobile_list_title' => 'Services List',
+        'mobile_count' => ':total Services',
+    ],
+
+    'channels' => [
+        'pos' => 'POS Register',
+        'sales_order' => 'Sales Order',
+        'website' => 'Online Store',
+        'web_price' => 'Web Price',
+    ],
+
+    'form' => [
+        'add_title' => 'Add New Service',
+        'add_subtitle' => 'Register a new service rate for POS registers, sales orders, or online storefront.',
+        'edit_title' => 'Edit Service',
+        'edit_subtitle' => 'Update service rates, category classification, or sales channel visibility.',
+        'section_identity' => 'Service Identity & Scope',
+        'section_pricing' => 'Service Rates & Base Cost',
+        'field_name' => 'Service Name',
+        'placeholder_name' => 'e.g. Vehicle Maintenance, Consultation, Custom Design...',
+        'field_code' => 'Code / SKU (Optional)',
+        'placeholder_code' => 'e.g. SRV-001',
+        'field_category' => 'Service Category',
+        'select_category' => '-- Select Category --',
+        'field_unit' => 'Billing Unit',
+        'select_unit' => '-- Select Unit --',
+        'field_price' => 'Service Fee / Rate (IDR)',
+        'placeholder_price' => '0',
+        'field_cost' => 'Base Cost (IDR)',
+        'placeholder_cost' => '0',
+        'cost_hint' => 'Optional: Fill in if this service requires consumable supplies, tool wear, or technician transport fees.',
+        'field_description' => 'Description / Scope of Work',
+        'placeholder_description' => 'Write task scope or specific instructions for cashier/operational staff...',
+        'section_channels' => 'Sales Channels & Visibility',
+        'show_in_pos' => 'Show in POS Cashier',
+        'show_in_pos_desc' => 'Can be selected by cashiers during checkout at store outlets.',
+        'show_in_sales_order' => 'Show in Sales Orders (SO)',
+        'show_in_sales_order_desc' => 'Can be included in B2B quotations, invoices, or delivery orders.',
+        'show_in_website' => 'Show in Public Storefront',
+        'show_in_website_desc' => 'Can be viewed by customers on your business online catalog.',
+        'show_price_on_web' => 'Display Fee Amount on Website',
+        'show_price_on_web_desc' => 'If disabled, the web storefront will display "Contact Us / Inquire".',
+        'section_status' => 'Service Status',
+        'is_active' => 'Active Service',
+        'is_active_desc' => 'Disable if this service is temporarily suspended without deleting sales history.',
+    ],
+
+    'quick_category' => [
+        'title' => 'Quick Add Category',
+        'subtitle' => 'New category will be instantly saved and selected on the service form.',
+        'field_name' => 'Category Name',
+        'placeholder_name' => 'e.g. Periodic Maintenance, Advisory, Cleaning...',
+        'cancel' => 'Cancel',
+        'save' => 'Save Category',
+        'saving' => 'Saving...',
+        'error_empty' => 'Category name cannot be empty.',
+    ],
+
+    'delete_modal' => [
+        'title' => 'Delete Service',
+        'message' => 'Are you sure you want to delete service <strong class="text-slate-900 dark:text-white">:name</strong>?',
+        'notice' => 'Note: If this service has transaction history in POS orders or invoices, it will be automatically deactivated rather than permanently removed to preserve accounting records.',
+        'cancel' => 'Cancel',
+        'confirm' => 'Yes, Delete Service',
+    ],
+
+    'empty' => [
+        'title' => 'No Services Available Yet',
+        'subtitle' => 'Start registering maintenance tasks, labor fees, internal shipping, or advisory services without inventory tracking.',
+        'button' => 'Add First Service',
+        'search_empty_title' => 'No Services Found',
+        'search_empty_subtitle' => 'No services matched your search keywords or filter criteria.',
+    ],
+
+    'messages' => [
+        'created_success' => 'Service \':name\' has been created and is ready in POS Cashier & Invoicing.',
+        'updated_success' => 'Service \':name\' has been updated successfully.',
+        'deleted_success' => 'Service \':name\' has been deleted.',
+        'archived_due_to_transactions' => 'Service \':name\' has active transaction history and has been archived as Inactive to protect accounting integrity.',
+    ],
+];

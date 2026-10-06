@@ -399,9 +399,9 @@
     {{-- ===================================================== --}}
     {{-- 3. KPI SUMMARY (Bento Apple HIG Cards)                --}}
     {{-- ===================================================== --}}
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+    <div class="flex sm:grid sm:grid-cols-2 lg:grid-cols-4 flex-nowrap sm:flex-wrap overflow-x-auto sm:overflow-visible pb-2 sm:pb-0 snap-x snap-mandatory gap-3 sm:gap-4 no-scrollbar scrollbar-none">
         {{-- Tile 1: Total Lokasi --}}
-        <div class="rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] p-4 sm:p-5 flex flex-col justify-between shadow-xs">
+        <div class="min-w-[220px] sm:min-w-0 flex-1 snap-start rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] p-4 sm:p-5 flex flex-col justify-between shadow-xs">
             <div class="flex items-center justify-between">
                 <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">{{ __('warehouse.kpis.total_locations') }}</span>
                 <div class="w-7 h-7 rounded-[8px] bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 dark:text-slate-400">
@@ -415,7 +415,7 @@
         </div>
 
         {{-- Tile 2: Lokasi Aktif --}}
-        <div class="rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] p-4 sm:p-5 flex flex-col justify-between shadow-xs">
+        <div class="min-w-[220px] sm:min-w-0 flex-1 snap-start rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] p-4 sm:p-5 flex flex-col justify-between shadow-xs">
             <div class="flex items-center justify-between">
                 <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">{{ __('warehouse.kpis.active_locations') }}</span>
                 <div class="w-7 h-7 rounded-[8px] bg-[#34C759]/10 flex items-center justify-center text-[#34C759]">
@@ -429,7 +429,7 @@
         </div>
 
         {{-- Tile 3: Total Nilai Aset Stok --}}
-        <div class="rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] p-4 sm:p-5 flex flex-col justify-between shadow-xs">
+        <div class="min-w-[220px] sm:min-w-0 flex-1 snap-start rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] p-4 sm:p-5 flex flex-col justify-between shadow-xs">
             <div class="flex items-center justify-between">
                 <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">{{ __('warehouse.kpis.stock_asset_value') }}</span>
                 <div class="w-7 h-7 rounded-[8px] bg-[#5856D6]/10 flex items-center justify-center text-[#5856D6]">
@@ -445,7 +445,7 @@
         </div>
 
         {{-- Tile 4: Stok Perlu Restock / Total Unit --}}
-        <div class="rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] p-4 sm:p-5 flex flex-col justify-between shadow-xs">
+        <div class="min-w-[220px] sm:min-w-0 flex-1 snap-start rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] p-4 sm:p-5 flex flex-col justify-between shadow-xs">
             <div class="flex items-center justify-between">
                 <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">{{ __('warehouse.kpis.low_stock') }}</span>
                 <div class="w-7 h-7 rounded-[8px] {{ ($totalLowStock ?? 0) > 0 ? 'bg-[#FF9500]/10 text-[#FF9500]' : 'bg-slate-100 dark:bg-slate-800 text-slate-400' }} flex items-center justify-center">
@@ -470,13 +470,13 @@
                     <i data-lucide="store" class="w-5 h-5"></i>
                 </div>
                 <div>
-                    <h4 class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">Pusat Kelola & Tambah Cabang Telah Dipindahkan</h4>
-                    <p class="text-[11px] text-slate-500 dark:text-slate-400">Tambah dan kelola cabang/toko kini dipusatkan di Pengaturan Bisnis. Halaman ini khusus untuk mengelola Gudang Logistik (1 cabang dapat memiliki banyak gudang).</p>
+                    <h4 class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">{{ __('warehouse.branch_education.title') }}</h4>
+                    <p class="text-[11px] text-slate-500 dark:text-slate-400">{{ __('warehouse.branch_education.subtitle') }}</p>
                 </div>
             </div>
-            <a href="{{ route('settings.index', ['tab' => 'branches']) }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[9px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 text-xs font-semibold text-[#007AFF] hover:bg-black/[0.03] dark:hover:bg-white/[0.05] transition-all shrink-0">
+            <a href="{{ route('settings.index', ['tab' => 'branches']) }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[9px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 text-xs font-semibold text-[#007AFF] hover:bg-black/[0.03] dark:hover:bg-white/[0.05] transition-all shrink-0 min-h-[36px] sm:min-h-0">
                 <i data-lucide="settings" class="w-3.5 h-3.5"></i>
-                <span>Buka Pengaturan Cabang</span>
+                <span>{{ __('warehouse.branch_education.action_btn') }}</span>
                 <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
             </a>
         </div>

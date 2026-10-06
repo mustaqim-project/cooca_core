@@ -6,18 +6,34 @@ namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
 use App\Models\CostModel;
+use App\Models\InvoiceItem;
+use App\Models\PosOrderItem;
 use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Models\Unit;
 use App\Support\Context;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
-final class ServiceWebController extends Controller
+final class ServiceWebController extends Controller implements HasMiddleware
 {
+    /**
+     * Get the middleware that should be assigned to the controller.
+     */
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('require.permission:products.view', only: ['index']),
+            new Middleware('require.permission:products.create', only: ['store']),
+            new Middleware('require.permission:products.edit', only: ['update']),
+            new Middleware('require.permission:products.delete', only: ['destroy']),
+        ];
+    }
     /**
      * Display a listing of services/layanan.
      */
@@ -149,7 +165,7 @@ final class ServiceWebController extends Controller
             ]
         );
 
-        return redirect()->route('services.index')->with('success', "Layanan '{$service->name}' berhasil ditambahkan dan siap digunakan di Kasir POS & Faktur.");
+        return redirect()->route('services.index')->with('success', __('services.messages.created_success', ['name' => $service->name]));
     }
 
     /**
@@ -204,7 +220,7 @@ final class ServiceWebController extends Controller
             'show_price_on_web' => $request->has('show_price_on_web') ? $request->boolean('show_price_on_web') : $product->show_price_on_web,
         ]);
 
-        return redirect()->route('services.index')->with('success', "Layanan '{$product->name}' berhasil diperbarui.");
+        return redirect()->route('services.index')->with('success', __('services.messages.updated_success', ['name' => $product->name]));
     }
 
     /**
@@ -216,8 +232,20 @@ final class ServiceWebController extends Controller
         abort_unless($product->business_id === $business->id, 403);
 
         $name = $product->name;
+
+        // Deletion Guard: Check if the service has active transactions in POS or Invoices
+        $hasPosOrders = PosOrderItem::where('product_id', $product->id)->exists();
+        $hasInvoiceItems = InvoiceItem::where('product_id', $product->id)->exists();
+
+        if ($hasPosOrders || $hasInvoiceItems) {
+            // Gracefully archive to preserve financial reporting
+            $product->update(['is_active' => false]);
+
+            return redirect()->route('services.index')->with('warning', __('services.messages.archived_due_to_transactions', ['name' => $name]));
+        }
+
         $product->delete();
 
-        return redirect()->route('services.index')->with('success', "Layanan '{$name}' telah dihapus.");
+        return redirect()->route('services.index')->with('success', __('services.messages.deleted_success', ['name' => $name]));
     }
 }

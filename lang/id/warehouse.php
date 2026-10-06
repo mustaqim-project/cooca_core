@@ -217,6 +217,12 @@ return [
         'empty' => 'Belum ada riwayat penerimaan barang fisik di lokasi ini.',
     ],
 
+    'branch_education' => [
+        'title' => 'Pusat Kelola & Tambah Cabang Telah Dipindahkan',
+        'subtitle' => 'Tambah dan kelola cabang/toko kini dipusatkan di Pengaturan Bisnis. Halaman ini khusus untuk mengelola Gudang Logistik (1 cabang dapat memiliki banyak gudang).',
+        'action_btn' => 'Buka Pengaturan Cabang',
+    ],
+
     'movements_table' => [
         'title' => 'Kartu Stok - Mutasi Terkini',
         'subtitle' => 'Audit trail pergerakan saldo barang di lokasi ini secara real-time.',
@@ -230,6 +236,14 @@ return [
         'col_notes' => 'Keterangan & Staf',
         'empty' => 'Belum ada catatan mutasi stok untuk lokasi ini.',
         'see_all_movements' => 'Lihat Semua Mutasi',
+        'type_goods_receipt' => 'Penerimaan Barang',
+        'type_pos_sale' => 'Penjualan POS',
+        'type_adjustment' => 'Penyesuaian Stok',
+        'type_transfer_in' => 'Transfer Masuk',
+        'type_transfer_out' => 'Transfer Keluar',
+        'type_opname' => 'Stok Opname',
+        'type_initial' => 'Stok Awal',
+        'type_pos_refund' => 'Refund POS',
     ],
 
     'approvals' => [
@@ -281,6 +295,8 @@ return [
         'reason_theft' => 'Kehilangan / Dugaan Pencurian',
         'reason_initial' => 'Input Saldo Awal Gudang',
         'reason_other' => 'Lainnya (Wajib tulis alasan min. 10 karakter)',
+        'placeholder_other' => 'Wajib tulis alasan detail (min. 10 karakter)...',
+        'placeholder_example' => 'Contoh: Selisih fisik stock opname, barang rusak/kadaluarsa...',
     ],
 
     'delete_modal' => [

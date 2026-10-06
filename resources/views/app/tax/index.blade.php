@@ -1,7 +1,7 @@
 @extends('layouts.app', [
-    'title' => 'Pajak & Kepatuhan Usaha',
-    'headerTitle' => 'Kepatuhan Pajak & Hasil Penjualan',
-    'headerSubtitle' => 'Tax Compliance Engine: Kalkulasi PPh Laba Bersih Usaha (UU HPP / Pasal 31E & 17), PPh Final UMKM 0.5% (PP 55/2022), PPh 21 TER, BPJS, dan THR'
+    'title' => __('tax.title'),
+    'headerTitle' => __('tax.header_title'),
+    'headerSubtitle' => __('tax.header_subtitle')
 ])
 
 @section('content')
@@ -226,7 +226,7 @@
         {{-- Card 1: Peredaran Bruto / Pendapatan Bersih Penjualan --}}
         <div class="bg-white dark:bg-[#1C1C1E] rounded-3xl p-5 border border-black/10 dark:border-white/10 shadow-sm relative overflow-hidden flex flex-col justify-between">
             <div class="flex items-center justify-between">
-                <span class="text-xs font-semibold text-black/50 dark:text-white/50 uppercase tracking-wider">Pendapatan Bersih Penjualan</span>
+                <span class="text-xs font-semibold text-black/50 dark:text-white/50 uppercase tracking-wider">{{ __('tax.kpis.revenue_ytd') }}</span>
                 <span class="w-8 h-8 rounded-2xl bg-blue-500/10 dark:bg-blue-500/20 text-[#007AFF] flex items-center justify-center">
                     <i data-lucide="trending-up" class="w-4 h-4"></i>
                 </span>
@@ -237,11 +237,11 @@
                 </div>
                 <div class="mt-1 flex items-center gap-1.5 text-xs text-black/50 dark:text-white/50">
                     <i data-lucide="calculator" class="w-3.5 h-3.5 text-black/40 dark:text-white/40"></i>
-                    <span>Tersinkron POS, Faktur & Toko Online</span>
+                    <span>{{ __('tax.kpis.revenue_hint', ['year' => $currentYear]) }}</span>
                 </div>
             </div>
             <div class="mt-3 pt-3 border-t border-black/5 dark:border-white/5 flex items-center justify-between text-xs">
-                <span class="text-black/50 dark:text-white/50">HPP Aktual Terjual</span>
+                <span class="text-black/50 dark:text-white/50">{{ __('tax.net_income.field_cogs') }}</span>
                 <span class="font-semibold text-black/80 dark:text-white/80">
                     {{ 'Rp ' . number_format($netIncomeSummary['total_cogs_year'], 0, ',', '.') }}
                 </span>
@@ -251,7 +251,7 @@
         {{-- Card 2: Laba Operasional Riil --}}
         <div class="bg-white dark:bg-[#1C1C1E] rounded-3xl p-5 border border-black/10 dark:border-white/10 shadow-sm relative overflow-hidden flex flex-col justify-between">
             <div class="flex items-center justify-between">
-                <span class="text-xs font-semibold text-black/50 dark:text-white/50 uppercase tracking-wider">Laba Bersih Operasional</span>
+                <span class="text-xs font-semibold text-black/50 dark:text-white/50 uppercase tracking-wider">{{ __('tax.kpis.net_income_comm') }}</span>
                 <span class="w-8 h-8 rounded-2xl bg-emerald-500/10 dark:bg-emerald-500/20 text-[#34C759] flex items-center justify-center">
                     <i data-lucide="pie-chart" class="w-4 h-4"></i>
                 </span>
@@ -262,11 +262,11 @@
                 </div>
                 <div class="mt-1 flex items-center gap-1.5 text-xs text-black/50 dark:text-white/50">
                     <i data-lucide="wallet" class="w-3.5 h-3.5 text-black/40 dark:text-white/40"></i>
-                    <span>Beban Kas: Rp {{ number_format($netIncomeSummary['total_expenses_year'], 0, ',', '.') }}</span>
+                    <span>{{ __('tax.net_income.field_expenses') }}: Rp {{ number_format($netIncomeSummary['total_expenses_year'], 0, ',', '.') }}</span>
                 </div>
             </div>
             <div class="mt-3 pt-3 border-t border-black/5 dark:border-white/5 flex items-center justify-between text-xs">
-                <span class="text-black/50 dark:text-white/50">Status Fiskal</span>
+                <span class="text-black/50 dark:text-white/50">{{ __('tax.kpis.net_income_hint') }}</span>
                 <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold {{ $netIncomeSummary['total_net_income_year'] <= 0 ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400' : 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400' }}">
                     {{ $netIncomeSummary['total_net_income_year'] <= 0 ? 'Rugi Operasional' : 'Laba Positif' }}
                 </span>
@@ -276,7 +276,7 @@
         {{-- Card 3: Estimasi PPh Terutang Tahunan --}}
         <div class="bg-white dark:bg-[#1C1C1E] rounded-3xl p-5 border border-black/10 dark:border-white/10 shadow-sm relative overflow-hidden flex flex-col justify-between">
             <div class="flex items-center justify-between">
-                <span class="text-xs font-semibold text-black/50 dark:text-white/50 uppercase tracking-wider">PPh Terutang Laba Bersih</span>
+                <span class="text-xs font-semibold text-black/50 dark:text-white/50 uppercase tracking-wider">{{ __('tax.kpis.tax_net_income_est') }}</span>
                 <span class="w-8 h-8 rounded-2xl bg-indigo-500/10 dark:bg-indigo-500/20 text-[#5856D6] flex items-center justify-center">
                     <i data-lucide="receipt" class="w-4 h-4"></i>
                 </span>
@@ -303,7 +303,7 @@
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-2">
                     <span class="w-2 h-2 rounded-full bg-[#34C759] animate-pulse"></span>
-                    <span class="text-xs font-semibold uppercase tracking-wider text-white/70">Tax Optimization Engine</span>
+                    <span class="text-xs font-semibold uppercase tracking-wider text-white/70">{{ __('tax.actions.calculate') }}</span>
                 </div>
                 <span class="w-8 h-8 rounded-2xl bg-white/10 text-amber-300 flex items-center justify-center">
                     <i data-lucide="sparkles" class="w-4 h-4"></i>
@@ -318,7 +318,7 @@
                 </p>
             </div>
             <div class="mt-3 pt-3 border-t border-white/10 flex items-center justify-between text-xs">
-                <span class="text-white/70">Potensi Efisiensi</span>
+                <span class="text-white/70">{{ __('tax.net_income.card_effective_rate') }}</span>
                 <span class="font-bold text-[#34C759]">
                     {{ 'Rp ' . number_format((float) ($netIncomeSummary['annual_calculation']['comparison']['tax_savings'] ?? 0), 0, ',', '.') }}
                 </span>
@@ -331,7 +331,7 @@
         <form method="GET" action="{{ route('tax.index') }}" class="flex flex-wrap items-center gap-3 w-full md:w-auto">
             {{-- Tahun Pajak --}}
             <div class="flex items-center gap-2">
-                <label for="year-select" class="text-xs font-semibold text-black/60 dark:text-white/60">Tahun:</label>
+                <label for="year-select" class="text-xs font-semibold text-black/60 dark:text-white/60">{{ __('tax.year_filter.label') }}</label>
                 <select id="year-select" name="year" onchange="this.form.submit()" class="h-10 text-sm font-medium rounded-xl border border-black/10 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.04] text-black dark:text-white px-3 focus:ring-2 focus:ring-[#007AFF] focus:border-transparent outline-none">
                     @for($y = (int) date('Y'); $y >= (int) date('Y') - 4; $y--)
                         <option value="{{ $y }}" {{ $currentYear === $y ? 'selected' : '' }}>{{ $y }}</option>
@@ -341,17 +341,17 @@
 
             {{-- Jenis Wajib Pajak --}}
             <div class="flex items-center gap-2">
-                <label for="taxpayer-select" class="text-xs font-semibold text-black/60 dark:text-white/60">Subjek Pajak:</label>
+                <label for="taxpayer-select" class="text-xs font-semibold text-black/60 dark:text-white/60">{{ __('tax.year_filter.type_label') }}</label>
                 <select id="taxpayer-select" name="taxpayer_type" onchange="this.form.submit()" class="h-10 text-sm font-medium rounded-xl border border-black/10 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.04] text-black dark:text-white px-3 focus:ring-2 focus:ring-[#007AFF] focus:border-transparent outline-none">
-                    <option value="individual" {{ $isIndividual ? 'selected' : '' }}>Orang Pribadi (Usaha)</option>
-                    <option value="corporate" {{ ! $isIndividual ? 'selected' : '' }}>Badan Usaha (PT / CV)</option>
+                    <option value="individual" {{ $isIndividual ? 'selected' : '' }}>{{ __('tax.year_filter.type_individual') }}</option>
+                    <option value="corporate" {{ ! $isIndividual ? 'selected' : '' }}>{{ __('tax.year_filter.type_corporate') }}</option>
                 </select>
             </div>
 
             {{-- Status PTKP jika Orang Pribadi --}}
             @if($isIndividual)
                 <div class="flex items-center gap-2">
-                    <label for="ptkp-select" class="text-xs font-semibold text-black/60 dark:text-white/60">PTKP:</label>
+                    <label for="ptkp-select" class="text-xs font-semibold text-black/60 dark:text-white/60">{{ __('tax.year_filter.ptkp_label') }}</label>
                     <select id="ptkp-select" name="ptkp_status" onchange="this.form.submit()" class="h-10 text-sm font-medium rounded-xl border border-black/10 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.04] text-black dark:text-white px-3 focus:ring-2 focus:ring-[#007AFF] focus:border-transparent outline-none">
                         @foreach(['TK/0', 'TK/1', 'TK/2', 'TK/3', 'K/0', 'K/1', 'K/2', 'K/3'] as $status)
                             <option value="{{ $status }}" {{ $ptkpStatus === $status ? 'selected' : '' }}>{{ $status }} (Rp {{ number_format(\App\Domain\Tax\NetIncomeTaxService::PTKP_VALUES[$status] ?? 54000000, 0, ',', '.') }})</option>
@@ -365,7 +365,7 @@
         <div class="flex items-center gap-2 w-full md:w-auto justify-end">
             <button type="button" @click="showExportModal = true" class="h-11 px-4 rounded-xl bg-black dark:bg-white text-white dark:text-black hover:bg-black/80 dark:hover:bg-white/90 text-sm font-semibold flex items-center justify-center gap-2 transition-colors shadow-sm w-full sm:w-auto">
                 <i data-lucide="download" class="w-4 h-4"></i>
-                <span>Pusat Ekspor e-Bupot & CSV</span>
+                <span>{{ __('tax.actions.export') }}</span>
             </button>
         </div>
     </div>
@@ -377,23 +377,23 @@
             <div class="flex overflow-x-auto gap-1.5 p-1.5 bg-black/[0.05] dark:bg-white/[0.06] rounded-2xl no-scrollbar">
                 <button type="button" @click="activeSimTab = 'net_income'" :class="activeSimTab === 'net_income' ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-sm font-bold border border-black/5 dark:border-white/10' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white font-medium'" class="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm whitespace-nowrap transition-all min-h-[44px]">
                     <i data-lucide="building-2" class="w-4 h-4 text-[#007AFF]"></i>
-                    <span>PPh Laba Bersih (UU HPP / 31E)</span>
+                    <span>{{ __('tax.tabs.net_income') }}</span>
                 </button>
                 <button type="button" @click="activeSimTab = 'umkm'" :class="activeSimTab === 'umkm' ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-sm font-bold border border-black/5 dark:border-white/10' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white font-medium'" class="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm whitespace-nowrap transition-all min-h-[44px]">
                     <i data-lucide="store" class="w-4 h-4 text-[#34C759]"></i>
-                    <span>PPh Final UMKM 0.5% (PP 55)</span>
+                    <span>{{ __('tax.tabs.umkm') }}</span>
                 </button>
                 <button type="button" @click="activeSimTab = 'pph21'" :class="activeSimTab === 'pph21' ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-sm font-bold border border-black/5 dark:border-white/10' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white font-medium'" class="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm whitespace-nowrap transition-all min-h-[44px]">
                     <i data-lucide="users" class="w-4 h-4 text-[#5856D6]"></i>
-                    <span>PPh 21 TER Karyawan (PP 58)</span>
+                    <span>{{ __('tax.tabs.pph21') }}</span>
                 </button>
                 <button type="button" @click="activeSimTab = 'payroll'" :class="activeSimTab === 'payroll' ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-sm font-bold border border-black/5 dark:border-white/10' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white font-medium'" class="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm whitespace-nowrap transition-all min-h-[44px]">
                     <i data-lucide="badge-dollar-sign" class="w-4 h-4 text-[#FF9500]"></i>
-                    <span>Gaji, BPJS & THR Terpadu</span>
+                    <span>{{ __('tax.tabs.payroll') }}</span>
                 </button>
                 <button type="button" @click="activeSimTab = 'sales'" :class="activeSimTab === 'sales' ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-sm font-bold border border-black/5 dark:border-white/10' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white font-medium'" class="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm whitespace-nowrap transition-all min-h-[44px]">
                     <i data-lucide="shopping-cart" class="w-4 h-4 text-[#007AFF]"></i>
-                    <span>Pajak Transaksi (PB1 / PPN)</span>
+                    <span>{{ __('tax.tabs.sales') }}</span>
                 </button>
             </div>
         </div>
@@ -406,18 +406,18 @@
                     <div class="flex items-center justify-between border-b border-black/10 dark:border-white/10 pb-3">
                         <h3 class="text-base font-bold text-black dark:text-white flex items-center gap-2">
                             <i data-lucide="sliders-horizontal" class="w-4 h-4 text-[#007AFF]"></i>
-                            <span>Parameter Laba Bersih Usaha</span>
+                            <span>{{ __('tax.net_income.title') }}</span>
                         </h3>
                         <button type="button" @click="showNormaModal = true" class="text-xs font-semibold text-[#007AFF] hover:underline flex items-center gap-1">
                             <i data-lucide="help-circle" class="w-3.5 h-3.5"></i>
-                            <span>Panduan Norma (NPPN)</span>
+                            <span>{{ __('tax.actions.norma_rules') }}</span>
                         </button>
                     </div>
 
                     {{-- Form Inputs --}}
                     <div>
                         <label for="net-gross-revenue" class="block text-xs font-semibold text-black/70 dark:text-white/70 mb-1">
-                            Peredaran Bruto / Penjualan Bersih (Rp):
+                            {{ __('tax.net_income.field_revenue') }}:
                         </label>
                         <div class="relative">
                             <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-xs font-semibold text-black/40 dark:text-white/40">Rp</span>
@@ -427,7 +427,7 @@
 
                     <div>
                         <label for="net-cogs" class="block text-xs font-semibold text-black/70 dark:text-white/70 mb-1">
-                            Harga Pokok Penjualan / HPP Biaya Modal (Rp):
+                            {{ __('tax.net_income.field_cogs') }}:
                         </label>
                         <div class="relative">
                             <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-xs font-semibold text-black/40 dark:text-white/40">Rp</span>
@@ -437,7 +437,7 @@
 
                     <div>
                         <label for="net-expenses" class="block text-xs font-semibold text-black/70 dark:text-white/70 mb-1">
-                            Beban Operasional Usaha / Biaya Kas (Rp):
+                            {{ __('tax.net_income.field_expenses') }}:
                         </label>
                         <div class="relative">
                             <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-xs font-semibold text-black/40 dark:text-white/40">Rp</span>
@@ -447,10 +447,10 @@
 
                     <div class="grid grid-cols-2 gap-3 pt-2">
                         <div>
-                            <label for="net-is-corporate" class="block text-xs font-semibold text-black/70 dark:text-white/70 mb-1">Subjek Pajak:</label>
+                            <label for="net-is-corporate" class="block text-xs font-semibold text-black/70 dark:text-white/70 mb-1">{{ __('tax.net_income.field_entity') }}:</label>
                             <select id="net-is-corporate" x-model="netIncomeInput.is_corporate" @change="runNetIncomeSim()" class="w-full h-11 text-sm rounded-xl border border-black/10 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.04] text-black dark:text-white px-3 font-medium focus:ring-2 focus:ring-[#007AFF] focus:border-transparent outline-none">
-                                <option :value="false">Orang Pribadi</option>
-                                <option :value="true">Badan Usaha (PT/CV)</option>
+                                <option :value="false">{{ __('tax.net_income.entity_individual') }}</option>
+                                <option :value="true">{{ __('tax.net_income.entity_corporate') }}</option>
                             </select>
                         </div>
                         <div x-show="!netIncomeInput.is_corporate">
@@ -474,43 +474,43 @@
                     <div>
                         <div class="flex items-center justify-between pb-4 border-b border-black/10 dark:border-white/10">
                             <div>
-                                <span class="text-xs font-semibold uppercase tracking-wider text-black/50 dark:text-white/50">Hasil Simulasi Fiskal Riil</span>
-                                <h4 class="text-lg font-bold text-black dark:text-white" x-text="netIncomeResult ? netIncomeResult.tax_scheme : 'Kalkulasi Fiskal...'"></h4>
+                                <span class="text-xs font-semibold uppercase tracking-wider text-black/50 dark:text-white/50">{{ __('tax.net_income.results_title') }}</span>
+                                <h4 class="text-lg font-bold text-black dark:text-white" x-text="netIncomeResult ? netIncomeResult.tax_scheme : @json(__('tax.net_income.calculating_fiscal'))"></h4>
                             </div>
                             <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-500/10 text-[#007AFF] dark:bg-blue-500/20">
                                 <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
-                                <span>UU Harmonisasi Perpajakan</span>
+                                <span>{{ __('tax.net_income.law_badge') }}</span>
                             </span>
                         </div>
 
                         {{-- Calculation Breakdown Bento --}}
                         <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-4">
                             <div class="bg-white dark:bg-[#1C1C1E] p-3.5 rounded-2xl border border-black/10 dark:border-white/10 shadow-xs">
-                                <div class="text-[11px] text-black/50 dark:text-white/50">Laba Kotor (Gross)</div>
+                                <div class="text-[11px] text-black/50 dark:text-white/50">{{ __('tax.net_income.gross_profit') }}</div>
                                 <div class="text-base font-bold text-black dark:text-white mt-0.5" x-text="formatRupiah(netIncomeResult?.gross_profit)"></div>
                                 <div class="text-[10px] text-black/40 dark:text-white/40 mt-0.5" x-text="'Margin: ' + (netIncomeResult?.gross_margin_percent || 0) + '%'"></div>
                             </div>
                             <div class="bg-white dark:bg-[#1C1C1E] p-3.5 rounded-2xl border border-black/10 dark:border-white/10 shadow-xs">
-                                <div class="text-[11px] text-black/50 dark:text-white/50">Laba Bersih Usaha</div>
+                                <div class="text-[11px] text-black/50 dark:text-white/50">{{ __('tax.net_income.net_operating_profit') }}</div>
                                 <div class="text-base font-bold text-black dark:text-white mt-0.5" x-text="formatRupiah(netIncomeResult?.net_operating_income)"></div>
                                 <div class="text-[10px] text-black/40 dark:text-white/40 mt-0.5" x-text="'Net Margin: ' + (netIncomeResult?.net_margin_percent || 0) + '%'"></div>
                             </div>
                             <div class="bg-white dark:bg-[#1C1C1E] p-3.5 rounded-2xl border border-black/10 dark:border-white/10 shadow-xs col-span-2 sm:col-span-1">
-                                <div class="text-[11px] text-black/50 dark:text-white/50">Penghasilan Kena Pajak (PKP)</div>
+                                <div class="text-[11px] text-black/50 dark:text-white/50">{{ __('tax.net_income.card_pkp') }}</div>
                                 <div class="text-base font-bold text-black dark:text-white mt-0.5" x-text="formatRupiah(netIncomeResult?.taxable_income)"></div>
                                 <div class="text-[10px] text-black/40 dark:text-white/40 mt-0.5" x-show="!netIncomeInput.is_corporate" x-text="'PTKP: ' + formatRupiah(netIncomeResult?.ptkp_amount)"></div>
-                                <div class="text-[10px] text-black/40 dark:text-white/40 mt-0.5" x-show="netIncomeInput.is_corporate">Fasilitas Badan 31E</div>
+                                <div class="text-[10px] text-black/40 dark:text-white/40 mt-0.5" x-show="netIncomeInput.is_corporate">{{ __('tax.net_income.facility_31e_short') }}</div>
                             </div>
                         </div>
 
                         {{-- Total Tax Payable Highlight --}}
                         <div class="mt-4 p-4 rounded-2xl bg-[#007AFF]/10 border border-[#007AFF]/20 flex items-center justify-between">
                             <div>
-                                <span class="text-xs font-semibold text-[#007AFF] uppercase tracking-wider">Beban Pajak Penghasilan (PPh) Terutang</span>
+                                <span class="text-xs font-semibold text-[#007AFF] uppercase tracking-wider">{{ __('tax.net_income.tax_payable_highlight') }}</span>
                                 <div class="text-2xl font-black text-black dark:text-white mt-0.5" x-text="formatRupiah(netIncomeResult?.tax_amount)"></div>
                             </div>
                             <div class="text-right">
-                                <span class="text-xs font-semibold text-black/50 dark:text-white/50">Tarif Efektif Riil</span>
+                                <span class="text-xs font-semibold text-black/50 dark:text-white/50">{{ __('tax.net_income.effective_rate_real') }}</span>
                                 <div class="text-lg font-bold text-[#007AFF]" x-text="(netIncomeResult?.effective_tax_rate_percent || 0) + '%'"></div>
                             </div>
                         </div>
@@ -519,7 +519,7 @@
                         <div x-show="!netIncomeInput.is_corporate && netIncomeResult?.tax_details?.brackets?.length" class="mt-3">
                             <button type="button" @click="showBracketModal = true" class="w-full py-2.5 px-3 rounded-xl bg-black/[0.05] hover:bg-black/10 dark:bg-white/[0.06] dark:hover:bg-white/10 text-black dark:text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors border border-black/5 dark:border-white/5">
                                 <i data-lucide="layers" class="w-3.5 h-3.5"></i>
-                                <span>Lihat Rincian 5 Lapisan Tarif Progresif Pasal 17</span>
+                                <span>{{ __('tax.net_income.view_brackets_btn') }}</span>
                             </button>
                         </div>
                     </div>
@@ -528,7 +528,7 @@
                     <div class="mt-4 pt-4 border-t border-black/10 dark:border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
                         <div class="flex items-center gap-2">
                             <span class="w-2.5 h-2.5 rounded-full bg-[#34C759]"></span>
-                            <span class="text-black/60 dark:text-white/60">Bandingkan PPh Final 0.5%: <strong class="text-black dark:text-white" x-text="formatRupiah(netIncomeResult?.comparison?.umkm_final_amount)"></strong></span>
+                            <span class="text-black/60 dark:text-white/60">{{ __('tax.net_income.compare_umkm_label') }} <strong class="text-black dark:text-white" x-text="formatRupiah(netIncomeResult?.comparison?.umkm_final_amount)"></strong></span>
                         </div>
                         <div class="font-semibold text-emerald-600 dark:text-emerald-400" x-text="netIncomeResult?.comparison?.recommendation_label"></div>
                     </div>
@@ -544,14 +544,14 @@
                     <div class="border-b border-black/10 dark:border-white/10 pb-3">
                         <h3 class="text-base font-bold text-black dark:text-white flex items-center gap-2">
                             <i data-lucide="store" class="w-4 h-4 text-[#34C759]"></i>
-                            <span>Parameter PPh Final PP 55/2022</span>
+                            <span>{{ __('tax.umkm.title') }}</span>
                         </h3>
-                        <p class="text-xs text-black/50 dark:text-white/50 mt-1">Fasilitas bebas pajak omzet s.d Rp 500 Juta untuk Orang Pribadi.</p>
+                        <p class="text-xs text-black/50 dark:text-white/50 mt-1">{{ __('tax.umkm.header_desc') }}</p>
                     </div>
 
                     <div>
                         <label for="umkm-monthly-rev" class="block text-xs font-semibold text-black/70 dark:text-white/70 mb-1">
-                            Peredaran Bruto / Omzet Bulan Ini (Rp):
+                            {{ __('tax.umkm.field_monthly_revenue') }}:
                         </label>
                         <div class="relative">
                             <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-xs font-semibold text-black/40 dark:text-white/40">Rp</span>
@@ -561,7 +561,7 @@
 
                     <div>
                         <label for="umkm-prior-cum" class="block text-xs font-semibold text-black/70 dark:text-white/70 mb-1">
-                            Akumulasi Omzet Bulan-Bulan Sebelumnya (Rp):
+                            {{ __('tax.umkm.field_prior_cumulative') }}:
                         </label>
                         <div class="relative">
                             <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-xs font-semibold text-black/40 dark:text-white/40">Rp</span>
@@ -570,15 +570,15 @@
                     </div>
 
                     <div class="pt-2">
-                        <label class="block text-xs font-semibold text-black/70 dark:text-white/70 mb-2">Jenis Wajib Pajak:</label>
+                        <label class="block text-xs font-semibold text-black/70 dark:text-white/70 mb-2">{{ __('tax.umkm.field_taxpayer_type') }}:</label>
                         <div class="grid grid-cols-2 gap-3">
                             <button type="button" @click="umkmInput.is_individual = true; runUmkmSim()" :class="umkmInput.is_individual ? 'border-[#34C759] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold border-2' : 'border-black/10 dark:border-white/10 text-black/60 dark:text-white/60 bg-black/[0.02] dark:bg-white/[0.04]'" class="p-3 rounded-2xl border text-left text-xs transition-all min-h-[44px]">
-                                <div class="font-bold">Orang Pribadi</div>
-                                <div class="text-[10px] mt-0.5 opacity-80">Threshold Bebas Pajak 500 Jt</div>
+                                <div class="font-bold">{{ __('tax.umkm.entity_individual') }}</div>
+                                <div class="text-[10px] mt-0.5 opacity-80">{{ __('tax.umkm.entity_individual_desc') }}</div>
                             </button>
                             <button type="button" @click="umkmInput.is_individual = false; runUmkmSim()" :class="!umkmInput.is_individual ? 'border-[#34C759] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold border-2' : 'border-black/10 dark:border-white/10 text-black/60 dark:text-white/60 bg-black/[0.02] dark:bg-white/[0.04]'" class="p-3 rounded-2xl border text-left text-xs transition-all min-h-[44px]">
-                                <div class="font-bold">Badan (PT/CV)</div>
-                                <div class="text-[10px] mt-0.5 opacity-80">Langsung 0.5% sejak Rp 1</div>
+                                <div class="font-bold">{{ __('tax.umkm.entity_corporate') }}</div>
+                                <div class="text-[10px] mt-0.5 opacity-80">{{ __('tax.umkm.entity_corporate_desc') }}</div>
                             </button>
                         </div>
                     </div>
@@ -589,34 +589,34 @@
                     <div>
                         <div class="flex items-center justify-between pb-4 border-b border-black/10 dark:border-white/10">
                             <div>
-                                <span class="text-xs font-semibold uppercase tracking-wider text-black/50 dark:text-white/50">PPh Final UMKM 0.5%</span>
-                                <h4 class="text-lg font-bold text-black dark:text-white">Perhitungan Billing Pajak Bulanan</h4>
+                                <span class="text-xs font-semibold uppercase tracking-wider text-black/50 dark:text-white/50">{{ __('tax.umkm.results_subtitle') }}</span>
+                                <h4 class="text-lg font-bold text-black dark:text-white">{{ __('tax.umkm.results_title') }}</h4>
                             </div>
                             <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-[#34C759] dark:bg-emerald-500/20">
                                 <i data-lucide="check-circle" class="w-3.5 h-3.5"></i>
-                                <span>PP No. 55 / 2022</span>
+                                <span>{{ __('tax.umkm.law_badge') }}</span>
                             </span>
                         </div>
 
                         <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-4">
                             <div class="bg-white dark:bg-[#1C1C1E] p-3.5 rounded-2xl border border-black/10 dark:border-white/10 shadow-xs">
-                                <div class="text-[11px] text-black/50 dark:text-white/50">Akumulasi Omzet Baru</div>
+                                <div class="text-[11px] text-black/50 dark:text-white/50">{{ __('tax.umkm.card_new_cumulative') }}</div>
                                 <div class="text-base font-bold text-black dark:text-white mt-0.5" x-text="formatRupiah(umkmResult?.current_cumulative)"></div>
                             </div>
                             <div class="bg-white dark:bg-[#1C1C1E] p-3.5 rounded-2xl border border-black/10 dark:border-white/10 shadow-xs">
-                                <div class="text-[11px] text-black/50 dark:text-white/50">Dasar Pengenaan Pajak (DPP)</div>
+                                <div class="text-[11px] text-black/50 dark:text-white/50">{{ __('tax.umkm.card_dpp') }}</div>
                                 <div class="text-base font-bold text-black dark:text-white mt-0.5" x-text="formatRupiah(umkmResult?.taxable_revenue)"></div>
                             </div>
                             <div class="bg-white dark:bg-[#1C1C1E] p-3.5 rounded-2xl border border-black/10 dark:border-white/10 shadow-xs col-span-2 sm:col-span-1">
-                                <div class="text-[11px] text-black/50 dark:text-white/50">Fasilitas Bebas Pajak</div>
-                                <div class="text-xs font-bold text-emerald-600 dark:text-emerald-400 mt-1" x-text="umkmResult?.is_under_threshold ? 'Bebas PPh (< 500 Juta)' : 'Dikenakan PPh 0.5%'"></div>
+                                <div class="text-[11px] text-black/50 dark:text-white/50">{{ __('tax.umkm.card_exempt_facility') }}</div>
+                                <div class="text-xs font-bold text-emerald-600 dark:text-emerald-400 mt-1" x-text="umkmResult?.is_under_threshold ? @json(__('tax.umkm.exempt_active')) : @json(__('tax.umkm.exempt_exceeded'))"></div>
                             </div>
                         </div>
 
                         {{-- Tax Amount Box --}}
                         <div class="mt-4 p-4 rounded-2xl bg-[#34C759]/10 border border-[#34C759]/20 flex items-center justify-between">
                             <div>
-                                <span class="text-xs font-semibold text-[#34C759] uppercase tracking-wider">PPh Final Terutang (Setor Sendiri)</span>
+                                <span class="text-xs font-semibold text-[#34C759] uppercase tracking-wider">{{ __('tax.umkm.card_final_tax_due') }}</span>
                                 <div class="text-2xl font-black text-black dark:text-white mt-0.5" x-text="formatRupiah(umkmResult?.tax_amount)"></div>
                             </div>
                             <div class="text-right text-xs text-black/50 dark:text-white/50">
@@ -627,7 +627,7 @@
                     </div>
 
                     <div class="mt-4 pt-4 border-t border-black/10 dark:border-white/10 text-xs text-black/50 dark:text-white/50">
-                        Batas waktu penyetoran PPh Final UMKM adalah tanggal 15 bulan berikutnya melalui Kode Billing DJP Online.
+                        {{ __('tax.umkm.due_date_notice') }}
                     </div>
                 </div>
             </div>
@@ -641,21 +641,21 @@
                     <div class="border-b border-black/10 dark:border-white/10 pb-3">
                         <h3 class="text-base font-bold text-black dark:text-white flex items-center gap-2">
                             <i data-lucide="users" class="w-4 h-4 text-[#5856D6]"></i>
-                            <span>Parameter PPh 21 TER & Rekonsiliasi</span>
+                            <span>{{ __('tax.pph21.title') }}</span>
                         </h3>
                     </div>
 
                     <div>
-                        <label for="pph21-calc-type" class="block text-xs font-semibold text-black/70 dark:text-white/70 mb-1">Skema Masa Pajak:</label>
+                        <label for="pph21-calc-type" class="block text-xs font-semibold text-black/70 dark:text-white/70 mb-1">{{ __('tax.pph21.field_scheme') }}</label>
                         <select id="pph21-calc-type" x-model="pph21Input.calc_type" @change="runPph21Sim()" class="w-full h-11 text-sm rounded-xl border border-black/10 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.04] text-black dark:text-white px-3 font-medium focus:ring-2 focus:ring-[#5856D6] focus:border-transparent outline-none">
-                            <option value="monthly_ter">Bulanan Pegawai Tetap (TER A / B / C - Jan s.d Nov)</option>
-                            <option value="december">Rekonsiliasi Masa Desember (Pasal 17 Tahunan)</option>
-                            <option value="daily_worker">Pegawai Harian Lepas (Tarif Efektif Harian)</option>
+                            <option value="monthly_ter">{{ __('tax.pph21.scheme_monthly') }}</option>
+                            <option value="december">{{ __('tax.pph21.scheme_december') }}</option>
+                            <option value="daily_worker">{{ __('tax.pph21.scheme_daily') }}</option>
                         </select>
                     </div>
 
                     <div>
-                        <label for="pph21-gross-wage" class="block text-xs font-semibold text-black/70 dark:text-white/70 mb-1" x-text="pph21Input.calc_type === 'daily_worker' ? 'Upah Harian (Rp):' : (pph21Input.calc_type === 'december' ? 'Total Penghasilan Bruto 1 Tahun (Rp):' : 'Penghasilan Bruto Sebulan (Rp):')"></label>
+                        <label for="pph21-gross-wage" class="block text-xs font-semibold text-black/70 dark:text-white/70 mb-1" x-text="pph21Input.calc_type === 'daily_worker' ? @json(__('tax.pph21.wage_daily')) : (pph21Input.calc_type === 'december' ? @json(__('tax.pph21.wage_annual')) : @json(__('tax.pph21.wage_monthly'))))"></label>
                         <div class="relative">
                             <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-xs font-semibold text-black/40 dark:text-white/40">Rp</span>
                             <input id="pph21-gross-wage" type="number" x-model.number="pph21Input.gross_wage" @input.debounce.300ms="runPph21Sim()" class="w-full pl-10 pr-4 h-11 text-base sm:text-sm rounded-xl border border-black/10 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.04] text-black dark:text-white font-medium focus:ring-2 focus:ring-[#5856D6] focus:border-transparent outline-none">
@@ -663,7 +663,7 @@
                     </div>
 
                     <div x-show="pph21Input.calc_type !== 'daily_worker'">
-                        <label for="pph21-ptkp-status" class="block text-xs font-semibold text-black/70 dark:text-white/70 mb-1">Status PTKP Karyawan:</label>
+                        <label for="pph21-ptkp-status" class="block text-xs font-semibold text-black/70 dark:text-white/70 mb-1">{{ __('tax.pph21.field_ptkp') }}:</label>
                         <select id="pph21-ptkp-status" x-model="pph21Input.ptkp_status" @change="runPph21Sim()" class="w-full h-11 text-sm rounded-xl border border-black/10 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.04] text-black dark:text-white px-3 font-medium focus:ring-2 focus:ring-[#5856D6] focus:border-transparent outline-none">
                             <option value="TK/0">TK/0 (TER A)</option>
                             <option value="TK/1">TK/1 (TER A)</option>
@@ -679,11 +679,11 @@
                     {{-- Extra inputs for December Reconciliation --}}
                     <div x-show="pph21Input.calc_type === 'december'" class="space-y-3 pt-1">
                         <div>
-                            <label for="pph21-deductions" class="block text-xs font-semibold text-black/70 dark:text-white/70 mb-1">Pengurang Tahunan (Biaya Jabatan + JHT/JP Pekerja) (Rp):</label>
+                            <label for="pph21-deductions" class="block text-xs font-semibold text-black/70 dark:text-white/70 mb-1">{{ __('tax.pph21.deductions_annual') }}</label>
                             <input id="pph21-deductions" type="number" x-model.number="pph21Input.annual_deductions" @input.debounce.300ms="runPph21Sim()" class="w-full px-3.5 h-10 text-sm rounded-xl border border-black/10 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.04] text-black dark:text-white font-medium focus:ring-2 focus:ring-[#5856D6] outline-none">
                         </div>
                         <div>
-                            <label for="pph21-tax-paid" class="block text-xs font-semibold text-black/70 dark:text-white/70 mb-1">PPh 21 Telah Dipotong Masa Jan-Nov (Rp):</label>
+                            <label for="pph21-tax-paid" class="block text-xs font-semibold text-black/70 dark:text-white/70 mb-1">{{ __('tax.pph21.tax_paid_before') }}</label>
                             <input id="pph21-tax-paid" type="number" x-model.number="pph21Input.tax_paid_before" @input.debounce.300ms="runPph21Sim()" class="w-full px-3.5 h-10 text-sm rounded-xl border border-black/10 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.04] text-black dark:text-white font-medium focus:ring-2 focus:ring-[#5856D6] outline-none">
                         </div>
                     </div>
@@ -694,12 +694,12 @@
                     <div>
                         <div class="flex items-center justify-between pb-4 border-b border-black/10 dark:border-white/10">
                             <div>
-                                <span class="text-xs font-semibold uppercase tracking-wider text-black/50 dark:text-white/50">Hasil Pemotongan PPh 21</span>
-                                <h4 class="text-lg font-bold text-black dark:text-white" x-text="pph21Input.calc_type === 'december' ? 'Rekonsiliasi Masa Desember' : 'PPh 21 Masa Bulanan'"></h4>
+                                <span class="text-xs font-semibold uppercase tracking-wider text-black/50 dark:text-white/50">{{ __('tax.pph21.results_title') }}</span>
+                                <h4 class="text-lg font-bold text-black dark:text-white" x-text="pph21Input.calc_type === 'december' ? @json(__('tax.pph21.results_december')) : @json(__('tax.pph21.results_monthly'))"></h4>
                             </div>
                             <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-purple-500/10 text-[#5856D6] dark:bg-purple-500/20">
                                 <i data-lucide="calculator" class="w-3.5 h-3.5"></i>
-                                <span>PP No. 58 / 2023</span>
+                                <span>{{ __('tax.pph21.law_badge') }}</span>
                             </span>
                         </div>
 
@@ -707,22 +707,22 @@
                         <div x-show="pph21Input.calc_type === 'monthly_ter'" class="space-y-4 mt-4">
                             <div class="grid grid-cols-2 gap-3">
                                 <div class="bg-white dark:bg-[#1C1C1E] p-3.5 rounded-2xl border border-black/10 dark:border-white/10 shadow-xs">
-                                    <div class="text-[11px] text-black/50 dark:text-white/50">Kategori TER</div>
+                                    <div class="text-[11px] text-black/50 dark:text-white/50">{{ __('tax.pph21.card_category') }}</div>
                                     <div class="text-base font-bold text-black dark:text-white mt-0.5" x-text="pph21Result?.ter_category || '-'"></div>
                                 </div>
                                 <div class="bg-white dark:bg-[#1C1C1E] p-3.5 rounded-2xl border border-black/10 dark:border-white/10 shadow-xs">
-                                    <div class="text-[11px] text-black/50 dark:text-white/50">Tarif Efektif (TER)</div>
+                                    <div class="text-[11px] text-black/50 dark:text-white/50">{{ __('tax.pph21.card_ter_rate') }}</div>
                                     <div class="text-base font-bold text-[#5856D6] mt-0.5" x-text="(pph21Result?.ter_rate_percent || 0) + '%'"></div>
                                 </div>
                             </div>
 
                             <div class="p-4 rounded-2xl bg-[#5856D6]/10 border border-[#5856D6]/20 flex items-center justify-between">
                                 <div>
-                                    <span class="text-xs font-semibold text-[#5856D6] uppercase tracking-wider">Potongan PPh 21 Bulan Ini</span>
+                                    <span class="text-xs font-semibold text-[#5856D6] uppercase tracking-wider">{{ __('tax.pph21.card_monthly_cut') }}</span>
                                     <div class="text-2xl font-black text-black dark:text-white mt-0.5" x-text="formatRupiah(pph21Result?.pph21_monthly_amount)"></div>
                                 </div>
                                 <div class="text-right">
-                                    <span class="text-xs font-semibold text-black/50 dark:text-white/50">Gaji Bersih Diterima</span>
+                                    <span class="text-xs font-semibold text-black/50 dark:text-white/50">{{ __('tax.pph21.card_net_salary') }}</span>
                                     <div class="text-lg font-bold text-black dark:text-white" x-text="formatRupiah(pph21Result?.take_home_pay)"></div>
                                 </div>
                             </div>
@@ -732,18 +732,18 @@
                         <div x-show="pph21Input.calc_type === 'december'" class="space-y-4 mt-4">
                             <div class="grid grid-cols-2 gap-3">
                                 <div class="bg-white dark:bg-[#1C1C1E] p-3.5 rounded-2xl border border-black/10 dark:border-white/10 shadow-xs">
-                                    <div class="text-[11px] text-black/50 dark:text-white/50">PPh 21 Terutang 1 Tahun</div>
+                                    <div class="text-[11px] text-black/50 dark:text-white/50">{{ __('tax.pph21.card_annual_due') }}</div>
                                     <div class="text-base font-bold text-black dark:text-white mt-0.5" x-text="formatRupiah(pph21Result?.annual_tax_payable)"></div>
                                 </div>
                                 <div class="bg-white dark:bg-[#1C1C1E] p-3.5 rounded-2xl border border-black/10 dark:border-white/10 shadow-xs">
-                                    <div class="text-[11px] text-black/50 dark:text-white/50">Telah Dipotong Jan-Nov</div>
+                                    <div class="text-[11px] text-black/50 dark:text-white/50">{{ __('tax.pph21.card_already_paid') }}</div>
                                     <div class="text-base font-bold text-black dark:text-white mt-0.5" x-text="formatRupiah(pph21Result?.tax_already_paid)"></div>
                                 </div>
                             </div>
 
                             <div class="p-4 rounded-2xl bg-[#5856D6]/10 border border-[#5856D6]/20 flex items-center justify-between">
                                 <div>
-                                    <span class="text-xs font-semibold text-[#5856D6] uppercase tracking-wider">Potongan PPh 21 Masa Desember</span>
+                                    <span class="text-xs font-semibold text-[#5856D6] uppercase tracking-wider">{{ __('tax.pph21.card_december_cut') }}</span>
                                     <div class="text-2xl font-black text-black dark:text-white mt-0.5" x-text="formatRupiah(pph21Result?.december_tax_payable)"></div>
                                 </div>
                             </div>
@@ -753,11 +753,11 @@
                         <div x-show="pph21Input.calc_type === 'daily_worker'" class="space-y-4 mt-4">
                             <div class="p-4 rounded-2xl bg-[#5856D6]/10 border border-[#5856D6]/20 flex items-center justify-between">
                                 <div>
-                                    <span class="text-xs font-semibold text-[#5856D6] uppercase tracking-wider">Potongan PPh 21 Harian</span>
+                                    <span class="text-xs font-semibold text-[#5856D6] uppercase tracking-wider">{{ __('tax.pph21.card_daily_cut') }}</span>
                                     <div class="text-2xl font-black text-black dark:text-white mt-0.5" x-text="formatRupiah(pph21Result?.pph21_daily_amount)"></div>
                                 </div>
                                 <div class="text-right">
-                                    <span class="text-xs font-semibold text-black/50 dark:text-white/50">Upah Harian Bersih</span>
+                                    <span class="text-xs font-semibold text-black/50 dark:text-white/50">{{ __('tax.pph21.card_net_daily') }}</span>
                                     <div class="text-lg font-bold text-black dark:text-white" x-text="formatRupiah(pph21Result?.net_daily_wage)"></div>
                                 </div>
                             </div>
@@ -765,7 +765,7 @@
                     </div>
 
                     <div class="mt-4 pt-4 border-t border-black/10 dark:border-white/10 text-xs text-black/50 dark:text-white/50">
-                        Hasil kalkulasi PPh 21 dapat diekspor langsung dalam format DJP e-Bupot 21/26 resmi.
+                        {{ __('tax.pph21.export_hint') }}
                     </div>
                 </div>
             </div>
@@ -779,32 +779,32 @@
                     <div class="flex items-center justify-between border-b border-black/10 dark:border-white/10 pb-3">
                         <h3 class="text-base font-bold text-black dark:text-white flex items-center gap-2">
                             <i data-lucide="badge-dollar-sign" class="w-4 h-4 text-[#FF9500]"></i>
-                            <span>Komponen Penggajian & THR</span>
+                            <span>{{ __('tax.payroll.title') }}</span>
                         </h3>
                         <button type="button" @click="showBpjsModal = true" class="text-xs font-semibold text-[#007AFF] hover:underline flex items-center gap-1">
                             <i data-lucide="info" class="w-3.5 h-3.5"></i>
-                            <span>Rincian BPJS</span>
+                            <span>{{ __('tax.actions.bpjs_rules') }}</span>
                         </button>
                     </div>
 
                     <div class="grid grid-cols-2 gap-3">
                         <div>
-                            <label for="payroll-base-salary" class="block text-xs font-semibold text-black/70 dark:text-white/70 mb-1">Gaji Pokok (Rp):</label>
+                            <label for="payroll-base-salary" class="block text-xs font-semibold text-black/70 dark:text-white/70 mb-1">{{ __('tax.payroll.field_base_salary') }}:</label>
                             <input id="payroll-base-salary" type="number" x-model.number="payrollInput.base_salary" @input.debounce.300ms="runPayrollSim()" class="w-full px-3 h-11 text-base sm:text-sm rounded-xl border border-black/10 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.04] text-black dark:text-white font-medium focus:ring-2 focus:ring-[#FF9500] outline-none">
                         </div>
                         <div>
-                            <label for="payroll-fixed-allowance" class="block text-xs font-semibold text-black/70 dark:text-white/70 mb-1">Tunjangan Tetap (Rp):</label>
+                            <label for="payroll-fixed-allowance" class="block text-xs font-semibold text-black/70 dark:text-white/70 mb-1">{{ __('tax.payroll.field_fixed_allowance') }}:</label>
                             <input id="payroll-fixed-allowance" type="number" x-model.number="payrollInput.fixed_allowances" @input.debounce.300ms="runPayrollSim()" class="w-full px-3 h-11 text-base sm:text-sm rounded-xl border border-black/10 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.04] text-black dark:text-white font-medium focus:ring-2 focus:ring-[#FF9500] outline-none">
                         </div>
                     </div>
 
                     <div class="grid grid-cols-2 gap-3">
                         <div>
-                            <label for="payroll-var-allowance" class="block text-xs font-semibold text-black/70 dark:text-white/70 mb-1">Tunjangan Tidak Tetap (Rp):</label>
+                            <label for="payroll-var-allowance" class="block text-xs font-semibold text-black/70 dark:text-white/70 mb-1">{{ __('tax.payroll.field_variable_allowance') }}:</label>
                             <input id="payroll-var-allowance" type="number" x-model.number="payrollInput.variable_allowances" @input.debounce.300ms="runPayrollSim()" class="w-full px-3 h-11 text-base sm:text-sm rounded-xl border border-black/10 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.04] text-black dark:text-white font-medium focus:ring-2 focus:ring-[#FF9500] outline-none">
                         </div>
                         <div>
-                            <label for="payroll-loan-deduction" class="block text-xs font-semibold text-black/70 dark:text-white/70 mb-1">Potongan Kasbon / Pinjaman (Rp):</label>
+                            <label for="payroll-loan-deduction" class="block text-xs font-semibold text-black/70 dark:text-white/70 mb-1">{{ __('tax.payroll.field_loan_deduction') }}:</label>
                             <input id="payroll-loan-deduction" type="number" x-model.number="payrollInput.loan_deduction" @input.debounce.300ms="runPayrollSim()" class="w-full px-3 h-11 text-base sm:text-sm rounded-xl border border-black/10 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.04] text-black dark:text-white font-medium focus:ring-2 focus:ring-[#FF9500] outline-none">
                         </div>
                     </div>
@@ -813,15 +813,15 @@
                     <div class="p-3.5 rounded-2xl bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5 space-y-2 text-xs">
                         <label class="flex items-center gap-2 cursor-pointer font-semibold text-black dark:text-white">
                             <input type="checkbox" x-model="payrollInput.bpjs_tk_enabled" @change="runPayrollSim()" class="rounded text-[#FF9500] focus:ring-[#FF9500] w-4 h-4">
-                            <span>Sertakan BPJS Ketenagakerjaan (JKK, JKM, JHT, JP)</span>
+                            <span>{{ __('tax.payroll.toggle_bpjs_tk') }}</span>
                         </label>
                         <label class="flex items-center gap-2 cursor-pointer font-semibold text-black dark:text-white">
                             <input type="checkbox" x-model="payrollInput.bpjs_kes_enabled" @change="runPayrollSim()" class="rounded text-[#FF9500] focus:ring-[#FF9500] w-4 h-4">
-                            <span>Sertakan BPJS Kesehatan (4% Perusahaan, 1% Karyawan)</span>
+                            <span>{{ __('tax.payroll.toggle_bpjs_kes') }}</span>
                         </label>
                         <label class="flex items-center gap-2 cursor-pointer font-semibold text-black dark:text-white">
                             <input type="checkbox" x-model="payrollInput.include_thr" @change="runPayrollSim()" class="rounded text-[#FF9500] focus:ring-[#FF9500] w-4 h-4">
-                            <span>Hitung THR Keagamaan Pro-Rata</span>
+                            <span>{{ __('tax.payroll.toggle_thr') }}</span>
                         </label>
                     </div>
                 </div>
@@ -831,27 +831,27 @@
                     <div>
                         <div class="flex items-center justify-between pb-4 border-b border-black/10 dark:border-white/10">
                             <div>
-                                <span class="text-xs font-semibold uppercase tracking-wider text-black/50 dark:text-white/50">Ringkasan Payroll & Ketenagakerjaan</span>
-                                <h4 class="text-lg font-bold text-black dark:text-white">Take Home Pay & Beban Perusahaan</h4>
+                                <span class="text-xs font-semibold uppercase tracking-wider text-black/50 dark:text-white/50">{{ __('tax.payroll.results_subtitle') }}</span>
+                                <h4 class="text-lg font-bold text-black dark:text-white">{{ __('tax.payroll.results_title') }}</h4>
                             </div>
                             <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-[#FF9500] dark:bg-amber-500/20">
                                 <i data-lucide="wallet" class="w-3.5 h-3.5"></i>
-                                <span>Permenaker & UU Ketenagakerjaan</span>
+                                <span>{{ __('tax.payroll.law_badge') }}</span>
                             </span>
                         </div>
 
                         <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-4">
                             <div class="bg-white dark:bg-[#1C1C1E] p-3.5 rounded-2xl border border-black/10 dark:border-white/10 shadow-xs">
-                                <div class="text-[11px] text-black/50 dark:text-white/50">Total Upah Bruto</div>
+                                <div class="text-[11px] text-black/50 dark:text-white/50">{{ __('tax.payroll.card_gross_pay') }}</div>
                                 <div class="text-base font-bold text-black dark:text-white mt-0.5" x-text="formatRupiah(payrollResult?.gross_pay)"></div>
                             </div>
                             <div class="bg-white dark:bg-[#1C1C1E] p-3.5 rounded-2xl border border-black/10 dark:border-white/10 shadow-xs">
-                                <div class="text-[11px] text-black/50 dark:text-white/50">Potongan Karyawan</div>
+                                <div class="text-[11px] text-black/50 dark:text-white/50">{{ __('tax.payroll.card_employee_deductions') }}</div>
                                 <div class="text-base font-bold text-[#FF3B30] mt-0.5" x-text="formatRupiah(payrollResult?.total_employee_deductions)"></div>
-                                <div class="text-[10px] text-black/40 dark:text-white/40 mt-0.5">PPh 21 + BPJS + Kasbon</div>
+                                <div class="text-[10px] text-black/40 dark:text-white/40 mt-0.5">{{ __('tax.payroll.deductions_hint') }}</div>
                             </div>
                             <div class="bg-white dark:bg-[#1C1C1E] p-3.5 rounded-2xl border border-black/10 dark:border-white/10 shadow-xs col-span-2 sm:col-span-1">
-                                <div class="text-[11px] text-black/50 dark:text-white/50">THR Pro-Rata</div>
+                                <div class="text-[11px] text-black/50 dark:text-white/50">{{ __('tax.payroll.card_thr_prorata') }}</div>
                                 <div class="text-base font-bold text-[#FF9500] mt-0.5" x-text="formatRupiah(payrollResult?.thr_amount)"></div>
                                 <div class="text-[10px] text-black/40 dark:text-white/40 mt-0.5" x-text="'Masa Kerja: ' + (payrollResult?.thr_details?.service_months || 12) + ' Bulan'"></div>
                             </div>
@@ -860,18 +860,18 @@
                         {{-- Total Take Home Pay Highlight --}}
                         <div class="mt-4 p-4 rounded-2xl bg-[#FF9500]/10 border border-[#FF9500]/20 flex items-center justify-between">
                             <div>
-                                <span class="text-xs font-semibold text-[#FF9500] uppercase tracking-wider">Take Home Pay (Gaji Bersih Diterima Karyawan)</span>
+                                <span class="text-xs font-semibold text-[#FF9500] uppercase tracking-wider">{{ __('tax.payroll.card_take_home_highlight') }}</span>
                                 <div class="text-2xl font-black text-black dark:text-white mt-0.5" x-text="formatRupiah(payrollResult?.take_home_pay)"></div>
                             </div>
                             <div class="text-right">
-                                <span class="text-xs font-semibold text-black/50 dark:text-white/50">Total Biaya Perusahaan</span>
+                                <span class="text-xs font-semibold text-black/50 dark:text-white/50">{{ __('tax.payroll.card_total_company_cost') }}</span>
                                 <div class="text-base font-bold text-black dark:text-white" x-text="formatRupiah(payrollResult?.total_company_cost)"></div>
                             </div>
                         </div>
                     </div>
 
                     <div class="mt-4 pt-4 border-t border-black/10 dark:border-white/10 flex items-center justify-between text-xs">
-                        <span class="text-black/50 dark:text-white/50">BPJS Tanggungan Perusahaan:</span>
+                        <span class="text-black/50 dark:text-white/50">{{ __('tax.payroll.company_bpjs_burden') }}</span>
                         <span class="font-bold text-black dark:text-white" x-text="formatRupiah((payrollResult?.company_bpjs_tk || 0) + (payrollResult?.company_bpjs_kes || 0))"></span>
                     </div>
                 </div>
@@ -886,12 +886,12 @@
                     <div class="border-b border-black/10 dark:border-white/10 pb-3">
                         <h3 class="text-base font-bold text-black dark:text-white flex items-center gap-2">
                             <i data-lucide="shopping-cart" class="w-4 h-4 text-[#007AFF]"></i>
-                            <span>Parameter Pajak Transaksi Penjualan</span>
+                            <span>{{ __('tax.sales.title') }}</span>
                         </h3>
                     </div>
 
                     <div>
-                        <label for="sales-subtotal" class="block text-xs font-semibold text-black/70 dark:text-white/70 mb-1">Subtotal Penjualan (Rp):</label>
+                        <label for="sales-subtotal" class="block text-xs font-semibold text-black/70 dark:text-white/70 mb-1">{{ __('tax.sales.field_subtotal') }}:</label>
                         <div class="relative">
                             <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-xs font-semibold text-black/40 dark:text-white/40">Rp</span>
                             <input id="sales-subtotal" type="number" x-model.number="salesTaxInput.subtotal" @input.debounce.300ms="runSalesTaxSim()" class="w-full pl-10 pr-4 h-11 text-base sm:text-sm rounded-xl border border-black/10 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.04] text-black dark:text-white font-medium focus:ring-2 focus:ring-[#007AFF] outline-none">
@@ -900,29 +900,29 @@
 
                     <div class="grid grid-cols-2 gap-3">
                         <div>
-                            <label for="sales-discount" class="block text-xs font-semibold text-black/70 dark:text-white/70 mb-1">Diskon Transaksi (Rp):</label>
+                            <label for="sales-discount" class="block text-xs font-semibold text-black/70 dark:text-white/70 mb-1">{{ __('tax.sales.field_discount') }}:</label>
                             <input id="sales-discount" type="number" x-model.number="salesTaxInput.discount" @input.debounce.300ms="runSalesTaxSim()" class="w-full px-3 h-11 text-base sm:text-sm rounded-xl border border-black/10 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.04] text-black dark:text-white font-medium focus:ring-2 focus:ring-[#007AFF] outline-none">
                         </div>
                         <div>
-                            <label for="sales-service-charge" class="block text-xs font-semibold text-black/70 dark:text-white/70 mb-1">Service Charge (%):</label>
+                            <label for="sales-service-charge" class="block text-xs font-semibold text-black/70 dark:text-white/70 mb-1">{{ __('tax.sales.field_service_charge') }}:</label>
                             <input id="sales-service-charge" type="number" step="0.01" :value="salesTaxInput.service_charge_rate * 100" @input.debounce.300ms="salesTaxInput.service_charge_rate = $event.target.value / 100; runSalesTaxSim()" class="w-full px-3 h-11 text-base sm:text-sm rounded-xl border border-black/10 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.04] text-black dark:text-white font-medium focus:ring-2 focus:ring-[#007AFF] outline-none">
                         </div>
                     </div>
 
                     <div>
-                        <label for="sales-tax-type" class="block text-xs font-semibold text-black/70 dark:text-white/70 mb-1">Jenis Pajak Transaksi:</label>
+                        <label for="sales-tax-type" class="block text-xs font-semibold text-black/70 dark:text-white/70 mb-1">{{ __('tax.sales.field_tax_type') }}:</label>
                         <select id="sales-tax-type" x-model="salesTaxInput.tax_type" @change="runSalesTaxSim()" class="w-full h-11 text-sm rounded-xl border border-black/10 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.04] text-black dark:text-white px-3 font-medium focus:ring-2 focus:ring-[#007AFF] outline-none">
-                            <option value="pb1">PB1 Restoran / Kafe (10% Pajak Daerah)</option>
-                            <option value="ppn_11">PPN Standar (11%)</option>
-                            <option value="ppn_12">PPN Regulasi Baru (12%)</option>
-                            <option value="none">Tanpa Pajak Transaksi (0%)</option>
+                            <option value="pb1">{{ __('tax.sales.opt_pb1') }}</option>
+                            <option value="ppn_11">{{ __('tax.sales.opt_ppn_11') }}</option>
+                            <option value="ppn_12">{{ __('tax.sales.opt_ppn_12') }}</option>
+                            <option value="none">{{ __('tax.sales.opt_none') }}</option>
                         </select>
                     </div>
 
                     <div class="pt-1">
                         <label class="flex items-center gap-2 cursor-pointer text-xs font-semibold text-black/80 dark:text-white/80">
                             <input type="checkbox" x-model="salesTaxInput.is_inclusive" @change="runSalesTaxSim()" class="rounded text-[#007AFF] focus:ring-[#007AFF] w-4 h-4">
-                            <span>Harga Sudah Termasuk Pajak (Tax Inclusive)</span>
+                            <span>{{ __('tax.sales.toggle_inclusive') }}</span>
                         </label>
                     </div>
                 </div>
@@ -932,26 +932,26 @@
                     <div>
                         <div class="flex items-center justify-between pb-4 border-b border-black/10 dark:border-white/10">
                             <div>
-                                <span class="text-xs font-semibold uppercase tracking-wider text-black/50 dark:text-white/50">Perhitungan Struk & Invoice</span>
-                                <h4 class="text-lg font-bold text-black dark:text-white">Simulasi Pajak Konsumen POS</h4>
+                                <span class="text-xs font-semibold uppercase tracking-wider text-black/50 dark:text-white/50">{{ __('tax.sales.results_subtitle') }}</span>
+                                <h4 class="text-lg font-bold text-black dark:text-white">{{ __('tax.sales.results_title') }}</h4>
                             </div>
                             <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-500/10 text-[#007AFF] dark:bg-blue-500/20">
                                 <i data-lucide="receipt" class="w-3.5 h-3.5"></i>
-                                <span>Sinkron Kasir POS</span>
+                                <span>{{ __('tax.sales.law_badge') }}</span>
                             </span>
                         </div>
 
                         <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-4">
                             <div class="bg-white dark:bg-[#1C1C1E] p-3.5 rounded-2xl border border-black/10 dark:border-white/10 shadow-xs">
-                                <div class="text-[11px] text-black/50 dark:text-white/50">Net Sales / DPP</div>
+                                <div class="text-[11px] text-black/50 dark:text-white/50">{{ __('tax.sales.card_net_sales_dpp') }}</div>
                                 <div class="text-base font-bold text-black dark:text-white mt-0.5" x-text="formatRupiah(salesTaxResult?.net_sales)"></div>
                             </div>
                             <div class="bg-white dark:bg-[#1C1C1E] p-3.5 rounded-2xl border border-black/10 dark:border-white/10 shadow-xs">
-                                <div class="text-[11px] text-black/50 dark:text-white/50">Service Charge</div>
+                                <div class="text-[11px] text-black/50 dark:text-white/50">{{ __('tax.sales.card_service_charge') }}</div>
                                 <div class="text-base font-bold text-black dark:text-white mt-0.5" x-text="formatRupiah(salesTaxResult?.service_charge)"></div>
                             </div>
                             <div class="bg-white dark:bg-[#1C1C1E] p-3.5 rounded-2xl border border-black/10 dark:border-white/10 shadow-xs col-span-2 sm:col-span-1">
-                                <div class="text-[11px] text-black/50 dark:text-white/50">Pajak (PB1 / PPN)</div>
+                                <div class="text-[11px] text-black/50 dark:text-white/50">{{ __('tax.sales.card_tax_pb1_ppn') }}</div>
                                 <div class="text-base font-bold text-[#007AFF] mt-0.5" x-text="formatRupiah(salesTaxResult?.tax_amount)"></div>
                             </div>
                         </div>
@@ -959,17 +959,17 @@
                         {{-- Total Grand Total --}}
                         <div class="mt-4 p-4 rounded-2xl bg-[#007AFF]/10 border border-[#007AFF]/20 flex items-center justify-between">
                             <div>
-                                <span class="text-xs font-semibold text-[#007AFF] uppercase tracking-wider">Total Tagihan Konsumen (Grand Total)</span>
+                                <span class="text-xs font-semibold text-[#007AFF] uppercase tracking-wider">{{ __('tax.sales.card_grand_total_highlight') }}</span>
                                 <div class="text-2xl font-black text-black dark:text-white mt-0.5" x-text="formatRupiah(salesTaxResult?.grand_total)"></div>
                             </div>
                             <div class="text-right text-xs text-black/50 dark:text-white/50">
-                                <div>Status: <strong class="text-black dark:text-white" x-text="salesTaxInput.is_inclusive ? 'Harga Inclusive' : 'Harga Exclusive'"></strong></div>
+                                <div>{{ __('tax.sales.status_label') }} <strong class="text-black dark:text-white" x-text="salesTaxInput.is_inclusive ? @json(__('tax.sales.status_inclusive')) : @json(__('tax.sales.status_exclusive'))"></strong></div>
                             </div>
                         </div>
                     </div>
 
                     <div class="mt-4 pt-4 border-t border-black/10 dark:border-white/10 text-xs text-black/50 dark:text-white/50">
-                        Pajak PB1/PPN yang tercatat pada sistem POS dapat dipisahkan secara otomatis dari omzet riil saat menyusun Laporan Laba Rugi.
+                        {{ __('tax.sales.pos_sync_notice') }}
                     </div>
                 </div>
             </div>
@@ -982,14 +982,14 @@
             <div>
                 <h3 class="text-base font-bold text-black dark:text-white flex items-center gap-2">
                     <i data-lucide="calendar-range" class="w-4 h-4 text-[#007AFF]"></i>
-                    <span>Rekapitulasi Fiskal 12 Bulan (Tahun {{ $currentYear }})</span>
+                    <span>{{ __('tax.fiscal_table.title', ['year' => $currentYear]) }}</span>
                 </h3>
-                <p class="text-xs text-black/50 dark:text-white/50 mt-0.5">Dihitung otomatis dari rekonsiliasi data Laporan Laba Rugi, Transaksi POS, dan Pengeluaran Kas.</p>
+                <p class="text-xs text-black/50 dark:text-white/50 mt-0.5">{{ __('tax.fiscal_table.subtitle') }}</p>
             </div>
             <div class="flex items-center gap-2">
                 <a href="{{ route('tax.export.net_income', ['year' => $currentYear, 'taxpayer_type' => $taxpayerType, 'ptkp_status' => $ptkpStatus]) }}" class="h-9 px-3.5 rounded-xl bg-black/[0.04] hover:bg-black/10 dark:bg-white/[0.06] dark:hover:bg-white/10 text-black dark:text-white text-xs font-semibold flex items-center gap-1.5 transition-colors border border-black/5 dark:border-white/5">
                     <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5 text-emerald-600"></i>
-                    <span>Unduh CSV Laporan Fiskal</span>
+                    <span>{{ __('tax.fiscal_table.download_csv') }}</span>
                 </a>
             </div>
         </div>
@@ -998,14 +998,14 @@
             <table class="w-full text-left text-sm">
                 <thead>
                     <tr class="bg-black/[0.02] dark:bg-white/[0.02] border-b border-black/10 dark:border-white/10 text-[11px] font-bold text-black/50 dark:text-white/50 uppercase tracking-wider">
-                        <th class="py-3 px-4">Masa Pajak</th>
-                        <th class="py-3 px-4 text-right">Omzet Riil (Rp)</th>
-                        <th class="py-3 px-4 text-right">HPP Biaya Modal (Rp)</th>
-                        <th class="py-3 px-4 text-right">Beban Operasional (Rp)</th>
-                        <th class="py-3 px-4 text-right">Laba Bersih (Rp)</th>
-                        <th class="py-3 px-4 text-right">PPh Laba Bersih (Rp)</th>
-                        <th class="py-3 px-4 text-right">PPh Final 0.5% (Rp)</th>
-                        <th class="py-3 px-4 text-center">Rekomendasi Skema</th>
+                        <th class="py-3 px-4">{{ __('tax.fiscal_table.col_period') }}</th>
+                        <th class="py-3 px-4 text-right">{{ __('tax.fiscal_table.col_revenue') }}</th>
+                        <th class="py-3 px-4 text-right">{{ __('tax.fiscal_table.col_cogs') }}</th>
+                        <th class="py-3 px-4 text-right">{{ __('tax.fiscal_table.col_expenses') }}</th>
+                        <th class="py-3 px-4 text-right">{{ __('tax.fiscal_table.col_net_income') }}</th>
+                        <th class="py-3 px-4 text-right">{{ __('tax.fiscal_table.col_tax_net_income') }}</th>
+                        <th class="py-3 px-4 text-right">{{ __('tax.fiscal_table.col_tax_umkm') }}</th>
+                        <th class="py-3 px-4 text-center">{{ __('tax.fiscal_table.col_recommendation') }}</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-black/5 dark:divide-white/5 text-xs font-medium">
@@ -1035,15 +1035,15 @@
                             <td class="py-3 px-4 text-center">
                                 @if($item['recommendation'] === 'net_income')
                                     <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/10 text-[#007AFF] dark:bg-blue-500/20">
-                                        Laba Bersih (Lebih Hemat)
+                                        {{ __('tax.fiscal_table.rec_net_income') }}
                                     </span>
                                 @elseif($item['recommendation'] === 'umkm_final')
                                     <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-[#34C759] dark:bg-emerald-500/20">
-                                        PPh Final 0.5%
+                                        {{ __('tax.fiscal_table.rec_umkm') }}
                                     </span>
                                 @else
                                     <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-black/[0.05] text-black/70 dark:bg-white/10 dark:text-white/70">
-                                        Beban Setara
+                                        {{ __('tax.fiscal_table.rec_equal') }}
                                     </span>
                                 @endif
                             </td>
@@ -1052,7 +1052,7 @@
                 </tbody>
                 <tfoot>
                     <tr class="bg-black/[0.03] dark:bg-white/[0.04] border-t-2 border-black/10 dark:border-white/10 text-xs font-bold text-black dark:text-white">
-                        <td class="py-3.5 px-4 uppercase">KONSOLIDASI TAHUNAN</td>
+                        <td class="py-3.5 px-4 uppercase">{{ __('tax.fiscal_table.total_row') }}</td>
                         <td class="py-3.5 px-4 text-right font-mono">{{ number_format($netIncomeSummary['total_revenue_year'], 0, ',', '.') }}</td>
                         <td class="py-3.5 px-4 text-right font-mono">{{ number_format($netIncomeSummary['total_cogs_year'], 0, ',', '.') }}</td>
                         <td class="py-3.5 px-4 text-right font-mono">{{ number_format($netIncomeSummary['total_expenses_year'], 0, ',', '.') }}</td>
@@ -1061,7 +1061,7 @@
                         <td class="py-3.5 px-4 text-right font-mono text-black/80 dark:text-white/80">{{ number_format($netIncomeSummary['total_umkm_final_year'], 0, ',', '.') }}</td>
                         <td class="py-3.5 px-4 text-center">
                             <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-black bg-[#34C759] text-white">
-                                Rekomendasi Terpilih
+                                {{ __('tax.fiscal_table.rec_selected') }}
                             </span>
                         </td>
                     </tr>
@@ -1079,8 +1079,8 @@
                         <i data-lucide="layers" class="w-4 h-4"></i>
                     </span>
                     <div>
-                        <h3 class="text-base font-bold text-black dark:text-white">Rincian 5 Lapisan Tarif Progresif</h3>
-                        <p class="text-xs text-black/50 dark:text-white/50">Pasal 17 ayat (1) huruf a UU HPP No. 7 Tahun 2021</p>
+                        <h3 class="text-base font-bold text-black dark:text-white">{{ __('tax.brackets_modal.title') }}</h3>
+                        <p class="text-xs text-black/50 dark:text-white/50">{{ __('tax.brackets_modal.legal_ref') }}</p>
                     </div>
                 </div>
                 <button type="button" @click="showBracketModal = false" class="w-8 h-8 rounded-full bg-black/[0.04] dark:bg-white/[0.06] text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white flex items-center justify-center">
@@ -1093,7 +1093,7 @@
                     <div class="p-3.5 rounded-2xl bg-black/[0.02] dark:bg-white/[0.03] border border-black/10 dark:border-white/10 flex items-center justify-between">
                         <div>
                             <div class="text-xs font-bold text-black dark:text-white" x-text="b.bracket"></div>
-                            <div class="text-[11px] text-black/50 dark:text-white/50 mt-0.5" x-text="'PKP Dikenakan: ' + formatRupiah(b.amount) + ' @ Tarif ' + b.rate_percent"></div>
+                            <div class="text-[11px] text-black/50 dark:text-white/50 mt-0.5" x-text="'{{ addslashes(__('tax.brackets_modal.pkp_applied')) }}'.replace(':amount', formatRupiah(b.amount)).replace(':rate', b.rate_percent)"></div>
                         </div>
                         <div class="text-right font-black text-sm text-[#007AFF]" x-text="formatRupiah(b.tax)"></div>
                     </div>
@@ -1101,7 +1101,7 @@
             </div>
 
             <div class="mt-5 pt-4 border-t border-black/10 dark:border-white/10 flex items-center justify-between">
-                <span class="text-xs font-semibold text-black/50 dark:text-white/50">Total PPh Pasal 17 Terutang:</span>
+                <span class="text-xs font-semibold text-black/50 dark:text-white/50">{{ __('tax.brackets_modal.total_tax') }}</span>
                 <span class="text-lg font-black text-black dark:text-white" x-text="formatRupiah(netIncomeResult?.tax_amount)"></span>
             </div>
         </div>
@@ -1116,8 +1116,8 @@
                         <i data-lucide="shield" class="w-4 h-4"></i>
                     </span>
                     <div>
-                        <h3 class="text-base font-bold text-black dark:text-white">Rincian Komponen Iuran BPJS</h3>
-                        <p class="text-xs text-black/50 dark:text-white/50">Tanggungan Perusahaan vs Potongan Karyawan</p>
+                        <h3 class="text-base font-bold text-black dark:text-white">{{ __('tax.bpjs_modal.title') }}</h3>
+                        <p class="text-xs text-black/50 dark:text-white/50">{{ __('tax.bpjs_modal.subtitle') }}</p>
                     </div>
                 </div>
                 <button type="button" @click="showBpjsModal = false" class="w-8 h-8 rounded-full bg-black/[0.04] dark:bg-white/[0.06] text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white flex items-center justify-center">
@@ -1127,27 +1127,27 @@
 
             <div class="mt-4 space-y-2.5 text-xs">
                 <div class="p-3 rounded-2xl bg-black/[0.02] dark:bg-white/[0.03] border border-black/10 dark:border-white/10">
-                    <div class="font-bold text-black dark:text-white mb-1">1. BPJS Ketenagakerjaan</div>
+                    <div class="font-bold text-black dark:text-white mb-1">{{ __('tax.bpjs_modal.item1_title') }}</div>
                     <ul class="space-y-1 text-black/70 dark:text-white/70">
-                        <li>- JKK (Kecelakaan Kerja): Perusahaan 0.24% - 1.74% (Karyawan 0%)</li>
-                        <li>- JKM (Kematian): Perusahaan 0.30% (Karyawan 0%)</li>
-                        <li>- JHT (Hari Tua): Perusahaan 3.70%, Karyawan 2.00%</li>
-                        <li>- JP (Pensiun): Perusahaan 2.00%, Karyawan 1.00% (Cap Upah Rp 10.042.300)</li>
+                        <li>{{ __('tax.bpjs_modal.jkk_detail') }}</li>
+                        <li>{{ __('tax.bpjs_modal.jkm_detail') }}</li>
+                        <li>{{ __('tax.bpjs_modal.jht_detail') }}</li>
+                        <li>{{ __('tax.bpjs_modal.jp_detail') }}</li>
                     </ul>
                 </div>
 
                 <div class="p-3 rounded-2xl bg-black/[0.02] dark:bg-white/[0.03] border border-black/10 dark:border-white/10">
-                    <div class="font-bold text-black dark:text-white mb-1">2. BPJS Kesehatan</div>
+                    <div class="font-bold text-black dark:text-white mb-1">{{ __('tax.bpjs_modal.item2_title') }}</div>
                     <ul class="space-y-1 text-black/70 dark:text-white/70">
-                        <li>- Tanggungan Perusahaan: 4.00% (Cap Upah Rp 12.000.000)</li>
-                        <li>- Potongan Gaji Karyawan: 1.00%</li>
+                        <li>{{ __('tax.bpjs_modal.kes_company') }}</li>
+                        <li>{{ __('tax.bpjs_modal.kes_employee') }}</li>
                     </ul>
                 </div>
             </div>
 
             <div class="mt-5 pt-4 border-t border-black/10 dark:border-white/10">
                 <button type="button" @click="showBpjsModal = false" class="w-full py-2.5 rounded-xl bg-black dark:bg-white text-white dark:text-black hover:bg-black/80 dark:hover:bg-white/90 text-xs font-semibold">
-                    Tutup Panduan
+                    {{ __('tax.actions.close') }}
                 </button>
             </div>
         </div>
@@ -1162,8 +1162,8 @@
                         <i data-lucide="book-open" class="w-4 h-4"></i>
                     </span>
                     <div>
-                        <h3 class="text-base font-bold text-black dark:text-white">Norma Penghitungan (NPPN)</h3>
-                        <p class="text-xs text-black/50 dark:text-white/50">Pasal 14 UU Pajak Penghasilan</p>
+                        <h3 class="text-base font-bold text-black dark:text-white">{{ __('tax.norma_modal.title') }}</h3>
+                        <p class="text-xs text-black/50 dark:text-white/50">{{ __('tax.norma_modal.legal_ref') }}</p>
                     </div>
                 </div>
                 <button type="button" @click="showNormaModal = false" class="w-8 h-8 rounded-full bg-black/[0.04] dark:bg-white/[0.06] text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white flex items-center justify-center">
@@ -1173,19 +1173,19 @@
 
             <div class="mt-4 space-y-3 text-xs leading-relaxed text-black/70 dark:text-white/70">
                 <p>
-                    Wajib Pajak Orang Pribadi yang melakukan kegiatan usaha atau pekerjaan bebas dengan peredaran bruto kurang dari <strong>Rp 4.800.000.000 per tahun</strong> diperbolehkan menghitung penghasilan neto menggunakan <strong>Norma Penghitungan Penghasilan Neto (NPPN)</strong>.
+                    {!! __('tax.norma_modal.intro') !!}
                 </p>
                 <div class="p-3.5 rounded-2xl bg-black/[0.02] dark:bg-white/[0.03] border border-black/10 dark:border-white/10 space-y-1">
-                    <div class="font-bold text-black dark:text-white">Contoh Persentase Norma KLU Umum:</div>
-                    <div>- Perdagangan Eceran / Toko Kelontong: 25% - 30%</div>
-                    <div>- Jasa Bengkel & Reparasi: 30% - 35%</div>
-                    <div>- Restoran / Rumah Makan: 20% - 25%</div>
+                    <div class="font-bold text-black dark:text-white">{{ __('tax.norma_modal.examples_title') }}</div>
+                    <div>{{ __('tax.norma_modal.ex_retail') }}</div>
+                    <div>{{ __('tax.norma_modal.ex_workshop') }}</div>
+                    <div>{{ __('tax.norma_modal.ex_restaurant') }}</div>
                 </div>
             </div>
 
             <div class="mt-5 pt-4 border-t border-black/10 dark:border-white/10">
                 <button type="button" @click="showNormaModal = false" class="w-full py-2.5 rounded-xl bg-black dark:bg-white text-white dark:text-black hover:bg-black/80 dark:hover:bg-white/90 text-xs font-semibold">
-                    Tutup Panduan
+                    {{ __('tax.actions.close') }}
                 </button>
             </div>
         </div>
@@ -1200,8 +1200,8 @@
                         <i data-lucide="download-cloud" class="w-4 h-4"></i>
                     </span>
                     <div>
-                        <h3 class="text-base font-bold text-black dark:text-white">Pusat Ekspor Dokumen Fiskal</h3>
-                        <p class="text-xs text-black/50 dark:text-white/50">Format Resmi DJP Online & Laporan CSV</p>
+                        <h3 class="text-base font-bold text-black dark:text-white">{{ __('tax.export_modal.title') }}</h3>
+                        <p class="text-xs text-black/50 dark:text-white/50">{{ __('tax.export_modal.subtitle') }}</p>
                     </div>
                 </div>
                 <button type="button" @click="showExportModal = false" class="w-8 h-8 rounded-full bg-black/[0.04] dark:bg-white/[0.06] text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white flex items-center justify-center">
@@ -1213,43 +1213,43 @@
                 {{-- Export Option 1: e-Bupot 21/26 --}}
                 <div class="p-4 rounded-2xl bg-black/[0.02] dark:bg-white/[0.03] border border-black/10 dark:border-white/10 flex items-center justify-between">
                     <div>
-                        <div class="text-xs font-bold text-black dark:text-white">DJP e-Bupot 21/26 (CSV)</div>
-                        <div class="text-[11px] text-black/50 dark:text-white/50 mt-0.5">Format impor resmi pemotongan PPh 21 karyawan</div>
+                        <div class="text-xs font-bold text-black dark:text-white">{{ __('tax.export_modal.item_ebupot_title') }}</div>
+                        <div class="text-[11px] text-black/50 dark:text-white/50 mt-0.5">{{ __('tax.export_modal.item_ebupot_desc') }}</div>
                     </div>
                     <a href="{{ route('tax.export.ebupot', ['year' => $currentYear, 'month' => (int) date('n')]) }}" class="h-9 px-3 rounded-xl bg-[#007AFF] hover:bg-[#007AFF]/90 text-white text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-sm">
                         <i data-lucide="download" class="w-3.5 h-3.5"></i>
-                        <span>Unduh</span>
+                        <span>{{ __('tax.export_modal.download_btn') }}</span>
                     </a>
                 </div>
 
                 {{-- Export Option 2: Rekap PPh Final UMKM --}}
                 <div class="p-4 rounded-2xl bg-black/[0.02] dark:bg-white/[0.03] border border-black/10 dark:border-white/10 flex items-center justify-between">
                     <div>
-                        <div class="text-xs font-bold text-black dark:text-white">Rekap PPh Final UMKM 0.5% (CSV)</div>
-                        <div class="text-[11px] text-black/50 dark:text-white/50 mt-0.5">Rekapitulasi 12 bulan & Kode Billing (KAP 411128 / KJS 420)</div>
+                        <div class="text-xs font-bold text-black dark:text-white">{{ __('tax.export_modal.item_umkm_title') }}</div>
+                        <div class="text-[11px] text-black/50 dark:text-white/50 mt-0.5">{{ __('tax.export_modal.item_umkm_desc') }}</div>
                     </div>
                     <a href="{{ route('tax.export.pph_final', ['year' => $currentYear, 'taxpayer_type' => $taxpayerType]) }}" class="h-9 px-3 rounded-xl bg-[#34C759] hover:bg-[#34C759]/90 text-white text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-sm">
                         <i data-lucide="download" class="w-3.5 h-3.5"></i>
-                        <span>Unduh</span>
+                        <span>{{ __('tax.export_modal.download_btn') }}</span>
                     </a>
                 </div>
 
                 {{-- Export Option 3: Rekap PPh Laba Bersih Tahunan --}}
                 <div class="p-4 rounded-2xl bg-black/[0.02] dark:bg-white/[0.03] border border-black/10 dark:border-white/10 flex items-center justify-between">
                     <div>
-                        <div class="text-xs font-bold text-black dark:text-white">Laporan Fiskal Laba Bersih (CSV)</div>
-                        <div class="text-[11px] text-black/50 dark:text-white/50 mt-0.5">Konsolidasi SPT Tahunan (Pasal 31E / Pasal 17)</div>
+                        <div class="text-xs font-bold text-black dark:text-white">{{ __('tax.export_modal.item_net_income_title') }}</div>
+                        <div class="text-[11px] text-black/50 dark:text-white/50 mt-0.5">{{ __('tax.export_modal.item_net_income_desc') }}</div>
                     </div>
                     <a href="{{ route('tax.export.net_income', ['year' => $currentYear, 'taxpayer_type' => $taxpayerType, 'ptkp_status' => $ptkpStatus]) }}" class="h-9 px-3 rounded-xl bg-[#5856D6] hover:bg-[#5856D6]/90 text-white text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-sm">
                         <i data-lucide="download" class="w-3.5 h-3.5"></i>
-                        <span>Unduh</span>
+                        <span>{{ __('tax.export_modal.download_btn') }}</span>
                     </a>
                 </div>
             </div>
 
             <div class="mt-5 pt-4 border-t border-black/10 dark:border-white/10">
                 <button type="button" @click="showExportModal = false" class="w-full py-2.5 rounded-xl bg-black/[0.05] hover:bg-black/10 dark:bg-white/[0.06] dark:hover:bg-white/10 text-black dark:text-white text-xs font-semibold">
-                    Tutup
+                    {{ __('tax.actions.close') }}
                 </button>
             </div>
         </div>

@@ -26,6 +26,7 @@
    - [3.12 Analitik Bisnis & Tren Pertumbuhan (Analytics Suite)](#312-analitik-bisnis--tren-pertumbuhan-analytics-suite)
    - [3.13 Pusat Otorisasi Dokumen (MAR Engine)](#313-pusat-otorisasi-dokumen-mar---maker-approver-releaser)
    - [3.14 Portal Karyawan & Presensi Mandiri (Staff Personal Attendance & Workstation Hub)](#314-portal-karyawan--presensi-mandiri-staff-personal-attendance--workstation-hub)
+   - [3.15 Integrasi Model Context Protocol & AI Gateway (MCP Server)](#315-integrasi-model-context-protocol--ai-gateway-mcp-server)
 4. [Panduan Rekayasa Developer & AI Agent (Engineering Blueprint)](#4-panduan-rekayasa-developer--ai-agent-engineering-blueprint)
    - [4.1 Struktur 33 Domain Packages DDD](#41-struktur-33-domain-packages-ddd)
    - [4.2 Aturan Scoping Tenant & Proteksi Keamanan](#42-aturan-scoping-tenant--proteksi-keamanan)
@@ -51,6 +52,7 @@
    - [4.22 Arsitektur COOCA AI Digital Company (Autonomous Workforce, Executive Hierarchy C-Level, Multi-Provider BYOAI, Maker-Checker Gate & Bento AI Office)](#422-arsitektur-cooca-ai-digital-company-autonomous-workforce-executive-hierarchy-c-level-multi-provider-byoai-maker-checker-gate--bento-ai-office)
    - [4.23 Arsitektur Hardening Modul Gudang & Pemasok (Bento Apple HIG, IDOR Precedence Shield, N-Tier Cycle Traversal, & 100% i18n Parity - PRD-32)](#423-arsitektur-hardening-modul-gudang--pemasok-bento-apple-hig-idor-precedence-shield-n-tier-cycle-traversal--100-i18n-parity---prd-32)
    - [4.24 Arsitektur COOCA Online Store & Marketplace Production-Grade (Shopee-Standard Workflow, TriPay Auto-Journaling, AWB Tracking & Verified Reviews)](#424-arsitektur-cooca-online-store--marketplace-production-grade-shopee-standard-workflow-tripay-auto-journaling-awb-tracking--verified-reviews)
+   - [4.25 Arsitektur Universal Multi-Tenant Model Context Protocol (MCP) Server & Multi-Provider AI Adapter Hub](#425-arsitektur-universal-multi-tenant-model-context-protocol-mcp-server--multi-provider-ai-adapter-hub)
 
 ---
 
@@ -272,6 +274,14 @@ Aplikasi ini dirancang untuk dapat dioperasikan secara percaya diri oleh **gener
   - **Dukungan Shift Overnight (Lintas Tengah Malam):** Shift malam (misal 22:00 - 06:00) dievaluasi sebagai satu sesi absensi tunggal utuh.
   - **Umpan Balik Instan Keterlambatan (Modal Feedback Apple HIG):** Saat clock-in berhasil, modal sheet langsung menyajikan status kehadiran (`TEPAT WAKTU`, `TERLAMBAT`, `LEBIH AWAL`), jam masuk aktual, jam jadwal masuk, dan durasi keterlambatan presisi dalam menit.
   - **Imutabilitas Riwayat Absensi:** Rekam jejak absensi mengunci snapshot jadwal secara permanen, sehingga pemindahan shift di masa depan tidak mengubah historis data kehadiran staf.
+
+### 3.15 Integrasi Model Context Protocol & AI Gateway (MCP Server)
+* **Kapan Digunakan?** Saat pemilik usaha ingin menghubungkan asisten kecerdasan buatan favoritnya (Claude Desktop, Cursor IDE, ChatGPT, Gemini, Ollama, n8n) dengan data operasional COOCA ERP.
+* **Fitur & Keamanan Alur Kerja:**
+  - **Pusat Integrasi AI Terpadu:** Dapat diakses melalui `/settings/integrations/mcp` dengan antarmuka Bento Apple HIG v2.0 yang modern dan bebas emoji.
+  - **Manajemen Token Mandiri:** Pemilik usaha dapat membuat token akses aman, mengatur batas kedaluwarsa, membatasi hak akses (*abilities* seperti hanya baca produk atau pencatatan pengeluaran), serta mencabut (*revoke*) token kapan saja.
+  - **Panduan Konfigurasi Interaktif 6 Provider:** Menyajikan petunjuk instalasi copy-paste instan untuk Claude Desktop, Cursor IDE, ChatGPT Custom Actions, Google Gemini Python SDK, Ollama, dan n8n/Dify.
+  - **Pemantauan Audit Trail Real-time:** Setiap interaksi AI tercatat transparan di tabel log aktivitas, mencakup nama tool, status eksekusi, provider yang digunakan, latency eksekusi (ms), dan IP address.
 
 ---
 
@@ -684,6 +694,26 @@ Sistem mengimplementasikan standarisasi menyeluruh pada modul Storefront & Marke
 
 *Dokumentasi Lengkap Modul:* [`docs/system/modules/commerce.md`](file:///c:/laragon/www/cooca_core/docs/system/modules/commerce.md)
 
+### 4.25 Arsitektur Universal Multi-Tenant Model Context Protocol (MCP) Server & Multi-Provider AI Adapter Hub
+1. **Prinsip Isolasi Tenant Nol-Kebocoran (*Strict Zero-Leak Boundary*):**
+   - Parameter `business_id` secara ketat dilarang untuk diekspos sebagai argumen MCP tool.
+   - Identitas tenant murni ditentukan dari MCP Bearer Token (`mcp_access_tokens`) melalui `McpTokenAuthenticator` dan diikat ke `Context::requireBusiness()`.
+2. **Katalog 10 Domain Tools Terpadu:**
+   - Finansial: `finance_record_expense` (pencatatan struk OCR, auto-journal, & kas keluar), `finance_get_cash_and_bank_balances` (likuiditas kas & bank).
+   - Inventori: `inventory_create_product` (katalog produk & stok awal), `inventory_check_stock` (stok real-time & peringatan stok menipis).
+   - Pemasaran: `social_schedule_post` (penjadwalan omnichannel Meta/TikTok/X), `social_get_insights` (analisis engagement).
+   - Laporan & AI: `report_get_profit_loss` (omzet, HPP, margin & laba bersih), `analytics_get_sales_forecast` (prediksi AI forecasting).
+   - CRM & WhatsApp: `crm_search_customer` (profil pelanggan setia & riwayat order), `whatsapp_send_notification` (pengiriman pesan resmi WhatsApp Cloud API).
+3. **Multi-Transport & Multi-Provider Adapter:**
+   - **Local Stdio Transport:** `php artisan mcp:serve` untuk eksekusi CLI desktop (Claude Desktop, Cursor, Antigravity).
+   - **Remote SSE Transport:** `GET /api/v1/mcp/sse` + `POST /api/v1/mcp/message` JSON-RPC 2.0.
+   - **OpenAPI 3.1 Dynamic Spec:** `GET /api/v1/mcp/openapi.json` untuk integrasi 1-klik ChatGPT Custom Actions, LangChain, n8n, dan Dify.
+   - **REST Direct Bridge:** `POST /api/v1/mcp/tools/{tool}/execute` untuk Google Gemini dan workflow webhook.
+4. **Audit Trail & Sanitasi Payload:**
+   - Seluruh pemanggilan tool otomatis terekam pada `mcp_activity_logs` dengan sanitasi data sensitif seperti gambar base64 yang dipotong ringkas demi efisiensi storage.
+
+*Dokumentasi Lengkap Modul:* [`docs/system/modules/mcp-server-and-ai-integrations.md`](file:///c:/laragon/www/cooca_core/docs/system/modules/mcp-server-and-ai-integrations.md)
+
 ---
 
 ## 5. Matriks Penelusuran Pengetahuan (Traceability Matrix)
@@ -795,4 +825,7 @@ Dokumentasi Cooca saling terhubung secara dua arah untuk memudahkan penelusuran 
    │
    └──► Hardening Gudang & Pemasok ──► docs/prd/PRD-32-WAREHOUSE-AND-SUPPLIERS-HARDENING-MULTI-INDUSTRY-I18N.md ──► resources/views/app/warehouse/ & suppliers/
                                                                                                                    └──► WORK-2026-10-04-289 / WORK-2026-10-04-290 / WORK-2026-10-04-291 / WORK-2026-10-05-307 (Route warehouse.edit & Bento Modal Sheet Navigation)
+    │
+    └──► MCP Server & AI Gateway ───► docs/system/modules/mcp-server-and-ai-integrations.md ──► app/Domain/Mcp/ & resources/views/app/settings/integrations/mcp.blade.php
+                                                                                                    └──► WORK-2026-10-07-319 (Universal MCP Server, 10 Tools, Multi-Provider Support)
 ```

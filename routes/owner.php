@@ -131,16 +131,17 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
         Route::get('/dashboard/quick-stats', [DashboardWebController::class, 'quickStats'])->middleware('require.permission:dashboard.view')->name('dashboard.quick-stats');
         Route::get('/dashboard/quick-materials-list', [DashboardWebController::class, 'quickMaterialsList'])->middleware('require.permission:inventory.manage')->name('dashboard.quick-materials-list');
         Route::post('/dashboard/quick-expense', [DashboardWebController::class, 'quickExpense'])->middleware('require.permission:expenses.manage')->name('dashboard.quick-expense');
+        Route::post('/dashboard/quick-inflow', [DashboardWebController::class, 'quickInflow'])->middleware('require.permission:expenses.manage')->name('dashboard.quick-inflow');
         Route::post('/dashboard/quick-stock-in', [DashboardWebController::class, 'quickStockIn'])->middleware('require.permission:inventory.manage')->name('dashboard.quick-stock-in');
         Route::post('/dashboard/quick-material', [DashboardWebController::class, 'quickMaterial'])->middleware('require.permission:materials.create')->name('dashboard.quick-material');
 
         // Interactive Live HPP Calculator
-        Route::get('/calculator', [CalculatorWebController::class, 'index'])->middleware('require.permission:costing.view_margin')->name('calculator.index');
+        Route::get('/calculator', [CalculatorWebController::class, 'index'])->name('calculator.index');
         Route::get('/calculator/calculate/{costModel}', [CalculatorWebController::class, 'calculate'])->name('calculator.calculate');
         Route::post('/calculator/save', [CalculatorWebController::class, 'saveResult'])->name('calculator.save');
         Route::post('/calculator/apply-to-product', [CalculatorWebController::class, 'applyToProduct'])->name('calculator.apply-to-product');
         Route::post('/calculator/quick-create-product', [CalculatorWebController::class, 'quickCreateProduct'])->name('calculator.quick-create-product');
-        Route::get('/calculator/export-excel', [CalculatorWebController::class, 'exportExcel'])->middleware('entitlement:export')->name('calculator.export-excel');
+        Route::get('/calculator/export-excel', [CalculatorWebController::class, 'exportExcel'])->name('calculator.export-excel');
 
         // Materials & Pricing Management
         Route::get('/materials', [MaterialWebController::class, 'index'])->middleware('require.permission:materials.view')->name('materials.index');
@@ -360,9 +361,9 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
             Route::post('/tax/simulate-net-income', [TaxWebController::class, 'simulateNetIncome'])->name('tax.simulate.net_income');
             Route::post('/tax/simulate-sales', [TaxWebController::class, 'simulateSales'])->name('tax.simulate.sales');
             Route::post('/tax/simulate-payroll', [TaxWebController::class, 'simulatePayroll'])->name('tax.simulate.payroll');
-            Route::get('/tax/export-ebupot', [TaxWebController::class, 'exportEbupot'])->middleware('entitlement:export')->name('tax.export.ebupot');
-            Route::get('/tax/export-pph-final', [TaxWebController::class, 'exportPPhFinal'])->middleware('entitlement:export')->name('tax.export.pph_final');
-            Route::get('/tax/export-net-income', [TaxWebController::class, 'exportNetIncomeTax'])->middleware('entitlement:export')->name('tax.export.net_income');
+            Route::get('/tax/export-ebupot', [TaxWebController::class, 'exportEbupot'])->middleware(['require.permission:reports.export', 'entitlement:export'])->name('tax.export.ebupot');
+            Route::get('/tax/export-pph-final', [TaxWebController::class, 'exportPPhFinal'])->middleware(['require.permission:reports.export', 'entitlement:export'])->name('tax.export.pph_final');
+            Route::get('/tax/export-net-income', [TaxWebController::class, 'exportNetIncomeTax'])->middleware(['require.permission:reports.export', 'entitlement:export'])->name('tax.export.net_income');
         });
 
         // Business Settings (Profil Usaha, POS & Template Industri)
@@ -370,6 +371,15 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
         Route::put('/settings', [SettingWebController::class, 'update'])->middleware('require.permission:settings.edit')->name('settings.update');
         Route::put('/settings/modules', [SettingWebController::class, 'updateModules'])->middleware('require.role:owner')->name('settings.modules.update');
         Route::post('/settings/apply-template', [SettingWebController::class, 'applyTemplate'])->middleware(['require.permission:settings.edit', 'require.role:owner'])->name('settings.apply-template');
+
+        // Integrasi AI / Model Context Protocol (MCP) Hub
+        Route::prefix('settings/integrations/mcp')->name('settings.integrations.mcp.')->middleware(['require.permission:settings.view'])->group(function (): void {
+            Route::get('/', [\App\Http\Controllers\Web\Mcp\McpIntegrationWebController::class, 'index'])->name('index');
+            Route::post('/tokens', [\App\Http\Controllers\Web\Mcp\McpIntegrationWebController::class, 'storeToken'])->middleware('require.permission:settings.edit')->name('tokens.store');
+            Route::delete('/tokens/{token}', [\App\Http\Controllers\Web\Mcp\McpIntegrationWebController::class, 'revokeToken'])->middleware('require.permission:settings.edit')->name('tokens.revoke');
+            Route::post('/toggle', [\App\Http\Controllers\Web\Mcp\McpIntegrationWebController::class, 'toggleMaster'])->middleware('require.permission:settings.edit')->name('toggle');
+            Route::get('/logs', [\App\Http\Controllers\Web\Mcp\McpIntegrationWebController::class, 'logs'])->name('logs');
+        });
 
         // Branch Management Hub under Settings (Multi-Outlet & Single-Branch-Multi-Warehouse Architecture)
         Route::post('/settings/branches', [SettingWebController::class, 'storeBranch'])->middleware(['require.permission:settings.edit'])->name('settings.branches.store');

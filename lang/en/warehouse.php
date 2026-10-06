@@ -217,6 +217,12 @@ return [
         'empty' => 'No physical goods receipts recorded at this facility yet.',
     ],
 
+    'branch_education' => [
+        'title' => 'Branch Management Has Been Centralized',
+        'subtitle' => 'Adding and managing branches/stores is now centralized in Business Settings. This page is dedicated to managing Logistics Warehouses (1 branch can have multiple warehouses).',
+        'action_btn' => 'Open Branch Settings',
+    ],
+
     'movements_table' => [
         'title' => 'Stock Card Audit Ledger',
         'subtitle' => 'Real-time and immutable audit log of inventory movements at this facility.',
@@ -230,6 +236,14 @@ return [
         'col_notes' => 'Notes & Operator',
         'empty' => 'No inventory ledger records found for this location.',
         'see_all_movements' => 'View All Movements',
+        'type_goods_receipt' => 'Goods Receipt',
+        'type_pos_sale' => 'POS Sale',
+        'type_adjustment' => 'Stock Adjustment',
+        'type_transfer_in' => 'Transfer In',
+        'type_transfer_out' => 'Transfer Out',
+        'type_opname' => 'Stock Opname',
+        'type_initial' => 'Initial Stock',
+        'type_pos_refund' => 'POS Refund',
     ],
 
     'approvals' => [
@@ -281,6 +295,8 @@ return [
         'reason_theft' => 'Theft / Unaccounted Loss',
         'reason_initial' => 'Initial Warehouse Balance Input',
         'reason_other' => 'Other Reason (Min. 10 chars notes required)',
+        'placeholder_other' => 'Detailed reason required (min. 10 characters)...',
+        'placeholder_example' => 'e.g. Physical stock count variance, damaged/expired goods...',
     ],
 
     'delete_modal' => [

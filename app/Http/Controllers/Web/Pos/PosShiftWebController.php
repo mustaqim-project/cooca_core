@@ -158,30 +158,59 @@ final class PosShiftWebController extends Controller
         $validated = $request->validate([
             'type' => ['required', 'in:cash_in,cash_out'],
             'amount' => ['required', 'numeric', 'min:1'],
-            'reason' => ['required', 'string', 'max:255'],
+            'category' => ['nullable', 'string', 'max:50'],
+            'other_description' => ['nullable', 'string', 'max:255'],
+            'reason' => ['nullable', 'string', 'max:255'],
             'notes' => ['nullable', 'string', 'max:255'],
         ]);
+
+        $cat = $validated['category'] ?? null;
+        if ($cat === 'other' && empty(trim($validated['other_description'] ?? '')) && empty(trim($validated['reason'] ?? ''))) {
+            $msg = __('finance.category_other_required', [], null) ?: 'Keterangan rincian wajib diisi ketika kategori Lainnya dipilih.';
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $msg,
+                    'errors' => ['other_description' => [$msg]],
+                ], 422);
+            }
+            return back()->withInput()->withErrors(['other_description' => $msg]);
+        }
+
+        $inputReason = trim($validated['reason'] ?? '');
+        if ($cat === 'other') {
+            $otherDesc = trim($validated['other_description'] ?? '') ?: $inputReason;
+            $finalReason = $otherDesc ? "[Lainnya] {$otherDesc}" : '[Lainnya]';
+        } elseif ($cat) {
+            $label = $validated['type'] === 'cash_in'
+                ? (__("finance.inflow_categories.{$cat}") !== "finance.inflow_categories.{$cat}" ? __("finance.inflow_categories.{$cat}") : ucfirst(str_replace('_', ' ', $cat)))
+                : (__("finance.categories.{$cat}") !== "finance.categories.{$cat}" ? __("finance.categories.{$cat}") : ucfirst(str_replace('_', ' ', $cat)));
+            $finalReason = $inputReason ? "[{$label}] {$inputReason}" : "[{$label}]";
+        } else {
+            $finalReason = $inputReason ?: ($validated['type'] === 'cash_in' ? 'Kas Masuk' : 'Kas Keluar');
+        }
 
         $movement = $this->shiftService->recordCashMovement(
             shift: $shift,
             user: $user,
             type: $validated['type'],
             amount: (float) $validated['amount'],
-            reason: $validated['reason'],
+            reason: $finalReason,
             notes: $validated['notes'] ?? null
         );
 
-        $label = $validated['type'] === 'cash_in' ? 'Kas Masuk' : 'Kas Keluar';
+        $label = $validated['type'] === 'cash_in' ? __('pos.movement_cash_in') : __('pos.movement_cash_out');
+        $formattedAmount = number_format($movement->amount, 0, ',', '.');
 
         if ($request->wantsJson()) {
             return response()->json([
                 'success' => true,
-                'message' => "{$label} sebesar Rp " . number_format($movement->amount, 0, ',', '.') . " berhasil dicatat.",
+                'message' => __('pos.movement_recorded_success', ['type' => $label, 'amount' => $formattedAmount]),
                 'movement' => $movement,
             ]);
         }
 
-        return redirect()->back()->with('success', "{$label} berhasil dicatat!");
+        return redirect()->back()->with('success', __('pos.movement_recorded_flash', ['type' => $label]));
     }
 
     /**

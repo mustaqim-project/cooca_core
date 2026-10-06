@@ -58,6 +58,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'customer.profile'   => \App\Http\Middleware\RequireCustomerProfile::class,
             'customer.otp'       => \App\Http\Middleware\RequireCustomerOtp::class,
             'verified'           => \App\Http\Middleware\EnsureEmailIsVerified::class,
+            'mcp.auth'           => \App\Http\Middleware\EnsureMcpTokenValid::class,
         ]);
         $middleware->prepend(\App\Http\Middleware\EnsureCleanUrl::class);
 
@@ -67,6 +68,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'billing/payments/*',
             'api/v1/wa/*',
             'api/v1/social-media/*',
+            'api/v1/mcp/*',
         ]);
 
         $middleware->web(append: [

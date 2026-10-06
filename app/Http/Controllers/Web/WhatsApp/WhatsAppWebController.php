@@ -17,11 +17,29 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
-class WhatsAppWebController extends Controller
+class WhatsAppWebController extends Controller implements HasMiddleware
 {
+    /**
+     * Get the middleware that should be assigned to the controller.
+     */
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('require.permission:whatsapp.manage', only: [
+                'startSession',
+                'disconnect',
+                'updateSettings',
+                'testSend',
+                'verifyMetaCredentials',
+            ]),
+        ];
+    }
+
     public function __construct(protected WhatsAppGatewayService $gateway) {}
 
     /**

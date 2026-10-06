@@ -1,153 +1,11 @@
 @extends('layouts.app', [
-    'title' => 'What-If & Sensitivity Simulator',
-    'headerTitle' => 'What-If & Sensitivity Simulator',
-    'headerSubtitle' => 'Simulasikan dampak kenaikan harga bahan, UMR upah, dan overhead terhadap HPP dan laba tanpa merusak data master',
+    'title' => __('simulator.title'),
+    'headerTitle' => __('simulator.header_title'),
+    'headerSubtitle' => __('simulator.header_subtitle'),
 ])
 
 @section('content')
-    <div class="max-w-[1360px] mx-auto space-y-6 pb-28 lg:pb-12" x-data="{
-        costModelId: '{{ $selectedCostModel?->id ?? '' }}',
-        matChange: 10,
-        labChange: 5,
-        macChange: 0,
-        ovhChange: 0,
-        markupPct: 40,
-    
-        // Result
-        simResult: null,
-        loading: false,
-        chart: null,
-    
-        init() {
-            if (this.costModelId) {
-                this.runSimulation();
-            }
-    
-            // Re-render chart on theme switch if chart exists
-            window.addEventListener('theme-changed', () => {
-                if (this.chart) {
-                    this.updateChart();
-                }
-            });
-        },
-    
-        applyPreset(mat, lab, mac, ovh, markup) {
-            this.matChange = mat;
-            this.labChange = lab;
-            this.macChange = mac;
-            this.ovhChange = ovh;
-            if (markup !== undefined && markup !== null) {
-                this.markupPct = markup;
-            }
-            this.runSimulation();
-        },
-    
-        runSimulation() {
-            if (!this.costModelId) return;
-            this.loading = true;
-    
-            fetch(`/simulator/${this.costModelId}/run`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')?.content || ''
-                    },
-                    body: JSON.stringify({
-                        material_change_pct: this.matChange,
-                        labor_change_pct: this.labChange,
-                        machine_change_pct: this.macChange,
-                        overhead_change_pct: this.ovhChange,
-                        target_markup_pct: this.markupPct
-                    })
-                })
-                .then(res => res.json())
-                .then(data => {
-                    this.simResult = data.simulation;
-                    this.loading = false;
-                    this.$nextTick(() => {
-                        this.updateChart();
-                    });
-                })
-                .catch(err => {
-                    console.error('Simulation error:', err);
-                    this.loading = false;
-                });
-        },
-    
-        updateChart() {
-            if (!this.simResult) return;
-            const ctx = document.getElementById('simChart');
-            if (!ctx) return;
-    
-            const base = this.simResult.baseline;
-            const sim = this.simResult.simulated;
-    
-            if (this.chart) {
-                this.chart.destroy();
-            }
-    
-            const isDark = document.documentElement.classList.contains('dark');
-            const textColor = isDark ? '#EBEBF599' : '#3C3C4399';
-            const gridColor = isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)';
-            const baselineBg = isDark ? 'rgba(142, 142, 147, 0.35)' : 'rgba(142, 142, 147, 0.45)';
-            const baselineBorder = isDark ? '#8E8E93' : '#636366';
-            const simBg = isDark ? 'rgba(10, 132, 255, 0.55)' : 'rgba(0, 122, 255, 0.65)';
-            const simBorder = isDark ? '#0A84FF' : '#007AFF';
-    
-            this.chart = new Chart(ctx, {
-                        type: 'bar',
-                        data: {
-                            labels: ['Bahan Baku', 'Tenaga Kerja', 'Mesin & Listrik', 'Overhead', 'Total HPP'],
-                            datasets: [{
-                                    label: 'Baseline (Biaya Awal)',
-                                    data: [base.material_cost, base.labor_cost, base.machine_cost, base.overhead_cost, base.total_hpp],
-                                    backgroundColor: baselineBg,
-                                    borderColor: baselineBorder,
-                                    borderWidth: 1.5,
-                                    borderRadius: 6,
-                                    barPercentage: 0.7,
-                                    categoryPercentage: 0.6
-                                },
-                                {
-                                    label: 'Hasil Simulasi (Skenario)',
-                                    data: [sim.material_cost, sim.labor_cost, sim.machine_cost, sim.overhead_cost, sim.total_hpp],
-                                    backgroundColor: simBg,
-                                    borderColor: simBorder,
-                                    borderWidth: 1.5,
-                                    borderRadius: 6,
-                                    barPercentage: 0.7,
-                                    categoryPercentage: 0.6
-                                }
-                            ]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            plugins: {
-                                legend: {
-                                    position: 'top',
-                                    labels: {
-                                        color: textColor,
-                                        font: { family: '-apple-system, BlinkMacSystemFont, "SF Pro Text", Inter, sans-serif', size: 12,
-        weight: '500' }, boxWidth: 12, boxHeight: 12, borderRadius: 3, usePointStyle: true } }, tooltip: { backgroundColor:
-        isDark ? 'rgba(44, 44, 46, 0.95)' : 'rgba(255, 255, 255, 0.95)' , titleColor: isDark ? '#ffffff' : '#000000' ,
-        bodyColor: isDark ? '#EBEBF5' : '#1C1C1E' , borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)'
-        , borderWidth: 1, padding: 10, cornerRadius: 10, callbacks: { label: function(context) { return
-        context.dataset.label + ': Rp ' + Math.round(context.raw).toLocaleString('id-ID'); } } } }, scales: { x: { ticks: {
-        color: textColor, font: { family: '-apple-system, BlinkMacSystemFont, "SF Pro Text", Inter, sans-serif' , size: 11 }
-        }, grid: { color: gridColor, drawBorder: false } }, y: { ticks: { color: textColor, font: {
-        family: '-apple-system, BlinkMacSystemFont, "SF Pro Text", Inter, sans-serif' , size: 11 }, callback: function(val)
-        { return 'Rp ' + (val>= 1000000 ? (val/1000000).toFixed(1) + 'M' : (val >= 1000 ? (val/1000).toFixed(0) + 'k' :
-        val));
-        }
-        },
-        grid: { color: gridColor, drawBorder: false }
-        }
-        }
-        }
-        });
-        }
-        }">
+    <div class="max-w-[1360px] mx-auto space-y-6 pb-28 lg:pb-12" x-data="simulatorComponent('{{ $selectedCostModel?->id ?? '' }}')">
 
         {{-- ===================================================== --}}
         {{-- 1. SUB-NAVIGATION TABS (Apple Segmented Control)      --}}
@@ -162,7 +20,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round"
                             d="M15.75 15.75V18m-7.5-6.75h.008v.008H8.25v-.008Zm0 2.25h.008v.008H8.25V13.5Zm0 2.25h.008v.008H8.25v-.008Zm0 2.25h.008v.008H8.25V18Zm2.498-6.75h.007v.008h-.007v-.008Zm0 2.25h.007v.008h-.007V13.5Zm0 2.25h.007v.008h-.007v-.008Zm0 2.25h.007v.008h-.007V18Zm2.504-6.75h.008v.008h-.008v-.008Zm0 2.25h.008v.008h-.008V13.5Zm0 2.25h.008v.008h-.008v-.008Zm0 2.25h.008v.008h-.008V18Zm2.498-6.75h.008v.008h-.008v-.008Zm0 2.25h.008v.008h-.008V13.5ZM8.25 6h7.5v2.25h-7.5V6ZM12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25Z" />
                     </svg>
-                    <span>Kalkulator HPP Live</span>
+                    <span>{{ __('simulator.nav.calculator') }}</span>
                 </a>
                 <a href="{{ route('simulator.index') }}"
                     class="px-3.5 py-1.5 rounded-[9px] bg-white dark:bg-[#3A3A3C] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] font-semibold flex items-center gap-1.5 transition-all">
@@ -171,9 +29,9 @@
                         <path stroke-linecap="round" stroke-linejoin="round"
                             d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" />
                     </svg>
-                    <span>What-If Simulator</span>
+                    <span>{{ __('simulator.nav.simulator') }}</span>
                     <span
-                        class="px-1.5 py-0.2 rounded-full text-[11px] font-semibold bg-[#007AFF]/12 text-[#007AFF]">Sandbox</span>
+                        class="px-1.5 py-0.2 rounded-full text-[11px] font-semibold bg-[#007AFF]/12 text-[#007AFF]">{{ __('simulator.nav.sandbox_badge') }}</span>
                 </a>
                 @if (\App\Support\Context::hasPermission('products.view'))
                     <a href="{{ route('products.index') }}"
@@ -183,7 +41,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="m20.25 7.5-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z" />
                         </svg>
-                        <span>Katalog Produk &amp; BOM</span>
+                        <span>{{ __('simulator.nav.products') }}</span>
                     </a>
                 @endif
                 @if (\App\Support\Context::hasPermission('materials.view'))
@@ -194,7 +52,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="m21 7.5-9-5.25L3 7.5m18 0-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9" />
                         </svg>
-                        <span>Katalog Bahan Baku</span>
+                        <span>{{ __('simulator.nav.materials') }}</span>
                     </a>
                 @endif
             </div>
@@ -208,23 +66,22 @@
             <div>
                 {{-- Breadcrumb minimal --}}
                 <nav class="flex items-center gap-1.5 text-[12px] text-black/50 dark:text-white/50 mb-1">
-                    <a href="{{ route('dashboard') }}" class="hover:text-[#007AFF] transition-colors">Dashboard</a>
+                    <a href="{{ route('dashboard') }}" class="hover:text-[#007AFF] transition-colors">{{ __('simulator.breadcrumb.dashboard') }}</a>
                     <i data-lucide="chevron-right" class="w-3.5 h-3.5 opacity-40"></i>
-                    <span class="text-black/70 dark:text-white/70 font-medium">Biaya &amp; Kalkulator</span>
+                    <span class="text-black/70 dark:text-white/70 font-medium">{{ __('simulator.breadcrumb.costing') }}</span>
                     <i data-lucide="chevron-right" class="w-3.5 h-3.5 opacity-40"></i>
-                    <span class="text-black dark:text-white font-medium">What-If Simulator</span>
+                    <span class="text-black dark:text-white font-medium">{{ __('simulator.breadcrumb.simulator') }}</span>
                 </nav>
                 <div class="flex items-center gap-2">
                     <h1 class="text-[20px] font-semibold text-black dark:text-white tracking-tight">
-                        What-If &amp; Sensitivity Simulator
+                        {{ __('simulator.header_title') }}
                     </h1>
                     <span
                         class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158]">
-                        Sandbox Terisolasi
+                        {{ __('simulator.nav.sandbox_badge') }}
                     </span>
                 </div>
-                <p class="text-[13px] text-black/50 dark:text-white/50">Eksperimen sensitivitas biaya tanpa mengubah master
-                    harga beli atau data transaksi riil</p>
+                <p class="text-[13px] text-black/50 dark:text-white/50">{{ __('simulator.header_subtitle') }}</p>
             </div>
 
             @if ($products->isNotEmpty())
@@ -260,10 +117,9 @@
                             d="m20.25 7.5-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z" />
                     </svg>
                 </div>
-                <h3 class="text-[17px] font-semibold text-black dark:text-white">Belum Ada Model Biaya (BOM) Terdaftar</h3>
+                <h3 class="text-[17px] font-semibold text-black dark:text-white">{{ __('simulator.empty.title') }}</h3>
                 <p class="text-[13px] text-black/50 dark:text-white/50 mt-1 mb-5 max-w-md mx-auto">
-                    Untuk menjalankan simulasi What-If, buat minimal satu produk dengan susunan resep (BOM) atau model biaya
-                    di kalkulator HPP.
+                    {{ __('simulator.empty.subtitle') }}
                 </p>
                 <div class="flex items-center justify-center gap-2.5">
                     @if (\App\Support\Context::hasPermission('costing.manage') || \App\Support\Context::hasPermission('reports.costing'))
@@ -273,13 +129,13 @@
                                 <path stroke-linecap="round" stroke-linejoin="round"
                                     d="M15.75 15.75V18m-7.5-6.75h.008v.008H8.25v-.008Zm0 2.25h.008v.008H8.25V13.5Zm0 2.25h.008v.008H8.25v-.008Zm0 2.25h.008v.008H8.25V18Zm2.498-6.75h.007v.008h-.007v-.008Zm0 2.25h.007v.008h-.007V13.5Zm0 2.25h.007v.008h-.007v-.008Zm0 2.25h.007v.008h-.007V18Zm2.504-6.75h.008v.008h-.008v-.008Zm0 2.25h.008v.008h-.008V13.5Zm0 2.25h.008v.008h-.008v-.008Zm0 2.25h.008v.008h-.008V18Zm2.498-6.75h.008v.008h-.008v-.008Zm0 2.25h.008v.008h-.008V13.5ZM8.25 6h7.5v2.25h-7.5V6ZM12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25Z" />
                             </svg>
-                            <span>Buka Kalkulator HPP</span>
+                            <span>{{ __('simulator.nav.calculator') }}</span>
                         </a>
                     @endif
                     @if (\App\Support\Context::hasPermission('products.view'))
                         <a href="{{ route('products.index') }}"
                             class="h-9 px-4 rounded-[10px] text-[13px] font-medium text-black/80 dark:text-white/80 bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] dark:hover:bg-white/[0.12] transition-colors flex items-center gap-1.5">
-                            <span>Kelola Produk</span>
+                            <span>{{ __('simulator.empty.button') }}</span>
                         </a>
                     @endif
                 </div>
@@ -293,40 +149,38 @@
                 <div class="flex items-center justify-between gap-2 flex-wrap">
                     <div class="flex items-center gap-2">
                         <span class="text-[12px] font-semibold text-black dark:text-white uppercase tracking-wider">
-                            Skenario Cepat (1-Klik Presets)
+                            {{ __('simulator.presets.title') }}
                         </span>
-                        <span class="text-[10px] text-black/40 dark:text-white/40 font-medium">· Guncangan Pasar
-                            Instan</span>
+                        <span class="text-[10px] text-black/40 dark:text-white/40 font-medium">· {{ __('simulator.presets.badge') }}</span>
                     </div>
-                    <span class="text-[12px] text-black/45 dark:text-white/45">Klik tombol untuk menguji respon HPP
-                        langsung</span>
+                    <span class="text-[12px] text-black/45 dark:text-white/45">{{ __('simulator.presets.subtitle') }}</span>
                 </div>
 
                 <div class="flex items-center gap-2 flex-wrap">
                     <button type="button" @click="applyPreset(15, 0, 0, 0, null)"
                         class="h-8 px-3 rounded-[8px] bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] dark:hover:bg-white/[0.1] text-black/80 dark:text-white/80 active:scale-[0.97] text-[12px] font-medium transition-all flex items-center gap-1.5">
                         <i data-lucide="wheat" class="w-3.5 h-3.5 text-amber-600"></i>
-                        <span>Inflasi Bahan Baku (+15%)</span>
+                        <span>{{ __('simulator.presets.inflation') }}</span>
                     </button>
                     <button type="button" @click="applyPreset(0, 10, 0, 0, null)"
                         class="h-8 px-3 rounded-[8px] bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] dark:hover:bg-white/[0.1] text-black/80 dark:text-white/80 active:scale-[0.97] text-[12px] font-medium transition-all flex items-center gap-1.5">
                         <i data-lucide="users" class="w-3.5 h-3.5 text-blue-600"></i>
-                        <span>Kenaikan UMR (+10%)</span>
+                        <span>{{ __('simulator.presets.wage_hike') }}</span>
                     </button>
                     <button type="button" @click="applyPreset(0, 0, 20, 0, null)"
                         class="h-8 px-3 rounded-[8px] bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] dark:hover:bg-white/[0.1] text-black/80 dark:text-white/80 active:scale-[0.97] text-[12px] font-medium transition-all flex items-center gap-1.5">
                         <i data-lucide="zap" class="w-3.5 h-3.5 text-amber-500"></i>
-                        <span>Lonjakan Listrik (+20%)</span>
+                        <span>{{ __('simulator.presets.energy_crisis') }}</span>
                     </button>
                     <button type="button" @click="applyPreset(0, 0, 0, 15, null)"
                         class="h-8 px-3 rounded-[8px] bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] dark:hover:bg-white/[0.1] text-black/80 dark:text-white/80 active:scale-[0.97] text-[12px] font-medium transition-all flex items-center gap-1.5">
                         <i data-lucide="package" class="w-3.5 h-3.5 text-purple-600"></i>
-                        <span>Kenaikan Overhead (+15%)</span>
+                        <span>{{ __('simulator.presets.overhead_hike') }}</span>
                     </button>
                     <button type="button" @click="applyPreset(20, 10, 15, 10, null)"
                         class="h-8 px-3 rounded-[8px] bg-[#FF3B30]/10 hover:bg-[#FF3B30]/15 text-[#C41E17] dark:text-[#FF453A] active:scale-[0.97] text-[12px] font-semibold transition-all flex items-center gap-1.5">
                         <i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-[#FF3B30]"></i>
-                        <span>Krisis Pasokan (+20% Bahan, +10% UMR, +15% Mesin)</span>
+                        <span>{{ __('simulator.presets.supply_crisis') }}</span>
                     </button>
                     <button type="button" @click="applyPreset(0, 0, 0, 0, 40)"
                         class="h-8 px-3 rounded-[8px] bg-black/[0.06] dark:bg-white/[0.08] hover:bg-black/[0.09] dark:hover:bg-white/[0.12] text-black/60 dark:text-white/60 active:scale-[0.97] text-[12px] font-medium transition-all flex items-center gap-1.5 ml-auto">
@@ -335,7 +189,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
                         </svg>
-                        <span>Reset ke 0%</span>
+                        <span>{{ __('simulator.presets.reset') }}</span>
                     </button>
                 </div>
             </div>
@@ -356,12 +210,12 @@
                                     d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" />
                             </svg>
                             <h3 class="text-[12px] font-semibold text-black dark:text-white uppercase tracking-wider">
-                                Faktor Perubahan Biaya
+                                {{ __('simulator.sliders.title') }}
                             </h3>
                         </div>
                         <div class="flex items-center gap-1.5" x-show="loading" x-cloak>
                             <span class="w-2 h-2 rounded-full bg-[#007AFF] animate-ping"></span>
-                            <span class="text-[11px] font-mono text-[#007AFF] font-medium">Menghitung...</span>
+                            <span class="text-[11px] font-mono text-[#007AFF] font-medium">{{ __('simulator.sliders.calculating') }}</span>
                         </div>
                     </div>
 
@@ -369,7 +223,7 @@
                     <div class="space-y-1.5">
                         <div class="flex justify-between items-center text-[13px]">
                             <span class="font-medium text-black/80 dark:text-white/80">
-                                Harga Bahan Baku:
+                                {{ __('simulator.sliders.material') }}:
                             </span>
                             <span class="font-mono tabular-nums font-semibold text-[12px] px-2 py-0.5 rounded-full"
                                 :class="matChange > 0 ? 'bg-[#FF3B30]/12 text-[#C41E17] dark:text-[#FF453A]' : (matChange < 0 ?
@@ -383,7 +237,7 @@
                         <div
                             class="flex justify-between text-[10px] text-black/40 dark:text-white/40 font-mono tabular-nums">
                             <span>-50%</span>
-                            <span>0% (Tetap)</span>
+                            <span>{{ __('simulator.sliders.scale_fixed') }}</span>
                             <span>+100%</span>
                         </div>
                     </div>
@@ -392,7 +246,7 @@
                     <div class="space-y-1.5 pt-2 border-t border-black/5 dark:border-white/5">
                         <div class="flex justify-between items-center text-[13px]">
                             <span class="font-medium text-black/80 dark:text-white/80">
-                                Upah Tenaga Kerja:
+                                {{ __('simulator.sliders.labor') }}:
                             </span>
                             <span class="font-mono tabular-nums font-semibold text-[12px] px-2 py-0.5 rounded-full"
                                 :class="labChange > 0 ? 'bg-[#FF3B30]/12 text-[#C41E17] dark:text-[#FF453A]' : (labChange < 0 ?
@@ -406,7 +260,7 @@
                         <div
                             class="flex justify-between text-[10px] text-black/40 dark:text-white/40 font-mono tabular-nums">
                             <span>-50%</span>
-                            <span>0% (Tetap)</span>
+                            <span>{{ __('simulator.sliders.scale_fixed') }}</span>
                             <span>+100%</span>
                         </div>
                     </div>
@@ -415,7 +269,7 @@
                     <div class="space-y-1.5 pt-2 border-t border-black/5 dark:border-white/5">
                         <div class="flex justify-between items-center text-[13px]">
                             <span class="font-medium text-black/80 dark:text-white/80">
-                                Tarif Mesin &amp; Listrik:
+                                {{ __('simulator.sliders.machine') }}:
                             </span>
                             <span class="font-mono tabular-nums font-semibold text-[12px] px-2 py-0.5 rounded-full"
                                 :class="macChange > 0 ? 'bg-[#FF3B30]/12 text-[#C41E17] dark:text-[#FF453A]' : (macChange < 0 ?
@@ -429,7 +283,7 @@
                         <div
                             class="flex justify-between text-[10px] text-black/40 dark:text-white/40 font-mono tabular-nums">
                             <span>-50%</span>
-                            <span>0% (Tetap)</span>
+                            <span>{{ __('simulator.sliders.scale_fixed') }}</span>
                             <span>+100%</span>
                         </div>
                     </div>
@@ -438,7 +292,7 @@
                     <div class="space-y-1.5 pt-2 border-t border-black/5 dark:border-white/5">
                         <div class="flex justify-between items-center text-[13px]">
                             <span class="font-medium text-black/80 dark:text-white/80">
-                                Overhead Pabrik / Toko:
+                                {{ __('simulator.sliders.overhead') }}:
                             </span>
                             <span class="font-mono tabular-nums font-semibold text-[12px] px-2 py-0.5 rounded-full"
                                 :class="ovhChange > 0 ? 'bg-[#FF3B30]/12 text-[#C41E17] dark:text-[#FF453A]' : (ovhChange < 0 ?
@@ -452,7 +306,7 @@
                         <div
                             class="flex justify-between text-[10px] text-black/40 dark:text-white/40 font-mono tabular-nums">
                             <span>-50%</span>
-                            <span>0% (Tetap)</span>
+                            <span>{{ __('simulator.sliders.scale_fixed') }}</span>
                             <span>+100%</span>
                         </div>
                     </div>
@@ -461,7 +315,7 @@
                     <div class="space-y-1.5 pt-3 border-t border-black/10 dark:border-white/10">
                         <div class="flex justify-between items-center text-[13px]">
                             <span class="font-semibold text-black dark:text-white">
-                                Target Markup Jual:
+                                {{ __('simulator.sliders.markup') }}:
                             </span>
                             <span
                                 class="font-mono tabular-nums font-semibold text-[12px] px-2 py-0.5 rounded-full bg-[#007AFF]/12 text-[#007AFF]"
@@ -472,9 +326,9 @@
                             class="w-full h-1.5 bg-black/[0.08] dark:bg-white/[0.1] rounded-lg appearance-none cursor-pointer accent-[#007AFF]">
                         <div
                             class="flex justify-between text-[10px] text-black/40 dark:text-white/40 font-mono tabular-nums">
-                            <span>10% (Tipis)</span>
-                            <span>40% (Standar)</span>
-                            <span>150% (Premium)</span>
+                            <span>{{ __('simulator.sliders.markup_thin') }}</span>
+                            <span>{{ __('simulator.sliders.markup_standard') }}</span>
+                            <span>{{ __('simulator.sliders.markup_premium') }}</span>
                         </div>
                     </div>
                 </div>
@@ -493,7 +347,7 @@
                                     class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-4 flex flex-col justify-between">
                                     <span
                                         class="text-[11px] font-medium text-black/50 dark:text-white/50 uppercase tracking-wide block mb-1">
-                                        HPP Semula (Baseline)
+                                        {{ __('simulator.kpis.baseline_hpp') }}
                                     </span>
                                     <div
                                         class="text-[20px] sm:text-[22px] font-bold tabular-nums text-black dark:text-white">
@@ -502,7 +356,7 @@
                                     </div>
                                     <div
                                         class="mt-2 pt-2 border-t border-black/5 dark:border-white/5 text-[12px] text-black/50 dark:text-white/50 flex items-center justify-between">
-                                        <span>Harga Jual:</span>
+                                        <span>{{ __('simulator.selector.selling_price') }}</span>
                                         <span class="font-mono tabular-nums font-medium text-black/80 dark:text-white/80">
                                             {{ $business->currency_symbol }} <span
                                                 x-text="Math.round(simResult.baseline.selling_price).toLocaleString('id-ID')"></span>
@@ -515,17 +369,16 @@
                                     class="rounded-[14px] bg-[#007AFF]/5 dark:bg-[#007AFF]/10 border border-[#007AFF]/20 p-4 flex flex-col justify-between">
                                     <div class="flex items-center justify-between gap-1 mb-1">
                                         <span class="text-[11px] font-medium text-[#007AFF] uppercase tracking-wide">
-                                            HPP Hasil Simulasi
+                                            {{ __('simulator.kpis.simulated_hpp') }}
                                         </span>
                                         <span class="w-1.5 h-1.5 rounded-full bg-[#007AFF]"></span>
                                     </div>
                                     <div class="text-[20px] sm:text-[22px] font-bold tabular-nums text-[#007AFF]">
                                         {{ $business->currency_symbol }} <span
                                             x-text="Math.round(simResult.simulated.total_hpp).toLocaleString('id-ID')"></span>
-                                    </div>
-                                    <div
+                                    </div>                                    <div
                                         class="mt-2 pt-2 border-t border-[#007AFF]/15 text-[12px] text-[#007AFF] flex items-center justify-between">
-                                        <span>Rekomendasi Jual:</span>
+                                        <span>{{ __('simulator.kpis.recommended_price_short') }}:</span>
                                         <span class="font-mono tabular-nums font-semibold">
                                             {{ $business->currency_symbol }} <span
                                                 x-text="Math.round(simResult.simulated.selling_price).toLocaleString('id-ID')"></span>
@@ -538,7 +391,7 @@
                                     class="rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 p-4 flex flex-col justify-between">
                                     <span
                                         class="text-[11px] font-medium text-black/50 dark:text-white/50 uppercase tracking-wide block mb-1">
-                                        Dampak Selisih Biaya
+                                        {{ __('simulator.kpis.hpp_delta') }}
                                     </span>
                                     <div class="text-[20px] sm:text-[22px] font-bold tabular-nums font-mono"
                                         :class="simResult.impact.delta_hpp_amount > 0 ? 'text-[#FF3B30] dark:text-[#FF453A]' : (
@@ -552,7 +405,7 @@
                                             'text-[#FF3B30] dark:text-[#FF453A]' : (simResult.impact
                                                 .delta_hpp_percentage < 0 ? 'text-[#34C759] dark:text-[#30D158]' :
                                                 'text-black/50')">
-                                        <span>Pergeseran HPP:</span>
+                                        <span>{{ __('simulator.kpis.hpp_shift') }}:</span>
                                         <span class="font-mono tabular-nums">
                                             <span
                                                 x-text="(simResult.impact.delta_hpp_percentage > 0 ? '+' : '') + simResult.impact.delta_hpp_percentage.toFixed(1) + '%'"></span>
@@ -567,20 +420,19 @@
                                 <div
                                     class="px-4 py-3.5 border-b border-black/5 dark:border-white/10 flex items-center justify-between flex-wrap gap-2">
                                     <h3 class="text-[15px] font-semibold text-black dark:text-white">
-                                        Tabel Rincian Komponen Biaya
+                                        {{ __('simulator.table.title') }}
                                     </h3>
-                                    <span class="text-[12px] text-black/45 dark:text-white/45">Perbandingan nominal riil
-                                        antar elemen biaya</span>
+                                    <span class="text-[12px] text-black/45 dark:text-white/45">{{ __('simulator.table.subtitle') }}</span>
                                 </div>
                                 <div class="overflow-x-auto">
                                     <table class="w-full text-left text-[13px]">
                                         <thead>
                                             <tr
                                                 class="border-b border-black/5 dark:border-white/10 text-[11px] font-semibold uppercase tracking-wide text-black/40 dark:text-white/40">
-                                                <th class="px-4 py-2.5">Komponen Biaya</th>
-                                                <th class="px-4 py-2.5 text-right">Semula (Baseline)</th>
-                                                <th class="px-4 py-2.5 text-right">Hasil Simulasi</th>
-                                                <th class="px-4 py-2.5 text-right">Perubahan</th>
+                                                <th class="px-4 py-2.5">{{ __('simulator.table.col_component') }}</th>
+                                                <th class="px-4 py-2.5 text-right">{{ __('simulator.table.col_baseline') }}</th>
+                                                <th class="px-4 py-2.5 text-right">{{ __('simulator.table.col_simulated') }}</th>
+                                                <th class="px-4 py-2.5 text-right">{{ __('simulator.table.col_change_pct') }}</th>
                                             </tr>
                                         </thead>
                                         <tbody class="divide-y divide-black/[0.04] dark:divide-white/[0.06]">
@@ -589,7 +441,7 @@
                                                 <td
                                                     class="px-4 py-3 font-medium text-black dark:text-white flex items-center gap-2">
                                                     <span class="w-1.5 h-1.5 rounded-full bg-[#FF9500]"></span>
-                                                    <span>Bahan Baku (Raw Material)</span>
+                                                    <span>{{ __('simulator.table.comp_materials') }}</span>
                                                 </td>
                                                 <td
                                                     class="px-4 py-3 text-right font-mono tabular-nums text-black/60 dark:text-white/60">
@@ -613,7 +465,7 @@
                                                 <td
                                                     class="px-4 py-3 font-medium text-black dark:text-white flex items-center gap-2">
                                                     <span class="w-1.5 h-1.5 rounded-full bg-[#007AFF]"></span>
-                                                    <span>Tenaga Kerja Langsung</span>
+                                                    <span>{{ __('simulator.table.comp_labor') }}</span>
                                                 </td>
                                                 <td
                                                     class="px-4 py-3 text-right font-mono tabular-nums text-black/60 dark:text-white/60">
@@ -637,7 +489,7 @@
                                                 <td
                                                     class="px-4 py-3 font-medium text-black dark:text-white flex items-center gap-2">
                                                     <span class="w-1.5 h-1.5 rounded-full bg-[#5856D6]"></span>
-                                                    <span>Tarif Mesin &amp; Listrik</span>
+                                                    <span>{{ __('simulator.table.comp_machine') }}</span>
                                                 </td>
                                                 <td
                                                     class="px-4 py-3 text-right font-mono tabular-nums text-black/60 dark:text-white/60">
@@ -661,7 +513,7 @@
                                                 <td
                                                     class="px-4 py-3 font-medium text-black dark:text-white flex items-center gap-2">
                                                     <span class="w-1.5 h-1.5 rounded-full bg-[#AF52DE]"></span>
-                                                    <span>Overhead Pabrik (BOP)</span>
+                                                    <span>{{ __('simulator.table.comp_overhead') }}</span>
                                                 </td>
                                                 <td
                                                     class="px-4 py-3 text-right font-mono tabular-nums text-black/60 dark:text-white/60">
@@ -684,7 +536,7 @@
                                             <tr
                                                 class="bg-black/[0.02] dark:bg-white/[0.03] font-semibold border-t border-black/10 dark:border-white/10">
                                                 <td class="px-4 py-3.5 text-black dark:text-white">
-                                                    Total HPP per Satuan
+                                                    {{ __('simulator.table.comp_total') }}
                                                 </td>
                                                 <td
                                                     class="px-4 py-3.5 text-right font-mono tabular-nums text-black/70 dark:text-white/70">
@@ -716,10 +568,9 @@
                                 <div class="flex items-center justify-between mb-4">
                                     <div>
                                         <h3 class="text-[15px] font-semibold text-black dark:text-white">
-                                            Grafik Komparasi Biaya (Baseline vs Simulasi)
+                                            {{ __('simulator.chart.title') }}
                                         </h3>
-                                        <p class="text-[12px] text-black/45 dark:text-white/45">Visualisasi selisih tiap
-                                            elemen biaya</p>
+                                        <p class="text-[12px] text-black/45 dark:text-white/45">{{ __('simulator.chart.subtitle') }}</p>
                                     </div>
                                 </div>
                                 <div class="h-64 sm:h-72 relative">
@@ -740,19 +591,18 @@
                                 </div>
                                 <div class="space-y-1 text-[13px]">
                                     <h4 class="font-semibold text-[#7C3AA6] dark:text-[#BF5AF2]">
-                                        Rekomendasi Penyesuaian Harga Bisnis
+                                        {{ __('simulator.insights.title') }}
                                     </h4>
                                     <p class="text-[#7C3AA6]/90 dark:text-[#BF5AF2]/90 leading-relaxed">
-                                        Jika biaya skenario ini terjadi secara riil, Anda disarankan menaikkan harga jual
-                                        produk minimal menjadi
+                                        {{ __('simulator.insights.recommendation_prefix') }}
                                         <strong class="font-mono tabular-nums underline">{{ $business->currency_symbol }}
                                             <span
                                                 x-text="Math.round(simResult.simulated.selling_price).toLocaleString('id-ID')"></span></strong>
-                                        (kenaikan <span
+                                        ({{ __('simulator.insights.increase') }} <span
                                             class="font-mono tabular-nums font-semibold">{{ $business->currency_symbol }}
                                             <span
                                                 x-text="Math.round(simResult.impact.delta_selling_price).toLocaleString('id-ID')"></span></span>)
-                                        guna mempertahankan target markup <span
+                                        {{ __('simulator.insights.recommendation_suffix') }} <span
                                             class="font-mono tabular-nums font-semibold" x-text="markupPct + '%'"></span>.
                                     </p>
                                 </div>
@@ -766,3 +616,211 @@
 
     </div>
 @endsection
+
+@push('scripts')
+<script>
+function simulatorComponent(costModelId) {
+    return {
+        costModelId: costModelId || '',
+        matChange: 10,
+        labChange: 5,
+        macChange: 0,
+        ovhChange: 0,
+        markupPct: 40,
+
+        // Result
+        simResult: null,
+        loading: false,
+        chart: null,
+
+        init() {
+            if (this.costModelId) {
+                this.runSimulation();
+            }
+
+            // Re-render chart on theme switch if chart exists
+            window.addEventListener('theme-changed', () => {
+                if (this.chart) {
+                    this.updateChart();
+                }
+            });
+        },
+
+        applyPreset(mat, lab, mac, ovh, markup) {
+            this.matChange = mat;
+            this.labChange = lab;
+            this.macChange = mac;
+            this.ovhChange = ovh;
+            if (markup !== undefined && markup !== null) {
+                this.markupPct = markup;
+            }
+            this.runSimulation();
+        },
+
+        runSimulation() {
+            if (!this.costModelId) return;
+            this.loading = true;
+
+            fetch(`/simulator/${this.costModelId}/run`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')?.content || ''
+                },
+                body: JSON.stringify({
+                    material_change_pct: this.matChange,
+                    labor_change_pct: this.labChange,
+                    machine_change_pct: this.macChange,
+                    overhead_change_pct: this.ovhChange,
+                    target_markup_pct: this.markupPct
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                this.simResult = data.simulation;
+                this.loading = false;
+                this.$nextTick(() => {
+                    this.updateChart();
+                });
+            })
+            .catch(err => {
+                console.error('Simulation error:', err);
+                this.loading = false;
+            });
+        },
+
+        updateChart() {
+            if (!this.simResult) return;
+            const ctx = document.getElementById('simChart');
+            if (!ctx) return;
+
+            const base = this.simResult.baseline;
+            const sim = this.simResult.simulated;
+
+            if (this.chart) {
+                this.chart.destroy();
+            }
+
+            const isDark = document.documentElement.classList.contains('dark');
+            const textColor = isDark ? '#EBEBF599' : '#3C3C4399';
+            const gridColor = isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)';
+            const baselineBg = isDark ? 'rgba(142, 142, 147, 0.35)' : 'rgba(142, 142, 147, 0.45)';
+            const baselineBorder = isDark ? '#8E8E93' : '#636366';
+            const simBg = isDark ? 'rgba(10, 132, 255, 0.55)' : 'rgba(0, 122, 255, 0.65)';
+            const simBorder = isDark ? '#0A84FF' : '#007AFF';
+
+            this.chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: [
+                        @json(__('simulator.chart.labels.materials')),
+                        @json(__('simulator.chart.labels.labor')),
+                        @json(__('simulator.chart.labels.machine')),
+                        @json(__('simulator.chart.labels.overhead')),
+                        @json(__('simulator.chart.labels.total_hpp')),
+                    ],
+                    datasets: [
+                        {
+                            label: @json(__('simulator.chart.baseline_label')),
+                            data: [base.material_cost, base.labor_cost, base.machine_cost, base.overhead_cost, base.total_hpp],
+                            backgroundColor: baselineBg,
+                            borderColor: baselineBorder,
+                            borderWidth: 1.5,
+                            borderRadius: 6,
+                            barPercentage: 0.7,
+                            categoryPercentage: 0.6
+                        },
+                        {
+                            label: @json(__('simulator.chart.simulated_label')),
+                            data: [sim.material_cost, sim.labor_cost, sim.machine_cost, sim.overhead_cost, sim.total_hpp],
+                            backgroundColor: simBg,
+                            borderColor: simBorder,
+                            borderWidth: 1.5,
+                            borderRadius: 6,
+                            barPercentage: 0.7,
+                            categoryPercentage: 0.6
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                color: textColor,
+                                font: {
+                                    family: '-apple-system, BlinkMacSystemFont, "SF Pro Text", Inter, sans-serif',
+                                    size: 12,
+                                    weight: '500'
+                                },
+                                boxWidth: 12,
+                                boxHeight: 12,
+                                borderRadius: 3,
+                                usePointStyle: true
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: isDark ? 'rgba(44, 44, 46, 0.95)' : 'rgba(255, 255, 255, 0.95)',
+                            titleColor: isDark ? '#ffffff' : '#000000',
+                            bodyColor: isDark ? '#EBEBF5' : '#1C1C1E',
+                            borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)',
+                            borderWidth: 1,
+                            padding: 10,
+                            cornerRadius: 10,
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': Rp ' + Math.round(context.raw).toLocaleString('id-ID');
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: {
+                                color: textColor,
+                                font: {
+                                    family: '-apple-system, BlinkMacSystemFont, "SF Pro Text", Inter, sans-serif',
+                                    size: 11
+                                }
+                            },
+                            grid: {
+                                color: gridColor,
+                                drawBorder: false
+                            }
+                        },
+                        y: {
+                            ticks: {
+                                color: textColor,
+                                font: {
+                                    family: '-apple-system, BlinkMacSystemFont, "SF Pro Text", Inter, sans-serif',
+                                    size: 11
+                                },
+                                callback: function(val) {
+                                    return 'Rp ' + (val >= 1000000 ? (val / 1000000).toFixed(1) + 'M' : (val >= 1000 ? (val / 1000).toFixed(0) + 'k' : val));
+                                }
+                            },
+                            grid: {
+                                color: gridColor,
+                                drawBorder: false
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    };
+}
+
+window.simulatorComponent = simulatorComponent;
+
+if (typeof Alpine !== 'undefined' && Alpine.data) {
+    Alpine.data('simulatorComponent', (costModelId) => simulatorComponent(costModelId));
+} else {
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('simulatorComponent', (costModelId) => simulatorComponent(costModelId));
+    });
+}
+</script>
+@endpush

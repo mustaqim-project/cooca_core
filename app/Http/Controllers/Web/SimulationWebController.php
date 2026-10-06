@@ -12,10 +12,22 @@ use App\Models\Product;
 use App\Support\Context;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\View\View;
 
-final class SimulationWebController extends Controller
+final class SimulationWebController extends Controller implements HasMiddleware
 {
+    /**
+     * Get the middleware that should be assigned to the controller.
+     */
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('require.permission:costing.view_margin', only: ['index', 'run']),
+        ];
+    }
+
     public function __construct(private readonly SimulationEngine $engine = new SimulationEngine) {}
 
     /**
@@ -51,6 +63,9 @@ final class SimulationWebController extends Controller
      */
     public function run(Request $request, CostModel $costModel): JsonResponse
     {
+        $business = Context::requireBusiness();
+        abort_unless($costModel->business_id === $business->id, 403, 'Unauthorized access to cost model.');
+
         $validated = $request->validate([
             'material_change_pct' => ['nullable', 'numeric'],
             'labor_change_pct' => ['nullable', 'numeric'],

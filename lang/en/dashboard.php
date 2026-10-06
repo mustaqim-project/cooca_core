@@ -9,7 +9,7 @@ return [
     'header_subtitle'                  => 'Comprehensive monitoring of revenue, COGS, profit margin, inventory, and cashiers for :business',
     'breadcrumb_dashboard'             => 'Dashboard',
     'breadcrumb_cockpit'               => 'Business Cockpit & Real-Time Analytics',
-    'cockpit_tag'                      => 'Cockpit 360° &bull; :business',
+    'cockpit_tag'                      => 'Cockpit 360° • :business',
     'greeting'                         => 'Hello, :name! Have a productive day.',
     'cashier_active'                   => 'Active Cashier (:name • :time)',
     'cashier_closed'                   => 'Cashier Not Open',
@@ -17,6 +17,7 @@ return [
     'action_pos'                       => 'POS Cashier Terminal',
     'action_calculator'                => 'COGS Calculator',
     'action_record_expense'            => '+ Record Expense',
+    'action_record_income'             => '+ Record Cash In',
     'action_add_stock'                 => '+ Add Stock',
     'action_new_invoice'               => '+ New Invoice',
 

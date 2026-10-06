@@ -1,6 +1,6 @@
 ---
 name: cooca-agent-directive
-description: Direktif operasional WAJIB untuk AI Agent yang bekerja pada repositori COOCA (platform SaaS ERP multi-tenant untuk UMKM Indonesia). GUNAKAN SKILL INI untuk SETIAP task yang menyentuh codebase COOCA - audit sistem, penambahan/refactor fitur, perubahan route/controller/service/model/view, perubahan UI/UX (Bento Apple HIG), keamanan & isolasi tenant, audit & perlindungan skema fraud internal (kasir, gudang, keuangan), arsitektur notifikasi sistem terpadu (UI in-app, email, WhatsApp), otomasi bisnis (jurnal, stok, reminder), testing, production hardening, dan dokumentasi. Trigger meskipun user hanya menyebut "Cooca", "bengkel/bagema", "bento UI", "Apple HIG", "modal sheet", "fraud", "notifikasi", atau meminta perubahan pada halaman/modul apa pun di aplikasi ini, walau tanpa menyebut kata "skill" atau "agent.md" secara eksplisit.
+description: Direktif operasional WAJIB untuk AI Agent yang bekerja pada repositori COOCA (platform SaaS ERP multi-tenant untuk UMKM Indonesia). GUNAKAN SKILL INI untuk SETIAP task yang menyentuh codebase COOCA - audit sistem, penambahan/refactor fitur, perubahan route/controller/service/model/view, perubahan UI/UX (Bento Apple HIG di Desktop & Pola Adaptif Mobile: Slider, Grouped Inset List, Stepper - tidak semua harus Bento), keamanan & isolasi tenant, audit & perlindungan skema fraud internal (kasir, gudang, keuangan), arsitektur notifikasi sistem terpadu (UI in-app, email, WhatsApp), otomasi bisnis (jurnal, stok, reminder), testing, production hardening, dan dokumentasi. Trigger meskipun user hanya menyebut "Cooca", "bengkel/bagema", "bento UI", "slider", "Apple HIG", "modal sheet", "fraud", "notifikasi", atau meminta perubahan pada halaman/modul apa pun di aplikasi ini, walau tanpa menyebut kata "skill" atau "agent.md" secara eksplisit.
 ---
 
 # COOCA - Direktif Operasional AI Agent (`docs/agent.md`)
@@ -13,10 +13,11 @@ description: Direktif operasional WAJIB untuk AI Agent yang bekerja pada reposit
 Dokumen ini menyajikan intisari operasional dari [`docs/agent.md`](file:///c:/laragon/www/cooca_core/docs/agent.md). Detail teknis yang mendalam dipecah ke berkas referensi pendukung di `references/` serta bab lengkap di [`docs/agent.md`](file:///c:/laragon/www/cooca_core/docs/agent.md) — baca file tersebut saat relevan, jangan pernah mengasumsikan isinya.
 
 ```
-references/design-system.md         → Spesifikasi lengkap Bento Apple HIG (tipografi, spacing, warna,
-                                        sidebar/topbar/footer, modal-first XXL, quick-add, anti-pill-abuse,
-                                        zero-manual UI, anti-hyperbole, 5 Pilar Protokol Audit UX & Rekomendasi,
-                                        Konsistensi 3 Panel [Admin, Owner, Customer], Arsitektur Tab, & IA Settings)
+references/design-system.md         → Spesifikasi lengkap Bento Apple HIG di Desktop & Pola Adaptif Mobile-First
+                                        (Beyond Bento: Horizontal Snap Slider, Grouped Inset List, Compact Stepper,
+                                        tidak semua harus Bento!), tipografi, spacing, warna, sidebar/topbar/footer,
+                                        modal-first XXL, quick-add, anti-pill-abuse, zero-manual UI, anti-hyperbole,
+                                        5 Pilar Protokol Audit UX, Konsistensi 3 Panel, Arsitektur Tab, & IA Settings)
 references/security-and-data.md     → Hard guardrails (finansial, tenant isolation, CSRF/validasi) +
                                         Matriks Gap 4-kuadran + Audit & Perlindungan Skema Fraud Internal
                                         (Kasir/POS, Stok/Gudang, Keuangan/Piutang, Audit Trail Immutable)

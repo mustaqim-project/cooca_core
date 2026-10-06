@@ -132,8 +132,26 @@
                 <select name="category"
                     class="h-11 sm:h-9 px-3 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] text-[16px] sm:text-[13px] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
                     <option value="">Semua Kategori</option>
-                    @foreach ($categories ?? [] as $cat)
-                        <option value="{{ $cat }}" @selected(request('category') === $cat)>{{ ucfirst($cat) }}</option>
+                    @php
+                        $standardCategories = [
+                            'operational' => 'Operasional Toko & Kantor',
+                            'utilities' => 'Listrik, Air & Gas',
+                            'internet_phone' => 'Internet & Komunikasi',
+                            'supplies' => 'Kemasan & Plastik',
+                            'salaries' => 'Gaji & Upah Karyawan',
+                            'consumption' => 'Konsumsi & Makan Staf',
+                            'logistics' => 'Transportasi & Logistik',
+                            'rent' => 'Sewa Tempat & Gedung',
+                            'maintenance' => 'Perawatan & Servis Alat',
+                            'marketing' => 'Pemasaran & Iklan',
+                            'taxes_legal' => 'Pajak & Retribusi',
+                            'bank_admin' => 'Biaya Admin Bank & MDR',
+                            'cash_advance' => 'Kasbon Karyawan',
+                            'other' => 'Lain-lain / Others',
+                        ];
+                    @endphp
+                    @foreach ($standardCategories as $catKey => $catLabel)
+                        <option value="{{ $catKey }}" @selected(request('category') === $catKey)>{{ $catLabel }}</option>
                     @endforeach
                 </select>
                 <input type="date" name="start_date" value="{{ request('start_date') }}"
@@ -194,12 +212,21 @@
                                 <td class="px-4 py-3.5">
                                     @php
                                         $catMap = [
-                                            'operational' => 'Operasional',
-                                            'utilities' => 'Listrik & Air',
-                                            'supplies' => 'Kemasan',
+                                            'operational' => 'Operasional Toko',
+                                            'utilities' => 'Listrik, Air & Gas',
+                                            'internet_phone' => 'Internet & Pulsa',
+                                            'supplies' => 'Kemasan & Plastik',
                                             'salaries' => 'Gaji & Upah',
-                                            'maintenance' => 'Perawatan',
-                                            'other' => 'Lain-lain',
+                                            'consumption' => 'Konsumsi Staf',
+                                            'logistics' => 'Transport & Bensin',
+                                            'rent' => 'Sewa Gedung/Ruko',
+                                            'maintenance' => 'Perawatan & Servis',
+                                            'marketing' => 'Pemasaran & Iklan',
+                                            'taxes_legal' => 'Pajak & Retribusi',
+                                            'bank_admin' => 'Admin Bank & MDR',
+                                            'cash_advance' => 'Kasbon Karyawan',
+                                            'owner_draw' => 'Prive Pemilik',
+                                            'other' => 'Lain-lain / Others',
                                         ];
                                     @endphp
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#FF9500]/12 text-[#B25E00] dark:text-[#FF9F0A]">
@@ -284,16 +311,25 @@
         {{-- ========================================================== --}}
         <div class="sm:hidden rounded-[16px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 overflow-hidden divide-y divide-black/[0.04] dark:divide-white/[0.06] shadow-sm">
             @forelse($expenses as $ex)
-                @php
-                    $catMap = [
-                        'operational' => 'Operasional',
-                        'utilities' => 'Listrik & Air',
-                        'supplies' => 'Kemasan',
-                        'salaries' => 'Gaji & Upah',
-                        'maintenance' => 'Perawatan',
-                        'other' => 'Lain-lain',
-                    ];
-                @endphp
+                                    @php
+                                        $catMap = [
+                                            'operational' => 'Operasional Toko',
+                                            'utilities' => 'Listrik, Air & Gas',
+                                            'internet_phone' => 'Internet & Pulsa',
+                                            'supplies' => 'Kemasan & Plastik',
+                                            'salaries' => 'Gaji & Upah',
+                                            'consumption' => 'Konsumsi Staf',
+                                            'logistics' => 'Transport & Bensin',
+                                            'rent' => 'Sewa Gedung/Ruko',
+                                            'maintenance' => 'Perawatan & Servis',
+                                            'marketing' => 'Pemasaran & Iklan',
+                                            'taxes_legal' => 'Pajak & Retribusi',
+                                            'bank_admin' => 'Admin Bank & MDR',
+                                            'cash_advance' => 'Kasbon Karyawan',
+                                            'owner_draw' => 'Prive Pemilik',
+                                            'other' => 'Lain-lain / Others',
+                                        ];
+                                    @endphp
                 <div class="p-4 space-y-2.5 active:bg-black/[0.02] dark:active:bg-white/[0.03] transition-colors">
                     <div class="flex items-start justify-between gap-2">
                         <div>
@@ -376,6 +412,7 @@
                     account_id: '',
                     location_id: '',
                     description: '',
+                    otherDescription: '',
                     receiptPreview: null,
                     setQuickAmount(val) {
                         this.amount = val;
@@ -392,12 +429,20 @@
                     },
                     get categoryLabel() {
                         const map = {
-                            'operational': 'Operasional Toko',
-                            'utilities': 'Listrik, Air & Internet',
+                            'operational': 'Operasional Toko & Kantor',
+                            'utilities': 'Listrik, Air & Gas',
+                            'internet_phone': 'Internet & Komunikasi',
                             'supplies': 'Kemasan & Plastik',
                             'salaries': 'Gaji & Upah Staf',
-                            'maintenance': 'Perawatan & Servis',
-                            'other': 'Beban Lain-Lain'
+                            'consumption': 'Konsumsi & Makan Staf',
+                            'logistics': 'Transportasi & Bensin',
+                            'rent': 'Sewa Tempat & Gedung',
+                            'maintenance': 'Perawatan & Servis Alat',
+                            'marketing': 'Pemasaran & Iklan',
+                            'taxes_legal': 'Pajak & Retribusi',
+                            'bank_admin': 'Biaya Admin Bank & MDR',
+                            'cash_advance': 'Kasbon Karyawan',
+                            'other': 'Lain-lain / Others'
                         };
                         return map[this.category] || 'Beban Operasional';
                     }
@@ -422,7 +467,7 @@
 
                 {{-- Form Body --}}
                 <form action="{{ route('finance.expenses.store') }}" method="POST" enctype="multipart/form-data"
-                    @submit="isSubmitting = true"
+                    @submit="if(category === 'other' && !otherDescription.trim()){ alert('Silakan isi rincian keterangan wajib untuk kategori Lainnya.'); isSubmitting = false; $event.preventDefault(); return false; } isSubmitting = true"
                     class="flex-1 overflow-y-auto p-5 sm:p-8 space-y-6">
                     @csrf
 
@@ -431,60 +476,124 @@
                         {{-- Left Column (7/12) --}}
                         <div class="lg:col-span-7 space-y-5">
                             
-                            {{-- Bento Card: Kategori Biaya Visual --}}
+                            {{-- Bento Card: Kategori Biaya Visual (14 Kategori Komprehensif) --}}
                             <div class="p-5 rounded-[20px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.08] space-y-3.5">
                                 <div class="flex items-center justify-between">
                                     <label class="block text-[13px] font-bold text-black/80 dark:text-white/80">Kategori Biaya Operasional *</label>
-                                    <span class="text-[11.5px] text-black/40 dark:text-white/40">Pilih jenis pengeluaran</span>
+                                    <span class="text-[11.5px] text-black/40 dark:text-white/40" x-text="categoryLabel">Pilih jenis pengeluaran</span>
                                 </div>
                                 <input type="hidden" name="category" :value="category">
-                                <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                                <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 max-h-[300px] overflow-y-auto pr-1">
                                     <button type="button" @click="category = 'operational'"
                                         :class="category === 'operational' ? 'bg-[#007AFF] text-white shadow-md shadow-[#007AFF]/25 border-transparent' : 'bg-white dark:bg-[#2C2C2E] text-black/80 dark:text-white/80 border-black/5 dark:border-white/10 hover:border-black/15'"
-                                        class="p-3 rounded-[14px] border text-left flex flex-col justify-between transition-all cursor-pointer">
-                                        <i data-lucide="store" class="w-4 h-4 mb-2" :class="category === 'operational' ? 'text-white' : 'text-[#007AFF]'"></i>
-                                        <span class="text-[12.5px] font-bold">Operasional</span>
-                                        <span class="text-[10.5px] opacity-70">Sewa, kebersihan, ATK</span>
+                                        class="p-2.5 sm:p-3 rounded-[14px] border text-left flex flex-col justify-between transition-all cursor-pointer">
+                                        <i data-lucide="store" class="w-4 h-4 mb-1.5" :class="category === 'operational' ? 'text-white' : 'text-[#007AFF]'"></i>
+                                        <span class="text-[12px] font-bold">Operasional Toko</span>
+                                        <span class="text-[10px] opacity-70">ATK, pembersih, umum</span>
                                     </button>
 
                                     <button type="button" @click="category = 'utilities'"
                                         :class="category === 'utilities' ? 'bg-[#FF9500] text-white shadow-md shadow-[#FF9500]/25 border-transparent' : 'bg-white dark:bg-[#2C2C2E] text-black/80 dark:text-white/80 border-black/5 dark:border-white/10 hover:border-black/15'"
-                                        class="p-3 rounded-[14px] border text-left flex flex-col justify-between transition-all cursor-pointer">
-                                        <i data-lucide="zap" class="w-4 h-4 mb-2" :class="category === 'utilities' ? 'text-white' : 'text-[#FF9500]'"></i>
-                                        <span class="text-[12.5px] font-bold">Utilitas</span>
-                                        <span class="text-[10.5px] opacity-70">Listrik, air, WiFi</span>
+                                        class="p-2.5 sm:p-3 rounded-[14px] border text-left flex flex-col justify-between transition-all cursor-pointer">
+                                        <i data-lucide="zap" class="w-4 h-4 mb-1.5" :class="category === 'utilities' ? 'text-white' : 'text-[#FF9500]'"></i>
+                                        <span class="text-[12px] font-bold">Listrik, Air & Gas</span>
+                                        <span class="text-[10px] opacity-70">PLN, PAM, tabung LPG</span>
+                                    </button>
+
+                                    <button type="button" @click="category = 'internet_phone'"
+                                        :class="category === 'internet_phone' ? 'bg-[#32ADE6] text-white shadow-md shadow-[#32ADE6]/25 border-transparent' : 'bg-white dark:bg-[#2C2C2E] text-black/80 dark:text-white/80 border-black/5 dark:border-white/10 hover:border-black/15'"
+                                        class="p-2.5 sm:p-3 rounded-[14px] border text-left flex flex-col justify-between transition-all cursor-pointer">
+                                        <i data-lucide="wifi" class="w-4 h-4 mb-1.5" :class="category === 'internet_phone' ? 'text-white' : 'text-[#32ADE6]'"></i>
+                                        <span class="text-[12px] font-bold">Internet & Pulsa</span>
+                                        <span class="text-[10px] opacity-70">Wi-Fi toko, kuota kasir</span>
                                     </button>
 
                                     <button type="button" @click="category = 'supplies'"
                                         :class="category === 'supplies' ? 'bg-[#5856D6] text-white shadow-md shadow-[#5856D6]/25 border-transparent' : 'bg-white dark:bg-[#2C2C2E] text-black/80 dark:text-white/80 border-black/5 dark:border-white/10 hover:border-black/15'"
-                                        class="p-3 rounded-[14px] border text-left flex flex-col justify-between transition-all cursor-pointer">
-                                        <i data-lucide="package" class="w-4 h-4 mb-2" :class="category === 'supplies' ? 'text-white' : 'text-[#5856D6]'"></i>
-                                        <span class="text-[12.5px] font-bold">Kemasan</span>
-                                        <span class="text-[10.5px] opacity-70">Plastik, dus, cup</span>
+                                        class="p-2.5 sm:p-3 rounded-[14px] border text-left flex flex-col justify-between transition-all cursor-pointer">
+                                        <i data-lucide="package" class="w-4 h-4 mb-1.5" :class="category === 'supplies' ? 'text-white' : 'text-[#5856D6]'"></i>
+                                        <span class="text-[12px] font-bold">Kemasan & Plastik</span>
+                                        <span class="text-[10px] opacity-70">Plastik, dus, cup, lakban</span>
                                     </button>
 
                                     <button type="button" @click="category = 'salaries'"
                                         :class="category === 'salaries' ? 'bg-[#34C759] text-white shadow-md shadow-[#34C759]/25 border-transparent' : 'bg-white dark:bg-[#2C2C2E] text-black/80 dark:text-white/80 border-black/5 dark:border-white/10 hover:border-black/15'"
-                                        class="p-3 rounded-[14px] border text-left flex flex-col justify-between transition-all cursor-pointer">
-                                        <i data-lucide="users" class="w-4 h-4 mb-2" :class="category === 'salaries' ? 'text-white' : 'text-[#34C759]'"></i>
-                                        <span class="text-[12.5px] font-bold">Gaji & Upah</span>
-                                        <span class="text-[10.5px] opacity-70">Upah harian & kasir</span>
+                                        class="p-2.5 sm:p-3 rounded-[14px] border text-left flex flex-col justify-between transition-all cursor-pointer">
+                                        <i data-lucide="users" class="w-4 h-4 mb-1.5" :class="category === 'salaries' ? 'text-white' : 'text-[#34C759]'"></i>
+                                        <span class="text-[12px] font-bold">Gaji & Upah</span>
+                                        <span class="text-[10px] opacity-70">Gaji staf, upah harian</span>
+                                    </button>
+
+                                    <button type="button" @click="category = 'consumption'"
+                                        :class="category === 'consumption' ? 'bg-[#FF2D55] text-white shadow-md shadow-[#FF2D55]/25 border-transparent' : 'bg-white dark:bg-[#2C2C2E] text-black/80 dark:text-white/80 border-black/5 dark:border-white/10 hover:border-black/15'"
+                                        class="p-2.5 sm:p-3 rounded-[14px] border text-left flex flex-col justify-between transition-all cursor-pointer">
+                                        <i data-lucide="utensils" class="w-4 h-4 mb-1.5" :class="category === 'consumption' ? 'text-white' : 'text-[#FF2D55]'"></i>
+                                        <span class="text-[12px] font-bold">Konsumsi Staf</span>
+                                        <span class="text-[10px] opacity-70">Makan siang, snack rapat</span>
+                                    </button>
+
+                                    <button type="button" @click="category = 'logistics'"
+                                        :class="category === 'logistics' ? 'bg-[#FF9500] text-white shadow-md shadow-[#FF9500]/25 border-transparent' : 'bg-white dark:bg-[#2C2C2E] text-black/80 dark:text-white/80 border-black/5 dark:border-white/10 hover:border-black/15'"
+                                        class="p-2.5 sm:p-3 rounded-[14px] border text-left flex flex-col justify-between transition-all cursor-pointer">
+                                        <i data-lucide="truck" class="w-4 h-4 mb-1.5" :class="category === 'logistics' ? 'text-white' : 'text-[#FF9500]'"></i>
+                                        <span class="text-[12px] font-bold">Transport & Bensin</span>
+                                        <span class="text-[10px] opacity-70">BBM, kurir instan, tol</span>
+                                    </button>
+
+                                    <button type="button" @click="category = 'rent'"
+                                        :class="category === 'rent' ? 'bg-[#5856D6] text-white shadow-md shadow-[#5856D6]/25 border-transparent' : 'bg-white dark:bg-[#2C2C2E] text-black/80 dark:text-white/80 border-black/5 dark:border-white/10 hover:border-black/15'"
+                                        class="p-2.5 sm:p-3 rounded-[14px] border text-left flex flex-col justify-between transition-all cursor-pointer">
+                                        <i data-lucide="building-2" class="w-4 h-4 mb-1.5" :class="category === 'rent' ? 'text-white' : 'text-[#5856D6]'"></i>
+                                        <span class="text-[12px] font-bold">Sewa Tempat</span>
+                                        <span class="text-[10px] opacity-70">Sewa ruko, booth, IPL</span>
                                     </button>
 
                                     <button type="button" @click="category = 'maintenance'"
                                         :class="category === 'maintenance' ? 'bg-[#AF52DE] text-white shadow-md shadow-[#AF52DE]/25 border-transparent' : 'bg-white dark:bg-[#2C2C2E] text-black/80 dark:text-white/80 border-black/5 dark:border-white/10 hover:border-black/15'"
-                                        class="p-3 rounded-[14px] border text-left flex flex-col justify-between transition-all cursor-pointer">
-                                        <i data-lucide="wrench" class="w-4 h-4 mb-2" :class="category === 'maintenance' ? 'text-white' : 'text-[#AF52DE]'"></i>
-                                        <span class="text-[12.5px] font-bold">Perawatan</span>
-                                        <span class="text-[10.5px] opacity-70">Servis alat, reparasi</span>
+                                        class="p-2.5 sm:p-3 rounded-[14px] border text-left flex flex-col justify-between transition-all cursor-pointer">
+                                        <i data-lucide="wrench" class="w-4 h-4 mb-1.5" :class="category === 'maintenance' ? 'text-white' : 'text-[#AF52DE]'"></i>
+                                        <span class="text-[12px] font-bold">Perawatan & Servis</span>
+                                        <span class="text-[10px] opacity-70">Servis alat, reparasi AC</span>
+                                    </button>
+
+                                    <button type="button" @click="category = 'marketing'"
+                                        :class="category === 'marketing' ? 'bg-[#FF3B30] text-white shadow-md shadow-[#FF3B30]/25 border-transparent' : 'bg-white dark:bg-[#2C2C2E] text-black/80 dark:text-white/80 border-black/5 dark:border-white/10 hover:border-black/15'"
+                                        class="p-2.5 sm:p-3 rounded-[14px] border text-left flex flex-col justify-between transition-all cursor-pointer">
+                                        <i data-lucide="megaphone" class="w-4 h-4 mb-1.5" :class="category === 'marketing' ? 'text-white' : 'text-[#FF3B30]'"></i>
+                                        <span class="text-[12px] font-bold">Pemasaran & Iklan</span>
+                                        <span class="text-[10px] opacity-70">Meta ads, cetak spanduk</span>
+                                    </button>
+
+                                    <button type="button" @click="category = 'taxes_legal'"
+                                        :class="category === 'taxes_legal' ? 'bg-[#8E8E93] text-white shadow-md shadow-[#8E8E93]/25 border-transparent' : 'bg-white dark:bg-[#2C2C2E] text-black/80 dark:text-white/80 border-black/5 dark:border-white/10 hover:border-black/15'"
+                                        class="p-2.5 sm:p-3 rounded-[14px] border text-left flex flex-col justify-between transition-all cursor-pointer">
+                                        <i data-lucide="scale" class="w-4 h-4 mb-1.5" :class="category === 'taxes_legal' ? 'text-white' : 'text-[#8E8E93]'"></i>
+                                        <span class="text-[12px] font-bold">Pajak & Retribusi</span>
+                                        <span class="text-[10px] opacity-70">Pajak daerah, retribusi</span>
+                                    </button>
+
+                                    <button type="button" @click="category = 'bank_admin'"
+                                        :class="category === 'bank_admin' ? 'bg-[#007AFF] text-white shadow-md shadow-[#007AFF]/25 border-transparent' : 'bg-white dark:bg-[#2C2C2E] text-black/80 dark:text-white/80 border-black/5 dark:border-white/10 hover:border-black/15'"
+                                        class="p-2.5 sm:p-3 rounded-[14px] border text-left flex flex-col justify-between transition-all cursor-pointer">
+                                        <i data-lucide="credit-card" class="w-4 h-4 mb-1.5" :class="category === 'bank_admin' ? 'text-white' : 'text-[#007AFF]'"></i>
+                                        <span class="text-[12px] font-bold">Admin Bank & MDR</span>
+                                        <span class="text-[10px] opacity-70">Admin rekening, MDR EDC</span>
+                                    </button>
+
+                                    <button type="button" @click="category = 'cash_advance'"
+                                        :class="category === 'cash_advance' ? 'bg-[#FF9500] text-white shadow-md shadow-[#FF9500]/25 border-transparent' : 'bg-white dark:bg-[#2C2C2E] text-black/80 dark:text-white/80 border-black/5 dark:border-white/10 hover:border-black/15'"
+                                        class="p-2.5 sm:p-3 rounded-[14px] border text-left flex flex-col justify-between transition-all cursor-pointer">
+                                        <i data-lucide="hand-coins" class="w-4 h-4 mb-1.5" :class="category === 'cash_advance' ? 'text-white' : 'text-[#FF9500]'"></i>
+                                        <span class="text-[12px] font-bold">Kasbon Karyawan</span>
+                                        <span class="text-[10px] opacity-70">Talangan kasbon sementara</span>
                                     </button>
 
                                     <button type="button" @click="category = 'other'"
                                         :class="category === 'other' ? 'bg-[#8E8E93] text-white shadow-md shadow-[#8E8E93]/25 border-transparent' : 'bg-white dark:bg-[#2C2C2E] text-black/80 dark:text-white/80 border-black/5 dark:border-white/10 hover:border-black/15'"
-                                        class="p-3 rounded-[14px] border text-left flex flex-col justify-between transition-all cursor-pointer">
-                                        <i data-lucide="more-horizontal" class="w-4 h-4 mb-2" :class="category === 'other' ? 'text-white' : 'text-[#8E8E93]'"></i>
-                                        <span class="text-[12.5px] font-bold">Lain-lain</span>
-                                        <span class="text-[10.5px] opacity-70">Pengeluaran umum</span>
+                                        class="p-2.5 sm:p-3 rounded-[14px] border text-left flex flex-col justify-between transition-all cursor-pointer">
+                                        <i data-lucide="more-horizontal" class="w-4 h-4 mb-1.5" :class="category === 'other' ? 'text-white' : 'text-[#8E8E93]'"></i>
+                                        <span class="text-[12px] font-bold">Lain-lain / Others</span>
+                                        <span class="text-[10px] opacity-70">Wajib isi rincian detail</span>
                                     </button>
                                 </div>
                             </div>
@@ -511,7 +620,7 @@
                                 </div>
                             </div>
 
-                            {{-- Tanggal & Keterangan --}}
+                            {{-- Tanggal & Outlet --}}
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div class="space-y-1.5">
                                     <label class="block text-[13px] font-semibold text-black/75 dark:text-white/75">Tanggal Transaksi *</label>
@@ -530,11 +639,28 @@
                                 </div>
                             </div>
 
-                            <div class="space-y-1.5">
-                                <label class="block text-[13px] font-semibold text-black/75 dark:text-white/75">Keterangan / Rincian Beban *</label>
-                                <input type="text" name="description" x-model="description" required
+                            {{-- Form Keterangan Standar (Muncul Saat Bukan 'other') --}}
+                            <div class="space-y-1.5" x-show="category !== 'other'">
+                                <label class="block text-[13px] font-semibold text-black/75 dark:text-white/75">Keterangan / Rincian Beban</label>
+                                <input type="text" name="description" x-model="description"
                                     placeholder="Misal: Pembelian kemasan takeaway & kantong plastik 500 pcs..."
                                     class="w-full h-11 bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 rounded-[12px] px-3.5 text-[16px] sm:text-[14px] text-black dark:text-white placeholder:text-black/30 dark:placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                            </div>
+
+                            {{-- FORM KHUSUS WAJIB DIISI SAAT OTHERS --}}
+                            <div x-show="category === 'other'" x-transition class="p-4 rounded-[16px] bg-amber-500/10 dark:bg-amber-500/15 border-2 border-amber-500/30 space-y-2">
+                                <div class="flex items-center gap-2">
+                                    <i data-lucide="alert-circle" class="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0"></i>
+                                    <label class="block text-[13px] font-bold text-amber-800 dark:text-amber-300">
+                                        Rincian Keterangan Wajib (Kategori Lainnya) <span class="text-[#FF3B30]">*</span>
+                                    </label>
+                                </div>
+                                <input type="text" name="other_description" x-model="otherDescription" :required="category === 'other'"
+                                    placeholder="Wajib diisi: rincikan peruntukan biaya pengeluaran ini secara jelas..."
+                                    class="w-full h-11 bg-white dark:bg-[#2C2C2E] border border-amber-500/40 rounded-[12px] px-3.5 text-[16px] sm:text-[14px] font-medium text-black dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                                <p class="text-[11px] text-amber-700/80 dark:text-amber-300/80 leading-relaxed">
+                                    Karena Anda memilih kategori Lain-lain, sistem mewajibkan rincian keterangan ini untuk transparansi dan audit pembukuan.
+                                </p>
                             </div>
 
                         </div>

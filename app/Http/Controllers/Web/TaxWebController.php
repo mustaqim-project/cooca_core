@@ -18,11 +18,34 @@ use App\Models\PayrollItem;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
-final class TaxWebController extends Controller
+final class TaxWebController extends Controller implements HasMiddleware
 {
+    /**
+     * Get the middleware that should be assigned to the controller.
+     */
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('require.permission:accounting.view,reports.financial', only: [
+                'index',
+                'simulatePPh21',
+                'simulateUmkm',
+                'simulateNetIncome',
+                'simulateSales',
+                'simulatePayroll',
+            ]),
+            new Middleware(['entitlement:export', 'require.permission:reports.export'], only: [
+                'exportEbupot',
+                'exportPPhFinal',
+                'exportNetIncomeTax',
+            ]),
+        ];
+    }
     public function __construct(
         private readonly PPh21CalculationService $pph21Service,
         private readonly PPhFinalUMKMService $pphFinalService,

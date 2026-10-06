@@ -12,18 +12,35 @@ use App\Models\CostingRun;
 use App\Models\CostModel;
 use App\Models\Fee;
 use App\Models\Material;
+use App\Models\AuditLog;
 use App\Models\PricingRule;
 use App\Models\Product;
 use App\Models\Unit;
 use App\Support\Context;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
-final class CalculatorWebController extends Controller
+final class CalculatorWebController extends Controller implements HasMiddleware
 {
+    /**
+     * Get the middleware that should be assigned to the controller.
+     */
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('require.permission:costing.view_margin', only: ['index', 'calculate']),
+            new Middleware('require.permission:costing.manage', only: ['saveResult']),
+            new Middleware('require.permission:products.create,products.manage', only: ['quickCreateProduct']),
+            new Middleware('require.permission:products.edit,products.manage', only: ['applyToProduct']),
+            new Middleware('entitlement:export', only: ['exportExcel']),
+        ];
+    }
+
     public function __construct(
         private readonly CalculationEngine $calculationEngine = new CalculationEngine,
         private readonly PricingEngine $pricingEngine = new PricingEngine,
@@ -160,6 +177,9 @@ final class CalculatorWebController extends Controller
             ], 422);
         }
 
+        $oldBaseCost = (float) $product->base_cost;
+        $oldSellingPrice = (float) $product->selling_price;
+
         $sellingPrice = $request->filled('selling_price')
             ? (float) $request->get('selling_price')
             : ($hppPerUnit > 0 ? round($hppPerUnit / 0.6) : 0.0); // Default 40% margin
@@ -167,6 +187,20 @@ final class CalculatorWebController extends Controller
         $product->update([
             'base_cost' => $hppPerUnit,
             'selling_price' => $sellingPrice,
+        ]);
+
+        AuditLog::create([
+            'business_id'    => $business->id,
+            'user_id'        => auth()->id(),
+            'action'         => 'product.price_update_from_calculator',
+            'auditable_type' => Product::class,
+            'auditable_id'   => $product->id,
+            'risk_level'     => AuditLog::RISK_MEDIUM,
+            'risk_reason'    => "Pembaruan HPP dan Harga Jual produk {$product->name} via Kalkulator HPP.",
+            'notes'          => "HPP: Rp " . number_format($oldBaseCost, 0, ',', '.') . " -> Rp " . number_format($hppPerUnit, 0, ',', '.') . " | Harga Jual: Rp " . number_format($oldSellingPrice, 0, ',', '.') . " -> Rp " . number_format($sellingPrice, 0, ',', '.'),
+            'ip_address'     => $request->ip(),
+            'user_agent'     => $request->userAgent(),
+            'created_at'     => now(),
         ]);
 
         return response()->json([
@@ -328,6 +362,20 @@ final class CalculatorWebController extends Controller
 
             return $product;
         });
+
+        AuditLog::create([
+            'business_id'    => $business->id,
+            'user_id'        => auth()->id(),
+            'action'         => 'product.quick_create_from_calculator',
+            'auditable_type' => Product::class,
+            'auditable_id'   => $product->id,
+            'risk_level'     => AuditLog::RISK_LOW,
+            'risk_reason'    => "Pembuatan produk baru '{$product->name}' via Kalkulator Cepat HPP.",
+            'notes'          => "SKU: {$product->sku}, HPP: Rp " . number_format($totalHpp, 0, ',', '.') . ", Harga Jual: Rp " . number_format($sellingPrice, 0, ',', '.'),
+            'ip_address'     => $request->ip(),
+            'user_agent'     => $request->userAgent(),
+            'created_at'     => now(),
+        ]);
 
         return response()->json([
             'success' => true,

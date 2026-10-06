@@ -88,8 +88,10 @@ return [
     'markup_from_cogs'                 => 'Markup on Cost:',
     'markup_of_cogs_suffix'            => '% on COGS',
 
-    // Online Delivery Protection
+    // Online Delivery & Marketplace Protection
     'sell_online_switch'               => 'Sell on Food Delivery Apps? (GoFood/Grab)',
+    'sell_marketplace_switch'          => 'Sell on Online Marketplaces / Delivery? (Shopee/E-Commerce)',
+    'selected_model_fallback'          => 'Selected Model',
     'app_fee_label'                    => 'App Commission:',
     'app_fee_opt_20'                   => '20% (Standard GoFood / GrabFood / ShopeeFood)',
     'app_fee_opt_15'                   => '15% (Merchant Promo)',

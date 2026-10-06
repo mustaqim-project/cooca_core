@@ -83,11 +83,15 @@ Contoh microcopy lugas & padat:
 | "Apakah Anda benar-benar yakin 100% ingin melanjutkan proses penghapusan permanen data ini dari server?" | **"Hapus produk ini?"** |
 | "Mesin Otomasi AI Mutakhir memproses sinkronisasi data secara instan tanpa batas." | **"Sinkronisasi Data Otomatis"** |
 
-**Tombol Aksi Lugas**: tombol adalah pemicu aksi, bukan tempat mengulang judul kartu/halaman.
+**Tombol Aksi Lugas & Standardisasi CTA**: tombol adalah pemicu aksi, bukan tempat mengulang judul kartu/halaman atau menjejali fitur sekunder.
 
 - Di dalam form/modal → satu kata kerja murni: **Simpan · Hapus · Edit/Ubah · Lihat · Batal · Kirim · Salin**.
-- Pengecualian terbatas (maks. 2 kata) hanya untuk CTA utama index di luar form/tabel: _"Tambah Produk"_, _"Ekspor Excel"_, _"Cetak Struk"_.
-- Contoh salah: _"Simpan Pengaturan Google & Sistem"_ → benar: _"Simpan"_. _"Lakukan Proses Penghapusan Akun"_ → _"Hapus"_.
+- Pengecualian terbatas (maks. 2–4 kata) hanya untuk CTA utama modul di luar form/tabel: _"Tambah Produk"_, _"Ekspor Excel"_, _"Cetak Struk"_, _"Hubungkan WhatsApp Resmi"_.
+- **Larangan Keras Kata Yatim (*No Orphan Word Wrapping*)**: Dilarang label tombol melipat menghasilkan 1 kata terisolasi di baris kedua seperti `Connect with Official WhatsApp (1-Click \n Meta)`. Jika tombol 1 baris, terapkan `whitespace-nowrap`. Jika butuh keterangan sekunder (misal `1-Klik Meta`), taruh di micro-badge atau helper text di luar tombol!
+- **Action Proximity Rule**: Tombol CTA utama dalam kartu harus diletakkan langsung menyusul kalimat ajakan atau sejajar dengan header kartu. DILARANG menyisipkan 3 kartu langkah atau blok panduan besar di antara pengantar dan tombol aksi (*Action Proximity Inversion*).
+- **Quiet Stepper vs Action Button (Anti False-Affordance)**: Elemen panduan onboarding/langkah (1. Klik, 2. Masuk, 3. Selesai) WAJIB berupa *quiet stepper* (nomor bundar kecil `w-5 h-5 rounded-full bg-black/5 dark:bg-white/10`, teks subtil). DILARANG membungkus langkah ke dalam kotak berborder tebal/kontras tinggi yang menyerupai tombol interaktif.
+- **Proporsi Lebar Responsif**: Di desktop, tombol dalam kartu wajib proporsional (`sm:w-auto px-6 min-h-[44px]` atau `max-w-sm`), bukan balok raksasa yang membentang 100% kaku dari tepi ke tepi. Ikon di dalam tombol wajib `shrink-0` dan sejajar rapi (`inline-flex items-center justify-center gap-2.5`).
+- Contoh salah: _"Simpan Pengaturan Google & Sistem"_ → benar: _"Simpan"_. _"Hubungkan dengan WhatsApp Resmi (1-Klik Meta)"_ → benar: _"Hubungkan WhatsApp Resmi"_.
 
 ## 7. Filosofi Zero-Manual / Self-Explanatory UI
 
@@ -142,13 +146,87 @@ Pertanyaan panduan: apa yang harus diketahui user dalam 3 detik pertama? Apa yan
 
 Dilarang `p-6`/`p-8` pada kartu mobile (memotong 48–64px dari layar 360–390px). Checklist anti-padat: teks mepet border? tambah padding. Tombol saling menempel? beri `gap-2.5`–`gap-3`. Terlalu banyak elemen berjejal di satu layar? gunakan progressive disclosure/modal sheet. Bebas scroll horizontal di 360px?
 
-## 11. Blueprint Responsivitas Bento & Anti-Overflow
+## 11. Blueprint Responsivitas Adaptif: Beyond Bento (Anti Bento-Dogmatism)
 
-### Smartphone 360–639px (Zero-Breakage Rules)
+### A. Filosofi Anti-Bento-Dogmatism (Tidak Semua Harus Bento!)
+
+Bento Grid adalah pola komposisi asimetris yang sangat elegan untuk **Desktop & Tablet Landscape (layar lebar horizontal)**. Namun, **DILARANG KERAS memaksakan Bento Grid secara dogmatis ke setiap elemen di mobile**!
+
+Memaksakan semua komponen menjadi tumpukan kotak Bento di smartphone (360px–430px) memicu **"Infinite Card Bloat"**:
+- Halaman menjadi sangat panjang ke bawah karena setiap metrik/langkah/opsi dibungkus kotak kartu ber-border dengan padding 20–24px.
+- Pengguna ponsel kelelahan scrolling vertikal (*scroll fatigue*) hanya untuk melihat 3–4 angka atau 3 langkah ringkas.
+- Ruang layar sempit terbuang sia-sia untuk bingkai kotak (*card framing waste*), bukan untuk konten fungsional.
+
+**Aturan Emas:** Gunakan pola tata letak yang paling **simpel, hemat ruang, dan ergonomis dengan satu jempol** di mobile:
+1. **Desktop:** Bebas memakai Bento Grid asimetris 12-kolom (8 vs 4, 3 vs 3 vs 3).
+2. **Mobile:** BERALIH KE POLA ADAPTIF: **Horizontal Snap Slider**, **Grouped Inset List**, **Segmented Control**, atau **Compact Stepper**.
+
+---
+
+### B. 4 Pola Alternatif Ramah Mobile (Mobile-First Ergonomic Patterns)
+
+#### 1. Horizontal Snap Slider / Carousel (`snap-x snap-mandatory overflow-x-auto no-scrollbar`)
+- **Cocok Untuk**: 3–4 Kartu Metrik KPI, panduan langkah/onboarding, shortcut aksi cepat, kartu mutasi saldo, promo highlight.
+- **Kelebihan**: Menghemat hingga 75% tinggi layar! Pengguna dapat menggeser (*flick*) kartu secara horizontal dengan ibu jari tanpa membuat halaman molor ke bawah.
+- **Implementasi (Tailwind)**:
+  ```html
+  {{-- Mobile: Horizontal Snap Slider | Desktop: Grid 4-Kolom Sejajar --}}
+  <div class="flex gap-3 overflow-x-auto snap-x snap-mandatory no-scrollbar -mx-4 px-4 pb-2 sm:grid sm:grid-cols-2 lg:grid-cols-4 sm:overflow-visible sm:mx-0 sm:px-0">
+      <div class="snap-start shrink-0 w-[220px] sm:w-auto p-4 rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 shadow-sm">
+          {{-- Konten KPI / Step Card --}}
+      </div>
+  </div>
+  ```
+
+#### 2. Grouped Inset List (Apple iOS Settings / Health Style)
+- **Cocok Untuk**: Modul pengaturan, opsi form bertingkat, formulir switch/toggle, detail akun, daftar transaksi mini.
+- **Kelebihan**: Menggantikan 4–5 kartu Bento terpisah menjadi **1 kartu kontainer tunggal** dengan baris pemisah halus (`divide-y divide-black/5 dark:divide-white/5`).
+- **Implementasi**:
+  ```html
+  <div class="rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 divide-y divide-black/5 dark:divide-white/5 overflow-hidden shadow-sm">
+      <div class="p-3.5 sm:p-4 flex items-center justify-between min-h-[48px]">
+          <div class="flex items-center gap-3 min-w-0">
+              <div class="w-8 h-8 rounded-[10px] bg-[#007AFF]/12 text-[#007AFF] flex items-center justify-center shrink-0">
+                  <i data-lucide="bell" class="w-4 h-4"></i>
+              </div>
+              <div class="min-w-0 truncate">
+                  <p class="text-[13.5px] font-semibold text-black dark:text-white truncate">Notifikasi WhatsApp</p>
+                  <p class="text-[11.5px] text-black/50 dark:text-white/50 truncate">Kirim struk otomatis</p>
+              </div>
+          </div>
+          <input type="checkbox" class="shrink-0 ...">
+      </div>
+  </div>
+  ```
+
+#### 3. Segmented Control & Single-Active Chart
+- **Cocok Untuk**: Visualisasi grafik tren & perbandingan data.
+- **Kelebihan**: Di mobile, DILARANG menumpuk 3 grafik vertikal. Tampilkan 1 grafik aktif dengan tombol segmen (*Hari Ini · 7 Hari · 30 Hari*) atau tab switch (*Omzet vs Laba*) agar layar tetap lapang.
+
+#### 4. Compact Inline Stepper (Anti False-Affordance Step Cards)
+- **Cocok Untuk**: Alur verifikasi, onboarding 1-klik, panduan integrasi.
+- **Kelebihan**: Ganti kartu langkah tebal bertingkat dengan titik/nomor progres minimalis dalam 1 baris (`1 ── 2 ── 3`) atau swipeable card. Menjaga fokus utama pengguna langsung ke tombol aksi (CTA).
+
+---
+
+### C. Matriks Pemilihan Pola Berbasis Perangkat (Form-Factor Matrix)
+
+| Komponen / Tipe Data | Di Desktop (≥ 1024px) | Di Mobile (< 640px) | Alasan UX Mobile |
+|---|---|---|---|
+| **Metrik KPI (3–4 angka)** | Bento Grid 4-kolom sejajar | **Horizontal Snap Slider** ATAU **Grid 2x2 Kompak** | Mencegah 4 kartu menumpuk ke bawah (hemat 75% tinggi scroll). |
+| **Panduan Onboarding (3 langkah)** | Grid 3-kolom horizontal | **Compact Inline Stepper** ATAU **Horizontal Swipe Slider** | Tombol CTA tidak tenggelam di bawah kartu langkah raksasa. |
+| **Pengaturan & Opsi Modul** | Bento Card 2-kolom | **Grouped Inset List** (1 kartu dengan `divide-y`) | Rapi, padat, mudah disentuh jempol ala iOS Settings. |
+| **Grafik Analisis Tren** | Asymmetric Bento 8-col vs 4-col | **1 Grafik Aktif** + Segmented Control Tab | Layar ponsel tidak sesak oleh multi-chart bertumpuk. |
+| **Tabel Data Transaksi** | Tabel komprehensif | **Card List Ringkas** (2–3 field penting) + Bottom Sheet Detail | Menghindari tabel melebar rusak dan horizontal scroll macet. |
+| **Aksi Transaksi Kritis** | Tombol kanan atas / footer | **Floating Bottom Bar** (`fixed bottom-3`) | Berada di jangkauan alami jempol (*thumb zone*). |
+
+---
+
+### D. Smartphone 360–639px (Zero-Breakage Rules)
 
 - Dilarang `w-[...]`/`min-w-[...]` statis > 300px - pakai `w-full max-w-full`.
 - Semua teks dalam flex container wajib `min-w-0` + `truncate`/`break-words`.
-- Grid: form/detail/tabel kompleks → `grid-cols-1`. Stat/KPI ringkas → maksimal `grid-cols-2` (jangan tumpuk `grid-cols-1` monoton untuk kartu metrik - berpasangan 2 kartu per baris dengan `col-span-2` untuk hero card).
+- Grid: form/detail kompleks → `grid-cols-1`. Stat/KPI ringkas → Horizontal Slider atau maksimal `grid-cols-2`.
 - Tabel 6–10 kolom: sembunyikan di mobile (`hidden md:block`), ganti Card List View (`block md:hidden`). Jika tabel wajib tampil: `overflow-x-auto` dengan padding sentuh aman.
 - Toolbar search/filter: input `w-full` baris atas, filter kategori scroll horizontal (`flex overflow-x-auto no-scrollbar space-x-2 py-1`).
 - Safe area bawah **wajib `pb-28`–`pb-32`**.
@@ -465,5 +543,81 @@ Setiap halaman wajib menerapkan susunan 3 baris:
    - **Klaster 2: Master Data & Katalog** (Produk, Resep BOM, Multi-Gudang & Stok, Pelanggan CRM, Pemasok PO, Karyawan HRM).
    - **Klaster 3: Laporan & Keuangan** (Buku Kas/Bank Auto-Journal, Laporan Penjualan, Laba Rugi).
    - **Klaster 4: Pusat Pengaturan Terpadu (`/settings`)** (Satu menu terpusat yang memuat Sub-Hub: Profil Usaha, Kasir & Nota, Pajak & Bayar, Integrasi, Hak Akses, Plan & Storage).
+
+---
+
+## 21. Standardisasi Mutlak Form Pop-Up Modal Full-Size Lintas Device & Kompatibilitas Light/Dark Mode
+
+### 21.1 Mandat Dimensi Maksimal Modal (Full-Size Canvas Lintas Device)
+Dilarang menggunakan modal sempit seperti `max-w-md` atau `max-w-lg` untuk formulir input/edit data operasional atau master data (Produk, Layanan, Pelanggan, Supplier, Stok, dll.). Seluruh modal form wajib memanfaatkan kanvas maksimal secara lapang, lega, dan ergonomis:
+
+1. **Desktop & Widescreen (≥ 1024px, 1280px, 1440px, 1920px)**:
+   - **Container Sizing**: `w-full max-w-[96vw] lg:max-w-5xl xl:max-w-6xl 2xl:max-w-[1350px] max-h-[92vh] sm:rounded-[24px] flex flex-col overflow-hidden`.
+   - **Struktur Bento 2-Kolom / 3-Kolom**: Grid 12-kolom (`grid-cols-1 lg:grid-cols-12 gap-6 items-start`) membagi formulir secara seimbang (misal: 7-kolom untuk data identitas utama dan 5-kolom untuk tarif/kanal/status).
+2. **Tablet (640px – 1023px)**:
+   - **Container Sizing**: `max-w-[94vw] max-h-[90vh] rounded-[20px]`.
+3. **Mobile Smartphone (360px – 639px)**:
+   - **Adaptive Full Bottom Sheet**: `fixed inset-x-0 bottom-0 max-h-[96vh] w-full rounded-t-[28px] rounded-b-none flex flex-col overflow-hidden`.
+   - **Drag Handle**: Indikator sentuh pill atas (`w-10 h-1.5 rounded-full bg-black/20 dark:bg-white/20 mx-auto mt-2.5 mb-1`).
+   - **Safe-Area Scroll Padding**: `pb-28` atau `pb-32` pada form scroll container agar elemen input paling bawah tidak tertutup oleh sticky footer action bar.
+
+### 21.2 Aturan Anti-Whitespace Atas & Larangan Duplikasi Header
+1. **Dilarang Duplikasi Header di Dalam Kartu Form**:
+   - Teks judul atau subtitle modal yang sudah tampil di header modal (seperti deskripsi *"Update service rates, category classification, or sales channel visibility."*) **DILARANG KERAS** ditulis ulang sebagai judul `H4 uppercase` di dalam kartu formulir.
+2. **Clean Section Overline**:
+   - Setiap sub-kartu form di dalam modal hanya boleh menggunakan header seksi tipografis murni 1 baris yang padat dan presisi (misal: `IDENTITAS & SPESIFIKASI LAYANAN`, `TARIF & BIAYA`, `KANAL PENJUALAN`), dengan styling: `text-[12px] font-bold uppercase tracking-wider text-[#8E8E93] dark:text-[#98989D] pb-1 border-b border-black/[0.04] dark:border-white/[0.06]`.
+3. **Flush Top-Alignment**:
+   - Kolom kiri dan kolom kanan pada grid desktop wajib rata atas (`items-start`), tanpa margin atau padding berlebih yang menyisakan ruang putih kosong (*empty awkward space*) di bagian atas form.
+
+### 21.3 Token Warna Baku Kompatibilitas 100% Light Mode & Dark Mode
+| Elemen Modal | Light Mode Tailwind Token | Dark Mode Tailwind Token |
+|---|---|---|
+| **Backdrop Blur** | `bg-black/60 backdrop-blur-md` | `bg-black/75 backdrop-blur-md` |
+| **Modal Shell / Card** | `bg-white/98 border-black/[0.08] backdrop-blur-2xl` | `dark:bg-[#1C1C1E]/98 dark:border-white/[0.12] dark:backdrop-blur-2xl` |
+| **Modal Header Bar** | `bg-[#F2F2F7]/50 border-b border-black/[0.06]` | `dark:bg-white/[0.02] dark:border-b dark:border-white/[0.08]` |
+| **Inner Sub-Cards / Bento Box** | `bg-black/[0.02] border-black/[0.04]` | `dark:bg-white/[0.02] dark:border-white/[0.06]` |
+| **Input & Select Textfields** | `bg-white border-black/[0.08] text-[#1C1C1E] placeholder:text-black/30` | `dark:bg-[#2C2C2E] dark:border-white/[0.1] dark:text-[#F2F2F7] dark:placeholder:text-white/30` |
+| **Focus Ring** | `focus:ring-2 focus:ring-[#007AFF]/50` | `dark:focus:ring-2 dark:focus:ring-[#007AFF]/50` |
+| **Sticky Action Footer** | `bg-white border-t border-black/[0.06]` | `dark:bg-[#1C1C1E] dark:border-t dark:border-white/[0.08]` |
+| **Primary Action Button** | `bg-[#007AFF] hover:bg-[#0071E3] text-white shadow-sm shadow-[#007AFF]/25` | `bg-[#007AFF] hover:bg-[#0071E3] text-white shadow-sm shadow-[#007AFF]/25` |
+| **Cancel / Secondary Button** | `bg-black/[0.05] hover:bg-black/[0.08] text-[#1C1C1E]` | `dark:bg-white/[0.08] dark:hover:bg-white/[0.12] dark:text-[#F2F2F7]` |
+| **Checkbox / Switch Box** | `text-[#007AFF] border-black/20 bg-white` | `text-[#007AFF] dark:border-white/20 dark:bg-[#2C2C2E]` |
+
+### 21.4 Standar Arsitektur Backdrop Modal Zero-Gap Edge-to-Edge ($y=0$ Full Viewport Overlay)
+1. **Mandat Elemen Backdrop Mandiri (*Standalone Backdrop Overlay*)**:
+   - **DILARANG KERAS** meletakkan styling background transparan (`bg-black/40` atau `bg-black/60`) langsung pada pembungkus flex modal (`<div class="fixed inset-0 flex ... bg-black/40">`). Penempatan ini memicu kebocoran header (*topbar stacking leak*) di mana bilah topbar tetap terang dan tidak ter-dim.
+   - **WAJIB** memisahkan elemen Backdrop Overlay mandiri di belakang Card Modal:
+   ```html
+   <!-- 1. Outer Container: z-[200] Full Viewport -->
+   <div x-show="showModal" x-cloak
+       class="fixed inset-0 z-[200] flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto"
+       x-transition:enter="transition ease-out duration-200"
+       x-transition:enter-start="opacity-0"
+       x-transition:enter-end="opacity-100"
+       x-transition:leave="transition ease-in duration-150"
+       x-transition:leave-start="opacity-100"
+       x-transition:leave-end="opacity-0"
+       @keydown.escape.window="showModal = false">
+
+       <!-- 2. Standalone Frosted Dark Backdrop (Edge-to-Edge y=0 Full Screen Coverage) -->
+       <div class="fixed inset-0 bg-black/60 dark:bg-black/75 backdrop-blur-md"
+           @click="showModal = false"></div>
+
+       <!-- 3. Modal Canvas Dialog Card (relative z-10) -->
+       <div class="relative z-10 w-full inset-x-0 bottom-0 rounded-t-[28px] sm:rounded-[24px] bg-white/98 dark:bg-[#1C1C1E]/98 backdrop-blur-2xl border border-black/[0.08] dark:border-white/[0.12] shadow-[0_25px_60px_rgba(0,0,0,0.35)] max-h-[95vh] sm:max-h-[92vh] flex flex-col overflow-hidden sm:max-w-[96vw] lg:max-w-5xl xl:max-w-6xl 2xl:max-w-[1350px] transition-all"
+           @click.outside="showModal = false">
+           ...
+       </div>
+   </div>
+   ```
+2. **Zero-Gap di Batas Layar Teratas ($y=0$)**:
+   - Latar belakang transparan gelap harus menyelimuti 100% viewport dari batas teratas ($y=0$ di bawah address bar browser) hingga ke bawah tanpa celah putih topbar sedikit pun.
+3. **Hierarki Z-Index Modal Terstandar**:
+   - Sticky Topbar: `z-30`
+   - Mobile Sidebar Drawer: `z-40` / `z-50`
+   - Modal Utama / Form Dialog: `z-[200]` (CSS Global: `z-index: 99999 !important`)
+   - Sub-Modal / Quick-Add Dropdown Dialog: `z-[210]`
+   - Alert Confirmation Dialog (Delete/Confirm): `z-[220]`
+
 
 

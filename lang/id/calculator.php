@@ -88,8 +88,10 @@ return [
     'markup_from_cogs'                 => 'Markup dari Modal:',
     'markup_of_cogs_suffix'            => '% dari HPP',
 
-    // Online Delivery Protection
+    // Online Delivery & Marketplace Protection
     'sell_online_switch'               => 'Jual di Ojek Online? (GoFood/Grab)',
+    'sell_marketplace_switch'          => 'Jual di Marketplace / Toko Online? (Shopee/Tokopedia/Kirim)',
+    'selected_model_fallback'          => 'Model Terpilih',
     'app_fee_label'                    => 'Komisi Aplikasi:',
     'app_fee_opt_20'                   => '20% (Standar GoFood / GrabFood / ShopeeFood)',
     'app_fee_opt_15'                   => '15% (Promo Merchant)',

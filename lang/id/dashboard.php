@@ -9,7 +9,7 @@ return [
     'header_subtitle'                  => 'Pemantauan menyeluruh omzet, HPP, margin laba, inventori, dan kasir :business',
     'breadcrumb_dashboard'             => 'Dashboard',
     'breadcrumb_cockpit'               => 'Cockpit Bisnis & Analisis Real-Time',
-    'cockpit_tag'                      => 'Cockpit 360° &bull; :business',
+    'cockpit_tag'                      => 'Cockpit 360° • :business',
     'greeting'                         => 'Halo, :name! Selamat Beraktivitas.',
     'cashier_active'                   => 'Kasir Aktif (:name • :time)',
     'cashier_closed'                   => 'Kasir Belum Buka',
@@ -17,6 +17,7 @@ return [
     'action_pos'                       => 'Terminal Kasir POS',
     'action_calculator'                => 'Kalkulator HPP',
     'action_record_expense'            => '+ Catat Biaya',
+    'action_record_income'             => '+ Catat Kas Masuk',
     'action_add_stock'                 => '+ Tambah Stok',
     'action_new_invoice'               => '+ Faktur Baru',
 

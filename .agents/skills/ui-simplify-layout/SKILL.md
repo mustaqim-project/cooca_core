@@ -110,6 +110,21 @@ Ukuran dan jarak:
 
 ---
 
+### Audit Khusus: Deteksi 6 Anomali Tombol & CTA (Button Flaws & Placement)
+
+Wajib diperiksa di setiap audit antarmuka (terutama kartu integrasi, modal, dan formulir):
+
+| # | Anomali Visual & Layout | Gejala yang Terlihat | Akar Masalah | Solusi Standar |
+|---|---|---|---|---|
+| 1 | **Teks Melipat Canggung & Kata Yatim (*Orphan Word Wrap*)** | Kata tunggal jatuh sendirian di baris kedua (mis. `Connect with Official WhatsApp (1-Click` di baris 1, `Meta)` di baris 2). | Label terlalu panjang (> 4 kata), menyertakan tanda kurung keterangan fitur, atau kontainer tidak proporsional. | Perpendek label ke kata kerja inti (maks 2–4 kata: mis. *"Hubungkan WhatsApp Resmi"*). Tambahkan `whitespace-nowrap`. Pindahkan info sekunder ke micro-badge/helper text di luar tombol. |
+| 2 | **Posisi Tombol Terputus dari Ajakannya (*Action Proximity Inversion*)** | Teks pengantar mengajak *"Klik tombol di bawah..."*, namun di bawahnya disisipkan 3 kartu langkah panjang, dan tombol asli terlempar ke dasar kartu. | Urutan tata letak terbalik. Blok panduan langkah memisahkan teks ajakan dari tombol eksekusi. | **Action Proximity Rule**: Tombol CTA utama harus langsung menyusul teks ajakan. Urutan logis: `Header` → `Deskripsi` → `Tombol CTA Utama` → `Quiet Stepper (Langkah Berikutnya)`. |
+| 3 | **Persaingan Affordance (*Step Cards Menyamar Jadi Tombol*)** | Kotak petunjuk langkah (*1. Klik Connect, 2. Masuk Facebook*) dibungkus kartu putih berborder kontras tinggi mirip tombol klik. | Gaya visual panduan terlalu berat (*clickable affordance* palsu), membuat pengguna bingung mana tombol yang sebenarnya. | Ganti kartu bertingkat dengan **Quiet Stepper Apple HIG**: nomor bulat kecil subtil (`w-5 h-5 rounded-full bg-[#007AFF]/10 text-[#007AFF] text-[11px] font-bold`), teks abu-abu redup tanpa border tebal atau background hover. |
+| 4 | **Lebar Tombol Tidak Proporsional (*Bloated Full-Width Button*)** | Tombol CTA membentang 100% (`w-full`) di kartu desktop yang lebar, membentuk balok raksasa yang kaku dan melelahkan mata. | Memakai `w-full` tanpa pembatas breakpoint responsif atau `max-w-*`. | Gunakan `w-full sm:w-auto px-6 min-h-[44px]` (full di mobile, lebar alami proporsional di tablet/desktop) atau batasi dengan `max-w-sm`. |
+| 5 | **Ikon Terhimpit atau Menempel di Tepi (*Squished / Edge-Pinned Icon*)** | Ikon di tombol terhimpit di tepi kiri, gepeng, atau terisolasi aneh saat teks membungkus. | Flexbox tanpa `shrink-0` atau pemisahan wadah ikon yang salah. | Ikon wajib `shrink-0 w-4 h-4`, posisikan rapi di tengah mendampingi teks dengan `inline-flex items-center justify-center gap-2.5`. |
+| 6 | **Boundary Clipping pada Banner / Header Kartu** | Teks banner informasi atau header kartu terpotong di tepi atas/bawah kontainer. | Padding vertikal terlalu tipis, overflow tersembunyi yang salah, atau minus margin. | Beri padding vertikal aman (`p-4` / `py-3.5 px-4`), pastikan kontainer memiliki ruang bernapas tanpa memotong baris teks teratas/terbawah. |
+
+---
+
 ## Layout bebas tumpang tindih
 
 Penyebab overlap hampir selalu salah satu dari daftar ini. Perbaiki **akar masalahnya**, bukan menambal dengan `z-index` yang makin besar.
@@ -132,7 +147,7 @@ Penyebab overlap hampir selalu salah satu dari daftar ini. Perbaiki **akar masal
 | Teks panjang menimpa tombol di sampingnya | Flex child tanpa `min-width: 0` | `min-width: 0` + `overflow: hidden; text-overflow: ellipsis; white-space: nowrap` (atau `line-clamp`) pada teks |
 | Tombol keluar dari kartu/terpotong di mobile | Lebar tetap (`width: 200px`) atau `nowrap` tanpa wrap | `flex-wrap: wrap`, ganti lebar tetap dengan `min-width` + `flex: 1` |
 | Dropdown/tooltip terpotong | Induk memakai `overflow: hidden` | Pindahkan overlay ke portal/`body`, atau buang `overflow: hidden` dari induk |
-| Modal tertimpa elemen lain | `z-index` acak | Pakai skala z-index terpusat (lihat di bawah) |
+| Modal tertimpa elemen lain / celah putih topbar | `z-index` acak / background ditaruh di wrapper flex | Gunakan elemen backdrop mandiri (`fixed inset-0 bg-black/60 backdrop-blur-md`), container `z-[200]`, card dialog `relative z-10`, dan pastikan CSS layout mengangkat overlay ke `z-index: 99999 !important` |
 | Dua tombol saling menempel/bertumpuk di mobile | Layout baris yang tidak turun jadi kolom | `flex-direction: column` di bawah breakpoint, atau grid 1 kolom |
 | Elemen bergeser/menimpa saat konten dimuat | Gambar/skeleton tanpa dimensi | Tentukan `aspect-ratio` atau tinggi minimum |
 | Margin negatif menarik elemen ke atas elemen lain | Hack spasi | Ganti dengan `gap`/padding |
@@ -144,13 +159,14 @@ Definisikan sekali, pakai di mana saja. Jangan memakai angka di luar skala ini.
 ```css
 :root {
   --z-base: 0;
-  --z-sticky: 100;      /* header/bar sticky */
-  --z-dropdown: 200;
-  --z-fab: 300;
-  --z-overlay: 400;     /* backdrop */
-  --z-modal: 500;
-  --z-toast: 600;
-  --z-tooltip: 700;
+  --z-sticky: 30;       /* header/bar sticky */
+  --z-sidebar: 50;      /* sidebar navigation drawer */
+  --z-dropdown: 60;
+  --z-fab: 70;
+  --z-modal: 200;       /* modal backdrop & canvas (z-index: 99999) */
+  --z-submodal: 210;    /* nested sub-modals / quick add */
+  --z-alert: 220;       /* critical confirmation dialogs */
+  --z-toast: 99999;     /* system toasts */
 }
 ```
 
@@ -220,22 +236,67 @@ Definisikan sekali, pakai di mana saja. Jangan memakai angka di luar skala ini.
 
 Padanan Tailwind: `flex flex-wrap gap-2 justify-end`, `min-w-0 truncate`, `pb-[calc(72px+env(safe-area-inset-bottom))]`.
 
+**Horizontal Snap Slider (Hemat 75% scroll di mobile, tanpa tumpukan kartu raksasa)**
+
+```html
+<!-- Mobile: Geser Horizontal (Swipe) | Desktop: Grid 4-Kolom -->
+<div class="flex gap-3 overflow-x-auto snap-x snap-mandatory no-scrollbar -mx-4 px-4 pb-2 sm:grid sm:grid-cols-2 lg:grid-cols-4 sm:overflow-visible sm:mx-0 sm:px-0">
+  <div class="snap-start shrink-0 w-[240px] sm:w-auto p-4 rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 shadow-sm">
+    <p class="text-[12px] text-black/50 dark:text-white/50">Total Penjualan</p>
+    <p class="text-[20px] font-bold tabular-nums mt-1">Rp 12.450.000</p>
+  </div>
+</div>
+```
+
+**Grouped Inset List (Opsi Pengaturan/Form 1 Kotak, iOS Settings Style)**
+
+```html
+<!-- Menggabungkan 5 opsi menjadi 1 kartu padat, bukan 5 kartu terpisah -->
+<div class="rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/10 divide-y divide-black/5 dark:divide-white/5 overflow-hidden shadow-sm">
+  <div class="p-3.5 sm:p-4 flex items-center justify-between min-h-[48px]">
+    <span class="text-[13.5px] font-semibold text-black dark:text-white">Auto Kirim Struk</span>
+    <input type="checkbox" class="shrink-0">
+  </div>
+  <div class="p-3.5 sm:p-4 flex items-center justify-between min-h-[48px]">
+    <span class="text-[13.5px] font-semibold text-black dark:text-white">Pemberitahuan Stok Menipis</span>
+    <input type="checkbox" class="shrink-0">
+  </div>
+</div>
+```
+
+**Standar Pop-Up Modal Form (Full-Size Canvas XXL & Dual Light/Dark Mode)**
+
+Dilarang keras menggunakan modal sempit (`max-w-md`/`max-w-lg`) untuk form input data:
+1. **Desktop (≥1024px)**: `max-w-5xl xl:max-w-6xl 2xl:max-w-[1350px] w-full max-h-[92vh] sm:rounded-[24px] flex flex-col overflow-hidden` (Bento 2-Kolom 7:5/6:6).
+2. **Tablet (640–1023px)**: `max-w-[94vw] max-h-[90vh] rounded-[20px]`.
+3. **Mobile (<640px)**: `fixed inset-x-0 bottom-0 max-h-[96vh] w-full rounded-t-[28px] rounded-b-none flex flex-col` (Adaptive Bottom Sheet, safe-area `pb-28`).
+4. **Anti-Whitespace Atas**: Dilarang menduplikasi subtitle modal di dalam sub-card form sebagai `H4 uppercase`. Gunakan label seksi 1 baris yang padat dan pastikan kolom kiri/kanan rata atas (*flush top-aligned*).
+5. **Kompatibilitas Light/Dark**: `bg-white dark:bg-[#1C1C1E]` modal shell, `bg-[#F2F2F7]/50 dark:bg-white/[0.02]` header bar, `bg-black/[0.02] dark:bg-white/[0.02]` sub-cards, `bg-white dark:bg-[#2C2C2E]` inputs, border `border-black/[0.08] dark:border-white/[0.1]`, teks `text-[#1C1C1E] dark:text-[#F2F2F7]`.
+
 ---
 
 ## Checklist audit
 
 Periksa tiap poin, lalu catat yang gagal.
 
-**Informasi**
+**Informasi & Tata Letak Mobile (Beyond Bento)**
 - [ ] Apakah tugas utama halaman bisa dikenali dalam 3 detik?
+- [ ] **Anti Infinite Card Bloat (Mobile)**: Apakah deretan metrik (KPI) atau alur langkah menggunakan **Horizontal Snap Slider** / **Compact Stepper** daripada menumpuk 4–5 kartu Bento vertikal yang membuat halaman molor panjang?
+- [ ] **Grouped Inset List (Mobile)**: Apakah opsi formulir/pengaturan disatukan ke dalam 1 kartu dengan pembatas `divide-y`, bukan dipisah jadi 5 kartu berat yang boros ruang?
+- [ ] **Modal Form Full-Size Lintas Device**: Apakah semua pop-up modal form menggunakan ukuran maksimal (**XXL 2-kolom di Desktop**, **Adaptive Bottom Sheet di Mobile**), bebas dari duplikasi subtitle header, dan 100% kompatibel Light Mode & Dark Mode?
 - [ ] Adakah informasi duplikat, dekoratif, atau yang jarang dipakai tetapi tampil permanen?
 - [ ] Adakah lebih dari 1 elemen yang berebut menjadi paling menonjol?
 - [ ] Adakah teks penjelas yang bisa dipersingkat atau dihapus?
 
-**Tombol**
+**Tombol & CTA (Button & Placement)**
 - [ ] Hanya ada 1 primary per konteks?
 - [ ] Adakah lebih dari 3 aksi sejajar tanpa pengelompokan?
-- [ ] Apakah label berupa kata kerja yang spesifik?
+- [ ] Apakah label berupa kata kerja yang spesifik dan padat (maksimal 2–4 kata)?
+- [ ] **Bebas kata yatim (*no orphan words*)**: apakah teks tombol tidak melipat canggung meninggalkan 1 kata terisolasi di baris kedua?
+- [ ] **Action Proximity Rule**: jika copy mengajak "klik tombol di bawah", apakah tombol CTA langsung menyusul teks ajakan (tidak terhalang oleh blok kartu langkah)?
+- [ ] **Affordance Clarity**: apakah panduan langkah (stepper) berwujud indikator alur subtil (*quiet stepper*), bukan kartu tebal yang menyerupai tombol klik?
+- [ ] **Proporsi Lebar**: apakah tombol CTA di desktop proporsional (`sm:w-auto` / `max-w-sm`), bukan balok raksasa `w-full` yang membentang kaku?
+- [ ] **Keseimbangan Ikon**: apakah ikon di tombol memiliki `shrink-0` dan sejajar rapi (`inline-flex items-center justify-center gap-2.5`), tidak terhimpit di tepi kiri?
 - [ ] Apakah aksi destruktif terpisah dari primary dan dikonfirmasi?
 - [ ] Apakah posisi tombol sama dengan halaman lain di aplikasi?
 - [ ] Apakah target sentuh ≥ 44px dengan jarak ≥ 8px?

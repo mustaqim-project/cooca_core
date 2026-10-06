@@ -97,6 +97,12 @@
                 <span class="font-medium">{{ session('success') }}</span>
             </div>
         @endif
+        @if (session('warning'))
+            <div class="rounded-[14px] bg-[#FF9500]/10 border border-[#FF9500]/20 px-4 py-3 text-xs text-[#B25E00] dark:text-[#FF9F0A] flex items-center gap-2.5">
+                <i data-lucide="alert-circle" class="w-4 h-4 shrink-0 text-[#FF9500]"></i>
+                <span class="font-medium">{{ session('warning') }}</span>
+            </div>
+        @endif
         @if (session('error'))
             <div class="rounded-[14px] bg-[#FF3B30]/10 border border-[#FF3B30]/20 px-4 py-3 text-xs text-[#C41E17] dark:text-[#FF453A] flex items-center gap-2.5">
                 <i data-lucide="alert-triangle" class="w-4 h-4 shrink-0 text-[#FF3B30]"></i>
@@ -111,9 +117,9 @@
             $activeMaterialsCount = $suppliers->sum('materials_count');
             $suppliedVendorsCount = $suppliers->filter(fn($s) => $s->materials_count > 0)->count();
         @endphp
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div class="flex sm:grid sm:grid-cols-2 lg:grid-cols-4 flex-nowrap sm:flex-wrap overflow-x-auto sm:overflow-visible pb-2 sm:pb-0 snap-x snap-mandatory gap-3 sm:gap-4 no-scrollbar scrollbar-none">
             {{-- KPI 1: Total Pemasok --}}
-            <div class="rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] p-4 sm:p-5 flex flex-col justify-between shadow-xs">
+            <div class="min-w-[220px] sm:min-w-0 flex-1 snap-start rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] p-4 sm:p-5 flex flex-col justify-between shadow-xs">
                 <div class="flex items-center justify-between">
                     <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">{{ __('purchasing.supplier.kpis.total_suppliers') }}</span>
                     <div class="w-7 h-7 rounded-[8px] bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 dark:text-slate-400">
@@ -127,7 +133,7 @@
             </div>
 
             {{-- KPI 2: Pemasok Pasokan Aktif --}}
-            <div class="rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] p-4 sm:p-5 flex flex-col justify-between shadow-xs">
+            <div class="min-w-[220px] sm:min-w-0 flex-1 snap-start rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] p-4 sm:p-5 flex flex-col justify-between shadow-xs">
                 <div class="flex items-center justify-between">
                     <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">{{ __('purchasing.supplier.kpis.active_suppliers') }}</span>
                     <div class="w-7 h-7 rounded-[8px] bg-[#007AFF]/10 flex items-center justify-center text-[#007AFF]">
@@ -141,7 +147,7 @@
             </div>
 
             {{-- KPI 3: Item Bahan Terhubung --}}
-            <div class="rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] p-4 sm:p-5 flex flex-col justify-between shadow-xs">
+            <div class="min-w-[220px] sm:min-w-0 flex-1 snap-start rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] p-4 sm:p-5 flex flex-col justify-between shadow-xs">
                 <div class="flex items-center justify-between">
                     <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">{{ __('purchasing.supplier.kpis.linked_materials') }}</span>
                     <div class="w-7 h-7 rounded-[8px] bg-[#FF9500]/10 flex items-center justify-center text-[#FF9500]">
@@ -155,7 +161,7 @@
             </div>
 
             {{-- KPI 4: Shortcut Buat PO Baru --}}
-            <div class="rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] p-4 sm:p-5 flex flex-col justify-between shadow-xs">
+            <div class="min-w-[220px] sm:min-w-0 flex-1 snap-start rounded-[18px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] p-4 sm:p-5 flex flex-col justify-between shadow-xs">
                 <div class="flex items-center justify-between">
                     <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">{{ __('purchasing.supplier.kpis.procurement') }}</span>
                     <div class="w-7 h-7 rounded-[8px] bg-[#5856D6]/10 flex items-center justify-center text-[#5856D6]">
@@ -314,13 +320,13 @@
                                         @if (\App\Support\Context::hasPermission('master_data.suppliers.manage') || \App\Support\Context::isAdminOrOwner())
                                             <button type="button"
                                                 @click="openEditModal(@js($supplier))"
-                                                class="min-h-[44px] sm:min-h-0 h-7 px-2.5 rounded-[6px] text-xs font-semibold text-[#007AFF] hover:bg-[#007AFF]/10 transition-colors flex items-center gap-1 cursor-pointer">
+                                                class="min-h-[44px] sm:min-h-0 h-8 px-3 rounded-[8px] text-xs font-semibold text-[#007AFF] hover:bg-[#007AFF]/10 transition-colors flex items-center gap-1 cursor-pointer">
                                                 <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
                                                 <span>{{ __('purchasing.supplier.actions.edit_supplier') }}</span>
                                             </button>
                                             <button type="button"
                                                 @click="openDelete(@js($supplier->id), @js($supplier->name))"
-                                                class="min-h-[44px] sm:min-h-0 h-7 px-2.5 rounded-[6px] text-xs font-semibold text-[#FF3B30] hover:bg-[#FF3B30]/10 transition-colors flex items-center gap-1 cursor-pointer">
+                                                class="min-h-[44px] sm:min-h-0 h-8 px-3 rounded-[8px] text-xs font-semibold text-[#FF3B30] hover:bg-[#FF3B30]/10 transition-colors flex items-center gap-1 cursor-pointer">
                                                 <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
                                                 <span>{{ __('purchasing.supplier.actions.delete_supplier') }}</span>
                                             </button>

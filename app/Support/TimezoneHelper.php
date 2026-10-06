@@ -53,6 +53,37 @@ final class TimezoneHelper
     }
 
     /**
+     * Common Indonesian timezones formatted for dropdown selects.
+     *
+     * @return array<int, array{value: string, label: string, region: string}>
+     */
+    public static function commonIndonesianTimezones(): array
+    {
+        return [
+            [
+                'value'  => 'Asia/Jakarta',
+                'label'  => 'Asia/Jakarta',
+                'region' => 'WIB - UTC+7',
+            ],
+            [
+                'value'  => 'Asia/Pontianak',
+                'label'  => 'Asia/Pontianak',
+                'region' => 'WIB - UTC+7',
+            ],
+            [
+                'value'  => 'Asia/Makassar',
+                'label'  => 'Asia/Makassar',
+                'region' => 'WITA - UTC+8',
+            ],
+            [
+                'value'  => 'Asia/Jayapura',
+                'label'  => 'Asia/Jayapura',
+                'region' => 'WIT - UTC+9',
+            ],
+        ];
+    }
+
+    /**
      * Check if a timezone identifier is a valid IANA timezone.
      */
     public static function isValid(string $timezone): bool

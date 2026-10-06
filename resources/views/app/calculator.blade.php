@@ -18,6 +18,7 @@
     @endphp
 
     <div class="max-w-[1360px] mx-auto space-y-6 pb-28 sm:pb-32 lg:pb-12" x-data="{
+        localeCode: '{{ app()->getLocale() === 'en' ? 'en-US' : 'id-ID' }}',
         activeTab: '{{ $tab }}', // 'quick' or 'advanced'
 
         setTab(tab) {
@@ -425,7 +426,7 @@
         <!-- ========================================== -->
         <nav class="flex items-center gap-1.5 text-[12px] text-black/50 dark:text-white/50 py-0.5 whitespace-nowrap print:hidden"
             aria-label="Breadcrumb">
-            <a href="{{ route('dashboard') }}" class="hover:text-[#007AFF] transition-colors font-medium">Dashboard</a>
+            <a href="{{ route('dashboard') }}" class="hover:text-[#007AFF] transition-colors font-medium">{{ __('dashboard.breadcrumb_dashboard') }}</a>
             <i data-lucide="chevron-right" class="w-3.5 h-3.5 opacity-40"></i>
             <span class="text-black/60 dark:text-white/60 font-medium">{{ __('calculator.breadcrumb_costing') }}</span>
             <i data-lucide="chevron-right" class="w-3.5 h-3.5 opacity-40"></i>
@@ -556,7 +557,7 @@
                         </div>
                         <div
                             class="text-[20px] sm:text-[26px] font-bold tabular-nums text-black dark:text-white tracking-tight truncate">
-                            Rp <span x-text="quickTotalHpp.toLocaleString('id-ID')"></span>
+                            Rp <span x-text="quickTotalHpp.toLocaleString(localeCode)"></span>
                         </div>
                     </div>
                     <div
@@ -580,7 +581,7 @@
                         </div>
                         <div
                             class="text-[20px] sm:text-[26px] font-bold tabular-nums text-[#007AFF] dark:text-[#0A84FF] tracking-tight truncate">
-                            Rp <span x-text="quickOfflinePrice.toLocaleString('id-ID')"></span>
+                            Rp <span x-text="quickOfflinePrice.toLocaleString(localeCode)"></span>
                         </div>
                     </div>
                     <div
@@ -604,7 +605,7 @@
                         </div>
                         <div
                             class="text-[20px] sm:text-[26px] font-bold tabular-nums text-[#34C759] dark:text-[#30D158] tracking-tight truncate">
-                            + Rp <span x-text="quickOfflineProfit.toLocaleString('id-ID')"></span>
+                            + Rp <span x-text="quickOfflineProfit.toLocaleString(localeCode)"></span>
                         </div>
                     </div>
                     <div
@@ -650,64 +651,64 @@
                 </span>
                 @if ($isWorkshopBiz)
                     <button type="button" @click="applyPreset('oli')"
-                        class="h-8 px-3 rounded-full text-[12px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all cursor-pointer flex items-center gap-1.5 shrink-0">
+                        class="min-h-[38px] sm:min-h-[32px] px-3.5 py-1.5 rounded-full text-[12px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all cursor-pointer flex items-center gap-1.5 shrink-0">
                         <i data-lucide="droplet" class="w-3.5 h-3.5 text-[#8E8E93] dark:text-[#98989D]"></i>
                         <span>{{ __('calculator.preset_workshop_oil') }}</span>
                     </button>
                     <button type="button" @click="applyPreset('tuneup')"
-                        class="h-8 px-3 rounded-full text-[12px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all cursor-pointer flex items-center gap-1.5 shrink-0">
+                        class="min-h-[38px] sm:min-h-[32px] px-3.5 py-1.5 rounded-full text-[12px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all cursor-pointer flex items-center gap-1.5 shrink-0">
                         <i data-lucide="wrench" class="w-3.5 h-3.5 text-[#8E8E93] dark:text-[#98989D]"></i>
                         <span>{{ __('calculator.preset_workshop_tuneup') }}</span>
                     </button>
                     <button type="button" @click="applyPreset('rem')"
-                        class="h-8 px-3 rounded-full text-[12px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all cursor-pointer flex items-center gap-1.5 shrink-0">
+                        class="min-h-[38px] sm:min-h-[32px] px-3.5 py-1.5 rounded-full text-[12px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all cursor-pointer flex items-center gap-1.5 shrink-0">
                         <i data-lucide="disc" class="w-3.5 h-3.5 text-[#8E8E93] dark:text-[#98989D]"></i>
                         <span>{{ __('calculator.preset_workshop_brake') }}</span>
                     </button>
                     <button type="button" @click="applyPreset('servis_berkala')"
-                        class="h-8 px-3 rounded-full text-[12px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all cursor-pointer flex items-center gap-1.5 shrink-0">
+                        class="min-h-[38px] sm:min-h-[32px] px-3.5 py-1.5 rounded-full text-[12px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all cursor-pointer flex items-center gap-1.5 shrink-0">
                         <i data-lucide="activity" class="w-3.5 h-3.5 text-[#8E8E93] dark:text-[#98989D]"></i>
                         <span>{{ __('calculator.preset_workshop_periodic') }}</span>
                     </button>
                 @elseif ($isLaundryBiz)
                     <button type="button" @click="applyPreset('kiloan')"
-                        class="h-8 px-3 rounded-full text-[12px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all cursor-pointer flex items-center gap-1.5 shrink-0">
+                        class="min-h-[38px] sm:min-h-[32px] px-3.5 py-1.5 rounded-full text-[12px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all cursor-pointer flex items-center gap-1.5 shrink-0">
                         <i data-lucide="shirt" class="w-3.5 h-3.5 text-[#8E8E93] dark:text-[#98989D]"></i>
                         <span>{{ __('calculator.preset_laundry_regular') }}</span>
                     </button>
                     <button type="button" @click="applyPreset('bedcover')"
-                        class="h-8 px-3 rounded-full text-[12px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all cursor-pointer flex items-center gap-1.5 shrink-0">
+                        class="min-h-[38px] sm:min-h-[32px] px-3.5 py-1.5 rounded-full text-[12px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all cursor-pointer flex items-center gap-1.5 shrink-0">
                         <i data-lucide="layers" class="w-3.5 h-3.5 text-[#8E8E93] dark:text-[#98989D]"></i>
                         <span>{{ __('calculator.preset_laundry_bedcover') }}</span>
                     </button>
                     <button type="button" @click="applyPreset('dryclean')"
-                        class="h-8 px-3 rounded-full text-[12px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all cursor-pointer flex items-center gap-1.5 shrink-0">
+                        class="min-h-[38px] sm:min-h-[32px] px-3.5 py-1.5 rounded-full text-[12px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all cursor-pointer flex items-center gap-1.5 shrink-0">
                         <i data-lucide="sparkle" class="w-3.5 h-3.5 text-[#8E8E93] dark:text-[#98989D]"></i>
                         <span>{{ __('calculator.preset_laundry_dryclean') }}</span>
                     </button>
                     <button type="button" @click="applyPreset('sepatu')"
-                        class="h-8 px-3 rounded-full text-[12px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all cursor-pointer flex items-center gap-1.5 shrink-0">
+                        class="min-h-[38px] sm:min-h-[32px] px-3.5 py-1.5 rounded-full text-[12px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all cursor-pointer flex items-center gap-1.5 shrink-0">
                         <i data-lucide="footprints" class="w-3.5 h-3.5 text-[#8E8E93] dark:text-[#98989D]"></i>
                         <span>{{ __('calculator.preset_laundry_shoes') }}</span>
                     </button>
                 @else
                     <button type="button" @click="applyPreset('kopi')"
-                        class="h-8 px-3 rounded-full text-[12px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all cursor-pointer flex items-center gap-1.5 shrink-0">
+                        class="min-h-[38px] sm:min-h-[32px] px-3.5 py-1.5 rounded-full text-[12px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all cursor-pointer flex items-center gap-1.5 shrink-0">
                         <i data-lucide="coffee" class="w-3.5 h-3.5 text-[#8E8E93] dark:text-[#98989D]"></i>
                         <span>{{ __('calculator.preset_fnb_coffee') }}</span>
                     </button>
                     <button type="button" @click="applyPreset('geprek')"
-                        class="h-8 px-3 rounded-full text-[12px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all cursor-pointer flex items-center gap-1.5 shrink-0">
+                        class="min-h-[38px] sm:min-h-[32px] px-3.5 py-1.5 rounded-full text-[12px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all cursor-pointer flex items-center gap-1.5 shrink-0">
                         <i data-lucide="utensils" class="w-3.5 h-3.5 text-[#8E8E93] dark:text-[#98989D]"></i>
                         <span>{{ __('calculator.preset_fnb_chicken') }}</span>
                     </button>
                     <button type="button" @click="applyPreset('kaos')"
-                        class="h-8 px-3 rounded-full text-[12px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all cursor-pointer flex items-center gap-1.5 shrink-0">
+                        class="min-h-[38px] sm:min-h-[32px] px-3.5 py-1.5 rounded-full text-[12px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all cursor-pointer flex items-center gap-1.5 shrink-0">
                         <i data-lucide="shirt" class="w-3.5 h-3.5 text-[#8E8E93] dark:text-[#98989D]"></i>
                         <span>{{ __('calculator.preset_general_tshirt') }}</span>
                     </button>
                     <button type="button" @click="applyPreset('kue')"
-                        class="h-8 px-3 rounded-full text-[12px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all cursor-pointer flex items-center gap-1.5 shrink-0">
+                        class="min-h-[38px] sm:min-h-[32px] px-3.5 py-1.5 rounded-full text-[12px] font-medium text-black/80 dark:text-white/80 bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] active:scale-[0.97] active:opacity-80 transition-all cursor-pointer flex items-center gap-1.5 shrink-0">
                         <i data-lucide="cookie" class="w-3.5 h-3.5 text-[#8E8E93] dark:text-[#98989D]"></i>
                         <span>{{ __('calculator.preset_fnb_cake') }}</span>
                     </button>
@@ -829,7 +830,7 @@
                             <div class="flex justify-between text-[12px] font-medium">
                                 <span class="text-black/60 dark:text-white/60">{{ __('calculator.cost_composition_title') }}</span>
                                 <span class="tabular-nums font-semibold text-black dark:text-white">Total: Rp <span
-                                        x-text="quickTotalHpp.toLocaleString('id-ID')"></span></span>
+                                        x-text="quickTotalHpp.toLocaleString(localeCode)"></span></span>
                             </div>
                             <div
                                 class="w-full h-2.5 rounded-full bg-black/[0.06] dark:bg-white/[0.08] overflow-hidden flex">
@@ -870,11 +871,11 @@
                         <div class="space-y-0.5 text-[13px]">
                             <h3 class="font-semibold text-black dark:text-white">{{ __('calculator.cogs_summary_title') }}</h3>
                             <p class="text-black/70 dark:text-white/70 leading-relaxed text-[13px]">
-                                {{ __('calculator.cogs_summary_desc', [
+                                {!! __('calculator.cogs_summary_desc', [
                                     'name' => '<strong class="text-black dark:text-white font-semibold" x-text="quickName"></strong>',
-                                    'total' => '<strong class="text-[#34C759] dark:text-[#30D158] tabular-nums font-bold"><span x-text="quickTotalHpp.toLocaleString(\'id-ID\')"></span></strong>',
+                                    'total' => '<strong class="text-[#34C759] dark:text-[#30D158] tabular-nums font-bold"><span x-text="quickTotalHpp.toLocaleString(localeCode)"></span></strong>',
                                     'material' => '<strong class="text-black dark:text-white tabular-nums font-bold" x-text="quickMaterialPct + \'%\'"></strong>'
-                                ]) }}
+                                ]) !!}
                             </p>
                         </div>
                     </div>
@@ -912,13 +913,10 @@
                             <!-- Margin Health Indicator (Apple Tinted Callout - Zero Emoji) -->
                             <div class="p-3 rounded-[10px] text-[12px] flex items-center gap-2"
                                 :class="{
-                                    'bg-[#FF9500]/10 text-[#B25E00] dark:text-[#FF9F0A] border border-[#FF9500]/20': quickMargin <
-                                        25,
-                                    'bg-[#34C759]/10 text-[#248A3D] dark:text-[#30D158] border border-[#34C759]/20': quickMargin >=
-                                        25 && quickMargin <= 60,
-                                    'bg-[#AF52DE]/10 text-[#7C3AA6] dark:text-[#BF5AF2] border border-[#AF52DE]/20': quickMargin >
-                                        60
-                                Dark: border-transparent': false }">
+                                    'bg-[#FF9500]/10 text-[#B25E00] dark:text-[#FF9F0A] border border-[#FF9500]/20': quickMargin < 25,
+                                    'bg-[#34C759]/10 text-[#248A3D] dark:text-[#30D158] border border-[#34C759]/20': quickMargin >= 25 && quickMargin <= 60,
+                                    'bg-[#AF52DE]/10 text-[#7C3AA6] dark:text-[#BF5AF2] border border-[#AF52DE]/20': quickMargin > 60
+                                }">
                                 <i data-lucide="info" class="w-4 h-4 shrink-0"></i>
                                 <span x-show="quickMargin < 25">{{ __('calculator.margin_thin_warning') }}</span>
                                 <span x-show="quickMargin >= 25 && quickMargin <= 60">{{ __('calculator.margin_ideal_info') }}</span>
@@ -933,7 +931,7 @@
                                 <div class="text-[11px] font-medium text-black/50 dark:text-white/50">{{ __('calculator.recommended_price_title') }}</div>
                                 <div
                                     class="text-[26px] sm:text-[30px] font-bold tabular-nums text-black dark:text-white tracking-tight mt-0.5">
-                                    Rp <span x-text="quickOfflinePrice.toLocaleString('id-ID')"></span>
+                                    Rp <span x-text="quickOfflinePrice.toLocaleString(localeCode)"></span>
                                 </div>
                             </div>
 
@@ -941,7 +939,7 @@
                                 <div class="flex justify-between items-center">
                                     <span class="text-black/60 dark:text-white/60">{{ __('calculator.net_profit_per_unit') }}</span>
                                     <span class="tabular-nums font-bold text-[#34C759] dark:text-[#30D158]">+ Rp <span
-                                            x-text="quickOfflineProfit.toLocaleString('id-ID')"></span></span>
+                                            x-text="quickOfflineProfit.toLocaleString(localeCode)"></span></span>
                                 </div>
                                 <div class="flex justify-between items-center">
                                     <span class="text-black/60 dark:text-white/60">{{ __('calculator.markup_from_cogs') }}</span>
@@ -956,8 +954,8 @@
                             class="p-4 rounded-[12px] bg-black/[0.02] dark:bg-white/[0.03] border border-black/5 dark:border-white/5 space-y-3">
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center gap-2">
-                                    <i data-lucide="bike" class="w-4 h-4 text-[#AF52DE]"></i>
-                                    <span class="text-[13px] font-semibold text-black dark:text-white">{{ __('calculator.sell_online_switch') }}</span>
+                                    <i data-lucide="{{ $isFoodBiz ? 'bike' : 'shopping-bag' }}" class="w-4 h-4 text-[#AF52DE]"></i>
+                                    <span class="text-[13px] font-semibold text-black dark:text-white">{{ $isFoodBiz ? __('calculator.sell_online_switch') : __('calculator.sell_marketplace_switch') }}</span>
                                 </div>
                                 <label class="relative inline-flex items-center cursor-pointer">
                                     <input type="checkbox" x-model="quickSellOnline" class="sr-only peer">
@@ -983,14 +981,14 @@
                                 <div class="p-3.5 rounded-[10px] bg-[#AF52DE]/10 border border-[#AF52DE]/20 space-y-1">
                                     <div class="text-[11px] text-[#AF52DE] dark:text-[#BF5AF2] font-semibold">{{ __('calculator.online_must_price_title') }}</div>
                                     <div class="text-[22px] font-bold tabular-nums text-[#AF52DE] dark:text-[#BF5AF2]">
-                                        Rp <span x-text="quickOnlinePrice.toLocaleString('id-ID')"></span>
+                                        Rp <span x-text="quickOnlinePrice.toLocaleString(localeCode)"></span>
                                     </div>
                                     <p class="text-[11px] text-black/60 dark:text-white/60 leading-tight pt-1">
                                         {!! __('calculator.online_must_price_desc', [
-                                            'online' => '<span class="tabular-nums font-semibold" x-text="quickOnlinePrice.toLocaleString(\'id-ID\')"></span>',
+                                            'online' => '<span class="tabular-nums font-semibold" x-text="quickOnlinePrice.toLocaleString(localeCode)"></span>',
                                             'fee' => '<span x-text="quickOnlineFeePct"></span>',
-                                            'cut' => '<span class="tabular-nums" x-text="quickOnlineFeeNominal.toLocaleString(\'id-ID\')"></span>',
-                                            'offline' => '<strong class="text-black dark:text-white tabular-nums">Rp <span x-text="quickOfflinePrice.toLocaleString(\'id-ID\')"></span></strong>'
+                                            'cut' => '<span class="tabular-nums" x-text="quickOnlineFeeNominal.toLocaleString(localeCode)"></span>',
+                                            'offline' => '<strong class="text-black dark:text-white tabular-nums">Rp <span x-text="quickOfflinePrice.toLocaleString(localeCode)"></span></strong>'
                                         ]) !!}
                                     </p>
                                 </div>
@@ -1104,7 +1102,7 @@
                                 </div>
                                 <div
                                     class="text-[20px] sm:text-[26px] font-bold tabular-nums text-black dark:text-white tracking-tight truncate">
-                                    Rp <span x-text="Math.round(calcResult.hpp_per_unit).toLocaleString('id-ID')"></span>
+                                    Rp <span x-text="Math.round(calcResult.hpp_per_unit).toLocaleString(localeCode)"></span>
                                 </div>
                             </div>
                             <div
@@ -1126,7 +1124,7 @@
                                 <div
                                     class="text-[20px] sm:text-[26px] font-bold tabular-nums text-black dark:text-white tracking-tight truncate">
                                     Rp <span
-                                        x-text="Math.round(calcResult.total_material_cost).toLocaleString('id-ID')"></span>
+                                        x-text="Math.round(calcResult.total_material_cost).toLocaleString(localeCode)"></span>
                                 </div>
                             </div>
                             <div
@@ -1424,7 +1422,7 @@
                                             <label class="block text-xs font-semibold text-black/80 dark:text-white/80 mb-1.5">
                                                 {{ __('calculator.product_name_label') }} <span class="text-[#FF3B30]">*</span>
                                             </label>
-                                            <input type="text" x-model="quickName" placeholder="Contoh: Kopi Susu Aren 500ml..."
+                                            <input type="text" x-model="quickName" placeholder="{{ __('calculator.input_product_name_placeholder') }}"
                                                 class="w-full h-12 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[12px] px-4 text-[16px] sm:text-sm font-semibold text-black dark:text-white placeholder:text-black/40 dark:placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition">
                                             <p class="text-[11px] text-black/50 dark:text-white/50 mt-1">
                                                 {{ __('calculator.sku_barcode_generated_note') }}
@@ -1434,15 +1432,15 @@
                                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
                                             <div class="p-3.5 rounded-[12px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08]">
                                                 <span class="text-[11px] text-black/55 dark:text-white/55 block mb-0.5">{{ __('calculator.modal_material_label') }}</span>
-                                                <span class="text-xs font-bold text-black dark:text-white tabular-nums">Rp <span x-text="Number(quickMaterial || 0).toLocaleString('id-ID')"></span></span>
+                                                <span class="text-xs font-bold text-black dark:text-white tabular-nums">Rp <span x-text="Number(quickMaterial || 0).toLocaleString(localeCode)"></span></span>
                                             </div>
                                             <div class="p-3.5 rounded-[12px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08]">
                                                 <span class="text-[11px] text-black/55 dark:text-white/55 block mb-0.5">{{ __('calculator.modal_labor_label') }}</span>
-                                                <span class="text-xs font-bold text-black dark:text-white tabular-nums">Rp <span x-text="Number(quickLabor || 0).toLocaleString('id-ID')"></span></span>
+                                                <span class="text-xs font-bold text-black dark:text-white tabular-nums">Rp <span x-text="Number(quickLabor || 0).toLocaleString(localeCode)"></span></span>
                                             </div>
                                             <div class="p-3.5 rounded-[12px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08]">
                                                 <span class="text-[11px] text-black/55 dark:text-white/55 block mb-0.5">{{ __('calculator.modal_overhead_label') }}</span>
-                                                <span class="text-xs font-bold text-black dark:text-white tabular-nums">Rp <span x-text="Number(quickOverhead || 0).toLocaleString('id-ID')"></span></span>
+                                                <span class="text-xs font-bold text-black dark:text-white tabular-nums">Rp <span x-text="Number(quickOverhead || 0).toLocaleString(localeCode)"></span></span>
                                             </div>
                                         </div>
                                     </div>
@@ -1465,7 +1463,7 @@
                                     <div class="rounded-[16px] bg-[#007AFF]/5 dark:bg-[#007AFF]/10 border border-[#007AFF]/20 p-4 flex items-start gap-3">
                                         <i data-lucide="info" class="w-4 h-4 text-[#007AFF] shrink-0 mt-0.5"></i>
                                         <p class="text-xs text-black/70 dark:text-white/70 leading-relaxed">
-                                            {!! __('calculator.modal_active_pos_info', ['price' => '<strong class="text-black dark:text-white tabular-nums" x-text="quickOfflinePrice.toLocaleString(\'id-ID\')"></strong>']) !!}
+                                            {!! __('calculator.modal_active_pos_info', ['price' => '<strong class="text-black dark:text-white tabular-nums" x-text="quickOfflinePrice.toLocaleString(localeCode)"></strong>']) !!}
                                         </p>
                                     </div>
                                 </div>
@@ -1487,7 +1485,7 @@
                                             <div>
                                                 <span class="text-[10px] uppercase font-bold text-white/50 block">{{ __('calculator.pos_selling_price_label') }}</span>
                                                 <span class="text-2xl font-bold text-white tabular-nums">
-                                                    Rp <span x-text="quickOfflinePrice.toLocaleString('id-ID')"></span>
+                                                    Rp <span x-text="quickOfflinePrice.toLocaleString(localeCode)"></span>
                                                 </span>
                                             </div>
                                             <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-[#34C759]/20 text-[#30D158] border border-[#34C759]/30 tabular-nums">
@@ -1498,11 +1496,11 @@
                                         <div class="grid grid-cols-2 gap-2 pt-2 border-t border-white/10 text-xs">
                                             <div class="p-2.5 rounded-[10px] bg-white/5">
                                                 <span class="text-[10px] text-white/50 block">{{ __('calculator.net_cogs_modal') }}</span>
-                                                <span class="font-bold text-white tabular-nums">Rp <span x-text="quickTotalHpp.toLocaleString('id-ID')"></span></span>
+                                                <span class="font-bold text-white tabular-nums">Rp <span x-text="quickTotalHpp.toLocaleString(localeCode)"></span></span>
                                             </div>
                                             <div class="p-2.5 rounded-[10px] bg-white/5">
                                                 <span class="text-[10px] text-white/50 block">{{ __('calculator.gross_profit_unit') }}</span>
-                                                <span class="font-bold text-[#30D158] tabular-nums">+Rp <span x-text="quickOfflineProfit.toLocaleString('id-ID')"></span></span>
+                                                <span class="font-bold text-[#30D158] tabular-nums">+Rp <span x-text="quickOfflineProfit.toLocaleString(localeCode)"></span></span>
                                             </div>
                                         </div>
                                     </div>
@@ -1624,15 +1622,15 @@
                                         <div class="space-y-2 divide-y divide-black/[0.04] dark:divide-white/[0.04]">
                                             <div class="flex justify-between items-center pt-1.5">
                                                 <span class="text-black/60 dark:text-white/60">{{ __('calculator.run_cost_model_label') }}</span>
-                                                <span class="font-bold text-black dark:text-white" x-text="selectedCostModel ? selectedCostModel.name : (selectedProduct ? selectedProduct.name : 'Model Terpilih')"></span>
+                                                <span class="font-bold text-black dark:text-white" x-text="selectedCostModel ? selectedCostModel.name : (selectedProduct ? selectedProduct.name : {{ Js::from(__('calculator.selected_model_fallback')) }})"></span>
                                             </div>
                                             <div class="flex justify-between items-center pt-1.5">
                                                 <span class="text-black/60 dark:text-white/60">{{ __('calculator.run_total_batch_label') }}</span>
-                                                <span class="font-bold text-black dark:text-white tabular-nums" x-text="calcResult ? ('Rp ' + Math.round(calcResult.total_hpp || 0).toLocaleString('id-ID')) : 'Rp 0'"></span>
+                                                <span class="font-bold text-black dark:text-white tabular-nums" x-text="calcResult ? ('Rp ' + Math.round(calcResult.total_hpp || 0).toLocaleString(localeCode)) : 'Rp 0'"></span>
                                             </div>
                                             <div class="flex justify-between items-center pt-1.5">
                                                 <span class="text-black/60 dark:text-white/60">{{ __('calculator.run_unit_cogs_label') }}</span>
-                                                <span class="font-bold text-[#007AFF] dark:text-[#0A84FF] tabular-nums" x-text="calcResult ? ('Rp ' + Math.round(calcResult.hpp_per_unit || 0).toLocaleString('id-ID')) : 'Rp 0'"></span>
+                                                <span class="font-bold text-[#007AFF] dark:text-[#0A84FF] tabular-nums" x-text="calcResult ? ('Rp ' + Math.round(calcResult.hpp_per_unit || 0).toLocaleString(localeCode)) : 'Rp 0'"></span>
                                             </div>
                                             <div class="flex justify-between items-center pt-1.5">
                                                 <span class="text-black/60 dark:text-white/60">{{ __('calculator.run_save_time_label') }}</span>

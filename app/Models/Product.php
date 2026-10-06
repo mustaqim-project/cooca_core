@@ -86,6 +86,11 @@ class Product extends Model
         return (float) ($this->weight ?: 200.0);
     }
 
+    public function getTitleAttribute(): string
+    {
+        return (string) ($this->attributes['name'] ?? $this->name ?? '');
+    }
+
     /**
      * @return array<string, string>
      */

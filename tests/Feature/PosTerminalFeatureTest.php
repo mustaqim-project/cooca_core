@@ -135,14 +135,31 @@ final class PosTerminalFeatureTest extends TestCase
         ]);
         $cashInResp->assertStatus(200);
 
-        // Expected cash should now be 100.000 + 50.000 = 150.000
+        // 2b. Uji validasi kategori other pada cash movement
+        $failOtherResp = $this->postJson(route('pos.shifts.cash-movement', $shift->id), [
+            'type' => 'cash_out',
+            'amount' => 10000,
+            'category' => 'other',
+            'other_description' => '',
+        ]);
+        $failOtherResp->assertStatus(422);
+
+        $successOtherResp = $this->postJson(route('pos.shifts.cash-movement', $shift->id), [
+            'type' => 'cash_out',
+            'amount' => 10000,
+            'category' => 'other',
+            'other_description' => 'Beli plastik struk',
+        ]);
+        $successOtherResp->assertStatus(200);
+
+        // Expected cash should now be 100.000 + 50.000 - 10.000 = 140.000
         $summaryResp = $this->getJson(route('pos.shifts.summary', $shift->id));
         $summaryResp->assertStatus(200);
-        $summaryResp->assertJsonPath('summary.expected_cash', 150000);
+        $summaryResp->assertJsonPath('summary.expected_cash', 140000);
 
-        // 3. Tutup shift dengan hitungan fisik Rp150.000 (selisih 0)
+        // 3. Tutup shift dengan hitungan fisik Rp140.000 (selisih 0)
         $closeResp = $this->postJson(route('pos.shifts.close', $shift->id), [
-            'closing_cash_actual' => 150000,
+            'closing_cash_actual' => 140000,
         ]);
         $closeResp->assertStatus(200);
 

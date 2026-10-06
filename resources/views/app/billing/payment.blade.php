@@ -368,13 +368,6 @@
                             <span class="font-bold tabular-nums text-black dark:text-white">Rp
                                 {{ number_format($payment->amount, 0, ',', '.') }}</span>
                         </div>
-                        @if($payment->gateway_fee > 0)
-                            <div class="flex items-center justify-between text-xs pt-1 border-t border-black/[0.04] dark:border-white/[0.04]">
-                                <span class="text-gray-500 dark:text-gray-400 font-sans">{{ __('billing.gateway_fee_label') }}</span>
-                                <span class="font-bold tabular-nums text-black dark:text-white">Rp
-                                    {{ number_format($payment->gateway_fee, 0, ',', '.') }}</span>
-                            </div>
-                        @endif
                         <div
                             class="flex items-center justify-between text-xs pt-1 border-t border-black/[0.06] dark:border-white/[0.08] font-bold">
                             <span class="text-black dark:text-white font-sans">{{ __('billing.final_total_bill') }}</span>

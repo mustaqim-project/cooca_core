@@ -117,6 +117,14 @@ Route::prefix('v1')->group(function (): void {
 
     Route::get('/docs', [ReportController::class, 'docs']);
 
+    // Model Context Protocol (MCP) Multi-Tenant Universal AI Gateway
+    Route::prefix('mcp')->middleware(['mcp.auth', 'throttle:120,1'])->group(function (): void {
+        Route::get('/sse', [\App\Http\Controllers\Api\V1\Mcp\McpSseController::class, 'sse']);
+        Route::post('/message', [\App\Http\Controllers\Api\V1\Mcp\McpSseController::class, 'message']);
+        Route::get('/openapi.json', [\App\Http\Controllers\Api\V1\Mcp\McpSseController::class, 'openapi']);
+        Route::post('/tools/{tool}/execute', [\App\Http\Controllers\Api\V1\Mcp\McpSseController::class, 'executeDirect']);
+    });
+
     // Currencies (Global List)
     Route::get('/currencies', [CurrencyController::class, 'index']);
 

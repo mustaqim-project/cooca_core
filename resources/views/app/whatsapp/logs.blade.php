@@ -45,7 +45,7 @@
         <!-- Apple-Style Server-Side Segmented Quick Filter -->
         <div class="flex items-center justify-between flex-wrap gap-3">
             <div
-                class="inline-flex p-1 rounded-[14px] bg-black/[0.05] dark:bg-white/[0.08] border border-black/5 dark:border-white/5 overflow-x-auto text-[12.5px] font-medium w-full sm:w-auto">
+                class="inline-flex p-1 rounded-[14px] bg-black/[0.05] dark:bg-white/[0.08] border border-black/5 dark:border-white/5 overflow-x-auto no-scrollbar text-[12.5px] font-medium w-full sm:w-auto">
                 <a href="{{ route('whatsapp.logs.index') }}"
                     class="min-h-[44px] sm:min-h-[36px] px-4 rounded-[10px] transition-all whitespace-nowrap flex items-center justify-center {{ empty($type) ? 'bg-white dark:bg-[#2C2C2E] text-black dark:text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] font-bold' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white' }}">
                     {{ __('whatsapp.filter_all_logs') }}

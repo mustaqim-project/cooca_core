@@ -30,6 +30,8 @@
             ai: @json(__('ai')),
             validation: @json(__('validation')),
             messages: @json(__('messages')),
+            finance: @json(__('finance')),
+            pos: @json(__('pos')),
         };
 
         // Universal Client-Side i18n Helper
@@ -741,6 +743,28 @@
             border-bottom: 1px solid var(--nav-border);
         }
 
+        /* Universal Fullscreen Modal Overlay Directive (Cooca Modal Canvas Architecture) */
+        /* Ensures all modal backdrops sit on the topmost viewport layer (z-index 99999), covering sticky topbars (z-30) and sidebars (z-50) completely without visual leaks or top gaps. */
+        .fixed.inset-0.z-50,
+        .fixed.inset-0.z-\[50\],
+        .fixed.inset-0.z-\[60\],
+        .fixed.inset-0.z-\[70\],
+        .fixed.inset-0.z-\[75\],
+        .fixed.inset-0.z-\[80\],
+        .fixed.inset-0.z-\[100\],
+        .fixed.inset-0.z-\[200\],
+        .fixed.inset-0.z-\[210\],
+        .fixed.inset-0.z-\[220\],
+        [x-cloak].fixed.inset-0,
+        div[x-show*="Modal"].fixed.inset-0,
+        div[x-show*="modal"].fixed.inset-0,
+        div[x-show*="Modal"] > .fixed.inset-0,
+        div[x-show*="modal"] > .fixed.inset-0,
+        div[x-show*="Sheet"].fixed.inset-0,
+        div[x-show*="sheet"].fixed.inset-0 {
+            z-index: 99999 !important;
+        }
+
         .glass-card {
             background: var(--surface);
             backdrop-filter: blur(12px);
@@ -1135,7 +1159,7 @@
 
         <!-- Main Content Area (macOS Window Canvas) -->
         <div :class="sidebarCollapsed ? 'lg:pl-[76px]' : 'lg:pl-[272px]'"
-            class="flex-1 flex flex-col min-h-screen min-w-0 transition-all duration-250 ease-out bg-[#F2F2F7] dark:bg-[#1E1E1E]">
+            class="flex-1 flex flex-col min-h-screen min-w-0 transition-[padding] duration-250 ease-out bg-[#F2F2F7] dark:bg-[#1E1E1E]">
 
             <!-- Topbar Header (Apple macOS Toolbar Architecture) -->
             @include(
@@ -1171,6 +1195,7 @@
             <div id="global-modals-container" x-data="{
                 toastList: [],
                 showExpenseModal: false,
+                showIncomeModal: false,
                 showStockInModal: false,
                 showMaterialModal: false,
                 showMobileActionSheet: false,
@@ -1180,9 +1205,11 @@
                 requiresExpenseSupervisorPin: false,
                 supervisorPin: '',
                 displayExpenseAmount: '',
+                displayIncomeAmount: '',
                 displayStockInUnitCost: '',
                 displayMaterialCost: '',
-                expenseForm: { name: '', amount: '', category: 'Operasional Toko', payment_method: 'cash', notes: '' },
+                expenseForm: { name: '', amount: '', category: 'Operasional Harian', other_description: '', payment_method: 'cash', notes: '' },
+                incomeForm: { name: '', amount: '', category: 'Penjualan / Pendapatan Usaha', other_description: '', payment_method: 'cash', notes: '' },
                 stockInForm: { material_id: '', product_id: '', quantity: 1, unit_cost: '', supplier_name: '', notes: '' },
                 materialForm: { name: '', cost_per_unit: '', unit_id: '', category_id: '', sku: '' },
 
@@ -1192,6 +1219,9 @@
                     });
                     window.addEventListener('open-quick-expense', () => { 
                         this.showExpenseModal = true; 
+                    });
+                    window.addEventListener('open-quick-income', () => { 
+                        this.showIncomeModal = true; 
                     });
                     window.addEventListener('open-quick-stockin', () => { 
                         this.openStockInModal(); 
@@ -1220,6 +1250,12 @@
                     this.expenseForm.amount = raw;
                     this.displayExpenseAmount = raw > 0 ? this.formatRupiah(raw) : '';
                     this.requiresExpenseSupervisorPin = raw >= 500000;
+                },
+
+                handleIncomeAmountInput(e) {
+                    const raw = this.parseNumber(e.target.value);
+                    this.incomeForm.amount = raw;
+                    this.displayIncomeAmount = raw > 0 ? this.formatRupiah(raw) : '';
                 },
 
                 handleStockInCostInput(e) {
@@ -1277,6 +1313,10 @@
                 async submitQuickExpense() {
                     if (this.isSubmitting) return;
                     if (!this.expenseForm.name || !this.expenseForm.amount) return;
+                    if ((this.expenseForm.category === 'Lainnya' || this.expenseForm.category === 'other') && !this.expenseForm.other_description?.trim()) {
+                        this.addToast(window.COOCA_I18N?.quick_actions?.expense?.other_desc_required || '{{ __('quick_actions.expense.other_desc_required') }}', 'error');
+                        return;
+                    }
                     this.isSubmitting = true;
                     const idempotencyKey = this.getIdempotencyKey();
                     try {
@@ -1296,9 +1336,9 @@
                         });
                         const data = await res.json();
                         if (res.ok && data.success) {
-                            this.addToast(data.message || (window.COOCA_I18N?.quick_actions?.expense?.success_msg || 'Pengeluaran kas berhasil dicatat.'), 'success');
+                            this.addToast(data.message || (window.COOCA_I18N?.quick_actions?.expense?.success_msg || '{{ __('quick_actions.expense.success_msg') }}'), 'success');
                             this.showExpenseModal = false;
-                            this.expenseForm = { name: '', amount: '', category: 'Operasional Toko', payment_method: 'cash', notes: '' };
+                            this.expenseForm = { name: '', amount: '', category: 'Operasional Harian', other_description: '', payment_method: 'cash', notes: '' };
                             this.displayExpenseAmount = '';
                             this.supervisorPin = '';
                             this.requiresExpenseSupervisorPin = false;
@@ -1308,10 +1348,51 @@
                             if (data.requires_pin) {
                                 this.requiresExpenseSupervisorPin = true;
                             }
-                            this.addToast(data.message || (window.COOCA_I18N?.quick_actions?.expense?.error_msg || 'Gagal menyimpan pengeluaran'), 'error');
+                            this.addToast(data.message || (window.COOCA_I18N?.quick_actions?.expense?.error_msg || '{{ __('quick_actions.expense.error_msg') }}'), 'error');
                         }
                     } catch (err) {
-                        this.addToast(window.COOCA_I18N?.common?.connection_error || 'Terjadi kesalahan koneksi', 'error');
+                        this.addToast(window.COOCA_I18N?.common?.connection_error || '{{ __('common.connection_error') }}', 'error');
+                    } finally {
+                        this.isSubmitting = false;
+                    }
+                },
+
+                async submitQuickIncome() {
+                    if (this.isSubmitting) return;
+                    if (!this.incomeForm.name || !this.incomeForm.amount) return;
+                    if ((this.incomeForm.category === 'Lainnya' || this.incomeForm.category === 'other') && !this.incomeForm.other_description?.trim()) {
+                        this.addToast(window.COOCA_I18N?.quick_actions?.income?.other_desc_required || '{{ __('quick_actions.income.other_desc_required') }}', 'error');
+                        return;
+                    }
+                    this.isSubmitting = true;
+                    const idempotencyKey = this.getIdempotencyKey();
+                    try {
+                        const payload = {
+                            ...this.incomeForm
+                        };
+                        const res = await fetch('{{ route('dashboard.quick-inflow') }}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'X-Idempotency-Key': idempotencyKey,
+                                'Accept': 'application/json'
+                            },
+                            body: JSON.stringify(payload)
+                        });
+                        const data = await res.json();
+                        if (res.ok && data.success) {
+                            this.addToast(data.message || (window.COOCA_I18N?.quick_actions?.income?.success_msg || '{{ __('quick_actions.income.success_msg') }}'), 'success');
+                            this.showIncomeModal = false;
+                            this.incomeForm = { name: '', amount: '', category: 'Penjualan / Pendapatan Usaha', other_description: '', payment_method: 'cash', notes: '' };
+                            this.displayIncomeAmount = '';
+                            window.dispatchEvent(new CustomEvent('income-added', { detail: data }));
+                            window.dispatchEvent(new CustomEvent('cooca-data-mutated', { detail: { type: 'income', data } }));
+                        } else {
+                            this.addToast(data.message || (window.COOCA_I18N?.quick_actions?.income?.error_msg || '{{ __('quick_actions.income.error_msg') }}'), 'error');
+                        }
+                    } catch (err) {
+                        this.addToast(window.COOCA_I18N?.common?.connection_error || '{{ __('common.connection_error') }}', 'error');
                     } finally {
                         this.isSubmitting = false;
                     }
@@ -1335,17 +1416,17 @@
                         });
                         const data = await res.json();
                         if (res.ok && data.success) {
-                            this.addToast(data.message || (window.COOCA_I18N?.quick_actions?.stock_in?.success_msg || 'Stok masuk berhasil dicatat.'), 'success');
+                            this.addToast(data.message || (window.COOCA_I18N?.quick_actions?.stock_in?.success_msg || '{{ __('quick_actions.stock_in.success_msg') }}'), 'success');
                             this.showStockInModal = false;
                             this.stockInForm = { material_id: '', product_id: '', quantity: 1, unit_cost: '', supplier_name: '', notes: '' };
                             this.displayStockInUnitCost = '';
                             window.dispatchEvent(new CustomEvent('stock-in-added', { detail: data }));
                             window.dispatchEvent(new CustomEvent('cooca-data-mutated', { detail: { type: 'stock', data } }));
                         } else {
-                            this.addToast(data.message || (window.COOCA_I18N?.quick_actions?.stock_in?.error_msg || 'Gagal menambah stok'), 'error');
+                            this.addToast(data.message || (window.COOCA_I18N?.quick_actions?.stock_in?.error_msg || '{{ __('quick_actions.stock_in.error_msg') }}'), 'error');
                         }
                     } catch (err) {
-                        this.addToast(window.COOCA_I18N?.common?.connection_error || 'Terjadi kesalahan koneksi', 'error');
+                        this.addToast(window.COOCA_I18N?.common?.connection_error || '{{ __('common.connection_error') }}', 'error');
                     } finally {
                         this.isSubmitting = false;
                     }
@@ -1369,7 +1450,7 @@
                         });
                         const data = await res.json();
                         if (res.ok && data.success) {
-                            this.addToast(data.message || (window.COOCA_I18N?.quick_actions?.material?.success_msg || 'Bahan baku baru berhasil didaftarkan.'), 'success');
+                            this.addToast(data.message || (window.COOCA_I18N?.quick_actions?.material?.success_msg || '{{ __('quick_actions.material.success_msg') }}'), 'success');
                             this.showMaterialModal = false;
                             this.materialForm = { name: '', cost_per_unit: '', unit_id: '', category_id: '', sku: '' };
                             this.displayMaterialCost = '';
@@ -1377,10 +1458,10 @@
                             window.dispatchEvent(new CustomEvent('material-added', { detail: data.material }));
                             window.dispatchEvent(new CustomEvent('cooca-data-mutated', { detail: { type: 'material', data: data.material } }));
                         } else {
-                            this.addToast(data.message || (window.COOCA_I18N?.quick_actions?.material?.error_msg || 'Gagal menambah bahan baku'), 'error');
+                            this.addToast(data.message || (window.COOCA_I18N?.quick_actions?.material?.error_msg || '{{ __('quick_actions.material.error_msg') }}'), 'error');
                         }
                     } catch (err) {
-                        this.addToast(window.COOCA_I18N?.common?.connection_error || 'Terjadi kesalahan koneksi', 'error');
+                        this.addToast(window.COOCA_I18N?.common?.connection_error || '{{ __('common.connection_error') }}', 'error');
                     } finally {
                         this.isSubmitting = false;
                     }
@@ -1480,12 +1561,33 @@
                                     class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">{{ __('quick_actions.expense.category_label') }}</label>
                                 <select x-model="expenseForm.category" :disabled="isSubmitting"
                                     class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-base sm:text-sm text-black dark:text-white focus:ring-2 focus:ring-[#007AFF]/50 outline-none transition disabled:opacity-50">
-                                    <option value="Operasional Toko">{{ __('quick_actions.expense.cat_operational') }}</option>
-                                    <option value="Bahan Habis Pakai">{{ __('quick_actions.expense.cat_consumables') }}</option>
-                                    <option value="Listrik, Air & Gas">{{ __('quick_actions.expense.cat_utilities') }}</option>
+                                    <option value="Operasional Harian">{{ __('quick_actions.expense.cat_operational') }}</option>
+                                    <option value="Listrik, Air & Utilitas">{{ __('quick_actions.expense.cat_utilities') }}</option>
+                                    <option value="Pulsa, Internet & Komunikasi">{{ __('quick_actions.expense.cat_internet_phone') }}</option>
+                                    <option value="Bahan Habis Pakai & Perlengkapan">{{ __('quick_actions.expense.cat_consumables') }}</option>
+                                    <option value="Gaji & Upah Kasir/Karyawan">{{ __('quick_actions.expense.cat_salaries') }}</option>
+                                    <option value="Konsumsi, Snack & Makan Tim">{{ __('quick_actions.expense.cat_consumption') }}</option>
                                     <option value="Transportasi & Logistik">{{ __('quick_actions.expense.cat_logistics') }}</option>
+                                    <option value="Sewa Tempat & Gedung">{{ __('quick_actions.expense.cat_rent') }}</option>
+                                    <option value="Perbaikan & Perawatan Aset">{{ __('quick_actions.expense.cat_maintenance') }}</option>
+                                    <option value="Iklan & Promosi Toko">{{ __('quick_actions.expense.cat_marketing') }}</option>
+                                    <option value="Pajak, Retribusi & Izin">{{ __('quick_actions.expense.cat_taxes_legal') }}</option>
+                                    <option value="Biaya Admin Bank & Transaksi">{{ __('quick_actions.expense.cat_bank_admin') }}</option>
+                                    <option value="Kas Bon Karyawan">{{ __('quick_actions.expense.cat_cash_advance') }}</option>
                                     <option value="Lainnya">{{ __('quick_actions.expense.cat_other') }}</option>
                                 </select>
+                            </div>
+
+                            <!-- Alert Callout Khusus Kategori Lainnya (Wajib Diisi) -->
+                            <div x-show="expenseForm.category === 'Lainnya'" x-transition class="p-3 bg-amber-500/10 dark:bg-amber-500/15 border border-amber-500/30 rounded-[12px] space-y-1.5">
+                                <label class="block text-[11.5px] font-bold text-amber-700 dark:text-amber-300 flex items-center gap-1.5">
+                                    <i data-lucide="alert-circle" class="w-3.5 h-3.5"></i>
+                                    <span>{{ __('quick_actions.expense.other_desc_label') }} *</span>
+                                </label>
+                                <input type="text" x-model="expenseForm.other_description" :required="expenseForm.category === 'Lainnya'" :disabled="isSubmitting"
+                                    placeholder="{{ __('quick_actions.expense.other_desc_placeholder') }}"
+                                    class="w-full h-9 bg-white dark:bg-[#1C1C1E] border border-amber-500/30 rounded-[8px] px-3 text-base sm:text-sm text-black dark:text-white outline-none focus:ring-2 focus:ring-amber-500/50 disabled:opacity-50">
+                                <p class="text-[10.5px] text-amber-700/80 dark:text-amber-300/80">{{ __('quick_actions.expense.other_desc_required') }}</p>
                             </div>
 
                             <!-- Supervisor PIN Guard (Maker-Checker Threshold >= Rp 500.000) -->
@@ -1505,6 +1607,109 @@
                                 <button type="submit" :disabled="isSubmitting" class="btn-apple-filled flex items-center gap-2">
                                     <svg x-show="isSubmitting" class="animate-spin h-3.5 w-3.5 text-white" viewBox="0 0 24 24" fill="none"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                                     <span x-text="isSubmitting ? '{{ __('common.saving') }}' : '{{ __('quick_actions.expense.submit_btn') }}'"></span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Modal 1B: Quick Instant Inflow / Pemasukan Kas (Apple Sheet) -->
+                <div x-show="showIncomeModal" x-transition:enter="transition ease-out duration-200"
+                    x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+                    x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100"
+                    x-transition:leave-end="opacity-0"
+                    class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/25 backdrop-blur-[2px]"
+                    style="display: none;">
+                    <div class="w-full max-w-md rounded-[16px] bg-white/95 dark:bg-[#2C2C2E]/95 backdrop-blur-xl border border-black/5 dark:border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.2)] p-5 space-y-4"
+                        @click.outside="if (!isSubmitting) showIncomeModal = false">
+                        <div class="flex items-center justify-between border-b border-black/5 dark:border-white/10 pb-3">
+                            <div class="flex items-center gap-2.5">
+                                <div class="w-8 h-8 rounded-[8px] bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158] flex items-center justify-center">
+                                    <i data-lucide="arrow-down-left" class="w-4 h-4"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-[16px] font-semibold text-black dark:text-white tracking-tight">
+                                        {{ __('quick_actions.income.title') }}</h3>
+                                    <p class="text-[12px] text-black/50 dark:text-white/50">{{ __('quick_actions.income.subtitle') }}</p>
+                                </div>
+                            </div>
+                            <button type="button" @click="showIncomeModal = false" :disabled="isSubmitting"
+                                class="w-7 h-7 rounded-full flex items-center justify-center text-black/40 hover:text-black/70 dark:text-white/40 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 transition-colors disabled:opacity-40"
+                                aria-label="{{ __('common.close') }}">
+                                <i data-lucide="x" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+
+                        <form @submit.prevent="submitQuickIncome" class="space-y-3 text-[13px]">
+                            <div>
+                                <label class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">{{ __('quick_actions.income.name_label') }}</label>
+                                <input type="text" x-model="incomeForm.name" required :disabled="isSubmitting"
+                                    placeholder="{{ __('quick_actions.income.name_placeholder') }}"
+                                    class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-base sm:text-sm text-black dark:text-white placeholder:text-black/30 dark:placeholder:text-white/30 focus:ring-2 focus:ring-[#34C759]/50 outline-none transition disabled:opacity-50">
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">{{ __('quick_actions.income.amount_label') }}</label>
+                                    <div class="relative">
+                                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-[13px] font-bold text-black/40 dark:text-white/40">Rp</span>
+                                        <input type="text" inputmode="numeric"
+                                            x-model="displayIncomeAmount"
+                                            @input="handleIncomeAmountInput($event)"
+                                            required :disabled="isSubmitting"
+                                            placeholder="{{ __('quick_actions.income.amount_placeholder') }}"
+                                            class="w-full h-10 pl-9 pr-3 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] text-base sm:text-sm font-semibold text-black dark:text-white tabular-nums placeholder:text-black/30 dark:placeholder:text-white/30 focus:ring-2 focus:ring-[#34C759]/50 outline-none transition disabled:opacity-50">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">{{ __('quick_actions.income.payment_method_label') }}</label>
+                                    <select x-model="incomeForm.payment_method" :disabled="isSubmitting"
+                                        class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-base sm:text-sm text-black dark:text-white focus:ring-2 focus:ring-[#34C759]/50 outline-none transition disabled:opacity-50">
+                                        <option value="cash">{{ __('quick_actions.income.method_cash') }}</option>
+                                        <option value="bank">{{ __('quick_actions.income.method_bank') }}</option>
+                                        <option value="qris">{{ __('quick_actions.income.method_qris') }}</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-[12px] font-medium text-black/70 dark:text-white/70 mb-1">{{ __('quick_actions.income.category_label') }}</label>
+                                <select x-model="incomeForm.category" :disabled="isSubmitting"
+                                    class="w-full h-10 bg-black/[0.04] dark:bg-white/[0.06] border-none rounded-[10px] px-3 text-base sm:text-sm text-black dark:text-white focus:ring-2 focus:ring-[#34C759]/50 outline-none transition disabled:opacity-50">
+                                    <option value="Penjualan / Pendapatan Usaha">{{ __('quick_actions.income.cat_sales') }}</option>
+                                    <option value="Tambahan Modal Pemilik">{{ __('quick_actions.income.cat_capital') }}</option>
+                                    <option value="Tambah Modal Kasir / Pecahan">{{ __('quick_actions.income.cat_float') }}</option>
+                                    <option value="Pendapatan Jasa / Non-POS">{{ __('quick_actions.income.cat_service') }}</option>
+                                    <option value="Pembayaran Piutang Pelanggan">{{ __('quick_actions.income.cat_receivable') }}</option>
+                                    <option value="Bunga Bank / Bagi Hasil">{{ __('quick_actions.income.cat_bank_interest') }}</option>
+                                    <option value="Investasi / Pendanaan Masuk">{{ __('quick_actions.income.cat_investment') }}</option>
+                                    <option value="Penjualan Aset / Barang Bekas">{{ __('quick_actions.income.cat_asset_sale') }}</option>
+                                    <option value="Pengembalian Dana (Refund)">{{ __('quick_actions.income.cat_refund') }}</option>
+                                    <option value="Restitusi Pajak">{{ __('quick_actions.income.cat_tax_refund') }}</option>
+                                    <option value="Titipan Dana / Talangan">{{ __('quick_actions.income.cat_deposit') }}</option>
+                                    <option value="Lainnya">{{ __('quick_actions.income.cat_other') }}</option>
+                                </select>
+                            </div>
+
+                            <!-- Alert Callout Khusus Kategori Lainnya (Wajib Diisi) -->
+                            <div x-show="incomeForm.category === 'Lainnya'" x-transition class="p-3 bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/30 rounded-[12px] space-y-1.5">
+                                <label class="block text-[11.5px] font-bold text-emerald-700 dark:text-emerald-300 flex items-center gap-1.5">
+                                    <i data-lucide="alert-circle" class="w-3.5 h-3.5"></i>
+                                    <span>{{ __('quick_actions.income.other_desc_label') }} *</span>
+                                </label>
+                                <input type="text" x-model="incomeForm.other_description" :required="incomeForm.category === 'Lainnya'" :disabled="isSubmitting"
+                                    placeholder="{{ __('quick_actions.income.other_desc_placeholder') }}"
+                                    class="w-full h-9 bg-white dark:bg-[#1C1C1E] border border-emerald-500/30 rounded-[8px] px-3 text-base sm:text-sm text-black dark:text-white outline-none focus:ring-2 focus:ring-emerald-500/50 disabled:opacity-50">
+                                <p class="text-[10.5px] text-emerald-700/80 dark:text-emerald-300/80">{{ __('quick_actions.income.other_desc_required') }}</p>
+                            </div>
+
+                            <div class="flex justify-end gap-2 pt-2 border-t border-black/5 dark:border-white/10">
+                                <button type="button" @click="showIncomeModal = false" :disabled="isSubmitting" class="btn-apple-gray disabled:opacity-40">
+                                    {{ __('common.cancel') }}
+                                </button>
+                                <button type="submit" :disabled="isSubmitting" class="min-h-[38px] px-5 rounded-[10px] text-[13px] font-bold text-white bg-[#34C759] hover:bg-[#2DBE50] active:scale-[0.98] transition shadow-[0_2px_8px_rgba(52,199,89,0.3)] flex items-center gap-2">
+                                    <svg x-show="isSubmitting" class="animate-spin h-3.5 w-3.5 text-white" viewBox="0 0 24 24" fill="none"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                    <span x-text="isSubmitting ? '{{ __('common.saving') }}' : '{{ __('quick_actions.income.submit_btn') }}'"></span>
                                 </button>
                             </div>
                         </form>
@@ -1736,6 +1941,20 @@
                                     <div>
                                         <div class="font-medium text-black dark:text-white">{{ __('quick_actions.sheet.expense_title') }}</div>
                                         <div class="text-[11px] text-black/45 dark:text-white/45">{{ __('quick_actions.sheet.expense_desc') }}</div>
+                                    </div>
+                                </button>
+                            @endif
+
+                            @if (\App\Support\Context::hasPermission('finance.cash_bank') || \App\Support\Context::hasPermission('expenses.manage') || \App\Support\Context::isOwner())
+                                <button type="button" @click="showMobileActionSheet = false; showIncomeModal = true"
+                                    class="p-3.5 rounded-[12px] bg-black/[0.03] dark:bg-white/[0.04] active:bg-black/[0.06] dark:active:bg-white/[0.08] text-left space-y-1.5 transition active:scale-[0.97]">
+                                    <div
+                                        class="w-8 h-8 rounded-[8px] bg-[#34C759]/12 text-[#248A3D] dark:text-[#30D158] flex items-center justify-center">
+                                        <i data-lucide="arrow-down-left" class="w-4 h-4"></i>
+                                    </div>
+                                    <div>
+                                        <div class="font-medium text-black dark:text-white">{{ __('quick_actions.sheet.income_title') }}</div>
+                                        <div class="text-[11px] text-black/45 dark:text-white/45">{{ __('quick_actions.sheet.income_desc') }}</div>
                                     </div>
                                 </button>
                             @endif
