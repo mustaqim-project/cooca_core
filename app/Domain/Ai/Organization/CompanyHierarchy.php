@@ -255,9 +255,67 @@ final class CompanyHierarchy
      *     room_id: string
      * }
      */
-    public static function routeTopicToTeam(string $topic, ?string $preferredTeam = null): array
+    public static function routeTopicToTeam(string $topic, ?string $preferredTeam = null, ?string $preferredAgent = null): array
     {
         $teams = self::getTeams();
+
+        // 0. If explicit preferred agent provided (Specific specialist agent targeted)
+        if ($preferredAgent !== null && trim($preferredAgent) !== '') {
+            $preferredAgentKey = strtolower(trim($preferredAgent));
+            $agentEnum = AgentRole::tryFrom($preferredAgentKey);
+            $execEnum = ExecutiveRole::tryFrom($preferredAgentKey);
+
+            if ($agentEnum !== null) {
+                $dept = $agentEnum->department();
+                $teamKey = match ($dept) {
+                    Department::EXECUTIVE => 'executive',
+                    Department::MARKETING => 'marketing',
+                    Department::SALES => 'sales',
+                    Department::OPERATIONS => 'operations',
+                    Department::FINANCE => 'finance',
+                    Department::PEOPLE => 'people',
+                };
+                $t = $teams[$teamKey];
+
+                $orderedAgents = array_values(array_unique(array_merge([$agentEnum], $t['agents']), SORT_REGULAR));
+                $orderedSlugs = array_map(fn($a) => $a->value, $orderedAgents);
+
+                return [
+                    'team' => $teamKey,
+                    'team_name' => $t['name'],
+                    'is_executive' => $t['is_executive'],
+                    'executive_lead' => $agentEnum->executiveLead()->value,
+                    'lead_labels' => [$agentEnum->executiveLead()->label()],
+                    'agents' => $orderedAgents,
+                    'agent_slugs' => $orderedSlugs,
+                    'primary_agent' => $agentEnum,
+                    'room' => $t['room'],
+                    'room_id' => $t['room_id'],
+                ];
+            }
+
+            if ($execEnum !== null) {
+                $teamKey = match ($execEnum) {
+                    ExecutiveRole::CEO, ExecutiveRole::COO, ExecutiveRole::CFO => 'executive',
+                    ExecutiveRole::CMO => 'marketing',
+                    ExecutiveRole::SALES_DIRECTOR => 'sales',
+                    ExecutiveRole::HR_LEAD => 'people',
+                };
+                $t = $teams[$teamKey];
+                return [
+                    'team' => $teamKey,
+                    'team_name' => $t['name'],
+                    'is_executive' => true,
+                    'executive_lead' => $execEnum->value,
+                    'lead_labels' => [$execEnum->label()],
+                    'agents' => $t['agents'],
+                    'agent_slugs' => $t['agent_slugs'],
+                    'primary_agent' => $t['agents'][0],
+                    'room' => $t['room'],
+                    'room_id' => $t['room_id'],
+                ];
+            }
+        }
 
         // 1. If explicit preferred team provided and exists
         if ($preferredTeam !== null && isset($teams[$preferredTeam])) {

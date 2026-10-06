@@ -50,6 +50,45 @@ return [
         'cancelled' => 'Dibatalkan',
     ],
 
+    'filters' => [
+        'all_types' => 'Semua Tipe',
+    ],
+
+    'sections' => [
+        'doc_info' => 'Informasi Dokumen',
+        'doc_info_desc' => 'Pilih tipe transaksi dan pihak terkait',
+        'items_ordered' => 'Daftar Item Pesanan',
+        'items_ordered_desc' => 'Tambahkan produk atau bahan baku yang dipesan',
+        'subtotal_items' => 'Subtotal Item',
+    ],
+
+    'instant_stock_in' => [
+        'title' => '1-Klik Beli ke Stok',
+        'subtitle' => 'Catat pembelian langsung tanpa PO, langsung tambah stok fisik dan potong kas/bank.',
+        'item_product' => 'Produk Jadi / Barang Siap Jual',
+        'item_material' => 'Bahan Baku / Material',
+        'destination_warehouse' => 'Gudang Tujuan Masuk',
+        'quantity_in' => 'Jumlah Masuk',
+        'unit_cost' => 'Harga Beli Satuan',
+        'cash_account' => 'Akun Kas / Pembayaran',
+        'no_cash_outflow' => '-- Tanpa Kas Keluar (Hutang / Non-Tunai) --',
+        'supplier_optional' => 'Pemasok / Vendor (Opsional)',
+        'no_supplier_market' => '-- Tanpa Pemasok (Beli Pasar / Umum) --',
+        'notes_placeholder' => 'Catatan opsional pembelian langsung...',
+        'submit' => 'Simpan & Masukkan Stok',
+    ],
+
+    'modals' => [
+        'delete_title' => 'Hapus Draft PO?',
+        'delete_desc' => 'Apakah Anda yakin ingin menghapus draft purchase order',
+        'delete_confirm' => 'Ya, Hapus Draft',
+        'cancel_warning' => 'Pesanan :number akan dibatalkan permanen. Data audit pembatalan akan disimpan.',
+    ],
+
+    'invoices_section' => [
+        'title' => 'Faktur & Invoice Terkait',
+    ],
+
     'actions' => [
         'create_po' => 'Buat PO Baru',
         'instant_stock_in' => '1-Klik Beli ke Stok',
@@ -149,6 +188,9 @@ return [
     ],
 
     'detail' => [
+        'issuer' => 'Penerbit Dokumen',
+        'customer_party' => 'Pelanggan / Pemesan',
+        'supplier_party' => 'Pemasok / Vendor',
         'document_issuer' => 'Penerbit Dokumen:',
         'buyer_client' => 'Pelanggan / Pemesan:',
         'vendor_supplier' => 'Pemasok / Vendor Dituju:',
@@ -176,6 +218,7 @@ return [
     ],
 
     'messages' => [
+        'empty_state' => 'Belum ada dokumen Purchase Order.',
         'created' => 'Pesanan :number berhasil dibuat.',
         'created_with_approval' => 'Pesanan :number berhasil dibuat dan diajukan ke alur persetujuan (:levels Level).',
         'confirmed' => 'Pesanan :number telah dikonfirmasi.',

@@ -890,22 +890,32 @@
                         </div>
                     </a>
 
-                    @if (request()->routeIs('cooca-ai.*') || request()->routeIs('ai.*'))
+                    @if (request()->routeIs('cooca-ai.*') || request()->routeIs('ai.*') || request()->routeIs('pos.ai.*'))
                         <div x-show="!sidebarCollapsed" class="ml-4 pl-3 py-1 space-y-0.5 border-l border-black/10 dark:border-white/10 mt-1 text-[12px]">
-                            <a href="{{ route('cooca-ai.office.executive') }}"
-                                class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] font-medium transition-colors {{ request()->routeIs('cooca-ai.office.executive') ? 'bg-black/5 dark:bg-white/10 text-indigo-600 dark:text-indigo-400 font-bold' : 'text-black/70 dark:text-white/70 hover:bg-black/[0.03] dark:hover:bg-white/[0.04]' }}">
-                                <span class="w-1.5 h-1.5 rounded-full bg-indigo-500 shrink-0"></span>
-                                <span class="truncate">Executive Suite</span>
+                            <a href="{{ route('cooca-ai.index') }}"
+                                class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] font-medium transition-colors {{ (request()->routeIs('cooca-ai.index') || request()->routeIs('cooca-ai.office.*')) && !request()->routeIs('pos.ai.*') && !request()->routeIs('cooca-ai.actions*') && !request()->routeIs('cooca-ai.history*') && !request()->routeIs('cooca-ai.providers*') ? 'bg-black/5 dark:bg-white/10 text-[#AF52DE] dark:text-[#BF5AF2] font-bold' : 'text-black/70 dark:text-white/70 hover:bg-black/[0.03] dark:hover:bg-white/[0.04]' }}">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></span>
+                                <span class="truncate">AI Studio</span>
                             </a>
-                            <a href="{{ route('cooca-ai.office.operations') }}"
-                                class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] font-medium transition-colors {{ request()->routeIs('cooca-ai.office.operations') ? 'bg-black/5 dark:bg-white/10 text-sky-600 dark:text-sky-400 font-bold' : 'text-black/70 dark:text-white/70 hover:bg-black/[0.03] dark:hover:bg-white/[0.04]' }}">
+                            <a href="{{ route('pos.ai.index') }}"
+                                class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] font-medium transition-colors {{ request()->routeIs('pos.ai.*') ? 'bg-black/5 dark:bg-white/10 text-emerald-600 dark:text-emerald-400 font-bold' : 'text-black/70 dark:text-white/70 hover:bg-black/[0.03] dark:hover:bg-white/[0.04]' }}">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></span>
+                                <span class="truncate">AI POS Intelligence</span>
+                            </a>
+                            <a href="{{ route('cooca-ai.actions') }}"
+                                class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] font-medium transition-colors {{ request()->routeIs('cooca-ai.actions*') ? 'bg-black/5 dark:bg-white/10 text-amber-600 dark:text-amber-400 font-bold' : 'text-black/70 dark:text-white/70 hover:bg-black/[0.03] dark:hover:bg-white/[0.04]' }}">
+                                <span class="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0"></span>
+                                <span class="truncate">Pusat Aksi</span>
+                            </a>
+                            <a href="{{ route('cooca-ai.history') }}"
+                                class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] font-medium transition-colors {{ request()->routeIs('cooca-ai.history*') ? 'bg-black/5 dark:bg-white/10 text-sky-600 dark:text-sky-400 font-bold' : 'text-black/70 dark:text-white/70 hover:bg-black/[0.03] dark:hover:bg-white/[0.04]' }}">
                                 <span class="w-1.5 h-1.5 rounded-full bg-sky-500 shrink-0"></span>
-                                <span class="truncate">Operations Hub</span>
+                                <span class="truncate">Riwayat Sesi</span>
                             </a>
-                            <a href="{{ route('cooca-ai.office.growth') }}"
-                                class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] font-medium transition-colors {{ request()->routeIs('cooca-ai.office.growth') ? 'bg-black/5 dark:bg-white/10 text-purple-600 dark:text-purple-400 font-bold' : 'text-black/70 dark:text-white/70 hover:bg-black/[0.03] dark:hover:bg-white/[0.04]' }}">
-                                <span class="w-1.5 h-1.5 rounded-full bg-purple-500 shrink-0"></span>
-                                <span class="truncate">Growth Studio</span>
+                            <a href="{{ route('cooca-ai.providers') }}"
+                                class="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-[7px] font-medium transition-colors {{ request()->routeIs('cooca-ai.providers*') ? 'bg-black/5 dark:bg-white/10 text-indigo-600 dark:text-indigo-400 font-bold' : 'text-black/70 dark:text-white/70 hover:bg-black/[0.03] dark:hover:bg-white/[0.04]' }}">
+                                <span class="w-1.5 h-1.5 rounded-full bg-indigo-500 shrink-0"></span>
+                                <span class="truncate">Pengaturan AI</span>
                             </a>
                         </div>
                     @endif
@@ -2236,9 +2246,10 @@
                                 </span>
                             </div>
                             <div class="flex items-center justify-between text-[11px]">
-                                <span>Token AI (Top-up):</span>
-                                <span class="font-medium text-black/80 dark:text-white/80 tabular-nums">
-                                    {{ number_format($navUsage['ai_tokens']['remaining'] ?? 0) }}
+                                <span>Engine AI:</span>
+                                <span class="font-medium text-black/80 dark:text-white/80 flex items-center gap-1">
+                                    <i data-lucide="key" class="w-3 h-3 text-purple-500"></i>
+                                    <span>BYOAI (API Key)</span>
                                 </span>
                             </div>
                         </div>

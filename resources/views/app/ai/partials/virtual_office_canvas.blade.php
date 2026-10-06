@@ -8,10 +8,34 @@
     'recentTasks' => collect(),
     'pendingProposals' => collect(),
     'recentHistories' => collect(),
+    'companyTotals' => [],
 ])
 
 @php
     $officeConfigKey = 'window.__COOCA_OFFICE_' . strtoupper(preg_replace('/[^a-zA-Z0-9_]/', '_', $mode)) . '_CONFIG';
+    
+    // Dynamic single-source-of-truth stats across all views
+    $totalAgentsCount = $mode === 'lobby' 
+        ? ($companyTotals['total_agents'] ?? (count($agentStatuses) ?: 12))
+        : (count($agentStatuses) ?: 4);
+        
+    $workingAgentsCount = count(array_filter($agentStatuses, fn($a) => in_array(strtoupper($a['status'] ?? ''), ['WORKING', 'RUNNING'])));
+    $waitingApprovalAgentsCount = count(array_filter($agentStatuses, fn($a) => strtoupper($a['status'] ?? '') === 'WAITING_APPROVAL'));
+    
+    $activeAgentsCount = $mode === 'lobby'
+        ? ($companyTotals['active_agents'] ?? ($workingAgentsCount + $waitingApprovalAgentsCount))
+        : ($workingAgentsCount + $waitingApprovalAgentsCount);
+        
+    if ($activeAgentsCount === 0 && !empty($agentStatuses)) {
+        $activeAgentsCount = max(1, $workingAgentsCount ?: count($agentStatuses));
+    }
+    
+    $pendingApprovalsCount = $mode === 'lobby'
+        ? ($companyTotals['pending_approvals'] ?? $pendingProposals->count())
+        : $pendingProposals->count();
+        
+    $idleAgentsCount = max(0, $totalAgentsCount - $activeAgentsCount);
+
     $tasksData = $recentTasks->take(15)->map(fn($t) => [
         'id' => $t->id,
         'agent' => $t->agent,
@@ -59,6 +83,10 @@
     {{ $officeConfigKey }} = {
         mode: @js($mode),
         agents: @js($agentStatuses),
+        totalAgentsCount: @js($totalAgentsCount),
+        activeAgentsCount: @js($activeAgentsCount),
+        idleAgentsCount: @js($idleAgentsCount),
+        pendingApprovalsCount: @js($pendingApprovalsCount),
         tasks: @js($tasksData),
         proposals: @js($proposalsData),
         histories: @js($historiesData),
@@ -68,6 +96,21 @@
     };
 </script>
 
+<style>
+    #cooca-3d-office-viewport-{{ $mode }} {
+        width: 100% !important;
+        max-width: 100% !important;
+        position: relative;
+        overflow: hidden;
+    }
+    #cooca-3d-office-viewport-{{ $mode }} canvas {
+        max-width: 100% !important;
+        width: 100% !important;
+        height: 100% !important;
+        display: block;
+    }
+</style>
+
 <div
     x-data="coocaVirtualOffice({{ $officeConfigKey }})"
     x-init="initOffice()"
@@ -76,7 +119,7 @@
     <!-- Top Action / Control Bar for Virtual Office Floor Modes -->
     <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 p-3 rounded-2xl bg-white/70 dark:bg-zinc-900/70 backdrop-blur-md border border-black/10 dark:border-white/10 shadow-sm">
         
-        <!-- Left: Multi-Mode Switcher (3D / 2D / Bento) -->
+        <!-- Left: Multi-Mode Switcher (3D / 2D) -->
         <div class="flex flex-wrap items-center gap-2">
             <div class="inline-flex p-1 rounded-xl bg-black/5 dark:bg-white/10 border border-black/5 dark:border-white/5 text-xs font-semibold">
                 <!-- 3D Virtual Office Tab -->
@@ -103,94 +146,64 @@
                     <i data-lucide="compass" class="w-3.5 h-3.5 text-amber-500"></i>
                     <span>2D Blueprint</span>
                 </button>
-
-                <!-- Bento Analytics Grid Tab -->
-                <button
-                    type="button"
-                    @click="setMode('bento')"
-                    :class="viewMode === 'bento' ? 'bg-white dark:bg-zinc-800 text-black dark:text-white shadow-sm ring-1 ring-black/5 dark:ring-white/10' : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white'"
-                    class="px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 cursor-pointer"
-                >
-                    <i data-lucide="layout-grid" class="w-3.5 h-3.5 text-sky-500"></i>
-                    <span>Bento Analytics Grid</span>
-                </button>
             </div>
 
-            <!-- Active Workers Counter -->
-            <div class="hidden sm:flex items-center gap-1.5 text-xs text-black/50 dark:text-white/50 pl-2 border-l border-black/10 dark:border-white/10 font-mono">
-                <span class="inline-block w-2 h-2 rounded-full" :class="hasActiveWorkers ? 'bg-emerald-500 animate-ping' : 'bg-zinc-400'"></span>
-                <span x-text="activeWorkersCount + ' Agen Aktif Bekerja'"></span>
+            <!-- 12 AI Agent Status Counter -->
+            <div class="hidden sm:flex items-center gap-2 pl-2 border-l border-black/10 dark:border-white/10 text-xs">
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 font-medium">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span><strong class="font-bold text-slate-900 dark:text-white">{{ $totalAgentsCount }} AI Agent</strong>: <span class="font-bold text-emerald-600 dark:text-emerald-400">{{ $activeAgentsCount }}</span> Aktif &bull; <span class="text-slate-500 dark:text-slate-400">{{ $idleAgentsCount }}</span> Siaga</span>
+                </span>
             </div>
         </div>
 
         <!-- Right: 3D Camera Presets, Lighting, Audio & Controls -->
         <div class="flex flex-wrap items-center gap-2">
-            <!-- 3D Camera Bookmark Presets (Floor & Room Jumps) -->
-            <div x-show="viewMode === '3d'" class="flex flex-wrap items-center rounded-xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 p-0.5 text-xs">
+            <!-- 3D Camera Presets Dropdown (Floor & Room Jumps) -->
+            <div x-show="viewMode === '3d'" class="relative" x-data="{ cameraMenuOpen: false }">
                 <button
                     type="button"
-                    @click="set3DCamera('overview')"
-                    class="px-2 py-1 rounded-lg text-black/70 dark:text-white/70 hover:bg-black/10 dark:hover:bg-white/10 transition cursor-pointer"
-                    title="Sudut Pandang Utama 3 Lantai Cutaway"
+                    @click="cameraMenuOpen = !cameraMenuOpen"
+                    class="px-2.5 py-1.5 rounded-xl border border-black/10 dark:border-white/10 text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer bg-black/5 dark:bg-white/5 text-black/70 dark:text-white/70 hover:bg-black/10 dark:hover:bg-white/10"
+                    title="Pilih Sudut Pandang Kamera Ruangan"
                 >
-                    🏢 HQ
+                    <i data-lucide="video" class="w-3.5 h-3.5 text-sky-500"></i>
+                    <span class="hidden md:inline">Preset Kamera</span>
+                    <i data-lucide="chevron-down" class="w-3 h-3 transition-transform" :class="cameraMenuOpen ? 'rotate-180' : ''"></i>
                 </button>
-                <button
-                    type="button"
-                    @click="set3DCamera('executive')"
-                    class="px-2 py-1 rounded-lg text-black/70 dark:text-white/70 hover:bg-black/10 dark:hover:bg-white/10 transition cursor-pointer"
-                    title="Fokus Lantai 3: Ruang Direksi & Eksekutif"
+                <div
+                    x-show="cameraMenuOpen"
+                    @click.outside="cameraMenuOpen = false"
+                    x-transition
+                    class="absolute right-0 mt-1.5 w-52 rounded-2xl bg-slate-950/95 dark:bg-[#070b14]/95 backdrop-blur-2xl border border-white/20 p-1.5 shadow-2xl z-50 space-y-1 text-xs text-white"
+                    style="display: none;"
                 >
-                    👑 Direksi
-                </button>
-                <button
-                    type="button"
-                    @click="set3DCamera('boardroom')"
-                    class="px-2 py-1 rounded-lg text-black/70 dark:text-white/70 hover:bg-black/10 dark:hover:bg-white/10 transition cursor-pointer"
-                    title="Fokus Meja Bundar Rapat Boardroom"
-                >
-                    🤝 Boardroom
-                </button>
-                <button
-                    type="button"
-                    @click="set3DCamera('marketing')"
-                    class="px-2 py-1 rounded-lg text-black/70 dark:text-white/70 hover:bg-black/10 dark:hover:bg-white/10 transition cursor-pointer"
-                    title="Fokus Lantai 2: Studio Marketing"
-                >
-                    🎨 Marketing
-                </button>
-                <button
-                    type="button"
-                    @click="set3DCamera('sales')"
-                    class="px-2 py-1 rounded-lg text-black/70 dark:text-white/70 hover:bg-black/10 dark:hover:bg-white/10 transition cursor-pointer"
-                    title="Fokus Lantai 2: Studio Sales & CRM"
-                >
-                    💼 Sales
-                </button>
-                <button
-                    type="button"
-                    @click="set3DCamera('operations')"
-                    class="px-2 py-1 rounded-lg text-black/70 dark:text-white/70 hover:bg-black/10 dark:hover:bg-white/10 transition cursor-pointer"
-                    title="Fokus Lantai 1: Tim Operasional & Gudang"
-                >
-                    📦 Operasional
-                </button>
-                <button
-                    type="button"
-                    @click="set3DCamera('pantry')"
-                    class="px-2 py-1 rounded-lg text-black/70 dark:text-white/70 hover:bg-black/10 dark:hover:bg-white/10 transition cursor-pointer"
-                    title="Fokus Sofa Lounge Lantai 3"
-                >
-                    ☕ Pantry & Lounge
-                </button>
-                <button
-                    type="button"
-                    @click="set3DCamera('server')"
-                    class="px-2 py-1 rounded-lg text-black/70 dark:text-white/70 hover:bg-black/10 dark:hover:bg-white/10 transition cursor-pointer"
-                    title="Fokus Gudang & Server Lantai 1"
-                >
-                    🖥️ Server
-                </button>
+                    <div class="px-2 py-1 text-[10px] font-bold text-white/50 uppercase tracking-wider font-mono">Fokus Ruangan</div>
+                    <button type="button" @click="set3DCamera('overview'); cameraMenuOpen = false;" class="w-full p-2 rounded-xl text-left bg-white/5 hover:bg-white/15 flex items-center gap-2 transition cursor-pointer">
+                        <i data-lucide="building" class="w-3.5 h-3.5 text-sky-400"></i> <span>HQ Keseluruhan</span>
+                    </button>
+                    <button type="button" @click="set3DCamera('executive'); cameraMenuOpen = false;" class="w-full p-2 rounded-xl text-left bg-white/5 hover:bg-white/15 flex items-center gap-2 transition cursor-pointer">
+                        <i data-lucide="crown" class="w-3.5 h-3.5 text-amber-400"></i> <span>Direksi &amp; CEO</span>
+                    </button>
+                    <button type="button" @click="set3DCamera('boardroom'); cameraMenuOpen = false;" class="w-full p-2 rounded-xl text-left bg-white/5 hover:bg-white/15 flex items-center gap-2 transition cursor-pointer">
+                        <i data-lucide="handshake" class="w-3.5 h-3.5 text-blue-400"></i> <span>Boardroom</span>
+                    </button>
+                    <button type="button" @click="set3DCamera('marketing'); cameraMenuOpen = false;" class="w-full p-2 rounded-xl text-left bg-white/5 hover:bg-white/15 flex items-center gap-2 transition cursor-pointer">
+                        <i data-lucide="palette" class="w-3.5 h-3.5 text-purple-400"></i> <span>Marketing</span>
+                    </button>
+                    <button type="button" @click="set3DCamera('sales'); cameraMenuOpen = false;" class="w-full p-2 rounded-xl text-left bg-white/5 hover:bg-white/15 flex items-center gap-2 transition cursor-pointer">
+                        <i data-lucide="briefcase" class="w-3.5 h-3.5 text-emerald-400"></i> <span>Sales CRM</span>
+                    </button>
+                    <button type="button" @click="set3DCamera('operations'); cameraMenuOpen = false;" class="w-full p-2 rounded-xl text-left bg-white/5 hover:bg-white/15 flex items-center gap-2 transition cursor-pointer">
+                        <i data-lucide="package" class="w-3.5 h-3.5 text-teal-400"></i> <span>Operasional</span>
+                    </button>
+                    <button type="button" @click="set3DCamera('pantry'); cameraMenuOpen = false;" class="w-full p-2 rounded-xl text-left bg-white/5 hover:bg-white/15 flex items-center gap-2 transition cursor-pointer">
+                        <i data-lucide="coffee" class="w-3.5 h-3.5 text-rose-400"></i> <span>Pantry &amp; Lounge</span>
+                    </button>
+                    <button type="button" @click="set3DCamera('server'); cameraMenuOpen = false;" class="w-full p-2 rounded-xl text-left bg-white/5 hover:bg-white/15 flex items-center gap-2 transition cursor-pointer">
+                        <i data-lucide="server" class="w-3.5 h-3.5 text-indigo-400"></i> <span>Server Bay</span>
+                    </button>
+                </div>
             </div>
 
             <!-- Day / Night Lighting Switcher -->
@@ -203,7 +216,7 @@
                 :title="isNightMode ? 'Beralih ke Siang (Sunlight)' : 'Beralih ke Malam Cyberpunk'"
             >
                 <i :data-lucide="isNightMode ? 'moon' : 'sun'" class="w-3.5 h-3.5 text-amber-500"></i>
-                <span class="hidden md:inline" x-text="isNightMode ? 'Night (Cyberpunk)' : 'Daylight'"></span>
+                <span class="hidden md:inline" x-text="isNightMode ? 'Night Mode' : 'Daylight'"></span>
             </button>
 
             <!-- Audio SFX Toggle -->
@@ -256,7 +269,7 @@
                 @click="toggleFullscreen()"
                 x-show="viewMode === '3d'"
                 class="px-3 py-1.5 rounded-xl border border-indigo-500/30 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 text-xs font-semibold flex items-center gap-1.5 transition shadow-sm cursor-pointer"
-                :title="isFullscreen ? 'Keluar Mode Layar Penuh [ESC]' : 'Mode Layar Penuh (Fullscreen) dengan Navigasi Floating [F]'"
+                :title="isFullscreen ? 'Keluar Mode Layar Penuh [ESC]' : 'Mode Layar Penuh (Fullscreen) [F]'"
             >
                 <i :data-lucide="isFullscreen ? 'minimize-2' : 'maximize-2'" class="w-3.5 h-3.5"></i>
                 <span x-text="isFullscreen ? 'Keluar Fullscreen' : 'Full Screen'"></span>
@@ -275,7 +288,7 @@
         <!-- ---------------------------------------------------------- -->
         <!-- CENTER STAGE: 1-Floor Modern Corporate Campus (3D/2D/Bento) -->
         <!-- ---------------------------------------------------------- -->
-        <div class="lg:col-span-8 xl:col-span-9 space-y-3">
+        <div class="lg:col-span-8 xl:col-span-9 space-y-3 min-w-0">
             
             <!-- ============================================================== -->
             <!-- 1. FULL 3D INTERACTIVE VIRTUAL OFFICE VIEWPORT (THREE.JS WEBGL) -->
@@ -287,42 +300,29 @@
                 x-transition:enter-start="opacity-0 scale-95"
                 x-transition:enter-end="opacity-100 scale-100"
                 :class="isFullscreen ? 'fixed inset-0 z-[100] w-screen h-screen min-h-screen rounded-none border-0 shadow-none' : 'relative rounded-3xl min-h-[660px] xl:min-h-[740px] border border-slate-300 dark:border-white/10 shadow-2xl'"
-                class="bg-slate-200/80 dark:bg-[#090d16] overflow-hidden select-none transition-all duration-300 flex flex-col"
+                class="bg-slate-200/80 dark:bg-[#090d16] overflow-hidden select-none transition-all duration-300 flex flex-col w-full min-w-0"
             >
                 <!-- 3D Room & Status Header HUD (Top Left) -->
-                <div class="absolute top-4 left-4 z-20 flex flex-wrap items-center gap-2 pointer-events-auto">
-                    <div class="px-3.5 py-1.5 rounded-xl bg-slate-900/85 dark:bg-black/85 backdrop-blur-md border border-white/15 text-white flex items-center gap-2 text-xs shadow-xl">
-                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                        <span class="font-bold tracking-wide uppercase text-[11px] font-mono">
+                <div class="absolute top-4 left-4 z-20 flex items-center gap-2 pointer-events-auto max-w-[calc(100%-140px)] flex-nowrap">
+                    <div class="px-3 py-1.5 rounded-xl bg-slate-900/85 dark:bg-black/85 backdrop-blur-md border border-white/15 text-white flex items-center gap-2 text-xs shadow-xl truncate">
+                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shrink-0"></span>
+                        <span class="font-bold tracking-wide uppercase text-[11px] font-mono truncate">
                             @if($mode === 'executive')
-                                COOCA TOWER 20F // DIREKSI & BOARDROOM PENTHOUSE
+                                COOCA TOWER // DIREKSI PENTHOUSE
                             @elseif($mode === 'operations')
-                                COOCA TOWER 20F // LOGISTIK, SERVER & PENGADAAN
+                                COOCA TOWER // LOGISTIK & PENGADAAN
                             @elseif($mode === 'growth')
-                                COOCA TOWER 20F // KREATIF, SALES & CUSTOMER
+                                COOCA TOWER // KREATIF & SALES
                             @else
-                                COOCA TOWER 20F // PENTHOUSE CAMPUS
+                                COOCA TOWER // PENTHOUSE CAMPUS
                             @endif
                         </span>
                     </div>
-                    <div class="hidden xl:inline-flex px-2.5 py-1 rounded-lg bg-sky-500/20 border border-sky-500/30 text-sky-300 text-[11px] font-mono items-center gap-1 shadow-sm">
-                        <i data-lucide="building-2" class="w-3 h-3 text-sky-400"></i>
-                        <span>Lantai 20 Penthouse • 360° City & Mountain View</span>
-                    </div>
-                    <div class="hidden sm:inline-flex px-2.5 py-1 rounded-lg bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-[11px] font-mono items-center gap-1.5 shadow-sm">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+                    <div class="hidden sm:inline-flex px-2.5 py-1 rounded-lg bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-[11px] font-mono items-center gap-1.5 shadow-sm shrink-0 whitespace-nowrap">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
                         <span class="font-bold">WEBGL 3D 60FPS</span>
-                        <span>•</span>
-                        <span x-text="activeWorkersCount + ' Agen Online'"></span>
-                    </div>
-                    <div class="hidden md:inline-flex px-2.5 py-1 rounded-lg bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 text-[11px] font-mono items-center gap-1">
-                        <i data-lucide="clock" class="w-3 h-3 text-indigo-400"></i>
-                        <span x-text="currentTimeString"></span>
-                    </div>
-                    <div class="hidden lg:inline-flex px-2.5 py-1 rounded-lg border text-[11px] font-mono items-center gap-1"
-                         :class="isNightMode ? 'bg-amber-500/20 border-amber-500/30 text-amber-300' : 'bg-sky-500/20 border-sky-500/30 text-sky-300'">
-                        <i :data-lucide="isNightMode ? 'moon' : 'sun'" class="w-3 h-3"></i>
-                        <span x-text="isNightMode ? 'Night Mode' : 'Daylight'"></span>
+                        <span>&bull;</span>
+                        <span><strong class="font-bold text-white">{{ $activeAgentsCount }}</strong>/{{ $totalAgentsCount }} Aktif</span>
                     </div>
                 </div>
 
@@ -343,7 +343,7 @@
                     <div class="px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-2xl bg-slate-950/90 dark:bg-black/90 backdrop-blur-2xl border border-cyan-500/40 shadow-[0_12px_40px_rgba(0,0,0,0.7)] flex flex-wrap items-center gap-2 sm:gap-3 text-white text-xs">
                         <div class="flex items-center gap-2 font-medium">
                             <span class="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-ping"></span>
-                            <span class="text-sm sm:text-base">🎮</span>
+                            <i data-lucide="gamepad-2" class="w-4 h-4"></i>
                             <span class="font-bold text-cyan-300 truncate max-w-[140px] sm:max-w-[200px]" x-text="povAgentData.name || povAgentRole"></span>
                             <span class="text-[9px] px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 uppercase font-mono font-bold">
                                 POV
@@ -371,7 +371,7 @@
                             class="px-2.5 py-1 rounded-xl bg-white/10 hover:bg-white/20 text-white text-[11px] font-semibold flex items-center gap-1.5 transition cursor-pointer"
                             title="Duduk di Kursi Terdekat / Berdiri [E]"
                         >
-                            <span class="text-xs">🪑</span>
+                            <i data-lucide="armchair" class="w-3.5 h-3.5"></i>
                             <span class="hidden sm:inline">Duduk / Berdiri</span>
                             <kbd class="hidden md:inline-block text-[9px] bg-black/50 px-1 py-0.5 rounded font-mono">E</kbd>
                         </button>
@@ -423,7 +423,7 @@
                 <!-- Floating Bottom Status Pill -->
                 <div x-show="!isPOVMode"
                      class="absolute bottom-5 left-5 z-20 hidden md:flex items-center gap-3 px-4 py-2 rounded-2xl bg-slate-900/85 hover:bg-slate-900 dark:bg-[#070b14]/90 dark:hover:bg-[#070b14] backdrop-blur-xl border border-white/15 text-white shadow-2xl transition group cursor-pointer pointer-events-auto"
-                     @click="isFloatingChatOpen = true; if(isFloatingChatOpen) { isFloatingHistoryOpen = false; isFloatingRosterOpen = false; isCameraMenuOpen = false; }">
+                     @click="$dispatch('open-ai-consultation')">
                     <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shrink-0"></span>
                     <div class="text-xs">
                         <div class="font-bold text-white leading-tight">All systems operational</div>
@@ -462,7 +462,7 @@
                                     <span class="font-sans">Lari</span>
                                 </span>
                                 <span class="hidden sm:inline-flex items-center gap-1 text-slate-400 text-[10px]">
-                                    <span>🖱️</span>
+                                    <i data-lucide="mouse-pointer" class="w-3.5 h-3.5"></i>
                                     <span>Drag Mouse: Pandangan</span>
                                 </span>
                                 <span class="hidden md:inline-flex items-center gap-1 text-slate-400 text-[10px]">
@@ -508,59 +508,32 @@
                 <!-- FLOATING CONTROL CENTER DOCK (PUSAT KONTROL HUD MELAYANG)       -->
                 <!-- ============================================================== -->
                 <div x-show="!isPOVMode" class="absolute bottom-5 left-1/2 -translate-x-1/2 z-30 pointer-events-auto">
-                    <div class="px-2.5 py-1.5 sm:py-2 rounded-2xl bg-slate-950/85 dark:bg-[#060911]/90 hover:bg-slate-950/95 backdrop-blur-2xl border border-white/20 shadow-[0_16px_50px_rgba(0,0,0,0.7)] flex items-center gap-1.5 sm:gap-2">
+                    <div class="px-3 py-2 rounded-2xl bg-slate-950/90 dark:bg-[#060911]/95 backdrop-blur-2xl border border-white/20 shadow-[0_16px_50px_rgba(0,0,0,0.7)] flex items-center gap-2">
                         
-                        <!-- 1. Chat AI Cockpit -->
+                        <!-- 1. Tanya AI (Opens Unified Consultation Modal) -->
                         <button
                             type="button"
-                            @click="isFloatingChatOpen = !isFloatingChatOpen; if(isFloatingChatOpen) { isFloatingHistoryOpen = false; isFloatingRosterOpen = false; isCameraMenuOpen = false; }"
-                            class="px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition shadow-sm cursor-pointer relative"
-                            :class="isFloatingChatOpen ? 'bg-emerald-500 text-white font-bold ring-2 ring-emerald-400/50 shadow-emerald-500/30' : 'bg-white/10 hover:bg-white/20 text-white/90'"
-                            title="Buka Pusat Chat & Konsultasi AI [C]"
+                            @click="window.dispatchEvent(new CustomEvent('open-ai-consultation'))"
+                            class="px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition shadow-md bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white cursor-pointer active:scale-95"
+                            title="Buka Konsultasi & Instruksi Tim AI"
                         >
-                            <i data-lucide="message-square" class="w-4 h-4 text-emerald-400" :class="isFloatingChatOpen ? 'text-white' : ''"></i>
-                            <span>Chat AI</span>
-                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse ml-0.5" :class="isFloatingChatOpen ? 'bg-white' : ''"></span>
-                        </button>
-
-                        <!-- 2. Riwayat / History Cockpit -->
-                        <button
-                            type="button"
-                            @click="isFloatingHistoryOpen = !isFloatingHistoryOpen; if(isFloatingHistoryOpen) { isFloatingChatOpen = false; isFloatingRosterOpen = false; isCameraMenuOpen = false; }"
-                            class="px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition shadow-sm cursor-pointer relative"
-                            :class="isFloatingHistoryOpen ? 'bg-amber-500 text-white font-bold ring-2 ring-amber-400/50 shadow-amber-500/30' : 'bg-white/10 hover:bg-white/20 text-white/90'"
-                            title="Buka Riwayat Tugas & Log Aktivitas [H]"
-                        >
-                            <i data-lucide="history" class="w-4 h-4 text-amber-400" :class="isFloatingHistoryOpen ? 'text-white' : ''"></i>
-                            <span>Riwayat</span>
-                            <span class="px-1.5 py-0.2 rounded-full bg-amber-400/30 text-[10px] text-amber-200 font-mono" x-text="tasks.length"></span>
-                        </button>
-
-                        <!-- 3. Direktori 17 Agen & Teleport -->
-                        <button
-                            type="button"
-                            @click="isFloatingRosterOpen = !isFloatingRosterOpen; if(isFloatingRosterOpen) { isFloatingChatOpen = false; isFloatingHistoryOpen = false; isCameraMenuOpen = false; }"
-                            class="px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition shadow-sm cursor-pointer"
-                            :class="isFloatingRosterOpen ? 'bg-sky-500 text-white font-bold ring-2 ring-sky-400/50 shadow-sky-500/30' : 'bg-white/10 hover:bg-white/20 text-white/90'"
-                            title="Daftar 17 Agen & Teleport Kamera 3D"
-                        >
-                            <i data-lucide="users" class="w-4 h-4 text-sky-400" :class="isFloatingRosterOpen ? 'text-white' : ''"></i>
-                            <span class="hidden sm:inline">17 Agen</span>
+                            <i data-lucide="sparkles" class="w-4 h-4 text-white"></i>
+                            <span>Tanya AI</span>
                         </button>
 
                         <div class="h-6 w-px bg-white/15 mx-0.5"></div>
 
-                        <!-- 4. Preset Kamera 3D Popover -->
+                        <!-- 2. Preset Kamera 3D Popover -->
                         <div class="relative">
                             <button
                                 type="button"
                                 @click="isCameraMenuOpen = !isCameraMenuOpen"
-                                class="px-2.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition shadow-sm cursor-pointer"
+                                class="px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition shadow-sm cursor-pointer"
                                 :class="isCameraMenuOpen ? 'bg-indigo-500 text-white font-bold' : 'bg-white/10 hover:bg-white/20 text-white/90'"
                                 title="Preset Sudut Pandang Kamera Ruangan"
                             >
                                 <i data-lucide="camera" class="w-4 h-4 text-indigo-400" :class="isCameraMenuOpen ? 'text-white' : ''"></i>
-                                <span class="hidden md:inline">Kamera</span>
+                                <span>Kamera</span>
                                 <i data-lucide="chevron-up" class="w-3.5 h-3.5 opacity-70 transition-transform" :class="isCameraMenuOpen ? 'rotate-180' : ''"></i>
                             </button>
 
@@ -582,537 +555,34 @@
                                 </div>
                                 <div class="grid grid-cols-2 gap-1 text-xs">
                                     <button type="button" @click="set3DCamera('overview'); isCameraMenuOpen = false;" class="p-2 rounded-xl text-left bg-white/5 hover:bg-white/15 text-white flex items-center gap-2 transition cursor-pointer">
-                                        <span>🏢</span> <span class="font-medium truncate">HQ Keseluruhan</span>
+                                        <i data-lucide="building" class="w-3.5 h-3.5"></i> <span class="font-medium truncate">HQ Keseluruhan</span>
                                     </button>
                                     <button type="button" @click="set3DCamera('executive'); isCameraMenuOpen = false;" class="p-2 rounded-xl text-left bg-white/5 hover:bg-white/15 text-white flex items-center gap-2 transition cursor-pointer">
-                                        <span>👑</span> <span class="font-medium truncate">Direksi CEO</span>
+                                        <i data-lucide="crown" class="w-3.5 h-3.5"></i> <span class="font-medium truncate">Direksi CEO</span>
                                     </button>
                                     <button type="button" @click="set3DCamera('boardroom'); isCameraMenuOpen = false;" class="p-2 rounded-xl text-left bg-white/5 hover:bg-white/15 text-white flex items-center gap-2 transition cursor-pointer">
-                                        <span>🤝</span> <span class="font-medium truncate">Boardroom</span>
+                                        <i data-lucide="handshake" class="w-3.5 h-3.5"></i> <span class="font-medium truncate">Boardroom</span>
                                     </button>
                                     <button type="button" @click="set3DCamera('marketing'); isCameraMenuOpen = false;" class="p-2 rounded-xl text-left bg-white/5 hover:bg-white/15 text-white flex items-center gap-2 transition cursor-pointer">
-                                        <span>🎨</span> <span class="font-medium truncate">Marketing</span>
+                                        <i data-lucide="palette" class="w-3.5 h-3.5"></i> <span class="font-medium truncate">Marketing</span>
                                     </button>
                                     <button type="button" @click="set3DCamera('sales'); isCameraMenuOpen = false;" class="p-2 rounded-xl text-left bg-white/5 hover:bg-white/15 text-white flex items-center gap-2 transition cursor-pointer">
-                                        <span>💼</span> <span class="font-medium truncate">Sales CRM</span>
+                                        <i data-lucide="briefcase" class="w-3.5 h-3.5"></i> <span class="font-medium truncate">Sales CRM</span>
                                     </button>
                                     <button type="button" @click="set3DCamera('operations'); isCameraMenuOpen = false;" class="p-2 rounded-xl text-left bg-white/5 hover:bg-white/15 text-white flex items-center gap-2 transition cursor-pointer">
-                                        <span>📦</span> <span class="font-medium truncate">Operasional</span>
+                                        <i data-lucide="package" class="w-3.5 h-3.5"></i> <span class="font-medium truncate">Operasional</span>
                                     </button>
                                     <button type="button" @click="set3DCamera('pantry'); isCameraMenuOpen = false;" class="p-2 rounded-xl text-left bg-white/5 hover:bg-white/15 text-white flex items-center gap-2 transition cursor-pointer">
-                                        <span>☕</span> <span class="font-medium truncate">Cafe Bistro</span>
+                                        <i data-lucide="coffee" class="w-3.5 h-3.5"></i> <span class="font-medium truncate">Cafe Bistro</span>
                                     </button>
                                     <button type="button" @click="set3DCamera('server'); isCameraMenuOpen = false;" class="p-2 rounded-xl text-left bg-white/5 hover:bg-white/15 text-white flex items-center gap-2 transition cursor-pointer">
-                                        <span>🖥️</span> <span class="font-medium truncate">Server Bay</span>
+                                        <i data-lucide="server" class="w-3.5 h-3.5"></i> <span class="font-medium truncate">Server Bay</span>
                                     </button>
                                 </div>
                             </div>
-                        </div>
-
-                        <!-- 5. Day / Night Toggle -->
-                        <button
-                            type="button"
-                            @click="toggleDayNight()"
-                            class="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-amber-400 transition cursor-pointer"
-                            :title="isNightMode ? 'Beralih ke Siang (Daylight Sunlight)' : 'Beralih ke Malam (Dark Mode Architectural Lights)'"
-                        >
-                            <i :data-lucide="isNightMode ? 'moon' : 'sun'" class="w-4 h-4"></i>
-                        </button>
-
-                        <!-- 6. Sound Toggle -->
-                        <button
-                            type="button"
-                            @click="toggleAudio()"
-                            class="p-2 rounded-xl transition cursor-pointer"
-                            :class="audioEnabled ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-white/10 hover:bg-white/20 text-white/70'"
-                            :title="audioEnabled ? 'Matikan Suara SFX' : 'Nyalakan Suara SFX'"
-                        >
-                            <i :data-lucide="audioEnabled ? 'volume-2' : 'volume-x'" class="w-4 h-4"></i>
-                        </button>
-
-                        <!-- 7. Simulasi Kerja Scan -->
-                        <button
-                            type="button"
-                            @click="triggerLiveScan()"
-                            :disabled="isScanning"
-                            class="px-2.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-cyan-400 text-xs font-semibold flex items-center gap-1.5 transition disabled:opacity-50 cursor-pointer"
-                            title="Jalankan Siklus Analisis Kerja Mandiri"
-                        >
-                            <i data-lucide="sparkles" class="w-4 h-4" :class="isScanning ? 'animate-spin' : ''"></i>
-                            <span class="hidden lg:inline" x-text="isScanning ? 'Memindai...' : 'Simulasi'"></span>
-                        </button>
-
-                        <!-- 8. Fullscreen Toggle -->
-                        <button
-                            type="button"
-                            @click="toggleFullscreen()"
-                            class="px-3 py-1.5 rounded-xl font-bold text-xs flex items-center gap-1.5 transition shadow-sm cursor-pointer"
-                            :class="isFullscreen ? 'bg-rose-600 hover:bg-rose-500 text-white' : 'bg-indigo-600 hover:bg-indigo-500 text-white'"
-                            :title="isFullscreen ? 'Keluar Fullscreen [ESC]' : 'Layar Penuh [F]'"
-                        >
-                            <i :data-lucide="isFullscreen ? 'minimize-2' : 'maximize-2'" class="w-4 h-4"></i>
-                            <span x-text="isFullscreen ? 'Keluar' : 'Fullscreen'"></span>
-                        </button>
                     </div>
                 </div>
 
-                <!-- ============================================================== -->
-                <!-- FLOATING CHAT AI COCKPIT (PUSAT KOMUNIKASI & INSTRUKSI AGEN)    -->
-                <!-- ============================================================== -->
-                <div
-                    x-show="isFloatingChatOpen"
-                    x-transition:enter="transition ease-out duration-300"
-                    x-transition:enter-start="opacity-0 translate-y-6 scale-95"
-                    x-transition:enter-end="opacity-100 translate-y-0 scale-100"
-                    x-transition:leave="transition ease-in duration-200"
-                    x-transition:leave-start="opacity-100 translate-y-0 scale-100"
-                    x-transition:leave-end="opacity-0 translate-y-6 scale-95"
-                    class="absolute bottom-20 left-4 sm:left-6 w-[430px] max-w-[calc(100vw-2rem)] h-[520px] max-h-[calc(100vh-7rem)] z-40 rounded-3xl bg-slate-950/95 dark:bg-[#070b14]/95 backdrop-blur-2xl border border-white/20 shadow-2xl flex flex-col overflow-hidden pointer-events-auto"
-                    style="display: none;"
-                >
-                    <!-- Header -->
-                    <div class="p-3.5 border-b border-white/10 bg-white/5 flex items-center justify-between">
-                        <div class="flex items-center gap-2.5 min-w-0">
-                            <div class="w-9 h-9 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center font-bold shrink-0">
-                                <i data-lucide="bot" class="w-5 h-5"></i>
-                            </div>
-                            <div class="min-w-0">
-                                <div class="flex items-center gap-2">
-                                    <h4 class="text-xs font-bold text-white truncate max-w-[210px]" x-text="activeAgentTitle"></h4>
-                                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0"></span>
-                                </div>
-                                <div class="text-[10px] text-white/50 flex items-center gap-1.5 mt-0.5">
-                                    <span class="shrink-0">Pilih Agen:</span>
-                                    <select
-                                        x-model="floatingChatAgent"
-                                        @change="onFloatingAgentChange($event.target.value)"
-                                        class="bg-black/60 text-white rounded-lg border border-white/15 px-2 py-0.5 text-[11px] font-semibold focus:outline-none focus:ring-1 focus:ring-emerald-500 cursor-pointer max-w-[220px] truncate"
-                                    >
-                                        <optgroup label="👑 Jajaran Direksi & Eksekutif">
-                                            <option value="ceo">AI CEO (Chief Executive)</option>
-                                            <option value="cfo">AI CFO (Keuangan & Cashflow)</option>
-                                            <option value="coo">AI COO (Operasional & Logistik)</option>
-                                            <option value="cmo">AI CMO (Pemasaran & Pertumbuhan)</option>
-                                            <option value="sales_director">AI Sales Director</option>
-                                            <option value="hr_lead">AI HR Lead (People)</option>
-                                        </optgroup>
-                                        <optgroup label="📦 Operasional & Gudang">
-                                            <option value="inventory">Inventory Agent (Gudang)</option>
-                                            <option value="purchasing">Purchasing Agent (Pengadaan)</option>
-                                            <option value="marketplace">Marketplace Agent</option>
-                                        </optgroup>
-                                        <optgroup label="💰 Keuangan & Akuntansi">
-                                            <option value="finance">Finance Agent (Kasir & Jurnal)</option>
-                                            <option value="reporting">Reporting Agent (Audit & Laporan)</option>
-                                        </optgroup>
-                                        <optgroup label="🎯 Pemasaran & Penjualan">
-                                            <option value="marketing">Marketing Agent</option>
-                                            <option value="content">Content & Copywriting Agent</option>
-                                            <option value="social_media">Social Media Agent</option>
-                                            <option value="sales">Sales Agent</option>
-                                            <option value="customer">Customer Service Agent</option>
-                                        </optgroup>
-                                        <optgroup label="💼 Intelijen Bisnis & SDM">
-                                            <option value="business">Business Intelligence Agent</option>
-                                            <option value="hr">HR & People Operations Agent</option>
-                                        </optgroup>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-1.5 shrink-0 ml-2">
-                            <button
-                                type="button"
-                                @click="resetCurrentAgentChat()"
-                                title="Bersihkan riwayat percakapan agen ini"
-                                class="w-7 h-7 rounded-xl bg-white/10 hover:bg-rose-500/20 text-white/60 hover:text-rose-300 border border-white/10 hover:border-rose-500/30 flex items-center justify-center transition cursor-pointer"
-                            >
-                                <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
-                            </button>
-                            <button
-                                type="button"
-                                @click="isFloatingChatOpen = false"
-                                class="w-7 h-7 rounded-xl bg-white/10 hover:bg-white/20 text-white/70 hover:text-white flex items-center justify-center transition cursor-pointer"
-                            >
-                                <i data-lucide="x" class="w-4 h-4"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Chat Message Stream -->
-                    <div id="floating-chat-stream" class="flex-1 p-3.5 sm:p-4 space-y-3.5 overflow-y-auto text-xs font-sans scroll-smooth">
-                        <template x-for="(msg, idx) in activeFloatingChatMessages" :key="msg.id || idx">
-                            <!-- WRAPPER: FULL WIDTH FLEX -->
-                            <div class="w-full flex" :class="msg.isAi ? 'justify-start' : 'justify-end'">
-
-                                <!-- USER MESSAGE (KANAN) -->
-                                <template x-if="!msg.isAi">
-                                    <div class="flex items-end gap-2 max-w-[85%] sm:max-w-[80%] flex-row-reverse">
-                                        <!-- User Avatar -->
-                                        <div class="w-7 h-7 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center text-[10px] font-bold shadow-md shrink-0">
-                                            <span>{{ substr(auth()->user()->name ?? 'U', 0, 1) }}</span>
-                                        </div>
-
-                                        <div class="flex flex-col items-end">
-                                            <!-- Time Info -->
-                                            <div class="text-[10px] text-white/40 mb-1 flex items-center gap-1.5 px-1">
-                                                <span x-text="msg.time"></span>
-                                                <span class="font-bold text-white/70">Anda</span>
-                                            </div>
-
-                                            <!-- User Bubble (Apple Blue Gradient) -->
-                                            <div class="px-3.5 py-2.5 rounded-2xl rounded-tr-xs bg-gradient-to-r from-blue-600 to-blue-500 text-white text-xs leading-relaxed shadow-md shadow-blue-900/20 select-text">
-                                                <p class="whitespace-pre-wrap" x-text="msg.text"></p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </template>
-
-                                <!-- AI AGENTIC RESPONSE (KIRI) -->
-                                <template x-if="msg.isAi">
-                                    <div class="flex items-start gap-2.5 max-w-[92%] sm:max-w-[88%]">
-                                        <!-- AI Agent Avatar -->
-                                        <div class="w-7 h-7 rounded-xl bg-gradient-to-tr from-emerald-600/30 to-teal-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center shadow-lg shrink-0 mt-0.5">
-                                            <i data-lucide="bot" class="w-4 h-4 text-emerald-300"></i>
-                                        </div>
-
-                                        <div class="flex flex-col items-start min-w-0 flex-1">
-                                            <!-- Agent Name & Role Badge -->
-                                            <div class="text-[10px] mb-1 flex flex-wrap items-center gap-1.5 px-1">
-                                                <span class="font-bold text-emerald-400" x-text="msg.sender || 'AI Agent'"></span>
-                                                <span class="px-1.5 py-0.5 rounded bg-white/10 text-white/60 font-mono text-[9px] uppercase tracking-wider font-semibold" x-text="(msg.role || 'agent').toUpperCase()"></span>
-                                                <span class="text-white/40" x-text="msg.time"></span>
-                                            </div>
-
-                                            <!-- AI Agentic Bubble (Glass Card) -->
-                                            <div class="w-full p-3.5 rounded-2xl rounded-tl-xs bg-white/[0.08] dark:bg-zinc-900/90 border border-white/15 text-slate-100 text-xs leading-relaxed shadow-xl backdrop-blur-md select-text space-y-2">
-                                                <div class="text-white/90 leading-relaxed whitespace-pre-wrap font-sans" x-text="msg.text"></div>
-
-                                                <!-- Findings / Metrics -->
-                                                <template x-if="msg.findings && msg.findings.length > 0">
-                                                    <div class="pt-2 border-t border-white/10 space-y-1">
-                                                        <div class="text-[10px] font-bold uppercase text-white/50 tracking-wider">Temuan Kunci:</div>
-                                                        <template x-for="(finding, fIdx) in msg.findings" :key="fIdx">
-                                                            <div class="flex items-start gap-1.5 text-[11px] text-white/80">
-                                                                <span class="text-emerald-400 mt-0.5">•</span>
-                                                                <span x-text="finding"></span>
-                                                            </div>
-                                                        </template>
-                                                    </div>
-                                                </template>
-
-                                                <!-- Recommendations / Strategic Recovery Steps -->
-                                                <template x-if="msg.recommendations && msg.recommendations.length > 0">
-                                                    <div class="pt-2 border-t border-white/10 space-y-1.5">
-                                                        <div class="text-[10px] font-bold uppercase text-sky-400 tracking-wider flex items-center gap-1">
-                                                            <i data-lucide="lightbulb" class="w-3 h-3 text-sky-400"></i>
-                                                            <span>Rekomendasi & Langkah Pemulihan:</span>
-                                                        </div>
-                                                        <div class="space-y-1">
-                                                            <template x-for="(rec, rIdx) in msg.recommendations" :key="rIdx">
-                                                                <div class="flex items-start gap-1.5 text-[11px] text-white/90 bg-white/5 p-2 rounded-xl border border-white/5 leading-relaxed">
-                                                                    <span class="text-sky-400 font-bold shrink-0 mt-0.5" x-text="(rIdx + 1) + '.'"></span>
-                                                                    <span x-text="rec"></span>
-                                                                </div>
-                                                            </template>
-                                                        </div>
-                                                    </div>
-                                                </template>
-
-                                                <!-- Action Proposals -->
-                                                <template x-if="msg.proposals && msg.proposals.length > 0">
-                                                    <div class="pt-2 border-t border-white/10 space-y-1.5">
-                                                        <div class="text-[10px] font-bold uppercase text-amber-400/90 tracking-wider flex items-center gap-1">
-                                                            <i data-lucide="zap" class="w-3 h-3 text-amber-400"></i>
-                                                            <span>Usulan Aksi Menunggu Persetujuan:</span>
-                                                        </div>
-                                                        <template x-for="(prop, pIdx) in msg.proposals" :key="pIdx">
-                                                            <div class="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/25 flex items-center justify-between gap-2">
-                                                                <div class="min-w-0 flex-1">
-                                                                    <div class="text-xs font-bold text-amber-200 truncate" x-text="prop.title"></div>
-                                                                    <div class="text-[10px] text-amber-300/70 truncate" x-text="prop.description"></div>
-                                                                </div>
-                                                                <a href="{{ route('cooca-ai.actions') }}" class="px-2.5 py-1 rounded-lg bg-amber-500 hover:bg-amber-600 text-white font-bold text-[10px] shrink-0 transition flex items-center gap-1">
-                                                                    <span>Review</span>
-                                                                    <i data-lucide="arrow-right" class="w-3 h-3"></i>
-                                                                </a>
-                                                            </div>
-                                                        </template>
-                                                    </div>
-                                                </template>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </template>
-
-                            </div>
-                        </template>
-
-                        <!-- Agentic Thinking / Typing Indicator (Left) -->
-                        <div x-show="isSendingChatMessage" class="flex items-center gap-2.5 text-xs">
-                            <div class="w-7 h-7 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center shrink-0">
-                                <i data-lucide="bot" class="w-3.5 h-3.5 animate-pulse"></i>
-                            </div>
-                            <div class="px-3.5 py-2 rounded-2xl rounded-tl-xs bg-white/10 border border-white/10 flex items-center gap-2 text-[11px] text-emerald-400">
-                                <div class="flex items-center gap-1">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-bounce"></span>
-                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-bounce [animation-delay:0.2s]"></span>
-                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-bounce [animation-delay:0.4s]"></span>
-                                </div>
-                                <span class="text-white/70">Agen AI sedang menganalisis data & metrik...</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Quick Prompt Pills (Dinamis Sesuai Agen Terpilih) -->
-                    <div class="px-3.5 py-2 border-t border-white/10 bg-black/40 flex items-center gap-1.5 overflow-x-auto no-scrollbar text-[11px]">
-                        <template x-for="(prompt, pIdx) in activeAgentQuickPrompts" :key="pIdx">
-                            <button
-                                type="button"
-                                @click="sendQuickPrompt(prompt.query)"
-                                class="whitespace-nowrap px-2.5 py-1 rounded-xl bg-white/5 hover:bg-white/15 text-white/80 hover:text-white border border-white/10 transition cursor-pointer flex items-center gap-1.5 shrink-0"
-                            >
-                                <span x-text="prompt.icon"></span>
-                                <span x-text="prompt.label"></span>
-                            </button>
-                        </template>
-                    </div>
-
-                    <!-- Input Footer -->
-                    <form @submit.prevent="sendFloatingChatMessage()" class="p-3 border-t border-white/10 bg-white/5 flex items-center gap-2">
-                        <input
-                            type="text"
-                            x-model="floatingChatInput"
-                            placeholder="Ketik instruksi atau pertanyaan untuk AI..."
-                            class="flex-1 bg-black/50 border border-white/15 rounded-xl px-3.5 py-2 text-xs text-white placeholder-white/40 focus:outline-none focus:ring-1 focus:ring-emerald-500"
-                        />
-                        <button
-                            type="submit"
-                            :disabled="isSendingChatMessage || !floatingChatInput.trim()"
-                            class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1.5 transition disabled:opacity-40 cursor-pointer shadow-md"
-                        >
-                            <i data-lucide="send" class="w-3.5 h-3.5"></i>
-                            <span class="hidden sm:inline">Kirim</span>
-                        </button>
-                    </form>
-                </div>
-
-                <!-- ============================================================== -->
-                <!-- FLOATING HISTORY & AUDIT COCKPIT (LOG AKTIVITAS & TUGAS KERJA)  -->
-                <!-- ============================================================== -->
-                <div
-                    x-show="isFloatingHistoryOpen"
-                    x-transition:enter="transition ease-out duration-300"
-                    x-transition:enter-start="opacity-0 translate-y-6 scale-95"
-                    x-transition:enter-end="opacity-100 translate-y-0 scale-100"
-                    x-transition:leave="transition ease-in duration-200"
-                    x-transition:leave-start="opacity-100 translate-y-0 scale-100"
-                    x-transition:leave-end="opacity-0 translate-y-6 scale-95"
-                    class="absolute bottom-20 right-4 sm:right-6 w-[450px] max-w-[calc(100vw-2rem)] h-[520px] max-h-[calc(100vh-7rem)] z-40 rounded-3xl bg-slate-950/95 dark:bg-[#070b14]/95 backdrop-blur-2xl border border-white/20 shadow-2xl flex flex-col overflow-hidden pointer-events-auto"
-                    style="display: none;"
-                >
-                    <!-- Header -->
-                    <div class="p-3.5 border-b border-white/10 bg-white/5 flex items-center justify-between">
-                        <div class="flex items-center gap-2.5">
-                            <div class="w-9 h-9 rounded-2xl bg-amber-500/20 border border-amber-500/40 text-amber-400 flex items-center justify-center font-bold">
-                                <i data-lucide="history" class="w-5 h-5"></i>
-                            </div>
-                            <div>
-                                <div class="flex items-center gap-2">
-                                    <h4 class="text-xs font-bold text-white">Riwayat Aktivitas AI Office</h4>
-                                    <span class="px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/30 text-[10px] text-amber-300 font-mono" x-text="filteredFloatingHistory.length + ' Item'"></span>
-                                </div>
-                                <p class="text-[10px] text-white/50">Log eksekusi otomasi, tugas, dan proposal keputusan.</p>
-                            </div>
-                        </div>
-                        <button
-                            type="button"
-                            @click="isFloatingHistoryOpen = false"
-                            class="w-7 h-7 rounded-xl bg-white/10 hover:bg-white/20 text-white/70 hover:text-white flex items-center justify-center transition cursor-pointer"
-                        >
-                            <i data-lucide="x" class="w-4 h-4"></i>
-                        </button>
-                    </div>
-
-                    <!-- Search & Filter Tabs -->
-                    <div class="p-3 border-b border-white/10 bg-black/30 space-y-2">
-                        <div class="relative">
-                            <i data-lucide="search" class="w-3.5 h-3.5 text-white/40 absolute left-3 top-1/2 -translate-y-1/2"></i>
-                            <input
-                                type="text"
-                                x-model="floatingHistorySearch"
-                                placeholder="Cari tugas, peran, atau kata kunci..."
-                                class="w-full bg-black/60 border border-white/15 rounded-xl pl-8 pr-3 py-1.5 text-xs text-white placeholder-white/40 focus:outline-none focus:ring-1 focus:ring-amber-500"
-                            />
-                        </div>
-                        <div class="flex items-center gap-1 text-[11px] font-semibold">
-                            <button
-                                type="button"
-                                @click="floatingHistoryFilter = 'all'"
-                                class="px-2.5 py-1 rounded-lg transition cursor-pointer"
-                                :class="floatingHistoryFilter === 'all' ? 'bg-amber-500 text-white font-bold' : 'bg-white/5 text-white/60 hover:text-white'"
-                            >
-                                Semua
-                            </button>
-                            <button
-                                type="button"
-                                @click="floatingHistoryFilter = 'completed'"
-                                class="px-2.5 py-1 rounded-lg transition cursor-pointer"
-                                :class="floatingHistoryFilter === 'completed' ? 'bg-emerald-500 text-white font-bold' : 'bg-white/5 text-white/60 hover:text-white'"
-                            >
-                                Selesai
-                            </button>
-                            <button
-                                type="button"
-                                @click="floatingHistoryFilter = 'running'"
-                                class="px-2.5 py-1 rounded-lg transition cursor-pointer"
-                                :class="floatingHistoryFilter === 'running' ? 'bg-sky-500 text-white font-bold' : 'bg-white/5 text-white/60 hover:text-white'"
-                            >
-                                Berjalan
-                            </button>
-                            <button
-                                type="button"
-                                @click="floatingHistoryFilter = 'proposal'"
-                                class="px-2.5 py-1 rounded-lg transition cursor-pointer"
-                                :class="floatingHistoryFilter === 'proposal' ? 'bg-purple-500 text-white font-bold' : 'bg-white/5 text-white/60 hover:text-white'"
-                            >
-                                Proposal
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- History Timeline Feed -->
-                    <div class="flex-1 p-3 space-y-2 overflow-y-auto text-xs">
-                        <template x-for="item in filteredFloatingHistory" :key="item.id">
-                            <div class="p-3 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 transition flex flex-col gap-1.5">
-                                <div class="flex items-center justify-between">
-                                    <div class="flex items-center gap-1.5">
-                                        <span class="w-1.5 h-1.5 rounded-full"
-                                              :class="item.status === 'completed' || item.status === 'done' || item.status === 'success' ? 'bg-emerald-400' : (item.status === 'proposal' ? 'bg-purple-400' : 'bg-sky-400')"></span>
-                                        <span class="font-bold text-white text-[11px] uppercase tracking-wide font-mono" x-text="item.agent"></span>
-                                    </div>
-                                    <div class="flex items-center gap-1.5">
-                                        <span class="text-[10px] text-white/40" x-text="item.time"></span>
-                                        <span class="px-2 py-0.5 rounded-md text-[9px] font-bold font-mono"
-                                              :class="item.status === 'completed' || item.status === 'done' || item.status === 'success' ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : (item.status === 'proposal' ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30' : 'bg-sky-500/20 text-sky-300 border border-sky-500/30')"
-                                              x-text="item.statusLabel"></span>
-                                    </div>
-                                </div>
-                                <div class="font-medium text-white/90 text-xs" x-text="item.title"></div>
-                                <div x-show="item.details" class="text-[11px] text-white/50" x-text="item.details"></div>
-                            </div>
-                        </template>
-
-                        <div x-show="filteredFloatingHistory.length === 0" class="p-6 text-center text-white/40 text-xs">
-                            <i data-lucide="inbox" class="w-8 h-8 mx-auto mb-2 opacity-50"></i>
-                            <div>Tidak ada riwayat aktivitas yang cocok dengan filter.</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- ============================================================== -->
-                <!-- FLOATING 17 AGENT ROSTER & TELEPORT (DIREKTORI LENGKAP)         -->
-                <!-- ============================================================== -->
-                <div
-                    x-show="isFloatingRosterOpen"
-                    x-transition:enter="transition ease-out duration-300"
-                    x-transition:enter-start="opacity-0 translate-y-6 scale-95"
-                    x-transition:enter-end="opacity-100 translate-y-0 scale-100"
-                    x-transition:leave="transition ease-in duration-200"
-                    x-transition:leave-start="opacity-100 translate-y-0 scale-100"
-                    x-transition:leave-end="opacity-0 translate-y-6 scale-95"
-                    class="absolute bottom-20 left-1/2 -translate-x-1/2 w-[580px] max-w-[calc(100vw-2rem)] h-[520px] max-h-[calc(100vh-7rem)] z-40 rounded-3xl bg-slate-950/95 dark:bg-[#070b14]/95 backdrop-blur-2xl border border-white/20 shadow-2xl flex flex-col overflow-hidden pointer-events-auto"
-                    style="display: none;"
-                >
-                    <!-- Header -->
-                    <div class="p-3.5 border-b border-white/10 bg-white/5 flex items-center justify-between">
-                        <div class="flex items-center gap-2.5">
-                            <div class="w-9 h-9 rounded-2xl bg-sky-500/20 border border-sky-500/40 text-sky-400 flex items-center justify-center font-bold">
-                                <i data-lucide="users" class="w-5 h-5"></i>
-                            </div>
-                            <div>
-                                <div class="flex items-center gap-2">
-                                    <h4 class="text-xs font-bold text-white">Direktori 17 Agen & Lokasi 3D</h4>
-                                    <span class="px-2 py-0.5 rounded-full bg-sky-500/20 border border-sky-500/30 text-[10px] text-sky-300 font-mono">17 Aktif</span>
-                                </div>
-                                <p class="text-[10px] text-white/50">Klik 'Fokus Kamera' untuk terbang langsung ke meja kerja agen di 3D office.</p>
-                            </div>
-                        </div>
-                        <button
-                            type="button"
-                            @click="isFloatingRosterOpen = false"
-                            class="w-7 h-7 rounded-xl bg-white/10 hover:bg-white/20 text-white/70 hover:text-white flex items-center justify-center transition cursor-pointer"
-                        >
-                            <i data-lucide="x" class="w-4 h-4"></i>
-                        </button>
-                    </div>
-
-                    <!-- Team Filter Pills -->
-                    <div class="p-2.5 border-b border-white/10 bg-black/30 flex items-center gap-1.5 overflow-x-auto no-scrollbar text-[11px] font-semibold">
-                        <button type="button" @click="orgChartFilter = 'all'" :class="orgChartFilter === 'all' ? 'bg-white text-black font-bold' : 'bg-white/5 text-white/60 hover:text-white'" class="px-2.5 py-1 rounded-lg transition cursor-pointer">
-                            Semua (17)
-                        </button>
-                        <button type="button" @click="orgChartFilter = 'executive'" :class="orgChartFilter === 'executive' ? 'bg-amber-500 text-white font-bold' : 'bg-white/5 text-white/60 hover:text-white'" class="px-2.5 py-1 rounded-lg transition cursor-pointer">
-                            👑 Eksekutif
-                        </button>
-                        <button type="button" @click="orgChartFilter = 'growth'" :class="orgChartFilter === 'growth' ? 'bg-purple-500 text-white font-bold' : 'bg-white/5 text-white/60 hover:text-white'" class="px-2.5 py-1 rounded-lg transition cursor-pointer">
-                            🎨 Marketing & Sales
-                        </button>
-                        <button type="button" @click="orgChartFilter = 'operations'" :class="orgChartFilter === 'operations' ? 'bg-emerald-500 text-white font-bold' : 'bg-white/5 text-white/60 hover:text-white'" class="px-2.5 py-1 rounded-lg transition cursor-pointer">
-                            📦 Operasional
-                        </button>
-                        <button type="button" @click="orgChartFilter = 'finance'" :class="orgChartFilter === 'finance' ? 'bg-amber-600 text-white font-bold' : 'bg-white/5 text-white/60 hover:text-white'" class="px-2.5 py-1 rounded-lg transition cursor-pointer">
-                            💰 Keuangan
-                        </button>
-                    </div>
-
-                    <!-- Agents Grid -->
-                    <div class="flex-1 p-3.5 grid grid-cols-1 sm:grid-cols-2 gap-2.5 overflow-y-auto text-xs">
-                        <template x-for="agent in filteredOrgAgents" :key="agent.role">
-                            <div class="p-3 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 transition flex flex-col justify-between gap-2 group">
-                                <div class="flex items-start justify-between gap-2">
-                                    <div class="flex items-center gap-2">
-                                        <div class="w-8 h-8 rounded-xl bg-white/10 flex items-center justify-center font-bold text-white uppercase text-xs"
-                                             :class="agent.team === 'executive' ? 'bg-amber-500/20 text-amber-300' : (agent.team === 'marketing' ? 'bg-purple-500/20 text-purple-300' : 'bg-emerald-500/20 text-emerald-300')">
-                                            <span x-text="agent.role.slice(0, 2)"></span>
-                                        </div>
-                                        <div>
-                                            <div class="font-bold text-white text-xs leading-tight" x-text="agent.name"></div>
-                                            <div class="text-[10px] text-white/50" x-text="agent.title"></div>
-                                        </div>
-                                    </div>
-                                    <span class="px-2 py-0.5 rounded-full text-[9px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                                        ONLINE
-                                    </span>
-                                </div>
-                                <div class="text-[11px] text-white/60 line-clamp-2" x-text="agent.duties"></div>
-                                <div class="flex items-center justify-between pt-1 border-t border-white/5">
-                                    <span class="text-[10px] text-white/40 flex items-center gap-1 font-mono">
-                                        <span>📍</span> <span x-text="agent.room"></span>
-                                    </span>
-                                    <div class="flex items-center gap-1.5">
-                                        <button
-                                            type="button"
-                                            @click="openFloatingChatWithAgent(agent.role)"
-                                            class="px-2.5 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500 text-emerald-300 hover:text-white font-semibold text-[11px] flex items-center gap-1 transition cursor-pointer"
-                                            title="Buka Chat AI dengan agen ini"
-                                        >
-                                            <i data-lucide="message-square" class="w-3 h-3"></i>
-                                            <span>Chat</span>
-                                        </button>
-                                        <button
-                                            type="button"
-                                            @click="focusAgentCamera(agent.role)"
-                                            class="px-2.5 py-1 rounded-lg bg-sky-500/20 hover:bg-sky-500 text-sky-300 hover:text-white font-semibold text-[11px] flex items-center gap-1 transition cursor-pointer"
-                                        >
-                                            <i data-lucide="crosshair" class="w-3 h-3"></i>
-                                            <span>Fokus</span>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </template>
-                    </div>
                 </div>
 
                 <!-- Interactive Inspector HUD Overlay (Floating in 3D & Fullscreen Mode) -->
@@ -1122,7 +592,7 @@
                 <div
                     id="cooca-3d-office-viewport-{{ $mode }}"
                     :class="isFullscreen ? 'w-full h-full min-h-screen' : 'w-full h-[660px] xl:h-[740px]'"
-                    class="cursor-grab active:cursor-grabbing outline-none"
+                    class="cursor-grab active:cursor-grabbing outline-none overflow-hidden relative"
                 ></div>
             </div>
 
@@ -1286,7 +756,7 @@
                                 <g transform="translate(52, 46)" class="cursor-pointer" @click.stop="selectRoomFromFloor('marketing')">
                                     <rect x="0" y="0" width="265" height="30" rx="7" fill="#7e22ce" stroke="#a855f7" stroke-width="1" filter="url(#soft-shadow)" />
                                     <circle cx="16" cy="15" r="9" fill="#581c87" />
-                                    <text x="16" y="19" fill="#ffffff" font-size="10" text-anchor="middle">🏠</text>
+                                    
                                     <text x="32" y="15" fill="#ffffff" font-size="10.5" font-family="system-ui, sans-serif" font-weight="bold">Marketing</text>
                                     <text x="32" y="24" fill="#e9d5ff" font-size="7.5" font-family="system-ui, sans-serif">Campaign • Content • Social Media | GROWTH LAB // AI CMO</text>
                                 </g>
@@ -1373,7 +843,7 @@
                                 <g transform="translate(52, 270)" class="cursor-pointer" @click.stop="selectRoomFromFloor('sales')">
                                     <rect x="0" y="0" width="265" height="30" rx="7" fill="#047857" stroke="#10b981" stroke-width="1" filter="url(#soft-shadow)" />
                                     <circle cx="16" cy="15" r="9" fill="#064e3b" />
-                                    <text x="16" y="19" fill="#ffffff" font-size="10" text-anchor="middle">🏷️</text>
+                                    
                                     <text x="32" y="15" fill="#ffffff" font-size="10.5" font-family="system-ui, sans-serif" font-weight="bold">Sales</text>
                                     <text x="32" y="24" fill="#a7f3d0" font-size="7.5" font-family="system-ui, sans-serif">Revenue • Customers • Growth | Sales Director</text>
                                 </g>
@@ -1497,7 +967,7 @@
                                 <g transform="translate(425, 46)" class="cursor-pointer" @click.stop="selectRoomFromFloor('executive')">
                                     <rect x="0" y="0" width="245" height="30" rx="7" fill="#1d4ed8" stroke="#3b82f6" stroke-width="1" filter="url(#soft-shadow)" />
                                     <circle cx="16" cy="15" r="9" fill="#1e3a8a" />
-                                    <text x="16" y="19" fill="#ffffff" font-size="10" text-anchor="middle">👑</text>
+                                    
                                     <text x="32" y="15" fill="#ffffff" font-size="10.5" font-family="system-ui, sans-serif" font-weight="bold">Executive Office</text>
                                     <text x="32" y="24" fill="#bfdbfe" font-size="7.5" font-family="system-ui, sans-serif">Strategy • Finance • Decisions</text>
                                 </g>
@@ -1610,7 +1080,7 @@
                                     <circle cx="6" cy="10" r="13" fill="#22c55e" fill-opacity="0.7" />
                                     <!-- Trunk Center -->
                                     <circle cx="0" cy="0" r="4" fill="#5c3d2e" />
-                                    <text x="0" y="58" fill="#38bdf8" font-size="8.5" font-family="monospace" font-weight="bold" text-anchor="middle">🌿 ATRIUM CENTRAL</text>
+                                    <text x="0" y="58" fill="#38bdf8" font-size="8.5" font-family="monospace" font-weight="bold" text-anchor="middle">ATRIUM CENTRAL</text>
                                     <text x="0" y="68" fill="#94a3b8" font-size="7" font-family="system-ui, sans-serif" text-anchor="middle">Lobi Utama</text>
                                 </g>
 
@@ -1689,7 +1159,7 @@
                                 <g transform="translate(778, 46)" class="cursor-pointer" @click.stop="selectRoomFromFloor('operations')">
                                     <rect x="0" y="0" width="248" height="30" rx="7" fill="#0e7490" stroke="#06b6d4" stroke-width="1" filter="url(#soft-shadow)" />
                                     <circle cx="16" cy="15" r="9" fill="#164e63" />
-                                    <text x="16" y="19" fill="#ffffff" font-size="10" text-anchor="middle">⚙️</text>
+                                    
                                     <text x="32" y="15" fill="#ffffff" font-size="10.5" font-family="system-ui, sans-serif" font-weight="bold">Operations</text>
                                     <text x="32" y="24" fill="#cffafe" font-size="7.5" font-family="system-ui, sans-serif">Inventory • Purchasing • Marketplace | AI COO // OPERATIONS RADAR</text>
                                 </g>
@@ -1759,7 +1229,7 @@
                                 <!-- Top: Server Room -->
                                 <g transform="translate(1048, 44)" class="cursor-pointer" @click.stop="selectRoomFromFloor('it_server')">
                                     <rect x="0" y="0" width="106" height="20" rx="4" fill="#1e293b" stroke="#38bdf8" stroke-width="1" />
-                                    <text x="53" y="14" fill="#38bdf8" font-size="8.5" font-family="monospace" font-weight="bold" text-anchor="middle">🖥️ Server Room</text>
+                                    <text x="53" y="14" fill="#38bdf8" font-size="8.5" font-family="monospace" font-weight="bold" text-anchor="middle">Server Room</text>
                                     
                                     <!-- 3 Server Rack Cabinets with glowing LEDs -->
                                     <g transform="translate(4, 26)">
@@ -1825,7 +1295,7 @@
                                 <g transform="translate(778, 270)" class="cursor-pointer" @click.stop="selectRoomFromFloor('finance')">
                                     <rect x="0" y="0" width="248" height="30" rx="7" fill="#c2410c" stroke="#f97316" stroke-width="1" filter="url(#soft-shadow)" />
                                     <circle cx="16" cy="15" r="9" fill="#9a3412" />
-                                    <text x="16" y="19" fill="#ffffff" font-size="10" text-anchor="middle">📊</text>
+                                    
                                     <text x="32" y="15" fill="#ffffff" font-size="10.5" font-family="system-ui, sans-serif" font-weight="bold">Finance</text>
                                     <text x="32" y="24" fill="#ffedd5" font-size="7.5" font-family="system-ui, sans-serif">Revenue • Expense • Reporting</text>
                                 </g>
@@ -1863,7 +1333,7 @@
 
                                 <g transform="translate(1048, 270)" class="cursor-pointer" @click.stop="selectRoomFromFloor('document')">
                                     <rect x="0" y="0" width="106" height="24" rx="5" fill="#3d2617" stroke="#78350f" stroke-width="1" />
-                                    <text x="53" y="16" fill="#fde68a" font-size="8.5" font-family="system-ui, sans-serif" font-weight="bold" text-anchor="middle">📁 Document Room</text>
+                                    <text x="53" y="16" fill="#fde68a" font-size="8.5" font-family="system-ui, sans-serif" font-weight="bold" text-anchor="middle">Document Room</text>
                                     
                                     <!-- Archive Filing Cabinets -->
                                     <g transform="translate(6, 34)">
@@ -1900,7 +1370,7 @@
                                 <g transform="translate(778, 426)" class="cursor-pointer" @click.stop="selectRoomFromFloor('people')">
                                     <rect x="0" y="0" width="138" height="28" rx="7" fill="#a21caf" stroke="#e879f9" stroke-width="1" filter="url(#soft-shadow)" />
                                     <circle cx="15" cy="14" r="8" fill="#701a75" />
-                                    <text x="15" y="18" fill="#ffffff" font-size="9" text-anchor="middle">👥</text>
+                                    
                                     <text x="30" y="14" fill="#ffffff" font-size="9.5" font-family="system-ui, sans-serif" font-weight="bold">People</text>
                                     <text x="30" y="23" fill="#f5d0fe" font-size="7" font-family="system-ui, sans-serif">HR • Workforce • Culture</text>
                                 </g>
@@ -1928,7 +1398,7 @@
                                 <!-- Header Badge: Pantry & Lounge -->
                                 <g transform="translate(942, 426)" class="cursor-pointer" @click.stop="selectRoomFromFloor('pantry')">
                                     <rect x="0" y="0" width="125" height="24" rx="6" fill="#334155" stroke="#64748b" stroke-width="1" filter="url(#soft-shadow)" />
-                                    <text x="62.5" y="16" fill="#f8fafc" font-size="9.5" font-family="system-ui, sans-serif" font-weight="bold" text-anchor="middle">☕ Pantry &amp; Lounge</text>
+                                    <text x="62.5" y="16" fill="#f8fafc" font-size="9.5" font-family="system-ui, sans-serif" font-weight="bold" text-anchor="middle">Pantry &amp; Lounge</text>
                                 </g>
 
                                 <!-- 3 Round Cafe / Dining Tables (4 Chairs Each = 12 Chairs Total) -->
@@ -1987,7 +1457,7 @@
                                 <!-- Header Badge: Restroom -->
                                 <g transform="translate(995, 650)" class="cursor-pointer" @click.stop="selectRoomFromFloor('restroom')">
                                     <rect x="0" y="0" width="95" height="22" rx="5" fill="#1e293b" stroke="#475569" stroke-width="1" />
-                                    <text x="47.5" y="15" fill="#94a3b8" font-size="9" font-family="system-ui, sans-serif" font-weight="bold" text-anchor="middle">🚻 Restroom</text>
+                                    <text x="47.5" y="15" fill="#94a3b8" font-size="9" font-family="system-ui, sans-serif" font-weight="bold" text-anchor="middle">Restroom</text>
                                 </g>
 
                                 <!-- Restroom Cubicles & Vanity -->
@@ -2067,171 +1537,61 @@
             </div>
 
             <!-- ============================================================== -->
-            <!-- 3. BENTO ANALYTICS GRID VIEWPORT                               -->
+            <!-- FLOATING BOTTOM COCKPIT STATUS BAR (Streamlined Apple HIG)     -->
             <!-- ============================================================== -->
-            <div
-                x-show="viewMode === 'bento'"
-                x-transition:enter="transition ease-out duration-300"
-                x-transition:enter-start="opacity-0 translate-y-2"
-                x-transition:enter-end="opacity-100 translate-y-0"
-                class="rounded-3xl bg-[#090d16] border border-white/10 p-6 shadow-2xl space-y-4"
-            >
-                <div class="flex items-center justify-between pb-3 border-b border-white/10">
-                    <div>
-                        <h3 class="text-base font-bold text-white">Bento Analytics Grid</h3>
-                        <p class="text-xs text-slate-400">Ringkasan performa real-time seluruh 3 Office dan 12 AI Agent pada kampus 1 lantai.</p>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                    <div class="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 space-y-2">
-                        <div class="flex items-center gap-2 text-xs font-bold text-amber-400">
-                            <i data-lucide="crown" class="w-4 h-4"></i>
-                            <span>Executive Office</span>
-                        </div>
-                        <div class="text-2xl font-black text-white">2 <span class="text-xs font-normal text-slate-400">Aktif</span></div>
-                        <p class="text-[11px] text-slate-300">AI CEO & AI CFO mengawasi perputaran kas, margin, dan mitigasi risiko usaha.</p>
-                    </div>
-
-                    <div class="p-4 rounded-2xl bg-blue-500/10 border border-blue-500/20 space-y-2">
-                        <div class="flex items-center gap-2 text-xs font-bold text-blue-400">
-                            <i data-lucide="cpu" class="w-4 h-4"></i>
-                            <span>Operations Office</span>
-                        </div>
-                        <div class="text-2xl font-black text-white">3 <span class="text-xs font-normal text-slate-400">Aktif</span></div>
-                        <p class="text-[11px] text-slate-300">Inventory, Purchasing & Marketplace mengontrol ketersediaan barang secara otomatis.</p>
-                    </div>
-
-                    <div class="p-4 rounded-2xl bg-purple-500/10 border border-purple-500/20 space-y-2">
-                        <div class="flex items-center gap-2 text-xs font-bold text-purple-400">
-                            <i data-lucide="trending-up" class="w-4 h-4"></i>
-                            <span>Growth Office</span>
-                        </div>
-                        <div class="text-2xl font-black text-white">4 <span class="text-xs font-normal text-slate-400">Aktif</span></div>
-                        <p class="text-[11px] text-slate-300">Marketing, Content, Social Media & Sales mendorong akuisisi serta retensi pelanggan.</p>
-                    </div>
-                </div>
-            </div>
-
-            {{-- Inspector HUD is mounted directly inside 3D and 2D viewports for seamless fullscreen overlay --}}
-
-            <!-- ============================================================== -->
-            <!-- FLOATING BOTTOM COCKPIT STATUS BAR (Matching Reference Image)  -->
-            <!-- ============================================================== -->
-            <div class="p-3.5 rounded-3xl bg-white/95 dark:bg-[#0a1526]/95 border border-slate-200 dark:border-white/10 text-slate-800 dark:text-white shadow-xl flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4 transition-colors">
+            <div class="p-2.5 sm:p-3 rounded-2xl sm:rounded-3xl bg-white/95 dark:bg-[#0a1526]/95 border border-slate-200 dark:border-white/10 text-slate-800 dark:text-white shadow-lg flex items-center justify-between gap-3 transition-colors backdrop-blur-md">
                 
-                <!-- Left: 3 Offices Selector Cards (Matching Reference Footer) -->
-                <div class="flex flex-wrap items-center gap-2.5">
-                    <!-- Executive Office Card -->
-                    <a href="{{ route('cooca-ai.office.executive') }}"
-                       class="px-3.5 py-2 rounded-2xl transition flex items-center gap-2.5 border {{ $mode === 'executive' ? 'bg-blue-50 dark:bg-blue-600/30 border-blue-300 dark:border-blue-500/50 text-blue-900 dark:text-white shadow-md shadow-blue-500/10' : 'bg-blue-50/50 hover:bg-blue-100/60 dark:bg-blue-950/40 dark:hover:bg-blue-900/50 border-blue-200 dark:border-blue-500/20 text-slate-700 dark:text-slate-200' }}">
-                        <div class="w-7 h-7 rounded-xl bg-blue-500/10 dark:bg-blue-600/40 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
-                            <i data-lucide="crown" class="w-4 h-4"></i>
-                        </div>
-                        <div class="text-left">
-                            <div class="text-xs font-bold leading-tight text-slate-900 dark:text-white">Executive Office</div>
-                            <div class="text-[9.5px] text-blue-600 dark:text-blue-300/70">Strategy • Finance • Decisions</div>
-                        </div>
-                    </a>
-
-                    <!-- Operations Office Card -->
-                    <a href="{{ route('cooca-ai.office.operations') }}"
-                       class="px-3.5 py-2 rounded-2xl transition flex items-center gap-2.5 border {{ $mode === 'operations' ? 'bg-teal-50 dark:bg-teal-600/30 border-teal-300 dark:border-teal-500/50 text-teal-900 dark:text-white shadow-md shadow-teal-500/10' : 'bg-teal-50/50 hover:bg-teal-100/60 dark:bg-teal-950/40 dark:hover:bg-teal-900/50 border-teal-200 dark:border-teal-500/20 text-slate-700 dark:text-slate-200' }}">
-                        <div class="w-7 h-7 rounded-xl bg-teal-500/10 dark:bg-teal-600/40 text-teal-600 dark:text-teal-400 flex items-center justify-center shrink-0">
-                            <i data-lucide="cpu" class="w-4 h-4"></i>
-                        </div>
-                        <div class="text-left">
-                            <div class="text-xs font-bold leading-tight text-slate-900 dark:text-white">Operations Office</div>
-                            <div class="text-[9.5px] text-teal-600 dark:text-teal-300/70">Inventory • Purchasing • Marketplace</div>
-                        </div>
-                    </a>
-
-                    <!-- Growth Office Card -->
-                    <a href="{{ route('cooca-ai.office.growth') }}"
-                       class="px-3.5 py-2 rounded-2xl transition flex items-center gap-2.5 border {{ $mode === 'growth' ? 'bg-purple-50 dark:bg-purple-600/30 border-purple-300 dark:border-purple-500/50 text-purple-900 dark:text-white shadow-md shadow-purple-500/10' : 'bg-purple-50/50 hover:bg-purple-100/60 dark:bg-purple-950/40 dark:hover:bg-purple-900/50 border-purple-200 dark:border-purple-500/20 text-slate-700 dark:text-slate-200' }}">
-                        <div class="w-7 h-7 rounded-xl bg-purple-500/10 dark:bg-purple-600/40 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0">
-                            <i data-lucide="trending-up" class="w-4 h-4"></i>
-                        </div>
-                        <div class="text-left">
-                            <div class="text-xs font-bold leading-tight text-slate-900 dark:text-white">Growth Office</div>
-                            <div class="text-[9.5px] text-purple-600 dark:text-purple-300/70">Marketing • Sales • Content • Customers</div>
-                        </div>
-                    </a>
+                <!-- Left: Campus Status & System Health -->
+                <div class="flex items-center gap-2 min-w-0">
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-[11px] font-semibold text-slate-700 dark:text-slate-300">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <span class="font-mono truncate">COOCA CAMPUS 20F</span>
+                    </span>
+                    <span class="hidden sm:inline-flex items-center gap-1.5 text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+                        <span class="text-emerald-500">Online</span>
+                        <span class="text-slate-300 dark:text-white/20">•</span>
+                        <span><span class="font-semibold text-slate-800 dark:text-slate-200 tabular-nums">{{ $activeAgentsCount }}</span> Aktif</span>
+                    </span>
                 </div>
 
-                <!-- Right: Quick Overview Card (Matching Reference Footer) -->
-                <div class="flex flex-wrap items-center gap-3">
-                    <div class="p-2 px-3.5 rounded-2xl bg-slate-100 dark:bg-slate-900/90 border border-slate-200 dark:border-white/10 flex items-center gap-3.5 text-xs">
-                        <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400 tracking-wider uppercase font-mono">Quick Overview</span>
-                        
-                        <!-- 12 Total Agents -->
-                        <div class="flex items-center gap-1.5 text-slate-700 dark:text-slate-200 font-semibold">
-                            <i data-lucide="users" class="w-3.5 h-3.5 text-blue-500 dark:text-blue-400"></i>
-                            <span class="font-bold">12</span>
-                            <span class="text-[10px] text-slate-500 dark:text-slate-400">Total Agents</span>
-                        </div>
-
-                        <!-- 8 Active -->
-                        <div class="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-semibold">
-                            <i data-lucide="zap" class="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400"></i>
-                            <span class="font-bold">8</span>
-                            <span class="text-[10px] text-emerald-600/80 dark:text-emerald-400/80">Active</span>
-                        </div>
-
-                        <!-- 3 Idle -->
-                        <div class="flex items-center gap-1.5 text-slate-600 dark:text-slate-300 font-semibold">
-                            <i data-lucide="moon" class="w-3.5 h-3.5 text-amber-500 dark:text-amber-400"></i>
-                            <span class="font-bold">3</span>
-                            <span class="text-[10px] text-slate-500 dark:text-slate-400">Idle</span>
-                        </div>
-
-                        <!-- 1 Waiting Approval -->
-                        <div class="flex items-center gap-1.5 text-amber-600 dark:text-amber-300 font-semibold">
-                            <i data-lucide="clock" class="w-3.5 h-3.5 text-amber-500 dark:text-amber-400"></i>
-                            <span class="font-bold">{{ $proposalsData->count() ?: 1 }}</span>
-                            <span class="text-[10px] text-amber-600/80 dark:text-amber-400/80">Waiting Approval</span>
-                        </div>
+                <!-- Right: 2D / 3D & Zoom controls -->
+                <div class="flex items-center gap-2 shrink-0">
+                    <div class="inline-flex p-0.5 rounded-xl bg-slate-200/80 dark:bg-slate-900 border border-slate-300 dark:border-white/10 text-xs">
+                        <button
+                            type="button"
+                            @click="setMode('3d')"
+                            :class="viewMode === '3d' ? 'bg-cyan-500 text-slate-950 font-bold shadow-sm' : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'"
+                            class="px-2.5 py-1 rounded-lg transition text-[11px] cursor-pointer"
+                        >
+                            3D View
+                        </button>
+                        <button
+                            type="button"
+                            @click="setMode('office')"
+                            :class="viewMode === 'office' ? 'bg-cyan-500 text-slate-950 font-bold shadow-sm' : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'"
+                            class="px-2.5 py-1 rounded-lg transition text-[11px] cursor-pointer"
+                        >
+                            2D Blueprint
+                        </button>
                     </div>
 
-                    <!-- 2D / 3D & Zoom controls -->
-                    <div class="flex items-center gap-1.5">
-                        <div class="inline-flex p-0.5 rounded-xl bg-slate-200/80 dark:bg-slate-900 border border-slate-300 dark:border-white/10 text-xs">
-                            <button
-                                type="button"
-                                @click="setMode('office')"
-                                :class="viewMode === 'office' ? 'bg-cyan-500 text-slate-950 font-bold shadow-sm' : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'"
-                                class="px-2.5 py-1.5 rounded-lg transition text-[11px] cursor-pointer"
-                            >
-                                2D
-                            </button>
-                            <button
-                                type="button"
-                                @click="setMode('3d')"
-                                :class="viewMode === '3d' ? 'bg-cyan-500 text-slate-950 font-bold shadow-sm' : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'"
-                                class="px-2.5 py-1.5 rounded-lg transition text-[11px] cursor-pointer"
-                            >
-                                3D
-                            </button>
-                        </div>
-
-                        <div class="inline-flex p-0.5 rounded-xl bg-slate-200/80 dark:bg-slate-900 border border-slate-300 dark:border-white/10 text-xs">
-                            <button
-                                type="button"
-                                @click="zoomOut()"
-                                class="w-7 h-7 rounded-lg text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white flex items-center justify-center transition cursor-pointer"
-                                title="Zoom Out"
-                            >
-                                <i data-lucide="minus" class="w-3.5 h-3.5"></i>
-                            </button>
-                            <button
-                                type="button"
-                                @click="zoomIn()"
-                                class="w-7 h-7 rounded-lg text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white flex items-center justify-center transition cursor-pointer"
-                                title="Zoom In"
-                            >
-                                <i data-lucide="plus" class="w-3.5 h-3.5"></i>
-                            </button>
-                        </div>
+                    <div class="inline-flex p-0.5 rounded-xl bg-slate-200/80 dark:bg-slate-900 border border-slate-300 dark:border-white/10 text-xs">
+                        <button
+                            type="button"
+                            @click="zoomOut()"
+                            class="w-7 h-7 rounded-lg text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white flex items-center justify-center transition cursor-pointer"
+                            title="Zoom Out"
+                        >
+                            <i data-lucide="minus" class="w-3.5 h-3.5"></i>
+                        </button>
+                        <button
+                            type="button"
+                            @click="zoomIn()"
+                            class="w-7 h-7 rounded-lg text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white flex items-center justify-center transition cursor-pointer"
+                            title="Zoom In"
+                        >
+                            <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -2240,7 +1600,7 @@
         <!-- ---------------------------------------------------------- -->
         <!-- RIGHT PANEL: AI Office Status & Activity (Image 3 Design)   -->
         <!-- ---------------------------------------------------------- -->
-        <div class="lg:col-span-4 xl:col-span-3 space-y-3">
+        <div class="lg:col-span-4 xl:col-span-3 space-y-3 min-w-0 lg:sticky lg:top-20">
             
             <!-- 1. AI Office Status Card -->
             <div class="p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-white dark:bg-[#0f1d33] border border-black/10 dark:border-white/10 shadow-lg space-y-4">
@@ -2252,8 +1612,8 @@
                         <div class="flex items-center justify-center text-blue-500 mb-1">
                             <i data-lucide="users" class="w-4 h-4"></i>
                         </div>
-                        <div class="text-base font-black text-slate-900 dark:text-white">12</div>
-                        <div class="text-[9px] text-slate-500 dark:text-slate-400 font-medium">Total Agents</div>
+                        <div class="text-base font-black text-slate-900 dark:text-white tabular-nums">{{ $totalAgentsCount }}</div>
+                        <div class="text-[9px] text-slate-500 dark:text-slate-400 font-medium">Total Agen</div>
                     </div>
 
                     <!-- Active -->
@@ -2261,8 +1621,8 @@
                         <div class="flex items-center justify-center text-emerald-500 mb-1">
                             <i data-lucide="zap" class="w-4 h-4"></i>
                         </div>
-                        <div class="text-base font-black text-emerald-600 dark:text-emerald-400">8</div>
-                        <div class="text-[9px] text-emerald-600/80 dark:text-emerald-400/80 font-medium">Active</div>
+                        <div class="text-base font-black text-emerald-600 dark:text-emerald-400 tabular-nums">{{ $activeAgentsCount }}</div>
+                        <div class="text-[9px] text-emerald-600/80 dark:text-emerald-400/80 font-medium">Aktif</div>
                     </div>
 
                     <!-- Idle -->
@@ -2270,8 +1630,8 @@
                         <div class="flex items-center justify-center text-slate-400 mb-1">
                             <i data-lucide="moon" class="w-4 h-4"></i>
                         </div>
-                        <div class="text-base font-black text-slate-700 dark:text-slate-300">3</div>
-                        <div class="text-[9px] text-slate-500 dark:text-slate-400 font-medium">Idle</div>
+                        <div class="text-base font-black text-slate-700 dark:text-slate-300 tabular-nums">{{ $idleAgentsCount }}</div>
+                        <div class="text-[9px] text-slate-500 dark:text-slate-400 font-medium">Siaga</div>
                     </div>
 
                     <!-- Waiting Approval -->
@@ -2279,8 +1639,8 @@
                         <div class="flex items-center justify-center text-amber-500 mb-1">
                             <i data-lucide="clock" class="w-4 h-4"></i>
                         </div>
-                        <div class="text-base font-black text-amber-600 dark:text-amber-400">{{ $proposalsData->count() ?: 1 }}</div>
-                        <div class="text-[9px] text-amber-600/80 dark:text-amber-400/80 font-medium">Waiting Approval</div>
+                        <div class="text-base font-black text-amber-600 dark:text-amber-400 tabular-nums">{{ $pendingApprovalsCount }}</div>
+                        <div class="text-[9px] text-amber-600/80 dark:text-amber-400/80 font-medium">Menunggu</div>
                     </div>
                 </div>
             </div>
@@ -2292,63 +1652,31 @@
                     <a href="{{ route('cooca-ai.actions') }}" class="text-xs font-semibold text-blue-600 dark:text-cyan-400 hover:underline">View All</a>
                 </div>
 
-                <div class="space-y-3">
-                    <!-- Sales Agent Progress -->
-                    <div class="space-y-1.5">
-                        <div class="flex items-center justify-between text-xs">
-                            <div class="flex items-center gap-2">
-                                <div class="w-6 h-6 rounded-lg bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center text-xs">
-                                    <i data-lucide="trending-up" class="w-3.5 h-3.5"></i>
+                <div class="space-y-2.5">
+                    @php
+                        $activeTasksList = $recentTasks->whereIn('status', ['running', 'pending', 'waiting_approval'])->take(3);
+                    @endphp
+                    @forelse($activeTasksList as $task)
+                        <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5 space-y-1.5">
+                            <div class="flex items-center justify-between text-xs">
+                                <div class="flex items-center gap-2 min-w-0">
+                                    <div class="w-6 h-6 rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-xs shrink-0">
+                                        <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <div class="min-w-0">
+                                        <div class="font-bold text-slate-900 dark:text-white truncate">{{ ucwords(str_replace('_', ' ', $task->agent)) }}</div>
+                                        <div class="text-[10px] text-slate-500 dark:text-slate-400 truncate">{{ \Illuminate\Support\Str::limit($task->input, 32) }}</div>
+                                    </div>
                                 </div>
-                                <div>
-                                    <div class="font-bold text-slate-900 dark:text-white">Sales Agent</div>
-                                    <div class="text-[10px] text-slate-500 dark:text-slate-400">Analyzing sales performance</div>
-                                </div>
+                                <span class="text-[9px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold uppercase">{{ $task->status }}</span>
                             </div>
-                            <span class="text-[10px] font-mono font-bold text-slate-500 dark:text-slate-400">3/5</span>
                         </div>
-                        <div class="w-full h-1.5 rounded-full bg-slate-100 dark:bg-white/10 overflow-hidden">
-                            <div class="h-full rounded-full bg-blue-500" style="width: 60%"></div>
+                    @empty
+                        <div class="py-3 text-center text-xs text-slate-500 dark:text-slate-400">
+                            <i data-lucide="check-circle" class="w-5 h-5 mx-auto mb-1 text-emerald-500/80"></i>
+                            <p class="text-[11px]">Seluruh 12 agen dalam kondisi siap &amp; siaga.</p>
                         </div>
-                    </div>
-
-                    <!-- Inventory Agent Progress -->
-                    <div class="space-y-1.5">
-                        <div class="flex items-center justify-between text-xs">
-                            <div class="flex items-center gap-2">
-                                <div class="w-6 h-6 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs">
-                                    <i data-lucide="package" class="w-3.5 h-3.5"></i>
-                                </div>
-                                <div>
-                                    <div class="font-bold text-slate-900 dark:text-white">Inventory Agent</div>
-                                    <div class="text-[10px] text-slate-500 dark:text-slate-400">Checking stock levels</div>
-                                </div>
-                            </div>
-                            <span class="text-[10px] font-mono font-bold text-slate-500 dark:text-slate-400">2/4</span>
-                        </div>
-                        <div class="w-full h-1.5 rounded-full bg-slate-100 dark:bg-white/10 overflow-hidden">
-                            <div class="h-full rounded-full bg-emerald-500" style="width: 50%"></div>
-                        </div>
-                    </div>
-
-                    <!-- Marketing Agent Progress -->
-                    <div class="space-y-1.5">
-                        <div class="flex items-center justify-between text-xs">
-                            <div class="flex items-center gap-2">
-                                <div class="w-6 h-6 rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-xs">
-                                    <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
-                                </div>
-                                <div>
-                                    <div class="font-bold text-slate-900 dark:text-white">Marketing Agent</div>
-                                    <div class="text-[10px] text-slate-500 dark:text-slate-400">Preparing campaign</div>
-                                </div>
-                            </div>
-                            <span class="text-[10px] font-mono font-bold text-slate-500 dark:text-slate-400">1/4</span>
-                        </div>
-                        <div class="w-full h-1.5 rounded-full bg-slate-100 dark:bg-white/10 overflow-hidden">
-                            <div class="h-full rounded-full bg-purple-500" style="width: 25%"></div>
-                        </div>
-                    </div>
+                    @endforelse
                 </div>
             </div>
 
@@ -2360,47 +1688,25 @@
                 </div>
 
                 <div class="space-y-2">
-                    <!-- Item 1 -->
-                    <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5 flex items-center justify-between gap-2">
-                        <div class="flex items-center gap-2.5 min-w-0">
-                            <div class="w-7 h-7 rounded-lg bg-rose-500/10 text-rose-500 flex items-center justify-center shrink-0">
-                                <i data-lucide="file-text" class="w-4 h-4"></i>
+                    @forelse($pendingProposals->take(3) as $prop)
+                        <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5 flex items-center justify-between gap-2">
+                            <div class="flex items-center gap-2.5 min-w-0">
+                                <div class="w-7 h-7 rounded-lg bg-amber-500/10 text-amber-500 flex items-center justify-center shrink-0">
+                                    <i data-lucide="file-text" class="w-4 h-4"></i>
+                                </div>
+                                <div class="min-w-0">
+                                    <div class="font-bold text-xs text-slate-900 dark:text-white truncate">{{ $prop->title }}</div>
+                                    <div class="text-[10px] text-slate-500 dark:text-slate-400">{{ ucwords(str_replace('_', ' ', $prop->agent)) }} &bull; {{ ucfirst($prop->risk_level ?? 'Normal') }}</div>
+                                </div>
                             </div>
-                            <div class="min-w-0">
-                                <div class="font-bold text-xs text-slate-900 dark:text-white truncate">Publish Weekend Promotion</div>
-                                <div class="text-[10px] text-slate-500 dark:text-slate-400">Marketing • High</div>
-                            </div>
+                            <span class="text-[10px] text-slate-400 shrink-0 font-mono">{{ $prop->created_at?->diffForHumans() ?? 'Baru' }}</span>
                         </div>
-                        <span class="text-[10px] text-slate-400 shrink-0 font-mono">2h ago</span>
-                    </div>
-
-                    <!-- Item 2 -->
-                    <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5 flex items-center justify-between gap-2">
-                        <div class="flex items-center gap-2.5 min-w-0">
-                            <div class="w-7 h-7 rounded-lg bg-amber-500/10 text-amber-500 flex items-center justify-center shrink-0">
-                                <i data-lucide="file-text" class="w-4 h-4"></i>
-                            </div>
-                            <div class="min-w-0">
-                                <div class="font-bold text-xs text-slate-900 dark:text-white truncate">Create Purchase Order</div>
-                                <div class="text-[10px] text-slate-500 dark:text-slate-400">Operations • High</div>
-                            </div>
+                    @empty
+                        <div class="py-3 text-center text-xs text-slate-500 dark:text-slate-400">
+                            <i data-lucide="check" class="w-5 h-5 mx-auto mb-1 text-slate-400"></i>
+                            <p class="text-[11px]">Tidak ada usulan yang menunggu persetujuan.</p>
                         </div>
-                        <span class="text-[10px] text-slate-400 shrink-0 font-mono">3h ago</span>
-                    </div>
-
-                    <!-- Item 3 -->
-                    <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5 flex items-center justify-between gap-2">
-                        <div class="flex items-center gap-2.5 min-w-0">
-                            <div class="w-7 h-7 rounded-lg bg-amber-500/10 text-amber-500 flex items-center justify-center shrink-0">
-                                <i data-lucide="file-text" class="w-4 h-4"></i>
-                            </div>
-                            <div class="min-w-0">
-                                <div class="font-bold text-xs text-slate-900 dark:text-white truncate">Financial Report</div>
-                                <div class="text-[10px] text-slate-500 dark:text-slate-400">Finance • Medium</div>
-                            </div>
-                        </div>
-                        <span class="text-[10px] text-slate-400 shrink-0 font-mono">4h ago</span>
-                    </div>
+                    @endforelse
                 </div>
             </div>
 
@@ -2412,55 +1718,21 @@
                 </div>
 
                 <div class="space-y-2 text-xs">
-                    <div class="flex items-center gap-2.5 text-slate-600 dark:text-slate-300">
-                        <div class="w-5 h-5 rounded-full bg-blue-500/10 text-blue-400 flex items-center justify-center shrink-0">
-                            <i data-lucide="message-square" class="w-3 h-3"></i>
+                    @forelse($recentHistories->take(4) as $hist)
+                        <div class="flex items-center gap-2.5 text-slate-600 dark:text-slate-300">
+                            <div class="w-5 h-5 rounded-full bg-blue-500/10 text-blue-400 flex items-center justify-center shrink-0">
+                                <i data-lucide="activity" class="w-3 h-3"></i>
+                            </div>
+                            <div class="flex-1 truncate text-[11px]">
+                                <span class="font-mono text-slate-400 mr-1 text-[10px]">{{ $hist->created_at?->format('H:i') ?? 'Baru' }}</span>
+                                <b class="text-slate-800 dark:text-white">{{ ucwords(str_replace('_', ' ', $hist->agent ?? 'AI')) }}</b> {{ \Illuminate\Support\Str::limit($hist->action ?? $hist->title ?? 'Aktivitas tercatat', 32) }}
+                            </div>
                         </div>
-                        <div class="flex-1 truncate text-[11px]">
-                            <span class="font-mono text-slate-400 mr-1 text-[10px]">09:42</span>
-                            <b class="text-slate-800 dark:text-white">Sales Agent</b> analyzed sales data
+                    @empty
+                        <div class="py-3 text-center text-xs text-slate-500 dark:text-slate-400">
+                            <p class="text-[11px]">Belum ada riwayat aktivitas terbaru.</p>
                         </div>
-                    </div>
-
-                    <div class="flex items-center gap-2.5 text-slate-600 dark:text-slate-300">
-                        <div class="w-5 h-5 rounded-full bg-emerald-500/10 text-emerald-400 flex items-center justify-center shrink-0">
-                            <i data-lucide="package" class="w-3 h-3"></i>
-                        </div>
-                        <div class="flex-1 truncate text-[11px]">
-                            <span class="font-mono text-slate-400 mr-1 text-[10px]">09:38</span>
-                            <b class="text-slate-800 dark:text-white">Inventory Agent</b> checked stock levels
-                        </div>
-                    </div>
-
-                    <div class="flex items-center gap-2.5 text-slate-600 dark:text-slate-300">
-                        <div class="w-5 h-5 rounded-full bg-purple-500/10 text-purple-400 flex items-center justify-center shrink-0">
-                            <i data-lucide="sparkles" class="w-3 h-3"></i>
-                        </div>
-                        <div class="flex-1 truncate text-[11px]">
-                            <span class="font-mono text-slate-400 mr-1 text-[10px]">09:34</span>
-                            <b class="text-slate-800 dark:text-white">Content Agent</b> drafted post
-                        </div>
-                    </div>
-
-                    <div class="flex items-center gap-2.5 text-slate-600 dark:text-slate-300">
-                        <div class="w-5 h-5 rounded-full bg-cyan-500/10 text-cyan-400 flex items-center justify-center shrink-0">
-                            <i data-lucide="users" class="w-3 h-3"></i>
-                        </div>
-                        <div class="flex-1 truncate text-[11px]">
-                            <span class="font-mono text-slate-400 mr-1 text-[10px]">09:28</span>
-                            <b class="text-slate-800 dark:text-white">Customer Agent</b> found 38 dormant customers
-                        </div>
-                    </div>
-
-                    <div class="flex items-center gap-2.5 text-slate-600 dark:text-slate-300">
-                        <div class="w-5 h-5 rounded-full bg-indigo-500/10 text-indigo-400 flex items-center justify-center shrink-0">
-                            <i data-lucide="check-circle" class="w-3 h-3"></i>
-                        </div>
-                        <div class="flex-1 truncate text-[11px]">
-                            <span class="font-mono text-slate-400 mr-1 text-[10px]">09:20</span>
-                            <b class="text-slate-800 dark:text-white">Business Agent</b> completed analysis
-                        </div>
-                    </div>
+                    @endforelse
                 </div>
             </div>
 
@@ -2744,7 +2016,7 @@
                         :class="orgChartFilter === 'executive' ? 'bg-blue-600 text-white font-bold shadow-md' : 'text-slate-300 hover:text-white hover:bg-white/10'"
                         class="px-3 py-1.5 rounded-xl transition cursor-pointer flex items-center gap-1"
                     >
-                        <span>👑 Direksi &amp; Eksekutif</span>
+                        <span>Direksi &amp; Eksekutif</span>
                     </button>
                     <button
                         type="button"
@@ -2752,7 +2024,7 @@
                         :class="orgChartFilter === 'operations' ? 'bg-cyan-600 text-white font-bold shadow-md' : 'text-slate-300 hover:text-white hover:bg-white/10'"
                         class="px-3 py-1.5 rounded-xl transition cursor-pointer flex items-center gap-1"
                     >
-                        <span>⚙️ Operasional &amp; Gudang</span>
+                        <span>Operasional &amp; Gudang</span>
                     </button>
                     <button
                         type="button"
@@ -2760,7 +2032,7 @@
                         :class="orgChartFilter === 'growth' ? 'bg-purple-600 text-white font-bold shadow-md' : 'text-slate-300 hover:text-white hover:bg-white/10'"
                         class="px-3 py-1.5 rounded-xl transition cursor-pointer flex items-center gap-1"
                     >
-                        <span>📈 Pemasaran &amp; Penjualan</span>
+                        <span>Pemasaran &amp; Penjualan</span>
                     </button>
                     <button
                         type="button"
@@ -2768,7 +2040,7 @@
                         :class="orgChartFilter === 'finance' ? 'bg-amber-600 text-white font-bold shadow-md' : 'text-slate-300 hover:text-white hover:bg-white/10'"
                         class="px-3 py-1.5 rounded-xl transition cursor-pointer flex items-center gap-1"
                     >
-                        <span>💰 Keuangan &amp; Audit</span>
+                        <span>Keuangan &amp; Audit</span>
                     </button>
                     <button
                         type="button"
@@ -2776,7 +2048,7 @@
                         :class="orgChartFilter === 'people' ? 'bg-fuchsia-600 text-white font-bold shadow-md' : 'text-slate-300 hover:text-white hover:bg-white/10'"
                         class="px-3 py-1.5 rounded-xl transition cursor-pointer flex items-center gap-1"
                     >
-                        <span>👥 SDM &amp; Kultur</span>
+                        <span>SDM &amp; Kultur</span>
                     </button>
                 </div>
 
@@ -2910,11 +2182,11 @@
     function registerCoocaVirtualOffice() {
         if (!window.Alpine) return;
         window.Alpine.data('coocaVirtualOffice', (config) => ({
-            mode: config.mode || 'executive',
-            agents: config.agents || {},
-            tasks: config.tasks || [],
-            proposals: config.proposals || [],
-            avatarPresets: config.presets || {},
+            mode: (config && config.mode) || 'executive',
+            agents: (config && config.agents) || {},
+            tasks: (config && config.tasks) || [],
+            proposals: (config && config.proposals) || [],
+            avatarPresets: (config && config.presets) || {},
             viewMode: '3d', // '3d', 'office', 'bento'
             isNightMode: typeof document !== 'undefined' ? document.documentElement.classList.contains('dark') : false,
             audioEnabled: false,
@@ -3255,91 +2527,91 @@
                 const role = this.floatingChatAgent || 'ceo';
                 const promptMap = {
                     ceo: [
-                        { icon: '🏢', label: 'Executive Summary', query: 'Berikan ringkasan eksekutif performa dan kesehatan bisnis secara menyeluruh' },
-                        { icon: '🎯', label: 'Target Strategis', query: 'Bagaimana progres pencapaian target bisnis dan profitabilitas bulan ini?' },
-                        { icon: '⚠️', label: 'Deteksi Risiko', query: 'Apakah ada anomali atau risiko operasional lintas divisi hari ini?' },
-                        { icon: '💡', label: 'Arahan Prioritas', query: 'Rekomendasikan langkah prioritas untuk memaksimalkan omzet minggu ini' }
+                        { icon: 'building', label: 'Executive Summary', query: 'Berikan ringkasan eksekutif performa dan kesehatan bisnis secara menyeluruh' },
+                        { icon: 'target', label: 'Target Strategis', query: 'Bagaimana progres pencapaian target bisnis dan profitabilitas bulan ini?' },
+                        { icon: 'alert-triangle', label: 'Deteksi Risiko', query: 'Apakah ada anomali atau risiko operasional lintas divisi hari ini?' },
+                        { icon: 'lightbulb', label: 'Arahan Prioritas', query: 'Rekomendasikan langkah prioritas untuk memaksimalkan omzet minggu ini' }
                     ],
                     cfo: [
-                        { icon: '📊', label: 'Profit & Cashflow', query: 'Bagaimana estimasi profit & cashflow bulan ini?' },
-                        { icon: '📈', label: 'Report Keuangan', query: 'Kasih report lengkap keuangan dan pembukuan' },
-                        { icon: '🔍', label: 'Audit Kasir', query: 'Audit transaksi kasir POS dan kas kecil hari ini' },
-                        { icon: '💰', label: 'Efisiensi Opex', query: 'Analisis potensi efisiensi beban operasional bulanan' }
+                        { icon: 'bar-chart-3', label: 'Profit & Cashflow', query: 'Bagaimana estimasi profit & cashflow bulan ini?' },
+                        { icon: 'trending-up', label: 'Report Keuangan', query: 'Kasih report lengkap keuangan dan pembukuan' },
+                        { icon: 'search', label: 'Audit Kasir', query: 'Audit transaksi kasir POS dan kas kecil hari ini' },
+                        { icon: 'banknote', label: 'Efisiensi Opex', query: 'Analisis potensi efisiensi beban operasional bulanan' }
                     ],
                     coo: [
-                        { icon: '📦', label: 'Stok Kritis', query: 'Cek status inventaris dan stok kritis di gudang' },
-                        { icon: '📝', label: 'Ajukan Purchase', query: 'Buatkan usulan purchase order bahan baku yang menipis ke supplier' },
-                        { icon: '🚚', label: 'SLA Pemenuhan', query: 'Bagaimana SLA pemenuhan pesanan dan logistik hari ini?' },
-                        { icon: '🔄', label: 'Sinkronisasi Stok', query: 'Periksa sinkronisasi stok toko fisik dan online' }
+                        { icon: 'package', label: 'Stok Kritis', query: 'Cek status inventaris dan stok kritis di gudang' },
+                        { icon: 'file-text', label: 'Ajukan Purchase', query: 'Buatkan usulan purchase order bahan baku yang menipis ke supplier' },
+                        { icon: 'truck', label: 'SLA Pemenuhan', query: 'Bagaimana SLA pemenuhan pesanan dan logistik hari ini?' },
+                        { icon: 'refresh-cw', label: 'Sinkronisasi Stok', query: 'Periksa sinkronisasi stok toko fisik dan online' }
                     ],
                     cmo: [
-                        { icon: '🎯', label: 'Promo Flash Sale', query: 'Buat ide promo flash sale untuk dongkrak omzet' },
-                        { icon: '📢', label: 'Performa Iklan', query: 'Bagaimana performa kampanye iklan dan CTR saat ini?' },
-                        { icon: '👥', label: 'Lead Prospek', query: 'Analisis pertambahan pelanggan baru dan lead prospek' },
-                        { icon: '📱', label: 'Ide Kampanye', query: 'Rekomendasikan strategi marketing omnichannel untuk akhir pekan' }
+                        { icon: 'target', label: 'Promo Flash Sale', query: 'Buat ide promo flash sale untuk dongkrak omzet' },
+                        { icon: 'megaphone', label: 'Performa Iklan', query: 'Bagaimana performa kampanye iklan dan CTR saat ini?' },
+                        { icon: 'users', label: 'Lead Prospek', query: 'Analisis pertambahan pelanggan baru dan lead prospek' },
+                        { icon: 'smartphone', label: 'Ide Kampanye', query: 'Rekomendasikan strategi marketing omnichannel untuk akhir pekan' }
                     ],
                     marketing: [
-                        { icon: '🎯', label: 'Promo Flash Sale', query: 'Buat ide promo flash sale untuk dongkrak omzet' },
-                        { icon: '📱', label: 'Materi Promo', query: 'Siapkan materi promosi dan copy konten sosial media' },
-                        { icon: '👥', label: 'Audience Growth', query: 'Analisis jangkauan dan engagement konten promosi' }
+                        { icon: 'target', label: 'Promo Flash Sale', query: 'Buat ide promo flash sale untuk dongkrak omzet' },
+                        { icon: 'smartphone', label: 'Materi Promo', query: 'Siapkan materi promosi dan copy konten sosial media' },
+                        { icon: 'users', label: 'Audience Growth', query: 'Analisis jangkauan dan engagement konten promosi' }
                     ],
                     sales_director: [
-                        { icon: '💼', label: 'Pipeline B2B', query: 'Bagaimana status negosiasi prospek B2B saat ini?' },
-                        { icon: '🎯', label: 'Closing Target', query: 'Berapa persen pencapaian target closing sales bulan ini?' },
-                        { icon: '💬', label: 'Follow-up Client', query: 'Daftar klien prioritas yang perlu di-follow up hari ini' },
+                        { icon: 'briefcase', label: 'Pipeline B2B', query: 'Bagaimana status negosiasi prospek B2B saat ini?' },
+                        { icon: 'target', label: 'Closing Target', query: 'Berapa persen pencapaian target closing sales bulan ini?' },
+                        { icon: 'message-circle', label: 'Follow-up Client', query: 'Daftar klien prioritas yang perlu di-follow up hari ini' },
                         { icon: '⭐', label: 'Retensi Pelanggan', query: 'Analisis repeat order dan loyalitas pelanggan' }
                     ],
                     sales: [
-                        { icon: '💼', label: 'Closing Harian', query: 'Berapa total transaksi dan closing kasir hari ini?' },
-                        { icon: '💬', label: 'Follow-up Pelanggan', query: 'Pelanggan mana saja yang belum menyelesaikan pesanan?' },
+                        { icon: 'briefcase', label: 'Closing Harian', query: 'Berapa total transaksi dan closing kasir hari ini?' },
+                        { icon: 'message-circle', label: 'Follow-up Pelanggan', query: 'Pelanggan mana saja yang belum menyelesaikan pesanan?' },
                         { icon: '⭐', label: 'Upselling', query: 'Rekomendasikan paket bundling produk untuk kasir' }
                     ],
                     inventory: [
-                        { icon: '📦', label: 'Stok Menipis', query: 'Bahan baku dan barang apa saja yang di bawah safety stock?' },
-                        { icon: '📝', label: 'Draft PO Supplier', query: 'Siapkan usulan Purchase Order ke supplier resmi' },
-                        { icon: '📋', label: 'Opname Gudang', query: 'Kapan jadwal stock opname berikutnya dan status selisih stok?' }
+                        { icon: 'package', label: 'Stok Menipis', query: 'Bahan baku dan barang apa saja yang di bawah safety stock?' },
+                        { icon: 'file-text', label: 'Draft PO Supplier', query: 'Siapkan usulan Purchase Order ke supplier resmi' },
+                        { icon: 'clipboard', label: 'Opname Gudang', query: 'Kapan jadwal stock opname berikutnya dan status selisih stok?' }
                     ],
                     purchasing: [
-                        { icon: '📝', label: 'Draft PO', query: 'Buat draf Purchase Order untuk barang yang perlu reorder' },
-                        { icon: '🤝', label: 'Supplier Hub', query: 'Status konfirmasi ketersediaan pasokan dari supplier' },
-                        { icon: '💰', label: 'Negosiasi Harga', query: 'Bandingkan penawaran harga supplier untuk bahan baku utama' }
+                        { icon: 'file-text', label: 'Draft PO', query: 'Buat draf Purchase Order untuk barang yang perlu reorder' },
+                        { icon: 'handshake', label: 'Supplier Hub', query: 'Status konfirmasi ketersediaan pasokan dari supplier' },
+                        { icon: 'banknote', label: 'Negosiasi Harga', query: 'Bandingkan penawaran harga supplier untuk bahan baku utama' }
                     ],
                     marketplace: [
-                        { icon: '🛒', label: 'Sinkronisasi Toko', query: 'Sinkronkan stok dan harga dengan e-commerce / marketplace' },
-                        { icon: '📦', label: 'Pesanan Online', query: 'Cek pesanan online baru yang perlu diproses gudang' }
+                        { icon: 'shopping-cart', label: 'Sinkronisasi Toko', query: 'Sinkronkan stok dan harga dengan e-commerce / marketplace' },
+                        { icon: 'package', label: 'Pesanan Online', query: 'Cek pesanan online baru yang perlu diproses gudang' }
                     ],
                     finance: [
-                        { icon: '📈', label: 'Buku Kasir', query: 'Rekonsiliasi transaksi penjualan kasir POS hari ini' },
-                        { icon: '🧾', label: 'Invoice Jatuh Tempo', query: 'Daftar invoice dan tagihan supplier yang akan jatuh tempo' },
-                        { icon: '💵', label: 'Saldo Kas Kecil', query: 'Cek saldo kas operasional harian' }
+                        { icon: 'trending-up', label: 'Buku Kasir', query: 'Rekonsiliasi transaksi penjualan kasir POS hari ini' },
+                        { icon: 'receipt', label: 'Invoice Jatuh Tempo', query: 'Daftar invoice dan tagihan supplier yang akan jatuh tempo' },
+                        { icon: 'dollar-sign', label: 'Saldo Kas Kecil', query: 'Cek saldo kas operasional harian' }
                     ],
                     reporting: [
-                        { icon: '📊', label: 'Laporan Laba Rugi', query: 'Kompilasi ringkasan laba rugi bisnis bulan ini' },
-                        { icon: '📉', label: 'Breakdown Biaya', query: 'Tampilkan perincian pos pengeluaran terbesar' }
+                        { icon: 'bar-chart-3', label: 'Laporan Laba Rugi', query: 'Kompilasi ringkasan laba rugi bisnis bulan ini' },
+                        { icon: 'trending-down', label: 'Breakdown Biaya', query: 'Tampilkan perincian pos pengeluaran terbesar' }
                     ],
                     hr_lead: [
-                        { icon: '⚡', label: 'Audit Kerja', query: 'Audit produktivitas & beban kerja tim hari ini' },
-                        { icon: '📋', label: 'Jadwal Shift', query: 'Cek kepatuhan jadwal shift dan absensi staf' },
-                        { icon: '🌟', label: 'Evaluasi KPI', query: 'Evaluasi performa kerja dan pencapaian target karyawan' }
+                        { icon: 'zap', label: 'Audit Kerja', query: 'Audit produktivitas & beban kerja tim hari ini' },
+                        { icon: 'clipboard', label: 'Jadwal Shift', query: 'Cek kepatuhan jadwal shift dan absensi staf' },
+                        { icon: 'star', label: 'Evaluasi KPI', query: 'Evaluasi performa kerja dan pencapaian target karyawan' }
                     ],
                     hr: [
-                        { icon: '📋', label: 'Shift Kerja', query: 'Periksa jadwal staf yang bertugas hari ini' },
-                        { icon: '⚡', label: 'Beban Staf', query: 'Analisis jam lembur dan beban kerja operasional' }
+                        { icon: 'clipboard', label: 'Shift Kerja', query: 'Periksa jadwal staf yang bertugas hari ini' },
+                        { icon: 'zap', label: 'Beban Staf', query: 'Analisis jam lembur dan beban kerja operasional' }
                     ],
                     business: [
-                        { icon: '📊', label: 'Tren Pasar', query: 'Bagaimana perbandingan tren penjualan bulan ini vs bulan lalu?' },
-                        { icon: '🚀', label: 'Peluang Ekspansi', query: 'Analisis produk terlaris dan peluang ekspansi menu baru' },
-                        { icon: '🔍', label: 'Audit Margin', query: 'Evaluasi margin kontribusi per kategori produk' }
+                        { icon: 'bar-chart-3', label: 'Tren Pasar', query: 'Bagaimana perbandingan tren penjualan bulan ini vs bulan lalu?' },
+                        { icon: 'rocket', label: 'Peluang Ekspansi', query: 'Analisis produk terlaris dan peluang ekspansi menu baru' },
+                        { icon: 'search', label: 'Audit Margin', query: 'Evaluasi margin kontribusi per kategori produk' }
                     ],
                     customer: [
-                        { icon: '💬', label: 'Feedback Tamu', query: 'Bagaimana ulasan dan feedback pelanggan minggu ini?' },
+                        { icon: 'message-circle', label: 'Feedback Tamu', query: 'Bagaimana ulasan dan feedback pelanggan minggu ini?' },
                         { icon: '⭐', label: 'Loyalty Program', query: 'Berapa banyak member aktif yang menukarkan poin reward?' }
                     ]
                 };
 
                 return promptMap[role] || [
-                    { icon: '⚡', label: 'Status Tugas', query: 'Bagaimana status tugas dan progres kerjamu saat ini?' },
-                    { icon: '📊', label: 'Laporan Divisi', query: 'Tampilkan data dan analisis terpenting dari divisi Anda' }
+                    { icon: 'zap', label: 'Status Tugas', query: 'Bagaimana status tugas dan progres kerjamu saat ini?' },
+                    { icon: 'bar-chart-3', label: 'Laporan Divisi', query: 'Tampilkan data dan analisis terpenting dari divisi Anda' }
                 ];
             },
 
@@ -3527,14 +2799,16 @@
             },
 
             openFloatingChatWithAgent(role) {
-                this.floatingChatAgent = role;
-                this.onFloatingAgentChange(role);
-                this.isFloatingChatOpen = true;
-                this.isFloatingHistoryOpen = false;
-                this.isFloatingRosterOpen = false;
-                this.isCameraMenuOpen = false;
+                const teamKey = this.resolveAgentTeam(role);
                 this.deselectAgent();
                 this.deselectRoom();
+                window.dispatchEvent(new CustomEvent('open-ai-consultation', {
+                    detail: {
+                        team: teamKey,
+                        agent: role,
+                        agentName: role,
+                    }
+                }));
             },
 
             resetCurrentAgentChat() {
@@ -4339,7 +3613,7 @@
                 }));
 
                 const agentName = (agentData.avatar && agentData.avatar.custom_name) || agentData.name || roleKey.toUpperCase();
-                this.taskSuccessMessage = `⚡ Tugas berhasil diberikan kepada ${agentName}! Agen sedang menuju meja kerja.`;
+                this.taskSuccessMessage = `Tugas berhasil diberikan kepada ${agentName}! Agen sedang menuju meja kerja.`;
                 this.directTaskInput = '';
 
                 setTimeout(() => {
@@ -4370,7 +3644,7 @@
                     }
                 }));
 
-                this.taskSuccessMessage = `👥 Seluruh anggota Tim ${teamKey.toUpperCase()} telah ditugaskan dan berkumpul untuk koordinasi!`;
+                this.taskSuccessMessage = `Seluruh anggota Tim ${teamKey.toUpperCase()} telah ditugaskan dan berkumpul untuk koordinasi!`;
                 this.directTaskInput = '';
 
                 setTimeout(() => {
@@ -4470,11 +3744,8 @@
             consultWithAgent(agent) {
                 if (!agent) return;
                 const roleKey = agent.role || this.selectedAgent;
-                if (this.viewMode === '3d') {
-                    this.openFloatingChatWithAgent(roleKey);
-                    return;
-                }
                 const teamKey = this.resolveAgentTeam(roleKey);
+                this.deselectAgent();
                 window.dispatchEvent(new CustomEvent('open-ai-consultation', {
                     detail: {
                         team: teamKey,

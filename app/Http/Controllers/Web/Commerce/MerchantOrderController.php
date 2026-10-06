@@ -160,7 +160,7 @@ final class MerchantOrderController extends Controller
         abort_unless(Context::hasPermission('storefront.orders.process'), 403);
 
         $validated = $request->validate([
-            'status' => ['required', 'string', 'in:processing,ready,fulfilled,completed,cancelled'],
+            'status' => ['required', 'string', 'in:processing,ready,shipped,delivered,fulfilled,completed,cancelled'],
             'cancel_reason' => ['nullable', 'required_if:status,cancelled', 'string', 'max:255'],
         ]);
 

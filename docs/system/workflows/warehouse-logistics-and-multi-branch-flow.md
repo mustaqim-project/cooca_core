@@ -93,7 +93,7 @@ sequenceDiagram
 | **1. Aktor & Persona** | Siapa yang menginisiasi aksi | Business Owner, General Manager, Manajer Logistik, Kepala Cabang, Staf Gudang. |
 | **2. UI & Form State** | Titik masuk antarmuka | `resources/views/app/warehouse/index.blade.php` (Modal Tambah Cabang/Gudang, Edit, Geocoding) & `show.blade.php` (Tabel Stok, Quick Adjustment Modal, Tab Penerimaan PO). |
 | **3. Route & Middleware** | Gerbang otentikasi & proteksi | `owner.php`: `middleware('module:inventory_warehouse')`, `require.permission:warehouse.view`, `require.permission:warehouse.manage`, `entitlement:warehouse`. |
-| **4. Controller & Action** | Penanganan HTTP | `WarehouseWebController@index`, `@store`, `@show`, `@update`, `@destroy`, dan delegasi stok ke `InventoryWebController@quickAdjust`. |
+| **4. Controller & Action** | Penanganan HTTP | `WarehouseWebController@index`, `@store`, `@show`, `@edit` (redirect modal-first `?edit=1`), `@update`, `@destroy`, dan delegasi stok ke `InventoryWebController@quickAdjust`. |
 | **5. Validasi Request** | Validasi skema & payload | Validasi inline di controller: `parent_id` (UUID valid milik tenant), `type` (outlet, warehouse, central_kitchen), `geofence_radius_meters` (10-10.000m), koordinat lat/lng. |
 | **6. Domain Service** | Logika bisnis | `StockService::getOrCreateStock()`, `StockService::recordMovement()`, `GeoLocationService::reverseGeocode()`, `EntitlementService::canCreateLocation()`. |
 | **7. Model & DB Schema** | Struktur persistensi | Tabel `locations` (`id`, `business_id`, `parent_id`, `name`, `type`, `code`, `is_primary`, `is_active`, `geofence_radius_meters`, `biteship_area_id`). |

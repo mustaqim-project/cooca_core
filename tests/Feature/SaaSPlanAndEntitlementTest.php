@@ -167,7 +167,7 @@ class SaaSPlanAndEntitlementTest extends TestCase
 
         $response = $this->get(route('billing.limits'));
         $response->assertStatus(200);
-        $response->assertSee('Paket Langganan & Kuota Bisnis', false);
+        $response->assertSee('Paket Langganan & Kuota Bisnis');
         $response->assertSee('No Data Punishment');
     }
 }

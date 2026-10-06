@@ -186,4 +186,6 @@ return [
     'active_branch' => 'Active Branch',
     'switch_business' => 'Switch Business',
     'all_branches' => 'All Branches',
+    'templates_business' => 'Business Templates',
+    'sales_report' => 'Sales Reports',
 ];

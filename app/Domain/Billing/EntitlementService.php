@@ -1103,7 +1103,12 @@ final class EntitlementService
                 'remaining' => $aiRemaining,
                 'percent'   => $aiAllowance > 0 ? min(100, round(($aiUsed / $aiAllowance) * 100)) : 0,
                 'is_free'   => !$isCore && $aiAllowance === 0,
-                'is_unlimited' => false,
+                'is_unlimited' => true,
+                'is_byoai' => true,
+            ],
+            'byoai' => [
+                'is_byoai' => true,
+                'configured' => $business->aiProviderConfigs()->where('is_active', true)->whereNotNull('api_key')->exists(),
             ],
             'storage' => $storage,
 

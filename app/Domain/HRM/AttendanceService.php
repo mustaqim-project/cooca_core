@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\HRM;
 
+use App\Domain\HRM\Biometrics\FaceVerificationService;
 use App\Models\Attendance;
 use App\Models\AttendanceCorrection;
 use App\Models\AuditLog;
@@ -11,16 +12,24 @@ use App\Models\Business;
 use App\Models\BusinessMembership;
 use App\Models\Location;
 use App\Models\User;
+use App\Support\TimezoneHelper;
 use Carbon\Carbon;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use RuntimeException;
 
 final class AttendanceService
 {
+    public const MAX_GPS_ACCURACY_METERS = 250.0;
+
+    public function __construct(
+        private readonly FaceVerificationService $faceService = new FaceVerificationService(),
+        private readonly AttendanceExceptionService $exceptionService = new AttendanceExceptionService(),
+        private readonly WorkScheduleService $scheduleService = new WorkScheduleService()
+    ) {}
+
     /**
      * Calculate geodesic distance between two points using the Haversine formula (in meters).
      */
@@ -41,7 +50,7 @@ final class AttendanceService
     }
 
     /**
-     * Record daily clock-in with geofence validation and anti-spoofing verification.
+     * Record daily clock-in with geofence validation, biometric face verification, and anti-spoofing checks.
      *
      * @param Business $business
      * @param User $user
@@ -51,29 +60,37 @@ final class AttendanceService
      */
     public function clockIn(Business $business, User $user, array $data): Attendance
     {
-        $today = now()->toDateString();
+        $today = $data['date'] ?? now()->toDateString();
 
-        // 1. Check existing attendance today
-        $attendance = Attendance::where('business_id', $business->id)
-            ->where('user_id', $user->id)
-            ->whereDate('date', $today)
-            ->first();
-
-        if ($attendance && $attendance->clock_in_at !== null) {
-            throw ValidationException::withMessages([
-                'attendance' => 'Anda sudah melakukan presensi masuk (clock-in) untuk hari ini pada jam ' . $attendance->clock_in_at->format('H:i') . ' WIB.',
-            ]);
-        }
-
-        // 2. Anti-spoofing accuracy verification
+        // 1. Anti-spoofing GPS accuracy verification
         $accuracy = isset($data['accuracy']) ? (float) $data['accuracy'] : null;
-        if ($accuracy !== null && $accuracy > 100.0) {
+        if ($accuracy !== null && $accuracy > self::MAX_GPS_ACCURACY_METERS) {
+            $maxAcc = (int) self::MAX_GPS_ACCURACY_METERS;
             throw ValidationException::withMessages([
-                'gps' => "Akurasi sinyal GPS perangkat Anda terlalu rendah ({$accuracy}m > 100m) atau terdeteksi sinyal simulasi/palsu. Pastikan GPS aktif dalam mode akurasi tinggi.",
+                'gps' => "Akurasi sinyal GPS perangkat Anda terlalu rendah ({$accuracy}m > {$maxAcc}m) atau terdeteksi sinyal simulasi/palsu. Pastikan GPS aktif dalam mode akurasi tinggi.",
             ]);
         }
 
-        // 3. Dual Location Policy check
+        // 2. Biometric Face Verification (if provided or enforced)
+        $faceVerified = false;
+        $faceScore = null;
+        $faceData = $data['face_data'] ?? $data['face_embedding'] ?? $data['photo'] ?? null;
+
+        if (! empty($faceData)) {
+            $threshold = (float) ($data['face_threshold'] ?? FaceVerificationService::DEFAULT_SIMILARITY_THRESHOLD);
+            $verificationResult = $this->faceService->verifyFace($business, $user, $faceData, $threshold);
+
+            if (! $verificationResult['verified']) {
+                throw ValidationException::withMessages([
+                    'face' => $verificationResult['message'],
+                ]);
+            }
+
+            $faceVerified = true;
+            $faceScore = $verificationResult['similarity'];
+        }
+
+        // 3. Resolve Location Policy & Exception Engine
         $membership = BusinessMembership::where('business_id', $business->id)
             ->where('user_id', $user->id)
             ->first();
@@ -86,27 +103,40 @@ final class AttendanceService
 
         $targetLocation = null;
         $calculatedDistance = null;
+        $exceptionPolicyId = null;
         $clockInStatus = Attendance::CLOCK_IN_ON_TIME;
 
-        if ($isFreeLocation) {
+        // Check if employee has active exception policy (WFH, Field Work, Business Trip, etc.)
+        $exceptionEval = $this->exceptionService->evaluateLocationException($business, $user, $userLat, $userLng, 0, now('Asia/Jakarta'));
+        if ($exceptionEval['is_exception']) {
+            if (! $exceptionEval['allowed']) {
+                throw ValidationException::withMessages([
+                    'location' => $exceptionEval['reason'],
+                ]);
+            }
+            $isFreeLocation = true;
+            $exceptionPolicyId = $exceptionEval['exception']->id;
             $clockInStatus = Attendance::CLOCK_IN_FREE_LOCATION;
-        } else {
-            // Mode Geofenced: Resolve target location
-            $targetLocationId = $data['location_id'] ?? $membership?->primary_location_id;
-            if ($targetLocationId) {
-                $targetLocation = Location::where('business_id', $business->id)->where('id', $targetLocationId)->first();
-            }
+        }
 
-            if (! $targetLocation) {
-                $targetLocation = Location::where('business_id', $business->id)->where('is_primary', true)->first()
-                    ?? Location::where('business_id', $business->id)->first();
-            }
+        $targetLocationId = $data['location_id'] ?? $membership?->primary_location_id;
+        if ($targetLocationId) {
+            $targetLocation = Location::where('business_id', $business->id)->where('id', $targetLocationId)->first();
+        }
 
-            // If target location has coordinates configured, verify distance
+        if (! $targetLocation) {
+            $targetLocation = Location::where('business_id', $business->id)->where('is_primary', true)->first()
+                ?? Location::where('business_id', $business->id)->first();
+        }
+
+        if ($isFreeLocation && ! $exceptionPolicyId) {
+            $clockInStatus = Attendance::CLOCK_IN_FREE_LOCATION;
+        } elseif (! $isFreeLocation) {
+            // Mode Geofenced: If target location has coordinates configured, verify distance
             if ($targetLocation && $targetLocation->latitude !== null && $targetLocation->longitude !== null) {
                 if ($userLat === null || $userLng === null) {
                     throw ValidationException::withMessages([
-                        'location' => "Izin lokasi GPS wajib diaktifkan untuk presensi kantor ({$targetLocation->name}). Silakan izinkan akses lokasi pada browser Anda.",
+                        'location' => "Izin lokasi GPS wajib diaktifkan untuk presensi kantor ({$targetLocation->name}). Silakan izinkan akses lokasi pada browser/aplikasi Anda.",
                     ]);
                 }
 
@@ -127,52 +157,176 @@ final class AttendanceService
             }
         }
 
-        // 4. Determine lateness (standard shift threshold: 09:00 WIB)
+        // 4. Resolve Work Shift Schedule & Multi-Timezone Lateness
         $currentTime = now();
-        $scheduledStart = Carbon::parse($today . ' 09:00:00');
-        $lateMinutes = 0;
+        $targetLocationTz = TimezoneHelper::resolve($business, $targetLocation);
+        $localNow = $currentTime->copy()->setTimezone($targetLocationTz);
 
-        if ($currentTime->gt($scheduledStart)) {
-            $lateMinutes = (int) $currentTime->diffInMinutes($scheduledStart);
-            if (! $isFreeLocation) {
-                $clockInStatus = Attendance::CLOCK_IN_LATE;
+        $workShiftId = null;
+        $shiftName = null;
+        $scheduledStartAt = null;
+        $scheduledEndAt = null;
+        $earlyInMinutes = 0;
+        $baseDate = $today;
+
+        if (! empty($data['shift_start'])) {
+            // Explicit backward-compatible override (e.g. testing)
+            $shiftStartStr = (string) $data['shift_start'];
+            $graceMinutes = (int) ($data['grace_period_minutes'] ?? 0);
+            $scheduledStart = Carbon::parse($today . ' ' . $shiftStartStr, $targetLocationTz);
+            $scheduledStartWithGrace = $scheduledStart->copy()->addMinutes($graceMinutes);
+
+            $lateMinutes = 0;
+            if ($localNow->gt($scheduledStartWithGrace)) {
+                $lateMinutes = (int) round(abs($localNow->diffInMinutes($scheduledStart)));
+                if (! $isFreeLocation) {
+                    $clockInStatus = Attendance::CLOCK_IN_LATE;
+                }
             }
+            $overallStatus = $lateMinutes > 0 ? Attendance::STATUS_LATE : Attendance::STATUS_PRESENT;
+            $scheduledStartAt = $scheduledStart->utc();
+            $shiftName = "Shift {$shiftStartStr}";
+        } else {
+            // Intelligent Schedule Resolution (Roster, Weekly, Default Shift, Operating Hours)
+            $scheduleInfo = $this->scheduleService->resolveActiveShift($business, $user, $targetLocation, $currentTime);
+
+            if (! empty($scheduleInfo['is_off_day'])) {
+                throw ValidationException::withMessages([
+                    'attendance' => 'Hari ini adalah hari libur (OFF) sesuai jadwal kerja Anda. Presensi masuk tidak dapat dicatat pada hari libur.',
+                ]);
+            }
+
+            $eval = $this->scheduleService->evaluateClockIn($scheduleInfo, $localNow);
+            $lateMinutes = (int) $eval['late_minutes'];
+            $earlyInMinutes = (int) $eval['early_in_minutes'];
+
+            if (! $isFreeLocation) {
+                $clockInStatus = $eval['clock_in_status'] === 'late' ? Attendance::CLOCK_IN_LATE : Attendance::CLOCK_IN_ON_TIME;
+            }
+            $overallStatus = $eval['overall_status'];
+            $workShiftId = $scheduleInfo['work_shift_id'] ?? null;
+            $shiftName = $scheduleInfo['shift_name'] ?? null;
+            $scheduledStartAt = isset($scheduleInfo['scheduled_start']) && $scheduleInfo['scheduled_start'] instanceof Carbon
+                ? $scheduleInfo['scheduled_start']->copy()->utc()
+                : null;
+            $scheduledEndAt = isset($scheduleInfo['scheduled_end']) && $scheduleInfo['scheduled_end'] instanceof Carbon
+                ? $scheduleInfo['scheduled_end']->copy()->utc()
+                : null;
+            $baseDate = $scheduleInfo['base_date'] ?? $today;
         }
 
-        $overallStatus = $lateMinutes > 0 ? Attendance::STATUS_LATE : Attendance::STATUS_PRESENT;
+        // 5. Atomic Persist with Concurrency & Race Condition Lock
+        return DB::transaction(function () use (
+            $business,
+            $user,
+            $baseDate,
+            $targetLocation,
+            $currentTime,
+            $userLat,
+            $userLng,
+            $calculatedDistance,
+            $data,
+            $clockInStatus,
+            $lateMinutes,
+            $earlyInMinutes,
+            $overallStatus,
+            $isFreeLocation,
+            $faceVerified,
+            $faceScore,
+            $exceptionPolicyId,
+            $workShiftId,
+            $shiftName,
+            $scheduledStartAt,
+            $scheduledEndAt,
+            $targetLocationTz
+        ): Attendance {
+            // Check for existing open or today's attendance
+            $attendance = Attendance::where('business_id', $business->id)
+                ->where('user_id', $user->id)
+                ->where(function ($q) use ($baseDate) {
+                    $q->whereDate('date', $baseDate)
+                        ->orWhere(function ($oq) {
+                            $oq->whereNotNull('clock_in_at')->whereNull('clock_out_at');
+                        });
+                })
+                ->lockForUpdate()
+                ->first();
 
-        // 5. Handle optional selfie photo
-        $photoPath = $this->storeAttendancePhoto($data['photo'] ?? null);
+            if ($attendance && $attendance->clock_in_at !== null) {
+                $clockInLocal = $attendance->clock_in_at->copy()->setTimezone($attendance->timezone ?: $targetLocationTz);
+                $tzAbbr = TimezoneHelper::abbreviation($attendance->timezone ?: $targetLocationTz);
+                throw ValidationException::withMessages([
+                    'attendance' => "Anda sudah melakukan presensi masuk (clock-in) untuk sesi ini pada jam {$clockInLocal->format('H:i')} {$tzAbbr}.",
+                ]);
+            }
 
-        // 6. Persist Attendance
-        if (! $attendance) {
-            $attendance = new Attendance([
+            if (! $attendance) {
+                $attendance = new Attendance([
+                    'id' => (string) Str::uuid(),
+                    'business_id' => $business->id,
+                    'user_id' => $user->id,
+                    'date' => $baseDate,
+                ]);
+            }
+
+            $attendance->location_id = $targetLocation?->id;
+            $attendance->work_shift_id = $workShiftId;
+            $attendance->shift_name = $shiftName;
+            $attendance->scheduled_start_at = $scheduledStartAt;
+            $attendance->scheduled_end_at = $scheduledEndAt;
+            $attendance->clock_in_at = $currentTime;
+            $attendance->clock_in_lat = $userLat;
+            $attendance->clock_in_lng = $userLng;
+            $attendance->clock_in_distance_meters = $calculatedDistance;
+            $attendance->clock_in_address = $data['address'] ?? null;
+            $attendance->clock_in_photo = null; // Zero permanent photo retention for privacy compliance
+            $attendance->clock_in_status = $clockInStatus;
+            $attendance->clock_in_notes = $data['notes'] ?? null;
+            $attendance->early_in_minutes = $earlyInMinutes;
+            $attendance->late_minutes = $lateMinutes;
+            $attendance->timezone = $targetLocationTz;
+            $attendance->status = $overallStatus;
+            $attendance->is_geofenced = ! $isFreeLocation;
+            $attendance->face_verified = $faceVerified;
+            $attendance->face_similarity_score = $faceScore;
+            $attendance->exception_policy_id = $exceptionPolicyId;
+            $attendance->save();
+
+            // Immutable Audit Log
+            $localTimeFormatted = $currentTime->copy()->setTimezone($targetLocationTz)->format('H:i:s');
+            $tzAbbr = TimezoneHelper::abbreviation($targetLocationTz);
+
+            AuditLog::create([
                 'id' => (string) Str::uuid(),
                 'business_id' => $business->id,
                 'user_id' => $user->id,
-                'date' => $today,
+                'auditable_type' => Attendance::class,
+                'auditable_id' => $attendance->id,
+                'action' => 'attendance.clock_in',
+                'risk_level' => AuditLog::RISK_LOW,
+                'risk_reason' => 'Pencatatan presensi masuk kerja harian.',
+                'notes' => "Presensi masuk oleh {$user->name} jam {$localTimeFormatted} {$tzAbbr} ({$clockInStatus}, shift: " . ($shiftName ?: 'Umum') . "). Jarak: " . ($calculatedDistance !== null ? "{$calculatedDistance}m" : 'Bebas') . ($faceVerified ? ", Wajah Terverifikasi ({$faceScore})" : ''),
+                'new_values' => [
+                    'date' => $baseDate,
+                    'clock_in_at' => $currentTime->toIso8601String(),
+                    'status' => $overallStatus,
+                    'shift' => $shiftName,
+                    'late_minutes' => $lateMinutes,
+                    'early_in_minutes' => $earlyInMinutes,
+                    'distance_meters' => $calculatedDistance,
+                    'face_verified' => $faceVerified,
+                ],
+                'ip_address' => request()->ip(),
+                'user_agent' => request()->userAgent(),
+                'created_at' => now(),
             ]);
-        }
 
-        $attendance->location_id = $targetLocation?->id;
-        $attendance->clock_in_at = $currentTime;
-        $attendance->clock_in_lat = $userLat;
-        $attendance->clock_in_lng = $userLng;
-        $attendance->clock_in_distance_meters = $calculatedDistance;
-        $attendance->clock_in_address = $data['address'] ?? null;
-        $attendance->clock_in_photo = $photoPath ?? $attendance->clock_in_photo;
-        $attendance->clock_in_status = $clockInStatus;
-        $attendance->clock_in_notes = $data['notes'] ?? null;
-        $attendance->late_minutes = $lateMinutes;
-        $attendance->status = $overallStatus;
-        $attendance->is_geofenced = ! $isFreeLocation;
-        $attendance->save();
-
-        return $attendance;
+            return $attendance;
+        });
     }
 
     /**
-     * Record daily clock-out and calculate work duration.
+     * Record daily clock-out and calculate work duration based on authoritative server clock.
      *
      * @param Business $business
      * @param User $user
@@ -182,107 +336,183 @@ final class AttendanceService
      */
     public function clockOut(Business $business, User $user, array $data): Attendance
     {
-        $today = now()->toDateString();
-
-        $attendance = Attendance::where('business_id', $business->id)
-            ->where('user_id', $user->id)
-            ->whereDate('date', $today)
-            ->first();
-
-        if (! $attendance || $attendance->clock_in_at === null) {
-            throw ValidationException::withMessages([
-                'attendance' => 'Belum ada catatan presensi masuk (clock-in) untuk hari ini. Silakan lakukan clock-in terlebih dahulu atau ajukan tiket koreksi.',
-            ]);
-        }
-
-        if ($attendance->clock_out_at !== null) {
-            throw ValidationException::withMessages([
-                'attendance' => 'Anda sudah melakukan presensi pulang (clock-out) hari ini pada jam ' . $attendance->clock_out_at->format('H:i') . ' WIB.',
-            ]);
-        }
+        $today = $data['date'] ?? now()->toDateString();
 
         // Anti-spoofing accuracy verification
         $accuracy = isset($data['accuracy']) ? (float) $data['accuracy'] : null;
-        if ($accuracy !== null && $accuracy > 100.0) {
+        if ($accuracy !== null && $accuracy > self::MAX_GPS_ACCURACY_METERS) {
+            $maxAcc = (int) self::MAX_GPS_ACCURACY_METERS;
             throw ValidationException::withMessages([
-                'gps' => "Akurasi sinyal GPS perangkat Anda terlalu rendah ({$accuracy}m > 100m). Pastikan GPS aktif dalam mode akurasi tinggi.",
+                'gps' => "Akurasi sinyal GPS perangkat Anda terlalu rendah ({$accuracy}m > {$maxAcc}m). Pastikan GPS aktif dalam mode akurasi tinggi.",
             ]);
         }
 
-        $membership = BusinessMembership::where('business_id', $business->id)
-            ->where('user_id', $user->id)
-            ->first();
+        return DB::transaction(function () use ($business, $user, $today, $data): Attendance {
+            // First check for active uncompleted attendance session (supports overnight cross-day shifts)
+            $attendance = Attendance::where('business_id', $business->id)
+                ->where('user_id', $user->id)
+                ->whereNotNull('clock_in_at')
+                ->whereNull('clock_out_at')
+                ->orderByDesc('clock_in_at')
+                ->lockForUpdate()
+                ->first();
 
-        $attendanceMode = $membership?->attendance_mode ?? BusinessMembership::ATTENDANCE_MODE_GEOFENCED;
-        $isFreeLocation = $attendanceMode === BusinessMembership::ATTENDANCE_MODE_FREE;
+            if (! $attendance) {
+                // Fallback to today's date
+                $attendance = Attendance::where('business_id', $business->id)
+                    ->where('user_id', $user->id)
+                    ->whereDate('date', $today)
+                    ->lockForUpdate()
+                    ->first();
+            }
 
-        $userLat = isset($data['latitude']) && $data['latitude'] !== '' && $data['latitude'] !== null ? (float) $data['latitude'] : null;
-        $userLng = isset($data['longitude']) && $data['longitude'] !== '' && $data['longitude'] !== null ? (float) $data['longitude'] : null;
+            if (! $attendance || $attendance->clock_in_at === null) {
+                throw ValidationException::withMessages([
+                    'attendance' => 'Belum ada catatan presensi masuk (clock-in) yang aktif. Silakan lakukan clock-in terlebih dahulu atau ajukan tiket koreksi.',
+                ]);
+            }
 
-        $calculatedDistance = null;
-        $targetLocation = $attendance->location;
+            $effectiveTz = $attendance->timezone ?: TimezoneHelper::resolve($business, $attendance->location);
+            $tzAbbr = TimezoneHelper::abbreviation($effectiveTz);
 
-        if (! $isFreeLocation && $targetLocation && $targetLocation->latitude !== null && $targetLocation->longitude !== null) {
-            if ($userLat !== null && $userLng !== null) {
-                $calculatedDistance = $this->calculateDistanceMeters(
-                    $userLat,
-                    $userLng,
-                    (float) $targetLocation->latitude,
-                    (float) $targetLocation->longitude
-                );
+            if ($attendance->clock_out_at !== null) {
+                $clockOutLocal = $attendance->clock_out_at->copy()->setTimezone($effectiveTz);
+                throw ValidationException::withMessages([
+                    'attendance' => "Anda sudah melakukan presensi pulang (clock-out) untuk sesi ini pada jam {$clockOutLocal->format('H:i')} {$tzAbbr}.",
+                ]);
+            }
 
-                $allowedRadius = $targetLocation->geofence_radius_meters ?: 50;
-                if ($calculatedDistance > $allowedRadius) {
+            // Biometric Face Verification on clock-out (if provided)
+            $faceVerified = $attendance->face_verified;
+            $faceScore = $attendance->face_similarity_score;
+            $faceData = $data['face_data'] ?? $data['face_embedding'] ?? $data['photo'] ?? null;
+
+            if (! empty($faceData)) {
+                $threshold = (float) ($data['face_threshold'] ?? FaceVerificationService::DEFAULT_SIMILARITY_THRESHOLD);
+                $verificationResult = $this->faceService->verifyFace($business, $user, $faceData, $threshold);
+
+                if (! $verificationResult['verified']) {
                     throw ValidationException::withMessages([
-                        'location' => "Presensi pulang ditolak: Anda berada di luar radius kantor \"{$targetLocation->name}\" ({$calculatedDistance}m > {$allowedRadius}m).",
+                        'face' => $verificationResult['message'],
                     ]);
                 }
+                $faceVerified = true;
+                $faceScore = $verificationResult['similarity'];
             }
-        }
 
-        $clockOutTime = now();
-        $workDurationMinutes = (int) $attendance->clock_in_at->diffInMinutes($clockOutTime);
+            $membership = BusinessMembership::where('business_id', $business->id)
+                ->where('user_id', $user->id)
+                ->first();
 
-        // Standard 8 hours = 480 minutes
-        $standardWorkMinutes = 480;
-        $overtimeMinutes = max(0, $workDurationMinutes - $standardWorkMinutes);
+            $attendanceMode = $membership?->attendance_mode ?? BusinessMembership::ATTENDANCE_MODE_GEOFENCED;
+            $isFreeLocation = $attendanceMode === BusinessMembership::ATTENDANCE_MODE_FREE || $attendance->exception_policy_id !== null;
 
-        // Early leave check (if leave before 17:00 and worked less than standard shift)
-        $scheduledEnd = Carbon::parse($today . ' 17:00:00');
-        $earlyLeaveMinutes = 0;
-        if ($clockOutTime->lt($scheduledEnd) && $workDurationMinutes < $standardWorkMinutes) {
-            $earlyLeaveMinutes = (int) $clockOutTime->diffInMinutes($scheduledEnd);
-        }
+            $userLat = isset($data['latitude']) && $data['latitude'] !== '' && $data['latitude'] !== null ? (float) $data['latitude'] : null;
+            $userLng = isset($data['longitude']) && $data['longitude'] !== '' && $data['longitude'] !== null ? (float) $data['longitude'] : null;
 
-        $clockOutStatus = Attendance::CLOCK_OUT_NORMAL;
-        if ($isFreeLocation) {
-            $clockOutStatus = Attendance::CLOCK_OUT_FREE_LOCATION;
-        } elseif ($overtimeMinutes > 0) {
-            $clockOutStatus = Attendance::CLOCK_OUT_OVERTIME;
-        } elseif ($earlyLeaveMinutes > 0) {
-            $clockOutStatus = Attendance::CLOCK_OUT_EARLY;
-        }
+            $calculatedDistance = null;
+            $targetLocation = $attendance->location;
 
-        $photoPath = $this->storeAttendancePhoto($data['photo'] ?? null);
+            if (! $isFreeLocation && $targetLocation && $targetLocation->latitude !== null && $targetLocation->longitude !== null) {
+                if ($userLat !== null && $userLng !== null) {
+                    $calculatedDistance = $this->calculateDistanceMeters(
+                        $userLat,
+                        $userLng,
+                        (float) $targetLocation->latitude,
+                        (float) $targetLocation->longitude
+                    );
 
-        $attendance->clock_out_at = $clockOutTime;
-        $attendance->clock_out_lat = $userLat;
-        $attendance->clock_out_lng = $userLng;
-        $attendance->clock_out_distance_meters = $calculatedDistance;
-        $attendance->clock_out_address = $data['address'] ?? null;
-        $attendance->clock_out_photo = $photoPath ?? $attendance->clock_out_photo;
-        $attendance->clock_out_status = $clockOutStatus;
-        $attendance->clock_out_notes = $data['notes'] ?? null;
-        $attendance->work_duration_minutes = $workDurationMinutes;
-        $attendance->early_leave_minutes = $earlyLeaveMinutes;
-        $attendance->overtime_minutes = $overtimeMinutes;
-        $attendance->save();
+                    $allowedRadius = $targetLocation->geofence_radius_meters ?: 50;
+                    if ($calculatedDistance > $allowedRadius) {
+                        throw ValidationException::withMessages([
+                            'location' => "Presensi pulang ditolak: Anda berada di luar radius kantor \"{$targetLocation->name}\" ({$calculatedDistance}m > {$allowedRadius}m).",
+                        ]);
+                    }
+                }
+            }
 
-        return $attendance;
+            $clockOutTime = now();
+            $clockInTime = $attendance->clock_in_at;
+            $workDurationMinutes = (int) round(abs($clockOutTime->diffInMinutes($clockInTime)));
+
+            // Calculate early leave and overtime against scheduled end
+            $scheduledEnd = null;
+            if ($attendance->scheduled_end_at !== null) {
+                $scheduledEnd = $attendance->scheduled_end_at->copy()->setTimezone($effectiveTz);
+            } elseif (! empty($data['shift_end'])) {
+                $scheduledEnd = Carbon::parse($today . ' ' . $data['shift_end'], $effectiveTz);
+            }
+
+            $earlyLeaveMinutes = 0;
+            $overtimeMinutes = 0;
+            $clockOutLocal = $clockOutTime->copy()->setTimezone($effectiveTz);
+
+            if ($scheduledEnd instanceof Carbon) {
+                if ($clockOutLocal->lt($scheduledEnd)) {
+                    $earlyLeaveMinutes = (int) round(abs($scheduledEnd->diffInMinutes($clockOutLocal)));
+                } elseif ($clockOutLocal->gt($scheduledEnd)) {
+                    $overtimeMinutes = (int) round(abs($clockOutLocal->diffInMinutes($scheduledEnd)));
+                }
+            } else {
+                $standardWorkMinutes = (int) ($data['standard_work_minutes'] ?? 480);
+                if ($workDurationMinutes > $standardWorkMinutes) {
+                    $overtimeMinutes = $workDurationMinutes - $standardWorkMinutes;
+                }
+            }
+
+            $clockOutStatus = Attendance::CLOCK_OUT_NORMAL;
+            if ($isFreeLocation) {
+                $clockOutStatus = Attendance::CLOCK_OUT_FREE_LOCATION;
+            } elseif ($overtimeMinutes >= 30) {
+                $clockOutStatus = Attendance::CLOCK_OUT_OVERTIME;
+            } elseif ($earlyLeaveMinutes > 0) {
+                $clockOutStatus = Attendance::CLOCK_OUT_EARLY;
+            }
+
+            $attendance->clock_out_at = $clockOutTime;
+            $attendance->clock_out_lat = $userLat;
+            $attendance->clock_out_lng = $userLng;
+            $attendance->clock_out_distance_meters = $calculatedDistance;
+            $attendance->clock_out_address = $data['address'] ?? null;
+            $attendance->clock_out_photo = null; // Zero permanent photo retention
+            $attendance->clock_out_status = $clockOutStatus;
+            $attendance->clock_out_notes = $data['notes'] ?? null;
+            $attendance->work_duration_minutes = $workDurationMinutes;
+            $attendance->early_leave_minutes = $earlyLeaveMinutes;
+            $attendance->overtime_minutes = $overtimeMinutes;
+            $attendance->face_verified = $faceVerified;
+            $attendance->face_similarity_score = $faceScore;
+            $attendance->save();
+
+            // Immutable Audit Log
+            AuditLog::create([
+                'id' => (string) Str::uuid(),
+                'business_id' => $business->id,
+                'user_id' => $user->id,
+                'auditable_type' => Attendance::class,
+                'auditable_id' => $attendance->id,
+                'action' => 'attendance.clock_out',
+                'risk_level' => AuditLog::RISK_LOW,
+                'risk_reason' => 'Pencatatan presensi pulang kerja harian.',
+                'notes' => "Presensi pulang oleh {$user->name} jam {$clockOutLocal->format('H:i:s')} {$tzAbbr} ({$clockOutStatus}, durasi {$workDurationMinutes} mnt).",
+                'new_values' => [
+                    'date' => $attendance->date?->toDateString() ?: $today,
+                    'clock_out_at' => $clockOutTime->toIso8601String(),
+                    'work_duration_minutes' => $workDurationMinutes,
+                    'overtime_minutes' => $overtimeMinutes,
+                    'early_leave_minutes' => $earlyLeaveMinutes,
+                ],
+                'ip_address' => request()->ip(),
+                'user_agent' => request()->userAgent(),
+                'created_at' => now(),
+            ]);
+
+            return $attendance;
+        });
     }
 
     /**
-     * Submit an attendance correction ticket.
+     * Submit an attendance correction ticket ("Ajukan Perbaikan Absen").
      *
      * @param Business $business
      * @param User $user
@@ -323,6 +553,45 @@ final class AttendanceService
     }
 
     /**
+     * Update and resubmit an attendance correction ticket after revision request.
+     */
+    public function updateAndResubmitCorrection(
+        Business $business,
+        AttendanceCorrection $ticket,
+        User $user,
+        array $data
+    ): AttendanceCorrection {
+        if ($ticket->business_id !== $business->id) {
+            throw new RuntimeException('Tiket koreksi tidak sesuai dengan workspace bisnis aktif.');
+        }
+
+        if ($ticket->user_id !== $user->id) {
+            throw new RuntimeException('Anda hanya dapat memperbarui tiket koreksi milik Anda sendiri.');
+        }
+
+        if (! in_array($ticket->status, [AttendanceCorrection::STATUS_PENDING, AttendanceCorrection::STATUS_REVISION], true)) {
+            throw new RuntimeException("Tiket {$ticket->correction_number} berstatus {$ticket->status} dan tidak dapat diedit kembali.");
+        }
+
+        $attachmentPath = $ticket->attachment_path;
+        if (isset($data['attachment']) && $data['attachment'] instanceof UploadedFile) {
+            $attachmentPath = $data['attachment']->store('attendance/corrections', 'public');
+        }
+
+        $ticket->update([
+            'correction_type' => $data['correction_type'] ?? $ticket->correction_type,
+            'proposed_clock_in' => $data['proposed_clock_in'] ?? $ticket->proposed_clock_in,
+            'proposed_clock_out' => $data['proposed_clock_out'] ?? $ticket->proposed_clock_out,
+            'proposed_status' => $data['proposed_status'] ?? $ticket->proposed_status,
+            'reason' => $data['reason'] ?? $ticket->reason,
+            'attachment_path' => $attachmentPath,
+            'status' => AttendanceCorrection::STATUS_PENDING, // Reset to pending for HR re-review
+        ]);
+
+        return $ticket;
+    }
+
+    /**
      * Approve an attendance correction ticket, apply changes to attendances table, and record audit log.
      *
      * @param Business $business
@@ -341,7 +610,11 @@ final class AttendanceService
             throw new RuntimeException('Tiket koreksi tidak sesuai dengan workspace bisnis aktif.');
         }
 
-        if (! $ticket->isPending()) {
+        if ($ticket->user_id === $reviewer->id) {
+            throw new RuntimeException('Otorisasi ditolak: Anda tidak diperbolehkan menyetujui tiket perbaikan absensi milik Anda sendiri.');
+        }
+
+        if (! in_array($ticket->status, [AttendanceCorrection::STATUS_PENDING, AttendanceCorrection::STATUS_REVISION], true)) {
             throw new RuntimeException("Tiket {$ticket->correction_number} sudah berstatus {$ticket->status} dan tidak dapat diubah kembali.");
         }
 
@@ -430,6 +703,54 @@ final class AttendanceService
     }
 
     /**
+     * Request a revision on an attendance correction ticket.
+     */
+    public function requestRevision(
+        Business $business,
+        AttendanceCorrection $ticket,
+        User $reviewer,
+        string $notes
+    ): AttendanceCorrection {
+        if ($ticket->business_id !== $business->id) {
+            throw new RuntimeException('Tiket koreksi tidak sesuai dengan workspace bisnis aktif.');
+        }
+
+        if ($ticket->user_id === $reviewer->id) {
+            throw new RuntimeException('Otorisasi ditolak: Anda tidak diperbolehkan meminta revisi pada tiket Anda sendiri.');
+        }
+
+        if (! $ticket->isPending()) {
+            throw new RuntimeException("Tiket {$ticket->correction_number} sudah berstatus {$ticket->status} dan tidak dapat diminta revisi.");
+        }
+
+        $ticket->update([
+            'status' => AttendanceCorrection::STATUS_REVISION,
+            'reviewed_by' => $reviewer->id,
+            'reviewed_at' => now(),
+            'review_notes' => $notes,
+        ]);
+
+        AuditLog::create([
+            'id' => (string) Str::uuid(),
+            'business_id' => $business->id,
+            'user_id' => $reviewer->id,
+            'auditable_type' => AttendanceCorrection::class,
+            'auditable_id' => $ticket->id,
+            'action' => 'attendance.correction_revision_requested',
+            'risk_level' => AuditLog::RISK_LOW,
+            'risk_reason' => 'Permintaan revisi berkas/keterangan tiket perbaikan absensi.',
+            'notes' => "Permintaan revisi tiket koreksi presensi {$ticket->correction_number} untuk {$ticket->user->name}. Catatan: {$notes}",
+            'old_values' => ['status' => AttendanceCorrection::STATUS_PENDING],
+            'new_values' => ['status' => AttendanceCorrection::STATUS_REVISION, 'notes' => $notes],
+            'ip_address' => request()->ip(),
+            'user_agent' => request()->userAgent(),
+            'created_at' => now(),
+        ]);
+
+        return $ticket;
+    }
+
+    /**
      * Reject an attendance correction ticket.
      *
      * @param Business $business
@@ -448,7 +769,11 @@ final class AttendanceService
             throw new RuntimeException('Tiket koreksi tidak sesuai dengan workspace bisnis aktif.');
         }
 
-        if (! $ticket->isPending()) {
+        if ($ticket->user_id === $reviewer->id) {
+            throw new RuntimeException('Otorisasi ditolak: Anda tidak diperbolehkan menolak tiket perbaikan absensi milik Anda sendiri.');
+        }
+
+        if (! in_array($ticket->status, [AttendanceCorrection::STATUS_PENDING, AttendanceCorrection::STATUS_REVISION], true)) {
             throw new RuntimeException("Tiket {$ticket->correction_number} sudah berstatus {$ticket->status} dan tidak dapat diubah kembali.");
         }
 
@@ -480,30 +805,122 @@ final class AttendanceService
     }
 
     /**
-     * Helper to store attendance photo from file or base64 data URL.
+     * Build rich, human-readable feedback for clock-in (status, delay, scheduled hours, timezone).
+     *
+     * @return array<string, mixed>
      */
-    private function storeAttendancePhoto(mixed $photo): ?string
+    public function buildClockInFeedback(Attendance $attendance): array
     {
-        if (! $photo) {
-            return null;
+        $effectiveTz = $attendance->timezone ?: TimezoneHelper::DEFAULT_TIMEZONE;
+        $tzAbbr = TimezoneHelper::abbreviation($effectiveTz);
+        $clockInLocal = $attendance->clock_in_at?->copy()->setTimezone($effectiveTz);
+        $clockInTimeStr = $clockInLocal ? $clockInLocal->format('H:i') : '-';
+
+        $scheduledStartLocal = $attendance->scheduled_start_at?->copy()->setTimezone($effectiveTz);
+        $scheduledStartTimeStr = $scheduledStartLocal ? $scheduledStartLocal->format('H:i') : null;
+
+        $isLate = $attendance->late_minutes > 0 || $attendance->clock_in_status === Attendance::CLOCK_IN_LATE;
+        $isEarly = (int) $attendance->early_in_minutes > 0;
+
+        if ($isLate) {
+            $statusLabel = 'TERLAMBAT';
+            $statusColor = 'red';
+            $statusDetail = "Terlambat {$attendance->late_minutes} menit";
+            $message = "Presensi masuk berhasil dicatat pukul {$clockInTimeStr} {$tzAbbr}. Status: TERLAMBAT {$attendance->late_minutes} menit"
+                . ($scheduledStartTimeStr ? " (Jadwal masuk: {$scheduledStartTimeStr} {$tzAbbr}" . ($attendance->shift_name ? ", Shift: {$attendance->shift_name}" : '') . ')' : '');
+        } elseif ($isEarly) {
+            $statusLabel = 'LEBIH AWAL';
+            $statusColor = 'blue';
+            $statusDetail = "Lebih awal {$attendance->early_in_minutes} menit";
+            $message = "Presensi masuk berhasil dicatat pukul {$clockInTimeStr} {$tzAbbr}. Status: TEPAT WAKTU (Lebih awal {$attendance->early_in_minutes} menit"
+                . ($scheduledStartTimeStr ? ", Jadwal: {$scheduledStartTimeStr} {$tzAbbr}" : '') . ')';
+        } elseif ($attendance->scheduled_start_at) {
+            $statusLabel = 'TEPAT WAKTU';
+            $statusColor = 'green';
+            $statusDetail = 'Tepat waktu sesuai jadwal';
+            $message = "Presensi masuk berhasil dicatat pukul {$clockInTimeStr} {$tzAbbr}. Status: TEPAT WAKTU"
+                . ($scheduledStartTimeStr ? " (Jadwal masuk: {$scheduledStartTimeStr} {$tzAbbr}" . ($attendance->shift_name ? ", Shift: {$attendance->shift_name}" : '') . ')' : '');
+        } else {
+            $statusLabel = 'BEBAS JADWAL';
+            $statusColor = 'gray';
+            $statusDetail = 'Bebas jadwal kerja';
+            $message = "Presensi masuk berhasil dicatat pukul {$clockInTimeStr} {$tzAbbr}. Status: TEPAT WAKTU (Bebas Jadwal)";
         }
 
-        if ($photo instanceof UploadedFile) {
-            return $photo->store('attendance/photos', 'public');
+        return [
+            'status' => $isLate ? 'late' : ($isEarly ? 'early' : 'on_time'),
+            'badge_variant' => $isLate ? 'danger' : ($isEarly ? 'info' : 'success'),
+            'clock_in_time' => $clockInTimeStr,
+            'actual_clock_in_time' => $clockInTimeStr,
+            'timezone' => $effectiveTz,
+            'timezone_abbr' => $tzAbbr,
+            'scheduled_start_time' => $scheduledStartTimeStr,
+            'shift_name' => $attendance->shift_name,
+            'status_label' => $statusLabel,
+            'status_color' => $statusColor,
+            'status_detail' => $statusDetail,
+            'late_minutes' => (int) $attendance->late_minutes,
+            'early_in_minutes' => (int) $attendance->early_in_minutes,
+            'is_late' => $isLate,
+            'message' => $message,
+        ];
+    }
+
+    /**
+     * Build rich, human-readable feedback for clock-out (status, early leave, overtime, work duration).
+     *
+     * @return array<string, mixed>
+     */
+    public function buildClockOutFeedback(Attendance $attendance): array
+    {
+        $effectiveTz = $attendance->timezone ?: TimezoneHelper::DEFAULT_TIMEZONE;
+        $tzAbbr = TimezoneHelper::abbreviation($effectiveTz);
+        $clockOutLocal = $attendance->clock_out_at?->copy()->setTimezone($effectiveTz);
+        $clockOutTimeStr = $clockOutLocal ? $clockOutLocal->format('H:i') : '-';
+
+        $scheduledEndLocal = $attendance->scheduled_end_at?->copy()->setTimezone($effectiveTz);
+        $scheduledEndTimeStr = $scheduledEndLocal ? $scheduledEndLocal->format('H:i') : null;
+
+        $isEarlyLeave = (int) $attendance->early_leave_minutes > 0;
+        $isOvertime = (int) $attendance->overtime_minutes > 0;
+
+        $durationFormatted = $attendance->formatted_work_duration;
+
+        if ($isEarlyLeave) {
+            $statusLabel = 'PULANG CEPAT';
+            $statusColor = 'amber';
+            $statusDetail = "Pulang lebih awal {$attendance->early_leave_minutes} menit";
+            $message = "Presensi pulang berhasil dicatat pukul {$clockOutTimeStr} {$tzAbbr}. Pulang lebih awal {$attendance->early_leave_minutes} menit"
+                . ($scheduledEndTimeStr ? " (Jadwal pulang: {$scheduledEndTimeStr} {$tzAbbr}, Durasi: {$durationFormatted})" : " (Durasi: {$durationFormatted})");
+        } elseif ($isOvertime) {
+            $hours = intdiv((int) $attendance->overtime_minutes, 60);
+            $mins = (int) $attendance->overtime_minutes % 60;
+            $otStr = $hours > 0 ? "{$hours} jam " . ($mins > 0 ? "{$mins} mnt" : '') : "{$mins} menit";
+            $statusLabel = 'LEMBUR';
+            $statusColor = 'indigo';
+            $statusDetail = "Lembur {$otStr}";
+            $message = "Presensi pulang berhasil dicatat pukul {$clockOutTimeStr} {$tzAbbr}. Lembur {$otStr}"
+                . ($scheduledEndTimeStr ? " (Jadwal selesai: {$scheduledEndTimeStr} {$tzAbbr}, Total durasi: {$durationFormatted})" : " (Total durasi: {$durationFormatted})");
+        } else {
+            $statusLabel = 'SESUAI JADWAL';
+            $statusColor = 'green';
+            $statusDetail = 'Selesai sesuai jadwal';
+            $message = "Presensi pulang berhasil dicatat pukul {$clockOutTimeStr} {$tzAbbr}. Sesuai jadwal kerja (Durasi: {$durationFormatted}).";
         }
 
-        if (is_string($photo) && str_starts_with($photo, 'data:image')) {
-            $parts = explode(',', $photo, 2);
-            if (count($parts) === 2) {
-                $decoded = base64_decode($parts[1], true);
-                if ($decoded !== false) {
-                    $filename = 'attendance/photos/' . Str::uuid() . '.jpg';
-                    Storage::disk('public')->put($filename, $decoded);
-                    return $filename;
-                }
-            }
-        }
-
-        return null;
+        return [
+            'clock_out_time' => $clockOutTimeStr,
+            'timezone' => $effectiveTz,
+            'timezone_abbr' => $tzAbbr,
+            'scheduled_end_time' => $scheduledEndTimeStr,
+            'status_label' => $statusLabel,
+            'status_color' => $statusColor,
+            'status_detail' => $statusDetail,
+            'work_duration_minutes' => (int) $attendance->work_duration_minutes,
+            'formatted_duration' => $durationFormatted,
+            'early_leave_minutes' => (int) $attendance->early_leave_minutes,
+            'overtime_minutes' => (int) $attendance->overtime_minutes,
+            'message' => $message,
+        ];
     }
 }

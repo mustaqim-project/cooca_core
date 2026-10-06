@@ -9,6 +9,7 @@ return [
     'edit' => 'Ubah',
     'delete' => 'Hapus',
     'filter' => 'Filter',
+    'reset' => 'Reset',
     'search' => 'Cari...',
     'export' => 'Ekspor',
     'import' => 'Impor',
@@ -66,4 +67,6 @@ return [
     'storage_open_settings' => 'Buka Pengaturan Penyimpanan',
     'storage_pruning_preview_btn' => 'Bersihkan Ruang',
     'realtime_synced' => 'Tersinkronisasi Real-Time',
+    'copyright_footer' => 'Business Operating System.',
+    'detail' => 'Rincian',
 ];

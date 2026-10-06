@@ -934,7 +934,7 @@ final class AiSalesAnalysisService
 
         if ($actionType === 'create_invoice') {
             $customer = !empty($payload['customer_id']) 
-                ? Customer::find($payload['customer_id'])
+                ? Customer::where('business_id', $business->id)->find($payload['customer_id'])
                 : Customer::where('business_id', $business->id)->first();
 
             if (!$customer) {
@@ -960,7 +960,7 @@ final class AiSalesAnalysisService
             $price = (float) ($payload['unit_price'] ?? 10000);
             $subtotal = $qty * $price;
 
-            $product = !empty($payload['product_id']) ? Product::find($payload['product_id']) : null;
+            $product = !empty($payload['product_id']) ? Product::where('business_id', $business->id)->find($payload['product_id']) : null;
             $hpp = $product ? (float) $product->base_cost * $qty : 0.0;
 
             $invoice = Invoice::create([
@@ -1002,7 +1002,7 @@ final class AiSalesAnalysisService
 
         if ($actionType === 'create_quotation') {
             $customer = !empty($payload['customer_id']) 
-                ? Customer::find($payload['customer_id'])
+                ? Customer::where('business_id', $business->id)->find($payload['customer_id'])
                 : Customer::where('business_id', $business->id)->first();
 
             if (!$customer) {
@@ -1013,6 +1013,8 @@ final class AiSalesAnalysisService
                 ]);
             }
 
+            $product = !empty($payload['product_id']) ? Product::where('business_id', $business->id)->find($payload['product_id']) : null;
+
             $pipeline = app(SalesPipelineService::class);
             $quotation = $pipeline->createQuotation($business, [
                 'customer_id' => $customer->id,
@@ -1020,8 +1022,8 @@ final class AiSalesAnalysisService
                 'notes' => 'Diterbitkan otomatis via AI Assistant (Dikonfirmasi oleh Pengguna)',
                 'items' => [
                     [
-                        'product_id' => $payload['product_id'] ?? null,
-                        'product_name' => $payload['product_name'] ?? 'Item Penawaran',
+                        'product_id' => $product?->id,
+                        'product_name' => $payload['product_name'] ?? ($product?->name ?? 'Item Penawaran'),
                         'unit_price' => $payload['unit_price'] ?? 10000,
                         'quantity' => $payload['quantity'] ?? 1,
                     ],

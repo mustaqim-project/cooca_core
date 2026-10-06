@@ -328,18 +328,18 @@ final class AiDigitalCompanyTest extends TestCase
         $officeResponse->assertSee('AI COO');
 
         // 2. Action Center
-        $actionsResponse = $this->get(route('ai.actions'));
+        $actionsResponse = $this->get(route('cooca-ai.actions'));
         $actionsResponse->assertStatus(200);
         $actionsResponse->assertSee('Action Center');
-        $actionsResponse->assertSee('Menunggu Persetujuan');
+        $actionsResponse->assertSee(__('ai.actions.tabs.pending', ['count' => 0]));
 
         // 3. AI Work History
-        $historyResponse = $this->get(route('ai.history'));
+        $historyResponse = $this->get(route('cooca-ai.history'));
         $historyResponse->assertStatus(200);
         $historyResponse->assertSee('AI Work History');
 
         // 4. AI Providers (BYOAI)
-        $providersResponse = $this->get(route('ai.providers'));
+        $providersResponse = $this->get(route('cooca-ai.providers'));
         $providersResponse->assertStatus(200);
         $providersResponse->assertSee('AI Providers (BYOAI)');
         $providersResponse->assertSee('OpenAI');

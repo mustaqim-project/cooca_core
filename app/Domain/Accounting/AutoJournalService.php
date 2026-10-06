@@ -11,6 +11,8 @@ use App\Models\Expense;
 use App\Models\GoodsReceipt;
 use App\Models\JournalEntry;
 use App\Models\JournalEntryLine;
+use App\Models\Payroll;
+use App\Models\CommerceOrder;
 use App\Models\PosOrder;
 use App\Models\PosOrderPayment;
 use App\Models\PurchaseReturn as PurchaseReturnModel;
@@ -43,11 +45,17 @@ final class AutoJournalService
             ['code' => '3-3002', 'name' => 'Laba Ditahan', 'type' => ChartOfAccount::TYPE_EQUITY, 'normal_balance' => 'credit'],
             ['code' => '4-4001', 'name' => 'Pendapatan Penjualan POS', 'type' => ChartOfAccount::TYPE_REVENUE, 'normal_balance' => 'credit'],
             ['code' => '4-4002', 'name' => 'Retur Penjualan', 'type' => ChartOfAccount::TYPE_REVENUE, 'normal_balance' => 'debit'],
+            ['code' => '4-4003', 'name' => 'Pendapatan Penjualan Toko Online', 'type' => ChartOfAccount::TYPE_REVENUE, 'normal_balance' => 'credit'],
             ['code' => '5-5001', 'name' => 'Beban Pokok Penjualan (HPP)', 'type' => ChartOfAccount::TYPE_COGS, 'normal_balance' => 'debit'],
             ['code' => '6-6001', 'name' => 'Beban Diskon Penjualan', 'type' => ChartOfAccount::TYPE_EXPENSE, 'normal_balance' => 'debit'],
             ['code' => '6-6002', 'name' => 'Beban Operasional Toko', 'type' => ChartOfAccount::TYPE_EXPENSE, 'normal_balance' => 'debit'],
-            ['code' => '6-6003', 'name' => 'Beban Administrasi Gateway (MDR)', 'type' => ChartOfAccount::TYPE_EXPENSE, 'normal_balance' => 'debit'],
+            ['code' => '6-6003', 'name' => 'Beban MDR Gateway Pembayaran', 'type' => ChartOfAccount::TYPE_EXPENSE, 'normal_balance' => 'debit'],
+            ['code' => '1-1006', 'name' => 'Piutang Karyawan (Kasbon)', 'type' => ChartOfAccount::TYPE_ASSET, 'normal_balance' => 'debit'],
+            ['code' => '2-2004', 'name' => 'Hutang PPh 21 Karyawan', 'type' => ChartOfAccount::TYPE_LIABILITY, 'normal_balance' => 'credit'],
+            ['code' => '2-2005', 'name' => 'Hutang Iuran BPJS', 'type' => ChartOfAccount::TYPE_LIABILITY, 'normal_balance' => 'credit'],
             ['code' => '6-6004', 'name' => 'Beban Kerugian Selisih Persediaan', 'type' => ChartOfAccount::TYPE_EXPENSE, 'normal_balance' => 'debit'],
+            ['code' => '6-6010', 'name' => 'Beban Gaji & Upah Karyawan', 'type' => ChartOfAccount::TYPE_EXPENSE, 'normal_balance' => 'debit'],
+            ['code' => '6-6011', 'name' => 'Beban BPJS Ketenagakerjaan & Kesehatan (Perusahaan)', 'type' => ChartOfAccount::TYPE_EXPENSE, 'normal_balance' => 'debit'],
             ['code' => '7-7004', 'name' => 'Pendapatan Selisih Stok', 'type' => ChartOfAccount::TYPE_REVENUE, 'normal_balance' => 'credit'],
         ];
 
@@ -260,6 +268,158 @@ final class AutoJournalService
                     'notes' => "Pengurangan Persediaan Barang",
                 ]);
                 $totalCredit += $hpp;
+            }
+
+            $entry->update([
+                'total_debit' => $totalDebit,
+                'total_credit' => $totalCredit,
+            ]);
+
+            return $entry;
+        });
+    }
+
+    /**
+     * Automatically generate double-entry journal for a paid Storefront / Commerce Order.
+     */
+    public function recordCommerceOrderJournal(CommerceOrder $order): ?JournalEntry
+    {
+        $business = $order->business;
+        if (! $business) {
+            return null;
+        }
+
+        $this->ensureStandardAccounts($business);
+
+        $bankAccount = $this->getAccount($business, '1-1002');
+        $clearingGatewayAccount = $this->getAccount($business, '1-1005');
+        $persediaanAccount = $this->getAccount($business, '1-1004');
+        $revenueOnlineAccount = $this->getAccount($business, '4-4003') ?? $this->getAccount($business, '4-4001');
+        $hppAccount = $this->getAccount($business, '5-5001');
+        $mdrExpenseAccount = $this->getAccount($business, '6-6003') ?? $this->getAccount($business, '6-6002');
+        $diskonAccount = $this->getAccount($business, '6-6001');
+
+        if (! $revenueOnlineAccount || ! $bankAccount) {
+            return null;
+        }
+
+        $existing = JournalEntry::where('business_id', $business->id)
+            ->where('reference_type', JournalEntry::REF_COMMERCE_ORDER)
+            ->where('reference_id', $order->id)
+            ->first();
+        if ($existing) {
+            return $existing;
+        }
+
+        return DB::transaction(function () use (
+            $business,
+            $order,
+            $bankAccount,
+            $clearingGatewayAccount,
+            $persediaanAccount,
+            $revenueOnlineAccount,
+            $hppAccount,
+            $mdrExpenseAccount,
+            $diskonAccount
+        ) {
+            $entry = JournalEntry::create([
+                'business_id' => $business->id,
+                'entry_number' => 'JRN-ONL-' . $order->order_number,
+                'entry_date' => $order->paid_at ? $order->paid_at->toDateString() : now()->toDateString(),
+                'reference_type' => JournalEntry::REF_COMMERCE_ORDER,
+                'reference_id' => $order->id,
+                'description' => "Penjualan Toko Online #{$order->order_number} (" . ($order->payment_channel ?? 'QRIS') . ")",
+                'total_debit' => 0.0,
+                'total_credit' => 0.0,
+                'created_by' => null,
+            ]);
+
+            $totalDebit = 0.0;
+            $totalCredit = 0.0;
+
+            // 1. Debit: Net Cash/Bank Inflow
+            $netRevenue = (float) $order->net_revenue;
+            $gatewayFee = (float) ($order->gateway_fee ?? 0.0);
+            $targetCashAccount = $clearingGatewayAccount ?? $bankAccount;
+
+            if ($netRevenue > 0) {
+                JournalEntryLine::create([
+                    'journal_entry_id' => $entry->id,
+                    'account_id' => $targetCashAccount->id,
+                    'type' => JournalEntryLine::TYPE_DEBIT,
+                    'amount' => $netRevenue,
+                    'notes' => "Penerimaan Bersih Online (" . ($order->payment_channel ?: 'QRIS') . ")",
+                ]);
+                $totalDebit += $netRevenue;
+            }
+
+            // 2. Debit: Gateway Fee / MDR (if any)
+            if ($gatewayFee > 0 && $mdrExpenseAccount) {
+                JournalEntryLine::create([
+                    'journal_entry_id' => $entry->id,
+                    'account_id' => $mdrExpenseAccount->id,
+                    'type' => JournalEntryLine::TYPE_DEBIT,
+                    'amount' => $gatewayFee,
+                    'notes' => "Beban Gateway Payment TriPay (" . ($order->payment_channel ?: 'QRIS') . ")",
+                ]);
+                $totalDebit += $gatewayFee;
+            }
+
+            // 3. Debit: Discount (if any)
+            $discount = (float) ($order->discount_amount ?? 0.0);
+            if ($discount > 0 && $diskonAccount) {
+                JournalEntryLine::create([
+                    'journal_entry_id' => $entry->id,
+                    'account_id' => $diskonAccount->id,
+                    'type' => JournalEntryLine::TYPE_DEBIT,
+                    'amount' => $discount,
+                    'notes' => "Diskon Penjualan Online",
+                ]);
+                $totalDebit += $discount;
+            }
+
+            // 4. Credit: Revenue (Gross Sales + Shipping)
+            $grossSales = (float) $order->subtotal + (float) ($order->shipping_cost ?? 0.0);
+            JournalEntryLine::create([
+                'journal_entry_id' => $entry->id,
+                'account_id' => $revenueOnlineAccount->id,
+                'type' => JournalEntryLine::TYPE_CREDIT,
+                'amount' => $grossSales,
+                'notes' => "Pendapatan Penjualan Toko Online #{$order->order_number}",
+            ]);
+            $totalCredit += $grossSales;
+
+            // 5. COGS & Inventory (HPP vs Persediaan)
+            if ($persediaanAccount && $hppAccount) {
+                $totalCogs = 0.0;
+                foreach ($order->items as $item) {
+                    if ($item->product && $item->product->isGoods()) {
+                        $cost = (float) $item->product->base_cost;
+                        $totalCogs += $cost * (float) $item->quantity;
+                    }
+                }
+
+                if ($totalCogs > 0) {
+                    // Debit HPP
+                    JournalEntryLine::create([
+                        'journal_entry_id' => $entry->id,
+                        'account_id' => $hppAccount->id,
+                        'type' => JournalEntryLine::TYPE_DEBIT,
+                        'amount' => $totalCogs,
+                        'notes' => "HPP Penjualan Online #{$order->order_number}",
+                    ]);
+                    $totalDebit += $totalCogs;
+
+                    // Credit Persediaan
+                    JournalEntryLine::create([
+                        'journal_entry_id' => $entry->id,
+                        'account_id' => $persediaanAccount->id,
+                        'type' => JournalEntryLine::TYPE_CREDIT,
+                        'amount' => $totalCogs,
+                        'notes' => "Pengurangan Persediaan Penjualan Online #{$order->order_number}",
+                    ]);
+                    $totalCredit += $totalCogs;
+                }
             }
 
             $entry->update([
@@ -1130,6 +1290,159 @@ final class AutoJournalService
 
             if (abs((float) $entry->total_debit - (float) $entry->total_credit) > 0.0001) {
                 throw new \DomainException(__('finance.journal_unbalanced'));
+            }
+
+            return $entry;
+        });
+    }
+
+    /**
+     * Automatically generate double-entry journal for a paid Payroll batch.
+     *
+     * Debit:
+     *   - Beban Gaji & Upah Karyawan (6-6010): Total Gross Pay ($payroll->total_gross_pay)
+     *   - Beban BPJS Ketenagakerjaan & Kesehatan (6-6011): Total BPJS Porsi Perusahaan ($payroll->total_bpjs_company)
+     *
+     * Kredit:
+     *   - Bank / Kas (1-1002 / 1-1001): Total Take Home Pay ($payroll->total_take_home_pay)
+     *   - Hutang PPh 21 Karyawan (2-2004): Total PPh 21 ($payroll->total_pph21)
+     *   - Hutang Iuran BPJS (2-2005): Total BPJS Iuran Gabungan ($payroll->total_bpjs_company + $payroll->total_bpjs_employee)
+     *   - Piutang Karyawan (1-1006): Total Pemotongan Kasbon ($payroll->total_loan_deductions)
+     */
+    public function recordPayrollJournal(Payroll $payroll, ?string $userId = null): ?JournalEntry
+    {
+        $business = $payroll->business ?? Business::find($payroll->business_id);
+        if (! $business) {
+            return null;
+        }
+
+        $this->ensureStandardAccounts($business);
+
+        $salaryExpense = $this->getAccount($business, '6-6010');
+        $bpjsExpense = $this->getAccount($business, '6-6011');
+        $bankAccount = $payroll->payment_method === 'cash' ? $this->getAccount($business, '1-1001') : $this->getAccount($business, '1-1002');
+        $pph21Payable = $this->getAccount($business, '2-2004');
+        $bpjsPayable = $this->getAccount($business, '2-2005');
+        $loanReceivable = $this->getAccount($business, '1-1006');
+
+        if (! $salaryExpense || ! $bankAccount) {
+            return null;
+        }
+
+        $existing = JournalEntry::where('business_id', $business->id)
+            ->where('reference_type', JournalEntry::REF_PAYROLL)
+            ->where('reference_id', $payroll->id)
+            ->first();
+
+        if ($existing) {
+            return $existing;
+        }
+
+        return DB::transaction(function () use (
+            $business,
+            $payroll,
+            $salaryExpense,
+            $bpjsExpense,
+            $bankAccount,
+            $pph21Payable,
+            $bpjsPayable,
+            $loanReceivable,
+            $userId
+        ) {
+            $totalGross = (float) $payroll->total_gross_pay;
+            $bpjsCompany = (float) $payroll->total_bpjs_company;
+            $bpjsEmployee = (float) $payroll->total_bpjs_employee;
+            $pph21 = (float) $payroll->total_pph21;
+            $loanDeduction = (float) $payroll->total_loan_deductions;
+            $takeHomePay = (float) $payroll->total_take_home_pay;
+
+            $totalDebitAmount = round($totalGross + $bpjsCompany, 2);
+            $totalCreditAmount = round($takeHomePay + $pph21 + ($bpjsCompany + $bpjsEmployee) + $loanDeduction, 2);
+
+            // Handle slight rounding difference if any
+            $diff = round($totalDebitAmount - $totalCreditAmount, 2);
+            if (abs($diff) > 0 && abs($diff) <= 1.0) {
+                $takeHomePay += $diff;
+                $totalCreditAmount = $totalDebitAmount;
+            }
+
+            $entry = JournalEntry::create([
+                'business_id' => $business->id,
+                'entry_number' => 'JRN-PAY-' . $payroll->period_year . str_pad((string) $payroll->period_month, 2, '0', STR_PAD_LEFT),
+                'entry_date' => $payroll->paid_at ? $payroll->paid_at->toDateString() : now()->toDateString(),
+                'reference_type' => JournalEntry::REF_PAYROLL,
+                'reference_id' => $payroll->id,
+                'description' => "Jurnal Penggajian {$payroll->title} ({$payroll->total_employees_count} Karyawan)",
+                'total_debit' => $totalDebitAmount,
+                'total_credit' => $totalCreditAmount,
+                'created_by' => $userId,
+            ]);
+
+            // 1. Debit: Beban Gaji & Upah
+            if ($totalGross > 0) {
+                JournalEntryLine::create([
+                    'journal_entry_id' => $entry->id,
+                    'account_id' => $salaryExpense->id,
+                    'type' => JournalEntryLine::TYPE_DEBIT,
+                    'amount' => $totalGross,
+                    'notes' => "Beban gaji bruto periode {$payroll->period_month}/{$payroll->period_year}",
+                ]);
+            }
+
+            // 2. Debit: Beban BPJS Ketenagakerjaan & Kesehatan (Porsi Perusahaan)
+            if ($bpjsCompany > 0 && $bpjsExpense) {
+                JournalEntryLine::create([
+                    'journal_entry_id' => $entry->id,
+                    'account_id' => $bpjsExpense->id,
+                    'type' => JournalEntryLine::TYPE_DEBIT,
+                    'amount' => $bpjsCompany,
+                    'notes' => "Beban iuran BPJS porsi perusahaan",
+                ]);
+            }
+
+            // 3. Kredit: Kas / Bank (Take Home Pay)
+            if ($takeHomePay > 0) {
+                JournalEntryLine::create([
+                    'journal_entry_id' => $entry->id,
+                    'account_id' => $bankAccount->id,
+                    'type' => JournalEntryLine::TYPE_CREDIT,
+                    'amount' => $takeHomePay,
+                    'notes' => "Pengeluaran kas/bank untuk pembayaran gaji bersih",
+                ]);
+            }
+
+            // 4. Kredit: Hutang PPh 21 Karyawan
+            if ($pph21 > 0 && $pph21Payable) {
+                JournalEntryLine::create([
+                    'journal_entry_id' => $entry->id,
+                    'account_id' => $pph21Payable->id,
+                    'type' => JournalEntryLine::TYPE_CREDIT,
+                    'amount' => $pph21,
+                    'notes' => "Potongan pajak PPh 21 karyawan yang terhutang ke kas negara",
+                ]);
+            }
+
+            // 5. Kredit: Hutang Iuran BPJS (Porsi Perusahaan + Karyawan)
+            $totalBpjsRemittance = $bpjsCompany + $bpjsEmployee;
+            if ($totalBpjsRemittance > 0 && $bpjsPayable) {
+                JournalEntryLine::create([
+                    'journal_entry_id' => $entry->id,
+                    'account_id' => $bpjsPayable->id,
+                    'type' => JournalEntryLine::TYPE_CREDIT,
+                    'amount' => $totalBpjsRemittance,
+                    'notes' => "Iuran BPJS yang terhutang untuk disetor ke BPJS",
+                ]);
+            }
+
+            // 6. Kredit: Piutang Karyawan (Kasbon Pelunasan)
+            if ($loanDeduction > 0 && $loanReceivable) {
+                JournalEntryLine::create([
+                    'journal_entry_id' => $entry->id,
+                    'account_id' => $loanReceivable->id,
+                    'type' => JournalEntryLine::TYPE_CREDIT,
+                    'amount' => $loanDeduction,
+                    'notes' => "Pelunasan cicilan kasbon karyawan melalui pemotongan payroll",
+                ]);
             }
 
             return $entry;

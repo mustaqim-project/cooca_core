@@ -1,7 +1,10 @@
-@extends('layouts.ai', ['title' => 'COOCA AI — Executive Office'])
+@extends('layouts.app', ['title' => 'COOCA AI — Executive Office'])
 
 @section('content')
 <div class="space-y-6 w-full" x-data="aiOfficeBase()">
+
+    <!-- Unified Apple HIG Navigation Hub -->
+    @include('app.ai.partials.office_navigation', ['activeOffice' => 'executive', 'pendingCount' => $officeStats['pending_approvals_count'] ?? 0])
 
     <!-- INTERACTIVE VIRTUAL OFFICE FLOOR (Watch AI Agents Work Live) -->
     @include('app.ai.partials.virtual_office_canvas', [
@@ -28,11 +31,12 @@
                 </div>
             </div>
 
-            <div class="flex items-center gap-2">
-                <button type="button" @click="triggerDailyDiagnosis()" :disabled="isEvaluating" class="px-3.5 py-2 rounded-xl bg-black/5 hover:bg-black/10 dark:bg-white/5 dark:hover:bg-white/10 text-xs font-semibold text-black dark:text-white transition flex items-center gap-2 border border-black/10 dark:border-white/10">
-                    <i data-lucide="activity" class="w-4 h-4 text-amber-500"></i>
-                    <span x-text="isEvaluating ? 'Mengevaluasi Bisnis...' : 'Evaluasi Harian AI CEO'"></span>
-                </button>
+            <div class="text-right">
+                <div class="text-[11px] text-black/40 dark:text-white/40">Status Kepemimpinan:</div>
+                <div class="text-xs font-semibold text-amber-600 dark:text-amber-400 flex items-center justify-end gap-1.5 mt-0.5">
+                    <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                    <span>Pengambilan Keputusan Strategis</span>
+                </div>
             </div>
         </div>
 

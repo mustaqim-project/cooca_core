@@ -176,9 +176,9 @@
 
         <!-- Header Title & Subtitle Hierarchy -->
         <div class="min-w-0 flex-1">
-            <h1 title="{{ $headerTitle ?? 'Cooca' }}"
+            <h1 title="{{ $headerTitle ?? $title ?? 'Cooca' }}"
                 class="text-[16px] font-semibold text-black dark:text-white truncate leading-tight tracking-tight">
-                {{ $headerTitle ?? 'Cooca' }}
+                {{ $headerTitle ?? $title ?? 'Cooca' }}
             </h1>
             <p title="{{ $headerSubtitle ?? __('navigation.default_subtitle') }}"
                 class="text-[12px] text-black/55 dark:text-white/55 hidden sm:block max-w-md truncate leading-tight mt-0.5">

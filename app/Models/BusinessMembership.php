@@ -38,11 +38,29 @@ class BusinessMembership extends Pivot
         'bank_account_number',
         'bank_account_holder',
         'whatsapp_number',
+        'nik_ktp',
+        'npwp',
         'tax_ptkp_status',
         'bpjs_tk_enabled',
+        'bpjs_tk_number',
         'bpjs_kes_enabled',
+        'bpjs_kes_number',
+        'bpjs_dependents_count',
         'primary_location_id',
+        'default_shift_id',
         'attendance_mode',
+        'face_biometric_template',
+        'face_registered_at',
+    ];
+
+    /**
+     * Hidden attributes for security and biometric data protection.
+     *
+     * @var list<string>
+     */
+    protected $hidden = [
+        'pin_hash',
+        'face_biometric_template',
     ];
 
     /**
@@ -52,6 +70,7 @@ class BusinessMembership extends Pivot
     {
         return [
             'join_date' => 'date',
+            'face_registered_at' => 'datetime',
             'base_salary' => 'decimal:2',
             'daily_rate' => 'decimal:2',
             'hourly_rate' => 'decimal:2',
@@ -59,6 +78,7 @@ class BusinessMembership extends Pivot
             'variable_allowances' => 'decimal:2',
             'bpjs_tk_enabled' => 'boolean',
             'bpjs_kes_enabled' => 'boolean',
+            'bpjs_dependents_count' => 'integer',
         ];
     }
 
@@ -100,6 +120,16 @@ class BusinessMembership extends Pivot
     public function location(): BelongsTo
     {
         return $this->primaryLocation();
+    }
+
+    public function defaultShift(): BelongsTo
+    {
+        return $this->belongsTo(WorkShift::class, 'default_shift_id');
+    }
+
+    public function hasFaceRegistered(): bool
+    {
+        return ! empty($this->face_biometric_template) || $this->face_registered_at !== null;
     }
 
     public function isFreeLocation(): bool

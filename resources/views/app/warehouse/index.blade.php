@@ -7,7 +7,7 @@
 @section('content')
 <div class="max-w-[1360px] mx-auto space-y-6 pb-28 lg:pb-12" x-data="{
     showCreateModal: new URLSearchParams(window.location.search).get('add') === 'warehouse',
-    showCreateOutletModal: new URLSearchParams(window.location.search).get('add') === 'outlet' || new URLSearchParams(window.location.search).get('add') === 'branch',
+    showCreateOutletModal: false,
     showEditModal: false,
     filterTab: new URLSearchParams(window.location.search).get('type') || 'all',
     gpsLoading: false,
@@ -80,7 +80,37 @@
         is_primary: false,
         is_online_fulfillment: true,
         allow_storefront_pickup: true,
-        is_active: true
+        is_active: true,
+        timezone_mode: 'inherit',
+        timezone: '{{ $business->timezone ?? "Asia/Jakarta" }}',
+        operating_hours_mode: 'inherit',
+        operating_hours: null
+    },
+
+    defaultOperatingHours: @json(\App\Support\TimezoneHelper::normalizeOperatingHours($business->operating_hours)),
+
+    addEditPeriod(dayKey) {
+        if (!this.editData.operating_hours) {
+            this.editData.operating_hours = JSON.parse(JSON.stringify(this.defaultOperatingHours));
+        }
+        if (!this.editData.operating_hours[dayKey]) {
+            this.editData.operating_hours[dayKey] = { day_name: dayKey, is_open: true, periods: [] };
+        }
+        if (!Array.isArray(this.editData.operating_hours[dayKey].periods)) {
+            this.editData.operating_hours[dayKey].periods = [];
+        }
+        this.editData.operating_hours[dayKey].periods.push({ start: '17:00', end: '22:00' });
+    },
+
+    removeEditPeriod(dayKey, index) {
+        if (this.editData.operating_hours && this.editData.operating_hours[dayKey] && Array.isArray(this.editData.operating_hours[dayKey].periods)) {
+            this.editData.operating_hours[dayKey].periods.splice(index, 1);
+        }
+    },
+
+    isOvernight(period) {
+        if (!period || !period.start || !period.end) return false;
+        return period.end < period.start;
     },
 
     // Biteship Search Autocomplete State
@@ -125,7 +155,11 @@
             is_primary: Boolean(loc.is_primary),
             is_online_fulfillment: Boolean(loc.is_online_fulfillment !== false && loc.is_online_fulfillment !== 0),
             allow_storefront_pickup: Boolean(loc.allow_storefront_pickup !== false && loc.allow_storefront_pickup !== 0),
-            is_active: Boolean(loc.is_active)
+            is_active: Boolean(loc.is_active),
+            timezone_mode: loc.timezone_mode || 'inherit',
+            timezone: loc.timezone || '{{ $business->timezone ?? "Asia/Jakarta" }}',
+            operating_hours_mode: loc.operating_hours_mode || 'inherit',
+            operating_hours: loc.operating_hours ? JSON.parse(JSON.stringify(loc.operating_hours)) : JSON.parse(JSON.stringify(this.defaultOperatingHours))
         };
         this.biteshipResults = [];
         this.biteshipQuery = '';
@@ -327,11 +361,12 @@
         @endif
 
         @if(\App\Support\Context::hasPermission('inventory.manage') || \App\Support\Context::isAdminOrOwner() || \App\Support\Context::hasPermission('warehouse.manage'))
-            <button type="button" @click="showCreateOutletModal = true; gpsError = ''; gpsSuccess = false;"
-                    class="min-h-[44px] sm:min-h-0 h-11 sm:h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#34C759] hover:bg-[#28A745] active:scale-[0.98] transition-all flex items-center justify-center gap-1.5 shadow-[0_1px_2px_rgba(52,199,89,0.25)] cursor-pointer">
+            <a href="{{ route('settings.index', ['tab' => 'branches']) }}"
+               class="min-h-[44px] sm:min-h-0 h-11 sm:h-9 px-3.5 rounded-[10px] text-[13px] font-semibold text-[#34C759] dark:text-[#30D158] bg-[#34C759]/10 hover:bg-[#34C759]/15 active:scale-[0.98] transition-all flex items-center justify-center gap-1.5"
+               title="{{ __('settings.tab_branches') ?? 'Kelola Cabang di Settings' }}">
                 <i data-lucide="store" class="w-4 h-4"></i>
-                <span>{{ __('warehouse.actions.add_outlet') }}</span>
-            </button>
+                <span>{{ __('warehouse.actions.manage_branches_link') ?? 'Kelola Cabang' }}</span>
+            </a>
             <button type="button" @click="showCreateModal = true; gpsError = ''; gpsSuccess = false;"
                     class="min-h-[44px] sm:min-h-0 h-11 sm:h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] transition-all flex items-center justify-center gap-1.5 shadow-[0_1px_2px_rgba(0,122,255,0.25)] cursor-pointer">
                 <i data-lucide="plus" class="w-4 h-4"></i>
@@ -428,6 +463,24 @@
     {{-- 4. LOCATIONS GRID (Apple Squircle Bento Cards)        --}}
     {{-- ===================================================== --}}
     <div class="space-y-4">
+        {{-- Banner Edukasi Pemusatan Cabang ke Settings --}}
+        <div class="rounded-[16px] bg-gradient-to-r from-[#007AFF]/5 via-[#34C759]/5 to-transparent border border-black/[0.06] dark:border-white/[0.08] p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-[12px] bg-[#34C759]/15 text-[#248A3D] dark:text-[#30D158] flex items-center justify-center shrink-0 border border-[#34C759]/20">
+                    <i data-lucide="store" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h4 class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">Pusat Kelola & Tambah Cabang Telah Dipindahkan</h4>
+                    <p class="text-[11px] text-slate-500 dark:text-slate-400">Tambah dan kelola cabang/toko kini dipusatkan di Pengaturan Bisnis. Halaman ini khusus untuk mengelola Gudang Logistik (1 cabang dapat memiliki banyak gudang).</p>
+                </div>
+            </div>
+            <a href="{{ route('settings.index', ['tab' => 'branches']) }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[9px] bg-white dark:bg-[#2C2C2E] border border-black/10 dark:border-white/10 text-xs font-semibold text-[#007AFF] hover:bg-black/[0.03] dark:hover:bg-white/[0.05] transition-all shrink-0">
+                <i data-lucide="settings" class="w-3.5 h-3.5"></i>
+                <span>Buka Pengaturan Cabang</span>
+                <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+            </a>
+        </div>
+
         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <div class="flex items-center gap-2">
                 <h2 class="text-base font-bold text-slate-900 dark:text-white tracking-tight">{{ __('warehouse.tabs.all_locations') }}</h2>
@@ -1178,281 +1231,7 @@
     {{-- ===================================================== --}}
     {{-- 7b. APPLE BENTO XXL SHEET: TAMBAH CABANG / OUTLET     --}}
     {{-- ===================================================== --}}
-    <div x-show="showCreateOutletModal"
-         x-cloak
-         class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-md p-3 sm:p-6"
-         x-transition:enter="transition ease-out duration-200"
-         x-transition:enter-start="opacity-0"
-         x-transition:enter-end="opacity-100"
-         x-transition:leave="transition ease-in duration-150"
-         x-transition:leave-start="opacity-100"
-         x-transition:leave-end="opacity-0">
 
-        <div class="w-full max-w-[94vw] md:max-w-2xl lg:max-w-3xl xl:max-w-4xl max-h-[88vh] rounded-[22px] bg-white/98 dark:bg-[#1C1C1E]/98 backdrop-blur-2xl border border-black/[0.08] dark:border-white/[0.12] shadow-[0_25px_60px_rgba(0,0,0,0.35)] flex flex-col overflow-hidden"
-             @click.outside="showCreateOutletModal = false"
-             x-transition:enter="transition ease-out duration-200"
-             x-transition:enter-start="opacity-0 scale-95"
-             x-transition:enter-end="opacity-100 scale-100"
-             x-transition:leave="transition ease-in duration-150"
-             x-transition:leave-start="opacity-100 scale-100"
-             x-transition:leave-end="opacity-0 scale-95">
-
-            {{-- Modal Header --}}
-            <div class="px-5 py-4 sm:px-6 sm:py-4.5 border-b border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between gap-3 shrink-0 bg-slate-50/50 dark:bg-white/[0.02]">
-                <div class="flex items-center gap-3.5">
-                    <div class="w-11 h-11 rounded-[14px] bg-[#34C759]/12 text-[#34C759] flex items-center justify-center shrink-0 border border-[#34C759]/20">
-                        <i data-lucide="store" class="w-5 h-5"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
-                            <span>{{ __('warehouse.actions.create_outlet_title') }}</span>
-                            <span class="text-[11px] font-semibold text-[#34C759] bg-[#34C759]/12 px-2.5 py-0.5 rounded-full">{{ __('warehouse.types.outlet') }}</span>
-                        </h3>
-                        <p class="text-xs text-slate-500 dark:text-slate-400">{{ __('warehouse.header_subtitle') }}</p>
-                    </div>
-                </div>
-                <button type="button" @click="showCreateOutletModal = false" class="min-w-[44px] min-h-[44px] w-11 h-11 rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition cursor-pointer">
-                    <i data-lucide="x" class="w-4 h-4"></i>
-                </button>
-            </div>
-
-            <form action="{{ route('warehouse.store') }}" method="POST" x-data="{ submitting: false }" @submit="submitting = true" class="flex flex-col flex-1 overflow-hidden">
-                @csrf
-                <input type="hidden" name="type" value="outlet">
-                <input type="hidden" name="province" :value="outletForm.province">
-                <input type="hidden" name="city" :value="outletForm.city">
-                <input type="hidden" name="district" :value="outletForm.district">
-                <input type="hidden" name="village" :value="outletForm.village">
-                <input type="hidden" name="postal_code" :value="outletForm.postal_code">
-                <input type="hidden" name="biteship_area_id" :value="outletForm.biteship_area_id">
-
-                {{-- Modal Body: 2-Kolom Bento --}}
-                <div class="p-5 sm:p-6 overflow-y-auto space-y-4 flex-1 text-xs">
-                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-                        
-                        {{-- Kolom Kiri: Detail Informasi Cabang (6 Kolom) --}}
-                        <div class="lg:col-span-6 space-y-4">
-                            <div class="rounded-[18px] bg-slate-50/80 dark:bg-[#2C2C2E]/60 border border-black/[0.06] dark:border-white/[0.08] p-5 space-y-4">
-                                <div class="flex items-center gap-2">
-                                    <i data-lucide="store" class="w-4 h-4 text-[#34C759]"></i>
-                                    <span class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">{{ __('warehouse.sections.general_info') }}</span>
-                                </div>
-
-                                <div>
-                                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                                        {{ __('warehouse.fields.name') }}
-                                    </label>
-                                    <input type="text" name="name" x-model="outletForm.name" required placeholder="{{ __('warehouse.placeholders.outlet_name') }}"
-                                           class="w-full h-11 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3.5 text-[16px] sm:text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#34C759] transition">
-                                </div>
-
-                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                    <div>
-                                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                                            {{ __('warehouse.fields.code') }}
-                                        </label>
-                                        <input type="text" name="code" x-model="outletForm.code" placeholder="{{ __('warehouse.placeholders.code') }}"
-                                               class="w-full h-10 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3.5 text-[16px] sm:text-xs text-slate-900 dark:text-white font-mono placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#34C759] transition">
-                                    </div>
-                                    <div>
-                                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                                            {{ __('warehouse.fields.phone') }}
-                                        </label>
-                                        <input type="text" name="phone" x-model="outletForm.phone" placeholder="{{ __('warehouse.placeholders.phone') }}"
-                                               class="w-full h-10 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3.5 text-[16px] sm:text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#34C759] transition">
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                                        {{ __('warehouse.fields.address') }} <span class="text-[#FF3B30]">*</span>
-                                    </label>
-                                    <textarea name="address" x-model="outletForm.address" rows="3" required placeholder="{{ __('warehouse.placeholders.address') }}"
-                                              class="w-full bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] p-3 text-[16px] sm:text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#34C759] transition resize-none"></textarea>
-                                </div>
-                            </div>
-                        </div>
-
-                        {{-- Kolom Kanan: Geofence & Biteship Logistics (6 Kolom) --}}
-                        <div class="lg:col-span-6 space-y-4">
-                            
-                            {{-- SECTION GEOFENCE & DETEKSI GPS --}}
-                            <div class="rounded-[18px] bg-[#34C759]/5 dark:bg-[#34C759]/10 border border-[#34C759]/20 p-5 space-y-3.5">
-                                <div class="flex items-center justify-between gap-2 flex-wrap">
-                                    <div class="flex items-center gap-2">
-                                        <div class="w-6 h-6 rounded-[6px] bg-[#34C759]/15 text-[#34C759] flex items-center justify-center">
-                                            <i data-lucide="map-pin" class="w-3.5 h-3.5"></i>
-                                        </div>
-                                        <span class="text-xs font-bold text-slate-900 dark:text-white">{{ __('warehouse.sections.geofence_gps') }}</span>
-                                    </div>
-
-                                    {{-- Tombol Live Detect GPS --}}
-                                    <button type="button" @click="detectGps('outlet')" :disabled="gpsLoading"
-                                            class="min-h-[44px] h-11 px-3.5 rounded-[8px] text-xs font-bold text-white bg-[#34C759] hover:bg-[#28A745] active:scale-[0.98] transition-all flex items-center gap-1.5 shadow-[0_1px_2px_rgba(52,199,89,0.25)] cursor-pointer disabled:opacity-50">
-                                        <template x-if="gpsLoading && activeGpsTarget === 'outlet'">
-                                            <svg class="animate-spin -ml-0.5 mr-1 h-3.5 w-3.5 text-white" fill="none" viewBox="0 0 24 24">
-                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                            </svg>
-                                        </template>
-                                        <template x-if="!(gpsLoading && activeGpsTarget === 'outlet')">
-                                            <i data-lucide="crosshair" class="w-3.5 h-3.5"></i>
-                                        </template>
-                                        <span x-text="(gpsLoading && activeGpsTarget === 'outlet') ? '{{ __('warehouse.actions.detecting_gps') }}' : '{{ __('warehouse.actions.detect_gps') }}'"></span>
-                                    </button>
-                                </div>
-
-                                {{-- Alert GPS Messages --}}
-                                <template x-if="gpsSuccess && activeGpsTarget === 'outlet'">
-                                    <div class="rounded-[10px] bg-[#34C759]/15 border border-[#34C759]/30 px-3 py-2 text-[11px] text-[#248A3D] dark:text-[#30D158] flex items-center gap-2 font-medium">
-                                        <i data-lucide="check-circle-2" class="w-4 h-4 text-[#34C759]"></i>
-                                        <span>{{ __('warehouse.actions.gps_detected') }}</span>
-                                    </div>
-                                </template>
-
-                                <template x-if="gpsError && activeGpsTarget === 'outlet'">
-                                    <div class="rounded-[10px] bg-[#FF3B30]/15 border border-[#FF3B30]/30 px-3 py-2 text-[11px] text-[#C41E17] dark:text-[#FF453A] flex items-center gap-2 font-medium">
-                                        <i data-lucide="alert-circle" class="w-4 h-4 text-[#FF3B30]"></i>
-                                        <span x-text="gpsError"></span>
-                                    </div>
-                                </template>
-
-                                <div class="grid grid-cols-2 gap-3">
-                                    <div>
-                                        <label class="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">{{ __('warehouse.fields.latitude') }}</label>
-                                        <input type="text" name="latitude" x-model="outletForm.latitude" placeholder="{{ __('warehouse.placeholders.latitude') }}"
-                                               class="w-full h-10 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[8px] px-2.5 text-[16px] sm:text-xs text-slate-900 dark:text-white font-mono placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#34C759] transition">
-                                    </div>
-                                    <div>
-                                        <label class="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">{{ __('warehouse.fields.longitude') }}</label>
-                                        <input type="text" name="longitude" x-model="outletForm.longitude" placeholder="{{ __('warehouse.placeholders.longitude') }}"
-                                               class="w-full h-10 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[8px] px-2.5 text-[16px] sm:text-xs text-slate-900 dark:text-white font-mono placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#34C759] transition">
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <div class="flex items-center justify-between mb-1">
-                                        <label class="block text-[11px] font-semibold text-slate-700 dark:text-slate-300">{{ __('warehouse.fields.geofence_radius') }}</label>
-                                        <span class="text-[11px] font-bold text-[#34C759] font-mono" x-text="outletForm.geofence_radius_meters + ' m'"></span>
-                                    </div>
-                                    <input type="number" name="geofence_radius_meters" x-model="outletForm.geofence_radius_meters" placeholder="{{ __('warehouse.placeholders.radius') }}" min="10" max="5000"
-                                           class="w-full h-10 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[8px] px-2.5 text-[16px] sm:text-xs text-slate-900 dark:text-white font-mono placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#34C759] transition">
-                                    
-                                    {{-- Quick Presets --}}
-                                    <div class="flex items-center gap-1.5 mt-2 flex-wrap">
-                                        <button type="button" @click="outletForm.geofence_radius_meters = 50" class="min-h-[44px] sm:min-h-0 px-2.5 py-1 rounded-[6px] text-[10px] font-semibold bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 hover:border-[#34C759] text-slate-700 dark:text-slate-300 cursor-pointer">50m</button>
-                                        <button type="button" @click="outletForm.geofence_radius_meters = 100" class="min-h-[44px] sm:min-h-0 px-2.5 py-1 rounded-[6px] text-[10px] font-semibold bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 hover:border-[#34C759] text-slate-700 dark:text-slate-300 cursor-pointer">100m (Default)</button>
-                                        <button type="button" @click="outletForm.geofence_radius_meters = 200" class="min-h-[44px] sm:min-h-0 px-2.5 py-1 rounded-[6px] text-[10px] font-semibold bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 hover:border-[#34C759] text-slate-700 dark:text-slate-300 cursor-pointer">200m</button>
-                                        <button type="button" @click="outletForm.geofence_radius_meters = 500" class="min-h-[44px] sm:min-h-0 px-2.5 py-1 rounded-[6px] text-[10px] font-semibold bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 hover:border-[#34C759] text-slate-700 dark:text-slate-300 cursor-pointer">500m</button>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {{-- SECTION INTEGRASI BITESHIP & TOKO ONLINE PICKUP --}}
-                            <div class="rounded-[18px] bg-[#5856D6]/5 dark:bg-[#5856D6]/10 border border-[#5856D6]/20 p-5 space-y-3.5">
-                                <div class="flex items-center justify-between gap-2">
-                                    <div class="flex items-center gap-2">
-                                        <div class="w-6 h-6 rounded-[6px] bg-[#5856D6]/15 text-[#5856D6] flex items-center justify-center">
-                                            <i data-lucide="truck" class="w-3.5 h-3.5"></i>
-                                        </div>
-                                        <span class="text-xs font-bold text-slate-900 dark:text-white">{{ __('warehouse.fields.biteship_area') }}</span>
-                                    </div>
-                                </div>
-
-                                {{-- Area Search Box for Biteship --}}
-                                <div class="relative">
-                                    <template x-if="!outletForm.biteship_area_id">
-                                        <div class="relative">
-                                            <input type="text"
-                                                   placeholder="{{ __('warehouse.placeholders.biteship_search') }}"
-                                                   @input.debounce.300ms="searchBiteship('outlet', $event.target.value)"
-                                                   class="w-full h-10 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[8px] pl-8 pr-3 text-[16px] sm:text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#5856D6] transition">
-                                            <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-3"></i>
-                                        </div>
-                                    </template>
-
-                                    {{-- Selected Biteship Area Card --}}
-                                    <template x-if="outletForm.biteship_area_id">
-                                        <div class="flex items-center justify-between p-2.5 rounded-[10px] bg-white dark:bg-[#1C1C1E] border border-[#5856D6]/30">
-                                            <div class="flex items-center gap-2 min-w-0">
-                                                <i data-lucide="check-circle" class="w-4 h-4 text-[#34C759] shrink-0"></i>
-                                                <div class="min-w-0">
-                                                    <span class="text-xs font-bold text-slate-900 dark:text-white block truncate" x-text="outletForm.biteship_area_label || outletForm.biteship_area_id"></span>
-                                                    <span class="text-[10px] text-slate-500 dark:text-slate-400 font-mono">ID: <span x-text="outletForm.biteship_area_id"></span></span>
-                                                </div>
-                                            </div>
-                                            <button type="button" @click="clearBiteshipArea('outlet')" class="min-h-[44px] sm:min-h-0 text-xs text-[#FF3B30] hover:underline font-semibold shrink-0 ml-2 cursor-pointer">
-                                                {{ __('warehouse.actions.change') }}
-                                            </button>
-                                        </div>
-                                    </template>
-
-                                    {{-- Dropdown Autocomplete Results --}}
-                                    <div x-show="biteshipTarget === 'outlet' && biteshipResults.length > 0"
-                                         @click.outside="biteshipResults = []"
-                                         class="absolute left-0 right-0 top-full mt-1 z-30 max-h-48 overflow-y-auto rounded-[12px] bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 shadow-xl divide-y divide-black/5 dark:divide-white/5">
-                                        <template x-for="item in biteshipResults" :key="item.id">
-                                            <button type="button" @click="selectBiteshipArea('outlet', item)"
-                                                    class="w-full text-left p-2.5 hover:bg-[#5856D6]/10 transition flex items-center justify-between gap-2 cursor-pointer">
-                                                <div>
-                                                    <span class="text-xs font-bold text-slate-900 dark:text-white block" x-text="item.label || (item.village + ', ' + item.district + ', ' + item.city)"></span>
-                                                    <span class="text-[10px] text-slate-500 dark:text-slate-400" x-text="(item.province || '') + (item.postal_code ? ' • Kode Pos: ' + item.postal_code : '')"></span>
-                                                </div>
-                                                <span class="text-[10px] font-mono text-[#5856D6] font-bold shrink-0 bg-[#5856D6]/10 px-1.5 py-0.5 rounded">{{ __('warehouse.actions.select') }}</span>
-                                            </button>
-                                        </template>
-                                    </div>
-                                </div>
-
-                                {{-- Checkbox Primary Pickup Storefront --}}
-                                <div class="space-y-2 pt-1">
-                                    <label class="flex items-start gap-2.5 p-3 rounded-[12px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] cursor-pointer hover:border-[#5856D6]/40 transition">
-                                        <input type="checkbox" name="is_primary" value="1" x-model="outletForm.is_primary" class="mt-0.5 w-4 h-4 rounded text-[#5856D6] focus:ring-[#5856D6]">
-                                        <div class="text-xs">
-                                            <span class="font-bold text-slate-900 dark:text-white block">{{ __('warehouse.fields.is_primary') }}</span>
-                                            <span class="text-[11px] text-slate-500 dark:text-slate-400 block">{{ __('warehouse.sections.operational_settings_desc') }}</span>
-                                        </div>
-                                    </label>
-
-                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                        <label class="flex items-start gap-2 p-2.5 rounded-[10px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] cursor-pointer">
-                                            <input type="checkbox" name="is_online_fulfillment" value="1" x-model="outletForm.is_online_fulfillment" class="mt-0.5 w-3.5 h-3.5 rounded text-[#34C759] focus:ring-[#34C759]">
-                                            <span class="text-[11px] font-medium text-slate-800 dark:text-slate-200">{{ __('warehouse.fields.is_online_fulfillment') }}</span>
-                                        </label>
-                                        <label class="flex items-start gap-2 p-2.5 rounded-[10px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] cursor-pointer">
-                                            <input type="checkbox" name="allow_storefront_pickup" value="1" x-model="outletForm.allow_storefront_pickup" class="mt-0.5 w-3.5 h-3.5 rounded text-[#34C759] focus:ring-[#34C759]">
-                                            <span class="text-[11px] font-medium text-slate-800 dark:text-slate-200">{{ __('warehouse.fields.allow_storefront_pickup') }}</span>
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {{-- Modal Footer --}}
-                <div class="px-5 py-3.5 sm:px-6 sm:py-4 border-t border-black/[0.06] dark:border-white/[0.08] flex items-center justify-end gap-3 shrink-0 bg-slate-50/50 dark:bg-white/[0.02]">
-                    <button type="button" @click="showCreateOutletModal = false"
-                            class="min-h-[44px] h-11 px-5 rounded-[12px] text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer">
-                        {{ __('warehouse.actions.cancel') }}
-                    </button>
-                    <button type="submit" :disabled="submitting"
-                            class="min-h-[44px] h-11 px-6 rounded-[12px] text-xs font-bold text-white bg-[#34C759] hover:bg-[#28A745] active:scale-[0.98] transition-all shadow-[0_2px_4px_rgba(52,199,89,0.25)] cursor-pointer flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
-                        <template x-if="submitting">
-                            <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                        </template>
-                        <template x-if="!submitting">
-                            <i data-lucide="plus" class="w-4 h-4"></i>
-                        </template>
-                        <span x-text="submitting ? '{{ __('warehouse.actions.submitting') }}' : '{{ __('warehouse.actions.save') }}'"></span>
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
 
     {{-- ===================================================== --}}
     {{-- 8. APPLE BENTO XXL SHEET: EDIT INFORMASI LOKASI       --}}
@@ -1504,6 +1283,7 @@
                 <input type="hidden" name="village" :value="editData.village">
                 <input type="hidden" name="postal_code" :value="editData.postal_code">
                 <input type="hidden" name="biteship_area_id" :value="editData.biteship_area_id">
+                <input type="hidden" name="operating_hours_json" :value="JSON.stringify(editData.operating_hours)">
 
                 {{-- Modal Body: 2-Kolom Bento --}}
                 <div class="p-5 sm:p-6 overflow-y-auto space-y-4 flex-1 text-xs">
@@ -1749,6 +1529,108 @@
                                             <span class="text-[11px] font-medium text-slate-800 dark:text-slate-200">{{ __('warehouse.fields.allow_storefront_pickup') }}</span>
                                         </label>
                                     </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Kolom Penuh: Zona Waktu & Jam Operasional Cabang --}}
+                        <div class="lg:col-span-12 rounded-[18px] bg-slate-50/80 dark:bg-[#2C2C2E]/60 border border-black/[0.06] dark:border-white/[0.08] p-5 space-y-4">
+                            <div class="flex items-center justify-between gap-3 flex-wrap">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-6 h-6 rounded-[6px] bg-[#007AFF]/15 text-[#007AFF] flex items-center justify-center">
+                                        <i data-lucide="clock" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <span class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                                        {{ __('warehouse.sections.timezone_and_hours') }}
+                                    </span>
+                                </div>
+                                <span class="text-[11px] text-slate-500 dark:text-slate-400">
+                                    {{ __('warehouse.sections.timezone_and_hours_desc') }}
+                                </span>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {{-- Zona Waktu --}}
+                                <div class="p-4 rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] space-y-3">
+                                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300">
+                                        {{ __('warehouse.fields.timezone_mode') }}
+                                    </label>
+                                    <select name="timezone_mode" x-model="editData.timezone_mode"
+                                            class="w-full h-10 bg-slate-50 dark:bg-[#2C2C2E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                                        <option value="inherit">{{ __('warehouse.timezone_modes.inherit') }} ({{ $business->timezone ?? 'Asia/Jakarta' }})</option>
+                                        <option value="custom">{{ __('warehouse.timezone_modes.custom') }}</option>
+                                    </select>
+
+                                    <div x-show="editData.timezone_mode === 'custom'" x-cloak class="space-y-1.5 pt-1">
+                                        <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-400">
+                                            {{ __('warehouse.fields.timezone') }}
+                                        </label>
+                                        <select name="timezone" x-model="editData.timezone"
+                                                class="w-full h-10 bg-slate-50 dark:bg-[#2C2C2E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                                            @foreach(\App\Support\TimezoneHelper::commonIndonesianTimezones() as $tz)
+                                                <option value="{{ $tz['value'] }}">{{ $tz['label'] }} ({{ $tz['region'] }})</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+
+                                {{-- Mode Jam Operasional --}}
+                                <div class="p-4 rounded-[14px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] space-y-3">
+                                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300">
+                                        {{ __('warehouse.fields.operating_hours_mode') }}
+                                    </label>
+                                    <select name="operating_hours_mode" x-model="editData.operating_hours_mode"
+                                            class="w-full h-10 bg-slate-50 dark:bg-[#2C2C2E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                                        <option value="inherit">{{ __('warehouse.operating_hours_modes.inherit') }}</option>
+                                        <option value="custom">{{ __('warehouse.operating_hours_modes.custom') }}</option>
+                                    </select>
+                                    <p class="text-[11px] text-slate-500 dark:text-slate-400">
+                                        {{ __('warehouse.operating_hours_modes.custom_hint') }}
+                                    </p>
+                                </div>
+                            </div>
+
+                            {{-- Grid Jam Operasional Khusus --}}
+                            <div x-show="editData.operating_hours_mode === 'custom'" x-cloak class="space-y-3 pt-2">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[340px] overflow-y-auto pr-1">
+                                    <template x-for="(config, dayKey) in (editData.operating_hours || defaultOperatingHours)" :key="dayKey">
+                                        <div class="p-3.5 rounded-[12px] bg-white dark:bg-[#1C1C1E] border border-black/[0.06] dark:border-white/[0.08] space-y-2.5">
+                                            <div class="flex items-center justify-between">
+                                                <span class="text-xs font-bold text-slate-900 dark:text-white capitalize" x-text="config.day_name || dayKey"></span>
+                                                <label class="inline-flex items-center gap-1.5 cursor-pointer">
+                                                    <input type="checkbox" x-model="config.is_open"
+                                                           class="w-3.5 h-3.5 rounded text-[#007AFF] focus:ring-[#007AFF]">
+                                                    <span class="text-[11px] font-semibold" :class="config.is_open ? 'text-[#34C759]' : 'text-slate-400'"
+                                                          x-text="config.is_open ? '{{ __('warehouse.hours.open') }}' : '{{ __('warehouse.hours.closed') }}'"></span>
+                                                </label>
+                                            </div>
+
+                                            <div x-show="config.is_open" class="space-y-2">
+                                                <template x-for="(period, pIdx) in (config.periods || [])" :key="pIdx">
+                                                    <div class="flex items-center gap-2">
+                                                        <input type="time" x-model="period.start"
+                                                               class="h-8 px-2 rounded-[8px] bg-slate-50 dark:bg-[#2C2C2E] border border-black/[0.08] dark:border-white/[0.12] text-xs font-mono text-slate-900 dark:text-white">
+                                                        <span class="text-slate-400 text-xs">-</span>
+                                                        <input type="time" x-model="period.end"
+                                                               class="h-8 px-2 rounded-[8px] bg-slate-50 dark:bg-[#2C2C2E] border border-black/[0.08] dark:border-white/[0.12] text-xs font-mono text-slate-900 dark:text-white">
+                                                        <span x-show="isOvernight(period)" class="text-[9px] font-semibold text-[#FF9500] px-1.5 py-0.5 rounded bg-[#FF9500]/10 shrink-0">
+                                                            {{ __('warehouse.hours.overnight') }}
+                                                        </span>
+                                                        <button type="button" @click="removeEditPeriod(dayKey, pIdx)"
+                                                                x-show="(config.periods || []).length > 1"
+                                                                class="p-1 rounded text-red-500 hover:bg-red-500/10 cursor-pointer">
+                                                            <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                                                        </button>
+                                                    </div>
+                                                </template>
+                                                <button type="button" @click="addEditPeriod(dayKey)"
+                                                        class="text-[11px] font-semibold text-[#007AFF] hover:underline flex items-center gap-1 cursor-pointer pt-0.5">
+                                                    <i data-lucide="plus" class="w-3 h-3"></i>
+                                                    <span>{{ __('warehouse.hours.add_period') }}</span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </template>
                                 </div>
                             </div>
                         </div>

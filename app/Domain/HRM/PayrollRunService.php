@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\HRM;
 
+use App\Domain\Accounting\AutoJournalService;
 use App\Models\Business;
 use App\Models\BusinessMembership;
 use App\Models\EmployeeCommission;
@@ -20,7 +21,8 @@ use RuntimeException;
 final class PayrollRunService
 {
     public function __construct(
-        private readonly PayrollCalculationService $payrollCalculationService
+        private readonly PayrollCalculationService $payrollCalculationService,
+        private readonly ?AutoJournalService $autoJournalService = null
     ) {}
 
     /**
@@ -402,6 +404,15 @@ final class PayrollRunService
                 ]);
             }
 
+            // 4. Generate automated double-entry journal for payroll
+            try {
+                $journalService = $this->autoJournalService ?? app(AutoJournalService::class);
+                $journalService->recordPayrollJournal($payroll, $operator?->id ?? $payroll->approved_by ?? $payroll->processed_by);
+            } catch (\Throwable $e) {
+                // Non-blocking log to ensure payment record integrity
+                report($e);
+            }
+
             return $payroll;
         });
     }
@@ -430,13 +441,13 @@ final class PayrollRunService
 
         $fmt = fn (float $n) => 'Rp ' . number_format($n, 0, ',', '.');
 
-        $msg = "📄 *SLIP GAJI KARYAWAN*\n";
-        $msg .= "🏢 *{$bizName}*\n";
-        $msg .= "🗓️ *Periode:* {$period}\n";
+        $msg = "*SLIP GAJI KARYAWAN*\n";
+        $msg .= "*{$bizName}*\n";
+        $msg .= "Periode: {$period}\n";
         $msg .= "────────────────────\n";
-        $msg .= "👤 *Nama:* {$item->employee_name}\n";
-        $msg .= "💼 *Jabatan:* " . ($item->job_title ?: 'Staf') . "\n";
-        $msg .= "📌 *Status:* " . ($item->employment_type === 'daily_worker' ? 'Pekerja Harian' : 'Karyawan') . "\n";
+        $msg .= "Nama: {$item->employee_name}\n";
+        $msg .= "Jabatan: " . ($item->job_title ?: 'Staf') . "\n";
+        $msg .= "Status: " . ($item->employment_type === 'daily_worker' ? 'Pekerja Harian' : 'Karyawan') . "\n";
         $msg .= "────────────────────\n";
         $msg .= "*PENERIMAAN:*\n";
 
@@ -462,7 +473,7 @@ final class PayrollRunService
             $msg .= "• THR Prorata: {$fmt((float) $item->thr_amount)}\n";
         }
 
-        $msg .= "💰 *Total Bruto:* {$fmt((float) $item->gross_pay)}\n";
+        $msg .= "*Total Bruto:* {$fmt((float) $item->gross_pay)}\n";
         $msg .= "────────────────────\n";
         $msg .= "*POTONGAN:*\n";
 
@@ -486,20 +497,20 @@ final class PayrollRunService
         if ($totalDeduct <= 0) {
             $msg .= "• Tidak ada potongan.\n";
         } else {
-            $msg .= "🔻 *Total Potongan:* {$fmt($totalDeduct)}\n";
+            $msg .= "*Total Potongan:* {$fmt($totalDeduct)}\n";
         }
 
         $msg .= "────────────────────\n";
-        $msg .= "💵 *GAJI BERSIH (TAKE HOME PAY):*\n";
-        $msg .= "👉 *{$fmt((float) $item->take_home_pay)}*\n";
+        $msg .= "*GAJI BERSIH (TAKE HOME PAY):*\n";
+        $msg .= "*{$fmt((float) $item->take_home_pay)}*\n";
         $msg .= "────────────────────\n";
 
         if ($item->bank_account_number) {
-            $msg .= "💳 *Transfer ke:* {$item->bank_name} - {$item->bank_account_number} ({$item->bank_account_holder})\n";
+            $msg .= "Transfer ke: {$item->bank_name} - {$item->bank_account_number} ({$item->bank_account_holder})\n";
         }
 
         $publicUrl = route('public.payslip', $item->payslip_token);
-        $msg .= "\n🔗 *Tautan Slip Digital:* {$publicUrl}\n";
+        $msg .= "\nTautan Slip Digital: {$publicUrl}\n";
         $msg .= "\n_Slip gaji ini dibuat secara otomatis melalui sistem Cooca ERP._";
 
         return $msg;

@@ -212,6 +212,20 @@
                     {{ $product->name }}
                 </h1>
 
+                {{-- Rating & Verified Review Count --}}
+                <div class="flex items-center gap-2 text-xs">
+                    <div class="flex items-center gap-1 text-[#FF9500]">
+                        <svg class="w-4 h-4 fill-[#FF9500] text-[#FF9500]" viewBox="0 0 24 24">
+                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                        </svg>
+                        <span class="font-bold text-sm text-neutral-900 dark:text-white tabular-nums">{{ $product->reviews_count > 0 ? $product->rating_average : '5.0' }}</span>
+                    </div>
+                    <span class="text-neutral-300 dark:text-neutral-700">&bull;</span>
+                    <a href="#ulasan-pembeli" class="text-neutral-500 hover:text-theme-primary transition underline decoration-dotted">
+                        {{ $product->reviews_count }} Ulasan Pembeli Terverifikasi
+                    </a>
+                </div>
+
                 {{-- Price Display --}}
                 <div
                     class="p-5 rounded-[20px] bg-neutral-50 dark:bg-neutral-800/60 border border-black/5 dark:border-white/10 flex items-center justify-between">
@@ -359,6 +373,102 @@
 
             </div>
 
+        </div>
+
+        {{-- Customer Reviews Section (Shopee/Tokopedia Style Bento) --}}
+        <div id="ulasan-pembeli" class="pt-12 border-t border-black/5 dark:border-white/10 space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <h2 class="font-heading font-bold text-xl sm:text-2xl text-neutral-900 dark:text-white">
+                        Ulasan Pembeli
+                    </h2>
+                    <p class="text-xs text-neutral-500 mt-0.5">Ulasan dari transaksi pembeli yang telah terverifikasi sistem.</p>
+                </div>
+
+                {{-- Rating Summary Badge --}}
+                <div class="flex items-center gap-3 p-3 rounded-[16px] bg-neutral-50 dark:bg-neutral-800/60 border border-black/5 dark:border-white/10">
+                    <div class="text-center pr-3 border-r border-black/10 dark:border-white/10">
+                        <span class="font-heading font-black text-2xl text-neutral-900 dark:text-white tabular-nums">{{ $product->reviews_count > 0 ? $product->rating_average : '5.0' }}</span>
+                        <span class="text-[10px] text-neutral-400 block font-medium">dari 5</span>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-0.5 text-[#FF9500]">
+                            @for ($i = 1; $i <= 5; $i++)
+                                <svg class="w-3.5 h-3.5 {{ ($product->rating_average ?? 5) >= $i ? 'fill-[#FF9500] text-[#FF9500]' : 'text-neutral-300 dark:text-neutral-600' }}" viewBox="0 0 24 24">
+                                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                                </svg>
+                            @endfor
+                        </div>
+                        <span class="text-[11px] text-neutral-500 font-semibold mt-0.5 block">
+                            {{ $product->reviews_count }} Penilaian Terverifikasi
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            @if ($product->reviews->isEmpty())
+                <div class="p-8 rounded-[20px] bg-neutral-50 dark:bg-neutral-800/40 border border-black/5 dark:border-white/10 text-center space-y-2">
+                    <div class="w-10 h-10 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center mx-auto text-neutral-400">
+                        <i data-lucide="message-square" class="w-5 h-5"></i>
+                    </div>
+                    <p class="text-sm font-semibold text-neutral-700 dark:text-neutral-300">Belum Ada Ulasan</p>
+                    <p class="text-xs text-neutral-500 max-w-sm mx-auto">
+                        Jadilah yang pertama mencoba produk ini dan membagikan pengalaman berbelanja Anda!
+                    </p>
+                </div>
+            @else
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    @foreach ($product->reviews as $rev)
+                        <div class="p-5 rounded-[18px] bg-white dark:bg-neutral-800/60 border border-black/5 dark:border-white/10 space-y-3 shadow-xs">
+                            <div class="flex items-center justify-between gap-2">
+                                <div class="flex items-center gap-2.5">
+                                    <div class="w-8 h-8 rounded-full bg-theme-primary/10 text-theme-primary font-bold text-xs flex items-center justify-center">
+                                        {{ strtoupper(substr($rev->customer?->name ?? 'P', 0, 1)) }}
+                                    </div>
+                                    <div>
+                                        <span class="font-bold text-xs text-neutral-900 dark:text-white block">
+                                            {{ $rev->customer?->name ? (strlen($rev->customer->name) > 3 ? substr($rev->customer->name, 0, 2) . '***' . substr($rev->customer->name, -1) : $rev->customer->name) : 'Pelanggan Terverifikasi' }}
+                                        </span>
+                                        <span class="text-[10px] text-neutral-400">
+                                            {{ $rev->created_at->translatedFormat('d M Y') }}
+                                        </span>
+                                    </div>
+                                </div>
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#34C759]/10 text-[#34C759] border border-[#34C759]/20 flex items-center gap-1">
+                                    <i data-lucide="shield-check" class="w-3 h-3"></i>
+                                    <span>Verified</span>
+                                </span>
+                            </div>
+
+                            <div class="flex items-center gap-0.5 text-[#FF9500]">
+                                @for ($s = 1; $s <= 5; $s++)
+                                    <svg class="w-3.5 h-3.5 {{ $rev->rating >= $s ? 'fill-[#FF9500] text-[#FF9500]' : 'text-neutral-300 dark:text-neutral-600' }}" viewBox="0 0 24 24">
+                                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                                    </svg>
+                                @endfor
+                            </div>
+
+                            @if ($rev->review_text)
+                                <p class="text-xs text-neutral-700 dark:text-neutral-300 leading-relaxed italic">
+                                    &ldquo;{{ $rev->review_text }}&rdquo;
+                                </p>
+                            @endif
+
+                            @if ($rev->seller_reply)
+                                <div class="p-3 rounded-[12px] bg-neutral-50 dark:bg-neutral-900/60 border border-black/5 dark:border-white/5 space-y-1">
+                                    <span class="text-[10.5px] font-bold text-neutral-900 dark:text-white flex items-center gap-1">
+                                        <i data-lucide="store" class="w-3 h-3 text-theme-primary"></i>
+                                        <span>Respon Penjual:</span>
+                                    </span>
+                                    <p class="text-[11.5px] text-neutral-600 dark:text-neutral-400 leading-relaxed">
+                                        {{ $rev->seller_reply }}
+                                    </p>
+                                </div>
+                            @endif
+                        </div>
+                    @endforeach
+                </div>
+            @endif
         </div>
 
         {{-- Related Products Section --}}

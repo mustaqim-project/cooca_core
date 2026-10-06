@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Exports;
 
+use App\Domain\Report\Pos\DTOs\PosReportFilterDTO;
+use App\Domain\Report\Pos\PosReportingService;
 use App\Models\Business;
 use App\Models\PosOrder;
 use App\Models\PosOrderItem;
@@ -38,34 +40,118 @@ final class PosReportExport
     private const COLOR_ZEBRA_BG       = 'F8FAFC'; // Slate 50
     private const COLOR_BORDER_LINE    = 'E2E8F0'; // Slate 200
 
-    /**
-     * Generate the complete 2-sheet Spreadsheet instance.
-     *
-     * @param Collection<int, PosOrder> $orders
-     */
-    public function generate(Business $business, Collection $orders, Carbon $startDate, Carbon $endDate): Spreadsheet
+    private PosReportingService $reportingService;
+
+    public function __construct(?PosReportingService $reportingService = null)
     {
+        $this->reportingService = $reportingService ?? new PosReportingService();
+    }
+
+    /**
+     * Generate the complete 9-sheet Master Spreadsheet instance.
+     *
+     * @param Collection<int, PosOrder>|null $orders
+     */
+    public function generate(Business $business, mixed $filterOrOrders, ?Carbon $startDate = null, ?Carbon $endDate = null): Spreadsheet
+    {
+        // Polymorphic parameter support for backward compatibility
+        if ($filterOrOrders instanceof PosReportFilterDTO) {
+            $filter = $filterOrOrders;
+            $orders = $this->reportingService->buildBaseOrdersQuery($filter)
+                ->with(['customer', 'user', 'location', 'payments', 'items.product', 'posShift', 'technician'])
+                ->orderBy('order_date')
+                ->orderBy('created_at')
+                ->get();
+        } elseif ($filterOrOrders instanceof Collection) {
+            $orders = $filterOrOrders;
+            $sDate = $startDate ?? ($orders->first()?->order_date ? Carbon::parse($orders->first()->order_date) : now()->subDays(30));
+            $eDate = $endDate ?? ($orders->last()?->order_date ? Carbon::parse($orders->last()->order_date) : now());
+            $filter = new PosReportFilterDTO(
+                businessId: $business->id,
+                startDate: $sDate,
+                endDate: $eDate
+            );
+        } else {
+            $filter = new PosReportFilterDTO(
+                businessId: $business->id,
+                startDate: $startDate ?? now()->subDays(30),
+                endDate: $endDate ?? now()
+            );
+            $orders = $this->reportingService->buildBaseOrdersQuery($filter)
+                ->with(['customer', 'user', 'location', 'payments', 'items.product', 'posShift', 'technician'])
+                ->get();
+        }
+
         $spreadsheet = new Spreadsheet();
         $spreadsheet->getProperties()
             ->setCreator($business->name . ' - Cooca Suite')
             ->setLastModifiedBy($business->name)
-            ->setTitle('Laporan Penjualan Kasir POS')
-            ->setSubject('POS Sales & Operational Revenue Ledger')
-            ->setDescription('Laporan Dua Bagian: Ringkasan Eksekutif KPI & Rincian Transaksional POS Standar Akuntansi');
+            ->setTitle('Master Laporan Penjualan POS')
+            ->setSubject('POS Sales, Cash Flow, Margin & Operational Reconciliation Ledger')
+            ->setDescription('Master Laporan 9-Sheet: Ringkasan Eksekutif, Transaksi, Produk, Kategori, Kasir, Cabang, Pembayaran, Diskon, Rekonsiliasi');
 
         // -------------------------------------------------------------
-        // SHEET 1: RINGKASAN EKSEKUTIF & KPI BENTO CARDS
+        // SHEET 1: RINGKASAN EKSEKUTIF (EXECUTIVE KPI & COMPOSITION)
         // -------------------------------------------------------------
-        $sheetSummary = $spreadsheet->getActiveSheet();
-        $sheetSummary->setTitle('Ringkasan Eksekutif');
-        $this->buildExecutiveSummarySheet($sheetSummary, $business, $orders, $startDate, $endDate);
+        $sheet1 = $spreadsheet->getActiveSheet();
+        $sheet1->setTitle('Ringkasan Eksekutif');
+        $this->buildExecutiveSummarySheet($sheet1, $business, $orders, $filter);
 
         // -------------------------------------------------------------
-        // SHEET 2: RINCIAN TRANSAKSI (TRANSACTION LEDGER)
+        // SHEET 2: BUKU TRANSAKSI (TRANSACTION LEDGER)
         // -------------------------------------------------------------
-        $sheetLedger = $spreadsheet->createSheet();
-        $sheetLedger->setTitle('Rincian Transaksi');
-        $this->buildTransactionalLedgerSheet($sheetLedger, $business, $orders, $startDate, $endDate);
+        $sheet2 = $spreadsheet->createSheet();
+        $sheet2->setTitle('Buku Transaksi');
+        $this->buildTransactionalLedgerSheet($sheet2, $business, $orders, $filter);
+
+        // -------------------------------------------------------------
+        // SHEET 3: KINERJA PRODUK (PRODUCT PERFORMANCE)
+        // -------------------------------------------------------------
+        $sheet3 = $spreadsheet->createSheet();
+        $sheet3->setTitle('Kinerja Produk');
+        $this->buildProductPerformanceSheet($sheet3, $business, $filter);
+
+        // -------------------------------------------------------------
+        // SHEET 4: KONTRIBUSI KATEGORI (CATEGORY CONTRIBUTION)
+        // -------------------------------------------------------------
+        $sheet4 = $spreadsheet->createSheet();
+        $sheet4->setTitle('Kontribusi Kategori');
+        $this->buildCategoryContributionSheet($sheet4, $business, $filter);
+
+        // -------------------------------------------------------------
+        // SHEET 5: PRODUKTIVITAS KASIR (CASHIER PRODUCTIVITY)
+        // -------------------------------------------------------------
+        $sheet5 = $spreadsheet->createSheet();
+        $sheet5->setTitle('Produktivitas Kasir');
+        $this->buildCashierProductivitySheet($sheet5, $business, $filter);
+
+        // -------------------------------------------------------------
+        // SHEET 6: PERBANDINGAN OUTLET (OUTLETS COMPARISON)
+        // -------------------------------------------------------------
+        $sheet6 = $spreadsheet->createSheet();
+        $sheet6->setTitle('Perbandingan Outlet');
+        $this->buildOutletComparisonSheet($sheet6, $business, $filter);
+
+        // -------------------------------------------------------------
+        // SHEET 7: METODE PEMBAYARAN (PAYMENT BREAKDOWN)
+        // -------------------------------------------------------------
+        $sheet7 = $spreadsheet->createSheet();
+        $sheet7->setTitle('Metode Pembayaran');
+        $this->buildPaymentMethodsSheet($sheet7, $business, $orders, $filter);
+
+        // -------------------------------------------------------------
+        // SHEET 8: DISKON & PROMOSI (DISCOUNTS & VOUCHERS)
+        // -------------------------------------------------------------
+        $sheet8 = $spreadsheet->createSheet();
+        $sheet8->setTitle('Diskon & Promosi');
+        $this->buildDiscountsPromotionsSheet($sheet8, $business, $filter);
+
+        // -------------------------------------------------------------
+        // SHEET 9: REKONSILIASI SHIFT & VOID (SHIFT RECONCILIATION & FRAUD)
+        // -------------------------------------------------------------
+        $sheet9 = $spreadsheet->createSheet();
+        $sheet9->setTitle('Rekonsiliasi & Void');
+        $this->buildShiftAndVoidAuditSheet($sheet9, $business, $filter);
 
         // Default active sheet: Ringkasan Eksekutif
         $spreadsheet->setActiveSheetIndex(0);
@@ -76,16 +162,20 @@ final class PosReportExport
     /**
      * Download the workbook as a StreamedResponse.
      *
-     * @param Collection<int, PosOrder> $orders
+     * @param Collection<int, PosOrder>|PosReportFilterDTO $filterOrOrders
      */
-    public function download(Business $business, Collection $orders, Carbon $startDate, Carbon $endDate): StreamedResponse
+    public function download(Business $business, mixed $filterOrOrders, ?Carbon $startDate = null, ?Carbon $endDate = null): StreamedResponse
     {
-        $spreadsheet = $this->generate($business, $orders, $startDate, $endDate);
+        $spreadsheet = $this->generate($business, $filterOrOrders, $startDate, $endDate);
         $cleanBusinessName = preg_replace('/[^A-Za-z0-9_\-]/', '_', $business->name);
-        $filename = 'Laporan_POS_' . $cleanBusinessName . '_' . $startDate->format('Ymd') . '-' . $endDate->format('Ymd') . '.xlsx';
+
+        $sStr = $startDate ? $startDate->format('Ymd') : ($filterOrOrders instanceof PosReportFilterDTO ? $filterOrOrders->startDate->format('Ymd') : now()->subDays(30)->format('Ymd'));
+        $eStr = $endDate ? $endDate->format('Ymd') : ($filterOrOrders instanceof PosReportFilterDTO ? $filterOrOrders->endDate->format('Ymd') : now()->format('Ymd'));
+
+        $filename = 'Master_Laporan_POS_' . $cleanBusinessName . '_' . $sStr . '-' . $eStr . '.xlsx';
 
         return new StreamedResponse(
-            function () use ($spreadsheet) {
+            function () use ($spreadsheet): void {
                 $writer = new Xlsx($spreadsheet);
                 $writer->save('php://output');
             },
@@ -99,55 +189,35 @@ final class PosReportExport
     }
 
     /**
-     * Build Sheet 1: Executive Dashboard & Aggregations.
+     * SHEET 1: Executive Dashboard & Aggregations.
      *
      * @param Collection<int, PosOrder> $orders
      */
-    private function buildExecutiveSummarySheet(Worksheet $sheet, Business $business, Collection $orders, Carbon $startDate, Carbon $endDate): void
+    private function buildExecutiveSummarySheet(Worksheet $sheet, Business $business, Collection $orders, PosReportFilterDTO $filter): void
     {
         $sheet->setShowGridLines(true);
 
-        // 1. Header Title Block
+        // Header Title Block
         $sheet->setCellValue('A2', strtoupper($business->name));
-        $sheet->setCellValue('A3', 'LAPORAN PENJUALAN KASIR & OMZET POINT OF SALE (POS)');
-        $sheet->setCellValue('A4', 'Periode: ' . $startDate->translatedFormat('d M Y') . ' s/d ' . $endDate->translatedFormat('d M Y') . ' | Waktu Unduh: ' . now()->format('d/m/Y H:i:s') . ' WIB | Sistem: COOCA Enterprise');
+        $sheet->setCellValue('A3', 'MASTER LAPORAN PENJUALAN KASIR & OMZET POINT OF SALE (POS)');
+        $sheet->setCellValue('A4', 'Periode: ' . $filter->startDate->translatedFormat('d M Y') . ' s/d ' . $filter->endDate->translatedFormat('d M Y') . ' | Unduh: ' . now()->format('d/m/Y H:i:s') . ' WIB | Sistem: COOCA Enterprise Single-Source-of-Truth');
 
         $sheet->getStyle('A2')->getFont()->setSize(16)->setBold(true)->getColor()->setRGB(self::COLOR_BLUE_ACCENT);
         $sheet->getStyle('A3')->getFont()->setSize(12)->setBold(true)->getColor()->setRGB(self::COLOR_DARK_HEADER);
         $sheet->getStyle('A4')->getFont()->setSize(9.5)->setItalic(true)->getColor()->setRGB('64748B');
 
         // Aggregated Metrics
-        $ordersCount      = $orders->count();
-        $totalRevenue     = (float) $orders->sum('total_amount');
-        $totalHpp         = (float) $orders->sum('total_hpp_cost');
-        $totalGrossProfit = (float) $orders->sum('total_gross_profit');
-        $totalDiscount    = (float) $orders->sum('discount_amount') + (float) $orders->sum('voucher_discount_amount') + (float) $orders->sum('points_discount_amount');
-        $totalTax         = (float) $orders->sum('tax_amount');
-        $aov              = $ordersCount > 0 ? $totalRevenue / $ordersCount : 0.0;
-        $grossMarginPct   = $totalRevenue > 0 ? ($totalGrossProfit / $totalRevenue) : 0.0;
+        $kpi = $this->reportingService->getKpiSummary($filter);
 
-        // 2. Bento KPI Cards in Row 6..8
-        // Card 1: Total Omzet Penjualan (Cols A-B)
-        $this->renderKpiCard($sheet, 'A', 'B', 6, 'TOTAL OMZET PENJUALAN', $totalRevenue, 'Omzet bersih kasir', 'EFF6FF', self::COLOR_BLUE_ACCENT, '"Rp "#,##0');
+        // Bento KPI Cards in Row 6..8
+        $this->renderKpiCard($sheet, 'A', 'B', 6, 'TOTAL OMZET PENJUALAN', $kpi->netSales, 'Omzet bersih kasir', 'EFF6FF', self::COLOR_BLUE_ACCENT, '"Rp "#,##0');
+        $this->renderKpiCard($sheet, 'C', 'D', 6, 'TOTAL TRANSAKSI SELESAI', $kpi->totalOrders, 'Pesanan selesai & lunas', self::COLOR_EMERALD_BG, self::COLOR_EMERALD_BORDER, '#,##0');
+        $this->renderKpiCard($sheet, 'E', 'F', 6, 'TOTAL MODAL POKOK (HPP)', $kpi->totalHpp, 'Beban Pokok Penjualan', self::COLOR_ROSE_BG, self::COLOR_ROSE_BORDER, '"Rp "#,##0');
+        $this->renderKpiCard($sheet, 'G', 'H', 6, 'TOTAL LABA KOTOR', $kpi->grossProfit, 'Margin: ' . number_format($kpi->grossMarginPercent, 1) . '%', self::COLOR_EMERALD_BG, '059669', '"Rp "#,##0');
+        $this->renderKpiCard($sheet, 'I', 'J', 6, 'RATA-RATA ORDER (AOV)', $kpi->averageOrderValue, 'Omzet per transaksi', self::COLOR_PURPLE_BG, self::COLOR_PURPLE_BORDER, '"Rp "#,##0');
+        $this->renderKpiCard($sheet, 'K', 'L', 6, 'DISKON & PPN KELUARAN', $kpi->orderDiscount + $kpi->voucherDiscount + $kpi->pointsDiscount + $kpi->taxAmount, 'Diskon + Pajak', self::COLOR_AMBER_BG, self::COLOR_AMBER_BORDER, '"Rp "#,##0');
 
-        // Card 2: Total Transaksi (Cols C-D)
-        $this->renderKpiCard($sheet, 'C', 'D', 6, 'TOTAL TRANSAKSI SELESAI', $ordersCount, 'Pesanan selesai & lunas', self::COLOR_EMERALD_BG, self::COLOR_EMERALD_BORDER, '#,##0');
-
-        // Card 3: Total Modal HPP (Cols E-F)
-        $this->renderKpiCard($sheet, 'E', 'F', 6, 'TOTAL MODAL POKOK (HPP)', $totalHpp, 'Beban Pokok Penjualan', self::COLOR_ROSE_BG, self::COLOR_ROSE_BORDER, '"Rp "#,##0');
-
-        // Card 4: Total Laba Kotor (Cols G-H)
-        $this->renderKpiCard($sheet, 'G', 'H', 6, 'TOTAL LABA KOTOR', $totalGrossProfit, 'Margin: ' . number_format($grossMarginPct * 100, 1) . '%', self::COLOR_EMERALD_BG, '059669', '"Rp "#,##0');
-
-        // Card 5: Rata-Rata Transaksi / AOV (Cols I-J)
-        $this->renderKpiCard($sheet, 'I', 'J', 6, 'RATA-RATA ORDER (AOV)', $aov, 'Omzet per transaksi', self::COLOR_PURPLE_BG, self::COLOR_PURPLE_BORDER, '"Rp "#,##0');
-
-        // Card 6: Total Diskon & Pajak (Cols K-L)
-        $this->renderKpiCard($sheet, 'K', 'L', 6, 'DISKON & PPN KELUARAN', $totalDiscount + $totalTax, 'Potongan Rp ' . number_format($totalDiscount, 0, ',', '.') . ' · PPN Rp ' . number_format($totalTax, 0, ',', '.'), self::COLOR_AMBER_BG, self::COLOR_AMBER_BORDER, '"Rp "#,##0');
-
-        // -------------------------------------------------------------
-        // 3. TABLE 1: KOMPOSISI PENJUALAN (BARANG FISIK VS JASA LAYANAN)
-        // -------------------------------------------------------------
+        // TABLE 1: KOMPOSISI PENJUALAN (BARANG FISIK VS JASA)
         $sheet->setCellValue('A11', '1. KOMPOSISI PENJUALAN: BARANG FISIK VS JASA LAYANAN');
         $sheet->mergeCells('A11:G11');
         $this->styleSectionHeader($sheet, 'A11:G11');
@@ -167,7 +237,6 @@ final class PosReportExport
         }
         $sheet->getRowDimension(12)->setRowHeight(24);
 
-        // Group items by type
         $allItems = $orders->flatMap(fn(PosOrder $o) => $o->items);
         $goodsItems = $allItems->filter(fn(PosOrderItem $i) => ($i->product?->type ?? 'goods') === 'goods');
         $serviceItems = $allItems->filter(fn(PosOrderItem $i) => ($i->product?->type ?? 'goods') === 'service');
@@ -234,207 +303,198 @@ final class PosReportExport
         $sheet->getStyle("B{$r}:G{$r}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
         $this->applyBorderDoubleBottom($sheet, "A{$r}:G{$r}");
 
-        // -------------------------------------------------------------
-        // 4. TABLE 2: METODE PEMBAYARAN KASIR
-        // -------------------------------------------------------------
-        $startPmtRow = 19;
-        $sheet->setCellValue("A{$startPmtRow}", '2. RINCIAN PENERIMAAN KAS & METODE PEMBAYARAN');
-        $sheet->mergeCells("A{$startPmtRow}:E{$startPmtRow}");
-        $this->styleSectionHeader($sheet, "A{$startPmtRow}:E{$startPmtRow}");
+        // TABLE 2: 3-WAY RECONCILIATION SUMMARY
+        $recon = $this->reportingService->reconcile($filter);
+        $startReconRow = 19;
+        $sheet->setCellValue("A{$startReconRow}", '2. REKONSILIASI 3-ARAH (SISTEM POS VS BUKU KAS VS FISIK)');
+        $sheet->mergeCells("A{$startReconRow}:G{$startReconRow}");
+        $this->styleSectionHeader($sheet, "A{$startReconRow}:G{$startReconRow}");
 
-        $t2Headers = ['Metode Pembayaran', 'Frekuensi Transaksi', 'Total Nominal Diterima (Rp)', 'Porsi Transaksi (%)', 'Porsi Nominal (%)'];
-        $t2Cols    = ['A', 'B', 'C', 'D', 'E'];
-
-        $pmtHeadRow = $startPmtRow + 1;
-        foreach ($t2Headers as $idx => $label) {
-            $col = $t2Cols[$idx];
-            $sheet->setCellValue("{$col}{$pmtHeadRow}", $label);
-            $sheet->getStyle("{$col}{$pmtHeadRow}")->getFont()->setBold(true)->setSize(10)->getColor()->setRGB('FFFFFF');
-            $sheet->getStyle("{$col}{$pmtHeadRow}")->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB(self::COLOR_DARK_HEADER);
-            $sheet->getStyle("{$col}{$pmtHeadRow}")->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);
-            if ($idx > 0) {
-                $sheet->getStyle("{$col}{$pmtHeadRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+        $reconHeaders = ['Dimensi Rekonsiliasi', 'Nilai Sistem (POS)', 'Nilai Pembukuan (Buku Kas)', 'Nilai Fisik Kasir', 'Selisih (Discrepancy)', 'Status Integritas', 'Keterangan Audit'];
+        $reconHeadRow = $startReconRow + 1;
+        foreach ($reconHeaders as $idx => $label) {
+            $col = $t1Cols[$idx];
+            $sheet->setCellValue("{$col}{$reconHeadRow}", $label);
+            $sheet->getStyle("{$col}{$reconHeadRow}")->getFont()->setBold(true)->setSize(10)->getColor()->setRGB('FFFFFF');
+            $sheet->getStyle("{$col}{$reconHeadRow}")->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB(self::COLOR_DARK_HEADER);
+            $sheet->getStyle("{$col}{$reconHeadRow}")->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);
+            if ($idx >= 1 && $idx <= 4) {
+                $sheet->getStyle("{$col}{$reconHeadRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
             }
         }
-        $sheet->getRowDimension($pmtHeadRow)->setRowHeight(24);
+        $sheet->getRowDimension($reconHeadRow)->setRowHeight(24);
 
-        $allPayments = $orders->flatMap(fn(PosOrder $o) => $o->payments);
-        $paymentMethodsMap = [
-            'cash'            => 'Tunai (Kas Kasir)',
-            'qris'            => 'QRIS Dinamis / Statis Cooca Pay',
-            'edc_debit'       => 'EDC Kartu Debit Bank',
-            'edc_credit'      => 'EDC Kartu Kredit',
-            'transfer'        => 'Transfer Bank Langsung',
-            'customer_credit' => 'Piutang Pelanggan (Kasbon)',
-            'loyalty_points'  => 'Poin Loyalitas Member',
+        $reconDataRow = $reconHeadRow + 1;
+        $sheet->setCellValue("A{$reconDataRow}", 'Penerimaan Kasir Tunai & Non-Tunai');
+        $sheet->setCellValue("B{$reconDataRow}", $recon->totalOrdersAmount);
+        $sheet->setCellValue("C{$reconDataRow}", $recon->totalPaymentsAmount);
+        $sheet->setCellValue("D{$reconDataRow}", $recon->totalShiftActualCash);
+        $sheet->setCellValue("E{$reconDataRow}", $recon->orderPaymentDiscrepancy);
+        $sheet->setCellValue("F{$reconDataRow}", $recon->isBalanced ? 'BALANCE / MATCH' : 'SELISIH / ANOMALI');
+        $sheet->setCellValue("G{$reconDataRow}", $recon->isBalanced ? 'Seluruh pembayaran terekonsiliasi seimbang' : 'Terdapat anomali selisih');
+
+        $sheet->getStyle("B{$reconDataRow}:E{$reconDataRow}")->getNumberFormat()->setFormatCode('"Rp "#,##0');
+        $sheet->getStyle("B{$reconDataRow}:E{$reconDataRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+        $sheet->getStyle("F{$reconDataRow}")->getFont()->setBold(true)->getColor()->setRGB($recon->isBalanced ? '059669' : 'DC2626');
+        $this->applyBorderThin($sheet, "A{$reconDataRow}:G{$reconDataRow}");
+
+        // TABLE 3: PERFORMA SALURAN PENJUALAN & ONLINE FOOD DELIVERY (OJOL)
+        $channelBreakdown = $this->reportingService->getSalesChannelBreakdown($filter);
+        $startChannelRow = 24;
+        $sheet->setCellValue("A{$startChannelRow}", '3. PERFORMA SALURAN PENJUALAN & ONLINE FOOD DELIVERY (OJOL)');
+        $sheet->mergeCells("A{$startChannelRow}:L{$startChannelRow}");
+        $this->styleSectionHeader($sheet, "A{$startChannelRow}:L{$startChannelRow}");
+
+        $channelHeaders = [
+            'A' => 'Saluran Penjualan / Platform',
+            'B' => 'Jml Transaksi',
+            'C' => 'Omzet Bruto (Rp)',
+            'D' => 'Diskon (Rp)',
+            'E' => 'Omzet Kasir Bersih (Rp)',
+            'F' => 'MDR / Komisi (%)',
+            'G' => 'Beban Komisi Ojol (Rp)',
+            'H' => 'Net Payout Hak Resto (Rp)',
+            'I' => 'Modal HPP (Rp)',
+            'J' => 'Laba Bersih Riil (Rp)',
+            'K' => 'Margin Riil (%)',
+            'L' => 'Porsi Omzet (%)',
         ];
-
-        $pr = $pmtHeadRow + 1;
-        $firstPmtDataRow = $pr;
-        foreach ($paymentMethodsMap as $methodKey => $methodLabel) {
-            $mPayments = $allPayments->where('payment_method', $methodKey);
-            $mCount = $mPayments->count();
-            $mAmount = (float) $mPayments->sum('amount');
-
-            $sheet->setCellValue("A{$pr}", $methodLabel);
-            $sheet->setCellValue("B{$pr}", $mCount);
-            $sheet->setCellValue("C{$pr}", $mAmount);
-            $sheet->setCellValue("D{$pr}", "=IF(B\$" . ($firstPmtDataRow + count($paymentMethodsMap)) . ">0, B{$pr}/B\$" . ($firstPmtDataRow + count($paymentMethodsMap)) . ", 0)");
-            $sheet->setCellValue("E{$pr}", "=IF(C\$" . ($firstPmtDataRow + count($paymentMethodsMap)) . ">0, C{$pr}/C\$" . ($firstPmtDataRow + count($paymentMethodsMap)) . ", 0)");
-
-            $sheet->getStyle("A{$pr}")->getFont()->setSize(10);
-            $sheet->getStyle("B{$pr}")->getNumberFormat()->setFormatCode('#,##0');
-            $sheet->getStyle("C{$pr}")->getNumberFormat()->setFormatCode('"Rp "#,##0');
-            $sheet->getStyle("D{$pr}:E{$pr}")->getNumberFormat()->setFormatCode('0.0%');
-            $sheet->getStyle("B{$pr}:E{$pr}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
-            $this->applyBorderThin($sheet, "A{$pr}:E{$pr}");
-
-            if ($pr % 2 === 0) {
-                $sheet->getStyle("A{$pr}:E{$pr}")->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB(self::COLOR_ZEBRA_BG);
-            }
-            $pr++;
-        }
-        $lastPmtDataRow = $pr - 1;
-
-        // Total Payment Row
-        $sheet->setCellValue("A{$pr}", 'TOTAL PENERIMAAN PEMBAYARAN');
-        $sheet->setCellValue("B{$pr}", "=SUM(B{$firstPmtDataRow}:B{$lastPmtDataRow})");
-        $sheet->setCellValue("C{$pr}", "=SUM(C{$firstPmtDataRow}:C{$lastPmtDataRow})");
-        $sheet->setCellValue("D{$pr}", "=IF(B{$pr}>0, 1, 0)");
-        $sheet->setCellValue("E{$pr}", "=IF(C{$pr}>0, 1, 0)");
-
-        $sheet->getStyle("A{$pr}:E{$pr}")->getFont()->setBold(true)->setSize(10.5)->getColor()->setRGB('0F172A');
-        $sheet->getStyle("A{$pr}:E{$pr}")->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB(self::COLOR_SUBHEADER_BG);
-        $sheet->getStyle("B{$pr}")->getNumberFormat()->setFormatCode('#,##0');
-        $sheet->getStyle("C{$pr}")->getNumberFormat()->setFormatCode('"Rp "#,##0');
-        $sheet->getStyle("D{$pr}:E{$pr}")->getNumberFormat()->setFormatCode('0.0%');
-        $sheet->getStyle("B{$pr}:E{$pr}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
-        $this->applyBorderDoubleBottom($sheet, "A{$pr}:E{$pr}");
-
-        // -------------------------------------------------------------
-        // 5. TABLE 3: TOP 10 PRODUK / MENU TERLARIS
-        // -------------------------------------------------------------
-        $startTopRow = $pr + 3;
-        $sheet->setCellValue("A{$startTopRow}", '3. TOP 10 PRODUK & MENU TERLARIS (BERDASARKAN OMZET)');
-        $sheet->mergeCells("A{$startTopRow}:I{$startTopRow}");
-        $this->styleSectionHeader($sheet, "A{$startTopRow}:I{$startTopRow}");
-
-        $t3Headers = ['No', 'Kode Produk', 'Nama Produk / Menu', 'Tipe', 'Qty Terjual', 'Total Omzet (Rp)', 'Total Modal HPP (Rp)', 'Laba Kotor (Rp)', 'Margin (%)'];
-        $t3Cols    = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'];
-
-        $topHeadRow = $startTopRow + 1;
-        foreach ($t3Headers as $idx => $label) {
-            $col = $t3Cols[$idx];
-            $sheet->setCellValue("{$col}{$topHeadRow}", $label);
-            $sheet->getStyle("{$col}{$topHeadRow}")->getFont()->setBold(true)->setSize(10)->getColor()->setRGB('FFFFFF');
-            $sheet->getStyle("{$col}{$topHeadRow}")->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB(self::COLOR_DARK_HEADER);
-            $sheet->getStyle("{$col}{$topHeadRow}")->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);
-            if (in_array($col, ['E', 'F', 'G', 'H', 'I'], true)) {
-                $sheet->getStyle("{$col}{$topHeadRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+        $channelHeadRow = $startChannelRow + 1;
+        foreach ($channelHeaders as $col => $label) {
+            $sheet->setCellValue("{$col}{$channelHeadRow}", $label);
+            $sheet->getStyle("{$col}{$channelHeadRow}")->getFont()->setBold(true)->setSize(10)->getColor()->setRGB('FFFFFF');
+            $sheet->getStyle("{$col}{$channelHeadRow}")->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB(self::COLOR_DARK_HEADER);
+            $sheet->getStyle("{$col}{$channelHeadRow}")->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);
+            if ($col !== 'A') {
+                $sheet->getStyle("{$col}{$channelHeadRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
             }
         }
-        $sheet->getRowDimension($topHeadRow)->setRowHeight(24);
+        $sheet->getRowDimension($channelHeadRow)->setRowHeight(24);
 
-        // Group by product_id or product_name
-        $productGroups = $allItems->groupBy(fn(PosOrderItem $i) => $i->product_id ?: $i->product_name)
-            ->map(function ($items) {
-                $first = $items->first();
-                $qty = (float) $items->sum('quantity');
-                $revenue = (float) $items->sum('total_price');
-                $hpp = (float) $items->sum('total_hpp');
-                return [
-                    'code'    => $first->product?->code ?? ($first->product_code ?? '-'),
-                    'name'    => $first->product?->name ?? ($first->product_name ?? 'Item Custom'),
-                    'type'    => ($first->product?->type ?? 'goods') === 'service' ? 'Jasa' : 'Barang',
-                    'qty'     => $qty,
-                    'revenue' => $revenue,
-                    'hpp'     => $hpp,
-                    'profit'  => $revenue - $hpp,
-                ];
-            })
-            ->sortByDesc('revenue')
-            ->take(10);
+        $cr = $channelHeadRow + 1;
+        $firstChannelDataRow = $cr;
+        foreach ($channelBreakdown as $ch) {
+            $chName = is_array($ch) ? ($ch['channel_name'] ?? $ch['channel_label'] ?? 'Saluran POS') : ($ch->channel_name ?? $ch->channel_label ?? 'Saluran POS');
+            $ordersCount = is_array($ch) ? ($ch['orders_count'] ?? $ch['total_orders'] ?? 0) : ($ch->orders_count ?? $ch->total_orders ?? 0);
+            $grossSales = is_array($ch) ? ($ch['gross_sales'] ?? 0.0) : ($ch->gross_sales ?? 0.0);
+            $totalDiscount = is_array($ch) ? ($ch['total_discount'] ?? 0.0) : ($ch->total_discount ?? 0.0);
+            $feePercent = is_array($ch) ? ($ch['platform_fee_percent'] ?? 0.0) : ($ch->platform_fee_percent ?? 0.0);
+            $feeAmount = is_array($ch) ? ($ch['platform_fee_amount'] ?? 0.0) : ($ch->platform_fee_amount ?? 0.0);
+            $totalHpp = is_array($ch) ? ($ch['total_hpp'] ?? 0.0) : ($ch->total_hpp ?? 0.0);
+            $contribution = is_array($ch) ? ($ch['contribution_percent'] ?? 0.0) : ($ch->contribution_percent ?? 0.0);
 
-        $tpr = $topHeadRow + 1;
-        $rank = 1;
-        foreach ($productGroups as $pdata) {
-            $sheet->setCellValue("A{$tpr}", $rank++);
-            $sheet->setCellValue("B{$tpr}", $pdata['code']);
-            $sheet->setCellValue("C{$tpr}", $pdata['name']);
-            $sheet->setCellValue("D{$tpr}", $pdata['type']);
-            $sheet->setCellValue("E{$tpr}", $pdata['qty']);
-            $sheet->setCellValue("F{$tpr}", $pdata['revenue']);
-            $sheet->setCellValue("G{$tpr}", $pdata['hpp']);
-            $sheet->setCellValue("H{$tpr}", "=F{$tpr}-G{$tpr}");
-            $sheet->setCellValue("I{$tpr}", "=IF(F{$tpr}>0, H{$tpr}/F{$tpr}, 0)");
+            $sheet->setCellValue("A{$cr}", $chName);
+            $sheet->setCellValue("B{$cr}", (int) $ordersCount);
+            $sheet->setCellValue("C{$cr}", (float) $grossSales);
+            $sheet->setCellValue("D{$cr}", (float) $totalDiscount);
+            $sheet->setCellValue("E{$cr}", "=C{$cr}-D{$cr}");
+            $sheet->setCellValue("F{$cr}", ((float) $feePercent) / 100);
+            $sheet->setCellValue("G{$cr}", (float) $feeAmount);
+            $sheet->setCellValue("H{$cr}", "=E{$cr}-G{$cr}");
+            $sheet->setCellValue("I{$cr}", (float) $totalHpp);
+            $sheet->setCellValue("J{$cr}", "=H{$cr}-I{$cr}");
+            $sheet->setCellValue("K{$cr}", "=IF(E{$cr}>0, J{$cr}/E{$cr}, 0)");
+            $sheet->setCellValue("L{$cr}", ((float) $contribution) / 100);
 
-            $sheet->getStyle("A{$tpr}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-            $sheet->getStyle("E{$tpr}")->getNumberFormat()->setFormatCode('#,##0.00');
-            $sheet->getStyle("F{$tpr}:H{$tpr}")->getNumberFormat()->setFormatCode('"Rp "#,##0');
-            $sheet->getStyle("I{$tpr}")->getNumberFormat()->setFormatCode('0.0%');
-            $sheet->getStyle("E{$tpr}:I{$tpr}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
-            $this->applyBorderThin($sheet, "A{$tpr}:I{$tpr}");
+            $sheet->getStyle("A{$cr}")->getFont()->setSize(10);
+            $sheet->getStyle("B{$cr}")->getNumberFormat()->setFormatCode('#,##0');
+            $sheet->getStyle("C{$cr}:E{$cr}")->getNumberFormat()->setFormatCode('"Rp "#,##0');
+            $sheet->getStyle("F{$cr}")->getNumberFormat()->setFormatCode('0.0%');
+            $sheet->getStyle("G{$cr}:J{$cr}")->getNumberFormat()->setFormatCode('"Rp "#,##0');
+            $sheet->getStyle("K{$cr}:L{$cr}")->getNumberFormat()->setFormatCode('0.0%');
+            $sheet->getStyle("B{$cr}:L{$cr}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+            $this->applyBorderThin($sheet, "A{$cr}:L{$cr}");
 
-            if ($tpr % 2 === 0) {
-                $sheet->getStyle("A{$tpr}:I{$tpr}")->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB(self::COLOR_ZEBRA_BG);
+            if ($cr % 2 === 0) {
+                $sheet->getStyle("A{$cr}:L{$cr}")->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB(self::COLOR_ZEBRA_BG);
             }
-            $tpr++;
+            $cr++;
         }
 
-        // -------------------------------------------------------------
-        // 6. AUDIT & RECONCILIATION NOTICE FOOTNOTE
-        // -------------------------------------------------------------
-        $fnRow = $tpr + 2;
+        // Total Row Channel Table
+        $lastChannelRow = $cr - 1;
+        if ($lastChannelRow >= $firstChannelDataRow) {
+            $sheet->setCellValue("A{$cr}", 'TOTAL KESELURUHAN SALURAN');
+            $sheet->setCellValue("B{$cr}", "=SUM(B{$firstChannelDataRow}:B{$lastChannelRow})");
+            $sheet->setCellValue("C{$cr}", "=SUM(C{$firstChannelDataRow}:C{$lastChannelRow})");
+            $sheet->setCellValue("D{$cr}", "=SUM(D{$firstChannelDataRow}:D{$lastChannelRow})");
+            $sheet->setCellValue("E{$cr}", "=SUM(E{$firstChannelDataRow}:E{$lastChannelRow})");
+            $sheet->setCellValue("F{$cr}", "=IF(E{$cr}>0, G{$cr}/E{$cr}, 0)");
+            $sheet->setCellValue("G{$cr}", "=SUM(G{$firstChannelDataRow}:G{$lastChannelRow})");
+            $sheet->setCellValue("H{$cr}", "=SUM(H{$firstChannelDataRow}:H{$lastChannelRow})");
+            $sheet->setCellValue("I{$cr}", "=SUM(I{$firstChannelDataRow}:I{$lastChannelRow})");
+            $sheet->setCellValue("J{$cr}", "=SUM(J{$firstChannelDataRow}:J{$lastChannelRow})");
+            $sheet->setCellValue("K{$cr}", "=IF(E{$cr}>0, J{$cr}/E{$cr}, 0)");
+            $sheet->setCellValue("L{$cr}", "=IF(E{$cr}>0, 1, 0)");
+
+            $sheet->getStyle("A{$cr}:L{$cr}")->getFont()->setBold(true)->setSize(10.5)->getColor()->setRGB('0F172A');
+            $sheet->getStyle("A{$cr}:L{$cr}")->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB(self::COLOR_SUBHEADER_BG);
+            $sheet->getStyle("B{$cr}")->getNumberFormat()->setFormatCode('#,##0');
+            $sheet->getStyle("C{$cr}:E{$cr}")->getNumberFormat()->setFormatCode('"Rp "#,##0');
+            $sheet->getStyle("F{$cr}")->getNumberFormat()->setFormatCode('0.0%');
+            $sheet->getStyle("G{$cr}:J{$cr}")->getNumberFormat()->setFormatCode('"Rp "#,##0');
+            $sheet->getStyle("K{$cr}:L{$cr}")->getNumberFormat()->setFormatCode('0.0%');
+            $sheet->getStyle("B{$cr}:L{$cr}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+            $this->applyBorderDoubleBottom($sheet, "A{$cr}:L{$cr}");
+        }
+
+        // Audit Footnote
+        $fnRow = $cr + 3;
         $sheet->setCellValue("A{$fnRow}", 'CATATAN AUDIT AKUNTANSI & INTEGRITAS KASIR COOCA:');
         $sheet->setCellValue('A' . ($fnRow + 1), '1. Seluruh transaksi POS telah terekonsiliasi otomatis dengan Buku Kas (Cash Ledger) dan Jurnal Umum Berpasangan (Double-Entry General Ledger).');
-        $sheet->setCellValue('A' . ($fnRow + 2), '2. Transaksi QRIS Gateway TriPay telah disinkronkan dan memotong beban fee gateway (MDR) sesuai ketentuan Bank Indonesia.');
-        $sheet->setCellValue('A' . ($fnRow + 3), '3. Pengurangan persediaan barang dan bahan baku (BOM) dihitung secara real-time berdasarkan metode Rata-Rata Tertimbang (Weighted Average Cost).');
+        $sheet->setCellValue('A' . ($fnRow + 2), '2. Penjualan Online Food Delivery (ShopeeFood, GoFood, GrabFood) telah dipisahkan antara Omzet Bruto Kasir, Estimasi Potongan Komisi Platform (MDR), dan Net Payout riil yang diterima merchant.');
+        $sheet->setCellValue('A' . ($fnRow + 3), '3. Transaksi QRIS Gateway TriPay telah disinkronkan dan memotong beban fee gateway (MDR) sesuai ketentuan Bank Indonesia.');
+        $sheet->setCellValue('A' . ($fnRow + 4), '4. Pengurangan persediaan barang dan bahan baku (BOM) dihitung secara real-time berdasarkan metode Rata-Rata Tertimbang (Weighted Average Cost).');
 
         $sheet->getStyle("A{$fnRow}")->getFont()->setSize(9.5)->setBold(true)->getColor()->setRGB('475569');
-        $sheet->getStyle('A' . ($fnRow + 1) . ':A' . ($fnRow + 3))->getFont()->setSize(8.5)->getColor()->setRGB('64748B');
+        $sheet->getStyle('A' . ($fnRow + 1) . ':A' . ($fnRow + 4))->getFont()->setSize(8.5)->getColor()->setRGB('64748B');
 
-        // Auto-fit Columns on Summary Sheet
         $this->autoFitColumns($sheet, ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L']);
     }
 
     /**
-     * Build Sheet 2: Transactional Ledger.
+     * SHEET 2: Transactional Ledger.
      *
      * @param Collection<int, PosOrder> $orders
      */
-    private function buildTransactionalLedgerSheet(Worksheet $sheet, Business $business, Collection $orders, Carbon $startDate, Carbon $endDate): void
+    private function buildTransactionalLedgerSheet(Worksheet $sheet, Business $business, Collection $orders, PosReportFilterDTO $filter): void
     {
         $sheet->setShowGridLines(true);
 
-        // Header Title Block
-        $sheet->setCellValue('A2', 'RINCIAN TRANSAKSI PENJUALAN KASIR (TRANSACTION LEDGER)');
-        $sheet->setCellValue('A3', 'Periode: ' . $startDate->translatedFormat('d M Y') . ' s/d ' . $endDate->translatedFormat('d M Y') . ' | Total: ' . $orders->count() . ' Transaksi Selesai');
+        $sheet->setCellValue('A2', 'RINCIAN BUKU BESAR TRANSAKSI PENJUALAN KASIR (TRANSACTION LEDGER)');
+        $sheet->setCellValue('A3', 'Periode: ' . $filter->startDate->translatedFormat('d M Y') . ' s/d ' . $filter->endDate->translatedFormat('d M Y') . ' | Total: ' . $orders->count() . ' Transaksi');
 
         $sheet->getStyle('A2')->getFont()->setSize(14)->setBold(true)->getColor()->setRGB(self::COLOR_DARK_HEADER);
         $sheet->getStyle('A3')->getFont()->setSize(9.5)->setItalic(true)->getColor()->setRGB('64748B');
 
-        // Table Header on Row 5
         $headers = [
-            'A' => 'No',
-            'B' => 'No. Order POS',
-            'C' => 'Tanggal',
-            'D' => 'Waktu',
-            'E' => 'Lokasi / Outlet',
-            'F' => 'Meja / Ref Industri',
-            'G' => 'Nama Pelanggan',
-            'H' => 'Kasir / Petugas',
-            'I' => 'Tipe Order',
-            'J' => 'Subtotal Bruto (Rp)',
-            'K' => 'Diskon & Voucher (Rp)',
-            'L' => 'PPN Keluaran (Rp)',
-            'M' => 'Service Charge (Rp)',
-            'N' => 'Pembulatan (Rp)',
-            'O' => 'Total Omzet (Rp)',
-            'P' => 'Modal HPP (Rp)',
-            'Q' => 'Laba Kotor (Rp)',
-            'R' => 'Margin (%)',
-            'S' => 'Metode Pembayaran',
-            'T' => 'Status Pesanan',
+            'A'  => 'No',
+            'B'  => 'No. Order POS',
+            'C'  => 'Tanggal',
+            'D'  => 'Waktu',
+            'E'  => 'Lokasi / Outlet',
+            'F'  => 'Saluran Jual',
+            'G'  => 'No. Ref / Ojol / Meja',
+            'H'  => 'Info Kontekstual 20 Industri',
+            'I'  => 'Nama Pelanggan',
+            'J'  => 'Kasir / Petugas',
+            'K'  => 'Tipe Order',
+            'L'  => 'Subtotal Bruto (Rp)',
+            'M'  => 'Diskon Order (Rp)',
+            'N'  => 'Voucher Diskon (Rp)',
+            'O'  => 'Poin Diskon (Rp)',
+            'P'  => 'PPN Keluaran (Rp)',
+            'Q'  => 'Service Charge (Rp)',
+            'R'  => 'Pembulatan (Rp)',
+            'S'  => 'Total Omzet Kasir (Rp)',
+            'T'  => 'Komisi Platform Ojol (Rp)',
+            'U'  => 'Net Payout Hak Resto (Rp)',
+            'V'  => 'Modal HPP (Rp)',
+            'W'  => 'Laba Bersih Riil (Rp)',
+            'X'  => 'Margin Riil (%)',
+            'Y'  => 'Metode Pembayaran',
+            'Z'  => 'Status Pesanan',
+            'AA' => 'Jumlah Cetak',
         ];
 
         foreach ($headers as $col => $label) {
@@ -442,168 +502,970 @@ final class PosReportExport
             $sheet->getStyle("{$col}5")->getFont()->setBold(true)->setSize(10)->getColor()->setRGB('FFFFFF');
             $sheet->getStyle("{$col}5")->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB(self::COLOR_DARK_HEADER);
             $sheet->getStyle("{$col}5")->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);
-            if (in_array($col, ['J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R'], true)) {
+            if (in_array($col, ['L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X'], true)) {
                 $sheet->getStyle("{$col}5")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
             }
         }
         $sheet->getRowDimension(5)->setRowHeight(26);
 
-        // Data Rows
-        $r = 6;
+        $sheet->freezePane('A6');
+
+        $row = 6;
         $no = 1;
+        $firstDataRow = 6;
         foreach ($orders as $order) {
-            $discountTotal = (float) $order->discount_amount + (float) $order->voucher_discount_amount + (float) $order->points_discount_amount;
-            $paymentMethods = $order->payments->pluck('payment_method')->unique()->map(function ($pm) {
+            $orderDate = $order->order_date ? Carbon::parse($order->order_date) : ($order->created_at ?? now());
+            $createdAt = $order->created_at ? Carbon::parse($order->created_at) : now();
+
+            $customerName = $order->customer?->name ?? ($order->customer_name_guest ?: 'Pelanggan Umum');
+            $cashierName  = $order->user?->name ?? 'Kasir';
+            $locationName = $order->location?->name ?? 'Outlet Utama';
+
+            // Channel label & Ojol Reference
+            $channelCode = strtolower((string) ($order->sales_channel ?? 'pos'));
+            $channelLabel = match ($channelCode) {
+                'shopeefood' => 'ShopeeFood',
+                'gofood'     => 'GoFood',
+                'grabfood'   => 'GrabFood',
+                'web'        => 'Toko Online / Web',
+                'whatsapp'   => 'WhatsApp Order',
+                default      => 'Kasir Toko (POS)',
+            };
+            $refOrTable = $order->external_order_ref ?: ($order->table_or_reference ?: '-');
+
+            // 20 Industry Contextual Parser
+            $industryDetails = [];
+            if (!empty($order->vehicle_license_plate)) {
+                $vehInfo = '🚗 ' . $order->vehicle_license_plate;
+                if (!empty($order->vehicle_model)) {
+                    $vehInfo .= ' (' . $order->vehicle_model . ')';
+                }
+                if ($order->vehicle_mileage) {
+                    $vehInfo .= ' • ' . number_format((float) $order->vehicle_mileage, 0, ',', '.') . ' km';
+                }
+                if ($order->technician) {
+                    $vehInfo .= ' • Teknisi: ' . $order->technician->name;
+                }
+                $industryDetails[] = $vehInfo;
+            }
+            if ($order->laundry_weight_kg > 0 || !empty($order->rack_location)) {
+                $laundryInfo = '🧺 ';
+                if ($order->laundry_weight_kg > 0) {
+                    $laundryInfo .= $order->laundry_weight_kg . ' kg';
+                }
+                if (!empty($order->rack_location)) {
+                    $laundryInfo .= ' • Rak: ' . $order->rack_location;
+                }
+                if ($order->laundry_status) {
+                    $laundryInfo .= ' • [' . ucfirst($order->laundry_status) . ']';
+                }
+                $industryDetails[] = $laundryInfo;
+            }
+
+            // Apothecary / Clinic / Retail Batch & Expiry
+            $batchItems = $order->items->filter(fn(PosOrderItem $i) => !empty($i->batch_number) || !empty($i->serial_number));
+            if ($batchItems->isNotEmpty()) {
+                $batchTexts = $batchItems->take(2)->map(function (PosOrderItem $i) {
+                    $t = '';
+                    if (!empty($i->batch_number)) {
+                        $t .= '💊 Batch: ' . $i->batch_number;
+                    }
+                    if (!empty($i->serial_number)) {
+                        $t .= ' 🏷️ SN: ' . $i->serial_number;
+                    }
+                    return trim($t);
+                })->implode('; ');
+                $industryDetails[] = $batchTexts;
+            }
+
+            if (empty($industryDetails) && !empty($order->notes)) {
+                $industryDetails[] = '📝 ' . \Illuminate\Support\Str::limit($order->notes, 40);
+            }
+
+            $industryContext = !empty($industryDetails) ? implode(' | ', $industryDetails) : '-';
+
+            // Platform Commission & Net Payout Calculation
+            $feeRate = match ($channelCode) {
+                'shopeefood', 'gofood', 'grabfood' => 0.20,
+                default => 0.0,
+            };
+            $commissionAmount = ((float) $order->total_amount) * $feeRate;
+
+            $pmtMethods = $order->payments->pluck('payment_method')->unique()->map(function ($pm) {
                 return match ($pm) {
-                    'cash'            => 'Tunai',
-                    'qris'            => 'QRIS',
-                    'edc_debit'       => 'EDC Debit',
-                    'edc_credit'      => 'EDC Kredit',
-                    'transfer'        => 'Transfer',
+                    'cash' => 'Tunai',
+                    'qris', 'qris_dynamic' => 'QRIS',
+                    'edc_debit' => 'EDC Debit',
+                    'edc_credit' => 'EDC Kredit',
+                    'transfer' => 'Transfer',
                     'customer_credit' => 'Piutang',
-                    'loyalty_points'  => 'Poin',
-                    default           => ucfirst((string) $pm),
+                    'loyalty_points' => 'Poin',
+                    default => ucfirst((string) $pm),
                 };
             })->implode(', ');
 
-            // Contextual Industry Reference (Meja, Plat, atau Rak)
-            $ref = $order->table_or_reference;
-            if (empty($ref)) {
-                if ($order->vehicle_license_plate) {
-                    $ref = 'Plat: ' . $order->vehicle_license_plate;
-                } elseif ($order->rack_location) {
-                    $ref = 'Rak: ' . $order->rack_location;
-                } else {
-                    $ref = '-';
-                }
+            if ($pmtMethods === '') {
+                $pmtMethods = '-';
             }
 
-            $orderTypeLabel = match ($order->order_type) {
-                'dine_in'   => 'Dine In',
-                'take_away' => 'Take Away',
-                'delivery'  => 'Delivery',
-                default     => ucfirst(str_replace('_', ' ', (string) $order->order_type)),
-            };
+            $sheet->setCellValue("A{$row}", $no++);
+            $sheet->setCellValue("B{$row}", $order->order_number);
+            $sheet->setCellValue("C{$row}", $orderDate->format('d/m/Y'));
+            $sheet->setCellValue("D{$row}", $createdAt->format('H:i:s'));
+            $sheet->setCellValue("E{$row}", $locationName);
+            $sheet->setCellValue("F{$row}", $channelLabel);
+            $sheet->setCellValue("G{$row}", $refOrTable);
+            $sheet->setCellValue("H{$row}", $industryContext);
+            $sheet->setCellValue("I{$row}", $customerName);
+            $sheet->setCellValue("J{$row}", $cashierName);
+            $sheet->setCellValue("K{$row}", strtoupper(str_replace('_', ' ', $order->order_type ?? 'dine_in')));
+            $sheet->setCellValue("L{$row}", (float) $order->subtotal);
+            $sheet->setCellValue("M{$row}", (float) $order->discount_amount);
+            $sheet->setCellValue("N{$row}", (float) $order->voucher_discount_amount);
+            $sheet->setCellValue("O{$row}", (float) $order->points_discount_amount);
+            $sheet->setCellValue("P{$row}", (float) $order->tax_amount);
+            $sheet->setCellValue("Q{$row}", (float) $order->service_charge_amount);
+            $sheet->setCellValue("R{$row}", (float) $order->rounding_amount);
+            $sheet->setCellValue("S{$row}", (float) $order->total_amount);
+            $sheet->setCellValue("T{$row}", (float) $commissionAmount);
+            $sheet->setCellValue("U{$row}", "=S{$row}-T{$row}");
+            $sheet->setCellValue("V{$row}", (float) $order->total_hpp_cost);
+            $sheet->setCellValue("W{$row}", "=U{$row}-V{$row}");
+            $sheet->setCellValue("X{$row}", "=IF(S{$row}>0, W{$row}/S{$row}, 0)");
+            $sheet->setCellValue("Y{$row}", $pmtMethods);
+            $sheet->setCellValue("Z{$row}", strtoupper($order->status));
+            $sheet->setCellValue("AA{$row}", (int) $order->printed_count);
 
-            $statusLabel = match ($order->status) {
-                PosOrder::STATUS_COMPLETED      => 'Lunas',
-                PosOrder::STATUS_PARTIAL_REFUND => 'Refund Sebagian',
-                PosOrder::STATUS_CONFIRMED      => 'Terkonfirmasi',
-                PosOrder::STATUS_VOIDED         => 'Void / Batal',
-                default                         => ucfirst((string) $order->status),
-            };
+            $sheet->getStyle("A{$row}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle("C{$row}:D{$row}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle("L{$row}:W{$row}")->getNumberFormat()->setFormatCode('"Rp "#,##0');
+            $sheet->getStyle("X{$row}")->getNumberFormat()->setFormatCode('0.0%');
+            $sheet->getStyle("L{$row}:X{$row}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+            $sheet->getStyle("AA{$row}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
-            $sheet->setCellValue("A{$r}", $no++);
-            $sheet->setCellValue("B{$r}", $order->order_number);
-            $sheet->setCellValue("C{$r}", $order->order_date ? Carbon::parse($order->order_date)->format('d/m/Y') : '-');
-            $sheet->setCellValue("D{$r}", $order->created_at ? $order->created_at->format('H:i') : '-');
-            $sheet->setCellValue("E{$r}", $order->location?->name ?? 'Outlet Utama');
-            $sheet->setCellValue("F{$r}", $ref);
-            $sheet->setCellValue("G{$r}", $order->customer?->name ?? ($order->customer_name_guest ?? 'Pelanggan Umum'));
-            $sheet->setCellValue("H{$r}", $order->user?->name ?? 'Kasir');
-            $sheet->setCellValue("I{$r}", $orderTypeLabel);
-            $sheet->setCellValue("J{$r}", (float) $order->subtotal);
-            $sheet->setCellValue("K{$r}", $discountTotal);
-            $sheet->setCellValue("L{$r}", (float) $order->tax_amount);
-            $sheet->setCellValue("M{$r}", (float) $order->service_charge_amount);
-            $sheet->setCellValue("N{$r}", (float) $order->rounding_amount);
-            $sheet->setCellValue("O{$r}", (float) $order->total_amount);
-            $sheet->setCellValue("P{$r}", (float) $order->total_hpp_cost);
-            $sheet->setCellValue("Q{$r}", "=O{$r}-P{$r}");
-            $sheet->setCellValue("R{$r}", "=IF(O{$r}>0, Q{$r}/O{$r}, 0)");
-            $sheet->setCellValue("S{$r}", $paymentMethods ?: 'Tunai');
-            $sheet->setCellValue("T{$r}", $statusLabel);
+            $this->applyBorderThin($sheet, "A{$row}:AA{$row}");
 
-            // Formatting
-            $sheet->getStyle("A{$r}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-            $sheet->getStyle("C{$r}:D{$r}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-            $sheet->getStyle("J{$r}:Q{$r}")->getNumberFormat()->setFormatCode('"Rp "#,##0');
-            $sheet->getStyle("R{$r}")->getNumberFormat()->setFormatCode('0.0%');
-            $sheet->getStyle("J{$r}:R{$r}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
-            $this->applyBorderThin($sheet, "A{$r}:T{$r}");
-
-            if ($r % 2 === 1) {
-                $sheet->getStyle("A{$r}:T{$r}")->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB(self::COLOR_ZEBRA_BG);
+            if ($row % 2 === 0) {
+                $sheet->getStyle("A{$row}:AA{$row}")->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB(self::COLOR_ZEBRA_BG);
             }
-            $r++;
+
+            $row++;
         }
-        $lastDataRow = max(6, $r - 1);
 
-        // Summary Total Row with Formulas
-        $sheet->setCellValue("A{$r}", 'TOTAL KESELURUHAN');
-        $sheet->mergeCells("A{$r}:I{$r}");
-        $sheet->setCellValue("J{$r}", "=SUM(J6:J{$lastDataRow})");
-        $sheet->setCellValue("K{$r}", "=SUM(K6:K{$lastDataRow})");
-        $sheet->setCellValue("L{$r}", "=SUM(L6:L{$lastDataRow})");
-        $sheet->setCellValue("M{$r}", "=SUM(M6:M{$lastDataRow})");
-        $sheet->setCellValue("N{$r}", "=SUM(N6:N{$lastDataRow})");
-        $sheet->setCellValue("O{$r}", "=SUM(O6:O{$lastDataRow})");
-        $sheet->setCellValue("P{$r}", "=SUM(P6:P{$lastDataRow})");
-        $sheet->setCellValue("Q{$r}", "=SUM(Q6:Q{$lastDataRow})");
-        $sheet->setCellValue("R{$r}", "=IF(O{$r}>0, Q{$r}/O{$r}, 0)");
-        $sheet->setCellValue("S{$r}", '-');
-        $sheet->setCellValue("T{$r}", '-');
+        // Summary Total Row
+        $lastDataRow = $row - 1;
+        if ($lastDataRow >= 6) {
+            $sheet->setCellValue("A{$row}", 'TOTAL KESELURUHAN');
+            $sheet->mergeCells("A{$row}:K{$row}");
 
-        $sheet->getStyle("A{$r}:T{$r}")->getFont()->setBold(true)->setSize(10.5)->getColor()->setRGB('0F172A');
-        $sheet->getStyle("A{$r}:T{$r}")->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB(self::COLOR_SUBHEADER_BG);
-        $sheet->getStyle("J{$r}:Q{$r}")->getNumberFormat()->setFormatCode('"Rp "#,##0');
-        $sheet->getStyle("R{$r}")->getNumberFormat()->setFormatCode('0.0%');
-        $sheet->getStyle("J{$r}:R{$r}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
-        $this->applyBorderDoubleBottom($sheet, "A{$r}:T{$r}");
+            $sheet->setCellValue("L{$row}", "=SUM(L6:L{$lastDataRow})");
+            $sheet->setCellValue("M{$row}", "=SUM(M6:M{$lastDataRow})");
+            $sheet->setCellValue("N{$row}", "=SUM(N6:N{$lastDataRow})");
+            $sheet->setCellValue("O{$row}", "=SUM(O6:O{$lastDataRow})");
+            $sheet->setCellValue("P{$row}", "=SUM(P6:P{$lastDataRow})");
+            $sheet->setCellValue("Q{$row}", "=SUM(Q6:Q{$lastDataRow})");
+            $sheet->setCellValue("R{$row}", "=SUM(R6:R{$lastDataRow})");
+            $sheet->setCellValue("S{$row}", "=SUM(S6:S{$lastDataRow})");
+            $sheet->setCellValue("T{$row}", "=SUM(T6:T{$lastDataRow})");
+            $sheet->setCellValue("U{$row}", "=SUM(U6:U{$lastDataRow})");
+            $sheet->setCellValue("V{$row}", "=SUM(V6:V{$lastDataRow})");
+            $sheet->setCellValue("W{$row}", "=SUM(W6:W{$lastDataRow})");
+            $sheet->setCellValue("X{$row}", "=IF(S{$row}>0, W{$row}/S{$row}, 0)");
+            $sheet->setCellValue("AA{$row}", "=SUM(AA6:AA{$lastDataRow})");
 
-        // Freeze Panes at A6 so Header on Row 5 stays fixed
-        $sheet->freezePane('A6');
+            $sheet->getStyle("A{$row}:AA{$row}")->getFont()->setBold(true)->setSize(10.5)->getColor()->setRGB('0F172A');
+            $sheet->getStyle("A{$row}:AA{$row}")->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB(self::COLOR_SUBHEADER_BG);
+            $sheet->getStyle("L{$row}:W{$row}")->getNumberFormat()->setFormatCode('"Rp "#,##0');
+            $sheet->getStyle("X{$row}")->getNumberFormat()->setFormatCode('0.0%');
+            $sheet->getStyle("L{$row}:X{$row}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+            $sheet->getStyle("AA{$row}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            $this->applyBorderDoubleBottom($sheet, "A{$row}:AA{$row}");
+        }
 
-        // AutoFilter on Header Row 5
-        $sheet->setAutoFilter("A5:T{$lastDataRow}");
-
-        // Auto-fit Columns on Ledger Sheet
         $this->autoFitColumns($sheet, array_keys($headers));
     }
 
     /**
-     * Render a stylized Bento KPI Card spanning two columns.
+     * SHEET 3: Product Performance & Margin Breakdown.
+     */
+    private function buildProductPerformanceSheet(Worksheet $sheet, Business $business, PosReportFilterDTO $filter): void
+    {
+        $sheet->setShowGridLines(true);
+
+        $sheet->setCellValue('A2', 'LAPORAN KINERJA PENJUALAN PRODUK & ANALISIS MARGIN HPP');
+        $sheet->setCellValue('A3', 'Periode: ' . $filter->startDate->translatedFormat('d M Y') . ' s/d ' . $filter->endDate->translatedFormat('d M Y'));
+
+        $sheet->getStyle('A2')->getFont()->setSize(14)->setBold(true)->getColor()->setRGB(self::COLOR_DARK_HEADER);
+        $sheet->getStyle('A3')->getFont()->setSize(9.5)->setItalic(true)->getColor()->setRGB('64748B');
+
+        $headers = [
+            'A' => 'No',
+            'B' => 'Kode Produk',
+            'C' => 'Nama Produk / Menu',
+            'D' => 'Kategori',
+            'E' => 'Tipe Komoditas',
+            'F' => 'Qty Terjual',
+            'G' => 'Harga Jual Satuan Rata-rata (Rp)',
+            'H' => 'Total Omzet Kotor (Rp)',
+            'I' => 'Diskon Item (Rp)',
+            'J' => 'Total Omzet Bersih (Rp)',
+            'K' => 'HPP Satuan Rata-rata (Rp)',
+            'L' => 'Total Modal HPP (Rp)',
+            'M' => 'Laba Kotor (Rp)',
+            'N' => 'Margin Laba (%)',
+            'O' => 'Kontribusi Omzet (%)',
+        ];
+
+        foreach ($headers as $col => $label) {
+            $sheet->setCellValue("{$col}5", $label);
+            $sheet->getStyle("{$col}5")->getFont()->setBold(true)->setSize(10)->getColor()->setRGB('FFFFFF');
+            $sheet->getStyle("{$col}5")->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB(self::COLOR_DARK_HEADER);
+            $sheet->getStyle("{$col}5")->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);
+            if (in_array($col, ['F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O'], true)) {
+                $sheet->getStyle("{$col}5")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+            }
+        }
+        $sheet->getRowDimension(5)->setRowHeight(26);
+        $sheet->freezePane('A6');
+
+        $products = $this->reportingService->getProductPerformance($filter, 500);
+
+        $row = 6;
+        $no = 1;
+        $firstDataRow = 6;
+        foreach ($products as $p) {
+            $sku = (string) ($p->sku ?? $p->productCode ?? $p->product_code ?? '-');
+            $name = (string) ($p->product_name ?? $p->productName ?? 'Produk');
+            $catName = (string) ($p->category_name ?? $p->categoryName ?? 'Tanpa Kategori');
+            $type = (($p->item_type ?? $p->type ?? 'goods') === 'service') ? 'Jasa Layanan' : 'Barang Fisik';
+            $qty = (float) ($p->total_qty ?? $p->totalQuantity ?? 0.0);
+            $asp = (float) ($p->asp ?? $p->averageSellingPrice ?? 0.0);
+            $gross = (float) ($p->gross_sales ?? $p->grossSales ?? 0.0);
+            $disc = (float) ($p->discount_amount ?? $p->discountAmount ?? 0.0);
+            $net = (float) ($p->net_sales ?? $p->netSales ?? 0.0);
+            $cost = (float) ($p->unit_cost ?? $p->averageCostPrice ?? 0.0);
+            $hpp = (float) ($p->total_hpp ?? $p->totalHpp ?? 0.0);
+            $contrib = (float) ($p->revenueContributionPercent ?? $p->contribution_percent ?? 0.0);
+
+            $sheet->setCellValue("A{$row}", $no++);
+            $sheet->setCellValue("B{$row}", $sku);
+            $sheet->setCellValue("C{$row}", $name);
+            $sheet->setCellValue("D{$row}", $catName);
+            $sheet->setCellValue("E{$row}", $type);
+            $sheet->setCellValue("F{$row}", $qty);
+            $sheet->setCellValue("G{$row}", $asp);
+            $sheet->setCellValue("H{$row}", $gross);
+            $sheet->setCellValue("I{$row}", $disc);
+            $sheet->setCellValue("J{$row}", $net);
+            $sheet->setCellValue("K{$row}", $cost);
+            $sheet->setCellValue("L{$row}", $hpp);
+            $sheet->setCellValue("M{$row}", "=J{$row}-L{$row}");
+            $sheet->setCellValue("N{$row}", "=IF(J{$row}>0, M{$row}/J{$row}, 0)");
+            $sheet->setCellValue("O{$row}", $contrib > 0 ? $contrib / 100 : 0);
+
+            $sheet->getStyle("A{$row}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle("F{$row}")->getNumberFormat()->setFormatCode('#,##0.00');
+            $sheet->getStyle("G{$row}:M{$row}")->getNumberFormat()->setFormatCode('"Rp "#,##0');
+            $sheet->getStyle("N{$row}:O{$row}")->getNumberFormat()->setFormatCode('0.0%');
+            $sheet->getStyle("F{$row}:O{$row}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+
+            $this->applyBorderThin($sheet, "A{$row}:O{$row}");
+            if ($row % 2 === 0) {
+                $sheet->getStyle("A{$row}:O{$row}")->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB(self::COLOR_ZEBRA_BG);
+            }
+            $row++;
+        }
+
+        $lastDataRow = $row - 1;
+        if ($lastDataRow >= 6) {
+            $sheet->setCellValue("A{$row}", 'TOTAL KESELURUHAN PRODUK');
+            $sheet->mergeCells("A{$row}:E{$row}");
+            $sheet->setCellValue("F{$row}", "=SUM(F{$firstDataRow}:F{$lastDataRow})");
+            $sheet->setCellValue("H{$row}", "=SUM(H{$firstDataRow}:H{$lastDataRow})");
+            $sheet->setCellValue("I{$row}", "=SUM(I{$firstDataRow}:I{$lastDataRow})");
+            $sheet->setCellValue("J{$row}", "=SUM(J{$firstDataRow}:J{$lastDataRow})");
+            $sheet->setCellValue("L{$row}", "=SUM(L{$firstDataRow}:L{$lastDataRow})");
+            $sheet->setCellValue("M{$row}", "=SUM(M{$firstDataRow}:M{$lastDataRow})");
+            $sheet->setCellValue("N{$row}", "=IF(J{$row}>0, M{$row}/J{$row}, 0)");
+            $sheet->setCellValue("O{$row}", "=IF(J{$row}>0, 1, 0)");
+
+            $sheet->getStyle("A{$row}:O{$row}")->getFont()->setBold(true)->setSize(10.5)->getColor()->setRGB('0F172A');
+            $sheet->getStyle("A{$row}:O{$row}")->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB(self::COLOR_SUBHEADER_BG);
+            $sheet->getStyle("F{$row}")->getNumberFormat()->setFormatCode('#,##0.00');
+            $sheet->getStyle("G{$row}:M{$row}")->getNumberFormat()->setFormatCode('"Rp "#,##0');
+            $sheet->getStyle("N{$row}:O{$row}")->getNumberFormat()->setFormatCode('0.0%');
+            $sheet->getStyle("F{$row}:O{$row}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+            $this->applyBorderDoubleBottom($sheet, "A{$row}:O{$row}");
+        }
+
+        $this->autoFitColumns($sheet, array_keys($headers));
+    }
+
+    /**
+     * SHEET 4: Category Contribution.
+     */
+    private function buildCategoryContributionSheet(Worksheet $sheet, Business $business, PosReportFilterDTO $filter): void
+    {
+        $sheet->setShowGridLines(true);
+
+        $sheet->setCellValue('A2', 'KONTRIBUSI PENJUALAN PER KATEGORI PRODUK');
+        $sheet->setCellValue('A3', 'Periode: ' . $filter->startDate->translatedFormat('d M Y') . ' s/d ' . $filter->endDate->translatedFormat('d M Y'));
+
+        $sheet->getStyle('A2')->getFont()->setSize(14)->setBold(true)->getColor()->setRGB(self::COLOR_DARK_HEADER);
+        $sheet->getStyle('A3')->getFont()->setSize(9.5)->setItalic(true)->getColor()->setRGB('64748B');
+
+        $headers = [
+            'A' => 'No',
+            'B' => 'Nama Kategori',
+            'C' => 'Volume Item Terjual (Qty)',
+            'D' => 'Total Omzet Kotor (Rp)',
+            'E' => 'Total Modal HPP (Rp)',
+            'F' => 'Laba Kotor (Rp)',
+            'G' => 'Margin Laba (%)',
+            'H' => 'Porsi Omzet (%)',
+        ];
+
+        foreach ($headers as $col => $label) {
+            $sheet->setCellValue("{$col}5", $label);
+            $sheet->getStyle("{$col}5")->getFont()->setBold(true)->setSize(10)->getColor()->setRGB('FFFFFF');
+            $sheet->getStyle("{$col}5")->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB(self::COLOR_DARK_HEADER);
+            $sheet->getStyle("{$col}5")->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);
+            if (in_array($col, ['C', 'D', 'E', 'F', 'G', 'H'], true)) {
+                $sheet->getStyle("{$col}5")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+            }
+        }
+        $sheet->getRowDimension(5)->setRowHeight(26);
+
+        $categories = $this->reportingService->getCategoryPerformance($filter);
+
+        $row = 6;
+        $no = 1;
+        $firstDataRow = 6;
+        foreach ($categories as $cat) {
+            $sheet->setCellValue("A{$row}", $no++);
+            $sheet->setCellValue("B{$row}", $cat['category_name']);
+            $sheet->setCellValue("C{$row}", (float) $cat['total_quantity']);
+            $sheet->setCellValue("D{$row}", (float) $cat['total_sales']);
+            $sheet->setCellValue("E{$row}", (float) $cat['total_hpp']);
+            $sheet->setCellValue("F{$row}", "=D{$row}-E{$row}");
+            $sheet->setCellValue("G{$row}", "=IF(D{$row}>0, F{$row}/D{$row}, 0)");
+            $sheet->setCellValue("H{$row}", ((float) $cat['contribution_percent']) / 100);
+
+            $sheet->getStyle("A{$row}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle("C{$row}")->getNumberFormat()->setFormatCode('#,##0.00');
+            $sheet->getStyle("D{$row}:F{$row}")->getNumberFormat()->setFormatCode('"Rp "#,##0');
+            $sheet->getStyle("G{$row}:H{$row}")->getNumberFormat()->setFormatCode('0.0%');
+            $sheet->getStyle("C{$row}:H{$row}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+
+            $this->applyBorderThin($sheet, "A{$row}:H{$row}");
+            if ($row % 2 === 0) {
+                $sheet->getStyle("A{$row}:H{$row}")->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB(self::COLOR_ZEBRA_BG);
+            }
+            $row++;
+        }
+
+        $lastDataRow = $row - 1;
+        if ($lastDataRow >= 6) {
+            $sheet->setCellValue("A{$row}", 'TOTAL KESELURUHAN KATEGORI');
+            $sheet->mergeCells("A{$row}:B{$row}");
+            $sheet->setCellValue("C{$row}", "=SUM(C{$firstDataRow}:C{$lastDataRow})");
+            $sheet->setCellValue("D{$row}", "=SUM(D{$firstDataRow}:D{$lastDataRow})");
+            $sheet->setCellValue("E{$row}", "=SUM(E{$firstDataRow}:E{$lastDataRow})");
+            $sheet->setCellValue("F{$row}", "=SUM(F{$firstDataRow}:F{$lastDataRow})");
+            $sheet->setCellValue("G{$row}", "=IF(D{$row}>0, F{$row}/D{$row}, 0)");
+            $sheet->setCellValue("H{$row}", "=IF(D{$row}>0, 1, 0)");
+
+            $sheet->getStyle("A{$row}:H{$row}")->getFont()->setBold(true)->setSize(10.5)->getColor()->setRGB('0F172A');
+            $sheet->getStyle("A{$row}:H{$row}")->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB(self::COLOR_SUBHEADER_BG);
+            $sheet->getStyle("C{$row}")->getNumberFormat()->setFormatCode('#,##0.00');
+            $sheet->getStyle("D{$row}:F{$row}")->getNumberFormat()->setFormatCode('"Rp "#,##0');
+            $sheet->getStyle("G{$row}:H{$row}")->getNumberFormat()->setFormatCode('0.0%');
+            $sheet->getStyle("C{$row}:H{$row}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+            $this->applyBorderDoubleBottom($sheet, "A{$row}:H{$row}");
+        }
+
+        $this->autoFitColumns($sheet, array_keys($headers));
+    }
+
+    /**
+     * SHEET 5: Cashier Productivity & Audit.
+     */
+    private function buildCashierProductivitySheet(Worksheet $sheet, Business $business, PosReportFilterDTO $filter): void
+    {
+        $sheet->setShowGridLines(true);
+
+        $sheet->setCellValue('A2', 'LAPORAN PRODUKTIVITAS KASIR & STAF OPERASIONAL POS');
+        $sheet->setCellValue('A3', 'Periode: ' . $filter->startDate->translatedFormat('d M Y') . ' s/d ' . $filter->endDate->translatedFormat('d M Y'));
+
+        $sheet->getStyle('A2')->getFont()->setSize(14)->setBold(true)->getColor()->setRGB(self::COLOR_DARK_HEADER);
+        $sheet->getStyle('A3')->getFont()->setSize(9.5)->setItalic(true)->getColor()->setRGB('64748B');
+
+        $headers = [
+            'A' => 'No',
+            'B' => 'Nama Kasir / Staf',
+            'C' => 'Total Transaksi Selesai',
+            'D' => 'Total Omzet Penjualan (Rp)',
+            'E' => 'Total Diskon Diberikan (Rp)',
+            'F' => 'Rata-rata Transaksi AOV (Rp)',
+            'G' => 'Total Modal HPP (Rp)',
+            'H' => 'Total Laba Kotor (Rp)',
+            'I' => 'Margin Laba (%)',
+            'J' => 'Porsi Terhadap Omzet (%)',
+        ];
+
+        foreach ($headers as $col => $label) {
+            $sheet->setCellValue("{$col}5", $label);
+            $sheet->getStyle("{$col}5")->getFont()->setBold(true)->setSize(10)->getColor()->setRGB('FFFFFF');
+            $sheet->getStyle("{$col}5")->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB(self::COLOR_DARK_HEADER);
+            $sheet->getStyle("{$col}5")->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);
+            if (in_array($col, ['C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'], true)) {
+                $sheet->getStyle("{$col}5")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+            }
+        }
+        $sheet->getRowDimension(5)->setRowHeight(26);
+
+        $cashiers = $this->reportingService->getCashierPerformance($filter);
+
+        $row = 6;
+        $no = 1;
+        $firstDataRow = 6;
+        foreach ($cashiers as $c) {
+            $sheet->setCellValue("A{$row}", $no++);
+            $sheet->setCellValue("B{$row}", $c['cashier_name']);
+            $sheet->setCellValue("C{$row}", (int) $c['total_orders']);
+            $sheet->setCellValue("D{$row}", (float) $c['total_revenue']);
+            $sheet->setCellValue("E{$row}", (float) $c['total_discount']);
+            $sheet->setCellValue("F{$row}", (float) $c['average_order_value']);
+            $sheet->setCellValue("G{$row}", (float) $c['total_hpp']);
+            $sheet->setCellValue("H{$row}", "=D{$row}-G{$row}");
+            $sheet->setCellValue("I{$row}", "=IF(D{$row}>0, H{$row}/D{$row}, 0)");
+            $sheet->setCellValue("J{$row}", ((float) $c['revenue_contribution_percent']) / 100);
+
+            $sheet->getStyle("A{$row}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle("C{$row}")->getNumberFormat()->setFormatCode('#,##0');
+            $sheet->getStyle("D{$row}:H{$row}")->getNumberFormat()->setFormatCode('"Rp "#,##0');
+            $sheet->getStyle("I{$row}:J{$row}")->getNumberFormat()->setFormatCode('0.0%');
+            $sheet->getStyle("C{$row}:J{$row}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+
+            $this->applyBorderThin($sheet, "A{$row}:J{$row}");
+            if ($row % 2 === 0) {
+                $sheet->getStyle("A{$row}:J{$row}")->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB(self::COLOR_ZEBRA_BG);
+            }
+            $row++;
+        }
+
+        $lastDataRow = $row - 1;
+        if ($lastDataRow >= 6) {
+            $sheet->setCellValue("A{$row}", 'TOTAL KESELURUHAN KASIR');
+            $sheet->mergeCells("A{$row}:B{$row}");
+            $sheet->setCellValue("C{$row}", "=SUM(C{$firstDataRow}:C{$lastDataRow})");
+            $sheet->setCellValue("D{$row}", "=SUM(D{$firstDataRow}:D{$lastDataRow})");
+            $sheet->setCellValue("E{$row}", "=SUM(E{$firstDataRow}:E{$lastDataRow})");
+            $sheet->setCellValue("F{$row}", "=IF(C{$row}>0, D{$row}/C{$row}, 0)");
+            $sheet->setCellValue("G{$row}", "=SUM(G{$firstDataRow}:G{$lastDataRow})");
+            $sheet->setCellValue("H{$row}", "=SUM(H{$firstDataRow}:H{$lastDataRow})");
+            $sheet->setCellValue("I{$row}", "=IF(D{$row}>0, H{$row}/D{$row}, 0)");
+            $sheet->setCellValue("J{$row}", "=IF(D{$row}>0, 1, 0)");
+
+            $sheet->getStyle("A{$row}:J{$row}")->getFont()->setBold(true)->setSize(10.5)->getColor()->setRGB('0F172A');
+            $sheet->getStyle("A{$row}:J{$row}")->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB(self::COLOR_SUBHEADER_BG);
+            $sheet->getStyle("C{$row}")->getNumberFormat()->setFormatCode('#,##0');
+            $sheet->getStyle("D{$row}:H{$row}")->getNumberFormat()->setFormatCode('"Rp "#,##0');
+            $sheet->getStyle("I{$row}:J{$row}")->getNumberFormat()->setFormatCode('0.0%');
+            $sheet->getStyle("C{$row}:J{$row}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+            $this->applyBorderDoubleBottom($sheet, "A{$row}:J{$row}");
+        }
+
+        $this->autoFitColumns($sheet, array_keys($headers));
+    }
+
+    /**
+     * SHEET 6: Outlets Comparison.
+     */
+    private function buildOutletComparisonSheet(Worksheet $sheet, Business $business, PosReportFilterDTO $filter): void
+    {
+        $sheet->setShowGridLines(true);
+
+        $sheet->setCellValue('A2', 'PERBANDINGAN KINERJA OUTLET & CABANG');
+        $sheet->setCellValue('A3', 'Periode: ' . $filter->startDate->translatedFormat('d M Y') . ' s/d ' . $filter->endDate->translatedFormat('d M Y'));
+
+        $sheet->getStyle('A2')->getFont()->setSize(14)->setBold(true)->getColor()->setRGB(self::COLOR_DARK_HEADER);
+        $sheet->getStyle('A3')->getFont()->setSize(9.5)->setItalic(true)->getColor()->setRGB('64748B');
+
+        $headers = [
+            'A' => 'No',
+            'B' => 'Nama Outlet / Cabang',
+            'C' => 'Total Transaksi',
+            'D' => 'Total Omzet (Rp)',
+            'E' => 'Total Modal HPP (Rp)',
+            'F' => 'Laba Kotor (Rp)',
+            'G' => 'Margin Laba (%)',
+            'H' => 'Rata-rata Order AOV (Rp)',
+            'I' => 'Porsi Terhadap Bisnis (%)',
+        ];
+
+        foreach ($headers as $col => $label) {
+            $sheet->setCellValue("{$col}5", $label);
+            $sheet->getStyle("{$col}5")->getFont()->setBold(true)->setSize(10)->getColor()->setRGB('FFFFFF');
+            $sheet->getStyle("{$col}5")->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB(self::COLOR_DARK_HEADER);
+            $sheet->getStyle("{$col}5")->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);
+            if (in_array($col, ['C', 'D', 'E', 'F', 'G', 'H', 'I'], true)) {
+                $sheet->getStyle("{$col}5")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+            }
+        }
+        $sheet->getRowDimension(5)->setRowHeight(26);
+
+        $outlets = $this->reportingService->getOutletPerformance($filter);
+
+        $row = 6;
+        $no = 1;
+        $firstDataRow = 6;
+        foreach ($outlets as $o) {
+            $sheet->setCellValue("A{$row}", $no++);
+            $sheet->setCellValue("B{$row}", $o['outlet_name']);
+            $sheet->setCellValue("C{$row}", (int) $o['total_orders']);
+            $sheet->setCellValue("D{$row}", (float) $o['total_revenue']);
+            $sheet->setCellValue("E{$row}", (float) $o['total_hpp']);
+            $sheet->setCellValue("F{$row}", "=D{$row}-E{$row}");
+            $sheet->setCellValue("G{$row}", "=IF(D{$row}>0, F{$row}/D{$row}, 0)");
+            $sheet->setCellValue("H{$row}", (float) $o['average_order_value']);
+            $sheet->setCellValue("I{$row}", ((float) $o['revenue_contribution_percent']) / 100);
+
+            $sheet->getStyle("A{$row}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle("C{$row}")->getNumberFormat()->setFormatCode('#,##0');
+            $sheet->getStyle("D{$row}:F{$row}")->getNumberFormat()->setFormatCode('"Rp "#,##0');
+            $sheet->getStyle("H{$row}")->getNumberFormat()->setFormatCode('"Rp "#,##0');
+            $sheet->getStyle("G{$row}:I{$row}")->getNumberFormat()->setFormatCode('0.0%');
+            $sheet->getStyle("C{$row}:I{$row}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+
+            $this->applyBorderThin($sheet, "A{$row}:I{$row}");
+            if ($row % 2 === 0) {
+                $sheet->getStyle("A{$row}:I{$row}")->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB(self::COLOR_ZEBRA_BG);
+            }
+            $row++;
+        }
+
+        $lastDataRow = $row - 1;
+        if ($lastDataRow >= 6) {
+            $sheet->setCellValue("A{$row}", 'TOTAL KESELURUHAN OUTLET');
+            $sheet->mergeCells("A{$row}:B{$row}");
+            $sheet->setCellValue("C{$row}", "=SUM(C{$firstDataRow}:C{$lastDataRow})");
+            $sheet->setCellValue("D{$row}", "=SUM(D{$firstDataRow}:D{$lastDataRow})");
+            $sheet->setCellValue("E{$row}", "=SUM(E{$firstDataRow}:E{$lastDataRow})");
+            $sheet->setCellValue("F{$row}", "=SUM(F{$firstDataRow}:F{$lastDataRow})");
+            $sheet->setCellValue("G{$row}", "=IF(D{$row}>0, F{$row}/D{$row}, 0)");
+            $sheet->setCellValue("H{$row}", "=IF(C{$row}>0, D{$row}/C{$row}, 0)");
+            $sheet->setCellValue("I{$row}", "=IF(D{$row}>0, 1, 0)");
+
+            $sheet->getStyle("A{$row}:I{$row}")->getFont()->setBold(true)->setSize(10.5)->getColor()->setRGB('0F172A');
+            $sheet->getStyle("A{$row}:I{$row}")->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB(self::COLOR_SUBHEADER_BG);
+            $sheet->getStyle("C{$row}")->getNumberFormat()->setFormatCode('#,##0');
+            $sheet->getStyle("D{$row}:F{$row}")->getNumberFormat()->setFormatCode('"Rp "#,##0');
+            $sheet->getStyle("H{$row}")->getNumberFormat()->setFormatCode('"Rp "#,##0');
+            $sheet->getStyle("G{$row}:I{$row}")->getNumberFormat()->setFormatCode('0.0%');
+            $sheet->getStyle("C{$row}:I{$row}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+            $this->applyBorderDoubleBottom($sheet, "A{$row}:I{$row}");
+        }
+
+        $this->autoFitColumns($sheet, array_keys($headers));
+    }
+
+    /**
+     * SHEET 7: Payment Methods Breakdown.
+     *
+     * @param Collection<int, PosOrder> $orders
+     */
+    private function buildPaymentMethodsSheet(Worksheet $sheet, Business $business, Collection $orders, PosReportFilterDTO $filter): void
+    {
+        $sheet->setShowGridLines(true);
+
+        $sheet->setCellValue('A2', 'RINCIAN PENERIMAAN KAS & METODE PEMBAYARAN');
+        $sheet->setCellValue('A3', 'Periode: ' . $filter->startDate->translatedFormat('d M Y') . ' s/d ' . $filter->endDate->translatedFormat('d M Y'));
+
+        $sheet->getStyle('A2')->getFont()->setSize(14)->setBold(true)->getColor()->setRGB(self::COLOR_DARK_HEADER);
+        $sheet->getStyle('A3')->getFont()->setSize(9.5)->setItalic(true)->getColor()->setRGB('64748B');
+
+        $headers = [
+            'A' => 'No',
+            'B' => 'Metode Pembayaran',
+            'C' => 'Frekuensi Transaksi',
+            'D' => 'Total Nominal Diterima (Rp)',
+            'E' => 'Estimasi Biaya MDR / Gateway (Rp)',
+            'F' => 'Penerimaan Kas Bersih (Rp)',
+            'G' => 'Porsi Transaksi (%)',
+            'H' => 'Porsi Nominal (%)',
+        ];
+
+        foreach ($headers as $col => $label) {
+            $sheet->setCellValue("{$col}5", $label);
+            $sheet->getStyle("{$col}5")->getFont()->setBold(true)->setSize(10)->getColor()->setRGB('FFFFFF');
+            $sheet->getStyle("{$col}5")->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB(self::COLOR_DARK_HEADER);
+            $sheet->getStyle("{$col}5")->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);
+            if (in_array($col, ['C', 'D', 'E', 'F', 'G', 'H'], true)) {
+                $sheet->getStyle("{$col}5")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+            }
+        }
+        $sheet->getRowDimension(5)->setRowHeight(26);
+
+        $payments = $this->reportingService->getPaymentMethodBreakdown($filter);
+
+        $row = 6;
+        $no = 1;
+        $firstDataRow = 6;
+        foreach ($payments as $p) {
+            $sheet->setCellValue("A{$row}", $no++);
+            $sheet->setCellValue("B{$row}", $p['method_label']);
+            $sheet->setCellValue("C{$row}", (int) $p['count']);
+            $sheet->setCellValue("D{$row}", (float) $p['amount']);
+            $sheet->setCellValue("E{$row}", (float) $p['fee_amount']);
+            $sheet->setCellValue("F{$row}", "=D{$row}-E{$row}");
+            $sheet->setCellValue("G{$row}", ((float) $p['count_percentage']) / 100);
+            $sheet->setCellValue("H{$row}", ((float) $p['amount_percentage']) / 100);
+
+            $sheet->getStyle("A{$row}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle("C{$row}")->getNumberFormat()->setFormatCode('#,##0');
+            $sheet->getStyle("D{$row}:F{$row}")->getNumberFormat()->setFormatCode('"Rp "#,##0');
+            $sheet->getStyle("G{$row}:H{$row}")->getNumberFormat()->setFormatCode('0.0%');
+            $sheet->getStyle("C{$row}:H{$row}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+
+            $this->applyBorderThin($sheet, "A{$row}:H{$row}");
+            if ($row % 2 === 0) {
+                $sheet->getStyle("A{$row}:H{$row}")->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB(self::COLOR_ZEBRA_BG);
+            }
+            $row++;
+        }
+
+        $lastDataRow = $row - 1;
+        if ($lastDataRow >= 6) {
+            $sheet->setCellValue("A{$row}", 'TOTAL PENERIMAAN KAS');
+            $sheet->mergeCells("A{$row}:B{$row}");
+            $sheet->setCellValue("C{$row}", "=SUM(C{$firstDataRow}:C{$lastDataRow})");
+            $sheet->setCellValue("D{$row}", "=SUM(D{$firstDataRow}:D{$lastDataRow})");
+            $sheet->setCellValue("E{$row}", "=SUM(E{$firstDataRow}:E{$lastDataRow})");
+            $sheet->setCellValue("F{$row}", "=SUM(F{$firstDataRow}:F{$lastDataRow})");
+            $sheet->setCellValue("G{$row}", "=IF(C{$row}>0, 1, 0)");
+            $sheet->setCellValue("H{$row}", "=IF(D{$row}>0, 1, 0)");
+
+            $sheet->getStyle("A{$row}:H{$row}")->getFont()->setBold(true)->setSize(10.5)->getColor()->setRGB('0F172A');
+            $sheet->getStyle("A{$row}:H{$row}")->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB(self::COLOR_SUBHEADER_BG);
+            $sheet->getStyle("C{$row}")->getNumberFormat()->setFormatCode('#,##0');
+            $sheet->getStyle("D{$row}:F{$row}")->getNumberFormat()->setFormatCode('"Rp "#,##0');
+            $sheet->getStyle("G{$row}:H{$row}")->getNumberFormat()->setFormatCode('0.0%');
+            $sheet->getStyle("C{$row}:H{$row}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+            $this->applyBorderDoubleBottom($sheet, "A{$row}:H{$row}");
+        }
+
+        $this->autoFitColumns($sheet, array_keys($headers));
+    }
+
+    /**
+     * SHEET 8: Discounts & Promotions Analytics.
+     */
+    private function buildDiscountsPromotionsSheet(Worksheet $sheet, Business $business, PosReportFilterDTO $filter): void
+    {
+        $sheet->setShowGridLines(true);
+
+        $sheet->setCellValue('A2', 'AUDIT POTONGAN HARGA, DISKON & PROMOSI POS');
+        $sheet->setCellValue('A3', 'Periode: ' . $filter->startDate->translatedFormat('d M Y') . ' s/d ' . $filter->endDate->translatedFormat('d M Y'));
+
+        $sheet->getStyle('A2')->getFont()->setSize(14)->setBold(true)->getColor()->setRGB(self::COLOR_DARK_HEADER);
+        $sheet->getStyle('A3')->getFont()->setSize(9.5)->setItalic(true)->getColor()->setRGB('64748B');
+
+        $headers = [
+            'A' => 'No',
+            'B' => 'Kategori Diskon / Promosi',
+            'C' => 'Frekuensi Digunakan',
+            'D' => 'Total Nilai Potongan Diskon (Rp)',
+            'E' => 'Porsi Terhadap Total Diskon (%)',
+        ];
+
+        foreach ($headers as $col => $label) {
+            $sheet->setCellValue("{$col}5", $label);
+            $sheet->getStyle("{$col}5")->getFont()->setBold(true)->setSize(10)->getColor()->setRGB('FFFFFF');
+            $sheet->getStyle("{$col}5")->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB(self::COLOR_DARK_HEADER);
+            $sheet->getStyle("{$col}5")->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);
+            if (in_array($col, ['C', 'D', 'E'], true)) {
+                $sheet->getStyle("{$col}5")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+            }
+        }
+        $sheet->getRowDimension(5)->setRowHeight(26);
+
+        $discounts = $this->reportingService->getDiscountBreakdown($filter);
+
+        $row = 6;
+        $no = 1;
+        $firstDataRow = 6;
+        foreach ($discounts as $d) {
+            $sheet->setCellValue("A{$row}", $no++);
+            $sheet->setCellValue("B{$row}", $d['type_label']);
+            $sheet->setCellValue("C{$row}", (int) $d['count']);
+            $sheet->setCellValue("D{$row}", (float) $d['total_amount']);
+            $sheet->setCellValue("E{$row}", ((float) $d['percentage_of_total_discount']) / 100);
+
+            $sheet->getStyle("A{$row}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle("C{$row}")->getNumberFormat()->setFormatCode('#,##0');
+            $sheet->getStyle("D{$row}")->getNumberFormat()->setFormatCode('"Rp "#,##0');
+            $sheet->getStyle("E{$row}")->getNumberFormat()->setFormatCode('0.0%');
+            $sheet->getStyle("C{$row}:E{$row}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+
+            $this->applyBorderThin($sheet, "A{$row}:E{$row}");
+            if ($row % 2 === 0) {
+                $sheet->getStyle("A{$row}:E{$row}")->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB(self::COLOR_ZEBRA_BG);
+            }
+            $row++;
+        }
+
+        $lastDataRow = $row - 1;
+        if ($lastDataRow >= 6) {
+            $sheet->setCellValue("A{$row}", 'TOTAL SELURUH POTONGAN DISKON');
+            $sheet->mergeCells("A{$row}:B{$row}");
+            $sheet->setCellValue("C{$row}", "=SUM(C{$firstDataRow}:C{$lastDataRow})");
+            $sheet->setCellValue("D{$row}", "=SUM(D{$firstDataRow}:D{$lastDataRow})");
+            $sheet->setCellValue("E{$row}", "=IF(D{$row}>0, 1, 0)");
+
+            $sheet->getStyle("A{$row}:E{$row}")->getFont()->setBold(true)->setSize(10.5)->getColor()->setRGB('0F172A');
+            $sheet->getStyle("A{$row}:E{$row}")->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB(self::COLOR_SUBHEADER_BG);
+            $sheet->getStyle("C{$row}")->getNumberFormat()->setFormatCode('#,##0');
+            $sheet->getStyle("D{$row}")->getNumberFormat()->setFormatCode('"Rp "#,##0');
+            $sheet->getStyle("E{$row}")->getNumberFormat()->setFormatCode('0.0%');
+            $sheet->getStyle("C{$row}:E{$row}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+            $this->applyBorderDoubleBottom($sheet, "A{$row}:E{$row}");
+        }
+
+        $this->autoFitColumns($sheet, array_keys($headers));
+    }
+
+    /**
+     * SHEET 9: Shift Cash Reconciliation & Void/Fraud Audit.
+     */
+    private function buildShiftAndVoidAuditSheet(Worksheet $sheet, Business $business, PosReportFilterDTO $filter): void
+    {
+        $sheet->setShowGridLines(true);
+
+        $sheet->setCellValue('A2', 'REKONSILIASI KAS SHIFT & LOG AUDIT PEMBATALAN (VOID/FRAUD)');
+        $sheet->setCellValue('A3', 'Periode: ' . $filter->startDate->translatedFormat('d M Y') . ' s/d ' . $filter->endDate->translatedFormat('d M Y'));
+
+        $sheet->getStyle('A2')->getFont()->setSize(14)->setBold(true)->getColor()->setRGB(self::COLOR_DARK_HEADER);
+        $sheet->getStyle('A3')->getFont()->setSize(9.5)->setItalic(true)->getColor()->setRGB('64748B');
+
+        // SECTION 1: SHIFT RECONCILIATION
+        $sheet->setCellValue('A5', 'BAGIAN 1: REKONSILIASI KAS REGISTER SHIFT KASIR');
+        $sheet->mergeCells('A5:J5');
+        $this->styleSectionHeader($sheet, 'A5:J5');
+
+        $shiftHeaders = [
+            'A' => 'No',
+            'B' => 'No. Shift',
+            'C' => 'Nama Kasir',
+            'D' => 'Lokasi Outlet',
+            'E' => 'Waktu Buka Shift',
+            'F' => 'Waktu Tutup Shift',
+            'G' => 'Modal Awal (Rp)',
+            'H' => 'Penjualan Tunai Sistem (Rp)',
+            'I' => 'Kas Fisik Dihitung (Rp)',
+            'J' => 'Selisih Kas (Discrepancy Rp)',
+        ];
+
+        foreach ($shiftHeaders as $col => $label) {
+            $sheet->setCellValue("{$col}6", $label);
+            $sheet->getStyle("{$col}6")->getFont()->setBold(true)->setSize(10)->getColor()->setRGB('FFFFFF');
+            $sheet->getStyle("{$col}6")->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB(self::COLOR_DARK_HEADER);
+            $sheet->getStyle("{$col}6")->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);
+            if (in_array($col, ['G', 'H', 'I', 'J'], true)) {
+                $sheet->getStyle("{$col}6")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+            }
+        }
+        $sheet->getRowDimension(6)->setRowHeight(24);
+
+        $shifts = $this->reportingService->getShiftReconciliationList($filter);
+
+        $row = 7;
+        $no = 1;
+        $firstShiftRow = 7;
+        foreach ($shifts as $s) {
+            $openedAt = (string) ($s['opened_at'] ?? '-');
+            $closedAt = (string) ($s['closed_at'] ?? 'Masih Terbuka');
+            $shiftNum = (string) ($s['shift_number'] ?? $s['shift_id'] ?? 'SHIFT');
+
+            $sheet->setCellValue("A{$row}", $no++);
+            $sheet->setCellValue("B{$row}", $shiftNum);
+            $sheet->setCellValue("C{$row}", $s['cashier_name'] ?? 'Kasir');
+            $sheet->setCellValue("D{$row}", $s['location_name'] ?? 'Outlet');
+            $sheet->setCellValue("E{$row}", $openedAt);
+            $sheet->setCellValue("F{$row}", $closedAt);
+            $sheet->setCellValue("G{$row}", (float) ($s['opening_cash'] ?? 0.0));
+            $sheet->setCellValue("H{$row}", (float) ($s['total_cash_sales'] ?? $s['closing_cash_expected'] ?? 0.0));
+            $sheet->setCellValue("I{$row}", (float) ($s['closing_cash_actual'] ?? 0.0));
+            $sheet->setCellValue("J{$row}", (float) ($s['cash_difference'] ?? 0.0));
+
+            $sheet->getStyle("A{$row}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle("G{$row}:J{$row}")->getNumberFormat()->setFormatCode('"Rp "#,##0');
+            $sheet->getStyle("G{$row}:J{$row}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+
+            $this->applyBorderThin($sheet, "A{$row}:J{$row}");
+            if ($row % 2 === 0) {
+                $sheet->getStyle("A{$row}:J{$row}")->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB(self::COLOR_ZEBRA_BG);
+            }
+            $row++;
+        }
+
+        $lastShiftRow = $row - 1;
+        if ($lastShiftRow >= 7) {
+            $sheet->setCellValue("A{$row}", 'TOTAL REKONSILIASI SHIFT');
+            $sheet->mergeCells("A{$row}:F{$row}");
+            $sheet->setCellValue("G{$row}", "=SUM(G{$firstShiftRow}:G{$lastShiftRow})");
+            $sheet->setCellValue("H{$row}", "=SUM(H{$firstShiftRow}:H{$lastShiftRow})");
+            $sheet->setCellValue("I{$row}", "=SUM(I{$firstShiftRow}:I{$lastShiftRow})");
+            $sheet->setCellValue("J{$row}", "=SUM(J{$firstShiftRow}:J{$lastShiftRow})");
+
+            $sheet->getStyle("A{$row}:J{$row}")->getFont()->setBold(true)->setSize(10.5)->getColor()->setRGB('0F172A');
+            $sheet->getStyle("A{$row}:J{$row}")->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB(self::COLOR_SUBHEADER_BG);
+            $sheet->getStyle("G{$row}:J{$row}")->getNumberFormat()->setFormatCode('"Rp "#,##0');
+            $sheet->getStyle("G{$row}:J{$row}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+            $this->applyBorderDoubleBottom($sheet, "A{$row}:J{$row}");
+        }
+
+        // SECTION 2: VOID / FRAUD AUDIT LOG
+        $startVoidRow = $row + 3;
+        $sheet->setCellValue("A{$startVoidRow}", 'BAGIAN 2: LOG AUDIT TRANSAKSI VOID / DIBATALKAN');
+        $sheet->mergeCells("A{$startVoidRow}:H{$startVoidRow}");
+        $this->styleSectionHeader($sheet, "A{$startVoidRow}:H{$startVoidRow}");
+
+        $voidHeaders = [
+            'A' => 'No',
+            'B' => 'No. Order POS',
+            'C' => 'Tanggal & Waktu Void',
+            'D' => 'Kasir / Pembuat Nota',
+            'E' => 'Supervisor Otorisasi',
+            'F' => 'Alasan Pembatalan (Reason)',
+            'G' => 'Nominal Dibatalkan (Rp)',
+            'H' => 'Status Cetak',
+        ];
+
+        $voidHeadRow = $startVoidRow + 1;
+        foreach ($voidHeaders as $col => $label) {
+            $sheet->setCellValue("{$col}{$voidHeadRow}", $label);
+            $sheet->getStyle("{$col}{$voidHeadRow}")->getFont()->setBold(true)->setSize(10)->getColor()->setRGB('FFFFFF');
+            $sheet->getStyle("{$col}{$voidHeadRow}")->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB(self::COLOR_DARK_HEADER);
+            $sheet->getStyle("{$col}{$voidHeadRow}")->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);
+            if ($col === 'G') {
+                $sheet->getStyle("{$col}{$voidHeadRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+            }
+        }
+        $sheet->getRowDimension($voidHeadRow)->setRowHeight(24);
+
+        $voidOrders = PosOrder::where('business_id', $business->id)
+            ->where('status', PosOrder::STATUS_VOIDED)
+            ->whereDate('order_date', '>=', $filter->startDate->toDateString())
+            ->whereDate('order_date', '<=', $filter->endDate->toDateString())
+            ->with(['user', 'voidedByUser'])
+            ->latest('voided_at')
+            ->get();
+
+        $vr = $voidHeadRow + 1;
+        $vno = 1;
+        $firstVoidRow = $vr;
+        foreach ($voidOrders as $vo) {
+            $voidedAt = $vo->voided_at ? Carbon::parse($vo->voided_at)->format('d/m/Y H:i:s') : '-';
+
+            $sheet->setCellValue("A{$vr}", $vno++);
+            $sheet->setCellValue("B{$vr}", $vo->order_number);
+            $sheet->setCellValue("C{$vr}", $voidedAt);
+            $sheet->setCellValue("D{$vr}", $vo->user?->name ?? 'Kasir');
+            $sheet->setCellValue("E{$vr}", $vo->voidedByUser?->name ?? 'Supervisor');
+            $sheet->setCellValue("F{$vr}", $vo->void_reason ?? 'Tanpa Keterangan');
+            $sheet->setCellValue("G{$vr}", (float) $vo->total_amount);
+            $sheet->setCellValue("H{$vr}", ((int) $vo->printed_count > 0) ? 'VOID SETELAH CETAK (' . $vo->printed_count . 'x)' : 'Belum Pernah Dicetak');
+
+            $sheet->getStyle("A{$vr}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle("G{$vr}")->getNumberFormat()->setFormatCode('"Rp "#,##0');
+            $sheet->getStyle("G{$vr}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+            if ((int) $vo->printed_count > 0) {
+                $sheet->getStyle("H{$vr}")->getFont()->setBold(true)->getColor()->setRGB('DC2626');
+            }
+
+            $this->applyBorderThin($sheet, "A{$vr}:H{$vr}");
+            if ($vr % 2 === 0) {
+                $sheet->getStyle("A{$vr}:H{$vr}")->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB(self::COLOR_ZEBRA_BG);
+            }
+            $vr++;
+        }
+
+        $lastVoidRow = $vr - 1;
+        if ($lastVoidRow >= $firstVoidRow) {
+            $sheet->setCellValue("A{$vr}", 'TOTAL NOMINAL VOID');
+            $sheet->mergeCells("A{$vr}:F{$vr}");
+            $sheet->setCellValue("G{$vr}", "=SUM(G{$firstVoidRow}:G{$lastVoidRow})");
+
+            $sheet->getStyle("A{$vr}:H{$vr}")->getFont()->setBold(true)->setSize(10.5)->getColor()->setRGB('0F172A');
+            $sheet->getStyle("A{$vr}:H{$vr}")->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB(self::COLOR_SUBHEADER_BG);
+            $sheet->getStyle("G{$vr}")->getNumberFormat()->setFormatCode('"Rp "#,##0');
+            $sheet->getStyle("G{$vr}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+            $this->applyBorderDoubleBottom($sheet, "A{$vr}:H{$vr}");
+        }
+
+        $this->autoFitColumns($sheet, array_keys($shiftHeaders));
+    }
+
+    /**
+     * Render a Bento-style KPI Card in Excel.
      */
     private function renderKpiCard(
         Worksheet $sheet,
         string $colStart,
         string $colEnd,
-        int $rowStart,
+        int $startRow,
         string $title,
         float|int $value,
         string $subtitle,
         string $bgColor,
-        string $accentColor,
-        string $numberFormat
+        string $borderColor,
+        string $numFormat = '"Rp "#,##0'
     ): void {
-        $sheet->mergeCells("{$colStart}{$rowStart}:{$colEnd}{$rowStart}");
-        $sheet->mergeCells("{$colStart}" . ($rowStart + 1) . ":{$colEnd}" . ($rowStart + 1));
-        $sheet->mergeCells("{$colStart}" . ($rowStart + 2) . ":{$colEnd}" . ($rowStart + 2));
+        $r1 = $startRow;
+        $r2 = $startRow + 1;
+        $r3 = $startRow + 2;
 
-        $sheet->setCellValue("{$colStart}{$rowStart}", $title);
-        $sheet->setCellValue("{$colStart}" . ($rowStart + 1), $value);
-        $sheet->setCellValue("{$colStart}" . ($rowStart + 2), $subtitle);
+        $sheet->mergeCells("{$colStart}{$r1}:{$colEnd}{$r1}");
+        $sheet->mergeCells("{$colStart}{$r2}:{$colEnd}{$r2}");
+        $sheet->mergeCells("{$colStart}{$r3}:{$colEnd}{$r3}");
 
-        // Styling
-        $sheet->getStyle("{$colStart}{$rowStart}")->getFont()->setSize(8.5)->setBold(true)->getColor()->setRGB('64748B');
-        $sheet->getStyle("{$colStart}" . ($rowStart + 1))->getFont()->setSize(14)->setBold(true)->getColor()->setRGB($accentColor);
-        $sheet->getStyle("{$colStart}" . ($rowStart + 1))->getNumberFormat()->setFormatCode($numberFormat);
-        $sheet->getStyle("{$colStart}" . ($rowStart + 2))->getFont()->setSize(8)->getColor()->setRGB('475569');
+        $sheet->setCellValue("{$colStart}{$r1}", $title);
+        $sheet->setCellValue("{$colStart}{$r2}", $value);
+        $sheet->setCellValue("{$colStart}{$r3}", $subtitle);
 
-        $range = "{$colStart}{$rowStart}:{$colEnd}" . ($rowStart + 2);
+        $sheet->getStyle("{$colStart}{$r1}")->getFont()->setSize(8.5)->setBold(true)->getColor()->setRGB('64748B');
+        $sheet->getStyle("{$colStart}{$r2}")->getFont()->setSize(14)->setBold(true)->getColor()->setRGB('0F172A');
+        $sheet->getStyle("{$colStart}{$r2}")->getNumberFormat()->setFormatCode($numFormat);
+        $sheet->getStyle("{$colStart}{$r3}")->getFont()->setSize(8)->setItalic(true)->getColor()->setRGB('475569');
+
+        $range = "{$colStart}{$r1}:{$colEnd}{$r3}";
         $sheet->getStyle($range)->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB($bgColor);
-        $sheet->getStyle($range)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT)->setVertical(Alignment::VERTICAL_CENTER);
-        $this->applyBorderThin($sheet, $range);
+
+        $borderStyle = [
+            'borders' => [
+                'outline' => [
+                    'borderStyle' => Border::BORDER_MEDIUM,
+                    'color'       => ['rgb' => $borderColor],
+                ],
+            ],
+        ];
+        $sheet->getStyle($range)->applyFromArray($borderStyle);
+
+        $sheet->getRowDimension($r1)->setRowHeight(16);
+        $sheet->getRowDimension($r2)->setRowHeight(22);
+        $sheet->getRowDimension($r3)->setRowHeight(16);
     }
 
     /**
-     * Style Section Header row.
+     * Format a section header band.
      */
     private function styleSectionHeader(Worksheet $sheet, string $range): void
     {
-        $sheet->getStyle($range)->getFont()->setBold(true)->setSize(11)->getColor()->setRGB(self::COLOR_DARK_HEADER);
-        $sheet->getStyle($range)->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB('F1F5F9');
+        $sheet->getStyle($range)->getFont()->setSize(10.5)->setBold(true)->getColor()->setRGB('0F172A');
+        $sheet->getStyle($range)->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB(self::COLOR_SUBHEADER_BG);
         $sheet->getStyle($range)->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);
+        $sheet->getRowDimension((int) preg_replace('/\D/', '', $range))->setRowHeight(22);
     }
 
     /**
@@ -611,7 +1473,14 @@ final class PosReportExport
      */
     private function applyBorderThin(Worksheet $sheet, string $range): void
     {
-        $sheet->getStyle($range)->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN)->getColor()->setRGB(self::COLOR_BORDER_LINE);
+        $sheet->getStyle($range)->applyFromArray([
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => Border::BORDER_THIN,
+                    'color'       => ['rgb' => self::COLOR_BORDER_LINE],
+                ],
+            ],
+        ]);
     }
 
     /**
@@ -619,18 +1488,28 @@ final class PosReportExport
      */
     private function applyBorderDoubleBottom(Worksheet $sheet, string $range): void
     {
-        $sheet->getStyle($range)->getBorders()->getTop()->setBorderStyle(Border::BORDER_THIN)->getColor()->setRGB(self::COLOR_BORDER_LINE);
-        $sheet->getStyle($range)->getBorders()->getBottom()->setBorderStyle(Border::BORDER_DOUBLE)->getColor()->setRGB(self::COLOR_DARK_HEADER);
+        $sheet->getStyle($range)->applyFromArray([
+            'borders' => [
+                'top'    => [
+                    'borderStyle' => Border::BORDER_THIN,
+                    'color'       => ['rgb' => self::COLOR_DARK_HEADER],
+                ],
+                'bottom' => [
+                    'borderStyle' => Border::BORDER_DOUBLE,
+                    'color'       => ['rgb' => self::COLOR_DARK_HEADER],
+                ],
+            ],
+        ]);
     }
 
     /**
-     * Auto-fit all specified columns with safety margin.
+     * Auto-fit columns with safety minimum padding.
      *
-     * @param array<int, string> $columns
+     * @param array<int, string> $cols
      */
-    private function autoFitColumns(Worksheet $sheet, array $columns): void
+    private function autoFitColumns(Worksheet $sheet, array $cols): void
     {
-        foreach ($columns as $col) {
+        foreach ($cols as $col) {
             $sheet->getColumnDimension($col)->setAutoSize(true);
         }
     }

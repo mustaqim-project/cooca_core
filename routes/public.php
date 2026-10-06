@@ -154,10 +154,10 @@ Route::prefix('solutions')->name('public.solutions.')->group(function (): void {
 });
 
 Route::prefix('marketplace')->name('marketplace.sub.')->group(function (): void {
-    Route::get('/businesses', fn() => view('public.marketplace.businesses'))->name('businesses');
-    Route::get('/products', fn() => view('public.marketplace.products'))->name('products');
-    Route::get('/categories', fn() => view('public.marketplace.categories'))->name('categories');
-    Route::get('/locations', fn() => view('public.marketplace.locations'))->name('locations');
+    Route::get('/businesses', [PublicMarketplaceController::class, 'businesses'])->name('businesses');
+    Route::get('/products', [PublicMarketplaceController::class, 'products'])->name('products');
+    Route::get('/categories', [PublicMarketplaceController::class, 'categories'])->name('categories');
+    Route::get('/locations', [PublicMarketplaceController::class, 'locations'])->name('locations');
 });
 
 Route::prefix('resources')->name('public.resources.')->group(function (): void {

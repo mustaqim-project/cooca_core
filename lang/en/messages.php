@@ -9,7 +9,7 @@ return [
     'restored' => ':entity has been successfully restored.',
 
     'billing' => [
-        'upgrade_success' => 'Congratulations! Your business is now active on :cycle plan. All transactions, products, and AI token quotas are fully unlocked.',
+        'upgrade_success' => 'Congratulations! Your business is now active on :cycle plan. All transactions, products, and AI features are fully unlocked.',
         'storage_recalculated_success' => "Storage recalculation for ':business' completed. Files scanned: :scanned | Untracked added: :added | Orphans cleaned: :cleaned | Used by this business: :used MB / :limit GB.",
         'storage_file_deleted_named' => "File ':name' (:size MB) successfully deleted. Your cloud storage capacity has been updated.",
         'free_package_activated_success' => "Congratulations! Special promo plan ':name' (:days Days Pro Trial) has been activated instantly with no payment needed.",
@@ -30,4 +30,5 @@ return [
         'transfer_sent' => 'Inter-warehouse transfer note #:number has been issued.',
         'transfer_received' => 'Goods receipt from warehouse :origin has been verified.',
     ],
+    'error' => 'A system error occurred. Please try again in a moment.',
 ];

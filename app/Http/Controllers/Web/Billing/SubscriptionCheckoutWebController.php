@@ -30,11 +30,15 @@ final class SubscriptionCheckoutWebController extends Controller
     /**
      * Show subscription checkout page with plan summary and payment method options.
      */
-    public function checkout(Request $request): View
+    public function checkout(Request $request): View|\Illuminate\Http\RedirectResponse
     {
         $business = Context::requireBusiness();
         $type = $request->get('type', 'subscription');
-        if (!in_array($type, ['subscription', 'ai_token', 'storage'], true)) $type = 'subscription';
+        if ($type === 'ai_token') {
+            return redirect()->route('cooca-ai.providers')
+                ->with('info', 'Cooca AI ditenagai langsung oleh API Key resmi milik Anda sendiri (BYOAI) tanpa sistem kuota atau pembelian token platform.');
+        }
+        if (!in_array($type, ['subscription', 'storage'], true)) $type = 'subscription';
         $packageMode = $request->has('type');
         $cycle = $request->get('cycle', 'monthly');
         if (!in_array($cycle, ['monthly', 'annual'], true)) {

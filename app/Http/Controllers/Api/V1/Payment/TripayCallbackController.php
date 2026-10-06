@@ -309,6 +309,13 @@ final class TripayCallbackController extends Controller
 
             // Auto-post to Cash Ledger
             $this->recordStoreCashInflow($order->business_id, $order->net_revenue, "Penjualan Online #{$order->order_number} ({$paymentChannel})", $order->id);
+
+            // Auto-post double-entry accounting journal
+            try {
+                app(\App\Domain\Accounting\AutoJournalService::class)->recordCommerceOrderJournal($order);
+            } catch (Throwable $je) {
+                Log::warning("[TripayCallback] Auto-journal failed for CommerceOrder #{$order->order_number}: " . $je->getMessage());
+            }
         });
 
         $this->sendPaymentSuccessWhatsApp($order);

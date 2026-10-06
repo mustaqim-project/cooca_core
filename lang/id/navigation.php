@@ -186,4 +186,6 @@ return [
     'active_branch' => 'Cabang Aktif',
     'switch_business' => 'Ganti Usaha',
     'all_branches' => 'Semua Cabang',
+    'templates_business' => 'Template Bisnis',
+    'sales_report' => 'Laporan Penjualan',
 ];

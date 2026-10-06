@@ -54,7 +54,7 @@ final class PosReconciliationService
         $completedOrderIds = $completedOrders->pluck('id');
         $payments = PosOrderPayment::query()
             ->whereIn('pos_order_id', $completedOrderIds)
-            ->where('status', 'paid')
+            ->whereIn('status', ['paid', 'success'])
             ->get();
 
         $totalPaymentsAmount = FinancialMath::roundFinancial((float) $payments->sum('amount'));

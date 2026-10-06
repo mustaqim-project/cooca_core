@@ -22,6 +22,7 @@ class AttendanceCorrection extends Model
     public const STATUS_PENDING = 'pending';
     public const STATUS_APPROVED = 'approved';
     public const STATUS_REJECTED = 'rejected';
+    public const STATUS_REVISION = 'revision_requested';
 
     protected $table = 'attendance_corrections';
 
@@ -114,6 +115,11 @@ class AttendanceCorrection extends Model
     public function isRejected(): bool
     {
         return $this->status === self::STATUS_REJECTED;
+    }
+
+    public function isRevisionRequested(): bool
+    {
+        return $this->status === self::STATUS_REVISION;
     }
 
     public function getTypeLabelAttribute(): string

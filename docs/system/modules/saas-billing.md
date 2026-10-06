@@ -21,6 +21,7 @@ Setiap bisnis tenant terikat pada paket langganan (`business_subscriptions`) den
 * **Prestige (Rp 199.000/bln | Rp 1.990.000/thn):** Enterprise & kepatuhan penuh (unlimited entitas bisnis per owner, semua fitur Premium, unlimited cabang & staf, kalkulasi PPh 21 TER A/B/C PP 58/2023 & Pasal 17, otomasi kirim slip gaji WhatsApp, 1.000 notifikasi WA/bln, kuota storage owner 30 GB).
 
 > **Storage & Kuota Multi-Bisnis:** Kapasitas penyimpanan media melekat pada **Akun Owner**, bukan per cabang. Kuota dihitung berdasarkan tier tertinggi di antara seluruh bisnis aktif milik Owner.  
+> **Arsitektur AI Engine Mandiri (BYOAI - Bring Your Own AI):** Tidak ada sistem kuota atau top-up token AI berbayar di sisi tenant. Seluruh kapabilitas AI beroperasi dengan model *Bring Your Own AI Provider* (Google Gemini, OpenAI, Claude, OpenRouter) di mana pengguna menghubungkan API key resmi milik sendiri (tersimpan terenkripsi AES-256). Penggunaan fitur AI tidak dikenakan batas token platform maupun biaya per token.  
 > **Kebijakan Domain Toko (Strictly Zero Custom Domain):** Seluruh etalase publik / storefront online toko beroperasi secara terpusat di bawah domain resmi `cooca.id/{slug-bisnis}` (dengan rute fallback alias `cooca.id/b/{slug}`) untuk semua tier tanpa pengecualian. Tidak ada dependensi atau fitur custom domain.  
 > **Payment Gateway Eksklusif:** Pembayaran langganan SaaS menggunakan gateway **TriPay** secara eksklusif (QRIS Dinamis & Virtual Account otomatis tanpa perlu upload bukti transfer fisik maupun kode unik verifikasi manual).
 
@@ -32,14 +33,17 @@ Setiap bisnis tenant terikat pada paket langganan (`business_subscriptions`) den
 * **Paket Free:** Diberikan otomatis saat pendaftaran bisnis baru tanpa batas waktu uji coba (*freemium*).
 * **Paket Berbayar (Standard / Premium / Prestige):** Menyediakan opsi periode Bulanan dan Tahunan (diskon 2 bulan gratis: bayar 10 bulan aktif 12 bulan).
 
-### 3.2 Penegakan Batas Kuota Bulanan (Quota & Entitlement Enforcement)
+### 3.2 Penegakan Batas Kuota Bulanan & Visualisasi Limit (Quota & Limits Dashboard)
 * Middleware platform `CheckResourceEntitlement` secara otomatis memeriksa kuota penggunaan bulanan (`quota_monthly_usages`) dan entitlement fitur:
   - *Batas Entitas Bisnis per Owner (`getBusinessLimit`, `canCreateBusiness`).*
   - *Batas Meja Dine-in Kasir POS (`getTableLimit`, `canCreateTable`).*
   - *Batas Transaksi Kasir POS, PO, dan Faktur per Bulan.*
   - *Batas Jumlah Master Produk, Bahan Baku, dan Resep.*
   - *Gating Fitur Lanjutan:* Transfer Stok, KDS Dapur, Multi-Pricing Cabang, Komisi Kasir, Kasbon, BPJS, THR, PPh 21 TER.
-* Saat kuota mendekati batas ($80\%$ dan $100\%$), sistem menampilkan notifikasi ramah pengguna yang menyarankan peningkatan paket (*Upgrade Plan*) tanpa memblokir mendadak operasional kasir yang sedang melayani antrean pelanggan.
+* **Dashboard Batas Kuota (`/billing/limits`):**
+  - **4 Pilar Utama Kapasitas:** Pilar 1 (Entitas Bisnis), Pilar 2 (Lokasi & Meja Kasir), Pilar 3 (Volume Transaksi), Pilar 4 (**AI Engine & Cloud Storage**).
+  - **Status AI Engine Mandiri (BYOAI):** Asisten AI bisnis berstatus *Unlimited BYOAI*. Menampilkan status koneksi provider aktif (Gemini, OpenAI, Claude, OpenRouter) atau tautan langsung `Setup API Key` ke `/cooca-ai/providers`. Seluruh progress bar token, persentase kuota, dan tombol top up token AI telah dieliminasi total dari antarmuka tenant.
+* Saat kuota operasional mendekati batas ($80\%$ dan $100\%$), sistem menampilkan notifikasi ramah pengguna yang menyarankan peningkatan paket (*Upgrade Plan*) tanpa memblokir mendadak operasional kasir yang sedang melayani antrean pelanggan.
 
 ### 3.3 Alur Pembayaran Langganan (TriPay Exclusive Flow)
 * Transaksi checkout otomatis menerbitkan invoice pembayaran melalui payment gateway TriPay.
@@ -55,12 +59,12 @@ Command konsol `app:process-subscription-lifecycle` dijalankan terjadwal untuk m
 
 ### 3.5 CMS Katalog Paket Billing Platform & Harga Default Cooca
 * Terletak pada rute Superadmin `/admin/billing-packages/{type?}` (`AdminBillingPackageController`).
-* Mengelola 3 tab katalog terpadu:
-  1. **Paket & Durasi Subscription:** Paket langganan Core bertempo (30 hari, 90 hari, 365 hari) dengan opsi kuota bonus token AI.
-  2. **Paket Top Up Token AI:** Kuota instan pemrosesan model kecerdasan buatan Cooca dengan masa berlaku hari tertentu.
-  3. **Paket Top Up Storage:** Kuota ruang penyimpanan permanen yang diakumulasikan ke kapasitas dasar akun owner.
+* Mengelola tab katalog terpadu:
+  1. **Paket & Durasi Subscription:** Paket langganan Core bertempo (30 hari, 90 hari, 365 hari).
+  2. **Paket Top Up Storage:** Kuota ruang penyimpanan permanen yang diakumulasikan ke kapasitas dasar akun owner.
+  3. **Penanganan Top Up AI Token:** Di sisi checkout tenant (`/billing/checkout?type=ai_token`), seluruh akses otomatis dialihkan (redirect 302) ke Pusat Integrasi Provider `/cooca-ai/providers` karena sistem beralih sepenuhnya ke model mandiri BYOAI.
 * **Single Source of Truth Default Pricing:**
-  - Panel konfigurasi fallback bawaan platform (`subscription_price_monthly`, `subscription_price_annual`, `subscription_ai_tokens_monthly`, `subscription_annual_discount_badge`, `ai_token_topup_price`, `ai_token_topup_amount`, `storage_topup_price`, `storage_topup_gb`, `owner_storage_limit_gb`).
+  - Panel konfigurasi fallback bawaan platform (`subscription_price_monthly`, `subscription_price_annual`, `subscription_annual_discount_badge`, `storage_topup_price`, `storage_topup_gb`, `owner_storage_limit_gb`).
 * **Kepatuhan Desain Apple HIG v2.0:** Mengadopsi Bento Cards squircle `rounded-[22px]`, Apple Pill Segmented Control, modal edit inset dialog `rounded-[28px]`, input anti auto-zoom iOS `text-[16px] sm:text-[13px]`, tipografi angka murni `tabular-nums`, serta kepatuhan Anti-Pill-Abuse (maksimal 1 badge status resmi `Aktif`/`Nonaktif`, nol fake pulse dots) dan aturan Zero Unicode Emoji.
 
 ---

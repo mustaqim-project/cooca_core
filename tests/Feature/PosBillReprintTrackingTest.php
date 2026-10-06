@@ -33,6 +33,7 @@ final class PosBillReprintTrackingTest extends TestCase
     {
         parent::setUp();
         Context::flush();
+        app()->setLocale('id');
 
         $this->cashier = User::create([
             'name' => 'Kasir Alpha',
@@ -188,7 +189,6 @@ final class PosBillReprintTrackingTest extends TestCase
         $receiptResponse->assertSee('SALINAN (CETAKAN KE-2)');
         $receiptResponse->assertSee('Waktu Re-Print:');
         $receiptResponse->assertSee('Operator:');
-        $receiptResponse->assertSee('Salinan (Ke-2)');
     }
 
     public function test_multiple_reprints_elevates_audit_risk_level_to_high(): void

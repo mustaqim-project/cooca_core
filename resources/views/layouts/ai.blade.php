@@ -65,6 +65,15 @@
     <!-- AppAlert (Centralized Alert & Confirm System) -->
     <script src="{{ asset('js/app-alert.js') }}"></script>
 
+    <!-- Centralized Localization Context -->
+    <script>
+        window.COOCA_LOCALE = '{{ app()->getLocale() }}';
+        window.COOCA_I18N = {
+            ai: @json(__('ai')),
+            common: @json(__('common')),
+        };
+    </script>
+
     <!-- Three.js r128 + OrbitControls + Cooca 3D Engine -->
     <script src="{{ asset('js/vendor/three/three.min.js') }}"></script>
     <script>
@@ -81,6 +90,59 @@
     <script src="{{ asset('js/ai/virtual-office-3d.js') }}"></script>
 
     <style>
+        html {
+            color-scheme: light;
+        }
+
+        html.dark,
+        .dark {
+            color-scheme: dark;
+        }
+
+        /* Universal Apple HIG Form Controls & Dropdown Styling (§Dark Mode Accessibility) */
+        select {
+            color-scheme: light;
+        }
+
+        select option,
+        select optgroup {
+            background-color: #FFFFFF;
+            color: #000000;
+        }
+
+        html.dark select,
+        .dark select {
+            color-scheme: dark;
+        }
+
+        html.dark select option,
+        html.dark select optgroup,
+        .dark select option,
+        .dark select optgroup {
+            background-color: #1C1C1E !important;
+            color: #FFFFFF !important;
+        }
+
+        html.dark select option:checked,
+        .dark select option:checked {
+            background-color: #007AFF !important;
+            color: #FFFFFF !important;
+        }
+
+        html.dark select option:hover,
+        html.dark select option:focus,
+        .dark select option:hover,
+        .dark select option:focus {
+            background-color: #2C2C2E !important;
+            color: #FFFFFF !important;
+        }
+
+        html.dark select option:disabled,
+        .dark select option:disabled {
+            background-color: #1C1C1E !important;
+            color: rgba(235, 235, 245, 0.38) !important;
+        }
+
         html, body {
             height: 100%;
             margin: 0;

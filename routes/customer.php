@@ -112,6 +112,9 @@ Route::prefix('customer')->name('customer.')->group(function (): void {
         Route::get('/orders/{id}', [CustomerPortalController::class, 'orderDetail'])->name('orders.detail');
         Route::get('/orders/{id}/status', [CustomerPortalController::class, 'checkOrderStatus'])->name('orders.status');
         Route::post('/orders/{id}/upload-proof', [CustomerPortalController::class, 'uploadProof'])->name('orders.upload_proof');
+        Route::post('/orders/{id}/cancel', [CustomerPortalController::class, 'cancelOrder'])->name('orders.cancel');
+        Route::post('/orders/{id}/complete', [CustomerPortalController::class, 'completeOrder'])->name('orders.complete');
+        Route::post('/orders/{id}/review', [CustomerPortalController::class, 'storeReview'])->name('orders.review');
 
         // Profile & Multi-Address Book Management
         Route::get('/profile', [CustomerPortalController::class, 'profile'])->name('profile');

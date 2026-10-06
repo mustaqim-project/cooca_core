@@ -85,7 +85,7 @@ final class AiProviderManagementTest extends TestCase
         $response->assertSee('AI Providers (BYOAI)');
         $response->assertSee('Anthropic Claude');
         $response->assertSee('DEFAULT');
-        $response->assertSee('•••••••••••••••• (Tersimpan Terenkripsi)');
+        $response->assertSee(__('ai.providers.key_placeholder_saved'));
         $response->assertDontSee('sk-ant-secret-test-key-12345');
     }
 

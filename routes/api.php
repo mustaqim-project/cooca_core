@@ -595,6 +595,35 @@ Route::prefix('v1')->group(function (): void {
                 Route::get('/customer-rfm', [AiAssistantController::class, 'customerRfm'])->middleware('require.permission:ai.access');
                 Route::get('/cashier-performance', [AiAssistantController::class, 'cashierPerformance'])->middleware('require.permission:ai.access');
             });
+
+            // ──────────────────────────────────────────────────────────────────
+            // MOBILE APP & BACKOFFICE API – HRM Attendance & Biometrics
+            // ──────────────────────────────────────────────────────────────────
+            Route::prefix('attendance')->group(function (): void {
+                Route::post('/check-in', [\App\Http\Controllers\Api\V1\Hrm\AttendanceApiController::class, 'checkIn']);
+                Route::post('/clock-in', [\App\Http\Controllers\Api\V1\Hrm\AttendanceApiController::class, 'checkIn']);
+                Route::post('/check-out', [\App\Http\Controllers\Api\V1\Hrm\AttendanceApiController::class, 'checkOut']);
+                Route::post('/clock-out', [\App\Http\Controllers\Api\V1\Hrm\AttendanceApiController::class, 'checkOut']);
+                Route::get('/today', [\App\Http\Controllers\Api\V1\Hrm\AttendanceApiController::class, 'today']);
+                Route::get('/history', [\App\Http\Controllers\Api\V1\Hrm\AttendanceApiController::class, 'history']);
+                Route::get('/summary', [\App\Http\Controllers\Api\V1\Hrm\AttendanceApiController::class, 'summary']);
+
+                // Face Biometrics
+                Route::post('/face-template/register', [\App\Http\Controllers\Api\V1\Hrm\AttendanceApiController::class, 'registerFace']);
+                Route::post('/face-template/verify', [\App\Http\Controllers\Api\V1\Hrm\AttendanceApiController::class, 'verifyFace']);
+
+                // Attendance Corrections (Ajukan Perbaikan Absen)
+                Route::get('/corrections', [\App\Http\Controllers\Api\V1\Hrm\AttendanceApiController::class, 'listCorrections']);
+                Route::post('/corrections', [\App\Http\Controllers\Api\V1\Hrm\AttendanceApiController::class, 'storeCorrection']);
+                Route::put('/corrections/{correction}', [\App\Http\Controllers\Api\V1\Hrm\AttendanceApiController::class, 'updateCorrection']);
+                Route::post('/corrections/{correction}/approve', [\App\Http\Controllers\Api\V1\Hrm\AttendanceApiController::class, 'approveCorrection']);
+                Route::post('/corrections/{correction}/reject', [\App\Http\Controllers\Api\V1\Hrm\AttendanceApiController::class, 'rejectCorrection']);
+                Route::post('/corrections/{correction}/request-revision', [\App\Http\Controllers\Api\V1\Hrm\AttendanceApiController::class, 'requestRevision']);
+
+                // Attendance Exception Policies (WFH, WFA, Field Work, Business Trip)
+                Route::get('/exceptions', [\App\Http\Controllers\Api\V1\Hrm\AttendanceApiController::class, 'listExceptions']);
+                Route::post('/exceptions', [\App\Http\Controllers\Api\V1\Hrm\AttendanceApiController::class, 'storeException']);
+            });
         });
     });
 });

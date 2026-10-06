@@ -17,7 +17,9 @@ use App\Models\PosOrderPayment;
 use App\Models\PosShift;
 use App\Models\ProductCategory;
 use App\Support\Context;
+use App\Support\Math\FinancialMath;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
@@ -192,34 +194,337 @@ final class PosReportWebController extends Controller
     }
 
     /**
-     * Export POS Sales ke file Excel (XLSX) multi-sheet standar COOCA.
-     *
-     * Menghasilkan file Excel XLSX profesional 2-Bagian:
-     *   - Sheet 1: Ringkasan Eksekutif & Bento KPI Cards
-     *   - Sheet 2: Rincian Transaksi Transaksional (Transaction Ledger)
+     * AJAX Endpoint untuk Quick-View Detail Transaksi (Slide-Over Drawer).
+     */
+    public function orderDetail(PosOrder $order): JsonResponse
+    {
+        $business = Context::requireBusiness();
+        if ($order->business_id !== $business->id) {
+            abort(403, 'Akses tidak sah ke data transaksi bisnis lain.');
+        }
+
+        $order->load([
+            'customer',
+            'user',
+            'location',
+            'posShift.user',
+            'technician',
+            'voidedByUser',
+            'refundedByUser',
+            'payments',
+            'items.product.category',
+            'items.modifiers',
+        ]);
+
+        $subtotal = (float) $order->subtotal;
+        $orderDiscount = (float) $order->discount_amount;
+        $voucherDiscount = (float) $order->voucher_discount_amount;
+        $pointsDiscount = (float) $order->points_discount_amount;
+        $totalDiscount = $orderDiscount + $voucherDiscount + $pointsDiscount;
+        $taxAmount = (float) $order->tax_amount;
+        $serviceChargeAmount = (float) $order->service_charge_amount;
+        $roundingAmount = (float) $order->rounding_amount;
+        $totalAmount = (float) $order->total_amount;
+        $paidAmount = (float) $order->paid_amount;
+        $changeAmount = (float) $order->change_amount;
+        $totalHpp = (float) $order->total_hpp_cost;
+        $grossProfit = (float) $order->total_gross_profit;
+        $grossMarginPercent = $totalAmount > 0 ? ($grossProfit / $totalAmount) * 100 : 0.0;
+
+        // Channel & Online Food Delivery Meta Calculation
+        $channelCode = strtolower((string) ($order->sales_channel ?? 'pos_direct'));
+        $channelConfigs = [
+            'shopeefood' => [
+                'name' => 'ShopeeFood',
+                'type' => 'online_delivery',
+                'fee_percent' => 20.0,
+                'badge_bg' => '#EE4D2D',
+                'badge_text' => '#FFFFFF',
+                'icon' => 'utensils',
+            ],
+            'gofood' => [
+                'name' => 'GoFood (GoBiz)',
+                'type' => 'online_delivery',
+                'fee_percent' => 20.0,
+                'badge_bg' => '#EE2724',
+                'badge_text' => '#FFFFFF',
+                'icon' => 'bike',
+            ],
+            'grabfood' => [
+                'name' => 'GrabFood',
+                'type' => 'online_delivery',
+                'fee_percent' => 25.0,
+                'badge_bg' => '#00B14F',
+                'badge_text' => '#FFFFFF',
+                'icon' => 'bike',
+            ],
+            'storefront' => [
+                'name' => 'Toko Online Storefront',
+                'type' => 'direct_online',
+                'fee_percent' => 0.0,
+                'badge_bg' => '#007AFF',
+                'badge_text' => '#FFFFFF',
+                'icon' => 'globe',
+            ],
+            'dine_in' => [
+                'name' => 'Dine-In (Makan di Tempat)',
+                'type' => 'direct_pos',
+                'fee_percent' => 0.0,
+                'badge_bg' => '#AF52DE',
+                'badge_text' => '#FFFFFF',
+                'icon' => 'utensils-crossed',
+            ],
+            'takeaway' => [
+                'name' => 'Takeaway (Bawa Pulang)',
+                'type' => 'direct_pos',
+                'fee_percent' => 0.0,
+                'badge_bg' => '#FF9500',
+                'badge_text' => '#FFFFFF',
+                'icon' => 'shopping-bag',
+            ],
+            'pos_direct' => [
+                'name' => 'Kasir Langsung (POS Direct)',
+                'type' => 'direct_pos',
+                'fee_percent' => 0.0,
+                'badge_bg' => '#34C759',
+                'badge_text' => '#FFFFFF',
+                'icon' => 'receipt',
+            ],
+            'pos' => [
+                'name' => 'Kasir POS',
+                'type' => 'direct_pos',
+                'fee_percent' => 0.0,
+                'badge_bg' => '#34C759',
+                'badge_text' => '#FFFFFF',
+                'icon' => 'receipt',
+            ],
+        ];
+
+        $channelCfg = $channelConfigs[$channelCode] ?? [
+            'name' => ucwords(str_replace('_', ' ', $channelCode)),
+            'type' => 'other',
+            'fee_percent' => 0.0,
+            'badge_bg' => '#8E8E93',
+            'badge_text' => '#FFFFFF',
+            'icon' => 'tag',
+        ];
+
+        $feePercent = (float) $channelCfg['fee_percent'];
+        $feeAmount = FinancialMath::roundFinancial($totalAmount * ($feePercent / 100.0));
+        $netMerchantPayout = FinancialMath::roundFinancial($totalAmount - $feeAmount);
+        $realGrossProfit = FinancialMath::roundFinancial($netMerchantPayout - $totalHpp);
+        $realMarginPercent = FinancialMath::calculateMargin($realGrossProfit, $netMerchantPayout);
+
+        $itemsFormatted = $order->items->map(function ($item) {
+            $unitPrice = (float) $item->unit_price;
+            $unitCost = (float) $item->unit_cost_hpp;
+            $qty = (float) $item->quantity;
+            $itemSubtotal = (float) $item->subtotal;
+            $itemDiscount = (float) $item->discount_amount;
+            $itemTotalPrice = (float) $item->total_price;
+            $itemTotalHpp = (float) $item->total_hpp;
+            $itemProfit = $itemTotalPrice - $itemTotalHpp;
+            $itemMargin = $itemTotalPrice > 0 ? ($itemProfit / $itemTotalPrice) * 100 : 0.0;
+
+            $modifiersFormatted = $item->modifiers->map(function ($mod) {
+                return [
+                    'id' => $mod->id,
+                    'name' => $mod->modifier_group_name ?? $mod->name ?? 'Pilihan',
+                    'option_name' => $mod->modifier_option_name ?? $mod->option_name ?? $mod->name ?? '-',
+                    'price' => (float) ($mod->unit_price ?? $mod->price ?? 0),
+                ];
+            });
+
+            return [
+                'id' => $item->id,
+                'product_id' => $item->product_id,
+                'name' => $item->product_name ?? $item->product?->name ?? 'Item Custom',
+                'code' => $item->product_code ?? $item->product?->code ?? '-',
+                'type' => $item->product?->type ?? 'goods',
+                'category_name' => $item->product?->category?->name ?? '-',
+                'quantity' => $qty,
+                'unit_price' => $unitPrice,
+                'unit_cost_hpp' => $unitCost,
+                'discount_amount' => $itemDiscount,
+                'subtotal' => $itemSubtotal,
+                'total_price' => $itemTotalPrice,
+                'total_hpp' => $itemTotalHpp,
+                'gross_profit' => $itemProfit,
+                'margin_percent' => round($itemMargin, 1),
+                'notes' => $item->notes,
+                'batch_number' => $item->batch_number,
+                'expired_date' => $item->expired_date?->format('d/m/Y'),
+                'serial_number' => $item->serial_number,
+                'dosage_instructions' => $item->dosage_instructions,
+                'modifiers' => $modifiersFormatted,
+            ];
+        });
+
+        $paymentsFormatted = $order->payments->map(function ($payment) {
+            return [
+                'id' => $payment->id,
+                'payment_method' => $payment->payment_method,
+                'method_label' => match ($payment->payment_method) {
+                    'cash' => 'Tunai (Kas Kasir)',
+                    'qris', 'qris_dynamic' => 'QRIS TriPay / Cooca Pay',
+                    'edc_debit' => 'EDC Kartu Debit Bank',
+                    'edc_credit' => 'EDC Kartu Kredit',
+                    'transfer' => 'Transfer Bank Langsung',
+                    'customer_credit' => 'Piutang / Kasbon',
+                    'loyalty_points' => 'Poin Loyalitas Member',
+                    default => ucfirst((string) $payment->payment_method),
+                },
+                'amount' => (float) $payment->amount,
+                'fee_amount' => (float) $payment->fee_amount,
+                'net_amount' => (float) $payment->net_amount,
+                'reference_number' => $payment->reference_number,
+                'status' => $payment->status,
+                'notes' => $payment->notes,
+                'paid_at' => $payment->created_at?->format('d/m/Y H:i:s'),
+            ];
+        });
+
+        $hasIndustryData = !empty($order->vehicle_license_plate)
+            || !empty($order->laundry_weight_kg)
+            || !empty($order->rack_location)
+            || !empty($order->technician_id)
+            || !empty($order->service_notes)
+            || !empty($order->notes);
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'id' => $order->id,
+                'order_number' => $order->order_number,
+                'order_date' => $order->order_date ? Carbon::parse($order->order_date)->format('d/m/Y') : '-',
+                'created_at' => $order->created_at?->format('d/m/Y H:i:s'),
+                'status' => $order->status,
+                'order_type' => $order->order_type ?? 'dine_in',
+                'sales_channel' => $order->sales_channel ?? 'pos_direct',
+                'table_or_reference' => $order->table_or_reference,
+                'external_order_ref' => $order->external_order_ref,
+                'customer' => [
+                    'name' => $order->customer?->name ?? $order->customer_name_guest ?? 'Pelanggan Umum (Guest)',
+                    'phone' => $order->customer?->phone ?? $order->customer_phone_guest ?? '-',
+                    'email' => $order->customer?->email ?? '-',
+                ],
+                'cashier' => [
+                    'name' => $order->user?->name ?? 'Kasir Utama',
+                    'email' => $order->user?->email ?? '-',
+                ],
+                'location' => [
+                    'name' => $order->location?->name ?? 'Outlet Utama',
+                    'address' => $order->location?->address ?? '-',
+                ],
+                'shift' => $order->posShift ? [
+                    'id' => $order->posShift->id,
+                    'shift_number' => $order->posShift->shift_number,
+                    'opened_at' => $order->posShift->opened_at ? Carbon::parse($order->posShift->opened_at)->format('d/m/Y H:i') : '-',
+                ] : null,
+                'channel_meta' => [
+                    'channel_code' => $channelCode,
+                    'channel_name' => $channelCfg['name'],
+                    'channel_type' => $channelCfg['type'],
+                    'platform_fee_percent' => $feePercent,
+                    'platform_fee_amount' => $feeAmount,
+                    'net_merchant_payout' => $netMerchantPayout,
+                    'real_gross_profit' => $realGrossProfit,
+                    'real_margin_percent' => round($realMarginPercent, 1),
+                    'external_order_ref' => $order->external_order_ref ?? $order->table_or_reference,
+                    'badge_bg' => $channelCfg['badge_bg'],
+                    'badge_text' => $channelCfg['badge_text'],
+                    'icon' => $channelCfg['icon'],
+                ],
+                'industry_meta' => [
+                    'industry_type' => $business->industry_type ?? 'retail',
+                    'vehicle_license_plate' => $order->vehicle_license_plate,
+                    'vehicle_model' => $order->vehicle_model,
+                    'vehicle_mileage' => $order->vehicle_mileage,
+                    'technician_name' => $order->technician?->name,
+                    'service_notes' => $order->service_notes,
+                    'laundry_weight_kg' => $order->laundry_weight_kg ? (float) $order->laundry_weight_kg : null,
+                    'rack_location' => $order->rack_location,
+                    'estimated_completion_at' => $order->estimated_completion_at ? Carbon::parse($order->estimated_completion_at)->format('d/m/Y H:i') : null,
+                    'laundry_status' => $order->laundry_status,
+                    'notes' => $order->notes,
+                    'has_industry_data' => $hasIndustryData,
+                ],
+                'financial' => [
+                    'subtotal' => $subtotal,
+                    'order_discount' => $orderDiscount,
+                    'voucher_code' => $order->voucher_code,
+                    'voucher_discount' => $voucherDiscount,
+                    'points_discount' => $pointsDiscount,
+                    'total_discount' => $totalDiscount,
+                    'tax_percentage' => (float) $order->tax_percentage,
+                    'tax_amount' => $taxAmount,
+                    'service_charge_percentage' => (float) $order->service_charge_percentage,
+                    'service_charge_amount' => $serviceChargeAmount,
+                    'rounding_amount' => $roundingAmount,
+                    'total_amount' => $totalAmount,
+                    'paid_amount' => $paidAmount,
+                    'change_amount' => $changeAmount,
+                    'total_hpp' => $totalHpp,
+                    'gross_profit' => $grossProfit,
+                    'gross_margin_percent' => round($grossMarginPercent, 1),
+                ],
+                'audit' => [
+                    'printed_count' => (int) ($order->print_count ?? $order->printed_count ?? 0),
+                    'last_printed_at' => $order->last_printed_at ? Carbon::parse($order->last_printed_at)->format('d/m/Y H:i:s') : null,
+                    'void_reason' => $order->void_reason,
+                    'voided_at' => $order->voided_at ? Carbon::parse($order->voided_at)->format('d/m/Y H:i:s') : null,
+                    'voided_by' => $order->voidedByUser?->name,
+                    'refund_reason' => $order->refund_reason,
+                    'refunded_at' => $order->refunded_at ? Carbon::parse($order->refunded_at)->format('d/m/Y H:i:s') : null,
+                    'refunded_by' => $order->refundedByUser?->name,
+                    'gateway_reference' => $order->gateway_reference,
+                    'sync_status' => $order->payment_gateway ? 'Gateway Integrated (' . $order->payment_gateway . ')' : 'Direct POS Settlement',
+                ],
+                'items' => $itemsFormatted,
+                'payments' => $paymentsFormatted,
+            ],
+        ]);
+    }
+
+    /**
+     * Export POS Sales ke Master Excel 9-Sheet (XLSX) standar COOCA.
      */
     public function exportExcel(Request $request): StreamedResponse
     {
         $business = Context::requireBusiness();
 
-        // Filter tanggal default mengikuti ringkasan di halaman (30 hari terakhir).
-        $startDate = $request->filled('start_date') ? Carbon::parse($request->get('start_date'))->startOfDay() : Carbon::today()->subDays(29)->startOfDay();
-        $endDate = $request->filled('end_date') ? Carbon::parse($request->get('end_date'))->endOfDay() : Carbon::today()->endOfDay();
-
-        if ($startDate->gt($endDate)) {
-            [$startDate, $endDate] = [$endDate, $startDate];
+        // 1. Multi-Tenant Anti-IDOR Validation
+        $locationId = $request->query('location_id');
+        if (!empty($locationId) && !Location::where('business_id', $business->id)->where('id', $locationId)->exists()) {
+            $request->merge(['location_id' => null]);
         }
 
-        $orders = PosOrder::where('business_id', $business->id)
-            ->whereIn('status', [PosOrder::STATUS_COMPLETED, PosOrder::STATUS_PARTIAL_REFUND])
-            ->whereBetween('order_date', [$startDate->toDateString(), $endDate->toDateString()])
-            ->with(['customer', 'user', 'location', 'payments', 'items.product'])
-            ->orderBy('order_date')
-            ->orderBy('created_at')
-            ->get();
+        $userId = $request->query('user_id');
+        if (!empty($userId) && !$business->users()->where('users.id', $userId)->exists()) {
+            $request->merge(['user_id' => null]);
+        }
+
+        $posShiftId = $request->query('pos_shift_id');
+        if (!empty($posShiftId) && !PosShift::where('business_id', $business->id)->where('id', $posShiftId)->exists()) {
+            $request->merge(['pos_shift_id' => null]);
+        }
+
+        $categoryId = $request->query('category_id');
+        if (!empty($categoryId) && !ProductCategory::where('business_id', $business->id)->where('id', $categoryId)->exists()) {
+            $request->merge(['category_id' => null]);
+        }
+
+        // 2. Build Filter DTO
+        $filter = PosReportFilterDTO::fromRequest($request, $business->id);
 
         if ($request->get('format') === 'csv') {
-            $filename = 'laporan-penjualan-pos-' . $startDate->format('Ymd') . '-' . $endDate->format('Ymd') . '.csv';
+            $orders = $this->reportingService->buildBaseOrdersQuery($filter)
+                ->with(['customer', 'user', 'location', 'payments', 'items.product'])
+                ->orderBy('order_date')
+                ->orderBy('created_at')
+                ->get();
+
+            $filename = 'laporan-penjualan-pos-' . $filter->startDate->format('Ymd') . '-' . $filter->endDate->format('Ymd') . '.csv';
             $headers = [
                 'Content-Type'        => 'text/csv; charset=UTF-8',
                 'Content-Disposition' => 'attachment; filename="' . $filename . '"',
@@ -228,16 +533,65 @@ final class PosReportWebController extends Controller
                 'Expires'             => '0',
             ];
 
-            return response()->stream(function () use ($orders, $business, $startDate, $endDate): void {
+            return response()->stream(function () use ($orders, $business, $filter): void {
                 $file = fopen('php://output', 'w');
                 fputs($file, "\xEF\xBB\xBF");
-                $this->exportPosDetailCsv($file, $orders, $business, $startDate, $endDate);
+                $this->exportPosDetailCsv($file, $orders, $business, $filter->startDate, $filter->endDate);
                 fclose($file);
             }, 200, $headers);
         }
 
-        $exporter = new PosReportExport();
-        return $exporter->download($business, $orders, $startDate, $endDate);
+        $exporter = new PosReportExport($this->reportingService);
+        return $exporter->download($business, $filter);
+    }
+
+    /**
+     * Tampilan Cetak Resmi / Print-to-PDF Laporan Eksekutif POS & Rekonsiliasi (Bento Apple HIG A4/F4).
+     */
+    public function printSummary(Request $request): View
+    {
+        $business = Context::requireBusiness();
+
+        // Multi-Tenant Anti-IDOR Validation
+        $locationId = $request->query('location_id');
+        if (!empty($locationId) && !Location::where('business_id', $business->id)->where('id', $locationId)->exists()) {
+            $request->merge(['location_id' => null]);
+        }
+
+        $userId = $request->query('user_id');
+        if (!empty($userId) && !$business->users()->where('users.id', $userId)->exists()) {
+            $request->merge(['user_id' => null]);
+        }
+
+        $filter = PosReportFilterDTO::fromRequest($request, $business->id);
+
+        $kpi = $this->reportingService->getKpiSummary($filter);
+        $channels = $this->reportingService->getSalesChannelBreakdown($filter);
+        $reconciliation = $this->reportingService->reconcile($filter);
+        $topProducts = $this->reportingService->getProductPerformance($filter, 10);
+        $paymentMethods = $this->reportingService->getPaymentMethodBreakdown($filter);
+        $recentTransactions = $this->reportingService->buildBaseOrdersQuery($filter)
+            ->with(['customer', 'user', 'location', 'payments', 'technician'])
+            ->latest('order_date')
+            ->latest('created_at')
+            ->limit(25)
+            ->get();
+
+        $locationName = $filter->locationId 
+            ? (Location::where('business_id', $business->id)->find($filter->locationId)?->name ?? 'Seluruh Outlet')
+            : 'Seluruh Outlet / Lokasi';
+
+        return view('app.pos.reports.print_summary', compact(
+            'business',
+            'filter',
+            'kpi',
+            'channels',
+            'reconciliation',
+            'topProducts',
+            'paymentMethods',
+            'recentTransactions',
+            'locationName'
+        ));
     }
 
     /**

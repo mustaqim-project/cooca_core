@@ -112,6 +112,32 @@ Sistem menerapkan arsitektur **Global Identity dengan Multi-Tenant Shopping Cart
 
 ---
 
+### 3.9 Standardisasi Lifecycle Pesanan & Tracking Resi AWB (Shopee-Grade)
+* **Siklus Hidup Terstandarisasi:**
+  - `pending` / `pending_payment` ➔ `paid` ➔ `processing` ➔ `packed` ➔ `shipped` ➔ `delivered` ➔ `completed`.
+  - Exception states: `cancelled`, `rejected`.
+* **Pusat Tracking & Nomor Resi AWB:**
+  - Halaman detail pesanan pelanggan (`/customer/orders/{id}`) menampilkan widget Bento AWB terintegrasi: nomor resi ekspedisi, kurir pengiriman, tombol 1-klik salin resi ke clipboard, dan tautan langsung ke portal lacak kurir eksternal.
+  - Timeline status progresif 4-langkah (Pesanan Dibuat ➔ Pembayaran Dikonfirmasi ➔ Sedang Dikirim ➔ Selesai).
+* **Aksi Mandiri Pelanggan:**
+  - **Batalkan Pesanan:** Pembeli dapat membatalkan pesanan yang belum dibayar secara mandiri. Sistem secara atomik melepaskan kuantitas stok yang dicadangkan via `StockService::releaseReservation`.
+  - **Konfirmasi Terima Pesanan:** Pembeli dapat mengonfirmasi pesanan yang telah dikirim/diterima menjadi `completed`, membuka hak akses pemberian ulasan produk.
+
+### 3.10 Sistem Ulasan Produk Terverifikasi (Verified Purchase Reviews)
+* **Basis Data & Integritas:** Menggunakan tabel `commerce_product_reviews` dengan pengikatan multi-tenant (`business_id`, `product_id`, `commerce_order_id`, `order_item_id`, `global_customer_id`).
+* **Proteksi Pembelian Sah (*Verified Purchase*):** Hanya pelanggan yang memiliki pesanan berstatus `completed` atau `delivered` yang dapat memberikan ulasan. Upaya ulasan silang antar pelanggan diblokir secara mutlak di tingkat backend (Anti-IDOR).
+* **Rating & Media:** Mendukung skala bintang 1–5, teks ulasan, serta unggah lampiran foto bukti produk.
+* **Integrasi Product Detail Page (PDP):** Menampilkan skor rating rata-rata produk (`rating_average`), total ulasan (`reviews_count`), serta papan ulasan pembeli terverifikasi pada etalase publik (`/{slug}/produk/{product}`).
+
+### 3.11 Otomasi Jurnal Pembayaran Online TriPay
+* **Penjurnalan Double-Entry Otomatis:** Saat webhook callback TriPay (`TripayCallbackController::handlePaymentSuccess`) berhasil memvalidasi pembayaran dan tanda tangan kriptografis, sistem secara atomik mengeksekusi `AutoJournalService::recordCommerceOrderJournal`:
+  - **Debit:** Kas/Bank Payment Gateway (Akun `1-1002`) sebesar `net_amount` (bersih yang masuk ke merchant).
+  - **Debit:** Beban MDR / Payment Gateway Fee (Akun `6-6003`) sebesar `fee`.
+  - **Kredit:** Pendapatan Penjualan Toko Online (Akun `4-4003`) sebesar total penjualan `amount`.
+* **Idempotensi Finansial:** Mencegah pembukuan berulang jika TriPay mengirimkan webhook duplikat untuk referensi transaksi yang sama.
+
+---
+
 ## 4. Aturan Bisnis E-Commerce (Business Rules)
 
 * **RULE-COMM-001 (Cart Isolation):** Satu sesi checkout hanya boleh memproses item dari satu tenant bisnis (`business_id`).
@@ -119,14 +145,18 @@ Sistem menerapkan arsitektur **Global Identity dengan Multi-Tenant Shopping Cart
 * **RULE-COMM-003 (Verified Contact Mandatory):** Pelanggan wajib memiliki nomor telepon atau email yang tervalidasi sebelum dapat menyelesaikan pesanan bernilai tinggi atau mengajukan reservasi.
 * **RULE-COMM-004 (Dual Payment Channel Transparency):** Merchant wajib memiliki kejelasan pemisahan antara pembayaran otomatis payment gateway (yang masuk ke saldo kliring escrow terpusat) dan transfer manual (yang masuk langsung ke rekening pribadi/bank merchant).
 * **RULE-COMM-005 (Biteship Live Rates & Logistics Scoping):** Perhitungan tarif ekspedisi wajib menyertakan kode pos toko asal (`origin_postal_code`), kode pos pembeli (`destination_postal_code`), berat produk (`weight` dalam gram), serta dimensi (panjang, lebar, tinggi). Transaksi delivery dikenakan biaya layanan sistem platform Rp 1.000 yang ditambahkan ke grand total pesanan. Jika API Biteship mengalami gangguan jaringan atau akun dalam masa validasi, sistem mengaktifkan mekanisme *graceful fallback rate* dan simulasi pengiriman sandbox sehingga alur transaksi pelanggan tidak terputus.
+* **RULE-COMM-006 (Stock Release on Cancellation):** Pembatalan pesanan berstatus belum dibayar (`pending` / `pending_payment`) secara atomik melepaskan stok produk yang dicadangkan melalui `StockService::releaseReservation`.
+* **RULE-COMM-007 (Verified Review Requirement):** Ulasan produk hanya dapat diserahkan oleh pembeli sah yang memiliki pesanan berstatus `completed` atau `delivered`, dengan relasi strict anti-IDOR.
+* **RULE-COMM-008 (TriPay Double-Entry Auto-Journal):** Callback TriPay yang terverifikasi memicu penjurnalan otomatis akun 1-1002 (Kas/Bank Gateway), 6-6003 (Beban MDR Gateway), dan 4-4003 (Pendapatan Penjualan Toko Online).
 
 ---
 
 ## 5. Keterkaitan Lintas Modul
 
-* **Ke Modul Inventory:** Memeriksa ketersediaan stok fisik secara langsung sebelum pembeli menyelesaikan checkout.
-* **Ke Modul Finance:** Pesanan e-commerce yang diverifikasi lunas langsung memicu pencatatan uang masuk dan `AutoJournalService`, serta akumulasi saldo settlement yang siap ditarik via `/finance/settlements`.
+* **Ke Modul Inventory:** Memeriksa ketersediaan stok fisik secara langsung sebelum pembeli menyelesaikan checkout dan melepaskan reservasi saat pesanan dibatalkan.
+* **Ke Modul Finance & Accounting:** Pesanan e-commerce yang diverifikasi lunas langsung memicu pencatatan jurnal akuntansi otomatis via `AutoJournalService::recordCommerceOrderJournal`, serta akumulasi saldo settlement yang siap ditarik via `/finance/settlements`.
 * **Ke Modul POS:** Reservasi online dari storefront (`commerce_reservations`) secara langsung terintegrasi ke denah meja POS (`pos_tables`) dan modal terminal kasir.
 * **Ke Modul WhatsApp:** Mengirimkan notifikasi invoice digital, nomor resi pengiriman, dan update status pesanan otomatis ke WhatsApp pembeli.
 * **Ke Modul Shipping (Biteship.com):** Menghubungkan pesanan fisik secara langsung dengan 10+ jaringan ekspedisi logistik nasional (Rates API & Order API) untuk penjemputan paket otomatis dan live tracking resi AWB.
+
 

@@ -50,6 +50,45 @@ return [
         'cancelled' => 'Cancelled',
     ],
 
+    'filters' => [
+        'all_types' => 'All Types',
+    ],
+
+    'sections' => [
+        'doc_info' => 'Document Information',
+        'doc_info_desc' => 'Select transaction type and related party',
+        'items_ordered' => 'Ordered Item List',
+        'items_ordered_desc' => 'Add ordered products or raw materials',
+        'subtotal_items' => 'Items Subtotal',
+    ],
+
+    'instant_stock_in' => [
+        'title' => '1-Click Buy to Stock',
+        'subtitle' => 'Record direct purchases without a PO, instantly increasing stock and booking payment.',
+        'item_product' => 'Finished Goods / Products',
+        'item_material' => 'Raw Materials / Ingredients',
+        'destination_warehouse' => 'Destination Warehouse',
+        'quantity_in' => 'Quantity Received',
+        'unit_cost' => 'Unit Cost',
+        'cash_account' => 'Cash / Payment Account',
+        'no_cash_outflow' => '-- No Immediate Cash Outflow (Payable / Non-Cash) --',
+        'supplier_optional' => 'Supplier / Vendor (Optional)',
+        'no_supplier_market' => '-- No Supplier (Market / Retail Purchase) --',
+        'notes_placeholder' => 'Optional notes for direct stock purchase...',
+        'submit' => 'Save & Receive Stock',
+    ],
+
+    'modals' => [
+        'delete_title' => 'Delete Draft PO?',
+        'delete_desc' => 'Are you sure you want to delete draft purchase order',
+        'delete_confirm' => 'Yes, Delete Draft',
+        'cancel_warning' => 'Order :number will be permanently cancelled. Cancellation audit records will be retained.',
+    ],
+
+    'invoices_section' => [
+        'title' => 'Related Invoices',
+    ],
+
     'actions' => [
         'create_po' => 'New PO',
         'instant_stock_in' => '1-Click Direct Stock-In',
@@ -149,6 +188,9 @@ return [
     ],
 
     'detail' => [
+        'issuer' => 'Document Issuer',
+        'customer_party' => 'Customer / Client',
+        'supplier_party' => 'Supplier / Vendor',
         'document_issuer' => 'Document Issuer:',
         'buyer_client' => 'Customer / Buyer:',
         'vendor_supplier' => 'Target Supplier / Vendor:',
@@ -176,6 +218,7 @@ return [
     ],
 
     'messages' => [
+        'empty_state' => 'No Purchase Order documents yet.',
         'created' => 'Order :number has been successfully created.',
         'created_with_approval' => 'Order :number created and submitted to approval workflow (:levels Levels).',
         'confirmed' => 'Order :number has been confirmed.',

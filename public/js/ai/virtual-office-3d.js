@@ -528,6 +528,9 @@
             }
             this.renderer.setSize(width, height);
             this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+            this.renderer.domElement.style.maxWidth = '100%';
+            this.renderer.domElement.style.maxHeight = '100%';
+            this.renderer.domElement.style.display = 'block';
             this.renderer.shadowMap.enabled = true;
             this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
             this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -8131,6 +8134,8 @@
             this.camera.aspect = width / height;
             this.camera.updateProjectionMatrix();
             this.renderer.setSize(width, height);
+            this.renderer.domElement.style.maxWidth = '100%';
+            this.renderer.domElement.style.maxHeight = '100%';
         }
 
         onPointerMove(e) {

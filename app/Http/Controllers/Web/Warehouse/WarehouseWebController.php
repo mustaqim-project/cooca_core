@@ -31,11 +31,16 @@ final class WarehouseWebController extends Controller
         private readonly EntitlementService $entitlementService = new EntitlementService
     ) {}
     /**
-     * Warehouse Management Hub - semua gudang/lokasi dalam satu dashboard.
+     * Warehouse Management Hub - semua gudang dalam satu dashboard logistik.
      */
-    public function index(): View
+    public function index(Request $request): View|RedirectResponse
     {
         $business = Context::requireBusiness();
+
+        // Redirect penambahan cabang ke Settings Hub (Cabang & Toko)
+        if ($request->query('add') === 'outlet' || $request->query('add') === 'branch') {
+            return redirect()->route('settings.index', ['tab' => 'branches', 'add' => 1]);
+        }
 
         $locations = Location::where('business_id', $business->id)
             ->with(['parent', 'children'])
@@ -87,6 +92,8 @@ final class WarehouseWebController extends Controller
             ->orderBy('name')
             ->get();
 
+        $timezones = \App\Support\TimezoneHelper::supportedTimezones();
+
         return view('app.warehouse.index', compact(
             'business',
             'locations',
@@ -98,7 +105,8 @@ final class WarehouseWebController extends Controller
             'activeWarehouses',
             'totalSkuCount',
             'totalStockUnits',
-            'recentMovements'
+            'recentMovements',
+            'timezones'
         ));
     }
 
@@ -127,6 +135,11 @@ final class WarehouseWebController extends Controller
             'geofence_radius'        => ['nullable', 'integer', 'min:10', 'max:10000'],
             'geofence_radius_meters' => ['nullable', 'integer', 'min:10', 'max:10000'],
             'is_primary'             => ['nullable', 'boolean'],
+            'timezone_mode'          => ['nullable', 'string', 'in:inherit,custom'],
+            'timezone'               => ['nullable', 'string', 'max:50'],
+            'operating_hours_mode'   => ['nullable', 'string', 'in:inherit,custom'],
+            'operating_hours_json'   => ['nullable', 'string'],
+            'operating_hours'        => ['nullable', 'array'],
         ]);
 
         $locationType = $validated['type'];
@@ -165,6 +178,25 @@ final class WarehouseWebController extends Controller
             Location::where('business_id', $business->id)->update(['is_primary' => false]);
         }
 
+        $tzMode = $validated['timezone_mode'] ?? 'inherit';
+        $locTimezone = null;
+        if ($tzMode === 'custom' && ! empty($validated['timezone']) && \App\Support\TimezoneHelper::isValid($validated['timezone'])) {
+            $locTimezone = trim((string) $validated['timezone']);
+        }
+
+        $ohMode = $validated['operating_hours_mode'] ?? 'inherit';
+        $locOperatingHours = null;
+        if ($ohMode === 'custom') {
+            if (! empty($request->input('operating_hours_json'))) {
+                $decoded = json_decode((string) $request->input('operating_hours_json'), true);
+                if (is_array($decoded)) {
+                    $locOperatingHours = \App\Support\TimezoneHelper::normalizeOperatingHours($decoded);
+                }
+            } elseif (is_array($request->input('operating_hours'))) {
+                $locOperatingHours = \App\Support\TimezoneHelper::normalizeOperatingHours($request->input('operating_hours'));
+            }
+        }
+
         $location = Location::create([
             'business_id'             => $business->id,
             'parent_id'               => ! empty($validated['parent_id']) ? $validated['parent_id'] : null,
@@ -183,6 +215,10 @@ final class WarehouseWebController extends Controller
             'latitude'                => $validated['latitude'] ?? null,
             'longitude'               => $validated['longitude'] ?? null,
             'geofence_radius_meters'  => (int) $geofenceRadius,
+            'timezone_mode'           => $tzMode,
+            'timezone'                => $locTimezone,
+            'operating_hours_mode'    => $ohMode,
+            'operating_hours'         => $locOperatingHours,
             'is_online_fulfillment'   => $request->boolean('is_online_fulfillment', true),
             'allow_storefront_pickup' => $request->boolean('allow_storefront_pickup', true),
             'is_primary'              => $isPrimary,
@@ -272,6 +308,8 @@ final class WarehouseWebController extends Controller
             ->latest()
             ->get();
 
+        $timezones = \App\Support\TimezoneHelper::supportedTimezones();
+
         return view('app.warehouse.show', compact(
             'business',
             'location',
@@ -281,8 +319,20 @@ final class WarehouseWebController extends Controller
             'receipts',
             'recentMovements',
             'otherLocations',
-            'pendingAdjustments'
+            'pendingAdjustments',
+            'timezones'
         ));
+    }
+
+    /**
+     * Edit gudang/lokasi - alihkan ke detail gudang dengan modal edit sheet Bento Apple HIG terbuka.
+     */
+    public function edit(Location $location): RedirectResponse
+    {
+        $business = Context::requireBusiness();
+        abort_unless($location->business_id === $business->id, 403);
+
+        return redirect()->route('warehouse.show', ['location' => $location, 'edit' => 1]);
     }
 
     /**
@@ -310,6 +360,11 @@ final class WarehouseWebController extends Controller
             'longitude'              => ['nullable', 'numeric', 'between:-180,180'],
             'geofence_radius'        => ['nullable', 'integer', 'min:10', 'max:10000'],
             'geofence_radius_meters' => ['nullable', 'integer', 'min:10', 'max:10000'],
+            'timezone_mode'          => ['nullable', 'string', 'in:inherit,custom'],
+            'timezone'               => ['nullable', 'string', 'max:50'],
+            'operating_hours_mode'   => ['nullable', 'string', 'in:inherit,custom'],
+            'operating_hours_json'   => ['nullable', 'string'],
+            'operating_hours'        => ['nullable', 'array'],
             'is_active'              => ['boolean'],
             'is_primary'             => ['nullable', 'boolean'],
         ]);
@@ -357,6 +412,33 @@ final class WarehouseWebController extends Controller
             'allow_storefront_pickup' => $request->boolean('allow_storefront_pickup'),
             'is_primary'              => $isPrimary ?: $location->is_primary,
         ];
+
+        if ($request->has('timezone_mode')) {
+            $tzMode = $validated['timezone_mode'] ?? 'inherit';
+            $updateData['timezone_mode'] = $tzMode;
+            if ($tzMode === 'custom' && ! empty($validated['timezone']) && \App\Support\TimezoneHelper::isValid($validated['timezone'])) {
+                $updateData['timezone'] = trim((string) $validated['timezone']);
+            } else {
+                $updateData['timezone'] = null;
+            }
+        }
+
+        if ($request->has('operating_hours_mode')) {
+            $ohMode = $validated['operating_hours_mode'] ?? 'inherit';
+            $updateData['operating_hours_mode'] = $ohMode;
+            if ($ohMode === 'custom') {
+                if (! empty($request->input('operating_hours_json'))) {
+                    $decoded = json_decode((string) $request->input('operating_hours_json'), true);
+                    if (is_array($decoded)) {
+                        $updateData['operating_hours'] = \App\Support\TimezoneHelper::normalizeOperatingHours($decoded);
+                    }
+                } elseif (is_array($request->input('operating_hours'))) {
+                    $updateData['operating_hours'] = \App\Support\TimezoneHelper::normalizeOperatingHours($request->input('operating_hours'));
+                }
+            } else {
+                $updateData['operating_hours'] = null;
+            }
+        }
 
         if (array_key_exists('latitude', $validated)) {
             $updateData['latitude'] = $validated['latitude'];

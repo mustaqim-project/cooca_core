@@ -68,7 +68,16 @@ return [
     'pillar_license' => 'Lisensi',
     'pillar_active_period' => 'Masa Aktif',
     'pillar_pos_cashier' => 'Kasir POS Bulan Ini',
-    'pillar_ai_storage' => 'Token AI & Storage',
+    'pillar_ai_storage' => 'AI Engine & Storage',
+    'ai_engine_byoai' => 'Intelegensi AI (BYOAI)',
+    'ai_byoai_active' => 'BYOAI Aktif',
+    'ai_byoai_unconfigured' => 'Belum Terhubung',
+    'ai_byoai_setup_key' => 'Setup API Key',
+    'ai_byoai_unlimited' => 'API Sendiri (Unlimited)',
+    'ai_byoai_desc' => 'Ditenagai langsung oleh API Key resmi milik Anda (OpenAI, Gemini, Claude, OpenRouter) tanpa batasan kuota token dari platform.',
+    'ai_byoai_badge_connected' => 'TERHUBUNG',
+    'ai_byoai_badge_unconfigured' => 'PERLU KUNCI API',
+    'ai_byoai_manage' => 'Kelola Provider AI',
     'pillar_renewal' => 'Perpanjangan',
     'can_renew' => 'Bisa Diperpanjang',
     'available_upgrade' => 'Tersedia Upgrade',
@@ -127,7 +136,7 @@ return [
     'resource_staff' => 'Karyawan / Staf',
     'resource_businesses' => 'Entitas Bisnis',
     'resource_tables' => 'Meja Kasir (Dine-In)',
-    'resource_ai_tokens' => 'Token AI Assistant',
+    'resource_ai_tokens' => 'AI Assistant (BYOAI)',
     'resource_storage' => 'Penyimpanan Cloud',
     'unlimited' => '∞ Unlimited',
 
@@ -167,6 +176,7 @@ return [
     'step_4_title' => 'Aktivasi Paket',
     'step_choose_payment' => 'Pilih Metode Pembayaran',
     'step_choose_payment_subtitle' => 'Pembayaran terverifikasi otomatis seketika melalui TriPay Indonesia (QRIS Dinamis & Virtual Account).',
+    'instant_verification_247' => 'Verifikasi Instan 24/7',
 
     // Direct QR Payment UI (seperti konsep qr-order/menu)
     'qris_title' => 'QRIS COOCA PAY INDONESIA',
@@ -390,7 +400,7 @@ return [
 
     // Controller Response Messages (Flash & Abort)
     'upgrade_simulation_local_only' => 'Simulasi upgrade paket hanya diizinkan pada lingkungan pengembangan lokal atau pengujian.',
-    'upgrade_success' => 'Selamat! Bisnis Anda kini aktif pada paket :cycle. Seluruh kuota transaksi, produk, dan token AI telah terbuka penuh.',
+    'upgrade_success' => 'Selamat! Bisnis Anda kini aktif pada paket :cycle. Seluruh kuota transaksi, produk, dan fitur AI telah terbuka penuh.',
     'only_owner_recalculate_storage' => 'Hanya Owner atau pengelola billing yang dapat menghitung ulang storage.',
     'owner_not_found' => 'Owner akun tidak ditemukan. Tidak dapat menghitung ulang storage.',
     'storage_recalculated_success' => "Kalkulasi storage bisnis ':business' selesai. File dipindai: :scanned | Baru ditambah: :added | Orphan dibersihkan: :cleaned | Digunakan bisnis ini: :used MB / :limit GB.",

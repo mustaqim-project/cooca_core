@@ -36,6 +36,7 @@ final class PosAiEngineTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        app()->setLocale('id');
         Context::flush();
 
         $this->user = User::create([

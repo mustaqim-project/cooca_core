@@ -21,7 +21,7 @@
 @endpush
 
 @php
-    $stores = \App\Models\Business::where('is_active', true)
+    $stores = $stores ?? \App\Models\Business::where('is_active', true)
         ->whereHas('storeSetting', function ($q): void {
             $q->where('is_storefront_enabled', true)->where('is_discoverable', true);
         })

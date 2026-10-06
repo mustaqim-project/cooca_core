@@ -262,8 +262,8 @@ final class PosAndBusinessReportingAuditTest extends TestCase
 
         $response->assertOk();
         $response->assertSee(__('pos.reports_title'));
-        // Assert filtered revenue (96300 + 30000 = 126300)
-        $response->assertSee('126.300');
+        // Assert filtered net sales (83000 + 30000 = 113000)
+        $response->assertSee('113.000');
         // Assert outside order is NOT summed into the KPI
         $response->assertDontSee('626.300');
     }

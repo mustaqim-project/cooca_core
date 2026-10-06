@@ -1,7 +1,10 @@
-@extends('layouts.ai', ['title' => 'COOCA AI Digital Company — Main Lobby'])
+@extends('layouts.app', ['title' => 'COOCA AI Digital Company'])
 
 @section('content')
 <div class="space-y-6 w-full" x-data="aiOfficeBase()">
+
+    <!-- Unified Apple HIG Navigation Hub -->
+    @include('app.ai.partials.office_navigation', ['activeOffice' => 'lobby', 'pendingCount' => $pendingCount])
 
     @php
         $allAgentStatuses = array_merge(
@@ -18,147 +21,8 @@
         'recentTasks' => $recentTasks,
         'pendingProposals' => $pendingProposals,
         'recentHistories' => $recentHistories,
+        'companyTotals' => $companyTotals,
     ])
-
-    <!-- TEAM WORKSPACES DIRECTORY (ONE UNIFIED HEADQUARTERS) -->
-    <div class="p-6 rounded-3xl bg-white dark:bg-zinc-900 border border-black/10 dark:border-white/10 shadow-sm space-y-4">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-black/5 dark:border-white/5">
-            <div>
-                <div class="flex items-center gap-2">
-                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                    <h2 class="text-base font-bold text-black dark:text-white tracking-tight">Virtual Office Headquarters — Pembagian Ruang Kerja Tim</h2>
-                </div>
-                <p class="text-xs text-black/50 dark:text-white/50 mt-0.5">Semua AI Agent beroperasi dalam satu virtual office yang sama layaknya The Sims. Tugas didelegasikan kepada tim fungsional, dan eksekutif memegang kendali strategi.</p>
-            </div>
-            <div class="flex items-center gap-2">
-                <button type="button" @click="openConsultationModal()" class="px-3.5 py-1.5 rounded-xl bg-black dark:bg-white text-white dark:text-black text-xs font-semibold shadow-sm transition flex items-center gap-1.5 cursor-pointer">
-                    <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
-                    <span>Tugaskan Tim AI</span>
-                </button>
-            </div>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            <!-- 1. Executive Suite -->
-            <div class="p-3.5 rounded-2xl bg-amber-500/5 border border-amber-500/20 space-y-2">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-2">
-                        <span class="text-lg">👑</span>
-                        <div>
-                            <div class="text-xs font-bold text-black dark:text-white">Eksekutif & Boardroom</div>
-                            <div class="text-[10px] text-amber-700 dark:text-amber-300 font-mono">Executive Suite</div>
-                        </div>
-                    </div>
-                    <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-500/20 text-amber-800 dark:text-amber-200">STRATEGIS</span>
-                </div>
-                <div class="text-[11px] text-black/60 dark:text-white/60">Pimpinan C-Level pembuat keputusan arah usaha, manajemen risiko, dan tata kelola anggaran.</div>
-                <div class="flex flex-wrap gap-1 text-[10px] font-mono pt-1 border-t border-black/5 dark:border-white/5">
-                    <span class="px-1.5 py-0.5 rounded bg-black/5 dark:bg-white/10 font-bold">AI CEO</span>
-                    <span class="px-1.5 py-0.5 rounded bg-black/5 dark:bg-white/10 font-bold">AI COO</span>
-                    <span class="px-1.5 py-0.5 rounded bg-black/5 dark:bg-white/10 font-bold">AI CFO</span>
-                </div>
-            </div>
-
-            <!-- 2. Marketing & Creative -->
-            <div class="p-3.5 rounded-2xl bg-purple-500/5 border border-purple-500/20 space-y-2">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-2">
-                        <span class="text-lg">🎨</span>
-                        <div>
-                            <div class="text-xs font-bold text-black dark:text-white">Tim Marketing & Creative</div>
-                            <div class="text-[10px] text-purple-700 dark:text-purple-300 font-mono">Creative Studio</div>
-                        </div>
-                    </div>
-                    <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-purple-500/20 text-purple-800 dark:text-purple-200">GROWTH</span>
-                </div>
-                <div class="text-[11px] text-black/60 dark:text-white/60">Perancangan kampanye promosi, produksi naskah media sosial, konten iklan, dan visual branding.</div>
-                <div class="flex flex-wrap gap-1 text-[10px] font-mono pt-1 border-t border-black/5 dark:border-white/5">
-                    <span class="px-1.5 py-0.5 rounded bg-black/5 dark:bg-white/10">AI CMO</span>
-                    <span class="px-1.5 py-0.5 rounded bg-black/5 dark:bg-white/10">Marketing Agent</span>
-                    <span class="px-1.5 py-0.5 rounded bg-black/5 dark:bg-white/10">Content Agent</span>
-                </div>
-            </div>
-
-            <!-- 3. Sales & CRM -->
-            <div class="p-3.5 rounded-2xl bg-blue-500/5 border border-blue-500/20 space-y-2">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-2">
-                        <span class="text-lg">💼</span>
-                        <div>
-                            <div class="text-xs font-bold text-black dark:text-white">Tim Sales & Komersial</div>
-                            <div class="text-[10px] text-blue-700 dark:text-blue-300 font-mono">Sales Command</div>
-                        </div>
-                    </div>
-                    <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-blue-500/20 text-blue-800 dark:text-blue-200">REVENUE</span>
-                </div>
-                <div class="text-[11px] text-black/60 dark:text-white/60">Follow-up pipeline prospek, konversi pesanan pelanggan, retensi pelanggan, dan loyalitas.</div>
-                <div class="flex flex-wrap gap-1 text-[10px] font-mono pt-1 border-t border-black/5 dark:border-white/5">
-                    <span class="px-1.5 py-0.5 rounded bg-black/5 dark:bg-white/10">Sales Director</span>
-                    <span class="px-1.5 py-0.5 rounded bg-black/5 dark:bg-white/10">Sales Agent</span>
-                    <span class="px-1.5 py-0.5 rounded bg-black/5 dark:bg-white/10">Customer Agent</span>
-                </div>
-            </div>
-
-            <!-- 4. Operations & Logistics -->
-            <div class="p-3.5 rounded-2xl bg-emerald-500/5 border border-emerald-500/20 space-y-2">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-2">
-                        <span class="text-lg">📦</span>
-                        <div>
-                            <div class="text-xs font-bold text-black dark:text-white">Tim Operasional & Logistik</div>
-                            <div class="text-[10px] text-emerald-700 dark:text-emerald-300 font-mono">Operations Bay</div>
-                        </div>
-                    </div>
-                    <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-500/20 text-emerald-800 dark:text-emerald-200">SUPPLY</span>
-                </div>
-                <div class="text-[11px] text-black/60 dark:text-white/60">Pengawasan stok fisik gudang, reorder point, purchasing order supplier, dan integrasi marketplace.</div>
-                <div class="flex flex-wrap gap-1 text-[10px] font-mono pt-1 border-t border-black/5 dark:border-white/5">
-                    <span class="px-1.5 py-0.5 rounded bg-black/5 dark:bg-white/10">Inventory Agent</span>
-                    <span class="px-1.5 py-0.5 rounded bg-black/5 dark:bg-white/10">Purchasing Agent</span>
-                    <span class="px-1.5 py-0.5 rounded bg-black/5 dark:bg-white/10">Marketplace Agent</span>
-                </div>
-            </div>
-
-            <!-- 5. Finance & Audit -->
-            <div class="p-3.5 rounded-2xl bg-teal-500/5 border border-teal-500/20 space-y-2">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-2">
-                        <span class="text-lg">💰</span>
-                        <div>
-                            <div class="text-xs font-bold text-black dark:text-white">Tim Keuangan & Audit</div>
-                            <div class="text-[10px] text-teal-700 dark:text-teal-300 font-mono">Finance Chamber</div>
-                        </div>
-                    </div>
-                    <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-teal-500/20 text-teal-800 dark:text-teal-200">ACCURACY</span>
-                </div>
-                <div class="text-[11px] text-black/60 dark:text-white/60">Pencatatan jurnal kas, rekonsiliasi bank, monitoring piutang jatuh tempo, dan pelaporan laba rugi.</div>
-                <div class="flex flex-wrap gap-1 text-[10px] font-mono pt-1 border-t border-black/5 dark:border-white/5">
-                    <span class="px-1.5 py-0.5 rounded bg-black/5 dark:bg-white/10">Finance Agent</span>
-                    <span class="px-1.5 py-0.5 rounded bg-black/5 dark:bg-white/10">Reporting Agent</span>
-                </div>
-            </div>
-
-            <!-- 6. Facilities & Communal -->
-            <div class="p-3.5 rounded-2xl bg-zinc-500/5 border border-zinc-500/20 space-y-2">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-2">
-                        <span class="text-lg">☕</span>
-                        <div>
-                            <div class="text-xs font-bold text-black dark:text-white">Fasilitas Komunal The Sims</div>
-                            <div class="text-[10px] text-zinc-500 font-mono">Pantry, Lounge & Server</div>
-                        </div>
-                    </div>
-                    <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-zinc-500/20 text-zinc-700 dark:text-zinc-300">LIVING SIMS</span>
-                </div>
-                <div class="text-[11px] text-black/60 dark:text-white/60">Espresso bar, dispenser air, sofa santai, dan server AI core tempat agen bersosialisasi dan rehat.</div>
-                <div class="flex flex-wrap gap-1 text-[10px] font-mono pt-1 border-t border-black/5 dark:border-white/5">
-                    <span class="px-1.5 py-0.5 rounded bg-black/5 dark:bg-white/10">Coffee Bar</span>
-                    <span class="px-1.5 py-0.5 rounded bg-black/5 dark:bg-white/10">Breakout Lounge</span>
-                    <span class="px-1.5 py-0.5 rounded bg-black/5 dark:bg-white/10">AI Server</span>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- COMPANY OVERVIEW & 3 OFFICES BENTO GRID -->
     <div class="space-y-4">
@@ -353,10 +217,10 @@
                 </h3>
                 <p class="text-xs text-black/50 dark:text-white/50 mt-0.5">Tiga kantor saling bertukar data secara berjenjang untuk merumuskan usulan aksi bisnis terpadu.</p>
             </div>
-            <button type="button" @click="triggerDailyDiagnosis()" :disabled="isEvaluating" class="px-3 py-1.5 rounded-xl bg-black/5 hover:bg-black/10 dark:bg-white/5 dark:hover:bg-white/10 text-xs font-semibold text-black dark:text-white transition flex items-center gap-1.5 border border-black/10 dark:border-white/10">
-                <i data-lucide="activity" class="w-3.5 h-3.5 text-amber-500"></i>
-                <span x-text="isEvaluating ? 'Menganalisis...' : 'Simulasi Kolaborasi Harian'"></span>
-            </button>
+            <div class="hidden sm:flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400 font-medium">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span>Alur Otomatis Aktif</span>
+            </div>
         </div>
 
         <!-- Workflow Visual Concept Diagram -->
@@ -453,54 +317,23 @@
 
     <!-- PENDING APPROVALS REQUIRING OWNER DECISION (MAKER-CHECKER) -->
     @if($pendingProposals->count() > 0)
-    <div class="rounded-3xl p-6 bg-white dark:bg-zinc-900 border border-amber-500/20 shadow-sm space-y-4">
-        <div class="flex items-center justify-between pb-3 border-b border-black/5 dark:border-white/5">
-            <div>
-                <h3 class="text-sm font-bold text-black dark:text-white flex items-center gap-2">
-                    <i data-lucide="shield-check" class="w-4 h-4 text-amber-600 dark:text-amber-400"></i>
-                    <span>Usulan Aksi Menunggu Keputusan Anda</span>
-                </h3>
-                <p class="text-xs text-black/50 dark:text-white/50 mt-0.5">Sesuai prinsip Maker-Checker, AI hanya menyiapkan draf rekomendasi. Eksekusi membutuhkan persetujuan manusia.</p>
+    <div class="rounded-3xl p-6 bg-white dark:bg-zinc-900 border border-amber-500/30 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div class="flex items-start gap-3.5">
+            <div class="w-11 h-11 rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 mt-0.5">
+                <i data-lucide="shield-check" class="w-6 h-6"></i>
             </div>
-            <a href="{{ route('cooca-ai.actions', ['status' => 'pending']) }}" class="text-xs font-semibold text-amber-600 dark:text-amber-400 hover:underline">
-                Lihat Semua ({{ $pendingCount }}) &rarr;
-            </a>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-            @foreach($pendingProposals as $proposal)
-                <div class="p-4 rounded-2xl bg-black/[0.02] dark:bg-white/[0.02] border border-black/10 dark:border-white/10 space-y-3">
-                    <div class="flex items-start justify-between gap-2">
-                        <div class="space-y-1">
-                            <div class="flex items-center gap-2">
-                                <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-black/5 dark:bg-white/10 text-black/80 dark:text-white/80 uppercase">
-                                    {{ $proposal->agent }}
-                                </span>
-                                <span class="px-2 py-0.2 rounded text-[10px] font-bold uppercase {{ $proposal->risk_level === 'high' || $proposal->risk_level === 'critical' ? 'bg-red-500/15 text-red-600 dark:text-red-400' : 'bg-amber-500/15 text-amber-600 dark:text-amber-400' }}">
-                                    {{ $proposal->risk_level }}
-                                </span>
-                            </div>
-                            <h4 class="text-xs font-bold text-black dark:text-white">{{ $proposal->title }}</h4>
-                            <p class="text-xs text-black/60 dark:text-white/60 line-clamp-2">{{ $proposal->description }}</p>
-                        </div>
-                    </div>
-
-                    <div class="flex items-center justify-between pt-2 border-t border-black/5 dark:border-white/5 text-xs">
-                        <span class="text-black/40 dark:text-white/40 font-mono text-[11px]">{{ $proposal->created_at->diffForHumans() }}</span>
-                        <div class="flex items-center gap-2">
-                            <form action="{{ route('cooca-ai.actions.reject', $proposal) }}" method="POST">
-                                @csrf
-                                <button type="submit" class="px-3 py-1.5 rounded-lg bg-black/5 hover:bg-black/10 dark:bg-white/5 dark:hover:bg-white/10 font-semibold text-black/80 dark:text-white/80 transition">Tolak</button>
-                            </form>
-                            <form action="{{ route('cooca-ai.actions.approve', $proposal) }}" method="POST">
-                                @csrf
-                                <button type="submit" class="px-3 py-1.5 rounded-lg bg-black hover:bg-black/90 dark:bg-white dark:hover:bg-white/90 text-white dark:text-black font-semibold transition">Setujui</button>
-                            </form>
-                        </div>
-                    </div>
+            <div>
+                <div class="flex items-center gap-2">
+                    <h3 class="text-sm font-bold text-black dark:text-white">Ada {{ $pendingCount }} Usulan Aksi Menunggu Keputusan Anda</h3>
+                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/15 text-amber-700 dark:text-amber-300">Maker-Checker</span>
                 </div>
-            @endforeach
+                <p class="text-xs text-black/60 dark:text-white/60 mt-1">Tim AI telah menyusun rekomendasi bisnis. Sebagai pemilik usaha, eksekusi baru berjalan setelah persetujuan Anda di Action Center.</p>
+            </div>
         </div>
+        <a href="{{ route('cooca-ai.actions', ['status' => 'pending']) }}" class="px-5 py-3 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs shadow-md transition flex items-center justify-center gap-2 shrink-0">
+            <span>Tinjau di Action Center ({{ $pendingCount }})</span>
+            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </a>
     </div>
     @endif
 

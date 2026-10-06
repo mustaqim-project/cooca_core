@@ -586,10 +586,10 @@ final class AiAgentBusinessMetricsService
 
     private function buildHrMetrics(Business $business): array
     {
-        $today = now()->startOfDay();
-        $totalStaff = User::where('current_business_id', $business->id)->count();
+        $today = now()->toDateString();
+        $totalStaff = $business->users()->count();
         $presentToday = Attendance::where('business_id', $business->id)
-            ->where('date', $today)
+            ->whereDate('date', $today)
             ->count();
 
         $activeShifts = PosShift::where('business_id', $business->id)
@@ -597,12 +597,13 @@ final class AiAgentBusinessMetricsService
             ->count();
 
         $recentAttendance = Attendance::where('business_id', $business->id)
-            ->latest()
+            ->latest('date')
+            ->latest('id')
             ->take(5)
             ->get()
             ->map(fn($a) => [
                 'col1' => Str::limit($a->user?->name ?? 'Staf', 14),
-                'col2' => $a->check_in_time ? Carbon::parse($a->check_in_time)->format('H:i') : 'OFF',
+                'col2' => $a->clock_in_at ? Carbon::parse($a->clock_in_at)->format('H:i') : ($a->check_in_time ? Carbon::parse($a->check_in_time)->format('H:i') : 'OFF'),
                 'col3' => strtoupper($a->status ?? 'HADIR'),
             ])->toArray();
 

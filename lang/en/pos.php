@@ -765,4 +765,14 @@ return [
     'printer_disconnected' => 'Printer disconnected or unresponsive.',
     'test_print_sent' => 'Test print sent successfully to printer.',
     'drawer_opened_success' => 'Cash drawer pulse signal sent successfully.',
+    'preset_today' => 'Today',
+    'preset_yesterday' => 'Yesterday',
+    'preset_this_week' => 'This Week',
+    'preset_this_month' => 'This Month',
+    'preset_last_month' => 'Last Month',
+    'preset_this_year' => 'This Year',
+    'preset_custom' => 'Custom',
+    'table_label' => 'Table :table',
+    'no_notes' => 'No notes',
 ];
+

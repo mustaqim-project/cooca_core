@@ -9,6 +9,7 @@ return [
     'edit' => 'Edit',
     'delete' => 'Delete',
     'filter' => 'Filter',
+    'reset' => 'Reset',
     'search' => 'Search...',
     'export' => 'Export',
     'import' => 'Import',
@@ -66,4 +67,6 @@ return [
     'storage_open_settings' => 'Open Storage Settings',
     'storage_pruning_preview_btn' => 'Prune Space',
     'realtime_synced' => 'Real-Time Synced',
+    'copyright_footer' => 'Business Operating System.',
+    'detail' => 'Detail',
 ];

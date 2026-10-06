@@ -70,6 +70,8 @@ class Business extends Model
         'pos_tax_percent',
         'pos_enable_service_charge',
         'pos_service_charge_percent',
+        'timezone',
+        'operating_hours',
     ];
 
     protected $hidden = [
@@ -104,6 +106,7 @@ class Business extends Model
             'suspended_at' => 'datetime',
             'currency_precision' => 'integer',
             'disabled_modules' => 'array',
+            'operating_hours' => 'array',
             'pos_max_cashier_discount_percent' => 'float',
             'pos_require_pin_for_void' => 'boolean',
             'pos_require_pin_for_refund' => 'boolean',
@@ -113,6 +116,32 @@ class Business extends Model
             'pos_enable_service_charge' => 'boolean',
             'pos_service_charge_percent' => 'float',
         ];
+    }
+
+    public function getTimezone(): string
+    {
+        return \App\Support\TimezoneHelper::resolve($this);
+    }
+
+    public function getOperatingHours(): array
+    {
+        return \App\Support\TimezoneHelper::normalizeOperatingHours($this->operating_hours);
+    }
+
+    public function localNow(): \Carbon\Carbon
+    {
+        return \App\Support\TimezoneHelper::now($this);
+    }
+
+    public function localToday(): string
+    {
+        return \App\Support\TimezoneHelper::todayString($this);
+    }
+
+    public function isOperatingAt(?\Carbon\Carbon $localTime = null): bool
+    {
+        $time = $localTime ?? $this->localNow();
+        return \App\Support\TimezoneHelper::isOperatingAt($this->getOperatingHours(), $time);
     }
 
     public function getLogoUrlAttribute(): ?string
@@ -198,6 +227,16 @@ class Business extends Model
     public function memberships(): HasMany
     {
         return $this->hasMany(BusinessMembership::class);
+    }
+
+    public function workShifts(): HasMany
+    {
+        return $this->hasMany(WorkShift::class);
+    }
+
+    public function employeeSchedules(): HasMany
+    {
+        return $this->hasMany(EmployeeSchedule::class);
     }
 
     public function subscription(): \Illuminate\Database\Eloquent\Relations\HasOne
@@ -379,7 +418,11 @@ class Business extends Model
      */
     public function enableModule(string $moduleKey): void
     {
-        $disabled = $this->disabled_modules ?? [];
+        $disabled = $this->disabled_modules;
+        if ($disabled === null && ! empty($this->template_code)) {
+            $disabled = \App\Domain\Template\ModuleRegistry::getDisabledModulesForTemplate($this->template_code);
+        }
+        $disabled = $disabled ?? [];
         $disabled = array_values(array_filter($disabled, fn (string $m): bool => $m !== $moduleKey));
         $this->update(['disabled_modules' => $disabled]);
     }
@@ -389,7 +432,11 @@ class Business extends Model
      */
     public function disableModule(string $moduleKey): void
     {
-        $disabled = $this->disabled_modules ?? [];
+        $disabled = $this->disabled_modules;
+        if ($disabled === null && ! empty($this->template_code)) {
+            $disabled = \App\Domain\Template\ModuleRegistry::getDisabledModulesForTemplate($this->template_code);
+        }
+        $disabled = $disabled ?? [];
         if (! in_array($moduleKey, $disabled, true)) {
             $disabled[] = $moduleKey;
             $this->update(['disabled_modules' => $disabled]);

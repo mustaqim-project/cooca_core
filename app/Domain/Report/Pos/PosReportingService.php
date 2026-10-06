@@ -439,6 +439,16 @@ final class PosReportingService
     }
 
     /**
+     * Top Produk / Menu Terlaris (Alias / Shortcut untuk Product Performance).
+     *
+     * @return Collection<int, mixed>
+     */
+    public function getTopSellingProducts(PosReportFilterDTO $filter, int $limit = 10): Collection
+    {
+        return $this->getProductPerformance($filter, $limit);
+    }
+
+    /**
      * Matriks Kontribusi Kategori Produk (Analisis Pareto %).
      *
      * @return Collection<int, mixed>
@@ -644,15 +654,92 @@ final class PosReportingService
     }
 
     /**
-     * Breakdown Saluran Penjualan (POS vs Ojol Delivery vs Toko Online).
+     * Alias untuk getDiscountAnalytics.
+     *
+     * @return Collection<int, mixed>
+     */
+    public function getDiscountBreakdown(PosReportFilterDTO $filter): Collection
+    {
+        return $this->getDiscountAnalytics($filter);
+    }
+
+    /**
+     * Breakdown Saluran Penjualan & Online Food Delivery (ShopeeFood, GoFood, GrabFood, Storefront, POS Direct).
      *
      * @return Collection<int, mixed>
      */
     public function getSalesChannelBreakdown(PosReportFilterDTO $filter): Collection
     {
+        $channelConfigs = [
+            'shopeefood' => [
+                'name' => 'ShopeeFood',
+                'type' => 'online_delivery',
+                'fee_percent' => 20.0,
+                'badge_bg' => '#EE4D2D',
+                'badge_text' => '#FFFFFF',
+                'icon' => 'utensils',
+            ],
+            'gofood' => [
+                'name' => 'GoFood (GoBiz)',
+                'type' => 'online_delivery',
+                'fee_percent' => 20.0,
+                'badge_bg' => '#EE2724',
+                'badge_text' => '#FFFFFF',
+                'icon' => 'bike',
+            ],
+            'grabfood' => [
+                'name' => 'GrabFood',
+                'type' => 'online_delivery',
+                'fee_percent' => 25.0,
+                'badge_bg' => '#00B14F',
+                'badge_text' => '#FFFFFF',
+                'icon' => 'bike',
+            ],
+            'storefront' => [
+                'name' => 'Toko Online Storefront',
+                'type' => 'direct_online',
+                'fee_percent' => 0.0,
+                'badge_bg' => '#007AFF',
+                'badge_text' => '#FFFFFF',
+                'icon' => 'globe',
+            ],
+            'dine_in' => [
+                'name' => 'Dine-In (Makan di Tempat)',
+                'type' => 'direct_pos',
+                'fee_percent' => 0.0,
+                'badge_bg' => '#AF52DE',
+                'badge_text' => '#FFFFFF',
+                'icon' => 'utensils-crossed',
+            ],
+            'takeaway' => [
+                'name' => 'Takeaway (Bawa Pulang)',
+                'type' => 'direct_pos',
+                'fee_percent' => 0.0,
+                'badge_bg' => '#FF9500',
+                'badge_text' => '#FFFFFF',
+                'icon' => 'shopping-bag',
+            ],
+            'pos_direct' => [
+                'name' => 'Kasir Langsung (POS Direct)',
+                'type' => 'direct_pos',
+                'fee_percent' => 0.0,
+                'badge_bg' => '#34C759',
+                'badge_text' => '#FFFFFF',
+                'icon' => 'receipt',
+            ],
+            'pos' => [
+                'name' => 'Kasir POS',
+                'type' => 'direct_pos',
+                'fee_percent' => 0.0,
+                'badge_bg' => '#34C759',
+                'badge_text' => '#FFFFFF',
+                'icon' => 'receipt',
+            ],
+        ];
+
         $channels = $this->buildBaseOrdersQuery($filter)
             ->selectRaw("
-                COALESCE(pos_orders.sales_channel, 'pos_direct') as channel_name,
+                COALESCE(pos_orders.sales_channel, 'pos_direct') as sales_channel,
                 COUNT(pos_orders.id) as orders_count,
                 COALESCE(SUM(pos_orders.subtotal), 0) as gross_sales,
                 COALESCE(SUM(pos_orders.discount_amount + pos_orders.voucher_discount_amount + pos_orders.points_discount_amount), 0) as total_discount,
@@ -666,9 +753,44 @@ final class PosReportingService
 
         $totalSalesSum = (float) $channels->sum('net_sales');
 
-        return $channels->map(function ($row) use ($totalSalesSum) {
-            $sales = (float) $row->net_sales;
-            $row->contribution_percent = FinancialMath::safeDivide($sales, $totalSalesSum) * 100;
+        return $channels->map(function ($row) use ($totalSalesSum, $channelConfigs) {
+            $code = strtolower((string) $row->sales_channel);
+            $config = $channelConfigs[$code] ?? [
+                'name' => ucwords(str_replace('_', ' ', $code)),
+                'type' => 'other',
+                'fee_percent' => 0.0,
+                'badge_bg' => '#8E8E93',
+                'badge_text' => '#FFFFFF',
+                'icon' => 'tag',
+            ];
+
+            $ordersCount = (int) $row->orders_count;
+            $grossSales = (float) $row->gross_sales;
+            $totalDiscount = (float) $row->total_discount;
+            $netSales = (float) $row->net_sales;
+            $totalHpp = (float) $row->total_hpp;
+            $feePercent = (float) $config['fee_percent'];
+            $feeAmount = FinancialMath::roundFinancial($netSales * ($feePercent / 100.0));
+            $netMerchantPayout = FinancialMath::roundFinancial($netSales - $feeAmount);
+            $realGrossProfit = FinancialMath::roundFinancial($netMerchantPayout - $totalHpp);
+            $realMarginPercent = FinancialMath::calculateMargin($realGrossProfit, $netMerchantPayout);
+            $aov = FinancialMath::safeDivide($netSales, (float) $ordersCount);
+            $contributionPercent = FinancialMath::safeDivide($netSales, $totalSalesSum) * 100.0;
+
+            $row->channel_code = $code;
+            $row->channel_name = $config['name'];
+            $row->channel_type = $config['type'];
+            $row->platform_fee_percent = $feePercent;
+            $row->platform_fee_amount = $feeAmount;
+            $row->net_merchant_payout = $netMerchantPayout;
+            $row->real_gross_profit = $realGrossProfit;
+            $row->real_margin_percent = $realMarginPercent;
+            $row->aov = $aov;
+            $row->contribution_percent = $contributionPercent;
+            $row->share_percent = $contributionPercent;
+            $row->badge_bg = $config['badge_bg'];
+            $row->badge_text = $config['badge_text'];
+            $row->icon = $config['icon'];
 
             return $row;
         });
@@ -688,9 +810,20 @@ final class PosReportingService
             ->with(['customer', 'location', 'user', 'items.product']);
 
         if ($filter->locationId) $query->where('location_id', $filter->locationId);
+        if ($filter->userId) $query->where('created_by', $filter->userId);
         if ($filter->customerId) $query->where('customer_id', $filter->customerId);
 
         return $query->latest('return_date')->limit($limit)->get();
+    }
+
+    /**
+     * Alias untuk getRefundsAndReturns.
+     *
+     * @return Collection<int, SalesReturn>
+     */
+    public function getRefundSummary(PosReportFilterDTO $filter, int $limit = 50): Collection
+    {
+        return $this->getRefundsAndReturns($filter, $limit);
     }
 
     /**
@@ -820,7 +953,7 @@ final class PosReportingService
     public function getTransactionLedger(PosReportFilterDTO $filter, int $perPage = 25): \Illuminate\Contracts\Pagination\LengthAwarePaginator
     {
         return $this->buildBaseOrdersQuery($filter)
-            ->with(['user', 'location', 'customer', 'items', 'payments', 'shift.register'])
+            ->with(['user', 'location', 'customer', 'items.product', 'payments', 'shift.register', 'technician'])
             ->orderByDesc('order_date')
             ->orderByDesc('created_at')
             ->paginate($perPage)

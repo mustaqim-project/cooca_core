@@ -266,6 +266,32 @@ class Product extends Model
     }
 
     /**
+     * @return HasMany<CommerceProductReview, $this>
+     */
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(CommerceProductReview::class, 'product_id')->where('is_published', true);
+    }
+
+    public function getRatingAverageAttribute(): float
+    {
+        if ($this->relationLoaded('reviews')) {
+            return round((float) ($this->reviews->avg('rating') ?? 5.0), 1);
+        }
+
+        return round((float) ($this->reviews()->avg('rating') ?? 5.0), 1);
+    }
+
+    public function getReviewsCountAttribute(): int
+    {
+        if ($this->relationLoaded('reviews')) {
+            return $this->reviews->count();
+        }
+
+        return $this->reviews()->count();
+    }
+
+    /**
      * Get all images (primary thumbnail + secondary gallery images) as a unified collection.
      *
      * @return \Illuminate\Support\Collection<int, array{id: string|null, url: string, is_primary: bool, caption: string|null}>

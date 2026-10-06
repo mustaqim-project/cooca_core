@@ -28,6 +28,7 @@
                 'all' => ['label' => 'Semua', 'count' => $statusCounts['all']],
                 'pending_payment' => ['label' => 'Menunggu Bayar', 'count' => $statusCounts['pending_payment']],
                 'processing' => ['label' => 'Diproses', 'count' => $statusCounts['processing']],
+                'shipped' => ['label' => 'Dikirim', 'count' => $statusCounts['shipped'] ?? 0],
                 'completed' => ['label' => 'Selesai', 'count' => $statusCounts['completed']],
                 'cancelled' => ['label' => 'Dibatalkan', 'count' => $statusCounts['cancelled']],
             ];
@@ -98,19 +99,39 @@
                                     <i data-lucide="clock" class="w-3 h-3"></i>
                                     <span>Verifikasi Pembayaran</span>
                                 </span>
-                            @elseif(in_array($order->status, ['paid', 'processing', 'ready']))
+                            @elseif(in_array($order->status, ['paid', 'processing']))
                                 <span class="px-2.5 py-0.5 rounded-[8px] text-[11px] font-bold bg-[#007AFF]/10 text-[#007AFF] border border-[#007AFF]/20 flex items-center gap-1">
                                     <i data-lucide="package" class="w-3 h-3"></i>
                                     <span>Sedang Diproses</span>
+                                </span>
+                            @elseif(in_array($order->status, ['ready', 'packed', 'fulfilled']))
+                                <span class="px-2.5 py-0.5 rounded-[8px] text-[11px] font-bold bg-[#5856D6]/10 text-[#5856D6] border border-[#5856D6]/20 flex items-center gap-1">
+                                    <i data-lucide="package-check" class="w-3 h-3"></i>
+                                    <span>{{ $order->fulfillment_type === 'pickup' ? 'Siap Diambil' : 'Siap Dikirim' }}</span>
+                                </span>
+                            @elseif($order->status === 'shipped')
+                                <span class="px-2.5 py-0.5 rounded-[8px] text-[11px] font-bold bg-[#007AFF]/10 text-[#007AFF] border border-[#007AFF]/20 flex items-center gap-1">
+                                    <i data-lucide="truck" class="w-3.5 h-3.5"></i>
+                                    <span>Sedang Dikirim</span>
+                                </span>
+                            @elseif($order->status === 'delivered')
+                                <span class="px-2.5 py-0.5 rounded-[8px] text-[11px] font-bold bg-[#34C759]/10 text-[#34C759] border border-[#34C759]/20 flex items-center gap-1">
+                                    <i data-lucide="home" class="w-3.5 h-3.5"></i>
+                                    <span>Telah Tiba</span>
                                 </span>
                             @elseif($order->status === 'completed')
                                 <span class="px-2.5 py-0.5 rounded-[8px] text-[11px] font-bold bg-[#34C759]/10 text-[#34C759] border border-[#34C759]/20 flex items-center gap-1">
                                     <i data-lucide="check" class="w-3 h-3"></i>
                                     <span>Selesai</span>
                                 </span>
+                            @elseif(in_array($order->status, ['cancelled', 'rejected']))
+                                <span class="px-2.5 py-0.5 rounded-[8px] text-[11px] font-bold bg-[#FF3B30]/10 text-[#FF3B30] border border-[#FF3B30]/20 flex items-center gap-1">
+                                    <i data-lucide="x-circle" class="w-3.5 h-3.5"></i>
+                                    <span>{{ $order->status === 'rejected' ? 'Ditolak' : 'Dibatalkan' }}</span>
+                                </span>
                             @else
-                                <span class="px-2.5 py-0.5 rounded-[8px] text-[11px] font-bold bg-[#FF3B30]/10 text-[#FF3B30] border border-[#FF3B30]/20">
-                                    Dibatalkan
+                                <span class="px-2.5 py-0.5 rounded-[8px] text-[11px] font-bold bg-black/10 dark:bg-white/10 text-black/70 dark:text-white/70 border border-black/10">
+                                    {{ ucwords(str_replace('_', ' ', $order->status)) }}
                                 </span>
                             @endif
                         </div>

@@ -144,11 +144,16 @@ final class PosTableOrderToCartTest extends TestCase
         ]);
 
         // Table
-        $tableService = new PosTableService();
-        $this->table = $tableService->createTable($this->business, [
-            'table_number' => 'Meja 05',
-            'capacity' => 4,
+        $this->table = PosTable::create([
+            'id' => (string) Str::uuid(),
+            'business_id' => $this->business->id,
             'location_id' => $this->location->id,
+            'table_number' => 'Meja 05',
+            'name' => 'Meja 05',
+            'capacity' => 4,
+            'status' => PosTable::STATUS_AVAILABLE,
+            'qr_token' => Str::random(32),
+            'is_active' => true,
         ]);
     }
 

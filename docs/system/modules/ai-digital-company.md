@@ -60,17 +60,41 @@ COOCA AI beroperasi sebagai satu organisasi digital tunggal yang memiliki 3 ling
   - `Marketplace Agent`: Monitoring pesanan online, sinkronisasi stok dan harga multi-channel (Shopee, Tokopedia, TikTok Shop).
 - **Visual Metaphor:** Ruang kontrol operasional modern dengan indikator stok kritis, metrik katalog, dan antrean PO.
 
-### 2.3 Office 03 — Growth Office (`/cooca-ai/office/growth`)
-- **Pimpinan:** AI CMO (Chief Marketing Officer) & AI Sales Director.
+### 2.3 Office 03 — Growth & People Office (`/cooca-ai/office/growth`)
+- **Pimpinan:** AI CMO (Chief Marketing Officer), AI Sales Director, & AI HR Lead.
 - **Agen Spesialis:**
   - `Marketing Agent`: Evaluasi efektivitas diskon/promosi dan perumusan kampanye pemasaran.
   - `Content Agent`: Copywriting promosi, naskah caption media sosial, dan ide konten berkala.
   - `Social Media Agent`: Penjadwalan publikasi postingan, manajemen kanal medsos, dan tracking tayang.
   - `Sales Agent`: Analisis produk terlaris vs anjlok, deviasi target cabang, dan tren pendapatan.
   - `Customer Agent`: Segmentasi RFM (VIP vs Dormant) dan perumusan pesan broadcast reaktivasi.
-- **Visual Metaphor:** Ruang kerja kreatif dan komersial modern dengan antrean konten media sosial dan analitik pelanggan.
+  - `HR Agent`: Rekapitulasi absensi kehadiran staf harian, kedisiplinan shift kasir POS, dan rasio kehadiran.
+- **Visual Metaphor:** Ruang kerja kreatif, komersial, dan SDM modern dengan antrean kampanye promosi, analitik pelanggan, dan pemantauan jam kerja staf.
 
-### 2.4 Main AI Office Entry / Lobby (`/cooca-ai`)
+### 2.4 Struktur 18 AI Agent (6 Eksekutif + 12 Spesialis) & Pemetaan AI Tools
+Sistem menyediakan routing deterministik presisi tinggi melalui `CompanyHierarchy::routeTopicToTeam()` dan `AiToolRegistry`:
+1. **6 Eksekutif C-Level:**
+   - `AI CEO` (Direktur Utama / Strategic Suite)
+   - `AI CFO` (Direktur Keuangan / Financial Health)
+   - `AI COO` (Direktur Operasional / Supply Chain & Inventory)
+   - `AI CMO` (Direktur Pemasaran / Campaign & Branding)
+   - `AI Sales Director` (Direktur Penjualan / Pipeline & Customer Retention)
+   - `AI HR Lead` (Pimpinan SDM / Workforce & Attendance Governance)
+2. **12 Agen Spesialis & Pemetaan Tool:**
+   - `Business Agent`: `GetSalesSummary`, `GetStockLevels`, `GetFinancialHealth`, `DetectAnomaliesAndFraud`, `GetTopProducts`, `GetCustomerSummary`.
+   - `Sales Agent`: `GetSalesSummary`, `GetSalesTrend`, `GetTopProducts`, `DraftInvoiceProposal`.
+   - `Customer Agent`: `GetCustomerSummary`, `GetSalesSummary`.
+   - `Inventory Agent`: `GetStockLevels`, `GetTopProducts`.
+   - `Purchasing Agent`: `GetStockLevels`, `DraftPurchaseOrderProposal`.
+   - `Marketplace Agent`: `GetSalesSummary`, `GetStockLevels`, `GetTopProducts`.
+   - `Finance Agent`: `GetFinancialHealth`, `DetectAnomaliesAndFraud`, `GetSalesSummary`.
+   - `Reporting Agent`: `GetSalesSummary`, `GetFinancialHealth`, `GetTopProducts`, `GetStockLevels`.
+   - `Marketing Agent`: `GetCustomerSummary`, `GetTopProducts`, `DraftMarketingCampaignProposal`.
+   - `Content Agent`: `GetTopProducts`, `DraftSocialPostProposal`.
+   - `Social Media Agent`: `GetTopProducts`, `DraftSocialPostProposal`.
+   - `HR Agent`: `GetAttendanceSummary` (membaca real database `attendances` & register shift kasir POS).
+
+### 2.5 Main AI Office Entry / Lobby (`/cooca-ai`)
 - Gerbang komando utama perusahaan digital yang menampilkan:
   - 3 Kartu Bento Ruang Kantor dengan metrik status live dari database (jumlah agen aktif, tugas aktif, usulan pending, dan indikator kesehatan kantor).
   - *Cross-Office Collaboration Timeline Widget*: Memvisualisasikan alur kerja nyata antar departemen (misal: Sales mendeteksi penurunan omzet → Business Agent menganalisis akar masalah → AI CEO mengarahkan prioritas → AI CMO merumuskan promo → Content & Marketing menyiapkan draf materi → Owner menyetujui → Social Media Agent mengeksekusi tayang).
@@ -186,22 +210,33 @@ Dilarang keras menggunakan animasi mengetik palsu atau avatar kartun yang mengel
 - `POST /cooca-ai/actions/{proposal}/approve`: Endpoint eksekusi persetujuan proposal.
 - `POST /cooca-ai/actions/{proposal}/reject`: Endpoint penolakan proposal dengan alasan.
 - `GET /cooca-ai/history`: Riwayat komputasi, durasi tugas, dan log audit agen.
-- `GET /cooca-ai/providers`: Manajemen kunci API multi-vendor terenkripsi AES-256 & antarmuka Bento Apple HIG.
+- `GET /cooca-ai/providers`: Manajemen kunci API multi-vendor terenkripsi AES-256 (BYOAI) dilengkapi tautan langsung ke portal resmi konsol pengembang (OpenAI Platform, Google AI Studio, Anthropic Console, OpenRouter).
 - `POST /cooca-ai/providers`: Menyimpan konfigurasi provider, enkripsi kunci API, dan pengaturan default provider.
 - `POST /cooca-ai/providers/test`: Pengujian latensi koneksi (ms), verifikasi handshake, dan auto-fallback model aktif.
 - `POST /cooca-ai/providers/detect-models`: Penemuan model dinamis (*Dynamic Model Discovery*) via endpoint resmi vendor (`GET /v1/models`).
-- `POST /cooca-ai/ask`: Endpoint konsultasi interaktif AI lintas kantor.
+- `POST /cooca-ai/ask`: Endpoint Pusat Chat AI Virtual Office (Gambar 1) multi-turn conversation, selector agen (CFO, CEO, COO, CMO, Sales, HR), chip prompt rekomendasi kontekstual, penyimpanan riwayat sesi berbasis `localStorage`, dan penegakan BYOAI (otomatis redirect ke `/cooca-ai/providers` jika provider belum dikonfigurasi).
 - `POST /cooca-ai/daily-check`: Pemicu manual evaluasi kesehatan bisnis harian oleh AI CEO.
 - `GET /ai` & `GET /ai/office`: Redirect otomatis ke `/cooca-ai` untuk kompatibilitas mundur.
 
 ---
 
-## 8. Pengujian & Kepatuhan Standar
+## 8. Penghapusan Sistem Top Up Token & Penegakan BYOAI
+
+Sistem COOCA sepenuhnya menganut arsitektur **Bring Your Own AI (BYOAI)**:
+- **Zero Token Fees:** Tidak ada sistem pembelian atau top up token platform AI.
+- **Direct Official Links:** Di halaman `/cooca-ai/providers`, pengguna diberikan panduan dan tautan langsung ke situs resmi developer provider untuk membuat akun atau menyalin API Key milik mereka.
+- **Provider Guard:** Jika pengguna belum memiliki API key aktif di sistem, aksi pembukaan chat Tanya AI langsung mengarahkan pengguna ke halaman konfigurasi `/cooca-ai/providers`.
+
+---
+
+## 9. Pengujian & Kepatuhan Standar
 
 Modul ini telah teruji penuh melalui unit dan feature test di:
+- `tests/Feature/AiCompanyWorkflowTest.php` (6 skenario: alur kerja lobi, proposal aksi, revisi/penolakan, canonical redirects, guard BYOAI `ask()` missing provider, dan eksekusi chat berdasar agen aktif).
 - `tests/Feature/AiProviderManagementTest.php` (4 skenario: zero plaintext credential exposure di UI/JSON, pengujian latensi provider & update status connected, dynamic model discovery, enkripsi AES-256 & pergantian default provider).
 - `tests/Feature/AiRagAndContextEngineeringTest.php` (9 skenario: RAG tenant isolation, pencarian master data & histori, kepatuhan PP 55 / PPh 21 TER, 17 role directives, 5-layer prompt assembly, estimasi token, metrik dual monitor real, proteksi endpoint live metrics).
 - `tests/Feature/AiOfficeEnvironmentsTest.php` (8 skenario: render lobi, 3 kantor terpisah, viewport 3D Three.js dengan fasilitas, isolasi tenant, kalkulasi status riil agen di database).
 - `tests/Feature/AiDigitalCompanyTest.php` (6 skenario: otorisasi, maker-checker, idempotensi, kriptografi).
-- Seluruh pengujian passing 100% (27/27 tests, 299 assertions, 0 errors, 0 failures).
+- `tests/Feature/AiSpecialistAgentsRoutingTest.php` (4 skenario: routing presisi 12 spesialis tanpa kolaps peran, tool registry mapping lengkap, akurasi kalkulasi staf & presensi faktual HRM).
+- Seluruh pengujian passing 100% (57/57 AI tests, 480+ assertions, 0 errors, 0 failures).
 

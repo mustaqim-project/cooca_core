@@ -152,7 +152,7 @@ final class PosTerminalWebController extends Controller
                 })
                 ->with(['category', 'outputUnit', 'costModels.costingRuns.result', 'channelPrices'])
                 ->get()
-                ->map(function ($p) use ($selectedLocationId, $branchPrices) {
+                ->map(function ($p) use ($selectedLocationId, $branchPrices, $business) {
                     if (isset($branchPrices[$p->id])) {
                         $p->price = (float) $branchPrices[$p->id];
                         $p->selling_price = (float) $branchPrices[$p->id];
@@ -449,7 +449,7 @@ final class PosTerminalWebController extends Controller
             }, 'channelPrices'])
             ->limit(20)
             ->get()
-            ->map(function ($p) use ($branchPrices) {
+            ->map(function ($p) use ($branchPrices, $business) {
                 $locStock = $p->stocks->first();
                 $price = isset($branchPrices[$p->id]) ? (float) $branchPrices[$p->id] : (float) $p->selling_price;
                 $channelPricesMap = $business->isFoodIndustry()

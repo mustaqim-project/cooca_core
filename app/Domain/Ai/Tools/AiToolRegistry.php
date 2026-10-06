@@ -69,6 +69,8 @@ final class AiToolRegistry
                 'GetStockLevels' => $this->tools['GetStockLevels'],
                 'GetFinancialHealth' => $this->tools['GetFinancialHealth'],
                 'DetectAnomaliesAndFraud' => $this->tools['DetectAnomaliesAndFraud'],
+                'GetTopProducts' => $this->tools['GetTopProducts'],
+                'GetCustomerSummary' => $this->tools['GetCustomerSummary'],
             ],
             AgentRole::SALES => [
                 'GetSalesSummary' => $this->tools['GetSalesSummary'],
@@ -78,27 +80,43 @@ final class AiToolRegistry
             ],
             AgentRole::CUSTOMER => [
                 'GetCustomerSummary' => $this->tools['GetCustomerSummary'],
+                'GetSalesSummary' => $this->tools['GetSalesSummary'],
             ],
             AgentRole::INVENTORY => [
                 'GetStockLevels' => $this->tools['GetStockLevels'],
+                'GetTopProducts' => $this->tools['GetTopProducts'],
             ],
             AgentRole::PURCHASING => [
                 'GetStockLevels' => $this->tools['GetStockLevels'],
                 'DraftPurchaseOrderProposal' => $this->tools['DraftPurchaseOrderProposal'],
             ],
+            AgentRole::MARKETPLACE => [
+                'GetSalesSummary' => $this->tools['GetSalesSummary'],
+                'GetStockLevels' => $this->tools['GetStockLevels'],
+                'GetTopProducts' => $this->tools['GetTopProducts'],
+            ],
             AgentRole::FINANCE => [
                 'GetFinancialHealth' => $this->tools['GetFinancialHealth'],
                 'DetectAnomaliesAndFraud' => $this->tools['DetectAnomaliesAndFraud'],
+                'GetSalesSummary' => $this->tools['GetSalesSummary'],
             ],
             AgentRole::REPORTING => [
                 'GetSalesSummary' => $this->tools['GetSalesSummary'],
                 'GetFinancialHealth' => $this->tools['GetFinancialHealth'],
+                'GetTopProducts' => $this->tools['GetTopProducts'],
+                'GetStockLevels' => $this->tools['GetStockLevels'],
             ],
             AgentRole::MARKETING => [
                 'GetCustomerSummary' => $this->tools['GetCustomerSummary'],
+                'GetTopProducts' => $this->tools['GetTopProducts'],
                 'DraftMarketingCampaignProposal' => $this->tools['DraftMarketingCampaignProposal'],
             ],
-            AgentRole::CONTENT, AgentRole::SOCIAL_MEDIA => [
+            AgentRole::CONTENT => [
+                'GetTopProducts' => $this->tools['GetTopProducts'],
+                'DraftSocialPostProposal' => $this->tools['DraftSocialPostProposal'],
+            ],
+            AgentRole::SOCIAL_MEDIA => [
+                'GetTopProducts' => $this->tools['GetTopProducts'],
                 'DraftSocialPostProposal' => $this->tools['DraftSocialPostProposal'],
             ],
             AgentRole::HR => [

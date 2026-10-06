@@ -45,12 +45,12 @@ final class AiOrchestrator
      *
      * @return array<string, mixed>
      */
-    public function process(Business $business, ?User $user, string $query, string $taskType = 'chat', ?string $targetTeam = null): array
+    public function process(Business $business, ?User $user, string $query, string $taskType = 'chat', ?string $targetTeam = null, ?string $targetAgent = null): array
     {
         $startTime = microtime(true);
 
-        // 1. Identify intent & route to designated Team
-        $teamRouting = CompanyHierarchy::routeTopicToTeam($query, $targetTeam);
+        // 1. Identify intent & route to designated Team or specific targeted Agent
+        $teamRouting = CompanyHierarchy::routeTopicToTeam($query, $targetTeam, $targetAgent);
         $participatingAgents = $teamRouting['agents'];
         $agentSlugs = $teamRouting['agent_slugs'];
         $primaryAgent = $teamRouting['primary_agent'];

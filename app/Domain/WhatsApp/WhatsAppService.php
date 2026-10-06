@@ -38,6 +38,19 @@ class WhatsAppService
     }
 
     /**
+     * Send daily POS sales summary to owner / manager via WhatsApp.
+     */
+    public function sendDailyPosSummary(Business $business, string $phone, string $summaryMessage): bool
+    {
+        if (empty(trim($phone))) {
+            return false;
+        }
+
+        $formattedPhone = $this->formatPhoneNumber($phone);
+        return $this->sendMessage($formattedPhone, $summaryMessage);
+    }
+
+    /**
      * Send general text message via configured gateway.
      */
     public function sendMessage(string $phone, string $message): bool

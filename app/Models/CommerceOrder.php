@@ -41,6 +41,8 @@ class CommerceOrder extends Model
     public const STATUS_PAID             = 'paid';
     public const STATUS_PROCESSING       = 'processing';
     public const STATUS_READY            = 'ready';
+    public const STATUS_SHIPPED          = 'shipped';
+    public const STATUS_DELIVERED        = 'delivered';
     public const STATUS_FULFILLED        = 'fulfilled';
     public const STATUS_COMPLETED        = 'completed';
     public const STATUS_CANCELLED        = 'cancelled';
@@ -228,12 +230,19 @@ class CommerceOrder extends Model
         return $this->batches->count();
     }
 
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(CommerceProductReview::class, 'commerce_order_id');
+    }
+
     public function isPaid(): bool
     {
         return in_array($this->status, [
             self::STATUS_PAID,
             self::STATUS_PROCESSING,
             self::STATUS_READY,
+            self::STATUS_SHIPPED,
+            self::STATUS_DELIVERED,
             self::STATUS_FULFILLED,
             self::STATUS_COMPLETED,
         ], true);

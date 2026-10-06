@@ -9,7 +9,7 @@ return [
     'restored' => ':entity berhasil dipulihkan kembali.',
 
     'billing' => [
-        'upgrade_success' => 'Selamat! Bisnis Anda kini aktif pada paket :cycle. Seluruh kuota transaksi, produk, dan token AI telah terbuka penuh.',
+        'upgrade_success' => 'Selamat! Bisnis Anda kini aktif pada paket :cycle. Seluruh kuota transaksi, produk, dan fitur AI telah terbuka penuh.',
         'storage_recalculated_success' => "Kalkulasi storage bisnis ':business' selesai. File dipindai: :scanned | Baru ditambah: :added | Orphan dibersihkan: :cleaned | Digunakan bisnis ini: :used MB / :limit GB.",
         'storage_file_deleted_named' => "Berkas ':name' (:size MB) berhasil dihapus. Kapasitas penyimpanan bisnis Anda telah diperbarui.",
         'free_package_activated_success' => "Selamat! Paket promo ':name' (:days Hari Trial Pro) berhasil diaktifkan secara instan tanpa perlu transfer pembayaran.",
@@ -30,4 +30,5 @@ return [
         'transfer_sent' => 'Surat jalan pengiriman antar-gudang #:number berhasil diterbitkan.',
         'transfer_received' => 'Penerimaan barang dari gudang :origin berhasil diverifikasi.',
     ],
+    'error' => 'Terjadi kesalahan pada sistem. Silakan coba beberapa saat lagi.',
 ];

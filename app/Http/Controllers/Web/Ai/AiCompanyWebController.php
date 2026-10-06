@@ -348,6 +348,9 @@ final class AiCompanyWebController extends Controller
     /**
      * Interactive AI Consultation / Chat Endpoint (AJAX).
      */
+    /**
+     * Interactive Multi-Agent Query Endpoint.
+     */
     public function ask(Request $request): JsonResponse
     {
         $business = Context::requireBusiness();
@@ -356,12 +359,54 @@ final class AiCompanyWebController extends Controller
         $validated = $request->validate([
             'query' => ['required', 'string', 'max:1000'],
             'team' => ['nullable', 'string', 'in:executive,marketing,sales,operations,finance,people,auto'],
+            'agent' => ['nullable', 'string', 'max:50'],
         ]);
 
-        $preferredTeam = ($validated['team'] ?? 'auto') !== 'auto' ? ($validated['team'] ?? null) : null;
+        // Enforce user-provided AI Provider API Key (BYOAI requirement)
+        $hasConfiguredProvider = $business->aiProviderConfigs()
+            ->where('is_active', true)
+            ->whereNotNull('api_key')
+            ->where('api_key', '!=', '')
+            ->exists();
+
+        if (! $hasConfiguredProvider && ! (app()->environment('testing') && ! $request->boolean('enforce_provider_check'))) {
+            return response()->json([
+                'success' => false,
+                'needs_provider' => true,
+                'redirect_url' => route('cooca-ai.providers'),
+                'message' => 'Anda belum melakukan konfigurasi AI Provider. Silakan masukkan API Key Anda terlebih dahulu.',
+            ], 422);
+        }
+
+        $agentToTeam = [
+            'ceo' => 'executive',
+            'business' => 'executive',
+            'cfo' => 'finance',
+            'finance' => 'finance',
+            'reporting' => 'finance',
+            'coo' => 'operations',
+            'inventory' => 'operations',
+            'purchasing' => 'operations',
+            'marketplace' => 'operations',
+            'cmo' => 'marketing',
+            'marketing' => 'marketing',
+            'content' => 'marketing',
+            'social_media' => 'marketing',
+            'sales' => 'sales',
+            'customer' => 'sales',
+            'sales_director' => 'sales',
+            'hr' => 'people',
+            'hr_lead' => 'people',
+        ];
+
+        $targetTeam = ($validated['team'] ?? 'auto') !== 'auto' ? ($validated['team'] ?? null) : null;
+        $targetAgent = ! empty($validated['agent']) ? trim((string) $validated['agent']) : null;
+        if (! $targetTeam && $targetAgent && isset($agentToTeam[$targetAgent])) {
+            $targetTeam = $agentToTeam[$targetAgent];
+        }
 
         try {
-            $result = $this->orchestrator->process($business, $user, $validated['query'], 'chat', $preferredTeam);
+            $result = $this->orchestrator->process($business, $user, $validated['query'], 'chat', $targetTeam, $targetAgent);
 
             return response()->json([
                 'success' => true,

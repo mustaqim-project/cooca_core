@@ -68,7 +68,16 @@ return [
     'pillar_license' => 'License Tier',
     'pillar_active_period' => 'Active Period',
     'pillar_pos_cashier' => 'POS Orders This Month',
-    'pillar_ai_storage' => 'AI Tokens & Storage',
+    'pillar_ai_storage' => 'AI Engine & Storage',
+    'ai_engine_byoai' => 'AI Engine (BYOAI)',
+    'ai_byoai_active' => 'BYOAI Active',
+    'ai_byoai_unconfigured' => 'Not Connected',
+    'ai_byoai_setup_key' => 'Setup API Key',
+    'ai_byoai_unlimited' => 'Own API Key (Unlimited)',
+    'ai_byoai_desc' => 'Directly powered by your own official API Key (OpenAI, Gemini, Claude, OpenRouter) with zero platform token quotas.',
+    'ai_byoai_badge_connected' => 'CONNECTED',
+    'ai_byoai_badge_unconfigured' => 'API KEY REQUIRED',
+    'ai_byoai_manage' => 'Manage AI Providers',
     'pillar_renewal' => 'Renewal',
     'can_renew' => 'Renewable',
     'available_upgrade' => 'Upgrade Available',
@@ -114,7 +123,7 @@ return [
     'resource_staff' => 'Staff / Employees',
     'resource_businesses' => 'Business Entities',
     'resource_tables' => 'Cashier Tables (Dine-In)',
-    'resource_ai_tokens' => 'AI Assistant Tokens',
+    'resource_ai_tokens' => 'AI Assistant (BYOAI)',
     'resource_storage' => 'Cloud Storage',
     'unlimited' => '∞ Unlimited',
 
@@ -154,6 +163,7 @@ return [
     'step_4_title' => 'Plan Activation',
     'step_choose_payment' => 'Select Payment Method',
     'step_choose_payment_subtitle' => 'Payment is automatically verified in real-time via TriPay Indonesia (Dynamic QRIS & Virtual Account).',
+    'instant_verification_247' => 'Instant Verification 24/7',
 
     // Direct QR Payment UI (like qr-order/menu concept)
     'qris_title' => 'QRIS COOCA PAY INDONESIA',
@@ -372,7 +382,7 @@ return [
 
     // Controller Response Messages (Flash & Abort)
     'upgrade_simulation_local_only' => 'Simulating plan upgrade is only permitted in local development or test environments.',
-    'upgrade_success' => 'Congratulations! Your business is now active on :cycle plan. All transactions, products, and AI token quotas are fully unlocked.',
+    'upgrade_success' => 'Congratulations! Your business is now active on :cycle plan. All transactions, products, and AI features are fully unlocked.',
     'only_owner_recalculate_storage' => 'Only the Owner or billing manager can recalculate storage.',
     'owner_not_found' => 'Account owner not found. Unable to recalculate storage.',
     'storage_recalculated_success' => "Storage recalculation for ':business' completed. Files scanned: :scanned | Untracked added: :added | Orphans cleaned: :cleaned | Used by this business: :used MB / :limit GB.",

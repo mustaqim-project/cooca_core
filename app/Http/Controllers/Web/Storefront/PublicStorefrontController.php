@@ -172,7 +172,7 @@ final class PublicStorefrontController extends Controller
                 $q->where('slug', $productSlug)
                     ->orWhere('id', $productSlug);
             })
-            ->with(['category', 'images'])
+            ->with(['category', 'images', 'reviews.customer'])
             ->firstOrFail();
 
         $relatedProducts = Product::where('business_id', $business->id)

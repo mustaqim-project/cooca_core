@@ -67,6 +67,12 @@ Pada perangkat mobile dan tablet ringkas (`md:hidden`), navigasi bawah disajikan
    - Menutup pop-up mini-modal.
 5. Pengguna melanjutkan sisa pengisian form utama tanpa jeda.
 
+### 5.1 Standardisasi Form Controls & Dropdown pada Dark Mode (Eliminasi White-on-White)
+Seluruh elemen `<select>`, `<option>`, dan `<optgroup>` wajib mengadopsi standar aksesibilitas kontras tinggi WCAG 2.1 AA di seluruh layout sistem:
+1. **Penegakan `color-scheme`**: Wajib `color-scheme: light;` pada `:root` dan `color-scheme: dark;` pada `html.dark, .dark` serta elemen `select` agar mesin peramban (Chromium Windows/Linux, Firefox, Safari) merender jendela popover form control dalam tema gelap.
+2. **Apple Secondary Dark Surface (`#1C1C1E`)**: Elemen `<option>` dan `<optgroup>` pada Dark Mode wajib diberi styling `background-color: #1C1C1E !important; color: #FFFFFF !important;` untuk mencegah cacat *white-on-white* di mana teks putih diwariskan ke atas latar popover putih bawaan OS.
+3. **State Interaktif**: Opsi aktif/terpilih (`:checked`) menggunakan System Blue (`#007AFF`), hover/focus menggunakan elevated dark surface (`#2C2C2E`), dan opsi nonaktif (`:disabled`) menggunakan teks transparan teratur (`rgba(235, 235, 245, 0.38)`).
+
 ---
 
 ## 6. Standar Ergonomi Boomer & Inklusivitas (Usia 40–65+ Tahun)

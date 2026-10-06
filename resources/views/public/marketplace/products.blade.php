@@ -21,7 +21,7 @@
 @endpush
 
 @php
-    $products = \App\Models\Product::where('is_active', true)
+    $products = $products ?? \App\Models\Product::where('is_active', true)
         ->where('show_in_website', true)
         ->whereHas('business', function ($q): void {
             $q->where('is_active', true)->whereHas('storeSetting', function ($sq): void {

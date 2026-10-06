@@ -232,13 +232,13 @@ class HrmAttendanceGeofenceTest extends TestCase
 
     public function test_anti_spoofing_rejects_low_gps_accuracy(): void
     {
-        // Close coordinates but accuracy is poor (> 100 meters, e.g. 150m)
+        // Close coordinates but accuracy is poor (> 250 meters, e.g. 300m)
         $response = $this->actingAs($this->geofencedEmployee)
             ->withSession(['active_business_id' => $this->business->id])
             ->post(route('hrm.attendance.clock-in'), [
                 'latitude' => -6.175400,
                 'longitude' => 106.827160,
-                'accuracy' => 150, // Rejection threshold > 100m
+                'accuracy' => 300, // Rejection threshold > 250m
             ]);
 
         $response->assertSessionHasErrors();

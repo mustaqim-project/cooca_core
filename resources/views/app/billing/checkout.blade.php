@@ -538,7 +538,7 @@
                         </div>
                     </section>
                 @else
-                    <!-- Topup AI Token / Storage Package Selector -->
+                    <!-- Topup Storage Package Selector -->
                     @if ($packages->isNotEmpty())
                         <section aria-labelledby="package-selection-heading"
                             class="bg-white dark:bg-[#1C1C1E] rounded-[20px] border border-black/[0.06] dark:border-white/[0.08] shadow-[0_2px_8px_rgba(0,0,0,0.04)] p-5 sm:p-6 space-y-5">
@@ -554,10 +554,10 @@
                                             class="text-sm sm:text-base font-bold text-black dark:text-white flex items-center gap-2">
                                             <i data-lucide="package" class="w-4 h-4 text-[#007AFF]"
                                                 aria-hidden="true"></i>
-                                            <span>{{ $type === 'ai_token' ? 'Pilih Paket Top Up Token AI' : 'Pilih Paket Cloud Storage' }}</span>
+                                            <span>Pilih Paket Cloud Storage</span>
                                         </h3>
                                         <p class="text-[11px] sm:text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                                            Paket isi ulang kuota sumber daya bisnis Cooca.
+                                            Paket isi ulang kuota penyimpanan cloud bisnis Cooca.
                                         </p>
                                     </div>
                                 </div>
@@ -594,22 +594,13 @@
                                                 {{ $package->description }}</p>
                                         </div>
                                         <div class="mt-4 pt-3 border-t border-black/[0.06] dark:border-white/[0.08]">
-                                            @if ($type === 'ai_token')
-                                                <span
-                                                    class="text-xs font-semibold text-[#FF9500] flex items-center gap-1.5">
-                                                    <i data-lucide="bot" class="w-3.5 h-3.5" aria-hidden="true"></i>
-                                                    <span>{{ number_format($package->token_quantity, 0, ',', '.') }} Token
-                                                        AI</span>
-                                                </span>
-                                            @else
-                                                <span
-                                                    class="text-xs font-semibold text-[#007AFF] flex items-center gap-1.5">
-                                                    <i data-lucide="hard-drive" class="w-3.5 h-3.5"
-                                                        aria-hidden="true"></i>
-                                                    <span>{{ number_format(($package->storage_bytes ?? 0) / 1073741824, 2, ',', '.') }}
-                                                        GB Permanen</span>
-                                                </span>
-                                            @endif
+                                            <span
+                                                class="text-xs font-semibold text-[#007AFF] flex items-center gap-1.5">
+                                                <i data-lucide="hard-drive" class="w-3.5 h-3.5"
+                                                    aria-hidden="true"></i>
+                                                <span>{{ number_format(($package->storage_bytes ?? 0) / 1073741824, 2, ',', '.') }}
+                                                    GB Permanen</span>
+                                            </span>
                                         </div>
                                     </div>
                                 @endforeach

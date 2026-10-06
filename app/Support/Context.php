@@ -15,12 +15,57 @@ final class Context
 
     private static ?BusinessMembership $membership = null;
 
+    private static ?\App\Models\Location $location = null;
+
     /**
      * Get the active business from context.
      */
     public static function business(): ?Business
     {
         return self::$business;
+    }
+
+    /**
+     * Get the active location from context (if set).
+     */
+    public static function location(): ?\App\Models\Location
+    {
+        return self::$location;
+    }
+
+    /**
+     * Set the active location in context.
+     */
+    public static function setLocation(?\App\Models\Location $location): void
+    {
+        self::$location = $location;
+    }
+
+    /**
+     * Get the active timezone from context (resolving location or business).
+     */
+    public static function timezone(?\App\Models\Location $location = null): string
+    {
+        $loc = $location ?? self::$location;
+        return TimezoneHelper::resolve(self::$business, $loc);
+    }
+
+    /**
+     * Get current time in active context timezone.
+     */
+    public static function now(?\App\Models\Location $location = null): \Carbon\Carbon
+    {
+        $loc = $location ?? self::$location;
+        return TimezoneHelper::now(self::$business, $loc);
+    }
+
+    /**
+     * Get today's date string ('YYYY-MM-DD') in active context timezone.
+     */
+    public static function today(?\App\Models\Location $location = null): string
+    {
+        $loc = $location ?? self::$location;
+        return TimezoneHelper::todayString(self::$business, $loc);
     }
 
     /**
@@ -210,6 +255,7 @@ final class Context
     {
         self::$business = null;
         self::$membership = null;
+        self::$location = null;
     }
 }
 

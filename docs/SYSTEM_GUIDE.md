@@ -50,6 +50,7 @@
    - [4.21 Arsitektur Otomasi Pengingat Termin Pembayaran Pelanggan (WhatsApp & Email Tri-Channel, Scheduler 08:30 WIB & Anti-Spam Guard)](#421-arsitektur-otomasi-pengingat-termin-pembayaran-pelanggan-whatsapp--email-tri-channel-scheduler-0830-wib--anti-spam-guard)
    - [4.22 Arsitektur COOCA AI Digital Company (Autonomous Workforce, Executive Hierarchy C-Level, Multi-Provider BYOAI, Maker-Checker Gate & Bento AI Office)](#422-arsitektur-cooca-ai-digital-company-autonomous-workforce-executive-hierarchy-c-level-multi-provider-byoai-maker-checker-gate--bento-ai-office)
    - [4.23 Arsitektur Hardening Modul Gudang & Pemasok (Bento Apple HIG, IDOR Precedence Shield, N-Tier Cycle Traversal, & 100% i18n Parity - PRD-32)](#423-arsitektur-hardening-modul-gudang--pemasok-bento-apple-hig-idor-precedence-shield-n-tier-cycle-traversal--100-i18n-parity---prd-32)
+   - [4.24 Arsitektur COOCA Online Store & Marketplace Production-Grade (Shopee-Standard Workflow, TriPay Auto-Journaling, AWB Tracking & Verified Reviews)](#424-arsitektur-cooca-online-store--marketplace-production-grade-shopee-standard-workflow-tripay-auto-journaling-awb-tracking--verified-reviews)
 
 ---
 
@@ -76,6 +77,7 @@ Aplikasi ini dirancang untuk dapat dioperasikan secara percaya diri oleh **gener
   - Touch targets tombol aksi utama berukuran minimal **48px hingga 52px** agar tidak meleset saat ditekan di layar ponsel.
   - Ukuran font kolom input minimal **16px** (`text-[16px] sm:text-[14px]`) untuk mencegah auto-zoom browser iOS Safari yang merusak tampilan.
   - Sudut membulat organik (*squircle* `rounded-[20px]`) dan border hairline lembut yang memanjakan mata.
+  - **Aksesibilitas Kontras Dropdown Form Controls pada Dark Mode:** Seluruh elemen `<select>`, `<option>`, dan `<optgroup>` wajib menerapkan `color-scheme: dark;` dan latar belakang gelap Apple (`#1C1C1E`) dengan teks putih (`#FFFFFF`) saat Dark Mode aktif, mengeliminasi cacat kontras *white-on-white* di mana opsi tidak terlihat pada peramban Chromium/Windows/Firefox/Safari.
 * **Format Ribuan Otomatis:** Mengetik nominal uang otomatis menghasilkan tanda pemisah ribuan (`Rp 150.000`), mencegah kekeliruan mengetik nol berlebih.
 * **Standar Modal Pop-Up & Form Full-Size Lintas Multi-Device:**
   - Operasi Create, Show (Detail), Edit, dan Form Input Transaksi pada seluruh halaman index mengadopsi arsitektur **Modal-First Full-Size Canvas** tanpa berpindah halaman (*Zero Navigation Jumps*), menjaga filter dan posisi pagination tetap utuh. Dilarang modal form sempit (`max-w-md`/`max-w-lg`).
@@ -123,15 +125,21 @@ Aplikasi ini dirancang untuk dapat dioperasikan secara percaya diri oleh **gener
   - **Farmasi / Apotek:** Mengaktifkan mode apotek dengan pelacakan nomor batch dan tanggal kadaluarsa (ED) pada item obat.
 * **Dampak ke Bisnis:** Kasir tidak bisa membatalkan transaksi (void) atau mengambil uang secara diam-diam karena tindakan berisiko dilindungi **PIN Supervisor**. Pemotongan stok paket kombo merekursi seluruh komponen anak secara atomik tanpa duplikasi. Tampilan antarmuka 100% fokus pada proses bisnis spesifik UMKM tanpa kebocoran fitur industri lain.
 
-### 3.3 Manajemen Jaringan Cabang, Gudang Logistik & Penerimaan Bahan (Warehouse Hub)
-* **Kapan Digunakan?** Saat Anda ingin mengelola titik fisik toko/outlet, mengatur hierarki gudang penyimpanan (Gudang Pusat vs Sub-Gudang Cabang), menentukan titik jemput ekspedisi online, membatasi radius geofence absensi karyawan, menerima pasokan PO supplier, atau melakukan penyesuaian stok fisik (Stock Adjustment).
+### 3.3 Manajemen Jaringan Cabang (Settings Hub) & Gudang Logistik (Warehouse Hub)
+* **Kapan Digunakan?** 
+  - **Manajemen Cabang & Toko (`/settings?tab=branches`):** Saat Anda ingin menambah, mengubah, atau mengelola titik fisik cabang/outlet, menentukan Cabang Utama (Primary Branch) untuk basis profil usaha dan toko online, menyetel koordinat GPS satelit & radius geofence presensi staf (10–10.000 meter), serta memetakan zona waktu dan area kurir Biteship.
+  - **Manajemen Gudang Logistik (`/warehouse`):** Saat Anda mengelola lokasi fisik penyimpanan barang persediaan (Gudang Utama, Gudang Belakang, Gudang Dingin, Rak Dapur) yang dinaungi oleh cabang induk masing-masing, menerima pasokan PO supplier via Goods Receipt (GR), atau melakukan penyesuaian stok fisik (Stock Adjustment).
 * **Fitur Utama & Keunggulan Operasional:**
-  1. **Hierarki Cabang & Multi-Gudang Terpadu:** Membedakan Gudang Pusat (DC) penampung kontainer supplier dari Sub-Gudang Cabang (Gudang Belakang / Etalase Depan / Dapur). Stok kasir teragregasi secara otomatis tanpa membuat data fiktif.
+  1. **Pemisahan Tegas Cabang vs Gudang (Arsitektur 1-Cabang Banyak-Gudang):** 
+     - **Cabang/Outlet** adalah entitas bisnis fisik tempat transaksi kasir, presensi karyawan, dan titik penjemputan pesanan. Dikelola terpusat di **Settings Hub (`/settings?tab=branches`)**.
+     - **Gudang (`type = 'warehouse'`)** adalah entitas logistik persediaan barang. Satu cabang fisik dapat menaungi beberapa gudang anak (`parent_id = $branch->id`), misalnya Gudang Display Toko, Gudang Belakang, dan Gudang Dingin.
+     - Halaman `/warehouse` terfokus 100% untuk penambahan dan pengelolaan gudang logistik, dengan tautan cepat langsung ke Settings Hub jika ingin menambah cabang baru.
   2. **Deteksi GPS & Integrasi Kurir Ekspedisi Otomatis:** Tombol `[📍 Deteksi Lokasi Saya]` mengambil koordinat satelit instan, melakukan reverse-geocoding alamat Indonesia otomatis, dan menyambungkan kode area kurir Biteship tanpa salah ketik manual.
-  3. **Absensi Berpagar Geofence Presisi:** Menentukan radius toleransi absensi (10 s/d 10.000 meter) agar presensi karyawan di portal staf terkunci pada titik fisik toko.
+  3. **Absensi Berpagar Geofence Presisi:** Menentukan radius toleransi absensi (10 s/d 10.000 meter) agar presensi karyawan di portal staf terkunci pada titik fisik cabang terkait.
   4. **Penerimaan Barang (*Goods Receipt* / GR) dari PO:** Mencocokkan surat jalan supplier dengan Purchase Order (PO). Stok fisik langsung bertambah, HPP modal diperbarui via Moving Average, dan hutang supplier (AP) tercatat otomatis di menu keuangan.
   5. **Penyesuaian Stok Fisik Cepat & Analisis Dampak:** Mengoreksi selisih fisik riil langsung dari kartu bento gudang dengan live kalkulasi delta unit dan selisih valuasi rupiah HPP.
-* **Dampak ke Bisnis:** Distribusi stok antar-cabang terpantau transparan, valuasi aset persediaan akurat hingga rupiah terkecil, dan pengiriman kurir online toko storefront berjalan otomatis dari cabang utama terdekat.
+  6. **Proteksi Integritas Relasional:** Cabang utama (`is_primary`) dan cabang yang masih menaungi anak gudang aktif dilindungi dari penghapusan tidak sengaja. Cabang dengan jejak transaksi historis dinonaktifkan secara aman (*non-destructive deactivation*).
+* **Dampak ke Bisnis:** Struktur organisasi fisik usaha tertata rapi, tim gudang tidak dibebani pengaturan entitas cabang, relasi stok per cabang transparan, dan pengiriman kurir online berjalan presisi dari cabang utama.
 
 ### 3.4 Mengembangkan Kanal Penjualan Online (Storefront)
 * **Kapan Digunakan?** Membagikan link toko online Anda (`cooca.id/nama-toko-anda` atau alias `cooca.id/b/nama-toko-anda`) ke media sosial, Instagram Bio, atau status WhatsApp.
@@ -259,7 +267,11 @@ Aplikasi ini dirancang untuk dapat dioperasikan secara percaya diri oleh **gener
   - **Pengalihan Otomatis Non-Eksekutif:** Staf tanpa hak akses `dashboard.view` otomatis dialihkan ke `/portal` alih-alih menemui error 403 Forbidden.
   - **Penyaringan Ketat Hak Akses Operasional:** Kartu modul cepat hanya menampilkan modul yang sah dimiliki staf (kasir hanya melihat POS Kasir, staf logistik hanya melihat Gudang & Stok).
   - **Bento Empty-State Card:** Jika staf belum diberikan izin operasional apa pun, layar menyajikan kartu empty state ramah pengguna yang menjelaskan bahwa akses difokuskan untuk presensi mandiri.
-  - **Presensi Mandiri Sederhana:** Dilengkapi jam live WIB dan widget cuaca lokal (Open-Meteo), staf cukup menekan tombol `[ Masuk Sekarang ]` atau `[ Pulang Sekarang ]` dengan riwayat 7 hari terakhir yang transparan.
+  - **Presensi Berbasis Shift & Multi-Timezone:** Dilengkapi jam live interaktif dengan badge timezone outlet (`WIB`, `WITA`, `WIT`) dan kartu *Active Shift Today* (jam kerja, toleransi grace period, dan jam istirahat).
+  - **Pemisahan Tegas Operating Hours vs Shift:** Operating hours toko hanya mengatur jendela buka gerai, sementara absensi staf dihitung murni terhadap shift atau roster individu (`WorkShift` / `EmployeeSchedule`). Staf bebas jadwal tidak dipaksa keterlambatan fiktif.
+  - **Dukungan Shift Overnight (Lintas Tengah Malam):** Shift malam (misal 22:00 - 06:00) dievaluasi sebagai satu sesi absensi tunggal utuh.
+  - **Umpan Balik Instan Keterlambatan (Modal Feedback Apple HIG):** Saat clock-in berhasil, modal sheet langsung menyajikan status kehadiran (`TEPAT WAKTU`, `TERLAMBAT`, `LEBIH AWAL`), jam masuk aktual, jam jadwal masuk, dan durasi keterlambatan presisi dalam menit.
+  - **Imutabilitas Riwayat Absensi:** Rekam jejak absensi mengunci snapshot jadwal secara permanen, sehingga pemindahan shift di masa depan tidak mengubah historis data kehadiran staf.
 
 ---
 
@@ -641,6 +653,37 @@ COOCA AI Digital Company mentransformasikan AI dari sekadar asisten percakapan t
 
 *Dokumentasi Lengkap:* [`docs/prd/PRD-32-WAREHOUSE-AND-SUPPLIERS-HARDENING-MULTI-INDUSTRY-I18N.md`](file:///c:/laragon/www/cooca_core/docs/prd/PRD-32-WAREHOUSE-AND-SUPPLIERS-HARDENING-MULTI-INDUSTRY-I18N.md) | Audit Plan: [`docs/system/audits/warehouse-and-suppliers-master-implementation-plan.md`](file:///c:/laragon/www/cooca_core/docs/system/audits/warehouse-and-suppliers-master-implementation-plan.md)
 
+### 4.24 Arsitektur COOCA Online Store & Marketplace Production-Grade (Shopee-Standard Workflow, TriPay Auto-Journaling, AWB Tracking & Verified Reviews)
+
+Sistem mengimplementasikan standarisasi menyeluruh pada modul Storefront & Marketplace agar setara dengan standar operasional e-commerce nasional:
+1. **Cart to Dedicated Checkout Handoff Sync:**
+   - Alur keranjang belanja multi-toko terisolasi (`CustomerCart`) tersinkronisasi mulus ke halaman Checkout Toko dedikasi (`public.storefront.checkout.page`).
+   - Penegakan wajib login akun pelanggan (`GlobalCustomer`) dengan profil lengkap dan verifikasi WhatsApp OTP seumur hidup sebelum menyelesaikan pesanan, tanpa menghilangkan isi keranjang belanja.
+2. **TriPay Gateway Auto-Journaling & Idempotensi Finansial:**
+   - Webhook callback TriPay (`TripayCallbackController::handlePaymentSuccess`) membukukan jurnal akuntansi double-entry secara otomatis melalui `AutoJournalService::recordCommerceOrderJournal`:
+     - Debit: Kas/Bank Payment Gateway (Akun `1-1002`) sebesar penerimaan bersih (`net_amount`).
+     - Debit: Beban Administrasi Gateway / MDR (Akun `6-6003`) sebesar biaya admin (`fee`).
+     - Kredit: Pendapatan Penjualan Toko Online (Akun `4-4003`) sebesar total transaksi (`amount`).
+   - Transaksi dibungkus dalam `DB::transaction` atomik dengan pengecekan idempotensi ketat pada referensi pesanan dan nomor transaksi TriPay.
+3. **Standardisasi Lifecycle & Transisi Status Pesanan:**
+   - Model `CommerceOrder` mendukung status standar: `pending`/`pending_payment` ➔ `paid` ➔ `processing` ➔ `packed` ➔ `shipped` ➔ `delivered` ➔ `completed`.
+   - Helper `isPaid()` mengenali status pengiriman (`shipped`, `delivered`, `completed`) sebagai transaksi lunas.
+   - Merchant hanya dapat memajukan status pesanan sesuai urutan logis dan tidak dapat memanipulasi status pembayaran secara manual.
+4. **Pusat Logistik & Tracking Resi AWB (Shopee-Grade):**
+   - Halaman detail pesanan pelanggan menyajikan widget Bento AWB modern dengan fitur 1-klik salin nomor resi ke clipboard dan tautan pelacakan live ekspedisi resmi.
+   - Visualisasi timeline 4-langkah progresif (*Dibuat ➔ Dikonfirmasi ➔ Dikirim ➔ Selesai*) memberikan kepastian status pengiriman kepada pembeli.
+5. **Customer Actions & Pelepasan Stok Otomatis:**
+   - Pembeli dapat membatalkan pesanan yang belum dibayar secara mandiri via `POST /customer/orders/{id}/cancel`, yang secara atomik melepaskan reservasi kuantitas stok melalui `StockService::releaseReservation`.
+   - Pembeli dapat mengonfirmasi pesanan telah sampai via `POST /customer/orders/{id}/complete`.
+6. **Sistem Ulasan Produk Terverifikasi (Verified Purchase Reviews):**
+   - Menggunakan tabel `commerce_product_reviews` dengan validasi kepemilikan pesanan (`auth:customer`) dan syarat status pesanan `completed` atau `delivered`.
+   - Mencegah manipulasi ulasan fiktif dan serangan IDOR lintas pelanggan.
+   - Agregasi skor bintang (`rating_average`) dan jumlah ulasan (`reviews_count`) ditampilkan secara elegan pada Product Detail Page (PDP).
+7. **Katalog Publik Marketplace Terpadu:**
+   - Endpoint eksplorasi publik terhubung dengan query database teroptimasi: `/marketplace/businesses`, `/marketplace/products`, `/marketplace/categories`, dan `/marketplace/locations`.
+
+*Dokumentasi Lengkap Modul:* [`docs/system/modules/commerce.md`](file:///c:/laragon/www/cooca_core/docs/system/modules/commerce.md)
+
 ---
 
 ## 5. Matriks Penelusuran Pengetahuan (Traceability Matrix)
@@ -751,5 +794,5 @@ Dokumentasi Cooca saling terhubung secara dua arah untuk memudahkan penelusuran 
    │                                                                                                └──► WORK-2026-10-01-274 / WORK-2026-10-01-275 / WORK-2026-10-01-277 / WORK-2026-10-01-278 / WORK-2026-10-02-280 (BYOAI Providers, Claude 4.5/5 & Dynamic Discovery)
    │
    └──► Hardening Gudang & Pemasok ──► docs/prd/PRD-32-WAREHOUSE-AND-SUPPLIERS-HARDENING-MULTI-INDUSTRY-I18N.md ──► resources/views/app/warehouse/ & suppliers/
-                                                                                                                   └──► WORK-2026-10-04-289 / WORK-2026-10-04-290 / WORK-2026-10-04-291
+                                                                                                                   └──► WORK-2026-10-04-289 / WORK-2026-10-04-290 / WORK-2026-10-04-291 / WORK-2026-10-05-307 (Route warehouse.edit & Bento Modal Sheet Navigation)
 ```

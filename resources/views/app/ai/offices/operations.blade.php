@@ -1,7 +1,10 @@
-@extends('layouts.ai', ['title' => 'COOCA AI — Operations Office'])
+@extends('layouts.app', ['title' => 'COOCA AI — Operations Office'])
 
 @section('content')
 <div class="space-y-6 w-full" x-data="aiOfficeBase()">
+
+    <!-- Unified Apple HIG Navigation Hub -->
+    @include('app.ai.partials.office_navigation', ['activeOffice' => 'operations', 'pendingCount' => $officeStats['pending_approvals_count'] ?? 0])
 
     <!-- INTERACTIVE VIRTUAL OFFICE FLOOR (Watch AI Agents Work Live) -->
     @include('app.ai.partials.virtual_office_canvas', [

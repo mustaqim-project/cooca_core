@@ -100,7 +100,7 @@ class PosLanguageParityTest extends TestCase
         $this->assertEquals('5 Item', __('pos.items_count', ['count' => 5]));
         $this->assertEquals('Kapasitas 4 Kursi', __('pos.table_capacity', ['count' => 4]));
         $this->assertEquals('Meja 12', __('pos.table_number_display', ['number' => 12]));
-        $this->assertEquals('Salinan (Ke-2)', __('pos.reprint_badge_count', ['count' => 2]));
+        $this->assertEquals('SALINAN (CETAKAN KE-2)', __('pos.reprint_badge_count', ['count' => 2]));
 
         App::setLocale('en');
         $this->assertEquals('5 Item(s)', __('pos.items_count', ['count' => 5]));

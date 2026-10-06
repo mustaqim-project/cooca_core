@@ -121,6 +121,10 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
     Route::middleware(['business.active', 'profile.complete', 'verified'])->group(function (): void {
         // Staff Personal Portal & Attendance Hub (Accessible to all authenticated members)
         Route::get('/portal', [PortalWebController::class, 'index'])->name('portal');
+        Route::get('/portal/payslips/{item}', [PortalWebController::class, 'showPayslip'])->name('portal.payslips.show');
+        Route::post('/portal/corrections', [PortalWebController::class, 'storeCorrection'])->name('portal.corrections.store');
+        Route::post('/portal/face-register', [PortalWebController::class, 'registerFace'])->name('portal.face-register');
+        Route::post('/portal/face-verify', [PortalWebController::class, 'verifyFace'])->name('portal.face-verify');
 
         // Executive Dashboard & Quick Actions
         Route::get('/dashboard', [DashboardWebController::class, 'index'])->middleware('require.permission:dashboard.view')->name('dashboard');
@@ -365,7 +369,12 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
         Route::get('/settings', [SettingWebController::class, 'index'])->middleware('require.permission:settings.view')->name('settings.index');
         Route::put('/settings', [SettingWebController::class, 'update'])->middleware('require.permission:settings.edit')->name('settings.update');
         Route::put('/settings/modules', [SettingWebController::class, 'updateModules'])->middleware('require.role:owner')->name('settings.modules.update');
-        Route::post('/settings/apply-template', [SettingWebController::class, 'applyTemplate'])->name('settings.apply-template');
+        Route::post('/settings/apply-template', [SettingWebController::class, 'applyTemplate'])->middleware(['require.permission:settings.edit', 'require.role:owner'])->name('settings.apply-template');
+
+        // Branch Management Hub under Settings (Multi-Outlet & Single-Branch-Multi-Warehouse Architecture)
+        Route::post('/settings/branches', [SettingWebController::class, 'storeBranch'])->middleware(['require.permission:settings.edit'])->name('settings.branches.store');
+        Route::put('/settings/branches/{location}', [SettingWebController::class, 'updateBranch'])->middleware(['require.permission:settings.edit'])->name('settings.branches.update');
+        Route::delete('/settings/branches/{location}', [SettingWebController::class, 'destroyBranch'])->middleware(['require.permission:settings.edit'])->name('settings.branches.destroy');
 
         // Dedicated Role & Access Control (RBAC)
         Route::get('/roles', [RoleWebController::class, 'index'])->middleware('require.permission:roles.view')->name('roles.index');
@@ -401,6 +410,9 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
             Route::get('/payrolls/create', [HrmWebController::class, 'createPayroll'])->middleware('require.permission:users.manage')->name('payrolls.create');
             Route::post('/payrolls', [HrmWebController::class, 'storePayroll'])->middleware('require.permission:users.manage')->name('payrolls.store');
             Route::get('/payrolls/{payroll}', [HrmWebController::class, 'showPayroll'])->name('payrolls.show');
+            Route::get('/payrolls/{payroll}/export-excel', [HrmWebController::class, 'exportPayrollExcel'])->name('payrolls.export-excel');
+            Route::get('/payrolls/{payroll}/export', [HrmWebController::class, 'exportPayrollCsv'])->name('payrolls.export');
+            Route::get('/payrolls/{payroll}/export-bank', [HrmWebController::class, 'exportPayrollBankCsv'])->name('payrolls.export-bank');
             Route::post('/payrolls/{payroll}/approve', [HrmWebController::class, 'approvePayroll'])->middleware('require.permission:users.manage')->name('payrolls.approve');
             Route::post('/payrolls/{payroll}/pay', [HrmWebController::class, 'payPayroll'])->middleware('require.permission:users.manage')->name('payrolls.pay');
             Route::delete('/payrolls/{payroll}', [HrmWebController::class, 'destroyPayroll'])->middleware('require.permission:users.manage')->name('payrolls.destroy');
@@ -414,6 +426,24 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
             Route::post('/attendance/corrections', [HrmWebController::class, 'storeCorrection'])->name('attendance.corrections.store');
             Route::post('/attendance/corrections/{correction}/approve', [HrmWebController::class, 'approveCorrection'])->middleware('require.permission:users.manage')->name('attendance.corrections.approve');
             Route::post('/attendance/corrections/{correction}/reject', [HrmWebController::class, 'rejectCorrection'])->middleware('require.permission:users.manage')->name('attendance.corrections.reject');
+
+            // Pendaftaran Biometrik Wajah Karyawan
+            Route::post('/employees/{membership}/face-register', [HrmWebController::class, 'registerEmployeeFace'])->middleware('require.permission:users.manage')->name('employees.face-register');
+
+            // Pengaturan Lokasi & Geofencing Presensi
+            Route::post('/locations', [HrmWebController::class, 'storeLocation'])->middleware('require.permission:users.manage')->name('locations.store');
+            Route::put('/locations/{location}', [HrmWebController::class, 'updateLocation'])->middleware('require.permission:users.manage')->name('locations.update');
+            Route::delete('/locations/{location}', [HrmWebController::class, 'destroyLocation'])->middleware('require.permission:users.manage')->name('locations.destroy');
+
+            // Pengaturan Shift Kerja Karyawan
+            Route::post('/shifts', [HrmWebController::class, 'storeShift'])->middleware('require.permission:users.manage')->name('shifts.store');
+            Route::put('/shifts/{shift}', [HrmWebController::class, 'updateShift'])->middleware('require.permission:users.manage')->name('shifts.update');
+            Route::delete('/shifts/{shift}', [HrmWebController::class, 'destroyShift'])->middleware('require.permission:users.manage')->name('shifts.destroy');
+
+            // Pengaturan Jadwal Kerja & Roster Karyawan
+            Route::post('/schedules', [HrmWebController::class, 'storeSchedule'])->middleware('require.permission:users.manage')->name('schedules.store');
+            Route::put('/schedules/{schedule}', [HrmWebController::class, 'updateSchedule'])->middleware('require.permission:users.manage')->name('schedules.update');
+            Route::delete('/schedules/{schedule}', [HrmWebController::class, 'destroySchedule'])->middleware('require.permission:users.manage')->name('schedules.destroy');
         });
 
         // Owner Feedback & Community
@@ -487,7 +517,9 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
         // POS Reports
         Route::middleware('require.permission:pos.reports')->group(function (): void {
             Route::get('/pos/reports', [PosReportWebController::class, 'index'])->name('pos.reports.index');
+            Route::get('/pos/reports/orders/{order}/detail', [PosReportWebController::class, 'orderDetail'])->name('pos.reports.orders.detail');
             Route::get('/pos/reports/export-excel', [PosReportWebController::class, 'exportExcel'])->middleware(['require.permission:pos.reports_export', 'entitlement:export'])->name('pos.reports.export-excel');
+            Route::get('/pos/reports/print-summary', [PosReportWebController::class, 'printSummary'])->name('pos.reports.print-summary');
         });
 
         // AI POS & Predictive Analytics (Legacy compatibility)
@@ -504,6 +536,7 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
             Route::get('/office/executive', [AiCompanyWebController::class, 'executiveOffice'])->name('office.executive');
             Route::get('/office/operations', [AiCompanyWebController::class, 'operationsOffice'])->name('office.operations');
             Route::get('/office/growth', [AiCompanyWebController::class, 'growthOffice'])->name('office.growth');
+            Route::get('/pos', [PosAiWebController::class, 'index'])->name('pos');
             Route::post('/ask', [AiCompanyWebController::class, 'ask'])->name('ask');
             Route::post('/daily-check', [AiCompanyWebController::class, 'triggerDailyCheck'])->name('daily-check');
             Route::get('/actions', [AiCompanyWebController::class, 'actions'])->name('actions');
@@ -521,27 +554,29 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
             Route::get('/live-metrics', [AiCompanyWebController::class, 'liveMetrics'])->name('live-metrics');
         });
 
-        // Legacy /ai Compatibility Redirects & Named Route Fallbacks
+        // Legacy /ai Compatibility: 301 Permanent Canonical Redirects & Named Fallbacks
         Route::middleware(['require.permission:ai.access', 'entitlement:ai'])->prefix('ai')->name('ai.')->group(function (): void {
-            Route::get('/', fn() => redirect()->route('cooca-ai.index'))->name('office');
-            Route::get('/office', [AiCompanyWebController::class, 'lobby'])->name('office.view');
-            Route::get('/office/executive', [AiCompanyWebController::class, 'executiveOffice'])->name('office.executive');
-            Route::get('/office/operations', [AiCompanyWebController::class, 'operationsOffice'])->name('office.operations');
-            Route::get('/office/growth', [AiCompanyWebController::class, 'growthOffice'])->name('office.growth');
+            Route::get('/', fn() => redirect()->route('cooca-ai.index', [], 301))->name('office');
+            Route::get('/office', fn() => redirect()->route('cooca-ai.office.view', [], 301))->name('office.view');
+            Route::get('/office/executive', fn() => redirect()->route('cooca-ai.office.executive', [], 301))->name('office.executive');
+            Route::get('/office/operations', fn() => redirect()->route('cooca-ai.office.operations', [], 301))->name('office.operations');
+            Route::get('/office/growth', fn() => redirect()->route('cooca-ai.office.growth', [], 301))->name('office.growth');
+            Route::get('/actions', fn() => redirect()->route('cooca-ai.actions', request()->query(), 301))->name('actions');
+            Route::get('/history', fn() => redirect()->route('cooca-ai.history', request()->query(), 301))->name('history');
+            Route::get('/providers', fn() => redirect()->route('cooca-ai.providers', [], 301))->name('providers');
+            Route::get('/agents/avatars', [AiCompanyWebController::class, 'getAgentAvatars'])->name('agents.avatars');
+            Route::get('/live-metrics', [AiCompanyWebController::class, 'liveMetrics'])->name('live-metrics');
+            
+            // Legacy POST route fallbacks
             Route::post('/ask', [AiCompanyWebController::class, 'ask'])->name('ask');
             Route::post('/daily-check', [AiCompanyWebController::class, 'triggerDailyCheck'])->name('daily-check');
-            Route::get('/actions', [AiCompanyWebController::class, 'actions'])->name('actions');
             Route::post('/actions/{proposal}/approve', [AiCompanyWebController::class, 'approveAction'])->name('actions.approve');
             Route::post('/actions/{proposal}/revise', [AiCompanyWebController::class, 'reviseAction'])->name('actions.revise');
             Route::post('/actions/{proposal}/reject', [AiCompanyWebController::class, 'rejectAction'])->name('actions.reject');
-            Route::get('/history', [AiCompanyWebController::class, 'history'])->name('history');
-            Route::get('/providers', [AiCompanyWebController::class, 'providers'])->name('providers');
             Route::post('/providers', [AiCompanyWebController::class, 'storeProvider'])->name('providers.store');
             Route::post('/providers/test', [AiCompanyWebController::class, 'testProvider'])->name('providers.test');
             Route::post('/providers/detect-models', [AiCompanyWebController::class, 'detectModels'])->name('providers.detect-models');
-            Route::get('/agents/avatars', [AiCompanyWebController::class, 'getAgentAvatars'])->name('agents.avatars');
             Route::post('/agents/{role}/avatar', [AiCompanyWebController::class, 'updateAgentAvatar'])->name('agents.avatar.update');
-            Route::get('/live-metrics', [AiCompanyWebController::class, 'liveMetrics'])->name('live-metrics');
         });
 
         // POS Incoming Online/QR Orders
@@ -606,6 +641,7 @@ Route::middleware(['auth:web', 'wa.otp'])->group(function (): void {
             Route::get('/warehouse', [WarehouseWebController::class, 'index'])->middleware('require.permission:warehouse.view')->name('warehouse.index');
             Route::post('/warehouse', [WarehouseWebController::class, 'store'])->middleware('require.permission:warehouse.manage')->name('warehouse.store');
             Route::get('/warehouse/{location}', [WarehouseWebController::class, 'show'])->middleware('require.permission:warehouse.view')->name('warehouse.show');
+            Route::get('/warehouse/{location}/edit', [WarehouseWebController::class, 'edit'])->middleware('require.permission:warehouse.manage')->name('warehouse.edit');
             Route::put('/warehouse/{location}', [WarehouseWebController::class, 'update'])->middleware('require.permission:warehouse.manage')->name('warehouse.update');
             Route::delete('/warehouse/{location}', [WarehouseWebController::class, 'destroy'])->middleware('require.permission:warehouse.manage')->name('warehouse.destroy');
         });

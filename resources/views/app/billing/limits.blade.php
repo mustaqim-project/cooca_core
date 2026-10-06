@@ -15,6 +15,15 @@
                 'standard' => ['label' => 'Standard Plan', 'bg' => 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border-emerald-200/90 dark:border-emerald-800/90', 'dot' => 'bg-emerald-500'],
                 default => ['label' => 'Free Solo', 'bg' => 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700', 'dot' => 'bg-slate-400'],
             };
+
+            $providerNames = [
+                'openai' => 'OpenAI',
+                'gemini' => 'Google Gemini',
+                'anthropic' => 'Anthropic Claude',
+                'openrouter' => 'OpenRouter',
+            ];
+            $hasActiveAi = !empty($activeAiConfig) && !empty($activeAiConfig->api_key);
+            $activeProviderLabel = $hasActiveAi ? ($providerNames[$activeAiConfig->provider] ?? ucfirst($activeAiConfig->provider)) : null;
         @endphp
 
         <!-- Standard 3-Row Module Header Bento Apple HIG -->
@@ -149,22 +158,38 @@
                 </div>
             </div>
 
-            <!-- Pillar 4: Token AI & Storage -->
+            <!-- Pillar 4: AI Engine (BYOAI) & Storage -->
             <div
                 class="bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-[20px] border border-black/[0.06] dark:border-white/[0.08] shadow-xs flex flex-col justify-between group hover:border-emerald-500/40 transition-all">
                 <div>
                     <div class="flex items-center justify-between mb-3">
                         <span class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">{{ __('billing.pillar_ai_storage') }}</span>
                         <div
-                            class="w-9 h-9 rounded-[12px] bg-amber-50 dark:bg-amber-950/60 border border-amber-200/80 dark:border-amber-800/80 flex items-center justify-center text-amber-600 dark:text-amber-400">
+                            class="w-9 h-9 rounded-[12px] {{ $hasActiveAi ? 'bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200/80 dark:border-emerald-800/80 text-emerald-600 dark:text-emerald-400' : 'bg-amber-50 dark:bg-amber-950/60 border border-amber-200/80 dark:border-amber-800/80 text-amber-600 dark:text-amber-400' }} flex items-center justify-center">
                             <i data-lucide="bot" class="w-4 h-4"></i>
                         </div>
                     </div>
-                    <div
-                        class="text-xl sm:text-2xl font-black font-mono tracking-tight text-slate-900 dark:text-white truncate tabular-nums">
-                        {{ number_format(($usage['ai_tokens']['remaining'] ?? 0) / 1000, 1, ',', '.') }}k <span
-                            class="text-xs font-normal text-slate-500">Token</span>
-                    </div>
+                    @if ($hasActiveAi)
+                        <div
+                            class="text-xl sm:text-2xl font-black font-mono tracking-tight text-emerald-600 dark:text-emerald-400 truncate">
+                            {{ __('billing.ai_byoai_active') }}
+                        </div>
+                        <div class="text-xs text-slate-500 dark:text-slate-400 font-mono mt-0.5 truncate flex items-center gap-1.5">
+                            <span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></span>
+                            <span class="font-semibold text-slate-700 dark:text-slate-300">{{ $activeProviderLabel }}</span>
+                            <span class="text-slate-400 dark:text-slate-500">· Unlimited</span>
+                        </div>
+                    @else
+                        <div
+                            class="text-xl sm:text-2xl font-black tracking-tight text-slate-800 dark:text-slate-200 truncate">
+                            {{ __('billing.ai_byoai_unconfigured') }}
+                        </div>
+                        <a href="{{ route('cooca-ai.providers') }}"
+                            class="inline-flex items-center gap-1 text-xs font-semibold text-amber-600 dark:text-amber-400 hover:underline mt-0.5">
+                            <span>{{ __('billing.ai_byoai_setup_key') }}</span>
+                            <i data-lucide="arrow-right" class="w-3 h-3"></i>
+                        </a>
+                    @endif
                 </div>
                 <div
                     class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80 text-xs text-slate-500 dark:text-slate-400 flex items-center justify-between">
@@ -560,67 +585,106 @@
                     @endif
                 </div>
 
-                <!-- 2. AI Tokens (Gemini Flash Intelligence) -->
+                <!-- 2. AI Intelligence Engine (BYOAI) -->
                 <div
                     class="bg-white dark:bg-slate-900 rounded-[20px] border border-black/[0.06] dark:border-white/[0.08] shadow-xs p-5 sm:p-6 flex flex-col justify-between gap-5 relative overflow-hidden">
-                    <div class="space-y-3">
+                    <div class="space-y-4">
                         <div class="flex items-center justify-between">
                             <div
-                                class="flex items-center gap-2 text-amber-700 dark:text-amber-300 text-xs font-black uppercase tracking-wider">
-                                <div class="p-2 rounded-[10px] bg-amber-100/80 dark:bg-amber-500/15 text-amber-600 dark:text-amber-400"
+                                class="flex items-center gap-2 {{ $hasActiveAi ? 'text-emerald-700 dark:text-emerald-300' : 'text-amber-700 dark:text-amber-300' }} text-xs font-black uppercase tracking-wider">
+                                <div class="p-2 rounded-[10px] {{ $hasActiveAi ? 'bg-emerald-100/80 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400' : 'bg-amber-100/80 dark:bg-amber-500/15 text-amber-600 dark:text-amber-400' }}"
                                     aria-hidden="true">
                                     <i data-lucide="bot" class="w-4 h-4"></i>
                                 </div>
-                                <span>Token Asisten AI Bisnis</span>
+                                <span>{{ __('billing.ai_engine_byoai') }}</span>
                             </div>
-                            <span
-                                class="rounded-[8px] px-2 py-0.5 text-[10px] font-bold border inline-flex items-center gap-1 bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 border-amber-200/90 dark:border-amber-800/90 font-mono">
-                                GEMINI 2.5
-                            </span>
+                            @if ($hasActiveAi)
+                                <span
+                                    class="rounded-[8px] px-2 py-0.5 text-[10px] font-bold border inline-flex items-center gap-1 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border-emerald-200/90 dark:border-emerald-800/90 font-mono">
+                                    <i data-lucide="check" class="w-3 h-3"></i>
+                                    {{ strtoupper($activeAiConfig->provider) }} {{ __('billing.ai_byoai_badge_connected') }}
+                                </span>
+                            @else
+                                <span
+                                    class="rounded-[8px] px-2 py-0.5 text-[10px] font-bold border inline-flex items-center gap-1 bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 border-amber-200/90 dark:border-amber-800/90 font-mono">
+                                    <i data-lucide="key-round" class="w-3 h-3"></i>
+                                    {{ __('billing.ai_byoai_badge_unconfigured') }}
+                                </span>
+                            @endif
                         </div>
 
-                        <div class="flex items-baseline gap-2 pt-1">
-                            <span class="text-2xl sm:text-3xl font-black font-mono text-slate-900 dark:text-white tabular-nums">
-                                {{ number_format($usage['ai_tokens']['remaining'] ?? 0, 0, ',', '.') }}
-                            </span>
-                            <span class="text-xs text-slate-500 dark:text-slate-400 font-mono">Token Tersisa</span>
-                        </div>
+                        @if ($hasActiveAi)
+                            <div class="space-y-1">
+                                <div class="flex items-baseline gap-2">
+                                    <span class="text-2xl sm:text-3xl font-black font-mono text-slate-900 dark:text-white tabular-nums">
+                                        {{ $activeProviderLabel }}
+                                    </span>
+                                    <span class="text-xs text-emerald-600 dark:text-emerald-400 font-mono font-bold">{{ __('billing.ai_byoai_active') }}</span>
+                                </div>
+                                <div class="text-xs text-slate-500 dark:text-slate-400 font-mono">
+                                    Model Utama: <strong class="text-slate-800 dark:text-slate-200">{{ $activeAiConfig->model ?: 'Auto-selected' }}</strong>
+                                </div>
+                            </div>
 
-                        <!-- AI Token Usage Bar with ARIA -->
-                        @php $tokenPercent = min(100, max(0, (int)($usage['ai_tokens']['percent'] ?? 0))); @endphp
-                        <div class="space-y-1.5" role="progressbar" aria-valuenow="{{ $tokenPercent }}"
-                            aria-valuemin="0" aria-valuemax="100" aria-label="Persentase Pemakaian Token AI">
-                            <div
-                                class="w-full bg-slate-100 dark:bg-slate-950 rounded-full h-2.5 overflow-hidden p-0.5 border border-slate-200 dark:border-slate-800">
-                                <div class="h-full rounded-full bg-gradient-to-r from-amber-500 to-yellow-400 transition-all duration-500"
-                                    style="width: {{ $tokenPercent }}%"></div>
+                            <!-- BYOAI Spec Grid Apple HIG -->
+                            <div class="rounded-[14px] bg-slate-50 dark:bg-slate-950/50 border border-slate-200/80 dark:border-slate-800/80 p-3.5 space-y-2 text-xs">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-slate-500 dark:text-slate-400">Kuota Komputasi Platform:</span>
+                                    <span class="font-bold text-emerald-600 dark:text-emerald-400 font-mono flex items-center gap-1">
+                                        <i data-lucide="infinity" class="w-3.5 h-3.5"></i>
+                                        <span>Tanpa Batas (Unlimited)</span>
+                                    </span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-slate-500 dark:text-slate-400">Model Biaya Token:</span>
+                                    <span class="font-semibold text-slate-800 dark:text-slate-200 font-mono text-[11px]">Direct-to-Provider (0% Markup)</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-slate-500 dark:text-slate-400">Keamanan API Key:</span>
+                                    <span class="font-mono text-slate-700 dark:text-slate-300 text-[11px] flex items-center gap-1">
+                                        <i data-lucide="lock" class="w-3 h-3 text-emerald-500"></i>
+                                        <span>AES-256 GCM Terenkripsi</span>
+                                    </span>
+                                </div>
                             </div>
-                            <div class="flex justify-between text-[11px] text-slate-500 dark:text-slate-400 font-mono">
-                                <span>Terpakai: <strong
-                                        class="text-slate-800 dark:text-slate-200 font-bold tabular-nums">{{ $tokenPercent }}%</strong></span>
-                                <span class="text-amber-600 dark:text-amber-400 font-semibold">Asisten Otomatis
-                                    Aktif</span>
+                        @else
+                            <div class="space-y-1">
+                                <div class="flex items-baseline gap-2">
+                                    <span class="text-2xl sm:text-3xl font-black text-slate-800 dark:text-slate-200">
+                                        {{ __('billing.ai_byoai_unconfigured') }}
+                                    </span>
+                                </div>
+                                <div class="text-xs text-amber-600 dark:text-amber-400 font-mono font-medium">
+                                    Hubungkan API Key untuk mengaktifkan AI Assistant &amp; Analytics
+                                </div>
                             </div>
-                        </div>
+
+                            <!-- Provider Selection Callout Apple HIG -->
+                            <div class="rounded-[14px] bg-amber-50/60 dark:bg-amber-950/20 border border-amber-200/80 dark:border-amber-800/60 p-3.5 space-y-1.5 text-xs text-amber-950 dark:text-amber-200">
+                                <div class="font-bold flex items-center gap-1.5">
+                                    <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-600 dark:text-amber-400"></i>
+                                    <span>Gunakan Provider AI Pilihan Anda</span>
+                                </div>
+                                <p class="text-[11.5px] text-amber-800 dark:text-amber-300 leading-relaxed">
+                                    Mendukung Google Gemini, OpenAI, Anthropic Claude, dan OpenRouter. Cooca tidak memungut biaya atau menjual kuota token komputasi.
+                                </p>
+                            </div>
+                        @endif
 
                         <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                            Daya komputasi untuk peramalan tren omzet kasir, simulasi margin HPP resep otomatis, dan
-                            konsultasi operasional Cooca AI.
+                            {{ __('billing.ai_byoai_desc') }}
                         </p>
                     </div>
 
-                    @if (\App\Support\Context::hasPermission('billing.manage'))
-                        <div
-                            class="pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between">
-                            <span class="text-xs text-slate-500 dark:text-slate-400 font-medium">Beli paket isi
-                                ulang</span>
-                            <a href="{{ route('billing.checkout', ['type' => 'ai_token']) }}"
-                                class="px-3.5 py-2 rounded-[12px] text-xs font-bold text-slate-900 bg-amber-400 hover:bg-amber-300 shadow-sm shadow-amber-400/20 active:scale-[0.98] transition cursor-pointer flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-amber-400">
-                                <i data-lucide="sparkles" class="w-3.5 h-3.5" aria-hidden="true"></i>
-                                <span>Top Up Token AI</span>
-                            </a>
-                        </div>
-                    @endif
+                    <div
+                        class="pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between">
+                        <span class="text-xs text-slate-500 dark:text-slate-400 font-medium">Model AI Mandiri (BYOAI)</span>
+                        <a href="{{ route('cooca-ai.providers') }}"
+                            class="px-3.5 py-2 rounded-[12px] text-xs font-bold text-white bg-slate-900 hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100 active:scale-[0.98] transition cursor-pointer flex items-center gap-1.5 shadow-xs focus-visible:ring-2 focus-visible:ring-slate-500">
+                            <i data-lucide="settings" class="w-3.5 h-3.5" aria-hidden="true"></i>
+                            <span>{{ __('billing.ai_byoai_manage') }}</span>
+                        </a>
+                    </div>
                 </div>
             </div>
         </section>

@@ -173,7 +173,7 @@ final class AiOfficeEnvironmentsTest extends TestCase
         $response->assertSee('Growth Office');
         $response->assertSee('Lobi Utama');
         $response->assertSee('Virtual Office Floor');
-        $response->assertSee('Bento Analytics Grid');
+        $response->assertSee('2D Blueprint');
         $response->assertSee('ATRIUM CENTRAL');
     }
 

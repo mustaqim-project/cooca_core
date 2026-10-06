@@ -227,6 +227,14 @@ class PosOrder extends Model
     }
 
     /**
+     * @return BelongsTo<PosShift, $this>
+     */
+    public function posShift(): BelongsTo
+    {
+        return $this->belongsTo(PosShift::class, 'pos_shift_id');
+    }
+
+    /**
      * @return BelongsTo<User, $this>
      */
     public function user(): BelongsTo

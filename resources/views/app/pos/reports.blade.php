@@ -16,11 +16,11 @@
                     <span>{{ __('pos.reports_export_excel') }}</span>
                 </a>
 
-                <button type="button" onclick="window.print()"
+                <a id="btnPosPrintSummary" href="{{ route('pos.reports.print-summary', request()->query()) }}" target="_blank"
                     class="min-h-[40px] sm:min-h-0 sm:h-9 px-4 rounded-[10px] text-[13px] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.97] transition-all flex items-center justify-center gap-2 shadow-xs cursor-pointer">
                     <i data-lucide="printer" class="w-4 h-4"></i>
                     <span>{{ __('pos.reports_print_pdf') }}</span>
-                </button>
+                </a>
             @endif
         </x-slot:actions>
     </x-module-header>
@@ -75,6 +75,9 @@
             @include('app.pos.reports.tabs.overview')
         @endif
     </div>
+
+    {{-- 5. SLIDE-OVER QUICK-VIEW MODAL (FASE 5) --}}
+    @include('app.pos.reports.partials.order_detail_modal')
 
 </div>
 @endsection

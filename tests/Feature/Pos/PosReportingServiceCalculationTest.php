@@ -470,6 +470,137 @@ class PosReportingServiceCalculationTest extends TestCase
 
         $channels = $this->service->getSalesChannelBreakdown($filter);
         $this->assertNotEmpty($channels);
-        $this->assertEquals('pos_direct', $channels->first()->channel_name);
+        $this->assertEquals('pos_direct', $channels->first()->channel_code);
+        $this->assertEquals('Kasir Langsung (POS Direct)', $channels->first()->channel_name);
+    }
+
+    /**
+     * Test 6: Verifikasi Engine Finansial Online Food Delivery F&B (ShopeeFood, GoFood, GrabFood, Storefront, POS Direct).
+     */
+    public function test_online_food_delivery_financial_engine_calculations_for_fnb(): void
+    {
+        // 1. ShopeeFood: Net Sales 90.000 (100k - 10k discount), HPP 40.000. Fee 20% = 18.000, Payout = 72.000, Real Profit = 32.000
+        PosOrder::create([
+            'business_id' => $this->business->id,
+            'location_id' => $this->location->id,
+            'user_id' => $this->cashier->id,
+            'order_number' => 'ORD-SF-01',
+            'order_date' => Carbon::today(),
+            'status' => PosOrder::STATUS_COMPLETED,
+            'sales_channel' => 'shopeefood',
+            'subtotal' => 100000,
+            'discount_amount' => 10000,
+            'total_amount' => 90000,
+            'total_hpp_cost' => 40000,
+            'total_gross_profit' => 50000,
+        ]);
+
+        // 2. GoFood: Net Sales 200.000, HPP 80.000. Fee 20% = 40.000, Payout = 160.000, Real Profit = 80.000
+        PosOrder::create([
+            'business_id' => $this->business->id,
+            'location_id' => $this->location->id,
+            'user_id' => $this->cashier->id,
+            'order_number' => 'ORD-GF-01',
+            'order_date' => Carbon::today(),
+            'status' => PosOrder::STATUS_COMPLETED,
+            'sales_channel' => 'gofood',
+            'subtotal' => 200000,
+            'discount_amount' => 0,
+            'total_amount' => 200000,
+            'total_hpp_cost' => 80000,
+            'total_gross_profit' => 120000,
+        ]);
+
+        // 3. GrabFood: Net Sales 100.000, HPP 50.000. Fee 25% = 25.000, Payout = 75.000, Real Profit = 25.000
+        PosOrder::create([
+            'business_id' => $this->business->id,
+            'location_id' => $this->location->id,
+            'user_id' => $this->cashier->id,
+            'order_number' => 'ORD-GRB-01',
+            'order_date' => Carbon::today(),
+            'status' => PosOrder::STATUS_COMPLETED,
+            'sales_channel' => 'grabfood',
+            'subtotal' => 100000,
+            'discount_amount' => 0,
+            'total_amount' => 100000,
+            'total_hpp_cost' => 50000,
+            'total_gross_profit' => 50000,
+        ]);
+
+        // 4. Toko Online Storefront: Net Sales 100.000, HPP 40.000. Fee 0% = 0, Payout = 100.000, Real Profit = 60.000
+        PosOrder::create([
+            'business_id' => $this->business->id,
+            'location_id' => $this->location->id,
+            'user_id' => $this->cashier->id,
+            'order_number' => 'ORD-STR-01',
+            'order_date' => Carbon::today(),
+            'status' => PosOrder::STATUS_COMPLETED,
+            'sales_channel' => 'storefront',
+            'subtotal' => 100000,
+            'discount_amount' => 0,
+            'total_amount' => 100000,
+            'total_hpp_cost' => 40000,
+            'total_gross_profit' => 60000,
+        ]);
+
+        $filter = new PosReportFilterDTO(
+            businessId: $this->business->id,
+            startDate: Carbon::today()->startOfDay(),
+            endDate: Carbon::today()->endOfDay(),
+            includeComparison: false
+        );
+
+        $channels = $this->service->getSalesChannelBreakdown($filter)->keyBy('channel_code');
+
+        // Verify ShopeeFood calculations
+        $sf = $channels->get('shopeefood');
+        $this->assertNotNull($sf);
+        $this->assertEquals('ShopeeFood', $sf->channel_name);
+        $this->assertEquals('online_delivery', $sf->channel_type);
+        $this->assertEquals(100000.0, (float) $sf->gross_sales);
+        $this->assertEquals(10000.0, (float) $sf->total_discount);
+        $this->assertEquals(90000.0, (float) $sf->net_sales);
+        $this->assertEquals(20.0, (float) $sf->platform_fee_percent);
+        $this->assertEquals(18000.0, (float) $sf->platform_fee_amount);
+        $this->assertEquals(72000.0, (float) $sf->net_merchant_payout);
+        $this->assertEquals(40000.0, (float) $sf->total_hpp);
+        $this->assertEquals(32000.0, (float) $sf->real_gross_profit);
+        $this->assertEquals(round((32000.0 / 72000.0) * 100, 2), round((float) $sf->real_margin_percent, 2));
+        $this->assertEquals('#EE4D2D', $sf->badge_bg);
+
+        // Verify GoFood calculations
+        $gf = $channels->get('gofood');
+        $this->assertNotNull($gf);
+        $this->assertEquals('GoFood (GoBiz)', $gf->channel_name);
+        $this->assertEquals(200000.0, (float) $gf->net_sales);
+        $this->assertEquals(20.0, (float) $gf->platform_fee_percent);
+        $this->assertEquals(40000.0, (float) $gf->platform_fee_amount);
+        $this->assertEquals(160000.0, (float) $gf->net_merchant_payout);
+        $this->assertEquals(80000.0, (float) $gf->real_gross_profit);
+        $this->assertEquals(50.0, (float) $gf->real_margin_percent);
+        $this->assertEquals('#EE2724', $gf->badge_bg);
+
+        // Verify GrabFood calculations
+        $grb = $channels->get('grabfood');
+        $this->assertNotNull($grb);
+        $this->assertEquals('GrabFood', $grb->channel_name);
+        $this->assertEquals(100000.0, (float) $grb->net_sales);
+        $this->assertEquals(25.0, (float) $grb->platform_fee_percent);
+        $this->assertEquals(25000.0, (float) $grb->platform_fee_amount);
+        $this->assertEquals(75000.0, (float) $grb->net_merchant_payout);
+        $this->assertEquals(25000.0, (float) $grb->real_gross_profit);
+        $this->assertEquals(round((25000.0 / 75000.0) * 100, 2), round((float) $grb->real_margin_percent, 2));
+        $this->assertEquals('#00B14F', $grb->badge_bg);
+
+        // Verify Storefront calculations (0% fee)
+        $str = $channels->get('storefront');
+        $this->assertNotNull($str);
+        $this->assertEquals('Toko Online Storefront', $str->channel_name);
+        $this->assertEquals(0.0, (float) $str->platform_fee_percent);
+        $this->assertEquals(0.0, (float) $str->platform_fee_amount);
+        $this->assertEquals(100000.0, (float) $str->net_merchant_payout);
+        $this->assertEquals(60000.0, (float) $str->real_gross_profit);
+        $this->assertEquals(60.0, (float) $str->real_margin_percent);
+        $this->assertEquals('#007AFF', $str->badge_bg);
     }
 }

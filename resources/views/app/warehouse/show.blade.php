@@ -7,7 +7,7 @@
 @section('content')
     <div class="max-w-[1360px] mx-auto space-y-6 pb-28 lg:pb-12" x-data="{
         activeTab: new URLSearchParams(window.location.search).get('tab') || 'stocks',
-        showEditModal: false,
+        showEditModal: new URLSearchParams(window.location.search).get('edit') === '1' || new URLSearchParams(window.location.search).get('edit') === 'true',
         showAdjustModal: false,
         confirmModalOpen: false,
         confirmAction: '',
@@ -1089,9 +1089,36 @@
                     </button>
                 </div>
 
-                <form action="{{ route('warehouse.update', $location->id) }}" method="POST" x-data="{ submitting: false }" @submit="submitting = true" class="flex flex-col flex-1 overflow-hidden">
+                <form action="{{ route('warehouse.update', $location->id) }}" method="POST"
+                    x-data="{
+                        submitting: false,
+                        tzMode: '{{ $location->timezone_mode ?? 'inherit' }}',
+                        customTimezone: '{{ $location->timezone ?? ($business->timezone ?? 'Asia/Jakarta') }}',
+                        ohMode: '{{ $location->operating_hours_mode ?? 'inherit' }}',
+                        operatingHours: @json(\App\Support\TimezoneHelper::normalizeOperatingHours($location->operating_hours ?: $business->operating_hours)),
+                        addPeriod(dayKey) {
+                            if (!this.operatingHours[dayKey]) {
+                                this.operatingHours[dayKey] = { day_name: dayKey, is_open: true, periods: [] };
+                            }
+                            if (!Array.isArray(this.operatingHours[dayKey].periods)) {
+                                this.operatingHours[dayKey].periods = [];
+                            }
+                            this.operatingHours[dayKey].periods.push({ start: '17:00', end: '22:00' });
+                        },
+                        removePeriod(dayKey, index) {
+                            if (this.operatingHours[dayKey] && Array.isArray(this.operatingHours[dayKey].periods)) {
+                                this.operatingHours[dayKey].periods.splice(index, 1);
+                            }
+                        },
+                        isOvernight(period) {
+                            if (!period || !period.start || !period.end) return false;
+                            return period.end < period.start;
+                        }
+                    }"
+                    @submit="submitting = true" class="flex flex-col flex-1 overflow-hidden">
                     @csrf
                     @method('PUT')
+                    <input type="hidden" name="operating_hours_json" :value="JSON.stringify(operatingHours)">
                     
                     <div class="p-5 sm:p-6 overflow-y-auto space-y-4 flex-1 text-xs">
                         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
@@ -1180,6 +1207,129 @@
                                             <option value="1" {{ $location->is_active ? 'selected' : '' }}>{{ __('warehouse.badges.active') }}</option>
                                             <option value="0" {{ !$location->is_active ? 'selected' : '' }}>{{ __('warehouse.badges.inactive') }}</option>
                                         </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- Kolom Penuh: Zona Waktu & Jam Operasional Cabang --}}
+                            <div class="lg:col-span-12 space-y-4">
+                                <div class="rounded-[18px] bg-slate-50/80 dark:bg-[#2C2C2E]/60 border border-black/[0.06] dark:border-white/[0.08] p-5 space-y-5">
+                                    <div class="flex items-center gap-2 border-b border-black/[0.06] dark:border-white/[0.08] pb-3">
+                                        <i data-lucide="clock" class="w-4 h-4 text-[#FF9500]"></i>
+                                        <span class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                                            Zona Waktu &amp; Jam Operasional Cabang
+                                        </span>
+                                    </div>
+
+                                    {{-- Timezone Inheritance or Custom --}}
+                                    <div class="space-y-2.5">
+                                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300">
+                                            Pengaturan Zona Waktu Cabang
+                                        </label>
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                            <label class="flex items-start gap-3 p-3 rounded-[12px] border cursor-pointer transition-all"
+                                                :class="tzMode === 'inherit' ? 'bg-[#007AFF]/10 border-[#007AFF]/30 text-slate-900 dark:text-white' : 'bg-white dark:bg-[#1C1C1E] border-black/[0.08] dark:border-white/[0.12] text-slate-600 dark:text-slate-400'">
+                                                <input type="radio" name="timezone_mode" value="inherit" x-model="tzMode" class="mt-0.5">
+                                                <div>
+                                                    <div class="font-semibold text-xs text-slate-900 dark:text-white">Ikuti Usaha Pusat</div>
+                                                    <div class="text-[11px] opacity-75">Zona waktu otomatis mengikuti acuan pusat ({{ $business->timezone ?? 'Asia/Jakarta' }})</div>
+                                                </div>
+                                            </label>
+                                            <label class="flex items-start gap-3 p-3 rounded-[12px] border cursor-pointer transition-all"
+                                                :class="tzMode === 'custom' ? 'bg-[#007AFF]/10 border-[#007AFF]/30 text-slate-900 dark:text-white' : 'bg-white dark:bg-[#1C1C1E] border-black/[0.08] dark:border-white/[0.12] text-slate-600 dark:text-slate-400'">
+                                                <input type="radio" name="timezone_mode" value="custom" x-model="tzMode" class="mt-0.5">
+                                                <div>
+                                                    <div class="font-semibold text-xs text-slate-900 dark:text-white">Zona Waktu Khusus</div>
+                                                    <div class="text-[11px] opacity-75">Atur zona waktu berbeda untuk cabang di luar pulau (WITA, WIT, dll.)</div>
+                                                </div>
+                                            </label>
+                                        </div>
+
+                                        <div x-show="tzMode === 'custom'" class="pt-2">
+                                            <label class="block text-[11px] font-medium text-slate-600 dark:text-slate-400 mb-1">
+                                                Pilih Zona Waktu Cabang Ini
+                                            </label>
+                                            <select name="timezone" x-model="customTimezone"
+                                                class="w-full h-10 bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/[0.12] rounded-[10px] px-3 text-[16px] sm:text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                                                @foreach ($timezones as $groupLabel => $zones)
+                                                    <optgroup label="{{ $groupLabel }}">
+                                                        @foreach ($zones as $zoneId => $zoneName)
+                                                            <option value="{{ $zoneId }}">{{ $zoneName }}</option>
+                                                        @endforeach
+                                                    </optgroup>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    {{-- Operating Hours Inheritance or Custom --}}
+                                    <div class="space-y-2.5 pt-3 border-t border-black/[0.06] dark:border-white/[0.08]">
+                                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300">
+                                            Pengaturan Jadwal Jam Kerja Cabang
+                                        </label>
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                            <label class="flex items-start gap-3 p-3 rounded-[12px] border cursor-pointer transition-all"
+                                                :class="ohMode === 'inherit' ? 'bg-[#007AFF]/10 border-[#007AFF]/30 text-slate-900 dark:text-white' : 'bg-white dark:bg-[#1C1C1E] border-black/[0.08] dark:border-white/[0.12] text-slate-600 dark:text-slate-400'">
+                                                <input type="radio" name="operating_hours_mode" value="inherit" x-model="ohMode" class="mt-0.5">
+                                                <div>
+                                                    <div class="font-semibold text-xs text-slate-900 dark:text-white">Ikuti Jam Usaha Pusat</div>
+                                                    <div class="text-[11px] opacity-75">Jadwal buka-tutup cabang ini otomatis sinkron dengan jam operasional bisnis pusat</div>
+                                                </div>
+                                            </label>
+                                            <label class="flex items-start gap-3 p-3 rounded-[12px] border cursor-pointer transition-all"
+                                                :class="ohMode === 'custom' ? 'bg-[#007AFF]/10 border-[#007AFF]/30 text-slate-900 dark:text-white' : 'bg-white dark:bg-[#1C1C1E] border-black/[0.08] dark:border-white/[0.12] text-slate-600 dark:text-slate-400'">
+                                                <input type="radio" name="operating_hours_mode" value="custom" x-model="ohMode" class="mt-0.5">
+                                                <div>
+                                                    <div class="font-semibold text-xs text-slate-900 dark:text-white">Jadwal Khusus Cabang</div>
+                                                    <div class="text-[11px] opacity-75">Cabang memiliki jam operasional sendiri yang berbeda dari pusat</div>
+                                                </div>
+                                            </label>
+                                        </div>
+
+                                        {{-- Weekly custom scheduler --}}
+                                        <div x-show="ohMode === 'custom'" class="pt-3 space-y-2.5">
+                                            <template x-for="(dayData, dayKey) in operatingHours" :key="dayKey">
+                                                <div class="p-3 rounded-[12px] border border-black/[0.06] dark:border-white/[0.08] bg-white dark:bg-[#1C1C1E] space-y-2">
+                                                    <div class="flex items-center justify-between">
+                                                        <div class="flex items-center gap-2.5">
+                                                            <input type="checkbox" x-model="dayData.is_open" class="rounded border-slate-300 text-[#007AFF] focus:ring-[#007AFF]">
+                                                            <span class="font-semibold text-xs text-slate-900 dark:text-white" x-text="dayData.day_name"></span>
+                                                            <span class="text-[10px] px-1.5 py-0.2 rounded font-medium"
+                                                                :class="dayData.is_open ? 'bg-[#34C759]/10 text-[#34C759]' : 'bg-slate-100 dark:bg-slate-800 text-slate-500'"
+                                                                x-text="dayData.is_open ? 'Buka' : 'Tutup'"></span>
+                                                        </div>
+                                                        <template x-if="dayData.is_open">
+                                                            <button type="button" @click="addPeriod(dayKey)"
+                                                                class="text-[11px] font-semibold text-[#007AFF] hover:underline flex items-center gap-1">
+                                                                <span>+ Sesi</span>
+                                                            </button>
+                                                        </template>
+                                                    </div>
+
+                                                    <template x-if="dayData.is_open">
+                                                        <div class="space-y-1.5 pl-6">
+                                                            <template x-for="(period, pIdx) in dayData.periods" :key="pIdx">
+                                                                <div class="flex items-center gap-2">
+                                                                    <input type="time" x-model="period.start" class="h-8 px-2 bg-slate-50 dark:bg-[#2C2C2E] border border-black/[0.08] dark:border-white/[0.12] rounded-[6px] text-xs">
+                                                                    <span class="text-slate-400">-</span>
+                                                                    <input type="time" x-model="period.end" class="h-8 px-2 bg-slate-50 dark:bg-[#2C2C2E] border border-black/[0.08] dark:border-white/[0.12] rounded-[6px] text-xs">
+                                                                    
+                                                                    <template x-if="isOvernight(period)">
+                                                                        <span class="px-1.5 py-0.5 rounded text-[9px] font-semibold bg-[#AF52DE]/10 text-[#AF52DE]">Overnight</span>
+                                                                    </template>
+
+                                                                    <template x-if="dayData.periods.length > 1">
+                                                                        <button type="button" @click="removePeriod(dayKey, pIdx)" class="text-slate-400 hover:text-red-500 p-1">
+                                                                            <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                                                                        </button>
+                                                                    </template>
+                                                                </div>
+                                                            </template>
+                                                        </div>
+                                                    </template>
+                                                </div>
+                                            </template>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

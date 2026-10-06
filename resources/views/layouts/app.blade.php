@@ -25,6 +25,37 @@
             common: @json(__('common')),
             quick_actions: @json(__('quick_actions')),
             navigation: @json(__('navigation')),
+            portal: @json(__('portal')),
+            hrm: @json(__('hrm')),
+            ai: @json(__('ai')),
+            validation: @json(__('validation')),
+            messages: @json(__('messages')),
+        };
+
+        // Universal Client-Side i18n Helper
+        window.__ = function(key, replace = {}) {
+            if (!key) return '';
+            const parts = key.split('.');
+            let curr = window.COOCA_I18N;
+            for (const p of parts) {
+                if (curr && typeof curr === 'object' && p in curr) {
+                    curr = curr[p];
+                } else {
+                    return key;
+                }
+            }
+            if (typeof curr !== 'string') return key;
+            let result = curr;
+            for (const [k, v] of Object.entries(replace)) {
+                result = result.replace(new RegExp(':' + k, 'g'), v);
+            }
+            return result;
+        };
+
+        // Currency Formatter with Tabular Numbers
+        window.formatCurrency = function(amount, currency = 'IDR') {
+            const num = Number(amount) || 0;
+            return 'Rp ' + num.toLocaleString('id-ID', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
         };
 
         // Global Reactive Event Bus (CoocaBus)
@@ -543,6 +574,7 @@
 
         /* Responsive root foundation */
         html {
+            color-scheme: light;
             box-sizing: border-box;
             -webkit-text-size-adjust: 100%;
             scroll-behavior: smooth;
@@ -550,6 +582,11 @@
             background-color: var(--bg);
             color: var(--text-1);
             font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Inter", system-ui, sans-serif;
+        }
+
+        html.dark,
+        .dark {
+            color-scheme: dark;
         }
 
         *,
@@ -643,6 +680,50 @@
         textarea,
         button {
             touch-action: manipulation;
+        }
+
+        /* Universal Apple HIG Form Controls & Dropdown Styling (§Dark Mode Accessibility) */
+        select {
+            color-scheme: light;
+        }
+
+        select option,
+        select optgroup {
+            background-color: #FFFFFF;
+            color: #000000;
+        }
+
+        html.dark select,
+        .dark select {
+            color-scheme: dark;
+        }
+
+        html.dark select option,
+        html.dark select optgroup,
+        .dark select option,
+        .dark select optgroup {
+            background-color: #1C1C1E !important;
+            color: #FFFFFF !important;
+        }
+
+        html.dark select option:checked,
+        .dark select option:checked {
+            background-color: #007AFF !important;
+            color: #FFFFFF !important;
+        }
+
+        html.dark select option:hover,
+        html.dark select option:focus,
+        .dark select option:hover,
+        .dark select option:focus {
+            background-color: #2C2C2E !important;
+            color: #FFFFFF !important;
+        }
+
+        html.dark select option:disabled,
+        .dark select option:disabled {
+            background-color: #1C1C1E !important;
+            color: rgba(235, 235, 245, 0.38) !important;
         }
 
         /* Standard Glassmorphic Surfaces (Apple HIG Translucent Materials) */
@@ -995,6 +1076,8 @@
 
     {{-- Universal Typography Hierarchy (H1 - H6 & Typographic Roles) --}}
     @include('layouts.partials.typography')
+
+    @stack('styles')
 </head>
 
 <body
@@ -2110,46 +2193,6 @@
         </div>
     </div>
 
-    <!-- Coming Soon: intercept development feature links globally -->
-    <script>
-        (function() {
-            // Intercept all anchor clicks that go to ai_token checkout, pos/ai, or preview routes
-            document.addEventListener('click', function(e) {
-                const a = e.target.closest('a');
-                if (!a) return;
-                const href = a.getAttribute('href') || '';
-                const fullHref = a.href || '';
-
-                // Match /billing/checkout?type=ai_token
-                if (fullHref.includes('billing/checkout') && fullHref.includes('ai_token')) {
-                    e.preventDefault();
-                    window.dispatchEvent(new CustomEvent('cooca-coming-soon', {
-                        detail: {
-                            title: 'Top Up Token AI',
-                            icon: 'bot',
-                            desc: 'Fitur pembelian token AI untuk mengaktifkan AI Assistant, analisis penjualan, dan prediksi tren kasir POS. Segera tersedia!',
-                            color: 'amber'
-                        }
-                    }));
-                    return;
-                }
-
-                // Match /pos/ai
-                if (fullHref.includes('/pos/ai') || href.includes('/pos/ai')) {
-                    e.preventDefault();
-                    window.dispatchEvent(new CustomEvent('cooca-coming-soon', {
-                        detail: {
-                            title: 'AI Assistant',
-                            icon: 'bot',
-                            desc: 'Fitur AI Cockpit untuk analisis penjualan, prediksi tren, dan asisten pintar kasir POS berbasis Gemini AI.',
-                            color: 'purple'
-                        }
-                    }));
-                    return;
-                }
-            }, true);
-        })();
-    </script>
 
     <!-- Guided Product Tour Engine -->
     <script src="{{ asset('js/onboarding/tour-config.js') }}"></script>

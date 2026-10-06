@@ -37,7 +37,11 @@ class Attendance extends Model
         'business_id',
         'user_id',
         'location_id',
+        'work_shift_id',
+        'shift_name',
         'date',
+        'scheduled_start_at',
+        'scheduled_end_at',
         'clock_in_at',
         'clock_in_lat',
         'clock_in_lng',
@@ -55,12 +59,18 @@ class Attendance extends Model
         'clock_out_status',
         'clock_out_notes',
         'work_duration_minutes',
+        'early_in_minutes',
         'late_minutes',
         'early_leave_minutes',
         'overtime_minutes',
+        'timezone',
         'status',
+        'is_geofenced',
         'is_corrected',
         'attendance_correction_id',
+        'face_verified',
+        'face_similarity_score',
+        'exception_policy_id',
     ];
 
     /**
@@ -70,6 +80,8 @@ class Attendance extends Model
     {
         return [
             'date' => 'date',
+            'scheduled_start_at' => 'datetime',
+            'scheduled_end_at' => 'datetime',
             'clock_in_at' => 'datetime',
             'clock_out_at' => 'datetime',
             'clock_in_lat' => 'float',
@@ -79,10 +91,14 @@ class Attendance extends Model
             'clock_in_distance_meters' => 'integer',
             'clock_out_distance_meters' => 'integer',
             'work_duration_minutes' => 'integer',
+            'early_in_minutes' => 'integer',
             'late_minutes' => 'integer',
             'early_leave_minutes' => 'integer',
             'overtime_minutes' => 'integer',
+            'is_geofenced' => 'boolean',
             'is_corrected' => 'boolean',
+            'face_verified' => 'boolean',
+            'face_similarity_score' => 'float',
         ];
     }
 
@@ -107,6 +123,21 @@ class Attendance extends Model
     }
 
     /**
+     * Work Shift assigned for this attendance session.
+     *
+     * @return BelongsTo<WorkShift, $this>
+     */
+    public function workShift(): BelongsTo
+    {
+        return $this->belongsTo(WorkShift::class, 'work_shift_id');
+    }
+
+    public function shift(): BelongsTo
+    {
+        return $this->workShift();
+    }
+
+    /**
      * Correction ticket linked to this attendance.
      *
      * @return BelongsTo<AttendanceCorrection, $this>
@@ -114,6 +145,16 @@ class Attendance extends Model
     public function correction(): BelongsTo
     {
         return $this->belongsTo(AttendanceCorrection::class, 'attendance_correction_id');
+    }
+
+    /**
+     * Exception policy linked to this attendance.
+     *
+     * @return BelongsTo<AttendanceException, $this>
+     */
+    public function exceptionPolicy(): BelongsTo
+    {
+        return $this->belongsTo(AttendanceException::class, 'exception_policy_id');
     }
 
     /**

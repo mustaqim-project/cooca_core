@@ -251,4 +251,74 @@ final class PublicMarketplaceController extends Controller
             ],
         ];
     }
+
+    /**
+     * Dedicated Discoverable Businesses Directory (/marketplace/businesses).
+     */
+    public function businesses(Request $request): View
+    {
+        $search = trim((string) $request->query('q', ''));
+
+        $query = Business::where('is_active', true)
+            ->whereHas('storeSetting', function ($q): void {
+                $q->where('is_storefront_enabled', true)->where('is_discoverable', true);
+            })
+            ->with(['storeSetting', 'landingPage'])
+            ->withCount(['products' => fn($q) => $q->where('is_active', true)]);
+
+        if ($search !== '') {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
+
+        $stores = $query->orderByDesc('products_count')->paginate(18)->withQueryString();
+
+        return view('public.marketplace.businesses', compact('stores', 'search'));
+    }
+
+    /**
+     * Dedicated Discoverable Marketplace Products (/marketplace/products).
+     */
+    public function products(Request $request): View
+    {
+        $search = trim((string) $request->query('q', ''));
+
+        $query = Product::where('is_active', true)
+            ->where('show_in_website', true)
+            ->whereHas('business', function ($q): void {
+                $q->where('is_active', true)->whereHas('storeSetting', function ($sq): void {
+                    $sq->where('is_storefront_enabled', true)->where('is_discoverable', true);
+                });
+            })
+            ->with(['business.storeSetting', 'category']);
+
+        if ($search !== '') {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
+
+        $products = $query->latest()->paginate(24)->withQueryString();
+
+        return view('public.marketplace.products', compact('products', 'search'));
+    }
+
+    /**
+     * Marketplace Categories Explorer (/marketplace/categories).
+     */
+    public function categories(Request $request): View
+    {
+        return view('public.marketplace.categories');
+    }
+
+    /**
+     * Marketplace Locations Directory (/marketplace/locations).
+     */
+    public function locations(Request $request): View
+    {
+        return view('public.marketplace.locations');
+    }
 }

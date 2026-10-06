@@ -39,6 +39,10 @@ class Location extends Model
         'is_active',
         'is_online_fulfillment',
         'allow_storefront_pickup',
+        'timezone',
+        'timezone_mode',
+        'operating_hours_mode',
+        'operating_hours',
     ];
 
     /**
@@ -54,7 +58,51 @@ class Location extends Model
             'latitude' => 'float',
             'longitude' => 'float',
             'geofence_radius_meters' => 'integer',
+            'operating_hours' => 'array',
         ];
+    }
+
+    public function getTimezone(): string
+    {
+        return \App\Support\TimezoneHelper::resolve($this->business, $this);
+    }
+
+    public function getOperatingHours(): array
+    {
+        $mode = $this->operating_hours_mode ?? 'inherit';
+        if ($mode === 'custom' && ! empty($this->operating_hours)) {
+            return \App\Support\TimezoneHelper::normalizeOperatingHours($this->operating_hours);
+        }
+
+        // Inherit from business
+        if ($this->relationLoaded('business') && $this->business) {
+            return $this->business->getOperatingHours();
+        }
+
+        if (! empty($this->business_id)) {
+            $b = Business::find($this->business_id);
+            if ($b) {
+                return $b->getOperatingHours();
+            }
+        }
+
+        return \App\Support\TimezoneHelper::defaultOperatingHours();
+    }
+
+    public function localNow(): \Carbon\Carbon
+    {
+        return \App\Support\TimezoneHelper::now(null, $this);
+    }
+
+    public function localToday(): string
+    {
+        return \App\Support\TimezoneHelper::todayString(null, $this);
+    }
+
+    public function isOperatingAt(?\Carbon\Carbon $localTime = null): bool
+    {
+        $time = $localTime ?? $this->localNow();
+        return \App\Support\TimezoneHelper::isOperatingAt($this->getOperatingHours(), $time);
     }
 
     public function getFormattedFullAddressAttribute(): string
@@ -148,6 +196,16 @@ class Location extends Model
         return $this->hasMany(Attendance::class);
     }
 
+    public function workShifts(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(WorkShift::class);
+    }
+
+    public function employeeSchedules(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(EmployeeSchedule::class);
+    }
+
     public function storeEdcTerminals(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(StoreEdcTerminal::class);
@@ -173,5 +231,31 @@ class Location extends Model
         $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
 
         return (int) round($earthRadius * $c);
+    }
+
+    /**
+     * Get the resolved effective timezone for this location.
+     */
+    public function getEffectiveTimezone(?Business $business = null): string
+    {
+        return \App\Support\TimezoneHelper::resolve($business ?? $this->business, $this);
+    }
+
+    /**
+     * Get the resolved effective operating hours for this location.
+     *
+     * @return array<string, mixed>
+     */
+    public function getEffectiveOperatingHours(?Business $business = null): array
+    {
+        return \App\Support\TimezoneHelper::operatingHours($business ?? $this->business, $this);
+    }
+
+    /**
+     * Check if this location is currently open.
+     */
+    public function isCurrentlyOpen(?\Carbon\Carbon $at = null): bool
+    {
+        return \App\Support\TimezoneHelper::isOpen($this->business, $this, $at);
     }
 }

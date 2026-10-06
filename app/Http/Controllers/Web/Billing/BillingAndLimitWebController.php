@@ -37,6 +37,12 @@ final class BillingAndLimitWebController extends Controller
         $annualDiscountBadge  = SystemSetting::get('subscription_annual_discount_badge', 'Hemat 2 Bulan');
         $tierPrices           = EntitlementService::TIER_PRICES;
 
+        // Active AI Provider Configuration (BYOAI)
+        $activeAiConfig = \App\Models\AiProviderConfig::where('business_id', $business->id)
+            ->where('is_active', true)
+            ->orderByDesc('is_default')
+            ->first();
+
         return view('app.billing.limits', compact(
             'business',
             'usage',
@@ -44,7 +50,8 @@ final class BillingAndLimitWebController extends Controller
             'monthlyPrice',
             'annualPrice',
             'annualDiscountBadge',
-            'tierPrices'
+            'tierPrices',
+            'activeAiConfig'
         ));
     }
 

@@ -19,6 +19,8 @@ class JournalEntry extends Model
 
     public const REF_POS_ORDER = 'pos_order';
 
+    public const REF_COMMERCE_ORDER = 'commerce_order';
+
     public const REF_POS_REFUND = 'pos_refund';
 
     public const REF_POS_VOID = 'pos_void';
@@ -42,6 +44,8 @@ class JournalEntry extends Model
     public const REF_STOCK_ADJUSTMENT = 'stock_adjustment';
 
     public const REF_CASH_TRANSFER = 'cash_transfer';
+
+    public const REF_PAYROLL = 'payroll';
 
     public const REF_MANUAL = 'manual';
 

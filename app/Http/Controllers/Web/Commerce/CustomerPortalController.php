@@ -142,6 +142,11 @@ final class CustomerPortalController extends Controller
                 CommerceOrder::STATUS_PROCESSING,
                 CommerceOrder::STATUS_READY,
             ])->count(),
+            'shipped'         => (clone $baseQuery)->whereIn('status', [
+                CommerceOrder::STATUS_SHIPPED,
+                CommerceOrder::STATUS_DELIVERED,
+                CommerceOrder::STATUS_FULFILLED,
+            ])->count(),
             'completed'       => (clone $baseQuery)->where('status', CommerceOrder::STATUS_COMPLETED)->count(),
             'cancelled'       => (clone $baseQuery)->whereIn('status', [
                 CommerceOrder::STATUS_CANCELLED,
@@ -155,6 +160,7 @@ final class CustomerPortalController extends Controller
         match ($status) {
             'pending_payment' => $ordersQuery->where('status', CommerceOrder::STATUS_PENDING_PAYMENT),
             'processing'      => $ordersQuery->whereIn('status', [CommerceOrder::STATUS_PROOF_SUBMITTED, CommerceOrder::STATUS_PAID, CommerceOrder::STATUS_PROCESSING, CommerceOrder::STATUS_READY]),
+            'shipped'         => $ordersQuery->whereIn('status', [CommerceOrder::STATUS_SHIPPED, CommerceOrder::STATUS_DELIVERED, CommerceOrder::STATUS_FULFILLED]),
             'completed'       => $ordersQuery->where('status', CommerceOrder::STATUS_COMPLETED),
             'cancelled'       => $ordersQuery->whereIn('status', [CommerceOrder::STATUS_CANCELLED, CommerceOrder::STATUS_PAYMENT_REJECTED, CommerceOrder::STATUS_EXPIRED]),
             default           => null,
@@ -183,7 +189,7 @@ final class CustomerPortalController extends Controller
 
         $order = $this->scopeCustomerOrders(CommerceOrder::query(), $customer)
             ->where(fn($q) => $q->where('id', $id)->orWhere('order_number', $id))
-            ->with(['business', 'items.product', 'paymentMethod', 'paymentProofs.verifier', 'groupOrder.items.member', 'groupOrder.host'])
+            ->with(['business', 'items.product', 'paymentMethod', 'paymentProofs.verifier', 'groupOrder.items.member', 'groupOrder.host', 'reviews'])
             ->firstOrFail();
 
         return view('customer.orders.show', compact('customer', 'order'));
@@ -230,6 +236,126 @@ final class CustomerPortalController extends Controller
         } catch (Throwable $e) {
             return back()->with('error', $e->getMessage());
         }
+    }
+
+    /**
+     * Customer cancel order (hanya untuk status pending_payment / belum dibayar).
+     */
+    public function cancelOrder(Request $request, string $id): RedirectResponse
+    {
+        $customer = $this->customer();
+        $order = $this->scopeCustomerOrders(CommerceOrder::query(), $customer)
+            ->where(fn($q) => $q->where('id', $id)->orWhere('order_number', $id))
+            ->with(['items.product'])
+            ->firstOrFail();
+
+        if ($order->isPaid() || $order->status !== CommerceOrder::STATUS_PENDING_PAYMENT) {
+            return back()->with('error', 'Hanya pesanan yang belum dibayar yang dapat dibatalkan secara langsung.');
+        }
+
+        $reason = trim((string) $request->input('cancel_reason', 'Dibatalkan oleh pelanggan'));
+
+        \Illuminate\Support\Facades\DB::transaction(function () use ($order, $reason) {
+            // Release reserved stock
+            $stockService = app(\App\Domain\Inventory\StockService::class);
+            foreach ($order->items as $item) {
+                if ($item->product && $item->product->isGoods()) {
+                    $stockService->releaseProductReservedStock(
+                        businessId: $order->business_id,
+                        locationId: $order->location_id,
+                        product: $item->product,
+                        productQuantity: (float) $item->quantity
+                    );
+                }
+            }
+
+            $order->update([
+                'status' => CommerceOrder::STATUS_CANCELLED,
+                'cancelled_at' => now(),
+                'rejection_reason' => $reason,
+            ]);
+        });
+
+        return back()->with('success', "Pesanan #{$order->order_number} berhasil dibatalkan.");
+    }
+
+    /**
+     * Customer konfirmasi pesanan telah diterima (completed).
+     */
+    public function completeOrder(Request $request, string $id): RedirectResponse
+    {
+        $customer = $this->customer();
+        $order = $this->scopeCustomerOrders(CommerceOrder::query(), $customer)
+            ->where(fn($q) => $q->where('id', $id)->orWhere('order_number', $id))
+            ->firstOrFail();
+
+        $allowedStatuses = [
+            CommerceOrder::STATUS_SHIPPED,
+            CommerceOrder::STATUS_DELIVERED,
+            CommerceOrder::STATUS_READY,
+            CommerceOrder::STATUS_FULFILLED,
+            CommerceOrder::STATUS_PROCESSING,
+        ];
+
+        if (! in_array($order->status, $allowedStatuses, true) || ! $order->isPaid()) {
+            return back()->with('error', 'Pesanan belum dapat diselesaikan pada status saat ini.');
+        }
+
+        $order->update([
+            'status' => CommerceOrder::STATUS_COMPLETED,
+        ]);
+
+        return back()->with('success', "Terima kasih! Pesanan #{$order->order_number} telah Anda konfirmasi selesai.");
+    }
+
+    /**
+     * Customer submit ulasan produk untuk pesanan yang sudah completed.
+     */
+    public function storeReview(Request $request, string $id): RedirectResponse
+    {
+        $customer = $this->customer();
+        $order = $this->scopeCustomerOrders(CommerceOrder::query(), $customer)
+            ->where(fn($q) => $q->where('id', $id)->orWhere('order_number', $id))
+            ->with(['items.product'])
+            ->firstOrFail();
+
+        if ($order->status !== CommerceOrder::STATUS_COMPLETED) {
+            return back()->with('error', 'Ulasan hanya dapat diberikan setelah pesanan berstatus Selesai.');
+        }
+
+        $validated = $request->validate([
+            'reviews' => ['required', 'array', 'min:1'],
+            'reviews.*.product_id' => ['required', 'uuid', 'exists:products,id'],
+            'reviews.*.order_item_id' => ['nullable', 'uuid'],
+            'reviews.*.rating' => ['required', 'integer', 'min:1', 'max:5'],
+            'reviews.*.review_text' => ['nullable', 'string', 'max:1000'],
+        ]);
+
+        $orderProductIds = $order->items->pluck('product_id')->all();
+
+        foreach ($validated['reviews'] as $revData) {
+            if (! in_array($revData['product_id'], $orderProductIds, true)) {
+                continue;
+            }
+
+            \App\Models\CommerceProductReview::updateOrCreate(
+                [
+                    'business_id' => $order->business_id,
+                    'commerce_order_id' => $order->id,
+                    'product_id' => $revData['product_id'],
+                    'global_customer_id' => $customer->id,
+                ],
+                [
+                    'commerce_order_item_id' => $revData['order_item_id'] ?? null,
+                    'rating' => (int) $revData['rating'],
+                    'review_text' => $revData['review_text'] ?? null,
+                    'is_verified_purchase' => true,
+                    'is_published' => true,
+                ]
+            );
+        }
+
+        return back()->with('success', 'Terima kasih atas ulasan Anda! Ulasan Anda telah terverifikasi.');
     }
 
     // ─────────────────────────────────────────────────────────
@@ -439,8 +565,8 @@ final class CustomerPortalController extends Controller
         // via session - storefront sudah handle payment method, alamat, dsb.
         session()->put("customer_cart_checkout_{$business->id}", $cart->id);
 
-        return redirect()->route('public.business.landing', ['slug' => $slug])
-            ->with('info', 'Lanjutkan proses checkout di bawah.');
+        return redirect()->route('public.storefront.checkout.page', ['slug' => $slug])
+            ->with('info', 'Lanjutkan proses checkout pesanan Anda.');
     }
 
     // ─────────────────────────────────────────────────────────
